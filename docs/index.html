@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FDA Food Safety Intelligence – Pathogen Recall Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background: #111111;
+    color: #F5F5F5;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 0;
+  }
+  .header {
+    background: #1a1a1a;
+    border-bottom: 2px solid #E8601A;
+    padding: 18px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .brand {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+  }
+  .brand span { color: #E8601A; }
+  .updated {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #888888;
+  }
+  .container { padding: 24px 28px; max-width: 1100px; margin: 0 auto; }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    color: #E8601A;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #333;
+  }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap:14px; margin-bottom:28px; }
+  .stat-card {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 16px 20px;
+  }
+  .stat-card .val {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: #E8601A;
+    line-height: 1;
+  }
+  .stat-card .lbl {
+    font-size: 11px;
+    color: #888888;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .panel {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  table tr:hover { background: rgba(255,255,255,.03); }
+  td, th { padding: 8px 6px; vertical-align: middle; }
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: #888888;
+    border-top: 1px solid #222;
+    margin-top: 10px;
+  }
+  .footer a { color: #E8601A; text-decoration: none; }
+  @media (max-width: 640px) {
+    .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    .header { flex-direction: column; gap: 8px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="brand">AFTS <span>·</span> Food Safety Intelligence</div>
+  <div class="updated">FDA · Last updated: 2026-04-08 21:09 UTC</div>
+</div>
+
+<div class="container">
+
+  <!-- KPI CARDS -->
+  <div class="grid-3" style="margin-top:24px;">
+    <div class="stat-card">
+      <div class="val">10</div>
+      <div class="lbl">Pathogen Recalls – Last 90 Days</div>
+    </div>
+    <div class="stat-card">
+      <div class="val" style="color:#E8601A;">7</div>
+      <div class="lbl">Class I (Life-Threatening)</div>
+    </div>
+    <div class="stat-card">
+      <div class="val">8</div>
+      <div class="lbl">Distinct Pathogens Detected</div>
+    </div>
+  </div>
+
+  <!-- TREND + BREAKDOWN -->
+  <div class="grid-2">
+    <div class="panel">
+      <div class="section-title">Monthly Trend (12 months)</div>
+      <svg viewBox="0 0 600 120" width="100%" height="120" xmlns="http://www.w3.org/2000/svg"><rect x="2.0" y="86" width="81.71428571428571" height="14" fill="#E8601A" rx="2" opacity="0.85"/><title>2025-08: 1</title><rect x="87.71428571428571" y="86" width="81.71428571428571" height="14" fill="#E8601A" rx="2" opacity="0.85"/><title>2025-09: 1</title><rect x="173.42857142857142" y="86" width="81.71428571428571" height="14" fill="#E8601A" rx="2" opacity="0.85"/><title>2025-10: 1</title><rect x="259.1428571428571" y="86" width="81.71428571428571" height="14" fill="#E8601A" rx="2" opacity="0.85"/><title>2025-11: 1</title><rect x="344.85714285714283" y="86" width="81.71428571428571" height="14" fill="#E8601A" rx="2" opacity="0.85"/><title>2025-12: 1</title><rect x="430.57142857142856" y="60" width="81.71428571428571" height="40" fill="#E8601A" rx="2" opacity="0.85"/><title>2026-02: 3</title><rect x="516.2857142857142" y="8" width="81.71428571428571" height="92" fill="#E8601A" rx="2" opacity="0.85"/><title>2026-03: 7</title><text x="42.857142857142854" y="118" text-anchor="middle" font-size="9" fill="#888888">08</text><text x="299.99999999999994" y="118" text-anchor="middle" font-size="9" fill="#888888">11</text><text x="557.1428571428571" y="118" text-anchor="middle" font-size="9" fill="#888888">03</text></svg>
+    </div>
+    <div class="panel">
+      <div class="section-title">By Classification</div>
+      <div style="display:flex;align-items:center;gap:20px;"><svg viewBox="0 0 140 140" width="140" height="140" xmlns="http://www.w3.org/2000/svg"><circle cx="70" cy="70" r="50" fill="#1a1a1a"/><circle cx="70" cy="70" r="50" fill="none" stroke="#E8601A" stroke-width="28" stroke-dasharray="219.9 314.2" stroke-dashoffset="-0.0" transform="rotate(-90 70 70)"><title>Class I: 7</title></circle><circle cx="70" cy="70" r="50" fill="none" stroke="#E8A01A" stroke-width="28" stroke-dasharray="94.2 314.2" stroke-dashoffset="-219.9" transform="rotate(-90 70 70)"><title>Class II: 3</title></circle><text x="70" y="75" text-anchor="middle" font-size="14" fill="#F5F5F5" font-weight="700">10</text><text x="70" y="88" text-anchor="middle" font-size="8" fill="#888888">RECALLS</text></svg><div><div style="display:flex;align-items:center;gap:6px;margin:3px 0;"><span style="width:10px;height:10px;border-radius:2px;background:#E8601A;flex-shrink:0;"></span><span style="font-size:12px;color:#888888;">Class I – 7 (70%)</span></div><div style="display:flex;align-items:center;gap:6px;margin:3px 0;"><span style="width:10px;height:10px;border-radius:2px;background:#E8A01A;flex-shrink:0;"></span><span style="font-size:12px;color:#888888;">Class II – 3 (30%)</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- PATHOGEN BREAKDOWN -->
+  <div class="grid-2">
+    <div class="panel">
+      <div class="section-title">Top Pathogens</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #222;"><span style="font-size:13px;">Listeria</span><span style="color:#E8601A;font-weight:700;font-size:13px;">3</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #222;"><span style="font-size:13px;">Aflatoxin</span><span style="color:#E8601A;font-weight:700;font-size:13px;">1</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #222;"><span style="font-size:13px;">Brucella</span><span style="color:#E8601A;font-weight:700;font-size:13px;">1</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #222;"><span style="font-size:13px;">Clostridium botulinum</span><span style="color:#E8601A;font-weight:700;font-size:13px;">1</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #222;"><span style="font-size:13px;">Cyclospora</span><span style="color:#E8601A;font-weight:700;font-size:13px;">1</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #222;"><span style="font-size:13px;">E. coli</span><span style="color:#E8601A;font-weight:700;font-size:13px;">1</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #222;"><span style="font-size:13px;">Salmonella</span><span style="color:#E8601A;font-weight:700;font-size:13px;">1</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #222;"><span style="font-size:13px;">Vibrio</span><span style="color:#E8601A;font-weight:700;font-size:13px;">1</span></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">Data Coverage</div>
+      <div style="font-size:12px;color:#888888;line-height:2;">
+        <div>Source: <span style="color:#F5F5F5;">FDA openFDA API</span></div>
+        <div>Window: <span style="color:#F5F5F5;">Last 90 days</span></div>
+        <div>AI-enriched: <span style="color:#F5F5F5;">10 / 10 records</span></div>
+        <div>Pathogens only: <span style="color:#F5F5F5;">allergens &amp; label errors excluded</span></div>
+        <div>Powered by: <span style="color:#E8601A;">Gemini 2.0 Flash</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECALLS TABLE -->
+  <div class="panel">
+    <div class="section-title">Recent Pathogen Recalls (latest 10)</div>
+    
+    <table style="width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;">
+      <thead>
+        <tr style="border-bottom:1px solid #333;">
+          <th style="text-align:left;padding:8px 6px;color:#888888;font-size:11px;font-weight:600;letter-spacing:.08em;">DATE</th>
+          <th style="text-align:left;padding:8px 6px;color:#888888;font-size:11px;font-weight:600;letter-spacing:.08em;">PRODUCT</th>
+          <th style="text-align:left;padding:8px 6px;color:#888888;font-size:11px;font-weight:600;letter-spacing:.08em;">FIRM</th>
+          <th style="text-align:left;padding:8px 6px;color:#888888;font-size:11px;font-weight:600;letter-spacing:.08em;">PATHOGEN</th>
+          <th style="text-align:left;padding:8px 6px;color:#888888;font-size:11px;font-weight:600;letter-spacing:.08em;">CLASS</th>
+          <th style="text-align:left;padding:8px 6px;color:#888888;font-size:11px;font-weight:600;letter-spacing:.08em;">SUMMARY</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:#888888;font-size:11px;">2026-03-28</td>
+          <td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              title="Organic Baby Spinach, 5 oz clamshell">Organic Baby Spinach, 5 oz clamshell</td>
+          <td style="font-size:12px;">Green Valley Foods LLC</td>
+          <td style="color:#E8601A;font-weight:700;font-size:12px;">Listeria</td>
+          <td><span style="background:#E8601A;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.05em;">CRITICAL</span></td>
+          <td style="font-size:11px;color:#888888;max-width:200px;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;" title="Spinach may contain Listeria, dangerous for immunocompromised individuals.">Spinach may contain Listeria, dangerous for immunocompromised individuals.</td>
+        </tr>
+        <tr>
+          <td style="color:#888888;font-size:11px;">2026-03-25</td>
+          <td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              title="Ready-to-eat sliced turkey breast, 1 lb">Ready-to-eat sliced turkey breast, 1 lb</td>
+          <td style="font-size:12px;">Sun Pacific Meats Inc</td>
+          <td style="color:#E8601A;font-weight:700;font-size:12px;">Listeria</td>
+          <td><span style="background:#E8601A;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.05em;">CRITICAL</span></td>
+          <td style="font-size:11px;color:#888888;max-width:200px;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;" title="RTE deli meat may harbor Listeria; avoid consumption if immunocompromised.">RTE deli meat may harbor Listeria; avoid consumption if immunocompromised.</td>
+        </tr>
+        <tr>
+          <td style="color:#888888;font-size:11px;">2026-03-20</td>
+          <td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              title="Alfalfa Sprouts, 4 oz">Alfalfa Sprouts, 4 oz</td>
+          <td style="font-size:12px;">Sunrise Sprouts Co</td>
+          <td style="color:#E8601A;font-weight:700;font-size:12px;">Salmonella</td>
+          <td><span style="background:#E8601A;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.05em;">CRITICAL</span></td>
+          <td style="font-size:11px;color:#888888;max-width:200px;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;" title="Sprouts may be contaminated with Salmonella via irrigation water.">Sprouts may be contaminated with Salmonella via irrigation water.</td>
+        </tr>
+        <tr>
+          <td style="color:#888888;font-size:11px;">2026-03-18</td>
+          <td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              title="Ground Cumin, 8 oz jar">Ground Cumin, 8 oz jar</td>
+          <td style="font-size:12px;">Heritage Spice Works</td>
+          <td style="color:#E8601A;font-weight:700;font-size:12px;">Aflatoxin</td>
+          <td><span style="background:#E8A01A;color:#111;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.05em;">MODERATE</span></td>
+          <td style="font-size:11px;color:#888888;max-width:200px;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;" title="Cumin contains aflatoxin at levels exceeding FDA action limits.">Cumin contains aflatoxin at levels exceeding FDA action limits.</td>
+        </tr>
+        <tr>
+          <td style="color:#888888;font-size:11px;">2026-03-15</td>
+          <td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              title="Raw Gulf Oysters, 50 count mesh bag">Raw Gulf Oysters, 50 count mesh bag</td>
+          <td style="font-size:12px;">Gulf Coast Seafoods</td>
+          <td style="color:#E8601A;font-weight:700;font-size:12px;">Vibrio</td>
+          <td><span style="background:#E8601A;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.05em;">CRITICAL</span></td>
+          <td style="font-size:11px;color:#888888;max-width:200px;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;" title="Raw oysters may contain Vibrio vulnificus, fatal in high-risk groups.">Raw oysters may contain Vibrio vulnificus, fatal in high-risk groups.</td>
+        </tr>
+        <tr>
+          <td style="color:#888888;font-size:11px;">2026-03-10</td>
+          <td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              title="Stone-ground whole wheat flour, 5 lb bag">Stone-ground whole wheat flour, 5 lb bag</td>
+          <td style="font-size:12px;">Prairie Grain Mills</td>
+          <td style="color:#E8601A;font-weight:700;font-size:12px;">E. coli</td>
+          <td><span style="background:#E8601A;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.05em;">CRITICAL</span></td>
+          <td style="font-size:11px;color:#888888;max-width:200px;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;" title="Flour contaminated with E. coli O157:H7; do not consume raw.">Flour contaminated with E. coli O157:H7; do not consume raw.</td>
+        </tr>
+        <tr>
+          <td style="color:#888888;font-size:11px;">2026-03-05</td>
+          <td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              title="Soft-ripened brie wheel, 250g">Soft-ripened brie wheel, 250g</td>
+          <td style="font-size:12px;">Artisan Cheese Collective</td>
+          <td style="color:#E8601A;font-weight:700;font-size:12px;">Listeria</td>
+          <td><span style="background:#E8601A;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.05em;">CRITICAL</span></td>
+          <td style="font-size:11px;color:#888888;max-width:200px;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;" title="Soft cheese may contain Listeria; pregnant women and elderly at high risk.">Soft cheese may contain Listeria; pregnant women and elderly at high risk.</td>
+        </tr>
+        <tr>
+          <td style="color:#888888;font-size:11px;">2026-02-28</td>
+          <td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              title="Canned low-acid vegetables, mixed 12 oz">Canned low-acid vegetables, mixed 12 oz</td>
+          <td style="font-size:12px;">Pacific Grove Cannery</td>
+          <td style="color:#E8A01A;font-weight:700;font-size:12px;">Clostridium botulinum</td>
+          <td><span style="background:#E8601A;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.05em;">CRITICAL</span></td>
+          <td style="font-size:11px;color:#888888;max-width:200px;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;" title="Under-processed canned vegetables may harbor botulinum toxin; potentially fatal.">Under-processed canned vegetables may harbor botulinum toxin; potentially fatal.</td>
+        </tr>
+        <tr>
+          <td style="color:#888888;font-size:11px;">2026-02-20</td>
+          <td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              title="Fresh cilantro, 1 oz bunches">Fresh cilantro, 1 oz bunches</td>
+          <td style="font-size:12px;">Rainbow Produce Dist</td>
+          <td style="color:#E8601A;font-weight:700;font-size:12px;">Cyclospora</td>
+          <td><span style="background:#E8A01A;color:#111;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.05em;">MODERATE</span></td>
+          <td style="font-size:11px;color:#888888;max-width:200px;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;" title="Cilantro linked to Cyclospora outbreak; causes prolonged diarrheal illness.">Cilantro linked to Cyclospora outbreak; causes prolonged diarrheal illness.</td>
+        </tr>
+        <tr>
+          <td style="color:#888888;font-size:11px;">2026-02-12</td>
+          <td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              title="Raw milk cheddar, aged 30 days">Raw milk cheddar, aged 30 days</td>
+          <td style="font-size:12px;">Alpine Dairy Works</td>
+          <td style="color:#E8A01A;font-weight:700;font-size:12px;">Brucella</td>
+          <td><span style="background:#E8A01A;color:#111;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:.05em;">MODERATE</span></td>
+          <td style="font-size:11px;color:#888888;max-width:200px;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;" title="Raw milk cheese may contain Brucella from non-certified cattle herd.">Raw milk cheese may contain Brucella from non-certified cattle herd.</td>
+        </tr></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <a href="https://advfood.tech" target="_blank">AFTS · Food Safety Intelligence</a> &nbsp;·&nbsp;
+  Data: <a href="https://open.fda.gov/apis/food/enforcement/" target="_blank">openFDA</a>
+  &nbsp;·&nbsp; Updated automatically every 24 h &nbsp;·&nbsp; 2026
+</div>
+
+</body>
+</html>
