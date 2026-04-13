@@ -51,7 +51,7 @@ def run(full: bool = False, report_only: bool = False, enrich_only: bool = False
     # 3. Gemini enrichment
     if not report_only:
         try:
-            enrich_batch(limit=200)
+            enrich_batch(limit=30)
         except Exception as e:
             log.error(f"Enrichment failed: {e}")
 
