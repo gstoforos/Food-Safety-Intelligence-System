@@ -1,0 +1,77 @@
+name: AFTS Weekly Food Safety Intelligence Report
+
+on:
+  schedule:
+    # Every Friday at 18:00 UTC (6 PM)
+    - cron: '0 18 * * 5'
+  workflow_dispatch:  # Manual trigger for testing
+
+permissions:
+  contents: write
+
+jobs:
+  generate-weekly-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas openpyxl requests
+          
+      - name: Calculate Friday date
+        id: week
+        run: |
+          # Calculate this Friday's date
+          week_end=$(python -c "
+          from datetime import date, timedelta
+          today = date.today()
+          days_ahead = 4 - today.weekday()  # Friday = 4
+          if days_ahead <= 0:
+              days_ahead += 7
+          friday = today + timedelta(days=days_ahead)
+          print(friday.isoformat())
+          ")
+          echo "week_end=$week_end" >> $GITHUB_OUTPUT
+          echo "Generating report for week ending: $week_end"
+          
+      - name: Generate AFTS weekly report
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python build_weekly_report_afts.py --week-end ${{ steps.week.outputs.week_end }}
+          
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "fsis-bot@advfood.tech"
+          git config --local user.name "AFTS Intelligence System"
+          
+          # Add generated files
+          git add reports/
+          git add index.html
+          
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "AFTS Weekly Intelligence Report: Week ${{ steps.week.outputs.week_end }}"
+            git push
+          fi
+          
+      - name: Report summary
+        run: |
+          echo "✅ AFTS Weekly report generation completed"
+          echo "📊 Report generated for week ending: ${{ steps.week.outputs.week_end }}"
+          echo "🤖 AI analysis: Claude AI + OpenAI pipeline executed"
+          echo "🌐 Dashboard data updated automatically"
+          echo "📧 Email automation scheduled for Friday 10:00 AM"
