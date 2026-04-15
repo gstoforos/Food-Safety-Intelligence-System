@@ -1,0 +1,41 @@
+name: FSIS News Feed (every 4h)
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"   # every 4 hours
+  workflow_dispatch:          # manual trigger from Actions tab
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write         # needed to commit back to repo
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install requests feedparser openpyxl
+
+      - name: Run news scraper
+        run: |
+          python scrapers/news.py docs/data/recalls.xlsx
+
+      - name: Commit updated recalls.xlsx if changed
+        run: |
+          git config user.name  "FSIS Bot"
+          git config user.email "bot@advfood.tech"
+          git diff --quiet docs/data/recalls.xlsx || (
+            git add docs/data/recalls.xlsx &&
+            git commit -m "auto news update $(date -u '+%Y-%m-%d %H:%M UTC')" &&
+            git push
+          )
