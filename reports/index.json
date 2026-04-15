@@ -1,0 +1,15 @@
+[
+  {
+    "filename": "2026-W15.html",
+    "week_num": 15,
+    "year": 2026,
+    "week_start": "2026-04-07",
+    "week_end": "2026-04-13",
+    "generated": "2026-04-15T18:00:00Z",
+    "total": 63,
+    "tier1": 58,
+    "outbreaks": 2,
+    "top_pathogen": "Listeria monocytogenes",
+    "summary": "Week 15 saw 63 pathogen recalls across 8 countries, with Listeria dominating at 67% of cases. France led with 31 incidents, followed by Canada (18) and Germany (8). Two significant outbreaks were reported: a 7-Eleven Listeria outbreak in Canada affecting ready-to-eat products, and a Salmonella cluster in Italy linked to industrial bakery operations."
+  }
+]
