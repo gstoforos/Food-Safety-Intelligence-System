@@ -348,7 +348,7 @@ document.getElementById('next').addEventListener('click',()=>{page++;render();})
 
 // ===== NEWS =====
 function populateNewsFilters(){
-  const ps=[...new Set(NEWS.map(r=>getCanonical(r.pathogen)).filter(Boolean))].sort();
+  const ps=[...new Set(NEWS.map(r=>normalizePathogen(r.pathogen)).filter(Boolean))].sort();
   const ss=[...new Set(NEWS.map(r=>r.source).filter(Boolean))].sort();
   const psel=document.getElementById('news-path'),ssel=document.getElementById('news-src');
   psel.innerHTML='<option value="">All Pathogens</option>'+ps.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
@@ -358,7 +358,7 @@ function populateNewsFilters(){
 function applyNewsFilters(){
   const q=document.getElementById('news-q').value.toLowerCase(),p=document.getElementById('news-path').value,s=document.getElementById('news-src').value;
   NEWS_filtered=NEWS.filter(r=>{
-    if(p&&getCanonical(r.pathogen)!==p)return false;
+    if(p&&normalizePathogen(r.pathogen)!==p)return false;
     if(s&&r.source!==s)return false;
     if(q){const h=(r.title+' '+r.source+' '+r.pathogen+' '+r.event).toLowerCase();if(h.indexOf(q)<0)return false;}
     return true;});
