@@ -377,27 +377,42 @@ function renderNews(){
 
 // ===== WEEKLY REPORTS =====
 function loadReports(){
-  fetch('./reports/reports-data.json').then(r=>r.json()).then(reports=>{
-    document.getElementById('rep-count').textContent=reports.length?'· '+reports.length:'';
-    if(!reports.length){document.getElementById('reports-list').innerHTML='<p class="loading">No reports yet. First report ships Friday.</p>';return;}
-    document.getElementById('reports-list').innerHTML=reports.map(r=>{
-      const wstart=new Date(r.week_start).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-      const wend=new Date(r.week_end).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-      return`<div class="report-card" onclick="window.open('reports/${esc(r.filename)}','_blank')">
-        <div class="report-week">Week ${r.week_num} · ${wstart} – ${wend}</div>
-        <div class="report-title">${r.total} pathogen recalls · ${r.top_pathogen||'—'}</div>
-        <div class="report-stats">
-          <span><strong>${r.total}</strong> total</span>
-          <span class="stat-tier1"><strong style="color:var(--red)">${r.tier1}</strong> Tier-1</span>
-          <span class="stat-outbreak"><strong style="color:var(--orange)">${r.outbreaks}</strong> outbreaks</span>
-        </div>
-        <div class="report-actions">
-          <a class="report-btn primary" href="reports/${esc(r.filename)}" target="_blank">→ View report</a>
-          <a class="report-btn secondary" href="reports/${esc(r.filename)}" download>↓ Download HTML</a>
-        </div>
-      </div>`;
-    }).join('');
-    notifyHeight();
-  }).catch(e=>{document.getElementById('reports-list').innerHTML='<p class="loading">Could not load reports/index.json: '+e.message+'</p>';});
+  // Embedded reports data (bypasses server file access issues)
+  const reports = [
+    {
+      "filename": "2026-W15.html",
+      "week_num": 15,
+      "year": 2026,
+      "week_start": "2026-04-07",
+      "week_end": "2026-04-13",
+      "generated": "2026-04-15T18:00:00Z",
+      "total": 63,
+      "tier1": 58,
+      "outbreaks": 2,
+      "top_pathogen": "Listeria monocytogenes",
+      "summary": "Week 15 saw 63 pathogen recalls across 8 countries, with Listeria dominating at 67% of cases."
+    }
+  ];
+  
+  document.getElementById('rep-count').textContent=reports.length?'· '+reports.length:'';
+  if(!reports.length){document.getElementById('reports-list').innerHTML='<p class="loading">No reports yet. First report ships Friday.</p>';return;}
+  document.getElementById('reports-list').innerHTML=reports.map(r=>{
+    const wstart=new Date(r.week_start).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    const wend=new Date(r.week_end).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    return`<div class="report-card" onclick="window.open('reports/${esc(r.filename)}','_blank')">
+      <div class="report-week">Week ${r.week_num} · ${wstart} – ${wend}</div>
+      <div class="report-title">${r.total} pathogen recalls · ${r.top_pathogen||'—'}</div>
+      <div class="report-stats">
+        <span><strong>${r.total}</strong> total</span>
+        <span class="stat-tier1"><strong style="color:var(--red)">${r.tier1}</strong> Tier-1</span>
+        <span class="stat-outbreak"><strong style="color:var(--orange)">${r.outbreaks}</strong> outbreaks</span>
+      </div>
+      <div class="report-actions">
+        <a class="report-btn primary" href="reports/${esc(r.filename)}" target="_blank">→ View report</a>
+        <a class="report-btn secondary" href="reports/${esc(r.filename)}" download>↓ Download HTML</a>
+      </div>
+    </div>`;
+  }).join('');
+  notifyHeight();
 }
 </script></body></html>
