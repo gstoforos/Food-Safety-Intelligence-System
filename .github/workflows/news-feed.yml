@@ -1,8 +1,8 @@
-name: FSIS News Feed (every 4h)
+name: FSIS News Feed (every 1h)
 
 on:
   schedule:
-    - cron: "0 */4 * * *"   # every 4 hours
+    - cron: "0 * * * *"     # every 1 hour
   workflow_dispatch:          # manual trigger from Actions tab
 
 jobs:
