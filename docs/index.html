@@ -377,7 +377,7 @@ function renderNews(){
 
 // ===== WEEKLY REPORTS =====
 function loadReports(){
-  fetch('./reports/index.json').then(r=>r.json()).then(reports=>{
+  fetch('./reports/reports-data.json').then(r=>r.json()).then(reports=>{
     document.getElementById('rep-count').textContent=reports.length?'· '+reports.length:'';
     if(!reports.length){document.getElementById('reports-list').innerHTML='<p class="loading">No reports yet. First report ships Friday.</p>';return;}
     document.getElementById('reports-list').innerHTML=reports.map(r=>{
