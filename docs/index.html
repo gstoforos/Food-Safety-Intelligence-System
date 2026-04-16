@@ -408,7 +408,7 @@ function loadReports(){
         <span class="stat-outbreak"><strong style="color:var(--orange)">${r.outbreaks}</strong> outbreaks</span>
       </div>
       <div class="report-actions">
-        <a class="report-btn primary" href="reports/${esc(r.filename)}" target="_blank">→ View Report</a>
+        <a class="report-btn primary" href="${esc(r.filename)}" target="_blank">→ View Report</a>
         <a class="report-btn secondary" onclick="generateReportPDF('Week-${r.week_num}-${r.year}-Pathogen-Report')" href="#">↓ Download PDF</a>
       </div>
     </div>`;
