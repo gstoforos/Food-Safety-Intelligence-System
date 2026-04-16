@@ -1,14 +1,14 @@
 {
   "filename": "2026-W15.html",
-  "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/docs/2026-W15.html",
-  "dashboard_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/docs/",
+  "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W15.html",
+  "dashboard_url": "https://www.advfood.tech/food-safety-intelligence",
   "week_num": 15,
   "year": 2026,
   "week_start": "2026-04-04",
   "week_end": "2026-04-10",
   "week_start_display": "04 Apr",
   "week_end_display": "10 Apr 2026",
-  "generated_utc": "2026-04-16T09:23:28.164369Z",
+  "generated_utc": "2026-04-16T10:49:49.657880Z",
   "stats": {
     "total": 63,
     "tier1": 58,
