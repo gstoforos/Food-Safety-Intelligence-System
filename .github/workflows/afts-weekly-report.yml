@@ -2,8 +2,8 @@ name: AFTS Weekly Food Safety Intelligence Report
 
 on:
   schedule:
-    # Every Friday at 18:00 UTC (6 PM)
-    - cron: '0 18 * * 5'
+    # Every Friday at 08:00 UTC (early morning, BEFORE 10 AM local time)
+    - cron: '0 8 * * 5'
   workflow_dispatch:  # Manual trigger for testing
 
 permissions:
@@ -56,8 +56,8 @@ jobs:
           git config --local user.email "fsis-bot@advfood.tech"
           git config --local user.name "AFTS Intelligence System"
           
-          # Add generated files
-          git add reports/
+          # Add generated files with correct naming format
+          git add 20*-W*.html
           git add index.html
           
           # Check if there are changes to commit
