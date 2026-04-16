@@ -860,7 +860,9 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   .masthead {{ flex-direction:row !important; }}
   .mast-right {{ text-align:right !important; }}
   .kpi-strip {{ grid-template-columns:repeat(4, 1fr) !important; }}
-  .dist-grid {{ grid-template-columns:1fr 1fr !important; }}
+  .dist-grid {{ display:block !important; grid-template-columns:1fr !important; gap:0 !important; }}
+  .dist-grid > div {{ width:100% !important; display:block !important; }}
+  .dist-grid > div:nth-child(2) {{ page-break-before:always !important; break-before:page !important; margin-top:0 !important; }}
 
   /* Page 1 compression: tighten the above-the-fold so the first Intelligence
      Analysis paragraph opens on page 1 rather than orphaning the heading. */
@@ -881,13 +883,15 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   .kpi-value.orange {{ font-size:18px; }}
   .kpi-delta {{ font-size:9px; margin-top:7px; }}
   .kpi-top {{ font-size:10px; margin-top:7px; }}
-  .sec-head {{ margin:28px 0 12px; }}
+  .sec-head {{ margin:28px 0 12px; page-break-after:avoid; break-after:avoid; }}
   .sec-num {{ font-size:10px; }}
-  .sec-title {{ font-size:20px; }}
+  .sec-title {{ font-size:20px; white-space:nowrap; }}
   .analysis {{ padding:22px 26px; }}
   .analysis p {{ font-size:13px; margin:0 0 12px; line-height:1.7; }}
 
   table.data th {{ background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
+  /* Prevent any table row from splitting across a page break */
+  table.data tr {{ page-break-inside:avoid; break-inside:avoid; }}
   .analysis {{ border-left-width:3px; }}
   /* Top-5 print tightening - fit all 6 columns on A4 */
   table.top5 {{ font-size:9px; page-break-inside:avoid; }}
