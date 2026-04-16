@@ -2,76 +2,77 @@ name: AFTS Weekly Food Safety Intelligence Report
 
 on:
   schedule:
-    # Every Friday at 08:00 UTC (early morning, BEFORE 10 AM local time)
-    - cron: '0 8 * * 5'
-  workflow_dispatch:  # Manual trigger for testing
+    - cron: '0 8 * * 5'    # Fridays 08:00 UTC (before 10 AM local time)
+  workflow_dispatch:        # Manual trigger for testing
 
 permissions:
   contents: write
 
+concurrency:
+  group: afts-weekly-report
+  cancel-in-progress: false
+
 jobs:
   generate-weekly-report:
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 15
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
-        
-      - name: Set up Python
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
-          
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas openpyxl requests
-          
+          pip install openpyxl requests
+
       - name: Calculate Friday date
         id: week
         run: |
-          # Calculate this Friday's date
+          # Friday = today if cron fires on Friday, otherwise the coming Friday
           week_end=$(python -c "
           from datetime import date, timedelta
           today = date.today()
-          days_ahead = 4 - today.weekday()  # Friday = 4
-          if days_ahead <= 0:
+          days_ahead = 4 - today.weekday()   # Friday = 4
+          if days_ahead < 0:                  # only push to next Friday if past Friday
               days_ahead += 7
-          friday = today + timedelta(days=days_ahead)
-          print(friday.isoformat())
+          print((today + timedelta(days=days_ahead)).isoformat())
           ")
           echo "week_end=$week_end" >> $GITHUB_OUTPUT
-          echo "Generating report for week ending: $week_end"
-          
+          echo "Report week ending: $week_end"
+
       - name: Generate AFTS weekly report
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
         run: |
-          python build_weekly_report_afts.py --week-end ${{ steps.week.outputs.week_end }}
-          
-      - name: Commit and push changes
+          python docs/build_weekly_report_afts.py \
+            --week-end ${{ steps.week.outputs.week_end }} \
+            --xlsx     docs/data/recalls.xlsx \
+            --index    docs/index.html
+
+      - name: Commit generated report
         run: |
           git config --local user.email "fsis-bot@advfood.tech"
-          git config --local user.name "AFTS Intelligence System"
-          
-          # Add generated files with correct naming format
-          git add 20*-W*.html
-          git add index.html
-          
-          # Check if there are changes to commit
+          git config --local user.name  "AFTS Intelligence System"
+          # Weekly reports are written next to index.html (in docs/) so the
+          # dashboard can open them as siblings (no path prefix needed).
+          git add 'docs/20*-W*.html' docs/index.html
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "No changes to commit."
           else
-            git commit -m "AFTS Weekly Intelligence Report: Week ${{ steps.week.outputs.week_end }}"
+            git commit -m "AFTS Weekly Intelligence Report: Week ending ${{ steps.week.outputs.week_end }}"
             git push
           fi
-          
-      - name: Report summary
+
+      - name: Summary
         run: |
-          echo "✅ AFTS Weekly report generation completed"
-          echo "📊 Report generated for week ending: ${{ steps.week.outputs.week_end }}"
-          echo "🤖 AI analysis: Claude AI + OpenAI pipeline executed"
-          echo "🌐 Dashboard data updated automatically"
-          echo "📧 Email automation scheduled for Friday 10:00 AM"
+          echo "Weekly report generated for week ending: ${{ steps.week.outputs.week_end }}"
+          echo "Output path: docs/$(date -u +%Y)-W$(date -u -d '${{ steps.week.outputs.week_end }}' +%V).html"
