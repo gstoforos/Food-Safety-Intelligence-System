@@ -777,6 +777,21 @@ table.data td.empty {{
   .r-title {{ font-size:28px; }}
   table.data th {{ background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
   .analysis {{ border-left-width:3px; }}
+  /* Footer: switch from flex to a clean vertical stack for print.
+     WeasyPrint and some browser print engines overlap the two halves
+     when flex wraps at narrow widths - block layout avoids it entirely. */
+  .footer {{
+    display:block !important;
+    margin-top:30px;
+  }}
+  .footer > div {{ display:block !important; width:auto !important; }}
+  .footer > div:first-child {{ margin-bottom:12px; }}
+  .foot-legal {{
+    text-align:left !important;
+    max-width:none !important;
+    padding-top:10px;
+    border-top:1px solid var(--brd);
+  }}
 }}
 
 @media (max-width:900px) {{
