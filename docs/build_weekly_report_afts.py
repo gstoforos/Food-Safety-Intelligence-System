@@ -840,7 +840,7 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
      anchors the AFTS differentiator visually throughout the document. */
   @page {{
     size: A4;
-    margin: 16mm 14mm 20mm 14mm;
+    margin: 14mm 14mm 18mm 14mm;
     @bottom-left {{
       content: "AFTS · Process Validation Intelligence · under AFTS process authority";
       font-family: 'DM Mono', monospace; font-size: 8pt; color: #6b7280;
@@ -854,9 +854,39 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   }}
   body {{ max-width:none; padding:0; margin:0; font-size:11px; }}
   .cta-box {{ display:none; }}
-  .masthead {{ border-top-width:4px; }}
-  .kpi-value {{ font-size:32px; }}
-  .r-title {{ font-size:28px; }}
+
+  /* Lock print-mode layout: even if the browser's print page is narrow,
+     these must not collapse into mobile responsive layouts. */
+  .masthead {{ flex-direction:row !important; }}
+  .mast-right {{ text-align:right !important; }}
+  .kpi-strip {{ grid-template-columns:repeat(4, 1fr) !important; }}
+  .dist-grid {{ grid-template-columns:1fr 1fr !important; }}
+
+  /* Page 1 compression: tighten the above-the-fold so the first Intelligence
+     Analysis paragraph opens on page 1 rather than orphaning the heading. */
+  .masthead {{ border-top-width:4px; padding:18px 0 12px; margin-bottom:22px; }}
+  .brand-block .brand {{ font-size:18px; }}
+  .brand-block .tagline {{ font-size:10px; margin-top:5px; letter-spacing:0.12em; }}
+  .report-label {{ font-size:9px; padding:4px 10px; margin-bottom:8px; }}
+  .report-meta {{ font-size:10px; line-height:1.7; }}
+  .r-kicker {{ font-size:12px; margin:6px 0 5px; letter-spacing:0.07em; }}
+  .r-title {{ font-size:26px; margin:2px 0 8px; }}
+  .r-sub {{ font-size:13px; margin-bottom:12px; line-height:1.55; }}
+  .r-authority {{ padding:9px 12px; font-size:11px; margin-bottom:22px; }}
+  .auth-label {{ font-size:8px; padding-right:9px; }}
+  .kpi-strip {{ margin-bottom:24px; }}
+  .kpi {{ padding:16px 14px; }}
+  .kpi-label {{ font-size:9px; margin-bottom:6px; }}
+  .kpi-value {{ font-size:28px; }}
+  .kpi-value.orange {{ font-size:18px; }}
+  .kpi-delta {{ font-size:9px; margin-top:7px; }}
+  .kpi-top {{ font-size:10px; margin-top:7px; }}
+  .sec-head {{ margin:28px 0 12px; }}
+  .sec-num {{ font-size:10px; }}
+  .sec-title {{ font-size:20px; }}
+  .analysis {{ padding:22px 26px; }}
+  .analysis p {{ font-size:13px; margin:0 0 12px; line-height:1.7; }}
+
   table.data th {{ background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
   .analysis {{ border-left-width:3px; }}
   /* Top-5 print tightening - fit all 6 columns on A4 */
@@ -876,12 +906,23 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   table.top5 .juris-link {{ margin-top:3px; }}
   /* Tighten the caption above the Top 5 so more room for rows */
   .sec-caption {{ font-size:10px; margin:-2px 0 8px; }}
+  /* Force section boundaries on page breaks for clean 4-page distribution:
+     P1 = masthead + KPI + § 01 Analysis
+     P2 = § 02 Top 5
+     P3 = § 03 Distribution
+     P4 = § 04 Methodology + Footer */
+  section.page-break, div.page-break {{ page-break-before:always; }}
+  .sec-head.break-before {{ page-break-before:always; break-before:page; }}
+
   /* Footer: switch from flex to a clean vertical stack for print.
      WeasyPrint and some browser print engines overlap the two halves
-     when flex wraps at narrow widths - block layout avoids it entirely. */
+     when flex wraps at narrow widths - block layout avoids it entirely.
+     page-break-inside: avoid keeps brand block + disclaimer together on one page. */
   .footer {{
     display:block !important;
-    margin-top:30px;
+    margin-top:26px;
+    page-break-inside:avoid;
+    break-inside:avoid;
   }}
   .footer > div {{ display:block !important; width:auto !important; }}
   .footer > div:first-child {{ margin-bottom:12px; }}
@@ -891,9 +932,11 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
     padding-top:10px;
     border-top:1px solid var(--brd);
   }}
+  /* Keep the methodology section with its adjacent section intact */
+  .meth {{ page-break-inside:avoid; break-inside:avoid; }}
 }}
 
-@media (max-width:900px) {{
+@media screen and (max-width:900px) {{
   body {{ padding:0 20px 40px; }}
   .kpi-strip {{ grid-template-columns:repeat(2,1fr); }}
   .dist-grid {{ grid-template-columns:1fr; }}
@@ -906,7 +949,7 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
    On phones, a horizontal table would either scroll sideways (bad UX) or
    compress columns into unreadable widths. Instead, each row becomes a
    card with labeled fields - all data visible, no horizontal scroll. */
-@media (max-width:700px) {{
+@media screen and (max-width:700px) {{
   table.top5, table.top5 thead, table.top5 tbody, table.top5 tr, table.top5 td {{
     display:block; width:auto !important;
   }}
@@ -952,7 +995,7 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   table.top5 .juris-link {{ margin-top:6px; }}
 }}
 
-@media (max-width:480px) {{
+@media screen and (max-width:480px) {{
   body {{ padding:0 14px 30px; }}
   .kpi-strip {{ grid-template-columns:1fr 1fr; }}
   .kpi {{ padding:16px 14px; }}
