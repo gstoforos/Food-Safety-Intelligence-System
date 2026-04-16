@@ -1255,7 +1255,7 @@ def update_dashboard_data(week_end: date, stats: Dict[str, Any], index_path: Pat
 # and builds the email body from it. Keeping the email data in a small, stable
 # JSON contract decouples the email format from the HTML report format.
 def write_weekly_summary_json(week_end: date, stats: Dict[str, Any],
-                              site_base_url: str, out_path: Path):
+                              site_base_url: str, dashboard_url: str, out_path: Path):
     wnum = week_end.isocalendar()[1]
     year = week_end.year
     week_start = week_end - timedelta(days=6)
@@ -1288,7 +1288,7 @@ def write_weekly_summary_json(week_end: date, stats: Dict[str, Any],
     summary = {
         "filename": f"{year}-W{wnum:02d}.html",
         "report_url":   f"{site_base}/{year}-W{wnum:02d}.html",
-        "dashboard_url": f"{site_base}/",
+        "dashboard_url": dashboard_url,
         "week_num": wnum,
         "year": year,
         "week_start": week_start.strftime("%Y-%m-%d"),
@@ -1324,8 +1324,11 @@ def main():
     ap.add_argument("--output", default=None, help="Output HTML path (default: <year>-W<week>.html in repo root)")
     ap.add_argument("--index", default=str(ROOT / "index.html"))
     ap.add_argument("--site-url",
-                    default="https://gstoforos.github.io/Food-Safety-Intelligence-System/docs",
+                    default="https://gstoforos.github.io/Food-Safety-Intelligence-System",
                     help="Public base URL where the docs/ folder is served (used in email report_url)")
+    ap.add_argument("--dashboard-url",
+                    default="https://www.advfood.tech/food-safety-intelligence",
+                    help="Public URL for the live dashboard (used in email dashboard link)")
     ap.add_argument("--summary-json",
                     default=str(ROOT / "data" / "weekly-summary-latest.json"),
                     help="Path for the companion JSON summary (consumed by the subscriber mailer)")
@@ -1373,7 +1376,7 @@ def main():
     if week_end <= date.today():
         summary_path = Path(args.summary_json)
         summary_path.parent.mkdir(parents=True, exist_ok=True)
-        write_weekly_summary_json(week_end, stats, args.site_url, summary_path)
+        write_weekly_summary_json(week_end, stats, args.site_url, args.dashboard_url, summary_path)
     else:
         log.info("Summary JSON: skipping (week_end %s is in the future)", week_end)
 
