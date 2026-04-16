@@ -464,9 +464,9 @@ def render_top5_row(i: int, r: Dict) -> str:
     badge_color = pathogen_badge_color(canon)
     tier = safe_int(r.get("Tier"), 3)
     outbreak = safe_int(r.get("Outbreak"), 0)
-    company = (r.get("Company") or "-")[:60]
+    company = (r.get("Company") or "-")[:55]
     brand = (r.get("Brand") or "").strip()
-    product = (r.get("Product") or "-")[:90]
+    product = (r.get("Product") or "-")[:85]
     country = r.get("Country") or "-"
     source = (r.get("Source") or "").strip() or authority_for(country)
     url = (r.get("URL") or "").strip()
@@ -860,14 +860,22 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   table.data th {{ background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
   .analysis {{ border-left-width:3px; }}
   /* Top-5 print tightening - fit all 6 columns on A4 */
-  table.top5 {{ font-size:10px; }}
-  table.top5 th {{ padding:8px 6px; font-size:9px; }}
-  table.top5 td {{ padding:9px 6px; }}
-  table.top5 .rank-num {{ font-size:16px; }}
-  table.top5 .path-name {{ font-size:10px; }}
-  table.top5 .brand-sub, table.top5 .src-sub {{ font-size:9px; }}
-  table.top5 .chip-tier1, table.top5 .chip-tier2, table.top5 .chip-outbreak {{ font-size:8px; padding:1px 4px; }}
-  table.top5 .src-link {{ font-size:9px; }}
+  table.top5 {{ font-size:9px; page-break-inside:avoid; }}
+  table.top5 th {{ padding:6px 5px; font-size:8px; }}
+  table.top5 td {{ padding:6px 5px; line-height:1.35; }}
+  table.top5 tr {{ page-break-inside:avoid; }}
+  table.top5 .rank-num {{ font-size:14px; }}
+  table.top5 .path-name {{ font-size:9px; }}
+  table.top5 .date-cell {{ font-size:8px; }}
+  table.top5 .prod-cell {{ font-size:9px; line-height:1.35; }}
+  table.top5 .co-cell strong {{ font-size:9px; }}
+  table.top5 .juris-country {{ font-size:9px; }}
+  table.top5 .brand-sub, table.top5 .src-sub {{ font-size:8px; margin-top:1px; }}
+  table.top5 .chip-tier1, table.top5 .chip-tier2, table.top5 .chip-outbreak {{ font-size:7px; padding:1px 3px; margin-left:3px; }}
+  table.top5 .src-link {{ font-size:8px; }}
+  table.top5 .juris-link {{ margin-top:3px; }}
+  /* Tighten the caption above the Top 5 so more room for rows */
+  .sec-caption {{ font-size:10px; margin:-2px 0 8px; }}
   /* Footer: switch from flex to a clean vertical stack for print.
      WeasyPrint and some browser print engines overlap the two halves
      when flex wraps at narrow widths - block layout avoids it entirely. */
