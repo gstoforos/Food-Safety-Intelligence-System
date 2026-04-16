@@ -937,7 +937,7 @@ table.data td.empty {{
     <div class="foot-meta">
       Food Process Engineering &middot; Thermal Processing &middot; Regulatory Compliance<br>
       advfood.tech &middot; info@advfood.tech &middot; Athens, Greece<br>
-      &copy; {year} Advanced Food Tech Solutions P.C. &middot; EUID ELGEMI.172600154000
+      &copy; {year} Advanced Food Tech Solutions
     </div>
   </div>
   <div class="foot-legal">
@@ -996,14 +996,28 @@ def update_dashboard_data(week_end: date, stats: Dict[str, Any], index_path: Pat
         existing = []
 
     # Replace by filename if it exists; otherwise insert
-    existing = [r for r in existing if r.get("filename") != entry["filename"]]
-    existing.insert(0, entry)
+    # ALSO prune any future-dated entries that slipped in from manual test runs.
+    # A weekly briefing is "published" the moment its week_end has been reached —
+    # before that, the report file may exist in the repo (so the Friday cron has
+    # something to regenerate from) but it must not appear in the public list.
+    today_iso = date.today().isoformat()
+    existing = [
+        r for r in existing
+        if r.get("filename") != entry["filename"]
+        and (r.get("week_end", "") or "") <= today_iso
+    ]
+    if entry["week_end"] <= today_iso:
+        existing.insert(0, entry)
+        log.info("Dashboard updated: %d total reports (published)", len(existing))
+    else:
+        log.info("Dashboard: entry %s is future-dated (%s > %s); "
+                 "report file written but NOT listed publicly yet",
+                 entry["filename"], entry["week_end"], today_iso)
     existing.sort(key=lambda r: r.get("week_end", ""), reverse=True)
 
     new_block = f'const reports = {json.dumps(existing, indent=4)};'
     updated = content[:m.start()] + new_block + content[m.end():]
     index_path.write_text(updated, encoding='utf-8')
-    log.info("Dashboard updated: %d total reports in history", len(existing))
 
 # --- Main -------------------------------------------------------------------
 def main():
