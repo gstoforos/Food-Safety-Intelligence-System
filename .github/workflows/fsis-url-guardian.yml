@@ -41,36 +41,48 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: "pip"
 
       - name: Install dependencies
+        shell: bash
         run: |
+          set -euo pipefail
           python -m pip install --upgrade pip
           pip install openpyxl requests
 
       - name: Run URL Guardian
+        shell: bash
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GUARDIAN_SINCE_DAYS: ${{ github.event.inputs.since_days || '14' }}
           GUARDIAN_GAP_DAYS: ${{ github.event.inputs.gap_days || '3' }}
           GUARDIAN_SKIP_AI: ${{ github.event.inputs.skip_ai || 'false' }}
+          PYTHONUNBUFFERED: "1"
         run: |
+          set -euo pipefail
+          echo "== Workspace layout =="
+          ls -la
+          echo "== docs/data/ =="
+          ls -la docs/data/ || echo "docs/data/ does not exist"
+          echo "== Running guardian =="
           python -m pipeline.url_guardian \
             --xlsx docs/data/recalls.xlsx \
             --json docs/data/recalls.json
 
       - name: Commit updated dataset
+        shell: bash
         run: |
+          set -euo pipefail
           git config --local user.email "fsis-bot@advfood.tech"
           git config --local user.name  "FSIS Bot"
           git add docs/data/recalls.xlsx docs/data/recalls.json || true
