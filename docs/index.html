@@ -83,6 +83,26 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .report-btn{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;padding:8px 14px;border-radius:2px;letter-spacing:.08em;text-decoration:none;text-transform:uppercase;min-height:44px;display:flex;align-items:center;justify-content:center;}
 .report-btn.primary{background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.3);}
 .report-btn.secondary{background:var(--s1);color:var(--dim);border:1px solid var(--brd);}
+/* Archive: compact list for older weeks */
+.arch-wrap{margin-top:22px;padding-top:18px;border-top:1px solid var(--brd);}
+.arch-title{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;}
+.arch-year{margin-bottom:10px;border:1px solid var(--brd);border-radius:3px;background:var(--s2);}
+.arch-year[open]{background:var(--s1);}
+.arch-year-head{padding:10px 14px;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.08em;cursor:pointer;list-style:none;min-height:44px;display:flex;align-items:center;}
+.arch-year-head::-webkit-details-marker{display:none;}
+.arch-year-head::before{content:'▸';margin-right:10px;color:var(--dim);font-size:10px;transition:transform .15s;}
+.arch-year[open] .arch-year-head::before{transform:rotate(90deg);display:inline-block;}
+.arch-list{border-top:1px solid var(--brd);}
+.arch-row{display:grid;grid-template-columns:56px 1fr 52px 60px 1.5fr 28px;gap:12px;align-items:center;padding:10px 14px;font-family:'DM Mono',monospace;font-size:11px;text-decoration:none;color:var(--muted);border-bottom:1px solid var(--brd);min-height:44px;}
+.arch-row:last-child{border-bottom:none;}
+.arch-row:hover{background:var(--s2);color:var(--text);}
+.arch-wk{color:var(--green);font-weight:700;}
+.arch-dates{color:var(--dim);}
+.arch-total{color:var(--text);font-weight:700;text-align:right;}
+.arch-tier1{color:var(--red);font-weight:700;}
+.arch-top{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'DM Sans',sans-serif;font-size:12px;}
+.arch-go{color:var(--dim);text-align:right;}
+@media(max-width:700px){.arch-row{grid-template-columns:48px 1fr 40px 46px 24px;gap:8px;font-size:10px;}.arch-top{display:none;}}
 /* Enhanced Mobile Responsiveness */
 @media(max-width:920px){
   .grid2{grid-template-columns:1fr;}
@@ -380,39 +400,39 @@ function loadReports(){
   // Embedded reports data (bypasses server file access issues)
   const reports = [
     {
-        "filename": "2026-W16.html",
-        "week_num": 16,
-        "year": 2026,
-        "week_start": "2026-04-11",
-        "week_end": "2026-04-17",
-        "generated": "2026-04-16T07:20:45.428168Z",
-        "total": 7,
-        "tier1": 4,
-        "outbreaks": 0,
-        "top_pathogen": "Listeria monocytogenes",
-        "summary": "Week 16: 7 recalls, 4 Tier-1, 0 outbreak(s). Leading pathogen: Listeria monocytogenes."
-    },
-    {
         "filename": "2026-W15.html",
         "week_num": 15,
         "year": 2026,
-        "week_start": "2026-04-07",
-        "week_end": "2026-04-13",
-        "generated": "2026-04-15T18:00:00Z",
+        "week_start": "2026-04-04",
+        "week_end": "2026-04-10",
+        "generated": "2026-04-16T07:55:20.634954Z",
         "total": 63,
         "tier1": 58,
         "outbreaks": 2,
         "top_pathogen": "Listeria monocytogenes",
-        "summary": "Week 15 saw 63 pathogen recalls across 8 countries, with Listeria dominating at 67% of cases."
+        "summary": "Week 15: 63 recalls, 58 Tier-1, 2 outbreak(s). Leading pathogen: Listeria monocytogenes."
     }
 ];
   
-  document.getElementById('rep-count').textContent=reports.length?'· '+reports.length:'';
-  if(!reports.length){document.getElementById('reports-list').innerHTML='<p class="loading">No reports yet. First report ships Friday.</p>';return;}
-  document.getElementById('reports-list').innerHTML=reports.map(r=>{
-    const wstart=new Date(r.week_start).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-    const wend=new Date(r.week_end).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-    return`<div class="report-card" onclick="window.open('${esc(r.filename)}','_blank')">
+  // 1. Defensive filter: never show future-dated weeks even if they snuck into the array
+  const todayISO = new Date().toISOString().slice(0,10);
+  const published = reports.filter(r => (r.week_end || '') <= todayISO);
+  document.getElementById('rep-count').textContent = published.length ? '· '+published.length : '';
+  if(!published.length){
+    document.getElementById('reports-list').innerHTML='<p class="loading">No reports yet. First report ships Friday.</p>';
+    return;
+  }
+
+  // 2. Split: most recent 6 as rich cards, remainder as compact archive entries.
+  //    When weeks pile up (52/yr), this keeps the page scannable without hiding content.
+  const RICH_LIMIT = 6;
+  const richCards  = published.slice(0, RICH_LIMIT);
+  const archive    = published.slice(RICH_LIMIT);
+
+  const renderRich = r => {
+    const wstart = new Date(r.week_start).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    const wend   = new Date(r.week_end  ).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    return `<div class="report-card" onclick="window.open('${esc(r.filename)}','_blank')">
       <div class="report-week">Week ${r.week_num} · ${wstart} – ${wend}</div>
       <div class="report-title">${r.total} pathogen recalls · ${r.top_pathogen||'—'}</div>
       <div class="report-stats">
@@ -425,7 +445,44 @@ function loadReports(){
         <a class="report-btn secondary" href="#" onclick="event.preventDefault();event.stopPropagation();downloadReportPDF('${esc(r.filename)}')">↓ Download PDF</a>
       </div>
     </div>`;
-  }).join('');
+  };
+
+  // Archive: one-line rows grouped by year, collapsible.
+  // Only rendered when there's content beyond the rich cards.
+  const renderArchive = rows => {
+    if(!rows.length) return '';
+    // Group by year
+    const byYear = {};
+    rows.forEach(r => { (byYear[r.year] = byYear[r.year] || []).push(r); });
+    const years = Object.keys(byYear).sort((a,b)=>b-a);
+    const currentYear = new Date().getFullYear();
+    const yearBlocks = years.map(y => {
+      const entries = byYear[y].map(r => {
+        const wstart = new Date(r.week_start).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+        const wend   = new Date(r.week_end  ).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+        return `<a class="arch-row" href="${esc(r.filename)}" target="_blank">
+          <span class="arch-wk">W${String(r.week_num).padStart(2,'0')}</span>
+          <span class="arch-dates">${wstart} – ${wend}</span>
+          <span class="arch-total">${r.total}</span>
+          <span class="arch-tier1">${r.tier1} T1</span>
+          <span class="arch-top">${esc(r.top_pathogen||'—')}</span>
+          <span class="arch-go">→</span>
+        </a>`;
+      }).join('');
+      const openAttr = (String(y) === String(currentYear)) ? ' open' : '';
+      return `<details class="arch-year"${openAttr}>
+        <summary class="arch-year-head">${y} · ${byYear[y].length} report${byYear[y].length===1?'':'s'}</summary>
+        <div class="arch-list">${entries}</div>
+      </details>`;
+    }).join('');
+    return `<div class="arch-wrap">
+      <div class="arch-title">Archive · older briefings</div>
+      ${yearBlocks}
+    </div>`;
+  };
+
+  document.getElementById('reports-list').innerHTML =
+    richCards.map(renderRich).join('') + renderArchive(archive);
   notifyHeight();
 }
 
