@@ -29,7 +29,7 @@ from __future__ import annotations
 import os
 import json
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
@@ -287,16 +287,28 @@ def guardian_run(xlsx_path: str = "docs/data/recalls.xlsx",
     # Ensure we always write the canonical column order, even if input is quirky
     headers = COLUMNS if set(headers) >= set(COLUMNS) - {"Notes"} else headers
 
-    # 1. URL health pass
-    url_stats = _url_health_pass(recalls, since_days)
+    # 1. URL health pass — isolated so a network glitch won't kill the pipeline
+    try:
+        url_stats = _url_health_pass(recalls, since_days)
+    except Exception as e:
+        log.warning("URL health pass failed (non-fatal): %s", e)
+        url_stats = {"checked": 0, "blanked": 0, "kept_bot_block": 0, "error": str(e)}
 
-    # 2. Gap-finder + Tier-1 spot-check (AI passes)
+    # 2. Gap-finder + Tier-1 spot-check (AI passes) — also isolated
     if skip_ai:
         gap_stats = {"suggested": 0, "added": 0, "dupes_rejected": 0, "skipped": True}
         tier1_stats = {"flags": 0, "reviewed": 0, "skipped": True}
     else:
-        gap_stats = _gap_finder_pass(recalls, gap_days)
-        tier1_stats = _tier1_spot_check(recalls, since_days)
+        try:
+            gap_stats = _gap_finder_pass(recalls, gap_days)
+        except Exception as e:
+            log.warning("Gap-finder pass failed (non-fatal): %s", e)
+            gap_stats = {"suggested": 0, "added": 0, "dupes_rejected": 0, "error": str(e)}
+        try:
+            tier1_stats = _tier1_spot_check(recalls, since_days)
+        except Exception as e:
+            log.warning("Tier-1 spot-check failed (non-fatal): %s", e)
+            tier1_stats = {"flags": 0, "reviewed": 0, "error": str(e)}
 
     # 3. Sort newest-first for writing (matches dashboard expectations)
     recalls.sort(key=lambda r: str(r.get("Date") or ""), reverse=True)
@@ -310,7 +322,7 @@ def guardian_run(xlsx_path: str = "docs/data/recalls.xlsx",
 
     summary = {
         "ok": True,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "before_rows": before_count,
         "after_rows": len(recalls),
         "delta_rows": len(recalls) - before_count,
@@ -323,6 +335,8 @@ def guardian_run(xlsx_path: str = "docs/data/recalls.xlsx",
 
 
 if __name__ == "__main__":
+    import sys
+    import traceback
     import argparse
     ap = argparse.ArgumentParser(description="FSIS URL Guardian — 4-hour integrity pass")
     ap.add_argument("--xlsx", default="docs/data/recalls.xlsx")
@@ -331,4 +345,36 @@ if __name__ == "__main__":
     ap.add_argument("--gap-days", type=int, default=None)
     ap.add_argument("--skip-ai", action="store_true")
     args = ap.parse_args()
-    guardian_run(args.xlsx, args.json, args.since_days, args.gap_days, args.skip_ai)
+
+    # Diagnostic banner — makes failure causes visible in the workflow log.
+    log.info("=" * 70)
+    log.info("FSIS URL Guardian starting")
+    log.info("Python:   %s", sys.version.replace("\n", " "))
+    log.info("CWD:      %s", Path.cwd())
+    log.info("xlsx arg: %s", args.xlsx)
+    xp = Path(args.xlsx)
+    log.info("xlsx exists: %s  (size=%s bytes)",
+             xp.exists(),
+             xp.stat().st_size if xp.exists() else "n/a")
+    log.info("OPENAI_API_KEY:    %s", "set" if os.getenv("OPENAI_API_KEY") else "NOT SET")
+    log.info("ANTHROPIC_API_KEY: %s", "set" if os.getenv("ANTHROPIC_API_KEY") else "NOT SET")
+    log.info("=" * 70)
+
+    if not xp.exists():
+        log.error("FATAL: xlsx file not found at %s", xp.absolute())
+        log.error("CWD contents: %s", sorted(p.name for p in Path.cwd().iterdir())[:20])
+        sys.exit(1)
+
+    try:
+        result = guardian_run(args.xlsx, args.json,
+                              args.since_days, args.gap_days, args.skip_ai)
+        if not isinstance(result, dict) or not result.get("ok"):
+            log.error("Guardian run returned failure: %s", result)
+            sys.exit(1)
+        log.info("Guardian completed successfully.")
+        sys.exit(0)
+    except Exception as exc:
+        log.error("FATAL uncaught exception in guardian_run: %s: %s",
+                  type(exc).__name__, exc)
+        traceback.print_exc()
+        sys.exit(1)
