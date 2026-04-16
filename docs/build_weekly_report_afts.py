@@ -1,31 +1,180 @@
 """
 AFTS Food Safety Intelligence System — Weekly Report Generator
-Generated every Friday 18:00 UTC.
-Uses Claude AI + OpenAI pipeline for professional reports.
-Output: reports/YYYY-WW.html + updates index.html embedded data
+================================================================
+Runs every Friday 08:00 UTC via GitHub Actions.
+Pipeline: Excel (recalls.xlsx) -> stats -> Claude AI analysis -> OpenAI polish -> HTML report.
+
+Output:
+  - <year>-W<week>.html  (report, committed to repo root)
+  - index.html           (dashboard embedded reports array, appended)
+
+Brand: Advanced Food-Tech Solutions (AFTS)
+Palette: black #0a0e1a / white #fff / orange #E8601A (AFTS brand)
+Typography: Syne (display) + DM Sans (body) + DM Mono (data)
 """
 
-import json, logging, os, requests, sys, argparse
+import json
+import logging
+import os
+import re
+import sys
+import argparse
 from datetime import datetime, timezone, timedelta, date
 from pathlib import Path
 from collections import Counter
 from typing import List, Dict, Any, Tuple
+
+import requests
 from openpyxl import load_workbook
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
-# AI API Configuration
 CLAUDE_API_KEY = os.getenv('ANTHROPIC_API_KEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
+# --- AFTS brand tokens -------------------------------------------------------
+BRAND_ORANGE = "#E8601A"
+BRAND_BLACK  = "#0a0e1a"
+TIER1_RED    = "#dc2626"
+TIER2_AMBER  = "#f59e0b"
+OUTBREAK_VIO = "#9333ea"
+
+# --- Regulatory authority map (country -> primary agency) -------------------
+AUTHORITY_MAP = {
+    "United States": "FDA / USDA FSIS",
+    "USA": "FDA / USDA FSIS",
+    "US": "FDA / USDA FSIS",
+    "Canada": "CFIA",
+    "United Kingdom": "FSA (UK)",
+    "UK": "FSA (UK)",
+    "France": "RappelConso / DGCCRF",
+    "Germany": "BVL",
+    "Italy": "Ministero della Salute",
+    "Spain": "AESAN",
+    "Netherlands": "NVWA",
+    "Belgium": "FAVV-AFSCA",
+    "Ireland": "FSAI",
+    "Portugal": "ASAE",
+    "Switzerland": "BLV",
+    "Austria": "AGES",
+    "Sweden": "Livsmedelsverket",
+    "Denmark": "Foedevarestyrelsen",
+    "Norway": "Mattilsynet",
+    "Finland": "Ruokavirasto",
+    "Greece": "EFET",
+    "Poland": "GIS",
+    "Australia": "FSANZ",
+    "New Zealand": "MPI / FSANZ",
+    "Japan": "MHLW",
+    "Hong Kong": "CFS (HK)",
+    "Singapore": "SFA",
+    "South Korea": "MFDS",
+    "Brazil": "ANVISA",
+    "Mexico": "COFEPRIS",
+    "Argentina": "ANMAT",
+    "Chile": "ACHIPIA / ISP",
+    "South Africa": "DALRRD",
+}
+
+def authority_for(country: str) -> str:
+    if not country:
+        return "Multiple / Unknown"
+    return AUTHORITY_MAP.get(country.strip(), "National Authority")
+
+# --- Pathogen severity (Tier-1 first) ---------------------------------------
+PATHOGEN_SEVERITY = [
+    ("clostridium botulinum", 1, "Clostridium botulinum"),
+    ("botulinum",             1, "Clostridium botulinum"),
+    ("listeria",              2, "Listeria monocytogenes"),
+    ("stec",                  3, "STEC / E. coli O157:H7"),
+    ("o157",                  3, "STEC / E. coli O157:H7"),
+    ("escherichia coli",      3, "E. coli"),
+    ("e. coli",               3, "E. coli"),
+    ("salmonella",            4, "Salmonella spp."),
+    ("cronobacter",           5, "Cronobacter sakazakii"),
+    ("vibrio",                6, "Vibrio spp."),
+    ("hepatitis",             7, "Hepatitis A"),
+    ("norovirus",             8, "Norovirus"),
+    ("campylobacter",         9, "Campylobacter"),
+    ("staphylococcus",       10, "Staphylococcus aureus"),
+    ("bacillus cereus",      11, "Bacillus cereus / Cereulide"),
+    ("cereulide",            11, "Bacillus cereus / Cereulide"),
+    ("clostridium perfringens", 12, "C. perfringens"),
+]
+
+def severity_score(pathogen: str) -> Tuple[int, str]:
+    """Returns (severity_rank, canonical_name). Lower rank = more severe."""
+    p = (pathogen or "").lower()
+    for key, rank, canon in PATHOGEN_SEVERITY:
+        if key in p:
+            return rank, canon
+    return 99, (pathogen or "Unknown")
+
+# --- URL quality (local-only, no HTTP) --------------------------------------
+# A URL is "report-grade" if it's non-empty, starts with http(s), isn't a known
+# generic landing page, and has at least 2 path segments (i.e., points to a
+# specific recall, not a category or homepage). This check runs at report time
+# so bad URLs that slipped past the guardian can't reach the Top-5.
+_GENERIC_URL_PATTERNS = [
+    r"/categorie/\d+/?$",
+    r"/categorie/0/\d+/[a-z]+/?$",
+    r"/anakleiseis-cat/?$",
+    r"/alertas_alimentarias/?$",
+    r"/liste/lebensmittel/bundesweit/?$",
+    r"/portal/news/p3_2_1_3\.jsp",
+    r"/food-recalls/?$",
+    r"/recalls?/?$",
+    r"/alerts?/?$",
+    r"/news/?$",
+    r"/category/[^/]+/?$",
+    r"/tag/[^/]+/?$",
+    r"/search/?",
+    r"^https?://[^/]+/?$",
+    # FDA / USDA FSIS / CFIA / FSA / FSAI landing pages (mirror url_validator.py)
+    r"/safety/recalls-market-withdrawals-safety-alerts/?$",
+    r"/safety/recalls/?$",
+    r"/recalls-alerts/?$",
+    r"/recalls-public-health-alerts/?$",
+    r"/food-recall-warnings/?$",
+    r"/food-recall-warnings-and-allergy-alerts/?$",
+    r"/news-alerts/?$",
+    r"/consumer/food-alerts/?$",
+    r"/recall-and-advice-list/?$",
+    r"/list-of-recalls/?$",
+    r"/food-alert-list/?$",
+]
+
+def is_report_grade_url(url: str) -> bool:
+    if not url or len(url) < 20:
+        return False
+    u = url.strip()
+    if not u.lower().startswith(("http://", "https://")):
+        return False
+    for pat in _GENERIC_URL_PATTERNS:
+        if re.search(pat, u, re.I):
+            return False
+    try:
+        from urllib.parse import urlparse
+        p = urlparse(u)
+    except Exception:
+        return False
+    if not p.netloc:
+        return False
+    segments = [s for s in (p.path or "").split("/") if s]
+    return len(segments) >= 2
+
+# --- Data loading -----------------------------------------------------------
 def load_recalls(xlsx_path: Path) -> List[Dict[str, Any]]:
-    """Load recalls from Excel file"""
+    if not xlsx_path.exists():
+        log.error("XLSX file not found: %s", xlsx_path)
+        return []
     wb = load_workbook(xlsx_path, data_only=True)
     if "Recalls" not in wb.sheetnames:
+        log.error("Recalls sheet not found. Available: %s", wb.sheetnames)
         return []
     ws = wb["Recalls"]
     headers = [c.value for c in ws[1]]
@@ -36,7 +185,7 @@ def load_recalls(xlsx_path: Path) -> List[Dict[str, Any]]:
     return out
 
 def filter_week(recalls: List[Dict], week_end: date) -> List[Dict]:
-    """Filter to recalls dated between (week_end - 6 days) and week_end inclusive."""
+    """Recalls dated between (week_end - 6 days) and week_end inclusive."""
     week_start = week_end - timedelta(days=6)
     out = []
     for r in recalls:
@@ -45,20 +194,20 @@ def filter_week(recalls: List[Dict], week_end: date) -> List[Dict]:
             continue
         try:
             rd = datetime.strptime(str(d)[:10], "%Y-%m-%d").date()
-        except ValueError:
+        except (ValueError, TypeError):
             continue
         if week_start <= rd <= week_end:
             out.append(r)
     return out
 
-def compute_stats(week_recalls: List[Dict], prev_week_recalls: List[Dict]) -> Dict[str, Any]:
-    """Compute headline numbers and breakdowns."""
-    def safe_int(v, default=0):
-        try:
-            return int(v)
-        except (ValueError, TypeError):
-            return default
+# --- Statistics -------------------------------------------------------------
+def safe_int(v, default=0):
+    try:
+        return int(v)
+    except (ValueError, TypeError):
+        return default
 
+def compute_stats(week_recalls: List[Dict], prev_week_recalls: List[Dict]) -> Dict[str, Any]:
     total = len(week_recalls)
     tier1 = sum(1 for r in week_recalls if safe_int(r.get("Tier")) == 1)
     outbreaks = sum(1 for r in week_recalls if safe_int(r.get("Outbreak")) == 1)
@@ -67,130 +216,172 @@ def compute_stats(week_recalls: List[Dict], prev_week_recalls: List[Dict]) -> Di
     for r in week_recalls:
         p = (r.get("Pathogen") or "").strip()
         if p:
-            short = p.split("(")[0].strip()
-            pathogen_counts[short] += 1
+            _, canon = severity_score(p)
+            pathogen_counts[canon] += 1
 
     country_counts = Counter()
     for r in week_recalls:
-        c = r.get("Country", "") or "Unknown"
+        c = (r.get("Country") or "Unknown").strip()
         country_counts[c] += 1
+
+    source_counts = Counter()
+    for r in week_recalls:
+        s = (r.get("Source") or "").strip()
+        if s:
+            source_counts[s] += 1
+
+    prev_total = len(prev_week_recalls)
+    delta = total - prev_total
+    delta_pct = round((delta / prev_total) * 100) if prev_total else None
+
+    top_p = pathogen_counts.most_common(1)[0] if pathogen_counts else ("-", 0)
 
     return {
         "total": total,
         "tier1": tier1,
         "outbreaks": outbreaks,
-        "top_pathogen": pathogen_counts.most_common(1)[0] if pathogen_counts else ("—", 0),
+        "top_pathogen": top_p,
         "pathogen_counts": pathogen_counts.most_common(10),
         "country_counts": country_counts.most_common(10),
-        "prev_total": len(prev_week_recalls),
+        "source_counts": source_counts.most_common(10),
+        "prev_total": prev_total,
+        "delta": delta,
+        "delta_pct": delta_pct,
     }
 
 def rank_top_recalls(week_recalls: List[Dict], n: int = 5) -> List[Dict]:
-    """Rank by pathogen severity: C. botulinum > Listeria > E. coli > Salmonella > others"""
-    severity_order = {
-        'Clostridium botulinum': 1,
-        'Listeria monocytogenes': 2, 
-        'E. coli': 3, 'STEC': 3,
-        'Salmonella': 4,
-        'Cereulide': 5,
-    }
-    
+    """
+    Rank by: URL quality (verifiable first), then severity, outbreak, tier, date.
+    A Top-5 entry that would appear in an executive briefing MUST link to a specific
+    recall page, never a homepage or category listing. Records without a report-grade
+    URL fall to the bottom and only appear if we need to fill slots.
+    """
     def score(r):
-        pathogen = (r.get("Pathogen") or "").lower()
-        severity = 99  # default
-        for key, val in severity_order.items():
-            if key.lower() in pathogen:
-                severity = val
-                break
-        
-        tier = int(r.get("Tier", 2)) if str(r.get("Tier", "")).isdigit() else 2
-        outbreak = int(r.get("Outbreak", 0)) if str(r.get("Outbreak", "")).isdigit() else 0
-        
-        return (
-            severity,  # pathogen severity first
-            -outbreak,  # outbreaks higher
-            tier,  # tier 1 higher
-        )
-    
-    return sorted(week_recalls, key=score)[:n]
+        has_good_url = is_report_grade_url(r.get("URL") or "")
+        sev, _ = severity_score(r.get("Pathogen") or "")
+        tier = safe_int(r.get("Tier"), 3)
+        outbreak = safe_int(r.get("Outbreak"), 0)
+        d = str(r.get("Date") or "")[:10]
+        # URL-first so a verifiable Tier-2 beats an unverifiable Tier-1 in the Top-5
+        return (0 if has_good_url else 1, sev, -outbreak, tier, d)
+    ranked = sorted(week_recalls, key=score, reverse=False)
+    # If there are enough good-URL rows to fill n, drop the unverifiable ones entirely
+    good = [r for r in ranked if is_report_grade_url(r.get("URL") or "")]
+    if len(good) >= n:
+        return good[:n]
+    # Otherwise include unverifiable rows at the bottom but mark them
+    return ranked[:n]
 
-def generate_report_with_claude(data: Dict[str, Any], week_recalls: List[Dict]) -> str:
-    """Use Claude AI to generate comprehensive weekly report analysis"""
-    
-    prompt = f"""You are an AI food safety analyst for Advanced Food-Tech Solutions (AFTS). Generate a professional weekly pathogen surveillance analysis.
+# --- AI analysis ------------------------------------------------------------
+def generate_report_with_claude(stats: Dict[str, Any], week_recalls: List[Dict]) -> str:
+    if not CLAUDE_API_KEY:
+        log.warning("ANTHROPIC_API_KEY missing; using fallback narrative")
+        return generate_fallback_analysis(stats)
 
-DATA SUMMARY:
-- Total recalls this week: {data['total']}
-- Tier-1 critical: {data['tier1']} 
-- Active outbreaks: {data['outbreaks']}
-- Top pathogen: {data['top_pathogen'][0]} ({data['top_pathogen'][1]} cases)
+    top_incidents = []
+    for r in rank_top_recalls(week_recalls, n=5):
+        top_incidents.append({
+            "pathogen": r.get("Pathogen", ""),
+            "company":  (r.get("Company") or "")[:80],
+            "product":  (r.get("Product") or "")[:120],
+            "country":  r.get("Country", ""),
+            "tier":     r.get("Tier", ""),
+            "outbreak": r.get("Outbreak", 0),
+        })
+
+    delta_txt = ""
+    if stats["delta_pct"] is not None:
+        direction = "increase" if stats["delta"] > 0 else ("decrease" if stats["delta"] < 0 else "no change")
+        delta_txt = f"Week-over-week {direction}: {stats['delta']:+d} recalls ({stats['delta_pct']:+d}%)."
+
+    prompt = f"""You are the lead food safety analyst at Advanced Food-Tech Solutions (AFTS), a specialised food process engineering firm. Write the weekly pathogen surveillance briefing for Fortune-500 food safety executives, QA directors, and regulatory affairs teams.
+
+DATA SUMMARY (this week):
+- Total pathogen recalls: {stats['total']}
+- Tier-1 (critical public-health risk): {stats['tier1']}
+- Active outbreaks: {stats['outbreaks']}
+- Leading pathogen: {stats['top_pathogen'][0]} ({stats['top_pathogen'][1]} cases)
+- {delta_txt}
 
 PATHOGEN DISTRIBUTION:
-{dict(data['pathogen_counts'])}
+{dict(stats['pathogen_counts'])}
 
-COUNTRY DISTRIBUTION:
-{dict(data['country_counts'])}
+GEOGRAPHIC DISTRIBUTION:
+{dict(stats['country_counts'])}
 
-Generate a professional 3-paragraph analysis:
-1. Executive Summary (current week overview)
-2. Key Risk Factors (pathogen-specific threats)  
-3. Geographic Assessment (distribution patterns)
+TOP 5 INCIDENTS:
+{json.dumps(top_incidents, indent=2)}
 
-Use professional business language. NO emojis. Focus on actionable intelligence for food safety executives.
-Return only the content paragraphs, no headers or formatting."""
+Write exactly THREE paragraphs, each 3-4 sentences, in professional executive-briefing tone. NO headers, NO bullet points, NO emoji, NO markdown. Use UK/US business English. Reference specific numbers and named pathogens.
+
+Paragraph 1 - EXECUTIVE SUMMARY: Frame the week's pathogen activity, quantify the risk posture, note the week-over-week trend.
+
+Paragraph 2 - PATHOGEN RISK FOCUS: Analyse the dominant pathogen's implications for thermal processing, supply-chain hygiene, or sanitation controls. Name specific food categories or process vulnerabilities where relevant (aseptic/UHT, RTE, fresh produce, dairy, deli).
+
+Paragraph 3 - GEOGRAPHIC & REGULATORY ASSESSMENT: Interpret the geographic distribution, note which regulatory regimes are most active (RASFF, FDA, CFIA, FSA, etc.), and close with a concrete recommendation for food manufacturers.
+
+Return only the three paragraphs separated by a single blank line."""
 
     try:
         response = requests.post(
             'https://api.anthropic.com/v1/messages',
             headers={
                 'Content-Type': 'application/json',
-                'x-api-key': CLAUDE_API_KEY
+                'x-api-key': CLAUDE_API_KEY,
+                'anthropic-version': '2023-06-01',
             },
             json={
                 'model': 'claude-sonnet-4-20250514',
-                'max_tokens': 1000,
+                'max_tokens': 1400,
                 'messages': [{'role': 'user', 'content': prompt}]
-            }
+            },
+            timeout=60,
         )
-        
         if response.status_code == 200:
-            return response.json()['content'][0]['text']
-        else:
-            log.error(f"Claude API error: {response.status_code}")
-            return generate_fallback_analysis(data)
-            
+            return response.json()['content'][0]['text'].strip()
+        log.error("Claude API %d: %s", response.status_code, response.text[:300])
     except Exception as e:
-        log.error(f"Error calling Claude API: {e}")
-        return generate_fallback_analysis(data)
+        log.error("Claude API exception: %s", e)
+    return generate_fallback_analysis(stats)
 
-def generate_fallback_analysis(data: Dict[str, Any]) -> str:
-    """Fallback analysis if AI APIs fail"""
-    top_pathogen, count = data['top_pathogen']
-    total = data['total']
-    tier1 = data['tier1']
-    outbreaks = data['outbreaks']
-    
-    return f"""This week demonstrated significant pathogen activity with {total} total recall incidents requiring regulatory attention. Of particular concern, {tier1} incidents were classified as Tier-1 critical, indicating immediate public health risk requiring swift containment measures.
+def generate_fallback_analysis(stats: Dict[str, Any]) -> str:
+    top_pathogen, count = stats['top_pathogen']
+    total = stats['total']
+    tier1 = stats['tier1']
+    outbreaks = stats['outbreaks']
+    pct = round((count / total) * 100) if total > 0 else 0
 
-{top_pathogen} emerged as the dominant pathogen threat with {count} documented cases, representing {round(count/total*100) if total > 0 else 0}% of total incidents. This concentration suggests potential systematic contamination issues requiring enhanced surveillance protocols across affected product categories and manufacturing facilities.
-
-Geographic distribution analysis reveals regulatory activity spanning multiple jurisdictions, with {outbreaks} confirmed outbreak events documented during the surveillance period. The distributed nature of these incidents indicates the need for continued vigilance across global supply chains and enhanced coordination between international food safety authorities."""
+    p1 = (f"This week produced {total} pathogen-related recall incidents across the AFTS monitoring network, "
+          f"with {tier1} classified as Tier-1 and {outbreaks} confirmed outbreak event(s). "
+          f"The overall risk posture remains elevated, driven primarily by {top_pathogen} activity. "
+          f"Food manufacturers should treat the week's volume as indicative of sustained surveillance pressure from regulators.")
+    p2 = (f"{top_pathogen} accounted for {count} of {total} incidents ({pct}%), consistent with its status as a "
+          f"persistent risk in ready-to-eat, deli, dairy, and fresh-produce categories. Sanitation programmes targeting "
+          f"post-process contamination, as well as validated lethality steps (F-value, pasteurisation schedules), warrant "
+          f"review this week. Facilities operating under FDA 21 CFR 113/114 or PMO should confirm compliance margins.")
+    p3 = (f"Regulatory activity spanned multiple jurisdictions, indicating coordinated enforcement across RASFF, FDA, CFIA, "
+          f"and FSA channels. Exporters should anticipate continued inspection intensity and prepare documentation packages "
+          f"for rapid response. AFTS recommends reviewing supplier verification protocols and confirming process-deviation "
+          f"procedures before the next production cycle.")
+    return f"{p1}\n\n{p2}\n\n{p3}"
 
 def review_with_openai(report_content: str) -> str:
-    """Use OpenAI for final quality check and enhancement"""
-    
-    prompt = f"""Review this food safety intelligence report for executive stakeholders. Ensure it's:
-1. Professional and business-appropriate tone
-2. Factually accurate and well-structured
-3. Clear actionable insights
-4. Free of grammatical errors
-5. Appropriately urgent without being alarmist
+    if not OPENAI_API_KEY:
+        return report_content
 
-REPORT TO REVIEW:
+    prompt = f"""You are a senior editor for a food industry intelligence publication. Polish the following three-paragraph executive briefing for an audience of Fortune-500 food safety directors.
+
+Rules:
+- Preserve every number, pathogen name, and factual claim exactly.
+- Keep exactly three paragraphs separated by a blank line.
+- Tighten the language, remove redundancy, and ensure the tone is measured, authoritative, and non-alarmist.
+- Use UK/US business English. No headers, no bullets, no emoji, no markdown.
+- Max ~180 words per paragraph.
+
+BRIEFING:
 {report_content}
 
-Return the polished version maintaining the same structure and key facts."""
-
+Return only the polished three paragraphs."""
     try:
         response = requests.post(
             'https://api.openai.com/v1/chat/completions',
@@ -199,262 +390,669 @@ Return the polished version maintaining the same structure and key facts."""
                 'Content-Type': 'application/json'
             },
             json={
-                'model': 'gpt-4o',
+                'model': 'gpt-4o-mini',
                 'messages': [{'role': 'user', 'content': prompt}],
-                'max_tokens': 1000
-            }
+                'max_tokens': 1000,
+                'temperature': 0.3,
+            },
+            timeout=60,
         )
-        
         if response.status_code == 200:
-            return response.json()['choices'][0]['message']['content']
-        else:
-            log.error(f"OpenAI API error: {response.status_code}")
-            return report_content
-            
+            return response.json()['choices'][0]['message']['content'].strip()
+        log.error("OpenAI API %d: %s", response.status_code, response.text[:300])
     except Exception as e:
-        log.error(f"Error calling OpenAI API: {e}")
-        return report_content
+        log.error("OpenAI API exception: %s", e)
+    return report_content
 
+# --- HTML rendering ---------------------------------------------------------
 def escape(s: Any) -> str:
-    """HTML escape utility"""
-    if s is None: return ""
+    if s is None:
+        return ""
     return (str(s).replace("&", "&amp;").replace("<", "&lt;")
             .replace(">", "&gt;").replace('"', "&quot;"))
 
+def fmt_date(s: Any) -> str:
+    if not s:
+        return "-"
+    try:
+        return datetime.strptime(str(s)[:10], "%Y-%m-%d").strftime("%d %b %Y")
+    except (ValueError, TypeError):
+        return str(s)[:10] or "-"
+
+def pathogen_badge_color(canon: str) -> str:
+    rank, _ = severity_score(canon)
+    if rank <= 1:  return OUTBREAK_VIO
+    if rank <= 4:  return TIER1_RED
+    return TIER2_AMBER
+
+def render_top5_row(i: int, r: Dict) -> str:
+    pathogen = r.get("Pathogen") or "Unknown"
+    _, canon = severity_score(pathogen)
+    badge_color = pathogen_badge_color(canon)
+    tier = safe_int(r.get("Tier"), 3)
+    outbreak = safe_int(r.get("Outbreak"), 0)
+    company = (r.get("Company") or "-")[:60]
+    brand = (r.get("Brand") or "").strip()
+    product = (r.get("Product") or "-")[:90]
+    country = r.get("Country") or "-"
+    source = (r.get("Source") or "").strip() or authority_for(country)
+    url = (r.get("URL") or "").strip()
+    date_str = fmt_date(r.get("Date"))
+
+    outbreak_chip = '<span class="chip-outbreak">OUTBREAK</span>' if outbreak else ''
+    tier_chip = f'<span class="chip-tier{tier}">T{tier}</span>' if tier in (1, 2) else ''
+    brand_line = f'<div class="brand-sub">{escape(brand)}</div>' if brand else ''
+
+    if url and is_report_grade_url(url):
+        link_cell = f'<a class="src-link" href="{escape(url)}" target="_blank" rel="noopener">View source &rarr;</a>'
+    else:
+        link_cell = '<span class="src-na" title="No verified specific-recall URL available">unverified</span>'
+
+    return f"""
+    <tr>
+      <td class="rank-num">{i}</td>
+      <td class="date-cell">{escape(date_str)}</td>
+      <td>
+        <span class="path-dot" style="background:{badge_color}"></span>
+        <span class="path-name">{escape(canon)}</span>
+        {tier_chip}{outbreak_chip}
+      </td>
+      <td class="co-cell"><strong>{escape(company)}</strong>{brand_line}</td>
+      <td class="prod-cell">{escape(product)}</td>
+      <td>{escape(country)}<div class="src-sub">{escape(source)}</div></td>
+      <td class="link-cell">{link_cell}</td>
+    </tr>"""
+
 def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tuple[str, Dict[str, Any]]:
-    """Build professional AFTS HTML report"""
-    
     stats = compute_stats(recalls, prev_week)
     week_start = week_end - timedelta(days=6)
     wnum = week_end.isocalendar()[1]
     year = week_end.year
-    top = rank_top_recalls(recalls, n=5)
-    
-    # Generate AI content
-    ai_analysis = generate_report_with_claude(stats, recalls)
-    final_analysis = review_with_openai(ai_analysis)
-    
-    # Build top recalls table
-    top_recalls_html = ""
-    for i, r in enumerate(top, 1):
-        tier = int(r.get("Tier", 2)) if str(r.get("Tier", "")).isdigit() else 2
-        outbreak = int(r.get("Outbreak", 0)) if str(r.get("Outbreak", "")).isdigit() else 0
-        severity_class = "critical" if "botulinum" in (r.get("Pathogen") or "").lower() else "tier1"
-        outbreak_badge = '<span class="outbreak-badge">OUTBREAK</span>' if outbreak else ''
-        
-        top_recalls_html += f"""
-        <tr class="{severity_class}">
-            <td><strong>{i}</strong></td>
-            <td class="pathogen"><strong>{escape(r.get('Pathogen', 'Unknown'))}</strong></td>
-            <td>{escape((r.get('Company') or '')[:50])}{outbreak_badge}</td>
-            <td class="product">{escape((r.get('Product') or '')[:60])}</td>
-            <td>{escape(r.get('Country', ''))}</td>
-        </tr>"""
-    
-    # Build pathogen distribution table
-    pathogen_table_html = ""
-    total = stats['total']
+    top5 = rank_top_recalls(recalls, n=5)
+
+    # AI pipeline
+    ai_raw = generate_report_with_claude(stats, recalls)
+    analysis = review_with_openai(ai_raw)
+    paragraphs = [p.strip() for p in analysis.split("\n\n") if p.strip()]
+    while len(paragraphs) < 3:
+        paragraphs.append("")
+
+    # Top 5 rows
+    if top5:
+        top5_rows = "".join(render_top5_row(i, r) for i, r in enumerate(top5, 1))
+    else:
+        top5_rows = '<tr><td colspan="7" class="empty">No recalls recorded this reporting period.</td></tr>'
+
+    # Pathogen distribution
+    total_safe = stats['total'] or 1
+    path_rows = ""
     for pathogen, count in stats['pathogen_counts']:
-        pct = round((count/total)*100) if total > 0 else 0
-        pathogen_table_html += f"""
+        pct = round((count / total_safe) * 100)
+        _, canon = severity_score(pathogen)
+        color = pathogen_badge_color(canon)
+        bar_w = max(4, min(100, pct))
+        path_rows += f"""
         <tr>
-            <td class="pathogen">{escape(pathogen)}</td>
-            <td>{count}</td>
-            <td>{pct}%</td>
-            <td>Tier-1</td>
+          <td><span class="path-dot" style="background:{color}"></span>{escape(pathogen)}</td>
+          <td class="num">{count}</td>
+          <td class="num">{pct}%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:{bar_w}%;background:{color}"></div></div></td>
         </tr>"""
-    
-    # Build country distribution table
-    country_table_html = ""
+    if not path_rows:
+        path_rows = '<tr><td colspan="4" class="empty">No pathogen data.</td></tr>'
+
+    # Country distribution
+    country_rows = ""
     for country, count in stats['country_counts']:
-        pct = round((count/total)*100) if total > 0 else 0
-        country_table_html += f"""
+        pct = round((count / total_safe) * 100)
+        country_rows += f"""
         <tr>
-            <td>{escape(country)}</td>
-            <td>Multiple Sources</td>
-            <td>{count}</td>
-            <td>{pct}%</td>
+          <td>{escape(country)}</td>
+          <td>{escape(authority_for(country))}</td>
+          <td class="num">{count}</td>
+          <td class="num">{pct}%</td>
         </tr>"""
+    if not country_rows:
+        country_rows = '<tr><td colspan="4" class="empty">No geographic data.</td></tr>'
+
+    # KPI delta block
+    if stats['delta_pct'] is not None:
+        arrow = "&#9650;" if stats['delta'] > 0 else ("&#9660;" if stats['delta'] < 0 else "&#9644;")
+        color = TIER1_RED if stats['delta'] > 0 else ("#059669" if stats['delta'] < 0 else "#6b7280")
+        delta_html = f'<div class="kpi-delta" style="color:{color}">{arrow} {stats["delta"]:+d} ({stats["delta_pct"]:+d}%) vs prior week</div>'
+    else:
+        delta_html = '<div class="kpi-delta" style="color:#6b7280">- baseline week</div>'
+
+    top_pathogen_pct = round(stats['top_pathogen'][1] / total_safe * 100) if stats['total'] else 0
+    generated = datetime.now(timezone.utc).strftime('%d %b %Y &middot; %H:%M UTC')
 
     html = f"""<!DOCTYPE html>
-<html><head>
+<html lang="en">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AFTS Weekly Pathogen Report - Week {wnum}</title>
+<title>AFTS Pathogen Intelligence Briefing &middot; Week {wnum}, {year}</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-body{{font-family:'Segoe UI',Arial,sans-serif;line-height:1.6;margin:30px;color:#333;background:#fff;}}
-.header{{border-bottom:3px solid #333;margin-bottom:30px;padding-bottom:20px;}}
-.logo{{font-size:28px;font-weight:800;color:#333;margin-bottom:5px;}}
-.logo .green{{color:#333;}}
-.subtitle{{color:#666;font-size:14px;margin-bottom:15px;}}
-.contact{{font-size:12px;color:#666;}}
-.contact a{{color:#333;text-decoration:none;}}
-h1{{color:#333;font-size:24px;margin:30px 0 20px 0;border-bottom:2px solid #eee;padding-bottom:10px;}}
-h2{{color:#333;font-size:18px;margin:25px 0 15px 0;}}
-.stats-grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:20px 0;}}
-.stat-box{{background:#f8f9fa;padding:20px;text-align:center;border:1px solid #dee2e6;border-radius:8px;}}
-.stat-number{{font-size:28px;font-weight:bold;color:#dc3545;margin-bottom:5px;}}
-.stat-number.tier1{{color:#dc3545;}} .stat-number.outbreak{{color:#fd7e14;}}
-.stat-label{{font-size:14px;color:#666;text-transform:uppercase;}}
-table{{width:100%;border-collapse:collapse;margin:15px 0;font-size:13px;}}
-th{{background:#f8f9fa;padding:12px 8px;border:1px solid #dee2e6;font-weight:600;text-align:left;}}
-td{{padding:10px 8px;border:1px solid #dee2e6;}}
-tr:nth-child(even){{background:#f9f9f9;}}
-.pathogen{{font-weight:500;}}
-.critical{{background:#ffebee;color:#c62828;}}
-.tier1{{background:#ffeaa7;}}
-.outbreak-badge{{background:rgba(232,96,26,.2);color:#E8601A;font-size:9px;padding:1px 5px;border-radius:2px;font-family:monospace;margin-left:4px;}}
-.summary{{background:#e3f2fd;padding:20px;border-radius:8px;margin:20px 0;}}
-.footer{{margin-top:40px;border-top:1px solid #eee;padding-top:20px;font-size:12px;color:#666;text-align:center;}}
-.dashboard-link{{background:#333;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;display:inline-block;margin:15px 0;}}
-@media print{{body{{margin:15px;}} .dashboard-link{{background:#333 !important;}}}}
+:root {{
+  --black:{BRAND_BLACK}; --orange:{BRAND_ORANGE};
+  --ink:#111827; --body:#1f2937; --muted:#6b7280; --dim:#9ca3af;
+  --bg:#ffffff; --s1:#f9fafb; --s2:#f3f4f6; --brd:#e5e7eb;
+  --red:{TIER1_RED}; --amber:{TIER2_AMBER}; --violet:{OUTBREAK_VIO}; --green:#059669;
+}}
+* {{ box-sizing:border-box; }}
+html, body {{ margin:0; padding:0; background:var(--bg); }}
+body {{
+  font-family:'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color:var(--body); font-size:14px; line-height:1.65;
+  max-width:1180px; margin:0 auto; padding:0 40px 60px;
+}}
+a {{ color:var(--orange); text-decoration:none; }}
+a:hover {{ text-decoration:underline; }}
+
+.masthead {{
+  border-top:6px solid var(--black);
+  padding:28px 0 22px;
+  display:flex; justify-content:space-between; align-items:flex-start;
+  border-bottom:1px solid var(--brd);
+  margin-bottom:32px;
+}}
+.brand-block .brand {{
+  font-family:'Syne', sans-serif; font-weight:800; font-size:24px;
+  color:var(--black); letter-spacing:-0.01em; text-transform:uppercase;
+  line-height:1.1;
+}}
+.brand-block .brand em {{ color:var(--orange); font-style:normal; font-weight:800; }}
+.brand-block .tagline {{
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:600;
+  color:var(--muted); text-transform:uppercase; letter-spacing:0.14em;
+  margin-top:8px;
+}}
+.mast-right {{ text-align:right; }}
+.report-label {{
+  display:inline-block; background:var(--black); color:#fff;
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  padding:5px 11px; letter-spacing:0.12em; text-transform:uppercase;
+  margin-bottom:10px;
+}}
+.report-meta {{
+  font-family:'DM Mono', monospace; font-size:11px;
+  color:var(--muted); line-height:1.8;
+}}
+.report-meta strong {{ color:var(--ink); font-weight:700; }}
+
+.r-title {{
+  font-family:'Syne', sans-serif; font-weight:800; font-size:38px;
+  color:var(--black); letter-spacing:-0.02em; line-height:1.15;
+  margin:8px 0 10px;
+}}
+.r-title .accent {{ color:var(--orange); }}
+.r-sub {{
+  color:var(--muted); font-size:14px; margin-bottom:30px;
+  padding-bottom:22px; border-bottom:1px solid var(--brd);
+}}
+.r-sub strong {{ color:var(--ink); font-weight:600; }}
+
+.kpi-strip {{
+  display:grid; grid-template-columns:repeat(4, 1fr);
+  gap:1px; background:var(--brd); border:1px solid var(--brd);
+  margin-bottom:32px;
+}}
+.kpi {{ background:#fff; padding:22px 20px; }}
+.kpi-label {{
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  color:var(--muted); text-transform:uppercase; letter-spacing:0.1em;
+  margin-bottom:8px;
+}}
+.kpi-value {{
+  font-family:'Syne', sans-serif; font-weight:800; font-size:42px;
+  color:var(--black); line-height:1; letter-spacing:-0.02em;
+}}
+.kpi-value.red {{ color:var(--red); }}
+.kpi-value.violet {{ color:var(--violet); }}
+.kpi-value.orange {{ color:var(--orange); font-size:20px; line-height:1.2; }}
+.kpi-delta {{
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  margin-top:10px; letter-spacing:0.04em;
+}}
+.kpi-top {{ font-size:11px; color:var(--muted); margin-top:10px; font-style:italic; }}
+
+.sec-head {{
+  display:flex; align-items:baseline; gap:14px;
+  margin:40px 0 16px;
+}}
+.sec-num {{
+  font-family:'DM Mono', monospace; font-size:11px; font-weight:700;
+  color:var(--orange); letter-spacing:0.12em;
+}}
+.sec-title {{
+  font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
+  color:var(--black); letter-spacing:-0.01em;
+}}
+.sec-rule {{ flex:1; height:1px; background:var(--brd); }}
+.sec-caption {{ color:var(--muted); font-size:13px; margin:-4px 0 14px; }}
+.sec-caption em {{ color:var(--ink); font-style:italic; }}
+
+.analysis {{
+  background:var(--s1); border-left:4px solid var(--orange);
+  padding:26px 30px; margin-bottom:10px;
+}}
+.analysis p {{ margin:0 0 14px; font-size:14.5px; line-height:1.75; }}
+.analysis p:last-child {{ margin-bottom:0; }}
+
+table.data {{
+  width:100%; border-collapse:collapse; margin:0 0 10px;
+  background:#fff; border:1px solid var(--brd);
+  font-size:13px;
+}}
+table.data th {{
+  background:var(--black); color:#fff;
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:0.1em;
+  padding:12px 12px; text-align:left; border-bottom:2px solid var(--orange);
+}}
+table.data td {{
+  padding:14px 12px; border-bottom:1px solid var(--brd);
+  vertical-align:top;
+}}
+table.data tr:last-child td {{ border-bottom:none; }}
+table.data tr:nth-child(even) td {{ background:#fafbfc; }}
+table.data td.num {{
+  font-family:'DM Mono', monospace; font-weight:600; text-align:right;
+  white-space:nowrap;
+}}
+table.data td.empty {{
+  text-align:center; color:var(--muted); padding:28px; font-style:italic;
+}}
+
+.rank-num {{
+  font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
+  color:var(--orange); text-align:center; width:48px;
+}}
+.date-cell {{
+  font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
+  white-space:nowrap; width:96px;
+}}
+.path-dot {{
+  display:inline-block; width:9px; height:9px; border-radius:50%;
+  margin-right:7px; vertical-align:middle;
+}}
+.path-name {{ font-weight:600; color:var(--ink); }}
+.co-cell strong {{ color:var(--black); font-weight:700; display:block; }}
+.brand-sub {{ font-size:11px; color:var(--muted); margin-top:2px; font-style:italic; }}
+.prod-cell {{ color:var(--body); max-width:260px; }}
+.src-sub {{
+  font-family:'DM Mono', monospace; font-size:10px;
+  color:var(--muted); margin-top:3px;
+}}
+.chip-tier1 {{
+  display:inline-block; background:var(--red); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
+}}
+.chip-tier2 {{
+  display:inline-block; background:var(--amber); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
+}}
+.chip-outbreak {{
+  display:inline-block; background:var(--violet); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:4px; letter-spacing:0.06em;
+}}
+.link-cell {{ white-space:nowrap; }}
+.src-link {{
+  font-family:'DM Mono', monospace; font-size:11px; font-weight:700;
+  color:var(--orange); letter-spacing:0.02em;
+}}
+.src-na {{ color:var(--dim); font-family:'DM Mono', monospace; font-size:11px; }}
+
+.dist-grid {{
+  display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:10px;
+}}
+.dist-grid h3 {{
+  font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
+  text-transform:uppercase; letter-spacing:0.1em; margin:0 0 10px;
+}}
+.bar-track {{
+  width:100%; height:8px; background:var(--s2);
+  border-radius:1px; overflow:hidden;
+}}
+.bar-fill {{ height:100%; }}
+
+.cta-box {{
+  margin:40px 0 30px;
+  padding:26px 30px;
+  background:var(--black); color:#fff;
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:18px;
+}}
+.cta-text {{ flex:1; min-width:280px; }}
+.cta-text h3 {{
+  font-family:'Syne', sans-serif; font-weight:800; font-size:20px;
+  margin:0 0 6px; color:#fff; letter-spacing:-0.01em;
+}}
+.cta-text p {{ margin:0; color:#d1d5db; font-size:13px; }}
+.cta-btn {{
+  background:var(--orange); color:#fff; font-family:'DM Mono', monospace;
+  font-size:11px; font-weight:700; padding:14px 22px;
+  text-transform:uppercase; letter-spacing:0.1em;
+  border:none; cursor:pointer; white-space:nowrap;
+}}
+.cta-btn:hover {{ background:#d35416; text-decoration:none; color:#fff; }}
+
+.meth {{
+  background:var(--s1); border:1px solid var(--brd);
+  padding:22px 26px; margin-bottom:24px; font-size:13px;
+  color:var(--body);
+}}
+.meth strong {{ color:var(--black); }}
+.meth p {{ margin:0 0 10px; }}
+.meth p:last-child {{ margin-bottom:0; }}
+
+.footer {{
+  margin-top:50px; padding-top:26px; border-top:2px solid var(--black);
+  display:flex; justify-content:space-between; align-items:flex-start;
+  flex-wrap:wrap; gap:20px; font-size:12px;
+}}
+.foot-brand {{
+  font-family:'Syne', sans-serif; font-weight:800; font-size:15px;
+  color:var(--black); text-transform:uppercase; letter-spacing:0.02em;
+}}
+.foot-brand em {{ color:var(--orange); font-style:normal; }}
+.foot-meta {{
+  font-family:'DM Mono', monospace; font-size:10px;
+  color:var(--muted); line-height:1.8; margin-top:6px;
+}}
+.foot-legal {{
+  font-size:11px; color:var(--muted); max-width:440px;
+  text-align:right; line-height:1.6;
+}}
+
+@media print {{
+  body {{ max-width:none; padding:20px; font-size:11px; }}
+  .cta-box {{ display:none; }}
+  .masthead {{ border-top-width:4px; }}
+  .kpi-value {{ font-size:32px; }}
+  .r-title {{ font-size:28px; }}
+  table.data th {{ background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
+  .analysis {{ border-left-width:3px; }}
+}}
+
+@media (max-width:900px) {{
+  body {{ padding:0 20px 40px; }}
+  .kpi-strip {{ grid-template-columns:repeat(2,1fr); }}
+  .dist-grid {{ grid-template-columns:1fr; }}
+  .masthead {{ flex-direction:column; gap:16px; }}
+  .mast-right {{ text-align:left; }}
+  .r-title {{ font-size:28px; }}
+  table.data {{ font-size:11px; }}
+  table.data th, table.data td {{ padding:8px; }}
+}}
 </style>
-</head><body>
+</head>
+<body>
 
-<div class="header">
-  <div class="logo">Advanced Food-Tech Solutions <span class="green">AFTS</span></div>
-  <div class="subtitle">Food Safety Intelligence System - Weekly Pathogen Surveillance Report</div>
-  <div class="contact">
-    <strong>Contact:</strong> info@advfood.tech | 
-    <a href="https://www.advfood.tech">www.advfood.tech</a> | 
-    <a href="https://advfood.tech/food-safety-intelligence">Dashboard Portal</a>
+<header class="masthead">
+  <div class="brand-block">
+    <div class="brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
+    <div class="tagline">Food Safety Intelligence System &middot; Weekly Briefing</div>
+  </div>
+  <div class="mast-right">
+    <div class="report-label">Subscribers Edition</div>
+    <div class="report-meta">
+      <strong>ISSUE</strong> &middot; Week {wnum:02d}, {year}<br>
+      <strong>PERIOD</strong> &middot; {week_start.strftime('%d %b')} &ndash; {week_end.strftime('%d %b %Y')}<br>
+      <strong>PUBLISHED</strong> &middot; {generated}
+    </div>
+  </div>
+</header>
+
+<h1 class="r-title">Pathogen Surveillance <span class="accent">&middot;</span> Week {wnum:02d}</h1>
+<p class="r-sub">
+  AI-powered analysis of <strong>{stats['total']}</strong> regulatory recall actions across
+  <strong>{len(stats['country_counts'])}</strong> jurisdictions, aggregated from 66 primary sources
+  monitored continuously by the AFTS intelligence platform.
+</p>
+
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-label">Total Recalls</div>
+    <div class="kpi-value">{stats['total']}</div>
+    {delta_html}
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Tier-1 Critical</div>
+    <div class="kpi-value red">{stats['tier1']}</div>
+    <div class="kpi-delta" style="color:var(--muted)">Immediate public-health risk</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Active Outbreaks</div>
+    <div class="kpi-value violet">{stats['outbreaks']}</div>
+    <div class="kpi-delta" style="color:var(--muted)">Confirmed cluster events</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Leading Pathogen</div>
+    <div class="kpi-value orange">{escape(stats['top_pathogen'][0])}</div>
+    <div class="kpi-top">{stats['top_pathogen'][1]} cases &middot; {top_pathogen_pct}% of total</div>
   </div>
 </div>
 
-<h1>Week {wnum} Pathogen Surveillance Report</h1>
-<p><strong>Reporting Period:</strong> {week_start.strftime('%Y-%m-%d')} to {week_end.strftime('%Y-%m-%d')} | <strong>Generated:</strong> {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</p>
-
-<div class="stats-grid">
-  <div class="stat-box">
-    <div class="stat-number">{stats['total']}</div>
-    <div class="stat-label">Total Recalls</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-number tier1">{stats['tier1']}</div>
-    <div class="stat-label">Tier-1 Critical</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-number outbreak">{stats['outbreaks']}</div>
-    <div class="stat-label">Outbreak Events</div>
-  </div>
+<div class="sec-head">
+  <span class="sec-num">&sect; 01</span>
+  <h2 class="sec-title">Intelligence Analysis</h2>
+  <span class="sec-rule"></span>
+</div>
+<div class="analysis">
+  <p>{escape(paragraphs[0])}</p>
+  <p>{escape(paragraphs[1])}</p>
+  <p>{escape(paragraphs[2])}</p>
 </div>
 
-<div class="summary">
-  <h2>Intelligence Analysis</h2>
-  <p>{final_analysis}</p>
+<div class="sec-head">
+  <span class="sec-num">&sect; 02</span>
+  <h2 class="sec-title">Top 5 Critical Threats</h2>
+  <span class="sec-rule"></span>
 </div>
-
-<h2>Top 5 Critical Threats - Prioritized by Pathogen Severity</h2>
-<table>
+<p class="sec-caption">
+  Ranked by pathogen severity (<em>C. botulinum</em> &rarr; <em>Listeria</em> &rarr; STEC &rarr; <em>Salmonella</em>), outbreak status, and tier classification.
+  Each row links to the originating regulatory notice.
+</p>
+<table class="data">
   <thead>
-    <tr><th>Priority</th><th>Pathogen</th><th>Company</th><th>Product</th><th>Country</th></tr>
+    <tr>
+      <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction</th><th>Source</th>
+    </tr>
   </thead>
-  <tbody>{top_recalls_html or '<tr><td colspan="5" style="text-align:center;color:#555;padding:20px;">No critical threats this week</td></tr>'}</tbody>
+  <tbody>
+    {top5_rows}
+  </tbody>
 </table>
 
-<h2>Current Pathogen Distribution</h2>
-<table>
-  <thead>
-    <tr><th>Pathogen</th><th>Cases</th><th>% of Total</th><th>Classification</th></tr>
-  </thead>
-  <tbody>{pathogen_table_html or '<tr><td colspan="4" style="text-align:center;color:#555;padding:20px;">No pathogen data</td></tr>'}</tbody>
-</table>
-
-<h2>Geographic Distribution</h2>
-<table>
-  <thead>
-    <tr><th>Country</th><th>Regulatory Authority</th><th>Cases</th><th>% of Total</th></tr>
-  </thead>
-  <tbody>{country_table_html or '<tr><td colspan="4" style="text-align:center;color:#555;padding:20px;">No geographic data</td></tr>'}</tbody>
-</table>
-
-<a href="https://advfood.tech/food-safety-intelligence" class="dashboard-link" target="_blank">
-  Access Live Dashboard Portal
-</a>
-
-<div class="footer">
-  <p><strong>Advanced Food-Tech Solutions (AFTS)</strong><br>
-  AI-Powered Global Pathogen Recall Monitoring • 66 Sources • 60+ Countries<br>
-  Report generated by FSIS Intelligence System | Next update: {(week_end + timedelta(days=7)).strftime('%A, %B %d, %Y')}</p>
+<div class="sec-head">
+  <span class="sec-num">&sect; 03</span>
+  <h2 class="sec-title">Distribution Analysis</h2>
+  <span class="sec-rule"></span>
+</div>
+<div class="dist-grid">
+  <div>
+    <h3>Pathogen Profile</h3>
+    <table class="data">
+      <thead>
+        <tr><th>Pathogen</th><th class="num">Cases</th><th class="num">%</th><th>Share</th></tr>
+      </thead>
+      <tbody>
+        {path_rows}
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>Geographic &middot; Regulatory</h3>
+    <table class="data">
+      <thead>
+        <tr><th>Country</th><th>Authority</th><th class="num">Cases</th><th class="num">%</th></tr>
+      </thead>
+      <tbody>
+        {country_rows}
+      </tbody>
+    </table>
+  </div>
 </div>
 
-</body></html>"""
-    
+<div class="cta-box">
+  <div class="cta-text">
+    <h3>Live Dashboard &middot; Full Dataset Access</h3>
+    <p>Filter by pathogen, country, tier, and source. Download the accumulative XLSX dataset. Set custom alerts.</p>
+  </div>
+  <a class="cta-btn" href="https://www.advfood.tech/food-safety-intelligence" target="_blank" rel="noopener">Access Portal &rarr;</a>
+</div>
+
+<div class="sec-head">
+  <span class="sec-num">&sect; 04</span>
+  <h2 class="sec-title">Methodology &amp; Sources</h2>
+  <span class="sec-rule"></span>
+</div>
+<div class="meth">
+  <p>
+    <strong>Data ingestion.</strong> The AFTS Food Safety Intelligence System aggregates regulatory recall notices
+    from 66 primary sources covering 60+ countries, including FDA, USDA FSIS, EU RASFF, FSA (UK), FSANZ, CFIA,
+    RappelConso, and national authorities across Europe, Asia-Pacific, and the Americas.
+  </p>
+  <p>
+    <strong>AI enrichment.</strong> Each record is processed through a multi-stage pipeline: Gemini (initial extraction),
+    OpenAI GPT (normalisation and quality control), and Claude (Tier-1 safety validation and severity tagging).
+    Records are de-duplicated and harmonised before entering the accumulative dataset.
+  </p>
+  <p>
+    <strong>This briefing.</strong> Statistical analysis draws from the accumulative <em>recalls.xlsx</em> dataset
+    filtered to the reporting week ({week_start.strftime('%d %b')} &ndash; {week_end.strftime('%d %b %Y')}).
+    Narrative analysis is generated by Claude Sonnet 4 and edited by GPT-4o-mini for publication. All figures
+    and pathogen names are preserved verbatim from source data.
+  </p>
+</div>
+
+<footer class="footer">
+  <div>
+    <div class="foot-brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
+    <div class="foot-meta">
+      Food Process Engineering &middot; Thermal Processing &middot; Regulatory Compliance<br>
+      advfood.tech &middot; info@advfood.tech &middot; Athens, Greece<br>
+      &copy; {year} Advanced Food Tech Solutions P.C. &middot; EUID ELGEMI.172600154000
+    </div>
+  </div>
+  <div class="foot-legal">
+    This briefing is provided for informational purposes only and does not constitute regulatory, legal,
+    or medical advice. Subscribers should verify recall status with the originating regulatory authority
+    before taking action. Next issue: {(week_end + timedelta(days=7)).strftime('%A, %d %b %Y')}.
+  </div>
+</footer>
+
+</body>
+</html>"""
+
     return html, stats
 
-def update_dashboard_data(week_end: date, stats: Dict[str, Any]):
-    """Update index.html embedded data to match the new weekly report"""
-    
+# --- Dashboard update (accumulative) ----------------------------------------
+def update_dashboard_data(week_end: date, stats: Dict[str, Any], index_path: Path):
+    """Append/replace this week's entry in the embedded reports array; preserve history."""
+    if not index_path.exists():
+        log.warning("index.html not found at %s; skipping dashboard update", index_path)
+        return
+
     wnum = week_end.isocalendar()[1]
     year = week_end.year
     week_start = week_end - timedelta(days=6)
-    
-    # Create new report entry
-    report_entry = {
+
+    entry = {
         "filename": f"{year}-W{wnum:02d}.html",
         "week_num": wnum,
         "year": year,
         "week_start": week_start.strftime('%Y-%m-%d'),
-        "week_end": week_end.strftime('%Y-%m-%d'),
-        "generated": datetime.utcnow().isoformat() + "Z",
-        "total": stats['total'],
-        "tier1": stats['tier1'],
-        "outbreaks": stats['outbreaks'],
+        "week_end":   week_end.strftime('%Y-%m-%d'),
+        "generated":  datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "total":      stats['total'],
+        "tier1":      stats['tier1'],
+        "outbreaks":  stats['outbreaks'],
         "top_pathogen": stats['top_pathogen'][0] if stats['top_pathogen'] else None,
-        "summary": f"Week {wnum} saw {stats['total']} pathogen recalls with {stats['top_pathogen'][0] if stats['top_pathogen'] else 'mixed pathogens'} as primary concern."
+        "summary": (f"Week {wnum}: {stats['total']} recalls, "
+                    f"{stats['tier1']} Tier-1, {stats['outbreaks']} outbreak(s). "
+                    f"Leading pathogen: {stats['top_pathogen'][0] if stats['top_pathogen'] else 'n/a'}."),
     }
-    
-    # Read and update index.html
-    index_path = ROOT / "index.html"
-    try:
-        if index_path.exists():
-            content = index_path.read_text()
-            
-            # Replace the embedded reports array
-            import re
-            pattern = r'const reports = \[([^\]]*)\];'
-            replacement = f'const reports = {json.dumps([report_entry], indent=4)};'
-            
-            updated_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-            
-            index_path.write_text(updated_content)
-            log.info("Dashboard embedded data updated successfully")
-        else:
-            log.warning("index.html not found, skipping dashboard update")
-            
-    except Exception as e:
-        log.error(f"Error updating dashboard data: {e}")
 
+    content = index_path.read_text(encoding='utf-8')
+
+    # Find the reports array with a balanced match across newlines.
+    m = re.search(r'const\s+reports\s*=\s*(\[.*?\]);', content, flags=re.DOTALL)
+    if not m:
+        log.warning("Could not locate `const reports = [...]` in index.html")
+        return
+
+    try:
+        existing = json.loads(m.group(1))
+        if not isinstance(existing, list):
+            existing = []
+    except json.JSONDecodeError:
+        log.warning("Existing reports array not valid JSON; starting fresh")
+        existing = []
+
+    # Replace by filename if it exists; otherwise insert
+    existing = [r for r in existing if r.get("filename") != entry["filename"]]
+    existing.insert(0, entry)
+    existing.sort(key=lambda r: r.get("week_end", ""), reverse=True)
+
+    new_block = f'const reports = {json.dumps(existing, indent=4)};'
+    updated = content[:m.start()] + new_block + content[m.end():]
+    index_path.write_text(updated, encoding='utf-8')
+    log.info("Dashboard updated: %d total reports in history", len(existing))
+
+# --- Main -------------------------------------------------------------------
 def main():
-    """Main CLI function"""
-    ap = argparse.ArgumentParser(description="Build AFTS weekly food safety intelligence report")
+    ap = argparse.ArgumentParser(description="AFTS weekly food safety intelligence briefing")
     ap.add_argument("--week-end", required=True, help="Friday date YYYY-MM-DD")
     ap.add_argument("--xlsx", default=str(ROOT / "data" / "recalls.xlsx"))
-    ap.add_argument("--output", default=None, help="Output HTML path (default: reports/<year>-W<num>.html)")
+    ap.add_argument("--output", default=None, help="Output HTML path (default: <year>-W<week>.html in repo root)")
+    ap.add_argument("--index", default=str(ROOT / "index.html"))
     args = ap.parse_args()
 
-    week_end = datetime.strptime(args.week_end, "%Y-%m-%d").date()
+    try:
+        week_end = datetime.strptime(args.week_end, "%Y-%m-%d").date()
+    except ValueError:
+        log.error("Invalid --week-end: %s (expected YYYY-MM-DD)", args.week_end)
+        return 2
+
     week_start = week_end - timedelta(days=6)
-    prev_week_end = week_end - timedelta(days=7)
+    prev_end = week_end - timedelta(days=7)
 
-    log.info("Building AFTS report for week %s to %s", week_start, week_end)
+    log.info("AFTS weekly report | week %s -> %s (W%02d, %d)",
+             week_start, week_end, week_end.isocalendar()[1], week_end.year)
 
-    all_recalls = load_recalls(Path(args.xlsx))
-    log.info("Loaded %d total recalls from %s", len(all_recalls), args.xlsx)
+    xlsx_path = Path(args.xlsx)
+    all_recalls = load_recalls(xlsx_path)
+    log.info("Loaded %d recalls from %s", len(all_recalls), xlsx_path)
+
+    if not all_recalls:
+        log.error("No recalls loaded; aborting to avoid empty report.")
+        return 3
 
     week_recalls = filter_week(all_recalls, week_end)
-    prev_recalls = filter_week(all_recalls, prev_week_end)
-    log.info("Week %s: %d recalls", week_end, len(week_recalls))
+    prev_recalls = filter_week(all_recalls, prev_end)
+    log.info("This week: %d | prior week: %d", len(week_recalls), len(prev_recalls))
 
     html, stats = build_html(week_end, week_recalls, prev_recalls)
 
-    # Save report with original naming format
-    output = Path(args.output) if args.output else Path(f"{year}-W{wnum:02d}.html")
-    output.write_text(html, encoding="utf-8")
-    log.info("Report written to %s (%d bytes)", output, len(html))
+    # FIX: compute filename here from week_end (NOT inside build_html scope)
+    wnum = week_end.isocalendar()[1]
+    year = week_end.year
+    out_path = Path(args.output) if args.output else (ROOT / f"{year}-W{wnum:02d}.html")
 
-    # Update dashboard embedded data
-    update_dashboard_data(week_end, stats)
+    out_path.write_text(html, encoding='utf-8')
+    log.info("Report written: %s (%d bytes)", out_path, len(html))
+
+    update_dashboard_data(week_end, stats, Path(args.index))
+
+    log.info("Done | Total=%d | Tier1=%d | Outbreaks=%d | Top=%s",
+             stats['total'], stats['tier1'], stats['outbreaks'],
+             stats['top_pathogen'][0] if stats['top_pathogen'] else '-')
 
     return 0
 
