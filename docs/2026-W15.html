@@ -56,14 +56,30 @@ a:hover { text-decoration:underline; }
 .r-title {
   font-family:'Syne', sans-serif; font-weight:800; font-size:38px;
   color:var(--black); letter-spacing:-0.02em; line-height:1.15;
-  margin:8px 0 10px;
+  margin:2px 0 10px;
 }
 .r-title .accent { color:var(--orange); }
+.r-kicker {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:13px;
+  color:var(--black); letter-spacing:0.08em; text-transform:uppercase;
+  margin:8px 0 6px;
+}
+.r-kicker-dot { color:var(--orange); font-style:normal; margin:0 2px; }
 .r-sub {
-  color:var(--muted); font-size:14px; margin-bottom:30px;
-  padding-bottom:22px; border-bottom:1px solid var(--brd);
+  color:var(--muted); font-size:14px; margin-bottom:16px;
 }
 .r-sub strong { color:var(--ink); font-weight:600; }
+.r-authority {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:10px 14px; background:var(--s1); border-left:3px solid var(--orange);
+  font-family:'DM Mono', monospace; font-size:11px; color:var(--ink);
+  margin-bottom:30px;
+}
+.auth-label {
+  font-size:9px; font-weight:700; color:var(--orange);
+  text-transform:uppercase; letter-spacing:0.14em;
+  border-right:1px solid var(--brd); padding-right:10px;
+}
 
 .kpi-strip {
   display:grid; grid-template-columns:repeat(4, 1fr);
@@ -252,7 +268,23 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
 }
 
 @media print {
-  body { max-width:none; padding:20px; font-size:11px; }
+  /* Running footer on every printed page: process-authority attribution
+     anchors the AFTS differentiator visually throughout the document. */
+  @page {
+    size: A4;
+    margin: 16mm 14mm 20mm 14mm;
+    @bottom-left {
+      content: "AFTS · Process Validation Intelligence · under AFTS process authority";
+      font-family: 'DM Mono', monospace; font-size: 8pt; color: #6b7280;
+      letter-spacing: 0.04em;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " / " counter(pages);
+      font-family: 'DM Mono', monospace; font-size: 8pt; color: #6b7280;
+      letter-spacing: 0.04em;
+    }
+  }
+  body { max-width:none; padding:0; margin:0; font-size:11px; }
   .cta-box { display:none; }
   .masthead { border-top-width:4px; }
   .kpi-value { font-size:32px; }
@@ -367,17 +399,22 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
     <div class="report-meta">
       <strong>ISSUE</strong> &middot; Week 15, 2026<br>
       <strong>PERIOD</strong> &middot; 04 Apr &ndash; 10 Apr 2026<br>
-      <strong>PUBLISHED</strong> &middot; 16 Apr 2026 &middot; 08:37 UTC
+      <strong>PUBLISHED</strong> &middot; 16 Apr 2026 &middot; 09:31 UTC
     </div>
   </div>
 </header>
 
+<div class="r-kicker">AFTS <span class="r-kicker-dot">&middot;</span> Process Validation Intelligence</div>
 <h1 class="r-title">Pathogen Surveillance <span class="accent">&middot;</span> Week 15</h1>
 <p class="r-sub">
   AI-powered analysis of <strong>63</strong> regulatory recall actions across
   <strong>9</strong> jurisdictions, aggregated from 66 primary sources
   monitored continuously by the AFTS intelligence platform.
 </p>
+<div class="r-authority">
+  <span class="auth-label">Process Authority</span>
+  Food Process Engineering &middot; Thermal Processing &middot; Regulatory Compliance
+</div>
 
 <div class="kpi-strip">
   <div class="kpi">
@@ -408,9 +445,9 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   <span class="sec-rule"></span>
 </div>
 <div class="analysis">
-  <p>This week produced 63 pathogen-related recall incidents across the AFTS monitoring network, with 58 classified as Tier-1 and 2 confirmed outbreak event(s). The overall risk posture remains elevated, driven primarily by Listeria monocytogenes activity. Food manufacturers should treat the week's volume as indicative of sustained surveillance pressure from regulators.</p>
-  <p>Listeria monocytogenes accounted for 55 of 63 incidents (87%), consistent with its status as a persistent risk in ready-to-eat, deli, dairy, and fresh-produce categories. Sanitation programmes targeting post-process contamination, as well as validated lethality steps (F-value, pasteurisation schedules), warrant review this week. Facilities operating under FDA 21 CFR 113/114 or PMO should confirm compliance margins.</p>
-  <p>Regulatory activity spanned multiple jurisdictions, indicating coordinated enforcement across RASFF, FDA, CFIA, and FSA channels. Exporters should anticipate continued inspection intensity and prepare documentation packages for rapid response. AFTS recommends reviewing supplier verification protocols and confirming process-deviation procedures before the next production cycle.</p>
+  <p>This week produced 63 pathogen-related recall incidents across the AFTS monitoring network, with 58 classified as Tier-1 and 2 confirmed outbreak event(s). Listeria monocytogenes dominated the surveillance window, accounting for 55 of 63 incidents (87%). The elevated Tier-1 ratio indicates sustained regulatory pressure and should be read by food manufacturers as a signal of tightening enforcement.</p>
+  <p>Listeria monocytogenes at this concentration points to post-process recontamination in ready-to-eat deli, dairy, and cooked-meat lines rather than thermal underprocess. The likely failure modes are Zone 1 environmental harbourage, sanitation SOP drift, and post-lethality recontamination. 21 CFR 117 environmental monitoring and the 6-log Listeria lethality requirement (21 CFR 113/114 where applicable) are the relevant frameworks for review.</p>
+  <p>Regulatory activity this week spanned multiple jurisdictions (RASFF, FDA, CFIA, FSA, and national authorities), signalling continued inspection intensity. AFTS recommends that food manufacturers use this briefing as a prompt to re-verify the single highest-leverage control for their commodity this week and to confirm documentation packages are ready for rapid regulatory response.</p>
 </div>
 
 <div class="sec-head">
@@ -636,20 +673,26 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
 </div>
 <div class="meth">
   <p>
-    <strong>Data ingestion.</strong> The AFTS Food Safety Intelligence System aggregates regulatory recall notices
-    from 66 primary sources covering 60+ countries, including FDA, USDA FSIS, EU RASFF, FSA (UK), FSANZ, CFIA,
-    RappelConso, and national authorities across Europe, Asia-Pacific, and the Americas.
+    <strong>Process authority.</strong> Analytical frameworks, severity rubrics, pathogen
+    classification, and the engineering interpretation of each recall are developed under the
+    process authority of AFTS, drawing on in-house expertise in food process engineering,
+    thermal processing, and regulatory compliance. Every view is grounded in validated
+    process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic
+    and UHT, hold-tube and F-value lethality, and HACCP. This is what the AFTS platform brings
+    that pure data feeds do not &mdash; data under engineering authority.
   </p>
   <p>
-    <strong>AI enrichment.</strong> Each record is processed through a multi-stage pipeline: Gemini (initial extraction),
-    OpenAI GPT (normalisation and quality control), and Claude (Tier-1 safety validation and severity tagging).
-    Records are de-duplicated and harmonised before entering the accumulative dataset.
+    <strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from
+    66 primary sources across 60+ countries (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso,
+    BVL, AESAN, EFET, and national authorities) and processes each record through Gemini
+    (extraction), OpenAI GPT (normalisation), and Claude (Tier-1 validation). Records are
+    de-duplicated and harmonised into the accumulative dataset.
   </p>
   <p>
-    <strong>This briefing.</strong> Statistical analysis draws from the accumulative <em>recalls.xlsx</em> dataset
-    filtered to the reporting week (04 Apr &ndash; 10 Apr 2026).
-    Narrative analysis is generated by Claude Sonnet 4 and edited by GPT-4o-mini for publication. All figures
-    and pathogen names are preserved verbatim from source data.
+    <strong>This briefing.</strong> Statistical analysis filters the accumulative dataset to the
+    reporting week (04 Apr &ndash; 10 Apr 2026).
+    AI-generated narrative is produced against AFTS process-authority prompts and edited for
+    publication. Figures and pathogen names are preserved verbatim from source data.
   </p>
 </div>
 

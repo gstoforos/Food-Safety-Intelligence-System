@@ -294,7 +294,9 @@ def generate_report_with_claude(stats: Dict[str, Any], week_recalls: List[Dict])
         direction = "increase" if stats["delta"] > 0 else ("decrease" if stats["delta"] < 0 else "no change")
         delta_txt = f"Week-over-week {direction}: {stats['delta']:+d} recalls ({stats['delta_pct']:+d}%)."
 
-    prompt = f"""You are the lead food safety analyst at Advanced Food-Tech Solutions (AFTS), a specialised food process engineering firm. Write the weekly pathogen surveillance briefing for Fortune-500 food safety executives, QA directors, and regulatory affairs teams.
+    prompt = f"""You are producing the weekly pathogen surveillance briefing for Advanced Food-Tech Solutions (AFTS), a food process engineering firm. Your analysis MUST sound like it comes from a practising process authority - not a generic AI. That means: name specific process-control failure modes, cite validated engineering frameworks (F-value lethality, D-value, hold-tube residence time, FDA 21 CFR 113/114, PMO, HACCP CCPs, pre-op sanitation, environmental monitoring programmes), and tie every pathogen to the PROCESS that failed to eliminate it.
+
+This is what differentiates AFTS from pure data platforms (e.g. Foodakai): we interpret recalls through validated food process engineering, not just count them.
 
 DATA SUMMARY (this week):
 - Total pathogen recalls: {stats['total']}
@@ -312,13 +314,13 @@ GEOGRAPHIC DISTRIBUTION:
 TOP 5 INCIDENTS:
 {json.dumps(top_incidents, indent=2)}
 
-Write exactly THREE paragraphs, each 3-4 sentences, in professional executive-briefing tone. NO headers, NO bullet points, NO emoji, NO markdown. Use UK/US business English. Reference specific numbers and named pathogens.
+Write exactly THREE paragraphs, each 3-4 sentences, in an authoritative professional-engineering tone. NO headers, NO bullet points, NO emoji, NO markdown. Use UK/US business English. Reference specific numbers and named pathogens.
 
-Paragraph 1 - EXECUTIVE SUMMARY: Frame the week's pathogen activity, quantify the risk posture, note the week-over-week trend.
+Paragraph 1 - EXECUTIVE SUMMARY: Frame the week's activity quantitatively (total, Tier-1, outbreaks, week-over-week). Name the leading pathogen and at least one specific product category or commodity it appeared in this week.
 
-Paragraph 2 - PATHOGEN RISK FOCUS: Analyse the dominant pathogen's implications for thermal processing, supply-chain hygiene, or sanitation controls. Name specific food categories or process vulnerabilities where relevant (aseptic/UHT, RTE, fresh produce, dairy, deli).
+Paragraph 2 - PROCESS-FAILURE ANALYSIS: Diagnose the likely failure mode(s) behind this week's dominant pathogen. Be specific: is this a thermal underprocess, a post-pasteurisation recontamination, an environmental monitoring gap, raw-material sourcing, sanitation SOP failure, validation drift, or a cold-chain breach? Reference the relevant engineering standard (e.g. "minimum 6-log Listeria lethality per 21 CFR 113", "HTST 72 C / 15 s per PMO", "aseptic hold-tube residence time validation") and name the food category most at risk. Do not hedge - a process authority would commit to a most-likely mechanism.
 
-Paragraph 3 - GEOGRAPHIC & REGULATORY ASSESSMENT: Interpret the geographic distribution, note which regulatory regimes are most active (RASFF, FDA, CFIA, FSA, etc.), and close with a concrete recommendation for food manufacturers.
+Paragraph 3 - ENGINEERING RECOMMENDATION: Close with a concrete recommendation a VP of QA at a food manufacturer could act on this week. Name the specific control(s) to re-verify (e.g. "revalidate hold-tube residence time under current production flow rates", "increase Zone 1 environmental swab frequency on RTE deli lines", "verify post-retort thermocouple placement"). Tie it to the week's regulatory pattern (RASFF, FDA, CFIA, FSA).
 
 Return only the three paragraphs separated by a single blank line."""
 
@@ -351,18 +353,49 @@ def generate_fallback_analysis(stats: Dict[str, Any]) -> str:
     outbreaks = stats['outbreaks']
     pct = round((count / total) * 100) if total > 0 else 0
 
-    p1 = (f"This week produced {total} pathogen-related recall incidents across the AFTS monitoring network, "
-          f"with {tier1} classified as Tier-1 and {outbreaks} confirmed outbreak event(s). "
-          f"The overall risk posture remains elevated, driven primarily by {top_pathogen} activity. "
-          f"Food manufacturers should treat the week's volume as indicative of sustained surveillance pressure from regulators.")
-    p2 = (f"{top_pathogen} accounted for {count} of {total} incidents ({pct}%), consistent with its status as a "
-          f"persistent risk in ready-to-eat, deli, dairy, and fresh-produce categories. Sanitation programmes targeting "
-          f"post-process contamination, as well as validated lethality steps (F-value, pasteurisation schedules), warrant "
-          f"review this week. Facilities operating under FDA 21 CFR 113/114 or PMO should confirm compliance margins.")
-    p3 = (f"Regulatory activity spanned multiple jurisdictions, indicating coordinated enforcement across RASFF, FDA, CFIA, "
-          f"and FSA channels. Exporters should anticipate continued inspection intensity and prepare documentation packages "
-          f"for rapid response. AFTS recommends reviewing supplier verification protocols and confirming process-deviation "
-          f"procedures before the next production cycle.")
+    p1 = (f"This week produced {total} pathogen-related recall incidents across the AFTS monitoring "
+          f"network, with {tier1} classified as Tier-1 and {outbreaks} confirmed outbreak event(s). "
+          f"{top_pathogen} dominated the surveillance window, accounting for {count} of {total} "
+          f"incidents ({pct}%). The elevated Tier-1 ratio indicates sustained regulatory pressure "
+          f"and should be read by food manufacturers as a signal of tightening enforcement.")
+
+    # Tailor paragraph 2 to the leading pathogen
+    p_lower = (top_pathogen or "").lower()
+    if "listeria" in p_lower:
+        p2 = (f"{top_pathogen} at this concentration points to post-process recontamination in "
+              f"ready-to-eat deli, dairy, and cooked-meat lines rather than thermal underprocess. "
+              f"The likely failure modes are Zone 1 environmental harbourage, sanitation SOP drift, "
+              f"and post-lethality recontamination. 21 CFR 117 environmental monitoring and the "
+              f"6-log Listeria lethality requirement (21 CFR 113/114 where applicable) are the "
+              f"relevant frameworks for review.")
+    elif "salmonella" in p_lower:
+        p2 = (f"{top_pathogen} at this volume typically traces to raw-material contamination, "
+              f"insufficient thermal lethality, or post-process handling. Validate pasteurisation "
+              f"D-values against current product formulations, confirm hold-tube residence time "
+              f"under production flow rates, and audit supplier verification protocols for "
+              f"high-risk commodities (poultry, eggs, produce, low-moisture products).")
+    elif "e. coli" in p_lower or "stec" in p_lower:
+        p2 = (f"{top_pathogen} in RTE products indicates either inadequate cook step or "
+              f"post-cook cross-contamination. Re-verify core temperature achievement against "
+              f"USDA Appendix A lethality tables, confirm hot-hold temperatures at or above "
+              f"60 C, and audit raw/cooked segregation on the processing line.")
+    elif "botulinum" in p_lower:
+        p2 = (f"{top_pathogen} recalls are process-authority events by definition. Verify scheduled "
+              f"process adequacy under 21 CFR 113 (LACF) or 114 (acidified foods), revalidate "
+              f"F-value delivery on the slowest-heating particle, and confirm container integrity "
+              f"across the retort cycle. Any deviation from the filed scheduled process triggers "
+              f"immediate process-authority review.")
+    else:
+        p2 = (f"{top_pathogen} at {pct}% of this week's total warrants review of both thermal "
+              f"lethality validation and post-process hygiene controls. Re-verify CCP monitoring "
+              f"records for the affected product categories and confirm environmental monitoring "
+              f"coverage.")
+
+    p3 = (f"Regulatory activity this week spanned multiple jurisdictions (RASFF, FDA, CFIA, FSA, "
+          f"and national authorities), signalling continued inspection intensity. AFTS recommends "
+          f"that food manufacturers use this briefing as a prompt to re-verify the single "
+          f"highest-leverage control for their commodity this week and to confirm documentation "
+          f"packages are ready for rapid regulatory response.")
     return f"{p1}\n\n{p2}\n\n{p3}"
 
 def review_with_openai(report_content: str) -> str:
@@ -450,17 +483,20 @@ def render_top5_row(i: int, r: Dict) -> str:
 
     return f"""
     <tr>
-      <td class="rank-num">{i}</td>
-      <td class="date-cell">{escape(date_str)}</td>
-      <td>
+      <td class="rank-num" data-label="#">{i}</td>
+      <td class="date-cell" data-label="Date">{escape(date_str)}</td>
+      <td data-label="Pathogen">
         <span class="path-dot" style="background:{badge_color}"></span>
         <span class="path-name">{escape(canon)}</span>
         {tier_chip}{outbreak_chip}
       </td>
-      <td class="co-cell"><strong>{escape(company)}</strong>{brand_line}</td>
-      <td class="prod-cell">{escape(product)}</td>
-      <td>{escape(country)}<div class="src-sub">{escape(source)}</div></td>
-      <td class="link-cell">{link_cell}</td>
+      <td class="co-cell" data-label="Company"><strong>{escape(company)}</strong>{brand_line}</td>
+      <td class="prod-cell" data-label="Product">{escape(product)}</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">{escape(country)}</div>
+        <div class="src-sub">{escape(source)}</div>
+        <div class="juris-link">{link_cell}</div>
+      </td>
     </tr>"""
 
 def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tuple[str, Dict[str, Any]]:
@@ -477,11 +513,15 @@ def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tu
     while len(paragraphs) < 3:
         paragraphs.append("")
 
+    # Stash the analysis and top5 for main() to use when writing the summary JSON
+    stats["_first_paragraph"] = paragraphs[0]
+    stats["_top5"] = top5
+
     # Top 5 rows
     if top5:
         top5_rows = "".join(render_top5_row(i, r) for i, r in enumerate(top5, 1))
     else:
-        top5_rows = '<tr><td colspan="7" class="empty">No recalls recorded this reporting period.</td></tr>'
+        top5_rows = '<tr><td colspan="6" class="empty">No recalls recorded this reporting period.</td></tr>'
 
     # Pathogen distribution
     total_safe = stats['total'] or 1
@@ -584,14 +624,30 @@ a:hover {{ text-decoration:underline; }}
 .r-title {{
   font-family:'Syne', sans-serif; font-weight:800; font-size:38px;
   color:var(--black); letter-spacing:-0.02em; line-height:1.15;
-  margin:8px 0 10px;
+  margin:2px 0 10px;
 }}
 .r-title .accent {{ color:var(--orange); }}
+.r-kicker {{
+  font-family:'Syne', sans-serif; font-weight:800; font-size:13px;
+  color:var(--black); letter-spacing:0.08em; text-transform:uppercase;
+  margin:8px 0 6px;
+}}
+.r-kicker-dot {{ color:var(--orange); font-style:normal; margin:0 2px; }}
 .r-sub {{
-  color:var(--muted); font-size:14px; margin-bottom:30px;
-  padding-bottom:22px; border-bottom:1px solid var(--brd);
+  color:var(--muted); font-size:14px; margin-bottom:16px;
 }}
 .r-sub strong {{ color:var(--ink); font-weight:600; }}
+.r-authority {{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:10px 14px; background:var(--s1); border-left:3px solid var(--orange);
+  font-family:'DM Mono', monospace; font-size:11px; color:var(--ink);
+  margin-bottom:30px;
+}}
+.auth-label {{
+  font-size:9px; font-weight:700; color:var(--orange);
+  text-transform:uppercase; letter-spacing:0.14em;
+  border-right:1px solid var(--brd); padding-right:10px;
+}}
 
 .kpi-strip {{
   display:grid; grid-template-columns:repeat(4, 1fr);
@@ -665,13 +721,22 @@ table.data td.empty {{
   text-align:center; color:var(--muted); padding:28px; font-style:italic;
 }}
 
+/* Top 5 column sizing - keeps table within A4 and desktop viewport */
+table.top5 {{ table-layout:fixed; width:100%; }}
+table.top5 th:nth-child(1), table.top5 td:nth-child(1) {{ width:5%;  }}  /* # */
+table.top5 th:nth-child(2), table.top5 td:nth-child(2) {{ width:9%;  }}  /* Date */
+table.top5 th:nth-child(3), table.top5 td:nth-child(3) {{ width:19%; }}  /* Pathogen */
+table.top5 th:nth-child(4), table.top5 td:nth-child(4) {{ width:18%; }}  /* Company */
+table.top5 th:nth-child(5), table.top5 td:nth-child(5) {{ width:30%; }}  /* Product */
+table.top5 th:nth-child(6), table.top5 td:nth-child(6) {{ width:19%; }}  /* Jurisdiction+Source */
+table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
+
 .rank-num {{
   font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
-  color:var(--orange); text-align:center; width:48px;
+  color:var(--orange); text-align:center;
 }}
 .date-cell {{
   font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
-  white-space:nowrap; width:96px;
 }}
 .path-dot {{
   display:inline-block; width:9px; height:9px; border-radius:50%;
@@ -680,11 +745,13 @@ table.data td.empty {{
 .path-name {{ font-weight:600; color:var(--ink); }}
 .co-cell strong {{ color:var(--black); font-weight:700; display:block; }}
 .brand-sub {{ font-size:11px; color:var(--muted); margin-top:2px; font-style:italic; }}
-.prod-cell {{ color:var(--body); max-width:260px; }}
+.prod-cell {{ color:var(--body); }}
+.juris-country {{ font-weight:600; color:var(--ink); }}
 .src-sub {{
   font-family:'DM Mono', monospace; font-size:10px;
   color:var(--muted); margin-top:3px;
 }}
+.juris-link {{ margin-top:6px; }}
 .chip-tier1 {{
   display:inline-block; background:var(--red); color:#fff;
   font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
@@ -700,12 +767,11 @@ table.data td.empty {{
   font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
   padding:2px 6px; border-radius:2px; margin-left:4px; letter-spacing:0.06em;
 }}
-.link-cell {{ white-space:nowrap; }}
 .src-link {{
   font-family:'DM Mono', monospace; font-size:11px; font-weight:700;
   color:var(--orange); letter-spacing:0.02em;
 }}
-.src-na {{ color:var(--dim); font-family:'DM Mono', monospace; font-size:11px; }}
+.src-na {{ color:var(--dim); font-family:'DM Mono', monospace; font-size:10px; font-style:italic; }}
 
 .dist-grid {{
   display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:10px;
@@ -770,13 +836,38 @@ table.data td.empty {{
 }}
 
 @media print {{
-  body {{ max-width:none; padding:20px; font-size:11px; }}
+  /* Running footer on every printed page: process-authority attribution
+     anchors the AFTS differentiator visually throughout the document. */
+  @page {{
+    size: A4;
+    margin: 16mm 14mm 20mm 14mm;
+    @bottom-left {{
+      content: "AFTS · Process Validation Intelligence · under AFTS process authority";
+      font-family: 'DM Mono', monospace; font-size: 8pt; color: #6b7280;
+      letter-spacing: 0.04em;
+    }}
+    @bottom-right {{
+      content: "Page " counter(page) " / " counter(pages);
+      font-family: 'DM Mono', monospace; font-size: 8pt; color: #6b7280;
+      letter-spacing: 0.04em;
+    }}
+  }}
+  body {{ max-width:none; padding:0; margin:0; font-size:11px; }}
   .cta-box {{ display:none; }}
   .masthead {{ border-top-width:4px; }}
   .kpi-value {{ font-size:32px; }}
   .r-title {{ font-size:28px; }}
   table.data th {{ background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
   .analysis {{ border-left-width:3px; }}
+  /* Top-5 print tightening - fit all 6 columns on A4 */
+  table.top5 {{ font-size:10px; }}
+  table.top5 th {{ padding:8px 6px; font-size:9px; }}
+  table.top5 td {{ padding:9px 6px; }}
+  table.top5 .rank-num {{ font-size:16px; }}
+  table.top5 .path-name {{ font-size:10px; }}
+  table.top5 .brand-sub, table.top5 .src-sub {{ font-size:9px; }}
+  table.top5 .chip-tier1, table.top5 .chip-tier2, table.top5 .chip-outbreak {{ font-size:8px; padding:1px 4px; }}
+  table.top5 .src-link {{ font-size:9px; }}
   /* Footer: switch from flex to a clean vertical stack for print.
      WeasyPrint and some browser print engines overlap the two halves
      when flex wraps at narrow widths - block layout avoids it entirely. */
@@ -801,8 +892,66 @@ table.data td.empty {{
   .masthead {{ flex-direction:column; gap:16px; }}
   .mast-right {{ text-align:left; }}
   .r-title {{ font-size:28px; }}
-  table.data {{ font-size:11px; }}
-  table.data th, table.data td {{ padding:8px; }}
+}}
+
+/* Mobile Top-5: switch from a 6-column table to stacked cards.
+   On phones, a horizontal table would either scroll sideways (bad UX) or
+   compress columns into unreadable widths. Instead, each row becomes a
+   card with labeled fields - all data visible, no horizontal scroll. */
+@media (max-width:700px) {{
+  table.top5, table.top5 thead, table.top5 tbody, table.top5 tr, table.top5 td {{
+    display:block; width:auto !important;
+  }}
+  /* Kill all fixed column widths - they would make card-mode cells unreadably narrow */
+  table.top5 th:nth-child(1), table.top5 td:nth-child(1),
+  table.top5 th:nth-child(2), table.top5 td:nth-child(2),
+  table.top5 th:nth-child(3), table.top5 td:nth-child(3),
+  table.top5 th:nth-child(4), table.top5 td:nth-child(4),
+  table.top5 th:nth-child(5), table.top5 td:nth-child(5),
+  table.top5 th:nth-child(6), table.top5 td:nth-child(6) {{
+    width:auto !important;
+  }}
+  table.top5 {{ border:none; table-layout:auto !important; }}
+  table.top5 thead {{ display:none; }}
+  table.top5 tr {{
+    border:1px solid var(--brd); border-left:4px solid var(--orange);
+    background:#fff; margin-bottom:12px; padding:8px 4px;
+    position:relative;
+  }}
+  table.top5 tr:nth-child(even) td {{ background:transparent; }}
+  table.top5 td {{
+    border:none !important; padding:7px 14px 7px 108px !important;
+    position:relative; min-height:28px;
+    word-wrap:normal; overflow-wrap:normal;
+  }}
+  table.top5 td::before {{
+    content:attr(data-label);
+    position:absolute; left:14px; top:7px; width:88px;
+    font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+    color:var(--muted); text-transform:uppercase; letter-spacing:0.08em;
+  }}
+  /* Rank number sits in top-right corner as an orange badge */
+  table.top5 .rank-num {{
+    position:absolute; top:8px; right:14px; padding:0 !important;
+    font-size:28px; min-height:0; text-align:right;
+  }}
+  table.top5 .rank-num::before {{ display:none; }}
+  table.top5 .date-cell {{ font-size:11px; }}
+  table.top5 .path-name {{ font-size:13px; }}
+  table.top5 .co-cell strong {{ font-size:13px; }}
+  table.top5 .prod-cell {{ line-height:1.45; font-size:13px; }}
+  table.top5 .juris-country {{ font-size:13px; }}
+  table.top5 .juris-link {{ margin-top:6px; }}
+}}
+
+@media (max-width:480px) {{
+  body {{ padding:0 14px 30px; }}
+  .kpi-strip {{ grid-template-columns:1fr 1fr; }}
+  .kpi {{ padding:16px 14px; }}
+  .kpi-value {{ font-size:28px; }}
+  .r-title {{ font-size:24px; }}
+  .analysis {{ padding:18px 20px; }}
+  .analysis p {{ font-size:13px; }}
 }}
 </style>
 </head>
@@ -823,12 +972,17 @@ table.data td.empty {{
   </div>
 </header>
 
+<div class="r-kicker">AFTS <span class="r-kicker-dot">&middot;</span> Process Validation Intelligence</div>
 <h1 class="r-title">Pathogen Surveillance <span class="accent">&middot;</span> Week {wnum:02d}</h1>
 <p class="r-sub">
   AI-powered analysis of <strong>{stats['total']}</strong> regulatory recall actions across
   <strong>{len(stats['country_counts'])}</strong> jurisdictions, aggregated from 66 primary sources
   monitored continuously by the AFTS intelligence platform.
 </p>
+<div class="r-authority">
+  <span class="auth-label">Process Authority</span>
+  Food Process Engineering &middot; Thermal Processing &middot; Regulatory Compliance
+</div>
 
 <div class="kpi-strip">
   <div class="kpi">
@@ -873,10 +1027,10 @@ table.data td.empty {{
   Ranked by pathogen severity (<em>C. botulinum</em> &rarr; <em>Listeria</em> &rarr; STEC &rarr; <em>Salmonella</em>), outbreak status, and tier classification.
   Each row links to the originating regulatory notice.
 </p>
-<table class="data">
+<table class="data top5">
   <thead>
     <tr>
-      <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction</th><th>Source</th>
+      <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction &amp; Source</th>
     </tr>
   </thead>
   <tbody>
@@ -929,20 +1083,26 @@ table.data td.empty {{
 </div>
 <div class="meth">
   <p>
-    <strong>Data ingestion.</strong> The AFTS Food Safety Intelligence System aggregates regulatory recall notices
-    from 66 primary sources covering 60+ countries, including FDA, USDA FSIS, EU RASFF, FSA (UK), FSANZ, CFIA,
-    RappelConso, and national authorities across Europe, Asia-Pacific, and the Americas.
+    <strong>Process authority.</strong> Analytical frameworks, severity rubrics, pathogen
+    classification, and the engineering interpretation of each recall are developed under the
+    process authority of AFTS, drawing on in-house expertise in food process engineering,
+    thermal processing, and regulatory compliance. Every view is grounded in validated
+    process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic
+    and UHT, hold-tube and F-value lethality, and HACCP. This is what the AFTS platform brings
+    that pure data feeds do not &mdash; data under engineering authority.
   </p>
   <p>
-    <strong>AI enrichment.</strong> Each record is processed through a multi-stage pipeline: Gemini (initial extraction),
-    OpenAI GPT (normalisation and quality control), and Claude (Tier-1 safety validation and severity tagging).
-    Records are de-duplicated and harmonised before entering the accumulative dataset.
+    <strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from
+    66 primary sources across 60+ countries (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso,
+    BVL, AESAN, EFET, and national authorities) and processes each record through Gemini
+    (extraction), OpenAI GPT (normalisation), and Claude (Tier-1 validation). Records are
+    de-duplicated and harmonised into the accumulative dataset.
   </p>
   <p>
-    <strong>This briefing.</strong> Statistical analysis draws from the accumulative <em>recalls.xlsx</em> dataset
-    filtered to the reporting week ({week_start.strftime('%d %b')} &ndash; {week_end.strftime('%d %b %Y')}).
-    Narrative analysis is generated by Claude Sonnet 4 and edited by GPT-4o-mini for publication. All figures
-    and pathogen names are preserved verbatim from source data.
+    <strong>This briefing.</strong> Statistical analysis filters the accumulative dataset to the
+    reporting week ({week_start.strftime('%d %b')} &ndash; {week_end.strftime('%d %b %Y')}).
+    AI-generated narrative is produced against AFTS process-authority prompts and edited for
+    publication. Figures and pathogen names are preserved verbatim from source data.
   </p>
 </div>
 
@@ -1034,6 +1194,73 @@ def update_dashboard_data(week_end: date, stats: Dict[str, Any], index_path: Pat
     updated = content[:m.start()] + new_block + content[m.end():]
     index_path.write_text(updated, encoding='utf-8')
 
+
+# --- Summary JSON for the subscriber mailer ---------------------------------
+# The Google Apps Script subscriber mailer fetches this file every Friday
+# and builds the email body from it. Keeping the email data in a small, stable
+# JSON contract decouples the email format from the HTML report format.
+def write_weekly_summary_json(week_end: date, stats: Dict[str, Any],
+                              site_base_url: str, out_path: Path):
+    wnum = week_end.isocalendar()[1]
+    year = week_end.year
+    week_start = week_end - timedelta(days=6)
+
+    # Top 5 incidents, stripped down to email-relevant fields
+    top5_out = []
+    for i, r in enumerate(stats.get("_top5", []), 1):
+        _, canon = severity_score(r.get("Pathogen") or "")
+        url = (r.get("URL") or "").strip()
+        good_url = is_report_grade_url(url)
+        top5_out.append({
+            "rank": i,
+            "date": fmt_date(r.get("Date")),
+            "pathogen": canon,
+            "pathogen_raw": r.get("Pathogen") or "",
+            "tier": safe_int(r.get("Tier"), 3),
+            "outbreak": bool(safe_int(r.get("Outbreak"), 0)),
+            "company": (r.get("Company") or "")[:80],
+            "brand":   (r.get("Brand") or "")[:60],
+            "product": (r.get("Product") or "")[:140],
+            "country": r.get("Country") or "",
+            "source":  (r.get("Source") or "").strip(),
+            "url": url if good_url else "",
+        })
+
+    top_pathogen_name, top_pathogen_count = stats.get("top_pathogen", ("-", 0))
+    total_safe = stats["total"] or 1
+    site_base = site_base_url.rstrip("/")
+
+    summary = {
+        "filename": f"{year}-W{wnum:02d}.html",
+        "report_url":   f"{site_base}/{year}-W{wnum:02d}.html",
+        "dashboard_url": f"{site_base}/",
+        "week_num": wnum,
+        "year": year,
+        "week_start": week_start.strftime("%Y-%m-%d"),
+        "week_end":   week_end.strftime("%Y-%m-%d"),
+        "week_start_display": week_start.strftime("%d %b"),
+        "week_end_display":   week_end.strftime("%d %b %Y"),
+        "generated_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "stats": {
+            "total":     stats["total"],
+            "tier1":     stats["tier1"],
+            "outbreaks": stats["outbreaks"],
+            "delta":     stats.get("delta"),
+            "delta_pct": stats.get("delta_pct"),
+        },
+        "leading_pathogen": {
+            "name":  top_pathogen_name,
+            "cases": top_pathogen_count,
+            "pct":   round(top_pathogen_count / total_safe * 100) if stats["total"] else 0,
+        },
+        "ai_lead_paragraph": stats.get("_first_paragraph", ""),
+        "top_threats": top5_out,
+        "country_count": len(stats.get("country_counts", [])),
+    }
+
+    out_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    log.info("Summary JSON written: %s", out_path)
+
 # --- Main -------------------------------------------------------------------
 def main():
     ap = argparse.ArgumentParser(description="AFTS weekly food safety intelligence briefing")
@@ -1041,6 +1268,12 @@ def main():
     ap.add_argument("--xlsx", default=str(ROOT / "data" / "recalls.xlsx"))
     ap.add_argument("--output", default=None, help="Output HTML path (default: <year>-W<week>.html in repo root)")
     ap.add_argument("--index", default=str(ROOT / "index.html"))
+    ap.add_argument("--site-url",
+                    default="https://gstoforos.github.io/Food-Safety-Intelligence-System/docs",
+                    help="Public base URL where the docs/ folder is served (used in email report_url)")
+    ap.add_argument("--summary-json",
+                    default=str(ROOT / "data" / "weekly-summary-latest.json"),
+                    help="Path for the companion JSON summary (consumed by the subscriber mailer)")
     args = ap.parse_args()
 
     try:
@@ -1078,6 +1311,16 @@ def main():
     log.info("Report written: %s (%d bytes)", out_path, len(html))
 
     update_dashboard_data(week_end, stats, Path(args.index))
+
+    # Emit the companion JSON summary ONLY for weeks that have been published
+    # (week_end <= today). This prevents the Apps Script mailer from sending an
+    # email for a report that isn't live yet.
+    if week_end <= date.today():
+        summary_path = Path(args.summary_json)
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        write_weekly_summary_json(week_end, stats, args.site_url, summary_path)
+    else:
+        log.info("Summary JSON: skipping (week_end %s is in the future)", week_end)
 
     log.info("Done | Total=%d | Tier1=%d | Outbreaks=%d | Top=%s",
              stats['total'], stats['tier1'], stats['outbreaks'],
