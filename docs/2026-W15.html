@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AFTS Pathogen Intelligence Briefing &middot; Week 15, 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:#0a0e1a; --orange:#E8601A;
+  --ink:#111827; --body:#1f2937; --muted:#6b7280; --dim:#9ca3af;
+  --bg:#ffffff; --s1:#f9fafb; --s2:#f3f4f6; --brd:#e5e7eb;
+  --red:#dc2626; --amber:#f59e0b; --violet:#9333ea; --green:#059669;
+}
+* { box-sizing:border-box; }
+html, body { margin:0; padding:0; background:var(--bg); }
+body {
+  font-family:'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color:var(--body); font-size:14px; line-height:1.65;
+  max-width:1180px; margin:0 auto; padding:0 40px 60px;
+}
+a { color:var(--orange); text-decoration:none; }
+a:hover { text-decoration:underline; }
+
+.masthead {
+  border-top:6px solid var(--black);
+  padding:28px 0 22px;
+  display:flex; justify-content:space-between; align-items:flex-start;
+  border-bottom:1px solid var(--brd);
+  margin-bottom:32px;
+}
+.brand-block .brand {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:24px;
+  color:var(--black); letter-spacing:-0.01em; text-transform:uppercase;
+  line-height:1.1;
+}
+.brand-block .brand em { color:var(--orange); font-style:normal; font-weight:800; }
+.brand-block .tagline {
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:600;
+  color:var(--muted); text-transform:uppercase; letter-spacing:0.14em;
+  margin-top:8px;
+}
+.mast-right { text-align:right; }
+.report-label {
+  display:inline-block; background:var(--black); color:#fff;
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  padding:5px 11px; letter-spacing:0.12em; text-transform:uppercase;
+  margin-bottom:10px;
+}
+.report-meta {
+  font-family:'DM Mono', monospace; font-size:11px;
+  color:var(--muted); line-height:1.8;
+}
+.report-meta strong { color:var(--ink); font-weight:700; }
+
+.r-title {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:38px;
+  color:var(--black); letter-spacing:-0.02em; line-height:1.15;
+  margin:8px 0 10px;
+}
+.r-title .accent { color:var(--orange); }
+.r-sub {
+  color:var(--muted); font-size:14px; margin-bottom:30px;
+  padding-bottom:22px; border-bottom:1px solid var(--brd);
+}
+.r-sub strong { color:var(--ink); font-weight:600; }
+
+.kpi-strip {
+  display:grid; grid-template-columns:repeat(4, 1fr);
+  gap:1px; background:var(--brd); border:1px solid var(--brd);
+  margin-bottom:32px;
+}
+.kpi { background:#fff; padding:22px 20px; }
+.kpi-label {
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  color:var(--muted); text-transform:uppercase; letter-spacing:0.1em;
+  margin-bottom:8px;
+}
+.kpi-value {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:42px;
+  color:var(--black); line-height:1; letter-spacing:-0.02em;
+}
+.kpi-value.red { color:var(--red); }
+.kpi-value.violet { color:var(--violet); }
+.kpi-value.orange { color:var(--orange); font-size:20px; line-height:1.2; }
+.kpi-delta {
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  margin-top:10px; letter-spacing:0.04em;
+}
+.kpi-top { font-size:11px; color:var(--muted); margin-top:10px; font-style:italic; }
+
+.sec-head {
+  display:flex; align-items:baseline; gap:14px;
+  margin:40px 0 16px;
+}
+.sec-num {
+  font-family:'DM Mono', monospace; font-size:11px; font-weight:700;
+  color:var(--orange); letter-spacing:0.12em;
+}
+.sec-title {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
+  color:var(--black); letter-spacing:-0.01em;
+}
+.sec-rule { flex:1; height:1px; background:var(--brd); }
+.sec-caption { color:var(--muted); font-size:13px; margin:-4px 0 14px; }
+.sec-caption em { color:var(--ink); font-style:italic; }
+
+.analysis {
+  background:var(--s1); border-left:4px solid var(--orange);
+  padding:26px 30px; margin-bottom:10px;
+}
+.analysis p { margin:0 0 14px; font-size:14.5px; line-height:1.75; }
+.analysis p:last-child { margin-bottom:0; }
+
+table.data {
+  width:100%; border-collapse:collapse; margin:0 0 10px;
+  background:#fff; border:1px solid var(--brd);
+  font-size:13px;
+}
+table.data th {
+  background:var(--black); color:#fff;
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:0.1em;
+  padding:12px 12px; text-align:left; border-bottom:2px solid var(--orange);
+}
+table.data td {
+  padding:14px 12px; border-bottom:1px solid var(--brd);
+  vertical-align:top;
+}
+table.data tr:last-child td { border-bottom:none; }
+table.data tr:nth-child(even) td { background:#fafbfc; }
+table.data td.num {
+  font-family:'DM Mono', monospace; font-weight:600; text-align:right;
+  white-space:nowrap;
+}
+table.data td.empty {
+  text-align:center; color:var(--muted); padding:28px; font-style:italic;
+}
+
+.rank-num {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
+  color:var(--orange); text-align:center; width:48px;
+}
+.date-cell {
+  font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
+  white-space:nowrap; width:96px;
+}
+.path-dot {
+  display:inline-block; width:9px; height:9px; border-radius:50%;
+  margin-right:7px; vertical-align:middle;
+}
+.path-name { font-weight:600; color:var(--ink); }
+.co-cell strong { color:var(--black); font-weight:700; display:block; }
+.brand-sub { font-size:11px; color:var(--muted); margin-top:2px; font-style:italic; }
+.prod-cell { color:var(--body); max-width:260px; }
+.src-sub {
+  font-family:'DM Mono', monospace; font-size:10px;
+  color:var(--muted); margin-top:3px;
+}
+.chip-tier1 {
+  display:inline-block; background:var(--red); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
+}
+.chip-tier2 {
+  display:inline-block; background:var(--amber); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
+}
+.chip-outbreak {
+  display:inline-block; background:var(--violet); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:4px; letter-spacing:0.06em;
+}
+.link-cell { white-space:nowrap; }
+.src-link {
+  font-family:'DM Mono', monospace; font-size:11px; font-weight:700;
+  color:var(--orange); letter-spacing:0.02em;
+}
+.src-na { color:var(--dim); font-family:'DM Mono', monospace; font-size:11px; }
+
+.dist-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:10px;
+}
+.dist-grid h3 {
+  font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
+  text-transform:uppercase; letter-spacing:0.1em; margin:0 0 10px;
+}
+.bar-track {
+  width:100%; height:8px; background:var(--s2);
+  border-radius:1px; overflow:hidden;
+}
+.bar-fill { height:100%; }
+
+.cta-box {
+  margin:40px 0 30px;
+  padding:26px 30px;
+  background:var(--black); color:#fff;
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:18px;
+}
+.cta-text { flex:1; min-width:280px; }
+.cta-text h3 {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:20px;
+  margin:0 0 6px; color:#fff; letter-spacing:-0.01em;
+}
+.cta-text p { margin:0; color:#d1d5db; font-size:13px; }
+.cta-btn {
+  background:var(--orange); color:#fff; font-family:'DM Mono', monospace;
+  font-size:11px; font-weight:700; padding:14px 22px;
+  text-transform:uppercase; letter-spacing:0.1em;
+  border:none; cursor:pointer; white-space:nowrap;
+}
+.cta-btn:hover { background:#d35416; text-decoration:none; color:#fff; }
+
+.meth {
+  background:var(--s1); border:1px solid var(--brd);
+  padding:22px 26px; margin-bottom:24px; font-size:13px;
+  color:var(--body);
+}
+.meth strong { color:var(--black); }
+.meth p { margin:0 0 10px; }
+.meth p:last-child { margin-bottom:0; }
+
+.footer {
+  margin-top:50px; padding-top:26px; border-top:2px solid var(--black);
+  display:flex; justify-content:space-between; align-items:flex-start;
+  flex-wrap:wrap; gap:20px; font-size:12px;
+}
+.foot-brand {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:15px;
+  color:var(--black); text-transform:uppercase; letter-spacing:0.02em;
+}
+.foot-brand em { color:var(--orange); font-style:normal; }
+.foot-meta {
+  font-family:'DM Mono', monospace; font-size:10px;
+  color:var(--muted); line-height:1.8; margin-top:6px;
+}
+.foot-legal {
+  font-size:11px; color:var(--muted); max-width:440px;
+  text-align:right; line-height:1.6;
+}
+
+@media print {
+  body { max-width:none; padding:20px; font-size:11px; }
+  .cta-box { display:none; }
+  .masthead { border-top-width:4px; }
+  .kpi-value { font-size:32px; }
+  .r-title { font-size:28px; }
+  table.data th { background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .analysis { border-left-width:3px; }
+}
+
+@media (max-width:900px) {
+  body { padding:0 20px 40px; }
+  .kpi-strip { grid-template-columns:repeat(2,1fr); }
+  .dist-grid { grid-template-columns:1fr; }
+  .masthead { flex-direction:column; gap:16px; }
+  .mast-right { text-align:left; }
+  .r-title { font-size:28px; }
+  table.data { font-size:11px; }
+  table.data th, table.data td { padding:8px; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="brand-block">
+    <div class="brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
+    <div class="tagline">Food Safety Intelligence System &middot; Weekly Briefing</div>
+  </div>
+  <div class="mast-right">
+    <div class="report-label">Subscribers Edition</div>
+    <div class="report-meta">
+      <strong>ISSUE</strong> &middot; Week 15, 2026<br>
+      <strong>PERIOD</strong> &middot; 04 Apr &ndash; 10 Apr 2026<br>
+      <strong>PUBLISHED</strong> &middot; 16 Apr 2026 &middot; 07:43 UTC
+    </div>
+  </div>
+</header>
+
+<h1 class="r-title">Pathogen Surveillance <span class="accent">&middot;</span> Week 15</h1>
+<p class="r-sub">
+  AI-powered analysis of <strong>63</strong> regulatory recall actions across
+  <strong>9</strong> jurisdictions, aggregated from 66 primary sources
+  monitored continuously by the AFTS intelligence platform.
+</p>
+
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-label">Total Recalls</div>
+    <div class="kpi-value">63</div>
+    <div class="kpi-delta" style="color:#dc2626">&#9650; +51 (+425%) vs prior week</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Tier-1 Critical</div>
+    <div class="kpi-value red">58</div>
+    <div class="kpi-delta" style="color:var(--muted)">Immediate public-health risk</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Active Outbreaks</div>
+    <div class="kpi-value violet">2</div>
+    <div class="kpi-delta" style="color:var(--muted)">Confirmed cluster events</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Leading Pathogen</div>
+    <div class="kpi-value orange">Listeria monocytogenes</div>
+    <div class="kpi-top">55 cases &middot; 87% of total</div>
+  </div>
+</div>
+
+<div class="sec-head">
+  <span class="sec-num">&sect; 01</span>
+  <h2 class="sec-title">Intelligence Analysis</h2>
+  <span class="sec-rule"></span>
+</div>
+<div class="analysis">
+  <p>This week produced 63 pathogen-related recall incidents across the AFTS monitoring network, with 58 classified as Tier-1 and 2 confirmed outbreak event(s). The overall risk posture remains elevated, driven primarily by Listeria monocytogenes activity. Food manufacturers should treat the week's volume as indicative of sustained surveillance pressure from regulators.</p>
+  <p>Listeria monocytogenes accounted for 55 of 63 incidents (87%), consistent with its status as a persistent risk in ready-to-eat, deli, dairy, and fresh-produce categories. Sanitation programmes targeting post-process contamination, as well as validated lethality steps (F-value, pasteurisation schedules), warrant review this week. Facilities operating under FDA 21 CFR 113/114 or PMO should confirm compliance margins.</p>
+  <p>Regulatory activity spanned multiple jurisdictions, indicating coordinated enforcement across RASFF, FDA, CFIA, and FSA channels. Exporters should anticipate continued inspection intensity and prepare documentation packages for rapid response. AFTS recommends reviewing supplier verification protocols and confirming process-deviation procedures before the next production cycle.</p>
+</div>
+
+<div class="sec-head">
+  <span class="sec-num">&sect; 02</span>
+  <h2 class="sec-title">Top 5 Critical Threats</h2>
+  <span class="sec-rule"></span>
+</div>
+<p class="sec-caption">
+  Ranked by pathogen severity (<em>C. botulinum</em> &rarr; <em>Listeria</em> &rarr; STEC &rarr; <em>Salmonella</em>), outbreak status, and tier classification.
+  Each row links to the originating regulatory notice.
+</p>
+<table class="data">
+  <thead>
+    <tr>
+      <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction</th><th>Source</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td class="rank-num">1</td>
+      <td class="date-cell">09 Apr 2026</td>
+      <td>
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span><span class="chip-outbreak">OUTBREAK</span>
+      </td>
+      <td class="co-cell"><strong>ΝΙΚΟΛΑΟΣ ΤΣΑΤΣΟΥΛΗΣ &amp; ΥΙΟΙ Ο.Ε.</strong><div class="brand-sub">ΦΕΤΑ ΒΥΤΙΝΑΣ Π.Ο.Π. ΒΑΡΕΛΙ</div></td>
+      <td class="prod-cell">Φέτα Π.Ο.Π. Βαρέλι (παρτίδα ΦΕ-2751, παραγωγής 24/01/2026, ανάλωσης 24/07/2027)</td>
+      <td>Greece<div class="src-sub">EFET (GR)</div></td>
+      <td class="link-cell"><a class="src-link" href="https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5379-deltio-typou-anaklisi-mi-asfaloys-proiontos-tyri-feta-logo-parousias-listeria" target="_blank" rel="noopener">View source &rarr;</a></td>
+    </tr>
+    <tr>
+      <td class="rank-num">2</td>
+      <td class="date-cell">04 Apr 2026</td>
+      <td>
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell"><strong>Federated Co-operatives Ltd.</strong><div class="brand-sub">CO-OP</div></td>
+      <td class="prod-cell">Creamy Garlic and Spinach Salad</td>
+      <td>Canada<div class="src-sub">CFIA</div></td>
+      <td class="link-cell"><a class="src-link" href="https://recalls-rappels.canada.ca/en/alert-recall/co-op-brand-creamy-garlic-and-spinach-salad-recalled-due-listeria-monocytogenes" target="_blank" rel="noopener">View source &rarr;</a></td>
+    </tr>
+    <tr>
+      <td class="rank-num">3</td>
+      <td class="date-cell">06 Apr 2026</td>
+      <td>
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell"><strong>Luisa e basilio</strong><div class="brand-sub">Luisa e basilio</div></td>
+      <td class="prod-cell">Plats cuisinés et snacking</td>
+      <td>France<div class="src-sub">RappelConso (FR)</div></td>
+      <td class="link-cell"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/21935/Interne" target="_blank" rel="noopener">View source &rarr;</a></td>
+    </tr>
+    <tr>
+      <td class="rank-num">4</td>
+      <td class="date-cell">06 Apr 2026</td>
+      <td>
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell"><strong>French Kitchen</strong><div class="brand-sub">French Kitchen</div></td>
+      <td class="prod-cell">Plats cuisinés et snacking</td>
+      <td>France<div class="src-sub">RappelConso (FR)</div></td>
+      <td class="link-cell"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/21933/Interne" target="_blank" rel="noopener">View source &rarr;</a></td>
+    </tr>
+    <tr>
+      <td class="rank-num">5</td>
+      <td class="date-cell">06 Apr 2026</td>
+      <td>
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell"><strong>French Kitchen</strong><div class="brand-sub">French Kitchen</div></td>
+      <td class="prod-cell">Plats cuisinés et snacking</td>
+      <td>France<div class="src-sub">RappelConso (FR)</div></td>
+      <td class="link-cell"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/21932/Interne" target="_blank" rel="noopener">View source &rarr;</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="sec-head">
+  <span class="sec-num">&sect; 03</span>
+  <h2 class="sec-title">Distribution Analysis</h2>
+  <span class="sec-rule"></span>
+</div>
+<div class="dist-grid">
+  <div>
+    <h3>Pathogen Profile</h3>
+    <table class="data">
+      <thead>
+        <tr><th>Pathogen</th><th class="num">Cases</th><th class="num">%</th><th>Share</th></tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span>Listeria monocytogenes</td>
+          <td class="num">55</td>
+          <td class="num">87%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:87%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span>Salmonella spp.</td>
+          <td class="num">5</td>
+          <td class="num">8%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:8%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#f59e0b"></span>Ochratoxin A</td>
+          <td class="num">2</td>
+          <td class="num">3%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:4%;background:#f59e0b"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span>STEC / E. coli O157:H7</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:4%;background:#dc2626"></div></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>Geographic &middot; Regulatory</h3>
+    <table class="data">
+      <thead>
+        <tr><th>Country</th><th>Authority</th><th class="num">Cases</th><th class="num">%</th></tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>France</td>
+          <td>RappelConso / DGCCRF</td>
+          <td class="num">50</td>
+          <td class="num">79%</td>
+        </tr>
+        <tr>
+          <td>Canada</td>
+          <td>CFIA</td>
+          <td class="num">5</td>
+          <td class="num">8%</td>
+        </tr>
+        <tr>
+          <td>Turkey</td>
+          <td>National Authority</td>
+          <td class="num">2</td>
+          <td class="num">3%</td>
+        </tr>
+        <tr>
+          <td>Germany</td>
+          <td>BVL</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+        <tr>
+          <td>United Kingdom</td>
+          <td>FSA (UK)</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+        <tr>
+          <td>Greece</td>
+          <td>EFET</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+        <tr>
+          <td>Switzerland</td>
+          <td>BLV</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+        <tr>
+          <td>Brazil</td>
+          <td>ANVISA</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+        <tr>
+          <td>Taiwan</td>
+          <td>National Authority</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="cta-box">
+  <div class="cta-text">
+    <h3>Live Dashboard &middot; Full Dataset Access</h3>
+    <p>Filter by pathogen, country, tier, and source. Download the accumulative XLSX dataset. Set custom alerts.</p>
+  </div>
+  <a class="cta-btn" href="https://www.advfood.tech/food-safety-intelligence" target="_blank" rel="noopener">Access Portal &rarr;</a>
+</div>
+
+<div class="sec-head">
+  <span class="sec-num">&sect; 04</span>
+  <h2 class="sec-title">Methodology &amp; Sources</h2>
+  <span class="sec-rule"></span>
+</div>
+<div class="meth">
+  <p>
+    <strong>Data ingestion.</strong> The AFTS Food Safety Intelligence System aggregates regulatory recall notices
+    from 66 primary sources covering 60+ countries, including FDA, USDA FSIS, EU RASFF, FSA (UK), FSANZ, CFIA,
+    RappelConso, and national authorities across Europe, Asia-Pacific, and the Americas.
+  </p>
+  <p>
+    <strong>AI enrichment.</strong> Each record is processed through a multi-stage pipeline: Gemini (initial extraction),
+    OpenAI GPT (normalisation and quality control), and Claude (Tier-1 safety validation and severity tagging).
+    Records are de-duplicated and harmonised before entering the accumulative dataset.
+  </p>
+  <p>
+    <strong>This briefing.</strong> Statistical analysis draws from the accumulative <em>recalls.xlsx</em> dataset
+    filtered to the reporting week (04 Apr &ndash; 10 Apr 2026).
+    Narrative analysis is generated by Claude Sonnet 4 and edited by GPT-4o-mini for publication. All figures
+    and pathogen names are preserved verbatim from source data.
+  </p>
+</div>
+
+<footer class="footer">
+  <div>
+    <div class="foot-brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
+    <div class="foot-meta">
+      Food Process Engineering &middot; Thermal Processing &middot; Regulatory Compliance<br>
+      advfood.tech &middot; info@advfood.tech &middot; Athens, Greece<br>
+      &copy; 2026 Advanced Food Tech Solutions P.C. &middot; EUID ELGEMI.172600154000
+    </div>
+  </div>
+  <div class="foot-legal">
+    This briefing is provided for informational purposes only and does not constitute regulatory, legal,
+    or medical advice. Subscribers should verify recall status with the originating regulatory authority
+    before taking action. Next issue: Friday, 17 Apr 2026.
+  </div>
+</footer>
+
+</body>
+</html>
