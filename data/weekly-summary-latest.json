@@ -1,0 +1,98 @@
+{
+  "filename": "2026-W15.html",
+  "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/docs/2026-W15.html",
+  "dashboard_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/docs/",
+  "week_num": 15,
+  "year": 2026,
+  "week_start": "2026-04-04",
+  "week_end": "2026-04-10",
+  "week_start_display": "04 Apr",
+  "week_end_display": "10 Apr 2026",
+  "generated_utc": "2026-04-16T09:23:28.164369Z",
+  "stats": {
+    "total": 63,
+    "tier1": 58,
+    "outbreaks": 2,
+    "delta": 51,
+    "delta_pct": 425
+  },
+  "leading_pathogen": {
+    "name": "Listeria monocytogenes",
+    "cases": 55,
+    "pct": 87
+  },
+  "ai_lead_paragraph": "This week produced 63 pathogen-related recall incidents across the AFTS monitoring network, with 58 classified as Tier-1 and 2 confirmed outbreak event(s). Listeria monocytogenes dominated the surveillance window, accounting for 55 of 63 incidents (87%). The elevated Tier-1 ratio indicates sustained regulatory pressure and should be read by food manufacturers as a signal of tightening enforcement.",
+  "top_threats": [
+    {
+      "rank": 1,
+      "date": "09 Apr 2026",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": true,
+      "company": "ΝΙΚΟΛΑΟΣ ΤΣΑΤΣΟΥΛΗΣ & ΥΙΟΙ Ο.Ε.",
+      "brand": "ΦΕΤΑ ΒΥΤΙΝΑΣ Π.Ο.Π. ΒΑΡΕΛΙ",
+      "product": "Φέτα Π.Ο.Π. Βαρέλι (παρτίδα ΦΕ-2751, παραγωγής 24/01/2026, ανάλωσης 24/07/2027)",
+      "country": "Greece",
+      "source": "EFET (GR)",
+      "url": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5379-deltio-typou-anaklisi-mi-asfaloys-proiontos-tyri-feta-logo-parousias-listeria"
+    },
+    {
+      "rank": 2,
+      "date": "04 Apr 2026",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Federated Co-operatives Ltd.",
+      "brand": "CO-OP",
+      "product": "Creamy Garlic and Spinach Salad",
+      "country": "Canada",
+      "source": "CFIA",
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/co-op-brand-creamy-garlic-and-spinach-salad-recalled-due-listeria-monocytogenes"
+    },
+    {
+      "rank": 3,
+      "date": "06 Apr 2026",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Luisa e basilio",
+      "brand": "Luisa e basilio",
+      "product": "Plats cuisinés et snacking",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/21935/Interne"
+    },
+    {
+      "rank": 4,
+      "date": "06 Apr 2026",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "French Kitchen",
+      "brand": "French Kitchen",
+      "product": "Plats cuisinés et snacking",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/21933/Interne"
+    },
+    {
+      "rank": 5,
+      "date": "06 Apr 2026",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "French Kitchen",
+      "brand": "French Kitchen",
+      "product": "Plats cuisinés et snacking",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/21932/Interne"
+    }
+  ],
+  "country_count": 9
+}
