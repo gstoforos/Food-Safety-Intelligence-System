@@ -137,13 +137,22 @@ table.data td.empty {
   text-align:center; color:var(--muted); padding:28px; font-style:italic;
 }
 
+/* Top 5 column sizing - keeps table within A4 and desktop viewport */
+table.top5 { table-layout:fixed; width:100%; }
+table.top5 th:nth-child(1), table.top5 td:nth-child(1) { width:5%;  }  /* # */
+table.top5 th:nth-child(2), table.top5 td:nth-child(2) { width:9%;  }  /* Date */
+table.top5 th:nth-child(3), table.top5 td:nth-child(3) { width:19%; }  /* Pathogen */
+table.top5 th:nth-child(4), table.top5 td:nth-child(4) { width:18%; }  /* Company */
+table.top5 th:nth-child(5), table.top5 td:nth-child(5) { width:30%; }  /* Product */
+table.top5 th:nth-child(6), table.top5 td:nth-child(6) { width:19%; }  /* Jurisdiction+Source */
+table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
+
 .rank-num {
   font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
-  color:var(--orange); text-align:center; width:48px;
+  color:var(--orange); text-align:center;
 }
 .date-cell {
   font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
-  white-space:nowrap; width:96px;
 }
 .path-dot {
   display:inline-block; width:9px; height:9px; border-radius:50%;
@@ -152,11 +161,13 @@ table.data td.empty {
 .path-name { font-weight:600; color:var(--ink); }
 .co-cell strong { color:var(--black); font-weight:700; display:block; }
 .brand-sub { font-size:11px; color:var(--muted); margin-top:2px; font-style:italic; }
-.prod-cell { color:var(--body); max-width:260px; }
+.prod-cell { color:var(--body); }
+.juris-country { font-weight:600; color:var(--ink); }
 .src-sub {
   font-family:'DM Mono', monospace; font-size:10px;
   color:var(--muted); margin-top:3px;
 }
+.juris-link { margin-top:6px; }
 .chip-tier1 {
   display:inline-block; background:var(--red); color:#fff;
   font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
@@ -172,12 +183,11 @@ table.data td.empty {
   font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
   padding:2px 6px; border-radius:2px; margin-left:4px; letter-spacing:0.06em;
 }
-.link-cell { white-space:nowrap; }
 .src-link {
   font-family:'DM Mono', monospace; font-size:11px; font-weight:700;
   color:var(--orange); letter-spacing:0.02em;
 }
-.src-na { color:var(--dim); font-family:'DM Mono', monospace; font-size:11px; }
+.src-na { color:var(--dim); font-family:'DM Mono', monospace; font-size:10px; font-style:italic; }
 
 .dist-grid {
   display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:10px;
@@ -249,6 +259,15 @@ table.data td.empty {
   .r-title { font-size:28px; }
   table.data th { background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   .analysis { border-left-width:3px; }
+  /* Top-5 print tightening - fit all 6 columns on A4 */
+  table.top5 { font-size:10px; }
+  table.top5 th { padding:8px 6px; font-size:9px; }
+  table.top5 td { padding:9px 6px; }
+  table.top5 .rank-num { font-size:16px; }
+  table.top5 .path-name { font-size:10px; }
+  table.top5 .brand-sub, table.top5 .src-sub { font-size:9px; }
+  table.top5 .chip-tier1, table.top5 .chip-tier2, table.top5 .chip-outbreak { font-size:8px; padding:1px 4px; }
+  table.top5 .src-link { font-size:9px; }
   /* Footer: switch from flex to a clean vertical stack for print.
      WeasyPrint and some browser print engines overlap the two halves
      when flex wraps at narrow widths - block layout avoids it entirely. */
@@ -273,8 +292,66 @@ table.data td.empty {
   .masthead { flex-direction:column; gap:16px; }
   .mast-right { text-align:left; }
   .r-title { font-size:28px; }
-  table.data { font-size:11px; }
-  table.data th, table.data td { padding:8px; }
+}
+
+/* Mobile Top-5: switch from a 6-column table to stacked cards.
+   On phones, a horizontal table would either scroll sideways (bad UX) or
+   compress columns into unreadable widths. Instead, each row becomes a
+   card with labeled fields - all data visible, no horizontal scroll. */
+@media (max-width:700px) {
+  table.top5, table.top5 thead, table.top5 tbody, table.top5 tr, table.top5 td {
+    display:block; width:auto !important;
+  }
+  /* Kill all fixed column widths - they would make card-mode cells unreadably narrow */
+  table.top5 th:nth-child(1), table.top5 td:nth-child(1),
+  table.top5 th:nth-child(2), table.top5 td:nth-child(2),
+  table.top5 th:nth-child(3), table.top5 td:nth-child(3),
+  table.top5 th:nth-child(4), table.top5 td:nth-child(4),
+  table.top5 th:nth-child(5), table.top5 td:nth-child(5),
+  table.top5 th:nth-child(6), table.top5 td:nth-child(6) {
+    width:auto !important;
+  }
+  table.top5 { border:none; table-layout:auto !important; }
+  table.top5 thead { display:none; }
+  table.top5 tr {
+    border:1px solid var(--brd); border-left:4px solid var(--orange);
+    background:#fff; margin-bottom:12px; padding:8px 4px;
+    position:relative;
+  }
+  table.top5 tr:nth-child(even) td { background:transparent; }
+  table.top5 td {
+    border:none !important; padding:7px 14px 7px 108px !important;
+    position:relative; min-height:28px;
+    word-wrap:normal; overflow-wrap:normal;
+  }
+  table.top5 td::before {
+    content:attr(data-label);
+    position:absolute; left:14px; top:7px; width:88px;
+    font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+    color:var(--muted); text-transform:uppercase; letter-spacing:0.08em;
+  }
+  /* Rank number sits in top-right corner as an orange badge */
+  table.top5 .rank-num {
+    position:absolute; top:8px; right:14px; padding:0 !important;
+    font-size:28px; min-height:0; text-align:right;
+  }
+  table.top5 .rank-num::before { display:none; }
+  table.top5 .date-cell { font-size:11px; }
+  table.top5 .path-name { font-size:13px; }
+  table.top5 .co-cell strong { font-size:13px; }
+  table.top5 .prod-cell { line-height:1.45; font-size:13px; }
+  table.top5 .juris-country { font-size:13px; }
+  table.top5 .juris-link { margin-top:6px; }
+}
+
+@media (max-width:480px) {
+  body { padding:0 14px 30px; }
+  .kpi-strip { grid-template-columns:1fr 1fr; }
+  .kpi { padding:16px 14px; }
+  .kpi-value { font-size:28px; }
+  .r-title { font-size:24px; }
+  .analysis { padding:18px 20px; }
+  .analysis p { font-size:13px; }
 }
 </style>
 </head>
@@ -290,7 +367,7 @@ table.data td.empty {
     <div class="report-meta">
       <strong>ISSUE</strong> &middot; Week 15, 2026<br>
       <strong>PERIOD</strong> &middot; 04 Apr &ndash; 10 Apr 2026<br>
-      <strong>PUBLISHED</strong> &middot; 16 Apr 2026 &middot; 08:12 UTC
+      <strong>PUBLISHED</strong> &middot; 16 Apr 2026 &middot; 08:37 UTC
     </div>
   </div>
 </header>
@@ -345,78 +422,93 @@ table.data td.empty {
   Ranked by pathogen severity (<em>C. botulinum</em> &rarr; <em>Listeria</em> &rarr; STEC &rarr; <em>Salmonella</em>), outbreak status, and tier classification.
   Each row links to the originating regulatory notice.
 </p>
-<table class="data">
+<table class="data top5">
   <thead>
     <tr>
-      <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction</th><th>Source</th>
+      <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction &amp; Source</th>
     </tr>
   </thead>
   <tbody>
     
     <tr>
-      <td class="rank-num">1</td>
-      <td class="date-cell">09 Apr 2026</td>
-      <td>
+      <td class="rank-num" data-label="#">1</td>
+      <td class="date-cell" data-label="Date">09 Apr 2026</td>
+      <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
         <span class="path-name">Listeria monocytogenes</span>
         <span class="chip-tier1">T1</span><span class="chip-outbreak">OUTBREAK</span>
       </td>
-      <td class="co-cell"><strong>ΝΙΚΟΛΑΟΣ ΤΣΑΤΣΟΥΛΗΣ &amp; ΥΙΟΙ Ο.Ε.</strong><div class="brand-sub">ΦΕΤΑ ΒΥΤΙΝΑΣ Π.Ο.Π. ΒΑΡΕΛΙ</div></td>
-      <td class="prod-cell">Φέτα Π.Ο.Π. Βαρέλι (παρτίδα ΦΕ-2751, παραγωγής 24/01/2026, ανάλωσης 24/07/2027)</td>
-      <td>Greece<div class="src-sub">EFET (GR)</div></td>
-      <td class="link-cell"><a class="src-link" href="https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5379-deltio-typou-anaklisi-mi-asfaloys-proiontos-tyri-feta-logo-parousias-listeria" target="_blank" rel="noopener">View source &rarr;</a></td>
+      <td class="co-cell" data-label="Company"><strong>ΝΙΚΟΛΑΟΣ ΤΣΑΤΣΟΥΛΗΣ &amp; ΥΙΟΙ Ο.Ε.</strong><div class="brand-sub">ΦΕΤΑ ΒΥΤΙΝΑΣ Π.Ο.Π. ΒΑΡΕΛΙ</div></td>
+      <td class="prod-cell" data-label="Product">Φέτα Π.Ο.Π. Βαρέλι (παρτίδα ΦΕ-2751, παραγωγής 24/01/2026, ανάλωσης 24/07/2027)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Greece</div>
+        <div class="src-sub">EFET (GR)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5379-deltio-typou-anaklisi-mi-asfaloys-proiontos-tyri-feta-logo-parousias-listeria" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
     </tr>
     <tr>
-      <td class="rank-num">2</td>
-      <td class="date-cell">04 Apr 2026</td>
-      <td>
+      <td class="rank-num" data-label="#">2</td>
+      <td class="date-cell" data-label="Date">04 Apr 2026</td>
+      <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
         <span class="path-name">Listeria monocytogenes</span>
         <span class="chip-tier1">T1</span>
       </td>
-      <td class="co-cell"><strong>Federated Co-operatives Ltd.</strong><div class="brand-sub">CO-OP</div></td>
-      <td class="prod-cell">Creamy Garlic and Spinach Salad</td>
-      <td>Canada<div class="src-sub">CFIA</div></td>
-      <td class="link-cell"><a class="src-link" href="https://recalls-rappels.canada.ca/en/alert-recall/co-op-brand-creamy-garlic-and-spinach-salad-recalled-due-listeria-monocytogenes" target="_blank" rel="noopener">View source &rarr;</a></td>
+      <td class="co-cell" data-label="Company"><strong>Federated Co-operatives Ltd.</strong><div class="brand-sub">CO-OP</div></td>
+      <td class="prod-cell" data-label="Product">Creamy Garlic and Spinach Salad</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Canada</div>
+        <div class="src-sub">CFIA</div>
+        <div class="juris-link"><a class="src-link" href="https://recalls-rappels.canada.ca/en/alert-recall/co-op-brand-creamy-garlic-and-spinach-salad-recalled-due-listeria-monocytogenes" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
     </tr>
     <tr>
-      <td class="rank-num">3</td>
-      <td class="date-cell">06 Apr 2026</td>
-      <td>
+      <td class="rank-num" data-label="#">3</td>
+      <td class="date-cell" data-label="Date">06 Apr 2026</td>
+      <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
         <span class="path-name">Listeria monocytogenes</span>
         <span class="chip-tier1">T1</span>
       </td>
-      <td class="co-cell"><strong>Luisa e basilio</strong><div class="brand-sub">Luisa e basilio</div></td>
-      <td class="prod-cell">Plats cuisinés et snacking</td>
-      <td>France<div class="src-sub">RappelConso (FR)</div></td>
-      <td class="link-cell"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/21935/Interne" target="_blank" rel="noopener">View source &rarr;</a></td>
+      <td class="co-cell" data-label="Company"><strong>Luisa e basilio</strong><div class="brand-sub">Luisa e basilio</div></td>
+      <td class="prod-cell" data-label="Product">Plats cuisinés et snacking</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/21935/Interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
     </tr>
     <tr>
-      <td class="rank-num">4</td>
-      <td class="date-cell">06 Apr 2026</td>
-      <td>
+      <td class="rank-num" data-label="#">4</td>
+      <td class="date-cell" data-label="Date">06 Apr 2026</td>
+      <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
         <span class="path-name">Listeria monocytogenes</span>
         <span class="chip-tier1">T1</span>
       </td>
-      <td class="co-cell"><strong>French Kitchen</strong><div class="brand-sub">French Kitchen</div></td>
-      <td class="prod-cell">Plats cuisinés et snacking</td>
-      <td>France<div class="src-sub">RappelConso (FR)</div></td>
-      <td class="link-cell"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/21933/Interne" target="_blank" rel="noopener">View source &rarr;</a></td>
+      <td class="co-cell" data-label="Company"><strong>French Kitchen</strong><div class="brand-sub">French Kitchen</div></td>
+      <td class="prod-cell" data-label="Product">Plats cuisinés et snacking</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/21933/Interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
     </tr>
     <tr>
-      <td class="rank-num">5</td>
-      <td class="date-cell">06 Apr 2026</td>
-      <td>
+      <td class="rank-num" data-label="#">5</td>
+      <td class="date-cell" data-label="Date">06 Apr 2026</td>
+      <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
         <span class="path-name">Listeria monocytogenes</span>
         <span class="chip-tier1">T1</span>
       </td>
-      <td class="co-cell"><strong>French Kitchen</strong><div class="brand-sub">French Kitchen</div></td>
-      <td class="prod-cell">Plats cuisinés et snacking</td>
-      <td>France<div class="src-sub">RappelConso (FR)</div></td>
-      <td class="link-cell"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/21932/Interne" target="_blank" rel="noopener">View source &rarr;</a></td>
+      <td class="co-cell" data-label="Company"><strong>French Kitchen</strong><div class="brand-sub">French Kitchen</div></td>
+      <td class="prod-cell" data-label="Product">Plats cuisinés et snacking</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/21932/Interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
     </tr>
   </tbody>
 </table>
