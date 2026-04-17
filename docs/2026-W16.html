@@ -129,6 +129,16 @@ a:hover { text-decoration:underline; }
 }
 .analysis p { margin:0 0 14px; font-size:14.5px; line-height:1.75; }
 .analysis p:last-child { margin-bottom:0; }
+.analysis p.pa-note {
+  margin:18px -30px 0 -30px; padding:18px 30px 2px 30px;
+  background:#fff; border-top:1px solid var(--brd);
+  font-size:13.5px; line-height:1.7;
+}
+.analysis p.pa-note .pa-label {
+  display:inline; font-family:'DM Mono', monospace; font-weight:700;
+  letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--red); font-size:10px; margin-right:8px;
+}
 
 table.data {
   width:100%; border-collapse:collapse; margin:0 0 10px;
@@ -322,6 +332,8 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   .sec-title { font-size:20px; white-space:nowrap; }
   .analysis { padding:22px 26px; }
   .analysis p { font-size:13px; margin:0 0 12px; line-height:1.7; }
+  .analysis p.pa-note { margin:14px -26px 0 -26px; padding:14px 26px 2px 26px; font-size:12px; line-height:1.65; }
+  .analysis p.pa-note .pa-label { font-size:9px; }
 
   table.data th { background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   /* Prevent any table row from splitting across a page break */
@@ -441,6 +453,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   .r-title { font-size:24px; }
   .analysis { padding:18px 20px; }
   .analysis p { font-size:13px; }
+  .analysis p.pa-note { margin:14px -20px 0 -20px; padding:14px 20px 2px 20px; }
 }
 </style>
 </head>
@@ -501,6 +514,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   <p>This week produced 12 pathogen-related recall incidents across the AFTS monitoring network, with 7 classified as Tier-1 and 0 confirmed outbreak event(s). Listeria monocytogenes dominated the surveillance window, accounting for 5 of 12 incidents (42%). The elevated Tier-1 ratio indicates sustained regulatory pressure and should be read by food manufacturers as a signal of tightening enforcement.</p>
   <p>Listeria monocytogenes at this concentration points to post-process recontamination in ready-to-eat deli, dairy, and cooked-meat lines rather than thermal underprocess. The likely failure modes are Zone 1 environmental harbourage, sanitation SOP drift, and post-lethality recontamination. 21 CFR 117 environmental monitoring and the 6-log Listeria lethality requirement (21 CFR 113/114 where applicable) are the relevant frameworks for review.</p>
   <p>Regulatory activity this week spanned multiple jurisdictions (RASFF, FDA, CFIA, FSA, and national authorities), signalling continued inspection intensity. AFTS recommends that food manufacturers use this briefing as a prompt to re-verify the single highest-leverage control for their commodity this week and to confirm documentation packages are ready for rapid regulatory response.</p>
+  <p class="pa-note"><span class="pa-label">Process Authority Note:</span> This window contains 2 incident(s) implicating Clostridium or botulinum toxin, with Marché Rio (Canada) cited for Clostridium botulinum. Any shelf-stable low-acid, acidified, aseptic/UHT, hot-filled, or reduced-oxygen-packaged product in the affected category must be reviewed to confirm the scheduled thermal process under a qualified process authority — required under FDA 21 CFR 113/114, EU Reg. 852/2004, CFIA SFCR, FSANZ Food Standards Code Ch. 3, and Japan&#x27;s Food Sanitation Act. Typical compliance gaps: unfiled or outdated scheduled process, deviation resolved without qualified review, container or seal-integrity lapse, or a formulation change (pH, a_w, salt, preservative) not re-evaluated. A Tier-1 / Class-I classification on a product of this class reliably triggers a process-filing audit and regulatory citations in every major jurisdiction.</p>
 </div>
 
 <div class="sec-head">
