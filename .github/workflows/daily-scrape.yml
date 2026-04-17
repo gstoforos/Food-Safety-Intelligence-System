@@ -15,6 +15,13 @@ on:
         required: false
         default: "false"
 
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
 jobs:
   scrape:
     runs-on: ubuntu-latest
@@ -71,6 +78,6 @@ jobs:
         with:
           name: fsis-run-log-${{ github.run_id }}
           path: |
-            data/recalls.xlsx
-            data/recalls.json
+            docs/data/recalls.xlsx
+            docs/data/recalls.json
           retention-days: 14

@@ -1,0 +1,53 @@
+name: FSIS OpenAI Gap Finder
+
+on:
+  schedule:
+    # Daily at 06:00 UTC — after the 17:00 scrape, before the 07:30 URL gate
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      since_days:
+        description: "Days to look back"
+        required: false
+        default: "7"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  gap-finder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run OpenAI gap-finder
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GAP_SINCE_DAYS: ${{ github.event.inputs.since_days || '7' }}
+          SKIP_COMMIT: "false"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME: "FSIS Bot"
+        run: |
+          python -m pipeline.gap_finder_openai
