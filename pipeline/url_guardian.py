@@ -1,16 +1,23 @@
 """
 URL Guardian — the every-4-hour integrity pass over docs/data/recalls.xlsx.
 
+ARCHITECTURE RULE: The guardian touches ONLY the Pending sheet.
+Recalls is the published, approved dataset — NEVER modified here.
+
 What it does, in order:
-  1. Load recalls.xlsx
-  2. Validate URLs for all rows in the last N days (default 14)
-  3. Blank URLs that are truly broken (404/410/5xx) or generic landing pages.
-     Keep 403s from known gov/regulatory domains (bot-blocks, not breakage).
+  1. Load recalls.xlsx (all three sheets: Recalls, Pending, NEWS)
+  2. Validate URLs for Pending rows in the last N days (default 14)
+  3. Blank URLs on Pending rows that are truly broken (404/410/5xx) or
+     generic landing pages.  Keep 403s from known gov domains (bot-blocks).
   4. Ask OpenAI's find_missing_recalls() what recalls may have been missed
-     per major agency over the last M days (default 3). Append novel rows.
-  5. Optionally ask Claude Haiku to spot-check Tier-1 rows for pathogen/outbreak
-     mis-classification (uses the $5 credit sparingly).
-  6. Write back: xlsx + json.
+     per major agency over the last M days (default 3). Append novel rows
+     to Pending with Status='pending' — they go through the normal
+     Claude URL gate (07:30 UTC) before promotion to Recalls.
+  5. Optionally ask Claude Haiku to spot-check Tier-1 Pending rows for
+     pathogen/outbreak mis-classification.
+  6. Write back: xlsx only (Recalls unchanged, Pending updated, NEWS kept).
+     JSON is NOT written here — run_all.py is the single authority for
+     mirroring Recalls → recalls.json.
   7. Return a summary dict for logging.
 
 Usage:
@@ -34,12 +41,12 @@ from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
 from openpyxl import load_workbook, Workbook
+from openpyxl.styles import Font, PatternFill
 
 # Imports from the review package (sibling modules in the user's repo)
 try:
     from review.url_validator import validate_all, should_blank_url, is_generic_url
 except ImportError:
-    # When run as a standalone script from the review/ folder
     from url_validator import validate_all, should_blank_url, is_generic_url  # type: ignore
 
 try:
@@ -55,32 +62,10 @@ except ImportError:
     except ImportError:
         review_tier1 = None  # optional
 
-# Use the canonical Pending-architecture writer from merge_master.
-# This is the ONLY xlsx writer allowed to touch docs/data/recalls.xlsx
-# (besides scrapers/news.py which only updates the NEWS sheet). Using it
-# here keeps the Pending tab intact across guardian runs.
-try:
-    from pipeline.merge_master import (
-        append_to_pending,
-        load_existing,
-        load_pending,
-        save_xlsx_with_pending,
-        sort_rows,
-    )
-except ImportError:
-    from merge_master import (  # type: ignore
-        append_to_pending,
-        load_existing,
-        load_pending,
-        save_xlsx_with_pending,
-        sort_rows,
-    )
-
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
-# Agencies the gap-finder should ask about. Kept small on purpose: one LLM call
-# per agency, so cost scales linearly. Expand gradually as the budget allows.
+# Agencies the gap-finder should ask about.
 GAP_FINDER_TARGETS: List[Tuple[str, str]] = [
     ("United States", "FDA"),
     ("United States", "USDA FSIS"),
@@ -92,94 +77,110 @@ GAP_FINDER_TARGETS: List[Tuple[str, str]] = [
     ("Australia",     "FSANZ"),
 ]
 
-COLUMNS = ["Date", "Source", "Company", "Brand", "Product", "Pathogen",
-           "Reason", "Class", "Country", "Region", "Tier", "Outbreak", "URL", "Notes"]
+RECALLS_SCHEMA = ["Date", "Source", "Company", "Brand", "Product", "Pathogen",
+                  "Reason", "Class", "Country", "Region", "Tier", "Outbreak",
+                  "URL", "Notes"]
+
+PENDING_SCHEMA = RECALLS_SCHEMA + ["ScrapedAt", "Status"]
+
+NEWS_HEADERS = ["Published (UTC)", "Pathogen", "Event", "Source", "Title",
+                "Link", "Retrieved (UTC)"]
 
 
 # --- IO helpers -------------------------------------------------------------
-def _load_xlsx(xlsx_path: Path) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[str]]:
-    """Returns (recalls, news, headers). News preserved as-is; not touched by guardian."""
-    wb = load_workbook(xlsx_path, data_only=True)
-    ws = wb["Recalls"]
+def _load_sheet(wb, sheet_name: str, schema: List[str]) -> List[Dict[str, Any]]:
+    """Load a single sheet -> list of dicts.  Returns [] if sheet missing."""
+    if sheet_name not in wb.sheetnames:
+        return []
+    ws = wb[sheet_name]
     headers = [c.value for c in ws[1]]
-    recalls = [dict(zip(headers, r)) for r in ws.iter_rows(min_row=2, values_only=True)]
-    news = []
+    out = []
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        if all(v in (None, "") for v in row):
+            continue
+        rec = {h: (v if v is not None else "") for h, v in zip(headers, row)}
+        for col in schema:
+            rec.setdefault(col, "" if col not in ("Tier", "Outbreak") else 0)
+        out.append(rec)
+    return out
+
+
+def _load_all(xlsx_path: Path):
+    """Load all three sheets. Returns (recalls, pending, news_rows, news_headers)."""
+    wb = load_workbook(xlsx_path)
+    recalls = _load_sheet(wb, "Recalls", RECALLS_SCHEMA)
+    pending = _load_sheet(wb, "Pending", PENDING_SCHEMA)
+    news_rows = []
+    news_headers = NEWS_HEADERS
     if "NEWS" in wb.sheetnames:
         nw = wb["NEWS"]
-        nh = [c.value for c in nw[1]]
-        news = [dict(zip(nh, r)) for r in nw.iter_rows(min_row=2, values_only=True)]
-    return recalls, news, headers
+        news_headers = [c.value for c in nw[1]]
+        news_rows = [dict(zip(news_headers, r))
+                     for r in nw.iter_rows(min_row=2, values_only=True)]
+    return recalls, pending, news_rows, news_headers
 
 
-def _write_xlsx(xlsx_path: Path, recalls: List[Dict[str, Any]],
-                pending: List[Dict[str, Any]], news: List[Dict[str, Any]],
-                headers: List[str]):
-    """
-    Persist Recalls + Pending + NEWS back to xlsx via the canonical
-    save_xlsx_with_pending writer. NEVER creates a blank Workbook — that's how
-    the previous implementation silently wiped the Pending sheet every 4 hours.
-
-    news is loaded by _load_xlsx and passed straight through so this function
-    owns no NEWS mutation. save_xlsx_with_pending preserves NEWS when the file
-    already exists (load-modify-save). We only need to intervene if NEWS
-    somehow isn't present in the pre-existing xlsx (edge case, fresh bootstrap).
-    """
-    # save_xlsx_with_pending opens the existing file and swaps the two sheets
-    # Recalls + Pending in place; NEWS is preserved as-is. For the very first
-    # bootstrap (file didn't exist) save_xlsx_with_pending creates an empty NEWS
-    # sheet, so we then paste the `news` rows into it if we have any.
-    save_xlsx_with_pending(
-        approved_rows=recalls,
-        pending_rows=pending,
-        xlsx_path=xlsx_path,
-    )
-    # Safety net: if NEWS got re-initialised empty (fresh bootstrap) and we
-    # have news rows in memory from the load step, restore them now so the
-    # hourly news-feed writer doesn't lose history.
-    if news:
-        wb = load_workbook(xlsx_path)
-        if "NEWS" in wb.sheetnames:
-            nw = wb["NEWS"]
-            # Only overwrite if the sheet is blank (just the header row)
-            non_empty = sum(1 for r in nw.iter_rows(min_row=2, values_only=True)
-                            if not all(v in (None, "") for v in r))
-            if non_empty == 0:
-                news_headers = list(news[0].keys())
-                # Rewrite header row to match incoming keys
-                for i, h in enumerate(news_headers, 1):
-                    nw.cell(1, i).value = h
-                for r in news:
-                    nw.append([r.get(h, "") for h in news_headers])
-                wb.save(xlsx_path)
+def _write_sheet(wb: Workbook, sheet_name: str, schema: List[str],
+                 rows: List[Dict[str, Any]], header_fill: PatternFill = None):
+    """(Re)create a sheet with given schema + rows."""
+    if sheet_name in wb.sheetnames:
+        del wb[sheet_name]
+    ws = wb.create_sheet(sheet_name)
+    for i, h in enumerate(schema, 1):
+        c = ws.cell(row=1, column=i, value=h)
+        c.font = Font(bold=True)
+        if header_fill is not None:
+            c.fill = header_fill
+    for r_idx, row in enumerate(rows, 2):
+        for c_idx, col in enumerate(schema, 1):
+            v = row.get(col, "")
+            if col in ("Tier", "Outbreak"):
+                try:
+                    v = int(v) if v not in ("", None) else 0
+                except (ValueError, TypeError):
+                    v = 0
+            ws.cell(row=r_idx, column=c_idx, value=v)
+    ws.freeze_panes = "A2"
 
 
-def _write_json(json_path: Path, xlsx_path: Path):
-    """
-    Mirror recalls.xlsx's Recalls sheet -> recalls.json.
+def _save_xlsx(xlsx_path: Path,
+               recalls: List[Dict[str, Any]],
+               pending: List[Dict[str, Any]],
+               news_rows: List[Dict[str, Any]],
+               news_headers: List[str]):
+    """Save all three sheets.  Recalls is written UNCHANGED."""
+    wb = Workbook()
+    if wb.active and wb.active.max_row == 1 and wb.active.max_column == 1:
+        wb.remove(wb.active)
 
-    Per the architecture rule: recalls.json is a MIRROR of the Recalls sheet,
-    never written independently. We reload from the just-saved xlsx so the
-    json can never drift from the file on disk — if they're ever out of sync,
-    it's a bug not a race condition.
-    """
-    recalls = load_existing(xlsx_path)
-    serializable = []
-    for r in recalls:
-        rec = {}
-        for k, v in r.items():
-            if isinstance(v, (date, datetime)):
-                rec[k] = v.isoformat()[:10]
-            elif v is None:
-                rec[k] = ""
-            else:
-                rec[k] = v
-        serializable.append(rec)
-    json_path.parent.mkdir(parents=True, exist_ok=True)
-    json_path.write_text(
-        json.dumps(serializable, ensure_ascii=False, indent=2, default=str),
-        encoding="utf-8",
-    )
-    log.info("json mirror written: %d rows -> %s", len(serializable), json_path)
+    _write_sheet(wb, "Recalls", RECALLS_SCHEMA, recalls)
+
+    pending_fill = PatternFill(start_color="FFF3CD", end_color="FFF3CD",
+                               fill_type="solid")
+    _write_sheet(wb, "Pending", PENDING_SCHEMA, pending, header_fill=pending_fill)
+
+    if news_rows:
+        _write_sheet(wb, "NEWS", news_headers, news_rows)
+    else:
+        nw = wb.create_sheet("NEWS")
+        for i, h in enumerate(NEWS_HEADERS, 1):
+            c = nw.cell(row=1, column=i, value=h)
+            c.font = Font(bold=True)
+        nw.freeze_panes = "A2"
+
+    # Sheet order: Recalls, Pending, NEWS
+    ordered = []
+    for name in ["Recalls", "Pending"]:
+        if name in wb.sheetnames:
+            ordered.append(wb[name])
+    for s in wb.sheetnames:
+        if s not in ("Recalls", "Pending", "NEWS"):
+            ordered.append(wb[s])
+    if "NEWS" in wb.sheetnames:
+        ordered.append(wb["NEWS"])
+    wb._sheets = ordered
+
+    wb.save(xlsx_path)
 
 
 # --- core logic -------------------------------------------------------------
@@ -193,19 +194,19 @@ def _in_window(row: Dict[str, Any], cutoff: date) -> bool:
         return False
 
 
-def _url_health_pass(recalls: List[Dict[str, Any]], since_days: int) -> Dict[str, int]:
-    """Validate URLs on recent rows. Blank ones that are truly broken/generic."""
+def _url_health_pass(pending: List[Dict[str, Any]], since_days: int) -> Dict[str, int]:
+    """Validate URLs on recent PENDING rows. Blank ones that are truly broken."""
     cutoff = date.today() - timedelta(days=since_days)
-    targets = [(i, r) for i, r in enumerate(recalls) if _in_window(r, cutoff)]
-    log.info("URL health: checking %d of %d rows (last %d days)",
-             len(targets), len(recalls), since_days)
+    targets = [(i, r) for i, r in enumerate(pending) if _in_window(r, cutoff)]
+    log.info("URL health: checking %d of %d pending rows (last %d days)",
+             len(targets), len(pending), since_days)
 
     rows_to_check = [r for _, r in targets]
     validated = validate_all(rows_to_check, max_workers=10)
 
     stats = {"checked": len(validated), "ok": 0, "bot_blocked": 0,
              "blanked_generic": 0, "blanked_404": 0, "blanked_5xx": 0, "kept_403": 0}
-    for (global_idx, _), vrow in zip(targets, validated):
+    for (idx, _), vrow in zip(targets, validated):
         check = vrow.get("_url_check", {})
         reason = check.get("reason", "")
         if reason == "ok":
@@ -215,20 +216,18 @@ def _url_health_pass(recalls: List[Dict[str, Any]], since_days: int) -> Dict[str
             stats["bot_blocked"] += 1
             continue
         if should_blank_url(check):
-            original = recalls[global_idx].get("URL", "")
+            original = pending[idx].get("URL", "")
             if reason == "generic":
                 stats["blanked_generic"] += 1
             elif 400 <= check.get("status", 0) < 500:
                 stats["blanked_404"] += 1
             else:
                 stats["blanked_5xx"] += 1
-            recalls[global_idx]["URL"] = ""
-            # Append audit trail in Notes (truncate if too long)
-            notes = str(recalls[global_idx].get("Notes") or "")
+            pending[idx]["URL"] = ""
+            notes = str(pending[idx].get("Notes") or "")
             audit = f"[URL-guardian {date.today().isoformat()}: blanked {reason} {original[:60]}]"
-            recalls[global_idx]["Notes"] = (notes + " " + audit).strip()[:500]
+            pending[idx]["Notes"] = (notes + " " + audit).strip()[:500]
         else:
-            # 403 that isn't a known bot-hostile domain — log but keep
             stats["kept_403"] += 1
     return stats
 
@@ -244,28 +243,24 @@ def _signature(r: Dict[str, Any]) -> str:
 
 def _gap_finder_pass(recalls: List[Dict[str, Any]],
                      pending: List[Dict[str, Any]],
-                     gap_days: int,
-                     scraped_at: str) -> Dict[str, int]:
-    """
-    Ask OpenAI what recalls we may have missed. Append novel candidates to the
-    Pending list (NEVER directly to Recalls). They'll be promoted to Recalls
-    only after the 07:30 Claude URL-gate verifies URL + required fields.
+                     gap_days: int) -> Dict[str, int]:
+    """Ask OpenAI what recalls we may have missed.
 
-    This is a tighter contract than the old implementation, which appended
-    straight to Recalls and bypassed all downstream review.
+    Append novel rows to PENDING (not Recalls).
+    Dedup checks against both Recalls and existing Pending.
     """
     if os.getenv("OPENAI_API_KEY", "").strip() == "":
         log.info("Gap-finder: OPENAI_API_KEY missing, skipping")
         return {"suggested": 0, "added": 0, "dupes_rejected": 0}
 
-    # Dedup against BOTH approved Recalls and existing Pending, so a row
-    # already queued for review doesn't get re-queued every 4 hours.
-    from pipeline.merge_master import _dedup_key  # private but canonical
-    existing_keys = {_dedup_key(r) for r in recalls} | {_dedup_key(r) for r in pending}
+    existing_sigs = {_signature(r) for r in recalls}
+    existing_sigs.update(_signature(r) for r in pending)
+
     added = 0
     suggested = 0
     dupes = 0
     today = date.today().isoformat()
+    scraped_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     for country, agency in GAP_FINDER_TARGETS:
         try:
@@ -276,13 +271,11 @@ def _gap_finder_pass(recalls: List[Dict[str, Any]],
         suggested += len(candidates)
         for c in candidates:
             url = (c.get("URL") or "").strip()
-            # Drop candidates with no URL or an obvious landing/category URL
-            # before they even hit Pending — they can never be promoted.
             if not url or is_generic_url(url):
                 continue
             new_row = {
-                "Date":     (c.get("Date") or today)[:10],
-                "Source":   f"{agency} (gap-finder)",
+                "Date":      (c.get("Date") or today)[:10],
+                "Source":    f"{agency} (gap-finder)",
                 "Company":  c.get("Company", ""),
                 "Brand":    "",
                 "Product":  c.get("Product", ""),
@@ -294,37 +287,34 @@ def _gap_finder_pass(recalls: List[Dict[str, Any]],
                 "Tier":     2,
                 "Outbreak": 0,
                 "URL":      url,
-                "Notes":    f"[guardian gap-finder {today} via OpenAI]",
-                # Pending-sheet tracking columns
+                "Notes":    f"[gap-finder {today} via OpenAI]",
                 "ScrapedAt": scraped_at,
-                "Status":    "pending",
+                "Status":   "pending",
             }
-            k = _dedup_key(new_row)
-            if k in existing_keys:
+            sig = _signature(new_row)
+            if sig in existing_sigs:
                 dupes += 1
                 continue
-            existing_keys.add(k)
+            existing_sigs.add(sig)
             pending.append(new_row)
             added += 1
-    log.info("Gap-finder (-> Pending): suggested=%d added=%d dupes_rejected=%d",
-             suggested, added, dupes)
+    log.info("Gap-finder: suggested=%d added=%d dupes_rejected=%d", suggested, added, dupes)
     return {"suggested": suggested, "added": added, "dupes_rejected": dupes}
 
 
-def _tier1_spot_check(recalls: List[Dict[str, Any]], since_days: int) -> Dict[str, int]:
-    """Optional Claude Haiku review of recent Tier-1 rows. Free-credit budget."""
+def _tier1_spot_check(pending: List[Dict[str, Any]], since_days: int) -> Dict[str, int]:
+    """Optional Claude Haiku review of recent Tier-1 PENDING rows."""
     if review_tier1 is None:
         return {"flags": 0, "reviewed": 0}
     if os.getenv("ANTHROPIC_API_KEY", "").strip() == "":
         return {"flags": 0, "reviewed": 0}
     cutoff = date.today() - timedelta(days=since_days)
-    recent_tier1 = [r for r in recalls
+    recent_tier1 = [r for r in pending
                     if int(r.get("Tier") or 2) == 1 and _in_window(r, cutoff)]
     if not recent_tier1:
         return {"flags": 0, "reviewed": 0}
     flags = review_tier1(recent_tier1) or []
     log.info("Claude Tier-1 spot-check: reviewed=%d flags=%d", len(recent_tier1), len(flags))
-    # Persist high-severity flags into Notes for human review
     for f in flags:
         if f.get("severity") == "high":
             idx = f.get("row_index", -1)
@@ -337,11 +327,16 @@ def _tier1_spot_check(recalls: List[Dict[str, Any]], since_days: int) -> Dict[st
 
 # --- entry point ------------------------------------------------------------
 def guardian_run(xlsx_path: str = "docs/data/recalls.xlsx",
-                 json_path: str = "docs/data/recalls.json",
+                 json_path: str = None,
                  since_days: int = None,
                  gap_days: int = None,
                  skip_ai: bool = False) -> Dict[str, Any]:
-    """Main 4-hour guardian pass. Returns summary dict."""
+    """Main 4-hour guardian pass.  Modifies ONLY the Pending sheet.
+
+    json_path is accepted for CLI back-compat but IGNORED — the guardian
+    never writes recalls.json.  The daily pipeline (run_all.py) is the
+    single authority for mirroring Recalls → JSON.
+    """
     since_days = int(since_days if since_days is not None
                      else os.getenv("GUARDIAN_SINCE_DAYS", "14"))
     gap_days = int(gap_days if gap_days is not None
@@ -349,69 +344,54 @@ def guardian_run(xlsx_path: str = "docs/data/recalls.xlsx",
     skip_ai = skip_ai or os.getenv("GUARDIAN_SKIP_AI", "false").lower() == "true"
 
     xp = Path(xlsx_path)
-    jp = Path(json_path)
     if not xp.exists():
         log.error("xlsx not found: %s", xp)
         return {"ok": False, "error": "xlsx not found"}
 
-    # Load Recalls + Pending + NEWS (all three sheets). Pending must be
-    # loaded too, otherwise save_xlsx_with_pending would overwrite it.
-    recalls, news, headers = _load_xlsx(xp)
-    pending = load_pending(xp)
-    before_count = len(recalls)
-    before_pending = len(pending)
-    log.info("Loaded %d recalls, %d pending, %d news rows from %s",
-             before_count, before_pending, len(news), xp)
+    recalls, pending, news_rows, news_headers = _load_all(xp)
+    log.info("Loaded %d recalls (READ-ONLY), %d pending, %d news from %s",
+             len(recalls), len(pending), len(news_rows), xp)
 
-    # Ensure we always write the canonical column order, even if input is quirky
-    headers = COLUMNS if set(headers) >= set(COLUMNS) - {"Notes"} else headers
+    pending_before = len(pending)
 
-    # 1. URL health pass — isolated so a network glitch won't kill the pipeline
+    # 1. URL health pass on PENDING only
     try:
-        url_stats = _url_health_pass(recalls, since_days)
+        url_stats = _url_health_pass(pending, since_days)
     except Exception as e:
         log.warning("URL health pass failed (non-fatal): %s", e)
-        url_stats = {"checked": 0, "blanked": 0, "kept_bot_block": 0, "error": str(e)}
+        url_stats = {"checked": 0, "error": str(e)}
 
-    # 2. Gap-finder + Tier-1 spot-check (AI passes) — also isolated
-    scraped_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    # 2. Gap-finder + Tier-1 spot-check on PENDING only
     if skip_ai:
         gap_stats = {"suggested": 0, "added": 0, "dupes_rejected": 0, "skipped": True}
         tier1_stats = {"flags": 0, "reviewed": 0, "skipped": True}
     else:
         try:
-            # Gap-finder now appends into `pending`, not `recalls`.
-            # Those rows go through the 07:30 Claude URL-gate before promotion.
-            gap_stats = _gap_finder_pass(recalls, pending, gap_days, scraped_at)
+            gap_stats = _gap_finder_pass(recalls, pending, gap_days)
         except Exception as e:
             log.warning("Gap-finder pass failed (non-fatal): %s", e)
-            gap_stats = {"suggested": 0, "added": 0, "dupes_rejected": 0, "error": str(e)}
+            gap_stats = {"suggested": 0, "added": 0, "error": str(e)}
         try:
-            tier1_stats = _tier1_spot_check(recalls, since_days)
+            tier1_stats = _tier1_spot_check(pending, since_days)
         except Exception as e:
             log.warning("Tier-1 spot-check failed (non-fatal): %s", e)
             tier1_stats = {"flags": 0, "reviewed": 0, "error": str(e)}
 
-    # 3. Sort newest-first for writing (matches dashboard expectations)
-    recalls = sort_rows(recalls)
-    pending = sort_rows(pending)
+    # 3. Sort pending newest-first
+    pending.sort(key=lambda r: str(r.get("Date") or ""), reverse=True)
 
-    # 4. Write xlsx via the canonical Pending-preserving writer, then
-    #    mirror json FROM the just-saved xlsx (never from in-memory state).
-    _write_xlsx(xp, recalls, pending, news, headers)
-    try:
-        _write_json(jp, xp)
-    except Exception as e:
-        log.warning("json mirror failed (non-fatal): %s", e)
+    # 4. Write back xlsx — Recalls UNCHANGED, Pending updated, NEWS preserved
+    _save_xlsx(xp, recalls, pending, news_rows, news_headers)
+    log.info("Saved xlsx: Recalls=%d (unchanged), Pending=%d",
+             len(recalls), len(pending))
 
     summary = {
         "ok": True,
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        "before_rows": before_count,
-        "after_rows": len(recalls),
-        "delta_rows": len(recalls) - before_count,
-        "before_pending": before_pending,
-        "after_pending": len(pending),
+        "recalls_count": len(recalls),
+        "pending_before": pending_before,
+        "pending_after": len(pending),
+        "pending_delta": len(pending) - pending_before,
         "url_health": url_stats,
         "gap_finder": gap_stats,
         "tier1_review": tier1_stats,
@@ -426,13 +406,13 @@ if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser(description="FSIS URL Guardian — 4-hour integrity pass")
     ap.add_argument("--xlsx", default="docs/data/recalls.xlsx")
-    ap.add_argument("--json", default="docs/data/recalls.json")
+    ap.add_argument("--json", default="docs/data/recalls.json",
+                    help="(ignored — guardian does not write JSON)")
     ap.add_argument("--since-days", type=int, default=None)
     ap.add_argument("--gap-days", type=int, default=None)
     ap.add_argument("--skip-ai", action="store_true")
     args = ap.parse_args()
 
-    # Diagnostic banner — makes failure causes visible in the workflow log.
     log.info("=" * 70)
     log.info("FSIS URL Guardian starting")
     log.info("Python:   %s", sys.version.replace("\n", " "))
@@ -444,6 +424,7 @@ if __name__ == "__main__":
              xp.stat().st_size if xp.exists() else "n/a")
     log.info("OPENAI_API_KEY:    %s", "set" if os.getenv("OPENAI_API_KEY") else "NOT SET")
     log.info("ANTHROPIC_API_KEY: %s", "set" if os.getenv("ANTHROPIC_API_KEY") else "NOT SET")
+    log.info("NOTE: recalls.json is NOT written by the guardian")
     log.info("=" * 70)
 
     if not xp.exists():
