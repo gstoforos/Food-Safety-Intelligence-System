@@ -1312,6 +1312,22 @@
   "Notes": "National"
  },
  {
+  "Date": "2026-03-30",
+  "Source": "BLV (CH)",
+  "Company": "—",
+  "Brand": "Govinda",
+  "Product": "Bio-Moringa Kapseln",
+  "Pathogen": "Salmonella spp.",
+  "Reason": "Nachweis von Salmonellen in Bio-Moringa Kapseln",
+  "Class": "Alert",
+  "Country": "Switzerland",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/oeffentliche-warnungen/ow-moringa.pdf.download.pdf/260330_%C3%96ffentliche%20Warnung_Salmonellen%20in%20Bio-Moringa%20Kapseln%20der%20Marke%20Govinda.pdf",
+  "Notes": "Öffentliche Warnung vom 30.03.2026"
+ },
+ {
   "Date": "2026-03-29",
   "Source": "CFIA",
   "Company": "Auricchio",
@@ -2846,6 +2862,22 @@
   "Outbreak": 0,
   "URL": "https://www.gob.mx/cms/uploads/attachment/file/1051500/Alerta_Sanitaria__Alula_23012026.pdf",
   "Notes": "COFEPRIS alert 23/01/2026 | global cereulide crisis | French-imported product"
+ },
+ {
+  "Date": "2026-01-23",
+  "Source": "BLV (CH)",
+  "Company": "—",
+  "Brand": "Migros",
+  "Product": "Bio-Power Mix",
+  "Pathogen": "Salmonella spp.",
+  "Reason": "Nachweis von Salmonellen in Bio-Power Mix",
+  "Class": "Alert",
+  "Country": "Switzerland",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/oeffentliche-warnungen/ow-bio-power-mix.pdf.download.pdf/Oeffentliche%20Warnung_Salmonellen%20in%20Bio%20Power%20Mix_verkauft%20bei%20Migros%20DE.pdf",
+  "Notes": "Öffentliche Warnung vom 23.01.2026"
  },
  {
   "Date": "2026-01-22",
