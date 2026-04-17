@@ -429,7 +429,7 @@ def main():
     """Main CLI function"""
     ap = argparse.ArgumentParser(description="Build AFTS weekly food safety intelligence report")
     ap.add_argument("--week-end", required=True, help="Friday date YYYY-MM-DD")
-    ap.add_argument("--xlsx", default=str(ROOT / "data" / "recalls.xlsx"))
+    ap.add_argument("--xlsx", default=str(ROOT / "docs" / "data" / "recalls.xlsx"))
     ap.add_argument("--output", default=None, help="Output HTML path (default: reports/<year>-W<num>.html)")
     args = ap.parse_args()
 
