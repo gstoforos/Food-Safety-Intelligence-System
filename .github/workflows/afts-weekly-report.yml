@@ -64,7 +64,7 @@ jobs:
           git config --local user.name  "AFTS Intelligence System"
           # Weekly reports are written next to index.html (in docs/) so the
           # dashboard can open them as siblings (no path prefix needed).
-          git add 'docs/20*-W*.html' docs/index.html
+          git add 'docs/20*-W*.html' docs/index.html docs/data/weekly-summary-latest.json
           if git diff --staged --quiet; then
             echo "No changes to commit."
           else
