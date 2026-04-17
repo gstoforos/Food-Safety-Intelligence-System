@@ -87,19 +87,33 @@ class GenericGeminiScraper(BaseScraper):
     Default scraper for sources without clean APIs. Workflow:
       1. Fetch one or more index/listing URLs
       2. Send raw HTML (truncated) to Gemini with structured-extraction prompt
-      3. Parse JSON response into Recall objects
-      4. Filter to pathogen-related recalls only
+      3. If Gemini returns 0 rows (or errors), fall through to Claude Haiku as a
+         fallback extractor. Claude is cheap-but-not-free, so it only runs when
+         Gemini produced nothing — this plugs coverage gaps without blowing the
+         $5 Haiku credit.
+      4. Parse JSON response into Recall objects
+      5. Filter to pathogen-related recalls only
 
     Subclass and set: AGENCY, COUNTRY, BASE_URL, INDEX_URLS, LANGUAGE
+    Override CLAUDE_FALLBACK = False on any scraper that should never use Claude.
     """
     INDEX_URLS: List[str] = []      # listing pages to scrape
-    LANGUAGE: str = "en"            # hint to Gemini for prompt
+    LANGUAGE: str = "en"            # hint to LLM prompt
 
     # Optional: subclass can override to provide a cleaner extraction prompt
     EXTRACTION_HINTS: str = ""
 
+    # Claude Haiku fallback: only fires when Gemini returns 0 rows for a URL.
+    # Set False on scrapers where Claude can't help (e.g. JSON APIs — Gemini
+    # returning 0 usually means "no new recalls", not "parser couldn't cope").
+    CLAUDE_FALLBACK: bool = True
+
     def scrape(self, since_days: int = 30) -> List[Recall]:
-        from enrichment.gemini_client import extract_recalls_from_html
+        from enrichment.gemini_client import extract_recalls_from_html as gemini_extract
+        from review.claude_client import (
+            extract_recalls_from_html as claude_extract,
+            ENABLED as CLAUDE_ENABLED,
+        )
 
         out: List[Recall] = []
         seen_urls = set()
@@ -108,8 +122,10 @@ class GenericGeminiScraper(BaseScraper):
             if not r:
                 continue
             html = r.text[:120_000]  # cap to ~30k tokens
+
+            rows: List[Dict[str, Any]] = []
             try:
-                rows = extract_recalls_from_html(
+                rows = gemini_extract(
                     html=html,
                     source_url=url,
                     agency=self.AGENCY,
@@ -120,7 +136,26 @@ class GenericGeminiScraper(BaseScraper):
                 )
             except Exception as e:
                 log.warning("Gemini extract failed for %s: %s", url, e)
-                continue
+                rows = []
+
+            # Fallback: only when Gemini produced nothing AND Claude is enabled
+            if not rows and self.CLAUDE_FALLBACK and CLAUDE_ENABLED:
+                log.info("Gemini returned 0 rows for %s/%s — trying Claude fallback",
+                         self.AGENCY, url)
+                try:
+                    rows = claude_extract(
+                        html=html,
+                        source_url=url,
+                        agency=self.AGENCY,
+                        country=self.COUNTRY,
+                        language=self.LANGUAGE,
+                        extra_hints=self.EXTRACTION_HINTS,
+                        since_days=since_days,
+                    )
+                except Exception as e:
+                    log.warning("Claude fallback failed for %s: %s", url, e)
+                    rows = []
+
             for row in rows:
                 u = (row.get("URL") or url).strip()
                 if u in seen_urls:
