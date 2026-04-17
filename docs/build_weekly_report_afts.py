@@ -30,6 +30,16 @@ from openpyxl import load_workbook
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
+# Process Authority trigger (shared with monthly builder). Surfaces a fixed
+# 4th paragraph in § 01 whenever the reporting window contains thermal-
+# processing / low-acid / anaerobic-packaging hazard signals.
+from process_authority import (
+    detect_process_authority_trigger,
+    build_prompt_extension as build_pa_prompt_extension,
+    deterministic_fallback as pa_deterministic_fallback,
+    PROCESS_AUTHORITY_LABEL,
+)
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
@@ -273,10 +283,11 @@ def rank_top_recalls(week_recalls: List[Dict], n: int = 5) -> List[Dict]:
     return ranked[:n]
 
 # --- AI analysis ------------------------------------------------------------
-def generate_report_with_claude(stats: Dict[str, Any], week_recalls: List[Dict]) -> str:
+def generate_report_with_claude(stats: Dict[str, Any], week_recalls: List[Dict],
+                                pa_trigger: Dict[str, Any] = None) -> str:
     if not CLAUDE_API_KEY:
         log.warning("ANTHROPIC_API_KEY missing; using fallback narrative")
-        return generate_fallback_analysis(stats)
+        return generate_fallback_analysis(stats, pa_trigger)
 
     top_incidents = []
     for r in rank_top_recalls(week_recalls, n=5):
@@ -314,7 +325,7 @@ GEOGRAPHIC DISTRIBUTION:
 TOP 5 INCIDENTS:
 {json.dumps(top_incidents, indent=2)}
 
-Write exactly THREE paragraphs, each 3-4 sentences, in an authoritative professional-engineering tone. NO headers, NO bullet points, NO emoji, NO markdown. Use UK/US business English. Reference specific numbers and named pathogens. A fixed Process Authority note will be appended separately — do NOT include any process authority filing or FDA 2541 references in your three paragraphs.
+Write exactly THREE paragraphs, each 3-4 sentences, in an authoritative professional-engineering tone. NO headers, NO bullet points, NO emoji, NO markdown. Use UK/US business English. Reference specific numbers and named pathogens. A separate Process Authority note may be appended after these three paragraphs by the pipeline — do NOT include any scheduled-process filing or FDA 2541 references in your three paragraphs.
 
 Paragraph 1 - EXECUTIVE SUMMARY: Frame the week's activity quantitatively (total, Tier-1, outbreaks, week-over-week). Name the leading pathogen and at least one specific product category or commodity it appeared in this week.
 
@@ -323,6 +334,13 @@ Paragraph 2 - PROCESS-FAILURE ANALYSIS: Diagnose the likely failure mode(s) behi
 Paragraph 3 - ENGINEERING RECOMMENDATION: Close with a concrete recommendation a VP of QA at a food manufacturer could act on this week. Name the specific control(s) to re-verify (e.g. "revalidate hold-tube residence time under current production flow rates", "increase Zone 1 environmental swab frequency on RTE deli lines", "verify post-retort thermocouple placement"). Tie it to the week's regulatory pattern (RASFF, FDA, CFIA, FSA).
 
 Return only the three paragraphs separated by a single blank line."""
+
+    # Append the Process Authority Note prompt only when the trigger fired.
+    pa_extension = build_pa_prompt_extension(pa_trigger or {"fired": False})
+    if pa_extension:
+        prompt += "\n\n" + pa_extension
+        log.info("Process Authority trigger fired (weekly): %d matching incident(s) — %s",
+                 pa_trigger["total_matches"], ", ".join(pa_trigger["keywords_hit"][:6]))
 
     try:
         response = requests.post(
@@ -334,7 +352,7 @@ Return only the three paragraphs separated by a single blank line."""
             },
             json={
                 'model': 'claude-sonnet-4-20250514',
-                'max_tokens': 1400,
+                'max_tokens': 2000 if pa_extension else 1400,
                 'messages': [{'role': 'user', 'content': prompt}]
             },
             timeout=60,
@@ -344,9 +362,10 @@ Return only the three paragraphs separated by a single blank line."""
         log.error("Claude API %d: %s", response.status_code, response.text[:300])
     except Exception as e:
         log.error("Claude API exception: %s", e)
-    return generate_fallback_analysis(stats)
+    return generate_fallback_analysis(stats, pa_trigger)
 
-def generate_fallback_analysis(stats: Dict[str, Any]) -> str:
+def generate_fallback_analysis(stats: Dict[str, Any],
+                               pa_trigger: Dict[str, Any] = None) -> str:
     top_pathogen, count = stats['top_pathogen']
     total = stats['total']
     tier1 = stats['tier1']
@@ -396,25 +415,64 @@ def generate_fallback_analysis(stats: Dict[str, Any]) -> str:
           f"that food manufacturers use this briefing as a prompt to re-verify the single "
           f"highest-leverage control for their commodity this week and to confirm documentation "
           f"packages are ready for rapid regulatory response.")
-    return f"{p1}\n\n{p2}\n\n{p3}"
+
+    body = f"{p1}\n\n{p2}\n\n{p3}"
+
+    # Optional 4th paragraph: Process Authority Note (when trigger fired).
+    pa_note = pa_deterministic_fallback(pa_trigger or {"fired": False})
+    if pa_note:
+        body = f"{body}\n\n{pa_note}"
+    return body
 
 def review_with_openai(report_content: str) -> str:
     if not OPENAI_API_KEY:
         return report_content
 
-    prompt = f"""You are a senior editor for a food industry intelligence publication. Polish the following three-paragraph executive briefing for an audience of Fortune-500 food safety directors.
+    # Detect the Process Authority Note so the polisher preserves it verbatim
+    # rather than collapsing the briefing back to three paragraphs.
+    _pa_label_lc = PROCESS_AUTHORITY_LABEL.lower()
+    _has_pa = any(
+        p.strip().lower().startswith(_pa_label_lc)
+        for p in report_content.split("\n\n") if p.strip()
+    )
+
+    if _has_pa:
+        rules = (
+            "- Preserve every number, pathogen name, and factual claim exactly.\n"
+            "- Preserve exactly FOUR paragraphs separated by blank lines. The fourth paragraph "
+            f"is the Process Authority Note (it begins with \"{PROCESS_AUTHORITY_LABEL}:\") — "
+            "keep its label, compact global framework citation (FDA 21 CFR 113/114, EU Reg. "
+            "852/2004, CFIA SFCR, FSANZ FSC Ch. 3, Japan's Food Sanitation Act), and regulatory "
+            "meaning intact; light copy-edit only, DO NOT expand it with per-regulation blurbs.\n"
+            "- Tighten the first three paragraphs, remove redundancy, ensure the tone is "
+            "measured, authoritative, and non-alarmist.\n"
+            "- Use UK/US business English. No headers, no bullets, no emoji, no markdown.\n"
+            "- Max ~180 words per paragraph for paragraphs 1–3; paragraph 4 must stay terse "
+            "at ~130 words (4 sentences) and must NOT be expanded."
+        )
+        closer = "Return only the polished four paragraphs."
+        max_tok = 1600
+    else:
+        rules = (
+            "- Preserve every number, pathogen name, and factual claim exactly.\n"
+            "- Keep exactly three paragraphs separated by a blank line.\n"
+            "- Tighten the language, remove redundancy, and ensure the tone is measured, "
+            "authoritative, and non-alarmist.\n"
+            "- Use UK/US business English. No headers, no bullets, no emoji, no markdown.\n"
+            "- Max ~180 words per paragraph."
+        )
+        closer = "Return only the polished three paragraphs."
+        max_tok = 1000
+
+    prompt = f"""You are a senior editor for a food industry intelligence publication. Polish the following executive briefing for an audience of Fortune-500 food safety directors.
 
 Rules:
-- Preserve every number, pathogen name, and factual claim exactly.
-- Keep exactly three paragraphs separated by a blank line.
-- Tighten the language, remove redundancy, and ensure the tone is measured, authoritative, and non-alarmist.
-- Use UK/US business English. No headers, no bullets, no emoji, no markdown.
-- Max ~180 words per paragraph.
+{rules}
 
 BRIEFING:
 {report_content}
 
-Return only the polished three paragraphs."""
+{closer}"""
     try:
         response = requests.post(
             'https://api.openai.com/v1/chat/completions',
@@ -425,7 +483,7 @@ Return only the polished three paragraphs."""
             json={
                 'model': 'gpt-4o-mini',
                 'messages': [{'role': 'user', 'content': prompt}],
-                'max_tokens': 1000,
+                'max_tokens': max_tok,
                 'temperature': 0.3,
             },
             timeout=60,
@@ -500,60 +558,16 @@ def render_top5_row(i: int, r: Dict) -> str:
     </tr>"""
 
 def build_pa_paragraph(recalls: List[Dict]) -> str:
-    """Build the fixed Process Authority Note paragraph (always shown as § 01 ¶4).
-
-    The base text covers scheduled-process filing and GMP oversight requirements.
-    When the week contains Clostridium botulinum, low-acid, aseptic, or ROP/MAP
-    hazard recalls, an enhanced sentence is prepended naming the specific frameworks.
-    No numerical F-value / D-value targets are published; those are engagement
-    deliverables from a qualified process authority.
+    """Deprecated — Process Authority Note rendering now flows through
+    ``process_authority.py`` (shared with the monthly builder). This stub is
+    kept only for backward-compatibility with anything that still imports it
+    and is not used by the current report pipeline.
     """
-    # Trigger detection — scan this week's recall set
-    all_pathogens = " ".join(str(r.get("Pathogen") or "") for r in recalls).lower()
-    all_reasons   = " ".join(str(r.get("Reason")   or "") for r in recalls).lower()
-    all_products  = " ".join(str(r.get("Product")  or "") for r in recalls).lower()
-    combined = all_pathogens + " " + all_reasons + " " + all_products
-
-    has_botulinum  = "botulinum" in all_pathogens
-    has_low_acid   = any(t in combined for t in ("low acid", "low-acid", "lacf", "21 cfr 113"))
-    has_aseptic    = any(t in combined for t in ("aseptic", "uht", "htst"))
-    has_rop_map    = any(t in combined for t in ("vacuum", "modified atmosphere", "rop", " map "))
-
-    base = (
-        "AFTS operates under qualified process authority for thermal processing, aseptic systems, "
-        "and scheduled-process compliance. Manufacturers whose products appear in this briefing — "
-        "or who produce comparable commodities — should confirm that scheduled processes are filed "
-        "with FDA (Form 2541/2541e), that 21 CFR 108 emergency permit requirements have been "
-        "evaluated, and that GMP programmes align with the current 21 CFR 113/114 frameworks. "
-        "Process authority engagement is advisable prior to any formulation, equipment, or "
-        "process-parameter change."
+    from process_authority import (
+        detect_process_authority_trigger as _detect,
+        deterministic_fallback as _fallback,
     )
-
-    if has_botulinum or has_low_acid:
-        trigger = (
-            "This week's dataset includes low-acid canned food (LACF) or Clostridium botulinum–relevant "
-            "hazards, for which scheduled-process adequacy under 21 CFR 113 is a mandatory regulatory "
-            "requirement — not a recommended best practice. "
-        )
-        return trigger + base
-
-    if has_aseptic:
-        trigger = (
-            "Aseptic and UHT product recalls in this period underscore the critical importance of "
-            "validated hold-tube residence time and continuous sterilisation system performance under "
-            "21 CFR 113 / FDA LACF/aseptic filing requirements. "
-        )
-        return trigger + base
-
-    if has_rop_map:
-        trigger = (
-            "Reduced-oxygen packaging (ROP/MAP) products in this week's data carry inherent "
-            "Clostridium botulinum risk; scheduled-process documentation and temperature-control "
-            "validation are regulatory obligations, not optional controls. "
-        )
-        return trigger + base
-
-    return base
+    return _fallback(_detect(recalls))
 
 
 def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tuple[str, Dict[str, Any]]:
@@ -563,15 +577,49 @@ def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tu
     year = week_end.year
     top5 = rank_top_recalls(recalls, n=5)
 
+    # Process Authority trigger — detected once, passed to both the AI
+    # generator (to append the prompt extension) and the deterministic
+    # fallback (to append the prewritten 4th paragraph).
+    pa_trigger = detect_process_authority_trigger(recalls)
+
     # AI pipeline
-    ai_raw = generate_report_with_claude(stats, recalls)
+    ai_raw = generate_report_with_claude(stats, recalls, pa_trigger)
     analysis = review_with_openai(ai_raw)
     paragraphs = [p.strip() for p in analysis.split("\n\n") if p.strip()]
     while len(paragraphs) < 3:
         paragraphs.append("")
 
+    # Render paragraphs. Any paragraph beginning with the Process Authority
+    # label is tagged with `.pa-note` styling so the 4th (or any) PA paragraph
+    # gets the distinctive red-accent label treatment — same pattern as the
+    # monthly builder, so weekly and monthly stay visually consistent.
+    _pa_label_lc = PROCESS_AUTHORITY_LABEL.lower()
+    analysis_parts: List[str] = []
+    pa_paragraph_text = ""
+    for p in paragraphs:
+        p_stripped = p.strip()
+        is_pa = p_stripped.lower().startswith(_pa_label_lc)
+        if is_pa:
+            pa_paragraph_text = p_stripped
+            idx = p_stripped.lower().find(_pa_label_lc)
+            colon = p_stripped.find(":", idx) if idx != -1 else -1
+            if colon != -1:
+                label_text = p_stripped[idx:colon].strip()
+                body_text = p_stripped[colon + 1:].strip()
+                analysis_parts.append(
+                    f'<p class="pa-note"><span class="pa-label">{escape(label_text)}:</span> '
+                    f'{escape(body_text)}</p>'
+                )
+            else:
+                analysis_parts.append(f'<p class="pa-note">{escape(p_stripped)}</p>')
+        elif p_stripped:
+            analysis_parts.append(f'<p>{escape(p_stripped)}</p>')
+    analysis_html = "".join(analysis_parts)
+
     # Stash the analysis and top5 for main() to use when writing the summary JSON
-    stats["_first_paragraph"] = paragraphs[0]
+    stats["_first_paragraph"] = paragraphs[0] if paragraphs else ""
+    stats["_pa_paragraph"] = pa_paragraph_text
+    stats["_pa_trigger"] = pa_trigger
     stats["_top5"] = top5
 
     # Top 5 rows
@@ -750,6 +798,16 @@ a:hover {{ text-decoration:underline; }}
 }}
 .analysis p {{ margin:0 0 14px; font-size:14.5px; line-height:1.75; }}
 .analysis p:last-child {{ margin-bottom:0; }}
+.analysis p.pa-note {{
+  margin:18px -30px 0 -30px; padding:18px 30px 2px 30px;
+  background:#fff; border-top:1px solid var(--brd);
+  font-size:13.5px; line-height:1.7;
+}}
+.analysis p.pa-note .pa-label {{
+  display:inline; font-family:'DM Mono', monospace; font-weight:700;
+  letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--red); font-size:10px; margin-right:8px;
+}}
 
 table.data {{
   width:100%; border-collapse:collapse; margin:0 0 10px;
@@ -941,6 +999,8 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   .sec-title {{ font-size:20px; white-space:nowrap; }}
   .analysis {{ padding:22px 26px; }}
   .analysis p {{ font-size:13px; margin:0 0 12px; line-height:1.7; }}
+  .analysis p.pa-note {{ margin:14px -26px 0 -26px; padding:14px 26px 2px 26px; font-size:12px; line-height:1.65; }}
+  .analysis p.pa-note .pa-label {{ font-size:9px; }}
 
   table.data th {{ background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
   table.data tr {{ page-break-inside:avoid; break-inside:avoid; }}
@@ -1058,6 +1118,7 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   .r-title {{ font-size:24px; }}
   .analysis {{ padding:18px 20px; }}
   .analysis p {{ font-size:13px; }}
+  .analysis p.pa-note {{ margin:14px -20px 0 -20px; padding:14px 20px 2px 20px; }}
 }}
 </style>
 </head>
@@ -1115,9 +1176,7 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   <span class="sec-rule"></span>
 </div>
 <div class="analysis">
-  <p>{escape(paragraphs[0])}</p>
-  <p>{escape(paragraphs[1])}</p>
-  <p>{escape(paragraphs[2])}</p>
+  {analysis_html}
 </div>
 
 <div class="sec-head">

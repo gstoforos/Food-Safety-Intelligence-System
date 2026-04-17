@@ -105,46 +105,33 @@ PROCESS_AUTHORITY_LABEL = "Process Authority Note"
 PROCESS_AUTHORITY_PROMPT = """
 Because this reporting window contains recall(s) with thermal-processing or
 anaerobic-packaging hazard signals, add a FOURTH paragraph titled
-"{label}:" (exactly that word, followed by a colon). This paragraph should
-read like a practising Process Authority briefing operators on the compliance
-implications of the matching incident(s).
+"{label}:" (exactly that word, followed by a colon).
 
 MATCHING INCIDENT(S) in this window:
 {matching_incidents}
 
-In this fourth paragraph (4–6 sentences, prose — NO bullets, NO markdown):
+In this fourth paragraph (3–4 sentences, prose — NO bullets, NO markdown,
+NO per-regulation blurbs):
 
-1. Name the product class at stake in the matching incident(s): shelf-stable
-   low-acid canned food (LACF) under 21 CFR 113, acidified food under 21 CFR
-   114, aseptic / UHT / HTST continuous-flow product, hot-filled shelf-stable
-   product, or refrigerated reduced-oxygen packaged product. Each category has
-   a distinct regulatory framework and a distinct set of control points.
+1. Name the product class at stake (shelf-stable low-acid / acidified /
+   aseptic-UHT / hot-filled / reduced-oxygen-packaged) and state that the
+   established scheduled thermal process must be reviewed under a qualified
+   process authority. Do NOT quote F-value or D-value numerical targets.
 
-2. State that every shelf-stable low-acid product of this type MUST be
-   reviewed to confirm it has achieved the established scheduled thermal
-   process, that production is conducted under proper GMPs, and that the
-   process has been validated under the guidance of a qualified process
-   authority in order to control Clostridium botulinum spores. Do NOT quote
-   specific F-value or D-value numerical targets — those are engagement
-   deliverables from a qualified process authority, not briefing content.
+2. Cite the globally-applicable frameworks as a COMPACT LIST, not a
+   sentence per jurisdiction. Suggested phrasing: "required under FDA 21
+   CFR 113/114, EU Reg. 852/2004, CFIA SFCR, FSANZ FSC Ch. 3, and Japan's
+   Food Sanitation Act." Mention only the frameworks relevant to the
+   jurisdictions represented in the matching incidents.
 
-3. Frame the probable compliance gap in regulatory terms: absence or lapse
-   of a filed scheduled process (FDA Form 2541 / 2541e), a process deviation
-   resolved without qualified process authority review, container or
-   pouch-seal integrity control gaps, or a formulation change (pH, a_w,
-   salt, preservative) introduced without re-evaluation by a process
-   authority. Reference the analogous EU / CFIA regulatory posture where
-   relevant.
+3. Flag the probable compliance gap (unfiled or outdated scheduled process,
+   deviation resolved without qualified review, seal-integrity lapse, or
+   formulation change not re-evaluated) and close with the expected
+   enforcement consequence of a Tier-1 / Class-I classification in this
+   product class.
 
-4. Close with the concrete regulatory consequence operators should expect
-   from a Tier-1 / Class-I classification on a low-acid product (21 CFR 108
-   process filing audit, FDA Form 483 on subsequent inspection, or the
-   equivalent EU / CFIA enforcement step). Do NOT prescribe a portfolio-wide
-   verification step to the reader.
-
-Keep the tone authoritative and compliance-oriented. Do not give away
-specific process-engineering targets. Do not repeat content already covered
-in paragraphs 1–3.
+Keep the tone authoritative and terse. Do not explain what each regulation
+does. Do not repeat content already covered in paragraphs 1–3.
 """
 
 
@@ -245,10 +232,9 @@ def build_prompt_extension(trigger: Dict[str, Any]) -> str:
 def deterministic_fallback(trigger: Dict[str, Any]) -> str:
     """
     When no AI key is set, produce a compliance-angled Process Authority Note
-    from the matched rows. Used by the fallback narrative path so non-AI runs
-    still surface the regulatory angle. Deliberately contains NO quantitative
-    F-value / D-value / lethality targets — those are engagement deliverables,
-    not public briefing content.
+    from the matched rows. Terse by design — names the applicable frameworks
+    as a compact list, does not explain each regulation. Deliberately contains
+    NO quantitative F-value / D-value / lethality targets.
     """
     if not trigger.get("fired"):
         return ""
@@ -270,47 +256,50 @@ def deterministic_fallback(trigger: Dict[str, Any]) -> str:
     country = first.get("country", "")
     pathogen = first.get("pathogen", "the hazard")
 
+    # Compact, global framework citation — no per-regulation explanation.
+    FRAMEWORKS = (
+        "required under FDA 21 CFR 113/114, EU Reg. 852/2004, CFIA SFCR, "
+        "FSANZ Food Standards Code Ch. 3, and Japan's Food Sanitation Act"
+    )
+
     if has_clostridium:
         return (
-            f"{PROCESS_AUTHORITY_LABEL}: This window contains {n} incident(s) implicating "
-            f"Clostridium or botulinum toxin, with {company} ({country}) cited for {pathogen}. "
-            f"Any shelf-stable low-acid canned food (LACF, 21 CFR 113) or acidified food "
-            f"(21 CFR 114) in the affected category must be reviewed to confirm that the "
-            f"product has achieved the established scheduled thermal process, that production "
-            f"is conducted under proper GMPs and the applicable regulatory framework, and "
-            f"that this has been validated under the guidance of a qualified process authority "
-            f"in order to control Clostridium botulinum spores. The most common compliance "
-            f"gap behind recalls of this profile is an unfiled or outdated scheduled process "
-            f"(FDA Form 2541 / 2541e), a process deviation resolved without qualified process "
-            f"authority review, or a formulation change — pH, a_w, salt, preservative — "
-            f"introduced without re-evaluation. A Tier-1 / Class-I classification on a "
-            f"low-acid product reliably triggers a 21 CFR 108 process filing audit and FDA "
-            f"Form 483 citations on the subsequent inspection, with analogous EU / CFIA "
-            f"enforcement steps."
+            f"{PROCESS_AUTHORITY_LABEL}: This window contains {n} incident(s) "
+            f"implicating Clostridium or botulinum toxin, with {company} "
+            f"({country}) cited for {pathogen}. Any shelf-stable low-acid, "
+            f"acidified, aseptic/UHT, hot-filled, or reduced-oxygen-packaged "
+            f"product in the affected category must be reviewed to confirm "
+            f"the scheduled thermal process under a qualified process "
+            f"authority — {FRAMEWORKS}. Typical compliance gaps: unfiled or "
+            f"outdated scheduled process, deviation resolved without "
+            f"qualified review, container or seal-integrity lapse, or a "
+            f"formulation change (pH, a_w, salt, preservative) not "
+            f"re-evaluated. A Tier-1 / Class-I classification on a product "
+            f"of this class reliably triggers a process-filing audit and "
+            f"regulatory citations in every major jurisdiction."
         )
     elif has_lacf_signal:
         return (
-            f"{PROCESS_AUTHORITY_LABEL}: {n} incident(s) in this window carry thermal-processing "
-            f"or anaerobic-packaging signals. Shelf-stable low-acid canned foods (LACF, 21 CFR 113), "
-            f"acidified foods (21 CFR 114), aseptic / UHT / HTST continuous-flow products, "
-            f"hot-filled shelf-stable products and refrigerated reduced-oxygen-packaged products "
-            f"must each be reviewed to confirm the established scheduled process has been "
-            f"achieved, that production is under proper GMPs and regulatory compliance, and "
-            f"that the process is validated under the guidance of a qualified process authority. "
-            f"The most probable compliance gaps are an unfiled or outdated scheduled process, "
-            f"a process deviation resolved without qualified review, container or pouch-seal "
-            f"integrity control lapses, or a formulation change introduced without re-evaluation."
+            f"{PROCESS_AUTHORITY_LABEL}: {n} incident(s) in this window "
+            f"carry thermal-processing or anaerobic-packaging signals. "
+            f"Shelf-stable low-acid, acidified, aseptic/UHT, hot-filled, and "
+            f"reduced-oxygen-packaged products must be reviewed to confirm "
+            f"the scheduled thermal process under a qualified process "
+            f"authority — {FRAMEWORKS}. Typical compliance gaps: unfiled or "
+            f"outdated scheduled process, deviation resolved without "
+            f"qualified review, seal-integrity lapse, or formulation change "
+            f"not re-evaluated."
         )
     else:
-        # Trigger fired on a non-LACF signal (e.g. Cronobacter in powdered infant
-        # formula or Bacillus cereus in cooked RTE). Softer compliance framing.
+        # Trigger fired on a non-LACF signal (e.g. Cronobacter in PIF or
+        # Bacillus cereus in cooked RTE). Softer framing, same compact
+        # framework citation.
         return (
-            f"{PROCESS_AUTHORITY_LABEL}: {n} incident(s) in this window carry thermal-processing "
-            f"or anaerobic-packaging signals and warrant a compliance review of the scheduled "
-            f"thermal process and applicable packaging-system controls. Operators should "
-            f"confirm production is conducted under proper GMPs and the applicable regulatory "
-            f"framework, and that the process has been signed off by a qualified process "
-            f"authority. Recall events in this product class commonly trace to an unfiled or "
-            f"outdated scheduled process, a process deviation resolved without qualified "
-            f"review, or a formulation or packaging change introduced without re-evaluation."
+            f"{PROCESS_AUTHORITY_LABEL}: {n} incident(s) in this window "
+            f"carry thermal-processing or anaerobic-packaging signals and "
+            f"warrant a qualified process-authority review of the scheduled "
+            f"process and packaging controls — {FRAMEWORKS}. Recalls in this "
+            f"class typically trace to an unfiled or outdated scheduled "
+            f"process, a deviation resolved without qualified review, or a "
+            f"formulation or packaging change not re-evaluated."
         )
