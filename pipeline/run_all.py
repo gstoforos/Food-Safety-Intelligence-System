@@ -55,7 +55,7 @@ from review.claude_client import review_tier1 as claude_review   # noqa: E402
 from pipeline.merge_master import (                    # noqa: E402
     load_existing, load_pending,
     append_to_pending, promote_approved,
-    sort_rows, save_xlsx_with_pending, save_json,
+    sort_rows, save_xlsx_with_pending, mirror_json_from_xlsx,
     STATUS_PENDING, STATUS_REJECTED,
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
@@ -320,8 +320,11 @@ def main() -> int:
              sum(1 for r in final_pending if r.get("Status") == STATUS_REJECTED))
 
     # ---- 9. Save ---------------------------------------------------------
+    # Architecture: xlsx is the single source of truth. Write xlsx first,
+    # then mirror recalls.json FROM the saved xlsx (never from the
+    # in-memory list) so they cannot drift from each other.
     save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH)
-    save_json(final_approved, JSON_PATH)
+    mirror_json_from_xlsx(XLSX_PATH, JSON_PATH)
 
     # ---- 10. Commit ------------------------------------------------------
     if not SKIP_COMMIT:

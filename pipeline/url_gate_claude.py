@@ -49,7 +49,7 @@ sys.path.insert(0, str(ROOT))
 from pipeline.merge_master import (  # noqa: E402
     load_existing, load_pending,
     promote_approved, sort_rows,
-    save_xlsx_with_pending, save_json,
+    save_xlsx_with_pending, mirror_json_from_xlsx,
     STATUS_REJECTED, STATUS_PENDING,
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
@@ -291,7 +291,8 @@ def main() -> int:
     final_pending = sort_rows(final_pending_out)
 
     save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH)
-    save_json(final_approved, JSON_PATH)
+    # json = strict mirror of xlsx Recalls sheet (architecture rule)
+    mirror_json_from_xlsx(XLSX_PATH, JSON_PATH)
 
     # ---- Commit ---------------------------------------------------------
     if not SKIP_COMMIT:

@@ -320,11 +320,52 @@ def save_xlsx_with_pending(
 
 
 def save_json(rows: List[Dict[str, Any]], json_path: Path) -> None:
-    """Mirror approved Recalls to recalls.json (weekly-report + dashboard consumer)."""
+    """
+    DEPRECATED — writes recalls.json from an in-memory list of rows.
+
+    Using this is an architectural violation: recalls.json MUST mirror what's
+    on the Recalls sheet of recalls.xlsx, not an arbitrary in-memory list.
+    If the xlsx write fails or gets interrupted, the json would diverge from
+    the file that's actually committed.
+
+    Use `mirror_json_from_xlsx(xlsx_path, json_path)` instead. Kept here only
+    so legacy callers don't crash outright during the transition.
+    """
+    log.warning("save_json (in-memory) is deprecated; "
+                "use mirror_json_from_xlsx for guaranteed xlsx->json sync")
     json_path.parent.mkdir(parents=True, exist_ok=True)
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(rows, f, ensure_ascii=False, indent=1, default=str)
     log.info("Saved %d approved rows to %s", len(rows), json_path)
+
+
+def mirror_json_from_xlsx(xlsx_path: Path, json_path: Path) -> int:
+    """
+    Write recalls.json as a strict mirror of the Recalls sheet in recalls.xlsx.
+
+    This is the ONLY sanctioned way to produce recalls.json. It guarantees
+    that json can never drift from xlsx: we read the file that was just
+    committed to disk, normalise types (dates to ISO strings), and serialise.
+
+    Returns the number of rows written.
+    """
+    rows = load_existing(xlsx_path)
+    out = []
+    for r in rows:
+        rec = {}
+        for k, v in r.items():
+            if hasattr(v, "isoformat"):
+                rec[k] = v.isoformat()[:10]
+            elif v is None:
+                rec[k] = ""
+            else:
+                rec[k] = v
+        out.append(rec)
+    json_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False, indent=1, default=str)
+    log.info("Mirrored %d rows from xlsx -> %s", len(out), json_path)
+    return len(out)
 
 
 # ---------------------------------------------------------------------------
