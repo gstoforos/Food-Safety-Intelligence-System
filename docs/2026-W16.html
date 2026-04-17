@@ -99,6 +99,8 @@ a:hover { text-decoration:underline; }
 .kpi-value.red { color:var(--red); }
 .kpi-value.violet { color:var(--violet); }
 .kpi-value.orange { color:var(--orange); font-size:20px; line-height:1.2; }
+.kpi-value a { color:inherit; text-decoration:none; border-bottom:2px solid var(--orange); padding-bottom:1px; }
+.kpi-value a:hover { opacity:0.8; text-decoration:none; }
 .kpi-delta {
   font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
   margin-top:10px; letter-spacing:0.04em;
@@ -122,25 +124,11 @@ a:hover { text-decoration:underline; }
 .sec-caption em { color:var(--ink); font-style:italic; }
 
 .analysis {
-  background:var(--s1);
+  background:var(--s1); border-left:4px solid var(--orange);
   padding:26px 30px; margin-bottom:10px;
 }
 .analysis p { margin:0 0 14px; font-size:14.5px; line-height:1.75; }
 .analysis p:last-child { margin-bottom:0; }
-/* Process Authority Note — fires when Clostridium / low-acid / aseptic /
-   ROP-MAP / UHT-HTST / hot-fill triggers match in the window. Rendered
-   as a white card with a top rule so it stands apart from the grey
-   analysis panel without introducing any coloured vertical bars. */
-.analysis p.pa-note {
-  margin:18px -30px 0 -30px; padding:16px 30px;
-  background:#fff; border-top:1px solid var(--brd);
-  font-size:14px; line-height:1.7;
-}
-.analysis p.pa-note .pa-label {
-  display:inline; font-family:'DM Mono',ui-monospace,monospace;
-  font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
-  color:var(--red); font-size:11px; margin-right:6px;
-}
 
 table.data {
   width:100%; border-collapse:collapse; margin:0 0 10px;
@@ -288,7 +276,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
     size: A4;
     margin: 14mm 14mm 18mm 14mm;
     @bottom-left {
-      content: "AFTS · Process Validation Intelligence · under AFTS process authority";
+      content: "AFTS · Food Safety Validation Intelligence";
       font-family: 'DM Mono', monospace; font-size: 8pt; color: #6b7280;
       letter-spacing: 0.04em;
     }
@@ -338,6 +326,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   table.data th { background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   /* Prevent any table row from splitting across a page break */
   table.data tr { page-break-inside:avoid; break-inside:avoid; }
+  .analysis { border-left-width:3px; }
   /* Top-5 print tightening - fit all 6 columns on A4 */
   table.top5 { font-size:9px; page-break-inside:avoid; }
   table.top5 th { padding:6px 5px; font-size:8px; }
@@ -467,32 +456,28 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
     <div class="report-meta">
       <strong>ISSUE</strong> &middot; Week 16, 2026<br>
       <strong>PERIOD</strong> &middot; 11 Apr &ndash; 17 Apr 2026<br>
-      <strong>PUBLISHED</strong> &middot; 17 Apr 2026 &middot; 09:08 UTC
+      <strong>PUBLISHED</strong> &middot; 17 Apr 2026 &middot; 10:21 UTC
     </div>
   </div>
 </header>
 
-<div class="r-kicker">AFTS <span class="r-kicker-dot">&middot;</span> Process Validation Intelligence</div>
+<div class="r-kicker">AFTS <span class="r-kicker-dot">&middot;</span> Food Safety Validation Intelligence</div>
 <h1 class="r-title">Pathogen Surveillance <span class="accent">&middot;</span> Week 16</h1>
 <p class="r-sub">
-  AI-powered analysis of <strong>10</strong> regulatory recall actions across
-  <strong>5</strong> jurisdictions, aggregated from 66 primary sources
+  AI-powered analysis of <strong>12</strong> regulatory recall actions across
+  <strong>6</strong> jurisdictions, aggregated from 66 primary sources
   monitored continuously by the AFTS intelligence platform.
 </p>
-<div class="r-authority">
-  <span class="auth-label">Process Authority</span>
-  Food Process Engineering &middot; Thermal Processing &middot; Regulatory Compliance
-</div>
 
 <div class="kpi-strip">
   <div class="kpi">
     <div class="kpi-label">Total Recalls</div>
-    <div class="kpi-value">10</div>
-    <div class="kpi-delta" style="color:#059669">&#9660; -55 (-85%) vs prior week</div>
+    <div class="kpi-value"><a href="#all-recalls">12</a></div>
+    <div class="kpi-delta" style="color:#059669">&#9660; -55 (-82%) vs prior week</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">Tier-1 Critical</div>
-    <div class="kpi-value red">5</div>
+    <div class="kpi-value red">7</div>
     <div class="kpi-delta" style="color:var(--muted)">Immediate public-health risk</div>
   </div>
   <div class="kpi">
@@ -503,7 +488,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   <div class="kpi">
     <div class="kpi-label">Leading Pathogen</div>
     <div class="kpi-value orange">Listeria monocytogenes</div>
-    <div class="kpi-top">4 cases &middot; 40% of total</div>
+    <div class="kpi-top">5 cases &middot; 42% of total</div>
   </div>
 </div>
 
@@ -513,10 +498,9 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   <span class="sec-rule"></span>
 </div>
 <div class="analysis">
-  <p>This week, the AFTS monitoring network reported 10 pathogen-related recall incidents, with 5 classified as Tier-1 and no confirmed outbreak events. Listeria monocytogenes was the predominant pathogen, accounting for 4 of the 10 incidents (40%). The elevated Tier-1 ratio reflects ongoing regulatory scrutiny and serves as a clear signal to food manufacturers of tightening enforcement measures.</p>
-  <p>The concentration of Listeria monocytogenes suggests post-process recontamination in ready-to-eat deli, dairy, and cooked-meat products rather than thermal underprocessing. Potential failure modes include environmental harbourage in Zone 1, drift in sanitation standard operating procedures (SOPs), and post-lethality recontamination. Manufacturers should review their environmental monitoring programmes under 21 CFR 117 and validate thermal lethality processes applicable to their product categories (21 CFR 113/114), ensuring oversight by qualified process authorities.</p>
-  <p>This week’s regulatory activity encompassed multiple jurisdictions, including RASFF, FDA, CFIA, FSA, and national authorities, indicating sustained inspection intensity. AFTS advises food manufacturers to use this briefing as a prompt to reassess their highest-leverage control measures and ensure that documentation packages are prepared for swift regulatory response.</p>
-  <p class="pa-note"><span class="pa-label">Process Authority Note:</span> This window contains 1 incident implicating Clostridium or botulinum toxin, with Liquid Blenz Corp (United States) cited for Clostridium botulinum. Any shelf-stable low-acid canned food (LACF, 21 CFR 113) or acidified food (21 CFR 114) in the affected category must be reviewed to confirm that the product has achieved the established scheduled thermal process, that production is conducted under proper GMPs and the applicable regulatory framework, and that this has been validated under the guidance of a qualified process authority in order to control Clostridium botulinum spores. The most common compliance gap behind recalls of this profile is an unfiled or outdated scheduled process (FDA Form 2541 / 2541e), a process deviation resolved without qualified process authority review, or a formulation change — pH, a_w, salt, preservative — introduced without re-evaluation. A Tier-1 / Class-I classification on a low-acid product reliably triggers a 21 CFR 108 process filing audit and FDA Form 483 citations on the subsequent inspection, with analogous EU / CFIA enforcement steps.</p>
+  <p>This week produced 12 pathogen-related recall incidents across the AFTS monitoring network, with 7 classified as Tier-1 and 0 confirmed outbreak event(s). Listeria monocytogenes dominated the surveillance window, accounting for 5 of 12 incidents (42%). The elevated Tier-1 ratio indicates sustained regulatory pressure and should be read by food manufacturers as a signal of tightening enforcement.</p>
+  <p>Listeria monocytogenes at this concentration points to post-process recontamination in ready-to-eat deli, dairy, and cooked-meat lines rather than thermal underprocess. The likely failure modes are Zone 1 environmental harbourage, sanitation SOP drift, and post-lethality recontamination. 21 CFR 117 environmental monitoring and the 6-log Listeria lethality requirement (21 CFR 113/114 where applicable) are the relevant frameworks for review.</p>
+  <p>Regulatory activity this week spanned multiple jurisdictions (RASFF, FDA, CFIA, FSA, and national authorities), signalling continued inspection intensity. AFTS recommends that food manufacturers use this briefing as a prompt to re-verify the single highest-leverage control for their commodity this week and to confirm documentation packages are ready for rapid regulatory response.</p>
 </div>
 
 <div class="sec-head">
@@ -538,6 +522,22 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
     
     <tr>
       <td class="rank-num" data-label="#">1</td>
+      <td class="date-cell" data-label="Date">13 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#9333ea"></span>
+        <span class="path-name">Clostridium botulinum</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Marché Rio</strong><div class="brand-sub">—</div></td>
+      <td class="prod-cell" data-label="Product">Épices haïtiennes / Haitian spices — plastic container, refrigerated</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Canada</div>
+        <div class="src-sub">MAPAQ QC</div>
+        <div class="juris-link"><a class="src-link" href="https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-innocuite-non-assuree-depices-haitiennes-vendues-par-lentreprise-marche-rio-69749" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">2</td>
       <td class="date-cell" data-label="Date">15 Apr 2026</td>
       <td data-label="Pathogen">
         <span class="path-dot" style="background:#9333ea"></span>
@@ -553,7 +553,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
       </td>
     </tr>
     <tr>
-      <td class="rank-num" data-label="#">2</td>
+      <td class="rank-num" data-label="#">3</td>
       <td class="date-cell" data-label="Date">11 Apr 2026</td>
       <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
@@ -569,7 +569,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
       </td>
     </tr>
     <tr>
-      <td class="rank-num" data-label="#">3</td>
+      <td class="rank-num" data-label="#">4</td>
       <td class="date-cell" data-label="Date">14 Apr 2026</td>
       <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
@@ -585,7 +585,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
       </td>
     </tr>
     <tr>
-      <td class="rank-num" data-label="#">4</td>
+      <td class="rank-num" data-label="#">5</td>
       <td class="date-cell" data-label="Date">14 Apr 2026</td>
       <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
@@ -598,22 +598,6 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
         <div class="juris-country">France</div>
         <div class="src-sub">RappelConso (FR)</div>
         <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/22021/Interne" target="_blank" rel="noopener">View source &rarr;</a></div>
-      </td>
-    </tr>
-    <tr>
-      <td class="rank-num" data-label="#">5</td>
-      <td class="date-cell" data-label="Date">15 Apr 2026</td>
-      <td data-label="Pathogen">
-        <span class="path-dot" style="background:#dc2626"></span>
-        <span class="path-name">E. coli</span>
-        <span class="chip-tier2">T2</span>
-      </td>
-      <td class="co-cell" data-label="Company"><strong>Carnis Vertriebs GmbH</strong><div class="brand-sub">K Classic</div></td>
-      <td class="prod-cell" data-label="Product">K Classic Delikatess Salami 1A fettreduziert, 100g Packung, MHD: 17.04.2026, 24.04.20</td>
-      <td class="juris-cell" data-label="Jurisdiction">
-        <div class="juris-country">Germany</div>
-        <div class="src-sub">BVL (DE)</div>
-        <div class="juris-link"><a class="src-link" href="https://www.produktwarnung.eu/2026/04/15/rueckruf-ecoli-hersteller-ruft-k-classic-delikatess-salami-via-kaufland-zurueck/37748" target="_blank" rel="noopener">View source &rarr;</a></div>
       </td>
     </tr>
   </tbody>
@@ -634,28 +618,28 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
       <tbody>
         
         <tr>
-          <td><span class="path-dot" style="background:#dc2626"></span>Salmonella spp.</td>
-          <td class="num">4</td>
-          <td class="num">40%</td>
-          <td><div class="bar-track"><div class="bar-fill" style="width:40%;background:#dc2626"></div></div></td>
+          <td><span class="path-dot" style="background:#dc2626"></span>Listeria monocytogenes</td>
+          <td class="num">5</td>
+          <td class="num">42%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:42%;background:#dc2626"></div></div></td>
         </tr>
         <tr>
-          <td><span class="path-dot" style="background:#dc2626"></span>Listeria monocytogenes</td>
+          <td><span class="path-dot" style="background:#dc2626"></span>Salmonella spp.</td>
           <td class="num">4</td>
-          <td class="num">40%</td>
-          <td><div class="bar-track"><div class="bar-fill" style="width:40%;background:#dc2626"></div></div></td>
+          <td class="num">33%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:33%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#9333ea"></span>Clostridium botulinum</td>
+          <td class="num">2</td>
+          <td class="num">17%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:17%;background:#9333ea"></div></div></td>
         </tr>
         <tr>
           <td><span class="path-dot" style="background:#dc2626"></span>E. coli</td>
           <td class="num">1</td>
-          <td class="num">10%</td>
-          <td><div class="bar-track"><div class="bar-fill" style="width:10%;background:#dc2626"></div></div></td>
-        </tr>
-        <tr>
-          <td><span class="path-dot" style="background:#9333ea"></span>Clostridium botulinum</td>
-          <td class="num">1</td>
-          <td class="num">10%</td>
-          <td><div class="bar-track"><div class="bar-fill" style="width:10%;background:#9333ea"></div></div></td>
+          <td class="num">8%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:8%;background:#dc2626"></div></div></td>
         </tr>
       </tbody>
     </table>
@@ -672,31 +656,37 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
           <td>France</td>
           <td>RappelConso / DGCCRF</td>
           <td class="num">4</td>
-          <td class="num">40%</td>
+          <td class="num">33%</td>
         </tr>
         <tr>
           <td>Germany</td>
           <td>BVL</td>
           <td class="num">3</td>
-          <td class="num">30%</td>
+          <td class="num">25%</td>
         </tr>
         <tr>
           <td>Canada</td>
           <td>CFIA</td>
-          <td class="num">1</td>
-          <td class="num">10%</td>
-        </tr>
-        <tr>
-          <td>Italy</td>
-          <td>Ministero della Salute</td>
-          <td class="num">1</td>
-          <td class="num">10%</td>
+          <td class="num">2</td>
+          <td class="num">17%</td>
         </tr>
         <tr>
           <td>United States</td>
           <td>FDA / USDA FSIS</td>
           <td class="num">1</td>
-          <td class="num">10%</td>
+          <td class="num">8%</td>
+        </tr>
+        <tr>
+          <td>New Zealand</td>
+          <td>MPI / FSANZ</td>
+          <td class="num">1</td>
+          <td class="num">8%</td>
+        </tr>
+        <tr>
+          <td>Italy</td>
+          <td>Ministero della Salute</td>
+          <td class="num">1</td>
+          <td class="num">8%</td>
         </tr>
       </tbody>
     </table>
@@ -711,8 +701,220 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   <a class="cta-btn" href="https://www.advfood.tech/food-safety-intelligence" target="_blank" rel="noopener">Access Portal &rarr;</a>
 </div>
 
-<div class="sec-head">
+<div id="all-recalls" class="sec-head">
   <span class="sec-num">&sect; 04</span>
+  <h2 class="sec-title">All 12 Recalls &middot; 11 Apr &ndash; 17 Apr 2026</h2>
+  <span class="sec-rule"></span>
+</div>
+<p class="sec-caption">
+  Complete record for the reporting period. Sorted by pathogen severity, outbreak status, and tier classification.
+  Each row links to the originating regulatory notice.
+</p>
+<table class="data top5">
+  <thead>
+    <tr>
+      <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction &amp; Source</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+    <tr>
+      <td class="rank-num" data-label="#">1</td>
+      <td class="date-cell" data-label="Date">13 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#9333ea"></span>
+        <span class="path-name">Clostridium botulinum</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Marché Rio</strong><div class="brand-sub">—</div></td>
+      <td class="prod-cell" data-label="Product">Épices haïtiennes / Haitian spices — plastic container, refrigerated</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Canada</div>
+        <div class="src-sub">MAPAQ QC</div>
+        <div class="juris-link"><a class="src-link" href="https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-innocuite-non-assuree-depices-haitiennes-vendues-par-lentreprise-marche-rio-69749" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">2</td>
+      <td class="date-cell" data-label="Date">15 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#9333ea"></span>
+        <span class="path-name">Clostridium botulinum</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Liquid Blenz Corp</strong><div class="brand-sub">Good Brain Tonic</div></td>
+      <td class="prod-cell" data-label="Product">Good Brain Tonic 16 oz &amp; 32 oz (All codes)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">United States</div>
+        <div class="src-sub">FDA</div>
+        <div class="juris-link"><a class="src-link" href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/liquid-blenz-corp-recalls-product-due-possible-health-risk" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">3</td>
+      <td class="date-cell" data-label="Date">11 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Les délices de la cabraire</strong><div class="brand-sub">Les délices de la cabraire</div></td>
+      <td class="prod-cell" data-label="Product">fromage de brebis fermier</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/22010/Interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">4</td>
+      <td class="date-cell" data-label="Date">14 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>7-Eleven Canada</strong><div class="brand-sub">7-Eleven</div></td>
+      <td class="prod-cell" data-label="Product">12 sandwich/sub/wrap products</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Canada</div>
+        <div class="src-sub">CFIA</div>
+        <div class="juris-link"><a class="src-link" href="https://recalls-rappels.canada.ca/en/alert-recall/7-eleven-brand-sandwiches-subs-and-wraps-recalled-due-listeria-monocytogenes" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">5</td>
+      <td class="date-cell" data-label="Date">14 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>NOTRE JARDIN</strong><div class="brand-sub">NOTRE JARDIN</div></td>
+      <td class="prod-cell" data-label="Product">SALADE COMPOSEE 400G</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/22021/Interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">6</td>
+      <td class="date-cell" data-label="Date">15 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Southern Alp Sprouts Ltd</strong><div class="brand-sub">Southern Alp Sprouts / Pams</div></td>
+      <td class="prod-cell" data-label="Product">Alfalfa &amp; Onion Sprouts 120g; Pams Onion Sprouts Combo 120g (Batches J197, J199)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">New Zealand</div>
+        <div class="src-sub">MPI NZ</div>
+        <div class="juris-link"><a class="src-link" href="https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/southern-alp-sprouts-brand-alfalfa-and-onion-sprouts-and-pams-brand-onion-sprouts-combo-recalled-due-to-the-possible-presence-of-listeria-monocytogenes" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">7</td>
+      <td class="date-cell" data-label="Date">15 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">E. coli</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Carnis Vertriebs GmbH</strong><div class="brand-sub">K Classic</div></td>
+      <td class="prod-cell" data-label="Product">K Classic Delikatess Salami 1A fettreduziert, 100g Packung, MHD: 17.04.2026, 24.04.20</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Germany</div>
+        <div class="src-sub">BVL (DE)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.produktwarnung.eu/2026/04/15/rueckruf-ecoli-hersteller-ruft-k-classic-delikatess-salami-via-kaufland-zurueck/37748" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">8</td>
+      <td class="date-cell" data-label="Date">13 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Salmonella spp.</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>DSN Green Food Company</strong><div class="brand-sub">DSN</div></td>
+      <td class="prod-cell" data-label="Product">DSN Dried Ghome Sabzi (dried herb mixture: parsley, coriander, chives, spinach, fenug</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Germany</div>
+        <div class="src-sub">BVL (DE)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.produktwarnung.eu/2026/04/13/rueckruf-salmonellen-in-kraeutermischung-dsn-dried-ghome-sabzi/37719" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">9</td>
+      <td class="date-cell" data-label="Date">14 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Salmonella spp.</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>DSN Green Food Company</strong><div class="brand-sub">(Kräutermischung)</div></td>
+      <td class="prod-cell" data-label="Product">Getrocknete Kräutermischung</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Germany</div>
+        <div class="src-sub">BVL (DE)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.lebensmittelwarnung.de/bvl-lmw-de/detail/lebensmittel/93330" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">10</td>
+      <td class="date-cell" data-label="Date">14 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Salmonella spp.</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Itinéraires des Saveurs</strong><div class="brand-sub">Itinéraires des Saveurs</div></td>
+      <td class="prod-cell" data-label="Product">Pétales de Guanciale 100g</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/22019/Interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">11</td>
+      <td class="date-cell" data-label="Date">15 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Salmonella spp.</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>CARREFOUR</strong><div class="brand-sub">CARREFOUR</div></td>
+      <td class="prod-cell" data-label="Product">COEUR DE LAITUE</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/22027/Interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">12</td>
+      <td class="date-cell" data-label="Date">14 Apr 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>La Vacje Salumerie Snc</strong><div class="brand-sub">La Vecje Salumerie</div></td>
+      <td class="prod-cell" data-label="Product">Salame Nostrano (~800g; lot L6CCTD)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Italy</div>
+        <div class="src-sub">Min. Salute (IT)</div>
+        <div class="juris-link"><span class="src-na" title="No verified specific-recall URL available">unverified</span></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="sec-head">
+  <span class="sec-num">&sect; 05</span>
   <h2 class="sec-title">Methodology &amp; Sources</h2>
   <span class="sec-rule"></span>
 </div>
@@ -745,7 +947,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   <div>
     <div class="foot-brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
     <div class="foot-meta">
-      Food Process Engineering &middot; Thermal Processing &middot; Regulatory Compliance<br>
+      Food Safety Validation Intelligence<br>
       advfood.tech &middot; info@advfood.tech &middot; Athens, Greece<br>
       &copy; 2026 Advanced Food Tech Solutions
     </div>

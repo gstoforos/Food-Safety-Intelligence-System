@@ -30,17 +30,6 @@ from openpyxl import load_workbook
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-# Shared Process Authority trigger — fires a dedicated 4th narrative paragraph
-# when the reporting window contains Clostridium / low-acid / aseptic /
-# ROP-MAP / UHT-HTST / hot-fill / acidified-food signals. See
-# docs/process_authority.py for the editable trigger keywords + prompt text.
-from process_authority import (  # noqa: E402
-    detect_process_authority_trigger,
-    build_prompt_extension as build_process_authority_prompt_extension,
-    deterministic_fallback as process_authority_fallback,
-    PROCESS_AUTHORITY_LABEL,
-)
-
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
@@ -224,21 +213,11 @@ def compute_stats(week_recalls: List[Dict], prev_week_recalls: List[Dict]) -> Di
     outbreaks = sum(1 for r in week_recalls if safe_int(r.get("Outbreak")) == 1)
 
     pathogen_counts = Counter()
-    # Track per-pathogen Tier-1 and outbreak counts so ties on raw count are
-    # broken by public-health severity, not alphabetical order. This is a
-    # scientific-accuracy requirement: a week with 5 Listeria (all Tier-1)
-    # and 5 Salmonella (none Tier-1) must surface Listeria as the leader.
-    pathogen_tier1 = Counter()
-    pathogen_outbreak = Counter()
     for r in week_recalls:
         p = (r.get("Pathogen") or "").strip()
         if p:
             _, canon = severity_score(p)
             pathogen_counts[canon] += 1
-            if safe_int(r.get("Tier")) == 1:
-                pathogen_tier1[canon] += 1
-            if safe_int(r.get("Outbreak")) == 1:
-                pathogen_outbreak[canon] += 1
 
     country_counts = Counter()
     for r in week_recalls:
@@ -255,20 +234,7 @@ def compute_stats(week_recalls: List[Dict], prev_week_recalls: List[Dict]) -> Di
     delta = total - prev_total
     delta_pct = round((delta / prev_total) * 100) if prev_total else None
 
-    # Leading pathogen: sort by (cases desc, tier1 desc, outbreak desc, name asc).
-    # Counter.most_common alone uses raw-count order and breaks ties by
-    # insertion order, which isn't scientifically defensible for a briefing.
-    if pathogen_counts:
-        ranked_pathogens = sorted(
-            pathogen_counts.items(),
-            key=lambda kv: (-kv[1],
-                            -pathogen_tier1.get(kv[0], 0),
-                            -pathogen_outbreak.get(kv[0], 0),
-                            kv[0]),
-        )
-        top_p = ranked_pathogens[0]
-    else:
-        top_p = ("-", 0)
+    top_p = pathogen_counts.most_common(1)[0] if pathogen_counts else ("-", 0)
 
     return {
         "total": total,
@@ -276,8 +242,6 @@ def compute_stats(week_recalls: List[Dict], prev_week_recalls: List[Dict]) -> Di
         "outbreaks": outbreaks,
         "top_pathogen": top_p,
         "pathogen_counts": pathogen_counts.most_common(10),
-        "pathogen_tier1": dict(pathogen_tier1),
-        "pathogen_outbreak": dict(pathogen_outbreak),
         "country_counts": country_counts.most_common(10),
         "source_counts": source_counts.most_common(10),
         "prev_total": prev_total,
@@ -310,14 +274,9 @@ def rank_top_recalls(week_recalls: List[Dict], n: int = 5) -> List[Dict]:
 
 # --- AI analysis ------------------------------------------------------------
 def generate_report_with_claude(stats: Dict[str, Any], week_recalls: List[Dict]) -> str:
-    # Detect Process Authority trigger BEFORE AI call so both the live prompt
-    # path and the fallback path can use the same trigger decision.
-    pa_trigger = detect_process_authority_trigger(week_recalls)
-    pa_prompt_extension = build_process_authority_prompt_extension(pa_trigger)
-
     if not CLAUDE_API_KEY:
         log.warning("ANTHROPIC_API_KEY missing; using fallback narrative")
-        return generate_fallback_analysis(stats, pa_trigger)
+        return generate_fallback_analysis(stats)
 
     top_incidents = []
     for r in rank_top_recalls(week_recalls, n=5):
@@ -335,9 +294,7 @@ def generate_report_with_claude(stats: Dict[str, Any], week_recalls: List[Dict])
         direction = "increase" if stats["delta"] > 0 else ("decrease" if stats["delta"] < 0 else "no change")
         delta_txt = f"Week-over-week {direction}: {stats['delta']:+d} recalls ({stats['delta_pct']:+d}%)."
 
-    prompt = f"""You are producing the weekly pathogen surveillance briefing for Advanced Food-Tech Solutions (AFTS), a food process engineering firm. Your analysis MUST sound like it comes from a practising process authority - not a generic AI. That means: name specific process-control failure modes, refer to the relevant regulatory and validation frameworks BY NAME (thermal lethality validation, hold-tube residence-time validation, FDA 21 CFR 113 for low-acid canned foods, 21 CFR 114 for acidified foods, PMO for fluid milk, HACCP CCPs, pre-op sanitation, environmental monitoring programmes), and tie every pathogen to the PROCESS that failed to eliminate it.
-
-IMPORTANT: do NOT quote specific numerical process targets (e.g. F-value minutes, D-value seconds, log-reduction counts, temperature-time pairings such as 72 °C / 15 s). Those are engagement deliverables from a qualified process authority, not public briefing content. Reference the frameworks and their applicability, not the numbers inside them.
+    prompt = f"""You are producing the weekly pathogen surveillance briefing for Advanced Food-Tech Solutions (AFTS), a food process engineering firm. Your analysis MUST sound like it comes from a practising process authority - not a generic AI. That means: name specific process-control failure modes, cite validated engineering frameworks (F-value lethality, D-value, hold-tube residence time, FDA 21 CFR 113/114, PMO, HACCP CCPs, pre-op sanitation, environmental monitoring programmes), and tie every pathogen to the PROCESS that failed to eliminate it.
 
 This is what differentiates AFTS from pure data platforms (e.g. Foodakai): we interpret recalls through validated food process engineering, not just count them.
 
@@ -357,22 +314,15 @@ GEOGRAPHIC DISTRIBUTION:
 TOP 5 INCIDENTS:
 {json.dumps(top_incidents, indent=2)}
 
-Write exactly THREE paragraphs, each 3-4 sentences, in an authoritative professional-engineering tone. NO headers, NO bullet points, NO emoji, NO markdown. Use UK/US business English. Reference specific pathogen names and counts, but NOT specific process-engineering numerical targets.
+Write exactly THREE paragraphs, each 3-4 sentences, in an authoritative professional-engineering tone. NO headers, NO bullet points, NO emoji, NO markdown. Use UK/US business English. Reference specific numbers and named pathogens.
 
 Paragraph 1 - EXECUTIVE SUMMARY: Frame the week's activity quantitatively (total, Tier-1, outbreaks, week-over-week). Name the leading pathogen and at least one specific product category or commodity it appeared in this week.
 
-Paragraph 2 - PROCESS-FAILURE ANALYSIS: Diagnose the likely failure mode(s) behind this week's dominant pathogen. Be specific about the CLASS of failure: thermal underprocess, post-pasteurisation recontamination, environmental monitoring gap, raw-material sourcing, sanitation SOP failure, validation drift, or cold-chain breach. Reference the framework by name (e.g. "the thermal-lethality validation required under 21 CFR 113 for low-acid canned foods", "hold-tube residence-time validation for aseptic processing", "environmental monitoring programme per 21 CFR 117 for ready-to-eat lines") and name the food category most at risk. Do not hedge - a process authority would commit to a most-likely mechanism. Do not insert numerical targets.
+Paragraph 2 - PROCESS-FAILURE ANALYSIS: Diagnose the likely failure mode(s) behind this week's dominant pathogen. Be specific: is this a thermal underprocess, a post-pasteurisation recontamination, an environmental monitoring gap, raw-material sourcing, sanitation SOP failure, validation drift, or a cold-chain breach? Reference the relevant engineering standard (e.g. "minimum 6-log Listeria lethality per 21 CFR 113", "HTST 72 C / 15 s per PMO", "aseptic hold-tube residence time validation") and name the food category most at risk. Do not hedge - a process authority would commit to a most-likely mechanism.
 
-Paragraph 3 - ENGINEERING RECOMMENDATION: Close with a concrete recommendation a VP of QA at a food manufacturer could act on this week. Name the specific control(s) to re-verify (e.g. "revalidate hold-tube residence time under current production flow rates with the guidance of a qualified process authority", "increase Zone 1 environmental swab frequency on RTE deli lines", "verify post-retort thermocouple placement"). Tie it to the week's regulatory pattern (RASFF, FDA, CFIA, FSA). Again — no numerical targets.
+Paragraph 3 - ENGINEERING RECOMMENDATION: Close with a concrete recommendation a VP of QA at a food manufacturer could act on this week. Name the specific control(s) to re-verify (e.g. "revalidate hold-tube residence time under current production flow rates", "increase Zone 1 environmental swab frequency on RTE deli lines", "verify post-retort thermocouple placement"). Tie it to the week's regulatory pattern (RASFF, FDA, CFIA, FSA).
 
-Return only the paragraphs separated by a single blank line. Do NOT add headers before the first three paragraphs; Paragraph 4 (if requested below) must begin with its literal label."""
-
-    # Append the Process Authority Note prompt only when the trigger fired.
-    # When present this asks for a 4th paragraph labelled "Process Authority Note:".
-    if pa_prompt_extension:
-        prompt += "\n\n" + pa_prompt_extension
-        log.info("Process Authority trigger fired: %d matching incident(s) — %s",
-                 pa_trigger["total_matches"], ", ".join(pa_trigger["keywords_hit"][:6]))
+Return only the three paragraphs separated by a single blank line."""
 
     try:
         response = requests.post(
@@ -384,7 +334,7 @@ Return only the paragraphs separated by a single blank line. Do NOT add headers 
             },
             json={
                 'model': 'claude-sonnet-4-20250514',
-                'max_tokens': 1800,
+                'max_tokens': 1400,
                 'messages': [{'role': 'user', 'content': prompt}]
             },
             timeout=60,
@@ -394,10 +344,9 @@ Return only the paragraphs separated by a single blank line. Do NOT add headers 
         log.error("Claude API %d: %s", response.status_code, response.text[:300])
     except Exception as e:
         log.error("Claude API exception: %s", e)
-    return generate_fallback_analysis(stats, pa_trigger)
+    return generate_fallback_analysis(stats)
 
-def generate_fallback_analysis(stats: Dict[str, Any],
-                               pa_trigger: Dict[str, Any] = None) -> str:
+def generate_fallback_analysis(stats: Dict[str, Any]) -> str:
     top_pathogen, count = stats['top_pathogen']
     total = stats['total']
     tier1 = stats['tier1']
@@ -416,32 +365,26 @@ def generate_fallback_analysis(stats: Dict[str, Any],
         p2 = (f"{top_pathogen} at this concentration points to post-process recontamination in "
               f"ready-to-eat deli, dairy, and cooked-meat lines rather than thermal underprocess. "
               f"The likely failure modes are Zone 1 environmental harbourage, sanitation SOP drift, "
-              f"and post-lethality recontamination. The relevant frameworks for review are the "
-              f"environmental monitoring programme under 21 CFR 117 and the thermal-lethality "
-              f"validation applicable to the product class (21 CFR 113 / 114 where applicable), "
-              f"supported by qualified process authority oversight.")
+              f"and post-lethality recontamination. 21 CFR 117 environmental monitoring and the "
+              f"6-log Listeria lethality requirement (21 CFR 113/114 where applicable) are the "
+              f"relevant frameworks for review.")
     elif "salmonella" in p_lower:
         p2 = (f"{top_pathogen} at this volume typically traces to raw-material contamination, "
-              f"insufficient thermal lethality, or post-process handling. Revalidate pasteurisation "
-              f"or lethality-step design against current product formulations under the guidance "
-              f"of a qualified process authority, confirm hold-tube residence time is consistent "
-              f"with the filed scheduled process, and audit supplier verification protocols for "
+              f"insufficient thermal lethality, or post-process handling. Validate pasteurisation "
+              f"D-values against current product formulations, confirm hold-tube residence time "
+              f"under production flow rates, and audit supplier verification protocols for "
               f"high-risk commodities (poultry, eggs, produce, low-moisture products).")
     elif "e. coli" in p_lower or "stec" in p_lower:
         p2 = (f"{top_pathogen} in RTE products indicates either inadequate cook step or "
               f"post-cook cross-contamination. Re-verify core temperature achievement against "
-              f"the applicable USDA Appendix A lethality framework, confirm hot-hold controls "
-              f"are within the scheduled process specification, and audit raw/cooked segregation "
-              f"on the processing line.")
+              f"USDA Appendix A lethality tables, confirm hot-hold temperatures at or above "
+              f"60 C, and audit raw/cooked segregation on the processing line.")
     elif "botulinum" in p_lower:
-        p2 = (f"{top_pathogen} recalls are process-authority events by definition. Any shelf-stable "
-              f"low-acid canned food (LACF, 21 CFR 113) or acidified food (21 CFR 114) implicated "
-              f"in this class of recall must be reviewed to confirm that the established scheduled "
-              f"thermal process has been achieved, that production is conducted under proper GMPs "
-              f"and regulatory compliance, and that validation has been completed under the guidance "
-              f"of a qualified process authority in order to control Clostridium botulinum spores. "
-              f"Any deviation from the filed scheduled process triggers immediate process-authority "
-              f"review.")
+        p2 = (f"{top_pathogen} recalls are process-authority events by definition. Verify scheduled "
+              f"process adequacy under 21 CFR 113 (LACF) or 114 (acidified foods), revalidate "
+              f"F-value delivery on the slowest-heating particle, and confirm container integrity "
+              f"across the retort cycle. Any deviation from the filed scheduled process triggers "
+              f"immediate process-authority review.")
     else:
         p2 = (f"{top_pathogen} at {pct}% of this week's total warrants review of both thermal "
               f"lethality validation and post-process hygiene controls. Re-verify CCP monitoring "
@@ -453,32 +396,25 @@ def generate_fallback_analysis(stats: Dict[str, Any],
           f"that food manufacturers use this briefing as a prompt to re-verify the single "
           f"highest-leverage control for their commodity this week and to confirm documentation "
           f"packages are ready for rapid regulatory response.")
-    # Optional 4th paragraph: Process Authority Note (only when trigger fired).
-    # Uses the deterministic fallback so non-AI runs still surface the domain angle.
-    p4 = process_authority_fallback(pa_trigger or {"fired": False})
-    body = f"{p1}\n\n{p2}\n\n{p3}"
-    if p4:
-        body = f"{body}\n\n{p4}"
-    return body
+    return f"{p1}\n\n{p2}\n\n{p3}"
 
 def review_with_openai(report_content: str) -> str:
     if not OPENAI_API_KEY:
         return report_content
 
-    prompt = f"""You are a senior editor for a food industry intelligence publication. Polish the following executive briefing for an audience of Fortune-500 food safety directors.
+    prompt = f"""You are a senior editor for a food industry intelligence publication. Polish the following three-paragraph executive briefing for an audience of Fortune-500 food safety directors.
 
 Rules:
 - Preserve every number, pathogen name, and factual claim exactly.
-- Keep the SAME NUMBER of paragraphs you received (either three or four), separated by a blank line.
-- If a fourth paragraph is present and begins with the literal label "Process Authority Note:", KEEP that label intact at the start of that paragraph. Do not rename it.
+- Keep exactly three paragraphs separated by a blank line.
 - Tighten the language, remove redundancy, and ensure the tone is measured, authoritative, and non-alarmist.
-- Use UK/US business English. No headers before paragraphs 1-3, no bullets, no emoji, no markdown.
+- Use UK/US business English. No headers, no bullets, no emoji, no markdown.
 - Max ~180 words per paragraph.
 
 BRIEFING:
 {report_content}
 
-Return only the polished paragraphs."""
+Return only the polished three paragraphs."""
     try:
         response = requests.post(
             'https://api.openai.com/v1/chat/completions',
@@ -489,7 +425,7 @@ Return only the polished paragraphs."""
             json={
                 'model': 'gpt-4o-mini',
                 'messages': [{'role': 'user', 'content': prompt}],
-                'max_tokens': 1400,
+                'max_tokens': 1000,
                 'temperature': 0.3,
             },
             timeout=60,
@@ -580,13 +516,19 @@ def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tu
     # Stash the analysis and top5 for main() to use when writing the summary JSON
     stats["_first_paragraph"] = paragraphs[0]
     stats["_top5"] = top5
-    stats["_all_paragraphs"] = paragraphs
 
     # Top 5 rows
     if top5:
         top5_rows = "".join(render_top5_row(i, r) for i, r in enumerate(top5, 1))
     else:
         top5_rows = '<tr><td colspan="6" class="empty">No recalls recorded this reporting period.</td></tr>'
+
+    # All recalls for this week — full table sorted by severity, linked from KPI
+    all_sorted = rank_top_recalls(recalls, n=len(recalls))
+    if all_sorted:
+        all_recalls_rows = "".join(render_top5_row(i, r) for i, r in enumerate(all_sorted, 1))
+    else:
+        all_recalls_rows = '<tr><td colspan="6" class="empty">No recalls recorded this reporting period.</td></tr>'
 
     # Pathogen distribution
     total_safe = stats['total'] or 1
@@ -630,34 +572,6 @@ def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tu
 
     top_pathogen_pct = round(stats['top_pathogen'][1] / total_safe * 100) if stats['total'] else 0
     generated = datetime.now(timezone.utc).strftime('%d %b %Y &middot; %H:%M UTC')
-
-    # Build analysis paragraphs. Paragraph 4 (when present) is the Process
-    # Authority Note — style it with a side-rule accent so operators can see
-    # at a glance that a thermal-process / low-acid hazard fired this week.
-    _pa_label_lc = PROCESS_AUTHORITY_LABEL.lower()
-    analysis_parts: List[str] = []
-    for i, para in enumerate(paragraphs):
-        if not para:
-            continue
-        is_pa = para.lower().lstrip().startswith(_pa_label_lc)
-        if is_pa:
-            # Split "Process Authority Note: <body>" into label + body for styling
-            body = para
-            idx = body.lower().find(_pa_label_lc)
-            if idx != -1:
-                colon = body.find(":", idx)
-                if colon != -1:
-                    label_text = body[idx:colon].strip()
-                    body_text = body[colon + 1:].strip()
-                    analysis_parts.append(
-                        f'<p class="pa-note"><span class="pa-label">{escape(label_text)}:</span> '
-                        f'{escape(body_text)}</p>'
-                    )
-                    continue
-            analysis_parts.append(f'<p class="pa-note">{escape(para)}</p>')
-        else:
-            analysis_parts.append(f'<p>{escape(para)}</p>')
-    analysis_html = "\n  ".join(analysis_parts) if analysis_parts else '<p>No analysis generated.</p>'
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -760,6 +674,8 @@ a:hover {{ text-decoration:underline; }}
 .kpi-value.red {{ color:var(--red); }}
 .kpi-value.violet {{ color:var(--violet); }}
 .kpi-value.orange {{ color:var(--orange); font-size:20px; line-height:1.2; }}
+.kpi-value a {{ color:inherit; text-decoration:none; border-bottom:2px solid var(--orange); padding-bottom:1px; }}
+.kpi-value a:hover {{ opacity:0.8; text-decoration:none; }}
 .kpi-delta {{
   font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
   margin-top:10px; letter-spacing:0.04em;
@@ -783,25 +699,11 @@ a:hover {{ text-decoration:underline; }}
 .sec-caption em {{ color:var(--ink); font-style:italic; }}
 
 .analysis {{
-  background:var(--s1);
+  background:var(--s1); border-left:4px solid var(--orange);
   padding:26px 30px; margin-bottom:10px;
 }}
 .analysis p {{ margin:0 0 14px; font-size:14.5px; line-height:1.75; }}
 .analysis p:last-child {{ margin-bottom:0; }}
-/* Process Authority Note — fires when Clostridium / low-acid / aseptic /
-   ROP-MAP / UHT-HTST / hot-fill triggers match in the window. Rendered
-   as a white card with a top rule so it stands apart from the grey
-   analysis panel without introducing any coloured vertical bars. */
-.analysis p.pa-note {{
-  margin:18px -30px 0 -30px; padding:16px 30px;
-  background:#fff; border-top:1px solid var(--brd);
-  font-size:14px; line-height:1.7;
-}}
-.analysis p.pa-note .pa-label {{
-  display:inline; font-family:'DM Mono',ui-monospace,monospace;
-  font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
-  color:var(--red); font-size:11px; margin-right:6px;
-}}
 
 table.data {{
   width:100%; border-collapse:collapse; margin:0 0 10px;
@@ -949,7 +851,7 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
     size: A4;
     margin: 14mm 14mm 18mm 14mm;
     @bottom-left {{
-      content: "AFTS · Process Validation Intelligence · under AFTS process authority";
+      content: "AFTS · Food Safety Validation Intelligence";
       font-family: 'DM Mono', monospace; font-size: 8pt; color: #6b7280;
       letter-spacing: 0.04em;
     }}
@@ -999,6 +901,7 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   table.data th {{ background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
   /* Prevent any table row from splitting across a page break */
   table.data tr {{ page-break-inside:avoid; break-inside:avoid; }}
+  .analysis {{ border-left-width:3px; }}
   /* Top-5 print tightening - fit all 6 columns on A4 */
   table.top5 {{ font-size:9px; page-break-inside:avoid; }}
   table.top5 th {{ padding:6px 5px; font-size:8px; }}
@@ -1133,22 +1036,18 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   </div>
 </header>
 
-<div class="r-kicker">AFTS <span class="r-kicker-dot">&middot;</span> Process Validation Intelligence</div>
+<div class="r-kicker">AFTS <span class="r-kicker-dot">&middot;</span> Food Safety Validation Intelligence</div>
 <h1 class="r-title">Pathogen Surveillance <span class="accent">&middot;</span> Week {wnum:02d}</h1>
 <p class="r-sub">
   AI-powered analysis of <strong>{stats['total']}</strong> regulatory recall actions across
   <strong>{len(stats['country_counts'])}</strong> jurisdictions, aggregated from 66 primary sources
   monitored continuously by the AFTS intelligence platform.
 </p>
-<div class="r-authority">
-  <span class="auth-label">Process Authority</span>
-  Food Process Engineering &middot; Thermal Processing &middot; Regulatory Compliance
-</div>
 
 <div class="kpi-strip">
   <div class="kpi">
     <div class="kpi-label">Total Recalls</div>
-    <div class="kpi-value">{stats['total']}</div>
+    <div class="kpi-value"><a href="#all-recalls">{stats['total']}</a></div>
     {delta_html}
   </div>
   <div class="kpi">
@@ -1174,7 +1073,9 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   <span class="sec-rule"></span>
 </div>
 <div class="analysis">
-  {analysis_html}
+  <p>{escape(paragraphs[0])}</p>
+  <p>{escape(paragraphs[1])}</p>
+  <p>{escape(paragraphs[2])}</p>
 </div>
 
 <div class="sec-head">
@@ -1235,8 +1136,28 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   <a class="cta-btn" href="https://www.advfood.tech/food-safety-intelligence" target="_blank" rel="noopener">Access Portal &rarr;</a>
 </div>
 
-<div class="sec-head">
+<div id="all-recalls" class="sec-head">
   <span class="sec-num">&sect; 04</span>
+  <h2 class="sec-title">All {stats['total']} Recalls &middot; {week_start.strftime('%d %b')} &ndash; {week_end.strftime('%d %b %Y')}</h2>
+  <span class="sec-rule"></span>
+</div>
+<p class="sec-caption">
+  Complete record for the reporting period. Sorted by pathogen severity, outbreak status, and tier classification.
+  Each row links to the originating regulatory notice.
+</p>
+<table class="data top5">
+  <thead>
+    <tr>
+      <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction &amp; Source</th>
+    </tr>
+  </thead>
+  <tbody>
+    {all_recalls_rows}
+  </tbody>
+</table>
+
+<div class="sec-head">
+  <span class="sec-num">&sect; 05</span>
   <h2 class="sec-title">Methodology &amp; Sources</h2>
   <span class="sec-rule"></span>
 </div>
@@ -1269,7 +1190,7 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   <div>
     <div class="foot-brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
     <div class="foot-meta">
-      Food Process Engineering &middot; Thermal Processing &middot; Regulatory Compliance<br>
+      Food Safety Validation Intelligence<br>
       advfood.tech &middot; info@advfood.tech &middot; Athens, Greece<br>
       &copy; {year} Advanced Food Tech Solutions
     </div>
@@ -1358,17 +1279,6 @@ def update_dashboard_data(week_end: date, stats: Dict[str, Any], index_path: Pat
 # The Google Apps Script subscriber mailer fetches this file every Friday
 # and builds the email body from it. Keeping the email data in a small, stable
 # JSON contract decouples the email format from the HTML report format.
-def _extract_pa_note(paragraphs: List[str]) -> str:
-    """Return the Process Authority Note paragraph if present, else ''."""
-    if not paragraphs:
-        return ""
-    label_lc = PROCESS_AUTHORITY_LABEL.lower()
-    for p in paragraphs:
-        if p.lower().lstrip().startswith(label_lc):
-            return p.strip()
-    return ""
-
-
 def write_weekly_summary_json(week_end: date, stats: Dict[str, Any],
                               site_base_url: str, dashboard_url: str, out_path: Path):
     wnum = week_end.isocalendar()[1]
@@ -1424,10 +1334,6 @@ def write_weekly_summary_json(week_end: date, stats: Dict[str, Any],
             "pct":   round(top_pathogen_count / total_safe * 100) if stats["total"] else 0,
         },
         "ai_lead_paragraph": stats.get("_first_paragraph", ""),
-        # Process Authority Note paragraph for the email — empty string when
-        # the trigger didn't fire this week. Apps Script can render a red
-        # call-out block conditionally based on this being non-empty.
-        "process_authority_note": _extract_pa_note(stats.get("_all_paragraphs", [])),
         "top_threats": top5_out,
         "country_count": len(stats.get("country_counts", [])),
     }
