@@ -8,7 +8,7 @@
   "week_end": "2026-04-17",
   "week_start_display": "11 Apr",
   "week_end_display": "17 Apr 2026",
-  "generated_utc": "2026-04-17T11:07:26.292117Z",
+  "generated_utc": "2026-04-17T11:30:48.277444Z",
   "stats": {
     "total": 12,
     "tier1": 7,
@@ -21,7 +21,7 @@
     "cases": 5,
     "pct": 42
   },
-  "ai_lead_paragraph": "This week, the AFTS monitoring network reported 12 pathogen-related recall incidents, with 7 classified as Tier-1 and no confirmed outbreak events. Listeria monocytogenes was the predominant pathogen, accounting for 5 of the 12 incidents (42%). The elevated Tier-1 ratio reflects ongoing regulatory scrutiny and serves as a clear signal to food manufacturers regarding tightening enforcement measures.",
+  "ai_lead_paragraph": "This week produced 12 pathogen-related recall incidents across the AFTS monitoring network, with 7 classified as Tier-1 and 0 confirmed outbreak event(s). Listeria monocytogenes dominated the surveillance window, accounting for 5 of 12 incidents (42%). The elevated Tier-1 ratio indicates sustained regulatory pressure and should be read by food manufacturers as a signal of tightening enforcement.",
   "top_threats": [
     {
       "rank": 1,
