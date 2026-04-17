@@ -8,23 +8,51 @@
   "week_end": "2026-04-17",
   "week_start_display": "11 Apr",
   "week_end_display": "17 Apr 2026",
-  "generated_utc": "2026-04-17T06:28:14.825574Z",
+  "generated_utc": "2026-04-17T10:21:33.753801Z",
   "stats": {
     "total": 12,
     "tier1": 7,
-    "outbreaks": 2,
-    "delta": -51,
-    "delta_pct": -80
+    "outbreaks": 0,
+    "delta": -55,
+    "delta_pct": -82
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
     "cases": 5,
-    "pct": 41
+    "pct": 42
   },
-  "ai_lead_paragraph": "This week produced 12 pathogen-related recall incidents across the AFTS monitoring network — a substantial contraction from W15's 63-incident spike, with the pathogen profile rebalancing to a more typical distribution: 5 Listeria monocytogenes and 5 Salmonella spp. incidents with 7 Tier-1 classifications overall. Two distinct Clostridium botulinum recalls this week — Liquid Blenz Corp (US, Good Brain Tonic) and Marché Rio (Canada, Haitian spices) — warrant elevated operator attention; both involve low-acid products where incomplete thermal processing or undefined water-activity control can permit toxin formation. The ongoing Canadian multi-serotype Salmonella pistachio outbreak (189 confirmed cases, 26 hospitalizations across six provinces per PHAC) expanded this week with Sultan Fine Foods and chocoStyle 440 recalls, indicating supplier-side contamination has not been contained at source.",
+  "ai_lead_paragraph": "This week produced 12 pathogen-related recall incidents across the AFTS monitoring network, with 7 classified as Tier-1 and 0 confirmed outbreak event(s). Listeria monocytogenes dominated the surveillance window, accounting for 5 of 12 incidents (42%). The elevated Tier-1 ratio indicates sustained regulatory pressure and should be read by food manufacturers as a signal of tightening enforcement.",
   "top_threats": [
     {
       "rank": 1,
+      "date": "13 Apr 2026",
+      "pathogen": "Clostridium botulinum",
+      "pathogen_raw": "Clostridium botulinum",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Marché Rio",
+      "brand": "—",
+      "product": "Épices haïtiennes / Haitian spices — plastic container, refrigerated",
+      "country": "Canada",
+      "source": "MAPAQ QC",
+      "url": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-innocuite-non-assuree-depices-haitiennes-vendues-par-lentreprise-marche-rio-69749"
+    },
+    {
+      "rank": 2,
+      "date": "15 Apr 2026",
+      "pathogen": "Clostridium botulinum",
+      "pathogen_raw": "Clostridium botulinum",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Liquid Blenz Corp",
+      "brand": "Good Brain Tonic",
+      "product": "Good Brain Tonic 16 oz & 32 oz (All codes)",
+      "country": "United States",
+      "source": "FDA",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/liquid-blenz-corp-recalls-product-due-possible-health-risk"
+    },
+    {
+      "rank": 3,
       "date": "11 Apr 2026",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -38,7 +66,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22010/Interne"
     },
     {
-      "rank": 2,
+      "rank": 4,
       "date": "14 Apr 2026",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -52,21 +80,7 @@
       "url": "https://recalls-rappels.canada.ca/en/alert-recall/7-eleven-brand-sandwiches-subs-and-wraps-recalled-due-listeria-monocytogenes"
     },
     {
-      "rank": 3,
-      "date": "14 Apr 2026",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "La Vacje Salumerie Snc",
-      "brand": "La Vecje Salumerie",
-      "product": "Salame Nostrano (~800g; lot L6CCTD)",
-      "country": "Italy",
-      "source": "Min. Salute (IT)",
-      "url": "https://ilfattoalimentare.it/richiamo-salame-nostrano-2.html"
-    },
-    {
-      "rank": 4,
+      "rank": 5,
       "date": "14 Apr 2026",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -78,20 +92,6 @@
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22021/Interne"
-    },
-    {
-      "rank": 5,
-      "date": "14 Apr 2026",
-      "pathogen": "Clostridium botulinum",
-      "pathogen_raw": "Clostridium botulinum",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Liquid Blenz Corp",
-      "brand": "Good Brain Tonic",
-      "product": "Good Brain Tonic 16 oz & 32 oz (All codes)",
-      "country": "United States",
-      "source": "FDA",
-      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/liquid-blenz-corp-recalls-product-due-possible-health-risk"
     }
   ],
   "country_count": 6
