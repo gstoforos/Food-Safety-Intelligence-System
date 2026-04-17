@@ -175,7 +175,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 }
 </style></head><body>
 
-<div class="hdr"><div class="brand">AFTS <em>·</em> Food Safety <em>Intelligence</em> System<small>// AI-powered Food Safety Validation Intelligence · 66 sources · 60+ countries</small></div><div class="hdr-right"><span class="live-pill">● LIVE MONITORING</span><div class="hdr-meta" id="meta">Loading…</div></div></div>
+<div class="hdr"><div class="brand">AFTS <em>·</em> Food Safety <em>Intelligence</em> System<small>// AI-powered Process Validation Intelligence · under AFTS process authority · 66 sources · 60+ countries</small></div><div class="hdr-right"><span class="live-pill">● LIVE MONITORING</span><div class="hdr-meta" id="meta">Loading…</div></div></div>
 
 <div class="ticker"><div class="ticker-inner" id="ticker">Loading latest alerts…</div></div>
 
@@ -311,7 +311,7 @@ function renderCharts(){
   document.getElementById('chart-src').innerHTML=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([k,v])=>`<div class="src-row"><span class="src-name">${esc(k)}</span><span class="src-val">${v}</span></div>`).join('');
 }
 function renderPills(){
-  const ns=[['Listeria','Listeria'],['Salmonella','Salmonella'],['E. coli / STEC','E. coli / STEC'],['C. botulinum','C. botulinum'],['Norovirus','Norovirus'],['Aflatoxin','Aflatoxin'],['Cereulide','Cereulide']];
+  const ns=[['Listeria','Listeria'],['Salmonella','Salmonella'],['E. coli / STEC','E. coli / STEC'],['C. botulinum','Clostridium botulinum'],['Norovirus','Norovirus'],['Aflatoxin','Aflatoxin'],['Cereulide','Cereulide']];
   const cs=['#00ff88','#06b6d4','#f97316','#a78bfa','#818cf8','#fbbf24','#ef4444'];
   let h=ns.map(([disp,fval],i)=>`<span class="ptag" data-f="${fval}" style="background:${cs[i]}11;color:${cs[i]};border-color:${cs[i]}55">${disp}</span>`).join('');
   h+=`<span class="ptag" data-f="" style="background:rgba(255,255,255,.05);color:var(--dim);border-color:var(--brd)">× All</span>`;
@@ -405,7 +405,7 @@ function loadReports(){
         "year": 2026,
         "week_start": "2026-04-11",
         "week_end": "2026-04-17",
-        "generated": "2026-04-17T11:07:26.290475Z",
+        "generated": "2026-04-17T12:03:40.110087Z",
         "total": 12,
         "tier1": 7,
         "outbreaks": 0,
@@ -418,12 +418,12 @@ function loadReports(){
         "year": 2026,
         "week_start": "2026-04-04",
         "week_end": "2026-04-10",
-        "generated": "2026-04-16T09:31:33.376771Z",
-        "total": 63,
-        "tier1": 58,
-        "outbreaks": 2,
+        "generated": "2026-04-17T11:49:40.369524Z",
+        "total": 67,
+        "tier1": 60,
+        "outbreaks": 4,
         "top_pathogen": "Listeria monocytogenes",
-        "summary": "Week 15: 63 recalls, 58 Tier-1, 2 outbreak(s). Leading pathogen: Listeria monocytogenes."
+        "summary": "Week 15: 67 recalls, 60 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes."
     }
 ];
   

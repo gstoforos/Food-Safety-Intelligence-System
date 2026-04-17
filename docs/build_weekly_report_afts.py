@@ -314,7 +314,7 @@ GEOGRAPHIC DISTRIBUTION:
 TOP 5 INCIDENTS:
 {json.dumps(top_incidents, indent=2)}
 
-Write exactly THREE paragraphs, each 3-4 sentences, in an authoritative professional-engineering tone. NO headers, NO bullet points, NO emoji, NO markdown. Use UK/US business English. Reference specific numbers and named pathogens.
+Write exactly THREE paragraphs, each 3-4 sentences, in an authoritative professional-engineering tone. NO headers, NO bullet points, NO emoji, NO markdown. Use UK/US business English. Reference specific numbers and named pathogens. A fixed Process Authority note will be appended separately — do NOT include any process authority filing or FDA 2541 references in your three paragraphs.
 
 Paragraph 1 - EXECUTIVE SUMMARY: Frame the week's activity quantitatively (total, Tier-1, outbreaks, week-over-week). Name the leading pathogen and at least one specific product category or commodity it appeared in this week.
 
@@ -499,6 +499,63 @@ def render_top5_row(i: int, r: Dict) -> str:
       </td>
     </tr>"""
 
+def build_pa_paragraph(recalls: List[Dict]) -> str:
+    """Build the fixed Process Authority Note paragraph (always shown as § 01 ¶4).
+
+    The base text covers scheduled-process filing and GMP oversight requirements.
+    When the week contains Clostridium botulinum, low-acid, aseptic, or ROP/MAP
+    hazard recalls, an enhanced sentence is prepended naming the specific frameworks.
+    No numerical F-value / D-value targets are published; those are engagement
+    deliverables from a qualified process authority.
+    """
+    # Trigger detection — scan this week's recall set
+    all_pathogens = " ".join(str(r.get("Pathogen") or "") for r in recalls).lower()
+    all_reasons   = " ".join(str(r.get("Reason")   or "") for r in recalls).lower()
+    all_products  = " ".join(str(r.get("Product")  or "") for r in recalls).lower()
+    combined = all_pathogens + " " + all_reasons + " " + all_products
+
+    has_botulinum  = "botulinum" in all_pathogens
+    has_low_acid   = any(t in combined for t in ("low acid", "low-acid", "lacf", "21 cfr 113"))
+    has_aseptic    = any(t in combined for t in ("aseptic", "uht", "htst"))
+    has_rop_map    = any(t in combined for t in ("vacuum", "modified atmosphere", "rop", " map "))
+
+    base = (
+        "AFTS operates under qualified process authority for thermal processing, aseptic systems, "
+        "and scheduled-process compliance. Manufacturers whose products appear in this briefing — "
+        "or who produce comparable commodities — should confirm that scheduled processes are filed "
+        "with FDA (Form 2541/2541e), that 21 CFR 108 emergency permit requirements have been "
+        "evaluated, and that GMP programmes align with the current 21 CFR 113/114 frameworks. "
+        "Process authority engagement is advisable prior to any formulation, equipment, or "
+        "process-parameter change."
+    )
+
+    if has_botulinum or has_low_acid:
+        trigger = (
+            "This week's dataset includes low-acid canned food (LACF) or Clostridium botulinum–relevant "
+            "hazards, for which scheduled-process adequacy under 21 CFR 113 is a mandatory regulatory "
+            "requirement — not a recommended best practice. "
+        )
+        return trigger + base
+
+    if has_aseptic:
+        trigger = (
+            "Aseptic and UHT product recalls in this period underscore the critical importance of "
+            "validated hold-tube residence time and continuous sterilisation system performance under "
+            "21 CFR 113 / FDA LACF/aseptic filing requirements. "
+        )
+        return trigger + base
+
+    if has_rop_map:
+        trigger = (
+            "Reduced-oxygen packaging (ROP/MAP) products in this week's data carry inherent "
+            "Clostridium botulinum risk; scheduled-process documentation and temperature-control "
+            "validation are regulatory obligations, not optional controls. "
+        )
+        return trigger + base
+
+    return base
+
+
 def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tuple[str, Dict[str, Any]]:
     stats = compute_stats(recalls, prev_week)
     week_start = week_end - timedelta(days=6)
@@ -644,17 +701,6 @@ a:hover {{ text-decoration:underline; }}
   color:var(--muted); font-size:14px; margin-bottom:16px;
 }}
 .r-sub strong {{ color:var(--ink); font-weight:600; }}
-.r-authority {{
-  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-  padding:10px 14px; background:var(--s1); border-left:3px solid var(--orange);
-  font-family:'DM Mono', monospace; font-size:11px; color:var(--ink);
-  margin-bottom:30px;
-}}
-.auth-label {{
-  font-size:9px; font-weight:700; color:var(--orange);
-  text-transform:uppercase; letter-spacing:0.14em;
-  border-right:1px solid var(--brd); padding-right:10px;
-}}
 
 .kpi-strip {{
   display:grid; grid-template-columns:repeat(4, 1fr);
@@ -699,7 +745,7 @@ a:hover {{ text-decoration:underline; }}
 .sec-caption em {{ color:var(--ink); font-style:italic; }}
 
 .analysis {{
-  background:var(--s1); border-left:4px solid var(--orange);
+  background:var(--s1);
   padding:26px 30px; margin-bottom:10px;
 }}
 .analysis p {{ margin:0 0 14px; font-size:14.5px; line-height:1.75; }}
@@ -883,8 +929,6 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   .r-kicker {{ font-size:12px; margin:6px 0 5px; letter-spacing:0.07em; }}
   .r-title {{ font-size:26px; margin:2px 0 8px; }}
   .r-sub {{ font-size:13px; margin-bottom:12px; line-height:1.55; }}
-  .r-authority {{ padding:9px 12px; font-size:11px; margin-bottom:22px; }}
-  .auth-label {{ font-size:8px; padding-right:9px; }}
   .kpi-strip {{ margin-bottom:24px; }}
   .kpi {{ padding:16px 14px; }}
   .kpi-label {{ font-size:9px; margin-bottom:6px; }}
@@ -899,9 +943,7 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
   .analysis p {{ font-size:13px; margin:0 0 12px; line-height:1.7; }}
 
   table.data th {{ background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
-  /* Prevent any table row from splitting across a page break */
   table.data tr {{ page-break-inside:avoid; break-inside:avoid; }}
-  .analysis {{ border-left-width:3px; }}
   /* Top-5 print tightening - fit all 6 columns on A4 */
   table.top5 {{ font-size:9px; page-break-inside:avoid; }}
   table.top5 th {{ padding:6px 5px; font-size:8px; }}
@@ -1334,6 +1376,7 @@ def write_weekly_summary_json(week_end: date, stats: Dict[str, Any],
             "pct":   round(top_pathogen_count / total_safe * 100) if stats["total"] else 0,
         },
         "ai_lead_paragraph": stats.get("_first_paragraph", ""),
+        "pa_paragraph": stats.get("_pa_paragraph", ""),
         "top_threats": top5_out,
         "country_count": len(stats.get("country_counts", [])),
     }

@@ -69,17 +69,6 @@ a:hover { text-decoration:underline; }
   color:var(--muted); font-size:14px; margin-bottom:16px;
 }
 .r-sub strong { color:var(--ink); font-weight:600; }
-.r-authority {
-  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-  padding:10px 14px; background:var(--s1); border-left:3px solid var(--orange);
-  font-family:'DM Mono', monospace; font-size:11px; color:var(--ink);
-  margin-bottom:30px;
-}
-.auth-label {
-  font-size:9px; font-weight:700; color:var(--orange);
-  text-transform:uppercase; letter-spacing:0.14em;
-  border-right:1px solid var(--brd); padding-right:10px;
-}
 
 .kpi-strip {
   display:grid; grid-template-columns:repeat(4, 1fr);
@@ -124,7 +113,7 @@ a:hover { text-decoration:underline; }
 .sec-caption em { color:var(--ink); font-style:italic; }
 
 .analysis {
-  background:var(--s1); border-left:4px solid var(--orange);
+  background:var(--s1);
   padding:26px 30px; margin-bottom:10px;
 }
 .analysis p { margin:0 0 14px; font-size:14.5px; line-height:1.75; }
@@ -308,8 +297,6 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   .r-kicker { font-size:12px; margin:6px 0 5px; letter-spacing:0.07em; }
   .r-title { font-size:26px; margin:2px 0 8px; }
   .r-sub { font-size:13px; margin-bottom:12px; line-height:1.55; }
-  .r-authority { padding:9px 12px; font-size:11px; margin-bottom:22px; }
-  .auth-label { font-size:8px; padding-right:9px; }
   .kpi-strip { margin-bottom:24px; }
   .kpi { padding:16px 14px; }
   .kpi-label { font-size:9px; margin-bottom:6px; }
@@ -324,9 +311,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   .analysis p { font-size:13px; margin:0 0 12px; line-height:1.7; }
 
   table.data th { background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  /* Prevent any table row from splitting across a page break */
   table.data tr { page-break-inside:avoid; break-inside:avoid; }
-  .analysis { border-left-width:3px; }
   /* Top-5 print tightening - fit all 6 columns on A4 */
   table.top5 { font-size:9px; page-break-inside:avoid; }
   table.top5 th { padding:6px 5px; font-size:8px; }
@@ -456,7 +441,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
     <div class="report-meta">
       <strong>ISSUE</strong> &middot; Week 15, 2026<br>
       <strong>PERIOD</strong> &middot; 04 Apr &ndash; 10 Apr 2026<br>
-      <strong>PUBLISHED</strong> &middot; 17 Apr 2026 &middot; 11:30 UTC
+      <strong>PUBLISHED</strong> &middot; 17 Apr 2026 &middot; 12:24 UTC
     </div>
   </div>
 </header>
