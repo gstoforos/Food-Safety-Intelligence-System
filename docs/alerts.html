@@ -41,8 +41,20 @@
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  color-scheme:dark;
   font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   font-size:14px; line-height:1.6;}
+/* Force dark dropdown panels — the browser's native dropdown panel
+   would otherwise render on a white background, making the options
+   nearly invisible given our light text colour. */
+select{color-scheme:dark;}
+select option{
+  background:#0f1729; color:var(--ink);
+  padding:6px 10px;
+}
+select option:checked, select option:hover{
+  background:rgba(251,191,36,.18); color:var(--amber);
+}
 a{color:var(--green); text-decoration:none;}
 a:hover{text-decoration:underline;}
 
