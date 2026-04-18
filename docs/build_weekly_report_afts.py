@@ -381,14 +381,14 @@ def generate_fallback_analysis(stats: Dict[str, Any],
     # Tailor paragraph 2 to the leading pathogen
     p_lower = (top_pathogen or "").lower()
     if "listeria" in p_lower:
-        p2 = (f"{top_pathogen} at this concentration points to post-process recontamination in "
+        p2 = (f"{top_pathogen} at this prevalence points to post-process recontamination in "
               f"ready-to-eat deli, dairy, and cooked-meat lines rather than thermal underprocess. "
               f"The likely failure modes are Zone 1 environmental harbourage, sanitation SOP drift, "
               f"and post-lethality recontamination. 21 CFR 117 environmental monitoring and the "
               f"6-log Listeria lethality requirement (21 CFR 113/114 where applicable) are the "
               f"relevant frameworks for review.")
     elif "salmonella" in p_lower:
-        p2 = (f"{top_pathogen} at this volume typically traces to raw-material contamination, "
+        p2 = (f"{top_pathogen} at this prevalence typically traces to raw-material contamination, "
               f"insufficient thermal lethality, or post-process handling. Validate pasteurisation "
               f"D-values against current product formulations, confirm hold-tube residence time "
               f"under production flow rates, and audit supplier verification protocols for "
@@ -541,7 +541,7 @@ def render_top5_row(i: int, r: Dict) -> str:
 
     return f"""
     <tr>
-      <td class="rank-num" data-label="#">{i}</td>
+      <td class="rank-num{' rank-num--multi' if i >= 10 else ''}" data-label="#">{i}</td>
       <td class="date-cell" data-label="Date">{escape(date_str)}</td>
       <td data-label="Pathogen">
         <span class="path-dot" style="background:{badge_color}"></span>
@@ -589,6 +589,91 @@ def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tu
     while len(paragraphs) < 3:
         paragraphs.append("")
 
+    # Binomial-nomenclature italicisation. Pathogen genus + species are
+    # italicised anywhere they appear in the analysis prose — this matches
+    # taxonomic convention and visually ties the narrative back to the
+    # pathogen chips in the tables (which are also italicised).
+    #
+    # We use a whitelist of known species epithets rather than a lazy "any
+    # lowercase word" match — this prevents false positives like "Listeria
+    # lethality" or "Listeria and" where the word after the genus is plain
+    # English, not taxonomy. "spp" / "spp." is the plural-species abbreviation
+    # and is kept OUTSIDE the italic per convention.
+    import re as _re
+    _PATHOGEN_GENERA = (
+        "Listeria", "Clostridium", "Salmonella", "Escherichia", "Bacillus",
+        "Cronobacter", "Staphylococcus", "Campylobacter", "Vibrio", "Yersinia",
+        "Shigella",
+    )
+    _PATHOGEN_SPECIES = (
+        "monocytogenes", "ivanovii",
+        "botulinum", "perfringens", "difficile", "tetani",
+        "enterica", "bongori", "typhimurium", "enteritidis",
+        "coli",
+        "cereus", "subtilis", "anthracis",
+        "sakazakii", "malonaticus",
+        "aureus",
+        "jejuni",
+        "parahaemolyticus", "vulnificus", "cholerae",
+        "enterocolitica", "pseudotuberculosis",
+        "flexneri", "sonnei", "dysenteriae",
+    )
+    _genera_alt  = "|".join(_PATHOGEN_GENERA)
+    _species_alt = "|".join(_PATHOGEN_SPECIES)
+    # Full binomial: "Listeria monocytogenes" — species must come from whitelist
+    _pat_binomial = _re.compile(rf"\b({_genera_alt})\s+({_species_alt})\b",
+                                 _re.IGNORECASE)
+    # Bare genus on its own.
+    _pat_genus    = _re.compile(rf"\b({_genera_alt})\b")
+    # Abbreviated form: "E. coli", "C. botulinum" — species must come from list.
+    _pat_abbrev   = _re.compile(rf"\b([A-Z])\.\s*({_species_alt})\b")
+    # Norovirus is a virus name, not binomial — italicise as a single word.
+    _pat_norovirus = _re.compile(r"\bNorovirus\b")
+
+    _PLACEHOLDER_OPEN  = "\x01EM\x02"
+    _PLACEHOLDER_CLOSE = "\x01/EM\x02"
+
+    def _italicise_prose(text: str) -> str:
+        # Pass 1: binomials — italicise genus + species together
+        text = _pat_binomial.sub(
+            lambda m: f"{_PLACEHOLDER_OPEN}{m.group(1)} {m.group(2)}{_PLACEHOLDER_CLOSE}",
+            text,
+        )
+        # Pass 2: abbreviated form ("E. coli")
+        text = _pat_abbrev.sub(
+            lambda m: f"{_PLACEHOLDER_OPEN}{m.group(0)}{_PLACEHOLDER_CLOSE}",
+            text,
+        )
+        # Pass 3: bare genus outside of existing placeholders only
+        def _wrap_plain(chunk: str) -> str:
+            return _pat_genus.sub(
+                lambda m: f"{_PLACEHOLDER_OPEN}{m.group(0)}{_PLACEHOLDER_CLOSE}",
+                chunk,
+            )
+        parts = _re.split(
+            f"({_re.escape(_PLACEHOLDER_OPEN)}.*?{_re.escape(_PLACEHOLDER_CLOSE)})",
+            text,
+        )
+        text = "".join(
+            part if part.startswith(_PLACEHOLDER_OPEN) else _wrap_plain(part)
+            for part in parts
+        )
+        # Pass 4: Norovirus (only in plain chunks)
+        parts = _re.split(
+            f"({_re.escape(_PLACEHOLDER_OPEN)}.*?{_re.escape(_PLACEHOLDER_CLOSE)})",
+            text,
+        )
+        text = "".join(
+            part if part.startswith(_PLACEHOLDER_OPEN)
+            else _pat_norovirus.sub(
+                f"{_PLACEHOLDER_OPEN}Norovirus{_PLACEHOLDER_CLOSE}", part
+            )
+            for part in parts
+        )
+        # Final: swap placeholders for real <em> tags.
+        text = text.replace(_PLACEHOLDER_OPEN, "<em>").replace(_PLACEHOLDER_CLOSE, "</em>")
+        return text
+
     # Render paragraphs. Any paragraph beginning with the Process Authority
     # label is tagged with `.pa-note` styling so the 4th (or any) PA paragraph
     # gets the distinctive red-accent label treatment — same pattern as the
@@ -608,12 +693,12 @@ def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tu
                 body_text = p_stripped[colon + 1:].strip()
                 analysis_parts.append(
                     f'<p class="pa-note"><span class="pa-label">{escape(label_text)}:</span> '
-                    f'{escape(body_text)}</p>'
+                    f'{_italicise_prose(escape(body_text))}</p>'
                 )
             else:
-                analysis_parts.append(f'<p class="pa-note">{escape(p_stripped)}</p>')
+                analysis_parts.append(f'<p class="pa-note">{_italicise_prose(escape(p_stripped))}</p>')
         elif p_stripped:
-            analysis_parts.append(f'<p>{escape(p_stripped)}</p>')
+            analysis_parts.append(f'<p>{_italicise_prose(escape(p_stripped))}</p>')
     analysis_html = "".join(analysis_parts)
 
     # Stash the analysis and top5 for main() to use when writing the summary JSON
@@ -645,7 +730,7 @@ def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tu
         bar_w = max(4, min(100, pct))
         path_rows += f"""
         <tr>
-          <td><span class="path-dot" style="background:{color}"></span>{escape(pathogen)}</td>
+          <td><span class="path-dot" style="background:{color}"></span><em class="path-name">{escape(pathogen)}</em></td>
           <td class="num">{count}</td>
           <td class="num">{pct}%</td>
           <td><div class="bar-track"><div class="bar-fill" style="width:{bar_w}%;background:{color}"></div></div></td>
@@ -767,7 +852,7 @@ a:hover {{ text-decoration:underline; }}
 }}
 .kpi-value.red {{ color:var(--red); }}
 .kpi-value.violet {{ color:var(--violet); }}
-.kpi-value.orange {{ color:var(--orange); font-size:20px; line-height:1.2; }}
+.kpi-value.orange {{ color:var(--orange); font-size:20px; line-height:1.2; font-style:italic; }}
 .kpi-value a {{ color:inherit; text-decoration:none; border-bottom:2px solid var(--orange); padding-bottom:1px; }}
 .kpi-value a:hover {{ opacity:0.8; text-decoration:none; }}
 .kpi-delta {{
@@ -847,15 +932,21 @@ table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
 .rank-num {{
   font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
   color:var(--orange); text-align:center;
+  white-space:nowrap; font-variant-numeric:tabular-nums;
+  letter-spacing:-0.02em;
 }}
+/* Shrink multi-digit rank numbers a touch so 10/11/12/100 stay on one line
+   even in the tight 5% rank column at narrower viewports. */
+.rank-num.rank-num--multi {{ font-size:18px; }}
 .date-cell {{
   font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
+  white-space:nowrap;
 }}
 .path-dot {{
   display:inline-block; width:9px; height:9px; border-radius:50%;
   margin-right:7px; vertical-align:middle;
 }}
-.path-name {{ font-weight:600; color:var(--ink); }}
+.path-name {{ font-weight:600; color:var(--ink); font-style:italic; }}
 .co-cell strong {{ color:var(--black); font-weight:700; display:block; }}
 .brand-sub {{ font-size:11px; color:var(--muted); margin-top:2px; font-style:italic; }}
 .prod-cell {{ color:var(--body); }}

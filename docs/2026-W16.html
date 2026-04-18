@@ -98,7 +98,7 @@ a:hover { text-decoration:underline; }
 }
 .kpi-value.red { color:var(--red); }
 .kpi-value.violet { color:var(--violet); }
-.kpi-value.orange { color:var(--orange); font-size:20px; line-height:1.2; }
+.kpi-value.orange { color:var(--orange); font-size:20px; line-height:1.2; font-style:italic; }
 .kpi-value a { color:inherit; text-decoration:none; border-bottom:2px solid var(--orange); padding-bottom:1px; }
 .kpi-value a:hover { opacity:0.8; text-decoration:none; }
 .kpi-delta {
@@ -178,15 +178,19 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
 .rank-num {
   font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
   color:var(--orange); text-align:center;
+  white-space:nowrap; font-variant-numeric:tabular-nums;
+  letter-spacing:-0.02em;
 }
+.rank-num.rank-num--multi { font-size:18px; }
 .date-cell {
   font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
+  white-space:nowrap;
 }
 .path-dot {
   display:inline-block; width:9px; height:9px; border-radius:50%;
   margin-right:7px; vertical-align:middle;
 }
-.path-name { font-weight:600; color:var(--ink); }
+.path-name { font-weight:600; color:var(--ink); font-style:italic; }
 .co-cell strong { color:var(--black); font-weight:700; display:block; }
 .brand-sub { font-size:11px; color:var(--muted); margin-top:2px; font-style:italic; }
 .prod-cell { color:var(--body); }
@@ -511,10 +515,10 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   <span class="sec-rule"></span>
 </div>
 <div class="analysis">
-  <p>This week produced 12 pathogen-related recall incidents across the AFTS monitoring network, with 7 classified as Tier-1 and 0 confirmed outbreak event(s). Listeria monocytogenes dominated the surveillance window, accounting for 5 of 12 incidents (42%). The elevated Tier-1 ratio indicates sustained regulatory pressure and should be read by food manufacturers as a signal of tightening enforcement.</p>
-  <p>Listeria monocytogenes at this concentration points to post-process recontamination in ready-to-eat deli, dairy, and cooked-meat lines rather than thermal underprocess. The likely failure modes are Zone 1 environmental harbourage, sanitation SOP drift, and post-lethality recontamination. 21 CFR 117 environmental monitoring and the 6-log Listeria lethality requirement (21 CFR 113/114 where applicable) are the relevant frameworks for review.</p>
+  <p>This week produced 12 pathogen-related recall incidents across the AFTS monitoring network, with 7 classified as Tier-1 and 0 confirmed outbreak event(s). <em>Listeria monocytogenes</em> dominated the surveillance window, accounting for 5 of 12 incidents (42%). The elevated Tier-1 ratio indicates sustained regulatory pressure and should be read by food manufacturers as a signal of tightening enforcement.</p>
+  <p><em>Listeria monocytogenes</em> at this prevalence points to post-process recontamination in ready-to-eat deli, dairy, and cooked-meat lines rather than thermal underprocess. The likely failure modes are Zone 1 environmental harbourage, sanitation SOP drift, and post-lethality recontamination. 21 CFR 117 environmental monitoring and the 6-log <em>Listeria</em> lethality requirement (21 CFR 113/114 where applicable) are the relevant frameworks for review.</p>
   <p>Regulatory activity this week spanned multiple jurisdictions (RASFF, FDA, CFIA, FSA, and national authorities), signalling continued inspection intensity. AFTS recommends that food manufacturers use this briefing as a prompt to re-verify the single highest-leverage control for their commodity this week and to confirm documentation packages are ready for rapid regulatory response.</p>
-  <p class="pa-note"><span class="pa-label">Process Authority Note:</span> This window contains 2 incident(s) implicating Clostridium or botulinum toxin, with Marché Rio (Canada) cited for Clostridium botulinum. Any shelf-stable low-acid, acidified, aseptic/UHT, hot-filled, or reduced-oxygen-packaged product in the affected category must be reviewed to confirm the scheduled thermal process under a qualified process authority — required under FDA 21 CFR 113/114, EU Reg. 852/2004, CFIA SFCR, FSANZ Food Standards Code Ch. 3, and Japan&#x27;s Food Sanitation Act. Typical compliance gaps: unfiled or outdated scheduled process, deviation resolved without qualified review, container or seal-integrity lapse, or a formulation change (pH, a_w, salt, preservative) not re-evaluated. A Tier-1 / Class-I classification on a product of this class reliably triggers a process-filing audit and regulatory citations in every major jurisdiction.</p>
+  <p class="pa-note"><span class="pa-label">Process Authority Note:</span> This window contains 2 incident(s) implicating <em>Clostridium</em> or botulinum toxin, with Marché Rio (Canada) cited for <em>Clostridium botulinum</em>. Any shelf-stable low-acid, acidified, aseptic/UHT, hot-filled, or reduced-oxygen-packaged product in the affected category must be reviewed to confirm the scheduled thermal process under a qualified process authority — required under FDA 21 CFR 113/114, EU Reg. 852/2004, CFIA SFCR, FSANZ Food Standards Code Ch. 3, and Japan&#x27;s Food Sanitation Act. Typical compliance gaps: unfiled or outdated scheduled process, deviation resolved without qualified review, container or seal-integrity lapse, or a formulation change (pH, a_w, salt, preservative) not re-evaluated. A Tier-1 / Class-I classification on a product of this class reliably triggers a process-filing audit and regulatory citations in every major jurisdiction.</p>
 </div>
 
 <div class="sec-head">
@@ -632,25 +636,25 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
       <tbody>
         
         <tr>
-          <td><span class="path-dot" style="background:#dc2626"></span>Listeria monocytogenes</td>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Listeria monocytogenes</em></td>
           <td class="num">5</td>
           <td class="num">42%</td>
           <td><div class="bar-track"><div class="bar-fill" style="width:42%;background:#dc2626"></div></div></td>
         </tr>
         <tr>
-          <td><span class="path-dot" style="background:#dc2626"></span>Salmonella spp.</td>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Salmonella spp.</em></td>
           <td class="num">4</td>
           <td class="num">33%</td>
           <td><div class="bar-track"><div class="bar-fill" style="width:33%;background:#dc2626"></div></div></td>
         </tr>
         <tr>
-          <td><span class="path-dot" style="background:#9333ea"></span>Clostridium botulinum</td>
+          <td><span class="path-dot" style="background:#9333ea"></span><em class="path-name">Clostridium botulinum</em></td>
           <td class="num">2</td>
           <td class="num">17%</td>
           <td><div class="bar-track"><div class="bar-fill" style="width:17%;background:#9333ea"></div></div></td>
         </tr>
         <tr>
-          <td><span class="path-dot" style="background:#dc2626"></span>E. coli</td>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">E. coli</em></td>
           <td class="num">1</td>
           <td class="num">8%</td>
           <td><div class="bar-track"><div class="bar-fill" style="width:8%;background:#dc2626"></div></div></td>
@@ -877,7 +881,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
       </td>
     </tr>
     <tr>
-      <td class="rank-num" data-label="#">10</td>
+      <td class="rank-num rank-num--multi" data-label="#">10</td>
       <td class="date-cell" data-label="Date">14 Apr 2026</td>
       <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
@@ -893,7 +897,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
       </td>
     </tr>
     <tr>
-      <td class="rank-num" data-label="#">11</td>
+      <td class="rank-num rank-num--multi" data-label="#">11</td>
       <td class="date-cell" data-label="Date">15 Apr 2026</td>
       <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
@@ -909,7 +913,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
       </td>
     </tr>
     <tr>
-      <td class="rank-num" data-label="#">12</td>
+      <td class="rank-num rank-num--multi" data-label="#">12</td>
       <td class="date-cell" data-label="Date">14 Apr 2026</td>
       <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
