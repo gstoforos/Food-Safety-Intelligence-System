@@ -119,6 +119,27 @@ h1 .accent{color:var(--amber);}
 .slot .brand-hint{font-size:11px; color:var(--dim); margin-top:6px;
   font-style:italic;}
 
+/* Operator toggle between the two criterion slots — user chooses AND vs OR
+   explicitly. Previously the operator was inferred (same-category=OR,
+   different-category=AND) but that couldn't express rules like
+   "Country=France OR Pathogen=Listeria". */
+.op-row{display:flex; align-items:center; justify-content:center;
+  gap:14px; margin:0 0 12px; padding:6px 0; flex-wrap:wrap;}
+.op-label{font-family:'DM Mono',monospace; font-size:10px;
+  color:var(--muted); text-transform:uppercase; letter-spacing:0.12em;
+  font-weight:700;}
+.op-segment{display:flex; background:var(--s1); border:1px solid var(--brd);
+  border-radius:3px; overflow:hidden;}
+.op-btn{background:none; color:var(--muted); border:none;
+  padding:7px 18px; font-family:'DM Mono',monospace; font-size:11px;
+  font-weight:700; cursor:pointer; letter-spacing:0.12em;
+  transition:all .15s;}
+.op-btn:first-child{border-right:1px solid var(--brd);}
+.op-btn.active{background:var(--amber); color:#0a0e1a;}
+.op-btn:hover:not(.active){background:var(--s2); color:var(--ink);}
+.op-hint{font-family:'Inter',sans-serif; font-size:12px; color:var(--dim);
+  font-style:italic;}
+
 .rule-preview{font-family:'DM Mono','Roboto Mono',monospace; font-size:12px;
   color:var(--muted); background:var(--s2); padding:12px 14px;
   border:1px dashed var(--brd); border-radius:3px; margin:8px 0 20px;
@@ -187,11 +208,12 @@ updates your existing rule — we key on your email address.
 
 <div class="sec-title">§ 02 &nbsp; Watch rule</div>
 <div class="rule-intro">
-  <strong>How it works:</strong> pick one or two criteria from the pools below.
-  Two picks in <em>different</em> categories are combined with
-  <span class="logic">AND</span> (e.g. <em>Listeria</em> in France).
-  Two picks in the <em>same</em> category are combined with
-  <span class="logic">OR</span> (e.g. <em>Listeria</em> or <em>Salmonella</em>).
+  <strong>How it works:</strong> pick one criterion for a simple watch, or
+  <em>two</em> criteria and choose whether they must
+  <span class="logic">both match (AND)</span> or
+  <span class="logic">either match (OR)</span> to trigger an alert. Use
+  <strong>OR</strong> for "Country = France <em>or</em> Pathogen = Listeria"-style
+  watches; use <strong>AND</strong> for "Listeria <em>in</em> France".
 </div>
 
 <div class="slot" id="slot-1">
@@ -212,6 +234,15 @@ updates your existing rule — we key on your email address.
   <div id="slot-1-brand-hint" class="brand-hint" style="display:none">
     Brand list seeds from seen recalls — type free text if the brand isn't listed yet.
   </div>
+</div>
+
+<div class="op-row">
+  <span class="op-label">Combine with:</span>
+  <div class="op-segment" role="radiogroup" aria-label="Combine operator">
+    <button type="button" class="op-btn active" data-op="AND" onclick="setOp('AND')">AND</button>
+    <button type="button" class="op-btn"        data-op="OR"  onclick="setOp('OR')">OR</button>
+  </div>
+  <span class="op-hint" id="op-hint">both criteria must match</span>
 </div>
 
 <div class="slot" id="slot-2">
@@ -325,6 +356,22 @@ try {
 } catch(e) { /* cross-origin guard */ }
 
 // ===== UI wiring =====
+// The AND/OR operator between the two slots is user-controlled — previously
+// it was inferred (same-category=OR, different-category=AND), but that
+// couldn't express rules like "Country=France OR Pathogen=Listeria".
+let selectedOp = 'AND';
+
+function setOp(op){
+  selectedOp = op;
+  document.querySelectorAll('.op-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.op === op));
+  const hint = document.getElementById('op-hint');
+  hint.textContent = (op === 'AND')
+    ? 'both criteria must match'
+    : 'either criterion matches';
+  updatePreview();
+}
+
 function fillSelect(sel, items, placeholder){
   sel.innerHTML = '<option value="">' + placeholder + '</option>' +
     items.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
@@ -381,6 +428,10 @@ function updatePreview(){
 
   const catLabel = c => ({pathogen:"Pathogen",product:"Product",country:"Country",brand:"Brand"})[c] || c;
 
+  // Dim the operator toggle when it doesn't apply (0 or 1 criterion filled).
+  const opRow = document.querySelector('.op-row');
+  if (opRow) opRow.style.opacity = (s1 && s2) ? '1' : '0.45';
+
   if (!s1 && !s2) {
     preview.innerHTML = '<span class="empty">— pick at least one criterion above —</span>';
     submitBtn.disabled = true;
@@ -396,16 +447,11 @@ function updatePreview(){
     preview.innerHTML = `ALERT IF <span class="tok">${catLabel(s2.cat)} = "${esc(s2.val)}"</span>`;
     return;
   }
-  // Both slots filled
-  if (s1.cat === s2.cat) {
-    preview.innerHTML =
-      `ALERT IF <span class="tok">${catLabel(s1.cat)} = "${esc(s1.val)}"</span> ` +
-      `<span class="op">OR</span> <span class="tok">${catLabel(s2.cat)} = "${esc(s2.val)}"</span>`;
-  } else {
-    preview.innerHTML =
-      `ALERT IF <span class="tok">${catLabel(s1.cat)} = "${esc(s1.val)}"</span> ` +
-      `<span class="op">AND</span> <span class="tok">${catLabel(s2.cat)} = "${esc(s2.val)}"</span>`;
-  }
+  // Both slots filled — user picks the operator.
+  preview.innerHTML =
+    `ALERT IF <span class="tok">${catLabel(s1.cat)} = "${esc(s1.val)}"</span> ` +
+    `<span class="op">${selectedOp}</span> ` +
+    `<span class="tok">${catLabel(s2.cat)} = "${esc(s2.val)}"</span>`;
 }
 
 // ===== Magic link prefill (manage / unsubscribe) =====
@@ -465,6 +511,9 @@ async function handleMagicLink(){
               const el = document.getElementById('slot-2-val');
               if (el) { el.value = data.slot2_val || ''; updatePreview(); }
             }, 50);
+          }
+          if (data.logic === 'OR' || data.logic === 'AND') {
+            setOp(data.logic);
           }
           document.querySelector('h1').innerHTML = 'Manage <span class="accent">Alert</span>';
         }
@@ -526,10 +575,10 @@ async function submit(){
     status.style.display = 'block'; return;
   }
 
-  // Build AND/OR descriptor so the email + the Apps Script matcher can
-  // both read the rule without re-deriving it from two slot rows.
-  let logic = '';
-  if (s1 && s2) logic = (s1.cat === s2.cat) ? 'OR' : 'AND';
+  // Operator (AND / OR) is user-controlled via the toggle between the slots.
+  // When only one slot is filled, the operator is irrelevant to matching
+  // but we still send the UI's current value for audit-trail consistency.
+  const logic = (s1 && s2) ? selectedOp : '';
 
   const payload = {
     name, email, company,
