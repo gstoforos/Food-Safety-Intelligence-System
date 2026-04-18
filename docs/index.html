@@ -192,8 +192,9 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <button class="tab active" id="tab-recalls" onclick="switchTab('recalls')">● Recall Intelligence</button>
 <button class="tab" id="tab-news" onclick="switchTab('news')">🌐 Live News <span id="news-count" style="opacity:.55;font-weight:400"></span></button>
 <button class="tab" id="tab-reports" onclick="switchTab('reports')">📊 Weekly Reports <span id="rep-count" style="opacity:.55;font-weight:400"></span></button>
-<button class="tab" onclick="window.open('data/recalls.xlsx')">↓ XLSX</button>
-<button class="tab" onclick="window.open('data/recalls.json')">↓ JSON</button>
+<button class="tab" onclick="downloadRecallsXlsx()">↓ XLSX</button>
+<button class="tab" onclick="downloadRecallsJson()">↓ JSON</button>
+<button class="tab" onclick="window.open('alerts.html','_blank','noopener,width=980,height=820')" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🔔 Alerts</button>
 </div>
 
 <div id="panel-recalls">
@@ -219,7 +220,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 </div></div>
 </div>
 
-<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/food-safety-intelligence" target="_blank">FSIS Page</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="data/recalls.xlsx">↓ XLSX</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);color:var(--green);font-family:'DM Mono',monospace;font-size:9px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
+<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/food-safety-intelligence" target="_blank">FSIS Page</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="downloadRecallsXlsx();return false;">↓ XLSX</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);color:var(--green);font-family:'DM Mono',monospace;font-size:9px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
 
 <script>
 let ALL=[],filtered=[],page=1,perPage=50,sortCol='date',sortAsc=false,pillFilter='';
@@ -267,6 +268,37 @@ function notifyHeight(){
   }
 }
 
+// ===== DOWNLOADS — Recalls only (strip Pending + NEWS) =====
+// Rebuild a clean workbook from in-memory ALL so subscribers never receive
+// the Pending worktable or the NEWS ingestion sheet in their download.
+function _recallsExportRows(){
+  return ALL.map(r=>({
+    Date:r.date, Source:r.source, Company:r.company, Brand:r.brand,
+    Product:r.product, Pathogen:r.pathogen, Reason:r.reason, Class:r.class_,
+    Country:r.country, Region:r.region, Tier:r.tier, Outbreak:r.is_outbreak,
+    URL:r.url, Notes:r.notes
+  }));
+}
+function downloadRecallsXlsx(){
+  if(!ALL.length){alert('Data is still loading — please try again in a moment.');return;}
+  const rows=_recallsExportRows();
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Recalls');
+  const dt=new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb,`afts-recalls-${dt}.xlsx`);
+}
+function downloadRecallsJson(){
+  if(!ALL.length){alert('Data is still loading — please try again in a moment.');return;}
+  const blob=new Blob([JSON.stringify(_recallsExportRows(),null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const dt=new Date().toISOString().slice(0,10);
+  a.href=url; a.download=`afts-recalls-${dt}.json`;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},100);
+}
+
 // ===== LOAD RECALLS + NEWS FROM SAME XLSX =====
 fetch('data/recalls.xlsx').then(r=>r.arrayBuffer()).then(buf=>{
   const wb=XLSX.read(buf,{type:'array'});
@@ -311,7 +343,7 @@ function renderCharts(){
   document.getElementById('chart-src').innerHTML=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([k,v])=>`<div class="src-row"><span class="src-name">${esc(k)}</span><span class="src-val">${v}</span></div>`).join('');
 }
 function renderPills(){
-  const ns=[['Listeria','Listeria'],['Salmonella','Salmonella'],['E. coli / STEC','E. coli / STEC'],['C. botulinum','Clostridium botulinum'],['Norovirus','Norovirus'],['Aflatoxin','Aflatoxin'],['Cereulide','Cereulide']];
+  const ns=[['Listeria','Listeria'],['Salmonella','Salmonella'],['E. coli / STEC','E. coli / STEC'],['C. botulinum','C. botulinum'],['Norovirus','Norovirus'],['Aflatoxin','Aflatoxin'],['Cereulide','Cereulide']];
   const cs=['#00ff88','#06b6d4','#f97316','#a78bfa','#818cf8','#fbbf24','#ef4444'];
   let h=ns.map(([disp,fval],i)=>`<span class="ptag" data-f="${fval}" style="background:${cs[i]}11;color:${cs[i]};border-color:${cs[i]}55">${disp}</span>`).join('');
   h+=`<span class="ptag" data-f="" style="background:rgba(255,255,255,.05);color:var(--dim);border-color:var(--brd)">× All</span>`;

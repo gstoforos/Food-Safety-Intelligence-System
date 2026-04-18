@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AFTS · Food Safety Alerts · Subscribe</title>
+<style>
+/*
+  AFTS Alerts subscribe page. Matches the dashboard's dark palette so the
+  pop-up window visually belongs to the FSIS system. Built as a standalone
+  file so we can window.open() it without needing a Wix embed.
+
+  Flow:
+    1. Visitor opens this page from the dashboard's 🔔 Alerts button, or
+       lands here via a magic link from an alert email (?tok=XXX&action=manage
+       → prefilled form; ?tok=XXX&action=unsubscribe → one-click unsub).
+    2. Visitor fills identity (name / email / optional company) + picks up
+       to TWO filter criteria from the four dropdown pools (Pathogen,
+       Product, Country, Brand). Matching logic:
+         • 2 picks in DIFFERENT categories  →  AND   (e.g. Listeria in France)
+         • 2 picks in the SAME category     →  OR    (e.g. Listeria OR Salmonella)
+    3. Submit POSTs to Formspree (same vendor as AdvThermaLogic forms).
+       Formspree mirrors the payload to George's inbox + dashboard, and
+       (via Formspree → Google Sheets integration) appends a row to the
+       `Alerts` tab of the AFTS FSIS Subscribers sheet.
+    4. Apps Script scans the `Alerts` tab against every new Recall row
+       and emails matches with a magic-link unsubscribe/manage URL back
+       to this page.
+
+  Reference dropdown lists are intentionally comprehensive — they cover
+  regulatory-surveillance categories the system could encounter in the
+  future, not just what's already been seen. Brands fall back to a free
+  text input since brands are firm-specific and not pre-listable.
+*/
+:root{
+  --bg:#0a0e1a; --s1:rgba(255,255,255,.02); --s2:rgba(255,255,255,.04);
+  --brd:rgba(255,255,255,.08); --ink:#f8fafc; --white:#ffffff;
+  --muted:#94a3b8; --dim:#64748b;
+  --green:#00ff88; --red:#ef4444; --orange:#f97316; --amber:#fbbf24;
+  --cyan:#06b6d4; --purple:#a78bfa;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:14px; line-height:1.6;}
+a{color:var(--green); text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+.page{max-width:820px; margin:0 auto; padding:28px 24px 80px;}
+
+.hdr{border-bottom:1px solid var(--brd); padding-bottom:18px; margin-bottom:24px;}
+.brand{font-family:'Syne','Inter',sans-serif; font-size:20px; font-weight:800;
+  letter-spacing:-0.01em; color:var(--white); text-transform:uppercase;}
+.brand em{color:var(--green); font-style:normal;}
+.brand-sub{font-family:'DM Mono','Roboto Mono',monospace; font-size:10px;
+  color:var(--muted); text-transform:uppercase; letter-spacing:0.14em; margin-top:4px;}
+h1{font-family:'Syne','Inter',sans-serif; font-weight:800; font-size:28px;
+  letter-spacing:-0.02em; margin:20px 0 8px; color:var(--white);}
+h1 .accent{color:var(--amber);}
+.lede{color:var(--muted); font-size:14px; margin:0 0 28px;}
+
+.sec-title{font-family:'DM Mono','Roboto Mono',monospace; font-size:10px;
+  color:var(--amber); font-weight:700; text-transform:uppercase;
+  letter-spacing:0.14em; margin:24px 0 10px;}
+
+.field{display:flex; flex-direction:column; margin-bottom:14px;}
+.field label{font-size:12px; color:var(--muted); margin-bottom:6px;
+  font-family:'DM Mono','Roboto Mono',monospace; text-transform:uppercase;
+  letter-spacing:0.08em; font-weight:700;}
+.field label .req{color:var(--amber);}
+.field input[type=text], .field input[type=email]{
+  background:var(--s1); border:1px solid var(--brd); color:var(--ink);
+  padding:10px 14px; font-size:14px; font-family:inherit; border-radius:3px;
+  transition:border-color .15s;
+}
+.field input:focus{outline:none; border-color:var(--amber);}
+.identity-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media(max-width:600px){.identity-grid{grid-template-columns:1fr;}}
+
+/* Rule builder */
+.rule-intro{background:var(--s1); border-left:3px solid var(--amber);
+  padding:12px 16px; font-size:13px; color:var(--muted); margin-bottom:14px;}
+.rule-intro strong{color:var(--ink);}
+.rule-intro .logic{display:inline-block; font-family:'DM Mono',monospace;
+  font-size:11px; color:var(--amber); margin-left:6px; font-weight:700;}
+
+.slot{background:var(--s1); border:1px solid var(--brd); padding:14px 16px;
+  margin-bottom:12px; border-radius:3px;}
+.slot-hdr{display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:10px;}
+.slot-num{font-family:'DM Mono',monospace; font-size:10px; font-weight:700;
+  color:var(--amber); letter-spacing:0.12em; text-transform:uppercase;}
+.slot-clear{font-family:'DM Mono',monospace; font-size:10px; color:var(--dim);
+  background:none; border:none; cursor:pointer; letter-spacing:0.08em;
+  text-transform:uppercase;}
+.slot-clear:hover{color:var(--red);}
+.slot-grid{display:grid; grid-template-columns:180px 1fr; gap:10px;}
+@media(max-width:600px){.slot-grid{grid-template-columns:1fr;}}
+
+.slot select, .slot input[type=text]{
+  background:var(--s2); border:1px solid var(--brd); color:var(--ink);
+  padding:10px 12px; font-size:13px; font-family:inherit; border-radius:3px;
+  width:100%;
+}
+.slot select{font-family:'DM Mono',monospace;}
+.slot select:focus, .slot input:focus{outline:none; border-color:var(--amber);}
+.slot .brand-hint{font-size:11px; color:var(--dim); margin-top:6px;
+  font-style:italic;}
+
+.rule-preview{font-family:'DM Mono','Roboto Mono',monospace; font-size:12px;
+  color:var(--muted); background:var(--s2); padding:12px 14px;
+  border:1px dashed var(--brd); border-radius:3px; margin:8px 0 20px;
+  min-height:40px; line-height:1.6;}
+.rule-preview .tok{color:var(--amber); font-weight:700;}
+.rule-preview .op{color:var(--cyan);}
+.rule-preview .empty{color:var(--dim); font-style:italic;}
+
+.btn-row{display:flex; gap:12px; margin-top:24px; align-items:center;}
+button.primary{background:var(--amber); color:#0a0e1a; border:none;
+  padding:12px 22px; font-family:'DM Mono',monospace; font-size:12px;
+  font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+  border-radius:3px; cursor:pointer; transition:all .15s;}
+button.primary:hover{filter:brightness(1.1); transform:translateY(-1px);}
+button.primary:disabled{opacity:.4; cursor:not-allowed; transform:none;}
+button.secondary{background:none; color:var(--muted); border:1px solid var(--brd);
+  padding:12px 22px; font-family:'DM Mono',monospace; font-size:11px;
+  font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+  border-radius:3px; cursor:pointer;}
+button.secondary:hover{color:var(--ink); border-color:var(--muted);}
+
+.status{padding:14px 18px; border-radius:3px; margin-top:18px;
+  font-size:13px; display:none;}
+.status.ok{background:rgba(0,255,136,.08); border:1px solid rgba(0,255,136,.3);
+  color:var(--green); display:block;}
+.status.err{background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.3);
+  color:var(--red); display:block;}
+
+.footer{margin-top:48px; padding-top:20px; border-top:1px solid var(--brd);
+  font-family:'DM Mono',monospace; font-size:10px; color:var(--dim);
+  text-align:center; letter-spacing:0.06em;}
+.footer a{color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hdr">
+  <div class="brand">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</div>
+  <div class="brand-sub">// Custom Alert Subscription</div>
+</div>
+
+<h1>Custom <span class="accent">Alerts</span></h1>
+<p class="lede">
+Get an email the moment a recall matches your watch rule. Pick up to <strong>two</strong>
+criteria below; we'll monitor every new recall from our 70+ country / 15+ agency
+monitoring network and ping you on match. Already subscribed? This form also
+updates your existing rule — we key on your email address.
+</p>
+
+<div class="sec-title">§ 01 &nbsp; Identity</div>
+<div class="identity-grid">
+  <div class="field">
+    <label for="f-name">Full name <span class="req">*</span></label>
+    <input type="text" id="f-name" required autocomplete="name">
+  </div>
+  <div class="field">
+    <label for="f-email">Email <span class="req">*</span></label>
+    <input type="email" id="f-email" required autocomplete="email">
+  </div>
+</div>
+<div class="field">
+  <label for="f-company">Company <span style="color:var(--dim)">(optional)</span></label>
+  <input type="text" id="f-company" autocomplete="organization">
+</div>
+
+<div class="sec-title">§ 02 &nbsp; Watch rule</div>
+<div class="rule-intro">
+  <strong>How it works:</strong> pick one or two criteria from the pools below.
+  Two picks in <em>different</em> categories are combined with
+  <span class="logic">AND</span> (e.g. <em>Listeria</em> in France).
+  Two picks in the <em>same</em> category are combined with
+  <span class="logic">OR</span> (e.g. <em>Listeria</em> or <em>Salmonella</em>).
+</div>
+
+<div class="slot" id="slot-1">
+  <div class="slot-hdr">
+    <span class="slot-num">Criterion 1</span>
+    <button type="button" class="slot-clear" onclick="clearSlot(1)">× Clear</button>
+  </div>
+  <div class="slot-grid">
+    <select id="slot-1-cat" onchange="onCategoryChange(1)">
+      <option value="">— Category —</option>
+      <option value="pathogen">Pathogen</option>
+      <option value="product">Product category</option>
+      <option value="country">Country / Jurisdiction</option>
+      <option value="brand">Brand / Firm</option>
+    </select>
+    <div id="slot-1-val-wrap"><select id="slot-1-val" disabled><option value="">— pick a category first —</option></select></div>
+  </div>
+  <div id="slot-1-brand-hint" class="brand-hint" style="display:none">
+    Brand list seeds from seen recalls — type free text if the brand isn't listed yet.
+  </div>
+</div>
+
+<div class="slot" id="slot-2">
+  <div class="slot-hdr">
+    <span class="slot-num">Criterion 2 <span style="color:var(--dim);font-weight:400">(optional)</span></span>
+    <button type="button" class="slot-clear" onclick="clearSlot(2)">× Clear</button>
+  </div>
+  <div class="slot-grid">
+    <select id="slot-2-cat" onchange="onCategoryChange(2)">
+      <option value="">— Category —</option>
+      <option value="pathogen">Pathogen</option>
+      <option value="product">Product category</option>
+      <option value="country">Country / Jurisdiction</option>
+      <option value="brand">Brand / Firm</option>
+    </select>
+    <div id="slot-2-val-wrap"><select id="slot-2-val" disabled><option value="">— pick a category first —</option></select></div>
+  </div>
+  <div id="slot-2-brand-hint" class="brand-hint" style="display:none">
+    Brand list seeds from seen recalls — type free text if the brand isn't listed yet.
+  </div>
+</div>
+
+<div class="sec-title">§ 03 &nbsp; Rule preview</div>
+<div class="rule-preview" id="preview"><span class="empty">— pick at least one criterion above —</span></div>
+
+<div class="btn-row">
+  <button class="primary" id="submit-btn" onclick="submit()">🔔 Subscribe to Alert</button>
+  <button class="secondary" onclick="window.close()">Close</button>
+</div>
+
+<div class="status" id="status"></div>
+
+<div class="footer">
+  Advanced Food-Tech Solutions · <a href="https://www.advfood.tech" target="_blank">advfood.tech</a>
+  · <a href="mailto:info@advfood.tech">info@advfood.tech</a>
+  · Athens, Greece
+</div>
+
+</div>
+
+<script>
+// ===== Reference pools =====
+// Pathogens: aligned with normalizePathogen() in the dashboard + a broader
+// food-safety watch list. Keep the display names stable — the backend
+// matches on exact string equality so the Apps Script reuses this list.
+const PATHOGENS = [
+  "Listeria","Salmonella","E. coli / STEC","C. botulinum","Clostridium perfringens",
+  "Bacillus cereus / Cereulide","Campylobacter","Vibrio","Cronobacter",
+  "Staphylococcus aureus","Yersinia","Shigella",
+  "Norovirus","Hepatitis A","Rotavirus",
+  "Aflatoxin","Ochratoxin A","Patulin","Histamine / scombrotoxin",
+  "Marine biotoxins","Mycotoxins (other)",
+  "Cyclospora","Toxoplasma","Trichinella","Cryptosporidium",
+  "Undeclared allergen","Chemical contaminant","Physical hazard"
+];
+
+// Product categories: top-level Codex / regulatory surveillance grouping.
+const PRODUCTS = [
+  "Dairy — raw milk","Dairy — pasteurised milk","Dairy — cheese","Dairy — yoghurt / fermented",
+  "Dairy — butter / cream","Dairy — ice cream / frozen",
+  "Meat — raw beef","Meat — raw pork","Meat — raw poultry","Meat — cooked / RTE",
+  "Meat — cured / fermented","Meat — processed (sausage, ham)",
+  "Seafood — fresh fin-fish","Seafood — shellfish / molluscs","Seafood — smoked / cured",
+  "Seafood — canned","Eggs & egg products",
+  "Fresh produce — leafy greens","Fresh produce — sprouts","Fresh produce — berries",
+  "Fresh produce — melons","Fresh produce — herbs","Fresh produce — other",
+  "Frozen fruit / vegetables","Dried fruit / nuts","Seeds & grains",
+  "Bakery — bread","Bakery — pastry / cakes",
+  "Confectionery — chocolate","Confectionery — sweets / candy",
+  "Infant formula (powdered)","Infant formula (liquid / RTF)","Infant cereals / baby food",
+  "Beverages — juice","Beverages — soft drinks","Beverages — bottled water",
+  "Beverages — alcoholic","Beverages — tea / coffee",
+  "Spices & seasonings","Sauces, condiments & dressings",
+  "Ready-to-eat meals / salads","Sandwiches / wraps","Soups & broths",
+  "Canned / jarred — low-acid","Canned / jarred — acidified",
+  "Vacuum-packed / ROP / sous-vide","Fermented / pickled",
+  "Dietary supplements","Pet food (human-adjacent recalls)",
+  "Ingredients / raw materials","Other"
+];
+
+// Countries: FSIS monitoring network — all jurisdictions where we ingest
+// regulatory feeds, plus major non-covered countries visitors may still care
+// about. Sorted alphabetically.
+const COUNTRIES = [
+  "Argentina","Australia","Austria","Belgium","Brazil","Bulgaria","Canada",
+  "Chile","China","Colombia","Croatia","Cyprus","Czech Republic","Denmark",
+  "Egypt","Estonia","Finland","France","Germany","Greece","Hong Kong",
+  "Hungary","Iceland","India","Indonesia","Ireland","Israel","Italy",
+  "Japan","Kenya","Latvia","Lithuania","Luxembourg","Malaysia","Malta",
+  "Mexico","Morocco","Netherlands","New Zealand","Nigeria","Norway",
+  "Philippines","Poland","Portugal","Romania","Saudi Arabia","Singapore",
+  "Slovakia","Slovenia","South Africa","South Korea","Spain","Sweden",
+  "Switzerland","Taiwan","Thailand","Türkiye","Ukraine","United Arab Emirates",
+  "United Kingdom","United States","Uruguay","Vietnam","— Other / EU-wide"
+];
+
+// Seed brand suggestions from the dashboard's dataset when available.
+// The alerts.html page doesn't load the full recall set by default, but if
+// the opener window (dashboard) provided it via window.name or a query param,
+// we use it; otherwise brand is a free-text input.
+let SEEN_BRANDS = [];
+try {
+  // If dashboard shares its ALL via opener, pull seen brands.
+  if (window.opener && window.opener.ALL) {
+    SEEN_BRANDS = [...new Set(
+      window.opener.ALL
+        .map(r => (r.brand || r.company || "").trim())
+        .filter(b => b && b.length > 1)
+    )].sort((a,b) => a.localeCompare(b));
+  }
+} catch(e) { /* cross-origin guard */ }
+
+// ===== UI wiring =====
+function fillSelect(sel, items, placeholder){
+  sel.innerHTML = '<option value="">' + placeholder + '</option>' +
+    items.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);}
+
+function onCategoryChange(slot){
+  const cat = document.getElementById('slot-'+slot+'-cat').value;
+  const wrap = document.getElementById('slot-'+slot+'-val-wrap');
+  const hint = document.getElementById('slot-'+slot+'-brand-hint');
+  hint.style.display = 'none';
+
+  if (!cat) {
+    wrap.innerHTML = '<select id="slot-'+slot+'-val" disabled><option value="">— pick a category first —</option></select>';
+    updatePreview(); return;
+  }
+
+  if (cat === 'brand') {
+    // Brand is a datalist-backed text input (free text + autocomplete from seen)
+    const listId = 'slot-'+slot+'-brand-list';
+    wrap.innerHTML = '<input type="text" id="slot-'+slot+'-val" list="'+listId+'" placeholder="Type brand / firm name…" oninput="updatePreview()">' +
+      '<datalist id="'+listId+'">' +
+      SEEN_BRANDS.slice(0,500).map(b => `<option value="${esc(b)}">`).join('') +
+      '</datalist>';
+    hint.style.display = SEEN_BRANDS.length ? 'block' : 'none';
+  } else {
+    const items = (cat === 'pathogen') ? PATHOGENS
+               : (cat === 'product')  ? PRODUCTS
+               : (cat === 'country')  ? COUNTRIES : [];
+    wrap.innerHTML = '<select id="slot-'+slot+'-val" onchange="updatePreview()"></select>';
+    fillSelect(document.getElementById('slot-'+slot+'-val'), items, '— select —');
+  }
+  updatePreview();
+}
+
+function clearSlot(slot){
+  document.getElementById('slot-'+slot+'-cat').value = '';
+  onCategoryChange(slot);
+}
+
+function readSlot(slot){
+  const cat = document.getElementById('slot-'+slot+'-cat').value;
+  const valEl = document.getElementById('slot-'+slot+'-val');
+  const val = valEl ? (valEl.value || '').trim() : '';
+  return cat && val ? {cat, val} : null;
+}
+
+function updatePreview(){
+  const s1 = readSlot(1);
+  const s2 = readSlot(2);
+  const preview = document.getElementById('preview');
+  const submitBtn = document.getElementById('submit-btn');
+
+  const catLabel = c => ({pathogen:"Pathogen",product:"Product",country:"Country",brand:"Brand"})[c] || c;
+
+  if (!s1 && !s2) {
+    preview.innerHTML = '<span class="empty">— pick at least one criterion above —</span>';
+    submitBtn.disabled = true;
+    return;
+  }
+  submitBtn.disabled = false;
+
+  if (s1 && !s2) {
+    preview.innerHTML = `ALERT IF <span class="tok">${catLabel(s1.cat)} = "${esc(s1.val)}"</span>`;
+    return;
+  }
+  if (!s1 && s2) {
+    preview.innerHTML = `ALERT IF <span class="tok">${catLabel(s2.cat)} = "${esc(s2.val)}"</span>`;
+    return;
+  }
+  // Both slots filled
+  if (s1.cat === s2.cat) {
+    preview.innerHTML =
+      `ALERT IF <span class="tok">${catLabel(s1.cat)} = "${esc(s1.val)}"</span> ` +
+      `<span class="op">OR</span> <span class="tok">${catLabel(s2.cat)} = "${esc(s2.val)}"</span>`;
+  } else {
+    preview.innerHTML =
+      `ALERT IF <span class="tok">${catLabel(s1.cat)} = "${esc(s1.val)}"</span> ` +
+      `<span class="op">AND</span> <span class="tok">${catLabel(s2.cat)} = "${esc(s2.val)}"</span>`;
+  }
+}
+
+// ===== Magic link prefill (manage / unsubscribe) =====
+function getQS(k){
+  const m = new URLSearchParams(location.search);
+  return m.get(k) || '';
+}
+async function handleMagicLink(){
+  const tok = getQS('tok');
+  const action = getQS('action');
+  if (!tok) return;
+
+  if (action === 'unsubscribe') {
+    // Call Apps Script webapp to deactivate the rule
+    const status = document.getElementById('status');
+    status.className = 'status';
+    status.textContent = 'Unsubscribing…';
+    status.style.display = 'block';
+    try {
+      const r = await fetch(APPS_SCRIPT_URL + '?action=unsubscribe_alert&tok=' + encodeURIComponent(tok));
+      if (r.ok) {
+        status.className = 'status ok';
+        status.textContent = '✓ Unsubscribed. You will no longer receive emails for this alert rule.';
+      } else {
+        status.className = 'status err';
+        status.textContent = 'Could not unsubscribe — please email info@advfood.tech and we will remove you manually.';
+      }
+    } catch(e) {
+      status.className = 'status err';
+      status.textContent = 'Network error during unsubscribe. Please email info@advfood.tech.';
+    }
+    return;
+  }
+
+  if (action === 'manage') {
+    // Fetch current rule and prefill
+    try {
+      const r = await fetch(APPS_SCRIPT_URL + '?action=get_alert&tok=' + encodeURIComponent(tok));
+      if (r.ok) {
+        const data = await r.json();
+        if (data && data.email) {
+          document.getElementById('f-name').value    = data.name    || '';
+          document.getElementById('f-email').value   = data.email   || '';
+          document.getElementById('f-company').value = data.company || '';
+          if (data.slot1_cat) {
+            document.getElementById('slot-1-cat').value = data.slot1_cat;
+            onCategoryChange(1);
+            setTimeout(() => {
+              const el = document.getElementById('slot-1-val');
+              if (el) { el.value = data.slot1_val || ''; updatePreview(); }
+            }, 50);
+          }
+          if (data.slot2_cat) {
+            document.getElementById('slot-2-cat').value = data.slot2_cat;
+            onCategoryChange(2);
+            setTimeout(() => {
+              const el = document.getElementById('slot-2-val');
+              if (el) { el.value = data.slot2_val || ''; updatePreview(); }
+            }, 50);
+          }
+          document.querySelector('h1').innerHTML = 'Manage <span class="accent">Alert</span>';
+        }
+      }
+    } catch(e) { /* fall through to empty form */ }
+  }
+}
+
+// ===== Submission =====
+// Formspree endpoint — matches the pattern used by the AdvThermaLogic forms.
+// Swap FORMSPREE_ENDPOINT below with the endpoint from the Alerts form
+// in Formspree (https://formspree.io/forms).
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_WITH_ALERTS_FORM_ID';
+
+// Apps Script webapp URL — for the magic-link manage + unsubscribe flow.
+// Set this to the /exec URL of the Alerts Apps Script deployment.
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/REPLACE_WITH_ALERTS_SCRIPT_ID/exec';
+
+async function submit(){
+  const name    = document.getElementById('f-name').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const company = document.getElementById('f-company').value.trim();
+  const status  = document.getElementById('status');
+
+  if (!name || !email) {
+    status.className = 'status err';
+    status.textContent = 'Please fill your name and email.';
+    status.style.display = 'block'; return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    status.className = 'status err';
+    status.textContent = 'That does not look like a valid email address.';
+    status.style.display = 'block'; return;
+  }
+
+  const s1 = readSlot(1);
+  const s2 = readSlot(2);
+  if (!s1 && !s2) {
+    status.className = 'status err';
+    status.textContent = 'Please pick at least one alert criterion.';
+    status.style.display = 'block'; return;
+  }
+
+  // Build AND/OR descriptor so the email + the Apps Script matcher can
+  // both read the rule without re-deriving it from two slot rows.
+  let logic = '';
+  if (s1 && s2) logic = (s1.cat === s2.cat) ? 'OR' : 'AND';
+
+  const payload = {
+    name, email, company,
+    slot1_cat: s1 ? s1.cat : '',
+    slot1_val: s1 ? s1.val : '',
+    slot2_cat: s2 ? s2.cat : '',
+    slot2_val: s2 ? s2.val : '',
+    logic: logic,
+    rule_summary: document.getElementById('preview').textContent.trim(),
+    submitted_at: new Date().toISOString(),
+    _subject: 'AFTS FSIS Alert subscription: ' + email,
+  };
+
+  const submitBtn = document.getElementById('submit-btn');
+  submitBtn.disabled = true;
+  status.className = 'status';
+  status.style.display = 'block';
+  status.textContent = 'Submitting…';
+
+  try {
+    const r = await fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify(payload),
+    });
+    if (r.ok) {
+      status.className = 'status ok';
+      status.innerHTML = '✓ Alert subscribed. You will receive an email whenever a matching recall appears.<br>' +
+        '<span style="color:var(--muted);font-size:12px">Manage or unsubscribe any time via the link at the bottom of every alert email.</span>';
+      submitBtn.textContent = 'Subscribed';
+    } else {
+      const txt = await r.text();
+      status.className = 'status err';
+      status.textContent = 'Submission failed (' + r.status + '). Please try again or email info@advfood.tech.';
+      submitBtn.disabled = false;
+    }
+  } catch(e) {
+    status.className = 'status err';
+    status.textContent = 'Network error — please try again or email info@advfood.tech.';
+    submitBtn.disabled = false;
+  }
+}
+
+// Kick off
+updatePreview();
+handleMagicLink();
+</script>
+</body>
+</html>
