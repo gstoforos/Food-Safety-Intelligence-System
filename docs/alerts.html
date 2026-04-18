@@ -474,14 +474,32 @@ async function handleMagicLink(){
 }
 
 // ===== Submission =====
-// Formspree endpoint — matches the pattern used by the AdvThermaLogic forms.
-// Swap FORMSPREE_ENDPOINT below with the endpoint from the Alerts form
-// in Formspree (https://formspree.io/forms).
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_WITH_ALERTS_FORM_ID';
+// Flow: the form posts the SAME JSON payload to two places in parallel.
+//
+//   1. APPS_SCRIPT_URL (primary, critical path).  Apps Script doPost()
+//      validates the email + name against the Subscribers tab, writes a
+//      row to the Alerts tab with status=active / needs_subscription /
+//      name_mismatch, and sends the subscriber the appropriate email.
+//      The form's success/failure message comes from this response.
+//
+//   2. FORMSPREE_ENDPOINT (secondary, logging).  Formspree just mirrors
+//      the submission to George's inbox and its dashboard — same role
+//      Formspree plays for all the other AFTS forms. If Formspree is
+//      down or returns an error, the subscription still goes through via
+//      Apps Script.
+//
+// Why POST to Apps Script with Content-Type: text/plain and NOT JSON?
+// Apps Script /exec endpoints don't serve a CORS preflight, so POSTing
+// application/json from a different origin (GitHub Pages → script.google.com)
+// would be blocked by the browser. text/plain + a JSON body is a "simple
+// request" that avoids preflight entirely; Apps Script's e.postData.contents
+// still contains the full JSON string.
 
-// Apps Script webapp URL — for the magic-link manage + unsubscribe flow.
-// Set this to the /exec URL of the Alerts Apps Script deployment.
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/REPLACE_WITH_ALERTS_SCRIPT_ID/exec';
+// Formspree form endpoint — matches the pattern used by the AdvThermaLogic forms.
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xvzdanbg';
+
+// Apps Script /exec URL — paste after Deploy → New deployment → Web app.
+const APPS_SCRIPT_URL    = 'https://script.google.com/macros/s/AKfycbwA2UeM1KtmUOcI6T2dwT-6Ox2DOPZUJtWvePaMU8wgrkCcOrEw9kVq9BtWpZ0NQSQ/exec';
 
 async function submit(){
   const name    = document.getElementById('f-name').value.trim();
@@ -531,24 +549,57 @@ async function submit(){
   status.style.display = 'block';
   status.textContent = 'Submitting…';
 
+  // Fire both requests in parallel. The Apps Script response drives the UX;
+  // the Formspree response just logs George's copy and is swallowed on error.
+  const appsScriptP = fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'},  // simple request → no preflight
+    body: JSON.stringify(payload),
+  });
+  const formspreeP = fetch(FORMSPREE_ENDPOINT, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','Accept':'application/json'},
+    body: JSON.stringify(payload),
+  });
+  // Don't block on Formspree — it's the "cc:", not the "to:".
+  formspreeP.catch(e => console.warn('Formspree log failed:', e));
+
   try {
-    const r = await fetch(FORMSPREE_ENDPOINT, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Accept':'application/json'},
-      body: JSON.stringify(payload),
-    });
-    if (r.ok) {
-      status.className = 'status ok';
-      status.innerHTML = '✓ Alert subscribed. You will receive an email whenever a matching recall appears.<br>' +
-        '<span style="color:var(--muted);font-size:12px">Manage or unsubscribe any time via the link at the bottom of every alert email.</span>';
-      submitBtn.textContent = 'Subscribed';
-    } else {
-      const txt = await r.text();
+    const r = await appsScriptP;
+    if (!r.ok) {
       status.className = 'status err';
       status.textContent = 'Submission failed (' + r.status + '). Please try again or email info@advfood.tech.';
       submitBtn.disabled = false;
+      return;
     }
-  } catch(e) {
+    const result = await r.json().catch(() => ({ok:false}));
+
+    // Surface the specific outcome so the subscriber knows what happened.
+    if (result.status === 'active') {
+      status.className = 'status ok';
+      status.innerHTML = '✓ Alert activated. Check your inbox for confirmation — we will email you the moment a matching recall appears.<br>' +
+        '<span style="color:var(--muted);font-size:12px">Manage or unsubscribe any time via the link at the bottom of every alert email.</span>';
+      submitBtn.textContent = 'Subscribed';
+    } else if (result.status === 'needs_subscription') {
+      status.className = 'status err';
+      status.innerHTML = 'Your email is not on our weekly subscriber list yet.<br>' +
+        '<span style="color:var(--muted);font-size:12px">We just sent you an onboarding email with the subscription link. Once subscribed, re-submit this form.</span>';
+      submitBtn.disabled = false;
+    } else if (result.status === 'name_mismatch') {
+      status.className = 'status err';
+      status.innerHTML = 'Email recognised but name does not match your subscriber record.<br>' +
+        '<span style="color:var(--muted);font-size:12px">Please re-submit with the name on your subscription, or contact info@advfood.tech if this is unexpected.</span>';
+      submitBtn.disabled = false;
+    } else if (result.status === 'subscriber_inactive') {
+      status.className = 'status err';
+      status.textContent = 'Your subscription is marked inactive — please email info@advfood.tech to reactivate.';
+      submitBtn.disabled = false;
+    } else {
+      status.className = 'status err';
+      status.textContent = 'Unexpected response: ' + (result.error || JSON.stringify(result));
+      submitBtn.disabled = false;
+    }
+  } catch (e) {
     status.className = 'status err';
     status.textContent = 'Network error — please try again or email info@advfood.tech.';
     submitBtn.disabled = false;
