@@ -16,6 +16,22 @@
   "Notes": "Distributed via EDEKA; Carnis Vertriebs GmbH; routine control detected contamination"
  },
  {
+  "Date": "2026-04-16",
+  "Source": "CFS (HK)",
+  "Company": "Identify manufacturer/distributor from CFS alert page",
+  "Brand": "Identify brand name from CFS alert page",
+  "Product": "Bottled nametake mushroom product",
+  "Pathogen": "Physical contaminant (glass)",
+  "Reason": "Product may contain glass fragments",
+  "Class": "Food alert",
+  "Country": "Hong Kong",
+  "Region": "Asia",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_615.html",
+  "Notes": "Hong Kong CFS alert; published 16 April 2026"
+ },
+ {
   "Date": "2026-04-15",
   "Source": "RappelConso (FR)",
   "Company": "CARREFOUR",
@@ -2830,6 +2846,22 @@
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/la-vera-group-pty-ltd-trading-la-vera-cheese-la-vera-fresh-ricotta-500g",
   "Notes": "SA/VIC/NSW/WA"
+ },
+ {
+  "Date": "2026-02-12",
+  "Source": "CFS (HK)",
+  "Company": "Identify manufacturer from CFS alert page",
+  "Brand": "Identify brand name from CFS alert page",
+  "Product": "Prepackaged rice",
+  "Pathogen": "Chemical contaminant (cadmium)",
+  "Reason": "Excessive cadmium found in product",
+  "Class": "Food alert",
+  "Country": "Hong Kong",
+  "Region": "Asia",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_612.html",
+  "Notes": "Add specific batch/lot numbers from CFS alert (e.g., 'Batch: [XXX]')"
  },
  {
   "Date": "2026-02-11",
