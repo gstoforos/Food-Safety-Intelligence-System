@@ -1,292 +1,271 @@
 """
-news.py — Food Safety News Scraper
-Fetches RSS from dedicated food safety publishers.
-Last 7 days only. Pathogen mentions only. No AI. No duplicates.
-Writes to NEWS sheet in docs/data/recalls.xlsx.
-Runs via GitHub Actions every 4 hours.
+Recall data model — shared by all 57 scrapers + AI clients.
+Schema matches existing recalls.xlsx columns exactly.
 """
-
+from __future__ import annotations
+from dataclasses import dataclass, field, asdict
+from datetime import datetime, date
+from typing import Optional, List, Dict, Any
 import re
-import hashlib
-import logging
-from datetime import datetime, timezone, timedelta
-from urllib.parse import urlparse
-import xml.etree.ElementTree as ET
+import unicodedata
 
-import requests
-import openpyxl
-from openpyxl import load_workbook
 
-logger = logging.getLogger(__name__)
+# ===== Hazard taxonomy (regex -> canonical name) =====
+#
+# Order matters: more-specific patterns come first so they win over generic ones.
+# Three buckets are covered:
+#   (1) Biological pathogens & toxins — the original scope.
+#   (2) Criminal/malicious contaminants — rodenticides / rat poison.
+#       Added April 2026 after the HiPP baby food tampering case (AGES).
+#   (3) Heavy metals — lead, cadmium, arsenic, mercury. Regex avoids generic
+#       "lead" matches (e.g. "lead to illness") by anchoring to "lead \bpb\b"
+#       or "\blead\s+(contamin|level|content|in\s+product|detected|found)\b".
+#   (4) Physical hazards — glass/metal/plastic fragments, foreign bodies.
+#
+# `normalize_pathogen` falls through to raw text if nothing matches, so
+# uncanonicalised hazards still survive the scraper filter — but giving them
+# canonical names keeps the dashboard legend clean and enables tier-1 routing
+# in `assign_tier`.
+PATHOGEN_RULES = [
+    # --- Biological pathogens & toxins (unchanged) ---
+    ("Listeria monocytogenes", r"(listeria\s*monocytogenes|l\.\s*monocytogenes|\blm\b|listeri[ae])"),
+    ("Salmonella Enteritidis", r"salmonella\s*enteritidis"),
+    ("Salmonella Typhimurium", r"salmonella\s*typhimurium"),
+    ("Salmonella spp.", r"salmonella"),
+    ("E. coli O157:H7", r"o\s*157[:\-\s]?h7|escherichia\s*coli\s*o157"),
+    ("STEC (Shiga toxin-producing E. coli)", r"stec|shiga\s*toxin|o(26|45|103|104|111|121|145):h\d"),
+    ("E. coli", r"e\.?\s*coli|escherichia\s*coli"),
+    ("Clostridium botulinum", r"botulin|botulism|c\.\s*botulinum|clostridium"),
+    ("Norovirus", r"norovirus|norwalk"),
+    ("Hepatitis A", r"hepatit[ie]s\s*a|\bhav\b"),
+    ("Campylobacter", r"campylobacter"),
+    ("Cyclospora", r"cyclospora"),
+    ("Vibrio", r"vibrio"),
+    ("Cronobacter sakazakii", r"cronobacter"),
+    ("Bacillus cereus / cereulide", r"bacillus\s*cereus|cereulid[ae]"),
+    ("Aflatoxins", r"aflatoxin"),
+    ("Ochratoxin A", r"ochratoxin"),
+    ("Patulin", r"patulin"),
+    ("Lipophilic biotoxins (DSP)", r"lipophilic|diarr?h?etic\s*shellfish|dsp\b"),
+    ("Paralytic shellfish toxins (PSP)", r"paralytic\s*shellfish|saxitoxin|psp\b"),
+    ("Amnesic shellfish toxins (ASP)", r"amnesic\s*shellfish|domoic|asp\b"),
+    ("Histamine (scombrotoxin)", r"histamine|scombro"),
+    ("Shigella", r"shigella"),
+    ("Yersinia", r"yersinia"),
+    ("Mycotoxin", r"mycotoxin"),
 
-# ── RSS Sources ────────────────────────────────────────────────────────────────
-SOURCES = [
-    # Dedicated food safety publishers (highest quality)
-    {"name": "Food Safety News",        "url": "https://www.foodsafetynews.com/feed/"},
-    {"name": "Food Poisoning Bulletin",  "url": "https://www.foodpoisoningbulletin.com/feed/"},
-    {"name": "Outbreak News Today",      "url": "https://outbreaknewstoday.com/feed/"},
-    {"name": "Food Safety Magazine",     "url": "https://www.food-safety.com/rss/topic/296-recalls-and-alerts"},
-    {"name": "BarfBlog",                 "url": "https://barfblog.com/feed/"},
-    # Official regulator RSS
-    {"name": "FDA Recalls",              "url": "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/food-safety-recalls/rss.xml"},
-    {"name": "USDA FSIS",               "url": "https://www.fsis.usda.gov/rss/recalls.xml"},
-    {"name": "CFIA Canada",             "url": "https://recalls-rappels.canada.ca/en/rss.xml"},
-    {"name": "FSA UK",                  "url": "https://www.food.gov.uk/news-alerts/rss/alerts"},
-    {"name": "EFSA",                    "url": "https://www.efsa.europa.eu/en/rss/rss.xml"},
-    {"name": "CDC Foodborne",           "url": "https://tools.cdc.gov/api/v2/resources/media/277909.rss"},
-    {"name": "FSANZ Australia",         "url": "https://www.foodstandards.gov.au/media/rss/pages/food-recalls.aspx"},
-    {"name": "MPI New Zealand",         "url": "https://www.mpi.govt.nz/rss/news/"},
-    {"name": "RASFF Portal",            "url": "https://webgate.ec.europa.eu/rasff-window/api/notification/listnewrss"},
-    {"name": "eFoodAlert",              "url": "https://efoodalert.com/feed/"},
+    # --- Criminal/malicious tampering: rodenticides (HiPP April 2026) ---
+    ("Rodenticide (rat poison)",
+        r"bromadiolon|brodifacoum|difethialon|difenacoum|chlorophacinon|"
+        r"rodenticid|rat\s*poison|rattengift|raticid|mort[\-\s]?aux[\-\s]?rats"),
+
+    # --- Heavy metals ---
+    # Lead needs careful anchoring: avoid matching "lead to", "lead a", etc.
+    ("Lead (Pb) contamination",
+        r"\blead\s+(contamin|level|content|detected|found|in\s+(product|food|sample))|"
+        r"elevated\s+lead|excess(ive)?\s+lead|plomb|piombo|blei|\bpb\b(?=\s*\d|\s+level)"),
+    ("Cadmium (Cd) contamination",
+        r"\bcadmium\b|cadmio|\bcd\b(?=\s*(contamin|level|found|detected|\d))"),
+    ("Arsenic (As) contamination",
+        r"\barsenic\b|arsen[io]\b"),
+    ("Mercury (Hg) contamination",
+        r"\bmercury\b(?!\s+(dime|planet))|mercur[yiio]|\bhg\b(?=\s*(contamin|level|\d))"),
+    ("Heavy metal contamination",
+        r"heavy[\-\s]?metal|metale\s*pesante|m[ée]taux\s*lourd|schwermetall"),
+
+    # --- Physical / foreign-body hazards ---
+    ("Glass fragments",
+        r"glass\s*(fragment|shard|piece|particle|contamin)|\bglass\s+in\s+|"
+        r"verre\s*(bris|fragment)|glasscherb|vetro\s*frammen"),
+    ("Metal fragments",
+        r"metal\s*(fragment|shard|piece|particle|contamin)|"
+        r"m[ée]tal\s+dans|metallfragment|metal\s+foreign"),
+    ("Plastic fragments",
+        r"plastic\s*(fragment|shard|piece|particle|contamin)|"
+        r"plastique\s+dans|kunststofffragment"),
+    ("Physical/foreign-body contamination",
+        r"foreign\s*(body|object|matter|material)|corps\s*[ée]tranger"),
 ]
 
-# ── Pathogen detection ─────────────────────────────────────────────────────────
-PATHOGEN_PATTERNS = [
-    (r"listeria",                               "Listeria monocytogenes"),
-    (r"salmonella",                             "Salmonella"),
-    (r"e\.?\s*coli|stec|o157|shiga.toxin",      "E. coli / STEC"),
-    (r"clostridium.botulinum|botulism",         "Clostridium botulinum"),
-    (r"clostridium.perfringens",                "Clostridium perfringens"),
-    (r"norovirus",                              "Norovirus"),
-    (r"hepatitis.a",                            "Hepatitis A"),
-    (r"aflatoxin",                              "Aflatoxin"),
-    (r"cereulide|bacillus.cereus",              "Cereulide / Bacillus cereus"),
-    (r"campylobacter",                          "Campylobacter"),
-    (r"vibrio",                                 "Vibrio"),
-    (r"cronobacter|sakazakii",                  "Cronobacter"),
-    (r"cyclospora",                             "Cyclospora"),
-    (r"brucell",                                "Brucella"),
-    (r"yersinia",                               "Yersinia"),
-    (r"ochratoxin",                             "Ochratoxin A"),
-    (r"patulin|mycotoxin",                      "Mycotoxin"),
-    (r"saxitoxin|paralytic.shellfish|psp|dsp|asp|lipophilic.biotoxin", "Shellfish toxins"),
-]
 
-# ── Event type detection ───────────────────────────────────────────────────────
-EVENT_PATTERNS = [
-    (r"outbreak",       "Outbreak"),
-    (r"recall",         "Recall"),
-    (r"advisory|alert", "Advisory"),
-    (r"investigation",  "Investigation"),
-    (r"warning",        "Warning"),
-]
-
-# ── NEWS sheet columns ─────────────────────────────────────────────────────────
-NEWS_HEADERS = [
-    "Published (UTC)", "Pathogen", "Event", "Source", "Title", "Link", "Retrieved (UTC)"
-]
-
-WINDOW_DAYS = 7
-
-
-def detect_pathogen(text: str) -> str:
+def normalize_pathogen(text: str) -> str:
+    """Map any free-text pathogen mention to canonical name."""
+    if not text:
+        return ""
     t = text.lower()
-    for pattern, canonical in PATHOGEN_PATTERNS:
+    for canon, pattern in PATHOGEN_RULES:
         if re.search(pattern, t):
-            return canonical
+            return canon
+    return text.strip()
+
+
+def normalize_country(text: str) -> str:
+    """Map ISO-2/ISO-3/various names to canonical English country name."""
+    if not text:
+        return ""
+    t = text.strip().lower()
+    mapping = {
+        "us": "USA", "usa": "USA", "united states": "USA", "u.s.": "USA", "u.s.a.": "USA",
+        "uk": "United Kingdom", "gb": "United Kingdom", "great britain": "United Kingdom",
+        "fr": "France", "de": "Germany", "deutschland": "Germany",
+        "it": "Italy", "italia": "Italy", "es": "Spain", "españa": "Spain",
+        "gr": "Greece", "ελλάδα": "Greece", "ellada": "Greece",
+        "be": "Belgium", "belgique": "Belgium", "belgië": "Belgium",
+        "nl": "Netherlands", "nederland": "Netherlands",
+        "pt": "Portugal", "ie": "Ireland", "at": "Austria", "österreich": "Austria",
+        "se": "Sweden", "sverige": "Sweden", "dk": "Denmark", "danmark": "Denmark",
+        "fi": "Finland", "suomi": "Finland", "pl": "Poland", "polska": "Poland",
+        "cz": "Czech Republic", "česko": "Czech Republic",
+        "hu": "Hungary", "magyarország": "Hungary",
+        "ro": "Romania", "sk": "Slovakia", "si": "Slovenia", "hr": "Croatia",
+        "bg": "Bulgaria", "lt": "Lithuania", "lv": "Latvia", "ee": "Estonia",
+        "cy": "Cyprus", "mt": "Malta", "lu": "Luxembourg",
+        "ch": "Switzerland", "schweiz": "Switzerland", "suisse": "Switzerland",
+        "no": "Norway", "norge": "Norway", "is": "Iceland", "ísland": "Iceland",
+        "ca": "Canada", "jp": "Japan", "日本": "Japan",
+        "kr": "South Korea", "한국": "South Korea",
+        "cn": "China", "中国": "China", "hk": "Hong Kong", "香港": "Hong Kong",
+        "sg": "Singapore", "tw": "Taiwan", "台灣": "Taiwan",
+        "in": "India", "th": "Thailand", "vn": "Vietnam", "việt nam": "Vietnam",
+        "my": "Malaysia", "id": "Indonesia", "ph": "Philippines",
+        "au": "Australia", "nz": "New Zealand",
+        "za": "South Africa", "ke": "Kenya", "ng": "Nigeria", "eg": "Egypt", "ma": "Morocco", "gh": "Ghana",
+        "br": "Brazil", "brasil": "Brazil", "ar": "Argentina", "mx": "Mexico", "méxico": "Mexico",
+        "cl": "Chile", "co": "Colombia", "pe": "Peru", "ec": "Ecuador", "uy": "Uruguay",
+        "il": "Israel", "ae": "UAE", "sa": "Saudi Arabia", "qa": "Qatar", "tr": "Turkey", "türkiye": "Turkey",
+    }
+    return mapping.get(t, text.strip().title())
+
+
+def assign_tier(pathogen: str, outbreak: int = 0) -> int:
+    """Tier 1 = critical; Tier 2 = single detection without outbreak link.
+    Tier 1 triggers:
+      - Outbreak flag set
+      - Severe pathogens (Listeria, STEC, Botulinum, cereulide, biotoxins,
+        Hep A, cronobacter, O157)
+      - Criminal/malicious contamination (rodenticides) — always T1
+      - Heavy metals — always T1 (regulatory agencies publish these because
+        exposure levels breached limits)
+      - Glass fragments — always T1 (injury risk, mandatory recall class)
+    """
+    if outbreak == 1:
+        return 1
+    p = (pathogen or "").lower()
+    tier1_keywords = [
+        # Biological
+        "listeria", "stec", "botulin", "cereulide", "biotoxin",
+        "saxitoxin", "domoic", "hepatit", "o157", "cronobacter", "shiga",
+        # Malicious tampering / rodenticides
+        "rodenticide", "rat poison", "bromadiolon", "brodifacoum",
+        "difethialon", "difenacoum",
+        # Heavy metals (canonical names end with " contamination" but we
+        # match the element keyword for robustness)
+        "lead (pb)", "cadmium", "arsenic", "mercury (hg)", "heavy metal",
+        # Physical — glass is injury hazard, metal fragments often too
+        "glass fragm", "metal fragm",
+    ]
+    if any(k in p for k in tier1_keywords):
+        return 1
+    return 2
+
+
+def parse_date(text: str) -> str:
+    """Parse any date format -> YYYY-MM-DD string. Returns '' on failure."""
+    if not text:
+        return ""
+    if isinstance(text, (datetime, date)):
+        return text.strftime("%Y-%m-%d")
+    text = str(text).strip()
+    formats = [
+        "%Y-%m-%d", "%Y/%m/%d", "%d/%m/%Y", "%d-%m-%Y", "%m/%d/%Y", "%d.%m.%Y",
+        "%d %B %Y", "%B %d, %Y", "%d %b %Y", "%b %d, %Y",
+        "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%SZ", "%Y%m%d",
+        "%a, %d %b %Y %H:%M:%S %z", "%a, %d %b %Y %H:%M:%S GMT",
+    ]
+    for fmt in formats:
+        try:
+            return datetime.strptime(text[:len(fmt)+5], fmt).strftime("%Y-%m-%d")
+        except (ValueError, TypeError):
+            continue
+    # Try ISO with timezone
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00")).strftime("%Y-%m-%d")
+    except (ValueError, TypeError):
+        pass
     return ""
 
 
-def detect_event(text: str) -> str:
-    t = text.lower()
-    for pattern, label in EVENT_PATTERNS:
-        if re.search(pattern, t):
-            return label
-    return "Alert"
+@dataclass
+class Recall:
+    """Canonical recall row — matches recalls.xlsx schema exactly."""
+    Date: str = ""               # YYYY-MM-DD
+    Source: str = ""             # e.g. "FDA", "RappelConso (FR)"
+    Company: str = ""
+    Brand: str = ""
+    Product: str = ""
+    Pathogen: str = ""
+    Reason: str = ""
+    Class: str = ""              # Recall / Alert / PHA / etc.
+    Country: str = ""
+    Region: str = ""             # North America / Europe / Asia / Oceania / Africa / South America / Middle East
+    Tier: int = 2
+    Outbreak: int = 0
+    URL: str = ""
+    Notes: str = ""
+
+    def normalize(self) -> "Recall":
+        """Apply all normalizations. Call once before merging."""
+        self.Date = parse_date(self.Date)
+        self.Pathogen = normalize_pathogen(self.Pathogen)
+        self.Country = normalize_country(self.Country) if self.Country else self.Country
+        if not self.Region and self.Country:
+            self.Region = COUNTRY_REGION.get(self.Country, "")
+        self.Tier = assign_tier(self.Pathogen, self.Outbreak)
+        # Strip control chars and normalize unicode
+        for f in ["Source", "Company", "Brand", "Product", "Reason", "Class", "Notes"]:
+            v = getattr(self, f)
+            if v:
+                v = unicodedata.normalize("NFKC", str(v))
+                v = re.sub(r"\s+", " ", v).strip()
+                setattr(self, f, v)
+        return self
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    def dedup_key(self) -> str:
+        """For deduplication: prefer URL, fallback to date+company+pathogen."""
+        if self.URL:
+            return self.URL.lower().strip()
+        co = unicodedata.normalize("NFD", self.Company or "").encode("ascii", "ignore").decode().lower()
+        co = re.sub(r"[^a-z0-9]", "", co)[:30]
+        return f"{self.Date}|{co}|{normalize_pathogen(self.Pathogen)[:30]}"
 
 
-def canonical_url(url: str) -> str:
-    """Strip query/fragment for dedup purposes."""
-    try:
-        p = urlparse(url)
-        return f"{p.scheme}://{p.netloc}{p.path}".rstrip("/").lower()
-    except Exception:
-        return url.lower().strip()
+# Region inference from country
+COUNTRY_REGION = {
+    "USA": "North America", "Canada": "North America", "Mexico": "North America",
+    "France": "Europe", "Germany": "Europe", "Italy": "Europe", "Spain": "Europe",
+    "Greece": "Europe", "Belgium": "Europe", "Netherlands": "Europe", "Portugal": "Europe",
+    "Ireland": "Europe", "Austria": "Europe", "Sweden": "Europe", "Denmark": "Europe",
+    "Finland": "Europe", "Poland": "Europe", "Czech Republic": "Europe", "Hungary": "Europe",
+    "Romania": "Europe", "Slovakia": "Europe", "Slovenia": "Europe", "Croatia": "Europe",
+    "Bulgaria": "Europe", "Lithuania": "Europe", "Latvia": "Europe", "Estonia": "Europe",
+    "Cyprus": "Europe", "Malta": "Europe", "Luxembourg": "Europe", "United Kingdom": "Europe",
+    "Switzerland": "Europe", "Norway": "Europe", "Iceland": "Europe",
+    "Japan": "Asia", "South Korea": "Asia", "China": "Asia", "Hong Kong": "Asia",
+    "Singapore": "Asia", "Taiwan": "Asia", "India": "Asia", "Thailand": "Asia",
+    "Vietnam": "Asia", "Malaysia": "Asia", "Indonesia": "Asia", "Philippines": "Asia",
+    "Australia": "Oceania", "New Zealand": "Oceania",
+    "South Africa": "Africa", "Kenya": "Africa", "Nigeria": "Africa",
+    "Egypt": "Africa", "Morocco": "Africa", "Ghana": "Africa",
+    "Brazil": "South America", "Argentina": "South America", "Chile": "South America",
+    "Colombia": "South America", "Peru": "South America", "Ecuador": "South America",
+    "Uruguay": "South America",
+    "Israel": "Middle East", "UAE": "Middle East", "Saudi Arabia": "Middle East",
+    "Qatar": "Middle East", "Turkey": "Middle East",
+}
 
 
-def title_hash(title: str) -> str:
-    clean = re.sub(r"[^a-z0-9]", "", title.lower())
-    return hashlib.md5(clean.encode()).hexdigest()[:12]
-
-
-def parse_date(entry) -> datetime | None:
-    """Try multiple date fields from RSS entry."""
-    for field in ["published_parsed", "updated_parsed"]:
-        val = getattr(entry, field, None)
-        if val:
-            try:
-                import calendar
-                ts = calendar.timegm(val)
-                return datetime.fromtimestamp(ts, tz=timezone.utc)
-            except Exception:
-                pass
-    # Try raw string fields
-    for field in ["published", "updated"]:
-        raw = getattr(entry, field, "")
-        if raw:
-            for fmt in [
-                "%a, %d %b %Y %H:%M:%S %z",
-                "%a, %d %b %Y %H:%M:%S GMT",
-                "%Y-%m-%dT%H:%M:%S%z",
-                "%Y-%m-%dT%H:%M:%SZ",
-            ]:
-                try:
-                    dt = datetime.strptime(raw.strip(), fmt)
-                    if dt.tzinfo is None:
-                        dt = dt.replace(tzinfo=timezone.utc)
-                    return dt
-                except Exception:
-                    pass
-    return None
-
-
-def fetch_feed(source: dict, cutoff: datetime) -> list[dict]:
-    """Fetch one RSS feed, return list of news row dicts."""
-    import feedparser
-    rows = []
-    try:
-        resp = requests.get(source["url"], timeout=15,
-                            headers={"User-Agent": "AFTS-FSIS-NewsBot/2.0"})
-        if resp.status_code != 200:
-            logger.warning(f"[{source['name']}] HTTP {resp.status_code}")
-            return []
-        feed = feedparser.parse(resp.content)
-    except Exception as e:
-        logger.warning(f"[{source['name']}] fetch error: {e}")
-        return []
-
-    for entry in feed.entries:
-        pub = parse_date(entry)
-        if pub is None or pub < cutoff:
-            continue
-
-        title = getattr(entry, "title", "").strip()
-        link  = getattr(entry, "link",  "").strip()
-        summary = getattr(entry, "summary", "") or getattr(entry, "description", "") or ""
-
-        combined = f"{title} {summary}"
-        pathogen = detect_pathogen(combined)
-        if not pathogen:
-            continue  # not a pathogen event
-
-        # Skip pure allergen/foreign material items with no pathogen keyword
-        if re.search(r"undeclared|allergen|foreign.material|mislabel", combined.lower()):
-            if not pathogen:
-                continue
-
-        event = detect_event(combined)
-
-        rows.append({
-            "published": pub.strftime("%Y-%m-%d %H:%M UTC"),
-            "pathogen":  pathogen,
-            "event":     event,
-            "source":    source["name"],
-            "title":     title,
-            "link":      link,
-        })
-
-    logger.info(f"[{source['name']}] {len(rows)} pathogen items")
-    return rows
-
-
-def load_existing_keys(ws) -> tuple[set, set]:
-    """Return sets of (canonical_url, title_hash) already in sheet."""
-    urls, titles = set(), set()
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        if not row or not row[0]:
-            continue
-        link = str(row[5] or "")
-        title = str(row[4] or "")
-        urls.add(canonical_url(link))
-        titles.add(title_hash(title))
-    return urls, titles
-
-
-def run(xlsx_path: str):
-    """Main entry point — update NEWS sheet in xlsx_path."""
-    import feedparser  # noqa: confirm installed
-
-    cutoff = datetime.now(tz=timezone.utc) - timedelta(days=WINDOW_DAYS)
-    now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-
-    # Load workbook
-    try:
-        wb = load_workbook(xlsx_path)
-    except FileNotFoundError:
-        logger.error(f"recalls.xlsx not found at {xlsx_path}")
-        raise
-
-    # Ensure NEWS sheet exists
-    if "NEWS" not in wb.sheetnames:
-        ws = wb.create_sheet("NEWS")
-        ws.append(NEWS_HEADERS)
-    else:
-        ws = wb["NEWS"]
-        # Ensure header
-        if ws.max_row < 1 or ws.cell(1, 1).value != "Published (UTC)":
-            ws.insert_rows(1)
-            for i, h in enumerate(NEWS_HEADERS, 1):
-                ws.cell(1, i).value = h
-
-    existing_urls, existing_titles = load_existing_keys(ws)
-
-    # Fetch all sources
-    new_rows = []
-    for source in SOURCES:
-        rows = fetch_feed(source, cutoff)
-        for r in rows:
-            cu = canonical_url(r["link"])
-            th = title_hash(r["title"])
-            if cu in existing_urls or th in existing_titles:
-                continue  # duplicate
-            existing_urls.add(cu)
-            existing_titles.add(th)
-            new_rows.append(r)
-
-    if not new_rows:
-        logger.info("No new pathogen news items.")
-        return 0
-
-    # Sort newest first
-    new_rows.sort(key=lambda x: x["published"], reverse=True)
-
-    # Append to sheet (insert after header so newest stays on top)
-    insert_at = 2
-    ws.insert_rows(insert_at, amount=len(new_rows))
-    for i, r in enumerate(new_rows):
-        row_num = insert_at + i
-        ws.cell(row_num, 1).value = r["published"]
-        ws.cell(row_num, 2).value = r["pathogen"]
-        ws.cell(row_num, 3).value = r["event"]
-        ws.cell(row_num, 4).value = r["source"]
-        ws.cell(row_num, 5).value = r["title"]
-        ws.cell(row_num, 6).value = r["link"]
-        ws.cell(row_num, 7).value = now_str
-
-    # Prune rows older than WINDOW_DAYS (keep sheet lean)
-    rows_to_delete = []
-    for row in ws.iter_rows(min_row=2):
-        pub_val = row[0].value
-        if not pub_val:
-            continue
-        try:
-            pub_dt = datetime.strptime(str(pub_val)[:16], "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
-            if pub_dt < cutoff:
-                rows_to_delete.append(row[0].row)
-        except Exception:
-            pass
-
-    for row_num in reversed(rows_to_delete):
-        ws.delete_rows(row_num)
-
-    wb.save(xlsx_path)
-    logger.info(f"NEWS sheet updated: +{len(new_rows)} new, -{len(rows_to_delete)} expired")
-    return len(new_rows)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-    import sys
-    path = sys.argv[1] if len(sys.argv) > 1 else "docs/data/recalls.xlsx"
-    added = run(path)
-    print(f"Done. Added {added} new news items.")
+def infer_region(country: str) -> str:
+    return COUNTRY_REGION.get(country, "")
