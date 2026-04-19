@@ -7,8 +7,8 @@
   "total": 66,
   "tier1": 35,
   "outbreaks": 3,
-  "delta": 38,
-  "delta_pct": 136,
+  "delta": 37,
+  "delta_pct": 128,
   "top_pathogen": [
     "Salmonella spp.",
     27
@@ -65,7 +65,7 @@
       ],
       [
         "2026-02",
-        28
+        29
       ],
       [
         "2026-03",
@@ -73,15 +73,15 @@
       ]
     ],
     "current": 66,
-    "prior": 28,
-    "delta_abs": 38,
-    "delta_pct": 135.7,
-    "rolling_mean": 28,
-    "rolling_std": 0.0,
-    "z_score": null,
+    "prior": 29,
+    "delta_abs": 37,
+    "delta_pct": 127.6,
+    "rolling_mean": 28.5,
+    "rolling_std": 0.71,
+    "z_score": 52.82,
     "direction": "up",
-    "anomaly_flag": false,
-    "interpretation": "66 recalls · +135.7% vs prior month"
+    "anomaly_flag": true,
+    "interpretation": "66 recalls · +127.6% vs prior month · Z=+52.8 · anomalous (|Z|>2)"
   },
   "hotspots": [
     {
@@ -100,8 +100,8 @@
     "gini_country": 0.552,
     "gini_bucket": "moderate",
     "tier1_share": 0.53,
-    "baseline_tier1_share": 0.536,
-    "tier1_intensity_ratio": 0.99,
+    "baseline_tier1_share": 0.526,
+    "tier1_intensity_ratio": 1.01,
     "n_sources": 23,
     "n_countries": 19
   },
@@ -118,21 +118,21 @@
   "linear_trend": {
     "status": "active",
     "model": "linear_trend_projection",
-    "intercept": 21.67,
+    "intercept": 22.0,
     "slope": 19.0,
     "slope_per_month": 19.0,
     "slope_significant": false,
-    "t_stat": 1.73,
-    "next_month_point": 78.7,
+    "t_stat": 1.83,
+    "next_month_point": 79.0,
     "next_month_ci95": [
-      23.2,
-      134.2
+      26.4,
+      131.6
     ],
-    "residual_se": 15.51,
-    "r_squared": 0.75,
+    "residual_se": 14.7,
+    "r_squared": 0.77,
     "note": "Slope not statistically significant — trend may be flat or underpowered."
   },
-  "narrative": "March 2026 produced 66 pathogen-related recall incidents across the AFTS monitoring network, a 135.7% move above the prior month — the rolling baseline is too narrow for a Z estimate this early in the series. Salmonella spp. dominated with 27 of 66 incidents (41%). The composite severity index closed at 32.7/100 (normal), with 35 Tier-1 critical events and 3 outbreak clusters on record. The standout hotspot was France × Salmonella, with 19 recalls against an independence-baseline expectation of 11.86 (stdres +2.07).\n\nStructurally, the month reads as moderately uneven geographically with signal diversity consistent with broad regulatory engagement (Source HHI 1414.0, Geographic Gini 0.552). For a Salmonella spp.-dominated month, the relevant failure modes are post-process environmental harbourage in Zone 1 of RTE lines, sanitation SOP drift, and cold-chain lapses — not thermal underprocess. The Tier-1 intensity ratio of 0.99x vs the rolling baseline indicates severity is in line.\n\nLooking forward, operators in Salmonella spp.-relevant commodity categories should re-verify the single highest-leverage control this month: environmental monitoring swab frequency on RTE deli and dairy lines, or pasteurisation D-value validation on low-moisture commodities, whichever matches their product mix. The linear-trend projection for next month stands at 78.7 recalls (95% CI [23.2, 134.2]), with r²=0.75. Documentation packages should be ready for rapid regulatory response given continued inspection intensity.\n\nProcess Authority Note: 7 incident(s) in this window carry thermal-processing or anaerobic-packaging signals. Shelf-stable low-acid, acidified, aseptic/UHT, hot-filled, and reduced-oxygen-packaged products must be reviewed to confirm the scheduled thermal process under a qualified process authority — required under FDA 21 CFR 113/114, EU Reg. 852/2004, CFIA SFCR, FSANZ Food Standards Code Ch. 3, and Japan's Food Sanitation Act. Typical compliance gaps: unfiled or outdated scheduled process, deviation resolved without qualified review, seal-integrity lapse, or formulation change not re-evaluated.",
+  "narrative": "March 2026 produced 66 pathogen-related recall incidents across the AFTS monitoring network, a 127.6% move above the prior month, a +52.8-sigma anomaly vs the prior-month baseline. Salmonella spp. dominated with 27 of 66 incidents (41%). The composite severity index closed at 32.7/100 (normal), with 35 Tier-1 critical events and 3 outbreak clusters on record. The standout hotspot was France × Salmonella, with 19 recalls against an independence-baseline expectation of 11.86 (stdres +2.07).\n\nStructurally, the month reads as moderately uneven geographically with signal diversity consistent with broad regulatory engagement (Source HHI 1414.0, Geographic Gini 0.552). For a Salmonella spp.-dominated month, the relevant failure modes are post-process environmental harbourage in Zone 1 of RTE lines, sanitation SOP drift, and cold-chain lapses — not thermal underprocess. The Tier-1 intensity ratio of 1.01x vs the rolling baseline indicates severity is in line.\n\nLooking forward, operators in Salmonella spp.-relevant commodity categories should re-verify the single highest-leverage control this month: environmental monitoring swab frequency on RTE deli and dairy lines, or pasteurisation D-value validation on low-moisture commodities, whichever matches their product mix. The linear-trend projection for next month stands at 79.0 recalls (95% CI [26.4, 131.6]), with r²=0.77. Documentation packages should be ready for rapid regulatory response given continued inspection intensity.\n\nProcess Authority Note: 7 incident(s) in this window carry thermal-processing or anaerobic-packaging signals. Shelf-stable low-acid, acidified, aseptic/UHT, hot-filled, and reduced-oxygen-packaged products must be reviewed to confirm the scheduled thermal process under a qualified process authority — required under FDA 21 CFR 113/114, EU Reg. 852/2004, CFIA SFCR, FSANZ Food Standards Code Ch. 3, and Japan's Food Sanitation Act. Typical compliance gaps: unfiled or outdated scheduled process, deviation resolved without qualified review, seal-integrity lapse, or formulation change not re-evaluated.",
   "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M03.html",
   "all_month_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M03-all.html",
   "dashboard_url": "https://www.advfood.tech/food-safety-intelligence",
@@ -288,6 +288,6 @@
       "url_ok": true
     }
   ],
-  "email_html": "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937\">\n<div style=\"max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb\">\n\n<div style=\"background:#0a0e1a;color:#fff;padding:20px 24px\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em\">\nAdvanced Food-Tech Solutions <span style=\"color:#E8601A\">·</span> AFTS</div>\n<div style=\"font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px\">\nMonthly Briefing · March 2026</div>\n</div>\n\n<div style=\"padding:28px 24px 16px\">\n<h1 style=\"font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:#0a0e1a\">Pathogen Surveillance · March 2026</h1>\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px\">\n01 Mar – 31 Mar 2026 · 66 recalls · 35 Tier-1 · 3 outbreaks\n</div>\n\n<table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;border-collapse:collapse;margin-bottom:20px\">\n<tr>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#0a0e1a\">66</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Total</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#dc2626\">35</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Tier-1</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#9333ea\">3</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Outbreaks</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:18px;color:#E8601A;font-style:italic\">Salmonella spp.</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Leading</div>\n</td>\n</tr>\n</table>\n\n<div style=\"background:#f9fafb;border-left:3px solid #E8601A;padding:14px 18px;margin-bottom:20px\">\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px\">Month signal</div>\n<div style=\"font-size:14px;line-height:1.55\"><strong>135.7%</strong> vs prior month\n\n· severity index <strong>32.7/100</strong> (normal).</div>\n<div style=\"font-size:13px;margin-top:8px\"><strong>Top hotspot:</strong> France × <em>Salmonella</em> (19 recalls, 1.6× expected).</div><div style=\"font-size:13px;margin-top:8px\"><strong>Next-month forecast:</strong> 78.7 recalls (95% CI [23.2, 134.2]).</div>\n</div>\n\n<div style=\"text-align:center;margin:28px 0 12px\">\n<a href=\"https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M03.html\" target=\"_blank\" style=\"display:inline-block;background:#0a0e1a;color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px\">View Full Monthly Report →</a>\n</div>\n\n<div style=\"font-size:11px;color:#94a3b8;text-align:center;margin-top:20px\">\nAdvanced Food-Tech Solutions · advfood.tech · info@advfood.tech\n</div>\n</div>\n</div>\n</body></html>",
-  "generated_at": "2026-04-19T07:01:25.887776+00:00"
+  "email_html": "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937\">\n<div style=\"max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb\">\n\n<div style=\"background:#0a0e1a;color:#fff;padding:20px 24px\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em\">\nAdvanced Food-Tech Solutions <span style=\"color:#E8601A\">·</span> AFTS</div>\n<div style=\"font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px\">\nMonthly Briefing · March 2026</div>\n</div>\n\n<div style=\"padding:28px 24px 16px\">\n<h1 style=\"font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:#0a0e1a\">Pathogen Surveillance · March 2026</h1>\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px\">\n01 Mar – 31 Mar 2026 · 66 recalls · 35 Tier-1 · 3 outbreaks\n</div>\n\n<table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;border-collapse:collapse;margin-bottom:20px\">\n<tr>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#0a0e1a\">66</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Total</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#dc2626\">35</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Tier-1</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#9333ea\">3</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Outbreaks</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:18px;color:#E8601A;font-style:italic\">Salmonella spp.</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Leading</div>\n</td>\n</tr>\n</table>\n\n<div style=\"background:#f9fafb;border-left:3px solid #E8601A;padding:14px 18px;margin-bottom:20px\">\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px\">Month signal</div>\n<div style=\"font-size:14px;line-height:1.55\"><strong>127.6%</strong> vs prior month\n· Z = +52.8 (anomalous)\n· severity index <strong>32.7/100</strong> (normal).</div>\n<div style=\"font-size:13px;margin-top:8px\"><strong>Top hotspot:</strong> France × <em>Salmonella</em> (19 recalls, 1.6× expected).</div><div style=\"font-size:13px;margin-top:8px\"><strong>Next-month forecast:</strong> 79.0 recalls (95% CI [26.4, 131.6]).</div>\n</div>\n\n<div style=\"text-align:center;margin:28px 0 12px\">\n<a href=\"https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M03.html\" target=\"_blank\" style=\"display:inline-block;background:#0a0e1a;color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px\">View Full Monthly Report →</a>\n</div>\n\n<div style=\"font-size:11px;color:#94a3b8;text-align:center;margin-top:20px\">\nAdvanced Food-Tech Solutions · advfood.tech · info@advfood.tech\n</div>\n</div>\n</div>\n</body></html>",
+  "generated_at": "2026-04-19T19:24:01.081942+00:00"
 }
