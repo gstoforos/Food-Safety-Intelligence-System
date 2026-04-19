@@ -108,23 +108,48 @@ Language: {language}
 Page URL: {source_url}
 {extra_hints}
 
-Extract ONLY food recalls/alerts where the cause is a PATHOGEN, MICROBIAL CONTAMINATION, or BIOLOGICAL TOXIN.
-EXCLUDE: undeclared allergens, foreign objects (plastic/metal/glass), labeling errors, mechanical issues, chemical/heavy metal contamination unless biological in origin.
+Extract food recalls/alerts where the cause is ANY of the following hazard categories:
+  (a) PATHOGENS, MICROBIAL CONTAMINATION, or BIOLOGICAL TOXINS
+  (b) RODENTICIDES / RAT POISON (bromadiolone, brodifacoum, difethialone,
+      difenacoum, chlorophacinone — including cases of deliberate tampering)
+  (c) HEAVY METAL contamination (lead, cadmium, arsenic, mercury) at levels
+      exceeding regulatory limits
+  (d) PHYSICAL HAZARDS (glass fragments, metal fragments, plastic fragments,
+      foreign bodies posing injury or choking risk)
 
-Pathogens to extract: Listeria, Salmonella, E. coli/STEC/O157:H7, Clostridium botulinum, Norovirus, Hepatitis A,
-Campylobacter, Cyclospora, Vibrio, Cronobacter sakazakii, Bacillus cereus/cereulide, Aflatoxins, Ochratoxin A,
-Patulin, marine biotoxins (DSP/PSP/ASP), Histamine, Shigella, Yersinia, other mycotoxins.
+EXCLUDE: undeclared allergens, labeling errors, mechanical/packaging issues,
+and pesticide residues above MRL — unless they are linked to one of (a)-(d).
+
+Canonical hazard names (use these exact strings in the Pathogen field):
+  Biological — Listeria monocytogenes, Salmonella spp., E. coli O157:H7,
+    STEC, Clostridium botulinum, Norovirus, Hepatitis A, Campylobacter,
+    Cyclospora, Vibrio, Cronobacter sakazakii, Bacillus cereus / cereulide,
+    Aflatoxins, Ochratoxin A, Patulin, marine biotoxins (DSP/PSP/ASP),
+    Histamine (scombrotoxin), Shigella, Yersinia, Mycotoxin.
+  Rodenticides — "Rodenticide (rat poison)" (preferred), optionally suffixed
+    with the active ingredient e.g. "Rodenticide (bromadiolone)".
+  Heavy metals — "Lead (Pb) contamination", "Cadmium (Cd) contamination",
+    "Arsenic (As) contamination", "Mercury (Hg) contamination", or the
+    generic "Heavy metal contamination" if the element is not specified.
+  Physical — "Glass fragments", "Metal fragments", "Plastic fragments",
+    or "Physical/foreign-body contamination".
+
+For criminal tampering cases (e.g. rat poison deliberately added to a jar):
+  - Prefix Reason with "Tampering: …"
+  - Set Outbreak=1 if vulnerable consumers (infants, elderly, immuno-
+    compromised) are the likely target OR illnesses are already reported.
 
 For each recall, return:
 - Date (YYYY-MM-DD; recall publication or initiation date)
 - Company (firm/producer name)
 - Brand (commercial brand name; "—" if not stated)
 - Product (full product description with size/lot if available)
-- Pathogen (specific pathogen detected, e.g. "Listeria monocytogenes")
-- Reason (short cause description, e.g. "Listeria contamination detected during routine testing")
+- Pathogen (canonical hazard name from the lists above)
+- Reason (short cause description, e.g. "Listeria contamination detected
+  during routine testing" or "Tampering: jars found laced with bromadiolone")
 - Class (recall class: "Recall", "Alert", "Class I/II/III", "Public Health Alert", etc.)
 - URL (full deep-link URL to the specific recall page; NOT a homepage or category page)
-- Outbreak (1 if illness/outbreak mentioned, else 0)
+- Outbreak (1 if illness/outbreak mentioned OR tampering targeting vulnerable consumers, else 0)
 - Notes (distribution region, batch info, additional context)
 
 CRITICAL: For URL field, use only specific recall page URLs (e.g. .../fiche-rappel/12345 or .../recall-alert/specific-product).
@@ -133,7 +158,7 @@ NEVER return homepage URLs, category pages, or generic listing URLs.
 Return strictly this JSON shape (no markdown, no commentary):
 {{"recalls": [{{"Date": "...", "Company": "...", "Brand": "...", "Product": "...", "Pathogen": "...", "Reason": "...", "Class": "...", "URL": "...", "Outbreak": 0, "Notes": "..."}}]}}
 
-If no pathogen recalls are present, return: {{"recalls": []}}
+If no in-scope hazard recalls are present, return: {{"recalls": []}}
 
 HTML to analyze (truncated):
 ---
