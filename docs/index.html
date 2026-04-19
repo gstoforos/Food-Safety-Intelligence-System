@@ -201,7 +201,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <div id="panel-recalls">
 <div class="wrap"><div class="grid2"><div class="panel"><div class="sec">Top Pathogens — All Sources</div><div id="chart-path"></div></div><div class="panel"><div class="sec">By Source</div><div id="chart-src"></div></div></div></div>
 <div class="pbar" id="pills"></div>
-<div class="fbar"><input type="search" id="q" placeholder="Search firm, product, country, pathogen..."><select id="f-src"><option value="">All Sources</option></select><select id="f-path"><option value="">All Pathogens</option></select><select id="f-tier"><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option></select><select id="f-region"><option value="">All Records</option><option value="Americas">Americas</option><option value="Europe">Europe</option><option value="Asia">Asia</option><option value="Oceania">Oceania</option><option value="Africa">Africa</option></select><select id="f-pp"><option value="50">50/page</option><option value="25">25</option><option value="100">100</option></select><span class="rcount" id="rcount"></span></div>
+<div class="fbar"><input type="search" id="q" placeholder="Search firm, product, country, pathogen..."><select id="f-src"><option value="">All Sources</option></select><select id="f-path"><option value="">All Pathogens</option></select><select id="f-tier"><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option></select><select id="f-region"><option value="">All Records</option><option value="Americas">Americas</option><option value="Europe">Europe</option><option value="Asia">Asia</option><option value="Oceania">Oceania</option><option value="Africa">Africa</option></select><select id="f-pp"><option value="50">50/page</option><option value="25">25/page</option><option value="100">100/page</option></select><span class="rcount" id="rcount"></span></div>
 <div class="tbl-wrap"><table><thead><tr><th data-col="date">Date</th><th data-col="source">Source</th><th data-col="company">Firm / Producer</th><th data-col="product">Product</th><th data-col="pathogen">Pathogen</th><th data-col="tier">Risk</th><th data-col="country">Country</th><th>Link</th></tr></thead><tbody id="tbody"><tr><td colspan="8" class="loading">Loading data/recalls.xlsx …</td></tr></tbody></table></div>
 <div class="pager"><button class="pb" id="prev" disabled>‹ Prev</button><span class="pi" id="pinfo">—</span><button class="pb" id="next">Next ›</button></div>
 </div>
@@ -239,6 +239,10 @@ function esc(s){return(s==null?'':String(s)).replace(/[&<>"']/g,c=>({"&":"&amp;"
 // ===== FIXED PATHOGEN NORMALIZATION =====
 function normalizePathogen(p){
   if(!p)return'';
+  // Defensive: anything >80 chars is boilerplate leakage (e.g. a page
+  // intro paragraph that slipped past a buggy scraper), not a pathogen.
+  // Dropping to '' here removes it from the filter dropdown entirely.
+  if(p.length>80)return'';
   const low=p.toLowerCase();
   if(low.includes('listeria'))return'Listeria';
   if(low.includes('salmonella'))return'Salmonella';
@@ -256,7 +260,13 @@ function normalizePathogen(p){
   if(low.includes('ochratoxin'))return'Ochratoxin A';
   if(low.includes('patulin'))return'Patulin';
   if(low.includes('biotoxin')||low.includes('shellfish')||low.includes('saxitoxin')||low.includes('domoic'))return'Marine biotoxins';
-  return p.split('(')[0].split(' spp')[0].trim();
+  if(low.includes('rodenticide')||low.includes('rat poison')||low.includes('bromadiolon'))return'Rodenticide';
+  if(low.includes('heavy metal')||low.includes('lead contamin')||low.includes('cadmium')||low.includes('arsenic')||low.includes('mercury'))return'Heavy metals';
+  if(low.includes('glass fragm')||low.includes('metal fragm')||low.includes('plastic fragm')||low.includes('foreign'))return'Physical contaminants';
+  // Fallback for short, plausibly-pathogen-like values only. Strip
+  // parentheticals and "spp" suffix but still cap to 60 chars.
+  const cleaned=p.split('(')[0].split(' spp')[0].trim();
+  return cleaned.length<=60?cleaned:'';
 }
 
 function switchTab(t){

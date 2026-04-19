@@ -40,6 +40,11 @@ def normalise_pathogen(raw: str) -> str:
     p = (raw or "").strip().lower()
     if not p:
         return "Unknown"
+    # Defensive: anything >80 chars is boilerplate leakage, not a pathogen.
+    # Group it into Unknown so monthly stats don't count it as a distinct
+    # hazard class.
+    if len(p) > 80:
+        return "Unknown"
     if "listeria"    in p:                             return "Listeria"
     if "salmonella"  in p:                             return "Salmonella"
     if "e. coli" in p or "stec" in p or "o157" in p:   return "E. coli / STEC"
@@ -62,7 +67,15 @@ def normalise_pathogen(raw: str) -> str:
        "saxitoxin"   in p or "domoic" in p:            return "Marine biotoxins"
     if "cyclospora"  in p:                             return "Cyclospora"
     if "toxoplasma"  in p:                             return "Toxoplasma"
-    return raw.split("(")[0].split(" spp")[0].strip() or "Unknown"
+    if "rodenticide" in p or "rat poison" in p or \
+       "bromadiolon" in p:                             return "Rodenticide"
+    if "heavy metal" in p or "lead contamin" in p or \
+       "cadmium" in p or "arsenic" in p or "mercury" in p: return "Heavy metals"
+    if "glass fragm" in p or "metal fragm" in p or \
+       "plastic fragm" in p or "foreign" in p:         return "Physical contaminants"
+    # Short, plausibly-pathogen-like fallback only.
+    cleaned = raw.split("(")[0].split(" spp")[0].strip()
+    return cleaned if (cleaned and len(cleaned) <= 60) else "Unknown"
 
 
 def _safe_int(v: Any, default: int = 0) -> int:
