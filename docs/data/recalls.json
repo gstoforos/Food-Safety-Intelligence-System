@@ -48,6 +48,22 @@
   "Notes": "Entire HiPP baby-food jar line recalled at SPAR Austria (SPAR, EUROSPAR, INTERSPAR, Maximarkt). Criminal tampering spread to Czech Republic and Slovakia. Suspects unknown. Burgenland State Criminal Investigation Office investigating."
  },
  {
+  "Date": "2026-04-17",
+  "Source": "BVL (DE)",
+  "Company": "Carnis Vertriebs GmbH",
+  "Brand": "GUT&GÜNSTIG",
+  "Product": "Delikatess Salami fettreduziert, 100g, MHD 15.04.2026 | 24.04.2026",
+  "Pathogen": "STEC (Shiga toxin-producing E. coli)",
+  "Reason": "Positive test result for STEC (Shigatoxin-producing E. coli) detected during routine inspection",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.produktwarnung.eu/2026/04/17/rueckruf-ecoli-hersteller-ruft-gutguenstig-delikatess-salami-via-edeka-zurueck/37756",
+  "Notes": "Distributed via EDEKA; manufacturer initiated recall"
+ },
+ {
   "Date": "2026-04-15",
   "Source": "RappelConso (FR)",
   "Company": "CARREFOUR",
@@ -510,6 +526,22 @@
   "Outbreak": 1,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/pistachio-kernel-recalled-due-salmonella-0",
   "Notes": "CFIA RA-81886, ID 17325. Hotels/restaurants/institutions distribution. Linked to national pistachio Salmonella outbreak (189+ cases)."
+ },
+ {
+  "Date": "2026-04-10",
+  "Source": "BVL (DE)",
+  "Company": "foodloose",
+  "Brand": "foodloose",
+  "Product": "Bio-Dattel-Kugeln White Delight Pistazie, MHD 04.10.2026, Charge J49B0",
+  "Pathogen": "Physical/foreign-body contamination",
+  "Reason": "Foreign body contamination posing injury risk cannot be excluded in individual packages",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.produktwarnung.eu/2026/04/10/rueckruf-fremdkoerper-foodloose-ruft-riegel-white-delight-pistazie-zurueck/37702",
+  "Notes": "Snack product; specific nature of foreign body not detailed"
  },
  {
   "Date": "2026-04-09",
