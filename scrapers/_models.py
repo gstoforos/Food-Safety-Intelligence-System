@@ -31,6 +31,7 @@ PATHOGEN_RULES = [
     ("Listeria monocytogenes", r"(listeria\s*monocytogenes|l\.\s*monocytogenes|\blm\b|listeri[ae])"),
     ("Salmonella Enteritidis", r"salmonella\s*enteritidis"),
     ("Salmonella Typhimurium", r"salmonella\s*typhimurium"),
+    ("Salmonella Newport", r"salmonella\s*newport"),
     ("Salmonella spp.", r"salmonella"),
     ("E. coli O157:H7", r"o\s*157[:\-\s]?h7|escherichia\s*coli\s*o157"),
     ("STEC (Shiga toxin-producing E. coli)", r"stec|shiga\s*toxin|o(26|45|103|104|111|121|145):h\d"),
@@ -214,8 +215,29 @@ class Recall:
     Notes: str = ""
 
     def normalize(self) -> "Recall":
-        """Apply all normalizations. Call once before merging."""
+        """Apply all normalizations. Call once before merging.
+
+        Defensive validation applied here catches boilerplate-leakage bugs
+        where a scraper mis-attributes page intro text or product description
+        to the Pathogen field. When Pathogen is empty after cleaning, the
+        downstream scraper filter in _base.GenericGeminiScraper.scrape drops
+        the row.
+        """
         self.Date = parse_date(self.Date)
+
+        # Defensive clean of Pathogen before canonicalization.
+        # A real pathogen name is short (<= 80 chars). Anything longer is
+        # almost certainly boilerplate that leaked from the page. This
+        # guards against the FSANZ-type bug (April 2026) where the
+        # page's descriptive intro paragraph was stored as Pathogen.
+        if self.Pathogen and len(self.Pathogen) > 80:
+            self.Pathogen = ""
+        # Pathogen == Product is another boilerplate-leakage signal — a
+        # correctly-parsed row has different values in those fields.
+        if (self.Pathogen and self.Product
+                and self.Pathogen.strip() == self.Product.strip()):
+            self.Pathogen = ""
+
         self.Pathogen = normalize_pathogen(self.Pathogen)
         self.Country = normalize_country(self.Country) if self.Country else self.Country
         if not self.Region and self.Country:
