@@ -29,7 +29,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .kpi{background:var(--s2);border:1px solid var(--brd);border-radius:3px;padding:14px 12px;text-align:center;}
 .kv{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1;}
 .kl{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-top:6px;}
-.nav-bar{display:flex;gap:0;border-bottom:1px solid var(--brd);background:var(--s1);overflow-x:auto;margin:18px 24px 0;border-radius:3px 3px 0 0;-webkit-overflow-scrolling:touch;}
+.nav-bar{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--brd);background:var(--s1);margin:18px 24px 0;border-radius:3px 3px 0 0;}
 .tab{padding:11px 18px;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--dim);border-bottom:2px solid transparent;white-space:nowrap;background:transparent;border-left:none;border-right:none;border-top:none;min-height:44px;display:flex;align-items:center;}
 .tab.active{color:var(--green);border-bottom-color:var(--green);}
 .tab:hover{color:var(--white);}
@@ -191,9 +191,10 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <div class="nav-bar">
 <button class="tab active" id="tab-recalls" onclick="switchTab('recalls')">● Recall Intelligence</button>
 <button class="tab" id="tab-news" onclick="switchTab('news')">🌐 Live News <span id="news-count" style="opacity:.55;font-weight:400"></span></button>
-<button class="tab" id="tab-reports" onclick="switchTab('reports')">📊 Weekly Reports <span id="rep-count" style="opacity:.55;font-weight:400"></span></button>
+<button class="tab" id="tab-reports" onclick="switchTab('reports')">📊 Weekly <span id="rep-count" style="opacity:.55;font-weight:400"></span></button>
+<button class="tab" id="tab-monthly" onclick="switchTab('monthly')">🗓 Monthly <span id="mon-count" style="opacity:.55;font-weight:400"></span></button>
+<button class="tab" id="tab-yearly" onclick="return false" aria-disabled="true" title="Yearly reports activate January 2027, after 12 months of data" style="opacity:.35;cursor:not-allowed;color:var(--dim)">📆 Yearly <span style="font-family:'DM Mono',monospace;font-size:8px;font-weight:400;opacity:.65;margin-left:4px">soon</span></button>
 <button class="tab" onclick="downloadRecallsXlsx()">↓ XLSX</button>
-<button class="tab" onclick="downloadRecallsJson()">↓ JSON</button>
 <button class="tab" onclick="window.open('alerts.html','_blank','noopener,width=980,height=820')" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🔔 Alerts</button>
 </div>
 
@@ -217,6 +218,12 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <div id="panel-reports" style="display:none">
 <div class="wrap"><div class="panel"><div class="sec">Weekly Pathogen Recall Reports · sent every Friday 10am</div>
 <div id="reports-list"><p class="loading">Loading reports/index.json…</p></div>
+</div></div>
+</div>
+
+<div id="panel-monthly" style="display:none">
+<div class="wrap"><div class="panel"><div class="sec">Monthly Pathogen Surveillance · published 1st of each month</div>
+<div id="monthly-list"><p class="loading">Loading monthly reports…</p></div>
 </div></div>
 </div>
 
@@ -257,8 +264,10 @@ function switchTab(t){
   document.getElementById('panel-recalls').style.display=(t==='recalls'?'block':'none');
   document.getElementById('panel-news').style.display=(t==='news'?'block':'none');
   document.getElementById('panel-reports').style.display=(t==='reports'?'block':'none');
+  document.getElementById('panel-monthly').style.display=(t==='monthly'?'block':'none');
   document.getElementById('tab-'+t).classList.add('active');
   if(t==='reports'&&!window._reports_loaded){loadReports();window._reports_loaded=true;}
+  if(t==='monthly'&&!window._monthly_loaded){loadMonthlyReports();window._monthly_loaded=true;}
   notifyHeight();
 }
 
@@ -528,6 +537,126 @@ function loadReports(){
 
   document.getElementById('reports-list').innerHTML =
     richCards.map(renderRich).join('') + renderArchive(archive);
+  notifyHeight();
+}
+
+// ===== MONTHLY REPORTS =====
+// Fetches data/monthly-index.json on first tab click. The JSON is committed
+// by the Python monthly builder workflow (build_monthly_report_afts.py)
+// alongside the MM-NN.html report on the 1st of each month, so no manual
+// edits to this file are needed once a new report ships.
+//
+// Expected shape:
+//   [
+//     { filename, year, month_num, month_name, month_start, month_end,
+//       total, tier1, outbreaks, top_pathogen, summary }
+//   ]
+//   Sorted newest-first by month_end (same order weekly uses).
+//
+// Fallback: if data/monthly-index.json is missing or unreachable (e.g. on
+// first deploy, or Wix cached an old version), the embedded FALLBACK_REPORTS
+// below ensure the tab still renders rather than showing an error. Keep the
+// embedded array tiny — just enough to avoid a blank state. Authoritative
+// data always comes from the JSON.
+async function loadMonthlyReports(){
+  const FALLBACK_REPORTS = [
+    {
+      filename: "2026-M03.html",
+      year: 2026, month_num: 3, month_name: "March 2026",
+      month_start: "2026-03-01", month_end: "2026-03-31",
+      total: 66, tier1: 35, outbreaks: 3,
+      top_pathogen: "Salmonella spp.",
+      summary: "March 2026: 66 recalls, 35 Tier-1, 3 outbreak(s). Leading pathogen: Salmonella."
+    }
+  ];
+
+  let reports = FALLBACK_REPORTS;
+  try {
+    // Cache-bust so the published index refresh doesn't get trapped behind
+    // an old Service Worker or CDN cache.
+    const r = await fetch('data/monthly-index.json?_=' + Date.now(), {cache: 'no-store'});
+    if (r.ok) {
+      const j = await r.json();
+      // Accept either a bare array or a wrapped {reports:[...]} object
+      const arr = Array.isArray(j) ? j : (Array.isArray(j.reports) ? j.reports : null);
+      if (arr && arr.length) {
+        // Sort newest-first by month_end so the rich cards always show the
+        // freshest month even if the JSON isn't pre-sorted.
+        reports = arr.slice().sort((a, b) => String(b.month_end || '').localeCompare(String(a.month_end || '')));
+      }
+    }
+  } catch (e) {
+    // Silent fallback — the UI will still render via FALLBACK_REPORTS.
+    console.warn('monthly-index.json fetch failed, using embedded fallback:', e);
+  }
+
+  // Never surface a month whose end date is still in the future.
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const published = reports.filter(r => (r.month_end || '') <= todayISO);
+  document.getElementById('mon-count').textContent = published.length ? '· ' + published.length : '';
+  if (!published.length) {
+    document.getElementById('monthly-list').innerHTML =
+      '<p class="loading">No monthly reports yet. First report ships on the 1st of the month.</p>';
+    return;
+  }
+
+  // Same rich / archive split as weekly: most recent 6 are rich cards, the
+  // rest group by year in a collapsible archive.
+  const RICH_LIMIT = 6;
+  const rich    = published.slice(0, RICH_LIMIT);
+  const archive = published.slice(RICH_LIMIT);
+
+  const renderRich = r => {
+    const mstart = new Date(r.month_start).toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+    const mend   = new Date(r.month_end  ).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+    return `<div class="report-card" onclick="window.open('${esc(r.filename)}','_blank')">
+      <div class="report-week">${esc(r.month_name)} · ${mstart} – ${mend}</div>
+      <div class="report-title">${r.total} pathogen recalls · ${esc(r.top_pathogen||'—')}</div>
+      <div class="report-stats">
+        <span><strong>${r.total}</strong> total</span>
+        <span class="stat-tier1"><strong style="color:var(--red)">${r.tier1}</strong> Tier-1</span>
+        <span class="stat-outbreak"><strong style="color:var(--orange)">${r.outbreaks}</strong> outbreaks</span>
+      </div>
+      <div class="report-actions">
+        <a class="report-btn primary" href="${esc(r.filename)}" target="_blank" onclick="event.stopPropagation()">→ View Report</a>
+        <a class="report-btn secondary" href="#" onclick="event.preventDefault();event.stopPropagation();downloadReportPDF('${esc(r.filename)}')">↓ Download PDF</a>
+      </div>
+    </div>`;
+  };
+
+  const renderArchive = rows => {
+    if (!rows.length) return '';
+    const byYear = {};
+    rows.forEach(r => { (byYear[r.year] = byYear[r.year] || []).push(r); });
+    const years = Object.keys(byYear).sort((a, b) => b - a);
+    const currentYear = new Date().getFullYear();
+    const yearBlocks = years.map(y => {
+      const entries = byYear[y].map(r => {
+        const mstart = new Date(r.month_start).toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+        const mend   = new Date(r.month_end  ).toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+        return `<a class="arch-row" href="${esc(r.filename)}" target="_blank">
+          <span class="arch-wk">M${String(r.month_num).padStart(2,'0')}</span>
+          <span class="arch-dates">${mstart} – ${mend}</span>
+          <span class="arch-total">${r.total}</span>
+          <span class="arch-tier1">${r.tier1} T1</span>
+          <span class="arch-top">${esc(r.top_pathogen||'—')}</span>
+          <span class="arch-go">→</span>
+        </a>`;
+      }).join('');
+      const openAttr = (String(y) === String(currentYear)) ? ' open' : '';
+      return `<details class="arch-year"${openAttr}>
+        <summary class="arch-year-head">${y} · ${byYear[y].length} report${byYear[y].length===1?'':'s'}</summary>
+        <div class="arch-list">${entries}</div>
+      </details>`;
+    }).join('');
+    return `<div class="arch-wrap">
+      <div class="arch-title">Archive · older monthly briefings</div>
+      ${yearBlocks}
+    </div>`;
+  };
+
+  document.getElementById('monthly-list').innerHTML =
+    rich.map(renderRich).join('') + renderArchive(archive);
   notifyHeight();
 }
 

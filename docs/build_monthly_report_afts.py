@@ -1478,6 +1478,75 @@ def write_monthly_summary_json(month_start: date, month_end: date,
     log.info("Monthly summary JSON written: %s", out_path)
 
 
+def update_monthly_index_json(month_start: date, month_end: date,
+                              stats: Dict[str, Any],
+                              index_path: Path) -> None:
+    """Append-or-update this month's entry in docs/data/monthly-index.json.
+
+    This is the file the dashboard's loadMonthlyReports() fetches. It holds
+    a lean array of card metadata (NOT the full report payload) so the
+    dashboard loads in one request no matter how many months have shipped.
+
+    Idempotent: if the current month already has an entry (e.g. a re-run),
+    we update in-place instead of appending a duplicate. Entries stay
+    sorted newest-first by month_end.
+    """
+    year_m = f"{month_start.year}-M{month_start.month:02d}"
+    month_name = month_start.strftime("%B %Y")      # e.g. "March 2026"
+
+    top_pathogen = (
+        stats["top_pathogen"][0]
+        if stats.get("top_pathogen") and stats["top_pathogen"][0]
+        else "—"
+    )
+    entry = {
+        "filename":     f"{year_m}.html",
+        "year":         month_start.year,
+        "month_num":    month_start.month,
+        "month_name":   month_name,
+        "month_start":  month_start.isoformat(),
+        "month_end":    month_end.isoformat(),
+        "total":        stats["total"],
+        "tier1":        stats["tier1"],
+        "outbreaks":    stats["outbreaks"],
+        "top_pathogen": top_pathogen,
+        "summary": (
+            f"{month_name}: {stats['total']} recalls, {stats['tier1']} Tier-1, "
+            f"{stats['outbreaks']} outbreak(s). Leading pathogen: {top_pathogen}."
+        ),
+    }
+
+    # Load existing index (if any). Accept either a bare array or a
+    # {"reports":[...]} wrapper — matches the dashboard's tolerant parser.
+    entries: List[Dict[str, Any]] = []
+    if index_path.exists():
+        try:
+            raw = json.loads(index_path.read_text(encoding="utf-8"))
+            if isinstance(raw, list):
+                entries = raw
+            elif isinstance(raw, dict) and isinstance(raw.get("reports"), list):
+                entries = raw["reports"]
+        except (json.JSONDecodeError, OSError) as e:
+            log.warning("monthly-index.json unreadable, starting fresh: %s", e)
+
+    # Drop any pre-existing entry for this month, then insert the new one.
+    # Filename is the unique key (matches year_m exactly).
+    entries = [e for e in entries if e.get("filename") != entry["filename"]]
+    entries.append(entry)
+
+    # Sort newest-first by month_end so the dashboard can slice() from the
+    # top without re-sorting. String comparison works because ISO dates sort
+    # lexicographically.
+    entries.sort(key=lambda e: e.get("month_end", ""), reverse=True)
+
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+    index_path.write_text(
+        json.dumps(entries, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    log.info("Monthly index JSON updated: %s (%d entries)", index_path, len(entries))
+
+
 # ---------------------------------------------------------------------------
 # ENTRY POINT
 # ---------------------------------------------------------------------------
@@ -1495,6 +1564,10 @@ def main() -> int:
                     default="https://www.advfood.tech/food-safety-intelligence")
     ap.add_argument("--summary-json",
                     default=str(ROOT / "data" / "monthly-summary-latest.json"))
+    ap.add_argument("--monthly-index",
+                    default=str(ROOT / "data" / "monthly-index.json"),
+                    help="Running index of all monthly reports — the dashboard's "
+                         "loadMonthlyReports() fetches this on first render.")
     args = ap.parse_args()
 
     try:
@@ -1560,6 +1633,12 @@ def main() -> int:
         write_monthly_summary_json(
             month_start, month_end_full, stats, signals, models, narrative,
             month_recalls, args.site_url, args.dashboard_url, Path(args.summary_json),
+        )
+        # Running index for the dashboard's Monthly tab. Updated on every
+        # closed-month run so the index always reflects the latest build
+        # without requiring a manual edit to docs/index.html.
+        update_monthly_index_json(
+            month_start, month_end_full, stats, Path(args.monthly_index),
         )
     else:
         log.info("Skipping summary JSON (month not yet closed)")
