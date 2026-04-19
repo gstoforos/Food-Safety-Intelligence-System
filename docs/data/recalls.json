@@ -480,6 +480,22 @@
   "Notes": "CFIA RA-81886, ID 17325. Hotels/restaurants/institutions distribution. Linked to national pistachio Salmonella outbreak (189+ cases)."
  },
  {
+  "Date": "2026-04-10",
+  "Source": "BVL (DE)",
+  "Company": "foodloose",
+  "Brand": "foodloose",
+  "Product": "Bio-Dattel-Kugeln White Delight Pistazie, MHD 04.10.2026, Batch J49B0",
+  "Pathogen": "Physical/foreign-body contamination",
+  "Reason": "Foreign body (type unspecified) posing injury risk cannot be excluded in individual packages",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.produktwarnung.eu/2026/04/10/rueckruf-fremdkoerper-foodloose-ruft-riegel-white-delight-pistazie-zurueck/37702",
+  "Notes": "Snack product; potential injury hazard from foreign object"
+ },
+ {
   "Date": "2026-04-09",
   "Source": "CFIA",
   "Company": "Arbutus Farms Kitchen / Jade Fine Foods",
