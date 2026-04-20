@@ -80,6 +80,15 @@ SKIP_AI = os.getenv("SKIP_AI", "").lower() in ("1", "true", "yes")
 SKIP_REVIEW = os.getenv("SKIP_REVIEW", "").lower() in ("1", "true", "yes")
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 
+# Optional comma-separated list of AGENCY values to include.
+# Empty/unset = run all discovered scrapers (the default 17:00 UTC behaviour).
+# Set in morning-critical-scrape.yml for the 12-agency subset run.
+AGENCIES_FILTER = {
+    a.strip()
+    for a in os.getenv("AGENCIES_FILTER", "").split(",")
+    if a.strip()
+}
+
 # High-severity review codes that cause promotion to be withheld.
 REJECTION_CODES = {"URL_INVALID", "URL_MISMATCH", "MISSING_FIELD"}
 
@@ -255,6 +264,14 @@ def main() -> int:
 
     # ---- 2. Discover + run scrapers ---------------------------------------
     scrapers = discover_scrapers()
+    if AGENCIES_FILTER:
+        before = len(scrapers)
+        scrapers = [s for s in scrapers if s.AGENCY in AGENCIES_FILTER]
+        log.info("AGENCIES_FILTER active: %d/%d scrapers retained (%s)",
+                 len(scrapers), before, ", ".join(sorted(s.AGENCY for s in scrapers)))
+        if not scrapers:
+            log.error("AGENCIES_FILTER matched no scrapers — check names against each scraper's AGENCY attribute")
+            return 4
     raw_recalls = run_all_scrapers(scrapers, since_days=SINCE_DAYS)
     if not raw_recalls:
         log.warning("No recalls scraped this run")
