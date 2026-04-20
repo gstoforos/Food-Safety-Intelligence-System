@@ -15,10 +15,30 @@ class CFIAScraper(BaseScraper):
     COUNTRY = "Canada"
     FEED_URL = "https://recalls-rappels.canada.ca/en/rss.xml"
 
+    # Keyword list aligned with FDA scraper (April 2026 expansion). The
+    # previous narrow list missed the April 16 Auricchio Taleggio recall and
+    # would have missed any rodenticide / mycotoxin / heavy-metal incident
+    # published through CFIA's RSS. Kept pathogen keywords first for speed.
     PATHOGEN_KEYWORDS = (
-        "listeria", "salmonella", "e. coli", "stec", "o157",
-        "botulin", "norovirus", "hepatitis", "campylobacter",
-        "cyclospora", "vibrio", "cronobacter", "bacillus", "histamine",
+        # --- Biological (unchanged) ---
+        "listeria", "salmonella", "e. coli", "e.coli", "escherichia coli",
+        "stec", "o157", "botulin", "norovirus", "hepatitis", "campylobacter",
+        "cyclospora", "vibrio", "cronobacter", "bacillus cereus", "cereulide",
+        "shigella", "yersinia", "biotoxin", "histamine", "scombro",
+        # --- Mycotoxins ---
+        "aflatoxin", "ochratoxin", "patulin", "mycotoxin",
+        # --- Rodenticides / criminal tampering ---
+        "rodenticide", "rat poison", "bromadiolon", "brodifacoum",
+        "difethialon", "difenacoum", "chlorophacinon",
+        # --- Heavy metals (anchored to avoid false positives on "lead") ---
+        "lead contamin", "elevated lead", "levels of lead", "lead in product",
+        "excess lead", "cadmium", "arsenic", "mercury contamin",
+        "mercury level", "heavy metal",
+        # --- Physical / foreign-body hazards ---
+        "glass fragment", "glass piece", "glass shard",
+        "metal fragment", "metal piece", "metal shard",
+        "plastic fragment", "plastic piece",
+        "foreign object", "foreign body", "foreign material",
     )
 
     def scrape(self, since_days: int = 30) -> List[Recall]:
