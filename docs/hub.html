@@ -200,9 +200,19 @@ function renderComing(label){
 }
 
 var _cur = 0;
+function visibleCount(){
+  var t = document.getElementById('cTrack');
+  if (!t || !t.children.length) return 1;
+  var cw = t.children[0].offsetWidth;
+  var vw = t.parentElement.offsetWidth;
+  if (!cw || !vw) return 1;
+  return Math.max(1, Math.round(vw / cw));
+}
 function scrollCar(d){ goTo(_cur+d); }
 function goTo(i){
-  var t = document.getElementById('cTrack'), max = Math.max(0, t.children.length-3);
+  var t = document.getElementById('cTrack');
+  var vis = visibleCount();
+  var max = Math.max(0, t.children.length - vis);
   _cur = Math.max(0, Math.min(max, i));
   t.style.transform = 'translateX(-'+(_cur*(t.children[0].offsetWidth+16))+'px)';
   var d = document.getElementById('cDots').children;
@@ -216,7 +226,8 @@ function render(index){
   index.forEach(function(e,i){ html += renderCard(e, (i%4)+1); });
   // no "coming soon" — cards only appear when the 1-page PDF is published
   track.innerHTML = html;
-  var pages = Math.max(1, track.children.length-2);
+  var vis = visibleCount();
+  var pages = Math.max(1, track.children.length - vis + 1);
   var dots = document.getElementById('cDots'); dots.innerHTML = '';
   for (var i=0;i<pages;i++){
     var s = document.createElement('span'); if(i===0) s.className='active';
@@ -225,6 +236,25 @@ function render(index){
   }
   _cur = 0;
 }
+
+window.addEventListener('resize', function(){
+  // re-render dots when viewport changes (mobile rotate, desktop resize)
+  var track = document.getElementById('cTrack');
+  if (!track || track.querySelector('.loading-card')) return;
+  var vis = visibleCount();
+  var pages = Math.max(1, track.children.length - vis + 1);
+  var dots = document.getElementById('cDots');
+  if (dots.children.length === pages) return;
+  dots.innerHTML = '';
+  for (var i=0;i<pages;i++){
+    var s = document.createElement('span');
+    if(i===0) s.className='active';
+    s.setAttribute('data-i',i);
+    s.onclick = function(){ goTo(+this.getAttribute('data-i')); };
+    dots.appendChild(s);
+  }
+  _cur = 0; goTo(0);
+});
 
 fetch(IDX_URL, {cache:'no-store'})
   .then(function(r){ return r.ok ? r.json() : null; })
