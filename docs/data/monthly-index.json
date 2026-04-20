@@ -1,5 +1,31 @@
 [
   {
+    "filename": "2026-M01.html",
+    "year": 2026,
+    "month_num": 1,
+    "month_name": "January 2026",
+    "month_start": "2026-01-01",
+    "month_end": "2026-01-31",
+    "total": null,
+    "tier1": null,
+    "outbreaks": null,
+    "top_pathogen": null,
+    "summary": "January 2026 recalls, market withdrawals & safety alerts digest."
+  },
+  {
+    "filename": "2026-M02.html",
+    "year": 2026,
+    "month_num": 2,
+    "month_name": "February 2026",
+    "month_start": "2026-02-01",
+    "month_end": "2026-02-28",
+    "total": null,
+    "tier1": null,
+    "outbreaks": null,
+    "top_pathogen": null,
+    "summary": "February 2026 recalls, market withdrawals & safety alerts digest."
+  },
+  {
     "filename": "2026-M03.html",
     "year": 2026,
     "month_num": 3,
