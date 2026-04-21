@@ -1,0 +1,100 @@
+name: Cleanup dataset
+
+# Re-normalize pathogen values and drop garbage rows in docs/data/recalls.xlsx.
+#
+# Run manually from the Actions tab:
+#   - Leave "apply" unchecked -> prints a dry-run diff to the logs, nothing changes.
+#   - Check "apply" -> writes recalls.xlsx + recalls.json and commits the change.
+#
+# If you want this to run automatically, uncomment the `schedule` block below.
+# Recommended cadence: weekly, Monday 03:00 UTC (after the daily pipeline run).
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Actually write changes? (unchecked = dry-run preview only)"
+        type: boolean
+        default: false
+      backup:
+        description: "Keep a .bak-* copy of recalls.xlsx before overwriting"
+        type: boolean
+        default: true
+
+  # schedule:
+  #   - cron: "0 3 * * 1"  # every Monday 03:00 UTC
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # needed to commit the updated data files back to the repo
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Fetch default branch at full depth so `git push` works cleanly.
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # openpyxl is the only hard dep for the cleanup itself.
+          # Pulling requirements.txt too so any scraper imports resolve.
+          pip install openpyxl
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Dry-run preview
+        if: ${{ !inputs.apply }}
+        run: |
+          echo "::group::cleanup_dataset.py (dry-run)"
+          python tools/cleanup_dataset.py
+          echo "::endgroup::"
+          echo ""
+          echo "This was a dry run. To actually write the changes, re-run the"
+          echo "workflow with the 'apply' input checked."
+
+      - name: Apply cleanup
+        if: ${{ inputs.apply }}
+        run: |
+          echo "::group::cleanup_dataset.py --apply"
+          if [ "${{ inputs.backup }}" = "true" ]; then
+            python tools/cleanup_dataset.py --apply --backup
+          else
+            python tools/cleanup_dataset.py --apply
+          fi
+          echo "::endgroup::"
+
+      - name: Show diff summary
+        if: ${{ inputs.apply }}
+        run: |
+          echo "::group::git status"
+          git status --short
+          echo "::endgroup::"
+          echo "::group::row-count diff"
+          git diff --stat -- docs/data/ || true
+          echo "::endgroup::"
+
+      - name: Commit and push
+        if: ${{ inputs.apply }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/recalls.xlsx docs/data/recalls.json docs/data/*.bak-* 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit — dataset was already clean."
+          else
+            git commit -m "chore(data): cleanup dataset (normalize pathogens, drop garbage rows)
+
+            Triggered by: ${{ github.actor }} via workflow_dispatch
+            Workflow run: ${{ github.run_id }}"
+            git push
+            echo "Cleanup committed to ${{ github.ref_name }}."
+          fi
