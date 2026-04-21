@@ -56,6 +56,7 @@ from pipeline.merge_master import (                    # noqa: E402
     load_existing, load_pending,
     append_to_pending, promote_approved,
     sort_rows, save_xlsx_with_pending, mirror_json_from_xlsx,
+    append_news_to_xlsx,
     STATUS_PENDING, STATUS_REJECTED,
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
@@ -146,6 +147,47 @@ def run_all_scrapers(scrapers: List[BaseScraper], since_days: int) -> List[Recal
             all_rows.extend(f.result())
     log.info("Total scraped (raw): %d", len(all_rows))
     return all_rows
+
+
+# ---------------------------------------------------------------------------
+# NEWS feed scraper discovery + execution
+# ---------------------------------------------------------------------------
+def discover_news_scrapers():
+    """Auto-discover all BaseNewsScraper subclasses in scrapers/news_feeds/."""
+    from scrapers.news_feeds._news_base import BaseNewsScraper
+    found = []
+    try:
+        pkg = importlib.import_module("scrapers.news_feeds")
+    except ImportError as e:
+        log.warning("Failed to import scrapers.news_feeds: %s", e)
+        return found
+    for _, modname, _ in pkgutil.iter_modules(pkg.__path__):
+        if modname.startswith("_"):
+            continue
+        try:
+            mod = importlib.import_module(f"scrapers.news_feeds.{modname}")
+        except Exception as e:
+            log.warning("Failed to import news_feeds.%s: %s", modname, e)
+            continue
+        for _, cls in inspect.getmembers(mod, inspect.isclass):
+            if (issubclass(cls, BaseNewsScraper) and cls is not BaseNewsScraper
+                    and cls.__module__ == mod.__name__):
+                found.append(cls())
+    log.info("Discovered %d news scrapers", len(found))
+    return found
+
+
+def run_news_scrapers(scrapers, since_days: int = 7) -> List[Dict]:
+    """Run all news scrapers and collect NewsItem dicts."""
+    all_items = []
+    for scraper in scrapers:
+        try:
+            items = scraper.scrape_news(since_days=since_days)
+            all_items.extend(item.to_dict() for item in items)
+        except Exception as e:
+            log.error("[NEWS FAIL] %s: %s", scraper.SOURCE_NAME, e)
+    log.info("Total news items scraped: %d", len(all_items))
+    return all_items
 
 
 # ---------------------------------------------------------------------------
@@ -342,6 +384,20 @@ def main() -> int:
     # in-memory list) so they cannot drift from each other.
     save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH)
     mirror_json_from_xlsx(XLSX_PATH, JSON_PATH)
+
+    # ---- 9b. NEWS feed scrapers -----------------------------------------
+    # Run RSS-based news scrapers and append to the NEWS sheet.
+    # This supplements the Apps Script Gemini-based news collection with
+    # deterministic RSS feed parsing from dedicated food safety publishers.
+    news_scrapers = discover_news_scrapers()
+    if news_scrapers:
+        news_items = run_news_scrapers(news_scrapers, since_days=7)
+        if news_items:
+            news_added = append_news_to_xlsx(XLSX_PATH, news_items)
+            log.info("NEWS: added %d items from %d RSS feeds",
+                     news_added, len(news_scrapers))
+    else:
+        log.info("No news scrapers discovered; NEWS sheet unchanged")
 
     # ---- 10. Commit ------------------------------------------------------
     if not SKIP_COMMIT:

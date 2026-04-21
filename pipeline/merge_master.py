@@ -400,3 +400,89 @@ def merge_new(existing: List[Dict[str, Any]], new_recalls: List[Recall]) -> List
     log.info("merge_new (legacy): %d existing + %d new = %d total",
              len(existing), appended, len(merged))
     return merged
+
+
+# ---------------------------------------------------------------------------
+# NEWS sheet merge (for RSS news feed scrapers)
+# ---------------------------------------------------------------------------
+def _news_dedup_key(row: Dict[str, Any]) -> str:
+    """Dedup key for a NEWS row: link URL (lowered, stripped)."""
+    link = (row.get("Link") or row.get("link") or "").strip().lower()
+    if link:
+        return link
+    title = (row.get("Title") or row.get("title") or "").strip().lower()[:80]
+    return f"{row.get('Published (UTC)', '')}|{title}"
+
+
+def load_news(xlsx_path: Path) -> List[Dict[str, str]]:
+    """Load existing NEWS rows from the xlsx."""
+    if not xlsx_path.exists():
+        return []
+    try:
+        wb = load_workbook(xlsx_path, read_only=True, data_only=True)
+        if "NEWS" not in wb.sheetnames:
+            wb.close()
+            return []
+        ws = wb["NEWS"]
+        headers = [c.value for c in next(ws.iter_rows(min_row=1, max_row=1))]
+        rows = []
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            d = {}
+            for i, v in enumerate(row):
+                if i < len(headers) and headers[i]:
+                    d[headers[i]] = str(v) if v is not None else ""
+            if d.get("Title") or d.get("Link"):
+                rows.append(d)
+        wb.close()
+        return rows
+    except Exception as e:
+        log.warning("Failed to load NEWS sheet: %s", e)
+        return []
+
+
+def append_news_to_xlsx(
+    xlsx_path: Path,
+    new_items: List[Dict[str, str]],
+) -> int:
+    """
+    Append new NEWS items to the NEWS sheet, deduped against existing rows.
+    Returns count of actually-appended items.
+    """
+    if not new_items:
+        return 0
+
+    existing = load_news(xlsx_path)
+    seen_keys = {_news_dedup_key(r) for r in existing}
+
+    to_add = []
+    for item in new_items:
+        k = _news_dedup_key(item)
+        if k in seen_keys:
+            continue
+        seen_keys.add(k)
+        to_add.append(item)
+
+    if not to_add:
+        log.info("NEWS merge: 0 new items (all duplicates)")
+        return 0
+
+    # Open the workbook and append rows to the NEWS sheet
+    wb = load_workbook(xlsx_path)
+    if "NEWS" not in wb.sheetnames:
+        ws = wb.create_sheet("NEWS")
+        for i, h in enumerate(NEWS_HEADERS, 1):
+            c = ws.cell(row=1, column=i, value=h)
+            c.font = Font(bold=True)
+        ws.freeze_panes = "A2"
+    else:
+        ws = wb["NEWS"]
+
+    for item in to_add:
+        row_vals = [item.get(h, "") for h in NEWS_HEADERS]
+        ws.append(row_vals)
+
+    wb.save(xlsx_path)
+    log.info("NEWS merge: appended %d new items (total now %d)",
+             len(to_add), len(existing) + len(to_add))
+    return len(to_add)
+
