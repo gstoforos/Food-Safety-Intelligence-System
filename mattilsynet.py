@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class AGESScraper(GenericGeminiScraper):
     AGENCY = "AGES (AT)"
     COUNTRY = "Austria"
-    INDEX_URLS = ['https://www.ages.at/mensch/produktwarnungen-produktrueckrufe']
+    INDEX_URLS = ['https://www.ages.at/mensch/lebensmittel/lebensmittelwarnungen-rueckrufe']
     LANGUAGE = "de"
