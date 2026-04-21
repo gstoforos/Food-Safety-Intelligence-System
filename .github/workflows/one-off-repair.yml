@@ -1,0 +1,80 @@
+name: One-off repo repair
+
+# ============================================================================
+# Runs fix.sh and fix-scrapers.sh in a GitHub-hosted runner, commits the
+# result, and pushes back to main. Manual trigger only — does NOT run on a
+# schedule. Safe to re-run (all fix steps are idempotent).
+#
+# How to use:
+#   1. Upload this file to .github/workflows/one-off-repair.yml via the
+#      GitHub web UI "Add file → Create new file" button.
+#   2. Upload fix.sh, fix-scrapers.sh, and gap_finder_claude.py to the
+#      REPO ROOT via the same "Add file → Upload files" button.
+#   3. Commit both uploads.
+#   4. Go to the Actions tab → "One-off repo repair" → "Run workflow".
+#   5. After the run succeeds, DELETE this workflow file + the three
+#      repair files to keep the repo clean.
+# ============================================================================
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verify repair scripts are present
+        run: |
+          for f in fix.sh fix-scrapers.sh gap_finder_claude.py; do
+            if [ ! -f "$f" ]; then
+              echo "ERROR: $f not found at repo root. Upload it before running."
+              exit 1
+            fi
+          done
+          echo "All three repair files present."
+
+      - name: Run fix.sh
+        run: |
+          chmod +x fix.sh
+          bash fix.sh
+
+      - name: Run fix-scrapers.sh
+        run: |
+          chmod +x fix-scrapers.sh
+          bash fix-scrapers.sh
+
+      - name: Commit and push repairs
+        run: |
+          git config user.name  "AFTS Repair Bot"
+          git config user.email "fsis-bot@advfood.tech"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to commit — repo already in clean state."
+          else
+            git commit -m "chore: repo repair (fix.sh + fix-scrapers.sh)"
+            git push
+            echo ""
+            echo "================================================================"
+            echo " Repair committed. Next:"
+            echo "  1. Verify your workflows (Actions tab) run green."
+            echo "  2. Delete fix.sh, fix-scrapers.sh, gap_finder_claude.py,"
+            echo "     and this workflow (.github/workflows/one-off-repair.yml)"
+            echo "     from the repo root once confirmed."
+            echo "================================================================"
+          fi
