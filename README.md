@@ -1,293 +1,162 @@
-"""
-Recall data model — shared by all 57 scrapers + AI clients.
-Schema matches existing recalls.xlsx columns exactly.
-"""
-from __future__ import annotations
-from dataclasses import dataclass, field, asdict
-from datetime import datetime, date
-from typing import Optional, List, Dict, Any
-import re
-import unicodedata
+# AFTS FSIS Automation Fix
 
+This bundle applies the full automation you described:
 
-# ===== Hazard taxonomy (regex -> canonical name) =====
-#
-# Order matters: more-specific patterns come first so they win over generic ones.
-# Three buckets are covered:
-#   (1) Biological pathogens & toxins — the original scope.
-#   (2) Criminal/malicious contaminants — rodenticides / rat poison.
-#       Added April 2026 after the HiPP baby food tampering case (AGES).
-#   (3) Heavy metals — lead, cadmium, arsenic, mercury. Regex avoids generic
-#       "lead" matches (e.g. "lead to illness") by anchoring to "lead \bpb\b"
-#       or "\blead\s+(contamin|level|content|in\s+product|detected|found)\b".
-#   (4) Physical hazards — glass/metal/plastic fragments, foreign bodies.
-#
-# `normalize_pathogen` falls through to raw text if nothing matches, so
-# uncanonicalised hazards still survive the scraper filter — but giving them
-# canonical names keeps the dashboard legend clean and enables tier-1 routing
-# in `assign_tier`.
-PATHOGEN_RULES = [
-    # --- Biological pathogens & toxins (unchanged) ---
-    ("Listeria monocytogenes", r"(listeria\s*monocytogenes|l\.\s*monocytogenes|\blm\b|listeri[ae])"),
-    ("Salmonella Enteritidis", r"salmonella\s*enteritidis"),
-    ("Salmonella Typhimurium", r"salmonella\s*typhimurium"),
-    ("Salmonella Newport", r"salmonella\s*newport"),
-    ("Salmonella spp.", r"salmonella"),
-    ("E. coli O157:H7", r"o\s*157[:\-\s]?h7|escherichia\s*coli\s*o157"),
-    ("STEC (Shiga toxin-producing E. coli)", r"stec|shiga\s*toxin|o(26|45|103|104|111|121|145):h\d"),
-    ("E. coli", r"e\.?\s*coli|escherichia\s*coli"),
-    ("Clostridium botulinum", r"botulin|botulism|c\.\s*botulinum|clostridium"),
-    ("Norovirus", r"norovirus|norwalk"),
-    ("Hepatitis A", r"hepatit[ie]s\s*a|\bhav\b"),
-    ("Campylobacter", r"campylobacter"),
-    ("Cyclospora", r"cyclospora"),
-    ("Vibrio", r"vibrio"),
-    ("Cronobacter sakazakii", r"cronobacter"),
-    ("Bacillus cereus / cereulide", r"bacillus\s*cereus|cereulid[ae]"),
-    ("Aflatoxins", r"aflatoxin"),
-    ("Ochratoxin A", r"ochratoxin"),
-    ("Patulin", r"patulin"),
-    ("Lipophilic biotoxins (DSP)", r"lipophilic|diarr?h?etic\s*shellfish|dsp\b"),
-    ("Paralytic shellfish toxins (PSP)", r"paralytic\s*shellfish|saxitoxin|psp\b"),
-    ("Amnesic shellfish toxins (ASP)", r"amnesic\s*shellfish|domoic|asp\b"),
-    ("Histamine (scombrotoxin)", r"histamine|scombro"),
-    ("Shigella", r"shigella"),
-    ("Yersinia", r"yersinia"),
-    ("Mycotoxin", r"mycotoxin"),
+- **Scrapers 2×/day Athens time** — 08:00 (critical-12) + 17:00 (full 66)
+- **URL gate every 4h** — kept as-is (interval, no timezone concern)
+- **Merge master hourly** (Pending → Recalls) — **new workflow**
+- **News feed hourly** + **7-day rolling purge** of the NEWS sheet
+- **Weekly report Friday 08:00 Athens** — HTML + PDF committed, live on index by 10:00, email via Google Apps Script 12:00 Athens (external — not this repo)
+- **Monthly report 1st of month 09:00 Athens** — gap-fill (builds only months missing from `monthly-index.json`, never overwrites); produces subscriber HTML + George's PDF; sets `pdf_url` so hub auto-renders new month cards
 
-    # --- Criminal/malicious tampering: rodenticides (HiPP April 2026) ---
-    ("Rodenticide (rat poison)",
-        r"bromadiolon|brodifacoum|difethialon|difenacoum|chlorophacinon|"
-        r"rodenticid|rat\s*poison|rattengift|raticid|mort[\-\s]?aux[\-\s]?rats"),
+All scheduled workflows use the **two-line DST cron + Athens hour-guard** pattern so they always fire at the intended Athens hour year-round.
 
-    # --- Heavy metals ---
-    # Lead needs careful anchoring: avoid matching "lead to", "lead a", etc.
-    ("Lead (Pb) contamination",
-        r"\blead\s+(contamin|level|content|detected|found|in\s+(product|food|sample))|"
-        r"elevated\s+lead|excess(ive)?\s+lead|plomb|piombo|blei|\bpb\b(?=\s*\d|\s+level)"),
-    ("Cadmium (Cd) contamination",
-        r"\bcadmium\b|cadmio|\bcd\b(?=\s*(contamin|level|found|detected|\d))"),
-    ("Arsenic (As) contamination",
-        r"\barsenic\b|arsen[io]\b"),
-    ("Mercury (Hg) contamination",
-        r"\bmercury\b(?!\s+(dime|planet))|mercur[yiio]|\bhg\b(?=\s*(contamin|level|\d))"),
-    ("Heavy metal contamination",
-        r"heavy[\-\s]?metal|metale\s*pesante|m[ée]taux\s*lourd|schwermetall"),
+---
 
-    # --- Physical / foreign-body hazards ---
-    ("Glass fragments",
-        r"glass\s*(fragment|shard|piece|particle|contamin)|\bglass\s+in\s+|"
-        r"verre\s*(bris|fragment)|glasscherb|vetro\s*frammen"),
-    ("Metal fragments",
-        r"metal\s*(fragment|shard|piece|particle|contamin)|"
-        r"m[ée]tal\s+dans|metallfragment|metal\s+foreign"),
-    ("Plastic fragments",
-        r"plastic\s*(fragment|shard|piece|particle|contamin)|"
-        r"plastique\s+dans|kunststofffragment"),
-    ("Physical/foreign-body contamination",
-        r"foreign\s*(body|object|matter|material)|corps\s*[ée]tranger"),
-]
+## What's in this bundle
 
+```
+AFTS-FIX/
+├── README.md                    ← this file
+├── cleanup.sh                   ← deletes all scrambled root-level dupes
+├── requirements-additions.txt   ← append to requirements.txt (weasyprint)
+├── .github/workflows/
+│   ├── afts-monthly-report.yml     REPLACE
+│   ├── afts-weekly-report.yml      REPLACE
+│   ├── daily-scrape.yml            REPLACE (17:00 Athens)
+│   ├── morning-critical-scrape.yml REPLACE (08:00 Athens)
+│   ├── news-feed.yml               REPLACE (adds 7-day purge)
+│   └── merge-master.yml            NEW     (hourly Pending→Recalls)
+└── pipeline/
+    ├── build_missing_monthly_reports.py  NEW gap-fill orchestrator
+    ├── build_missing_weekly_reports.py   NEW gap-fill orchestrator
+    ├── html_to_pdf.py                    NEW PDF generator (WeasyPrint)
+    ├── set_pdf_urls.py                   NEW patches monthly-index.json
+    └── purge_old_news.py                 NEW 7-day retention for NEWS sheet
+```
 
-def normalize_pathogen(text: str) -> str:
-    """Map any free-text pathogen mention to canonical name."""
-    if not text:
-        return ""
-    t = text.lower()
-    for canon, pattern in PATHOGEN_RULES:
-        if re.search(pattern, t):
-            return canon
-    return text.strip()
+---
 
+## Apply steps (in order)
 
-def normalize_country(text: str) -> str:
-    """Map ISO-2/ISO-3/various names to canonical English country name."""
-    if not text:
-        return ""
-    t = text.strip().lower()
-    mapping = {
-        "us": "USA", "usa": "USA", "united states": "USA", "u.s.": "USA", "u.s.a.": "USA",
-        "uk": "United Kingdom", "gb": "United Kingdom", "great britain": "United Kingdom",
-        "fr": "France", "de": "Germany", "deutschland": "Germany",
-        "it": "Italy", "italia": "Italy", "es": "Spain", "españa": "Spain",
-        "gr": "Greece", "ελλάδα": "Greece", "ellada": "Greece",
-        "be": "Belgium", "belgique": "Belgium", "belgië": "Belgium",
-        "nl": "Netherlands", "nederland": "Netherlands",
-        "pt": "Portugal", "ie": "Ireland", "at": "Austria", "österreich": "Austria",
-        "se": "Sweden", "sverige": "Sweden", "dk": "Denmark", "danmark": "Denmark",
-        "fi": "Finland", "suomi": "Finland", "pl": "Poland", "polska": "Poland",
-        "cz": "Czech Republic", "česko": "Czech Republic",
-        "hu": "Hungary", "magyarország": "Hungary",
-        "ro": "Romania", "sk": "Slovakia", "si": "Slovenia", "hr": "Croatia",
-        "bg": "Bulgaria", "lt": "Lithuania", "lv": "Latvia", "ee": "Estonia",
-        "cy": "Cyprus", "mt": "Malta", "lu": "Luxembourg",
-        "ch": "Switzerland", "schweiz": "Switzerland", "suisse": "Switzerland",
-        "no": "Norway", "norge": "Norway", "is": "Iceland", "ísland": "Iceland",
-        "ca": "Canada", "jp": "Japan", "日本": "Japan",
-        "kr": "South Korea", "한국": "South Korea",
-        "cn": "China", "中国": "China", "hk": "Hong Kong", "香港": "Hong Kong",
-        "sg": "Singapore", "tw": "Taiwan", "台灣": "Taiwan",
-        "in": "India", "th": "Thailand", "vn": "Vietnam", "việt nam": "Vietnam",
-        "my": "Malaysia", "id": "Indonesia", "ph": "Philippines",
-        "au": "Australia", "nz": "New Zealand",
-        "za": "South Africa", "ke": "Kenya", "ng": "Nigeria", "eg": "Egypt", "ma": "Morocco", "gh": "Ghana",
-        "br": "Brazil", "brasil": "Brazil", "ar": "Argentina", "mx": "Mexico", "méxico": "Mexico",
-        "cl": "Chile", "co": "Colombia", "pe": "Peru", "ec": "Ecuador", "uy": "Uruguay",
-        "il": "Israel", "ae": "UAE", "sa": "Saudi Arabia", "qa": "Qatar", "tr": "Turkey", "türkiye": "Turkey",
-    }
-    return mapping.get(t, text.strip().title())
+### 1. Clean up the scrambled repo
 
+```bash
+cd ~/Food-Safety-Intelligence-System
+bash /path/to/AFTS-FIX/cleanup.sh
+git status                      # review what's staged for deletion
+git commit -m "chore: remove scrambled duplicates (root -> subdirs)"
+git push
+```
 
-def assign_tier(pathogen: str, outbreak: int = 0) -> int:
-    """Tier 1 = critical; Tier 2 = single detection without outbreak link.
-    Tier 1 triggers:
-      - Outbreak flag set
-      - Severe pathogens (Listeria, STEC, Botulinum, cereulide, biotoxins,
-        Hep A, cronobacter, O157)
-      - Criminal/malicious contamination (rodenticides) — always T1
-      - Heavy metals — always T1 (regulatory agencies publish these because
-        exposure levels breached limits)
-      - Glass fragments — always T1 (injury risk, mandatory recall class)
-    """
-    if outbreak == 1:
-        return 1
-    p = (pathogen or "").lower()
-    tier1_keywords = [
-        # Biological
-        "listeria", "stec", "botulin", "cereulide", "biotoxin",
-        "saxitoxin", "domoic", "hepatit", "o157", "cronobacter", "shiga",
-        # Malicious tampering / rodenticides
-        "rodenticide", "rat poison", "bromadiolon", "brodifacoum",
-        "difethialon", "difenacoum",
-        # Heavy metals (canonical names end with " contamination" but we
-        # match the element keyword for robustness)
-        "lead (pb)", "cadmium", "arsenic", "mercury (hg)", "heavy metal",
-        # Physical — glass is injury hazard, metal fragments often too
-        "glass fragm", "metal fragm",
-    ]
-    if any(k in p for k in tier1_keywords):
-        return 1
-    return 2
+The cleanup removes:
+- 63 agency `.py` files at root (duplicates of `scrapers/*.py`)
+- 22 scrambled `.py` at root (HTML content in `.py` names, or duplicates of `pipeline/`/`reports/`/`tools/`)
+- 9 rename-artifact files inside `scrapers/` (`__init__ (1).py` …)
+- 8 HTML + 1 PDF duplicates at root (canonical in `docs/`)
+- 6 JSON duplicates at root (canonical in `docs/data/`)
+- 8 workflow-YAML duplicates at root (canonical in `.github/workflows/`)
+- Entire stale `data/` directory (content moved to `docs/data/` first)
 
+### 2. Drop in the new workflows + pipeline scripts
 
-def parse_date(text: str) -> str:
-    """Parse any date format -> YYYY-MM-DD string. Returns '' on failure."""
-    if not text:
-        return ""
-    if isinstance(text, (datetime, date)):
-        return text.strftime("%Y-%m-%d")
-    text = str(text).strip()
-    formats = [
-        "%Y-%m-%d", "%Y/%m/%d", "%d/%m/%Y", "%d-%m-%Y", "%m/%d/%Y", "%d.%m.%Y",
-        "%d %B %Y", "%B %d, %Y", "%d %b %Y", "%b %d, %Y",
-        "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%SZ", "%Y%m%d",
-        "%a, %d %b %Y %H:%M:%S %z", "%a, %d %b %Y %H:%M:%S GMT",
-    ]
-    for fmt in formats:
-        try:
-            return datetime.strptime(text[:len(fmt)+5], fmt).strftime("%Y-%m-%d")
-        except (ValueError, TypeError):
-            continue
-    # Try ISO with timezone
-    try:
-        return datetime.fromisoformat(text.replace("Z", "+00:00")).strftime("%Y-%m-%d")
-    except (ValueError, TypeError):
-        pass
-    return ""
+```bash
+cp -r /path/to/AFTS-FIX/.github/workflows/*.yml .github/workflows/
+cp /path/to/AFTS-FIX/pipeline/*.py pipeline/
 
+git add .github/workflows/ pipeline/
+git commit -m "feat: Athens-time automation + gap-fill + PDF pipeline"
+git push
+```
 
-@dataclass
-class Recall:
-    """Canonical recall row — matches recalls.xlsx schema exactly."""
-    Date: str = ""               # YYYY-MM-DD
-    Source: str = ""             # e.g. "FDA", "RappelConso (FR)"
-    Company: str = ""
-    Brand: str = ""
-    Product: str = ""
-    Pathogen: str = ""
-    Reason: str = ""
-    Class: str = ""              # Recall / Alert / PHA / etc.
-    Country: str = ""
-    Region: str = ""             # North America / Europe / Asia / Oceania / Africa / South America / Middle East
-    Tier: int = 2
-    Outbreak: int = 0
-    URL: str = ""
-    Notes: str = ""
+### 3. Update requirements.txt
 
-    def normalize(self) -> "Recall":
-        """Apply all normalizations. Call once before merging.
+Append `weasyprint==63.1` to your `requirements.txt`:
 
-        Defensive validation applied here catches boilerplate-leakage bugs
-        where a scraper mis-attributes page intro text or product description
-        to the Pathogen field. When Pathogen is empty after cleaning, the
-        downstream scraper filter in _base.GenericGeminiScraper.scrape drops
-        the row.
-        """
-        self.Date = parse_date(self.Date)
+```bash
+cat /path/to/AFTS-FIX/requirements-additions.txt >> requirements.txt
+git add requirements.txt
+git commit -m "deps: add weasyprint for PDF generation"
+git push
+```
 
-        # Defensive clean of Pathogen before canonicalization.
-        # A real pathogen name is short (<= 80 chars). Anything longer is
-        # almost certainly boilerplate that leaked from the page. This
-        # guards against the FSANZ-type bug (April 2026) where the
-        # page's descriptive intro paragraph was stored as Pathogen.
-        if self.Pathogen and len(self.Pathogen) > 80:
-            self.Pathogen = ""
-        # Pathogen == Product is another boilerplate-leakage signal — a
-        # correctly-parsed row has different values in those fields.
-        if (self.Pathogen and self.Product
-                and self.Pathogen.strip() == self.Product.strip()):
-            self.Pathogen = ""
+### 4. Verify the workflow file paths exist in your repo
 
-        self.Pathogen = normalize_pathogen(self.Pathogen)
-        self.Country = normalize_country(self.Country) if self.Country else self.Country
-        if not self.Region and self.Country:
-            self.Region = COUNTRY_REGION.get(self.Country, "")
-        self.Tier = assign_tier(self.Pathogen, self.Outbreak)
-        # Strip control chars and normalize unicode
-        for f in ["Source", "Company", "Brand", "Product", "Reason", "Class", "Notes"]:
-            v = getattr(self, f)
-            if v:
-                v = unicodedata.normalize("NFKC", str(v))
-                v = re.sub(r"\s+", " ", v).strip()
-                setattr(self, f, v)
-        return self
+The monthly workflow calls `python docs/build_monthly_report_afts.py` and the weekly workflow calls `python docs/build_weekly_report_afts.py`. **Verify those two files exist with real Python content in your real repo.** In the zip you gave me they were scrambled (HTML in `.py` filenames, or content swapped between files), but the workflows assume the canonical paths. Quick check:
 
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+```bash
+head -3 docs/build_monthly_report_afts.py docs/build_weekly_report_afts.py
+```
 
-    def dedup_key(self) -> str:
-        """For deduplication: prefer URL, fallback to date+company+pathogen."""
-        if self.URL:
-            return self.URL.lower().strip()
-        co = unicodedata.normalize("NFD", self.Company or "").encode("ascii", "ignore").decode().lower()
-        co = re.sub(r"[^a-z0-9]", "", co)[:30]
-        return f"{self.Date}|{co}|{normalize_pathogen(self.Pathogen)[:30]}"
+Both should start with `"""` (a Python docstring), not `<!DOCTYPE html>`.
 
+### 5. `scrapers/news.py` is empty (0 bytes)
 
-# Region inference from country
-COUNTRY_REGION = {
-    "USA": "North America", "Canada": "North America", "Mexico": "North America",
-    "France": "Europe", "Germany": "Europe", "Italy": "Europe", "Spain": "Europe",
-    "Greece": "Europe", "Belgium": "Europe", "Netherlands": "Europe", "Portugal": "Europe",
-    "Ireland": "Europe", "Austria": "Europe", "Sweden": "Europe", "Denmark": "Europe",
-    "Finland": "Europe", "Poland": "Europe", "Czech Republic": "Europe", "Hungary": "Europe",
-    "Romania": "Europe", "Slovakia": "Europe", "Slovenia": "Europe", "Croatia": "Europe",
-    "Bulgaria": "Europe", "Lithuania": "Europe", "Latvia": "Europe", "Estonia": "Europe",
-    "Cyprus": "Europe", "Malta": "Europe", "Luxembourg": "Europe", "United Kingdom": "Europe",
-    "Switzerland": "Europe", "Norway": "Europe", "Iceland": "Europe",
-    "Japan": "Asia", "South Korea": "Asia", "China": "Asia", "Hong Kong": "Asia",
-    "Singapore": "Asia", "Taiwan": "Asia", "India": "Asia", "Thailand": "Asia",
-    "Vietnam": "Asia", "Malaysia": "Asia", "Indonesia": "Asia", "Philippines": "Asia",
-    "Australia": "Oceania", "New Zealand": "Oceania",
-    "South Africa": "Africa", "Kenya": "Africa", "Nigeria": "Africa",
-    "Egypt": "Africa", "Morocco": "Africa", "Ghana": "Africa",
-    "Brazil": "South America", "Argentina": "South America", "Chile": "South America",
-    "Colombia": "South America", "Peru": "South America", "Ecuador": "South America",
-    "Uruguay": "South America",
-    "Israel": "Middle East", "UAE": "Middle East", "Saudi Arabia": "Middle East",
-    "Qatar": "Middle East", "Turkey": "Middle East",
-}
+In the zip you uploaded, `scrapers/news.py` is a 0-byte file — the news-feed workflow runs it every hour but it does nothing. Verify this in your real repo:
 
+```bash
+wc -l scrapers/news.py
+```
 
-def infer_region(country: str) -> str:
-    return COUNTRY_REGION.get(country, "")
+If it's 0 in your repo too, restore it from a prior good commit (`git log -- scrapers/news.py` to find when it was last non-empty) or re-author. The new `news-feed.yml` still adds the 7-day purge step, so even if `news.py` is broken, expired NEWS rows get cleaned up.
+
+---
+
+## Schedule summary (all Athens time)
+
+| Workflow | When | What |
+|---|---|---|
+| `morning-critical-scrape.yml` | Daily 08:00 | 12 critical agencies → Pending |
+| `fsis-url-guardian.yml` | Every 4h | URL validation |
+| `merge-master.yml` | Every hour (:05) | Pending → Recalls |
+| `news-feed.yml` | Every hour (:00) | Fetch news + purge >7d |
+| `daily-scrape.yml` | Daily 17:00 | Full 66 agencies → Pending |
+| `afts-weekly-report.yml` | Fridays 08:00 | Build HTML+PDF+AI review, commit by ~10:00 |
+| Apps Script mailer (external) | Fridays 12:00 | Read weekly summary JSON, email |
+| `afts-monthly-report.yml` | 1st of month 09:00 | Gap-fill missing months, HTML+PDF+hub |
+
+---
+
+## How the gap-fill works
+
+**Monthly (`pipeline/build_missing_monthly_reports.py`)**:
+1. Reads `docs/data/monthly-index.json`
+2. Lists every month from `2026-03` through the previous-closed month
+3. Skips months already covered (either with real `total` stats or a legacy manual `pdf_url`)
+4. Builds only the missing ones — calls `python docs/build_monthly_report_afts.py --month-end <last-day-of-month>`
+5. Then `html_to_pdf.py` produces the PDF, `set_pdf_urls.py` wires `pdf_url` into the index, hub auto-renders
+
+**Weekly (`pipeline/build_missing_weekly_reports.py`)**:
+1. Scans `docs/20*-W*.html` to see what's already present
+2. `PRESERVED_WEEKS = {(2026, 15), (2026, 16)}` — never touched (George's manual versions)
+3. The week ending on Friday's Sunday is ALWAYS rebuilt (fresh weekly run)
+4. Prior missing weeks get filled in (never overwrites an existing one except the current)
+
+Both orchestrators are idempotent — rerunning them mid-day or after a failure does the right thing.
+
+---
+
+## Verification I ran
+
+Every Python file compiles (`python3 -m py_compile`). Every YAML parses. I ran the gap-fill orchestrators against your real `docs/data/monthly-index.json` and confirmed:
+
+- Today (Apr 21): no months need building (March covered, April not yet closed) ✓
+- Simulated May 1: builds April only, skips March ✓
+- Friday Apr 24: rebuilds W17, skips W15 + W16 (preserved) ✓
+- Friday May 1: rebuilds W18, skips W17 (auto-built prior week), skips W15 + W16 ✓
+
+`set_pdf_urls.py` test: after simulating April's HTML+PDF build, it correctly set `pdf_url` for M04 to the GitHub Pages URL and left M01/M02/M03 Wix URLs untouched.
+
+`purge_old_news.py` dry-run on your real NEWS sheet: 6 rows (Apr 10–14) would be deleted, 17 rows (Apr 14–20) kept.
+
+---
+
+## One thing I did NOT touch
+
+- Your actual weekly builder (`docs/build_weekly_report_afts.py` in the real repo)
+- Your actual monthly builder (`docs/build_monthly_report_afts.py` in the real repo)
+- `docs/hub.html`, `docs/index.html`, `docs/alerts.html`
+- The Google Apps Script mailer (it lives in Apps Script, not in this repo)
+- Your scrapers in `scrapers/`
+
+Builders already write `docs/data/monthly-summary-latest.json` and `docs/data/weekly-summary-latest.json` with an `email_html` field — that's what the Apps Script mailer reads to send the Friday 12:00 email. No changes needed there.

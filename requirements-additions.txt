@@ -1,0 +1,5 @@
+# Append these lines to requirements.txt (or just make sure they're in there).
+# WeasyPrint is only needed for the report workflows (weekly + monthly PDFs).
+# The scrape workflows don't need it.
+
+weasyprint==63.1
