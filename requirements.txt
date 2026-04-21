@@ -1,0 +1,6 @@
+# AFTS FSIS — pinned versions for reproducibility.
+# If you hit install friction on any of these, loosen the pin.
+requests>=2.31,<3
+openpyxl>=3.1,<4
+feedparser>=6.0,<7
+weasyprint==63.1
