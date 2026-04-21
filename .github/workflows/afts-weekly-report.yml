@@ -13,6 +13,8 @@ name: AFTS Weekly Report
 #          sends the email to subscribers
 #
 # Authoritative template: docs/2026-W16.html
+# Each weekly report covers 7 days ENDING on Friday (Sat..Fri span),
+# matching the W16 gold standard. Builder's --week-end flag expects a Friday.
 # Builder reads docs/data/recalls.xlsx Recalls sheet ONLY — never Pending,
 # never News. News is displayed separately on the dashboard but NOT in
 # the weekly report (recalls only, per George's spec).
@@ -25,10 +27,10 @@ on:
   workflow_dispatch:
     inputs:
       force_week_end:
-        description: "YYYY-MM-DD (a Sunday): force-build this week"
+        description: "YYYY-MM-DD (a Friday): force-build this week"
         required: false
       backfill_from:
-        description: "YYYY-MM-DD (a Sunday): oldest week to check in gap-fill"
+        description: "YYYY-MM-DD (a Friday): oldest week to check in gap-fill"
         required: false
 
 permissions:
@@ -85,21 +87,21 @@ jobs:
           pip install -r requirements.txt
           pip install weasyprint==63.1
 
-      - name: Resolve this-week's end-date (Sunday)
+      - name: Resolve this-week's end-date (Friday)
         if: steps.guard.outputs.run == 'true' && github.event.inputs.force_week_end == ''
         id: week
         run: |
-          # The upcoming Sunday in Athens — the week that's closing now.
-          # Cron fires Friday 08:00 Athens; the week runs Mon..Sun.
+          # Weekly reports cover 7 days ending on FRIDAY (Sat..Fri span, per W16 gold standard).
+          # Scheduled runs fire Friday 08:00 Athens, so today IS the week-end Friday.
+          # For manual workflow_dispatch on non-Fridays, snap back to the most recent Friday.
           WEEK_END=$(TZ=Europe/Athens python -c "
           from datetime import date, timedelta
           t = date.today()
-          # Sunday = (6 - weekday) days ahead. If today IS Sunday, delta=0.
-          delta = (6 - t.weekday()) % 7
-          print((t + timedelta(days=delta)).isoformat())
+          days_since_friday = (t.weekday() - 4) % 7   # Monday=0, Friday=4; 0 if today is Friday
+          print((t - timedelta(days=days_since_friday)).isoformat())
           ")
           echo "week_end=$WEEK_END" >> "$GITHUB_OUTPUT"
-          echo "Week ending Sunday: $WEEK_END"
+          echo "Week ending Friday: $WEEK_END"
 
       - name: Gap-fill — build weeks missing from docs/
         if: steps.guard.outputs.run == 'true' && github.event.inputs.force_week_end == ''
