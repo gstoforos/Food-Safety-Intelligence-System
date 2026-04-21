@@ -3,19 +3,33 @@ scrapers/_base.py
 =================
 AFTS FSIS — Base scraper classes and shared HTTP utilities.
 
-Exports
--------
-    BaseScraper           Abstract base for all regional agency scrapers.
-    GenericGeminiScraper  Default scraper that uses Gemini 2.0 Flash for HTML extraction.
-    make_session          Build a configured requests.Session with retries.
-    fetch                 Single-URL fetcher with timeout + retry.
+Public API (do not change signatures without grepping all callers)
+------------------------------------------------------------------
+    BaseScraper
+        AGENCY          class attr, str
+        COUNTRY         class attr, str
+        session         instance attr, requests.Session
+        logger          instance attr, logging.Logger
+        scrape(since_days: int = 30) -> List[Recall]       subclasses override
+        _new_recall(Date, Company, Brand, Product, Pathogen, Reason,
+                    Class, URL, Outbreak, Notes) -> Recall  builds + normalizes
+
+    GenericGeminiScraper(BaseScraper)
+        INDEX_URLS        class attr, Sequence[str]
+        LANGUAGE          class attr, str (default "en")
+        EXTRACTION_HINTS  class attr, str (optional agency-specific guidance)
+        scrape(since_days: int = 30) -> List[Recall]       uses Gemini
+
+    make_session() -> requests.Session
+    fetch(session, url, method="GET", timeout=30, **kwargs) -> Optional[Response]
+        NOTE: session is the FIRST positional argument — do not change.
 
 Consumers
 ---------
-    pipeline.run_all                     imports BaseScraper, make_session
-    scrapers.<region>.<agency>           every regional scraper subclasses GenericGeminiScraper
-    review.claude_client                 uses extract_rows() signature for HTML fallback
-    pipeline.fsis_url_guardian           uses fetch() + make_session()
+    pipeline.run_all                   BaseScraper, make_session
+    scrapers.<region>.*                BaseScraper or GenericGeminiScraper, fetch
+    scrapers.news_feeds._news_base     make_session, fetch
+    pipeline.fsis_url_guardian         make_session, fetch (likely)
 """
 
 from __future__ import annotations
@@ -25,7 +39,7 @@ import logging
 import os
 import random
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Sequence
 from urllib.parse import urljoin
 
@@ -69,12 +83,22 @@ def make_session(
     backoff_factor: float = 0.5,
     status_forcelist: Sequence[int] = (429, 500, 502, 503, 504),
     headers: Optional[Dict[str, str]] = None,
+    timeout: Optional[int] = None,
 ) -> requests.Session:
-    """Build a requests.Session with retry/backoff and the AFTS user-agent."""
+    """
+    Build a requests.Session with retry/backoff and the AFTS user-agent.
+
+    The optional `timeout` kwarg is stored on the session as `request_timeout`
+    and used by fetch() as the default when no explicit timeout is passed —
+    this is how scrapers.news_feeds._news_base sets a session-wide default.
+    """
     session = requests.Session()
     session.headers.update(DEFAULT_HEADERS)
     if headers:
         session.headers.update(headers)
+    if timeout is not None:
+        # requests.Session has no native default-timeout — we stash it and fetch() reads it.
+        session.request_timeout = timeout  # type: ignore[attr-defined]
 
     retry = Retry(
         total=retries,
@@ -92,16 +116,30 @@ def make_session(
 
 
 def fetch(
+    session: Optional[requests.Session],
     url: str,
-    session: Optional[requests.Session] = None,
     method: str = "GET",
-    timeout: int = DEFAULT_TIMEOUT,
+    timeout: Optional[int] = None,
     **kwargs: Any,
 ) -> Optional[requests.Response]:
-    """Single-URL fetch with shared retry policy. Returns the Response or None on failure."""
-    s = session or make_session()
+    """
+    Fetch a URL. Returns Response on success, None on failure.
+
+    NOTE: session is the FIRST positional argument by AFTS convention.
+    All regional scrapers call `fetch(self.session, url)` — do not swap.
+    A None session is accepted and a default session is built internally.
+
+    Timeout resolution order:
+        1. explicit `timeout=` kwarg
+        2. session.request_timeout (set by make_session(timeout=...))
+        3. DEFAULT_TIMEOUT (30s)
+    """
+    if session is None:
+        session = make_session()
+    if timeout is None:
+        timeout = getattr(session, "request_timeout", DEFAULT_TIMEOUT)
     try:
-        return s.request(method, url, timeout=timeout, **kwargs)
+        return session.request(method, url, timeout=timeout, **kwargs)
     except requests.RequestException as exc:
         log.warning("fetch failed for %s: %s", url, exc)
         return None
@@ -112,11 +150,15 @@ def fetch(
 # ---------------------------------------------------------------------------
 
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
-GEMINI_MAX_HTML_CHARS = 120_000  # truncate very large pages to stay inside token budget
+GEMINI_MAX_HTML_CHARS = 120_000
 
 
 def _gemini_api_keys() -> List[str]:
-    """Collect all GEMINI_API_KEY_{1..5} env vars (plus legacy GEMINI_API_KEY)."""
+    """
+    Collect every available Gemini key. Supports both conventions:
+      - Single key:   GEMINI_API_KEY
+      - Rotation:     GEMINI_API_KEY_1 .. GEMINI_API_KEY_5
+    """
     keys: List[str] = []
     legacy = os.getenv("GEMINI_API_KEY")
     if legacy:
@@ -147,7 +189,6 @@ def _call_gemini(prompt: str, html: str, language: str = "en") -> str:
         html = html[:GEMINI_MAX_HTML_CHARS] + "\n<!-- truncated -->"
 
     last_error: Optional[Exception] = None
-    # randomise key order so load spreads over time
     for api_key in random.sample(keys, k=len(keys)):
         try:
             genai.configure(api_key=api_key)
@@ -179,12 +220,8 @@ def _strip_code_fences(s: str) -> str:
     return s.strip()
 
 
-# ---------------------------------------------------------------------------
-# Extraction prompt for GenericGeminiScraper
-# ---------------------------------------------------------------------------
-
 GEMINI_EXTRACTION_PROMPT = """\
-You are extracting FOOD RECALL records from an agency's HTML page.
+You are extracting FOOD RECALL records from an agency's HTML listing page.
 
 Return a JSON array (no prose, no markdown fences). Each item:
 
@@ -192,9 +229,9 @@ Return a JSON array (no prose, no markdown fences). Each item:
   "date": "YYYY-MM-DD",
   "company": "<recalling company or brand>",
   "product": "<product name / description>",
-  "pathogen": "<contaminant - e.g. Salmonella, Listeria monocytogenes, E. coli O157:H7, Clostridium botulinum. Empty string if not pathogen-related>",
-  "url": "<direct link to the recall detail page; absolute URL>",
-  "description": "<1-2 sentence summary>"
+  "pathogen": "<contaminant — e.g. Salmonella, Listeria monocytogenes, E. coli O157:H7, Clostridium botulinum. Empty string if not pathogen-related>",
+  "url": "<direct link to the recall DETAIL page; absolute URL>",
+  "description": "<1–2 sentence summary>"
 }
 
 Rules:
@@ -202,7 +239,7 @@ Rules:
 - EXCLUDE: undeclared allergens, label errors, foreign material, packaging defects.
 - If the page has NO recalls matching, return [].
 - Dates must be ISO (YYYY-MM-DD).
-- URLs MUST be absolute and point to the specific recall DETAIL page (not the listing page).
+- URLs MUST be absolute and point to the recall DETAIL page (not the listing page).
 - Return ONLY the JSON array. No commentary, no markdown.
 """
 
@@ -215,102 +252,83 @@ class BaseScraper:
     """
     Abstract base for regional agency scrapers.
 
-    Subclasses MUST set as class attributes:
-        AGENCY       Human-readable agency name (e.g. "FDA", "RASFF").
-        COUNTRY      Country name as it should appear in the Recalls sheet.
-        INDEX_URLS   Iterable of listing URLs to scrape.
-        LANGUAGE     Two-letter language code of the agency's pages (default "en").
+    Subclasses MUST:
+      - set class attrs AGENCY (str) and COUNTRY (str)
+      - implement scrape(since_days: int = 30) -> List[Recall]
 
-    Subclasses MAY override:
-        extract_rows(html, source_url) -> List[Recall]
+    Subclasses use self.session (a requests.Session) and self._new_recall(...)
+    to build Recall objects. _new_recall auto-fills Source, Country, Region,
+    and Tier — callers only pass the per-row fields.
     """
 
     AGENCY: str = ""
     COUNTRY: str = ""
-    INDEX_URLS: Sequence[str] = ()
-    LANGUAGE: str = "en"
 
     def __init__(self, session: Optional[requests.Session] = None) -> None:
-        if not self.AGENCY:
-            raise ValueError(f"{type(self).__name__}.AGENCY is not set")
-        if not self.COUNTRY:
-            raise ValueError(f"{type(self).__name__}.COUNTRY is not set")
-        if not self.INDEX_URLS:
-            raise ValueError(f"{type(self).__name__}.INDEX_URLS is empty")
-
-        self.session = session or make_session()
-        slug = re.sub(r"\W+", "_", self.AGENCY.lower()).strip("_") or "unknown"
-        self.logger = logging.getLogger(f"scraper.{slug}")
+        cls_name = type(self).__name__
+        self.session: requests.Session = session or make_session()
+        slug = re.sub(r"\W+", "_", (self.AGENCY or cls_name).lower()).strip("_") or "unknown"
+        self.logger: logging.Logger = logging.getLogger(f"scraper.{slug}")
 
     # --------------------------------------------------------------- API
-    def run(self) -> List[Recall]:
-        """Iterate INDEX_URLS, fetch each, extract rows, return combined Recall list."""
-        all_rows: List[Recall] = []
-        for url in self.INDEX_URLS:
-            self.logger.info("fetching %s", url)
-            resp = fetch(url, session=self.session)
-            if resp is None or not resp.ok:
-                self.logger.warning(
-                    "skip %s (status=%s)",
-                    url,
-                    getattr(resp, "status_code", "no-response"),
-                )
-                continue
-            try:
-                rows = self.extract_rows(resp.text, url)
-            except Exception as exc:  # noqa: BLE001 - one bad page must not kill the run
-                self.logger.exception("extract_rows failed for %s: %s", url, exc)
-                rows = []
-            self.logger.info("extracted %d rows from %s", len(rows), url)
-            all_rows.extend(rows)
-        return all_rows
-
-    def extract_rows(self, html: str, source_url: str) -> List[Recall]:
+    def scrape(self, since_days: int = 30) -> List[Recall]:
+        """Subclasses override. Returns a list of Recall objects."""
         raise NotImplementedError(
-            f"{type(self).__name__} must implement extract_rows() "
-            f"or subclass GenericGeminiScraper"
+            f"{type(self).__name__} must implement scrape(since_days)"
         )
 
-    # ---------------------------------------------------------- utilities
-    def _build_recall(
+    # ---------------------------------------------------- Recall builder
+    def _new_recall(
         self,
-        date: str,
-        company: str,
-        product: str,
-        pathogen: str,
-        url: str,
-        description: str = "",
-        source_url: str = "",
-    ) -> Optional[Recall]:
+        Date: str = "",
+        Company: str = "",
+        Brand: str = "—",
+        Product: str = "",
+        Pathogen: str = "",
+        Reason: str = "",
+        Class: str = "Recall",
+        URL: str = "",
+        Outbreak: Any = 0,
+        Notes: str = "",
+    ) -> Recall:
         """
-        Normalize raw extracted fields into a Recall.
-        Returns None if the row must be dropped (no URL, not a pathogen recall).
+        Build a Recall with Source/Country auto-filled from class attrs and
+        Region/Tier auto-computed from the normalizers.
+
+        Callers pass only per-row fields — Source, Country, Region, Tier are
+        never passed by the regional scrapers (verified by grep across repo).
         """
-        url = (url or "").strip()
-        if not url:
-            return None
+        country = normalize_country(self.COUNTRY) or (self.COUNTRY or "")
+        region = infer_region(country) if country else ""
+        canonical_pathogen = normalize_pathogen(Pathogen) or (Pathogen or "")
 
-        canonical_pathogen = normalize_pathogen(pathogen or "")
-        if not canonical_pathogen:
-            return None  # not a pathogen recall — drop per FSIS whitelist rule
+        try:
+            outbreak_int = 1 if int(Outbreak or 0) else 0
+        except (TypeError, ValueError):
+            outbreak_int = 0
 
-        country = normalize_country(self.COUNTRY)
-        region = infer_region(country)
-        tier = assign_tier(canonical_pathogen)
+        tier = assign_tier(canonical_pathogen, outbreak_int)
+
+        def _s(v: Any, default: str = "") -> str:
+            if v is None:
+                return default
+            return str(v).strip() or default
 
         return Recall(
-            date=(date or "").strip(),
-            agency=self.AGENCY,
-            country=country,
-            region=region,
-            company=(company or "").strip(),
-            product=(product or "").strip(),
-            pathogen=canonical_pathogen,
-            tier=tier,
-            url=url,
-            description=(description or "").strip(),
-            source_url=source_url or "",
-            scraped_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            Date=_s(Date),
+            Source=self.AGENCY or "",
+            Company=_s(Company),
+            Brand=_s(Brand, "—") or "—",
+            Product=_s(Product),
+            Pathogen=_s(canonical_pathogen),
+            Reason=_s(Reason),
+            Class=_s(Class, "Recall") or "Recall",
+            Country=country,
+            Region=region,
+            Tier=tier,
+            Outbreak=outbreak_int,
+            URL=_s(URL),
+            Notes=_s(Notes),
         )
 
 
@@ -320,18 +338,72 @@ class BaseScraper:
 
 class GenericGeminiScraper(BaseScraper):
     """
-    Default scraper: uses Gemini 2.0 Flash to extract structured rows from HTML.
+    Default scraper: uses Gemini 2.0 Flash to extract structured recall rows
+    from each URL in INDEX_URLS.
 
-    Most regional scrapers only need to set AGENCY, COUNTRY, INDEX_URLS, LANGUAGE
-    as class attributes and inherit this class unchanged.
+    Subclasses typically set only:
+        AGENCY, COUNTRY, INDEX_URLS, LANGUAGE, EXTRACTION_HINTS (optional)
     """
 
-    EXTRA_PROMPT: str = ""  # subclasses may append agency-specific guidance
+    INDEX_URLS: Sequence[str] = ()
+    LANGUAGE: str = "en"
+    EXTRACTION_HINTS: str = ""  # optional agency-specific guidance appended to the prompt
 
-    def extract_rows(self, html: str, source_url: str) -> List[Recall]:
+    def scrape(self, since_days: int = 30) -> List[Recall]:
+        if not self.INDEX_URLS:
+            self.logger.warning(
+                "%s has no INDEX_URLS configured — skipping",
+                type(self).__name__,
+            )
+            return []
+
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=since_days)).date()
+        all_rows: List[Recall] = []
+
+        for url in self.INDEX_URLS:
+            self.logger.info("fetching %s", url)
+            resp = fetch(self.session, url)
+            if resp is None or not resp.ok:
+                self.logger.warning(
+                    "skip %s (status=%s)",
+                    url,
+                    getattr(resp, "status_code", "no-response"),
+                )
+                continue
+
+            try:
+                rows = self._extract_with_gemini(resp.text, url)
+            except Exception as exc:  # noqa: BLE001
+                self.logger.exception("gemini extract failed for %s: %s", url, exc)
+                rows = []
+
+            # Date filter — drop rows older than cutoff when date parseable,
+            # keep rows with un-parseable dates (better to let review catch).
+            filtered: List[Recall] = []
+            for r in rows:
+                if not r.Date:
+                    filtered.append(r)
+                    continue
+                try:
+                    d = datetime.strptime(r.Date[:10], "%Y-%m-%d").date()
+                    if d >= cutoff:
+                        filtered.append(r)
+                except (ValueError, TypeError):
+                    filtered.append(r)
+
+            self.logger.info(
+                "extracted %d rows from %s (%d within %d-day window)",
+                len(rows), url, len(filtered), since_days,
+            )
+            all_rows.extend(filtered)
+
+        return all_rows
+
+    # ---------------------------------------------------------- internal
+    def _extract_with_gemini(self, html: str, source_url: str) -> List[Recall]:
         prompt = GEMINI_EXTRACTION_PROMPT
-        if self.EXTRA_PROMPT:
-            prompt = f"{prompt}\n\nADDITIONAL AGENCY CONTEXT:\n{self.EXTRA_PROMPT}"
+        if self.EXTRACTION_HINTS:
+            prompt = f"{prompt}\n\nAGENCY-SPECIFIC HINTS:\n{self.EXTRACTION_HINTS}"
         prompt = (
             f"{prompt}\n\n"
             f"AGENCY: {self.AGENCY}\n"
@@ -341,8 +413,8 @@ class GenericGeminiScraper(BaseScraper):
 
         try:
             raw = _call_gemini(prompt=prompt, html=html, language=self.LANGUAGE)
-        except Exception as exc:  # noqa: BLE001 - caller can fall back to Claude
-            self.logger.warning("Gemini extraction failed: %s", exc)
+        except Exception as exc:  # noqa: BLE001 - review layer can try Claude fallback
+            self.logger.warning("Gemini call failed: %s", exc)
             return []
 
         if not raw:
@@ -352,7 +424,7 @@ class GenericGeminiScraper(BaseScraper):
         try:
             data = json.loads(cleaned)
         except json.JSONDecodeError as exc:
-            self.logger.warning("Gemini returned non-JSON response: %s", exc)
+            self.logger.warning("Gemini returned non-JSON: %s", exc)
             return []
 
         if not isinstance(data, list):
@@ -365,20 +437,27 @@ class GenericGeminiScraper(BaseScraper):
         for item in data:
             if not isinstance(item, dict):
                 continue
-            raw_url = (item.get("url") or "").strip()
+
+            raw_url = str(item.get("url") or "").strip()
             if raw_url and not raw_url.startswith(("http://", "https://")):
                 raw_url = urljoin(source_url, raw_url)
-            rec = self._build_recall(
-                date=str(item.get("date", "")),
-                company=str(item.get("company", "")),
-                product=str(item.get("product", "")),
-                pathogen=str(item.get("pathogen", "")),
-                url=raw_url,
-                description=str(item.get("description", "")),
-                source_url=source_url,
+
+            rec = self._new_recall(
+                Date=str(item.get("date", "")),
+                Company=str(item.get("company", "")),
+                Product=str(item.get("product", "")),
+                Pathogen=str(item.get("pathogen", "")),
+                Reason=str(item.get("description", "")) or str(item.get("pathogen", "")),
+                URL=raw_url,
+                Notes=f"Gemini/{self.LANGUAGE} from {source_url}",
             )
-            if rec is not None:
-                rows.append(rec)
+
+            # Drop rows that can't be promoted anyway (no URL or no pathogen).
+            if not rec.URL or not rec.Pathogen:
+                continue
+
+            rows.append(rec)
+
         return rows
 
 
