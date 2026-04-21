@@ -116,6 +116,13 @@ jobs:
             --month-end "${{ github.event.inputs.force_month_end }}" \
             --xlsx docs/data/recalls.xlsx
 
+      - name: Convert monthly HTML → PDF (one per month, idempotent)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pipeline.html_to_pdf \
+            --docs-dir docs \
+            --kind monthly
+
       - name: Wire pdf_url into monthly-index.json (so hub auto-renders)
         if: steps.guard.outputs.run == 'true'
         run: |

@@ -2,10 +2,14 @@ name: FSIS Claude Gap Finder
 
 on:
   schedule:
-    # Daily at 05:00 UTC — 1hr before OpenAI gap-finder (06:00),
-    # well after the 17:00 scrape run. Both gap-finders feed Pending;
-    # the 07:30 URL gate promotes rows only if the URL is live.
-    - cron: '0 5 * * *'
+    # Daily at 22:00 ATHENS TIME (10 PM).
+    # Cron is duplicated for DST: one line for EEST (summer, UTC+3) and
+    # one for EET (winter, UTC+2). An Athens hour-guard step below makes
+    # the "wrong" DST cron exit cleanly so only one run fires per day.
+    # Runs ~12h offset from OpenAI gap-finder (10:00 Athens) so the two
+    # gap-finders are spread across the day rather than stacked together.
+    - cron: '0 19 * * *'  # 22:00 Athens EEST (summer UTC+3)
+    - cron: '0 20 * * *'  # 22:00 Athens EET  (winter UTC+2)
   workflow_dispatch:
     inputs:
       since_days:
@@ -26,24 +30,44 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - name: Athens-time guard
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          echo "athens_hour=$HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Manual dispatch — running regardless of hour."
+          elif [ "$HOUR" = "22" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Athens 22:xx — running."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not 22:xx Athens (currently ${HOUR}:xx). Skipping — the other DST cron will handle it."
+          fi
+
       - name: Checkout
+        if: steps.guard.outputs.run == 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: "pip"
 
       - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run Claude gap-finder
+        if: steps.guard.outputs.run == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GAP_SINCE_DAYS: ${{ github.event.inputs.since_days || '7' }}
