@@ -1,250 +1,234 @@
-"""USDA FSIS recalls & Public Health Alerts — uses the official FSIS recall API (JSON).
+"""
+Base class for RSS/Atom food safety news scrapers.
 
-API: https://www.fsis.usda.gov/fsis/api/recall/v/1
-
-Hazard scope:
-    Delegates to `_models.normalize_pathogen`, which covers the full hazard
-    taxonomy (biological pathogens, rodenticides, heavy metals, physical
-    foreign-body hazards, mycotoxins). The previous version used a 9-keyword
-    local filter that silently dropped every foreign-material recall —
-    ironically the single largest FSIS recall category in recent years.
-
-Record shape used (FSIS field names):
-    field_recall_number          e.g. "005-2025"
-    field_title                  headline
-    field_recall_reason          structured hazard category (e.g. "Listeria
-                                 monocytogenes", "Foreign Matter Contamination",
-                                 "E. coli O157:H7", "Misbranding, Unreported
-                                 Allergens"). Primary hazard signal.
-    field_recall_type            "Recall" | "Public Health Alert" | "Retraction"
-    field_recall_classification  "Class I" | "Class II" | "Class III" (recalls
-                                 only; PHAs have this blank)
-    field_related_to_outbreak    "True" | "False"
-    field_summary                HTML-laden prose description
-    field_establishment          establishment name (primary)
-    field_recall_company         distributing company (sometimes different)
-    field_product_items          product list
-    field_states                 distribution states
-    field_recall_date            "YYYY-MM-DD" or "MM/DD/YYYY"
-    field_last_modified_date     fallback if recall_date missing
-    field_recall_url             canonical per-recall page URL
-    field_archive_recall         "True" | "False"
+Each subclass sets FEED_URLS, SOURCE_NAME, and optionally PATHOGEN_KEYWORDS.
+The base class handles HTTP fetch, XML parse, pathogen detection, and
+dedup. Produces NewsItem dicts matching the NEWS sheet schema:
+  Published (UTC), Pathogen, Event, Source, Title, Link, Retrieved (UTC)
 """
 from __future__ import annotations
-from datetime import datetime, timedelta, timezone
-from typing import List, Optional
 import logging
 import re
+import xml.etree.ElementTree as ET
+from abc import ABC, abstractmethod
+from datetime import datetime, timezone, timedelta
+from typing import List, Dict, Any, Optional
+from email.utils import parsedate_to_datetime
 
-from scrapers._base import BaseScraper, fetch
-from scrapers._models import Recall, normalize_pathogen
+from scrapers._base import make_session, fetch
+from scrapers._models import normalize_pathogen, PATHOGEN_RULES
 
 log = logging.getLogger(__name__)
 
 
-# Reasons we explicitly drop. FSIS publishes a lot of label/inspection issues
-# that aren't in-scope for a hazard-monitoring system. Matched case-insensitive
-# on `field_recall_reason`.
-_EXCLUDED_REASON_PATTERNS = [
-    r"^misbranding(,\s*unreported\s*allergens?)?$",
-    r"^unreported\s*allergens?$",
-    r"^misbranding$",
-    r"^produced\s*without\s*benefit\s*of\s*inspection$",
-    r"^produced\s*without\s*inspection$",
-    r"^import\s*violation$",
-    r"^ineligible\s*(imported|for\s*import)",
-    r"^no\s*inspection$",
-]
-_EXCLUDED_REASON_RE = re.compile("|".join(_EXCLUDED_REASON_PATTERNS), re.IGNORECASE)
-
-# Retraction-type notices should not land in the dataset — they UNDO a prior
-# alert. If the prior alert is already in the dataset, a retraction could be
-# handled by flipping a status flag, but that's a future enhancement.
-_RETRACTION_RE = re.compile(r"retract", re.IGNORECASE)
-
-# Strip HTML tags from field_summary (which is server-rendered HTML).
-_HTML_TAG_RE = re.compile(r"<[^>]+>")
-_WHITESPACE_RE = re.compile(r"\s+")
-
-# Canonical hazard markers: after normalize_pathogen runs, a positive match
-# will contain one of these substrings. Used to distinguish "real canonical
-# hazard" from "normalize_pathogen fell through and returned raw input".
-_CANONICAL_HAZARD_MARKERS = (
-    "Listeria", "Salmonella", "E. coli", "STEC",
-    "Clostridium", "Norovirus", "Hepatitis", "Cyclospora",
-    "Vibrio", "Cronobacter", "Bacillus", "Campylobacter",
-    "Shigella", "Yersinia", "Aflatoxin", "Mycotoxin",
-    "Rodenticide", "Lead (Pb)", "Cadmium", "Arsenic",
-    "Mercury", "Heavy metal",
-    "Glass fragm", "Metal fragm", "Plastic fragm",
-    "Physical/foreign",
+# Keywords that signal a food-safety-relevant news item even if no
+# specific pathogen name appears (e.g. "recall", "outbreak", "contamination").
+FOOD_SAFETY_CONTEXT = re.compile(
+    r"recall|outbreak|contaminat|food.?borne|food.?poison|withdraw|"
+    r"advisory|alert|warning|illness|hospitali[sz]|pathogen|"
+    r"surveillance|inspection|violation|adulterat",
+    re.IGNORECASE,
 )
 
-
-def _strip_html(text: str) -> str:
-    if not text:
-        return ""
-    t = _HTML_TAG_RE.sub(" ", text)
-    return _WHITESPACE_RE.sub(" ", t).strip()
+# Build a combined regex from all PATHOGEN_RULES patterns for fast scanning
+_all_pathogen_patterns = "|".join(f"(?:{pat})" for _, pat in PATHOGEN_RULES)
+PATHOGEN_RE = re.compile(_all_pathogen_patterns, re.IGNORECASE)
 
 
-def _parse_fsis_date(text: str) -> Optional[datetime]:
-    """FSIS serves ISO (2025-11-09) or US (11/09/2025). Return aware datetime or None."""
-    if not text:
-        return None
-    s = str(text)[:10]
-    for fmt in ("%Y-%m-%d", "%m/%d/%Y"):
-        try:
-            return datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
-        except ValueError:
-            continue
-    return None
+class NewsItem:
+    """Single news article matching the NEWS sheet schema."""
+    __slots__ = ("published", "pathogen", "event", "source", "title", "link", "retrieved")
+
+    def __init__(self, published: str, pathogen: str, event: str,
+                 source: str, title: str, link: str):
+        self.published = published
+        self.pathogen = pathogen
+        self.event = event
+        self.source = source
+        self.title = title
+        self.link = link
+        self.retrieved = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def to_dict(self) -> Dict[str, str]:
+        return {
+            "Published (UTC)": self.published,
+            "Pathogen": self.pathogen,
+            "Event": self.event,
+            "Source": self.source,
+            "Title": self.title,
+            "Link": self.link,
+            "Retrieved (UTC)": self.retrieved,
+        }
 
 
-def _map_hazard(*sources: str) -> str:
-    """Return canonical hazard name for whichever source has the most specific match.
+class BaseNewsScraper(ABC):
+    """Abstract RSS/Atom news scraper."""
 
-    PATHOGEN_RULES in _models.py is ordered so that more-specific patterns come
-    first (Glass fragments before Metal fragments before Physical/foreign-body,
-    Salmonella Typhimurium before Salmonella spp., etc.). So the cleanest way
-    to let specificity win is to concatenate all candidate text into one blob
-    and let normalize_pathogen run once over the combined string.
+    SOURCE_NAME: str = ""
+    FEED_URLS: List[str] = []
 
-    Example: field_recall_reason = "Foreign Matter Contamination" (generic) but
-    field_title mentions "metal" — we want "Metal fragments", not the generic
-    "Physical/foreign-body contamination".
-    """
-    combined = " || ".join(s for s in sources if s)
-    if not combined:
-        return ""
-    cand = normalize_pathogen(combined)
-    # normalize_pathogen falls through to raw text when nothing matched. Accept
-    # only when a canonical rule actually fired.
-    if cand and cand != combined and any(m in cand for m in _CANONICAL_HAZARD_MARKERS):
-        return cand
-    return ""
+    # If True, only keep items that mention a known pathogen.
+    # If False, also keep items with food safety context keywords.
+    PATHOGEN_STRICT: bool = False
 
+    def __init__(self, session=None):
+        self.session = session or make_session(timeout=20)
 
-class USDAFSISScraper(BaseScraper):
-    AGENCY = "USDA FSIS"
-    COUNTRY = "USA"
-    BASE_URL = "https://www.fsis.usda.gov/fsis/api/recall/v/1"
-
-    def scrape(self, since_days: int = 30) -> List[Recall]:
+    def scrape_news(self, since_days: int = 7) -> List[NewsItem]:
+        """Fetch all feeds and return pathogen-related news items."""
         cutoff = datetime.now(timezone.utc) - timedelta(days=since_days)
+        items: List[NewsItem] = []
+        seen_links: set = set()
 
-        r = fetch(self.session, self.BASE_URL)
-        if not r:
-            log.warning("USDA FSIS: API fetch returned None")
-            return []
-        try:
-            data = r.json()
-        except ValueError as e:
-            log.warning("USDA FSIS: JSON decode failed: %s", e)
-            return []
-        if not isinstance(data, list):
-            log.warning("USDA FSIS: expected list, got %s", type(data).__name__)
-            return []
-
-        out: List[Recall] = []
-        seen_numbers: set = set()
-        skipped_stale = skipped_excluded = skipped_retraction = skipped_no_hazard = 0
-
-        for rec in data:
-            if not isinstance(rec, dict):
-                continue
+        for feed_url in self.FEED_URLS:
             try:
-                # --- Date ---
-                d = (_parse_fsis_date(rec.get("field_recall_date", ""))
-                     or _parse_fsis_date(rec.get("field_last_modified_date", "")))
-                if not d:
-                    continue
-                if d < cutoff:
-                    skipped_stale += 1
-                    continue
+                raw_items = self._fetch_feed(feed_url, cutoff)
+                for item in raw_items:
+                    link = item.get("link", "").strip()
+                    if not link or link in seen_links:
+                        continue
+                    seen_links.add(link)
 
-                # --- Dedup on recall number (API occasionally emits dupes) ---
-                num = (rec.get("field_recall_number") or "").strip()
-                if num and num in seen_numbers:
-                    continue
-                if num:
-                    seen_numbers.add(num)
+                    title = item.get("title", "").strip()
+                    description = item.get("description", "").strip()
+                    pub_date = item.get("pub_date", "")
+                    text = f"{title} {description}"
 
-                # --- Filter by recall_type (drop retractions) ---
-                rtype = (rec.get("field_recall_type") or "Recall").strip()
-                if _RETRACTION_RE.search(rtype):
-                    skipped_retraction += 1
-                    continue
+                    # Detect pathogen from title + description
+                    pathogen = self._detect_pathogen(text)
 
-                # --- Filter by recall_reason (drop out-of-scope categories) ---
-                reason_cat = _strip_html(rec.get("field_recall_reason") or "").strip()
-                if reason_cat and _EXCLUDED_REASON_RE.match(reason_cat):
-                    skipped_excluded += 1
-                    continue
+                    # Filter: must mention a pathogen or food safety context
+                    if not pathogen and self.PATHOGEN_STRICT:
+                        continue
+                    if not pathogen and not FOOD_SAFETY_CONTEXT.search(text):
+                        continue
 
-                # --- Determine hazard (canonical name via shared normalizer) ---
-                # Priority: field_recall_reason > field_title > field_summary.
-                title = _strip_html(rec.get("field_title") or "")
-                summary = _strip_html(rec.get("field_summary") or "")
-                pathogen = _map_hazard(reason_cat, title, summary)
-                if not pathogen:
-                    skipped_no_hazard += 1
-                    continue
+                    # Classify event type from text
+                    event = self._classify_event(text)
 
-                # --- Outbreak flag ---
-                outbreak_str = (rec.get("field_related_to_outbreak") or "").strip().lower()
-                outbreak = 1 if outbreak_str == "true" else 0
-                # Secondary signal: illness mention in summary
-                if not outbreak and re.search(
-                        r"\b(illness|outbreak|sickened|hospitalized|deaths?)\b",
-                        summary, re.IGNORECASE):
-                    outbreak = 1
-
-                # --- Class / type ---
-                cls_raw = (rec.get("field_recall_classification") or "").strip()
-                if "public health alert" in rtype.lower() or num.upper().startswith("PHA-"):
-                    klass = "Public Health Alert"
-                elif cls_raw:
-                    klass = cls_raw  # "Class I" / "Class II" / "Class III"
-                else:
-                    klass = "Recall"
-
-                # --- Company / product / URL ---
-                company = (rec.get("field_establishment")
-                           or rec.get("field_recall_company") or "").strip()
-                product = (rec.get("field_product_items") or title or "")[:300].strip()
-                url = (rec.get("field_recall_url") or "").strip()
-                if url and url.startswith("/"):
-                    url = "https://www.fsis.usda.gov" + url
-
-                states = (rec.get("field_states") or "").strip()
-                notes_bits = []
-                if num:
-                    notes_bits.append(f"FSIS #{num}")
-                if states:
-                    notes_bits.append(f"Distribution: {states}")
-                if reason_cat:
-                    notes_bits.append(f"Reason: {reason_cat}")
-                notes = "; ".join(notes_bits)
-
-                out.append(self._new_recall(
-                    Date=d.strftime("%Y-%m-%d"),
-                    Company=company or "—",
-                    Brand="—",  # FSIS data doesn't have a distinct brand field
-                    Product=product,
-                    Pathogen=pathogen,
-                    Reason=reason_cat or summary[:300],
-                    Class=klass,
-                    URL=url,
-                    Outbreak=outbreak,
-                    Notes=notes,
-                ))
+                    items.append(NewsItem(
+                        published=pub_date,
+                        pathogen=pathogen,
+                        event=event,
+                        source=self.SOURCE_NAME,
+                        title=title[:200],
+                        link=link,
+                    ))
             except Exception as e:
-                log.warning("USDA FSIS row parse failed: %s | rec=%s",
-                            e, str(rec)[:200])
+                log.warning("Feed %s failed: %s", feed_url, e)
 
-        log.info("USDA FSIS: %d in-scope recalls (%d stale, %d excluded-reason, "
-                 "%d retraction, %d no-hazard-match)",
-                 len(out), skipped_stale, skipped_excluded,
-                 skipped_retraction, skipped_no_hazard)
-        return out
+        log.info("[NEWS] %s: %d items from %d feeds",
+                 self.SOURCE_NAME, len(items), len(self.FEED_URLS))
+        return items
+
+    def _fetch_feed(self, url: str, cutoff: datetime) -> List[Dict[str, str]]:
+        """Fetch and parse an RSS/Atom feed. Returns raw item dicts."""
+        resp = fetch(self.session, url)
+        if not resp:
+            return []
+
+        items: List[Dict[str, str]] = []
+        try:
+            root = ET.fromstring(resp.content)
+        except ET.ParseError as e:
+            log.warning("XML parse failed for %s: %s", url, e)
+            return []
+
+        # Handle RSS 2.0
+        ns = {"atom": "http://www.w3.org/2005/Atom",
+              "dc": "http://purl.org/dc/elements/1.1/",
+              "content": "http://purl.org/rss/1.0/modules/content/"}
+
+        for item_el in root.iter("item"):
+            entry = self._parse_rss_item(item_el, ns, cutoff)
+            if entry:
+                items.append(entry)
+
+        # Handle Atom
+        for entry_el in root.iter("{http://www.w3.org/2005/Atom}entry"):
+            entry = self._parse_atom_entry(entry_el, ns, cutoff)
+            if entry:
+                items.append(entry)
+
+        return items
+
+    def _parse_rss_item(self, el: ET.Element, ns: dict, cutoff: datetime) -> Optional[Dict[str, str]]:
+        title = (el.findtext("title") or "").strip()
+        link = (el.findtext("link") or "").strip()
+        desc = (el.findtext("description") or "").strip()
+        pub = (el.findtext("pubDate") or el.findtext("dc:date", namespaces=ns) or "").strip()
+
+        pub_dt = self._parse_pub_date(pub)
+        if pub_dt and pub_dt < cutoff:
+            return None
+
+        pub_iso = pub_dt.strftime("%Y-%m-%dT%H:%M:%SZ") if pub_dt else ""
+
+        # Strip HTML tags from description
+        desc = re.sub(r"<[^>]+>", " ", desc)
+        desc = re.sub(r"\s+", " ", desc).strip()[:500]
+
+        return {"title": title, "link": link, "description": desc, "pub_date": pub_iso}
+
+    def _parse_atom_entry(self, el: ET.Element, ns: dict, cutoff: datetime) -> Optional[Dict[str, str]]:
+        atom = "http://www.w3.org/2005/Atom"
+        title = (el.findtext(f"{{{atom}}}title") or "").strip()
+        link_el = el.find(f"{{{atom}}}link[@rel='alternate']")
+        if link_el is None:
+            link_el = el.find(f"{{{atom}}}link")
+        link = (link_el.get("href", "") if link_el is not None else "").strip()
+        summary = (el.findtext(f"{{{atom}}}summary") or
+                   el.findtext(f"{{{atom}}}content") or "").strip()
+        pub = (el.findtext(f"{{{atom}}}published") or
+               el.findtext(f"{{{atom}}}updated") or "").strip()
+
+        pub_dt = self._parse_pub_date(pub)
+        if pub_dt and pub_dt < cutoff:
+            return None
+
+        pub_iso = pub_dt.strftime("%Y-%m-%dT%H:%M:%SZ") if pub_dt else ""
+        summary = re.sub(r"<[^>]+>", " ", summary)
+        summary = re.sub(r"\s+", " ", summary).strip()[:500]
+
+        return {"title": title, "link": link, "description": summary, "pub_date": pub_iso}
+
+    @staticmethod
+    def _parse_pub_date(text: str) -> Optional[datetime]:
+        """Parse RFC 2822, ISO 8601, or common date formats."""
+        if not text:
+            return None
+        # RFC 2822 (common in RSS)
+        try:
+            return parsedate_to_datetime(text)
+        except (ValueError, TypeError):
+            pass
+        # ISO 8601
+        try:
+            return datetime.fromisoformat(text.replace("Z", "+00:00"))
+        except (ValueError, TypeError):
+            pass
+        return None
+
+    @staticmethod
+    def _detect_pathogen(text: str) -> str:
+        """Scan text for known pathogens. Returns canonical name or ''."""
+        m = PATHOGEN_RE.search(text)
+        if not m:
+            return ""
+        return normalize_pathogen(m.group(0))
+
+    @staticmethod
+    def _classify_event(text: str) -> str:
+        """Classify the event type from text content."""
+        low = text.lower()
+        if re.search(r"outbreak|cluster|case.?count|hospitali[sz]|death", low):
+            return "Outbreak"
+        if re.search(r"recall|withdraw|pull.?from|remov.?from.?market", low):
+            return "Recall"
+        if re.search(r"alert|warning|advisory|notification", low):
+            return "Alert"
+        if re.search(r"inspect|violat|enforce|fine|penalt|shut.?down", low):
+            return "Enforcement"
+        if re.search(r"study|research|report|survey|surveillance|finding", low):
+            return "Research"
+        return "News"
