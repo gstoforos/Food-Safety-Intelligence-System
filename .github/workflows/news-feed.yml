@@ -1,15 +1,31 @@
 name: FSIS News Feed (every 1h)
 
+# ==========================================================================
+# Runs every hour at :00. Pulls the news feeds, appends new rows to the
+# NEWS sheet of docs/data/recalls.xlsx, then purges rows older than 7
+# days (rolling window per George's spec).
+#
+# The NEWS sheet is kept separate from Recalls. The weekly + monthly
+# report builders read ONLY the Recalls sheet — they don't touch NEWS.
+# News is surfaced on the dashboard index as a live feed, not in reports.
+# ==========================================================================
+
 on:
   schedule:
-    - cron: "0 * * * *"     # every 1 hour
-  workflow_dispatch:          # manual trigger from Actions tab
+    - cron: "0 * * * *"     # every hour, top of the hour
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
 
 jobs:
   update-news:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write         # needed to commit back to repo
+    timeout-minutes: 8
 
     steps:
       - name: Checkout repo
@@ -21,21 +37,29 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install requests feedparser openpyxl
 
-      - name: Run news scraper
+      - name: Fetch news feeds → NEWS sheet
         run: |
           python scrapers/news.py docs/data/recalls.xlsx
 
+      - name: Purge NEWS rows older than 7 days
+        run: |
+          python -m pipeline.purge_old_news --xlsx docs/data/recalls.xlsx --days 7
+
       - name: Commit updated recalls.xlsx if changed
         run: |
-          git config user.name  "FSIS Bot"
-          git config user.email "bot@advfood.tech"
-          git diff --quiet docs/data/recalls.xlsx || (
-            git add docs/data/recalls.xlsx &&
-            git commit -m "auto news update $(date -u '+%Y-%m-%d %H:%M UTC')" &&
+          git config user.name  "AFTS Intelligence System"
+          git config user.email "fsis-bot@advfood.tech"
+          if git diff --quiet docs/data/recalls.xlsx; then
+            echo "No news changes this hour."
+          else
+            git add docs/data/recalls.xlsx
+            git commit -m "auto news update + 7d purge $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M Athens')"
             git push
-          )
+          fi

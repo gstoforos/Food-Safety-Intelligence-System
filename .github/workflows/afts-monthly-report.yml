@@ -1,71 +1,141 @@
 name: AFTS Monthly Report
 
-# Runs on the 1st of every month at 07:00 UTC (~10:00 Athens).
-# Generates the full monthly HTML + PDF companion + summary JSON for the
-# month that just ended, then commits the outputs back to the repo so
-# GitHub Pages serves them and the Apps Script mailer can dispatch.
+# ==========================================================================
+# Runs 1st of every month at 09:00 ATHENS TIME (not UTC).
+# Cron is duplicated for DST: one line for EEST (summer, UTC+3) and one
+# for EET (winter, UTC+2). A guard step then verifies Athens local hour
+# so the "wrong" DST cron exits cleanly.
 #
-# Manual trigger is also exposed (workflow_dispatch) so George can regenerate
-# any past month by passing month_end=YYYY-MM-DD.
+# What it does:
+#   1. Detect every month since 2026-03 that is CLOSED (i.e. previous or
+#      older) AND missing real stats in docs/data/monthly-index.json.
+#   2. For each missing month, call the monthly builder (reads
+#      docs/data/recalls.xlsx Recalls sheet only — never Pending, never
+#      News) to produce:
+#          docs/YYYY-MMM.html       — subscriber HTML (matches March format)
+#          docs/YYYY-MMM-all.html   — full-month recalls companion
+#          docs/data/monthly-summary-latest.json
+#      and refresh docs/data/monthly-index.json.
+#   3. Convert the subscriber HTML to PDF → docs/YYYY-MMM.pdf
+#      (this is the "George PDF" that gets emailed + shown on the hub).
+#   4. Set pdf_url on each newly-built month's index entry so hub.html
+#      auto-renders the card on next page load.
+#
+# NEVER overwrites an existing, already-generated month. If you want to
+# rebuild March, manually delete its entry from monthly-index.json first.
+# ==========================================================================
 
 on:
   schedule:
-    - cron: '0 7 1 * *'   # 07:00 UTC on day 1 of every month
+    - cron: '0 6 1 * *'   # 09:00 Athens EEST (summer UTC+3)
+    - cron: '0 7 1 * *'   # 09:00 Athens EET  (winter UTC+2)
   workflow_dispatch:
     inputs:
-      month_end:
-        description: 'Last day of target month (YYYY-MM-DD). Defaults to last day of previous month.'
+      force_month_end:
+        description: "YYYY-MM-DD: force-build this month (ignores gap check)"
         required: false
+      backfill_from:
+        description: "YYYY-MM: oldest month to check in gap-fill (default 2026-03)"
+        required: false
+        default: "2026-03"
 
 permissions:
-  contents: write   # needed for the commit step
+  contents: write
+
+concurrency:
+  group: afts-monthly-report
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - name: Checkout repo
+      - name: Athens-time guard
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          echo "athens_hour=$HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Manual dispatch — running regardless of hour."
+          elif [ "$HOUR" = "09" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Athens 09:xx — running."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not 09:xx Athens (currently ${HOUR}:xx). Skipping — the other DST cron will handle it."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python
+        if: steps.guard.outputs.run == 'true'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
+          cache: "pip"
 
-      - name: Install dependencies
+      - name: Install system deps for WeasyPrint (PDF)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libcairo2 \
+            libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-dejavu-core
+
+      - name: Install Python dependencies
+        if: steps.guard.outputs.run == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install weasyprint==63.1
 
-      - name: Resolve target month_end
-        id: month
+      - name: Gap-fill — build only months missing from monthly-index.json
+        if: steps.guard.outputs.run == 'true' && github.event.inputs.force_month_end == ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
+          BACKFILL_FROM:     ${{ github.event.inputs.backfill_from || '2026-03' }}
         run: |
-          if [ -n "${{ github.event.inputs.month_end }}" ]; then
-            echo "month_end=${{ github.event.inputs.month_end }}" >> $GITHUB_OUTPUT
-          else
-            # Last day of the previous month, computed portably via GNU date.
-            LAST_PREV=$(date -u -d "$(date -u +%Y-%m-01) -1 day" +%Y-%m-%d)
-            echo "month_end=${LAST_PREV}" >> $GITHUB_OUTPUT
-          fi
-          echo "Using month_end=$(cat $GITHUB_OUTPUT | grep month_end | cut -d= -f2)"
+          python -m pipeline.build_missing_monthly_reports \
+            --from "$BACKFILL_FROM" \
+            --xlsx docs/data/recalls.xlsx \
+            --index docs/data/monthly-index.json \
+            --builder docs/build_monthly_report_afts.py
 
-      - name: Generate AFTS monthly report
+      - name: Force-build single month (manual dispatch override)
+        if: steps.guard.outputs.run == 'true' && github.event.inputs.force_month_end != ''
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
         run: |
           python docs/build_monthly_report_afts.py \
-            --month-end "${{ steps.month.outputs.month_end }}" \
-            --xlsx     docs/data/recalls.xlsx
+            --month-end "${{ github.event.inputs.force_month_end }}" \
+            --xlsx docs/data/recalls.xlsx
+
+      - name: Wire pdf_url into monthly-index.json (so hub auto-renders)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pipeline.set_pdf_urls \
+            --index docs/data/monthly-index.json \
+            --docs-dir docs \
+            --site-url "https://gstoforos.github.io/Food-Safety-Intelligence-System"
 
       - name: Commit outputs
+        if: steps.guard.outputs.run == 'true'
         run: |
           git config --local user.email "fsis-bot@advfood.tech"
           git config --local user.name  "AFTS Intelligence System"
-          git add 'docs/20*-M*.html' docs/data/monthly-summary-latest.json
+          git add 'docs/20*-M*.html' 'docs/20*-M*.pdf' \
+                  docs/data/monthly-summary-latest.json \
+                  docs/data/monthly-summary-20*.json \
+                  docs/data/monthly-index.json || true
           if git diff --staged --quiet; then
             echo "No monthly-report changes to commit."
           else
-            git commit -m "AFTS Monthly Intelligence Report: ${{ steps.month.outputs.month_end }}"
+            git commit -m "AFTS Monthly Report build $(TZ=Europe/Athens date +%Y-%m-%d)"
             git push
           fi

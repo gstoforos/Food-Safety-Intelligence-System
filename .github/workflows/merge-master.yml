@@ -1,0 +1,66 @@
+name: FSIS Merge Master (hourly)
+
+# ==========================================================================
+# Runs every hour at :05 minutes past — merges the Pending sheet into the
+# Recalls sheet of docs/data/recalls.xlsx. Offset by 5 min so it doesn't
+# collide with the :00 URL gate / news workflows.
+#
+# This is the ONLY path by which Pending rows become published Recalls.
+# The weekly + monthly report builders read the Recalls sheet only, so
+# nothing hits subscribers without first passing through this merge.
+# ==========================================================================
+
+on:
+  schedule:
+    - cron: '5 * * * *'    # every hour, 5 minutes past
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openpyxl requests
+
+      - name: Run merge_master (Pending → Recalls)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME:  "AFTS Intelligence System"
+        run: |
+          python -m pipeline.merge_master
+
+      - name: Commit merged workbook (if changed)
+        run: |
+          git config --local user.email "fsis-bot@advfood.tech"
+          git config --local user.name  "AFTS Intelligence System"
+          git add docs/data/recalls.xlsx docs/data/recalls.json || true
+          if git diff --staged --quiet; then
+            echo "No merge changes this hour."
+          else
+            git commit -m "chore(data): hourly Pending→Recalls merge $(TZ=Europe/Athens date +%H:%M)"
+            git push
+          fi

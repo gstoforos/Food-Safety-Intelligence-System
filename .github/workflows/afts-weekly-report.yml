@@ -1,9 +1,35 @@
-name: AFTS Weekly Food Safety Intelligence Report
+name: AFTS Weekly Report
+
+# ==========================================================================
+# Runs every FRIDAY at 08:00 ATHENS TIME (not UTC).
+# Two DST crons + hour guard — identical pattern to afts-monthly-report.yml.
+#
+# Timeline each Friday (all Athens time):
+#   08:00  this workflow fires → builds HTML, PDF, updates index
+#   ~08:15 committed + pushed → GitHub Pages rebuilds
+#   10:00  report is live on dashboard index (as the new W<nn> card)
+#   12:00  Google Apps Script mailer (EXTERNAL — lives in Apps Script,
+#          not this repo) reads docs/data/weekly-summary-latest.json and
+#          sends the email to subscribers
+#
+# Authoritative template: docs/2026-W16.html
+# Builder reads docs/data/recalls.xlsx Recalls sheet ONLY — never Pending,
+# never News. News is displayed separately on the dashboard but NOT in
+# the weekly report (recalls only, per George's spec).
+# ==========================================================================
 
 on:
   schedule:
-    - cron: '0 8 * * 5'    # Fridays 08:00 UTC (before 10 AM local time)
-  workflow_dispatch:        # Manual trigger for testing
+    - cron: '0 5 * * 5'   # 08:00 Athens EEST (summer UTC+3), Friday
+    - cron: '0 6 * * 5'   # 08:00 Athens EET  (winter UTC+2), Friday
+  workflow_dispatch:
+    inputs:
+      force_week_end:
+        description: "YYYY-MM-DD (a Sunday): force-build this week"
+        required: false
+      backfill_from:
+        description: "YYYY-MM-DD (a Sunday): oldest week to check in gap-fill"
+        required: false
 
 permissions:
   contents: write
@@ -13,66 +39,116 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  generate-weekly-report:
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+      - name: Athens-time guard
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          DOW=$(TZ=Europe/Athens date +%u)   # 1=Mon .. 7=Sun
+          echo "athens_hour=$HOUR dow=$DOW"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "$HOUR" = "08" ] && [ "$DOW" = "5" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Athens Friday 08:xx — running."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not Athens Friday 08:xx (now DOW=$DOW hour=$HOUR). Skipping."
+          fi
 
-      - name: Set up Python 3.11
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        if: steps.guard.outputs.run == 'true'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: "pip"
 
-      - name: Install dependencies
+      - name: Install system deps for WeasyPrint
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libcairo2 \
+            libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-dejavu-core
+
+      - name: Install Python dependencies
+        if: steps.guard.outputs.run == 'true'
         run: |
           python -m pip install --upgrade pip
-          pip install openpyxl requests
+          pip install -r requirements.txt
+          pip install weasyprint==63.1
 
-      - name: Calculate Friday date
+      - name: Resolve this-week's end-date (Sunday)
+        if: steps.guard.outputs.run == 'true' && github.event.inputs.force_week_end == ''
         id: week
         run: |
-          # Friday = today if cron fires on Friday, otherwise the coming Friday
-          week_end=$(python -c "
+          # The upcoming Sunday in Athens — the week that's closing now.
+          # Cron fires Friday 08:00 Athens; the week runs Mon..Sun.
+          WEEK_END=$(TZ=Europe/Athens python -c "
           from datetime import date, timedelta
-          today = date.today()
-          days_ahead = 4 - today.weekday()   # Friday = 4
-          if days_ahead < 0:                  # only push to next Friday if past Friday
-              days_ahead += 7
-          print((today + timedelta(days=days_ahead)).isoformat())
+          t = date.today()
+          # Sunday = (6 - weekday) days ahead. If today IS Sunday, delta=0.
+          delta = (6 - t.weekday()) % 7
+          print((t + timedelta(days=delta)).isoformat())
           ")
-          echo "week_end=$week_end" >> $GITHUB_OUTPUT
-          echo "Report week ending: $week_end"
+          echo "week_end=$WEEK_END" >> "$GITHUB_OUTPUT"
+          echo "Week ending Sunday: $WEEK_END"
 
-      - name: Generate AFTS weekly report
+      - name: Gap-fill — build weeks missing from docs/
+        if: steps.guard.outputs.run == 'true' && github.event.inputs.force_week_end == ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
+          BACKFILL_FROM:     ${{ github.event.inputs.backfill_from || '' }}
+          THIS_WEEK_END:     ${{ steps.week.outputs.week_end }}
+        run: |
+          python -m pipeline.build_missing_weekly_reports \
+            --this-week-end "$THIS_WEEK_END" \
+            --from "${BACKFILL_FROM:-}" \
+            --xlsx docs/data/recalls.xlsx \
+            --docs-dir docs \
+            --builder docs/build_weekly_report_afts.py
+
+      - name: Force-build single week (manual dispatch)
+        if: steps.guard.outputs.run == 'true' && github.event.inputs.force_week_end != ''
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
         run: |
           python docs/build_weekly_report_afts.py \
-            --week-end ${{ steps.week.outputs.week_end }} \
+            --week-end "${{ github.event.inputs.force_week_end }}" \
             --xlsx     docs/data/recalls.xlsx \
             --index    docs/index.html
 
-      - name: Commit generated report
+      - name: Convert each new weekly HTML → PDF
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pipeline.html_to_pdf --docs-dir docs --kind weekly
+
+      - name: Commit outputs
+        if: steps.guard.outputs.run == 'true'
         run: |
           git config --local user.email "fsis-bot@advfood.tech"
           git config --local user.name  "AFTS Intelligence System"
-          # Weekly reports are written next to index.html (in docs/) so the
-          # dashboard can open them as siblings (no path prefix needed).
-          git add 'docs/20*-W*.html' docs/index.html docs/data/weekly-summary-latest.json
+          git add 'docs/20*-W*.html' 'docs/20*-W*.pdf' \
+                  docs/data/weekly-summary-latest.json \
+                  docs/index.html || true
           if git diff --staged --quiet; then
-            echo "No changes to commit."
+            echo "No weekly-report changes to commit."
           else
-            git commit -m "AFTS Weekly Intelligence Report: Week ending ${{ steps.week.outputs.week_end }}"
+            git commit -m "AFTS Weekly Report build $(TZ=Europe/Athens date +%Y-%m-%d)"
             git push
           fi
 
       - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
         run: |
-          echo "Weekly report generated for week ending: ${{ steps.week.outputs.week_end }}"
-          echo "Output path: docs/$(date -u +%Y)-W$(date -u -d '${{ steps.week.outputs.week_end }}' +%V).html"
+          echo "Weekly run complete — Athens time $(TZ=Europe/Athens date)."
+          echo "Apps Script mailer fires 12:00 Athens reading weekly-summary-latest.json."
