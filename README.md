@@ -1,235 +1,117 @@
-# Food Safety Intelligence System (FSIS) — Pipeline
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AFTS · FSIS Weekly Report · Week 15 (4 Apr–10 Apr 2026)</title>
+<style>
+body{margin:0;padding:0;background:#f4f6f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#111;-webkit-text-size-adjust:100%;}
+.wrap{max-width:720px;margin:0 auto;background:#ffffff;}
+.hdr{background:linear-gradient(135deg,#0a1628 0%,#1a2f4d 100%);color:#fff;padding:32px 28px;}
+.brand{font-size:13px;font-family:'Courier New',monospace;letter-spacing:0.18em;color:#00ff88;text-transform:uppercase;margin-bottom:8px;}
+.title{font-size:26px;font-weight:800;line-height:1.2;margin:0 0 8px;letter-spacing:-0.01em;}
+.subtitle{font-size:13px;color:#aab8cc;font-family:'Courier New',monospace;}
+.section{padding:24px 28px;border-bottom:1px solid #e8ecf1;}
+.sec-title{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#5a6b80;margin:0 0 16px;font-family:'Courier New',monospace;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+@media(max-width:560px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+.kpi{background:#f8fafc;border:1px solid #e8ecf1;border-radius:6px;padding:14px 12px;text-align:center;}
+.kv{font-size:28px;font-weight:800;line-height:1;color:#0a1628;}
+.kv-red{color:#dc2626;}.kv-orange{color:#ea580c;}.kv-green{color:#059669;}.kv-blue{color:#0284c7;}
+.kl{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5a6b80;margin-top:6px;font-family:'Courier New',monospace;}
+.delta{font-size:11px;color:#5a6b80;margin-top:4px;font-family:'Courier New',monospace;}
+.delta-up{color:#dc2626;}.delta-down{color:#059669;}.delta-new{color:#0284c7;}
+table.recalls{width:100%;border-collapse:collapse;font-size:12px;}
+table.recalls th{background:#f8fafc;padding:10px 8px;text-align:left;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#5a6b80;border-bottom:2px solid #e8ecf1;font-family:'Courier New',monospace;}
+table.recalls td{padding:10px 8px;border-bottom:1px solid #f0f3f7;vertical-align:top;}
+.tier-badge{display:inline-block;font-size:8px;font-family:'Courier New',monospace;font-weight:700;padding:2px 6px;border-radius:2px;letter-spacing:0.06em;}
+.tier-1{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+.tier-2{background:#fff7ed;color:#ea580c;border:1px solid #fed7aa;}
+.outbreak{display:inline-block;background:#fef2f2;color:#dc2626;font-size:7px;padding:1px 5px;border-radius:2px;font-weight:700;letter-spacing:0.06em;border:1px solid #fecaca;font-family:'Courier New',monospace;margin-left:4px;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px;}
+.bar-label{flex:0 0 180px;font-family:'Courier New',monospace;font-size:11px;color:#0a1628;}
+.bar-track{flex:1;height:6px;background:#e8ecf1;border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;}
+.bar-val{flex:0 0 30px;text-align:right;font-family:'Courier New',monospace;font-size:11px;font-weight:700;color:#0a1628;}
+.top-recall{padding:14px 0;border-bottom:1px solid #f0f3f7;}
+.top-recall:last-child{border-bottom:none;}
+.tr-rank{display:inline-block;width:24px;height:24px;border-radius:12px;background:#0a1628;color:#fff;font-weight:800;text-align:center;line-height:24px;font-size:12px;margin-right:10px;vertical-align:middle;}
+.tr-co{font-weight:700;color:#0a1628;font-size:14px;}
+.tr-meta{font-size:11px;color:#5a6b80;margin-top:4px;font-family:'Courier New',monospace;}
+.tr-prod{font-size:12px;color:#374151;margin-top:6px;line-height:1.4;}
+.tr-link{display:inline-block;margin-top:6px;font-size:11px;color:#0284c7;text-decoration:none;}
+.tr-link:hover{text-decoration:underline;}
+.footer{background:#0a1628;color:#aab8cc;padding:24px 28px;font-size:11px;text-align:center;line-height:1.6;}
+.footer a{color:#00ff88;text-decoration:none;}
+.footer-brand{color:#fff;font-weight:700;font-size:13px;margin-bottom:8px;letter-spacing:0.05em;}
+a.recall-link{color:#0284c7;text-decoration:none;font-size:14px;}
+a.recall-link:hover{text-decoration:underline;}
+.country-flag{font-size:11px;color:#5a6b80;font-family:'Courier New',monospace;}
+</style></head><body>
+<div class="wrap">
 
-Automated daily monitoring of **66 food safety regulatory agencies across 60+ countries**.
-Detects pathogen-related food recalls, enriches with AI, deduplicates against the master
-list, and commits results to GitHub for the live web dashboard.
+<div class="hdr">
+<div class="brand">▶ AFTS · Food Safety Intelligence</div>
+<h1 class="title">Weekly Pathogen Recall Report</h1>
+<div class="subtitle">Week 15 · 4 Apr – 10 Apr 2026 · Generated 2026-04-15 12:42 UTC</div>
+</div>
 
-**Built by:** Advanced Food-Tech Solutions (AFTS) — advfood.tech
+<div class="section">
+<div class="sec-title">📊 This week at a glance</div>
+<div class="kpi-grid">
+<div class="kpi"><div class="kv">63</div><div class="kl">Recalls</div><div class="delta delta-up">+425% vs last week</div></div>
+<div class="kpi"><div class="kv kv-red">58</div><div class="kl">Tier-1 Critical</div></div>
+<div class="kpi"><div class="kv kv-orange">2</div><div class="kl">Outbreaks</div></div>
+<div class="kpi"><div class="kv kv-blue">9</div><div class="kl">Countries</div></div>
+</div>
+<p style="margin:18px 0 0;font-size:13px;color:#374151;line-height:1.5">
+<strong>63</strong> pathogen-related recalls were issued this week (+425% vs prior week), of which <strong>58</strong> were Tier-1 critical. The dominant pathogen was <strong>Listeria monocytogenes</strong> (55 recalls). <span style='color:#dc2626;font-weight:700'>2 outbreak(s) reported</span>.
+</p>
+</div>
 
----
+<div class="section">
+<div class="sec-title">🚨 Top 5 recalls this week</div>
+<div class="top-recall"><div><span class="tr-rank">1</span><span class="tr-co">Origin: Turkey | Distributed: Germany</span><span class="tier-badge tier-2" style="margin-left:8px">TIER-2</span></div><div class="tr-meta">RASFF (EU) · Ochratoxin A · Turkey · 2026-04-10</div><div class="tr-prod">Dry figs</div><a href="https://webgate.ec.europa.eu/rasff-window/screen/notification/836354" class="tr-link">→ View source</a></div><div class="top-recall"><div><span class="tr-rank">2</span><span class="tr-co">Origin: Turkey | Distributed: EU (multi)</span><span class="tier-badge tier-2" style="margin-left:8px">TIER-2</span></div><div class="tr-meta">RASFF (EU) · Ochratoxin A · Turkey · 2026-04-10</div><div class="tr-prod">Dry figs</div><a href="https://webgate.ec.europa.eu/rasff-window/screen/notification/836362" class="tr-link">→ View source</a></div><div class="top-recall"><div><span class="tr-rank">3</span><span class="tr-co">Sächsische und Dresdner Back- und Süßwaren GmbH</span><span class="tier-badge tier-2" style="margin-left:8px">TIER-2</span></div><div class="tr-meta">BVL (DE) · Salmonella · Germany · 2026-04-10</div><div class="tr-prod">Nudossi Haselnuss-Nougat-Crème 300g</div><a href="https://www.produktwarnung.eu/2026/04/10/rueckruf-salmonellen-hersteller-ruft-nudossi-haselnuss-nougat-creme-zurueck" class="tr-link">→ View source</a></div><div class="top-recall"><div><span class="tr-rank">4</span><span class="tr-co">Phoenicia Group / Alarjawi</span><span class="tier-badge tier-2" style="margin-left:8px">TIER-2</span></div><div class="tr-meta">CFIA · Salmonella · Canada · 2026-04-09</div><div class="tr-prod">Royal Zaatar (450g)</div><a href="https://recalls-rappels.canada.ca/en/alert-recall/alarjawi-brand-royal-zaatar-recalled-due-salmonella" class="tr-link">→ View source</a></div><div class="top-recall"><div><span class="tr-rank">5</span><span class="tr-co">SANS MARQUE</span><span class="tier-badge tier-2" style="margin-left:8px">TIER-2</span></div><div class="tr-meta">RappelConso (FR) · Salmonella spp · France · 2026-04-09</div><div class="tr-prod">Chorizo à cuire préparé sur place</div><a href="https://rappel.conso.gouv.fr/fiche-rappel/21963/Interne" class="tr-link">→ View source</a></div>
+</div>
 
-## How it works
+<div class="section">
+<div class="sec-title">🦠 Pathogen breakdown</div>
+<div class="bar-row"><span class="bar-label" style="color:#00b372">Listeria monocytogenes <span class="delta delta-up" style="font-size:10px;margin-left:6px">↑ 817%</span></span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#00b372"></div></div><span class="bar-val" style="color:#00b372">55</span></div><div class="bar-row"><span class="bar-label" style="color:#0284c7">Salmonella <span class="delta delta-new" style="font-size:10px;margin-left:6px">new</span></span><div class="bar-track"><div class="bar-fill" style="width:7%;background:#0284c7"></div></div><span class="bar-val" style="color:#0284c7">4</span></div><div class="bar-row"><span class="bar-label" style="color:#dc2626">Ochratoxin A <span class="delta delta-new" style="font-size:10px;margin-left:6px">new</span></span><div class="bar-track"><div class="bar-fill" style="width:3%;background:#dc2626"></div></div><span class="bar-val" style="color:#dc2626">2</span></div><div class="bar-row"><span class="bar-label" style="color:#ea580c">Salmonella spp</span><div class="bar-track"><div class="bar-fill" style="width:1%;background:#ea580c"></div></div><span class="bar-val" style="color:#ea580c">1</span></div><div class="bar-row"><span class="bar-label" style="color:#a78bfa">STEC <span class="delta delta-new" style="font-size:10px;margin-left:6px">new</span></span><div class="bar-track"><div class="bar-fill" style="width:1%;background:#a78bfa"></div></div><span class="bar-val" style="color:#a78bfa">1</span></div>
+</div>
 
-```
-                    ┌─────────────────────────────────────────┐
-                    │  GitHub Actions cron — daily 17:00 UTC  │
-                    └────────────────┬────────────────────────┘
-                                     ▼
-       ┌──────────────────────────────────────────────────────────┐
-       │ pipeline/run_all.py — orchestrator                       │
-       │                                                          │
-       │  1. Load existing data/recalls.xlsx (197 seed records)   │
-       │  2. Discover 66 scraper classes auto from scrapers/*     │
-       │  3. Run all in parallel (8 threads)                      │
-       │  4. Enrich with Gemini (free tier, key rotation)         │
-       │  5. Merge into seed (dedup by URL primary)               │
-       │  6. Validate every URL (HEAD check, generic detection)   │
-       │  7. Review with OpenAI (paid, full pass)                 │
-       │  8. Review with Claude Haiku (free $5, Tier-1 only)      │
-       │  9. Apply suggested fixes                                │
-       │ 10. Save xlsx + json, preserve NEWS sheet                │
-       │ 11. Git commit + push                                    │
-       └──────────────────────────────────────────────────────────┘
-```
+<div class="section">
+<div class="sec-title">🌍 By region · By source</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+<div>
+<div style="font-size:10px;color:#5a6b80;font-family:'Courier New',monospace;margin-bottom:8px;letter-spacing:0.1em">REGION</div>
+<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">Europe</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">56</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">Americas</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">6</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">Asia-Pacific</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">1</span></div>
+</div>
+<div>
+<div style="font-size:10px;color:#5a6b80;font-family:'Courier New',monospace;margin-bottom:8px;letter-spacing:0.1em">TOP SOURCES</div>
+<div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">RappelConso (FR)</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">50</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">CFIA</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">5</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">RASFF (EU)</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">2</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">BVL (DE)</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">1</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">FSA (UK)</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">1</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">EFET (GR)</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">1</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">BLV (CH)</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">1</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">ANVISA (BR)</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">1</span></div><div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #f0f3f7"><span style="color:#0a1628">BeaconBio (TW)</span><span style="font-family:Courier New,monospace;font-weight:700;color:#0a1628">1</span></div>
+</div>
+</div>
+</div>
 
-## Coverage — 66 agencies
+<div class="section">
+<div class="sec-title">📋 Full table — all 63 recalls this week</div>
+<table class="recalls">
+<thead><tr>
+<th>Date</th><th>Source</th><th>Firm</th><th>Pathogen</th><th>Tier</th><th>Country</th><th>Link</th>
+</tr></thead>
+<tbody>
+<tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">CFIA</td><td style="font-weight:600;font-size:11px">Fresh Start Foods</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">Canada</td><td style="text-align:center"><a href="https://recalls-rappels.canada.ca/en/alert-recall/fresh-start-foods-brand-salads-recalled-due-listeria-monocytogenes" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Jules Courtial</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/22006/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Jules Courtial</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/22004/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Jules Courtial</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/22002/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Jules Courtial</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/22001/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Foodles</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21994/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Foodles</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21993/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Foodles</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21992/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Sans marque</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21991/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Sans marque</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21990/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">DELIN</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21985/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RASFF (EU)</td><td style="font-weight:600;font-size:11px">Origin: Turkey | Distributed: Germa</td><td style="font-size:10px;color:#374151">Ochratoxin A</td><td><span class="tier-badge tier-2">T2</span></td><td style="font-size:10px;color:#5a6b80">Turkey</td><td style="text-align:center"><a href="https://webgate.ec.europa.eu/rasff-window/screen/notification/836354" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">RASFF (EU)</td><td style="font-weight:600;font-size:11px">Origin: Turkey | Distributed: EU (m</td><td style="font-size:10px;color:#374151">Ochratoxin A</td><td><span class="tier-badge tier-2">T2</span></td><td style="font-size:10px;color:#5a6b80">Turkey</td><td style="text-align:center"><a href="https://webgate.ec.europa.eu/rasff-window/screen/notification/836362" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-10</td><td style="font-size:10px;color:#5a6b80">BVL (DE)</td><td style="font-weight:600;font-size:11px">Sächsische und Dresdner Back- und S</td><td style="font-size:10px;color:#374151">Salmonella</td><td><span class="tier-badge tier-2">T2</span></td><td style="font-size:10px;color:#5a6b80">Germany</td><td style="text-align:center"><a href="https://www.produktwarnung.eu/2026/04/10/rueckruf-salmonellen-hersteller-ruft-nudossi-haselnuss-nougat-creme-zurueck" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-09</td><td style="font-size:10px;color:#5a6b80">CFIA</td><td style="font-weight:600;font-size:11px">Arbutus Farms Kitchen / Jade Fine F</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">Canada</td><td style="text-align:center"><a href="https://recalls-rappels.canada.ca/en/alert-recall/arbutus-farms-kitchenjade-fine-foods-brand-and-arbutus-foods-brand-products-cheese" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-09</td><td style="font-size:10px;color:#5a6b80">FSA (UK)</td><td style="font-weight:600;font-size:11px">The Curing Barn</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">United Kingdom</td><td style="text-align:center"><a href="https://www.food.gov.uk/news-alerts/alert/fsa-prin-15-2026" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-09</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">LES ATELIERS DE SEBASTIEN</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21863/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-09</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">sans marque</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21968/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-09</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">sans marque</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21967/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-09</td><td style="font-size:10px;color:#5a6b80">EFET (GR)</td><td style="font-weight:600;font-size:11px">ΝΙΚΟΛΑΟΣ ΤΣΑΤΣΟΥΛΗΣ &amp; ΥΙΟΙ Ο.Ε.</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">Greece</td><td style="text-align:center"><a href="https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5379-deltio-typou-anaklisi-mi-asfaloys-proiontos-tyri-feta-logo-parousias-listeria" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-09</td><td style="font-size:10px;color:#5a6b80">CFIA</td><td style="font-weight:600;font-size:11px">Phoenicia Group / Alarjawi</td><td style="font-size:10px;color:#374151">Salmonella</td><td><span class="tier-badge tier-2">T2</span></td><td style="font-size:10px;color:#5a6b80">Canada</td><td style="text-align:center"><a href="https://recalls-rappels.canada.ca/en/alert-recall/alarjawi-brand-royal-zaatar-recalled-due-salmonella" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-09</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">SANS MARQUE</td><td style="font-size:10px;color:#374151">Salmonella spp</td><td><span class="tier-badge tier-2">T2</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21963/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-08</td><td style="font-size:10px;color:#5a6b80">CFIA</td><td style="font-weight:600;font-size:11px">Sobeys Capital Inc.</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">Canada</td><td style="text-align:center"><a href="https://recalls-rappels.canada.ca/en/alert-recall/certain-cheese-products-recalled-due-listeria-monocytogenes" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-08</td><td style="font-size:10px;color:#5a6b80">BLV (CH)</td><td style="font-weight:600;font-size:11px">(Rohmilch producer)</td><td style="font-size:10px;color:#374151">STEC (Shiga toxin-producing E.</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">Switzerland</td><td style="text-align:center"><a href="https://www.blick.ch/wirtschaft/rohmilch-quark-zurueckgerufen-id20945123.html" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-08</td><td style="font-size:10px;color:#5a6b80">ANVISA (BR)</td><td style="font-weight:600;font-size:11px">Ambrosia Brands (US-imported)</td><td style="font-size:10px;color:#374151">Salmonella (antibiotic-resista</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">Brazil</td><td style="text-align:center"><a href="https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-08</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">DELIN</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21979/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-08</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Luisa e basilio</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21974/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-08</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Luna Sweet</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21973/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Carrefour Classic / Petit Marché</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21855/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Shakishaki</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21962/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Shakishaki</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21961/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Shakishaki</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21960/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Shakishaki</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21959/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Shakishaki</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21958/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Shakishaki</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21957/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Shakishaki</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21954/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Shakishaki</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21953/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Shakishaki</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21952/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Shakishaki</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21951/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Foodles</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21950/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Foodles</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21949/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">POULAILLON</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21948/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Luisa e basilio</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21947/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Luisa e basilio</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21945/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Luisa e basilio</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21944/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Luisa e basilio</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21943/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Luisa e basilio</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21942/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-07</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Indian kitchen</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21934/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">BeaconBio (TW)</td><td style="font-weight:600;font-size:11px">Multiple (Kaohsiung)</td><td style="font-size:10px;color:#374151">Salmonella</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">Taiwan</td><td style="text-align:center"><a href="https://beaconbio.org/en/report/?reportid=3b6a3e2e-b70c-4f9f-a5ea-4263d3779787&amp;eventid=3ef2c366-0f67-4b48-ab53-ab77c5772c16&amp;page=2" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Luisa e basilio</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21935/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">French Kitchen</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21933/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">French Kitchen</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21932/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Chinese Kitchen</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21931/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Chinese Kitchen</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21930/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Chinese Kitchen</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21929/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Chinese Kitchen</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21928/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Bim bang</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21927/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Bim bang</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21926/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Bim bang</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21925/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">Bim bang</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21924/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">The bread Bandits</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21923/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-06</td><td style="font-size:10px;color:#5a6b80">RappelConso (FR)</td><td style="font-weight:600;font-size:11px">The bread Bandits</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">France</td><td style="text-align:center"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21922/Interne" class="recall-link">↗</a></td></tr><tr><td style="font-family:Courier New,monospace;font-size:10px;color:#5a6b80;white-space:nowrap">2026-04-04</td><td style="font-size:10px;color:#5a6b80">CFIA</td><td style="font-weight:600;font-size:11px">Federated Co-operatives Ltd.</td><td style="font-size:10px;color:#374151">Listeria monocytogenes</td><td><span class="tier-badge tier-1">T1</span></td><td style="font-size:10px;color:#5a6b80">Canada</td><td style="text-align:center"><a href="https://recalls-rappels.canada.ca/en/alert-recall/co-op-brand-creamy-garlic-and-spinach-salad-recalled-due-listeria-monocytogenes" class="recall-link">↗</a></td></tr>
+</tbody></table>
+</div>
 
-| Region | Count | Agencies |
-|--------|-------|----------|
-| North America | 3 | FDA, USDA FSIS, CFIA |
-| EU member states | 24 | RappelConso (FR), BVL (DE), Salute (IT), AESAN (ES), EFET (GR), AFSCA (BE), NVWA (NL), ASAE (PT), FSAI (IE), AGES (AT), Livsmedelsverket (SE), Fødevarestyrelsen (DK), Ruokavirasto (FI), GIS (PL), SZPI (CZ), Nébih (HU), ANSVSA (RO), ŠVPS (SK), UVHVVR (SI), HAH (HR), BFSA (BG), VMVT (LT), PVD (LV), VTA (EE) |
-| Non-EU Europe | 4 | FSA (UK), BLV (CH), Mattilsynet (NO), MAST (IS) |
-| EU-wide | 1 | RASFF Window |
-| Asia | 12 | MHLW (JP), MFDS (KR), SAMR (CN), CFS (HK), SFA (SG), TFDA (TW), FSSAI (IN), Thai FDA, VFA (VN), KKM (MY), BPOM (ID), FDA (PH) |
-| Oceania | 2 | FSANZ (AU), MPI (NZ) |
-| Africa | 7 | NCC (ZA), KEBS (KE), NAFDAC (NG), NFSA (EG), ONSSA (MA), FDA (GH), COMESA |
-| Latin America | 8 | ANVISA (BR), ANMAT (AR), COFEPRIS (MX), ISP (CL), INVIMA (CO), DIGESA (PE), ARCSA (EC), MSP (UY) |
-| Middle East | 5 | MoH (IL), MoCCAE (AE), SFDA (SA), MoPH (QA), TGTHB (TR) |
+<div class="footer">
+<div class="footer-brand">Advanced Food-Tech Solutions</div>
+<div>Powered by FSIS · 66 regulatory agencies · 60+ countries</div>
+<div style="margin-top:12px">
+<a href="https://www.advfood.tech/food-safety-intelligence">View live dashboard</a> · 
+<a href="https://gstoforos.github.io/Food-Safety-Intelligence-System/">GitHub Pages</a> · 
+<a href="mailto:info@advfood.tech">info@advfood.tech</a>
+</div>
+<div style="margin-top:14px;font-size:10px;color:#5a6b80;">© 2026 Advanced Food-Tech Solutions · advfood.tech</div>
+</div>
 
-**7 custom scrapers** (FDA openFDA API, USDA FSIS API, CFIA RSS, RappelConso open data API, FSA UK JSON, FSANZ HTML, RASFF Window) +  
-**59 generic scrapers** that fetch agency pages and use Gemini to extract structured rows.
-
----
-
-## Setup
-
-### 1. Add the pipeline files to your repo
-
-Drop everything from this package into `gstoforos/Food-Safety-Intelligence-System/`:
-
-```
-.github/workflows/daily-scrape.yml
-scrapers/                         (66 scraper modules)
-enrichment/                       (Gemini client + row enrichment)
-review/                           (OpenAI + Claude + URL validator)
-pipeline/                         (orchestrator + merge + git push)
-data/recalls.xlsx                 (your existing 197 records — preserved as seed)
-data/recalls.json
-requirements.txt
-.env.example
-```
-
-### 2. Add API keys to GitHub Secrets
-
-Go to **Settings → Secrets and variables → Actions → New repository secret** and add:
-
-**Required (for scraping to work):**
-- `GEMINI_API_KEY_1` — get free at https://aistudio.google.com/apikey
-  - Each key = 1,500 req/day on free tier
-  - For full safety with 66 scrapers, add up to 5 keys: `GEMINI_API_KEY_2`, `GEMINI_API_KEY_3`, etc.
-  - The pipeline rotates keys round-robin and skips rate-limited ones automatically
-
-**Required (for review pass):**
-- `OPENAI_API_KEY` — your existing key from https://platform.openai.com/api-keys
-  - Cost: ~$0.005/recall reviewed × ~50 new recalls/day = ~$0.25/day = **~$8/month**
-
-**Optional (3rd reviewer for Tier-1 critical only):**
-- `ANTHROPIC_API_KEY` — get $5 free credit at https://console.anthropic.com
-  - Throttled to Tier-1 rows only ($5 lasts ~50 days)
-  - Leave empty to skip
-
-`GITHUB_TOKEN` is automatic — no setup needed.
-
-### 3. Test locally first (optional but recommended)
-
-```bash
-git clone https://github.com/gstoforos/Food-Safety-Intelligence-System.git
-cd Food-Safety-Intelligence-System
-
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-cp .env.example .env
-# Edit .env, add your keys
-
-# Quick test (no commit, AI off)
-SKIP_AI=true SKIP_REVIEW=true SKIP_COMMIT=true SINCE_DAYS=7 \
-  python -m pipeline.run_all
-
-# Full dry run (with AI, no commit)
-SKIP_COMMIT=true SINCE_DAYS=7 python -m pipeline.run_all
-```
-
-### 4. Trigger first run
-
-In GitHub: **Actions tab → "FSIS Daily Scrape" → Run workflow → Run**
-
-After this, it runs automatically every day at 17:00 UTC (5 PM UTC).
-
----
-
-## Configuration knobs
-
-All set via env vars (in workflow YAML or .env locally):
-
-| Variable | Default | Effect |
-|----------|---------|--------|
-| `SINCE_DAYS` | 30 | How far back each scraper looks |
-| `MAX_PARALLEL` | 8 | Parallel scraper threads |
-| `SKIP_AI` | false | Disable Gemini (debug mode) |
-| `SKIP_REVIEW` | false | Disable OpenAI/Claude review |
-| `SKIP_COMMIT` | false | Don't push to GitHub (local testing) |
-| `GEMINI_MODEL` | gemini-2.0-flash | Free tier model |
-| `OPENAI_MODEL` | gpt-4o-mini | Cheap review model |
-| `ANTHROPIC_MODEL` | claude-haiku-4-5-20251001 | Cheap reviewer |
-
----
-
-## Adding a new scraper
-
-For most agencies, just create a 10-line file:
-
-```python
-# scrapers/asia/new_agency.py
-from scrapers._base import GenericGeminiScraper
-
-class NewAgencyScraper(GenericGeminiScraper):
-    AGENCY = "Agency Name (XX)"
-    COUNTRY = "Country Name"
-    INDEX_URLS = ["https://agency.gov/recalls"]
-    LANGUAGE = "en"   # or "es", "fr", "de", "ja", etc.
-```
-
-The orchestrator auto-discovers it on next run. No need to edit any other files.
-
-For agencies with clean APIs (like FDA openFDA), subclass `BaseScraper` and implement `scrape()` directly — see `scrapers/north_america/fda.py` for an example.
-
----
-
-## Schema (data/recalls.xlsx, sheet "Recalls")
-
-14 columns — never change without updating `pipeline/merge_master.py:SCHEMA`:
-
-| # | Column | Type | Notes |
-|---|--------|------|-------|
-| 1 | Date | str | YYYY-MM-DD |
-| 2 | Source | str | e.g. "FDA", "RappelConso (FR)" |
-| 3 | Company | str | Firm/producer |
-| 4 | Brand | str | Commercial brand, "—" if none |
-| 5 | Product | str | Full product description |
-| 6 | Pathogen | str | Canonical name (e.g. "Listeria monocytogenes") |
-| 7 | Reason | str | Cause description |
-| 8 | Class | str | "Recall", "Alert", "Class I/II/III", etc. |
-| 9 | Country | str | English country name |
-| 10 | Region | str | "Europe", "North America", etc. |
-| 11 | Tier | int | 1 = critical (Listeria/STEC/Botulinum/biotoxin/cereulide/HepA/outbreak), 2 = standard |
-| 12 | Outbreak | int | 1 if illness/outbreak mentioned, else 0 |
-| 13 | URL | str | Deep-link to specific recall page |
-| 14 | Notes | str | Distribution, batch IDs, additional context |
-
-Sheet "NEWS" is preserved by the pipeline but populated by the separate `news.gs` Apps Script.
-
----
-
-## Cost estimates
-
-- **Gemini free tier**: 1,500 req/day per key. 5 keys = 7,500/day, more than enough.
-- **OpenAI gpt-4o-mini**: ~$0.005/recall × 50 new/day = **~$0.25/day = ~$8/month**.
-- **Claude Haiku 4.5**: $5 free credit, throttled to ~10 Tier-1 rows/day = **~$0.05/day**, $5 lasts ~3 months.
-- **GitHub Actions**: Free for public repos, free 2000 min/month for private.
-
-**Total monthly cost: ~$8 (OpenAI) + $0 if Gemini/Claude on free tiers.**
-
----
-
-## Troubleshooting
-
-**"No GEMINI_API_KEY_* found in env"**
-→ Add at least one `GEMINI_API_KEY_1` to GitHub Secrets, or to `.env` locally.
-
-**Workflow times out**
-→ Reduce `SINCE_DAYS` (look back fewer days) or `MAX_PARALLEL`.
-
-**A specific scraper fails**
-→ Check Actions log. If a single agency's page format changed, the GenericGeminiScraper usually adapts. For persistent failures, you may need to add `EXTRACTION_HINTS` to that scraper's class.
-
-**"Git push failed: 403"**
-→ Check workflow has `permissions: contents: write` (it does in our YAML).
-
-**Existing 197 records got modified or lost**
-→ Pipeline is APPEND-ONLY against existing rows. Existing rows are never deleted, only enriched if the URL matches a new scrape. If you suspect data loss, the previous version is in the previous git commit — `git log data/recalls.xlsx`.
-
----
-
-## Architecture notes
-
-- **Append-only:** Your manually-curated 197 rows are sacred. Pipeline only adds new ones with new URLs.
-- **Deduplication:** Primary by URL (lowercase trim). Fallback by `date|normalized_company|pathogen`.
-- **Pathogens-only filter:** Hardcoded across all scrapers + Gemini prompts. Allergens, foreign bodies, labeling errors are excluded.
-- **URL quality enforcement:** `review/url_validator.py` catches generic landing pages (e.g. `/categorie/`, `/anakleiseis-cat`) before commit.
-- **Region inference:** Set automatically from Country via `COUNTRY_REGION` map in `_models.py`.
-- **Tier assignment:** Deterministic — Tier 1 = Listeria/STEC/Botulinum/cereulide/biotoxin/HepA/Cronobacter or any outbreak.
-
----
-
-## Next phase
-
-Once this pipeline runs cleanly for a week (~350 new recalls accumulated), the next build is **reports & statistics models**:
-
-- Pathogen trend forecasting (seasonality, regional clustering)
-- Outbreak early warning (alert when N+ recalls of same pathogen in same week)
-- Distributor risk scoring (which retailers appear most often)
-- Auto-generated weekly newsletter (HTML email)
-
-Ask in the next session: *"build the reports module on top of recalls.xlsx"*.
+</div></body></html>
