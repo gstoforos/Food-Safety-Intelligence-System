@@ -1,39 +1,56 @@
 """
-AFTS Food Safety Intelligence System — Weekly Report Generator
+AFTS Food Safety Intelligence System — Monthly Report Generator
 ================================================================
-Runs every Friday 08:00 UTC via GitHub Actions.
-Pipeline: Excel (recalls.xlsx) -> stats -> Claude AI analysis -> OpenAI polish -> HTML report.
+Runs on the 1st of each month 07:00 UTC via GitHub Actions.
 
-Output:
-  - <year>-W<week>.html  (report, committed to repo root)
-  - index.html           (dashboard embedded reports array, appended)
+Inputs:
+  docs/data/recalls.xlsx  (Recalls sheet only — never Pending or NEWS)
 
-Brand: Advanced Food-Tech Solutions (AFTS)
-Palette: black #0a0e1a / white #fff / orange #E8601A (AFTS brand)
-Typography: Syne (display) + DM Sans (body) + DM Mono (data)
+Outputs:
+  docs/<YYYY>-M<MM>.html              — full monthly report (9 sections)
+  docs/<YYYY>-M<MM>-all.html          — companion: every recall in the month
+  docs/data/monthly-summary-latest.json — payload for the Apps Script mailer
+
+Architecture:
+  - Weekly builder owns shared helpers (severity taxonomy, URL grading,
+    row rendering).
+  - monthly_stats.py computes descriptive analytics for the month
+    (MoM trend, hotspot matrix, clusters, concentration, growth, severity,
+    cadence).
+  - monthly_models.py runs predictive models with minimum-data gates so
+    the report shows which models are active and which activate later.
+  - process_authority.py fires the Process Authority 4th paragraph when
+    thermal-processing hazards appear in the window.
+  - pathogen_italic.italicise_prose() wraps binomial pathogen names in
+    <em> across every prose paragraph (shared with weekly).
+
+All SVG visualisations are generated inline (no JS, no CDN) so the HTML
+renders identically in a browser, a PDF export, and an email client.
 """
-
+from __future__ import annotations
+import argparse
+import calendar
 import json
 import logging
 import os
-import re
 import sys
-import argparse
-from datetime import datetime, timezone, timedelta, date
+from collections import Counter, defaultdict
+from datetime import date, datetime, timedelta, timezone
+from html import escape as _html_escape
 from pathlib import Path
-from collections import Counter
-from typing import List, Dict, Any, Tuple
-
-import requests
-from openpyxl import load_workbook
+from typing import Any, Dict, List, Optional, Tuple
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-# Process Authority trigger (shared with monthly builder). Surfaces a fixed
-# 4th paragraph in § 01 whenever the reporting window contains thermal-
-# processing / low-acid / anaerobic-packaging hazard signals.
-from process_authority import (
+import build_weekly_report_afts as weekly  # noqa: E402
+from pathogen_italic import italicise_prose  # noqa: E402
+from monthly_stats import (  # noqa: E402
+    compute_monthly_signals,
+    normalise_pathogen,
+)
+from monthly_models import run_all_models  # noqa: E402
+from process_authority import (  # noqa: E402
     detect_process_authority_trigger,
     build_prompt_extension as build_pa_prompt_extension,
     deterministic_fallback as pa_deterministic_fallback,
@@ -41,1568 +58,1595 @@ from process_authority import (
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-log = logging.getLogger(__name__)
+log = logging.getLogger("monthly")
 
-CLAUDE_API_KEY = os.getenv('ANTHROPIC_API_KEY')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# --- AFTS brand tokens -------------------------------------------------------
-BRAND_ORANGE = "#E8601A"
-BRAND_BLACK  = "#0a0e1a"
-TIER1_RED    = "#dc2626"
-TIER2_AMBER  = "#f59e0b"
-OUTBREAK_VIO = "#9333ea"
+# Brand tokens — mirror the weekly report so the HTML shares a visual identity
+BRAND_ORANGE = weekly.BRAND_ORANGE
+BRAND_BLACK  = weekly.BRAND_BLACK
+TIER1_RED    = weekly.TIER1_RED
+TIER2_AMBER  = weekly.TIER2_AMBER
+OUTBREAK_VIO = weekly.OUTBREAK_VIO
 
-# --- Regulatory authority map (country -> primary agency) -------------------
-AUTHORITY_MAP = {
-    "United States": "FDA / USDA FSIS",
-    "USA": "FDA / USDA FSIS",
-    "US": "FDA / USDA FSIS",
-    "Canada": "CFIA",
-    "United Kingdom": "FSA (UK)",
-    "UK": "FSA (UK)",
-    "France": "RappelConso / DGCCRF",
-    "Germany": "BVL",
-    "Italy": "Ministero della Salute",
-    "Spain": "AESAN",
-    "Netherlands": "NVWA",
-    "Belgium": "FAVV-AFSCA",
-    "Ireland": "FSAI",
-    "Portugal": "ASAE",
-    "Switzerland": "BLV",
-    "Austria": "AGES",
-    "Sweden": "Livsmedelsverket",
-    "Denmark": "Foedevarestyrelsen",
-    "Norway": "Mattilsynet",
-    "Finland": "Ruokavirasto",
-    "Greece": "EFET",
-    "Poland": "GIS",
-    "Australia": "FSANZ",
-    "New Zealand": "MPI / FSANZ",
-    "Japan": "MHLW",
-    "Hong Kong": "CFS (HK)",
-    "Singapore": "SFA",
-    "South Korea": "MFDS",
-    "Brazil": "ANVISA",
-    "Mexico": "COFEPRIS",
-    "Argentina": "ANMAT",
-    "Chile": "ACHIPIA / ISP",
-    "South Africa": "DALRRD",
-}
+escape = _html_escape
 
-def authority_for(country: str) -> str:
-    if not country:
-        return "Multiple / Unknown"
-    return AUTHORITY_MAP.get(country.strip(), "National Authority")
 
-# --- Pathogen severity (Tier-1 first) ---------------------------------------
-PATHOGEN_SEVERITY = [
-    ("clostridium botulinum", 1, "Clostridium botulinum"),
-    ("botulinum",             1, "Clostridium botulinum"),
-    ("listeria",              2, "Listeria monocytogenes"),
-    ("stec",                  3, "STEC / E. coli O157:H7"),
-    ("o157",                  3, "STEC / E. coli O157:H7"),
-    ("escherichia coli",      3, "E. coli"),
-    ("e. coli",               3, "E. coli"),
-    ("salmonella",            4, "Salmonella spp."),
-    ("cronobacter",           5, "Cronobacter sakazakii"),
-    ("vibrio",                6, "Vibrio spp."),
-    ("hepatitis",             7, "Hepatitis A"),
-    ("norovirus",             8, "Norovirus"),
-    ("campylobacter",         9, "Campylobacter"),
-    ("staphylococcus",       10, "Staphylococcus aureus"),
-    ("bacillus cereus",      11, "Bacillus cereus / Cereulide"),
-    ("cereulide",            11, "Bacillus cereus / Cereulide"),
-    ("clostridium perfringens", 12, "C. perfringens"),
-]
+# ---------------------------------------------------------------------------
+# Date helpers
+# ---------------------------------------------------------------------------
+def month_bounds(year: int, month: int) -> Tuple[date, date]:
+    start = date(year, month, 1)
+    end = date(year, month, calendar.monthrange(year, month)[1])
+    return start, end
 
-def severity_score(pathogen: str) -> Tuple[int, str]:
-    """Returns (severity_rank, canonical_name). Lower rank = more severe."""
-    p = (pathogen or "").lower()
-    for key, rank, canon in PATHOGEN_SEVERITY:
-        if key in p:
-            return rank, canon
-    return 99, (pathogen or "Unknown")
 
-# --- URL quality (local-only, no HTTP) --------------------------------------
-# A URL is "report-grade" if it's non-empty, starts with http(s), isn't a known
-# generic landing page, and has at least 2 path segments (i.e., points to a
-# specific recall, not a category or homepage). This check runs at report time
-# so bad URLs that slipped past the guardian can't reach the Top-5.
-_GENERIC_URL_PATTERNS = [
-    r"/categorie/\d+/?$",
-    r"/categorie/0/\d+/[a-z]+/?$",
-    r"/anakleiseis-cat/?$",
-    r"/alertas_alimentarias/?$",
-    r"/liste/lebensmittel/bundesweit/?$",
-    r"/portal/news/p3_2_1_3\.jsp",
-    r"/food-recalls/?$",
-    r"/recalls?/?$",
-    r"/alerts?/?$",
-    r"/news/?$",
-    r"/category/[^/]+/?$",
-    r"/tag/[^/]+/?$",
-    r"/search/?",
-    r"^https?://[^/]+/?$",
-    # FDA / USDA FSIS / CFIA / FSA / FSAI landing pages (mirror url_validator.py)
-    r"/safety/recalls-market-withdrawals-safety-alerts/?$",
-    r"/safety/recalls/?$",
-    r"/recalls-alerts/?$",
-    r"/recalls-public-health-alerts/?$",
-    r"/food-recall-warnings/?$",
-    r"/food-recall-warnings-and-allergy-alerts/?$",
-    r"/news-alerts/?$",
-    r"/consumer/food-alerts/?$",
-    r"/recall-and-advice-list/?$",
-    r"/list-of-recalls/?$",
-    r"/food-alert-list/?$",
-]
-
-def is_report_grade_url(url: str) -> bool:
-    if not url or len(url) < 20:
-        return False
-    u = url.strip()
-    if not u.lower().startswith(("http://", "https://")):
-        return False
-    for pat in _GENERIC_URL_PATTERNS:
-        if re.search(pat, u, re.I):
-            return False
-    try:
-        from urllib.parse import urlparse
-        p = urlparse(u)
-    except Exception:
-        return False
-    if not p.netloc:
-        return False
-    segments = [s for s in (p.path or "").split("/") if s]
-    return len(segments) >= 2
-
-# --- Data loading -----------------------------------------------------------
-def load_recalls(xlsx_path: Path) -> List[Dict[str, Any]]:
-    if not xlsx_path.exists():
-        log.error("XLSX file not found: %s", xlsx_path)
-        return []
-    wb = load_workbook(xlsx_path, data_only=True)
-    if "Recalls" not in wb.sheetnames:
-        log.error("Recalls sheet not found. Available: %s", wb.sheetnames)
-        return []
-    ws = wb["Recalls"]
-    headers = [c.value for c in ws[1]]
-    out = []
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        rec = {h: (v if v is not None else "") for h, v in zip(headers, row)}
-        out.append(rec)
-    return out
-
-def filter_week(recalls: List[Dict], week_end: date) -> List[Dict]:
-    """Recalls dated between (week_end - 6 days) and week_end inclusive."""
-    week_start = week_end - timedelta(days=6)
+def filter_month(recalls: List[Dict], start: date, end: date) -> List[Dict]:
     out = []
     for r in recalls:
-        d = r.get("Date", "")
+        d = str(r.get("Date", "") or "")[:10]
         if not d:
             continue
         try:
-            rd = datetime.strptime(str(d)[:10], "%Y-%m-%d").date()
-        except (ValueError, TypeError):
+            rd = datetime.strptime(d, "%Y-%m-%d").date()
+        except ValueError:
             continue
-        if week_start <= rd <= week_end:
+        if start <= rd <= end:
             out.append(r)
     return out
 
-# --- Statistics -------------------------------------------------------------
-def safe_int(v, default=0):
-    try:
-        return int(v)
-    except (ValueError, TypeError):
-        return default
 
-def compute_stats(week_recalls: List[Dict], prev_week_recalls: List[Dict]) -> Dict[str, Any]:
-    total = len(week_recalls)
-    tier1 = sum(1 for r in week_recalls if safe_int(r.get("Tier")) == 1)
-    outbreaks = sum(1 for r in week_recalls if safe_int(r.get("Outbreak")) == 1)
+def bucket_by_month(recalls: List[Dict]) -> Dict[str, List[Dict]]:
+    out: Dict[str, List[Dict]] = defaultdict(list)
+    for r in recalls:
+        ym = str(r.get("Date", "") or "")[:7]
+        if ym:
+            out[ym].append(r)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Whitelist filter for the Poisson model. Applying it only to the dashboard's
+# canonical pathogen list prevents junk category strings ("Mouse contamination",
+# "Inadequate sterilisation") from polluting the forecast panel.
+# ---------------------------------------------------------------------------
+CANONICAL_PATHOGENS = {
+    "Listeria", "Salmonella", "E. coli / STEC", "C. botulinum",
+    "Bacillus cereus / Cereulide", "Campylobacter", "Vibrio", "Cronobacter",
+    "Staphylococcus aureus", "Yersinia", "Shigella",
+    "Norovirus", "Hepatitis A", "Rotavirus",
+    "Aflatoxin", "Ochratoxin A", "Patulin", "Histamine / scombrotoxin",
+    "Marine biotoxins",
+    "Cyclospora", "Toxoplasma",
+}
+
+
+def build_pathogen_history(monthly_cohorts: List[Tuple[str, List[Dict]]]) -> Dict[str, List[int]]:
+    """Per-pathogen monthly count series, filtered to canonical pathogens."""
+    # Which pathogens appear anywhere in history AND are canonical?
+    seen = set()
+    for _, recalls in monthly_cohorts:
+        for r in recalls:
+            p = normalise_pathogen(r.get("Pathogen") or "")
+            if p in CANONICAL_PATHOGENS:
+                seen.add(p)
+    # Build parallel count series for each
+    series: Dict[str, List[int]] = {p: [] for p in seen}
+    for _, recalls in monthly_cohorts:
+        cnts = Counter(
+            normalise_pathogen(r.get("Pathogen") or "") for r in recalls
+        )
+        for p in seen:
+            series[p].append(cnts.get(p, 0))
+    return series
+
+
+# ---------------------------------------------------------------------------
+# Month stats (shallow — just counts + top pathogen for the KPI strip)
+# ---------------------------------------------------------------------------
+def compute_month_stats(month_recalls: List[Dict],
+                        prior_month_recalls: List[Dict]) -> Dict[str, Any]:
+    total     = len(month_recalls)
+    tier1     = sum(1 for r in month_recalls if weekly.safe_int(r.get("Tier")) == 1)
+    outbreaks = sum(1 for r in month_recalls if weekly.safe_int(r.get("Outbreak")) == 1)
 
     pathogen_counts = Counter()
-    for r in week_recalls:
+    pathogen_tier1  = Counter()
+    for r in month_recalls:
         p = (r.get("Pathogen") or "").strip()
-        if p:
-            _, canon = severity_score(p)
-            pathogen_counts[canon] += 1
+        if not p:
+            continue
+        _, canon = weekly.severity_score(p)
+        pathogen_counts[canon] += 1
+        if weekly.safe_int(r.get("Tier")) == 1:
+            pathogen_tier1[canon] += 1
 
-    country_counts = Counter()
-    for r in week_recalls:
-        c = (r.get("Country") or "Unknown").strip()
-        country_counts[c] += 1
-
+    country_counts = Counter(
+        (r.get("Country") or "Unknown").strip() or "Unknown"
+        for r in month_recalls
+    )
     source_counts = Counter()
-    for r in week_recalls:
+    for r in month_recalls:
         s = (r.get("Source") or "").strip()
         if s:
             source_counts[s] += 1
 
-    prev_total = len(prev_week_recalls)
+    prev_total = len(prior_month_recalls)
     delta = total - prev_total
     delta_pct = round((delta / prev_total) * 100) if prev_total else None
 
-    top_p = pathogen_counts.most_common(1)[0] if pathogen_counts else ("-", 0)
+    if pathogen_counts:
+        ranked = sorted(
+            pathogen_counts.items(),
+            key=lambda kv: (-kv[1], -pathogen_tier1.get(kv[0], 0), kv[0]),
+        )
+        top_p = ranked[0]
+    else:
+        top_p = ("-", 0)
 
     return {
         "total": total,
         "tier1": tier1,
         "outbreaks": outbreaks,
         "top_pathogen": top_p,
-        "pathogen_counts": pathogen_counts.most_common(10),
-        "country_counts": country_counts.most_common(10),
-        "source_counts": source_counts.most_common(10),
-        "prev_total": prev_total,
-        "delta": delta,
-        "delta_pct": delta_pct,
+        "pathogen_counts":  pathogen_counts.most_common(15),
+        "country_counts":   country_counts.most_common(20),
+        "source_counts":    source_counts.most_common(20),
+        "prev_total":       prev_total,
+        "delta":            delta,
+        "delta_pct":        delta_pct,
     }
 
-def rank_top_recalls(week_recalls: List[Dict], n: int = 5) -> List[Dict]:
-    """
-    Rank by: URL quality (verifiable first), then severity, outbreak, tier, date.
-    A Top-5 entry that would appear in an executive briefing MUST link to a specific
-    recall page, never a homepage or category listing. Records without a report-grade
-    URL fall to the bottom and only appear if we need to fill slots.
-    """
-    def score(r):
-        has_good_url = is_report_grade_url(r.get("URL") or "")
-        sev, _ = severity_score(r.get("Pathogen") or "")
-        tier = safe_int(r.get("Tier"), 3)
-        outbreak = safe_int(r.get("Outbreak"), 0)
-        d = str(r.get("Date") or "")[:10]
-        # URL-first so a verifiable Tier-2 beats an unverifiable Tier-1 in the Top-5
-        return (0 if has_good_url else 1, sev, -outbreak, tier, d)
-    ranked = sorted(week_recalls, key=score, reverse=False)
-    # If there are enough good-URL rows to fill n, drop the unverifiable ones entirely
-    good = [r for r in ranked if is_report_grade_url(r.get("URL") or "")]
-    if len(good) >= n:
-        return good[:n]
-    # Otherwise include unverifiable rows at the bottom but mark them
-    return ranked[:n]
 
-# --- AI analysis ------------------------------------------------------------
-def generate_report_with_claude(stats: Dict[str, Any], week_recalls: List[Dict],
-                                pa_trigger: Dict[str, Any] = None) -> str:
+# ---------------------------------------------------------------------------
+# AI narrative — consumes the pre-computed signals
+# ---------------------------------------------------------------------------
+def generate_monthly_narrative(stats: Dict[str, Any],
+                               signals: Dict[str, Any],
+                               models: Dict[str, Any],
+                               month_recalls: List[Dict],
+                               month_name: str,
+                               year: int) -> str:
+    """
+    Write 3 paragraphs (+ optional 4th Process Authority Note). Claude is fed
+    the pre-computed analytical signals as authoritative context so it
+    narrates them instead of trying to re-derive from raw counts. Falls back
+    to a deterministic narrative if no ANTHROPIC_API_KEY is present.
+    """
+    pa_trigger   = detect_process_authority_trigger(month_recalls)
+    pa_extension = build_pa_prompt_extension(pa_trigger)
+
     if not CLAUDE_API_KEY:
-        log.warning("ANTHROPIC_API_KEY missing; using fallback narrative")
-        return generate_fallback_analysis(stats, pa_trigger)
+        log.warning("ANTHROPIC_API_KEY missing; using fallback monthly narrative")
+        return _fallback_narrative(stats, signals, models, month_name, year, pa_trigger)
 
-    top_incidents = []
-    for r in rank_top_recalls(week_recalls, n=5):
-        top_incidents.append({
-            "pathogen": r.get("Pathogen", ""),
-            "company":  (r.get("Company") or "")[:80],
-            "product":  (r.get("Product") or "")[:120],
-            "country":  r.get("Country", ""),
-            "tier":     r.get("Tier", ""),
-            "outbreak": r.get("Outbreak", 0),
-        })
+    import requests
 
-    delta_txt = ""
-    if stats["delta_pct"] is not None:
-        direction = "increase" if stats["delta"] > 0 else ("decrease" if stats["delta"] < 0 else "no change")
-        delta_txt = f"Week-over-week {direction}: {stats['delta']:+d} recalls ({stats['delta_pct']:+d}%)."
+    # Compact views of signals for the prompt
+    mom = signals["mom_trend"]
+    hs  = signals["hotspot"]
+    cl  = signals["cluster"]
+    co  = signals["concentration"]
+    gr  = signals["growth"]
+    sv  = signals["severity"]
+    lt  = models["linear_trend"]
+    poi = models["poisson"]
 
-    prompt = f"""You are producing the weekly pathogen surveillance briefing for Advanced Food-Tech Solutions (AFTS), a food process engineering firm. Your analysis MUST sound like it comes from a practising process authority - not a generic AI. That means: name specific process-control failure modes, cite validated engineering frameworks (F-value lethality, D-value, hold-tube residence time, FDA 21 CFR 113/114, PMO, HACCP CCPs, pre-op sanitation, environmental monitoring programmes), and tie every pathogen to the PROCESS that failed to eliminate it.
+    hotspot_lines = "\n".join(
+        f"  - {h['country']} × {h['pathogen']}: observed={h['observed']} vs "
+        f"expected={h['expected']} (stdres={h['stdres']:+.2f}, ratio={h['ratio']}x)"
+        for h in hs.get("hotspots", [])[:3]
+    ) or "  (no statistically significant hotspots — distribution matches independence baseline)"
 
-This is what differentiates AFTS from pure data platforms (e.g. Foodakai): we interpret recalls through validated food process engineering, not just count them.
+    cluster_lines = "\n".join(
+        f"  - {c['pathogen']}: {c['size']} events in {c['span_days']}d "
+        f"across {len(c['countries'])} countries ({', '.join(c['countries'][:3])})"
+        for c in cl.get("clusters", [])[:3]
+    ) or "  (no same-pathogen temporal clusters this month)"
 
-DATA SUMMARY (this week):
-- Total pathogen recalls: {stats['total']}
-- Tier-1 (critical public-health risk): {stats['tier1']}
-- Active outbreaks: {stats['outbreaks']}
-- Leading pathogen: {stats['top_pathogen'][0]} ({stats['top_pathogen'][1]} cases)
-- {delta_txt}
+    emerging_lines = "\n".join(
+        f"  - {e['pathogen']}: count={e['count']}, Z={e['z_score']}, MoM={e['growth_pct']}%"
+        for e in gr.get("emerging", [])[:4]
+    ) or "  (no pathogens with >2-sigma growth vs historical share)"
 
-PATHOGEN DISTRIBUTION:
-{dict(stats['pathogen_counts'])}
+    # Poisson highlights for rare pathogens
+    poisson_lines = []
+    if poi.get("by_pathogen"):
+        for p, f in poi["by_pathogen"].items():
+            if isinstance(f, dict) and f.get("status") == "active":
+                poisson_lines.append(
+                    f"  - {p}: λ̂={f['lambda']}, last={f['last']}, "
+                    f"p90={f['p90']}, p95={f['p95']}"
+                )
+    poisson_block = "\n".join(poisson_lines[:5]) or "  (no rare pathogens with active Poisson fit)"
 
-GEOGRAPHIC DISTRIBUTION:
-{dict(stats['country_counts'])}
+    lt_block = (
+        f"  Active: next-month point forecast={lt['next_month_point']}, "
+        f"95% CI=[{lt['next_month_ci95'][0]}, {lt['next_month_ci95'][1]}], "
+        f"slope={lt['slope_per_month']:+.1f}/mo, r²={lt['r_squared']}, "
+        f"slope_significant={lt['slope_significant']}"
+        if lt.get("status") == "active"
+        else f"  Inactive: {lt.get('message','(insufficient data)')}"
+    )
 
-TOP 5 INCIDENTS:
-{json.dumps(top_incidents, indent=2)}
+    prompt = f"""You are producing the AFTS monthly pathogen surveillance briefing for {month_name} {year}. Your analysis must sound like a practising process authority — not a generic AI — interpreting every finding through validated food process engineering (21 CFR 113/114, PMO, HACCP CCPs, environmental monitoring) and naming specific failure modes and control points.
 
-Write exactly THREE paragraphs, each 3-4 sentences, in an authoritative professional-engineering tone. NO headers, NO bullet points, NO emoji, NO markdown. Use UK/US business English. Reference specific numbers and named pathogens. A separate Process Authority note may be appended after these three paragraphs by the pipeline — do NOT include any scheduled-process filing or FDA 2541 references in your three paragraphs.
+PRE-COMPUTED ANALYTICAL SIGNALS — treat these as authoritative. Do NOT recompute or second-guess them.
 
-Paragraph 1 - EXECUTIVE SUMMARY: Frame the week's activity quantitatively (total, Tier-1, outbreaks, week-over-week). Name the leading pathogen and at least one specific product category or commodity it appeared in this week.
+MONTH BASELINE
+  Total recalls:    {stats['total']}
+  Tier-1 critical:  {stats['tier1']}
+  Outbreaks:        {stats['outbreaks']}
+  Leading pathogen: {stats['top_pathogen'][0]} ({stats['top_pathogen'][1]} cases)
 
-Paragraph 2 - PROCESS-FAILURE ANALYSIS: Diagnose the likely failure mode(s) behind this week's dominant pathogen. Be specific: is this a thermal underprocess, a post-pasteurisation recontamination, an environmental monitoring gap, raw-material sourcing, sanitation SOP failure, validation drift, or a cold-chain breach? Reference the relevant engineering standard (e.g. "minimum 6-log Listeria lethality per 21 CFR 113", "HTST 72 C / 15 s per PMO", "aseptic hold-tube residence time validation") and name the food category most at risk. Do not hedge - a process authority would commit to a most-likely mechanism.
+MoM TREND
+  Series:           {mom.get('values')}
+  Current:          {mom.get('current')}
+  Rolling mean:     {mom.get('rolling_mean')}
+  Z vs baseline:    {mom.get('z_score')} (|Z|>2 flagged as anomalous; {mom.get('anomaly_flag')})
+  Direction:        {mom.get('direction')} ({mom.get('delta_pct')}% vs prior month)
 
-Paragraph 3 - ENGINEERING RECOMMENDATION: Close with a concrete recommendation a VP of QA at a food manufacturer could act on this week. Name the specific control(s) to re-verify (e.g. "revalidate hold-tube residence time under current production flow rates", "increase Zone 1 environmental swab frequency on RTE deli lines", "verify post-retort thermocouple placement"). Tie it to the week's regulatory pattern (RASFF, FDA, CFIA, FSA).
+HOTSPOT CELLS (country × pathogen with observed count >2σ above independence-baseline expected count):
+{hotspot_lines}
+
+CLUSTERS (≥3 same-pathogen outbreaks within 14 days):
+{cluster_lines}
+
+CONCENTRATION
+  Source HHI:          {co.get('hhi_source')} ({co.get('hhi_bucket')})
+  Geographic Gini:     {co.get('gini_country')} ({co.get('gini_bucket')})
+  Tier-1 share:        {co.get('tier1_share')}
+  Baseline Tier-1:     {co.get('baseline_tier1_share')}
+  Tier-1 intensity:    {co.get('tier1_intensity_ratio')}x vs baseline
+
+EMERGING PATHOGENS (>2σ MoM growth vs historical share):
+{emerging_lines}
+
+COMPOSITE SEVERITY INDEX
+  Score: {sv.get('score')}/100 ({sv.get('bucket')})
+  Components: {sv.get('components')}
+
+PREDICTIVE OUTLOOK
+  Linear trend projection:
+{lt_block}
+  Poisson per-pathogen forecasts (rare pathogens, <10/month mean):
+{poisson_block}
+
+TASK. Write exactly THREE paragraphs, each 4–6 sentences, professional-engineering tone. NO headers, NO bullets, NO markdown, NO emoji. Use UK/US business English. Reference specific numbers and named pathogens from the signals above. A separate Process Authority Note may be appended — do NOT reference scheduled-process filings or FDA Form 2541 in your three paragraphs.
+
+Paragraph 1 — MONTH HEADLINE: Anchor on the MoM direction, the Z-score (or "inside baseline" when Z is None), the dominant pathogen and its share. Call out the single most important hotspot by name (country × pathogen combo with the highest standardised residual). Quote the composite severity score and its bucket.
+
+Paragraph 2 — STRUCTURAL INTERPRETATION: Explain WHY the month looks the way it does using the hotspot, cluster, and concentration signals. Commit to a most-likely mechanism — is this a single-country regional event (high Gini), a coordinated multi-jurisdictional signal (low Gini, low HHI), or an agency-concentrated data artefact (high HHI)? Tie the dominant pathogen to a specific production-system failure mode (environmental harbourage, raw-material sourcing, thermal underprocess, post-process recontamination, cold-chain breach).
+
+Paragraph 3 — FORWARD-LOOKING ENGINEERING RECOMMENDATION: Name the single highest-leverage verification step a QA director should take this month, tied to (a) the emerging-pathogen list and (b) the linear-trend and Poisson forecasts. Reference the specific predictive upper bound if material (e.g. "p95 upper bound for C. botulinum sits at N over the next month"). Be specific and commit to a concrete control (CCP re-verification, environmental monitoring intensity increase, supplier verification audit, thermocouple placement check) rather than hedging.
 
 Return only the three paragraphs separated by a single blank line."""
 
-    # Append the Process Authority Note prompt only when the trigger fired.
-    pa_extension = build_pa_prompt_extension(pa_trigger or {"fired": False})
     if pa_extension:
         prompt += "\n\n" + pa_extension
-        log.info("Process Authority trigger fired (weekly): %d matching incident(s) — %s",
-                 pa_trigger["total_matches"], ", ".join(pa_trigger["keywords_hit"][:6]))
+        log.info("Process Authority trigger fired (monthly): %d matching incident(s)",
+                 pa_trigger.get("total_matches", 0))
 
     try:
-        response = requests.post(
-            'https://api.anthropic.com/v1/messages',
+        r = requests.post(
+            "https://api.anthropic.com/v1/messages",
             headers={
-                'Content-Type': 'application/json',
-                'x-api-key': CLAUDE_API_KEY,
-                'anthropic-version': '2023-06-01',
+                "x-api-key":         CLAUDE_API_KEY,
+                "anthropic-version": "2023-06-01",
+                "content-type":      "application/json",
             },
             json={
-                'model': 'claude-sonnet-4-20250514',
-                'max_tokens': 2000 if pa_extension else 1400,
-                'messages': [{'role': 'user', 'content': prompt}]
+                "model":      "claude-sonnet-4-20250514",
+                "max_tokens": 2200 if pa_extension else 1600,
+                "messages":   [{"role": "user", "content": prompt}],
             },
-            timeout=60,
+            timeout=90,
         )
-        if response.status_code == 200:
-            return response.json()['content'][0]['text'].strip()
-        log.error("Claude API %d: %s", response.status_code, response.text[:300])
+        if r.status_code != 200:
+            log.warning("Claude %d: %s", r.status_code, r.text[:200])
+            return _fallback_narrative(stats, signals, models, month_name, year, pa_trigger)
+        data = r.json()
+        parts = [b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"]
+        narrative = "\n\n".join(p for p in parts if p).strip()
+        return narrative or _fallback_narrative(stats, signals, models, month_name, year, pa_trigger)
     except Exception as e:
-        log.error("Claude API exception: %s", e)
-    return generate_fallback_analysis(stats, pa_trigger)
+        log.warning("Claude monthly narrative failed: %s", e)
+        return _fallback_narrative(stats, signals, models, month_name, year, pa_trigger)
 
-def generate_fallback_analysis(stats: Dict[str, Any],
-                               pa_trigger: Dict[str, Any] = None) -> str:
-    top_pathogen, count = stats['top_pathogen']
-    total = stats['total']
-    tier1 = stats['tier1']
-    outbreaks = stats['outbreaks']
-    pct = round((count / total) * 100) if total > 0 else 0
 
-    p1 = (f"This week produced {total} pathogen-related recall incidents across the AFTS monitoring "
-          f"network, with {tier1} classified as Tier-1 and {outbreaks} confirmed outbreak event(s). "
-          f"{top_pathogen} dominated the surveillance window, accounting for {count} of {total} "
-          f"incidents ({pct}%). The elevated Tier-1 ratio indicates sustained regulatory pressure "
-          f"and should be read by food manufacturers as a signal of tightening enforcement.")
+def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
+                        models: Dict[str, Any], month_name: str, year: int,
+                        pa_trigger: Dict[str, Any]) -> str:
+    mom = signals["mom_trend"]
+    hs  = signals["hotspot"]
+    co  = signals["concentration"]
+    sv  = signals["severity"]
+    lt  = models["linear_trend"]
+    top_name, top_count = stats["top_pathogen"]
+    pct = round(top_count / stats["total"] * 100) if stats["total"] else 0
 
-    # Tailor paragraph 2 to the leading pathogen
-    p_lower = (top_pathogen or "").lower()
-    if "listeria" in p_lower:
-        p2 = (f"{top_pathogen} at this prevalence points to post-process recontamination in "
-              f"ready-to-eat deli, dairy, and cooked-meat lines rather than thermal underprocess. "
-              f"The likely failure modes are Zone 1 environmental harbourage, sanitation SOP drift, "
-              f"and post-lethality recontamination. 21 CFR 117 environmental monitoring and the "
-              f"6-log Listeria lethality requirement (21 CFR 113/114 where applicable) are the "
-              f"relevant frameworks for review.")
-    elif "salmonella" in p_lower:
-        p2 = (f"{top_pathogen} at this prevalence typically traces to raw-material contamination, "
-              f"insufficient thermal lethality, or post-process handling. Validate pasteurisation "
-              f"D-values against current product formulations, confirm hold-tube residence time "
-              f"under production flow rates, and audit supplier verification protocols for "
-              f"high-risk commodities (poultry, eggs, produce, low-moisture products).")
-    elif "e. coli" in p_lower or "stec" in p_lower:
-        p2 = (f"{top_pathogen} in RTE products indicates either inadequate cook step or "
-              f"post-cook cross-contamination. Re-verify core temperature achievement against "
-              f"USDA Appendix A lethality tables, confirm hot-hold temperatures at or above "
-              f"60 C, and audit raw/cooked segregation on the processing line.")
-    elif "botulinum" in p_lower:
-        p2 = (f"{top_pathogen} recalls are process-authority events by definition. Verify scheduled "
-              f"process adequacy under 21 CFR 113 (LACF) or 114 (acidified foods), revalidate "
-              f"F-value delivery on the slowest-heating particle, and confirm container integrity "
-              f"across the retort cycle. Any deviation from the filed scheduled process triggers "
-              f"immediate process-authority review.")
-    else:
-        p2 = (f"{top_pathogen} at {pct}% of this week's total warrants review of both thermal "
-              f"lethality validation and post-process hygiene controls. Re-verify CCP monitoring "
-              f"records for the affected product categories and confirm environmental monitoring "
-              f"coverage.")
+    hotspot_txt = ""
+    if hs.get("hotspots"):
+        h = hs["hotspots"][0]
+        hotspot_txt = (f" The standout hotspot was {h['country']} × {h['pathogen']}, "
+                       f"with {h['observed']} recalls against an independence-baseline "
+                       f"expectation of {h['expected']} (stdres {h['stdres']:+.2f}).")
 
-    p3 = (f"Regulatory activity this week spanned multiple jurisdictions (RASFF, FDA, CFIA, FSA, "
-          f"and national authorities), signalling continued inspection intensity. AFTS recommends "
-          f"that food manufacturers use this briefing as a prompt to re-verify the single "
-          f"highest-leverage control for their commodity this week and to confirm documentation "
-          f"packages are ready for rapid regulatory response.")
+    z_phrase = (f", a {mom['z_score']:+.1f}-sigma anomaly vs the prior-month baseline"
+                if mom.get("z_score") is not None else
+                " — the rolling baseline is too narrow for a Z estimate this early in the series")
+
+    p1 = (f"{month_name} {year} produced {stats['total']} pathogen-related recall incidents "
+          f"across the AFTS monitoring network, a {mom.get('delta_pct')}% move "
+          f"{'above' if mom.get('direction')=='up' else 'below' if mom.get('direction')=='down' else 'flat vs'} "
+          f"the prior month{z_phrase}. {top_name} dominated with {top_count} of "
+          f"{stats['total']} incidents ({pct}%). The composite severity index closed at "
+          f"{sv.get('score')}/100 ({sv.get('bucket')}), with {stats['tier1']} Tier-1 "
+          f"critical events and {stats['outbreaks']} outbreak clusters on record.{hotspot_txt}")
+
+    bucket_phrase = {"diverse": "signal diversity consistent with broad regulatory engagement",
+                     "moderate": "moderate source concentration",
+                     "concentrated": "a signal driven by one or two agencies"}.get(
+        co.get("hhi_bucket"), "mixed signal concentration")
+    gini_phrase = {"even": "geographically even",
+                   "moderate": "moderately uneven geographically",
+                   "very_uneven": "strongly concentrated in a single country"}.get(
+        co.get("gini_bucket"), "")
+    p2 = (f"Structurally, the month reads as {gini_phrase} with {bucket_phrase} "
+          f"(Source HHI {co.get('hhi_source')}, Geographic Gini {co.get('gini_country')}). "
+          f"For a {top_name}-dominated month, the relevant failure modes are "
+          f"post-process environmental harbourage in Zone 1 of RTE lines, sanitation SOP "
+          f"drift, and cold-chain lapses — not thermal underprocess. The Tier-1 intensity "
+          f"ratio of {co.get('tier1_intensity_ratio')}x vs the rolling baseline indicates "
+          f"severity is {'elevated' if (co.get('tier1_intensity_ratio') or 1) > 1.1 else 'in line'}.")
+
+    lt_txt = ""
+    if lt.get("status") == "active":
+        lt_txt = (f" The linear-trend projection for next month stands at "
+                  f"{lt.get('next_month_point')} recalls (95% CI "
+                  f"{lt.get('next_month_ci95')}), with r²={lt.get('r_squared')}.")
+
+    p3 = (f"Looking forward, operators in {top_name}-relevant commodity categories should "
+          f"re-verify the single highest-leverage control this month: environmental "
+          f"monitoring swab frequency on RTE deli and dairy lines, or pasteurisation "
+          f"D-value validation on low-moisture commodities, whichever matches their "
+          f"product mix.{lt_txt} Documentation packages should be ready for rapid "
+          f"regulatory response given continued inspection intensity.")
 
     body = f"{p1}\n\n{p2}\n\n{p3}"
 
-    # Optional 4th paragraph: Process Authority Note (when trigger fired).
     pa_note = pa_deterministic_fallback(pa_trigger or {"fired": False})
     if pa_note:
         body = f"{body}\n\n{pa_note}"
     return body
 
-def review_with_openai(report_content: str) -> str:
-    if not OPENAI_API_KEY:
-        return report_content
 
-    # Detect the Process Authority Note so the polisher preserves it verbatim
-    # rather than collapsing the briefing back to three paragraphs.
-    _pa_label_lc = PROCESS_AUTHORITY_LABEL.lower()
-    _has_pa = any(
-        p.strip().lower().startswith(_pa_label_lc)
-        for p in report_content.split("\n\n") if p.strip()
+# ---------------------------------------------------------------------------
+# SVG RENDERERS — zero-JS, email-safe inline graphics
+# ---------------------------------------------------------------------------
+def svg_mom_sparkline(mom: Dict[str, Any], w: int = 320, h: int = 72) -> str:
+    """Sparkline of month-over-month counts with current-month marker."""
+    values = mom.get("values", [])
+    if not values or len(values) < 2:
+        return f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg"></svg>'
+    counts = [c for _, c in values]
+    labels = [ym for ym, _ in values]
+    mx = max(counts) or 1
+    pad_x, pad_y = 24, 12
+    iw, ih = w - 2 * pad_x, h - 2 * pad_y
+    step = iw / max(1, len(counts) - 1)
+    points = [
+        (pad_x + i * step, pad_y + ih - (c / mx) * ih)
+        for i, c in enumerate(counts)
+    ]
+    path = "M " + " L ".join(f"{x:.1f},{y:.1f}" for x, y in points)
+    area = path + f" L {points[-1][0]:.1f},{pad_y+ih:.1f} L {points[0][0]:.1f},{pad_y+ih:.1f} Z"
+    last_x, last_y = points[-1]
+    direction_colour = (TIER1_RED if mom.get("direction") == "up" and (mom.get("delta_pct") or 0) > 20
+                        else "#059669" if mom.get("direction") == "down" else BRAND_ORANGE)
+
+    labels_svg = "".join(
+        f'<text x="{x:.1f}" y="{h-2}" text-anchor="middle" font-size="8" '
+        f'font-family="DM Mono,monospace" fill="#64748b">{escape(lbl[5:])}</text>'
+        for (x, _), lbl in zip(points, labels)
+    )
+    return (
+        f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg">'
+        f'<defs><linearGradient id="sg" x1="0" x2="0" y1="0" y2="1">'
+        f'<stop offset="0%" stop-color="{direction_colour}" stop-opacity="0.35"/>'
+        f'<stop offset="100%" stop-color="{direction_colour}" stop-opacity="0"/>'
+        f'</linearGradient></defs>'
+        f'<path d="{area}" fill="url(#sg)"/>'
+        f'<path d="{path}" fill="none" stroke="{direction_colour}" stroke-width="1.8"/>'
+        f'<circle cx="{last_x:.1f}" cy="{last_y:.1f}" r="3.5" fill="{direction_colour}"/>'
+        f'<text x="{last_x+6:.1f}" y="{last_y-4:.1f}" font-size="10" font-weight="700" '
+        f'font-family="DM Mono,monospace" fill="{direction_colour}">{counts[-1]}</text>'
+        f'{labels_svg}'
+        f'</svg>'
     )
 
-    if _has_pa:
-        rules = (
-            "- Preserve every number, pathogen name, and factual claim exactly.\n"
-            "- Preserve exactly FOUR paragraphs separated by blank lines. The fourth paragraph "
-            f"is the Process Authority Note (it begins with \"{PROCESS_AUTHORITY_LABEL}:\") — "
-            "keep its label, compact global framework citation (FDA 21 CFR 113/114, EU Reg. "
-            "852/2004, CFIA SFCR, FSANZ FSC Ch. 3, Japan's Food Sanitation Act), and regulatory "
-            "meaning intact; light copy-edit only, DO NOT expand it with per-regulation blurbs.\n"
-            "- Tighten the first three paragraphs, remove redundancy, ensure the tone is "
-            "measured, authoritative, and non-alarmist.\n"
-            "- Use UK/US business English. No headers, no bullets, no emoji, no markdown.\n"
-            "- Max ~180 words per paragraph for paragraphs 1–3; paragraph 4 must stay terse "
-            "at ~130 words (4 sentences) and must NOT be expanded."
+
+def svg_hotspot_heatmap(hs: Dict[str, Any], w: int = 620) -> str:
+    """Country × Pathogen heatmap; hotspot cells (>2σ) bordered in red."""
+    rows = hs.get("row_labels", [])
+    cols = hs.get("col_labels", [])
+    mat  = hs.get("matrix", [])
+    if not rows or not cols:
+        return '<div style="font-size:12px;color:#64748b;font-style:italic">No distribution data this month.</div>'
+
+    cell_w, cell_h = 76, 40
+    label_w, label_h = 160, 58
+    W = label_w + cell_w * len(cols) + 10
+    H = label_h + cell_h * len(rows) + 10
+    max_obs = max(
+        (cell["observed"] for row in mat for cell in row), default=1
+    ) or 1
+
+    out = [f'<svg width="{W}" height="{H}" xmlns="http://www.w3.org/2000/svg">']
+
+    # Column headers (pathogens, rotated-ish — kept horizontal for email compat, truncated)
+    for j, col in enumerate(cols):
+        x = label_w + j * cell_w + cell_w / 2
+        out.append(
+            f'<text x="{x:.1f}" y="{label_h-8}" text-anchor="middle" '
+            f'font-size="9" font-family="DM Mono,monospace" '
+            f'font-weight="700" fill="{BRAND_BLACK}">'
+            f'<tspan font-style="italic">{escape(col[:14])}</tspan></text>'
         )
-        closer = "Return only the polished four paragraphs."
-        max_tok = 1600
-    else:
-        rules = (
-            "- Preserve every number, pathogen name, and factual claim exactly.\n"
-            "- Keep exactly three paragraphs separated by a blank line.\n"
-            "- Tighten the language, remove redundancy, and ensure the tone is measured, "
-            "authoritative, and non-alarmist.\n"
-            "- Use UK/US business English. No headers, no bullets, no emoji, no markdown.\n"
-            "- Max ~180 words per paragraph."
+
+    # Rows
+    for i, row in enumerate(rows):
+        y = label_h + i * cell_h + cell_h / 2 + 4
+        out.append(
+            f'<text x="{label_w-8}" y="{y:.1f}" text-anchor="end" '
+            f'font-size="10" font-family="Inter,sans-serif" font-weight="600" '
+            f'fill="{BRAND_BLACK}">{escape(row[:22])}</text>'
         )
-        closer = "Return only the polished three paragraphs."
-        max_tok = 1000
-
-    prompt = f"""You are a senior editor for a food industry intelligence publication. Polish the following executive briefing for an audience of Fortune-500 food safety directors.
-
-Rules:
-{rules}
-
-BRIEFING:
-{report_content}
-
-{closer}"""
-    try:
-        response = requests.post(
-            'https://api.openai.com/v1/chat/completions',
-            headers={
-                'Authorization': f'Bearer {OPENAI_API_KEY}',
-                'Content-Type': 'application/json'
-            },
-            json={
-                'model': 'gpt-4o-mini',
-                'messages': [{'role': 'user', 'content': prompt}],
-                'max_tokens': max_tok,
-                'temperature': 0.3,
-            },
-            timeout=60,
-        )
-        if response.status_code == 200:
-            return response.json()['choices'][0]['message']['content'].strip()
-        log.error("OpenAI API %d: %s", response.status_code, response.text[:300])
-    except Exception as e:
-        log.error("OpenAI API exception: %s", e)
-    return report_content
-
-# --- HTML rendering ---------------------------------------------------------
-def escape(s: Any) -> str:
-    if s is None:
-        return ""
-    return (str(s).replace("&", "&amp;").replace("<", "&lt;")
-            .replace(">", "&gt;").replace('"', "&quot;"))
-
-def fmt_date(s: Any) -> str:
-    if not s:
-        return "-"
-    try:
-        return datetime.strptime(str(s)[:10], "%Y-%m-%d").strftime("%d %b %Y")
-    except (ValueError, TypeError):
-        return str(s)[:10] or "-"
-
-def pathogen_badge_color(canon: str) -> str:
-    rank, _ = severity_score(canon)
-    if rank <= 1:  return OUTBREAK_VIO
-    if rank <= 4:  return TIER1_RED
-    return TIER2_AMBER
-
-def render_top5_row(i: int, r: Dict) -> str:
-    pathogen = r.get("Pathogen") or "Unknown"
-    _, canon = severity_score(pathogen)
-    badge_color = pathogen_badge_color(canon)
-    tier = safe_int(r.get("Tier"), 3)
-    outbreak = safe_int(r.get("Outbreak"), 0)
-    company = (r.get("Company") or "-")[:55]
-    brand = (r.get("Brand") or "").strip()
-    product = (r.get("Product") or "-")[:85]
-    country = r.get("Country") or "-"
-    source = (r.get("Source") or "").strip() or authority_for(country)
-    url = (r.get("URL") or "").strip()
-    date_str = fmt_date(r.get("Date"))
-
-    outbreak_chip = '<span class="chip-outbreak">OUTBREAK</span>' if outbreak else ''
-    tier_chip = f'<span class="chip-tier{tier}">T{tier}</span>' if tier in (1, 2) else ''
-    brand_line = f'<div class="brand-sub">{escape(brand)}</div>' if brand else ''
-
-    if url and is_report_grade_url(url):
-        link_cell = f'<a class="src-link" href="{escape(url)}" target="_blank" rel="noopener">View source &rarr;</a>'
-    else:
-        link_cell = '<span class="src-na" title="No verified specific-recall URL available">unverified</span>'
-
-    return f"""
-    <tr>
-      <td class="rank-num{' rank-num--multi' if i >= 10 else ''}" data-label="#">{i}</td>
-      <td class="date-cell" data-label="Date">{escape(date_str)}</td>
-      <td data-label="Pathogen">
-        <span class="path-dot" style="background:{badge_color}"></span>
-        <span class="path-name">{escape(canon)}</span>
-        {tier_chip}{outbreak_chip}
-      </td>
-      <td class="co-cell" data-label="Company"><strong>{escape(company)}</strong>{brand_line}</td>
-      <td class="prod-cell" data-label="Product">{escape(product)}</td>
-      <td class="juris-cell" data-label="Jurisdiction">
-        <div class="juris-country">{escape(country)}</div>
-        <div class="src-sub">{escape(source)}</div>
-        <div class="juris-link">{link_cell}</div>
-      </td>
-    </tr>"""
-
-def build_pa_paragraph(recalls: List[Dict]) -> str:
-    """Deprecated — Process Authority Note rendering now flows through
-    ``process_authority.py`` (shared with the monthly builder). This stub is
-    kept only for backward-compatibility with anything that still imports it
-    and is not used by the current report pipeline.
-    """
-    from process_authority import (
-        detect_process_authority_trigger as _detect,
-        deterministic_fallback as _fallback,
-    )
-    return _fallback(_detect(recalls))
-
-
-def build_html(week_end: date, recalls: List[Dict], prev_week: List[Dict]) -> Tuple[str, Dict[str, Any]]:
-    stats = compute_stats(recalls, prev_week)
-    week_start = week_end - timedelta(days=6)
-    wnum = week_end.isocalendar()[1]
-    year = week_end.year
-    top5 = rank_top_recalls(recalls, n=5)
-
-    # Process Authority trigger — detected once, passed to both the AI
-    # generator (to append the prompt extension) and the deterministic
-    # fallback (to append the prewritten 4th paragraph).
-    pa_trigger = detect_process_authority_trigger(recalls)
-
-    # AI pipeline
-    ai_raw = generate_report_with_claude(stats, recalls, pa_trigger)
-    analysis = review_with_openai(ai_raw)
-    paragraphs = [p.strip() for p in analysis.split("\n\n") if p.strip()]
-    while len(paragraphs) < 3:
-        paragraphs.append("")
-
-    # Binomial-nomenclature italicisation. Pathogen genus + species are
-    # italicised anywhere they appear in the analysis prose — this matches
-    # taxonomic convention and visually ties the narrative back to the
-    # pathogen chips in the tables (which are also italicised).
-    #
-    # We use a whitelist of known species epithets rather than a lazy "any
-    # lowercase word" match — this prevents false positives like "Listeria
-    # lethality" or "Listeria and" where the word after the genus is plain
-    # English, not taxonomy. "spp" / "spp." is the plural-species abbreviation
-    # and is kept OUTSIDE the italic per convention.
-    import re as _re
-    _PATHOGEN_GENERA = (
-        "Listeria", "Clostridium", "Salmonella", "Escherichia", "Bacillus",
-        "Cronobacter", "Staphylococcus", "Campylobacter", "Vibrio", "Yersinia",
-        "Shigella",
-    )
-    _PATHOGEN_SPECIES = (
-        "monocytogenes", "ivanovii",
-        "botulinum", "perfringens", "difficile", "tetani",
-        "enterica", "bongori", "typhimurium", "enteritidis",
-        "coli",
-        "cereus", "subtilis", "anthracis",
-        "sakazakii", "malonaticus",
-        "aureus",
-        "jejuni",
-        "parahaemolyticus", "vulnificus", "cholerae",
-        "enterocolitica", "pseudotuberculosis",
-        "flexneri", "sonnei", "dysenteriae",
-    )
-    _genera_alt  = "|".join(_PATHOGEN_GENERA)
-    _species_alt = "|".join(_PATHOGEN_SPECIES)
-    # Full binomial: "Listeria monocytogenes" — species must come from whitelist
-    _pat_binomial = _re.compile(rf"\b({_genera_alt})\s+({_species_alt})\b",
-                                 _re.IGNORECASE)
-    # Bare genus on its own.
-    _pat_genus    = _re.compile(rf"\b({_genera_alt})\b")
-    # Abbreviated form: "E. coli", "C. botulinum" — species must come from list.
-    _pat_abbrev   = _re.compile(rf"\b([A-Z])\.\s*({_species_alt})\b")
-    # Norovirus is a virus name, not binomial — italicise as a single word.
-    _pat_norovirus = _re.compile(r"\bNorovirus\b")
-
-    _PLACEHOLDER_OPEN  = "\x01EM\x02"
-    _PLACEHOLDER_CLOSE = "\x01/EM\x02"
-
-    def _italicise_prose(text: str) -> str:
-        # Pass 1: binomials — italicise genus + species together
-        text = _pat_binomial.sub(
-            lambda m: f"{_PLACEHOLDER_OPEN}{m.group(1)} {m.group(2)}{_PLACEHOLDER_CLOSE}",
-            text,
-        )
-        # Pass 2: abbreviated form ("E. coli")
-        text = _pat_abbrev.sub(
-            lambda m: f"{_PLACEHOLDER_OPEN}{m.group(0)}{_PLACEHOLDER_CLOSE}",
-            text,
-        )
-        # Pass 3: bare genus outside of existing placeholders only
-        def _wrap_plain(chunk: str) -> str:
-            return _pat_genus.sub(
-                lambda m: f"{_PLACEHOLDER_OPEN}{m.group(0)}{_PLACEHOLDER_CLOSE}",
-                chunk,
+        for j, col in enumerate(cols):
+            cell = mat[i][j]
+            obs = cell["observed"]
+            intensity = obs / max_obs if max_obs else 0
+            # Orange colour scale
+            shade = int(245 - intensity * 145)
+            fill = f'rgb(254,{max(120,shade)},{max(90,shade-30)})' if obs else "#f3f4f6"
+            if obs == 0:
+                text_col = "#94a3b8"
+            elif intensity > 0.55:
+                text_col = "#ffffff"
+            else:
+                text_col = BRAND_BLACK
+            stroke = TIER1_RED if cell["hotspot"] else "#e5e7eb"
+            sw = 2 if cell["hotspot"] else 1
+            x = label_w + j * cell_w
+            cy = label_h + i * cell_h
+            out.append(
+                f'<rect x="{x}" y="{cy}" width="{cell_w}" height="{cell_h}" '
+                f'fill="{fill}" stroke="{stroke}" stroke-width="{sw}"/>'
             )
-        parts = _re.split(
-            f"({_re.escape(_PLACEHOLDER_OPEN)}.*?{_re.escape(_PLACEHOLDER_CLOSE)})",
-            text,
-        )
-        text = "".join(
-            part if part.startswith(_PLACEHOLDER_OPEN) else _wrap_plain(part)
-            for part in parts
-        )
-        # Pass 4: Norovirus (only in plain chunks)
-        parts = _re.split(
-            f"({_re.escape(_PLACEHOLDER_OPEN)}.*?{_re.escape(_PLACEHOLDER_CLOSE)})",
-            text,
-        )
-        text = "".join(
-            part if part.startswith(_PLACEHOLDER_OPEN)
-            else _pat_norovirus.sub(
-                f"{_PLACEHOLDER_OPEN}Norovirus{_PLACEHOLDER_CLOSE}", part
+            out.append(
+                f'<text x="{x+cell_w/2:.1f}" y="{cy+cell_h/2+4:.1f}" '
+                f'text-anchor="middle" font-size="13" font-weight="700" '
+                f'font-family="DM Mono,monospace" fill="{text_col}">{obs}</text>'
             )
-            for part in parts
-        )
-        # Final: swap placeholders for real <em> tags.
-        text = text.replace(_PLACEHOLDER_OPEN, "<em>").replace(_PLACEHOLDER_CLOSE, "</em>")
-        return text
+            # Small std-residual indicator under each non-zero cell
+            if obs > 0:
+                out.append(
+                    f'<text x="{x+cell_w/2:.1f}" y="{cy+cell_h-5:.1f}" '
+                    f'text-anchor="middle" font-size="7" '
+                    f'font-family="DM Mono,monospace" fill="{text_col}" opacity="0.65">'
+                    f'σ={cell["stdres"]:+.1f}</text>'
+                )
 
-    # Render paragraphs. Any paragraph beginning with the Process Authority
-    # label is tagged with `.pa-note` styling so the 4th (or any) PA paragraph
-    # gets the distinctive red-accent label treatment — same pattern as the
-    # monthly builder, so weekly and monthly stay visually consistent.
-    _pa_label_lc = PROCESS_AUTHORITY_LABEL.lower()
+    out.append('</svg>')
+    return "".join(out)
+
+
+def svg_outbreak_timeline(cl: Dict[str, Any], month_start: date, month_end: date,
+                          w: int = 620, h: int = 110) -> str:
+    events = cl.get("events", [])
+    if not events:
+        return (f'<div style="font-size:12px;color:#64748b;font-style:italic;'
+                f'padding:14px 0">No outbreak events recorded in this month.</div>')
+    total_days = (month_end - month_start).days or 1
+    pad_x, pad_y = 36, 20
+    iw = w - 2 * pad_x
+    axis_y = h - 32
+
+    # Tick marks every ~5 days
+    ticks = []
+    for day_offset in range(0, total_days + 1, 5):
+        tx = pad_x + (day_offset / total_days) * iw
+        ticks.append(
+            f'<line x1="{tx:.1f}" y1="{axis_y}" x2="{tx:.1f}" y2="{axis_y+4}" '
+            f'stroke="#cbd5e1" stroke-width="1"/>'
+            f'<text x="{tx:.1f}" y="{axis_y+18}" text-anchor="middle" '
+            f'font-size="8" font-family="DM Mono,monospace" fill="#64748b">'
+            f'{(month_start + timedelta(days=day_offset)).strftime("%d %b")}</text>'
+        )
+
+    # Pathogen lane colours
+    lane_map = {
+        "Salmonella":              (BRAND_ORANGE, 0),
+        "Listeria":                (TIER1_RED, 1),
+        "Norovirus":               ("#818cf8", 2),
+        "C. botulinum":            (OUTBREAK_VIO, 3),
+        "E. coli / STEC":          ("#f97316", 4),
+    }
+
+    markers = []
+    seen_pathogens = set()
+    for ev in events:
+        d_event = datetime.strptime(ev["date"], "%Y-%m-%d").date()
+        offset = (d_event - month_start).days
+        x = pad_x + (offset / total_days) * iw
+        path = ev["pathogen"]
+        colour, lane = lane_map.get(path, (BRAND_BLACK, 5))
+        y = pad_y + lane * 12
+        seen_pathogens.add(path)
+        markers.append(
+            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5" fill="{colour}" '
+            f'stroke="#fff" stroke-width="1.5"><title>{escape(ev["date"])} · '
+            f'{escape(path)} · {escape(ev["country"])} · {escape(ev["company"][:40])}</title></circle>'
+            f'<line x1="{x:.1f}" y1="{y+5:.1f}" x2="{x:.1f}" y2="{axis_y}" '
+            f'stroke="{colour}" stroke-width="1" opacity="0.3"/>'
+        )
+
+    # Legend
+    legend_parts = []
+    lx = pad_x
+    for p in sorted(seen_pathogens, key=lambda p: lane_map.get(p, (None, 99))[1]):
+        colour = lane_map.get(p, (BRAND_BLACK,))[0]
+        legend_parts.append(
+            f'<circle cx="{lx+5:.1f}" cy="{h-4:.1f}" r="3" fill="{colour}"/>'
+            f'<text x="{lx+12:.1f}" y="{h-1:.1f}" font-size="9" '
+            f'font-family="DM Mono,monospace" fill="#475569">'
+            f'<tspan font-style="italic">{escape(p[:18])}</tspan></text>'
+        )
+        lx += 12 + 8 + len(p[:18]) * 5.5 + 10
+
+    return (
+        f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg">'
+        f'<line x1="{pad_x}" y1="{axis_y}" x2="{w-pad_x}" y2="{axis_y}" '
+        f'stroke="#94a3b8" stroke-width="1.5"/>'
+        f'{"".join(ticks)}'
+        f'{"".join(markers)}'
+        f'{"".join(legend_parts)}'
+        f'</svg>'
+    )
+
+
+def svg_weekly_cadence(cadence: Dict[str, Any], w: int = 300, h: int = 72) -> str:
+    weeks = cadence.get("weeks", [])
+    if not weeks:
+        return f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg"></svg>'
+    counts = [wk["count"] for wk in weeks]
+    labels = [wk["label"].split("-W")[-1] for wk in weeks]
+    mx = max(counts) or 1
+    pad_x, pad_y = 20, 14
+    iw, ih = w - 2 * pad_x, h - 2 * pad_y
+    bar_w = iw / len(counts) - 6
+    bars = []
+    for i, (c, lbl) in enumerate(zip(counts, labels)):
+        bh = (c / mx) * ih
+        x = pad_x + i * (iw / len(counts)) + 3
+        y = pad_y + ih - bh
+        bars.append(
+            f'<rect x="{x:.1f}" y="{y:.1f}" width="{bar_w:.1f}" height="{bh:.1f}" '
+            f'fill="{BRAND_ORANGE}" opacity="0.85" rx="1"/>'
+            f'<text x="{x+bar_w/2:.1f}" y="{y-3:.1f}" text-anchor="middle" '
+            f'font-size="9" font-weight="700" font-family="DM Mono,monospace" '
+            f'fill="{BRAND_BLACK}">{c}</text>'
+            f'<text x="{x+bar_w/2:.1f}" y="{h-2:.1f}" text-anchor="middle" '
+            f'font-size="8" font-family="DM Mono,monospace" fill="#64748b">W{lbl}</text>'
+        )
+    return f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg">{"".join(bars)}</svg>'
+
+
+def svg_severity_gauge(sv: Dict[str, Any], w: int = 200, h: int = 110) -> str:
+    score  = sv.get("score") or 0
+    bucket = sv.get("bucket") or "unknown"
+    cx, cy, r = w / 2, h - 18, 70
+    # Semi-circle gauge (180°)
+    import math
+    def arc_path(start_deg, end_deg, radius):
+        sx = cx + radius * math.cos(math.radians(180 - start_deg))
+        sy = cy - radius * math.sin(math.radians(180 - start_deg))
+        ex = cx + radius * math.cos(math.radians(180 - end_deg))
+        ey = cy - radius * math.sin(math.radians(180 - end_deg))
+        large = 1 if (end_deg - start_deg) > 180 else 0
+        return f"M {sx:.1f} {sy:.1f} A {radius} {radius} 0 {large} 1 {ex:.1f} {ey:.1f}"
+
+    colours = [("#059669", 0, 20), (BRAND_ORANGE, 20, 40),
+               (TIER2_AMBER, 40, 60), (TIER1_RED, 60, 80),
+               (OUTBREAK_VIO, 80, 100)]
+    tracks = "".join(
+        f'<path d="{arc_path(a/100*180, b/100*180, r)}" fill="none" stroke="{c}" '
+        f'stroke-width="12" opacity="0.8"/>'
+        for c, a, b in colours
+    )
+    needle_angle = 180 * (score / 100)
+    nx = cx + (r - 8) * math.cos(math.radians(180 - needle_angle))
+    ny = cy - (r - 8) * math.sin(math.radians(180 - needle_angle))
+    return (
+        f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg">'
+        f'{tracks}'
+        f'<line x1="{cx}" y1="{cy}" x2="{nx:.1f}" y2="{ny:.1f}" '
+        f'stroke="{BRAND_BLACK}" stroke-width="2.5"/>'
+        f'<circle cx="{cx}" cy="{cy}" r="5" fill="{BRAND_BLACK}"/>'
+        f'<text x="{cx}" y="{cy-35}" text-anchor="middle" font-size="22" '
+        f'font-weight="800" font-family="Syne,sans-serif" fill="{BRAND_BLACK}">{score}</text>'
+        f'<text x="{cx}" y="{cy-18}" text-anchor="middle" font-size="9" '
+        f'font-family="DM Mono,monospace" letter-spacing="1.5" fill="#64748b" '
+        f'text-transform="uppercase">{escape(bucket).upper()}</text>'
+        f'</svg>'
+    )
+
+
+# ---------------------------------------------------------------------------
+# Predictive roadmap panel — always visible, shows what's active today and
+# what activates as more data accumulates
+# ---------------------------------------------------------------------------
+def render_models_panel(models: Dict[str, Any]) -> str:
+    """HTML card list for the § 07 Predictive Outlook section."""
+    order = [
+        ("linear_trend",  "Linear trend projection",  "OLS on total monthly counts"),
+        ("poisson",       "Poisson per-pathogen forecast", "For rare pathogens (<10 cases/mo)"),
+        ("cusum",         "CUSUM change-point detection", "Page-1954 tabular CUSUM"),
+        ("ols_seasonal",  "OLS with seasonal dummies", "Linear trend + month-of-year effects"),
+        ("stl",           "STL decomposition", "Trend + seasonal + residual (LOESS)"),
+        ("holt_winters",  "Holt-Winters", "Level + trend + seasonal smoothing"),
+        ("sarima",        "SARIMA",       "Seasonal ARIMA(p,d,q)(P,D,Q)s"),
+        ("prophet",       "Prophet",      "Additive seasonality + holidays"),
+    ]
+    cards = []
+    for key, name, subtitle in order:
+        m = models.get(key, {})
+        if key == "poisson":
+            active = any(isinstance(v, dict) and v.get("status") == "active"
+                         for v in m.get("by_pathogen", {}).values())
+            status_txt = "ACTIVE" if active else "INACTIVE"
+            detail = _poisson_detail(m) if active else m.get("message", "—")
+        elif m.get("status") == "active":
+            active = True
+            status_txt = "ACTIVE"
+            detail = _model_active_detail(key, m)
+        else:
+            active = False
+            status_txt = m.get("message", "Activates later")
+            detail = ""
+        colour = "#059669" if active else "#94a3b8"
+        bg = "rgba(5,150,105,.06)" if active else "rgba(148,163,184,.04)"
+        cards.append(f"""
+<div class="mdl-card" style="border-left:3px solid {colour};background:{bg}">
+  <div class="mdl-hdr">
+    <span class="mdl-name">{escape(name)}</span>
+    <span class="mdl-status" style="color:{colour}">{escape(status_txt)}</span>
+  </div>
+  <div class="mdl-sub">{escape(subtitle)}</div>
+  {f'<div class="mdl-detail">{detail}</div>' if detail else ''}
+</div>""")
+    return "".join(cards)
+
+
+def _model_active_detail(key: str, m: Dict[str, Any]) -> str:
+    if key == "linear_trend":
+        point = m.get("next_month_point")
+        ci    = m.get("next_month_ci95", [None, None])
+        slope = m.get("slope_per_month")
+        r2    = m.get("r_squared")
+        note  = m.get("note", "")
+        return (f"Next-month forecast: <strong>{point}</strong> recalls "
+                f"(95% CI [{ci[0]}, {ci[1]}]); "
+                f"slope <strong>{slope:+.1f}/month</strong>; "
+                f"r²={r2}. {escape(note)}")
+    if key == "cusum":
+        if m.get("change_detected"):
+            return (f"Change detected in <strong>{m.get('change_month')}</strong> "
+                    f"({m.get('direction')}). {escape(m.get('note',''))}")
+        return escape(m.get("note", "In statistical control."))
+    if key == "ols_seasonal":
+        return (f"Intercept (Jan): {m.get('intercept_Jan')}; "
+                f"slope {m.get('monthly_slope'):+.2f}/month. "
+                f"Seasonal effects vs Jan captured via month dummies.")
+    return escape(m.get("note", "—"))
+
+
+def _poisson_detail(m: Dict[str, Any]) -> str:
+    rows = []
+    for p, f in (m.get("by_pathogen") or {}).items():
+        if not isinstance(f, dict) or f.get("status") != "active":
+            continue
+        rows.append(
+            f'<tr><td><em>{escape(p)}</em></td>'
+            f'<td class="num">{f["lambda"]}</td>'
+            f'<td class="num">{f["last"]}</td>'
+            f'<td class="num">{f["p90"]}</td>'
+            f'<td class="num">{f["p95"]}</td></tr>'
+        )
+    if not rows:
+        return "No rare pathogens with active Poisson fit."
+    return (f'<table class="mini"><thead><tr>'
+            f'<th>Pathogen</th><th>λ̂</th><th>last</th><th>p90</th><th>p95</th>'
+            f'</tr></thead><tbody>{"".join(rows)}</tbody></table>')
+
+
+# ---------------------------------------------------------------------------
+# All-month companion file
+# ---------------------------------------------------------------------------
+def build_all_month_html(month_start: date, month_end: date,
+                         month_recalls: List[Dict],
+                         back_href: str) -> str:
+    """Companion page listing every recall in the month (linked from § 08)."""
+    rows = weekly.rank_top_recalls(month_recalls, n=len(month_recalls))
+    body_rows = "".join(weekly.render_top5_row(i+1, r) for i, r in enumerate(rows))
+    month_name = month_start.strftime("%B %Y")
+    return f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>AFTS · All Recalls · {escape(month_name)}</title>
+<style>
+body{{font-family:'Inter',sans-serif;background:#f5f5f7;margin:0;padding:32px 20px;color:#1f2937;}}
+.wrap{{max-width:1080px;margin:0 auto;background:#fff;padding:32px 40px;border:1px solid #e5e7eb;}}
+.brand{{font-family:Syne,Georgia,serif;font-weight:800;font-size:16px;letter-spacing:-0.01em;
+text-transform:uppercase;color:{BRAND_BLACK};margin-bottom:8px;}}
+.brand em{{color:{BRAND_ORANGE};font-style:normal;}}
+h1{{font-family:Syne,Georgia,serif;font-weight:800;font-size:26px;margin:0 0 6px;}}
+.sub{{font-family:'DM Mono',monospace;font-size:10px;color:#6b7280;text-transform:uppercase;
+letter-spacing:0.1em;margin:0 0 20px;}}
+.back{{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.08em;
+color:{BRAND_ORANGE};text-decoration:none;display:inline-block;margin-bottom:16px;
+padding:8px 16px;border:1px solid #e5e7eb;border-radius:2px;text-transform:uppercase;}}
+.back:hover{{background:{BRAND_ORANGE};color:#fff;border-color:{BRAND_ORANGE};}}
+table.data{{width:100%;border-collapse:collapse;font-size:13px;}}
+table.data th{{background:{BRAND_BLACK};color:#fff;font-family:'DM Mono',monospace;
+font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;
+padding:10px 8px;text-align:left;}}
+table.data td{{padding:10px 8px;border-bottom:1px solid #f3f4f6;vertical-align:top;}}
+table.data tr:hover{{background:rgba(232,96,26,.04);}}
+.rank-num{{font-family:Syne,sans-serif;font-weight:800;font-size:22px;color:{BRAND_ORANGE};
+text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}}
+.rank-num.rank-num--multi{{font-size:18px;}}
+.date-cell{{font-family:'DM Mono',monospace;font-size:11px;color:#6b7280;white-space:nowrap;}}
+.path-dot{{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle;}}
+.path-name{{font-weight:600;color:#1f2937;font-style:italic;}}
+.co-cell strong{{color:{BRAND_BLACK};font-weight:700;display:block;}}
+.brand-sub{{font-size:11px;color:#6b7280;margin-top:2px;font-style:italic;}}
+.juris-country{{font-weight:600;color:#1f2937;}}
+.src-sub{{font-family:'DM Mono',monospace;font-size:10px;color:#6b7280;margin-top:2px;}}
+.src-link{{color:{BRAND_ORANGE};font-size:11px;text-decoration:none;font-family:'DM Mono',monospace;}}
+.src-na{{font-family:'DM Mono',monospace;font-size:10px;color:#94a3b8;font-style:italic;}}
+.chip-tier1,.chip-tier2,.chip-outbreak{{display:inline-block;color:#fff;font-size:9px;
+font-weight:700;padding:2px 6px;border-radius:2px;letter-spacing:0.06em;margin-left:5px;}}
+.chip-tier1{{background:{TIER1_RED};}}
+.chip-tier2{{background:{TIER2_AMBER};color:#1f2937;}}
+.chip-outbreak{{background:{OUTBREAK_VIO};}}
+</style></head><body><div class="wrap">
+<div class="brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div>
+<h1>All recalls · {escape(month_name)}</h1>
+<div class="sub">{month_start.strftime('%d %b %Y')} – {month_end.strftime('%d %b %Y')}
+ &middot; {len(rows)} recalls</div>
+<a class="back" href="{escape(back_href)}">← Back to monthly report</a>
+<table class="data top5"><thead><tr>
+<th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th>
+<th>Product</th><th>Jurisdiction &amp; Source</th>
+</tr></thead><tbody>{body_rows}</tbody></table>
+</div></body></html>"""
+
+
+# ---------------------------------------------------------------------------
+# MAIN HTML RENDER
+# ---------------------------------------------------------------------------
+def build_monthly_html(month_start: date, month_end: date,
+                       month_recalls: List[Dict],
+                       stats: Dict[str, Any],
+                       signals: Dict[str, Any],
+                       models: Dict[str, Any],
+                       narrative: str) -> str:
+    month_name = month_start.strftime("%B")
+    year       = month_start.year
+    year_m     = f"{year}-M{month_start.month:02d}"
+
+    # Paragraphs with italic pathogens + PA-note styling
+    paragraphs = [p.strip() for p in narrative.split("\n\n") if p.strip()]
+    pa_label_lc = PROCESS_AUTHORITY_LABEL.lower()
     analysis_parts: List[str] = []
-    pa_paragraph_text = ""
     for p in paragraphs:
-        p_stripped = p.strip()
-        is_pa = p_stripped.lower().startswith(_pa_label_lc)
-        if is_pa:
-            pa_paragraph_text = p_stripped
-            idx = p_stripped.lower().find(_pa_label_lc)
-            colon = p_stripped.find(":", idx) if idx != -1 else -1
+        if p.lower().startswith(pa_label_lc):
+            idx = p.lower().find(pa_label_lc)
+            colon = p.find(":", idx)
             if colon != -1:
-                label_text = p_stripped[idx:colon].strip()
-                body_text = p_stripped[colon + 1:].strip()
+                label_text = p[idx:colon].strip()
+                body_text  = p[colon + 1:].strip()
                 analysis_parts.append(
                     f'<p class="pa-note"><span class="pa-label">{escape(label_text)}:</span> '
-                    f'{_italicise_prose(escape(body_text))}</p>'
+                    f'{italicise_prose(escape(body_text))}</p>'
                 )
             else:
-                analysis_parts.append(f'<p class="pa-note">{_italicise_prose(escape(p_stripped))}</p>')
-        elif p_stripped:
-            analysis_parts.append(f'<p>{_italicise_prose(escape(p_stripped))}</p>')
+                analysis_parts.append(f'<p class="pa-note">{italicise_prose(escape(p))}</p>')
+        else:
+            analysis_parts.append(f'<p>{italicise_prose(escape(p))}</p>')
     analysis_html = "".join(analysis_parts)
 
-    # Stash the analysis and top5 for main() to use when writing the summary JSON
-    stats["_first_paragraph"] = paragraphs[0] if paragraphs else ""
-    stats["_pa_paragraph"] = pa_paragraph_text
-    stats["_pa_trigger"] = pa_trigger
-    stats["_top5"] = top5
+    # Component blocks
+    mom  = signals["mom_trend"]
+    hs   = signals["hotspot"]
+    cl   = signals["cluster"]
+    co   = signals["concentration"]
+    gr   = signals["growth"]
+    sv   = signals["severity"]
+    cad  = signals["cadence"]
 
-    # Top 5 rows
-    if top5:
-        top5_rows = "".join(render_top5_row(i, r) for i, r in enumerate(top5, 1))
-    else:
-        top5_rows = '<tr><td colspan="6" class="empty">No recalls recorded this reporting period.</td></tr>'
-
-    # All recalls for this week — full table sorted by severity, linked from KPI
-    all_sorted = rank_top_recalls(recalls, n=len(recalls))
-    if all_sorted:
-        all_recalls_rows = "".join(render_top5_row(i, r) for i, r in enumerate(all_sorted, 1))
-    else:
-        all_recalls_rows = '<tr><td colspan="6" class="empty">No recalls recorded this reporting period.</td></tr>'
-
-    # Pathogen distribution
-    total_safe = stats['total'] or 1
-    path_rows = ""
-    for pathogen, count in stats['pathogen_counts']:
-        pct = round((count / total_safe) * 100)
-        _, canon = severity_score(pathogen)
-        color = pathogen_badge_color(canon)
+    # Pathogen distribution table
+    total_safe = stats["total"] or 1
+    path_rows_html = ""
+    for name, count in stats["pathogen_counts"]:
+        pct = round(count / total_safe * 100)
+        _, canon = weekly.severity_score(name)
+        color = weekly.pathogen_badge_color(canon)
         bar_w = max(4, min(100, pct))
-        path_rows += f"""
-        <tr>
-          <td><span class="path-dot" style="background:{color}"></span><em class="path-name">{escape(pathogen)}</em></td>
-          <td class="num">{count}</td>
-          <td class="num">{pct}%</td>
-          <td><div class="bar-track"><div class="bar-fill" style="width:{bar_w}%;background:{color}"></div></div></td>
-        </tr>"""
-    if not path_rows:
-        path_rows = '<tr><td colspan="4" class="empty">No pathogen data.</td></tr>'
+        path_rows_html += f"""
+<tr>
+<td><span class="path-dot" style="background:{color}"></span><em class="path-name">{escape(name)}</em></td>
+<td class="num">{count}</td>
+<td><div class="bar"><div class="bar-fill" style="width:{bar_w}%;background:{color}"></div></div></td>
+<td class="num muted">{pct}%</td>
+</tr>"""
 
-    # Country distribution
-    country_rows = ""
-    for country, count in stats['country_counts']:
-        pct = round((count / total_safe) * 100)
-        country_rows += f"""
-        <tr>
-          <td>{escape(country)}</td>
-          <td>{escape(authority_for(country))}</td>
-          <td class="num">{count}</td>
-          <td class="num">{pct}%</td>
-        </tr>"""
-    if not country_rows:
-        country_rows = '<tr><td colspan="4" class="empty">No geographic data.</td></tr>'
+    # Top 10 table
+    top10 = weekly.rank_top_recalls(month_recalls, n=10)
+    top_rows_html = "".join(weekly.render_top5_row(i+1, r) for i, r in enumerate(top10))
 
-    # KPI delta block
-    if stats['delta_pct'] is not None:
-        arrow = "&#9650;" if stats['delta'] > 0 else ("&#9660;" if stats['delta'] < 0 else "&#9644;")
-        color = TIER1_RED if stats['delta'] > 0 else ("#059669" if stats['delta'] < 0 else "#6b7280")
-        delta_html = f'<div class="kpi-delta" style="color:{color}">{arrow} {stats["delta"]:+d} ({stats["delta_pct"]:+d}%) vs prior week</div>'
+    # MoM description
+    delta_phrase = (
+        f"{stats.get('delta'):+d} ({stats.get('delta_pct'):+d}%) vs prior month"
+        if stats.get("delta") is not None and stats.get("delta_pct") is not None
+        else "baseline month"
+    )
+
+    # Hotspot callouts
+    if hs.get("hotspots"):
+        hotspot_items = "".join(
+            f'<li><strong>{escape(h["country"])}</strong> × <em>{escape(h["pathogen"])}</em>: '
+            f'<strong>{h["observed"]}</strong> recalls observed vs '
+            f'{h["expected"]} expected under independence '
+            f'(σ={h["stdres"]:+.2f}, {h["ratio"]}× expected)</li>'
+            for h in hs["hotspots"][:3]
+        )
     else:
-        delta_html = '<div class="kpi-delta" style="color:#6b7280">- baseline week</div>'
+        hotspot_items = '<li class="empty">No statistically significant hotspot cells (σ≤2 across the whole matrix).</li>'
 
-    top_pathogen_pct = round(stats['top_pathogen'][1] / total_safe * 100) if stats['total'] else 0
-    generated = datetime.now(timezone.utc).strftime('%d %b %Y &middot; %H:%M UTC')
+    # Concentration summary
+    hhi_bucket   = co.get("hhi_bucket") or "unknown"
+    gini_bucket  = co.get("gini_bucket") or "unknown"
+    intensity    = co.get("tier1_intensity_ratio")
+    intensity_txt = (f'{intensity}×' if intensity is not None else 'n/a')
 
-    html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AFTS Pathogen Intelligence Briefing &middot; Week {wnum}, {year}</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    # Emerging / declining lists
+    emerging_html = "".join(
+        f'<li><em>{escape(e["pathogen"])}</em>: {e["count"]} cases, Z={e["z_score"]:+.2f}, '
+        f'MoM {e["growth_pct"]:+.0f}%</li>'
+        for e in gr.get("emerging", [])[:4]
+    ) or '<li class="empty">No pathogens with &gt;2σ month-over-month emergence.</li>'
+
+    declining_html = "".join(
+        f'<li><em>{escape(d["pathogen"])}</em>: {d["count"]} cases, Z={d["z_score"]:+.2f}, '
+        f'MoM {d["growth_pct"]:+.0f}%</li>'
+        for d in gr.get("declining", [])[:3]
+    ) or '<li class="empty">No pathogens with &gt;2σ month-over-month decline.</li>'
+
+    # Cluster summary
+    if cl.get("clusters"):
+        cluster_html = "".join(
+            f'<li><em>{escape(c["pathogen"])}</em> — <strong>{c["size"]} events</strong> '
+            f'in {c["span_days"]} days across '
+            f'{", ".join(escape(x) for x in c["countries"])}.</li>'
+            for c in cl["clusters"][:3]
+        )
+    else:
+        cluster_html = (
+            '<li class="empty">No temporal clusters detected — outbreak events '
+            f'({cl.get("event_count", 0)} this month) are sporadic rather than linked.</li>'
+        )
+
+    # Predictive roadmap
+    models_panel_html = render_models_panel(models)
+
+    # KPI values
+    top_pathogen_name = stats["top_pathogen"][0] or "–"
+    top_pathogen_pct  = round(stats["top_pathogen"][1] / total_safe * 100) if total_safe else 0
+    mom_delta_label   = (f"{mom.get('delta_pct'):+.0f}%" if mom.get("delta_pct") is not None else "—")
+    z_label           = (f"Z = {mom.get('z_score'):+.1f}" if mom.get("z_score") is not None else "Z = n/a")
+
+    # MoM direction arrow / colour
+    mom_colour = TIER1_RED if mom.get("direction") == "up" and (mom.get("delta_pct") or 0) > 20 \
+                 else "#059669" if mom.get("direction") == "down" else BRAND_ORANGE
+
+    return f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AFTS Monthly · {escape(month_name)} {year}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root {{
-  --black:{BRAND_BLACK}; --orange:{BRAND_ORANGE};
-  --ink:#111827; --body:#1f2937; --muted:#6b7280; --dim:#9ca3af;
-  --bg:#ffffff; --s1:#f9fafb; --s2:#f3f4f6; --brd:#e5e7eb;
-  --red:{TIER1_RED}; --amber:{TIER2_AMBER}; --violet:{OUTBREAK_VIO}; --green:#059669;
+:root{{
+--bg:#ffffff; --s1:#f9fafb; --s2:#f3f4f6; --brd:#e5e7eb;
+--ink:#1f2937; --black:{BRAND_BLACK}; --muted:#6b7280; --body:#374151;
+--orange:{BRAND_ORANGE}; --red:{TIER1_RED}; --amber:{TIER2_AMBER};
+--violet:{OUTBREAK_VIO}; --green:#059669;
 }}
-* {{ box-sizing:border-box; }}
-html, body {{ margin:0; padding:0; background:var(--bg); }}
-body {{
-  font-family:'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color:var(--body); font-size:14px; line-height:1.65;
-  max-width:1180px; margin:0 auto; padding:0 40px 60px;
-}}
-a {{ color:var(--orange); text-decoration:none; }}
-a:hover {{ text-decoration:underline; }}
+*{{box-sizing:border-box;}}
+html,body{{margin:0;padding:0;background:#f5f5f7;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--ink);font-size:14px;line-height:1.6;}}
+body{{padding:28px 16px 60px;}}
+.page{{max-width:980px;margin:0 auto;background:#fff;padding:36px 44px;border:1px solid var(--brd);}}
+a{{color:var(--orange);}} a:hover{{color:{BRAND_BLACK};}}
 
-.masthead {{
-  border-top:6px solid var(--black);
-  padding:28px 0 22px;
-  display:flex; justify-content:space-between; align-items:flex-start;
-  border-bottom:1px solid var(--brd);
-  margin-bottom:32px;
-}}
-.brand-block .brand {{
-  font-family:'Syne', sans-serif; font-weight:800; font-size:24px;
-  color:var(--black); letter-spacing:-0.01em; text-transform:uppercase;
-  line-height:1.1;
-}}
-.brand-block .brand em {{ color:var(--orange); font-style:normal; font-weight:800; }}
-.brand-block .tagline {{
-  font-family:'DM Mono', monospace; font-size:10px; font-weight:600;
-  color:var(--muted); text-transform:uppercase; letter-spacing:0.14em;
-  margin-top:8px;
-}}
-.mast-right {{ text-align:right; }}
-.report-label {{
-  display:inline-block; background:var(--black); color:#fff;
-  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
-  padding:5px 11px; letter-spacing:0.12em; text-transform:uppercase;
-  margin-bottom:10px;
-}}
-.report-meta {{
-  font-family:'DM Mono', monospace; font-size:11px;
-  color:var(--muted); line-height:1.8;
-}}
-.report-meta strong {{ color:var(--ink); font-weight:700; }}
+.mast{{border-bottom:1px solid var(--brd);padding-bottom:18px;margin-bottom:26px;
+display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}}
+.brand{{font-family:Syne,Georgia,serif;font-weight:800;font-size:18px;color:{BRAND_BLACK};
+text-transform:uppercase;letter-spacing:-0.01em;}}
+.brand em{{color:{BRAND_ORANGE};font-style:normal;}}
+.tagline{{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+text-transform:uppercase;letter-spacing:0.14em;margin-top:4px;}}
+.pill{{background:{BRAND_BLACK};color:#fff;font-family:'DM Mono',monospace;font-size:10px;
+padding:5px 12px;letter-spacing:0.12em;text-transform:uppercase;}}
+h1.r-title{{font-family:Syne,Georgia,serif;font-weight:800;font-size:30px;color:{BRAND_BLACK};
+letter-spacing:-0.02em;margin:14px 0 6px;}}
+h1.r-title .accent{{color:{BRAND_ORANGE};}}
+.sub{{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+text-transform:uppercase;letter-spacing:0.1em;margin:0 0 26px;}}
 
-.r-title {{
-  font-family:'Syne', sans-serif; font-weight:800; font-size:38px;
-  color:var(--black); letter-spacing:-0.02em; line-height:1.15;
-  margin:2px 0 10px;
-}}
-.r-title .accent {{ color:var(--orange); }}
-.r-kicker {{
-  font-family:'Syne', sans-serif; font-weight:800; font-size:13px;
-  color:var(--black); letter-spacing:0.08em; text-transform:uppercase;
-  margin:8px 0 6px;
-}}
-.r-kicker-dot {{ color:var(--orange); font-style:normal; margin:0 2px; }}
-.r-sub {{
-  color:var(--muted); font-size:14px; margin-bottom:16px;
-}}
-.r-sub strong {{ color:var(--ink); font-weight:600; }}
+.kpi-strip{{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);
+border:1px solid var(--brd);margin-bottom:28px;}}
+.kpi{{background:#fff;padding:16px 14px;}}
+.kpi-label{{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--muted);
+text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}}
+.kpi-value{{font-family:Syne,Georgia,serif;font-weight:800;font-size:26px;line-height:1;color:{BRAND_BLACK};}}
+.kpi-value.red{{color:var(--red);}} .kpi-value.vio{{color:var(--violet);}}
+.kpi-value.orange{{color:var(--orange);font-style:italic;font-size:15px;line-height:1.3;}}
+.kpi-value.mom{{font-size:22px;}}
+.kpi-top{{font-size:10px;color:var(--muted);margin-top:6px;}}
+@media(max-width:760px){{.kpi-strip{{grid-template-columns:repeat(3,1fr);}}}}
 
-.kpi-strip {{
-  display:grid; grid-template-columns:repeat(4, 1fr);
-  gap:1px; background:var(--brd); border:1px solid var(--brd);
-  margin-bottom:32px;
-}}
-.kpi {{ background:#fff; padding:22px 20px; }}
-.kpi-label {{
-  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
-  color:var(--muted); text-transform:uppercase; letter-spacing:0.1em;
-  margin-bottom:8px;
-}}
-.kpi-value {{
-  font-family:'Syne', sans-serif; font-weight:800; font-size:42px;
-  color:var(--black); line-height:1; letter-spacing:-0.02em;
-}}
-.kpi-value.red {{ color:var(--red); }}
-.kpi-value.violet {{ color:var(--violet); }}
-.kpi-value.orange {{ color:var(--orange); font-size:20px; line-height:1.2; font-style:italic; }}
-.kpi-value a {{ color:inherit; text-decoration:none; border-bottom:2px solid var(--orange); padding-bottom:1px; }}
-.kpi-value a:hover {{ opacity:0.8; text-decoration:none; }}
-.kpi-delta {{
-  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
-  margin-top:10px; letter-spacing:0.04em;
-}}
-.kpi-top {{ font-size:11px; color:var(--muted); margin-top:10px; font-style:italic; }}
+.sec-head{{display:flex;align-items:center;gap:12px;margin:32px 0 12px;}}
+.sec-num{{font-family:'DM Mono',monospace;font-size:10px;color:{BRAND_ORANGE};font-weight:700;letter-spacing:0.12em;}}
+.sec-title{{font-family:Syne,Georgia,serif;font-weight:800;font-size:20px;color:{BRAND_BLACK};letter-spacing:-0.01em;margin:0;}}
+.sec-rule{{flex:1;height:1px;background:var(--brd);}}
+.sec-caption{{color:var(--muted);font-size:13px;margin:-4px 0 14px;}}
+.sec-link{{font-family:'DM Mono',monospace;font-size:10px;color:var(--orange);letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;}}
+.sec-link:hover{{text-decoration:underline;}}
 
-.sec-head {{
-  display:flex; align-items:baseline; gap:14px;
-  margin:40px 0 16px;
-}}
-.sec-num {{
-  font-family:'DM Mono', monospace; font-size:11px; font-weight:700;
-  color:var(--orange); letter-spacing:0.12em;
-}}
-.sec-title {{
-  font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
-  color:var(--black); letter-spacing:-0.01em;
-}}
-.sec-rule {{ flex:1; height:1px; background:var(--brd); }}
-.sec-caption {{ color:var(--muted); font-size:13px; margin:-4px 0 14px; }}
-.sec-caption em {{ color:var(--ink); font-style:italic; }}
+.analysis{{background:var(--s1);padding:24px 28px;margin-bottom:12px;}}
+.analysis p{{font-size:14px;line-height:1.75;color:var(--ink);margin:0 0 14px;}}
+.analysis p:last-child{{margin-bottom:0;}}
+.analysis p.pa-note{{margin:18px -28px 0 -28px;padding:18px 28px 2px 28px;background:#fff;
+border-top:1px solid var(--brd);font-size:13.5px;line-height:1.7;}}
+.analysis p.pa-note .pa-label{{display:inline;font-family:'DM Mono',monospace;font-weight:700;
+letter-spacing:0.08em;text-transform:uppercase;color:var(--red);font-size:10px;margin-right:8px;}}
 
-.analysis {{
-  background:var(--s1);
-  padding:26px 30px; margin-bottom:10px;
-}}
-.analysis p {{ margin:0 0 14px; font-size:14.5px; line-height:1.75; }}
-.analysis p:last-child {{ margin-bottom:0; }}
-.analysis p.pa-note {{
-  margin:18px -30px 0 -30px; padding:18px 30px 2px 30px;
-  background:#fff; border-top:1px solid var(--brd);
-  font-size:13.5px; line-height:1.7;
-}}
-.analysis p.pa-note .pa-label {{
-  display:inline; font-family:'DM Mono', monospace; font-weight:700;
-  letter-spacing:0.08em; text-transform:uppercase;
-  color:var(--red); font-size:10px; margin-right:8px;
-}}
+/* Trend panel */
+.trend-grid{{display:grid;grid-template-columns:1.6fr 1fr;gap:20px;margin-bottom:6px;}}
+@media(max-width:760px){{.trend-grid{{grid-template-columns:1fr;}}}}
+.trend-panel{{background:var(--s1);padding:18px 22px;border-left:3px solid var(--orange);}}
+.trend-num{{font-family:Syne,sans-serif;font-weight:800;font-size:30px;color:{BRAND_BLACK};}}
+.trend-num.up{{color:var(--red);}} .trend-num.down{{color:var(--green);}}
+.trend-lbl{{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;}}
+.trend-row{{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px;}}
 
-table.data {{
-  width:100%; border-collapse:collapse; margin:0 0 10px;
-  background:#fff; border:1px solid var(--brd);
-  font-size:13px;
-}}
-table.data th {{
-  background:var(--black); color:#fff;
-  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
-  text-transform:uppercase; letter-spacing:0.1em;
-  padding:12px 12px; text-align:left; border-bottom:2px solid var(--orange);
-}}
-table.data td {{
-  padding:14px 12px; border-bottom:1px solid var(--brd);
-  vertical-align:top;
-}}
-table.data tr:last-child td {{ border-bottom:none; }}
-table.data tr:nth-child(even) td {{ background:#fafbfc; }}
-table.data td.num {{
-  font-family:'DM Mono', monospace; font-weight:600; text-align:right;
-  white-space:nowrap;
-}}
-table.data td.empty {{
-  text-align:center; color:var(--muted); padding:28px; font-style:italic;
-}}
+/* Heatmap */
+.heat-panel{{background:var(--s1);padding:20px 22px;}}
+.hotspot-list{{margin:12px 0 0;padding:0;list-style:none;font-size:13px;}}
+.hotspot-list li{{padding:6px 0;color:var(--ink);border-top:1px dashed var(--brd);}}
+.hotspot-list li:first-child{{border-top:none;}}
+.hotspot-list li.empty{{color:var(--muted);font-style:italic;}}
 
-/* Top 5 column sizing - keeps table within A4 and desktop viewport */
-table.top5 {{ table-layout:fixed; width:100%; }}
-table.top5 th:nth-child(1), table.top5 td:nth-child(1) {{ width:5%;  }}  /* # */
-table.top5 th:nth-child(2), table.top5 td:nth-child(2) {{ width:9%;  }}  /* Date */
-table.top5 th:nth-child(3), table.top5 td:nth-child(3) {{ width:19%; }}  /* Pathogen */
-table.top5 th:nth-child(4), table.top5 td:nth-child(4) {{ width:18%; }}  /* Company */
-table.top5 th:nth-child(5), table.top5 td:nth-child(5) {{ width:30%; }}  /* Product */
-table.top5 th:nth-child(6), table.top5 td:nth-child(6) {{ width:19%; }}  /* Jurisdiction+Source */
-table.top5 td {{ word-wrap:break-word; overflow-wrap:break-word; }}
+/* Timeline */
+.timeline-panel{{background:var(--s1);padding:20px 22px;}}
 
-.rank-num {{
-  font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
-  color:var(--orange); text-align:center;
-  white-space:nowrap; font-variant-numeric:tabular-nums;
-  letter-spacing:-0.02em;
-}}
-/* Shrink multi-digit rank numbers a touch so 10/11/12/100 stay on one line
-   even in the tight 5% rank column at narrower viewports. */
-.rank-num.rank-num--multi {{ font-size:18px; }}
-.date-cell {{
-  font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
-  white-space:nowrap;
-}}
-.path-dot {{
-  display:inline-block; width:9px; height:9px; border-radius:50%;
-  margin-right:7px; vertical-align:middle;
-}}
-.path-name {{ font-weight:600; color:var(--ink); font-style:italic; }}
-.co-cell strong {{ color:var(--black); font-weight:700; display:block; }}
-.brand-sub {{ font-size:11px; color:var(--muted); margin-top:2px; font-style:italic; }}
-.prod-cell {{ color:var(--body); }}
-.juris-country {{ font-weight:600; color:var(--ink); }}
-.src-sub {{
-  font-family:'DM Mono', monospace; font-size:10px;
-  color:var(--muted); margin-top:3px;
-}}
-.juris-link {{ margin-top:6px; }}
-.chip-tier1 {{
-  display:inline-block; background:var(--red); color:#fff;
-  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
-  padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
-}}
-.chip-tier2 {{
-  display:inline-block; background:var(--amber); color:#fff;
-  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
-  padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
-}}
-.chip-outbreak {{
-  display:inline-block; background:var(--violet); color:#fff;
-  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
-  padding:2px 6px; border-radius:2px; margin-left:4px; letter-spacing:0.06em;
-}}
-.src-link {{
-  font-family:'DM Mono', monospace; font-size:11px; font-weight:700;
-  color:var(--orange); letter-spacing:0.02em;
-}}
-.src-na {{ color:var(--dim); font-family:'DM Mono', monospace; font-size:10px; font-style:italic; }}
+/* Concentration */
+.conc-grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:10px;}}
+@media(max-width:600px){{.conc-grid{{grid-template-columns:1fr;}}}}
+.conc-card{{background:var(--s1);padding:16px 18px;border-left:3px solid var(--orange);}}
+.conc-card.diverse{{border-left-color:var(--green);}}
+.conc-card.concentrated{{border-left-color:var(--red);}}
+.conc-card.very_uneven{{border-left-color:var(--red);}}
+.conc-card.moderate{{border-left-color:var(--amber);}}
+.conc-val{{font-family:Syne,sans-serif;font-weight:800;font-size:22px;color:{BRAND_BLACK};}}
+.conc-lbl{{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;}}
+.conc-note{{font-size:11px;color:var(--muted);margin-top:4px;}}
 
-.dist-grid {{
-  display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:10px;
-}}
-.dist-grid h3 {{
-  font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
-  text-transform:uppercase; letter-spacing:0.1em; margin:0 0 10px;
-}}
-.bar-track {{
-  width:100%; height:8px; background:var(--s2);
-  border-radius:1px; overflow:hidden;
-}}
-.bar-fill {{ height:100%; }}
+/* Growth lists */
+.growth-grid{{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px;}}
+@media(max-width:600px){{.growth-grid{{grid-template-columns:1fr;}}}}
+.growth-panel{{background:var(--s1);padding:16px 20px;}}
+.growth-panel h4{{font-family:'DM Mono',monospace;font-size:10px;margin:0 0 10px;
+color:{BRAND_ORANGE};letter-spacing:0.1em;text-transform:uppercase;}}
+.growth-panel ul{{margin:0;padding:0;list-style:none;font-size:12.5px;}}
+.growth-panel li{{padding:5px 0;border-top:1px dashed var(--brd);}}
+.growth-panel li:first-child{{border-top:none;}}
+.growth-panel li.empty{{color:var(--muted);font-style:italic;}}
 
-.cta-box {{
-  margin:40px 0 30px;
-  padding:26px 30px;
-  background:var(--black); color:#fff;
-  display:flex; justify-content:space-between; align-items:center;
-  flex-wrap:wrap; gap:18px;
-}}
-.cta-text {{ flex:1; min-width:280px; }}
-.cta-text h3 {{
-  font-family:'Syne', sans-serif; font-weight:800; font-size:20px;
-  margin:0 0 6px; color:#fff; letter-spacing:-0.01em;
-}}
-.cta-text p {{ margin:0; color:#d1d5db; font-size:13px; }}
-.cta-btn {{
-  background:var(--orange); color:#fff; font-family:'DM Mono', monospace;
-  font-size:11px; font-weight:700; padding:14px 22px;
-  text-transform:uppercase; letter-spacing:0.1em;
-  border:none; cursor:pointer; white-space:nowrap;
-}}
-.cta-btn:hover {{ background:#d35416; text-decoration:none; color:#fff; }}
+/* Models roadmap */
+.mdl-grid{{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}}
+@media(max-width:700px){{.mdl-grid{{grid-template-columns:1fr;}}}}
+.mdl-card{{padding:12px 16px;font-size:12.5px;border-radius:2px;}}
+.mdl-hdr{{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}}
+.mdl-name{{font-weight:700;color:{BRAND_BLACK};}}
+.mdl-status{{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.1em;}}
+.mdl-sub{{font-size:11px;color:var(--muted);margin-bottom:6px;}}
+.mdl-detail{{font-size:11.5px;color:var(--ink);line-height:1.55;}}
+table.mini{{width:100%;font-size:11px;border-collapse:collapse;margin-top:6px;}}
+table.mini th{{background:{BRAND_BLACK};color:#fff;font-family:'DM Mono',monospace;
+font-size:9px;font-weight:700;padding:4px 6px;text-align:left;letter-spacing:0.06em;}}
+table.mini td{{padding:4px 6px;border-bottom:1px solid var(--brd);}}
+table.mini td.num{{text-align:right;font-family:'DM Mono',monospace;}}
 
-.meth {{
-  background:var(--s1); border:1px solid var(--brd);
-  padding:22px 26px; margin-bottom:24px; font-size:13px;
-  color:var(--body);
+/* Tables */
+table{{width:100%;border-collapse:collapse;font-size:12.5px;}}
+table.paths td{{padding:8px 10px;border-bottom:1px solid #f3f4f6;vertical-align:middle;}}
+table.paths td.num{{text-align:right;font-family:'DM Mono',monospace;}}
+table.paths td.muted{{color:var(--muted);}}
+.path-dot{{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle;}}
+.bar{{background:var(--s2);height:6px;border-radius:1px;width:100%;min-width:120px;}}
+.bar-fill{{height:6px;border-radius:1px;}}
+
+/* Top 10 table (reuses weekly .top5 styles) */
+table.top5 {{ table-layout:fixed; width:100%; margin-top:8px; }}
+table.top5 th {{ background:{BRAND_BLACK}; color:#fff; font-family:'DM Mono',monospace; font-size:10px; font-weight:700; padding:10px 8px; text-align:left; letter-spacing:0.1em; }}
+table.top5 td {{ padding:10px 8px; border-bottom:1px solid #f3f4f6; vertical-align:top; word-wrap:break-word; overflow-wrap:break-word; }}
+table.top5 th:nth-child(1), table.top5 td:nth-child(1) {{ width:5%; }}
+table.top5 th:nth-child(2), table.top5 td:nth-child(2) {{ width:9%; }}
+table.top5 th:nth-child(3), table.top5 td:nth-child(3) {{ width:19%; }}
+table.top5 th:nth-child(4), table.top5 td:nth-child(4) {{ width:18%; }}
+table.top5 th:nth-child(5), table.top5 td:nth-child(5) {{ width:30%; }}
+table.top5 th:nth-child(6), table.top5 td:nth-child(6) {{ width:19%; }}
+.rank-num{{font-family:Syne,sans-serif;font-weight:800;font-size:22px;color:{BRAND_ORANGE};
+text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}}
+.rank-num.rank-num--multi{{font-size:18px;}}
+.date-cell{{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;}}
+.path-name{{font-weight:600;color:var(--ink);font-style:italic;}}
+.co-cell strong{{color:{BRAND_BLACK};font-weight:700;display:block;}}
+.brand-sub{{font-size:11px;color:var(--muted);margin-top:2px;font-style:italic;}}
+.juris-country{{font-weight:600;color:var(--ink);}}
+.src-sub{{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}}
+.src-link{{color:{BRAND_ORANGE};font-size:11px;text-decoration:none;font-family:'DM Mono',monospace;}}
+.src-na{{font-family:'DM Mono',monospace;font-size:10px;color:#94a3b8;font-style:italic;}}
+.chip-tier1,.chip-tier2,.chip-outbreak{{display:inline-block;color:#fff;font-size:9px;
+font-weight:700;padding:2px 6px;border-radius:2px;letter-spacing:0.06em;margin-left:5px;}}
+.chip-tier1{{background:{TIER1_RED};}}
+.chip-tier2{{background:{TIER2_AMBER};color:#1f2937;}}
+.chip-outbreak{{background:{OUTBREAK_VIO};}}
+
+.meth{{background:var(--s1);padding:20px 24px;font-size:13px;line-height:1.7;color:var(--body);}}
+.meth p{{margin:0 0 10px;}} .meth p:last-child{{margin:0;}}
+.meth strong{{color:{BRAND_BLACK};}}
+
+.footer{{border-top:2px solid {BRAND_BLACK};margin-top:34px;padding-top:18px;
+font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.7;}}
+.footer .fb{{font-family:Syne,Georgia,serif;font-weight:800;font-size:12px;
+color:{BRAND_BLACK};text-transform:uppercase;}}
+.footer .fb em{{color:{BRAND_ORANGE};font-style:normal;}}
+
+@media print{{
+  body{{background:#fff;padding:0;}} .page{{border:none;padding:18px 14mm;max-width:none;}}
+  .sec-head{{page-break-after:avoid;}} .kpi-strip{{page-break-inside:avoid;}}
+  table.top5 tr{{page-break-inside:avoid;}}
 }}
-.meth strong {{ color:var(--black); }}
-.meth p {{ margin:0 0 10px; }}
-.meth p:last-child {{ margin-bottom:0; }}
+</style></head><body><div class="page">
 
-.footer {{
-  margin-top:50px; padding-top:26px; border-top:2px solid var(--black);
-  display:flex; justify-content:space-between; align-items:flex-start;
-  flex-wrap:wrap; gap:20px; font-size:12px;
-}}
-.foot-brand {{
-  font-family:'Syne', sans-serif; font-weight:800; font-size:15px;
-  color:var(--black); text-transform:uppercase; letter-spacing:0.02em;
-}}
-.foot-brand em {{ color:var(--orange); font-style:normal; }}
-.foot-meta {{
-  font-family:'DM Mono', monospace; font-size:10px;
-  color:var(--muted); line-height:1.8; margin-top:6px;
-}}
-.foot-legal {{
-  font-size:11px; color:var(--muted); max-width:440px;
-  text-align:right; line-height:1.6;
-}}
-
-@media print {{
-  /* Running footer on every printed page: process-authority attribution
-     anchors the AFTS differentiator visually throughout the document. */
-  @page {{
-    size: A4;
-    margin: 14mm 14mm 18mm 14mm;
-    @bottom-left {{
-      content: "AFTS · Food Safety Validation Intelligence";
-      font-family: 'DM Mono', monospace; font-size: 8pt; color: #6b7280;
-      letter-spacing: 0.04em;
-    }}
-    @bottom-right {{
-      content: "Page " counter(page) " / " counter(pages);
-      font-family: 'DM Mono', monospace; font-size: 8pt; color: #6b7280;
-      letter-spacing: 0.04em;
-    }}
-  }}
-  body {{ max-width:none; padding:0; margin:0; font-size:11px; }}
-  .cta-box {{ display:none; }}
-
-  /* Lock print-mode layout: even if the browser's print page is narrow,
-     these must not collapse into mobile responsive layouts. */
-  .masthead {{ flex-direction:row !important; }}
-  .mast-right {{ text-align:right !important; }}
-  .kpi-strip {{ grid-template-columns:repeat(4, 1fr) !important; }}
-  .dist-grid {{ display:block !important; grid-template-columns:1fr !important; gap:0 !important; }}
-  .dist-grid > div {{ width:100% !important; display:block !important; }}
-  .dist-grid > div:nth-child(2) {{ page-break-before:always !important; break-before:page !important; margin-top:0 !important; }}
-
-  /* Page 1 compression: tighten the above-the-fold so the first Intelligence
-     Analysis paragraph opens on page 1 rather than orphaning the heading. */
-  .masthead {{ border-top-width:4px; padding:18px 0 12px; margin-bottom:22px; }}
-  .brand-block .brand {{ font-size:18px; }}
-  .brand-block .tagline {{ font-size:10px; margin-top:5px; letter-spacing:0.12em; }}
-  .report-label {{ font-size:9px; padding:4px 10px; margin-bottom:8px; }}
-  .report-meta {{ font-size:10px; line-height:1.7; }}
-  .r-kicker {{ font-size:12px; margin:6px 0 5px; letter-spacing:0.07em; }}
-  .r-title {{ font-size:26px; margin:2px 0 8px; }}
-  .r-sub {{ font-size:13px; margin-bottom:12px; line-height:1.55; }}
-  .kpi-strip {{ margin-bottom:24px; }}
-  .kpi {{ padding:16px 14px; }}
-  .kpi-label {{ font-size:9px; margin-bottom:6px; }}
-  .kpi-value {{ font-size:28px; }}
-  .kpi-value.orange {{ font-size:18px; }}
-  .kpi-delta {{ font-size:9px; margin-top:7px; }}
-  .kpi-top {{ font-size:10px; margin-top:7px; }}
-  .sec-head {{ margin:28px 0 12px; page-break-after:avoid; break-after:avoid; }}
-  .sec-num {{ font-size:10px; }}
-  .sec-title {{ font-size:20px; white-space:nowrap; }}
-  .analysis {{ padding:22px 26px; }}
-  .analysis p {{ font-size:13px; margin:0 0 12px; line-height:1.7; }}
-  .analysis p.pa-note {{ margin:14px -26px 0 -26px; padding:14px 26px 2px 26px; font-size:12px; line-height:1.65; }}
-  .analysis p.pa-note .pa-label {{ font-size:9px; }}
-
-  table.data th {{ background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
-  table.data tr {{ page-break-inside:avoid; break-inside:avoid; }}
-  /* Top-5 print tightening - fit all 6 columns on A4 */
-  table.top5 {{ font-size:9px; page-break-inside:avoid; }}
-  table.top5 th {{ padding:6px 5px; font-size:8px; }}
-  table.top5 td {{ padding:6px 5px; line-height:1.35; }}
-  table.top5 tr {{ page-break-inside:avoid; }}
-  table.top5 .rank-num {{ font-size:14px; }}
-  table.top5 .path-name {{ font-size:9px; }}
-  table.top5 .date-cell {{ font-size:8px; }}
-  table.top5 .prod-cell {{ font-size:9px; line-height:1.35; }}
-  table.top5 .co-cell strong {{ font-size:9px; }}
-  table.top5 .juris-country {{ font-size:9px; }}
-  table.top5 .brand-sub, table.top5 .src-sub {{ font-size:8px; margin-top:1px; }}
-  table.top5 .chip-tier1, table.top5 .chip-tier2, table.top5 .chip-outbreak {{ font-size:7px; padding:1px 3px; margin-left:3px; }}
-  table.top5 .src-link {{ font-size:8px; }}
-  table.top5 .juris-link {{ margin-top:3px; }}
-  /* Tighten the caption above the Top 5 so more room for rows */
-  .sec-caption {{ font-size:10px; margin:-2px 0 8px; }}
-  /* Force section boundaries on page breaks for clean 4-page distribution:
-     P1 = masthead + KPI + § 01 Analysis
-     P2 = § 02 Top 5
-     P3 = § 03 Distribution
-     P4 = § 04 Methodology + Footer */
-  section.page-break, div.page-break {{ page-break-before:always; }}
-  .sec-head.break-before {{ page-break-before:always; break-before:page; }}
-
-  /* Footer: switch from flex to a clean vertical stack for print.
-     WeasyPrint and some browser print engines overlap the two halves
-     when flex wraps at narrow widths - block layout avoids it entirely.
-     page-break-inside: avoid keeps brand block + disclaimer together on one page. */
-  .footer {{
-    display:block !important;
-    margin-top:26px;
-    page-break-inside:avoid;
-    break-inside:avoid;
-  }}
-  .footer > div {{ display:block !important; width:auto !important; }}
-  .footer > div:first-child {{ margin-bottom:12px; }}
-  .foot-legal {{
-    text-align:left !important;
-    max-width:none !important;
-    padding-top:10px;
-    border-top:1px solid var(--brd);
-  }}
-  /* Keep the methodology section with its adjacent section intact */
-  .meth {{ page-break-inside:avoid; break-inside:avoid; }}
-}}
-
-@media screen and (max-width:900px) {{
-  body {{ padding:0 20px 40px; }}
-  .kpi-strip {{ grid-template-columns:repeat(2,1fr); }}
-  .dist-grid {{ grid-template-columns:1fr; }}
-  .masthead {{ flex-direction:column; gap:16px; }}
-  .mast-right {{ text-align:left; }}
-  .r-title {{ font-size:28px; }}
-}}
-
-/* Mobile Top-5: switch from a 6-column table to stacked cards.
-   On phones, a horizontal table would either scroll sideways (bad UX) or
-   compress columns into unreadable widths. Instead, each row becomes a
-   card with labeled fields - all data visible, no horizontal scroll. */
-@media screen and (max-width:700px) {{
-  table.top5, table.top5 thead, table.top5 tbody, table.top5 tr, table.top5 td {{
-    display:block; width:auto !important;
-  }}
-  /* Kill all fixed column widths - they would make card-mode cells unreadably narrow */
-  table.top5 th:nth-child(1), table.top5 td:nth-child(1),
-  table.top5 th:nth-child(2), table.top5 td:nth-child(2),
-  table.top5 th:nth-child(3), table.top5 td:nth-child(3),
-  table.top5 th:nth-child(4), table.top5 td:nth-child(4),
-  table.top5 th:nth-child(5), table.top5 td:nth-child(5),
-  table.top5 th:nth-child(6), table.top5 td:nth-child(6) {{
-    width:auto !important;
-  }}
-  table.top5 {{ border:none; table-layout:auto !important; }}
-  table.top5 thead {{ display:none; }}
-  table.top5 tr {{
-    border:1px solid var(--brd); border-left:4px solid var(--orange);
-    background:#fff; margin-bottom:12px; padding:8px 4px;
-    position:relative;
-  }}
-  table.top5 tr:nth-child(even) td {{ background:transparent; }}
-  table.top5 td {{
-    border:none !important; padding:7px 14px 7px 108px !important;
-    position:relative; min-height:28px;
-    word-wrap:normal; overflow-wrap:normal;
-  }}
-  table.top5 td::before {{
-    content:attr(data-label);
-    position:absolute; left:14px; top:7px; width:88px;
-    font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
-    color:var(--muted); text-transform:uppercase; letter-spacing:0.08em;
-  }}
-  /* Rank number sits in top-right corner as an orange badge */
-  table.top5 .rank-num {{
-    position:absolute; top:8px; right:14px; padding:0 !important;
-    font-size:28px; min-height:0; text-align:right;
-  }}
-  table.top5 .rank-num::before {{ display:none; }}
-  table.top5 .date-cell {{ font-size:11px; }}
-  table.top5 .path-name {{ font-size:13px; }}
-  table.top5 .co-cell strong {{ font-size:13px; }}
-  table.top5 .prod-cell {{ line-height:1.45; font-size:13px; }}
-  table.top5 .juris-country {{ font-size:13px; }}
-  table.top5 .juris-link {{ margin-top:6px; }}
-}}
-
-@media screen and (max-width:480px) {{
-  body {{ padding:0 14px 30px; }}
-  .kpi-strip {{ grid-template-columns:1fr 1fr; }}
-  .kpi {{ padding:16px 14px; }}
-  .kpi-value {{ font-size:28px; }}
-  .r-title {{ font-size:24px; }}
-  .analysis {{ padding:18px 20px; }}
-  .analysis p {{ font-size:13px; }}
-  .analysis p.pa-note {{ margin:14px -20px 0 -20px; padding:14px 20px 2px 20px; }}
-}}
-</style>
-</head>
-<body>
-
-<header class="masthead">
-  <div class="brand-block">
-    <div class="brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
-    <div class="tagline">Food Safety Intelligence System &middot; Weekly Briefing</div>
+<div class="mast">
+  <div>
+    <div class="brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div>
+    <div class="tagline">Food Safety Intelligence System · Monthly Briefing</div>
   </div>
-  <div class="mast-right">
-    <div class="report-label">Subscribers Edition</div>
-    <div class="report-meta">
-      <strong>ISSUE</strong> &middot; Week {wnum:02d}, {year}<br>
-      <strong>PERIOD</strong> &middot; {week_start.strftime('%d %b')} &ndash; {week_end.strftime('%d %b %Y')}<br>
-      <strong>PUBLISHED</strong> &middot; {generated}
-    </div>
-  </div>
-</header>
+  <div class="pill">{escape(month_name)} {year}</div>
+</div>
 
-<div class="r-kicker">AFTS <span class="r-kicker-dot">&middot;</span> Food Safety Validation Intelligence</div>
-<h1 class="r-title">Pathogen Surveillance <span class="accent">&middot;</span> Week {wnum:02d}</h1>
-<p class="r-sub">
-  AI-powered analysis of <strong>{stats['total']}</strong> regulatory recall actions across
-  <strong>{len(stats['country_counts'])}</strong> jurisdictions, aggregated from 66 primary sources
-  monitored continuously by the AFTS intelligence platform.
-</p>
+<h1 class="r-title">Pathogen Surveillance <span class="accent">·</span> {escape(month_name)} {year}</h1>
+<div class="sub">{month_start.strftime('%d %b %Y')} – {month_end.strftime('%d %b %Y')}
+ &middot; {stats['total']} recalls across {len(stats.get('country_counts', []))} jurisdictions
+ &middot; {len(stats.get('source_counts', []))} regulatory sources</div>
 
 <div class="kpi-strip">
   <div class="kpi">
     <div class="kpi-label">Total Recalls</div>
-    <div class="kpi-value"><a href="#all-recalls">{stats['total']}</a></div>
-    {delta_html}
+    <div class="kpi-value">{stats['total']}</div>
+    <div class="kpi-top">{delta_phrase}</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">Tier-1 Critical</div>
     <div class="kpi-value red">{stats['tier1']}</div>
-    <div class="kpi-delta" style="color:var(--muted)">Immediate public-health risk</div>
+    <div class="kpi-top">{round(stats['tier1']/total_safe*100)}% of total</div>
   </div>
   <div class="kpi">
-    <div class="kpi-label">Active Outbreaks</div>
-    <div class="kpi-value violet">{stats['outbreaks']}</div>
-    <div class="kpi-delta" style="color:var(--muted)">Confirmed cluster events</div>
+    <div class="kpi-label">Outbreaks</div>
+    <div class="kpi-value vio">{stats['outbreaks']}</div>
+    <div class="kpi-top">{cl.get('cluster_count',0)} cluster(s) flagged</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">Leading Pathogen</div>
-    <div class="kpi-value orange">{escape(stats['top_pathogen'][0])}</div>
-    <div class="kpi-top">{stats['top_pathogen'][1]} cases &middot; {top_pathogen_pct}% of total</div>
+    <div class="kpi-value orange">{escape(top_pathogen_name)}</div>
+    <div class="kpi-top">{stats['top_pathogen'][1]} cases · {top_pathogen_pct}%</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">MoM Change</div>
+    <div class="kpi-value mom" style="color:{mom_colour}">{mom_delta_label}</div>
+    <div class="kpi-top">{z_label}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Severity Index</div>
+    <div class="kpi-value">{sv.get('score','–')}</div>
+    <div class="kpi-top">{escape((sv.get('bucket') or '').upper())}</div>
   </div>
 </div>
 
-<div class="sec-head">
-  <span class="sec-num">&sect; 01</span>
-  <h2 class="sec-title">Intelligence Analysis</h2>
-  <span class="sec-rule"></span>
-</div>
-<div class="analysis">
-  {analysis_html}
-</div>
+<!-- § 01 Intelligence Analysis -->
+<div class="sec-head"><span class="sec-num">§ 01</span><h2 class="sec-title">Intelligence Analysis</h2><span class="sec-rule"></span></div>
+<div class="analysis">{analysis_html}</div>
 
-<div class="sec-head">
-  <span class="sec-num">&sect; 02</span>
-  <h2 class="sec-title">Top 5 Critical Threats</h2>
-  <span class="sec-rule"></span>
-</div>
-<p class="sec-caption">
-  Ranked by pathogen severity (<em>C. botulinum</em> &rarr; <em>Listeria</em> &rarr; STEC &rarr; <em>Salmonella</em>), outbreak status, and tier classification.
-  Each row links to the originating regulatory notice.
-</p>
-<table class="data top5">
-  <thead>
-    <tr>
-      <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction &amp; Source</th>
-    </tr>
-  </thead>
-  <tbody>
-    {top5_rows}
-  </tbody>
-</table>
-
-<div class="sec-head">
-  <span class="sec-num">&sect; 03</span>
-  <h2 class="sec-title">Distribution Analysis</h2>
-  <span class="sec-rule"></span>
-</div>
-<div class="dist-grid">
-  <div>
-    <h3>Pathogen Profile</h3>
-    <table class="data">
-      <thead>
-        <tr><th>Pathogen</th><th class="num">Cases</th><th class="num">%</th><th>Share</th></tr>
-      </thead>
-      <tbody>
-        {path_rows}
-      </tbody>
-    </table>
-  </div>
-  <div>
-    <h3>Geographic &middot; Regulatory</h3>
-    <table class="data">
-      <thead>
-        <tr><th>Country</th><th>Authority</th><th class="num">Cases</th><th class="num">%</th></tr>
-      </thead>
-      <tbody>
-        {country_rows}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<div class="cta-box">
-  <div class="cta-text">
-    <h3>Live Dashboard &middot; Full Dataset Access</h3>
-    <p>Filter by pathogen, country, tier, and source. Download the accumulative XLSX dataset. Set custom alerts.</p>
-  </div>
-  <a class="cta-btn" href="https://www.advfood.tech/food-safety-intelligence" target="_blank" rel="noopener">Access Portal &rarr;</a>
-</div>
-
-<div id="all-recalls" class="sec-head">
-  <span class="sec-num">&sect; 04</span>
-  <h2 class="sec-title">All {stats['total']} Recalls &middot; {week_start.strftime('%d %b')} &ndash; {week_end.strftime('%d %b %Y')}</h2>
-  <span class="sec-rule"></span>
-</div>
-<p class="sec-caption">
-  Complete record for the reporting period. Sorted by pathogen severity, outbreak status, and tier classification.
-  Each row links to the originating regulatory notice.
-</p>
-<table class="data top5">
-  <thead>
-    <tr>
-      <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction &amp; Source</th>
-    </tr>
-  </thead>
-  <tbody>
-    {all_recalls_rows}
-  </tbody>
-</table>
-
-<div class="sec-head">
-  <span class="sec-num">&sect; 05</span>
-  <h2 class="sec-title">Methodology &amp; Sources</h2>
-  <span class="sec-rule"></span>
-</div>
-<div class="meth">
-  <p>
-    <strong>Process authority.</strong> Analytical frameworks, severity rubrics, pathogen
-    classification, and the engineering interpretation of each recall are developed under the
-    process authority of AFTS, drawing on in-house expertise in food process engineering,
-    thermal processing, and regulatory compliance. Every view is grounded in validated
-    process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic
-    and UHT, hold-tube and F-value lethality, and HACCP. This is what the AFTS platform brings
-    that pure data feeds do not &mdash; data under engineering authority.
-  </p>
-  <p>
-    <strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from
-    66 primary sources across 60+ countries (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso,
-    BVL, AESAN, EFET, and national authorities) and processes each record through Gemini
-    (extraction), OpenAI GPT (normalisation), and Claude (Tier-1 validation). Records are
-    de-duplicated and harmonised into the accumulative dataset.
-  </p>
-  <p>
-    <strong>This briefing.</strong> Statistical analysis filters the accumulative dataset to the
-    reporting week ({week_start.strftime('%d %b')} &ndash; {week_end.strftime('%d %b %Y')}).
-    AI-generated narrative is produced against AFTS process-authority prompts and edited for
-    publication. Figures and pathogen names are preserved verbatim from source data.
-  </p>
-</div>
-
-<footer class="footer">
-  <div>
-    <div class="foot-brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
-    <div class="foot-meta">
-      Food Safety Validation Intelligence<br>
-      advfood.tech &middot; info@advfood.tech &middot; Athens, Greece<br>
-      &copy; {year} Advanced Food Tech Solutions
+<!-- § 02 MoM Trend -->
+<div class="sec-head"><span class="sec-num">§ 02</span><h2 class="sec-title">Month-over-Month Trend</h2><span class="sec-rule"></span></div>
+<div class="trend-grid">
+  <div class="trend-panel">
+    <div class="trend-row">
+      <div>
+        <div class="trend-num {mom.get('direction','')}">{mom.get('delta_pct', '—') if mom.get('delta_pct') is not None else '—'}%</div>
+        <div class="trend-lbl">vs prior month</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--muted)">{z_label}</div>
+        <div class="trend-lbl">{"Anomalous (|Z|&gt;2)" if mom.get('anomaly_flag') else "Within baseline"}</div>
+      </div>
+    </div>
+    {svg_mom_sparkline(mom)}
+    <div style="font-size:12px;color:var(--muted);margin-top:8px">
+      Rolling 3-month mean: <strong>{mom.get('rolling_mean', '—')}</strong>
+      &nbsp;·&nbsp; σ: <strong>{mom.get('rolling_std', '—')}</strong>
     </div>
   </div>
-  <div class="foot-legal">
-    This briefing is provided for informational purposes only and does not constitute regulatory, legal,
-    or medical advice. Subscribers should verify recall status with the originating regulatory authority
-    before taking action. Next issue: {(week_end + timedelta(days=7)).strftime('%A, %d %b %Y')}.
+  <div class="trend-panel">
+    <div class="trend-lbl" style="margin-bottom:4px">Weekly cadence (recalls per ISO week)</div>
+    {svg_weekly_cadence(cad)}
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">
+      Peak week: <strong>{escape(cad.get('peak_wk') or '—')}</strong>
+      &nbsp;·&nbsp; σ: <strong>{cad.get('std', '—')}</strong>
+    </div>
   </div>
-</footer>
+</div>
 
-</body>
-</html>"""
+<!-- § 03 Pathogen Distribution -->
+<div class="sec-head"><span class="sec-num">§ 03</span><h2 class="sec-title">Pathogen Distribution</h2><span class="sec-rule"></span></div>
+<table class="paths"><tbody>{path_rows_html}</tbody></table>
 
-    return html, stats
+<!-- § 04 Country × Pathogen Hotspot Matrix -->
+<div class="sec-head"><span class="sec-num">§ 04</span><h2 class="sec-title">Country × Pathogen Hotspot Matrix</h2><span class="sec-rule"></span></div>
+<p class="sec-caption">Cells show observed recall counts. σ values are standardised residuals vs an independence-baseline expected count; cells with σ&gt;2 are statistically over-represented and are bordered in red.</p>
+<div class="heat-panel">
+  {svg_hotspot_heatmap(hs)}
+  <div style="margin-top:16px;font-family:'DM Mono',monospace;font-size:10px;
+  color:{BRAND_ORANGE};letter-spacing:0.1em;text-transform:uppercase;font-weight:700;">Hotspot alerts</div>
+  <ul class="hotspot-list">{hotspot_items}</ul>
+</div>
 
-# --- Dashboard update (accumulative) ----------------------------------------
-def update_dashboard_data(week_end: date, stats: Dict[str, Any], index_path: Path):
-    """Append/replace this week's entry in the embedded reports array; preserve history."""
-    if not index_path.exists():
-        log.warning("index.html not found at %s; skipping dashboard update", index_path)
-        return
+<!-- § 05 Outbreak Timeline -->
+<div class="sec-head"><span class="sec-num">§ 05</span><h2 class="sec-title">Outbreak Timeline &amp; Cluster Analysis</h2><span class="sec-rule"></span></div>
+<p class="sec-caption">One marker per outbreak event; hover/print for detail. Clusters are ≥3 same-pathogen outbreaks within a 14-day window.</p>
+<div class="timeline-panel">
+  {svg_outbreak_timeline(cl, month_start, month_end)}
+  <div style="margin-top:16px;font-family:'DM Mono',monospace;font-size:10px;
+  color:{BRAND_ORANGE};letter-spacing:0.1em;text-transform:uppercase;font-weight:700;">
+    Detected clusters ({cl.get('cluster_count', 0)})</div>
+  <ul class="hotspot-list">{cluster_html}</ul>
+</div>
 
-    wnum = week_end.isocalendar()[1]
-    year = week_end.year
-    week_start = week_end - timedelta(days=6)
+<!-- § 06 Regulatory Intensity + Growth -->
+<div class="sec-head"><span class="sec-num">§ 06</span><h2 class="sec-title">Regulatory Intensity &amp; Concentration</h2><span class="sec-rule"></span></div>
+<div class="conc-grid">
+  <div class="conc-card {escape(hhi_bucket)}">
+    <div class="conc-lbl">Source HHI</div>
+    <div class="conc-val">{co.get('hhi_source','—')}</div>
+    <div class="conc-note">{co.get('n_sources','–')} sources · <strong>{escape(hhi_bucket)}</strong> (&lt;1500 diverse · 1500–2500 moderate · &gt;2500 concentrated)</div>
+  </div>
+  <div class="conc-card {escape(gini_bucket)}">
+    <div class="conc-lbl">Geographic Gini</div>
+    <div class="conc-val">{co.get('gini_country','—')}</div>
+    <div class="conc-note">{co.get('n_countries','–')} countries · <strong>{escape(gini_bucket)}</strong> (&lt;0.4 even · 0.4–0.6 moderate · &gt;0.6 uneven)</div>
+  </div>
+  <div class="conc-card">
+    <div class="conc-lbl">Tier-1 Intensity</div>
+    <div class="conc-val">{intensity_txt}</div>
+    <div class="conc-note">This month: {round((co.get('tier1_share') or 0)*100)}% · baseline: {round((co.get('baseline_tier1_share') or 0)*100) if co.get('baseline_tier1_share') else '–'}%</div>
+  </div>
+</div>
+<div class="growth-grid">
+  <div class="growth-panel">
+    <h4>↑ Emerging pathogens (Z &gt; 2)</h4>
+    <ul>{emerging_html}</ul>
+  </div>
+  <div class="growth-panel">
+    <h4>↓ Declining pathogens (Z &lt; −2)</h4>
+    <ul>{declining_html}</ul>
+  </div>
+</div>
 
-    entry = {
-        "filename": f"{year}-W{wnum:02d}.html",
-        "week_num": wnum,
-        "year": year,
-        "week_start": week_start.strftime('%Y-%m-%d'),
-        "week_end":   week_end.strftime('%Y-%m-%d'),
-        "generated":  datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        "total":      stats['total'],
-        "tier1":      stats['tier1'],
-        "outbreaks":  stats['outbreaks'],
-        "top_pathogen": stats['top_pathogen'][0] if stats['top_pathogen'] else None,
-        "summary": (f"Week {wnum}: {stats['total']} recalls, "
-                    f"{stats['tier1']} Tier-1, {stats['outbreaks']} outbreak(s). "
-                    f"Leading pathogen: {stats['top_pathogen'][0] if stats['top_pathogen'] else 'n/a'}."),
-    }
+<!-- § 07 Severity + Predictive -->
+<div class="sec-head"><span class="sec-num">§ 07</span><h2 class="sec-title">Predictive Outlook</h2><span class="sec-rule"></span></div>
+<div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;margin-bottom:20px">
+  <div style="flex:0 0 auto;background:var(--s1);padding:16px 20px;text-align:center;">
+    {svg_severity_gauge(sv)}
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:0.1em;text-transform:uppercase">Composite Severity · 0–100</div>
+  </div>
+  <div style="flex:1;min-width:280px;font-size:12.5px;color:var(--body);line-height:1.7;">
+    <strong>How to read this panel.</strong> Each card shows a predictive model
+    AFTS runs on the monthly series. Active cards publish a forecast with its
+    confidence envelope; dormant cards show the data threshold required to
+    activate — an honest roadmap as the dataset grows. When <em>n</em> reaches
+    12 months, STL decomposition unlocks; 24 months unlocks Holt-Winters,
+    SARIMA, and Prophet. All models run on the same Recalls sheet you already
+    subscribe to — no secondary data required.
+  </div>
+</div>
+<div class="mdl-grid">{models_panel_html}</div>
 
-    content = index_path.read_text(encoding='utf-8')
+<!-- § 08 Top 10 -->
+<div class="sec-head">
+  <span class="sec-num">§ 08</span>
+  <h2 class="sec-title">Top 10 Critical Incidents</h2>
+  <span class="sec-rule"></span>
+  <a class="sec-link" href="{year_m}-all.html" target="_blank">View all {stats['total']} &rarr;</a>
+</div>
+<p class="sec-caption">Ranked by pathogen severity, outbreak status, and tier. The full {stats['total']}-recall list is available in the companion page linked above.</p>
+<table class="top5"><thead><tr>
+<th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th>
+<th>Product</th><th>Jurisdiction &amp; Source</th>
+</tr></thead><tbody>{top_rows_html}</tbody></table>
 
-    # Find the reports array with a balanced match across newlines.
-    m = re.search(r'const\s+reports\s*=\s*(\[.*?\]);', content, flags=re.DOTALL)
-    if not m:
-        log.warning("Could not locate `const reports = [...]` in index.html")
-        return
+<!-- § 09 Methodology -->
+<div class="sec-head"><span class="sec-num">§ 09</span><h2 class="sec-title">Methodology &amp; Sources</h2><span class="sec-rule"></span></div>
+<div class="meth">
+  <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, pathogen classification, and the engineering interpretation of each recall are developed under the process authority of AFTS, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP.</p>
+  <p><strong>Statistical methods.</strong> Month-over-month Z-scores use the rolling-prior-months mean and sample standard deviation; the hotspot matrix uses standardised chi-square residuals (σ&gt;2 flags over-representation vs independence); source concentration is quantified via the Herfindahl-Hirschman Index and geographic distribution via the Gini coefficient; outbreak clusters are detected via a sliding 14-day window over same-pathogen events. Predictive models are gated to activate only when data history meets the minimum size required for valid estimation.</p>
+  <p><strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from 70+ countries and 15+ agencies (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso, BVL, AESAN, EFET and national authorities) into the accumulative Recalls sheet. AI narrative is produced against AFTS process-authority prompts and edited for publication. Figures and pathogen names are preserved verbatim from source data.</p>
+</div>
 
-    try:
-        existing = json.loads(m.group(1))
-        if not isinstance(existing, list):
-            existing = []
-    except json.JSONDecodeError:
-        log.warning("Existing reports array not valid JSON; starting fresh")
-        existing = []
+<div class="footer">
+  <div class="fb">Advanced Food-Tech Solutions <em>·</em> AFTS</div>
+  Food Process Engineering · Thermal Processing · Regulatory Compliance<br>
+  advfood.tech · info@advfood.tech · Athens, Greece<br>
+  Generated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}
+</div>
 
-    # Replace by filename if it exists; otherwise insert
-    # ALSO prune any future-dated entries that slipped in from manual test runs.
-    # A weekly briefing is "published" the moment its week_end has been reached —
-    # before that, the report file may exist in the repo (so the Friday cron has
-    # something to regenerate from) but it must not appear in the public list.
-    today_iso = date.today().isoformat()
-    existing = [
-        r for r in existing
-        if r.get("filename") != entry["filename"]
-        and (r.get("week_end", "") or "") <= today_iso
-    ]
-    if entry["week_end"] <= today_iso:
-        existing.insert(0, entry)
-        log.info("Dashboard updated: %d total reports (published)", len(existing))
-    else:
-        log.info("Dashboard: entry %s is future-dated (%s > %s); "
-                 "report file written but NOT listed publicly yet",
-                 entry["filename"], entry["week_end"], today_iso)
-    existing.sort(key=lambda r: r.get("week_end", ""), reverse=True)
-
-    new_block = f'const reports = {json.dumps(existing, indent=4)};'
-    updated = content[:m.start()] + new_block + content[m.end():]
-    index_path.write_text(updated, encoding='utf-8')
+</div></body></html>"""
 
 
-# --- Summary JSON for the subscriber mailer ---------------------------------
-# The Google Apps Script subscriber mailer fetches this file every Friday
-# and builds the email body from it. Keeping the email data in a small, stable
-# JSON contract decouples the email format from the HTML report format.
-def write_weekly_summary_json(week_end: date, stats: Dict[str, Any],
-                              site_base_url: str, dashboard_url: str, out_path: Path):
-    wnum = week_end.isocalendar()[1]
-    year = week_end.year
-    week_start = week_end - timedelta(days=6)
+# ---------------------------------------------------------------------------
+# Email template — short, mirrors weekly mailer contract
+# ---------------------------------------------------------------------------
+def build_monthly_email_html(stats: Dict[str, Any], signals: Dict[str, Any],
+                             models: Dict[str, Any],
+                             month_start: date, month_end: date,
+                             report_url: str) -> str:
+    month_name = month_start.strftime("%B %Y")
+    mom = signals["mom_trend"]
+    sv  = signals["severity"]
+    lt  = models.get("linear_trend", {})
+    hs  = signals["hotspot"]
+    top_hotspot_line = ""
+    if hs.get("hotspots"):
+        h = hs["hotspots"][0]
+        top_hotspot_line = (
+            f'<div style="font-size:13px;margin-top:8px">'
+            f'<strong>Top hotspot:</strong> {escape(h["country"])} × '
+            f'<em>{escape(h["pathogen"])}</em> ({h["observed"]} recalls, '
+            f'{h["ratio"]}× expected).</div>'
+        )
+    forecast_line = ""
+    if lt.get("status") == "active":
+        forecast_line = (
+            f'<div style="font-size:13px;margin-top:8px">'
+            f'<strong>Next-month forecast:</strong> {lt.get("next_month_point")} '
+            f'recalls (95% CI {lt.get("next_month_ci95")}).</div>'
+        )
 
-    # Top 5 incidents, stripped down to email-relevant fields
-    top5_out = []
-    for i, r in enumerate(stats.get("_top5", []), 1):
-        _, canon = severity_score(r.get("Pathogen") or "")
+    return f"""<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937">
+<div style="max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb">
+
+<div style="background:{BRAND_BLACK};color:#fff;padding:20px 24px">
+<div style="font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em">
+Advanced Food-Tech Solutions <span style="color:{BRAND_ORANGE}">·</span> AFTS</div>
+<div style="font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px">
+Monthly Briefing · {escape(month_name)}</div>
+</div>
+
+<div style="padding:28px 24px 16px">
+<h1 style="font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:{BRAND_BLACK}">Pathogen Surveillance · {escape(month_name)}</h1>
+<div style="font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px">
+{month_start.strftime('%d %b')} – {month_end.strftime('%d %b %Y')} · {stats['total']} recalls · {stats['tier1']} Tier-1 · {stats['outbreaks']} outbreaks
+</div>
+
+<table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:20px">
+<tr>
+<td style="width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center">
+<div style="font-family:Georgia,serif;font-weight:800;font-size:26px;color:{BRAND_BLACK}">{stats['total']}</div>
+<div style="font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px">Total</div>
+</td>
+<td style="width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center">
+<div style="font-family:Georgia,serif;font-weight:800;font-size:26px;color:{TIER1_RED}">{stats['tier1']}</div>
+<div style="font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px">Tier-1</div>
+</td>
+<td style="width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center">
+<div style="font-family:Georgia,serif;font-weight:800;font-size:26px;color:{OUTBREAK_VIO}">{stats['outbreaks']}</div>
+<div style="font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px">Outbreaks</div>
+</td>
+<td style="width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center">
+<div style="font-family:Georgia,serif;font-weight:800;font-size:18px;color:{BRAND_ORANGE};font-style:italic">{escape(str(stats['top_pathogen'][0]))}</div>
+<div style="font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px">Leading</div>
+</td>
+</tr>
+</table>
+
+<div style="background:#f9fafb;border-left:3px solid {BRAND_ORANGE};padding:14px 18px;margin-bottom:20px">
+<div style="font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px">Month signal</div>
+<div style="font-size:14px;line-height:1.55"><strong>{mom.get('delta_pct','—')}%</strong> vs prior month
+{f"· Z = {mom.get('z_score'):+.1f} (anomalous)" if mom.get('anomaly_flag') else ""}
+· severity index <strong>{sv.get('score','–')}/100</strong> ({escape(sv.get('bucket','—'))}).</div>
+{top_hotspot_line}{forecast_line}
+</div>
+
+<div style="text-align:center;margin:28px 0 12px">
+<a href="{escape(report_url)}" target="_blank" style="display:inline-block;background:{BRAND_BLACK};color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px">View Full Monthly Report →</a>
+</div>
+
+<div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:20px">
+Advanced Food-Tech Solutions · advfood.tech · info@advfood.tech
+</div>
+</div>
+</div>
+</body></html>"""
+
+
+# ---------------------------------------------------------------------------
+# JSON summary for the Apps Script mailer
+# ---------------------------------------------------------------------------
+def write_monthly_summary_json(month_start: date, month_end: date,
+                               stats: Dict[str, Any], signals: Dict[str, Any],
+                               models: Dict[str, Any],
+                               narrative: str,
+                               month_recalls: List[Dict],
+                               site_base_url: str, dashboard_url: str,
+                               out_path: Path) -> None:
+    month_name = month_start.strftime("%B")
+    year = month_start.year
+    year_m = f"{year}-M{month_start.month:02d}"
+
+    top10_out = []
+    for i, r in enumerate(weekly.rank_top_recalls(month_recalls, 10), 1):
+        _, canon = weekly.severity_score(r.get("Pathogen") or "")
         url = (r.get("URL") or "").strip()
-        good_url = is_report_grade_url(url)
-        top5_out.append({
-            "rank": i,
-            "date": fmt_date(r.get("Date")),
+        top10_out.append({
+            "rank":     i,
+            "date":     str(r.get("Date", ""))[:10],
             "pathogen": canon,
-            "pathogen_raw": r.get("Pathogen") or "",
-            "tier": safe_int(r.get("Tier"), 3),
-            "outbreak": bool(safe_int(r.get("Outbreak"), 0)),
-            "company": (r.get("Company") or "")[:80],
-            "brand":   (r.get("Brand") or "")[:60],
-            "product": (r.get("Product") or "")[:140],
-            "country": r.get("Country") or "",
-            "source":  (r.get("Source") or "").strip(),
-            "url": url if good_url else "",
+            "pathogen_raw": r.get("Pathogen", ""),
+            "company":  r.get("Company", ""),
+            "brand":    r.get("Brand", ""),
+            "product":  r.get("Product", ""),
+            "country":  r.get("Country", ""),
+            "source":   r.get("Source", ""),
+            "tier":     weekly.safe_int(r.get("Tier"), 3),
+            "outbreak": weekly.safe_int(r.get("Outbreak"), 0),
+            "url":      url,
+            "url_ok":   weekly.is_report_grade_url(url),
         })
 
-    top_pathogen_name, top_pathogen_count = stats.get("top_pathogen", ("-", 0))
-    total_safe = stats["total"] or 1
-    site_base = site_base_url.rstrip("/")
+    report_url = f"{site_base_url}/{year_m}.html"
+    email_html = build_monthly_email_html(stats, signals, models,
+                                          month_start, month_end, report_url)
 
-    summary = {
-        "filename": f"{year}-W{wnum:02d}.html",
-        "report_url":   f"{site_base}/{year}-W{wnum:02d}.html",
-        "dashboard_url": dashboard_url,
-        "week_num": wnum,
-        "year": year,
-        "week_start": week_start.strftime("%Y-%m-%d"),
-        "week_end":   week_end.strftime("%Y-%m-%d"),
-        "week_start_display": week_start.strftime("%d %b"),
-        "week_end_display":   week_end.strftime("%d %b %Y"),
-        "generated_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        "stats": {
-            "total":     stats["total"],
-            "tier1":     stats["tier1"],
-            "outbreaks": stats["outbreaks"],
-            "delta":     stats.get("delta"),
-            "delta_pct": stats.get("delta_pct"),
-        },
-        "leading_pathogen": {
-            "name":  top_pathogen_name,
-            "cases": top_pathogen_count,
-            "pct":   round(top_pathogen_count / total_safe * 100) if stats["total"] else 0,
-        },
-        "ai_lead_paragraph": stats.get("_first_paragraph", ""),
-        "pa_paragraph": stats.get("_pa_paragraph", ""),
-        "top_threats": top5_out,
-        "country_count": len(stats.get("country_counts", [])),
+    payload = {
+        "month":            year_m,
+        "month_name":       month_name,
+        "year":             year,
+        "window_start":     month_start.isoformat(),
+        "window_end":       month_end.isoformat(),
+        "total":            stats["total"],
+        "tier1":            stats["tier1"],
+        "outbreaks":        stats["outbreaks"],
+        "delta":            stats.get("delta"),
+        "delta_pct":        stats.get("delta_pct"),
+        "top_pathogen":     list(stats["top_pathogen"]),
+        "top_countries":    stats["country_counts"][:5],
+        "top_sources":      stats["source_counts"][:5],
+        "mom_trend":        signals.get("mom_trend"),
+        "hotspots":         signals.get("hotspot", {}).get("hotspots", [])[:5],
+        "clusters":         signals.get("cluster", {}).get("clusters", [])[:3],
+        "concentration":    signals.get("concentration"),
+        "severity":         signals.get("severity"),
+        "emerging":         signals.get("growth", {}).get("emerging", [])[:5],
+        "linear_trend":     models.get("linear_trend"),
+        "narrative":        narrative,
+        "report_url":       report_url,
+        "all_month_url":    f"{site_base_url}/{year_m}-all.html",
+        "dashboard_url":    dashboard_url,
+        "top10":            top10_out,
+        "email_html":       email_html,
+        "generated_at":     datetime.now(timezone.utc).isoformat(),
+    }
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    log.info("Monthly summary JSON written: %s", out_path)
+
+
+def update_monthly_index_json(month_start: date, month_end: date,
+                              stats: Dict[str, Any],
+                              index_path: Path) -> None:
+    """Append-or-update this month's entry in docs/data/monthly-index.json.
+
+    This is the file the dashboard's loadMonthlyReports() fetches. It holds
+    a lean array of card metadata (NOT the full report payload) so the
+    dashboard loads in one request no matter how many months have shipped.
+
+    Idempotent: if the current month already has an entry (e.g. a re-run),
+    we update in-place instead of appending a duplicate. Entries stay
+    sorted newest-first by month_end.
+    """
+    year_m = f"{month_start.year}-M{month_start.month:02d}"
+    month_name = month_start.strftime("%B %Y")      # e.g. "March 2026"
+
+    top_pathogen = (
+        stats["top_pathogen"][0]
+        if stats.get("top_pathogen") and stats["top_pathogen"][0]
+        else "—"
+    )
+    entry = {
+        "filename":     f"{year_m}.html",
+        "year":         month_start.year,
+        "month_num":    month_start.month,
+        "month_name":   month_name,
+        "month_start":  month_start.isoformat(),
+        "month_end":    month_end.isoformat(),
+        "total":        stats["total"],
+        "tier1":        stats["tier1"],
+        "outbreaks":    stats["outbreaks"],
+        "top_pathogen": top_pathogen,
+        "summary": (
+            f"{month_name}: {stats['total']} recalls, {stats['tier1']} Tier-1, "
+            f"{stats['outbreaks']} outbreak(s). Leading pathogen: {top_pathogen}."
+        ),
     }
 
-    out_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-    log.info("Summary JSON written: %s", out_path)
+    # Load existing index (if any). Accept either a bare array or a
+    # {"reports":[...]} wrapper — matches the dashboard's tolerant parser.
+    entries: List[Dict[str, Any]] = []
+    if index_path.exists():
+        try:
+            raw = json.loads(index_path.read_text(encoding="utf-8"))
+            if isinstance(raw, list):
+                entries = raw
+            elif isinstance(raw, dict) and isinstance(raw.get("reports"), list):
+                entries = raw["reports"]
+        except (json.JSONDecodeError, OSError) as e:
+            log.warning("monthly-index.json unreadable, starting fresh: %s", e)
 
-# --- Main -------------------------------------------------------------------
-def main():
-    ap = argparse.ArgumentParser(description="AFTS weekly food safety intelligence briefing")
-    ap.add_argument("--week-end", required=True, help="Friday date YYYY-MM-DD")
+    # Drop any pre-existing entry for this month, then insert the new one.
+    # Filename is the unique key (matches year_m exactly).
+    entries = [e for e in entries if e.get("filename") != entry["filename"]]
+    entries.append(entry)
+
+    # Sort newest-first by month_end so the dashboard can slice() from the
+    # top without re-sorting. String comparison works because ISO dates sort
+    # lexicographically.
+    entries.sort(key=lambda e: e.get("month_end", ""), reverse=True)
+
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+    index_path.write_text(
+        json.dumps(entries, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    log.info("Monthly index JSON updated: %s (%d entries)", index_path, len(entries))
+
+
+# ---------------------------------------------------------------------------
+# ENTRY POINT
+# ---------------------------------------------------------------------------
+def main() -> int:
+    ap = argparse.ArgumentParser(description="AFTS monthly intelligence briefing")
+    ap.add_argument("--month-end", required=True,
+                    help="Last day of the month to report on (YYYY-MM-DD)")
     ap.add_argument("--xlsx", default=str(ROOT / "data" / "recalls.xlsx"))
-    ap.add_argument("--output", default=None, help="Output HTML path (default: <year>-W<week>.html in repo root)")
-    ap.add_argument("--index", default=str(ROOT / "index.html"))
+    ap.add_argument("--output", default=None)
+    ap.add_argument("--all-output", default=None,
+                    help="Path for the companion all-recalls HTML")
     ap.add_argument("--site-url",
-                    default="https://gstoforos.github.io/Food-Safety-Intelligence-System",
-                    help="Public base URL where the docs/ folder is served (used in email report_url)")
+                    default="https://gstoforos.github.io/Food-Safety-Intelligence-System")
     ap.add_argument("--dashboard-url",
-                    default="https://www.advfood.tech/food-safety-intelligence",
-                    help="Public URL for the live dashboard (used in email dashboard link)")
+                    default="https://www.advfood.tech/food-safety-intelligence")
     ap.add_argument("--summary-json",
-                    default=str(ROOT / "data" / "weekly-summary-latest.json"),
-                    help="Path for the companion JSON summary (consumed by the subscriber mailer)")
+                    default=str(ROOT / "data" / "monthly-summary-latest.json"))
+    ap.add_argument("--monthly-index",
+                    default=str(ROOT / "data" / "monthly-index.json"),
+                    help="Running index of all monthly reports — the dashboard's "
+                         "loadMonthlyReports() fetches this on first render.")
     args = ap.parse_args()
 
     try:
-        week_end = datetime.strptime(args.week_end, "%Y-%m-%d").date()
+        month_end = datetime.strptime(args.month_end, "%Y-%m-%d").date()
     except ValueError:
-        log.error("Invalid --week-end: %s (expected YYYY-MM-DD)", args.week_end)
-        return 2
+        log.error("Invalid --month-end: %s", args.month_end); return 2
 
-    week_start = week_end - timedelta(days=6)
-    prev_end = week_end - timedelta(days=7)
+    month_start, month_end_full = month_bounds(month_end.year, month_end.month)
+    log.info("AFTS monthly report | %s %d (%s – %s)",
+             month_start.strftime("%B"), month_start.year,
+             month_start.isoformat(), month_end_full.isoformat())
 
-    log.info("AFTS weekly report | week %s -> %s (W%02d, %d)",
-             week_start, week_end, week_end.isocalendar()[1], week_end.year)
-
-    xlsx_path = Path(args.xlsx)
-    all_recalls = load_recalls(xlsx_path)
-    log.info("Loaded %d recalls from %s", len(all_recalls), xlsx_path)
-
+    all_recalls = weekly.load_recalls(Path(args.xlsx))
     if not all_recalls:
-        log.error("No recalls loaded; aborting to avoid empty report.")
-        return 3
+        log.error("No recalls loaded"); return 3
 
-    week_recalls = filter_week(all_recalls, week_end)
-    prev_recalls = filter_week(all_recalls, prev_end)
-    log.info("This week: %d | prior week: %d", len(week_recalls), len(prev_recalls))
+    month_recalls = filter_month(all_recalls, month_start, month_end_full)
+    log.info("This month: %d recalls", len(month_recalls))
 
-    html, stats = build_html(week_end, week_recalls, prev_recalls)
+    # Build multi-month cohort ordered oldest → newest, current month LAST
+    all_bucket = bucket_by_month(all_recalls)
+    available_months = sorted(k for k in all_bucket if k <= month_start.strftime("%Y-%m"))
+    cohorts = [(ym, all_bucket[ym]) for ym in available_months]
+    prior_cohorts = cohorts[:-1] if cohorts and cohorts[-1][0] == month_start.strftime("%Y-%m") else cohorts
+    prior_month_recalls = prior_cohorts[-1][1] if prior_cohorts else []
+    monthly_count_history = [(ym, len(c)) for ym, c in cohorts]
 
-    # FIX: compute filename here from week_end (NOT inside build_html scope)
-    wnum = week_end.isocalendar()[1]
-    year = week_end.year
-    out_path = Path(args.output) if args.output else (ROOT / f"{year}-W{wnum:02d}.html")
+    # Shallow stats (KPI strip + distribution + top 10)
+    stats = compute_month_stats(month_recalls, prior_month_recalls)
 
-    out_path.write_text(html, encoding='utf-8')
-    log.info("Report written: %s (%d bytes)", out_path, len(html))
+    # Analytical signals (stats module) + predictive models (models module)
+    signals = compute_monthly_signals(
+        month_recalls=month_recalls,
+        prior_months=[c for _, c in prior_cohorts],
+        monthly_count_history=monthly_count_history,
+    )
+    pathogen_history = build_pathogen_history(cohorts) if cohorts else {}
+    models = run_all_models(
+        monthly_counts=monthly_count_history,
+        monthly_counts_by_pathogen=pathogen_history,
+    )
 
-    update_dashboard_data(week_end, stats, Path(args.index))
+    # AI narrative
+    narrative = generate_monthly_narrative(
+        stats, signals, models, month_recalls, month_start.strftime("%B"), month_start.year
+    )
 
-    # Emit the companion JSON summary ONLY for weeks that have been published
-    # (week_end <= today). This prevents the Apps Script mailer from sending an
-    # email for a report that isn't live yet.
-    if week_end <= date.today():
-        summary_path = Path(args.summary_json)
-        summary_path.parent.mkdir(parents=True, exist_ok=True)
-        write_weekly_summary_json(week_end, stats, args.site_url, args.dashboard_url, summary_path)
+    # HTML + companion page
+    html = build_monthly_html(month_start, month_end_full, month_recalls,
+                              stats, signals, models, narrative)
+    out_path = Path(args.output) if args.output else (ROOT / f"{month_start.year}-M{month_start.month:02d}.html")
+    out_path.write_text(html, encoding="utf-8")
+    log.info("Monthly report: %s (%d bytes)", out_path, len(html))
+
+    all_path = Path(args.all_output) if args.all_output else (ROOT / f"{month_start.year}-M{month_start.month:02d}-all.html")
+    all_html = build_all_month_html(month_start, month_end_full, month_recalls,
+                                    back_href=out_path.name)
+    all_path.write_text(all_html, encoding="utf-8")
+    log.info("All-month companion: %s (%d bytes)", all_path, len(all_html))
+
+    # Summary JSON for Apps Script (only when the month has closed)
+    if month_end_full <= date.today():
+        write_monthly_summary_json(
+            month_start, month_end_full, stats, signals, models, narrative,
+            month_recalls, args.site_url, args.dashboard_url, Path(args.summary_json),
+        )
+        # Running index for the dashboard's Monthly tab. Updated on every
+        # closed-month run so the index always reflects the latest build
+        # without requiring a manual edit to docs/index.html.
+        update_monthly_index_json(
+            month_start, month_end_full, stats, Path(args.monthly_index),
+        )
     else:
-        log.info("Summary JSON: skipping (week_end %s is in the future)", week_end)
+        log.info("Skipping summary JSON (month not yet closed)")
 
     log.info("Done | Total=%d | Tier1=%d | Outbreaks=%d | Top=%s",
-             stats['total'], stats['tier1'], stats['outbreaks'],
-             stats['top_pathogen'][0] if stats['top_pathogen'] else '-')
-
+             stats["total"], stats["tier1"], stats["outbreaks"], stats["top_pathogen"][0])
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
