@@ -600,9 +600,12 @@ async function loadMonthlyReports(){
     console.warn('monthly-index.json fetch failed, using embedded fallback:', e);
   }
 
-  // Never surface a month whose end date is still in the future.
+  // Never surface a month whose end date is still in the future, and never
+  // surface placeholder entries (null/missing stats). The Python builder
+  // populates real numbers on the 1st of each month — until then, skip.
   const todayISO = new Date().toISOString().slice(0, 10);
-  const published = reports.filter(r => (r.month_end || '') <= todayISO);
+  const hasStats = r => r && r.total != null && Number.isFinite(Number(r.total));
+  const published = reports.filter(r => (r.month_end || '') <= todayISO && hasStats(r));
   document.getElementById('mon-count').textContent = published.length ? '· ' + published.length : '';
   if (!published.length) {
     document.getElementById('monthly-list').innerHTML =
