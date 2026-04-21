@@ -175,7 +175,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 }
 </style></head><body>
 
-<div class="hdr"><div class="brand">AFTS <em>·</em> Food Safety <em>Intelligence</em> System<small>// AI-powered Process Validation Intelligence · under AFTS process authority · 70 sources · 60+ countries</small></div><div class="hdr-right"><span class="live-pill">● LIVE MONITORING</span><div class="hdr-meta" id="meta">Loading…</div></div></div>
+<div class="hdr"><div class="brand">AFTS <em>·</em> Food Safety <em>Intelligence</em> System<small>// AI-powered Process Validation Intelligence · under AFTS process authority · 66 sources · 60+ countries</small></div><div class="hdr-right"><span class="live-pill">● LIVE MONITORING</span><div class="hdr-meta" id="meta">Loading…</div></div></div>
 
 <div class="ticker"><div class="ticker-inner" id="ticker">Loading latest alerts…</div></div>
 
@@ -207,7 +207,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 </div>
 
 <div id="panel-news" style="display:none">
-<div class="wrap"><div class="panel"><div class="sec">Live Food Safety News — last 7 days · auto-refresh from dedicated publishers + RSS feeds</div>
+<div class="wrap"><div class="panel"><div class="sec">Live Food Safety News — last 7 days · auto-refresh from dedicated publishers</div>
 <div class="fbar" style="border:none;padding:10px 0;background:transparent;">
 <input type="search" id="news-q" placeholder="Search title, source, pathogen..."><select id="news-path"><option value="">All Pathogens</option></select><select id="news-src"><option value="">All Sources</option></select><span class="rcount" id="news-rcount"></span>
 </div>
@@ -447,29 +447,38 @@ function renderNews(){
 }
 
 // ===== WEEKLY REPORTS =====
-// Fetches data/weekly-index.json on first tab click. The JSON is committed
-// by the Python weekly builder workflow (build_weekly_report_afts.py)
-// alongside the WW.html report every Friday, so no manual edits to
-// index.html are needed once a new report ships.
-//
-// Expected shape: [ { filename, week_num, year, week_start, week_end,
-//                     total, tier1, outbreaks, top_pathogen, summary } ]
-async function loadReports(){
-  let reports = [];
-  try {
-    const r = await fetch('data/weekly-index.json?_=' + Date.now(), {cache: 'no-store'});
-    if (r.ok) {
-      const j = await r.json();
-      const arr = Array.isArray(j) ? j : (Array.isArray(j.reports) ? j.reports : null);
-      if (arr && arr.length) {
-        reports = arr.slice().sort((a, b) => String(b.week_end || '').localeCompare(String(a.week_end || '')));
-      }
+function loadReports(){
+  // Embedded reports data (bypasses server file access issues)
+  const reports = [
+    {
+        "filename": "2026-W16.html",
+        "week_num": 16,
+        "year": 2026,
+        "week_start": "2026-04-11",
+        "week_end": "2026-04-17",
+        "generated": "2026-04-17T12:03:40.110087Z",
+        "total": 12,
+        "tier1": 7,
+        "outbreaks": 0,
+        "top_pathogen": "Listeria monocytogenes",
+        "summary": "Week 16: 12 recalls, 7 Tier-1, 0 outbreak(s). Leading pathogen: Listeria monocytogenes."
+    },
+    {
+        "filename": "2026-W15.html",
+        "week_num": 15,
+        "year": 2026,
+        "week_start": "2026-04-04",
+        "week_end": "2026-04-10",
+        "generated": "2026-04-17T11:49:40.369524Z",
+        "total": 67,
+        "tier1": 60,
+        "outbreaks": 4,
+        "top_pathogen": "Listeria monocytogenes",
+        "summary": "Week 15: 67 recalls, 60 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes."
     }
-  } catch (e) {
-    console.warn('weekly-index.json fetch failed:', e);
-  }
-
-  // Never surface a week whose end date is still in the future.
+];
+  
+  // 1. Defensive filter: never show future-dated weeks even if they snuck into the array
   const todayISO = new Date().toISOString().slice(0,10);
   const published = reports.filter(r => (r.week_end || '') <= todayISO);
   document.getElementById('rep-count').textContent = published.length ? '· '+published.length : '';
@@ -478,6 +487,8 @@ async function loadReports(){
     return;
   }
 
+  // 2. Split: most recent 6 as rich cards, remainder as compact archive entries.
+  //    When weeks pile up (52/yr), this keeps the page scannable without hiding content.
   const RICH_LIMIT = 6;
   const richCards  = published.slice(0, RICH_LIMIT);
   const archive    = published.slice(RICH_LIMIT);
@@ -500,8 +511,11 @@ async function loadReports(){
     </div>`;
   };
 
+  // Archive: one-line rows grouped by year, collapsible.
+  // Only rendered when there's content beyond the rich cards.
   const renderArchive = rows => {
     if(!rows.length) return '';
+    // Group by year
     const byYear = {};
     rows.forEach(r => { (byYear[r.year] = byYear[r.year] || []).push(r); });
     const years = Object.keys(byYear).sort((a,b)=>b-a);
@@ -555,9 +569,6 @@ async function loadReports(){
 // embedded array tiny — just enough to avoid a blank state. Authoritative
 // data always comes from the JSON.
 async function loadMonthlyReports(){
-  // Fallback embedded March 2026 (system start month) — only used if
-  // data/monthly-index.json is unreachable. New months auto-appear via
-  // the Python builder + monthly-index.json mechanism.
   const FALLBACK_REPORTS = [
     {
       filename: "2026-M03.html",
@@ -589,10 +600,9 @@ async function loadMonthlyReports(){
     console.warn('monthly-index.json fetch failed, using embedded fallback:', e);
   }
 
-  // Never surface a month whose end date is still in the future,
-  // or that has no data (total === null means pre-system placeholder).
+  // Never surface a month whose end date is still in the future.
   const todayISO = new Date().toISOString().slice(0, 10);
-  const published = reports.filter(r => (r.month_end || '') <= todayISO && r.total != null);
+  const published = reports.filter(r => (r.month_end || '') <= todayISO);
   document.getElementById('mon-count').textContent = published.length ? '· ' + published.length : '';
   if (!published.length) {
     document.getElementById('monthly-list').innerHTML =
