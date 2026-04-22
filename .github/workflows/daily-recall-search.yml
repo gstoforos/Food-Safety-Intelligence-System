@@ -1,0 +1,108 @@
+name: FSIS Daily Recall Search
+
+# Daily at 10:00 ATHENS TIME — replaces the old OpenAI gap-finder with a
+# proper "yesterday's regulator recalls worldwide" sweep using
+# gpt-4o-mini-search-preview (OpenAI's web-search-built-in model).
+#
+# Output:
+#   - New pathogen/toxin/material/chemical recalls appended to Recalls sheet
+#   - docs/daily/YYYY-MM-DD.html  — mobile-responsive summary
+#   - docs/daily-index.json        — dashboard card feed
+#   - docs/data/.spend_ledger.json — budget tracking (hard €0.50/week cap)
+#
+# Budget: ~€0.01/run, ~€0.07/week expected. Hard weekly cap €0.50 in code.
+
+on:
+  schedule:
+    - cron: '0 7 * * *'   # 10:00 Athens EEST (summer UTC+3)
+    - cron: '0 8 * * *'   # 10:00 Athens EET  (winter UTC+2)
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Target date YYYY-MM-DD (default: yesterday)"
+        required: false
+      regions:
+        description: "Regions subset CSV (Europe,NorthAmerica,LATAM,AsiaPacific,MiddleEastAfrica)"
+        required: false
+      dry_run:
+        description: "true = don't write/commit"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  daily-search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Athens-time guard (10:xx)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "$HOUR" = "10" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not 10:xx Athens (now ${HOUR}:xx). Skipping."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run daily recall search
+        if: steps.guard.outputs.run == 'true'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_DAILY_MODEL: "gpt-4o-mini-search-preview"
+          DAILY_BUDGET_EUR_PER_RUN:  "0.12"
+          DAILY_BUDGET_EUR_PER_WEEK: "0.50"
+          SKIP_COMMIT: "false"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME: "FSIS Bot"
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            ARGS="$ARGS --date ${{ github.event.inputs.date }}"
+          fi
+          if [ -n "${{ github.event.inputs.regions }}" ]; then
+            ARGS="$ARGS --regions ${{ github.event.inputs.regions }}"
+          fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          python -m pipeline.daily_recall_search $ARGS
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "Daily recall search complete — Athens $(TZ=Europe/Athens date)"
+          if [ -f docs/data/.spend_ledger.json ]; then
+            echo "Spend ledger updated."
+          fi
