@@ -12,9 +12,16 @@ log = logging.getLogger(__name__)
 class RappelConsoScraper(BaseScraper):
     AGENCY = "RappelConso (FR)"
     COUNTRY = "France"
-    BASE_URL = (
-        "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/"
-        "rappelconso0/records"
+
+    # Dataset fallback chain:
+    # 1) rappelconso-v2-gtin-espaces — the 2024+ canonical dataset
+    # 2) rappelconso0                 — the legacy dataset (still populated in parallel
+    #                                   by DGCCRF but risks deprecation)
+    # Try each in order — first one that returns 200 with results wins.
+    API_BASE = "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets"
+    DATASETS = (
+        "rappelconso-v2-gtin-espaces",
+        "rappelconso0",
     )
 
     PATHOGEN_KEYWORDS = (
@@ -23,28 +30,49 @@ class RappelConsoScraper(BaseScraper):
         "campylobacter", "cyclospora", "vibrio", "cronobacter",
         "bacillus cereus", "cereulide", "histamine", "biotoxin",
         "biotoxine", "aflatoxin", "ochratoxin", "patulin", "mycotox",
+        "alternaria",  # April 20 2026 SUNCHEFS case was Alternaria toxins
         "hépatit", "hepatit",
     )
 
-    def scrape(self, since_days: int = 30) -> List[Recall]:
+    def _try_dataset(self, dataset: str, since_days: int):
+        url = f"{self.API_BASE}/{dataset}/records"
         cutoff = (datetime.utcnow() - timedelta(days=since_days)).strftime("%Y-%m-%d")
         params = {
             "where": f'date_publication >= "{cutoff}" AND categorie_de_produit = "Alimentation"',
             "limit": 100,
             "order_by": "date_publication DESC",
         }
-        r = fetch(self.session, self.BASE_URL, params=params)
-        if not r:
+        r = fetch(self.session, url, params=params)
+        if not r or r.status_code != 200:
+            return None
+        try:
+            data = r.json()
+        except Exception as e:
+            log.warning("%s JSON parse failed: %s", dataset, e)
+            return None
+        results = data.get("results", [])
+        log.info("RappelConso dataset=%s -> %d records", dataset, len(results))
+        return results
+
+    def scrape(self, since_days: int = 30) -> List[Recall]:
+        results = None
+        for ds in self.DATASETS:
+            results = self._try_dataset(ds, since_days)
+            if results is not None:
+                log.info("Using dataset: %s", ds)
+                break
+        if not results:
+            log.warning("All RappelConso datasets failed or empty")
             return []
+
         out: List[Recall] = []
-        for rec in r.json().get("results", []):
+        for rec in results:
             try:
-                reason = (rec.get("motif_du_rappel") or "").lower() + " " + \
-                         (rec.get("risques_encourus_par_le_consommateur") or "").lower()
+                reason = ((rec.get("motif_du_rappel") or "").lower() + " " +
+                          (rec.get("risques_encourus_par_le_consommateur") or "").lower())
                 if not any(p in reason for p in self.PATHOGEN_KEYWORDS):
                     continue
                 ref = rec.get("reference_fiche") or rec.get("numero_de_la_fiche") or ""
-                # Build deep link: prefer fiche-rappel/<id>/Interne
                 fid = rec.get("identifiant_unique_de_l_alerte") or ref
                 url = (rec.get("lien_vers_la_fiche_rappel") or
                        (f"https://rappel.conso.gouv.fr/fiche-rappel/{fid}/Interne" if fid else ""))
