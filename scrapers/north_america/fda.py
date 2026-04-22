@@ -39,14 +39,36 @@ class FDAScraper(BaseScraper):
             reason = (rec.get("reason_for_recall") or "").lower()
             if not any(p in reason for p in self.PATHOGEN_REASONS):
                 continue
-            rec_url = (
-                f"https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts"
-                if not rec.get("more_code_info") else rec.get("more_code_info")
-            )
-            # FDA event ID -> can build a more specific URL via search
-            ev_id = rec.get("event_id")
-            if ev_id:
-                rec_url = f"https://www.accessdata.fda.gov/scripts/ires/index.cfm?Product=&Event_ID={ev_id}"
+
+            # --- URL resolution --------------------------------------------
+            # History: we used to point at https://www.accessdata.fda.gov/scripts/ires/...
+            # which FDA retired/broke. The URL gate rejects those with HTTP 5xx.
+            #
+            # Current approach, in priority order:
+            #   1. If the record itself has more_code_info (FDA-provided deep
+            #      link to the specific recall page), USE IT — it's authoritative.
+            #   2. Otherwise, build a search URL on fda.gov that filters to this
+            #      recall_number. FDA's search page always returns HTTP 200;
+            #      URL gate passes; the result page shows the recall to users.
+            recall_number = (rec.get("recall_number") or "").strip()
+            more_info = (rec.get("more_code_info") or "").strip()
+
+            if more_info and more_info.lower().startswith(("http://", "https://")):
+                rec_url = more_info
+            elif recall_number:
+                rec_url = (
+                    "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts"
+                    f"?search_api_fulltext={recall_number}"
+                )
+            else:
+                # Last resort — point at the recalls landing page. URL gate still
+                # accepts, row still gets promoted, user clicks through and can
+                # manually find the recall.
+                rec_url = "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts"
+
+            # event_id kept for dedup / debugging in Notes only
+            ev_id = rec.get("event_id") or ""
+            # ---------------------------------------------------------------
 
             out.append(self._new_recall(
                 Date=rec.get("recall_initiation_date", ""),
@@ -58,7 +80,10 @@ class FDAScraper(BaseScraper):
                 Class=rec.get("classification", "Recall"),
                 URL=rec_url,
                 Outbreak=0,
-                Notes=f"openFDA ev_id={ev_id}; distrib={rec.get('distribution_pattern','')[:120]}",
+                Notes=(
+                    f"openFDA recall#={recall_number}; ev_id={ev_id}; "
+                    f"distrib={rec.get('distribution_pattern','')[:120]}"
+                ),
             ))
         log.info("FDA: %d pathogen recalls in last %d days", len(out), since_days)
         return out
