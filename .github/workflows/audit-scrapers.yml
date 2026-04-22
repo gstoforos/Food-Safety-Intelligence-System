@@ -1,0 +1,50 @@
+name: FSIS Scraper URL Audit
+
+# Manual-dispatch only. HTTP-probes every scraper's INDEX_URLS from inside
+# GitHub Actions (where outbound traffic works unrestricted), classifies each
+# as OK / 404 / blocked / JS-heavy / empty, and uploads a CSV artifact.
+#
+# Use this when you want to triage which of the 46 dead scrapers are
+# fixable (URL_FIX, EMPTY) vs hopeless (BLOCKED, JS_HEAVY, NETWORK_FAIL).
+#
+# Cost: $0 (single GitHub Actions run, no AI calls).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run scraper URL audit
+        run: |
+          python -m pipeline.audit_scrapers --csv scraper_audit.csv | tee audit_console.txt
+
+      - name: Upload audit artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraper-audit-${{ github.run_id }}
+          path: |
+            scraper_audit.csv
+            audit_console.txt
+          retention-days: 30
