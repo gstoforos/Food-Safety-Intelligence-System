@@ -1,31 +1,37 @@
 """
-Daily Recall Search — OpenAI-powered "yesterday across every region" sweep.
+Daily Recall Search — OpenAI-powered global recall finder (Pending-first).
 
 REPLACES pipeline/gap_finder_openai.py.
 
-Every morning 10:00 Athens this job asks gpt-4o-mini-search-preview (OpenAI's
-specialized web-search model) to find EVERY official food recall, safety
-alert, or withdrawal posted YESTERDAY by a national or regional regulator,
-grouped by region. It:
+Correct pipeline flow — EXCEL IS THE SOURCE OF TRUTH:
 
-  1. Runs 5 region sweeps (Europe, N.America, LATAM, Asia-Pacific, MEA)
-  2. Extracts structured rows, one per recall — in scope: pathogens,
-     biotoxins, mycotoxins, glass/metal/plastic foreign objects, rodent/insect
-     contamination, chemical contaminants (heavy metals, pesticides over
-     limits). OUT of scope: allergens-only, labeling errors, quality issues.
-  3. Dedups against the existing Recalls + Pending sheets by URL and by
-     (company, product, date) fuzzy match.
-  4. Appends survivors to the Recalls sheet directly (bypasses Pending
-     since each row carries a live regulator URL verified by the model).
-  5. Writes docs/daily/YYYY-MM-DD.html — mobile-first styled report.
-  6. Updates docs/daily-index.json so the dashboard can render the latest
-     daily-summary card between News and Weekly tabs.
+  1. Read existing Recalls + Pending from docs/data/recalls.xlsx
+  2. Run 5 region sweeps via gpt-4o-mini-search-preview, looking for
+     pathogen/biotoxin/mycotoxin/foreign-material/pest/chemical recalls
+     from any regulator worldwide in a 3-day window (yesterday ±1).
+     Allergen-only recalls are rejected by a strict in-code filter.
+  3. Dedup returned rows vs Recalls AND Pending by URL + fingerprint.
+     Survivors are appended to the **Pending** sheet — not Recalls.
+  4. The URL guardian (separate workflow, already deployed) later
+     validates those Pending URLs and promotes them to Recalls.
+  5. Writes docs/daily/YYYY-MM-DD.html by RE-READING the Recalls sheet
+     for the target date. The brief ALWAYS matches what's in the xlsx.
+  6. Updates docs/daily-index.json so the dashboard card reflects the
+     Recalls-sheet counts, not the OpenAI-raw counts.
+
+Why Pending-first:
+  Before this version, OpenAI results went straight into Recalls and the
+  brief rendered from the raw API response. That created two problems:
+    (a) unverified URLs polluted the Recalls sheet
+    (b) the brief didn't match the xlsx — dashboard and Recalls diverged
+  Now OpenAI is a *proposer* (writes Pending), not a publisher. The URL
+  guardian remains the sole promoter to Recalls. The brief renders from
+  Recalls only, so by construction it always matches.
 
 Budget controls:
   - Hard cap per run: €0.12 (config HARD_CAP_EUR_PER_RUN)
   - Hard cap per week: €0.50 (HARD_CAP_EUR_PER_WEEK) — persisted in
     docs/data/.spend_ledger.json so a bad run can't blow the budget.
-  - Each run records spend against the ledger after completing.
   - Current per-run expected cost ≈ €0.01 (gpt-4o-mini-search-preview only,
     token costs at $0.15/M in and $0.60/M out, no separate search fee).
 
@@ -56,7 +62,7 @@ from scrapers._models import (  # noqa: E402
 )
 from pipeline.merge_master import (  # noqa: E402
     load_existing, load_pending, sort_rows,
-    save_xlsx_with_pending, merge_new,
+    save_xlsx_with_pending, append_to_pending,
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
 
@@ -403,33 +409,123 @@ def call_openai_search(target_date: date, region: str, agencies: str,
 # ---------------------------------------------------------------------------
 # Filtering + dedup
 # ---------------------------------------------------------------------------
-ALLERGEN_ONLY_MARKERS = re.compile(
-    r"undeclared\s+(?:milk|egg|peanut|nut|soy|wheat|gluten|sulphite|sulfite|"
-    r"fish|shellfish|sesame|celery|mustard|lupin|crustacean)",
+# ---------------------------------------------------------------------------
+# Filter — reject allergen-only, labeling, quality issues
+# ---------------------------------------------------------------------------
+# Allergen keywords — if any of these appear as the "pathogen" value OR in
+# the reason/notes, the row is allergen-only (non-pathogen) and must be
+# rejected. Previous version only matched "undeclared <word>" in the reason
+# field, so a row with pathogen="Peanut" reason="Undeclared peanut allergen"
+# slipped through because "allergen" wasn't literally in the pathogen value.
+ALLERGEN_KEYWORDS = (
+    "peanut", "tree nut", "almond", "cashew", "hazelnut", "walnut",
+    "pecan", "pistachio", "macadamia", "brazil nut",
+    "milk allergen", "egg allergen", "dairy allergen",
+    "soy allergen", "soya allergen",
+    "wheat allergen", "gluten", "celiac", "coeliac",
+    "sulphite", "sulfite",
+    "fish allergen", "shellfish", "crustacean", "mollusc", "mollusk",
+    "sesame", "celery allergen", "mustard allergen",
+    "lupin", "lupine",
+)
+
+# If any of these appear in the raw reason/notes alongside "undeclared" or
+# "unlabeled" or "contains", it's almost certainly allergen-only even if the
+# model mislabeled hazard_type.
+ALLERGEN_REASON_MARKERS = re.compile(
+    r"(?:undeclared|unlabeled|not\s+declared|contains?\s+(?:undeclared\s+)?|"
+    r"presence\s+of\s+(?:undeclared\s+)?)\s*"
+    r"(?:milk|egg|peanut|tree\s*nut|almond|cashew|hazelnut|walnut|pecan|"
+    r"pistachio|soy|soya|wheat|gluten|sulphite|sulfite|fish|shellfish|"
+    r"sesame|celery|mustard|lupin|crustacean|mollusc|mollusk)\b",
+    re.I,
+)
+
+# In-scope hazard indicators — at least one must appear in pathogen+reason
+# for a row to pass. This is a positive check that complements the negative
+# allergen filter: even if the allergen filter misses something, the row
+# still needs to affirmatively look like a real hazard to pass.
+#
+# NOTE: opening \b requires a word boundary at the start, but no trailing
+# boundary — the patterns are stems (e.g. 'salmonell' matches both
+# 'salmonella' and 'salmonellae'). A trailing \b would reject stems like
+# 'salmonell' when the real word is 'salmonella'.
+IN_SCOPE_MARKERS = re.compile(
+    r"\b(?:listeria|salmonell|e\.?\s*coli|stec|o157|shiga|botulin|"
+    r"norovirus|hepatit|campylobact|cyclospor|vibrio|cronobact|"
+    r"bacillus\s*cereus|cereulide|shigella|yersinia|"
+    r"histamine|scombro|biotoxin|dsp|psp|asp|domoic|saxitox|ciguatera|"
+    r"aflatox|ochratox|patulin|alternaria|fumonisin|zearalenone|"
+    r"deoxynivalenol|mycotox|"
+    r"glass\s+(?:fragment|shard|particle)|glass\s+in\s+product|"
+    r"metal\s+(?:fragment|shard|particle)|"
+    r"plastic\s+(?:fragment|shard|particle)|"
+    r"wood\s+(?:fragment|shard|particle)|"
+    r"stone\s+(?:fragment|particle)|"
+    r"foreign\s+(?:body|material|object|matter)|"
+    r"rodent|rat\s+poison|rodenticid|insect|pest\s+contamination|"
+    r"heavy\s+metal|lead\s+contamination|cadmium|mercury\s+contamination|"
+    r"arsenic\s+contamination|"
+    r"pesticid|unauthoris(?:ed|ized)\s+substance|"
+    r"chlorpyrifos|glyphosate|dmae|novel\s+food)",
     re.I,
 )
 
 
 def is_in_scope(row: Dict[str, Any]) -> bool:
-    """Allergen-only rejector + hazard-type sanity check."""
-    reason = (row.get("reason") or "") + " " + (row.get("notes") or "")
-    pathogen = (row.get("pathogen") or "").lower()
+    """
+    Return True only if the row is a real in-scope hazard recall.
+
+    Two-sided check:
+      1. NEGATIVE: reject allergen keywords in pathogen OR allergen markers
+         in reason/notes. This catches the "pathogen=Peanut" leak.
+      2. POSITIVE: require at least one in-scope hazard keyword in
+         pathogen+reason+notes. If nothing in IN_SCOPE_MARKERS matches,
+         the row can't be proven in-scope — reject it.
+    """
+    pathogen = (row.get("pathogen") or "").lower().strip()
+    reason   = (row.get("reason")   or "").lower()
+    notes    = (row.get("notes")    or "").lower()
     hazard_type = (row.get("hazard_type") or "").upper().strip()
+    blob = f"{pathogen} {reason} {notes}"
 
     valid_hazards = {"PATHOGEN", "BIOTOXIN", "MYCOTOXIN",
                      "FOREIGN_MATERIAL", "PEST_CONTAMINATION", "CHEMICAL"}
     if hazard_type not in valid_hazards:
         return False
 
-    # Reject rows that are purely allergen-labelled even if hazard_type says otherwise
-    if hazard_type in ("PATHOGEN", "BIOTOXIN", "MYCOTOXIN"):
-        # Must have a specific hazard word
-        if "allergen" in pathogen or pathogen in ("", "—"):
+    # Empty / placeholder pathogen → not a real hazard
+    if not pathogen or pathogen in ("—", "-", "none", "n/a"):
+        return False
+
+    # NEGATIVE: allergen keyword in pathogen field → reject
+    # (e.g. pathogen="Peanut", pathogen="tree nut", pathogen="gluten")
+    for kw in ALLERGEN_KEYWORDS:
+        if kw in pathogen:
             return False
 
-    if ALLERGEN_ONLY_MARKERS.search(reason) and "listeria" not in reason.lower() \
-            and "salmonella" not in reason.lower() \
-            and hazard_type == "PATHOGEN":
+    # Bare allergen names (without "allergen" suffix) in the pathogen field
+    # are also rejection-worthy — covers "peanut", "milk", "egg" etc. on
+    # their own. Be careful not to block legit hazards like "E. coli" which
+    # contains no allergen keyword. Simple word-boundary match.
+    bare_allergen_re = re.compile(
+        r"^\s*(?:peanut|tree\s*nut|almond|cashew|hazelnut|walnut|pecan|"
+        r"pistachio|macadamia|milk|egg|soy|soya|wheat|sesame|mustard|"
+        r"lupin|lupine|celery|fish|shellfish|crustacean|mollusc|mollusk|"
+        r"gluten|sulphite|sulfite)\s*(?:allergen)?\s*$", re.I
+    )
+    if bare_allergen_re.match(pathogen):
+        return False
+
+    # NEGATIVE: allergen markers in reason/notes → reject
+    if ALLERGEN_REASON_MARKERS.search(reason) or ALLERGEN_REASON_MARKERS.search(notes):
+        # Exception: if both a pathogen AND an allergen appear (rare but
+        # possible, e.g. Listeria + undeclared milk), let it through.
+        if not IN_SCOPE_MARKERS.search(blob):
+            return False
+
+    # POSITIVE: must have at least one in-scope hazard keyword somewhere
+    if not IN_SCOPE_MARKERS.search(blob):
         return False
 
     return True
@@ -571,6 +667,50 @@ Allergen-only, labeling, quality issues excluded per AFTS scope.<br>
 </div>
 </div></body></html>
 """
+
+
+def load_recalls_for_date(xlsx_path: Path, target: date) -> List[Recall]:
+    """
+    Read the Recalls sheet and return Recall objects whose Date == target.
+
+    This is the authoritative source for the daily brief — the HTML file
+    under docs/daily/ is a rendering of whatever is in the Recalls sheet
+    on the target date at the moment of this call. If a row is in Pending
+    but not yet promoted, it does NOT appear in the brief. That's the
+    whole point: brief = Recalls sheet, always.
+    """
+    if not xlsx_path.exists():
+        log.warning("Recalls xlsx not found at %s — brief will be empty",
+                    xlsx_path)
+        return []
+    raw_rows = load_existing(xlsx_path)
+    iso = target.isoformat()
+    out: List[Recall] = []
+    for row in raw_rows:
+        row_date = str(row.get("Date") or "")[:10]
+        if row_date != iso:
+            continue
+        try:
+            out.append(Recall(
+                Date=row_date,
+                Source=str(row.get("Source") or ""),
+                Company=str(row.get("Company") or ""),
+                Brand=str(row.get("Brand") or "—"),
+                Product=str(row.get("Product") or ""),
+                Pathogen=str(row.get("Pathogen") or ""),
+                Reason=str(row.get("Reason") or ""),
+                Class=str(row.get("Class") or "Recall"),
+                Country=str(row.get("Country") or ""),
+                Region=str(row.get("Region") or ""),
+                Tier=int(row.get("Tier") or 2),
+                Outbreak=int(row.get("Outbreak") or 0),
+                URL=str(row.get("URL") or ""),
+                Notes=str(row.get("Notes") or ""),
+            ))
+        except (ValueError, TypeError) as e:
+            log.warning("Skipping malformed Recalls row for %s: %s",
+                        row.get("Company"), e)
+    return out
 
 
 def render_daily_html(target_date: date, recalls: List[Recall],
@@ -867,37 +1007,66 @@ def main() -> int:
     log.info("Week spend now: €%.3f / cap €%.2f",
              new_week_spent, HARD_CAP_EUR_PER_WEEK)
 
-    log.info("Total new recalls after filter + dedup: %d", len(new_recalls))
+    log.info("Total new candidate recalls after filter + dedup: %d",
+             len(new_recalls))
 
-    # --- Write xlsx ---
+    # ========================================================================
+    # STEP 1: Write new candidates to PENDING (not Recalls).
+    # ========================================================================
+    # The URL guardian workflow is the sole gate that promotes Pending→Recalls
+    # after validating each URL actually resolves. Going straight to Recalls
+    # pollutes the sheet with unverified rows and is what broke the Apr 22
+    # daily brief (Nestlé Colombia cereulide, VFA Vietnam rat-poison etc.
+    # appeared in the brief without ever existing in the Recalls sheet).
+    scraped_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     if new_recalls and not args.dry_run:
-        merged = merge_new(approved, new_recalls)
+        updated_pending = append_to_pending(
+            existing_pending=pending,
+            approved=approved,
+            new_recalls=new_recalls,
+            scraped_at=scraped_at,
+        )
+        pending_delta = len(updated_pending) - len(pending)
         save_xlsx_with_pending(
             xlsx_path=XLSX_PATH,
-            approved_rows=sort_rows(merged),
-            pending_rows=sort_rows(pending),
+            approved_rows=sort_rows(approved),  # Recalls sheet untouched
+            pending_rows=sort_rows(updated_pending),
         )
-        log.info("Appended %d rows to Recalls sheet (total=%d)",
-                 len(new_recalls), len(merged))
+        log.info("Appended %d candidate rows to PENDING sheet (pending "
+                 "total=%d). URL guardian will validate + promote to Recalls.",
+                 pending_delta, len(updated_pending))
     elif new_recalls:
-        log.info("DRY RUN: would append %d rows to Recalls", len(new_recalls))
+        log.info("DRY RUN: would append %d candidate rows to PENDING",
+                 len(new_recalls))
 
-    # --- Write daily HTML report ---
+    # ========================================================================
+    # STEP 2: Render the daily HTML brief FROM THE RECALLS SHEET.
+    # ========================================================================
+    # By re-reading Recalls after the write, the brief always matches the
+    # xlsx exactly. OpenAI results that landed in Pending are NOT in the
+    # brief until the URL guardian promotes them in a later run. This means
+    # the brief may look "lighter" than raw OpenAI output, but every entry
+    # has a verified URL and is present in the user-visible Recalls table.
+    brief_recalls = load_recalls_for_date(XLSX_PATH, target)
+    log.info("Rendering brief for %s from Recalls sheet: %d row(s) match",
+             target.isoformat(), len(brief_recalls))
+
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
     daily_html_path = DAILY_DIR / f"{target.isoformat()}.html"
-    html = render_daily_html(target, new_recalls, regions_done)
+    html = render_daily_html(target, brief_recalls, regions_done)
     if not args.dry_run:
         daily_html_path.write_text(html, encoding="utf-8")
         log.info("Wrote %s", daily_html_path)
-        update_daily_index(target, new_recalls)
+        update_daily_index(target, brief_recalls)
 
     # --- Commit + push ---
     if not args.dry_run and not SKIP_COMMIT:
         paths = [str(XLSX_PATH), str(daily_html_path), str(DAILY_INDEX),
                  str(SPEND_LEDGER)]
-        msg = (f"Daily recall search {target.isoformat()}: +{len(new_recalls)} "
-               f"rows, {regions_done} regions, €{new_week_spent-week_spent:.3f} "
-               f"spent")
+        msg = (f"Daily recall search {target.isoformat()}: "
+               f"+{len(new_recalls)} → Pending, "
+               f"{len(brief_recalls)} in brief from Recalls, "
+               f"€{new_week_spent-week_spent:.3f} spent")
         git_commit_and_push(ROOT, paths, msg)
         log.info("Committed and pushed.")
 
