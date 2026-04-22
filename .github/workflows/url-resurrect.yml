@@ -1,0 +1,100 @@
+name: FSIS URL Resurrect
+
+# Daily at 09:00 ATHENS TIME — runs AFTER:
+#   - 07:30 Athens: Claude URL gate (flags rows with dead URLs as REJECTED)
+#   - 08:00 Athens: morning critical-agency scrape
+#   - 08:30 Athens: Gemini gap-finder
+#
+# Resurrects Pending rows whose URLs came back dead:
+#   1. Loads Pending
+#   2. Finds rows marked REJECTED or with known-dead URL patterns
+#   3. Asks OpenAI gpt-4o-mini for the correct URL (cites the agency's site)
+#   4. HTTP-probes the proposal
+#   5. If live, updates the row; URL gate will promote it next cycle
+#
+# Cost: ~$0.001 per row = < $0.05/month at normal failure rates.
+#
+# Two DST crons + Athens hour guard.
+
+on:
+  schedule:
+    - cron: '0 6 * * *'    # 09:00 Athens EEST (summer UTC+3)
+    - cron: '0 7 * * *'    # 09:00 Athens EET  (winter UTC+2)
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max rows to try this run"
+        required: false
+        default: "50"
+      dry_run:
+        description: "true = print proposals, don't write"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  url-resurrect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Athens-time guard (09:xx)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          echo "athens_hour=$HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "$HOUR" = "09" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not 09:xx Athens (now ${HOUR}:xx). Skipping."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run URL resurrector
+        if: steps.guard.outputs.run == 'true'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SKIP_COMMIT:    "false"
+          GH_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME:  "FSIS Bot"
+        run: |
+          DRY_ARG=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then DRY_ARG="--dry-run"; fi
+          python -m pipeline.url_resurrect \
+            --limit "${{ github.event.inputs.limit || '50' }}" \
+            $DRY_ARG
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "URL resurrect complete — Athens $(TZ=Europe/Athens date)."
+          echo "Next URL gate (07:30 Athens tomorrow) will re-check & promote."

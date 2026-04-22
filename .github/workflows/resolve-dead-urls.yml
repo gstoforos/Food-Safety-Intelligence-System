@@ -1,0 +1,66 @@
+name: FSIS Resolve Dead Scraper URLs
+
+# Manual-dispatch only. Runs AFTER audit-scrapers.yml has produced
+# scraper_audit.csv. Uses OpenAI gpt-4o-mini to propose new INDEX_URLS
+# for each URL_FIX agency, probes each proposal, and uploads a JSON
+# patch file as an artifact. You review it, then edit scrapers/*.py by hand.
+#
+# One-off. Run whenever the audit finds new URL_FIX cases.
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max URL_FIX rows to resolve (default: all)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run audit first (produces fresh CSV)
+        run: |
+          python -m pipeline.audit_scrapers --csv scraper_audit.csv
+
+      - name: Resolve URL_FIX agencies via OpenAI
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          LIMIT_ARG=""
+          if [ -n "${{ github.event.inputs.limit }}" ]; then
+            LIMIT_ARG="--limit ${{ github.event.inputs.limit }}"
+          fi
+          python -m pipeline.resolve_dead_urls \
+            --audit-csv scraper_audit.csv \
+            --output url_fixes.json \
+            $LIMIT_ARG
+
+      - name: Upload patch artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: url-fixes-${{ github.run_id }}
+          path: |
+            scraper_audit.csv
+            url_fixes.json
+          retention-days: 30
