@@ -171,13 +171,44 @@ SYSTEM_PROMPT = (
 
 
 def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
+    # Provide the date in multiple formats so the model doesn't need to
+    # reformat — this eliminates the silent-empty failure mode where the
+    # model saw "20/04/2026" on a RappelConso page, compared to
+    # "2026-04-20" in the prompt, and returned nothing because the string
+    # didn't match even though it was the same date.
+    yday = target_date
+    prev = target_date - timedelta(days=1)
+    nxt  = target_date + timedelta(days=1)
+    fmt_variants = (
+        f"{yday.isoformat()} (ISO) | "
+        f"{yday.strftime('%d/%m/%Y')} (EU DD/MM/YYYY as used by RappelConso, "
+        f"EU sites) | "
+        f"{yday.strftime('%m/%d/%Y')} (US MM/DD/YYYY as used by FDA, FSIS) | "
+        f"{yday.strftime('%B %d, %Y')} (US long form) | "
+        f"{yday.strftime('%d %B %Y')} (EU long form) | "
+        f"{yday.strftime('%A %B %d %Y')} (weekday form)"
+    )
     return (
         f"TASK: Using your web_search tool, find every food recall, public "
-        f"health alert, food safety notice, or product withdrawal that was "
-        f"officially published in {region} on {target_date.isoformat()} "
-        f"(yesterday, not today, not earlier dates — strictly the day "
-        f"{target_date.strftime('%A %B %d %Y')}).\n\n"
-        f"REGULATORS TO COVER (search each): {agencies}.\n\n"
+        f"health alert, food safety notice, or product withdrawal officially "
+        f"published by a food regulator in {region} within a 3-day window "
+        f"centered on yesterday. The target day is:\n\n"
+        f"  TARGET DAY (yesterday Athens time): {fmt_variants}\n"
+        f"  ACCEPTABLE PUBLISH DATES: {prev.isoformat()} | "
+        f"{yday.isoformat()} | {nxt.isoformat()}\n\n"
+        f"Include recalls whose publication/issue date falls on ANY of "
+        f"those three dates. Regulator sites often show dates as DD/MM/YYYY "
+        f"or localized text — normalize them and include if they match one "
+        f"of the three acceptable ISO dates above.\n\n"
+        f"REGULATORS TO COVER (search each by name + recent recalls): {agencies}\n\n"
+        f"SEARCH STRATEGY:\n"
+        f"  - For each regulator, search '<agency name> recall "
+        f"{yday.strftime('%B %Y')}' and '<agency name> recent recalls'\n"
+        f"  - Then open the 2-3 most recent recall notices from each agency "
+        f"and check their publication date against the 3-day window\n"
+        f"  - If you see phrases like 'today', 'this week', 'yesterday', "
+        f"'hier', 'aujourd'hui', 'heute', translate them using the fact "
+        f"that the current date is {nxt.isoformat()}\n\n"
         f"IN SCOPE — include recalls where the hazard is:\n"
         f"  • Pathogens: Listeria, Salmonella, E. coli / STEC / O157, "
         f"Clostridium botulinum, Norovirus, Hepatitis A, Campylobacter, "
@@ -203,11 +234,12 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
         f"  • Non-food products (cosmetics, toys, medical devices, "
         f"supplements unless food-borne)\n\n"
         f"OUTPUT — strict JSON, no fences, no commentary:\n"
-        f'{{"date": "{target_date.isoformat()}", "region": "{region}", '
+        f'{{"date": "{yday.isoformat()}", "region": "{region}", '
         f'"recalls": [ROW, ROW, ...]}}\n\n'
         f"Each ROW object has these fields (always all of them):\n"
-        f'  "date": "YYYY-MM-DD" — must equal {target_date.isoformat()} '
-        f"(publish date or recall-notice issue date)\n"
+        f'  "date": "YYYY-MM-DD" — the actual publication date you found '
+        f'(must be one of {prev.isoformat()}, {yday.isoformat()}, '
+        f'{nxt.isoformat()})\n'
         f'  "country": English country name\n'
         f'  "source": regulator short name, e.g. "FDA", "RappelConso (FR)", '
         f'"BVL (DE)", "FSANZ (AU)"\n'
@@ -226,19 +258,22 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
         f'  "url": DEEP-LINK URL to the specific recall detail page on the '
         f"regulator's official domain. Must be a URL you actually retrieved "
         f"via web_search. NEVER a category or homepage. If you cannot find "
-        f"the specific recall page, OMIT that recall entirely.\n"
+        f"a specific deep-link page, use the category page URL as fallback — "
+        f"do NOT omit the recall.\n"
         f'  "notes": distribution area, lot codes, illness count, or any '
         f"extra context worth capturing.\n\n"
         f"CRITICAL RULES:\n"
-        f"1. If a regulator published nothing yesterday in {region}, "
-        f'return {{"date": "...", "region": "...", "recalls": []}}.\n'
+        f"1. If a regulator genuinely published nothing in the 3-day "
+        f'window in {region}, skip that regulator — but do not skip a '
+        f"regulator just because you're unsure about the date. When unsure, "
+        f"INCLUDE the recall and let the structured date field speak.\n"
         f"2. NEVER invent URLs. Every URL must appear verbatim in a real "
-        f"search result you ran.\n"
+        f"search result you ran. A category-page fallback is fine.\n"
         f"3. NEVER include allergen-only recalls.\n"
-        f"4. The recall-notice publish date must be exactly "
-        f"{target_date.isoformat()} — do not return older recalls that "
-        f"you happen to find.\n"
-        f"5. Return ONLY the JSON object, nothing else."
+        f"4. The publication date must fall within "
+        f"[{prev.isoformat()}, {nxt.isoformat()}]. Reject older.\n"
+        f"5. Return ONLY the JSON object, nothing else — no markdown, "
+        f"no prose."
     )
 
 
@@ -619,23 +654,29 @@ def _now_athens_str() -> str:
 # ---------------------------------------------------------------------------
 def update_daily_index(target_date: date, recalls: List[Recall]) -> None:
     """
-    Keep ONLY the most-recent day's brief. This is a daily "yesterday
-    snapshot" feed, not an archive — old briefs are auto-deleted so the
-    dashboard always shows exactly one card.
+    Maintain docs/daily-index.json as a small rolling window, not a
+    one-day snapshot.
 
-    Does two things:
-      1. Rewrites docs/daily-index.json so it contains exactly one entry
-         (target_date's), replacing any older entries.
-      2. Deletes every docs/daily/YYYY-MM-DD.html file whose date is
-         different from target_date, so stale briefs don't accumulate.
+    Why not just "keep one day" like before:
+      An empty-brief day (model returned 0, search API timeout, budget
+      cap hit mid-run) would wipe the entire dashboard — exactly what
+      happened on Apr 22 2026. Now we keep up to KEEP_DAYS entries so
+      a single bad day doesn't erase yesterday's legit brief.
 
-    Idempotent: re-running for the same target_date is a no-op beyond
-    refreshing the counts.
+    Behavior:
+      1. Load existing entries from daily-index.json.
+      2. Replace (or insert) today's target_date entry.
+      3. Drop entries older than KEEP_DAYS from today.
+      4. Delete matching daily/*.html files that fell out of the window.
+
+    KEEP_DAYS is intentionally small (7) — this is still a "recent daily
+    briefs" feed, not an archive. Weekly/monthly reports handle history.
     """
+    KEEP_DAYS = 7
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
     iso = target_date.isoformat()
 
-    # Compute region summary
+    # Region summary for the card on the dashboard
     region_counts: Dict[str, int] = {}
     for r in recalls:
         region_counts[r.Region or "Other"] = region_counts.get(r.Region or "Other", 0) + 1
@@ -650,23 +691,42 @@ def update_daily_index(target_date: date, recalls: List[Recall]) -> None:
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
 
-    DAILY_INDEX.write_text(json.dumps({"entries": [entry]}, indent=2))
-    log.info("Wrote %s (1 entry: %s)", DAILY_INDEX, iso)
+    # Load existing, upsert today's entry, trim window
+    existing: List[Dict[str, Any]] = []
+    if DAILY_INDEX.exists():
+        try:
+            existing = json.loads(DAILY_INDEX.read_text()).get("entries", [])
+        except Exception as e:
+            log.warning("Could not parse existing daily-index.json: %s", e)
+    existing = [e for e in existing if e.get("date") != iso]
+    existing.append(entry)
+    existing.sort(key=lambda e: e.get("date", ""), reverse=True)
 
-    # Delete every *.html in docs/daily/ that is NOT today's target
+    # Keep only entries within KEEP_DAYS of today's target_date
+    cutoff = (target_date - timedelta(days=KEEP_DAYS - 1)).isoformat()
+    existing = [e for e in existing if e.get("date", "") >= cutoff]
+
+    DAILY_INDEX.write_text(json.dumps({"entries": existing}, indent=2))
+    log.info("Wrote %s (%d entry/entries, keeping last %d days)",
+             DAILY_INDEX, len(existing), KEEP_DAYS)
+
+    # Delete HTML files for dates no longer in the index. This is the
+    # safety net for disk hygiene — index.json is the source of truth,
+    # any HTML whose date isn't in the index is garbage-collected.
+    keep_dates = {e["date"] for e in existing}
     if DAILY_DIR.exists():
         deleted = 0
         for f in DAILY_DIR.glob("*.html"):
-            stem = f.stem  # "YYYY-MM-DD"
-            if len(stem) == 10 and stem[4] == '-' and stem[7] == '-' and stem != iso:
+            stem = f.stem
+            if len(stem) == 10 and stem[4] == "-" and stem[7] == "-" and stem not in keep_dates:
                 try:
                     f.unlink()
                     deleted += 1
-                    log.info("  Removed stale brief: %s", f.name)
+                    log.info("  Removed out-of-window brief: %s", f.name)
                 except Exception as e:
                     log.warning("  Could not remove %s: %s", f, e)
         if deleted:
-            log.info("Removed %d stale daily brief(s).", deleted)
+            log.info("Removed %d out-of-window daily brief(s).", deleted)
 
 
 # ---------------------------------------------------------------------------
@@ -759,13 +819,32 @@ def main() -> int:
         raw_rows = result.get("recalls") or []
         log.info("   raw=%d", len(raw_rows))
 
+        # If the model returned zero, capture the raw response for debug.
+        # Empty-brief episodes like Apr 22 2026 (the day this logging was
+        # added) are almost always the model being too strict about date
+        # matching or timing out mid-search. Dumping the raw text gives us
+        # something concrete to tune against.
+        if len(raw_rows) == 0:
+            log.warning("   [%s] empty — raw response dump follows:", spec["region"])
+            log.warning("   %s", json.dumps(result)[:2000])
+
+        # Compute the acceptable 3-day publish-date window. Must match the
+        # window described in build_user_prompt().
+        accept_dates = {
+            (target - timedelta(days=1)).isoformat(),
+            target.isoformat(),
+            (target + timedelta(days=1)).isoformat(),
+        }
+
         for row in raw_rows:
             if not is_in_scope(row):
                 continue
-            # Date guard — model must return yesterday, reject drift
-            if (row.get("date") or "")[:10] != target.isoformat():
-                log.info("   skipping wrong-date row (%s != %s)",
-                         (row.get("date") or "")[:10], target.isoformat())
+            # Date guard — model must return a date inside the 3-day
+            # window (yesterday ±1), not some unrelated historical date.
+            row_date = (row.get("date") or "")[:10]
+            if row_date not in accept_dates:
+                log.info("   skipping out-of-window row (%s not in %s)",
+                         row_date, sorted(accept_dates))
                 continue
             if is_duplicate(row, existing_urls, existing_sigs):
                 continue
