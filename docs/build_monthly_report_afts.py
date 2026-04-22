@@ -896,6 +896,10 @@ def build_monthly_html(month_start: date, month_end: date,
     top10 = weekly.rank_top_recalls(month_recalls, n=10)
     top_rows_html = "".join(weekly.render_top5_row(i+1, r) for i, r in enumerate(top10))
 
+    # Appendix — ALL recalls table (ranked by severity, same as companion page)
+    all_ranked = weekly.rank_top_recalls(month_recalls, n=len(month_recalls))
+    all_rows_html = "".join(weekly.render_top5_row(i+1, r) for i, r in enumerate(all_ranked))
+
     # MoM description
     delta_phrase = (
         f"{stats.get('delta'):+d} ({stats.get('delta_pct'):+d}%) vs prior month"
@@ -1128,10 +1132,21 @@ font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.
 color:{BRAND_BLACK};text-transform:uppercase;}}
 .footer .fb em{{color:{BRAND_ORANGE};font-style:normal;}}
 
+/* Appendix */
+.appendix-head{{display:flex;align-items:center;gap:12px;margin:42px 0 12px;
+page-break-before:always;}}
+.appendix-num{{font-family:'DM Mono',monospace;font-size:10px;color:{BRAND_ORANGE};
+font-weight:700;letter-spacing:0.12em;}}
+.appendix-title{{font-family:Syne,Georgia,serif;font-weight:800;font-size:20px;
+color:{BRAND_BLACK};letter-spacing:-0.01em;margin:0;}}
+.appendix-count{{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+letter-spacing:0.08em;text-transform:uppercase;}}
+
 @media print{{
   body{{background:#fff;padding:0;}} .page{{border:none;padding:18px 14mm;max-width:none;}}
   .sec-head{{page-break-after:avoid;}} .kpi-strip{{page-break-inside:avoid;}}
   table.top5 tr{{page-break-inside:avoid;}}
+  .appendix-head{{page-break-before:always;page-break-after:avoid;}}
 }}
 </style></head><body><div class="page">
 
@@ -1309,6 +1324,19 @@ color:{BRAND_BLACK};text-transform:uppercase;}}
   <p><strong>Statistical methods.</strong> Month-over-month Z-scores use the rolling-prior-months mean and sample standard deviation; the hotspot matrix uses standardised chi-square residuals (σ&gt;2 flags over-representation vs independence); source concentration is quantified via the Herfindahl-Hirschman Index and geographic distribution via the Gini coefficient; outbreak clusters are detected via a sliding 14-day window over same-pathogen events. Predictive models are gated to activate only when data history meets the minimum size required for valid estimation.</p>
   <p><strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from 70+ countries and 15+ agencies (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso, BVL, AESAN, EFET and national authorities) into the accumulative Recalls sheet. AI narrative is produced against AFTS process-authority prompts and edited for publication. Figures and pathogen names are preserved verbatim from source data.</p>
 </div>
+
+<!-- Appendix A — Complete Recall Register -->
+<div class="appendix-head">
+  <span class="appendix-num">APPENDIX A</span>
+  <h2 class="appendix-title">Complete Recall Register</h2>
+  <span class="sec-rule"></span>
+  <span class="appendix-count">{stats['total']} recalls</span>
+</div>
+<p class="sec-caption">Every pathogen-related recall recorded in {escape(month_name)} {year}, ranked by severity. This appendix replaces the companion page for subscriber convenience.</p>
+<table class="top5"><thead><tr>
+<th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th>
+<th>Product</th><th>Jurisdiction &amp; Source</th>
+</tr></thead><tbody>{all_rows_html}</tbody></table>
 
 <div class="footer">
   <div class="fb">Advanced Food-Tech Solutions <em>·</em> AFTS</div>
