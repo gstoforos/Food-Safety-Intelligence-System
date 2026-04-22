@@ -191,6 +191,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <div class="nav-bar">
 <button class="tab active" id="tab-recalls" onclick="switchTab('recalls')">● Recall Intelligence</button>
 <button class="tab" id="tab-news" onclick="switchTab('news')">🌐 Live News <span id="news-count" style="opacity:.55;font-weight:400"></span></button>
+<button class="tab" id="tab-daily" onclick="switchTab('daily')">📅 Daily <span id="daily-count" style="opacity:.55;font-weight:400"></span></button>
 <button class="tab" id="tab-reports" onclick="switchTab('reports')">📊 Weekly <span id="rep-count" style="opacity:.55;font-weight:400"></span></button>
 <button class="tab" id="tab-monthly" onclick="switchTab('monthly')">🗓 Monthly <span id="mon-count" style="opacity:.55;font-weight:400"></span></button>
 <button class="tab" id="tab-yearly" onclick="return false" aria-disabled="true" title="Yearly reports activate January 2027, after 12 months of data" style="opacity:.35;cursor:not-allowed;color:var(--dim)">📆 Yearly <span style="font-family:'DM Mono',monospace;font-size:8px;font-weight:400;opacity:.65;margin-left:4px">soon</span></button>
@@ -212,6 +213,13 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <input type="search" id="news-q" placeholder="Search title, source, pathogen..."><select id="news-path"><option value="">All Pathogens</option></select><select id="news-src"><option value="">All Sources</option></select><span class="rcount" id="news-rcount"></span>
 </div>
 <div class="tbl-wrap"><table><thead><tr><th>Published</th><th>Pathogen</th><th>Event</th><th>Source</th><th>Title</th><th>Link</th></tr></thead><tbody id="news-tbody"><tr><td colspan="6" class="loading">Loading NEWS sheet…</td></tr></tbody></table></div>
+</div></div>
+</div>
+
+<!-- DAILY_PATCH_V1 -->
+<div id="panel-daily" style="display:none">
+<div class="wrap"><div class="panel"><div class="sec">Daily Recall Briefs · OpenAI-verified yesterday sweep · 10:00 Athens daily</div>
+<div id="daily-list"><p class="loading">Loading daily-index.json…</p></div>
 </div></div>
 </div>
 
@@ -275,9 +283,11 @@ function switchTab(t){
   document.getElementById('panel-news').style.display=(t==='news'?'block':'none');
   document.getElementById('panel-reports').style.display=(t==='reports'?'block':'none');
   document.getElementById('panel-monthly').style.display=(t==='monthly'?'block':'none');
+  document.getElementById('panel-daily').style.display=(t==='daily'?'block':'none');
   document.getElementById('tab-'+t).classList.add('active');
   if(t==='reports'&&!window._reports_loaded){loadReports();window._reports_loaded=true;}
   if(t==='monthly'&&!window._monthly_loaded){loadMonthlyReports();window._monthly_loaded=true;}
+  if(t==='daily'&&!window._daily_loaded){loadDaily();window._daily_loaded=true;}
   notifyHeight();
 }
 
@@ -671,6 +681,49 @@ async function loadMonthlyReports(){
   document.getElementById('monthly-list').innerHTML =
     rich.map(renderRich).join('') + renderArchive(archive);
   notifyHeight();
+}
+
+// ===== DAILY — OpenAI-verified yesterday sweep =====
+// Reads docs/daily-index.json produced by pipeline/daily_recall_search.py
+// (scheduled 10:00 Athens daily). Renders newest-first cards; clicking a
+// card opens the per-day HTML brief at docs/daily/YYYY-MM-DD.html.
+async function loadDaily(){
+  const list = document.getElementById('daily-list');
+  try{
+    const r = await fetch('daily-index.json?_=' + Date.now(), {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    const entries = (data.entries || []).slice(0, 60);
+    document.getElementById('daily-count').textContent = ' · ' + entries.length;
+    if(!entries.length){
+      list.innerHTML = '<p class="loading">No daily briefs yet. First brief appears tomorrow 10:00 Athens.</p>';
+      notifyHeight(); return;
+    }
+    list.innerHTML = entries.map(e => {
+      const d = new Date(e.date + 'T00:00:00');
+      const nice = d.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+      const regions = Object.keys(e.by_region || {}).sort();
+      const regionLabel = regions.length ? regions.join(' · ') : 'no recalls';
+      return `
+      <div class="report-card" onclick="window.open('${e.url}','_blank')">
+        <div class="report-week">DAILY · ${e.date}</div>
+        <div class="report-title">${nice}</div>
+        <div class="report-stats">
+          <span><strong>${e.total || 0}</strong> recalls</span>
+          <span class="stat-tier1"><strong>${e.tier1 || 0}</strong> Tier-1</span>
+          <span class="stat-outbreak"><strong>${e.outbreak || 0}</strong> outbreak</span>
+          <span style="color:var(--dim);font-size:10px">${regionLabel}</span>
+        </div>
+        <div class="report-actions">
+          <a class="report-btn primary" href="${e.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open brief →</a>
+        </div>
+      </div>`;
+    }).join('');
+    notifyHeight();
+  } catch(err){
+    list.innerHTML = `<p class="loading">Failed to load daily briefs: ${err.message}</p>`;
+    notifyHeight();
+  }
 }
 
 // Download PDF: open the actual published report (single source of truth) and
