@@ -618,26 +618,29 @@ def _now_athens_str() -> str:
 # daily-index.json — dashboard reads this to show the latest-day card
 # ---------------------------------------------------------------------------
 def update_daily_index(target_date: date, recalls: List[Recall]) -> None:
-    """Append to docs/daily-index.json so the dashboard can render a card."""
-    DAILY_DIR.mkdir(parents=True, exist_ok=True)
-    entries = []
-    if DAILY_INDEX.exists():
-        try:
-            data = json.loads(DAILY_INDEX.read_text())
-            entries = data.get("entries", [])
-        except Exception:
-            entries = []
+    """
+    Keep ONLY the most-recent day's brief. This is a daily "yesterday
+    snapshot" feed, not an archive — old briefs are auto-deleted so the
+    dashboard always shows exactly one card.
 
+    Does two things:
+      1. Rewrites docs/daily-index.json so it contains exactly one entry
+         (target_date's), replacing any older entries.
+      2. Deletes every docs/daily/YYYY-MM-DD.html file whose date is
+         different from target_date, so stale briefs don't accumulate.
+
+    Idempotent: re-running for the same target_date is a no-op beyond
+    refreshing the counts.
+    """
+    DAILY_DIR.mkdir(parents=True, exist_ok=True)
     iso = target_date.isoformat()
-    # Remove any existing entry for this date (idempotent)
-    entries = [e for e in entries if e.get("date") != iso]
 
     # Compute region summary
     region_counts: Dict[str, int] = {}
     for r in recalls:
         region_counts[r.Region or "Other"] = region_counts.get(r.Region or "Other", 0) + 1
 
-    entries.append({
+    entry = {
         "date": iso,
         "url": f"daily/{iso}.html",
         "total": len(recalls),
@@ -645,13 +648,25 @@ def update_daily_index(target_date: date, recalls: List[Recall]) -> None:
         "outbreak": sum(1 for r in recalls if r.Outbreak == 1),
         "by_region": region_counts,
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-    })
-    entries.sort(key=lambda e: e["date"], reverse=True)
-    # Keep last 90 days
-    entries = entries[:90]
+    }
 
-    DAILY_INDEX.write_text(json.dumps({"entries": entries}, indent=2))
-    log.info("Updated %s (%d entries)", DAILY_INDEX, len(entries))
+    DAILY_INDEX.write_text(json.dumps({"entries": [entry]}, indent=2))
+    log.info("Wrote %s (1 entry: %s)", DAILY_INDEX, iso)
+
+    # Delete every *.html in docs/daily/ that is NOT today's target
+    if DAILY_DIR.exists():
+        deleted = 0
+        for f in DAILY_DIR.glob("*.html"):
+            stem = f.stem  # "YYYY-MM-DD"
+            if len(stem) == 10 and stem[4] == '-' and stem[7] == '-' and stem != iso:
+                try:
+                    f.unlink()
+                    deleted += 1
+                    log.info("  Removed stale brief: %s", f.name)
+                except Exception as e:
+                    log.warning("  Could not remove %s: %s", f, e)
+        if deleted:
+            log.info("Removed %d stale daily brief(s).", deleted)
 
 
 # ---------------------------------------------------------------------------
