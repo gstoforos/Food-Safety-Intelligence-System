@@ -649,7 +649,7 @@ a.back:hover{{color:#00ff88}}
 @media(max-width:480px){{h1{{font-size:20px}}.kpi-v{{font-size:18px}}.card{{padding:11px 12px}}.c-co{{font-size:14px}}}}
 </style></head>
 <body><div class="wrap">
-<a class="back" href="./index.html">← Dashboard</a>
+<a class="back" href="https://www.advfood.tech/food-safety-intelligence">← Dashboard</a>
 <div class="brand">AFTS · Food Safety Intelligence · Daily Brief</div>
 <h1>Global recalls — {DATE_PRETTY}</h1>
 <div class="sub">Official regulator sources only · Generated {GENERATED_AT} Athens · {REGIONS_SCANNED} regions scanned</div>
@@ -663,7 +663,7 @@ a.back:hover{{color:#00ff88}}
 <div class="foot">
 Pathogens + biotoxins + mycotoxins + foreign material + pest + chemical hazards only.<br>
 Allergen-only, labeling, quality issues excluded per AFTS scope.<br>
-<a href="./index.html">Back to dashboard</a> · <a href="./daily-index.json">JSON archive</a>
+<a href="https://www.advfood.tech/food-safety-intelligence">Back to dashboard</a> · <a href="../daily-index.json">JSON archive</a>
 </div>
 </div></body></html>
 """
