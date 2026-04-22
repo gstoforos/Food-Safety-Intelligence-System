@@ -11,7 +11,14 @@ name: FSIS URL Guardian (4-hourly)
 
 on:
   schedule:
-    - cron: '0 */4 * * *'        # 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
+    # Runs at :15 past every 4 hours (Athens: 03:15, 07:15, 11:15, 15:15,
+    # 19:15, 23:15) — OFFSET FROM :00 so the hourly news-feed and :05
+    # merge-master have already finished their push before we start.
+    # Combined with the fsis-data-writers concurrency group below, this
+    # eliminates the "non-fast-forward" push race that used to fail every
+    # 4 hours when the Guardian ran at the top of the hour alongside
+    # news-feed and merge-master.
+    - cron: '15 */4 * * *'       # :15 past 00/04/08/12/16/20 UTC
   workflow_dispatch:
     inputs:
       since_days:
@@ -31,8 +38,12 @@ permissions:
   contents: write
 
 concurrency:
-  # Prevent overlapping runs if a previous run is slow
-  group: fsis-url-guardian
+  # IMPORTANT: share fsis-data-writers with every other workflow that
+  # modifies docs/data/recalls.xlsx or recalls.json. Having our own group
+  # (fsis-url-guardian) let this workflow race news-feed / merge-master
+  # and lose the push → "non-fast-forward" → workflow failure. Joining
+  # the shared group means GitHub queues us behind any in-flight writer.
+  group: fsis-data-writers
   cancel-in-progress: false
 
 jobs:
@@ -88,10 +99,25 @@ jobs:
           git add docs/data/recalls.xlsx docs/data/recalls.json || true
           if git diff --staged --quiet; then
             echo "No changes this cycle."
-          else
-            git commit -m "URL guardian + gap-finder @ $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git push
+            exit 0
           fi
+          git commit -m "URL guardian + gap-finder @ $(date -u +'%Y-%m-%d %H:%M UTC')"
+
+          # Retry loop: if another writer pushed between our checkout and
+          # now, our push fails with non-fast-forward. Rebase onto remote
+          # and try again. 3 attempts covers almost all realistic races;
+          # we stash-and-pop our staged change on top of a fresh remote.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Push succeeded on attempt $attempt."
+              exit 0
+            fi
+            echo "Push attempt $attempt failed — rebasing onto remote and retrying..."
+            git pull --rebase --autostash origin "$(git branch --show-current)"
+            sleep $((attempt * 5))
+          done
+          echo "ERROR: git push failed after 3 rebase attempts."
+          exit 1
 
       - name: Upload run artifact
         if: always()
