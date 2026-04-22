@@ -1,0 +1,39 @@
+{
+  "entries": [
+    {
+      "ts": "2026-04-22T12:39:48Z",
+      "eur": 0.0002,
+      "region": "Europe",
+      "input_tokens": 1196,
+      "output_tokens": 19
+    },
+    {
+      "ts": "2026-04-22T12:39:52Z",
+      "eur": 0.0002,
+      "region": "NorthAmerica",
+      "input_tokens": 1029,
+      "output_tokens": 20
+    },
+    {
+      "ts": "2026-04-22T12:39:54Z",
+      "eur": 0.0002,
+      "region": "LATAM",
+      "input_tokens": 1031,
+      "output_tokens": 20
+    },
+    {
+      "ts": "2026-04-22T12:39:59Z",
+      "eur": 0.0004,
+      "region": "AsiaPacific",
+      "input_tokens": 1109,
+      "output_tokens": 414
+    },
+    {
+      "ts": "2026-04-22T12:40:00Z",
+      "eur": 0.0002,
+      "region": "MiddleEastAfrica",
+      "input_tokens": 1058,
+      "output_tokens": 26
+    }
+  ]
+}
