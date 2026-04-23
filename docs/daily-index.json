@@ -3,13 +3,11 @@
     {
       "date": "2026-04-22",
       "url": "daily/2026-04-22.html",
-      "total": 1,
-      "tier1": 1,
-      "outbreak": 1,
-      "by_region": {
-        "Oceania": 1
-      },
-      "generated": "2026-04-23T10:57:10Z"
+      "total": 0,
+      "tier1": 0,
+      "outbreak": 0,
+      "by_region": {},
+      "generated": "2026-04-23T11:57:07Z"
     },
     {
       "date": "2026-04-21",
