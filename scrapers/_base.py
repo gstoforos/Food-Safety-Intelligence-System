@@ -229,14 +229,19 @@ Return a JSON array (no prose, no markdown fences). Each item:
   "date": "YYYY-MM-DD",
   "company": "<recalling company or brand>",
   "product": "<product name / description>",
-  "pathogen": "<contaminant — e.g. Salmonella, Listeria monocytogenes, E. coli O157:H7, Clostridium botulinum. Empty string if not pathogen-related>",
+  "pathogen": "<contaminant — e.g. Salmonella, Listeria monocytogenes, E. coli O157:H7, Clostridium botulinum, mould, glass fragments, ethylene oxide, lead, rodent. Empty string if allergen-only or labeling-only>",
   "url": "<direct link to the recall DETAIL page; absolute URL>",
   "description": "<1–2 sentence summary>"
 }
 
 Rules:
-- Include ONLY pathogen / microbiological / biotoxin / mycotoxin contamination.
-- EXCLUDE: undeclared allergens, label errors, foreign material, packaging defects.
+- Include: pathogen / microbiological / biotoxin / mycotoxin contamination,
+  mould/mold, foreign material (glass, metal, plastic, wood, stone),
+  rodent/insect/pest contamination, chemical hazards (heavy metals, ethylene
+  oxide, dioxins/PCBs, mineral oil MOAH/MOSH, pesticide residues over MRL,
+  Sudan dyes, melamine, unauthorized substances, chlorate).
+- EXCLUDE: undeclared allergens (unless combined with a pathogen), label
+  errors, packaging defects, quality complaints, non-food products.
 - If the page has NO recalls matching, return [].
 - Dates must be ISO (YYYY-MM-DD).
 - URLs MUST be absolute and point to the recall DETAIL page (not the listing page).
