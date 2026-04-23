@@ -205,12 +205,12 @@ EXTRACT_PROMPT = """The following is a title + snippet + URL from a Google-News-
 
 Your job: if it describes a food recall involving a PATHOGEN, MOULD, MYCOTOXIN, BIOTOXIN, FOREIGN MATERIAL, PEST CONTAMINATION, or CHEMICAL HAZARD (Salmonella, Listeria, E. coli / STEC, Botulinum, Norovirus, Hepatitis A, Campylobacter, Cronobacter, mould/mold, aflatoxin, histamine, glass/metal/plastic fragments, rodent, ethylene oxide, heavy metals, dioxins, pesticide residues, etc.), extract the structured fields below.
 
-If the item is NOT about a food safety hazard (e.g. allergen-only, policy news, labeling error, unrelated), return: {"skip": true}.
+If the item is NOT about a food safety hazard (e.g. allergen-only, policy news, labeling error, unrelated), return: {{"skip": true}}.
 
 Return ONLY strict JSON — no markdown fences, no prose.
 
 Schema when extracting:
-{
+{{
   "Date": "YYYY-MM-DD",           // publication date
   "Source": "...",                 // regulator short name (e.g. "FDA", "RappelConso", "FSAI")
   "Company": "...",
@@ -222,7 +222,7 @@ Schema when extracting:
   "Country": "...",
   "Outbreak": 0,                   // 1 if illnesses/cases/deaths mentioned
   "Notes": "..."
-}
+}}
 
 INPUT:
 URL: {url}
