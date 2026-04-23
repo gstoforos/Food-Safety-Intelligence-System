@@ -154,7 +154,7 @@ def _call_claude_web(prompt: str, system: str, max_tokens: int = 4096) -> str:
                 "model": os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001"),
                 "max_tokens": max_tokens,
                 "system": system,
-                "tools": [{"type": "web_search_20250305", "name": "web_search"}],
+                "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
                 "messages": [{"role": "user", "content": prompt}],
             },
             timeout=180,

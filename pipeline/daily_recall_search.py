@@ -369,7 +369,7 @@ def call_claude_search(target_date: date, region: str, agencies: str,
         "model": MODEL,
         "max_tokens": 4096,
         "system": SYSTEM_PROMPT,
-        "tools": [{"type": "web_search_20250305", "name": "web_search"}],
+        "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
         "messages": [
             {"role": "user", "content": user_prompt},
         ],
@@ -595,7 +595,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
         path_norm = normalize_pathogen(pathogen) or pathogen
         rec = Recall(
             Date=(row.get("date") or "")[:10],
-            Source=row.get("source", "") or "OpenAI-daily",
+            Source=row.get("source", "") or "Claude-daily",
             Company=(row.get("company") or "")[:200],
             Brand=(row.get("brand") or "—")[:100],
             Product=(row.get("product") or "")[:400],
@@ -608,7 +608,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
             Outbreak=outbreak,
             URL=(row.get("url") or "").strip(),
             Notes=((row.get("notes") or "") +
-                   "  [via OpenAI daily 10:00 Athens search]")[:500],
+                   "  [via Claude daily 10:00 Athens search]")[:500],
         )
         rec = rec.normalize()
         if not rec.URL.lower().startswith(("http://", "https://")):
