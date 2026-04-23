@@ -88,12 +88,12 @@ HARD_CAP_EUR_PER_WEEK = float(os.getenv("DAILY_BUDGET_EUR_PER_WEEK", "1.00"))
 USD_TO_EUR = 0.92  # static — close enough; doesn't need to be exact
 
 # Claude Haiku 4.5 pricing per 1M tokens
-PRICE_INPUT_USD_PER_1M = 0.80
-PRICE_OUTPUT_USD_PER_1M = 4.00
+PRICE_INPUT_USD_PER_1M = 0.15
+PRICE_OUTPUT_USD_PER_1M = 0.60
 
-MODEL = os.getenv("CLAUDE_DAILY_MODEL", "claude-haiku-4-5-20251001")
-API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
-API_ENDPOINT = "https://api.anthropic.com/v1/messages"
+MODEL = os.getenv("OPENAI_DAILY_MODEL", "gpt-4o-mini-search-preview")
+API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
+API_ENDPOINT = "https://api.openai.com/v1/chat/completions"
 
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 
@@ -350,89 +350,72 @@ def record_spend(ledger: Dict[str, Any], eur: float, region: str,
 # ---------------------------------------------------------------------------
 # Claude API call (with web search tool)
 # ---------------------------------------------------------------------------
-def call_claude_search(target_date: date, region: str, agencies: str,
+def call_openai_search(target_date: date, region: str, agencies: str,
                        ledger: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Claude Haiku 4.5 with web search — uses requests.post (same proven
-    approach as review/claude_client.py).
+    Single call to gpt-4o-mini-search-preview with web search.
+    Returns parsed JSON or None. Updates the budget ledger.
     """
     if not API_KEY:
-        log.error("ANTHROPIC_API_KEY not set")
+        log.error("OPENAI_API_KEY not set")
         return None
 
     user_prompt = build_user_prompt(target_date, region, agencies)
 
     body = {
         "model": MODEL,
-        "max_tokens": 16000,
-        "system": SYSTEM_PROMPT,
-        "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 3}],
-        "messages": [{"role": "user", "content": user_prompt}],
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt},
+        ],
+        "max_tokens": 4096,
+        "web_search_options": {},
     }
 
     try:
         r = requests.post(
-            "https://api.anthropic.com/v1/messages",
+            API_ENDPOINT,
             headers={
-                "x-api-key": API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
+                "Authorization": f"Bearer {API_KEY}",
+                "Content-Type": "application/json",
             },
             json=body,
-            timeout=300,
+            timeout=120,
         )
     except Exception as e:
-        log.error("Claude request EXCEPTION for %s: %s", region, e)
+        log.warning("OpenAI request failed for %s: %s", region, e)
         return None
 
     if r.status_code != 200:
-        log.error("Claude HTTP %d for %s: %s", r.status_code, region, r.text[:500])
+        log.warning("OpenAI %d for %s: %s", r.status_code, region, r.text[:300])
         return None
 
     resp = r.json()
-    log.info("  [%s] stop_reason=%s, blocks=%s",
-             region, resp.get("stop_reason"),
-             [b.get("type") for b in resp.get("content", [])])
-
-    # Extract text blocks — JSON answer is in the last one
-    texts = [b.get("text", "") for b in resp.get("content", [])
-             if b.get("type") == "text" and b.get("text", "").strip()]
-
-    if not texts:
-        log.error("  [%s] NO text blocks. Response: %s", region, json.dumps(resp)[:1000])
+    try:
+        msg = resp["choices"][0]["message"]["content"]
+    except (KeyError, IndexError):
+        log.warning("Unexpected response shape for %s: %s", region, str(resp)[:300])
         return None
 
-    msg = texts[-1].strip()
-    log.info("  [%s] %d text blocks, last=%d chars", region, len(texts), len(msg))
-
-    # Token usage
     usage = resp.get("usage", {}) or {}
-    in_tok = int(usage.get("input_tokens", 0))
-    out_tok = int(usage.get("output_tokens", 0))
+    in_tok = int(usage.get("prompt_tokens", 0))
+    out_tok = int(usage.get("completion_tokens", 0))
     cost_usd = (in_tok * PRICE_INPUT_USD_PER_1M / 1_000_000 +
                 out_tok * PRICE_OUTPUT_USD_PER_1M / 1_000_000)
     cost_eur = cost_usd * USD_TO_EUR
     record_spend(ledger, cost_eur, region, in_tok, out_tok)
-    log.info("  [%s] in=%d out=%d cost=%.4f EUR", region, in_tok, out_tok, cost_eur)
+    log.info("  [%s] in=%d out=%d cost≈€%.4f", region, in_tok, out_tok, cost_eur)
 
-    # Strip fences
-    text = msg
-    if "```" in text:
-        text = re.sub(r"```[a-zA-Z]*\s*\n?", "", text)
-        text = re.sub(r"```", "", text).strip()
-
-    # Extract JSON
-    json_match = re.search(r'\{[^{}]*"recalls"\s*:\s*\[.*?\]\s*\}', text, re.DOTALL)
-    if not json_match:
-        json_match = re.search(r'\{.*\}', text, re.DOTALL)
-    if not json_match:
-        log.error("[%s] no JSON found: %s", region, text[:500])
-        return None
+    # Strip markdown fences
+    text = msg.strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```[a-zA-Z]*\s*\n?", "", text)
+        text = re.sub(r"\n```\s*$", "", text).strip()
 
     try:
-        data = json.loads(json_match.group(0))
+        data = json.loads(text)
     except json.JSONDecodeError as e:
-        log.error("[%s] JSON parse failed: %s | %s", region, e, json_match.group(0)[:300])
+        log.warning("[%s] JSON parse failed: %s | %s", region, e, text[:250])
         return None
 
     return data
@@ -601,7 +584,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
         path_norm = normalize_pathogen(pathogen) or pathogen
         rec = Recall(
             Date=(row.get("date") or "")[:10],
-            Source=row.get("source", "") or "Claude-daily",
+            Source=row.get("source", "") or "OpenAI-daily",
             Company=(row.get("company") or "")[:200],
             Brand=(row.get("brand") or "—")[:100],
             Product=(row.get("product") or "")[:400],
@@ -614,7 +597,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
             Outbreak=outbreak,
             URL=(row.get("url") or "").strip(),
             Notes=((row.get("notes") or "") +
-                   "  [via Claude daily 10:00 Athens search]")[:500],
+                   "  [via OpenAI daily 10:00 Athens search]")[:500],
         )
         rec = rec.normalize()
         if not rec.URL.lower().startswith(("http://", "https://")):
@@ -919,7 +902,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if not API_KEY:
-        log.error("ANTHROPIC_API_KEY not set — cannot run.")
+        log.error("OPENAI_API_KEY not set — cannot run.")
         return 1
 
     # Determine target date (Athens yesterday)
@@ -977,14 +960,11 @@ def main() -> int:
         if spec["region"] not in target_regions:
             continue
 
-        # Rate limit: 50K input tokens/min. Each call uses ~53K.
-        # Wait 65s between calls to stay under the limit.
-        if regions_done > 0:
-            log.info("   (waiting 65s for rate limit)")
-            time.sleep(65)
+
+
 
         log.info("→ Region %s", spec["region"])
-        result = call_claude_search(target, spec["region"], spec["agencies"],
+        result = call_openai_search(target, spec["region"], spec["agencies"],
                                     ledger)
         regions_done += 1
         if not result:
@@ -995,9 +975,8 @@ def main() -> int:
 
         # Retry once if empty — wait for rate limit first
         if len(raw_rows) == 0:
-            log.warning("   [%s] empty on first try — waiting 65s then retrying", spec["region"])
-            time.sleep(65)
-            result2 = call_claude_search(target, spec["region"], spec["agencies"],
+            log.warning("   [%s] empty on first try — retrying once", spec["region"])
+            result2 = call_openai_search(target, spec["region"], spec["agencies"],
                                          ledger)
             if result2:
                 raw_rows = result2.get("recalls") or []
@@ -1068,14 +1047,57 @@ def main() -> int:
             scraped_at=scraped_at,
         )
         pending_delta = len(updated_pending) - len(pending)
+        log.info("Appended %d candidate rows to PENDING (total=%d)",
+                 pending_delta, len(updated_pending))
+
+        # ==================================================================
+        # STEP 1b: Validate URLs + promote to Recalls INLINE.
+        # ==================================================================
+        # Don't wait for a separate URL guardian run. Validate the new
+        # Pending rows now, promote the ones with working URLs to Recalls,
+        # so the daily brief (rendered next) has actual data.
+        from review.url_validator import validate_all, should_blank_url
+        from pipeline.merge_master import promote_approved
+
+        log.info("Validating %d Pending row URLs...", len(updated_pending))
+        validated = validate_all(
+            [dict(r) if isinstance(r, dict) else r._asdict() if hasattr(r, '_asdict') else vars(r)
+             for r in updated_pending],
+            max_workers=5,
+        )
+
+        # Build rejection flags: reject rows whose URL check failed
+        rejected_flags: Dict[int, str] = {}
+        for idx, row in enumerate(validated):
+            check = row.get("_url_check", {})
+            if not check.get("ok", False):
+                reason = check.get("reason", "URL check failed")
+                rejected_flags[idx] = reason
+
+        # Convert validated rows back to plain dicts (remove _url_check)
+        pending_dicts = [{k: v for k, v in row.items() if k != "_url_check"}
+                         for row in validated]
+
+        # Promote approved rows to Recalls
+        approved_dicts = [dict(r) if isinstance(r, dict) else
+                         r._asdict() if hasattr(r, '_asdict') else vars(r)
+                         for r in approved]
+        new_approved, remaining_pending = promote_approved(
+            pending_dicts, approved_dicts, rejected_flags,
+        )
+
+        if new_approved:
+            log.info("Promoted %d rows Pending → Recalls", len(new_approved))
+            approved = approved + new_approved  # type: ignore
+        else:
+            log.info("No rows promoted (all URLs rejected or already in Recalls)")
+
+        # Save updated state
         save_xlsx_with_pending(
             xlsx_path=XLSX_PATH,
-            approved_rows=sort_rows(approved),  # Recalls sheet untouched
-            pending_rows=sort_rows(updated_pending),
+            approved_rows=sort_rows(approved),
+            pending_rows=sort_rows(remaining_pending),
         )
-        log.info("Appended %d candidate rows to PENDING sheet (pending "
-                 "total=%d). URL guardian will validate + promote to Recalls.",
-                 pending_delta, len(updated_pending))
     elif new_recalls:
         log.info("DRY RUN: would append %d candidate rows to PENDING",
                  len(new_recalls))
