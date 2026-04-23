@@ -19,6 +19,13 @@ class FSAUKScraper(BaseScraper):
         "botulin", "norovirus", "hepatitis", "campylobacter",
         "cyclospora", "vibrio", "cronobacter", "bacillus",
         "histamine", "biotoxin", "aflatoxin", "ochratoxin",
+        "mould", "mold",
+        "glass", "metal fragment", "plastic fragment",
+        "foreign object", "foreign body", "foreign material",
+        "ethylene oxide", "dioxin", "heavy metal",
+        "lead contamin", "cadmium", "mercury", "arsenic",
+        "rodenticide", "rat poison", "rodent", "insect",
+        "chlorate", "sudan", "melamine", "mineral oil",
     )
 
     def scrape(self, since_days: int = 30) -> List[Recall]:
