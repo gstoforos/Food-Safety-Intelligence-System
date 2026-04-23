@@ -44,6 +44,7 @@ jobs:
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
             echo "Not 22:xx Athens (currently ${HOUR}:xx). Skipping — the other DST cron will handle it."
+          fi
 
       - name: Checkout
         if: steps.guard.outputs.run == 'true'
