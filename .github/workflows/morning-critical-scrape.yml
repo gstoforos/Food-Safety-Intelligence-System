@@ -11,8 +11,8 @@ name: FSIS Morning Critical-Agency Scrape
 
 on:
   schedule:
-    - cron: '0 5 * * *'   # 08:00 Athens EEST (summer UTC+3)
-    - cron: '0 6 * * *'   # 08:00 Athens EET  (winter UTC+2)
+    - cron: '0 1 * * *'   # 04:00 Athens EEST (summer UTC+3)
+    - cron: '0 2 * * *'   # 04:00 Athens EET  (winter UTC+2)
   workflow_dispatch:
     inputs:
       since_days:
@@ -33,13 +33,13 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Athens-time guard (07-09:xx window)
+      - name: Athens-time guard (03-05:xx window)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "07" ] || [ "$HOUR" = "08" ] || [ "$HOUR" = "09" ]; then
+          elif [ "$HOUR" = "03" ] || [ "$HOUR" = "04" ] || [ "$HOUR" = "05" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

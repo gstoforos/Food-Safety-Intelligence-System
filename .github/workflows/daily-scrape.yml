@@ -6,8 +6,8 @@ name: FSIS Daily Scrape
 
 on:
   schedule:
-    - cron: '0 14 * * *'   # 17:00 Athens EEST (summer UTC+3)
-    - cron: '0 15 * * *'   # 17:00 Athens EET  (winter UTC+2)
+    - cron: '0 15 * * *'   # 18:00 Athens EEST (summer UTC+3)
+    - cron: '0 16 * * *'   # 18:00 Athens EET  (winter UTC+2)
   workflow_dispatch:
     inputs:
       since_days:
@@ -34,14 +34,14 @@ jobs:
       contents: write
 
     steps:
-      - name: Athens-time guard (16-18:xx window)
+      - name: Athens-time guard (17-19:xx window)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
           echo "athens_hour=$HOUR"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "16" ] || [ "$HOUR" = "17" ] || [ "$HOUR" = "18" ]; then
+          elif [ "$HOUR" = "17" ] || [ "$HOUR" = "18" ] || [ "$HOUR" = "19" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

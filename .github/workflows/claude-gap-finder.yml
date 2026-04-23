@@ -8,8 +8,8 @@ on:
     # the "wrong" DST cron exit cleanly so only one run fires per day.
     # Runs ~12h offset from OpenAI gap-finder (10:00 Athens) so the two
     # gap-finders are spread across the day rather than stacked together.
-    - cron: '0 19 * * *'  # 22:00 Athens EEST (summer UTC+3)
-    - cron: '0 20 * * *'  # 22:00 Athens EET  (winter UTC+2)
+    - cron: '0 23 * * *'   # 02:00 Athens EEST (summer UTC+3)
+    - cron: '0 0 * * *'    # 02:00 Athens EET  (winter UTC+2)
   workflow_dispatch:
     inputs:
       since_days:
@@ -38,7 +38,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Manual dispatch — running regardless of hour."
-          elif [ "$HOUR" = "21" ] || [ "$HOUR" = "22" ] || [ "$HOUR" = "23" ]; then
+          elif [ "$HOUR" = "01" ] || [ "$HOUR" = "02" ] || [ "$HOUR" = "03" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Athens 22:xx — running."
           else

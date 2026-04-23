@@ -1,16 +1,17 @@
 name: FSIS Daily Recall Search
 
-# Daily at 10:00 ATHENS TIME — replaces the old OpenAI gap-finder with a
-# proper "yesterday's regulator recalls worldwide" sweep using
-# gpt-4o-mini-search-preview (OpenAI's web-search-built-in model).
+# Daily at 10:00 ATHENS TIME — Claude Haiku 4.5 with web search does a
+# comprehensive "yesterday's regulator recalls worldwide" sweep across
+# 5 regions. Real URLs from real search results — not hallucinated.
 #
 # Output:
-#   - New pathogen/toxin/material/chemical recalls appended to Recalls sheet
-#   - docs/daily/YYYY-MM-DD.html  — mobile-responsive summary
+#   - New recalls appended to Pending sheet (URL guardian promotes to Recalls)
+#   - docs/daily/YYYY-MM-DD.html  — brief rendered from Recalls sheet only
 #   - docs/daily-index.json        — dashboard card feed
-#   - docs/data/.spend_ledger.json — budget tracking (hard €0.50/week cap)
+#   - docs/data/.spend_ledger.json — budget tracking
 #
-# Budget: ~€0.01/run, ~€0.07/week expected. Hard weekly cap €0.50 in code.
+# Budget: ~€0.02-0.03/run (Haiku 4.5 + web search), ~€0.20/week expected.
+# Hard weekly cap €1.00 in code.
 
 on:
   schedule:
@@ -78,10 +79,10 @@ jobs:
       - name: Run daily recall search
         if: steps.guard.outputs.run == 'true'
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_DAILY_MODEL: "gpt-4o-mini-search-preview"
-          DAILY_BUDGET_EUR_PER_RUN:  "0.12"
-          DAILY_BUDGET_EUR_PER_WEEK: "0.50"
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_DAILY_MODEL: "claude-haiku-4-5-20251001"
+          DAILY_BUDGET_EUR_PER_RUN:  "0.15"
+          DAILY_BUDGET_EUR_PER_WEEK: "1.00"
           SKIP_COMMIT: "false"
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GIT_USER_EMAIL: "fsis-bot@advfood.tech"
