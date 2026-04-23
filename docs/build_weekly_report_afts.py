@@ -458,7 +458,81 @@ def main():
     # Update dashboard embedded data
     update_dashboard_data(week_end, stats)
 
+    # Generate weekly-summary-latest.json for Apps Script mailer
+    write_weekly_summary_json(week_end, week_recalls, stats, Path(args.xlsx).parent)
+
     return 0
+
+
+def write_weekly_summary_json(week_end: date, recalls: List[Dict], stats: Dict, data_dir: Path):
+    """Write weekly-summary-latest.json for the Apps Script email mailer."""
+    wnum = week_end.isocalendar()[1]
+    year = week_end.year
+    week_start = week_end - timedelta(days=6)
+
+    # Leading pathogen
+    top_path = stats.get("top_pathogen")
+    if top_path and len(top_path) >= 2:
+        leading = {"name": top_path[0], "cases": top_path[1],
+                   "pct": round(top_path[1] / max(stats["total"], 1) * 100)}
+    else:
+        leading = {"name": "Mixed", "cases": 0, "pct": 0}
+
+    # Delta vs previous week
+    delta = stats.get("delta", 0)
+    prev_total = stats["total"] - delta if delta else 0
+    delta_pct = round(delta / max(prev_total, 1) * 100) if prev_total else 0
+
+    # Top 5 threats (tier-1 first, then by date desc)
+    tier1 = [r for r in recalls if str(r.get("Tier", "")).strip() in ("1", "Tier-1")]
+    tier1.sort(key=lambda r: str(r.get("Date", "")), reverse=True)
+    top5 = tier1[:5] if len(tier1) >= 5 else (tier1 + recalls[:5])[:5]
+    top_threats = []
+    for i, r in enumerate(top5, 1):
+        top_threats.append({
+            "rank": i,
+            "date": str(r.get("Date", ""))[:10],
+            "pathogen": str(r.get("Pathogen", "")),
+            "pathogen_raw": str(r.get("Pathogen", "")),
+            "tier": 1 if r in tier1 else 2,
+            "outbreak": bool(r.get("Outbreak")),
+            "company": str(r.get("Company", "")),
+            "brand": str(r.get("Brand", "—")),
+            "product": str(r.get("Product", "")),
+            "country": str(r.get("Country", "")),
+            "source": str(r.get("Source", "")),
+            "url": str(r.get("URL", "")),
+        })
+
+    countries = set(str(r.get("Country", "")) for r in recalls if r.get("Country"))
+
+    summary = {
+        "filename": f"{year}-W{wnum:02d}.html",
+        "report_url": f"https://gstoforos.github.io/Food-Safety-Intelligence-System/{year}-W{wnum:02d}.html",
+        "dashboard_url": "https://www.advfood.tech/food-safety-intelligence",
+        "week_num": wnum,
+        "year": year,
+        "week_start": week_start.isoformat(),
+        "week_end": week_end.isoformat(),
+        "week_start_display": week_start.strftime("%-d %b"),
+        "week_end_display": week_end.strftime("%-d %b %Y"),
+        "generated_utc": datetime.utcnow().isoformat() + "Z",
+        "stats": {
+            "total": stats["total"],
+            "tier1": stats["tier1"],
+            "outbreaks": stats["outbreaks"],
+            "delta": delta,
+            "delta_pct": delta_pct,
+        },
+        "leading_pathogen": leading,
+        "ai_lead_paragraph": stats.get("ai_lead", ""),
+        "top_threats": top_threats,
+        "country_count": len(countries),
+    }
+
+    out_path = data_dir / "weekly-summary-latest.json"
+    out_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+    log.info("Wrote %s", out_path)
 
 if __name__ == "__main__":
     sys.exit(main())
