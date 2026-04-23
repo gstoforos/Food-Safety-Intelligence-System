@@ -352,12 +352,8 @@ def record_spend(ledger: Dict[str, Any], eur: float, region: str,
 def call_claude_search(target_date: date, region: str, agencies: str,
                        ledger: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Single call to Claude Haiku 4.5 with web_search tool.
-    Returns parsed JSON or None. Updates the budget ledger.
-
-    Claude's web search returns real URLs from actual search results —
-    unlike OpenAI's search-preview which often hallucinates URLs.
-    The URLs still go through URL guardian validation before promotion.
+    Claude Haiku 4.5 with web search — uses requests.post (same proven
+    approach as review/claude_client.py).
     """
     if not API_KEY:
         log.error("ANTHROPIC_API_KEY not set")
@@ -367,45 +363,46 @@ def call_claude_search(target_date: date, region: str, agencies: str,
 
     body = {
         "model": MODEL,
-        "max_tokens": 4096,
+        "max_tokens": 16000,
         "system": SYSTEM_PROMPT,
-        "tools": [{"type": "web_search_20250305", "name": "web_search"}],
-        "messages": [
-            {"role": "user", "content": user_prompt},
-        ],
+        "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
+        "messages": [{"role": "user", "content": user_prompt}],
     }
 
     try:
         r = requests.post(
-            API_ENDPOINT,
+            "https://api.anthropic.com/v1/messages",
             headers={
                 "x-api-key": API_KEY,
                 "anthropic-version": "2023-06-01",
                 "content-type": "application/json",
             },
             json=body,
-            timeout=180,  # web search can take longer
+            timeout=300,
         )
     except Exception as e:
-        log.warning("Claude request failed for %s: %s", region, e)
+        log.error("Claude request EXCEPTION for %s: %s", region, e)
         return None
 
     if r.status_code != 200:
-        log.warning("Claude %d for %s: %s", r.status_code, region, r.text[:300])
+        log.error("Claude HTTP %d for %s: %s", r.status_code, region, r.text[:500])
         return None
 
     resp = r.json()
+    log.info("  [%s] stop_reason=%s, blocks=%s",
+             region, resp.get("stop_reason"),
+             [b.get("type") for b in resp.get("content", [])])
 
-    # Extract text from response — Claude returns content blocks
-    content_blocks = resp.get("content", [])
-    texts = [blk.get("text", "") for blk in content_blocks
-             if blk.get("type") == "text" and blk.get("text")]
+    # Extract text blocks — JSON answer is in the last one
+    texts = [b.get("text", "") for b in resp.get("content", [])
+             if b.get("type") == "text" and b.get("text", "").strip()]
+
     if not texts:
-        log.warning("Claude returned no text blocks for %s", region)
+        log.error("  [%s] NO text blocks. Response: %s", region, json.dumps(resp)[:1000])
         return None
 
-    # The last text block typically contains the JSON answer
     msg = texts[-1].strip()
+    log.info("  [%s] %d text blocks, last=%d chars", region, len(texts), len(msg))
 
     # Token usage
     usage = resp.get("usage", {}) or {}
@@ -415,18 +412,26 @@ def call_claude_search(target_date: date, region: str, agencies: str,
                 out_tok * PRICE_OUTPUT_USD_PER_1M / 1_000_000)
     cost_eur = cost_usd * USD_TO_EUR
     record_spend(ledger, cost_eur, region, in_tok, out_tok)
-    log.info("  [%s] in=%d out=%d cost≈€%.4f", region, in_tok, out_tok, cost_eur)
+    log.info("  [%s] in=%d out=%d cost=%.4f EUR", region, in_tok, out_tok, cost_eur)
 
-    # Strip markdown fences if Claude added them
+    # Strip fences
     text = msg
-    if text.startswith("```"):
-        text = re.sub(r"^```[a-zA-Z]*\s*\n?", "", text)
-        text = re.sub(r"\n```\s*$", "", text).strip()
+    if "```" in text:
+        text = re.sub(r"```[a-zA-Z]*\s*\n?", "", text)
+        text = re.sub(r"```", "", text).strip()
+
+    # Extract JSON
+    json_match = re.search(r'\{[^{}]*"recalls"\s*:\s*\[.*?\]\s*\}', text, re.DOTALL)
+    if not json_match:
+        json_match = re.search(r'\{.*\}', text, re.DOTALL)
+    if not json_match:
+        log.error("[%s] no JSON found: %s", region, text[:500])
+        return None
 
     try:
-        data = json.loads(text)
+        data = json.loads(json_match.group(0))
     except json.JSONDecodeError as e:
-        log.warning("[%s] JSON parse failed: %s | %s", region, e, text[:250])
+        log.error("[%s] JSON parse failed: %s | %s", region, e, json_match.group(0)[:300])
         return None
 
     return data
@@ -595,7 +600,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
         path_norm = normalize_pathogen(pathogen) or pathogen
         rec = Recall(
             Date=(row.get("date") or "")[:10],
-            Source=row.get("source", "") or "OpenAI-daily",
+            Source=row.get("source", "") or "Claude-daily",
             Company=(row.get("company") or "")[:200],
             Brand=(row.get("brand") or "—")[:100],
             Product=(row.get("product") or "")[:400],
@@ -608,7 +613,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
             Outbreak=outbreak,
             URL=(row.get("url") or "").strip(),
             Notes=((row.get("notes") or "") +
-                   "  [via OpenAI daily 10:00 Athens search]")[:500],
+                   "  [via Claude daily 10:00 Athens search]")[:500],
         )
         rec = rec.normalize()
         if not rec.URL.lower().startswith(("http://", "https://")):
@@ -913,7 +918,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if not API_KEY:
-        log.error("OPENAI_API_KEY not set — cannot run.")
+        log.error("ANTHROPIC_API_KEY not set — cannot run.")
         return 1
 
     # Determine target date (Athens yesterday)
@@ -970,17 +975,6 @@ def main() -> int:
     for spec in REGION_SPECS:
         if spec["region"] not in target_regions:
             continue
-
-        # Per-run cap check — only count THIS run's spend (entries added
-        # since we started), not the whole day's cumulative spend.
-        this_run_spend = sum(
-            float(e["eur"]) for e in ledger.get("entries", [])
-            if e.get("ts", "") >= datetime.now(timezone.utc).strftime("%Y-%m-%dT")
-        )
-        if this_run_spend >= HARD_CAP_EUR_PER_RUN:
-            log.warning("Per-run cap €%.2f reached, skipping remaining regions",
-                        HARD_CAP_EUR_PER_RUN)
-            break
 
         log.info("→ Region %s", spec["region"])
         result = call_claude_search(target, spec["region"], spec["agencies"],
