@@ -21,6 +21,7 @@ import sys
 import re
 import json
 import logging
+import time
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import List, Dict, Any
@@ -155,7 +156,7 @@ def _call_claude_web(prompt: str, system: str, max_tokens: int = 4096) -> str:
                 "model": os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001"),
                 "max_tokens": max_tokens,
                 "system": system,
-                "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
+                "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 3}],
                 "messages": [{"role": "user", "content": prompt}],
             },
             timeout=300,
@@ -174,17 +175,22 @@ def _call_claude_web(prompt: str, system: str, max_tokens: int = 4096) -> str:
         return ""
 
 
-def query_claude_for_gaps(since_days: int) -> List[Dict[str, Any]]:
-    """5-region web search sweep. Returns raw recall dicts (unvalidated)."""
+def query_claude_for_gaps(since_days: int, region_filter: str = None) -> List[Dict[str, Any]]:
+    """Web search sweep. If region_filter set, runs only that region."""
     if not CLAUDE_ENABLED:
         log.warning("ANTHROPIC_API_KEY not set — gap-finder cannot run")
         return []
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     all_recalls: List[Dict[str, Any]] = []
 
-    for spec in REGION_SPECS:
+    for i, spec in enumerate(REGION_SPECS):
         region = spec["region"]
         agencies = spec["agencies"]
+
+        # Skip regions not matching the filter
+        if region_filter and region != region_filter:
+            continue
+
         log.info("→ Region %s", region)
 
         prompt = GAP_FINDER_PROMPT.format(
@@ -262,10 +268,16 @@ def to_recall_objects(raw: List[Dict[str, Any]]) -> List[Recall]:
 
 
 def main() -> int:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--region", default=None,
+                    help="Run only this region (Europe, NorthAmerica, AsiaPacific, LATAM_ME_Africa)")
+    args = ap.parse_args()
+
     t0 = datetime.now(timezone.utc)
     scraped_at = t0.strftime("%Y-%m-%dT%H:%M:%SZ")
     log.info("=" * 60)
-    log.info("Claude gap-finder run: %s", scraped_at)
+    log.info("Claude gap-finder run: %s (region=%s)", scraped_at, args.region or "ALL")
     log.info("Data dir: %s", DATA_DIR)
 
     if not CLAUDE_ENABLED:
@@ -278,7 +290,7 @@ def main() -> int:
     log.info("State: %d approved + %d existing pending", len(approved), len(existing_pending))
 
     # ---- Ask Claude -----------------------------------------------------
-    raw = query_claude_for_gaps(SINCE_DAYS)
+    raw = query_claude_for_gaps(SINCE_DAYS, region_filter=args.region)
     if not raw:
         log.info("Nothing proposed — exiting cleanly")
         return 0
