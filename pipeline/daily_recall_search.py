@@ -913,7 +913,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if not API_KEY:
-        log.error("OPENAI_API_KEY not set — cannot run.")
+        log.error("ANTHROPIC_API_KEY not set — cannot run.")
         return 1
 
     # Determine target date (Athens yesterday)
