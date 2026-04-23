@@ -79,8 +79,8 @@ jobs:
       - name: Run daily recall search
         if: steps.guard.outputs.run == 'true'
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          CLAUDE_DAILY_MODEL: "claude-haiku-4-5-20251001"
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_DAILY_MODEL: "gpt-4o-mini-search-preview"
           DAILY_BUDGET_EUR_PER_RUN:  "0.15"
           DAILY_BUDGET_EUR_PER_WEEK: "1.00"
           SKIP_COMMIT: "false"
