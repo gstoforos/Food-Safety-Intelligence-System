@@ -196,9 +196,9 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
     )
     return (
         f"TASK: Using your web_search tool, find every food recall, public "
-        f"health alert, food safety notice, or product withdrawal officially "
-        f"published by a food regulator in {region} within a 3-day window "
-        f"centered on yesterday. The target day is:\n\n"
+        f"health alert, food safety notice, market withdrawal, or RASFF "
+        f"notification officially published by a food regulator in {region} "
+        f"within a 3-day window centered on yesterday. The target day is:\n\n"
         f"  TARGET DAY (yesterday Athens time): {fmt_variants}\n"
         f"  ACCEPTABLE PUBLISH DATES: {prev.isoformat()} | "
         f"{yday.isoformat()} | {nxt.isoformat()}\n\n"
@@ -206,20 +206,32 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
         f"those three dates. Regulator sites often show dates as DD/MM/YYYY "
         f"or localized text — normalize them and include if they match one "
         f"of the three acceptable ISO dates above.\n\n"
+        f"IMPORTANT — RASFF (EU Rapid Alert System):\n"
+        f"  RASFF notifications (Alerts, Information Notifications, Border "
+        f"Rejections) are functionally equivalent to recalls. Search RASFF "
+        f"directly: 'RASFF notification {yday.strftime('%B %Y')}' and also "
+        f"'webgate.ec.europa.eu rasff {yday.strftime('%d %B %Y')}'. Include "
+        f"every RASFF notification whose date falls in the 3-day window. "
+        f"Set source='RASFF (EU)' and country=origin country.\n\n"
         f"REGULATORS TO COVER (search each by name + recent recalls): {agencies}\n\n"
         f"SEARCH STRATEGY:\n"
         f"  - For each regulator, search '<agency name> recall "
         f"{yday.strftime('%B %Y')}' and '<agency name> recent recalls'\n"
+        f"  - Also try '<agency name> food safety {yday.strftime('%d %B %Y')}'\n"
         f"  - Then open the 2-3 most recent recall notices from each agency "
         f"and check their publication date against the 3-day window\n"
         f"  - If you see phrases like 'today', 'this week', 'yesterday', "
         f"'hier', 'aujourd'hui', 'heute', translate them using the fact "
-        f"that the current date is {nxt.isoformat()}\n\n"
+        f"that the current date is {nxt.isoformat()}\n"
+        f"  - For RASFF: search 'RASFF window latest notifications' and "
+        f"check the most recent entries\n\n"
         f"IN SCOPE — include recalls where the hazard is:\n"
         f"  • Pathogens: Listeria, Salmonella, E. coli / STEC / O157, "
         f"Clostridium botulinum, Norovirus, Hepatitis A, Campylobacter, "
         f"Cronobacter, Bacillus cereus, Cyclospora, Shigella, Vibrio, "
-        f"Yersinia\n"
+        f"Yersinia, Brucella\n"
+        f"  • Mould / spoilage: visible mould contamination, yeast "
+        f"overgrowth, spoilage microorganisms\n"
         f"  • Biotoxins: histamine/scombrotoxin, marine biotoxins "
         f"(DSP/PSP/ASP, domoic acid, saxitoxin, ciguatera), cereulide\n"
         f"  • Mycotoxins: aflatoxin, ochratoxin, patulin, Alternaria, "
@@ -227,8 +239,10 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
         f"  • Foreign material: glass, metal, plastic, wood, stone\n"
         f"  • Rodent / insect / pest contamination (physical hazard)\n"
         f"  • Chemical: heavy metals (lead, cadmium, mercury, arsenic) "
-        f"over legal limit, pesticide residues over MRL, unauthorized "
-        f"substances (rodenticide, DMAE, novel food ingredients)\n\n"
+        f"over legal limit, pesticide residues over MRL, ethylene oxide "
+        f"(EtO), chlorate, dioxins/PCBs, mineral oil (MOAH/MOSH), Sudan "
+        f"dyes, melamine, unauthorized substances (rodenticide, DMAE, "
+        f"novel food ingredients, unauthorized additives/colours)\n\n"
         f"OUT OF SCOPE — EXCLUDE:\n"
         f"  • Allergen-only recalls (undeclared milk, egg, nuts, soy, "
         f"wheat, gluten, sulphite, fish, shellfish, sesame, celery — even "
@@ -248,17 +262,18 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
         f'{nxt.isoformat()})\n'
         f'  "country": English country name\n'
         f'  "source": regulator short name, e.g. "FDA", "RappelConso (FR)", '
-        f'"BVL (DE)", "FSANZ (AU)"\n'
+        f'"BVL (DE)", "RASFF (EU)", "FSANZ (AU)"\n'
         f'  "company": firm/producer name\n'
         f'  "brand": brand name or "—"\n'
         f'  "product": full product description with size/pack\n'
-        f'  "hazard_type": one of PATHOGEN, BIOTOXIN, MYCOTOXIN, '
+        f'  "hazard_type": one of PATHOGEN, BIOTOXIN, MYCOTOXIN, MOULD, '
         f"FOREIGN_MATERIAL, PEST_CONTAMINATION, CHEMICAL\n"
         f'  "pathogen": specific agent (e.g. "Listeria monocytogenes", '
-        f'"Salmonella Enteritidis", "glass fragments", "rodent"), or "—"\n'
+        f'"Salmonella Enteritidis", "mould", "glass fragments", "rodent"), '
+        f'or "—"\n'
         f'  "reason": short cause description in English\n'
         f'  "class": recall class if stated (Class I/II/III, Volontaire, '
-        f'Alert, Recall) — or "Recall"\n'
+        f'Alert, Border Rejection, Recall) — or "Recall"\n'
         f'  "outbreak": 1 if ANY illness/hospitalisation/death mentioned, '
         f"else 0\n"
         f'  "url": DEEP-LINK URL to the specific recall detail page on the '
@@ -266,8 +281,8 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
         f"via web_search. NEVER a category or homepage. If you cannot find "
         f"a specific deep-link page, use the category page URL as fallback — "
         f"do NOT omit the recall.\n"
-        f'  "notes": distribution area, lot codes, illness count, or any '
-        f"extra context worth capturing.\n\n"
+        f'  "notes": distribution area, lot codes, illness count, RASFF '
+        f"reference number if applicable, or any extra context.\n\n"
         f"CRITICAL RULES:\n"
         f"1. If a regulator genuinely published nothing in the 3-day "
         f'window in {region}, skip that regulator — but do not skip a '
@@ -453,10 +468,10 @@ ALLERGEN_REASON_MARKERS = re.compile(
 IN_SCOPE_MARKERS = re.compile(
     r"\b(?:listeria|salmonell|e\.?\s*coli|stec|o157|shiga|botulin|"
     r"norovirus|hepatit|campylobact|cyclospor|vibrio|cronobact|"
-    r"bacillus\s*cereus|cereulide|shigella|yersinia|"
+    r"bacillus\s*cereus|cereulide|shigella|yersinia|brucell|"
     r"histamine|scombro|biotoxin|dsp|psp|asp|domoic|saxitox|ciguatera|"
     r"aflatox|ochratox|patulin|alternaria|fumonisin|zearalenone|"
-    r"deoxynivalenol|mycotox|"
+    r"deoxynivalenol|mycotox|mould|mold|"
     r"glass\s+(?:fragment|shard|particle)|glass\s+in\s+product|"
     r"metal\s+(?:fragment|shard|particle)|"
     r"plastic\s+(?:fragment|shard|particle)|"
@@ -467,7 +482,11 @@ IN_SCOPE_MARKERS = re.compile(
     r"heavy\s+metal|lead\s+contamination|cadmium|mercury\s+contamination|"
     r"arsenic\s+contamination|"
     r"pesticid|unauthoris(?:ed|ized)\s+substance|"
-    r"chlorpyrifos|glyphosate|dmae|novel\s+food)",
+    r"chlorpyrifos|glyphosate|dmae|novel\s+food|"
+    r"ethylene\s*oxide|eto\b|chlorate|chlorpropham|"
+    r"dioxin|pcb|mineral\s+oil|moah|mosh|"
+    r"sudan\s+(?:dye|red|iv)|melamine|acrylamide|"
+    r"pah|polycyclic|unauthorized\s+(?:gmo|colour|color|additive))",
     re.I,
 )
 
@@ -489,7 +508,7 @@ def is_in_scope(row: Dict[str, Any]) -> bool:
     hazard_type = (row.get("hazard_type") or "").upper().strip()
     blob = f"{pathogen} {reason} {notes}"
 
-    valid_hazards = {"PATHOGEN", "BIOTOXIN", "MYCOTOXIN",
+    valid_hazards = {"PATHOGEN", "BIOTOXIN", "MYCOTOXIN", "MOULD",
                      "FOREIGN_MATERIAL", "PEST_CONTAMINATION", "CHEMICAL"}
     if hazard_type not in valid_hazards:
         return False
@@ -940,11 +959,13 @@ def main() -> int:
         if spec["region"] not in target_regions:
             continue
 
-        # Per-run cap check
-        ledger_before = sum(float(e["eur"]) for e in ledger.get("entries", [])
-                            if e["ts"].startswith(datetime.now(timezone.utc)
-                                                  .strftime("%Y-%m-%d")))
-        if ledger_before >= HARD_CAP_EUR_PER_RUN:
+        # Per-run cap check — only count THIS run's spend (entries added
+        # since we started), not the whole day's cumulative spend.
+        this_run_spend = sum(
+            float(e["eur"]) for e in ledger.get("entries", [])
+            if e.get("ts", "") >= datetime.now(timezone.utc).strftime("%Y-%m-%dT")
+        )
+        if this_run_spend >= HARD_CAP_EUR_PER_RUN:
             log.warning("Per-run cap €%.2f reached, skipping remaining regions",
                         HARD_CAP_EUR_PER_RUN)
             break
@@ -959,14 +980,18 @@ def main() -> int:
         raw_rows = result.get("recalls") or []
         log.info("   raw=%d", len(raw_rows))
 
-        # If the model returned zero, capture the raw response for debug.
-        # Empty-brief episodes like Apr 22 2026 (the day this logging was
-        # added) are almost always the model being too strict about date
-        # matching or timing out mid-search. Dumping the raw text gives us
-        # something concrete to tune against.
+        # Retry once if the model returned zero — often a transient search
+        # timeout or overly strict date matching on first attempt.
         if len(raw_rows) == 0:
-            log.warning("   [%s] empty — raw response dump follows:", spec["region"])
-            log.warning("   %s", json.dumps(result)[:2000])
+            log.warning("   [%s] empty on first try — retrying once", spec["region"])
+            result2 = call_openai_search(target, spec["region"], spec["agencies"],
+                                         ledger)
+            if result2:
+                raw_rows = result2.get("recalls") or []
+                log.info("   retry raw=%d", len(raw_rows))
+            if len(raw_rows) == 0:
+                log.warning("   [%s] still empty after retry — raw dump:", spec["region"])
+                log.warning("   %s", json.dumps(result)[:2000])
 
         # Compute the acceptable 3-day publish-date window. Must match the
         # window described in build_user_prompt().
@@ -976,6 +1001,7 @@ def main() -> int:
             (target + timedelta(days=1)).isoformat(),
         }
 
+        region_kept = 0
         for row in raw_rows:
             if not is_in_scope(row):
                 continue
@@ -992,6 +1018,7 @@ def main() -> int:
             if rec is None:
                 continue
             new_recalls.append(rec)
+            region_kept += 1
             existing_urls.add(normalize_key(rec.URL))
             existing_sigs.add((
                 rec.Date,
@@ -999,7 +1026,8 @@ def main() -> int:
                 normalize_key(rec.Product)[:60],
             ))
 
-        log.info("   kept=%d after filter+dedup", len(new_recalls))
+        log.info("   [%s] kept=%d new (total so far=%d)",
+                 spec["region"], region_kept, len(new_recalls))
 
     # Persist ledger
     save_ledger(ledger)
@@ -1040,16 +1068,30 @@ def main() -> int:
                  len(new_recalls))
 
     # ========================================================================
-    # STEP 2: Render the daily HTML brief FROM THE RECALLS SHEET.
+    # STEP 2: Render the daily HTML brief FROM RECALLS + OPENAI RESULTS.
     # ========================================================================
-    # By re-reading Recalls after the write, the brief always matches the
-    # xlsx exactly. OpenAI results that landed in Pending are NOT in the
-    # brief until the URL guardian promotes them in a later run. This means
-    # the brief may look "lighter" than raw OpenAI output, but every entry
-    # has a verified URL and is present in the user-visible Recalls table.
+    # The brief combines two sources so it's never empty when data exists:
+    #   (a) Rows already promoted to the Recalls sheet (from scrapers / URL
+    #       guardian) — these have verified URLs.
+    #   (b) Rows the current OpenAI run just found (now in Pending) — these
+    #       may have unverified URLs but provide same-day intelligence.
+    # Dedup by URL so a recall captured by BOTH scraper and OpenAI appears
+    # only once (the Recalls-sheet version wins).
     brief_recalls = load_recalls_for_date(XLSX_PATH, target)
-    log.info("Rendering brief for %s from Recalls sheet: %d row(s) match",
+    log.info("From Recalls sheet for %s: %d verified row(s)",
              target.isoformat(), len(brief_recalls))
+
+    # Merge in OpenAI-found rows, deduped by URL
+    existing_brief_urls = {normalize_key(r.URL) for r in brief_recalls}
+    openai_extras = [r for r in new_recalls
+                     if normalize_key(r.URL) not in existing_brief_urls
+                     and r.Date == target.isoformat()]
+    if openai_extras:
+        log.info("Adding %d OpenAI-found row(s) for the brief (pending URL verification)",
+                 len(openai_extras))
+        brief_recalls = brief_recalls + openai_extras
+
+    log.info("Total brief rows for %s: %d", target.isoformat(), len(brief_recalls))
 
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
     daily_html_path = DAILY_DIR / f"{target.isoformat()}.html"
