@@ -1,23 +1,17 @@
 name: FSIS Gemini Gap Finder
 
-# Daily at 08:30 ATHENS TIME — a different slot from Claude (22:00) and
-# OpenAI (10:00) gap-finders so the three are spread across the day.
-# This is the ONLY gap-finder with live web access (Google Search grounding
-# built into Gemini 2.0 Flash), so it catches recalls the other two can't
-# know about due to training cutoffs.
+# Daily at 14:00 ATHENS TIME — European morning catch-up.
+# The ONLY gap-finder with live web access (Google Search grounding
+# built into Gemini 2.0 Flash), so it catches recalls the others can't.
 #
-# Cost: $0 — runs on Gemini free tier (1,500 req/day per key, grounding
-# included at no extra cost). One call per run.
-#
-# Runs AFTER morning-critical-scrape (08:00) so it can see what the scrapers
-# just pulled and propose additional rows for gaps.
+# Cost: $0 — runs on Gemini free tier.
 #
 # Two DST crons + Athens hour guard so the correct one fires year-round.
 
 on:
   schedule:
-    - cron: '30 5 * * *'   # 08:30 Athens EEST (summer UTC+3)
-    - cron: '30 6 * * *'   # 08:30 Athens EET  (winter UTC+2)
+    - cron: '0 11 * * *'   # 14:00 Athens EEST (summer UTC+3)
+    - cron: '0 12 * * *'   # 14:00 Athens EET  (winter UTC+2)
   workflow_dispatch:
     inputs:
       since_days:
@@ -38,14 +32,14 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Athens-time guard (07-09:xx window)
+      - name: Athens-time guard (13-15:xx window)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
           echo "athens_hour=$HOUR"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "07" ] || [ "$HOUR" = "08" ] || [ "$HOUR" = "09" ]; then
+          elif [ "$HOUR" = "13" ] || [ "$HOUR" = "14" ] || [ "$HOUR" = "15" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

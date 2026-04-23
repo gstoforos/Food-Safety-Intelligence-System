@@ -1,24 +1,18 @@
 name: FSIS Tavily Gap Finder
 
-# Daily at 14:00 ATHENS TIME — runs AFTER:
-#   - 07:30 Athens: Claude URL gate
-#   - 08:00 Athens: morning critical-agency scrape
-#   - 08:30 Athens: Gemini gap-finder (FREE, Google Search grounding)
-#   - 10:00 Athens: OpenAI gap-finder (training-data only)
-#
-# Tavily's job is to fill gaps the others missed using Tavily's independent
-# AI-optimized search index. Whitelisted regulator-domain-only; Gemini (free)
-# extracts structured fields from each search result.
+# Daily at 22:00 ATHENS TIME — end-of-day US sweep (15:00 ET / 12:00 PT).
+# Tavily's independent AI-optimized search index catches what others missed.
+# Whitelisted regulator-domain-only; Gemini (free) extracts structured fields.
 #
 # Cost: $0 — Tavily free tier 1,000 searches/month (we use ~90/month),
-# Gemini free tier 1,500 req/day per key.
+# Gemini free tier.
 #
 # Two DST crons + Athens hour guard.
 
 on:
   schedule:
-    - cron: '0 11 * * *'   # 14:00 Athens EEST (summer UTC+3)
-    - cron: '0 12 * * *'   # 14:00 Athens EET  (winter UTC+2)
+    - cron: '0 19 * * *'   # 22:00 Athens EEST (summer UTC+3)
+    - cron: '0 20 * * *'   # 22:00 Athens EET  (winter UTC+2)
   workflow_dispatch:
     inputs:
       since_days:
@@ -39,14 +33,14 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Athens-time guard (13-15:xx window)
+      - name: Athens-time guard (21-23:xx window)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
           echo "athens_hour=$HOUR"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "13" ] || [ "$HOUR" = "14" ] || [ "$HOUR" = "15" ]; then
+          elif [ "$HOUR" = "21" ] || [ "$HOUR" = "22" ] || [ "$HOUR" = "23" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
