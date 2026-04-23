@@ -178,9 +178,9 @@ SEARCH STRATEGY: Run multiple Google searches to cover all major regulators. Exa
 - "retiro alimento {year}" site:aesan.gob.es
 - Agencies to cover: FDA, USDA FSIS, EU RASFF, FSA UK, FSAI Ireland, FSANZ Australia/NZ, CFIA Canada, AESAN Spain, BVL Germany, RappelConso France, EFET Greece, Min. Salute Italy, CFS Hong Kong, MFDS Korea, MHLW Japan, ANVISA Brazil, COFEPRIS Mexico, FSSAI India, NAFDAC Nigeria, SFDA Saudi Arabia, and any others.
 
-In scope (pathogens): Listeria, Salmonella, E. coli / STEC / O157:H7, Clostridium botulinum, Norovirus, Hepatitis A, Campylobacter, Cyclospora, Vibrio, Cronobacter sakazakii, Bacillus cereus / cereulide, Aflatoxins, Ochratoxin A, Patulin, marine biotoxins, Histamine, Shigella, Yersinia, other mycotoxins.
+In scope: Listeria, Salmonella, E. coli / STEC / O157:H7, Clostridium botulinum, Norovirus, Hepatitis A, Campylobacter, Cyclospora, Vibrio, Cronobacter sakazakii, Bacillus cereus / cereulide, Aflatoxins, Ochratoxin A, Patulin, marine biotoxins, Histamine, Shigella, Yersinia, Brucella, other mycotoxins, mould/mold contamination, foreign material (glass/metal/plastic/wood/stone fragments), rodent/insect/pest contamination, chemical hazards: heavy metals (lead, cadmium, mercury, arsenic), ethylene oxide, dioxins/PCBs, mineral oil (MOAH/MOSH), pesticide residues over MRL, Sudan dyes, melamine, chlorate, unauthorized substances. Also include EU RASFF notifications (alerts, border rejections, information notifications).
 
-OUT of scope (do NOT include): undeclared allergens, foreign objects, labeling errors, mechanical issues, chemical/heavy-metal contamination, pesticide residues.
+OUT of scope (do NOT include): undeclared allergens (unless combined with an in-scope hazard), labeling errors, quality complaints, non-food products.
 
 For each recall return ALL fields below:
 - Date      : YYYY-MM-DD, the publication date

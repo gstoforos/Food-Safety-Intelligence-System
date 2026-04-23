@@ -157,9 +157,11 @@ def _tavily_search(query: str, max_results: int = 10, days: int = 7) -> List[Dic
 def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
     """Run the 3 canonical gap-finder queries and dedup results."""
     queries = [
-        'food recall salmonella OR listeria OR "e. coli" OR botulism',
+        'food recall salmonella OR listeria OR "e. coli" OR botulism OR campylobacter',
         'food safety alert outbreak pathogen contamination recall',
         'rappel aliment OR Lebensmittelrückruf OR "food recall" regulator',
+        'food recall "foreign material" OR glass OR metal OR mould OR "ethylene oxide"',
+        'RASFF notification food alert withdrawal',
     ]
     all_results: Dict[str, Dict[str, Any]] = {}  # URL -> result (dedup)
     for q in queries:
@@ -197,9 +199,9 @@ def _collect_gemini_keys() -> List[str]:
 
 EXTRACT_PROMPT = """The following is a title + snippet + URL from a Google-News-style search result for a recent food recall or public-health alert.
 
-Your job: if it describes a PATHOGEN-related food recall (Salmonella, Listeria, E. coli / STEC, Botulinum, Norovirus, Hepatitis A, Campylobacter, Cronobacter, biotoxins, mycotoxins, etc.), extract the structured fields below.
+Your job: if it describes a food recall involving a PATHOGEN, MOULD, MYCOTOXIN, BIOTOXIN, FOREIGN MATERIAL, PEST CONTAMINATION, or CHEMICAL HAZARD (Salmonella, Listeria, E. coli / STEC, Botulinum, Norovirus, Hepatitis A, Campylobacter, Cronobacter, mould/mold, aflatoxin, histamine, glass/metal/plastic fragments, rodent, ethylene oxide, heavy metals, dioxins, pesticide residues, etc.), extract the structured fields below.
 
-If the item is NOT about a pathogen food recall (e.g. allergen-only, policy news, unrelated), return: {"skip": true}.
+If the item is NOT about a food safety hazard (e.g. allergen-only, policy news, labeling error, unrelated), return: {"skip": true}.
 
 Return ONLY strict JSON — no markdown fences, no prose.
 

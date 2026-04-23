@@ -680,8 +680,9 @@ a.back:hover{{color:#00ff88}}
 </div>
 {BODY}
 <div class="foot">
-Pathogens + biotoxins + mycotoxins + foreign material + pest + chemical hazards only.<br>
+Pathogens + biotoxins + mycotoxins + mould + foreign material + pest + chemical hazards only.<br>
 Allergen-only, labeling, quality issues excluded per AFTS scope.<br>
+Source: recalls.xlsx (verified URLs only).<br>
 <a href="https://www.advfood.tech/food-safety-intelligence">Back to dashboard</a> · <a href="../daily-index.json">JSON archive</a>
 </div>
 </div></body></html>
@@ -1068,30 +1069,16 @@ def main() -> int:
                  len(new_recalls))
 
     # ========================================================================
-    # STEP 2: Render the daily HTML brief FROM RECALLS + OPENAI RESULTS.
+    # STEP 2: Render the daily HTML brief FROM THE RECALLS SHEET ONLY.
     # ========================================================================
-    # The brief combines two sources so it's never empty when data exists:
-    #   (a) Rows already promoted to the Recalls sheet (from scrapers / URL
-    #       guardian) — these have verified URLs.
-    #   (b) Rows the current OpenAI run just found (now in Pending) — these
-    #       may have unverified URLs but provide same-day intelligence.
-    # Dedup by URL so a recall captured by BOTH scraper and OpenAI appears
-    # only once (the Recalls-sheet version wins).
+    # The brief renders ONLY from the verified Recalls sheet. OpenAI results
+    # sit in Pending until the URL guardian validates + promotes them. This
+    # means the brief shows only recalls with verified URLs — no hallucinated
+    # OpenAI links. A "0 recalls" brief is generated (and committed) so the
+    # dashboard card always appears, even on quiet days.
     brief_recalls = load_recalls_for_date(XLSX_PATH, target)
-    log.info("From Recalls sheet for %s: %d verified row(s)",
+    log.info("Rendering brief for %s from Recalls sheet: %d verified row(s)",
              target.isoformat(), len(brief_recalls))
-
-    # Merge in OpenAI-found rows, deduped by URL
-    existing_brief_urls = {normalize_key(r.URL) for r in brief_recalls}
-    openai_extras = [r for r in new_recalls
-                     if normalize_key(r.URL) not in existing_brief_urls
-                     and r.Date == target.isoformat()]
-    if openai_extras:
-        log.info("Adding %d OpenAI-found row(s) for the brief (pending URL verification)",
-                 len(openai_extras))
-        brief_recalls = brief_recalls + openai_extras
-
-    log.info("Total brief rows for %s: %d", target.isoformat(), len(brief_recalls))
 
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
     daily_html_path = DAILY_DIR / f"{target.isoformat()}.html"

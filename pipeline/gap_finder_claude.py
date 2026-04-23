@@ -61,19 +61,25 @@ GAP_FINDER_SYSTEM = (
 )
 
 
-GAP_FINDER_PROMPT = """List EVERY food recall / public-health alert issued worldwide in the last {since_days} days whose cause is a PATHOGEN, MICROBIAL CONTAMINATION, or BIOLOGICAL TOXIN.
+GAP_FINDER_PROMPT = """List EVERY food recall / public-health alert issued worldwide in the last {since_days} days whose cause is a PATHOGEN, MICROBIAL CONTAMINATION, BIOLOGICAL TOXIN, MOULD, FOREIGN MATERIAL, or CHEMICAL HAZARD.
 
 Today's date: {today}
 
-In scope (pathogens): Listeria, Salmonella, E. coli / STEC / O157:H7, Clostridium
+In scope: Listeria, Salmonella, E. coli / STEC / O157:H7, Clostridium
 botulinum, Norovirus, Hepatitis A, Campylobacter, Cyclospora, Vibrio, Cronobacter
-sakazakii, Bacillus cereus / cereulide, Aflatoxins, Ochratoxin A, Patulin, marine
-biotoxins (DSP/PSP/ASP), Histamine (scombrotoxin), Shigella, Yersinia, other
-mycotoxins.
+sakazakii, Bacillus cereus / cereulide, Shigella, Yersinia, Brucella,
+Aflatoxins, Ochratoxin A, Patulin, marine biotoxins (DSP/PSP/ASP),
+Histamine (scombrotoxin), other mycotoxins, mould/mold contamination,
+foreign material (glass / metal / plastic / wood / stone fragments),
+rodent / insect / pest contamination,
+chemical hazards: heavy metals (lead, cadmium, mercury, arsenic), ethylene
+oxide, dioxins/PCBs, mineral oil (MOAH/MOSH), pesticide residues over MRL,
+Sudan dyes, melamine, chlorate, unauthorized substances.
+Also include EU RASFF notifications (alerts, border rejections, information
+notifications) — these are functionally equivalent to recalls.
 
-OUT of scope (do NOT include): undeclared allergens, foreign objects (plastic /
-metal / glass / wood), labeling errors, mechanical issues, chemical or heavy-metal
-contamination unless biological in origin, pesticide residues.
+OUT of scope (do NOT include): undeclared allergens (unless combined with an
+in-scope hazard), labeling errors, quality complaints, non-food products.
 
 For each recall return ALL fields below:
 - Date       : YYYY-MM-DD, the recall / alert publication date
