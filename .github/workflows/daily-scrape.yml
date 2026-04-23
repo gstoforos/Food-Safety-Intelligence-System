@@ -34,14 +34,14 @@ jobs:
       contents: write
 
     steps:
-      - name: Athens-time guard (17:xx)
+      - name: Athens-time guard (16-18:xx window)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
           echo "athens_hour=$HOUR"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "17" ]; then
+          elif [ "$HOUR" = "16" ] || [ "$HOUR" = "17" ] || [ "$HOUR" = "18" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

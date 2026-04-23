@@ -38,7 +38,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Manual dispatch — running regardless of hour."
-          elif [ "$HOUR" = "22" ]; then
+          elif [ "$HOUR" = "21" ] || [ "$HOUR" = "22" ] || [ "$HOUR" = "23" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Athens 22:xx — running."
           else

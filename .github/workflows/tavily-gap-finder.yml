@@ -39,14 +39,14 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Athens-time guard (14:xx)
+      - name: Athens-time guard (13-15:xx window)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
           echo "athens_hour=$HOUR"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "14" ]; then
+          elif [ "$HOUR" = "13" ] || [ "$HOUR" = "14" ] || [ "$HOUR" = "15" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

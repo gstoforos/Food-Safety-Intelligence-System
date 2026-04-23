@@ -53,7 +53,7 @@ jobs:
           echo "athens_hour=$HOUR dow=$DOW"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "08" ] && [ "$DOW" = "5" ]; then
+          elif ([ "$HOUR" = "07" ] || [ "$HOUR" = "08" ] || [ "$HOUR" = "09" ]) && [ "$DOW" = "5" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Athens Friday 08:xx — running."
           else
