@@ -47,6 +47,7 @@ import logging
 import os
 import re
 import sys
+import time
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, date, timedelta, timezone
 from pathlib import Path
@@ -365,7 +366,7 @@ def call_claude_search(target_date: date, region: str, agencies: str,
         "model": MODEL,
         "max_tokens": 16000,
         "system": SYSTEM_PROMPT,
-        "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
+        "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 3}],
         "messages": [{"role": "user", "content": user_prompt}],
     }
 
@@ -972,9 +973,15 @@ def main() -> int:
     run_cost_eur = 0.0
     regions_done = 0
 
-    for spec in REGION_SPECS:
+    for i, spec in enumerate(REGION_SPECS):
         if spec["region"] not in target_regions:
             continue
+
+        # Rate limit: 50K input tokens/min. Each call uses ~53K.
+        # Wait 65s between calls to stay under the limit.
+        if regions_done > 0:
+            log.info("   (waiting 65s for rate limit)")
+            time.sleep(65)
 
         log.info("→ Region %s", spec["region"])
         result = call_claude_search(target, spec["region"], spec["agencies"],
@@ -986,10 +993,10 @@ def main() -> int:
         raw_rows = result.get("recalls") or []
         log.info("   raw=%d", len(raw_rows))
 
-        # Retry once if the model returned zero — often a transient search
-        # timeout or overly strict date matching on first attempt.
+        # Retry once if empty — wait for rate limit first
         if len(raw_rows) == 0:
-            log.warning("   [%s] empty on first try — retrying once", spec["region"])
+            log.warning("   [%s] empty on first try — waiting 65s then retrying", spec["region"])
+            time.sleep(65)
             result2 = call_claude_search(target, spec["region"], spec["agencies"],
                                          ledger)
             if result2:
