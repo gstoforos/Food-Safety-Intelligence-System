@@ -1,20 +1,5 @@
 [
- {
-  "Date": "2026-04-22",
-  "Source": "FSANZ",
-  "Company": "Liquid Blenz Corp",
-  "Brand": "Good Brain Tonic",
-  "Product": "Good Brain Tonic 16 oz & 32 oz",
-  "Pathogen": "Clostridium botulinum",
-  "Reason": "Potential Foodborne Illness - Botulism",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "",
-  "Notes": "[via OpenAI daily 10:00 Athens search] [URL-guardian 2026-04-23: blanked http_error https://www.foodstandards.gov.au/consumer/recalls/Pages/Good] [Claude-flag 2026-04-23: URL field is empty; Notes contain a broken/incomplete URL reference]"
- },
+
  {
   "Date": "2026-04-21",
   "Source": "RappelConso (FR)",
