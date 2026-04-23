@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install openpyxl requests
+          pip install -r requirements.txt
 
       - name: Run merge_master (Pending → Recalls)
         env:

@@ -86,6 +86,17 @@ jobs:
         run: |
           python -m pipeline.run_all
 
+      - name: Claude URL Gate + Merge
+        if: steps.guard.outputs.run == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME: "FSIS Bot"
+        run: |
+          python -m pipeline.url_gate_claude
+          python -m pipeline.merge_master
+
       - name: Summary
         if: steps.guard.outputs.run == 'true' && always()
         run: |
