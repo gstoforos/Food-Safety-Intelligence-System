@@ -244,6 +244,13 @@
       "region": "MiddleEastAfrica",
       "input_tokens": 1615,
       "output_tokens": 154
+    },
+    {
+      "ts": "2026-04-23T10:57:10Z",
+      "eur": 0.1909,
+      "region": "Europe",
+      "input_tokens": 250955,
+      "output_tokens": 1683
     }
   ]
 }
