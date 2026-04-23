@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-04-22",
+  "Source": "FSAI (IE)",
+  "Company": "Good4U",
+  "Brand": "Good4U",
+  "Product": "Super Sprouts Super Greens, 60g",
+  "Pathogen": "Salmonella",
+  "Reason": "Possible presence of Salmonella contamination",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-batches-of-good4u-super-sprouts-super-gr",
+  "Notes": "Use by dates: 22/04/2026, 26/04/2026, 29/04/2026, 30/04/2026, 03/05/2026. Product of UK. Retailers requested to remove from sale and display recall notices at point-of-sale.  [via Claude daily 10:00 Athens search]"
+ },
+ {
   "Date": "2026-04-21",
   "Source": "RappelConso (FR)",
   "Company": "Salaisons THAURIN",
