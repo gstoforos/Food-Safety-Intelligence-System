@@ -352,75 +352,81 @@ def record_spend(ledger: Dict[str, Any], eur: float, region: str,
 def call_claude_search(target_date: date, region: str, agencies: str,
                        ledger: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Single call to Claude Haiku 4.5 with web_search tool via the anthropic SDK.
+    Single call to Claude Haiku 4.5 with web_search tool.
     Returns parsed JSON or None. Updates the budget ledger.
+
+    Claude's web search returns real URLs from actual search results —
+    unlike OpenAI's search-preview which often hallucinates URLs.
+    The URLs still go through URL guardian validation before promotion.
     """
     if not API_KEY:
         log.error("ANTHROPIC_API_KEY not set")
         return None
 
-    try:
-        import anthropic
-    except ImportError:
-        log.error("anthropic package not installed — pip install anthropic")
-        return None
-
     user_prompt = build_user_prompt(target_date, region, agencies)
 
+    body = {
+        "model": MODEL,
+        "max_tokens": 4096,
+        "system": SYSTEM_PROMPT,
+        "tools": [{"type": "web_search_20250305", "name": "web_search"}],
+        "messages": [
+            {"role": "user", "content": user_prompt},
+        ],
+    }
+
     try:
-        client = anthropic.Anthropic(api_key=API_KEY)
-        response = client.messages.create(
-            model=MODEL,
-            max_tokens=4096,
-            system=SYSTEM_PROMPT,
-            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
-            messages=[{"role": "user", "content": user_prompt}],
+        r = requests.post(
+            API_ENDPOINT,
+            headers={
+                "x-api-key": API_KEY,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json=body,
+            timeout=180,  # web search can take longer
         )
     except Exception as e:
-        log.warning("Claude SDK call failed for %s: %s", region, e)
+        log.warning("Claude request failed for %s: %s", region, e)
         return None
 
-    # Extract text from response content blocks
-    texts = [blk.text for blk in response.content
-             if hasattr(blk, "text") and blk.type == "text" and blk.text]
+    if r.status_code != 200:
+        log.warning("Claude %d for %s: %s", r.status_code, region, r.text[:300])
+        return None
+
+    resp = r.json()
+
+    # Extract text from response — Claude returns content blocks
+    content_blocks = resp.get("content", [])
+    texts = [blk.get("text", "") for blk in content_blocks
+             if blk.get("type") == "text" and blk.get("text")]
     if not texts:
-        log.warning("Claude returned no text blocks for %s (stop_reason=%s, content_types=%s)",
-                    region, response.stop_reason,
-                    [blk.type for blk in response.content])
+        log.warning("Claude returned no text blocks for %s", region)
         return None
 
-    # The last text block should contain the JSON answer
+    # The last text block typically contains the JSON answer
     msg = texts[-1].strip()
-    log.info("  [%s] got %d text blocks, last=%d chars, stop=%s",
-             region, len(texts), len(msg), response.stop_reason)
 
     # Token usage
-    in_tok = response.usage.input_tokens
-    out_tok = response.usage.output_tokens
+    usage = resp.get("usage", {}) or {}
+    in_tok = int(usage.get("input_tokens", 0))
+    out_tok = int(usage.get("output_tokens", 0))
     cost_usd = (in_tok * PRICE_INPUT_USD_PER_1M / 1_000_000 +
                 out_tok * PRICE_OUTPUT_USD_PER_1M / 1_000_000)
     cost_eur = cost_usd * USD_TO_EUR
     record_spend(ledger, cost_eur, region, in_tok, out_tok)
     log.info("  [%s] in=%d out=%d cost≈€%.4f", region, in_tok, out_tok, cost_eur)
 
-    # Strip markdown fences
+    # Strip markdown fences if Claude added them
     text = msg
-    if "```" in text:
-        text = re.sub(r"```[a-zA-Z]*\s*\n?", "", text)
-        text = re.sub(r"```", "", text).strip()
-
-    # Extract JSON — Claude may include prose before/after the JSON
-    json_match = re.search(r'\{[^{}]*"recalls"\s*:\s*\[.*?\]\s*\}', text, re.DOTALL)
-    if not json_match:
-        json_match = re.search(r'\{.*\}', text, re.DOTALL)
-    if not json_match:
-        log.warning("[%s] no JSON found in response: %s", region, text[:300])
-        return None
+    if text.startswith("```"):
+        text = re.sub(r"^```[a-zA-Z]*\s*\n?", "", text)
+        text = re.sub(r"\n```\s*$", "", text).strip()
 
     try:
-        data = json.loads(json_match.group(0))
+        data = json.loads(text)
     except json.JSONDecodeError as e:
-        log.warning("[%s] JSON parse failed: %s | %s", region, e, json_match.group(0)[:300])
+        log.warning("[%s] JSON parse failed: %s | %s", region, e, text[:250])
         return None
 
     return data
@@ -589,7 +595,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
         path_norm = normalize_pathogen(pathogen) or pathogen
         rec = Recall(
             Date=(row.get("date") or "")[:10],
-            Source=row.get("source", "") or "Claude-daily",
+            Source=row.get("source", "") or "OpenAI-daily",
             Company=(row.get("company") or "")[:200],
             Brand=(row.get("brand") or "—")[:100],
             Product=(row.get("product") or "")[:400],
@@ -602,7 +608,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
             Outbreak=outbreak,
             URL=(row.get("url") or "").strip(),
             Notes=((row.get("notes") or "") +
-                   "  [via Claude daily 10:00 Athens search]")[:500],
+                   "  [via OpenAI daily 10:00 Athens search]")[:500],
         )
         rec = rec.normalize()
         if not rec.URL.lower().startswith(("http://", "https://")):
@@ -907,7 +913,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if not API_KEY:
-        log.error("ANTHROPIC_API_KEY not set — cannot run.")
+        log.error("OPENAI_API_KEY not set — cannot run.")
         return 1
 
     # Determine target date (Athens yesterday)

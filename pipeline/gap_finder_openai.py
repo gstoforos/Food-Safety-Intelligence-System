@@ -33,66 +33,37 @@ from pipeline.merge_master import (  # noqa: E402
     append_to_pending, sort_rows, save_xlsx_with_pending,
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
-
-import requests as _requests
+from review.openai_client import _call_openai, ENABLED as OPENAI_ENABLED  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     handlers=[logging.StreamHandler()],
 )
-log = logging.getLogger("openai-gap-finder")
+log = logging.getLogger("gap-finder")
 
 DATA_DIR = ROOT / "docs" / "data"
 XLSX_PATH = DATA_DIR / "recalls.xlsx"
 JSON_PATH = DATA_DIR / "recalls.json"
 
-SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "5"))
+SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "7"))
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
-OPENAI_MODEL = os.getenv("OPENAI_GAP_MODEL", "gpt-4o-mini-search-preview")
-OPENAI_ENABLED = bool(OPENAI_API_KEY)
-
-# 5-region specs covering all 66+ agencies
-REGION_SPECS = [
-    {"region": "Europe", "agencies": (
-        "RASFF (EU, webgate.ec.europa.eu/rasff-window), RappelConso (France), "
-        "BVL/lebensmittelwarnung.de (Germany), AGES (Austria), FSAI (Ireland), "
-        "FSA UK, FSS Scotland, Livsmedelsverket (Sweden), Fødevarestyrelsen (Denmark), "
-        "Mattilsynet (Norway), Ruokavirasto (Finland), ŠVPS (Slovakia), SZPI (Czech), "
-        "AESAN (Spain), Min. Salute (Italy), NVWA (Netherlands), AFSCA (Belgium), "
-        "ASAE (Portugal), BLV (Switzerland), EFET (Greece), GIS (Poland), "
-        "PVD (Latvia), VTA (Estonia), VMVT (Lithuania), MAST (Iceland)")},
-    {"region": "NorthAmerica", "agencies": (
-        "FDA (fda.gov), USDA FSIS (fsis.usda.gov), CDC, "
-        "CFIA Canada (recalls-rappels.canada.ca), MAPAQ Quebec")},
-    {"region": "LATAM", "agencies": (
-        "ANVISA Brazil, COFEPRIS Mexico, ANMAT Argentina, ISP Chile, "
-        "INVIMA Colombia, DIGESA Peru, ARCSA Ecuador, MSP Uruguay")},
-    {"region": "AsiaPacific", "agencies": (
-        "FSANZ Australia, MPI New Zealand, MFDS Korea, MHLW Japan, "
-        "CFS Hong Kong, SFA Singapore, FSSAI India, FDA Philippines, "
-        "BPOM Indonesia, MoH Malaysia, TFDA Taiwan, Thai FDA, SAMR China")},
-    {"region": "MiddleEastAfrica", "agencies": (
-        "SFDA Saudi Arabia, MoCCAE UAE, MoH Israel, MoPH Qatar, "
-        "TGTHB Turkey, NAFDAC Nigeria, NCC South Africa, NFSA Egypt, "
-        "ONSSA Morocco, KEBS Kenya, FDA Ghana")},
-]
 
 
 GAP_FINDER_SYSTEM = (
-    "You are a senior food safety analyst. You search worldwide regulators for "
-    "food recalls, public health alerts, RASFF notifications, and market withdrawals. "
-    "You NEVER make up URLs or facts. Return ONLY strict JSON — no markdown, no prose."
+    "You are a senior food safety analyst with deep knowledge of global food "
+    "recalls from regulators including FDA, USDA FSIS, EU RASFF, FSA (UK), FSAI "
+    "(Ireland), FSANZ (Australia/NZ), CFIA (Canada), AESAN (Spain), BVL "
+    "(Germany), RappelConso (France), EFET (Greece), Salute.gov.it (Italy), "
+    "CFS (Hong Kong), MFDS (Korea), MHLW (Japan), ANVISA (Brazil), SENASA "
+    "(Argentina), COFEPRIS (Mexico), FSSAI (India), NAFDAC (Nigeria), and "
+    "others. Return ONLY strict JSON — no markdown, no prose, no commentary."
 )
 
 
-GAP_FINDER_PROMPT = """Using your web search, find EVERY food recall, public health alert, RASFF notification, or market withdrawal issued in {region} in the last {since_days} days.
+GAP_FINDER_PROMPT = """List EVERY food recall / public-health alert issued worldwide in the last {since_days} days whose cause is a PATHOGEN, MICROBIAL CONTAMINATION, BIOLOGICAL TOXIN, MOULD, FOREIGN MATERIAL, or CHEMICAL HAZARD.
 
 Today's date: {today}
-
-REGULATORS TO SEARCH: {agencies}
 
 In scope: Listeria, Salmonella, E. coli / STEC / O157:H7, Clostridium
 botulinum, Norovirus, Hepatitis A, Campylobacter, Cyclospora, Vibrio, Cronobacter
@@ -106,8 +77,8 @@ oxide, dioxins/PCBs, mineral oil (MOAH/MOSH), pesticide residues over MRL,
 Sudan dyes, melamine, chlorate, unauthorized substances.
 Also include EU RASFF notifications (alerts, border rejections).
 
-OUT of scope: undeclared allergens (unless combined with in-scope hazard),
-labeling errors, quality complaints, non-food products.
+OUT of scope (do NOT include): undeclared allergens (unless combined with an
+in-scope hazard), labeling errors, quality complaints, non-food products.
 
 For each recall return ALL fields below:
 - Date       : YYYY-MM-DD, the recall / alert publication date
@@ -142,79 +113,27 @@ If no pathogen recalls happened in the last {since_days} days, return: {{"recall
 """
 
 
-def _call_openai_search(prompt: str, system: str, max_tokens: int = 4096) -> str:
-    """Call gpt-4o-mini-search-preview with web search enabled."""
-    try:
-        r = _requests.post(
-            "https://api.openai.com/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {OPENAI_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": OPENAI_MODEL,
-                "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": prompt},
-                ],
-                "max_tokens": max_tokens,
-                "web_search_options": {},
-            },
-            timeout=120,
-        )
-        if r.status_code != 200:
-            log.warning("OpenAI %d: %s", r.status_code, r.text[:300])
-            return ""
-        return r.json()["choices"][0]["message"]["content"] or ""
-    except Exception as e:
-        log.warning("OpenAI call failed: %s", e)
-        return ""
-
-
 def query_openai_for_gaps(since_days: int) -> List[Dict[str, Any]]:
-    """5-region intensive sweep with web search. Returns raw recall dicts."""
+    """Single global query. Returns raw recall dicts (unvalidated)."""
     if not OPENAI_ENABLED:
         log.warning("OPENAI_API_KEY not set — gap-finder cannot run")
         return []
-
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    all_recalls: List[Dict[str, Any]] = []
-
-    for spec in REGION_SPECS:
-        region = spec["region"]
-        agencies = spec["agencies"]
-        log.info("→ Region %s", region)
-
-        prompt = GAP_FINDER_PROMPT.format(
-            since_days=since_days, today=today,
-            region=region, agencies=agencies,
-        )
-
-        txt = _call_openai_search(prompt, system=GAP_FINDER_SYSTEM)
-        if not txt:
-            log.warning("  [%s] empty response", region)
-            continue
-
-        # Strip markdown fences
-        txt = txt.strip()
-        if txt.startswith("```"):
-            import re
-            txt = re.sub(r"^```[a-zA-Z]*\s*\n?", "", txt)
-            txt = re.sub(r"\n```\s*$", "", txt).strip()
-
-        try:
-            data = json.loads(txt)
-        except json.JSONDecodeError as e:
-            log.warning("  [%s] JSON parse failed: %s | %s", region, e, txt[:250])
-            continue
-
-        rows = data.get("recalls", []) or []
-        log.info("  [%s] raw=%d", region, len(rows))
-        all_recalls.extend(rows)
-
-    log.info("OpenAI total proposed: %d recalls across %d regions",
-             len(all_recalls), len(REGION_SPECS))
-    return all_recalls
+    prompt = GAP_FINDER_PROMPT.format(since_days=since_days, today=today)
+    log.info("Querying OpenAI for pathogen recalls worldwide, last %d days", since_days)
+    # Reuse openai_client's low-level helper. max_tokens bumped to allow a long list.
+    txt = _call_openai(prompt, system=GAP_FINDER_SYSTEM, max_tokens=8000)
+    if not txt:
+        log.warning("OpenAI gap-finder returned no text")
+        return []
+    try:
+        data = json.loads(txt)
+    except json.JSONDecodeError as e:
+        log.warning("Gap-finder JSON parse failed: %s | text=%s", e, txt[:300])
+        return []
+    recalls = data.get("recalls", []) or []
+    log.info("OpenAI proposed %d recalls", len(recalls))
+    return recalls
 
 
 def to_recall_objects(raw: List[Dict[str, Any]]) -> List[Recall]:

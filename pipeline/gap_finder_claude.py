@@ -18,7 +18,6 @@ is once-a-day so cost is not a constraint.
 from __future__ import annotations
 import os
 import sys
-import re
 import json
 import logging
 from pathlib import Path
@@ -62,14 +61,9 @@ GAP_FINDER_SYSTEM = (
 )
 
 
-GAP_FINDER_PROMPT = """Using your web search, find EVERY food recall, public health alert, RASFF notification, or market withdrawal issued in {region} in the last {since_days} days.
+GAP_FINDER_PROMPT = """List EVERY food recall / public-health alert issued worldwide in the last {since_days} days whose cause is a PATHOGEN, MICROBIAL CONTAMINATION, BIOLOGICAL TOXIN, MOULD, FOREIGN MATERIAL, or CHEMICAL HAZARD.
 
 Today's date: {today}
-
-REGULATORS TO SEARCH — go to each agency's website and check their latest postings:
-{agencies}
-
-For each agency above, search: '<agency name> food recall' and '<agency name> latest alerts'. Open the results and check publication dates within the last {since_days} days.
 
 In scope: Listeria, Salmonella, E. coli / STEC / O157:H7, Clostridium
 botulinum, Norovirus, Hepatitis A, Campylobacter, Cyclospora, Vibrio, Cronobacter
@@ -81,10 +75,11 @@ rodent / insect / pest contamination,
 chemical hazards: heavy metals (lead, cadmium, mercury, arsenic), ethylene
 oxide, dioxins/PCBs, mineral oil (MOAH/MOSH), pesticide residues over MRL,
 Sudan dyes, melamine, chlorate, unauthorized substances.
-Also include EU RASFF notifications (alerts, border rejections).
+Also include EU RASFF notifications (alerts, border rejections, information
+notifications) — these are functionally equivalent to recalls.
 
-OUT of scope: undeclared allergens (unless combined with in-scope hazard),
-labeling errors, quality complaints, non-food products.
+OUT of scope (do NOT include): undeclared allergens (unless combined with an
+in-scope hazard), labeling errors, quality complaints, non-food products.
 
 For each recall return ALL fields below:
 - Date       : YYYY-MM-DD, the recall / alert publication date
@@ -119,93 +114,29 @@ If no pathogen recalls happened in the last {since_days} days, return: {{"recall
 """
 
 
-REGION_SPECS = [
-    {"region": "Europe", "agencies": (
-        "RASFF (webgate.ec.europa.eu/rasff-window), RappelConso (rappel.conso.gouv.fr), "
-        "BVL (lebensmittelwarnung.de), FSA UK (food.gov.uk/news-alerts), "
-        "FSAI Ireland (fsai.ie), AESAN Spain, AGES Austria, NVWA Netherlands, "
-        "AFSCA Belgium, EFET Greece, Min. Salute Italy, BLV Switzerland")},
-    {"region": "NorthAmerica", "agencies": (
-        "FDA (fda.gov/safety/recalls), USDA FSIS (fsis.usda.gov/recalls), "
-        "CFIA Canada (recalls-rappels.canada.ca)")},
-    {"region": "AsiaPacific", "agencies": (
-        "FSANZ Australia (foodstandards.gov.au/food-recalls), MPI New Zealand, "
-        "MFDS Korea, MHLW Japan, CFS Hong Kong, SFA Singapore, FSSAI India")},
-    {"region": "LATAM_ME_Africa", "agencies": (
-        "ANVISA Brazil, COFEPRIS Mexico, ANMAT Argentina, "
-        "SFDA Saudi Arabia, NAFDAC Nigeria, NCC South Africa")},
-]
-
-
-def _call_claude_web(prompt: str, system: str, max_tokens: int = 4096) -> str:
-    """Claude Haiku 4.5 with web search tool via anthropic SDK."""
-    api_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
-    if not api_key:
-        return ""
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
-        response = client.messages.create(
-            model=os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001"),
-            max_tokens=max_tokens,
-            system=system,
-            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
-            messages=[{"role": "user", "content": prompt}],
-        )
-        texts = [blk.text for blk in response.content
-                 if hasattr(blk, "text") and blk.type == "text" and blk.text]
-        return texts[-1].strip() if texts else ""
-    except Exception as e:
-        log.warning("Claude SDK web call failed: %s", e)
-        return ""
-
-
 def query_claude_for_gaps(since_days: int) -> List[Dict[str, Any]]:
-    """5-region web search sweep. Returns raw recall dicts (unvalidated)."""
+    """Single global query. Returns raw recall dicts (unvalidated)."""
     if not CLAUDE_ENABLED:
         log.warning("ANTHROPIC_API_KEY not set — gap-finder cannot run")
         return []
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    all_recalls: List[Dict[str, Any]] = []
-
-    for spec in REGION_SPECS:
-        region = spec["region"]
-        agencies = spec["agencies"]
-        log.info("→ Region %s", region)
-
-        prompt = GAP_FINDER_PROMPT.format(
-            since_days=since_days, today=today,
-            region=region, agencies=agencies,
-        )
-
-        txt = _call_claude_web(prompt, system=GAP_FINDER_SYSTEM)
-        if not txt:
-            log.warning("  [%s] empty response", region)
-            continue
-
-        txt = _strip_fences(txt)
-        
-        # Extract JSON from mixed prose+JSON response
-        json_match = re.search(r'\{[^{}]*"recalls"\s*:\s*\[.*\]\s*\}', txt, re.DOTALL)
-        if not json_match:
-            json_match = re.search(r'\{.*\}', txt, re.DOTALL)
-        if not json_match:
-            log.warning("  [%s] no JSON found in response: %s", region, txt[:300])
-            continue
-        
-        try:
-            data = json.loads(json_match.group(0))
-        except json.JSONDecodeError as e:
-            log.warning("  [%s] JSON parse failed: %s | %s", region, e, txt[:250])
-            continue
-
-        rows = data.get("recalls", []) or []
-        log.info("  [%s] found %d recalls", region, len(rows))
-        all_recalls.extend(rows)
-
-    log.info("Claude gap-finder total: %d recalls across %d regions",
-             len(all_recalls), len(REGION_SPECS))
-    return all_recalls
+    prompt = GAP_FINDER_PROMPT.format(since_days=since_days, today=today)
+    log.info("Querying Claude for pathogen recalls worldwide, last %d days", since_days)
+    # max_tokens bumped to allow a long global list.
+    txt = _call_claude(prompt, system=GAP_FINDER_SYSTEM, max_tokens=8000)
+    if not txt:
+        log.warning("Claude gap-finder returned no text")
+        return []
+    # Claude occasionally wraps JSON in ```json fences despite instructions.
+    txt = _strip_fences(txt)
+    try:
+        data = json.loads(txt)
+    except json.JSONDecodeError as e:
+        log.warning("Gap-finder JSON parse failed: %s | text=%s", e, txt[:300])
+        return []
+    recalls = data.get("recalls", []) or []
+    log.info("Claude proposed %d recalls", len(recalls))
+    return recalls
 
 
 def to_recall_objects(raw: List[Dict[str, Any]]) -> List[Recall]:
