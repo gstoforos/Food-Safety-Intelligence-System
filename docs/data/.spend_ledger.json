@@ -405,6 +405,41 @@
       "region": "MiddleEastAfrica",
       "input_tokens": 1615,
       "output_tokens": 464
+    },
+    {
+      "ts": "2026-04-23T16:12:50Z",
+      "eur": 0.0015,
+      "region": "Europe",
+      "input_tokens": 1753,
+      "output_tokens": 2305
+    },
+    {
+      "ts": "2026-04-23T16:12:58Z",
+      "eur": 0.0005,
+      "region": "NorthAmerica",
+      "input_tokens": 1586,
+      "output_tokens": 503
+    },
+    {
+      "ts": "2026-04-23T16:13:03Z",
+      "eur": 0.0004,
+      "region": "LATAM",
+      "input_tokens": 1588,
+      "output_tokens": 379
+    },
+    {
+      "ts": "2026-04-23T16:13:09Z",
+      "eur": 0.0004,
+      "region": "AsiaPacific",
+      "input_tokens": 1666,
+      "output_tokens": 273
+    },
+    {
+      "ts": "2026-04-23T16:13:13Z",
+      "eur": 0.0003,
+      "region": "MiddleEastAfrica",
+      "input_tokens": 1615,
+      "output_tokens": 160
     }
   ]
 }
