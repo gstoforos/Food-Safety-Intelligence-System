@@ -1,7 +1,7 @@
 """
-Daily Recall Search — OpenAI-powered global recall finder (Pending-first).
+Daily Recall Search — Claude-powered global recall finder (Pending-first).
 
-REPLACES pipeline/gap_finder_openai.py.
+Uses Claude Haiku 4.5 with web search for verified URLs.
 
 Correct pipeline flow — EXCEL IS THE SOURCE OF TRUTH:
 
@@ -82,17 +82,17 @@ SPEND_LEDGER = DATA_DIR / ".spend_ledger.json"
 # ---------------------------------------------------------------------------
 # Budget
 # ---------------------------------------------------------------------------
-HARD_CAP_EUR_PER_RUN = float(os.getenv("DAILY_BUDGET_EUR_PER_RUN", "0.12"))
-HARD_CAP_EUR_PER_WEEK = float(os.getenv("DAILY_BUDGET_EUR_PER_WEEK", "0.50"))
+HARD_CAP_EUR_PER_RUN = float(os.getenv("DAILY_BUDGET_EUR_PER_RUN", "0.15"))
+HARD_CAP_EUR_PER_WEEK = float(os.getenv("DAILY_BUDGET_EUR_PER_WEEK", "1.00"))
 USD_TO_EUR = 0.92  # static — close enough; doesn't need to be exact
 
-# gpt-4o-mini-search-preview pricing per 1M tokens
-PRICE_INPUT_USD_PER_1M = 0.15
-PRICE_OUTPUT_USD_PER_1M = 0.60
+# Claude Haiku 4.5 pricing per 1M tokens
+PRICE_INPUT_USD_PER_1M = 0.80
+PRICE_OUTPUT_USD_PER_1M = 4.00
 
-MODEL = os.getenv("OPENAI_DAILY_MODEL", "gpt-4o-mini-search-preview")
-API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
-API_ENDPOINT = "https://api.openai.com/v1/chat/completions"
+MODEL = os.getenv("CLAUDE_DAILY_MODEL", "claude-haiku-4-5-20251001")
+API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
+API_ENDPOINT = "https://api.anthropic.com/v1/messages"
 
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 
@@ -347,67 +347,78 @@ def record_spend(ledger: Dict[str, Any], eur: float, region: str,
 
 
 # ---------------------------------------------------------------------------
-# OpenAI call
+# Claude API call (with web search tool)
 # ---------------------------------------------------------------------------
-def call_openai_search(target_date: date, region: str, agencies: str,
+def call_claude_search(target_date: date, region: str, agencies: str,
                        ledger: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Single call to gpt-4o-mini-search-preview. Returns parsed JSON or None.
-    Updates the budget ledger.
+    Single call to Claude Haiku 4.5 with web_search tool.
+    Returns parsed JSON or None. Updates the budget ledger.
+
+    Claude's web search returns real URLs from actual search results —
+    unlike OpenAI's search-preview which often hallucinates URLs.
+    The URLs still go through URL guardian validation before promotion.
     """
     if not API_KEY:
-        log.error("OPENAI_API_KEY not set")
+        log.error("ANTHROPIC_API_KEY not set")
         return None
+
+    user_prompt = build_user_prompt(target_date, region, agencies)
 
     body = {
         "model": MODEL,
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": build_user_prompt(
-                target_date, region, agencies)},
-        ],
-        # gpt-4o-mini-search-preview has web search built in — no temperature
-        # gpt-4o-mini-search-preview does NOT accept temperature != 1
         "max_tokens": 4096,
-        "web_search_options": {},  # trigger web search
+        "system": SYSTEM_PROMPT,
+        "tools": [{"type": "web_search_20250305", "name": "web_search"}],
+        "messages": [
+            {"role": "user", "content": user_prompt},
+        ],
     }
 
     try:
         r = requests.post(
             API_ENDPOINT,
             headers={
-                "Authorization": f"Bearer {API_KEY}",
-                "Content-Type": "application/json",
+                "x-api-key": API_KEY,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
             },
             json=body,
-            timeout=120,
+            timeout=180,  # web search can take longer
         )
     except Exception as e:
-        log.warning("OpenAI request failed for %s: %s", region, e)
+        log.warning("Claude request failed for %s: %s", region, e)
         return None
 
     if r.status_code != 200:
-        log.warning("OpenAI %d for %s: %s", r.status_code, region, r.text[:300])
+        log.warning("Claude %d for %s: %s", r.status_code, region, r.text[:300])
         return None
 
     resp = r.json()
-    try:
-        msg = resp["choices"][0]["message"]["content"]
-    except (KeyError, IndexError):
-        log.warning("Unexpected response shape for %s: %s", region, str(resp)[:300])
+
+    # Extract text from response — Claude returns content blocks
+    content_blocks = resp.get("content", [])
+    texts = [blk.get("text", "") for blk in content_blocks
+             if blk.get("type") == "text" and blk.get("text")]
+    if not texts:
+        log.warning("Claude returned no text blocks for %s", region)
         return None
 
+    # The last text block typically contains the JSON answer
+    msg = texts[-1].strip()
+
+    # Token usage
     usage = resp.get("usage", {}) or {}
-    in_tok = int(usage.get("prompt_tokens", 0))
-    out_tok = int(usage.get("completion_tokens", 0))
+    in_tok = int(usage.get("input_tokens", 0))
+    out_tok = int(usage.get("output_tokens", 0))
     cost_usd = (in_tok * PRICE_INPUT_USD_PER_1M / 1_000_000 +
                 out_tok * PRICE_OUTPUT_USD_PER_1M / 1_000_000)
     cost_eur = cost_usd * USD_TO_EUR
     record_spend(ledger, cost_eur, region, in_tok, out_tok)
     log.info("  [%s] in=%d out=%d cost≈€%.4f", region, in_tok, out_tok, cost_eur)
 
-    # Strip markdown fences if the model added them
-    text = msg.strip()
+    # Strip markdown fences if Claude added them
+    text = msg
     if text.startswith("```"):
         text = re.sub(r"^```[a-zA-Z]*\s*\n?", "", text)
         text = re.sub(r"\n```\s*$", "", text).strip()
@@ -972,7 +983,7 @@ def main() -> int:
             break
 
         log.info("→ Region %s", spec["region"])
-        result = call_openai_search(target, spec["region"], spec["agencies"],
+        result = call_claude_search(target, spec["region"], spec["agencies"],
                                     ledger)
         regions_done += 1
         if not result:
@@ -985,7 +996,7 @@ def main() -> int:
         # timeout or overly strict date matching on first attempt.
         if len(raw_rows) == 0:
             log.warning("   [%s] empty on first try — retrying once", spec["region"])
-            result2 = call_openai_search(target, spec["region"], spec["agencies"],
+            result2 = call_claude_search(target, spec["region"], spec["agencies"],
                                          ledger)
             if result2:
                 raw_rows = result2.get("recalls") or []
