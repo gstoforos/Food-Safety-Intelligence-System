@@ -265,6 +265,76 @@
       "region": "NorthAmerica",
       "input_tokens": 52703,
       "output_tokens": 878
+    },
+    {
+      "ts": "2026-04-23T14:20:08Z",
+      "eur": 0.031,
+      "region": "Europe",
+      "input_tokens": 39009,
+      "output_tokens": 632
+    },
+    {
+      "ts": "2026-04-23T14:21:23Z",
+      "eur": 0.0294,
+      "region": "Europe",
+      "input_tokens": 36924,
+      "output_tokens": 616
+    },
+    {
+      "ts": "2026-04-23T14:22:37Z",
+      "eur": 0.0277,
+      "region": "NorthAmerica",
+      "input_tokens": 34198,
+      "output_tokens": 684
+    },
+    {
+      "ts": "2026-04-23T14:23:52Z",
+      "eur": 0.0293,
+      "region": "NorthAmerica",
+      "input_tokens": 36610,
+      "output_tokens": 649
+    },
+    {
+      "ts": "2026-04-23T14:25:05Z",
+      "eur": 0.0285,
+      "region": "LATAM",
+      "input_tokens": 35315,
+      "output_tokens": 689
+    },
+    {
+      "ts": "2026-04-23T14:26:18Z",
+      "eur": 0.0286,
+      "region": "LATAM",
+      "input_tokens": 35307,
+      "output_tokens": 713
+    },
+    {
+      "ts": "2026-04-23T14:27:33Z",
+      "eur": 0.0315,
+      "region": "AsiaPacific",
+      "input_tokens": 37846,
+      "output_tokens": 987
+    },
+    {
+      "ts": "2026-04-23T14:28:49Z",
+      "eur": 0.0328,
+      "region": "AsiaPacific",
+      "input_tokens": 39673,
+      "output_tokens": 981
+    },
+    {
+      "ts": "2026-04-23T14:30:01Z",
+      "eur": 0.03,
+      "region": "MiddleEastAfrica",
+      "input_tokens": 38056,
+      "output_tokens": 536
+    },
+    {
+      "ts": "2026-04-23T14:31:17Z",
+      "eur": 0.0297,
+      "region": "MiddleEastAfrica",
+      "input_tokens": 35988,
+      "output_tokens": 862
     }
   ]
 }
