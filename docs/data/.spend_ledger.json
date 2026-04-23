@@ -251,6 +251,20 @@
       "region": "Europe",
       "input_tokens": 250955,
       "output_tokens": 1683
+    },
+    {
+      "ts": "2026-04-23T14:14:35Z",
+      "eur": 0.0424,
+      "region": "Europe",
+      "input_tokens": 53130,
+      "output_tokens": 905
+    },
+    {
+      "ts": "2026-04-23T14:14:47Z",
+      "eur": 0.042,
+      "region": "NorthAmerica",
+      "input_tokens": 52703,
+      "output_tokens": 878
     }
   ]
 }
