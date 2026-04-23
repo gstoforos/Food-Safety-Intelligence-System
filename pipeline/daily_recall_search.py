@@ -352,81 +352,75 @@ def record_spend(ledger: Dict[str, Any], eur: float, region: str,
 def call_claude_search(target_date: date, region: str, agencies: str,
                        ledger: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Single call to Claude Haiku 4.5 with web_search tool.
+    Single call to Claude Haiku 4.5 with web_search tool via the anthropic SDK.
     Returns parsed JSON or None. Updates the budget ledger.
-
-    Claude's web search returns real URLs from actual search results —
-    unlike OpenAI's search-preview which often hallucinates URLs.
-    The URLs still go through URL guardian validation before promotion.
     """
     if not API_KEY:
         log.error("ANTHROPIC_API_KEY not set")
         return None
 
+    try:
+        import anthropic
+    except ImportError:
+        log.error("anthropic package not installed — pip install anthropic")
+        return None
+
     user_prompt = build_user_prompt(target_date, region, agencies)
 
-    body = {
-        "model": MODEL,
-        "max_tokens": 4096,
-        "system": SYSTEM_PROMPT,
-        "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
-        "messages": [
-            {"role": "user", "content": user_prompt},
-        ],
-    }
-
     try:
-        r = requests.post(
-            API_ENDPOINT,
-            headers={
-                "x-api-key": API_KEY,
-                "anthropic-version": "2025-03-19",
-                "content-type": "application/json",
-            },
-            json=body,
-            timeout=180,  # web search can take longer
+        client = anthropic.Anthropic(api_key=API_KEY)
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=4096,
+            system=SYSTEM_PROMPT,
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
+            messages=[{"role": "user", "content": user_prompt}],
         )
     except Exception as e:
-        log.warning("Claude request failed for %s: %s", region, e)
+        log.warning("Claude SDK call failed for %s: %s", region, e)
         return None
 
-    if r.status_code != 200:
-        log.warning("Claude %d for %s: %s", r.status_code, region, r.text[:300])
-        return None
-
-    resp = r.json()
-
-    # Extract text from response — Claude returns content blocks
-    content_blocks = resp.get("content", [])
-    texts = [blk.get("text", "") for blk in content_blocks
-             if blk.get("type") == "text" and blk.get("text")]
+    # Extract text from response content blocks
+    texts = [blk.text for blk in response.content
+             if hasattr(blk, "text") and blk.type == "text" and blk.text]
     if not texts:
-        log.warning("Claude returned no text blocks for %s", region)
+        log.warning("Claude returned no text blocks for %s (stop_reason=%s, content_types=%s)",
+                    region, response.stop_reason,
+                    [blk.type for blk in response.content])
         return None
 
-    # The last text block typically contains the JSON answer
+    # The last text block should contain the JSON answer
     msg = texts[-1].strip()
+    log.info("  [%s] got %d text blocks, last=%d chars, stop=%s",
+             region, len(texts), len(msg), response.stop_reason)
 
     # Token usage
-    usage = resp.get("usage", {}) or {}
-    in_tok = int(usage.get("input_tokens", 0))
-    out_tok = int(usage.get("output_tokens", 0))
+    in_tok = response.usage.input_tokens
+    out_tok = response.usage.output_tokens
     cost_usd = (in_tok * PRICE_INPUT_USD_PER_1M / 1_000_000 +
                 out_tok * PRICE_OUTPUT_USD_PER_1M / 1_000_000)
     cost_eur = cost_usd * USD_TO_EUR
     record_spend(ledger, cost_eur, region, in_tok, out_tok)
     log.info("  [%s] in=%d out=%d cost≈€%.4f", region, in_tok, out_tok, cost_eur)
 
-    # Strip markdown fences if Claude added them
+    # Strip markdown fences
     text = msg
-    if text.startswith("```"):
-        text = re.sub(r"^```[a-zA-Z]*\s*\n?", "", text)
-        text = re.sub(r"\n```\s*$", "", text).strip()
+    if "```" in text:
+        text = re.sub(r"```[a-zA-Z]*\s*\n?", "", text)
+        text = re.sub(r"```", "", text).strip()
+
+    # Extract JSON — Claude may include prose before/after the JSON
+    json_match = re.search(r'\{[^{}]*"recalls"\s*:\s*\[.*?\]\s*\}', text, re.DOTALL)
+    if not json_match:
+        json_match = re.search(r'\{.*\}', text, re.DOTALL)
+    if not json_match:
+        log.warning("[%s] no JSON found in response: %s", region, text[:300])
+        return None
 
     try:
-        data = json.loads(text)
+        data = json.loads(json_match.group(0))
     except json.JSONDecodeError as e:
-        log.warning("[%s] JSON parse failed: %s | %s", region, e, text[:250])
+        log.warning("[%s] JSON parse failed: %s | %s", region, e, json_match.group(0)[:300])
         return None
 
     return data

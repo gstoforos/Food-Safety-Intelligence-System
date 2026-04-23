@@ -18,6 +18,7 @@ is once-a-day so cost is not a constraint.
 from __future__ import annotations
 import os
 import sys
+import re
 import json
 import logging
 from pathlib import Path
@@ -137,36 +138,25 @@ REGION_SPECS = [
 
 
 def _call_claude_web(prompt: str, system: str, max_tokens: int = 4096) -> str:
-    """Claude Haiku 4.5 with web search tool."""
-    import requests as _req
+    """Claude Haiku 4.5 with web search tool via anthropic SDK."""
     api_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
     if not api_key:
         return ""
     try:
-        r = _req.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2025-03-19",
-                "content-type": "application/json",
-            },
-            json={
-                "model": os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001"),
-                "max_tokens": max_tokens,
-                "system": system,
-                "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
-                "messages": [{"role": "user", "content": prompt}],
-            },
-            timeout=180,
+        import anthropic
+        client = anthropic.Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model=os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001"),
+            max_tokens=max_tokens,
+            system=system,
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
+            messages=[{"role": "user", "content": prompt}],
         )
-        if r.status_code != 200:
-            log.warning("Claude %d: %s", r.status_code, r.text[:300])
-            return ""
-        texts = [b.get("text", "") for b in r.json().get("content", [])
-                 if b.get("type") == "text" and b.get("text")]
+        texts = [blk.text for blk in response.content
+                 if hasattr(blk, "text") and blk.type == "text" and blk.text]
         return texts[-1].strip() if texts else ""
     except Exception as e:
-        log.warning("Claude web call failed: %s", e)
+        log.warning("Claude SDK web call failed: %s", e)
         return ""
 
 
@@ -194,8 +184,17 @@ def query_claude_for_gaps(since_days: int) -> List[Dict[str, Any]]:
             continue
 
         txt = _strip_fences(txt)
+        
+        # Extract JSON from mixed prose+JSON response
+        json_match = re.search(r'\{[^{}]*"recalls"\s*:\s*\[.*\]\s*\}', txt, re.DOTALL)
+        if not json_match:
+            json_match = re.search(r'\{.*\}', txt, re.DOTALL)
+        if not json_match:
+            log.warning("  [%s] no JSON found in response: %s", region, txt[:300])
+            continue
+        
         try:
-            data = json.loads(txt)
+            data = json.loads(json_match.group(0))
         except json.JSONDecodeError as e:
             log.warning("  [%s] JSON parse failed: %s | %s", region, e, txt[:250])
             continue
