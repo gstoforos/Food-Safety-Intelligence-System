@@ -368,7 +368,7 @@ def call_openai_search(target_date: date, region: str, agencies: str,
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt},
         ],
-        "max_tokens": 4096,
+        "max_tokens": 16384,
         "web_search_options": {},
     }
 
