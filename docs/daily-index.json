@@ -1,6 +1,17 @@
 {
   "entries": [
     {
+      "date": "2026-04-22",
+      "url": "daily/2026-04-22.html",
+      "total": 1,
+      "tier1": 1,
+      "outbreak": 1,
+      "by_region": {
+        "Oceania": 1
+      },
+      "generated": "2026-04-23T09:50:59Z"
+    },
+    {
       "date": "2026-04-21",
       "url": "daily/2026-04-21.html",
       "total": 6,
