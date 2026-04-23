@@ -165,18 +165,21 @@ GAP_FINDER_SYSTEM = (
 )
 
 
-GAP_FINDER_PROMPT = """Using Google Search, find EVERY food recall / public-health alert issued worldwide in the last {since_days} days whose cause is a PATHOGEN, MICROBIAL CONTAMINATION, or BIOLOGICAL TOXIN.
+GAP_FINDER_PROMPT = """Using Google Search, find EVERY food recall, public health alert, RASFF notification, or market withdrawal issued worldwide in the last {since_days} days.
 
 Today's date: {today}
 
-SEARCH STRATEGY: Run multiple Google searches to cover all major regulators. Example queries to run:
-- "food recall {year} salmonella listeria" site:fda.gov OR site:fsis.usda.gov OR site:cdc.gov
-- "food recall {year}" site:rappelconso.gouv.fr OR site:food.gov.uk OR site:fsai.ie
-- "food recall {year}" site:inspection.canada.ca OR site:foodstandards.gov.au OR site:mpi.govt.nz
-- "Lebensmittelrückruf {year}" site:lebensmittelwarnung.de OR site:ages.at
-- "rappel aliment {year}" site:rappelconso.gouv.fr
-- "retiro alimento {year}" site:aesan.gob.es
-- Agencies to cover: FDA, USDA FSIS, EU RASFF, FSA UK, FSAI Ireland, FSANZ Australia/NZ, CFIA Canada, AESAN Spain, BVL Germany, RappelConso France, EFET Greece, Min. Salute Italy, CFS Hong Kong, MFDS Korea, MHLW Japan, ANVISA Brazil, COFEPRIS Mexico, FSSAI India, NAFDAC Nigeria, SFDA Saudi Arabia, and any others.
+SEARCH STRATEGY — search EACH agency individually:
+- "food recall" site:fda.gov/safety/recalls
+- "food recall" site:recalls-rappels.canada.ca
+- "food alert" site:food.gov.uk/news-alerts
+- "food alert" site:fsai.ie
+- "rappel" site:rappel.conso.gouv.fr
+- "food recall" site:foodstandards.gov.au/food-recalls
+- "RASFF notification" site:webgate.ec.europa.eu
+- "Lebensmittelrückruf" site:lebensmittelwarnung.de
+- "food recall" site:fsis.usda.gov/recalls
+- Also search: AESAN Spain, AGES Austria, EFET Greece, MPI NZ, CFS Hong Kong, MFDS Korea, MHLW Japan, ANVISA Brazil, NAFDAC Nigeria, SFDA Saudi Arabia
 
 In scope: Listeria, Salmonella, E. coli / STEC / O157:H7, Clostridium botulinum, Norovirus, Hepatitis A, Campylobacter, Cyclospora, Vibrio, Cronobacter sakazakii, Bacillus cereus / cereulide, Aflatoxins, Ochratoxin A, Patulin, marine biotoxins, Histamine, Shigella, Yersinia, Brucella, other mycotoxins, mould/mold contamination, foreign material (glass/metal/plastic/wood/stone fragments), rodent/insect/pest contamination, chemical hazards: heavy metals (lead, cadmium, mercury, arsenic), ethylene oxide, dioxins/PCBs, mineral oil (MOAH/MOSH), pesticide residues over MRL, Sudan dyes, melamine, chlorate, unauthorized substances. Also include EU RASFF notifications (alerts, border rejections, information notifications).
 
