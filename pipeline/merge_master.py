@@ -486,3 +486,58 @@ def append_news_to_xlsx(
              len(to_add), len(existing) + len(to_add))
     return len(to_add)
 
+
+
+# =========================================================================
+# CLI entry point — run by the hourly merge-master workflow.
+# Validates Pending URLs and promotes approved rows to Recalls.
+# =========================================================================
+if __name__ == "__main__":
+    import sys
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
+    from pathlib import Path
+    ROOT = Path(__file__).resolve().parent.parent
+    XLSX = ROOT / "docs" / "data" / "recalls.xlsx"
+
+    if not XLSX.exists():
+        log.info("No recalls.xlsx found — nothing to merge.")
+        sys.exit(0)
+
+    approved = load_existing(XLSX)
+    pending = load_pending(XLSX)
+    log.info("State: %d approved, %d pending", len(approved), len(pending))
+
+    if not pending:
+        log.info("No Pending rows — nothing to promote.")
+        sys.exit(0)
+
+    # Validate URLs
+    from review.url_validator import validate_all
+    log.info("Validating %d Pending URLs...", len(pending))
+    validated = validate_all(pending, max_workers=5)
+
+    rejected_flags = {}
+    for idx, row in enumerate(validated):
+        check = row.get("_url_check", {})
+        if not check.get("ok", False):
+            rejected_flags[idx] = check.get("reason", "URL check failed")
+
+    # Remove _url_check from rows
+    clean_pending = [{k: v for k, v in row.items() if k != "_url_check"}
+                     for row in validated]
+
+    new_approved, remaining = promote_approved(clean_pending, approved, rejected_flags)
+
+    if new_approved:
+        log.info("Promoted %d rows Pending → Recalls", len(new_approved))
+        final_approved = sort_rows(approved + new_approved)
+    else:
+        log.info("No rows promoted this run.")
+        final_approved = sort_rows(approved)
+
+    save_xlsx_with_pending(XLSX, final_approved, sort_rows(remaining))
+    mirror_json_from_xlsx(XLSX, ROOT / "docs" / "data" / "recalls.json")
+    log.info("Done. Recalls=%d, Pending=%d", len(final_approved), len(remaining))

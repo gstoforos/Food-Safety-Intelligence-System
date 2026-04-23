@@ -158,10 +158,14 @@ def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
     """Run the 3 canonical gap-finder queries and dedup results."""
     queries = [
         'food recall salmonella OR listeria OR "e. coli" OR botulism OR campylobacter',
-        'food safety alert outbreak pathogen contamination recall',
-        'rappel aliment OR Lebensmittelrückruf OR "food recall" regulator',
-        'food recall "foreign material" OR glass OR metal OR mould OR "ethylene oxide"',
+        'food recall mould OR mold OR "foreign material" OR glass OR "ethylene oxide"',
         'RASFF notification food alert withdrawal',
+        'site:recalls-rappels.canada.ca food recall',
+        'site:food.gov.uk food alert recall',
+        'site:fsai.ie food recall alert',
+        'site:rappel.conso.gouv.fr rappel alimentaire',
+        'site:fda.gov food recall pathogen',
+        'site:foodstandards.gov.au food recall',
     ]
     all_results: Dict[str, Dict[str, Any]] = {}  # URL -> result (dedup)
     for q in queries:
