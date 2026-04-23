@@ -380,7 +380,7 @@ def call_claude_search(target_date: date, region: str, agencies: str,
             API_ENDPOINT,
             headers={
                 "x-api-key": API_KEY,
-                "anthropic-version": "2023-06-01",
+                "anthropic-version": "2025-03-19",
                 "content-type": "application/json",
             },
             json=body,
