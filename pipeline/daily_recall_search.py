@@ -1039,34 +1039,39 @@ def main() -> int:
     # daily brief (Nestlé Colombia cereulide, VFA Vietnam rat-poison etc.
     # appeared in the brief without ever existing in the Recalls sheet).
     scraped_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    current_pending = list(pending)
+
+    # STEP 1a: Append new OpenAI finds to Pending
     if new_recalls and not args.dry_run:
-        updated_pending = append_to_pending(
+        current_pending = append_to_pending(
             existing_pending=pending,
             approved=approved,
             new_recalls=new_recalls,
             scraped_at=scraped_at,
         )
-        pending_delta = len(updated_pending) - len(pending)
+        pending_delta = len(current_pending) - len(pending)
         log.info("Appended %d candidate rows to PENDING (total=%d)",
-                 pending_delta, len(updated_pending))
+                 pending_delta, len(current_pending))
+    elif new_recalls:
+        log.info("DRY RUN: would append %d candidate rows to PENDING",
+                 len(new_recalls))
 
-        # ==================================================================
-        # STEP 1b: Validate URLs + promote to Recalls INLINE.
-        # ==================================================================
-        # Don't wait for a separate URL guardian run. Validate the new
-        # Pending rows now, promote the ones with working URLs to Recalls,
-        # so the daily brief (rendered next) has actual data.
+    # ======================================================================
+    # STEP 1b: Validate ALL Pending URLs + promote to Recalls INLINE.
+    # ======================================================================
+    # Runs EVERY time there are Pending rows — not just when OpenAI found
+    # new ones. This catches rows left by previous runs (gap-finders, etc.)
+    if current_pending and not args.dry_run:
         from review.url_validator import validate_all, should_blank_url
         from pipeline.merge_master import promote_approved
 
-        log.info("Validating %d Pending row URLs...", len(updated_pending))
+        log.info("Validating %d Pending row URLs...", len(current_pending))
         validated = validate_all(
             [dict(r) if isinstance(r, dict) else r._asdict() if hasattr(r, '_asdict') else vars(r)
-             for r in updated_pending],
+             for r in current_pending],
             max_workers=5,
         )
 
-        # Build rejection flags: reject rows whose URL check failed
         rejected_flags: Dict[int, str] = {}
         for idx, row in enumerate(validated):
             check = row.get("_url_check", {})
@@ -1074,11 +1079,9 @@ def main() -> int:
                 reason = check.get("reason", "URL check failed")
                 rejected_flags[idx] = reason
 
-        # Convert validated rows back to plain dicts (remove _url_check)
         pending_dicts = [{k: v for k, v in row.items() if k != "_url_check"}
                          for row in validated]
 
-        # Promote approved rows to Recalls
         approved_dicts = [dict(r) if isinstance(r, dict) else
                          r._asdict() if hasattr(r, '_asdict') else vars(r)
                          for r in approved]
@@ -1090,17 +1093,13 @@ def main() -> int:
             log.info("Promoted %d rows Pending → Recalls", len(new_approved))
             approved = approved + new_approved  # type: ignore
         else:
-            log.info("No rows promoted (all URLs rejected or already in Recalls)")
+            log.info("No rows promoted (URLs rejected or already in Recalls)")
 
-        # Save updated state
         save_xlsx_with_pending(
             xlsx_path=XLSX_PATH,
             approved_rows=sort_rows(approved),
             pending_rows=sort_rows(remaining_pending),
         )
-    elif new_recalls:
-        log.info("DRY RUN: would append %d candidate rows to PENDING",
-                 len(new_recalls))
 
     # ========================================================================
     # STEP 2: Render the daily HTML brief FROM THE RECALLS SHEET ONLY.
