@@ -48,14 +48,27 @@ PATHOGEN_KEYWORDS = (
     "stec", "o157", "o26", "o103", "o111", "o121", "o145",
     "shiga", "botulin", "norovirus", "hepatitis", "campylobacter",
     "cyclospora", "vibrio", "cronobacter", "bacillus cereus", "cereulide",
-    "shigella", "yersinia", "biotoxin", "histamine", "scombro",
+    "shigella", "yersinia", "biotoxin", "histamine", "scombro", "brucell",
+    # --- Mould / spoilage ---
+    "mould", "mold",
     # --- Mycotoxins ---
     "aflatoxin", "ochratoxin", "patulin", "mycotoxin", "fumonisin",
     "zearalenone", "deoxynivalenol",
+    # --- Physical / foreign-body hazards ---
+    "glass fragment", "metal fragment", "plastic fragment",
+    "foreign object", "foreign body", "foreign material",
+    # --- Chemical ---
+    "ethylene oxide", "dioxin", "mineral oil", "moah", "mosh",
+    "heavy metal", "lead contamin", "cadmium", "mercury contamin",
+    "arsenic", "rodenticide", "rat poison", "chlorate",
+    "sudan", "melamine",
+    # --- Pest ---
+    "rodent", "insect", "pest contamination",
     # --- Native-language equivalents (commonly seen in EU agency feeds) ---
     "listeriose", "listeriosis", "salmonellose", "salmonelose",
     "botulismus", "botulisme", "botulismo",
     "mikrobiologisch", "microbiológica", "microbiologico", "microbiologique",
+    "moisissure", "schimmel",
 )
 
 

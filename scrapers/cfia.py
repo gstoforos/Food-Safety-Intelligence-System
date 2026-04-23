@@ -39,6 +39,13 @@ class CFIAScraper(BaseScraper):
         "metal fragment", "metal piece", "metal shard",
         "plastic fragment", "plastic piece",
         "foreign object", "foreign body", "foreign material",
+        # --- Mould / spoilage ---
+        "mould", "mold",
+        # --- Chemical (expanded) ---
+        "ethylene oxide", "dioxin", "mineral oil",
+        "chlorate", "sudan", "melamine",
+        # --- Pest ---
+        "rodent", "insect",
     )
 
     def scrape(self, since_days: int = 30) -> List[Recall]:
