@@ -8,13 +8,13 @@
   "week_end": "2026-04-24",
   "week_start_display": "18 Apr",
   "week_end_display": "24 Apr 2026",
-  "generated_utc": "2026-04-24T07:10:42.552457Z",
+  "generated_utc": "2026-04-24T07:56:08.113105+00:00",
   "stats": {
     "total": 19,
     "tier1": 9,
     "outbreaks": 3,
-    "delta": 0,
-    "delta_pct": 0
+    "delta": 5,
+    "delta_pct": 36
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
@@ -40,20 +40,6 @@
     {
       "rank": 2,
       "date": "2026-04-21",
-      "pathogen": "E. coli STEC (Shiga toxin-producing)",
-      "pathogen_raw": "E. coli STEC (Shiga toxin-producing)",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Sans marque",
-      "brand": "—",
-      "product": "Lait et produits laitiers",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/categorie/64"
-    },
-    {
-      "rank": 3,
-      "date": "2026-04-21",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
@@ -66,7 +52,7 @@
       "url": "https://www.mpi.govt.nz/news/media-releases/sprout-products-recalled-due-to-the-possible-presence-of-listeria"
     },
     {
-      "rank": 4,
+      "rank": 3,
       "date": "2026-04-21",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -80,7 +66,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/2026/17370"
     },
     {
-      "rank": 5,
+      "rank": 4,
       "date": "2026-04-20",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -92,6 +78,20 @@
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22052/Interne"
+    },
+    {
+      "rank": 5,
+      "date": "2026-04-21",
+      "pathogen": "E. coli STEC (Shiga toxin-producing)",
+      "pathogen_raw": "E. coli STEC (Shiga toxin-producing)",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Sans marque",
+      "brand": "—",
+      "product": "Lait et produits laitiers",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/categorie/64"
     }
   ],
   "country_count": 11
