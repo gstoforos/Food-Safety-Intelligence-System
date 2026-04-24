@@ -60,4 +60,3 @@ jobs:
             git add docs/data/recalls.xlsx
             git commit -m "auto news update + 7d purge $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M Athens')"
             git push
-          fi

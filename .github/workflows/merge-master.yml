@@ -61,4 +61,3 @@ jobs:
           else
             git commit -m "chore(data): hourly Pending→Recalls merge $(TZ=Europe/Athens date +%H:%M)"
             git push
-          fi

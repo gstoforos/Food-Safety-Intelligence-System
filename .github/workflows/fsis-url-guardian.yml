@@ -91,7 +91,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes this cycle."
             exit 0
-          fi
           git commit -m "URL guardian + gap-finder @ $(date -u +'%Y-%m-%d %H:%M UTC')"
 
           # Retry loop: if another writer pushed between our checkout and

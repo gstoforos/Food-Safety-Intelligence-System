@@ -77,4 +77,3 @@ jobs:
             echo "     and this workflow (.github/workflows/one-off-repair.yml)"
             echo "     from the repo root once confirmed."
             echo "================================================================"
-          fi

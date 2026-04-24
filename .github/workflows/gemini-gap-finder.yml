@@ -80,9 +80,6 @@ jobs:
           GIT_USER_NAME:     "FSIS Bot"
         run: |
           python -m pipeline.gap_finder_gemini
-
-          fi
-
       - name: Claude URL Gate + Merge
         if: steps.guard.outputs.run == 'true'
         env:

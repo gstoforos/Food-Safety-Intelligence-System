@@ -144,7 +144,6 @@ jobs:
           else
             git commit -m "AFTS Weekly Report build $(TZ=Europe/Athens date +%Y-%m-%d)"
             git push
-          fi
 
       - name: Summary
         if: steps.guard.outputs.run == 'true' && always()
