@@ -14,7 +14,7 @@ from threading import Lock
 
 log = logging.getLogger(__name__)
 
-MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")  # free tier: 1500 req/day per key
+MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")  # free tier: gemini-2.0-flash deprecated June 2026
 TIMEOUT = 60
 
 
