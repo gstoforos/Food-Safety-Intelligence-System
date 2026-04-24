@@ -405,7 +405,7 @@ def update_dashboard_data(week_end: date, stats: Dict[str, Any]):
     }
     
     # Read and update index.html
-    index_path = ROOT / "index.html"
+    index_path = ROOT / "docs" / "index.html"
     try:
         if index_path.exists():
             content = index_path.read_text()
@@ -450,7 +450,7 @@ def main():
 
     # Save report
     output = Path(args.output) if args.output else (
-        ROOT / "reports" / f"{week_end.year}-W{week_end.isocalendar()[1]:02d}.html")
+        ROOT / "docs" / f"{week_end.year}-W{week_end.isocalendar()[1]:02d}.html")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(html, encoding="utf-8")
     log.info("Report written to %s (%d bytes)", output, len(html))
