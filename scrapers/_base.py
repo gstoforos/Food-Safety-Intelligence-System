@@ -211,6 +211,77 @@ def _call_gemini(prompt: str, html: str, language: str = "en") -> str:
     return ""
 
 
+# ---------------------------------------------------------------------------
+# Claude Haiku fallback — used when Gemini quota is exhausted
+# ---------------------------------------------------------------------------
+CLAUDE_MODEL = os.getenv("CLAUDE_EXTRACT_MODEL", "claude-haiku-4-5-20251001")
+# Claude has a much larger context window than Gemini, so we can send more HTML.
+# 200K tokens ≈ 800K chars, but we cap at 200K chars for cost reasons.
+CLAUDE_MAX_HTML_CHARS = 200_000
+
+
+def _call_claude(prompt: str, html: str, language: str = "en") -> str:
+    """Call Claude Haiku. Returns the raw text response.
+
+    Used as fallback when Gemini quota is exhausted. Costs ~$0.005-0.01
+    per call (vs Gemini free tier).
+    """
+    try:
+        import anthropic  # type: ignore
+    except ImportError as exc:
+        raise RuntimeError(
+            "anthropic SDK not installed. Add it to requirements.txt."
+        ) from exc
+
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise RuntimeError("ANTHROPIC_API_KEY not set — cannot use Claude fallback.")
+
+    if len(html) > CLAUDE_MAX_HTML_CHARS:
+        html = html[:CLAUDE_MAX_HTML_CHARS] + "\n<!-- truncated -->"
+
+    full_prompt = f"{prompt}\n\nLANGUAGE OF PAGE: {language}\n\nHTML:\n{html}"
+
+    client = anthropic.Anthropic(api_key=api_key)
+    resp = client.messages.create(
+        model=CLAUDE_MODEL,
+        max_tokens=4096,
+        messages=[{"role": "user", "content": full_prompt}],
+    )
+    text = ""
+    for block in resp.content:
+        if getattr(block, "type", "") == "text":
+            text += getattr(block, "text", "")
+    return text.strip()
+
+
+def _call_model(prompt: str, html: str, language: str = "en") -> str:
+    """Extract recalls using Gemini first; fall back to Claude Haiku on failure.
+
+    Gemini is free but its daily quota typically exhausts by mid-morning
+    Athens time from the earlier pipeline steps. Claude Haiku is ~$0.005/call
+    — cheap insurance so the scrape run doesn't return empty at 18:00 Athens.
+
+    This dispatcher is the single entry point. Individual scrapers call it
+    instead of _call_gemini directly.
+    """
+    # Try Gemini first (free tier)
+    try:
+        result = _call_gemini(prompt=prompt, html=html, language=language)
+        if result:
+            return result
+    except Exception as exc:
+        log.warning("Gemini extraction failed (%s); falling back to Claude Haiku.",
+                    type(exc).__name__)
+
+    # Gemini failed or returned empty — fall back to Claude
+    try:
+        return _call_claude(prompt=prompt, html=html, language=language)
+    except Exception as exc:
+        log.error("Claude fallback also failed: %s", exc)
+        raise
+
+
 def _strip_code_fences(s: str) -> str:
     """Strip ```json ... ``` or ``` ... ``` fences a model may wrap JSON in."""
     s = s.strip()
@@ -417,9 +488,9 @@ class GenericGeminiScraper(BaseScraper):
         )
 
         try:
-            raw = _call_gemini(prompt=prompt, html=html, language=self.LANGUAGE)
-        except Exception as exc:  # noqa: BLE001 - review layer can try Claude fallback
-            self.logger.warning("Gemini call failed: %s", exc)
+            raw = _call_model(prompt=prompt, html=html, language=self.LANGUAGE)
+        except Exception as exc:  # noqa: BLE001 - both models failed
+            self.logger.warning("Model extraction failed (both Gemini and Claude): %s", exc)
             return []
 
         if not raw:
