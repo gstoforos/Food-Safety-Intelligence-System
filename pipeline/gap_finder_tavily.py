@@ -63,7 +63,7 @@ XLSX_PATH = DATA_DIR / "recalls.xlsx"
 SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "7"))
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "").strip()
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
 
 TAVILY_ENDPOINT = "https://api.tavily.com/search"
 
@@ -232,16 +232,23 @@ Published (approx): {published}
 """
 
 
-def _gemini_extract_fields(item: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Use Gemini free tier to extract structured Recall fields from a search result."""
+def _claude_extract_fields(item: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Use Claude Haiku to extract structured Recall fields from a search result.
+
+    Switched from Gemini (free tier) because Gemini's daily quota gets
+    exhausted by ~10am Athens from the other pipeline steps, leaving
+    Tavily with nothing at 22:00. Claude Haiku costs ~€0.0015/call
+    (~€0.08/run, ~€2.5/month) — cheap insurance for reliability.
+    """
     try:
-        import google.generativeai as genai  # type: ignore
+        import anthropic  # type: ignore
     except ImportError:
-        log.error("google-generativeai not installed — cannot extract fields")
+        log.error("anthropic SDK not installed — cannot extract fields")
         return None
-    keys = _collect_gemini_keys()
-    if not keys:
-        log.error("No GEMINI_API_KEY set — cannot extract fields")
+
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        log.error("ANTHROPIC_API_KEY not set — cannot extract fields")
         return None
 
     prompt = EXTRACT_PROMPT.format(
@@ -250,32 +257,38 @@ def _gemini_extract_fields(item: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         snippet=(item.get("content") or item.get("snippet") or "")[:1500],
         published=item.get("published_date", "") or "unknown",
     )
-    last_err: Optional[Exception] = None
-    for api_key in keys:
-        try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel(GEMINI_MODEL)
-            resp = model.generate_content(prompt)
-            text = (getattr(resp, "text", "") or "").strip()
-            if not text:
-                continue
-            # Strip ```json fences if present
-            if text.startswith("```"):
-                text = re.sub(r"^```[a-zA-Z]*\s*\n", "", text)
-                text = re.sub(r"\n```\s*$", "", text)
-                text = text.strip()
-            data = json.loads(text)
-            if isinstance(data, dict):
-                if data.get("skip"):
-                    return None
-                return data
-        except Exception as e:
-            last_err = e
-            continue
-    if last_err:
-        log.debug("Gemini extract failed for %s: %s",
-                  item.get("url", "?"), last_err)
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        resp = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=512,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        # Collect text from response blocks
+        text = ""
+        for block in resp.content:
+            if getattr(block, "type", "") == "text":
+                text += getattr(block, "text", "")
+        text = text.strip()
+        if not text:
+            return None
+        # Strip ```json fences if present
+        if text.startswith("```"):
+            text = re.sub(r"^```[a-zA-Z]*\s*\n", "", text)
+            text = re.sub(r"\n```\s*$", "", text)
+            text = text.strip()
+        data = json.loads(text)
+        if isinstance(data, dict):
+            if data.get("skip"):
+                return None
+            return data
+    except Exception as e:
+        log.debug("Claude extract failed for %s: %s", item.get("url", "?"), e)
     return None
+
+
+# Keep the old name as an alias so callers don't break if imported elsewhere
+_gemini_extract_fields = _claude_extract_fields
 
 
 # ---------------------------------------------------------------------------
@@ -288,7 +301,7 @@ def results_to_recalls(items: List[Dict[str, Any]]) -> List[Recall]:
         url = (item.get("url") or "").strip()
         if not url:
             continue
-        fields = _gemini_extract_fields(item)
+        fields = _claude_extract_fields(item)
         if not fields:
             continue
         try:

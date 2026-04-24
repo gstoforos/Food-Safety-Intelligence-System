@@ -18,7 +18,7 @@ Gemini 1,500-req/day free tier. That makes this the only gap-finder that
 can actually discover recalls from last week.
 
 Cost: $0 on Gemini free tier (1 call per run, once per day).
-Model: gemini-2.0-flash (override via GEMINI_MODEL env var).
+Model: gemini-2.5-flash-lite (override via GEMINI_MODEL env var).
 Schedule: 05:00 UTC daily (before OpenAI 06:00 UTC, before Claude 19:00 UTC).
 """
 from __future__ import annotations
@@ -56,7 +56,7 @@ JSON_PATH = DATA_DIR / "recalls.json"
 
 SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "7"))
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
 
 
 # ---------------------------------------------------------------------------

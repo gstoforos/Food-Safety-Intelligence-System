@@ -92,7 +92,6 @@ def run_builder(builder: Path, week_end: date, xlsx: Path, index_html: Path) -> 
         sys.executable, str(builder),
         "--week-end", week_end.isoformat(),
         "--xlsx", str(xlsx),
-        "--index", str(index_html),
     ]
     log.info("Building: %s", " ".join(cmd))
     completed = subprocess.run(cmd, capture_output=False)
