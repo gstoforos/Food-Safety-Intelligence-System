@@ -1,13 +1,15 @@
-name: FSIS URL Guardian (4-hourly)
+name: FSIS URL Guardian (19:00 Athens, once daily)
 
-# Runs every 4 hours to:
+# Runs once daily at 19:00 Athens (12-hour offset from 07:00 url-gate).
+# Dispatched by the Apps Script FsisScheduler project — this workflow
+# itself is workflow_dispatch only. Tasks:
 #   1. Validate URLs in docs/data/recalls.xlsx (blanks truly-broken, keeps bot-blocks)
 #   2. Ask OpenAI for missing recalls per major agency (gap-finder, last 3 days)
 #   3. Optional Claude Haiku spot-check on Tier-1 rows
 #   4. Commit updated xlsx + json back to the repo
 #
 # Lightweight by design: 1 LLM call per agency (8 agencies max), ~$0.05/run.
-# The heavier full scrape keeps its own daily schedule.
+# 7 runs/week = ~$0.35/week. Heavy full scrape runs separately at 18:00.
 
 on:
   workflow_dispatch:
