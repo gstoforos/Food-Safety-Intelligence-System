@@ -519,7 +519,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
       letter-spacing: 0.04em;
     }
   }
-  body { max-width:none; padding:0; margin:0; font-size:11px; }
+  body { max-width:none; padding:0; margin:0; font-family:'Times New Roman', Times, serif; font-size:12pt; }
   .cta-box { display:none; }
 
   /* Lock print-mode layout: even if the browser's print page is narrow,
@@ -529,7 +529,8 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   .kpi-strip { grid-template-columns:repeat(4, 1fr) !important; }
   .dist-grid { display:block !important; grid-template-columns:1fr !important; gap:0 !important; }
   .dist-grid > div { width:100% !important; display:block !important; }
-  .dist-grid > div:nth-child(2) { page-break-before:always !important; break-before:page !important; margin-top:0 !important; }
+  .dist-grid > div:nth-child(2) { margin-top:18px !important; }
+  .dist-grid > div { page-break-inside:avoid; break-inside:avoid; }
 
   /* Page 1 compression: tighten the above-the-fold so the first Intelligence
      Analysis paragraph opens on page 1 rather than orphaning the heading. */
@@ -904,35 +905,47 @@ def build_html(week_end, recalls, prev_week):
     html = html.replace("__CSS_PLACEHOLDER__", W16_CSS)
     return html, stats
 
-def update_dashboard_data(week_end, stats):
-    """Update index.html embedded reports array — keep 4 most recent (current + 3 previous)."""
-    wnum = week_end.isocalendar()[1]; year = week_end.year; ws = week_end - timedelta(days=6)
-    entry = {"filename":"{}-W{:02d}.html".format(year,wnum),"week_num":wnum,"year":year,
-             "week_start":ws.strftime("%Y-%m-%d"),"week_end":week_end.strftime("%Y-%m-%d"),
-             "generated":datetime.now(timezone.utc).isoformat(),
-             "total":stats["total"],"tier1":stats["tier1"],"outbreaks":stats["outbreaks"],
-             "top_pathogen":stats["top_pathogen"][0] if stats["top_pathogen"] else None,
-             "summary":"Week {} saw {} pathogen recalls with {} as primary concern.".format(
-                 wnum, stats["total"], stats["top_pathogen"][0] if stats["top_pathogen"] else "mixed pathogens")}
+def update_dashboard_data(week_end, stats, all_recalls=None):
+    """Update index.html embedded reports array — always 4 weeks from dataset.
+    If all_recalls is provided, computes stats for previous 3 weeks directly
+    from the dataset so the Weekly tab always shows 4 cards."""
     idx = ROOT / "docs" / "index.html"
+    if not idx.exists():
+        log.warning("index.html not found — skipping dashboard update"); return
+
+    def _make_entry(we, st):
+        wn = we.isocalendar()[1]; yr = we.year; ws = we - timedelta(days=6)
+        tp_name = st["top_pathogen"][0] if st["top_pathogen"] else "Mixed"
+        return {"filename":"{}-W{:02d}.html".format(yr,wn),"week_num":wn,"year":yr,
+                "week_start":ws.strftime("%Y-%m-%d"),"week_end":we.strftime("%Y-%m-%d"),
+                "generated":datetime.now(timezone.utc).isoformat(),
+                "total":st["total"],"tier1":st["tier1"],"outbreaks":st["outbreaks"],
+                "top_pathogen":tp_name,
+                "summary":"Week {} saw {} pathogen recalls with {} as primary concern.".format(
+                    wn, st["total"], tp_name)}
+
+    entries = [_make_entry(week_end, stats)]
+
+    # Build entries for 3 previous weeks from dataset
+    if all_recalls:
+        for offset in range(1, 4):
+            prev_end = week_end - timedelta(days=7 * offset)
+            prev_prev_end = prev_end - timedelta(days=7)
+            wr = filter_week(all_recalls, prev_end)
+            if not wr: continue  # skip empty weeks
+            pr = filter_week(all_recalls, prev_prev_end)
+            st = compute_stats(wr, pr)
+            entries.append(_make_entry(prev_end, st))
+
     try:
-        if idx.exists():
-            c = idx.read_text()
-            # Extract existing reports array
-            m = re.search(r"const reports = (\[.*?\]);", c, flags=re.DOTALL)
-            existing = []
-            if m:
-                try: existing = json.loads(m.group(1))
-                except json.JSONDecodeError: pass
-            # De-duplicate by filename, prepend new entry, keep 4
-            existing = [e for e in existing if e.get("filename") != entry["filename"]]
-            reports = [entry] + existing
-            reports = reports[:4]
-            c = re.sub(r"const reports = \[.*?\];",
-                        "const reports = {};".format(json.dumps(reports, indent=4)),
-                        c, flags=re.DOTALL)
-            idx.write_text(c); log.info("Dashboard updated — %d reports in Weekly tab", len(reports))
-    except Exception as e: log.error("Dashboard: %s",e)
+        c = idx.read_text()
+        c = re.sub(r"const reports = \[.*?\];",
+                    "const reports = {};".format(json.dumps(entries, indent=4)),
+                    c, flags=re.DOTALL)
+        idx.write_text(c)
+        log.info("Dashboard updated — %d reports in Weekly tab", len(entries))
+    except Exception as e:
+        log.error("Dashboard: %s", e)
 
 def write_weekly_summary_json(week_end, recalls, stats, data_dir):
     wnum = week_end.isocalendar()[1]; year = week_end.year; ws = week_end - timedelta(days=6)
@@ -960,16 +973,83 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir):
     out.write_text(json.dumps(summary,indent=2,ensure_ascii=False),encoding="utf-8")
     log.info("Wrote %s",out)
 
+def _extract_total_from_html(path):
+    """Read an existing report HTML and extract the total-recalls KPI.
+    Returns int or None if the file doesn't exist or can't be parsed."""
+    try:
+        html = Path(path).read_text(encoding="utf-8")
+        m = re.search(r'<a href="#all-recalls">(\d+)</a>', html)
+        if m: return int(m.group(1))
+        # Fallback: look for "All N Recalls" in §04 heading
+        m2 = re.search(r'All (\d+) Recalls', html)
+        if m2: return int(m2.group(1))
+    except Exception:
+        pass
+    return None
+
+
+def refresh_stale_weeks(all_recalls, current_week_end, n_previous=1):
+    """Check up to n_previous weeks before current_week_end.
+    If the recall count in the dataset differs from what's baked into
+    the existing HTML report, rebuild that week's report.
+    Returns list of rebuilt week-end dates."""
+    rebuilt = []
+    for offset in range(1, n_previous + 1):
+        prev_end = current_week_end - timedelta(days=7 * offset)
+        prev_prev_end = prev_end - timedelta(days=7)
+        wnum = prev_end.isocalendar()[1]
+        year = prev_end.year
+        report_path = ROOT / "docs" / "{}-W{:02d}.html".format(year, wnum)
+
+        dataset_recalls = filter_week(all_recalls, prev_end)
+        dataset_total = len(dataset_recalls)
+
+        existing_total = _extract_total_from_html(report_path)
+
+        if existing_total is None:
+            log.info("W%02d: no existing report at %s — building fresh", wnum, report_path)
+        elif existing_total == dataset_total:
+            log.info("W%02d: report matches dataset (%d recalls) — no refresh needed", wnum, dataset_total)
+            continue
+        else:
+            log.info("W%02d: STALE — report has %d recalls, dataset has %d — rebuilding",
+                      wnum, existing_total, dataset_total)
+
+        prev_week_recalls = filter_week(all_recalls, prev_prev_end)
+        html, stats = build_html(prev_end, dataset_recalls, prev_week_recalls)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(html, encoding="utf-8")
+        log.info("W%02d refreshed -> %s (%d bytes, %d recalls)",
+                  wnum, report_path, len(html), dataset_total)
+        rebuilt.append(prev_end)
+
+    return rebuilt
+
+
 def main():
     ap = argparse.ArgumentParser(description="Build AFTS weekly report")
     ap.add_argument("--week-end", required=True, help="Friday YYYY-MM-DD")
     ap.add_argument("--xlsx", default=str(ROOT/"docs"/"data"/"recalls.xlsx"))
     ap.add_argument("--output", default=None)
+    ap.add_argument("--refresh-previous", type=int, default=1, metavar="N",
+                    help="Check N previous weeks for stale data and rebuild if needed (default: 1)")
+    ap.add_argument("--no-refresh", action="store_true",
+                    help="Skip stale-week refresh (build current week only)")
     args = ap.parse_args()
     week_end = datetime.strptime(args.week_end,"%Y-%m-%d").date()
     log.info("Building report for %s", week_end)
     all_r = load_recalls(Path(args.xlsx))
     log.info("Loaded %d recalls", len(all_r))
+
+    # --- Refresh stale previous weeks ---
+    if not args.no_refresh and args.refresh_previous > 0:
+        log.info("Checking %d previous week(s) for stale data...", args.refresh_previous)
+        rebuilt = refresh_stale_weeks(all_r, week_end, args.refresh_previous)
+        if rebuilt:
+            log.info("Refreshed %d stale report(s): %s",
+                      len(rebuilt), ", ".join(d.strftime("W%V") for d in rebuilt))
+
+    # --- Build current week ---
     wr = filter_week(all_r, week_end)
     pr = filter_week(all_r, week_end - timedelta(days=7))
     log.info("This week: %d  Prev: %d", len(wr), len(pr))
@@ -979,7 +1059,7 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
     log.info("Report -> %s (%d bytes)", out, len(html))
-    update_dashboard_data(week_end, stats)
+    update_dashboard_data(week_end, stats, all_r)
     write_weekly_summary_json(week_end, wr, stats, Path(args.xlsx).parent)
     return 0
 
