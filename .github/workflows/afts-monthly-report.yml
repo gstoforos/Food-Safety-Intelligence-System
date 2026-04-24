@@ -142,3 +142,4 @@ jobs:
           else
             git commit -m "AFTS Monthly Report build $(TZ=Europe/Athens date +%Y-%m-%d)"
             git push
+            fi
