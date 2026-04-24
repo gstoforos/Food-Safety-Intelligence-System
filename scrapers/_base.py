@@ -149,7 +149,7 @@ def fetch(
 # Gemini 2.0 Flash helper (used by GenericGeminiScraper)
 # ---------------------------------------------------------------------------
 
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
 GEMINI_MAX_HTML_CHARS = 120_000
 
 
@@ -488,9 +488,9 @@ class GenericGeminiScraper(BaseScraper):
         )
 
         try:
-            raw = _call_model(prompt=prompt, html=html, language=self.LANGUAGE)
-        except Exception as exc:  # noqa: BLE001 - both models failed
-            self.logger.warning("Model extraction failed (both Gemini and Claude): %s", exc)
+            raw = _call_gemini(prompt=prompt, html=html, language=self.LANGUAGE)
+        except Exception as exc:  # noqa: BLE001
+            self.logger.warning("Gemini call failed: %s", exc)
             return []
 
         if not raw:
