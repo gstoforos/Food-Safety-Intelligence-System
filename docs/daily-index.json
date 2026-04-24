@@ -7,7 +7,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-04-24T04:07:28Z"
+      "generated": "2026-04-24T05:55:31Z"
     },
     {
       "date": "2026-04-22",
@@ -19,18 +19,6 @@
         "Europe": 2
       },
       "generated": "2026-04-23T16:13:13Z"
-    },
-    {
-      "date": "2026-04-21",
-      "url": "daily/2026-04-21.html",
-      "total": 6,
-      "tier1": 4,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 4,
-        "Oceania": 2
-      },
-      "generated": "2026-04-22T18:52:49Z"
     }
   ]
 }
