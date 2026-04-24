@@ -1,6 +1,15 @@
 {
   "entries": [
     {
+      "date": "2026-04-23",
+      "url": "daily/2026-04-23.html",
+      "total": 0,
+      "tier1": 0,
+      "outbreak": 0,
+      "by_region": {},
+      "generated": "2026-04-24T04:07:28Z"
+    },
+    {
       "date": "2026-04-22",
       "url": "daily/2026-04-22.html",
       "total": 2,
