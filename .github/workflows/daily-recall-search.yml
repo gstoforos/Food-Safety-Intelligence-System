@@ -14,9 +14,6 @@ name: FSIS Daily Recall Search
 # Hard weekly cap €1.00 in code.
 
 on:
-  schedule:
-    - cron: '0 7 * * *'   # 10:00 Athens EEST (summer UTC+3)
-    - cron: '0 8 * * *'   # 10:00 Athens EET  (winter UTC+2)
   workflow_dispatch:
     inputs:
       date:
@@ -49,7 +46,7 @@ jobs:
           HOUR=$(TZ=Europe/Athens date +%H)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "09" ] || [ "$HOUR" = "10" ] || [ "$HOUR" = "11" ]; then
+          elif [ "$HOUR" -ge "08" ] && [ "$HOUR" -le "14" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

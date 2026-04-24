@@ -26,9 +26,6 @@ name: AFTS Monthly Report
 # ==========================================================================
 
 on:
-  schedule:
-    - cron: '0 6 1 * *'   # 09:00 Athens EEST (summer UTC+3)
-    - cron: '0 7 1 * *'   # 09:00 Athens EET  (winter UTC+2)
   workflow_dispatch:
     inputs:
       force_month_end:
@@ -59,7 +56,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Manual dispatch — running regardless of hour."
-          elif [ "$HOUR" = "08" ] || [ "$HOUR" = "09" ] || [ "$HOUR" = "10" ]; then
+          elif [ "$HOUR" -ge "07" ] && [ "$HOUR" -le "13" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Athens 09:xx — running."
           else

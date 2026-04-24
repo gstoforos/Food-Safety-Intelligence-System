@@ -23,9 +23,6 @@ on:
       end:
         description: "End date YYYY-MM-DD"
         required: false
-  schedule:
-    - cron: '0 8 * * 1'   # 11:00 Athens EEST (summer UTC+3)
-    - cron: '0 9 * * 1'   # 11:00 Athens EET  (winter UTC+2)
 
 permissions:
   contents: read
@@ -42,7 +39,7 @@ jobs:
           HOUR=$(TZ=Europe/Athens date +%H)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "10" ] || [ "$HOUR" = "11" ] || [ "$HOUR" = "12" ]; then
+          elif [ "$HOUR" -ge "09" ] && [ "$HOUR" -le "15" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

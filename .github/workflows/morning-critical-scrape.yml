@@ -10,9 +10,6 @@ name: FSIS Morning Critical-Agency Scrape
 # regardless of DST offset.
 
 on:
-  schedule:
-    - cron: '0 1 * * *'   # 04:00 Athens EEST (summer UTC+3)
-    - cron: '0 2 * * *'   # 04:00 Athens EET  (winter UTC+2)
   workflow_dispatch:
     inputs:
       since_days:
@@ -39,7 +36,7 @@ jobs:
           HOUR=$(TZ=Europe/Athens date +%H)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "03" ] || [ "$HOUR" = "04" ] || [ "$HOUR" = "05" ]; then
+          elif [ "$HOUR" -ge "03" ] && [ "$HOUR" -le "08" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

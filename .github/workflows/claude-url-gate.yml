@@ -10,9 +10,6 @@ name: FSIS Claude URL Gate
 #   05:30 UTC → 07:30 Athens EET  (winter UTC+2)
 
 on:
-  schedule:
-    - cron: '30 4 * * *'   # 07:30 Athens EEST (summer UTC+3)
-    - cron: '30 5 * * *'   # 07:30 Athens EET  (winter UTC+2)
   workflow_dispatch:
 
 permissions:
@@ -35,7 +32,7 @@ jobs:
           echo "athens_hour=$HOUR"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "06" ] || [ "$HOUR" = "07" ] || [ "$HOUR" = "08" ]; then
+          elif [ "$HOUR" -ge "05" ] && [ "$HOUR" -le "11" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

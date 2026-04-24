@@ -17,9 +17,6 @@ name: FSIS URL Resurrect
 # Two DST crons + Athens hour guard.
 
 on:
-  schedule:
-    - cron: '0 6 * * *'    # 09:00 Athens EEST (summer UTC+3)
-    - cron: '0 7 * * *'    # 09:00 Athens EET  (winter UTC+2)
   workflow_dispatch:
     inputs:
       limit:
@@ -51,7 +48,7 @@ jobs:
           echo "athens_hour=$HOUR"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "08" ] || [ "$HOUR" = "09" ] || [ "$HOUR" = "10" ]; then
+          elif [ "$HOUR" -ge "07" ] && [ "$HOUR" -le "13" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"

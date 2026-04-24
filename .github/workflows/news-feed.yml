@@ -11,8 +11,6 @@ name: FSIS News Feed (every 1h)
 # ==========================================================================
 
 on:
-  schedule:
-    - cron: "0 * * * *"     # every hour, top of the hour
   workflow_dispatch:
 
 permissions:
