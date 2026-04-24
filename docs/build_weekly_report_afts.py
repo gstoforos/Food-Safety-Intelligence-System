@@ -125,54 +125,624 @@ def _fmt_date_short(d):
 
 
 def generate_analysis_claude(stats, recalls):
+    """Generate §01 Intelligence Analysis.
+    P1-P3 come from Claude (or the fallback). P4 Process Authority Note is
+    always deterministic — it cites specific CFR/EU/CFIA paragraphs and
+    company names, which must be factually stable (not LLM-generated)."""
     tp, tc = stats["top_pathogen"]; t = stats["total"]
     pct = round(tc/max(t,1)*100)
     bot = [r for r in recalls if "botulinum" in (r.get("Pathogen") or "").lower()
            or "clostridium" in (r.get("Pathogen") or "").lower()]
-    pa = ""
-    if bot:
-        co = ", ".join(
-            "{} ({})".format(r.get("Company",""), _country_display(r.get("Country","")))
-            for r in bot[:3])
-        pa = "\n4. PROCESS AUTHORITY NOTE paragraph (start with \'This window contains {} incident(s) implicating Clostridium or botulinum toxin, with {} cited.\' Then explain shelf-stable/low-acid/acidified/aseptic/UHT/hot-filled/reduced-O2 products must be reviewed under qualified process authority per FDA 21 CFR 113/114, EU 852/2004, CFIA SFCR, FSANZ Ch.3, Japan FSA. Typical gaps: unfiled scheduled process, deviation without qualified review, seal-integrity lapse, formulation change not re-evaluated. Tier-1/Class-I triggers process-filing audit.)".format(len(bot), co)
+
+    # Jurisdictions actually present this week — pass to Claude so P3 names them
+    auths = _jurisdictions_from_recalls(recalls)
+    auth_hint = ", ".join(auths[:5]) if auths else "multiple jurisdictions"
+
     prompt = """You are a food safety intelligence analyst for AFTS. Generate the Intelligence Analysis section.
 
 DATA: Total={}, Tier-1={}, Outbreaks={}, Leading={} ({}, {}%)
 Pathogens: {}
 Countries: {}
+Jurisdictions this week: {}
 
-Generate EXACTLY these paragraphs (plain text, no HTML, no headers):
-1. Executive overview (total, tier-1, outbreaks, leading pathogen %, what it signals)
-2. Pathogen risk (failure modes for {}, relevant regs)
-3. Geographic/regulatory assessment (jurisdictions, recommendation)
-{}
-Professional, concise, no emojis, no bullets. 3-5 sentences each.""".format(
+Generate EXACTLY these three paragraphs (plain text, no HTML, no headers, no paragraph numbers):
+1. Executive overview — total, tier-1, outbreaks, leading pathogen %, interpret as regulatory-pressure signal.
+2. Pathogen-specific process-engineering analysis for {} — name the specific product categories at risk (e.g. for Listeria: RTE deli / dairy / cooked-meat; for Salmonella: low-moisture foods / peanut butter / flour / spices; for STEC: raw beef / leafy greens / sprouts), the specific failure modes (e.g. Zone 1 environmental harbourage, sanitation SOP drift, post-lethality recontamination for Listeria), and cite the specific regulatory frameworks (21 CFR 117 Preventive Controls, 21 CFR 113/114 thermal lethality, 6-log Listeria reduction, FDA Produce Safety Rule 21 CFR 112, etc. as applicable).
+3. Regulatory/geographic assessment — name the actual authorities active this week ({}). Close with AFTS recommendation to re-verify the single highest-leverage control for the commodity and confirm documentation packages are ready for rapid regulatory response.
+
+Tone: professional, process-engineering voice, no emojis, no bullets, no colons at paragraph starts. 3-5 sentences each. Preserve the word 'AFTS' exactly where referenced. Do NOT write a Process Authority Note — that is appended separately.""".format(
         t, stats["tier1"], stats["outbreaks"], tp, tc, pct,
-        dict(stats["pathogen_counts"]), dict(stats["country_counts"]), tp, pa)
+        dict(stats["pathogen_counts"]), dict(stats["country_counts"]), auth_hint,
+        tp, auth_hint)
+
+    claude_out = None
     try:
         resp = requests.post("https://api.anthropic.com/v1/messages",
             headers={"Content-Type":"application/json","x-api-key":CLAUDE_API_KEY},
             json={"model":"claude-sonnet-4-20250514","max_tokens":1200,
                   "messages":[{"role":"user","content":prompt}]}, timeout=60)
         if resp.status_code == 200:
-            return resp.json()["content"][0]["text"]
-        log.error("Claude %d", resp.status_code)
+            claude_out = resp.json()["content"][0]["text"]
+        else:
+            log.error("Claude %d", resp.status_code)
     except Exception as e:
         log.error("Claude error: %s", e)
-    return _fallback(stats, bot)
 
-def _fallback(stats, bot):
+    # Deterministic fallback for P1-P3 if Claude failed (tail call to _fallback
+    # without bot so it produces only P1-P3).
+    if claude_out is None:
+        claude_out = _fallback_p1_to_p3(stats, recalls)
+
+    # Append deterministic P4 Process Authority Note (multi-trigger).
+    pa = _process_authority_note(recalls, bot)
+    if pa:
+        claude_out = claude_out.rstrip() + "\n\n" + pa
+    return claude_out
+
+
+def _fallback_p1_to_p3(stats, recalls):
+    """P1-P3 only. The PA Note is always handled by _process_authority_note()."""
     tp, tc = stats["top_pathogen"]; t = stats["total"]
     pct = round(tc/max(t,1)*100)
-    paras = [
-        "This week produced {} pathogen-related recall incidents across the AFTS monitoring network, with {} classified as Tier-1 and {} confirmed outbreak event(s). {} dominated the surveillance window, accounting for {} of {} incidents ({}%). The elevated Tier-1 ratio indicates sustained regulatory pressure and should be read by food manufacturers as a signal of tightening enforcement.".format(t, stats["tier1"], stats["outbreaks"], tp, tc, t, pct),
-        "{} at this prevalence points to post-process recontamination in ready-to-eat lines rather than thermal underprocess. The likely failure modes are environmental harbourage, sanitation SOP drift, and post-lethality recontamination.".format(tp),
-        "Regulatory activity this week spanned multiple jurisdictions, signalling continued inspection intensity. AFTS recommends that food manufacturers use this briefing as a prompt to re-verify the single highest-leverage control for their commodity this week.",
-    ]
+    p1 = ("This week produced {} pathogen-related recall incidents across the AFTS "
+          "monitoring network, with {} classified as Tier-1 and {} confirmed outbreak "
+          "event(s). {} dominated the surveillance window, accounting for {} of {} "
+          "incidents ({}%). The elevated Tier-1 ratio indicates sustained regulatory "
+          "pressure and should be read by food manufacturers as a signal of tightening "
+          "enforcement.").format(t, stats["tier1"], stats["outbreaks"], tp, tc, t, pct)
+    p2 = _pathogen_narrative(tp, pct)
+    auths = _jurisdictions_from_recalls(recalls or [])
+    if auths:
+        auth_clause = ("Regulatory activity this week spanned multiple jurisdictions "
+                       "({}{}), signalling continued inspection intensity. ").format(
+                           ", ".join(auths),
+                           ", and national authorities" if len(auths) >= 3 else "")
+    else:
+        auth_clause = ("Regulatory activity this week spanned multiple jurisdictions, "
+                       "signalling continued inspection intensity. ")
+    p3 = (auth_clause +
+          "AFTS recommends that food manufacturers use this briefing as a prompt to "
+          "re-verify the single highest-leverage control for their commodity this week "
+          "and to confirm documentation packages are ready for rapid regulatory response.")
+    return "\n\n".join([p1, p2, p3])
+
+# ---------------------------------------------------------------------------
+# Pathogen-specific process-engineering narratives (P2 dispatcher).
+# Each entry returns the W16-style paragraph: product category → failure modes
+# → relevant regulatory framework. Mirrors the W16 gold-standard specificity.
+# ---------------------------------------------------------------------------
+def _pathogen_narrative(pathogen, pct):
+    p = (pathogen or "").lower()
+    # The pct token gives us "at this prevalence" / "at this concentration" flavour
+    intensity = "at this concentration" if pct >= 30 else "at this prevalence"
+
+    if "listeria" in p:
+        return ("Listeria monocytogenes {intensity} points to post-process recontamination "
+                "in ready-to-eat deli, dairy, and cooked-meat lines rather than thermal "
+                "underprocess. The likely failure modes are Zone 1 environmental harbourage, "
+                "sanitation SOP drift, and post-lethality recontamination. The relevant "
+                "frameworks for review are the environmental monitoring programme under "
+                "21 CFR 117 and the thermal-lethality validation applicable to the product "
+                "class (21 CFR 113 / 114 where applicable), supported by qualified process "
+                "authority oversight.").format(intensity=intensity)
+
+    if "salmonella" in p:
+        return ("Salmonella {intensity} is most consistent with raw-ingredient cross-"
+                "contamination or a breakdown in low-moisture-food controls (peanut butter, "
+                "flour, spices, herbs, infant formula). The likely failure modes are "
+                "raw-ingredient sourcing gaps, cross-contamination at wet-dry transitions, "
+                "and insufficient time-temperature control. The relevant frameworks are "
+                "21 CFR 117 Preventive Controls, HACCP critical limits on any validated "
+                "kill step, and supplier-verification programmes.").format(intensity=intensity)
+
+    if "stec" in p or "e. coli" in p or "escherichia" in p:
+        return ("E. coli / STEC {intensity} is most consistent with raw beef, leafy greens, "
+                "raw milk/dairy, sprouts, or unpasteurised juice. The likely failure modes "
+                "are grinding-plant cross-contamination, irrigation-water contamination, "
+                "post-harvest wash-water carry-over, and sprout-seed microbial load. The "
+                "relevant frameworks are 21 CFR 117, the FDA Produce Safety Rule (21 CFR 112), "
+                "and USDA FSIS zero-tolerance for E. coli O157:H7 in non-intact beef.").format(intensity=intensity)
+
+    if "botulinum" in p or "clostridium" in p:
+        return ("Clostridium botulinum {intensity} points directly to a scheduled-thermal-"
+                "process failure in a shelf-stable low-acid canned food (LACF), an acidified "
+                "food, or a reduced-oxygen-packaged product. The likely failure modes are an "
+                "unfiled or outdated scheduled process, a process deviation resolved without "
+                "qualified review, container / seal integrity loss, or a formulation change "
+                "(pH, a_w, salt, preservative) introduced without re-evaluation. The relevant "
+                "frameworks are 21 CFR 113 (LACF), 21 CFR 114 (acidified foods), and the "
+                "scheduled-process filing requirements under 21 CFR 108.").format(intensity=intensity)
+
+    if "cereulide" in p or "bacillus cereus" in p:
+        return ("Cereulide / Bacillus cereus {intensity} indicates temperature abuse during "
+                "cooling or holding of cooked rice, pasta, infant formula, or dairy-based "
+                "products. The emetic toxin is heat-stable and is not inactivated by reheating, "
+                "so controls must target the cooling-rate critical limit and the cooked-product "
+                "hot-hold / chill-hold regime. The relevant frameworks are 21 CFR 117 time-"
+                "temperature critical limits and FDA Food Code cooling provisions.").format(intensity=intensity)
+
+    if "norovirus" in p or "hepatitis a" in p or "hav" in p:
+        return ("Norovirus / Hepatitis A {intensity} is most consistent with contamination by "
+                "an infected food handler or with contaminated raw molluscan shellfish or "
+                "ready-to-eat soft fruit. The likely failure modes are sick-worker exclusion "
+                "failure, hand-hygiene breakdown, and supplier controls on shellfish-harvest "
+                "waters. The relevant frameworks are the FDA Food Code employee-health "
+                "provisions and the National Shellfish Sanitation Program.").format(intensity=intensity)
+
+    if "histamine" in p or "scombroid" in p:
+        return ("Histamine (scombrotoxin) {intensity} indicates a chill-chain breach on "
+                "histidine-rich species (tuna, mackerel, mahi-mahi, sardines, anchovies, "
+                "bonito). Histamine is heat-stable and is not removed by cooking or canning, "
+                "so the control point is time-temperature at harvest, landing, and the full "
+                "cold chain. The relevant framework is 21 CFR 123 (Seafood HACCP) with FDA "
+                "action levels of 50 ppm (decomposition) and 500 ppm (hazard).").format(intensity=intensity)
+
+    if "rodenticide" in p or "rat poison" in p or "bromadiolone" in p:
+        return ("Rodenticide {intensity} points to a supply-chain integrity or intentional-"
+                "adulteration event — a criminal tampering profile rather than a process "
+                "failure. The likely failure modes are a compromised inbound-ingredient chain, "
+                "a breach in packaging integrity between producer and retailer, or insider "
+                "tampering. The relevant frameworks are 21 CFR 121 (FSMA Intentional "
+                "Adulteration Rule) for food-defense vulnerability assessment and the "
+                "corresponding EU Commission Regulation on food fraud.").format(intensity=intensity)
+
+    if "rodent" in p or "pest" in p:
+        return ("Rodent / pest contamination {intensity} indicates a sanitation and GMP "
+                "programme failure — pest-management, facility integrity, or raw-material "
+                "storage hygiene. The likely failure modes are a lapsed integrated-pest-"
+                "management contract, structural entry points, or un-segregated storage of "
+                "open-package ingredients. The relevant frameworks are 21 CFR 117 subpart B "
+                "(sanitation / pest control) and HACCP GMP prerequisites.").format(intensity=intensity)
+
+    if any(k in p for k in ("glass", "metal", "plastic", "foreign")):
+        return ("Foreign-material contamination {intensity} indicates an equipment-wear or "
+                "packaging-integrity failure along the line. The likely failure modes are "
+                "sieve / filter breakage, equipment fatigue on contact surfaces, or a lapse "
+                "in metal-detection or X-ray inspection validation. The relevant frameworks "
+                "are HACCP physical-hazard critical control points and the routine re-"
+                "qualification of detection equipment at its declared sensitivity.").format(intensity=intensity)
+
+    if any(k in p for k in ("lead", "cadmium", "arsenic", "mercury", "heavy metal")):
+        return ("Heavy-metal contamination {intensity} is most consistent with raw-material "
+                "sourcing from contaminated soils or waters, or with leaching from processing "
+                "equipment and packaging. The likely failure modes are supplier-verification "
+                "gaps on agricultural inputs, unmonitored legacy equipment, or incompatible "
+                "food-contact materials. The relevant frameworks are FDA action / guidance "
+                "levels (Closer to Zero for infant foods), EU Reg. 2023/915 contaminant "
+                "maximum levels, and Codex Alimentarius MLs.").format(intensity=intensity)
+
+    if any(k in p for k in ("aflatoxin", "ochratoxin", "patulin", "alternaria", "mycotoxin", "mould", "mold")):
+        return ("Mycotoxin contamination {intensity} indicates a post-harvest moisture-control "
+                "failure in grains, nuts, dried fruit, or spices, or a storage-humidity "
+                "breach along the supply chain. The likely failure modes are inadequate "
+                "drying, compromised storage-silo integrity, or supplier-verification gaps "
+                "on high-risk commodities. The relevant frameworks are FDA action levels on "
+                "aflatoxins, EU Reg. 2023/915 maximum levels, and HACCP supplier-approval "
+                "programmes.").format(intensity=intensity)
+
+    # Fallback — keep the old generic line if pathogen not recognised
+    return ("{} {} warrants review of the kill step, post-kill recontamination controls, "
+            "and supplier-verification programme for the implicated commodity. The relevant "
+            "framework is 21 CFR 117 Preventive Controls with HACCP critical limits "
+            "appropriate to the product class.").format(pathogen, intensity)
+
+
+# ---------------------------------------------------------------------------
+# P3 — data-driven jurisdiction paragraph.
+# Maps Source labels present in the week's data to their authority names.
+# ---------------------------------------------------------------------------
+_SOURCE_TO_AUTHORITY = {
+    "fda": "FDA", "usda fsis": "USDA FSIS", "usda": "USDA FSIS", "cdc": "CDC",
+    "cfia": "CFIA", "mapaq": "MAPAQ",
+    "rappelconso": "RappelConso", "dgccrf": "DGCCRF", "dgal": "DGAL",
+    "fsa": "FSA", "fss": "FSS", "fsai": "FSAI",
+    "rasff": "RASFF", "efsa": "EFSA", "dg sante": "DG SANTE",
+    "aesan": "AESAN", "bvl": "BVL", "bfr": "BfR", "ages": "AGES",
+    "min. salute": "Italian Ministry of Health", "nvwa": "NVWA",
+    "favv": "FAVV", "fødevarestyrelsen": "Fødevarestyrelsen",
+    "livsmedelsverket": "Livsmedelsverket", "mattilsynet": "Mattilsynet",
+    "ruokavirasto": "Ruokavirasto", "gis": "GIS", "nebih": "NEBIH",
+    "ansvsa": "ANSVSA", "bfsa": "BFSA", "szpi": "SZPI", "švps": "ŠVPS",
+    "svps": "ŠVPS", "mast": "MAST", "blv": "BLV",
+    "fsanz": "FSANZ", "mpi nz": "MPI NZ",
+    "cfs": "CFS Hong Kong", "mfds": "MFDS", "mhlw": "MHLW",
+    "samr": "SAMR", "sfa": "SFA", "fssai": "FSSAI",
+    "anvisa": "ANVISA", "cofepris": "COFEPRIS", "invima": "INVIMA",
+    "anmat": "ANMAT", "arcsa": "ARCSA", "digesa": "DIGESA", "isp": "ISP",
+    "sfda": "SFDA", "moccae": "MOCCAE", "moh": "MOH", "moph": "MOPH",
+    "nafdac": "NAFDAC", "kebs": "KEBS", "nfsa": "NFSA", "onssa": "ONSSA",
+}
+
+def _jurisdictions_from_recalls(recalls, max_list=5):
+    """Return a short list of authority names present in this week's data."""
+    seen = []
+    for r in recalls:
+        src = (r.get("Source") or "").lower().strip()
+        if not src: continue
+        # Match first token or exact map
+        for key, auth in _SOURCE_TO_AUTHORITY.items():
+            if key in src and auth not in seen:
+                seen.append(auth); break
+    return seen[:max_list]
+
+
+def _process_authority_note(recalls, bot):
+    """Return the P4 Process Authority Note string, or '' if no trigger fires.
+
+    Multi-trigger system. A PA Note fires whenever ANY of these hazard-classes
+    appear in the week. Each trigger gets its own fully-specified
+    process-authority paragraph with the correct GMPs, validation framework,
+    and regulatory citations — keyed to the JURISDICTIONS actually present in
+    the implicated recalls, not boilerplate FDA citations.
+
+    Triggers (evaluated in severity order; first match wins):
+      1. Clostridium / botulinum   - scheduled-thermal-process / LACF filing
+      2. Listeria monocytogenes    - RTE sanitation / env-monitoring / 6-log
+      3. Salmonella in low-moisture - kill-step validation, wet-dry segregation
+      4. Salmonella (other)        - kill-step + supplier verification
+      5. E. coli STEC              - raw-material supplier verification, kill-step
+      6. Multi-jurisdiction outbreak OR Tier-1 >=3 across >=3 countries - regulatory-response PA
+    """
+    if not recalls:
+        return ""
+
+    # Helper: recalls implicating a specific pathogen
+    def _by_pathogen(*needles):
+        out = []
+        for r in recalls:
+            p = (r.get("Pathogen") or "").lower()
+            if any(n in p for n in needles):
+                out.append(r)
+        return out
+
+    # Low-moisture food heuristic (Salmonella trigger needs both signals)
+    def _is_low_moisture(r):
+        text = ((r.get("Product") or "") + " " + (r.get("Reason") or "") + " " +
+                (r.get("Company") or "")).lower()
+        return any(k in text for k in (
+            "peanut", "nut butter", "almond", "cashew", "pistachio", "hazelnut",
+            "flour", "cereal", "granola", "oat", "rice", "pasta", "grain",
+            "powder", "powdered", "infant formula", "formula", "milk powder",
+            "spice", "herb", "seasoning", "tea", "dried", "chocolate", "cocoa",
+            "seed", "tahini", "sesame",
+        ))
+
+    def _names(rows, limit=3):
+        return ", ".join("{} ({})".format(
+            r.get("Company", ""), _country_display(r.get("Country", "")))
+            for r in rows[:limit])
+
+    # ------------------------------------------------------------------
+    # Jurisdiction-aware framework picker.
+    # Examines the country codes of the implicated rows and returns the
+    # appropriate framework citations ordered by dominant jurisdiction.
+    # Each hazard trigger calls this to build its regulatory-citation block.
+    # ------------------------------------------------------------------
+    def _country_buckets(rows):
+        us = eu = uk = ca = au_nz = jp = kr = other = 0
+        countries = []
+        EU_MEMBERS = {
+            "France","Germany","Italy","Spain","Netherlands","Belgium","Ireland",
+            "Denmark","Sweden","Finland","Austria","Poland","Portugal","Greece",
+            "Czech Republic","Slovakia","Hungary","Romania","Bulgaria","Croatia",
+            "Slovenia","Lithuania","Latvia","Estonia","Luxembourg","Malta","Cyprus",
+        }
+        for r in rows:
+            c = (r.get("Country") or "").strip()
+            if c and c not in countries:
+                countries.append(c)
+            cl = c.lower()
+            if cl in ("united states", "usa", "us"):        us += 1
+            elif c in EU_MEMBERS or cl == "european union": eu += 1
+            elif cl in ("united kingdom", "uk", "scotland", "england", "wales", "northern ireland"): uk += 1
+            elif cl == "canada":                             ca += 1
+            elif cl in ("australia", "new zealand"):         au_nz += 1
+            elif cl == "japan":                              jp += 1
+            elif cl == "south korea":                        kr += 1
+            else:                                            other += 1
+        return {"US":us,"EU":eu,"UK":uk,"CA":ca,"AU_NZ":au_nz,"JP":jp,"KR":kr,"OTHER":other,
+                "countries":countries}
+
+    def _regs_for(hazard, rows):
+        """Return a dict of framework-citation strings keyed to the jurisdictions
+        actually present. `hazard` is one of: botulinum, listeria, salmonella_lm,
+        salmonella, stec, regulatory.
+        The returned dict has keys: primary (main framework sentence),
+        parallels (comma-joined list of parallel-jurisdiction cites),
+        typical_regulators (space-separated authority names for the closing sentence)."""
+        b = _country_buckets(rows)
+
+        # Per-hazard framework text per jurisdiction
+        FRAMEWORKS = {
+            "botulinum": {
+                "US": "FDA 21 CFR 113 (LACF) / 21 CFR 114 (acidified foods) with scheduled-process filing under 21 CFR 108 (Form 2541 / 2541e)",
+                "EU": "EU Reg. 852/2004 (food hygiene) and Reg. 2073/2005 (microbiological criteria), with national competent-authority oversight of low-acid / shelf-stable production",
+                "UK": "UK Food Safety Act 1990, Food Hygiene (England) Regulations 2013 / retained Reg. 852/2004 + 2073/2005, and FSA Food Standards Agency oversight",
+                "CA": "CFIA Safe Food for Canadians Regulations (SFCR) with Preventive Control Plan (PCP) requirements for low-acid foods",
+                "AU_NZ": "FSANZ Food Standards Code Chapter 3 (Standard 3.2.1 Food Safety Programs, 3.2.2 Practices and General Requirements)",
+                "JP": "Japan Food Sanitation Act and MHLW standards for shelf-stable and canned foods",
+                "KR": "MFDS Food Sanitation Act with thermal-process validation requirements",
+            },
+            "listeria": {
+                "US": "FDA 21 CFR 117 Subparts B and G (Preventive Controls), FDA CPG 555.320 (L. monocytogenes zero-tolerance in RTE), and USDA FSIS Directive 10,240.4 where meat/poultry is implicated",
+                "EU": "EU Reg. 2073/2005 microbiological criteria (absence in 25 g for RTE infant / medical food; ≤100 CFU/g for other RTE at end of shelf-life), Reg. 852/2004 HACCP, and national RASFF notification obligations",
+                "UK": "retained EU Reg. 2073/2005, UK Food Hygiene Regulations, and FSA listeria-in-RTE control guidance",
+                "CA": "CFIA Policy on Control of Listeria monocytogenes in Ready-to-Eat Foods and the SFCR Preventive Control Plan",
+                "AU_NZ": "FSANZ Food Standards Code Standard 1.6.1 (microbiological limits) and industry Listeria management guidelines",
+                "JP": "Japan MHLW microbial standards and ready-to-eat food hygiene guidance",
+                "KR": "MFDS RTE pathogen standards",
+            },
+            "salmonella_lm": {
+                "US": "FDA 21 CFR 117 Subpart C Preventive Controls with FDA Guidance for Industry: Measures to Address the Risk for Contamination by Salmonella in Low-Moisture Ready-to-Eat Human Foods",
+                "EU": "EU Reg. 2073/2005 microbiological criteria (Salmonella absence in 25 g for RTE categories) and Reg. 852/2004 HACCP",
+                "UK": "retained EU Reg. 2073/2005 and FSA Salmonella low-moisture food guidance",
+                "CA": "CFIA SFCR Preventive Control Plan with validated kill-step requirements for low-moisture foods",
+                "AU_NZ": "FSANZ Food Standards Code Standards 1.6.1 and 3.2.2 with the FSANZ Getting Your Food Regulation Right guidance",
+                "JP": "Japan MHLW microbial standards",
+                "KR": "MFDS low-moisture food hygiene standards",
+                "CODEX": "Codex CAC/RCP 75-2015 Code of Hygienic Practice for Low-Moisture Foods",
+            },
+            "salmonella": {
+                "US": "FDA 21 CFR 117 Preventive Controls and, for meat/poultry, USDA FSIS performance standards",
+                "EU": "EU Reg. 2073/2005 (Salmonella absence in 25 g for most RTE categories) and Reg. 852/2004 HACCP",
+                "UK": "retained EU Reg. 2073/2005 and FSA / Food Hygiene Regulations",
+                "CA": "CFIA SFCR Preventive Control Plan",
+                "AU_NZ": "FSANZ Food Standards Code Standard 3.2.1 Food Safety Programs and Standard 1.6.1 microbiological limits",
+                "JP": "Japan MHLW microbial standards",
+                "KR": "MFDS Food Code pathogen limits",
+            },
+            "stec": {
+                "US": "USDA FSIS adulterant declarations for E. coli O157:H7 and the Big-Six non-O157 STECs in non-intact raw beef (9 CFR 318/381), FDA Produce Safety Rule (21 CFR 112), and FDA Juice HACCP rule (21 CFR 120)",
+                "EU": "EU Reg. 2073/2005 (STEC limits for RTE sprouted seeds), Reg. 852/2004 HACCP, and national STEC surveillance under Directive 2003/99/EC",
+                "UK": "retained EU Reg. 2073/2005 and FSA STEC guidance with sprout-specific controls",
+                "CA": "CFIA SFCR Preventive Control Plan with specific E. coli O157:H7 controls for ground beef",
+                "AU_NZ": "FSANZ Food Standards Code Standard 1.6.1 (STEC limits in raw unpasteurised milk and cheese) and Standard 4.2.1 primary production",
+                "JP": "Japan MHLW STEC control guidance",
+                "KR": "MFDS STEC pathogen standards",
+            },
+            "regulatory": {
+                "US": "FSMA §204 traceability (21 CFR 1 Subpart S) with Class I recall effectiveness checks",
+                "EU": "EU Reg. 178/2002 Art. 18 traceability one-up / one-back and RASFF INFOSAN rapid-alert obligations",
+                "UK": "retained Reg. 178/2002 Art. 18 and FSA Food Law Enforcement Code of Practice",
+                "CA": "CFIA SFCR traceability and the Canadian food-recall framework under the Safe Food for Canadians Act",
+                "AU_NZ": "FSANZ Food Standards Code 3.2.2 traceability and the Australian Consumer Law mandatory-reporting obligation",
+                "JP": "Japan Food Sanitation Act notification obligations",
+                "KR": "MFDS recall and traceability provisions",
+            },
+        }[hazard]
+
+        # Determine ordering. The bucket with the most incidents comes first.
+        order = sorted(
+            [k for k in ("US","EU","UK","CA","AU_NZ","JP","KR") if b[k] > 0],
+            key=lambda k: -b[k])
+        if not order:
+            # All recalls in "other" countries — default to global framing
+            order = ["EU"]  # RASFF is the most common fallback framework
+
+        primary_key = order[0]
+        primary_text = FRAMEWORKS[primary_key]
+
+        parallel_keys = order[1:]
+        parallels_text = ""
+        if parallel_keys:
+            parallels_text = "; parallel frameworks apply under " + "; ".join(
+                FRAMEWORKS[k] for k in parallel_keys)
+
+        # Codex as a supra-national reference for low-moisture Salmonella
+        if hazard == "salmonella_lm":
+            if "CODEX" in FRAMEWORKS:
+                parallels_text += ("; supranational reference: " + FRAMEWORKS["CODEX"])
+
+        # Regulator names for the closing sentence
+        AUTHORITY_NAMES = {
+            "US":"FDA and USDA FSIS", "EU":"the national competent authority under RASFF",
+            "UK":"the FSA", "CA":"CFIA", "AU_NZ":"FSANZ",
+            "JP":"Japan MHLW", "KR":"MFDS",
+        }
+        authorities = [AUTHORITY_NAMES[k] for k in order]
+        if len(authorities) == 1:
+            regulators = authorities[0]
+        elif len(authorities) == 2:
+            regulators = " and ".join(authorities)
+        else:
+            regulators = ", ".join(authorities[:-1]) + ", and " + authorities[-1]
+
+        return {"primary": primary_text,
+                "parallels": parallels_text,
+                "regulators": regulators,
+                "buckets": b}
+
+    # ------------------------------------------------------------------
+    # Trigger 1 — Clostridium / botulinum (highest severity)
+    # ------------------------------------------------------------------
     if bot:
-        co = ", ".join("{} ({})".format(r.get("Company",""), _country_display(r.get("Country",""))) for r in bot[:3])
-        paras.append("This window contains {} incident(s) implicating Clostridium or botulinum toxin, with {} cited for Clostridium botulinum. Any shelf-stable low-acid, acidified, aseptic/UHT, hot-filled, or reduced-oxygen-packaged product in the affected category must be reviewed to confirm the scheduled thermal process under a qualified process authority \u2014 required under FDA 21 CFR 113/114, EU Reg. 852/2004, CFIA SFCR, FSANZ Food Standards Code Ch. 3, and Japan\u2019s Food Sanitation Act. Typical compliance gaps: unfiled or outdated scheduled process, deviation resolved without qualified review, container or seal-integrity lapse, or a formulation change (pH, a_w, salt, preservative) not re-evaluated. A Tier-1 / Class-I classification on a product of this class reliably triggers a process-filing audit and regulatory citations in every major jurisdiction.".format(len(bot), co))
-    return "\n\n".join(paras)
+        regs = _regs_for("botulinum", bot)
+        return ("This window contains {n} incident(s) implicating Clostridium or "
+                "botulinum toxin, with {co} cited for {path}. Any shelf-stable "
+                "low-acid, acidified, aseptic/UHT, hot-filled, or reduced-oxygen-"
+                "packaged product in the affected category must be reviewed to "
+                "confirm that the scheduled thermal process has been established, "
+                "filed, and validated under the guidance of a qualified process "
+                "authority \u2014 required under {primary}{parallels}. The most "
+                "common compliance gap behind recalls of this profile is an "
+                "unfiled or outdated scheduled process, a process deviation "
+                "resolved without qualified process authority review, a container "
+                "or seal-integrity lapse, or a formulation change (pH, a_w, salt, "
+                "preservative) introduced without re-evaluation. Tier-1 / Class-I "
+                "classification on a low-acid product reliably triggers a "
+                "regulatory process-filing audit by {regulators} with formal "
+                "inspection-findings issuance on the subsequent visit."
+                ).format(n=len(bot), co=_names(bot),
+                         path=bot[0].get("Pathogen","Clostridium botulinum"),
+                         primary=regs["primary"], parallels=regs["parallels"],
+                         regulators=regs["regulators"])
+
+    # ------------------------------------------------------------------
+    # Trigger 2 — Listeria monocytogenes
+    # ------------------------------------------------------------------
+    lst = _by_pathogen("listeria")
+    if lst:
+        regs = _regs_for("listeria", lst)
+        return ("This window contains {n} Listeria monocytogenes incident(s), "
+                "with {co} among those cited. Ready-to-eat (RTE) manufacturers "
+                "\u2014 particularly deli, soft cheese and dairy (including raw-"
+                "milk cheese), charcuterie and cured-meat, smoked and cured "
+                "seafood, cooked-meat, refrigerated prepared salads, and cut "
+                "produce \u2014 should review their environmental monitoring "
+                "programme (EMP), Zone 1\u20134 sampling plan, and corrective-"
+                "action triggers under {primary}{parallels}. The process-"
+                "authority deliverable for this hazard class is a validated "
+                "6-log L. monocytogenes reduction at the kill step (where one "
+                "exists) or a documented post-lethality control programme where "
+                "the organism cannot be eliminated in-pack. Typical compliance "
+                "gaps: incomplete Zone 1 sampling, sanitation SOPs not validated "
+                "against worst-case soil load, equipment hollows harbouring "
+                "persistent strains, and post-lethality recontamination pathways "
+                "not mapped. Tier-1 classification with RTE product categories "
+                "routinely triggers an EMP audit and formal inspection-findings "
+                "issuance by {regulators}."
+                ).format(n=len(lst), co=_names(lst),
+                         primary=regs["primary"], parallels=regs["parallels"],
+                         regulators=regs["regulators"])
+
+    # ------------------------------------------------------------------
+    # Trigger 3 — Salmonella in low-moisture foods
+    # ------------------------------------------------------------------
+    sal = _by_pathogen("salmonella")
+    sal_lm = [r for r in sal if _is_low_moisture(r)]
+    if sal_lm:
+        regs = _regs_for("salmonella_lm", sal_lm)
+        return ("This window contains {n} Salmonella incident(s) in low-moisture "
+                "food categories, with {co} among those cited. Low-moisture "
+                "foods \u2014 peanut and nut butters, flour and grain, milk "
+                "powder and infant formula, spices and dried herbs, chocolate "
+                "and cocoa, seeds and tahini \u2014 require a validated kill "
+                "step because Salmonella survives for months to years at low "
+                "water activity (a_w) and is not reliably reduced by ambient "
+                "handling. The process-authority deliverable is a kill-step "
+                "validation study demonstrating \u22655-log Salmonella reduction "
+                "under worst-case product composition (fat, a_w, particulate "
+                "size) and worst-case equipment conditions, per {primary}"
+                "{parallels}. Typical compliance gaps: unvalidated wet-dry zone "
+                "segregation, raw-ingredient supplier programme without "
+                "certificate-of-analysis (COA) verification, insufficient "
+                "sanitary design at post-kill-step transitions, and the absence "
+                "of a documented environmental-monitoring programme for the "
+                "dry side. Tier-1 classification in this product class "
+                "routinely triggers a kill-step revalidation and formal "
+                "inspection-findings issuance by {regulators}."
+                ).format(n=len(sal_lm), co=_names(sal_lm),
+                         primary=regs["primary"], parallels=regs["parallels"],
+                         regulators=regs["regulators"])
+
+    # Trigger 4 — Plain Salmonella (no low-moisture)
+    if sal:
+        regs = _regs_for("salmonella", sal)
+        return ("This window contains {n} Salmonella incident(s), with {co} "
+                "among those cited. The process-authority deliverable for "
+                "Salmonella-implicated product is the validated kill step for "
+                "the commodity (thermal, high-pressure, or equivalent), the "
+                "supplier-verification programme on raw inputs, and the "
+                "sanitary separation between raw-handling and ready-to-eat "
+                "zones under {primary}{parallels}. Typical compliance gaps: "
+                "supplier COAs accepted without independent verification "
+                "sampling, shared equipment and tooling across raw-RTE "
+                "boundaries, a validated kill-step not re-qualified after "
+                "formulation or line changes, and time-temperature CCPs "
+                "monitored without recording-rigour sufficient for inspector "
+                "reconstruction. Tier-1 classification here triggers HACCP-"
+                "plan reassessment and formal enforcement action by "
+                "{regulators}."
+                ).format(n=len(sal), co=_names(sal),
+                         primary=regs["primary"], parallels=regs["parallels"],
+                         regulators=regs["regulators"])
+
+    # ------------------------------------------------------------------
+    # Trigger 5 — E. coli STEC / O-serogroup
+    # ------------------------------------------------------------------
+    stec = _by_pathogen("stec", "e. coli", "escherichia")
+    if stec:
+        regs = _regs_for("stec", stec)
+        return ("This window contains {n} E. coli (STEC / shiga-toxin-"
+                "producing) incident(s), with {co} among those cited. The "
+                "pathogen has an infectious dose as low as ~10 organisms, and "
+                "the process-authority deliverable is a validated kill step "
+                "demonstrating \u22655-log STEC reduction for non-intact-beef "
+                "processors, or a pre-harvest + post-harvest control "
+                "programme for leafy-green, sprout, raw-milk cheese, and "
+                "unpasteurised-juice producers, per {primary}{parallels}. "
+                "Typical compliance gaps: grinding-plant raw-material cross-"
+                "contamination without batch segregation, irrigation-water "
+                "microbial monitoring not meeting applicable generic E. coli "
+                "numeric limits, post-harvest wash-water chemistry (free "
+                "chlorine, pH, ORP) not validated to prevent carry-over, "
+                "time-temperature CCPs on hot-hold and cook-chill programmes "
+                "insufficiently monitored, and sprout-seed treatment "
+                "protocols unvalidated. Tier-1 STEC classification in these "
+                "product categories routinely triggers formal enforcement "
+                "action by {regulators}."
+                ).format(n=len(stec), co=_names(stec),
+                         primary=regs["primary"], parallels=regs["parallels"],
+                         regulators=regs["regulators"])
+
+    # ------------------------------------------------------------------
+    # Trigger 6 — Regulatory-response PA note.
+    # Fires on weeks with either: (a) an outbreak spanning multiple
+    # jurisdictions, or (b) ≥3 Tier-1 recalls across ≥3 countries.
+    # ------------------------------------------------------------------
+    outbreaks = [r for r in recalls if _safe_int(r.get("Outbreak", 0)) == 1]
+    outbreak_countries = set(
+        _country_display(r.get("Country", "")) for r in outbreaks
+        if (r.get("Country") or "").strip())
+    tier1 = [r for r in recalls if _safe_int(r.get("Tier", 2)) == 1]
+    tier1_countries = set(
+        _country_display(r.get("Country", "")) for r in tier1
+        if (r.get("Country") or "").strip())
+
+    multi_jurisdiction_outbreak = outbreaks and len(outbreak_countries) >= 2
+    high_tier1_pressure         = len(tier1) >= 3 and len(tier1_countries) >= 3
+
+    if multi_jurisdiction_outbreak or high_tier1_pressure:
+        if multi_jurisdiction_outbreak:
+            anchor = ("a multi-jurisdiction outbreak pattern ({n_ob} confirmed "
+                      "outbreak event(s) across {n_co} countries: {countries})"
+                      ).format(n_ob=len(outbreaks),
+                               n_co=len(outbreak_countries),
+                               countries=", ".join(sorted(outbreak_countries)))
+            basis_rows = outbreaks
+        else:
+            anchor = ("elevated Tier-1 regulatory pressure ({n_t1} Tier-1 "
+                      "recalls across {n_co} countries: {countries})").format(
+                          n_t1=len(tier1), n_co=len(tier1_countries),
+                          countries=", ".join(sorted(tier1_countries)[:6]))
+            basis_rows = tier1
+        regs = _regs_for("regulatory", basis_rows)
+        return ("This window shows {anchor}, signalling either co-ordinated "
+                "enforcement under mutual-recognition arrangements (RASFF "
+                "INFOSAN, WHO IHR notifications, CFIA-FDA trilateral co-"
+                "operation) or independent convergence on the same commodity "
+                "class. The process-authority deliverable for affected "
+                "manufacturers is a 24-hour regulatory-response readiness "
+                "package: scheduled-process documentation, HACCP plan with "
+                "all CCP records for the implicated lot window, environmental-"
+                "monitoring programme output, supplier COAs, and traceability "
+                "records one-up / one-back under {primary}{parallels}. Typical "
+                "compliance gaps exposed under cross-jurisdiction scrutiny: "
+                "inconsistent batch-coding between markets, labelling mis-"
+                "alignment, a recall-effectiveness check not completed within "
+                "the inspector-expected window, and a press / retailer "
+                "notification lag exceeding 24 hours. Multi-jurisdiction "
+                "Tier-1 / Class-I events of this profile routinely escalate "
+                "to a full-facility regulatory inspection by {regulators} "
+                "and can support import-alert listing, detention-without-"
+                "physical-examination, or licence-suspension action depending "
+                "on the jurisdiction."
+                ).format(anchor=anchor, primary=regs["primary"],
+                         parallels=regs["parallels"],
+                         regulators=regs["regulators"])
+
+    # No trigger fired — return empty string (no P4 appended)
+    return ""
 
 def review_with_openai(text):
     if not OPENAI_API_KEY: return text
@@ -853,7 +1423,19 @@ def build_html(week_end, recalls, prev_week):
     pa_html = ""; reg = []
     for p in paras:
         pl = p.lower()
-        if ("botulinum" in pl or "clostridium" in pl) and ("process authority" in pl or "scheduled thermal" in pl or "21 cfr 113" in pl):
+        # PA Note detection — any paragraph using the process-authority idiom
+        # and citing a regulatory-enforcement framework. Jurisdiction-neutral
+        # since the primary regulator block varies by week.
+        is_pa = (
+            ("process-authority deliverable" in pl) or
+            ("qualified process authority" in pl) or
+            ("regulatory-response readiness" in pl) or
+            ("environmental monitoring programme (emp)" in pl) or
+            ("kill-step validation study" in pl) or
+            ("\u22655-log" in p) or
+            ("multi-jurisdiction" in pl and ("escalate" in pl or "import-alert" in pl))
+        )
+        if is_pa:
             pa_html = '<p class="pa-note"><span class="pa-label">Process Authority Note:</span> ' + esc(p) + '</p>'
         else:
             reg.append(p)
