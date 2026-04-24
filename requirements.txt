@@ -27,7 +27,7 @@ tzdata>=2024.1
 
 # --- AI SDKs ---
 # Gemini 2.0 Flash — primary workhorse (scraping + enrichment)
-google-generativeai>=0.8.3
+google-genai>=0.8.0
 
 # Claude Haiku 4.5 — Tier-1 QA, HTML fallback, URL gate, gap-finder
 anthropic>=0.40.0
