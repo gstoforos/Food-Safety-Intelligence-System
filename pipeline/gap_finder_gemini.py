@@ -18,7 +18,7 @@ Gemini 1,500-req/day free tier. That makes this the only gap-finder that
 can actually discover recalls from last week.
 
 Cost: $0 on Gemini free tier (1 call per run, once per day).
-Model: gemini-2.5-flash-lite (override via GEMINI_MODEL env var).
+Model: gemini-2.5-flash (override via GEMINI_MODEL env var).
 Schedule: 05:00 UTC daily (before OpenAI 06:00 UTC, before Claude 19:00 UTC).
 """
 from __future__ import annotations
@@ -56,7 +56,7 @@ JSON_PATH = DATA_DIR / "recalls.json"
 
 SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "7"))
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 
 # ---------------------------------------------------------------------------
@@ -81,16 +81,13 @@ def _call_gemini_with_search(prompt: str, system: Optional[str] = None) -> Optio
     Single Gemini call with Google Search grounding enabled.
     Returns the text response, or None on failure.
 
-    Uses the new `google-genai` SDK and the `google_search` tool. The legacy
-    `google_search_retrieval` grounding is no longer supported on Gemini 2.x
-    models — the API returns HTTP 400 if you pass it.
+    Tries the Gemini 2.0 tool name first (`google_search`), falls back to the
+    1.5 name (`google_search_retrieval`) so the code works across SDK versions.
     """
     try:
-        from google import genai  # new SDK
-        from google.genai import types as genai_types
+        import google.generativeai as genai  # type: ignore
     except ImportError:
-        log.error("google-genai not installed. Update requirements.txt: "
-                  "replace 'google-generativeai' with 'google-genai>=0.8.0'")
+        log.error("google-generativeai not installed — add to requirements.txt")
         return None
 
     keys = _collect_gemini_keys()
@@ -98,45 +95,52 @@ def _call_gemini_with_search(prompt: str, system: Optional[str] = None) -> Optio
         log.error("No GEMINI_API_KEY(_1..10) env var set")
         return None
 
-    # Single tool config — google_search is the only form supported on 2.x.
-    search_tool = genai_types.Tool(google_search=genai_types.GoogleSearch())
+    # Try each tool-config shape. Newer Gemini SDKs want `google_search`,
+    # older ones want `google_search_retrieval`. Just try both.
+    tool_configs = [
+        [{"google_search": {}}],             # Gemini 2.0+
+        [{"google_search_retrieval": {}}],   # Gemini 1.5 compat
+        "google_search_retrieval",           # SDK string shortcut
+    ]
 
     last_error: Optional[Exception] = None
+    # One call — rotate through keys only on hard failure (not output).
     for api_key in keys:
-        try:
-            client = genai.Client(api_key=api_key)
-            cfg_kwargs = {"tools": [search_tool]}
-            if system:
-                cfg_kwargs["system_instruction"] = system
-            config = genai_types.GenerateContentConfig(**cfg_kwargs)
+        for tool_cfg in tool_configs:
+            try:
+                genai.configure(api_key=api_key)
+                if system:
+                    model = genai.GenerativeModel(
+                        GEMINI_MODEL,
+                        system_instruction=system,
+                    )
+                else:
+                    model = genai.GenerativeModel(GEMINI_MODEL)
+                resp = model.generate_content(prompt, tools=tool_cfg)
+                text = (getattr(resp, "text", None) or "").strip()
+                if text:
+                    # Log how many search queries Gemini actually fired
+                    try:
+                        gm = resp.candidates[0].grounding_metadata
+                        queries = getattr(gm, "web_search_queries", []) or []
+                        if queries:
+                            log.info(
+                                "Gemini ran %d Google searches: %s",
+                                len(queries),
+                                " | ".join(str(q)[:60] for q in queries[:5]),
+                            )
+                    except Exception:
+                        pass
+                    return text
+            except Exception as exc:  # noqa: BLE001 - try the next tool shape
+                last_error = exc
+                log.debug("Gemini attempt failed (%s): %s",
+                          type(exc).__name__, str(exc)[:150])
+                continue
+        # If we got here, all tool shapes failed for this key — try next key
+        log.warning("All tool configs failed for one Gemini key, trying next")
 
-            resp = client.models.generate_content(
-                model=GEMINI_MODEL,
-                contents=prompt,
-                config=config,
-            )
-            text = (getattr(resp, "text", None) or "").strip()
-            if text:
-                # Log how many Google searches Gemini actually ran
-                try:
-                    gm = resp.candidates[0].grounding_metadata
-                    queries = getattr(gm, "web_search_queries", []) or []
-                    if queries:
-                        log.info(
-                            "Gemini ran %d Google searches: %s",
-                            len(queries),
-                            " | ".join(str(q)[:60] for q in queries[:5]),
-                        )
-                except Exception:
-                    pass
-                return text
-        except Exception as exc:  # noqa: BLE001 — rotate key on hard failure
-            last_error = exc
-            log.warning("Gemini key failed (%s): %s — trying next key",
-                        type(exc).__name__, str(exc)[:200])
-            continue
-
-    log.error("Gemini gap-finder: all keys failed. Last error: %s", last_error)
+    log.error("Gemini gap-finder: all keys/configs failed. Last error: %s", last_error)
     return None
 
 
@@ -161,25 +165,22 @@ GAP_FINDER_SYSTEM = (
 )
 
 
-GAP_FINDER_PROMPT = """Using Google Search, find EVERY food recall, public health alert, RASFF notification, or market withdrawal issued worldwide in the last {since_days} days.
+GAP_FINDER_PROMPT = """Using Google Search, find EVERY food recall / public-health alert issued worldwide in the last {since_days} days whose cause is a PATHOGEN, MICROBIAL CONTAMINATION, or BIOLOGICAL TOXIN.
 
 Today's date: {today}
 
-SEARCH STRATEGY — search EACH agency individually:
-- "food recall" site:fda.gov/safety/recalls
-- "food recall" site:recalls-rappels.canada.ca
-- "food alert" site:food.gov.uk/news-alerts
-- "food alert" site:fsai.ie
-- "rappel" site:rappel.conso.gouv.fr
-- "food recall" site:foodstandards.gov.au/food-recalls
-- "RASFF notification" site:webgate.ec.europa.eu
-- "Lebensmittelrückruf" site:lebensmittelwarnung.de
-- "food recall" site:fsis.usda.gov/recalls
-- Also search: AESAN Spain, AGES Austria, EFET Greece, MPI NZ, CFS Hong Kong, MFDS Korea, MHLW Japan, ANVISA Brazil, NAFDAC Nigeria, SFDA Saudi Arabia
+SEARCH STRATEGY: Run multiple Google searches to cover all major regulators. Example queries to run:
+- "food recall {year} salmonella listeria" site:fda.gov OR site:fsis.usda.gov OR site:cdc.gov
+- "food recall {year}" site:rappelconso.gouv.fr OR site:food.gov.uk OR site:fsai.ie
+- "food recall {year}" site:inspection.canada.ca OR site:foodstandards.gov.au OR site:mpi.govt.nz
+- "Lebensmittelrückruf {year}" site:lebensmittelwarnung.de OR site:ages.at
+- "rappel aliment {year}" site:rappelconso.gouv.fr
+- "retiro alimento {year}" site:aesan.gob.es
+- Agencies to cover: FDA, USDA FSIS, EU RASFF, FSA UK, FSAI Ireland, FSANZ Australia/NZ, CFIA Canada, AESAN Spain, BVL Germany, RappelConso France, EFET Greece, Min. Salute Italy, CFS Hong Kong, MFDS Korea, MHLW Japan, ANVISA Brazil, COFEPRIS Mexico, FSSAI India, NAFDAC Nigeria, SFDA Saudi Arabia, and any others.
 
-In scope: Listeria, Salmonella, E. coli / STEC / O157:H7, Clostridium botulinum, Norovirus, Hepatitis A, Campylobacter, Cyclospora, Vibrio, Cronobacter sakazakii, Bacillus cereus / cereulide, Aflatoxins, Ochratoxin A, Patulin, marine biotoxins, Histamine, Shigella, Yersinia, Brucella, other mycotoxins, mould/mold contamination, foreign material (glass/metal/plastic/wood/stone fragments), rodent/insect/pest contamination, chemical hazards: heavy metals (lead, cadmium, mercury, arsenic), ethylene oxide, dioxins/PCBs, mineral oil (MOAH/MOSH), pesticide residues over MRL, Sudan dyes, melamine, chlorate, unauthorized substances. Also include EU RASFF notifications (alerts, border rejections, information notifications).
+In scope (pathogens): Listeria, Salmonella, E. coli / STEC / O157:H7, Clostridium botulinum, Norovirus, Hepatitis A, Campylobacter, Cyclospora, Vibrio, Cronobacter sakazakii, Bacillus cereus / cereulide, Aflatoxins, Ochratoxin A, Patulin, marine biotoxins, Histamine, Shigella, Yersinia, other mycotoxins.
 
-OUT of scope (do NOT include): undeclared allergens (unless combined with an in-scope hazard), labeling errors, quality complaints, non-food products.
+OUT of scope (do NOT include): undeclared allergens, foreign objects, labeling errors, mechanical issues, chemical/heavy-metal contamination, pesticide residues.
 
 For each recall return ALL fields below:
 - Date      : YYYY-MM-DD, the publication date
@@ -307,9 +308,9 @@ def main() -> int:
 
     # 4. Append to Pending (dedup handled by append_to_pending)
     new_pending = append_to_pending(
-        pending=pending,
+        existing_pending=pending,
+        approved=approved,
         new_recalls=recalls,
-        approved_existing=approved,
         scraped_at=scraped_at,
     )
     added = len(new_pending) - len(pending)

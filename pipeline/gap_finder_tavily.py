@@ -490,9 +490,9 @@ def main() -> int:
 
     # 3. Dedup-append to Pending (URL gate will validate before Recalls promotion)
     new_pending = append_to_pending(
-        pending=pending,
+        existing_pending=pending,
+        approved=approved,
         new_recalls=recalls,
-        approved_existing=approved,
         scraped_at=scraped_at,
     )
     added = len(new_pending) - len(pending)
