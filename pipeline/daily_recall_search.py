@@ -1,7 +1,7 @@
 """
-Daily Recall Search — Claude-powered global recall finder (Pending-first).
+Daily Recall Search — OpenAI-powered global recall finder (Pending-first).
 
-Uses Claude Haiku 4.5 with web search for verified URLs.
+REPLACES pipeline/gap_finder_openai.py.
 
 Correct pipeline flow — EXCEL IS THE SOURCE OF TRUTH:
 
@@ -29,10 +29,10 @@ Why Pending-first:
   Recalls only, so by construction it always matches.
 
 Budget controls:
-  - Hard cap per run: €0.12 (config HARD_CAP_EUR_PER_RUN)
-  - Hard cap per week: €0.50 (HARD_CAP_EUR_PER_WEEK) — persisted in
+  - Hard cap per run: €1.00 (config HARD_CAP_EUR_PER_RUN)
+  - Hard cap per week: €7.00 (HARD_CAP_EUR_PER_WEEK) — persisted in
     docs/data/.spend_ledger.json so a bad run can't blow the budget.
-  - Current per-run expected cost ≈ €0.01 (gpt-4o-mini-search-preview only,
+  - Current per-run expected cost ≈ €0.002 (gpt-4o-mini-search-preview only,
     token costs at $0.15/M in and $0.60/M out, no separate search fee).
 
 Invocation:
@@ -47,7 +47,6 @@ import logging
 import os
 import re
 import sys
-import time
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, date, timedelta, timezone
 from pathlib import Path
@@ -83,11 +82,11 @@ SPEND_LEDGER = DATA_DIR / ".spend_ledger.json"
 # ---------------------------------------------------------------------------
 # Budget
 # ---------------------------------------------------------------------------
-HARD_CAP_EUR_PER_RUN = float(os.getenv("DAILY_BUDGET_EUR_PER_RUN", "0.15"))
-HARD_CAP_EUR_PER_WEEK = float(os.getenv("DAILY_BUDGET_EUR_PER_WEEK", "1.00"))
+HARD_CAP_EUR_PER_RUN = float(os.getenv("DAILY_BUDGET_EUR_PER_RUN", "1.00"))
+HARD_CAP_EUR_PER_WEEK = float(os.getenv("DAILY_BUDGET_EUR_PER_WEEK", "7.00"))
 USD_TO_EUR = 0.92  # static — close enough; doesn't need to be exact
 
-# Claude Haiku 4.5 pricing per 1M tokens
+# gpt-4o-mini-search-preview pricing per 1M tokens
 PRICE_INPUT_USD_PER_1M = 0.15
 PRICE_OUTPUT_USD_PER_1M = 0.60
 
@@ -197,9 +196,9 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
     )
     return (
         f"TASK: Using your web_search tool, find every food recall, public "
-        f"health alert, food safety notice, market withdrawal, or RASFF "
-        f"notification officially published by a food regulator in {region} "
-        f"within a 3-day window centered on yesterday. The target day is:\n\n"
+        f"health alert, food safety notice, or product withdrawal officially "
+        f"published by a food regulator in {region} within a 3-day window "
+        f"centered on yesterday. The target day is:\n\n"
         f"  TARGET DAY (yesterday Athens time): {fmt_variants}\n"
         f"  ACCEPTABLE PUBLISH DATES: {prev.isoformat()} | "
         f"{yday.isoformat()} | {nxt.isoformat()}\n\n"
@@ -207,32 +206,20 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
         f"those three dates. Regulator sites often show dates as DD/MM/YYYY "
         f"or localized text — normalize them and include if they match one "
         f"of the three acceptable ISO dates above.\n\n"
-        f"IMPORTANT — RASFF (EU Rapid Alert System):\n"
-        f"  RASFF notifications (Alerts, Information Notifications, Border "
-        f"Rejections) are functionally equivalent to recalls. Search RASFF "
-        f"directly: 'RASFF notification {yday.strftime('%B %Y')}' and also "
-        f"'webgate.ec.europa.eu rasff {yday.strftime('%d %B %Y')}'. Include "
-        f"every RASFF notification whose date falls in the 3-day window. "
-        f"Set source='RASFF (EU)' and country=origin country.\n\n"
         f"REGULATORS TO COVER (search each by name + recent recalls): {agencies}\n\n"
         f"SEARCH STRATEGY:\n"
         f"  - For each regulator, search '<agency name> recall "
         f"{yday.strftime('%B %Y')}' and '<agency name> recent recalls'\n"
-        f"  - Also try '<agency name> food safety {yday.strftime('%d %B %Y')}'\n"
         f"  - Then open the 2-3 most recent recall notices from each agency "
         f"and check their publication date against the 3-day window\n"
         f"  - If you see phrases like 'today', 'this week', 'yesterday', "
         f"'hier', 'aujourd'hui', 'heute', translate them using the fact "
-        f"that the current date is {nxt.isoformat()}\n"
-        f"  - For RASFF: search 'RASFF window latest notifications' and "
-        f"check the most recent entries\n\n"
+        f"that the current date is {nxt.isoformat()}\n\n"
         f"IN SCOPE — include recalls where the hazard is:\n"
         f"  • Pathogens: Listeria, Salmonella, E. coli / STEC / O157, "
         f"Clostridium botulinum, Norovirus, Hepatitis A, Campylobacter, "
         f"Cronobacter, Bacillus cereus, Cyclospora, Shigella, Vibrio, "
-        f"Yersinia, Brucella\n"
-        f"  • Mould / spoilage: visible mould contamination, yeast "
-        f"overgrowth, spoilage microorganisms\n"
+        f"Yersinia\n"
         f"  • Biotoxins: histamine/scombrotoxin, marine biotoxins "
         f"(DSP/PSP/ASP, domoic acid, saxitoxin, ciguatera), cereulide\n"
         f"  • Mycotoxins: aflatoxin, ochratoxin, patulin, Alternaria, "
@@ -240,10 +227,8 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
         f"  • Foreign material: glass, metal, plastic, wood, stone\n"
         f"  • Rodent / insect / pest contamination (physical hazard)\n"
         f"  • Chemical: heavy metals (lead, cadmium, mercury, arsenic) "
-        f"over legal limit, pesticide residues over MRL, ethylene oxide "
-        f"(EtO), chlorate, dioxins/PCBs, mineral oil (MOAH/MOSH), Sudan "
-        f"dyes, melamine, unauthorized substances (rodenticide, DMAE, "
-        f"novel food ingredients, unauthorized additives/colours)\n\n"
+        f"over legal limit, pesticide residues over MRL, unauthorized "
+        f"substances (rodenticide, DMAE, novel food ingredients)\n\n"
         f"OUT OF SCOPE — EXCLUDE:\n"
         f"  • Allergen-only recalls (undeclared milk, egg, nuts, soy, "
         f"wheat, gluten, sulphite, fish, shellfish, sesame, celery — even "
@@ -263,18 +248,17 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
         f'{nxt.isoformat()})\n'
         f'  "country": English country name\n'
         f'  "source": regulator short name, e.g. "FDA", "RappelConso (FR)", '
-        f'"BVL (DE)", "RASFF (EU)", "FSANZ (AU)"\n'
+        f'"BVL (DE)", "FSANZ (AU)"\n'
         f'  "company": firm/producer name\n'
         f'  "brand": brand name or "—"\n'
         f'  "product": full product description with size/pack\n'
-        f'  "hazard_type": one of PATHOGEN, BIOTOXIN, MYCOTOXIN, MOULD, '
+        f'  "hazard_type": one of PATHOGEN, BIOTOXIN, MYCOTOXIN, '
         f"FOREIGN_MATERIAL, PEST_CONTAMINATION, CHEMICAL\n"
         f'  "pathogen": specific agent (e.g. "Listeria monocytogenes", '
-        f'"Salmonella Enteritidis", "mould", "glass fragments", "rodent"), '
-        f'or "—"\n'
+        f'"Salmonella Enteritidis", "glass fragments", "rodent"), or "—"\n'
         f'  "reason": short cause description in English\n'
         f'  "class": recall class if stated (Class I/II/III, Volontaire, '
-        f'Alert, Border Rejection, Recall) — or "Recall"\n'
+        f'Alert, Recall) — or "Recall"\n'
         f'  "outbreak": 1 if ANY illness/hospitalisation/death mentioned, '
         f"else 0\n"
         f'  "url": DEEP-LINK URL to the specific recall detail page on the '
@@ -282,8 +266,8 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
         f"via web_search. NEVER a category or homepage. If you cannot find "
         f"a specific deep-link page, use the category page URL as fallback — "
         f"do NOT omit the recall.\n"
-        f'  "notes": distribution area, lot codes, illness count, RASFF '
-        f"reference number if applicable, or any extra context.\n\n"
+        f'  "notes": distribution area, lot codes, illness count, or any '
+        f"extra context worth capturing.\n\n"
         f"CRITICAL RULES:\n"
         f"1. If a regulator genuinely published nothing in the 3-day "
         f'window in {region}, skip that regulator — but do not skip a '
@@ -348,28 +332,29 @@ def record_spend(ledger: Dict[str, Any], eur: float, region: str,
 
 
 # ---------------------------------------------------------------------------
-# Claude API call (with web search tool)
+# OpenAI call
 # ---------------------------------------------------------------------------
 def call_openai_search(target_date: date, region: str, agencies: str,
                        ledger: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Single call to gpt-4o-mini-search-preview with web search.
-    Returns parsed JSON or None. Updates the budget ledger.
+    Single call to gpt-4o-mini-search-preview. Returns parsed JSON or None.
+    Updates the budget ledger.
     """
     if not API_KEY:
         log.error("OPENAI_API_KEY not set")
         return None
 
-    user_prompt = build_user_prompt(target_date, region, agencies)
-
     body = {
         "model": MODEL,
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_prompt},
+            {"role": "user", "content": build_user_prompt(
+                target_date, region, agencies)},
         ],
-        "max_tokens": 16384,
-        "web_search_options": {},
+        # gpt-4o-mini-search-preview has web search built in — no temperature
+        # gpt-4o-mini-search-preview does NOT accept temperature != 1
+        "max_tokens": 4096,
+        "web_search_options": {},  # trigger web search
     }
 
     try:
@@ -406,7 +391,7 @@ def call_openai_search(target_date: date, region: str, agencies: str,
     record_spend(ledger, cost_eur, region, in_tok, out_tok)
     log.info("  [%s] in=%d out=%d cost≈€%.4f", region, in_tok, out_tok, cost_eur)
 
-    # Strip markdown fences
+    # Strip markdown fences if the model added them
     text = msg.strip()
     if text.startswith("```"):
         text = re.sub(r"^```[a-zA-Z]*\s*\n?", "", text)
@@ -468,10 +453,10 @@ ALLERGEN_REASON_MARKERS = re.compile(
 IN_SCOPE_MARKERS = re.compile(
     r"\b(?:listeria|salmonell|e\.?\s*coli|stec|o157|shiga|botulin|"
     r"norovirus|hepatit|campylobact|cyclospor|vibrio|cronobact|"
-    r"bacillus\s*cereus|cereulide|shigella|yersinia|brucell|"
+    r"bacillus\s*cereus|cereulide|shigella|yersinia|"
     r"histamine|scombro|biotoxin|dsp|psp|asp|domoic|saxitox|ciguatera|"
     r"aflatox|ochratox|patulin|alternaria|fumonisin|zearalenone|"
-    r"deoxynivalenol|mycotox|mould|mold|"
+    r"deoxynivalenol|mycotox|"
     r"glass\s+(?:fragment|shard|particle)|glass\s+in\s+product|"
     r"metal\s+(?:fragment|shard|particle)|"
     r"plastic\s+(?:fragment|shard|particle)|"
@@ -482,11 +467,7 @@ IN_SCOPE_MARKERS = re.compile(
     r"heavy\s+metal|lead\s+contamination|cadmium|mercury\s+contamination|"
     r"arsenic\s+contamination|"
     r"pesticid|unauthoris(?:ed|ized)\s+substance|"
-    r"chlorpyrifos|glyphosate|dmae|novel\s+food|"
-    r"ethylene\s*oxide|eto\b|chlorate|chlorpropham|"
-    r"dioxin|pcb|mineral\s+oil|moah|mosh|"
-    r"sudan\s+(?:dye|red|iv)|melamine|acrylamide|"
-    r"pah|polycyclic|unauthorized\s+(?:gmo|colour|color|additive))",
+    r"chlorpyrifos|glyphosate|dmae|novel\s+food)",
     re.I,
 )
 
@@ -508,7 +489,7 @@ def is_in_scope(row: Dict[str, Any]) -> bool:
     hazard_type = (row.get("hazard_type") or "").upper().strip()
     blob = f"{pathogen} {reason} {notes}"
 
-    valid_hazards = {"PATHOGEN", "BIOTOXIN", "MYCOTOXIN", "MOULD",
+    valid_hazards = {"PATHOGEN", "BIOTOXIN", "MYCOTOXIN",
                      "FOREIGN_MATERIAL", "PEST_CONTAMINATION", "CHEMICAL"}
     if hazard_type not in valid_hazards:
         return False
@@ -668,7 +649,7 @@ a.back:hover{{color:#00ff88}}
 @media(max-width:480px){{h1{{font-size:20px}}.kpi-v{{font-size:18px}}.card{{padding:11px 12px}}.c-co{{font-size:14px}}}}
 </style></head>
 <body><div class="wrap">
-<a class="back" href="https://www.advfood.tech/food-safety-intelligence">← Dashboard</a>
+<a class="back" href="https://www.advfood.tech/fsis-recalls">← Dashboard</a>
 <div class="brand">AFTS · Food Safety Intelligence · Daily Brief</div>
 <h1>Global recalls — {DATE_PRETTY}</h1>
 <div class="sub">Official regulator sources only · Generated {GENERATED_AT} Athens · {REGIONS_SCANNED} regions scanned</div>
@@ -680,10 +661,9 @@ a.back:hover{{color:#00ff88}}
 </div>
 {BODY}
 <div class="foot">
-Pathogens + biotoxins + mycotoxins + mould + foreign material + pest + chemical hazards only.<br>
+Pathogens + biotoxins + mycotoxins + foreign material + pest + chemical hazards only.<br>
 Allergen-only, labeling, quality issues excluded per AFTS scope.<br>
-Source: recalls.xlsx (verified URLs only).<br>
-<a href="https://www.advfood.tech/food-safety-intelligence">Back to dashboard</a> · <a href="../daily-index.json">JSON archive</a>
+<a href="https://www.advfood.tech/fsis-recalls">Back to dashboard</a> · <a href="../daily-index.json">JSON archive</a>
 </div>
 </div></body></html>
 """
@@ -832,7 +812,7 @@ def update_daily_index(target_date: date, recalls: List[Recall]) -> None:
     KEEP_DAYS is intentionally small (7) — this is still a "recent daily
     briefs" feed, not an archive. Weekly/monthly reports handle history.
     """
-    KEEP_DAYS = 2
+    KEEP_DAYS = 7
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
     iso = target_date.isoformat()
 
@@ -956,12 +936,18 @@ def main() -> int:
     run_cost_eur = 0.0
     regions_done = 0
 
-    for i, spec in enumerate(REGION_SPECS):
+    for spec in REGION_SPECS:
         if spec["region"] not in target_regions:
             continue
 
-
-
+        # Per-run cap check
+        ledger_before = sum(float(e["eur"]) for e in ledger.get("entries", [])
+                            if e["ts"].startswith(datetime.now(timezone.utc)
+                                                  .strftime("%Y-%m-%d")))
+        if ledger_before >= HARD_CAP_EUR_PER_RUN:
+            log.warning("Per-run cap €%.2f reached, skipping remaining regions",
+                        HARD_CAP_EUR_PER_RUN)
+            break
 
         log.info("→ Region %s", spec["region"])
         result = call_openai_search(target, spec["region"], spec["agencies"],
@@ -973,17 +959,14 @@ def main() -> int:
         raw_rows = result.get("recalls") or []
         log.info("   raw=%d", len(raw_rows))
 
-        # Retry once if empty — wait for rate limit first
+        # If the model returned zero, capture the raw response for debug.
+        # Empty-brief episodes like Apr 22 2026 (the day this logging was
+        # added) are almost always the model being too strict about date
+        # matching or timing out mid-search. Dumping the raw text gives us
+        # something concrete to tune against.
         if len(raw_rows) == 0:
-            log.warning("   [%s] empty on first try — retrying once", spec["region"])
-            result2 = call_openai_search(target, spec["region"], spec["agencies"],
-                                         ledger)
-            if result2:
-                raw_rows = result2.get("recalls") or []
-                log.info("   retry raw=%d", len(raw_rows))
-            if len(raw_rows) == 0:
-                log.warning("   [%s] still empty after retry — raw dump:", spec["region"])
-                log.warning("   %s", json.dumps(result)[:2000])
+            log.warning("   [%s] empty — raw response dump follows:", spec["region"])
+            log.warning("   %s", json.dumps(result)[:2000])
 
         # Compute the acceptable 3-day publish-date window. Must match the
         # window described in build_user_prompt().
@@ -993,7 +976,6 @@ def main() -> int:
             (target + timedelta(days=1)).isoformat(),
         }
 
-        region_kept = 0
         for row in raw_rows:
             if not is_in_scope(row):
                 continue
@@ -1010,7 +992,6 @@ def main() -> int:
             if rec is None:
                 continue
             new_recalls.append(rec)
-            region_kept += 1
             existing_urls.add(normalize_key(rec.URL))
             existing_sigs.add((
                 rec.Date,
@@ -1018,8 +999,7 @@ def main() -> int:
                 normalize_key(rec.Product)[:60],
             ))
 
-        log.info("   [%s] kept=%d new (total so far=%d)",
-                 spec["region"], region_kept, len(new_recalls))
+        log.info("   kept=%d after filter+dedup", len(new_recalls))
 
     # Persist ledger
     save_ledger(ledger)
@@ -1039,78 +1019,36 @@ def main() -> int:
     # daily brief (Nestlé Colombia cereulide, VFA Vietnam rat-poison etc.
     # appeared in the brief without ever existing in the Recalls sheet).
     scraped_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    current_pending = list(pending)
-
-    # STEP 1a: Append new OpenAI finds to Pending
     if new_recalls and not args.dry_run:
-        current_pending = append_to_pending(
+        updated_pending = append_to_pending(
             existing_pending=pending,
             approved=approved,
             new_recalls=new_recalls,
             scraped_at=scraped_at,
         )
-        pending_delta = len(current_pending) - len(pending)
-        log.info("Appended %d candidate rows to PENDING (total=%d)",
-                 pending_delta, len(current_pending))
+        pending_delta = len(updated_pending) - len(pending)
+        save_xlsx_with_pending(
+            xlsx_path=XLSX_PATH,
+            approved_rows=sort_rows(approved),  # Recalls sheet untouched
+            pending_rows=sort_rows(updated_pending),
+        )
+        log.info("Appended %d candidate rows to PENDING sheet (pending "
+                 "total=%d). URL guardian will validate + promote to Recalls.",
+                 pending_delta, len(updated_pending))
     elif new_recalls:
         log.info("DRY RUN: would append %d candidate rows to PENDING",
                  len(new_recalls))
 
-    # ======================================================================
-    # STEP 1b: Validate ALL Pending URLs + promote to Recalls INLINE.
-    # ======================================================================
-    # Runs EVERY time there are Pending rows — not just when OpenAI found
-    # new ones. This catches rows left by previous runs (gap-finders, etc.)
-    if current_pending and not args.dry_run:
-        from review.url_validator import validate_all, should_blank_url
-        from pipeline.merge_master import promote_approved
-
-        log.info("Validating %d Pending row URLs...", len(current_pending))
-        validated = validate_all(
-            [dict(r) if isinstance(r, dict) else r._asdict() if hasattr(r, '_asdict') else vars(r)
-             for r in current_pending],
-            max_workers=5,
-        )
-
-        rejected_flags: Dict[int, str] = {}
-        for idx, row in enumerate(validated):
-            check = row.get("_url_check", {})
-            if not check.get("ok", False):
-                reason = check.get("reason", "URL check failed")
-                rejected_flags[idx] = reason
-
-        pending_dicts = [{k: v for k, v in row.items() if k != "_url_check"}
-                         for row in validated]
-
-        approved_dicts = [dict(r) if isinstance(r, dict) else
-                         r._asdict() if hasattr(r, '_asdict') else vars(r)
-                         for r in approved]
-        new_approved, remaining_pending = promote_approved(
-            pending_dicts, approved_dicts, rejected_flags,
-        )
-
-        if new_approved:
-            log.info("Promoted %d rows Pending → Recalls", len(new_approved))
-            approved = approved + new_approved  # type: ignore
-        else:
-            log.info("No rows promoted (URLs rejected or already in Recalls)")
-
-        save_xlsx_with_pending(
-            xlsx_path=XLSX_PATH,
-            approved_rows=sort_rows(approved),
-            pending_rows=sort_rows(remaining_pending),
-        )
-
     # ========================================================================
-    # STEP 2: Render the daily HTML brief FROM THE RECALLS SHEET ONLY.
+    # STEP 2: Render the daily HTML brief FROM THE RECALLS SHEET.
     # ========================================================================
-    # The brief renders ONLY from the verified Recalls sheet. OpenAI results
-    # sit in Pending until the URL guardian validates + promotes them. This
-    # means the brief shows only recalls with verified URLs — no hallucinated
-    # OpenAI links. A "0 recalls" brief is generated (and committed) so the
-    # dashboard card always appears, even on quiet days.
+    # By re-reading Recalls after the write, the brief always matches the
+    # xlsx exactly. OpenAI results that landed in Pending are NOT in the
+    # brief until the URL guardian promotes them in a later run. This means
+    # the brief may look "lighter" than raw OpenAI output, but every entry
+    # has a verified URL and is present in the user-visible Recalls table.
     brief_recalls = load_recalls_for_date(XLSX_PATH, target)
-    log.info("Rendering brief for %s from Recalls sheet: %d verified row(s)",
+    log.info("Rendering brief for %s from Recalls sheet: %d row(s) match",
              target.isoformat(), len(brief_recalls))
 
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
