@@ -149,7 +149,7 @@ def fetch(
 # Gemini 2.0 Flash helper (used by GenericGeminiScraper)
 # ---------------------------------------------------------------------------
 
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_MAX_HTML_CHARS = 120_000
 
 
@@ -171,13 +171,12 @@ def _gemini_api_keys() -> List[str]:
 
 
 def _call_gemini(prompt: str, html: str, language: str = "en") -> str:
-    """Call Gemini via google-genai SDK with key rotation. Returns raw text."""
+    """Call Gemini 2.0 Flash with key rotation. Returns the raw text response."""
     try:
-        from google import genai
+        import google.generativeai as genai  # type: ignore
     except ImportError as exc:
         raise RuntimeError(
-            "google-genai is not installed. Update requirements.txt: "
-            "replace 'google-generativeai' with 'google-genai>=0.8.0'."
+            "google-generativeai is not installed. Add it to requirements.txt."
         ) from exc
 
     keys = _gemini_api_keys()
@@ -189,16 +188,13 @@ def _call_gemini(prompt: str, html: str, language: str = "en") -> str:
     if len(html) > GEMINI_MAX_HTML_CHARS:
         html = html[:GEMINI_MAX_HTML_CHARS] + "\n<!-- truncated -->"
 
-    full_prompt = f"{prompt}\n\nLANGUAGE OF PAGE: {language}\n\nHTML:\n{html}"
-
     last_error: Optional[Exception] = None
     for api_key in random.sample(keys, k=len(keys)):
         try:
-            client = genai.Client(api_key=api_key)
-            resp = client.models.generate_content(
-                model=GEMINI_MODEL,
-                contents=full_prompt,
-            )
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel(GEMINI_MODEL)
+            full_prompt = f"{prompt}\n\nLANGUAGE OF PAGE: {language}\n\nHTML:\n{html}"
+            resp = model.generate_content(full_prompt)
             text = (getattr(resp, "text", None) or "").strip()
             if text:
                 return text
@@ -213,77 +209,6 @@ def _call_gemini(prompt: str, html: str, language: str = "en") -> str:
     if last_error:
         raise RuntimeError(f"All Gemini keys failed: {last_error}") from last_error
     return ""
-
-
-# ---------------------------------------------------------------------------
-# Claude Haiku fallback — used when Gemini quota is exhausted
-# ---------------------------------------------------------------------------
-CLAUDE_MODEL = os.getenv("CLAUDE_EXTRACT_MODEL", "claude-haiku-4-5-20251001")
-# Claude has a much larger context window than Gemini, so we can send more HTML.
-# 200K tokens ≈ 800K chars, but we cap at 200K chars for cost reasons.
-CLAUDE_MAX_HTML_CHARS = 200_000
-
-
-def _call_claude(prompt: str, html: str, language: str = "en") -> str:
-    """Call Claude Haiku. Returns the raw text response.
-
-    Used as fallback when Gemini quota is exhausted. Costs ~$0.005-0.01
-    per call (vs Gemini free tier).
-    """
-    try:
-        import anthropic  # type: ignore
-    except ImportError as exc:
-        raise RuntimeError(
-            "anthropic SDK not installed. Add it to requirements.txt."
-        ) from exc
-
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if not api_key:
-        raise RuntimeError("ANTHROPIC_API_KEY not set — cannot use Claude fallback.")
-
-    if len(html) > CLAUDE_MAX_HTML_CHARS:
-        html = html[:CLAUDE_MAX_HTML_CHARS] + "\n<!-- truncated -->"
-
-    full_prompt = f"{prompt}\n\nLANGUAGE OF PAGE: {language}\n\nHTML:\n{html}"
-
-    client = anthropic.Anthropic(api_key=api_key)
-    resp = client.messages.create(
-        model=CLAUDE_MODEL,
-        max_tokens=4096,
-        messages=[{"role": "user", "content": full_prompt}],
-    )
-    text = ""
-    for block in resp.content:
-        if getattr(block, "type", "") == "text":
-            text += getattr(block, "text", "")
-    return text.strip()
-
-
-def _call_model(prompt: str, html: str, language: str = "en") -> str:
-    """Extract recalls using Gemini first; fall back to Claude Haiku on failure.
-
-    Gemini is free but its daily quota typically exhausts by mid-morning
-    Athens time from the earlier pipeline steps. Claude Haiku is ~$0.005/call
-    — cheap insurance so the scrape run doesn't return empty at 18:00 Athens.
-
-    This dispatcher is the single entry point. Individual scrapers call it
-    instead of _call_gemini directly.
-    """
-    # Try Gemini first (free tier)
-    try:
-        result = _call_gemini(prompt=prompt, html=html, language=language)
-        if result:
-            return result
-    except Exception as exc:
-        log.warning("Gemini extraction failed (%s); falling back to Claude Haiku.",
-                    type(exc).__name__)
-
-    # Gemini failed or returned empty — fall back to Claude
-    try:
-        return _call_claude(prompt=prompt, html=html, language=language)
-    except Exception as exc:
-        log.error("Claude fallback also failed: %s", exc)
-        raise
 
 
 def _strip_code_fences(s: str) -> str:
@@ -304,19 +229,14 @@ Return a JSON array (no prose, no markdown fences). Each item:
   "date": "YYYY-MM-DD",
   "company": "<recalling company or brand>",
   "product": "<product name / description>",
-  "pathogen": "<contaminant — e.g. Salmonella, Listeria monocytogenes, E. coli O157:H7, Clostridium botulinum, mould, glass fragments, ethylene oxide, lead, rodent. Empty string if allergen-only or labeling-only>",
+  "pathogen": "<contaminant — e.g. Salmonella, Listeria monocytogenes, E. coli O157:H7, Clostridium botulinum. Empty string if not pathogen-related>",
   "url": "<direct link to the recall DETAIL page; absolute URL>",
   "description": "<1–2 sentence summary>"
 }
 
 Rules:
-- Include: pathogen / microbiological / biotoxin / mycotoxin contamination,
-  mould/mold, foreign material (glass, metal, plastic, wood, stone),
-  rodent/insect/pest contamination, chemical hazards (heavy metals, ethylene
-  oxide, dioxins/PCBs, mineral oil MOAH/MOSH, pesticide residues over MRL,
-  Sudan dyes, melamine, unauthorized substances, chlorate).
-- EXCLUDE: undeclared allergens (unless combined with a pathogen), label
-  errors, packaging defects, quality complaints, non-food products.
+- Include ONLY pathogen / microbiological / biotoxin / mycotoxin contamination.
+- EXCLUDE: undeclared allergens, label errors, foreign material, packaging defects.
 - If the page has NO recalls matching, return [].
 - Dates must be ISO (YYYY-MM-DD).
 - URLs MUST be absolute and point to the recall DETAIL page (not the listing page).
@@ -493,7 +413,7 @@ class GenericGeminiScraper(BaseScraper):
 
         try:
             raw = _call_gemini(prompt=prompt, html=html, language=self.LANGUAGE)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001 - review layer can try Claude fallback
             self.logger.warning("Gemini call failed: %s", exc)
             return []
 
