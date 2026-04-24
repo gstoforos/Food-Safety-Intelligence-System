@@ -462,56 +462,56 @@ function loadReports(){
   // Embedded reports data (bypasses server file access issues)
   const reports = [
     {
-        "filename": "2026-W17.html",
-        "week_num": 17,
-        "year": 2026,
-        "week_start": "2026-04-18",
-        "week_end": "2026-04-24",
-        "generated": "2026-04-24T08:24:51.008902+00:00",
-        "total": 19,
-        "tier1": 9,
-        "outbreaks": 3,
-        "top_pathogen": "Listeria monocytogenes",
-        "summary": "Week 17 saw 19 pathogen recalls with Listeria monocytogenes as primary concern."
-    },
-    {
-        "filename": "2026-W16.html",
-        "week_num": 16,
-        "year": 2026,
-        "week_start": "2026-04-11",
-        "week_end": "2026-04-17",
-        "generated": "2026-04-24T08:24:51.011214+00:00",
-        "total": 14,
-        "tier1": 9,
-        "outbreaks": 0,
-        "top_pathogen": "Listeria monocytogenes",
-        "summary": "Week 16 saw 14 pathogen recalls with Listeria monocytogenes as primary concern."
-    },
-    {
-        "filename": "2026-W15.html",
-        "week_num": 15,
-        "year": 2026,
-        "week_start": "2026-04-04",
-        "week_end": "2026-04-10",
-        "generated": "2026-04-24T08:24:51.013378+00:00",
-        "total": 68,
-        "tier1": 60,
-        "outbreaks": 4,
-        "top_pathogen": "Listeria monocytogenes",
-        "summary": "Week 15 saw 68 pathogen recalls with Listeria monocytogenes as primary concern."
-    },
-    {
         "filename": "2026-W14.html",
         "week_num": 14,
         "year": 2026,
         "week_start": "2026-03-28",
         "week_end": "2026-04-03",
-        "generated": "2026-04-24T08:24:51.015471+00:00",
+        "generated": "2026-04-24T08:31:23.670064+00:00",
         "total": 13,
         "tier1": 8,
         "outbreaks": 1,
         "top_pathogen": "Listeria monocytogenes",
         "summary": "Week 14 saw 13 pathogen recalls with Listeria monocytogenes as primary concern."
+    },
+    {
+        "filename": "2026-W13.html",
+        "week_num": 13,
+        "year": 2026,
+        "week_start": "2026-03-21",
+        "week_end": "2026-03-27",
+        "generated": "2026-04-24T08:31:23.672029+00:00",
+        "total": 22,
+        "tier1": 5,
+        "outbreaks": 0,
+        "top_pathogen": "Salmonella spp.",
+        "summary": "Week 13 saw 22 pathogen recalls with Salmonella spp. as primary concern."
+    },
+    {
+        "filename": "2026-W12.html",
+        "week_num": 12,
+        "year": 2026,
+        "week_start": "2026-03-14",
+        "week_end": "2026-03-20",
+        "generated": "2026-04-24T08:31:23.673942+00:00",
+        "total": 18,
+        "tier1": 12,
+        "outbreaks": 1,
+        "top_pathogen": "Listeria monocytogenes",
+        "summary": "Week 12 saw 18 pathogen recalls with Listeria monocytogenes as primary concern."
+    },
+    {
+        "filename": "2026-W11.html",
+        "week_num": 11,
+        "year": 2026,
+        "week_start": "2026-03-07",
+        "week_end": "2026-03-13",
+        "generated": "2026-04-24T08:31:23.676548+00:00",
+        "total": 16,
+        "tier1": 6,
+        "outbreaks": 1,
+        "top_pathogen": "Salmonella spp.",
+        "summary": "Week 11 saw 16 pathogen recalls with Salmonella spp. as primary concern."
     }
 ];
   
@@ -753,21 +753,12 @@ async function loadDaily(){
   }
 }
 
-// Download PDF: open the actual published report (single source of truth) and
-// trigger the browser's print dialog. No hardcoded data, no styling drift --
-// whatever is in the Python-generated report is what gets printed to PDF.
+// Download PDF: link directly to the WeasyPrint-generated PDF file.
+// The pipeline (html_to_pdf.py) produces YYYY-WNN.pdf alongside the HTML.
+// WeasyPrint preserves clickable hyperlinks; browser print does not.
 function downloadReportPDF(filename){
   if(!filename){console.error('downloadReportPDF: filename required');return;}
-  const w = window.open(filename, '_blank');
-  if(!w){alert('Please allow pop-ups to download the PDF report.');return;}
-  // Wait for the report to load, then print. onload fires once the HTML is ready.
-  w.addEventListener('load', () => {
-    // Small delay so Google Fonts (Syne / DM Sans / DM Mono) finish rendering before print
-    setTimeout(() => { try{ w.focus(); w.print(); } catch(e){ console.error(e); } }, 800);
-  });
-  // Fallback for browsers where onload doesn't fire for already-cached pages
-  setTimeout(() => {
-    try{ if(w.document && w.document.readyState === 'complete'){ w.focus(); w.print(); } }catch(e){}
-  }, 2000);
+  var pdfFile = filename.replace(/\.html$/i, '.pdf');
+  window.open(pdfFile, '_blank');
 }
 </script></body></html>
