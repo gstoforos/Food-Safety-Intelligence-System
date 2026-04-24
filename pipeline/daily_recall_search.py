@@ -832,7 +832,7 @@ def update_daily_index(target_date: date, recalls: List[Recall]) -> None:
     KEEP_DAYS is intentionally small (7) — this is still a "recent daily
     briefs" feed, not an archive. Weekly/monthly reports handle history.
     """
-    KEEP_DAYS = 7
+    KEEP_DAYS = 2
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
     iso = target_date.isoformat()
 
