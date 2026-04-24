@@ -538,6 +538,6 @@ if __name__ == "__main__":
         log.info("No rows promoted this run.")
         final_approved = sort_rows(approved)
 
-    save_xlsx_with_pending(XLSX, final_approved, sort_rows(remaining))
+    save_xlsx_with_pending(final_approved, sort_rows(remaining), XLSX)
     mirror_json_from_xlsx(XLSX, ROOT / "docs" / "data" / "recalls.json")
     log.info("Done. Recalls=%d, Pending=%d", len(final_approved), len(remaining))
