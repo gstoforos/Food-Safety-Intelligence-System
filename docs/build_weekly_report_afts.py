@@ -906,9 +906,8 @@ def build_html(week_end, recalls, prev_week):
     return html, stats
 
 def update_dashboard_data(week_end, stats, all_recalls=None):
-    """Update index.html embedded reports array — always 4 weeks from dataset.
-    If all_recalls is provided, computes stats for previous 3 weeks directly
-    from the dataset so the Weekly tab always shows 4 cards."""
+    """Update index.html — always shows the 4 most recent weeks that have data
+    in the dataset, regardless of which --week-end was passed to the builder."""
     idx = ROOT / "docs" / "index.html"
     if not idx.exists():
         log.warning("index.html not found — skipping dashboard update"); return
@@ -924,18 +923,39 @@ def update_dashboard_data(week_end, stats, all_recalls=None):
                 "summary":"Week {} saw {} pathogen recalls with {} as primary concern.".format(
                     wn, st["total"], tp_name)}
 
-    entries = [_make_entry(week_end, stats)]
+    entries = []
 
-    # Build entries for 3 previous weeks from dataset
     if all_recalls:
-        for offset in range(1, 4):
-            prev_end = week_end - timedelta(days=7 * offset)
-            prev_prev_end = prev_end - timedelta(days=7)
-            wr = filter_week(all_recalls, prev_end)
-            if not wr: continue  # skip empty weeks
-            pr = filter_week(all_recalls, prev_prev_end)
+        # Find the latest recall date in the dataset → snap to its Friday
+        latest = date(2020, 1, 1)
+        for r in all_recalls:
+            d = r.get("Date", "")
+            if not d: continue
+            try: rd = datetime.strptime(str(d)[:10], "%Y-%m-%d").date()
+            except ValueError: continue
+            if rd > latest: latest = rd
+        # Snap to the Friday of that week (weekday 4 = Friday)
+        days_until_fri = (4 - latest.weekday()) % 7
+        if days_until_fri == 0 and latest.weekday() != 4:
+            days_until_fri = 7
+        latest_friday = latest + timedelta(days=days_until_fri)
+        # If latest_friday is in the future beyond today+7, cap it
+        today = date.today()
+        if latest_friday > today + timedelta(days=7):
+            latest_friday = today - timedelta(days=(today.weekday() - 4) % 7)
+
+        # Build 4 entries backward from latest_friday
+        for offset in range(4):
+            we = latest_friday - timedelta(days=7 * offset)
+            prev_we = we - timedelta(days=7)
+            wr = filter_week(all_recalls, we)
+            if not wr: continue
+            pr = filter_week(all_recalls, prev_we)
             st = compute_stats(wr, pr)
-            entries.append(_make_entry(prev_end, st))
+            entries.append(_make_entry(we, st))
+    else:
+        # Fallback: just the current week
+        entries = [_make_entry(week_end, stats)]
 
     try:
         c = idx.read_text()
@@ -943,7 +963,8 @@ def update_dashboard_data(week_end, stats, all_recalls=None):
                     "const reports = {};".format(json.dumps(entries, indent=4)),
                     c, flags=re.DOTALL)
         idx.write_text(c)
-        log.info("Dashboard updated — %d reports in Weekly tab", len(entries))
+        wk_list = ", ".join("W{}".format(e["week_num"]) for e in entries)
+        log.info("Dashboard updated — %d reports: %s", len(entries), wk_list)
     except Exception as e:
         log.error("Dashboard: %s", e)
 
