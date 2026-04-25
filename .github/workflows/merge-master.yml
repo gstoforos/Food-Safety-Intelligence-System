@@ -58,7 +58,30 @@ jobs:
           git add docs/data/recalls.xlsx docs/data/recalls.json || true
           if git diff --staged --quiet; then
             echo "No merge changes this hour."
-          else
-            git commit -m "chore(data): hourly Pending→Recalls merge $(TZ=Europe/Athens date +%H:%M)"
-            git push
+            exit 0
+          fi
+          COMMIT_MSG="chore(data): hourly Pending→Recalls merge $(TZ=Europe/Athens date +%H:%M)"
+          git commit -m "$COMMIT_MSG"
+
+          # Binary-safe push retry: git rebase cannot handle xlsx, so on
+          # failure we save our files, pull remote, restore ours, re-commit.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Push succeeded on attempt $attempt."
+              exit 0
             fi
+            echo "Push attempt $attempt failed — binary-safe retry..."
+            cp docs/data/recalls.xlsx /tmp/our-recalls.xlsx
+            cp docs/data/recalls.json /tmp/our-recalls.json 2>/dev/null || true
+            git reset --hard HEAD~1
+            git pull --ff-only origin main || git pull origin main
+            cp /tmp/our-recalls.xlsx docs/data/recalls.xlsx
+            cp /tmp/our-recalls.json docs/data/recalls.json 2>/dev/null || true
+            git add docs/data/recalls.xlsx docs/data/recalls.json || true
+            if ! git diff --staged --quiet; then
+              git commit -m "$COMMIT_MSG (retry $attempt)"
+            fi
+            sleep $((attempt * 3))
+          done
+          echo "ERROR: git push failed after 3 attempts."
+          exit 1

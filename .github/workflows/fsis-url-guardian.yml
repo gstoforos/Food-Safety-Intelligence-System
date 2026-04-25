@@ -94,22 +94,30 @@ jobs:
             echo "No changes this cycle."
             exit 0
           fi
-          git commit -m "URL guardian + gap-finder @ $(date -u +'%Y-%m-%d %H:%M UTC')"
+          COMMIT_MSG="URL guardian + gap-finder @ $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git commit -m "$COMMIT_MSG"
 
-          # Retry loop: if another writer pushed between our checkout and
-          # now, our push fails with non-fast-forward. Rebase onto remote
-          # and try again. 3 attempts covers almost all realistic races;
-          # we stash-and-pop our staged change on top of a fresh remote.
+          # Binary-safe push retry: git rebase cannot handle xlsx, so on
+          # failure we save our files, pull remote, restore ours, re-commit.
           for attempt in 1 2 3; do
             if git push; then
               echo "Push succeeded on attempt $attempt."
               exit 0
             fi
-            echo "Push attempt $attempt failed — rebasing onto remote and retrying..."
-            git pull --rebase --autostash origin "$(git branch --show-current)"
-            sleep $((attempt * 5))
+            echo "Push attempt $attempt failed — binary-safe retry..."
+            cp docs/data/recalls.xlsx /tmp/our-recalls.xlsx
+            cp docs/data/recalls.json /tmp/our-recalls.json 2>/dev/null || true
+            git reset --hard HEAD~1
+            git pull --ff-only origin main || git pull origin main
+            cp /tmp/our-recalls.xlsx docs/data/recalls.xlsx
+            cp /tmp/our-recalls.json docs/data/recalls.json 2>/dev/null || true
+            git add docs/data/recalls.xlsx docs/data/recalls.json || true
+            if ! git diff --staged --quiet; then
+              git commit -m "$COMMIT_MSG (retry $attempt)"
+            fi
+            sleep $((attempt * 3))
           done
-          echo "ERROR: git push failed after 3 rebase attempts."
+          echo "ERROR: git push failed after 3 attempts."
           exit 1
 
       - name: Upload run artifact
