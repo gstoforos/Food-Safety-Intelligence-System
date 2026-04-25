@@ -796,7 +796,7 @@ __CSS_PLACEHOLDER__
     <h3>Live Dashboard &middot; Full Dataset Access</h3>
     <p>Filter by pathogen, country, tier, and source. Download the accumulative XLSX dataset. Set custom alerts.</p>
   </div>
-  <a class="cta-btn" href="https://www.advfood.tech/food-safety-intelligence" target="_blank" rel="noopener">Access Portal &rarr;</a>
+  <a class="cta-btn" href="https://www.advfood.tech/fsis-recalls" target="_blank" rel="noopener">Access Portal &rarr;</a>
 </div>
 
 <div id="all-recalls" class="sec-head">
@@ -948,7 +948,7 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir):
             "source":str(r.get("Source","")),"url":str(r.get("URL",""))})
     summary = {"filename":"{}-W{:02d}.html".format(year,wnum),
         "report_url":"https://gstoforos.github.io/Food-Safety-Intelligence-System/{}-W{:02d}.html".format(year,wnum),
-        "dashboard_url":"https://www.advfood.tech/food-safety-intelligence",
+        "dashboard_url":"https://www.advfood.tech/fsis-recalls",
         "week_num":wnum,"year":year,"week_start":ws.isoformat(),"week_end":week_end.isoformat(),
         "week_start_display":ws.strftime("%-d %b"),"week_end_display":week_end.strftime("%-d %b %Y"),
         "generated_utc":datetime.now(timezone.utc).isoformat(),
