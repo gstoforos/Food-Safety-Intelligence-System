@@ -43,6 +43,7 @@ GENERIC_URL_PATTERNS = [
     r"/anakleiseis-cat/?$",                        # EFET landing
     r"/alertas_alimentarias/?$",                   # AESAN landing
     r"/liste/lebensmittel/bundesweit/?$",          # BVL landing
+    r"/rubrik/lebensmittel/?$",                    # produktwarnung.eu category listing
     r"/portal/news/p3_2_1_3\.jsp",                 # Salute IT generic notizie
     r"/food-recalls/?$",                           # FSANZ landing
     r"/recalls?/?$",                               # generic /recalls
@@ -204,14 +205,21 @@ def report_bad_urls(validated: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 def should_blank_url(check: Dict[str, Any]) -> bool:
     """
     Decide whether to blank out a bad URL in the dataset.
-    Blank if: generic landing page OR hard HTTP error (404/410/5xx).
+    Blank if: hard HTTP error (404/410/5xx) OR empty.
     Keep if: bot-blocked (403 from known gov domain) — probably valid for humans.
+    Keep if: generic landing page — better than nothing for the user; the
+      URL resurrect workflow will try to find the specific URL later.
     """
     if not check:
         return False
     reason = check.get("reason", "")
-    if reason in ("generic", "empty"):
+    if reason == "empty":
         return True
+    # Generic URLs are NOT blanked — a /categorie/94 link still gets the
+    # user to the right neighbourhood.  Instead the guardian adds a
+    # [URL-guardian … generic] note so url_resurrect picks them up.
+    if reason == "generic":
+        return False
     if reason == "http_error":
         status = check.get("status", 0)
         # 404/410 = gone; 5xx persistent = blank; 403/401 = auth/bot, don't blank
