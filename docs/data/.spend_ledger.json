@@ -545,6 +545,41 @@
       "region": "AsiaPacific",
       "input_tokens": 1666,
       "output_tokens": 25
+    },
+    {
+      "ts": "2026-04-25T07:05:19Z",
+      "eur": 0.0009,
+      "region": "Europe",
+      "input_tokens": 1529,
+      "output_tokens": 1249
+    },
+    {
+      "ts": "2026-04-25T07:05:23Z",
+      "eur": 0.0003,
+      "region": "NorthAmerica",
+      "input_tokens": 1362,
+      "output_tokens": 285
+    },
+    {
+      "ts": "2026-04-25T07:05:26Z",
+      "eur": 0.0003,
+      "region": "LATAM",
+      "input_tokens": 1364,
+      "output_tokens": 210
+    },
+    {
+      "ts": "2026-04-25T07:05:31Z",
+      "eur": 0.0003,
+      "region": "AsiaPacific",
+      "input_tokens": 1442,
+      "output_tokens": 192
+    },
+    {
+      "ts": "2026-04-25T07:05:34Z",
+      "eur": 0.0003,
+      "region": "MiddleEastAfrica",
+      "input_tokens": 1391,
+      "output_tokens": 239
     }
   ]
 }
