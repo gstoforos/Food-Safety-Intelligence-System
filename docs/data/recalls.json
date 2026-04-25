@@ -32,6 +32,118 @@
   "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel"
  },
  {
+  "Date": "2026-04-23",
+  "Source": "BVL (DE)",
+  "Company": "REWE Dortmund",
+  "Brand": "—",
+  "Product": "Schinken-Zwiebelmettwurst",
+  "Pathogen": "E. coli STEC (Shiga toxin-producing)",
+  "Reason": "REWE Dortmund ruft Schinken-Zwiebelmettwurst mit Verbrauchsdatum 28.04.2026 zurück, da bei einer Probe Shigatoxin-bildende Escherichia coli (STEC) nachgewiesen wurden.",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.produktwarnung.eu/2026/04/23/rueckruf-ecoli-rewe-dortmund-ruft-schinken-zwiebelmettwurst-zurueck/37840",
+  "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel  [resurrected 2026-04-25: https://www.produktwarnung.eu/2026/04/23... -> OK via OpenAI (search, conf=0.70)]"
+ },
+ {
+  "Date": "2026-04-23",
+  "Source": "RappelConso (FR)",
+  "Company": "Sans marque",
+  "Brand": "-",
+  "Product": "Rillettes de porc",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Détection de listéria",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/17394",
+  "Notes": "[via OpenAI daily 10:00 Athens search]"
+ },
+ {
+  "Date": "2026-04-23",
+  "Source": "RappelConso (FR)",
+  "Company": "Belle Henriette",
+  "Brand": "-",
+  "Product": "Taboulé au poulet roti",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/17397",
+  "Notes": "[via OpenAI daily 10:00 Athens search]"
+ },
+ {
+  "Date": "2026-04-23",
+  "Source": "RappelConso (FR)",
+  "Company": "SALMA",
+  "Brand": "-",
+  "Product": "BQ 14 SAU EMMENTAL 140G SALMA",
+  "Pathogen": "Salmonella",
+  "Reason": "Détection Salmonelle spp",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/17399",
+  "Notes": "[via OpenAI daily 10:00 Athens search]"
+ },
+ {
+  "Date": "2026-04-23",
+  "Source": "RappelConso (FR)",
+  "Company": "Sélection France Coq",
+  "Brand": "-",
+  "Product": "BQ 14 SAU EMMENTAL 140G HAL SFC S/AT",
+  "Pathogen": "Salmonella",
+  "Reason": "Détection Salmonelle spp",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/17400",
+  "Notes": "[via OpenAI daily 10:00 Athens search]"
+ },
+ {
+  "Date": "2026-04-23",
+  "Source": "RappelConso (FR)",
+  "Company": "Sélection France Coq",
+  "Brand": "-",
+  "Product": "BQ 14 SAU OIGN 140G HAL SFC S/AT",
+  "Pathogen": "Salmonella",
+  "Reason": "Détection Salmonelle spp",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/17401",
+  "Notes": "[via OpenAI daily 10:00 Athens search]"
+ },
+ {
+  "Date": "2026-04-23",
+  "Source": "RappelConso (FR)",
+  "Company": "—",
+  "Brand": "—",
+  "Product": "rillettes de porc",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "détection de listéria",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/17393",
+  "Notes": "—  [via OpenAI daily 10:00 Athens search]"
+ },
+ {
   "Date": "2026-04-22",
   "Source": "FSAI (IE)",
   "Company": "Good4U",
@@ -76,7 +188,7 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://rappel.conso.gouv.fr/categorie/94",
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22074/Interne",
   "Notes": "Manually added Apr 22. Category-page URL (Viandes) used — specific fiche ID to be backfilled by RappelConso API once scraper is fixed."
  },
  {
@@ -93,7 +205,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/categorie/64",
-  "Notes": "Manually added Apr 22. Two separate STEC recalls same day in Lait et produits laitiers category. Category-page URL used pending fiche ID."
+  "Notes": "Manually added Apr 22. Two separate STEC recalls same day in Lait et produits laitiers category. Category-page URL used pending fiche ID. [URL needs specific fiche-rappel — currently category listing]"
  },
  {
   "Date": "2026-04-21",
@@ -109,7 +221,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/categorie/80",
-  "Notes": "Manually added Apr 22. Category-page URL (Produits de la pêche) used pending fiche ID."
+  "Notes": "Manually added Apr 22. Category-page URL (Produits de la pêche) used pending fiche ID. [URL needs specific fiche-rappel — currently category listing]"
  },
  {
   "Date": "2026-04-21",
@@ -172,7 +284,7 @@
   "Region": "North America",
   "Tier": 2,
   "Outbreak": 0,
-  "URL": "https://recalls-rappels.canada.ca/en",
+  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/supreme-brand-liquid-whole-eggs-and-liquid-egg-white-recalled-due-salmonella",
   "Notes": "Distributed in Ontario and Quebec; Products used primarily by hotels, restaurants and institutions; 10 affected lots; Class 2 recall"
  },
  {
@@ -205,7 +317,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/categorie/80",
-  "Notes": "Toxines endogènes: histamine (poissons, fromages, boissons alcoolisées, charcuteries). Manually added Apr 22. Category-page URL used — specific fiche ID not found via search; update via RappelConso API when scraper is fixed."
+  "Notes": "Toxines endogènes: histamine (poissons, fromages, boissons alcoolisées, charcuteries). Manually added Apr 22. Category-page URL used — specific fiche ID not found via search; update via RappelConso API when scraper is fixed. [URL needs specific fiche-rappel — currently category listing]"
  },
  {
   "Date": "2026-04-20",
@@ -213,7 +325,7 @@
   "Company": "Nestlé de Colombia S.A.",
   "Brand": "NAN Alfamino",
   "Product": "Alimento para propósitos médicos especiales en polvo 400 g, lote 52660017Y2",
-  "Pathogen": "Cereulide (B. cereus toxin)",
+  "Pathogen": "Bacillus cereus (cereulide)",
   "Reason": "Contaminated with cereulide toxin",
   "Class": "Recall",
   "Country": "Colombia",
@@ -240,22 +352,6 @@
   "Notes": "Recall initiated following Austria's recall due to contamination concerns.  [via OpenAI daily 10:00 Athens search]"
  },
  {
-  "Date": "2026-04-20",
-  "Source": "INVIMA",
-  "Company": "Nestlé de Colombia S.A.",
-  "Brand": "NAN Alfamino",
-  "Product": "Alimento para propósitos médicos especiales en polvo 400 g",
-  "Pathogen": "Bacillus cereus",
-  "Reason": "Contaminated with cereulide toxin",
-  "Class": "Recall",
-  "Country": "Colombia",
-  "Region": "Latin America",
-  "Tier": 3,
-  "Outbreak": 0,
-  "URL": "https://www.invima.gov.co/blog/sala-de-prensa-13/alimento-para-propositos-medicos-especiales-contaminado-con-toxina-cereulida-no-ha-sido-comercializado-en-colombia-279",
-  "Notes": "Product not marketed or distributed in Colombia.  [via OpenAI daily 10:00 Athens search]"
- },
- {
   "Date": "2026-04-19",
   "Source": "SZPI (CZ)",
   "Company": "HiPP GmbH & Co. Vertrieb KG",
@@ -268,7 +364,7 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 1,
-  "URL": "https://www.szpi.gov.cz",
+  "URL": "https://www.foodsafetynews.com/2026/04/rat-poison-finding-prompts-baby-food-recall/",
   "Notes": "Czech retail partners pulled all HiPP baby-food jars as precaution. South Moravian criminal police investigating. Confirm SZPI per-recall URL when published."
  },
  {
@@ -284,7 +380,7 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 1,
-  "URL": "https://www.svps.sk",
+  "URL": "https://www.foodsafetynews.com/2026/04/rat-poison-finding-prompts-baby-food-recall/",
   "Notes": "Slovak retail partners pulled all HiPP baby-food jars as precaution. Confirm ŠVPS per-recall URL when published."
  },
  {
@@ -414,22 +510,6 @@
   "Outbreak": 0,
   "URL": "https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/southern-alp-sprouts-brand-alfalfa-and-onion-sprouts-and-pams-brand-onion-sprouts-combo-recalled-due-to-the-possible-presence-of-listeria-monocytogenes",
   "Notes": "MPI / NZ Food Safety. Best-before dates 21-23 Apr 2026. Removed from shelves; no illnesses reported. Not exported."
- },
- {
-  "Date": "2026-04-15",
-  "Source": "MPI (NZ)",
-  "Company": "Southern Alp Sprouts Limited / Foodstuffs Own Brands",
-  "Brand": "Southern Alp Sprouts / Pams",
-  "Product": "Alfalfa & Onion Sprouts 120g (Batches J197, J199; Best before 21/04/2026, 23/04/2026); Pams Onion Sprouts Combo 120g (Batch J199; Best before 23/04/2026)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Possible presence of Listeria monocytogenes — routine test positive",
-  "Class": "Recall",
-  "Country": "New Zealand",
-  "Region": "Oceania",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/southern-alp-sprouts-brand-alfalfa-and-onion-sprouts-and-pams-brand-onion-sprouts-combo-recalled-due-to-the-possible-presence-of-listeria-monocytogenes",
-  "Notes": "Sold at supermarkets throughout NZ (Southern Alp brand); Four Square/New World/PAK'nSAVE South Island (Pams brand). No illnesses reported. Source: NZ Food Safety / MPI. Manually added Apr 22."
  },
  {
   "Date": "2026-04-14",
@@ -994,8 +1074,8 @@
  {
   "Date": "2026-04-08",
   "Source": "BLV (CH)",
-  "Company": "(Rohmilch producer)",
-  "Brand": "(Vollmilchquark)",
+  "Company": "Bio Partner Schweiz AG / Sennerei Bachtel",
+  "Brand": "Demeter Quark Vollmilch",
   "Product": "Vollmilchquark aus Rohmilch",
   "Pathogen": "STEC (Shiga toxin-producing E. coli)",
   "Reason": "Pathogen contamination",
@@ -1004,7 +1084,7 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "",
+  "URL": "https://www.bag.admin.ch/de/newnsb/9h6xioodUL0fPn-GVvogd",
   "Notes": "BLV Öffentliche Warnung [URL-guardian 2026-04-16: blanked http_error https://www.blick.ch/wirtschaft/rohmilch-quark-zurueckgerufe] [Claude-flag 2026-04-16: URL field is empty. Cannot verify recall details or access official source docum]"
  },
  {
@@ -1020,7 +1100,7 @@
   "Region": "Americas",
   "Tier": 2,
   "Outbreak": 0,
-  "URL": "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa",
+  "URL": "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2026/proibida-venda-de-suplemento-importado-dos-eua-por-contaminacao-por-salmonella",
   "Notes": "ANVISA proíbe; ligada a surto USA [Claude-flag 2026-04-16: Pathogen classification error: Salmonella is Tier-2, not Tier-1. Only antibiotic] [Claude-flag 2026-04-16: URL points to ANVISA homepage/news feed, not specific recall page. Does not meet]"
  },
  {
@@ -1102,6 +1182,22 @@
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/oeffentliche-warnungen/ow-vollmilchquark.pdf.download.pdf/260408_Oeffentliche%20Warnung%20STEC%20in%20Vollmilchquark%20unpasteurisiert%20DE.pdf",
   "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html"
+ },
+ {
+  "Date": "2026-04-08",
+  "Source": "BLV",
+  "Company": "Unknown",
+  "Brand": "—",
+  "Product": "Vollmilchquark aus Rohmilch (Raw milk quark)",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Gesundheitsschädliche Bakterien (STEC) contamination",
+  "Class": "Öffentliche Warnung",
+  "Country": "Switzerland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html?search=Vollmilchquark%20aus%20Rohmilch",
+  "Notes": "Public warning issued 08.04.2026  [resurrected 2026-04-25: https://www.blv.admin.ch/blv/de/home/leb... -> OK via OpenAI (search, conf=0.70)]"
  },
  {
   "Date": "2026-04-07",
@@ -1424,6 +1520,38 @@
   "Notes": ""
  },
  {
+  "Date": "2026-04-07",
+  "Source": "BLV (CH)",
+  "Company": "(various producers)",
+  "Brand": "—",
+  "Product": "verschiedene Weichkäse",
+  "Pathogen": "Salmonella",
+  "Reason": "Warnung vor Salmonellen in verschiedenen Weichkäsen. Von einem Konsum wird abgeraten, um gesundheitliche Risiken zu vermeiden.",
+  "Class": "Recall",
+  "Country": "Switzerland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html",
+  "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html  [resurrected 2026-04-25: https://www.blv.admin.ch/dam/blv/de/doku... -> OK via OpenAI (search, conf=0.80)]"
+ },
+ {
+  "Date": "2026-04-07",
+  "Source": "BLV",
+  "Company": "Unknown",
+  "Brand": "—",
+  "Product": "Various soft cheeses",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella contamination",
+  "Class": "Öffentliche Warnung",
+  "Country": "Switzerland",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html?search=soft%20cheeses&date=2026-04-07",
+  "Notes": "Public warning issued 07.04.2026  [resurrected 2026-04-25: https://www.blv.admin.ch/blv/de/home/leb... -> OK via OpenAI (search, conf=0.70)]"
+ },
+ {
   "Date": "2026-04-06",
   "Source": "BeaconBio (TW)",
   "Company": "Multiple (Kaohsiung)",
@@ -1708,7 +1836,7 @@
   "Region": "Americas",
   "Tier": 1,
   "Outbreak": 1,
-  "URL": "",
+  "URL": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-e-coli-o157h7-raw-cheddar-cheese-march-2026",
   "Notes": "Outbreak: 9 ill, 3 hosp, 1 HUS, 3 states [URL-guardian 2026-04-16: blanked http_error https://www.fda.gov/safety/recalls-market-withdrawals-safety] [Claude-flag 2026-04-16: URL field is empty for Tier-1 STEC O157:H7 outbreak recall with 9 illnesses and ]"
  },
  {
@@ -3486,6 +3614,22 @@
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/tri-union-seafoods-identifies-additional-quantities-recalled-genovar-tuna-limited-retailers-due",
   "Notes": "Defective easy-open pull tabs; 9 states"
+ },
+ {
+  "Date": "2026-01-17",
+  "Source": "SFA",
+  "Company": "Nestle",
+  "Brand": "Nestle NAN HA1 SupremePro",
+  "Product": "800g infant formula",
+  "Pathogen": "Bacillus cereus (cereulide)",
+  "Reason": "Presence of cereulide toxin",
+  "Class": "Recall",
+  "Country": "Singapore",
+  "Region": "Asia",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.sfa.gov.sg/news-publications/newsroom/direction-to-recall-additional-infant-formula-products-due-to-presence-of-cereulide-toxin",
+  "Notes": "Batch number 52340017C3, Expiry date 31/08/27, Country of origin Switzerland  [via OpenAI daily 10:00 Athens search]"
  },
  {
   "Date": "2026-01-16",
