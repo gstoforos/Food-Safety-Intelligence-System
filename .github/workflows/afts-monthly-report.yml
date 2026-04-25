@@ -139,7 +139,19 @@ jobs:
                   docs/data/monthly-index.json || true
           if git diff --staged --quiet; then
             echo "No monthly-report changes to commit."
-          else
-            git commit -m "AFTS Monthly Report build $(TZ=Europe/Athens date +%Y-%m-%d)"
-            git push
+            exit 0
+          fi
+          COMMIT_MSG="AFTS Monthly Report build $(TZ=Europe/Athens date +%Y-%m-%d)"
+          git commit -m "$COMMIT_MSG"
+
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Push succeeded on attempt $attempt."
+              exit 0
             fi
+            echo "Push attempt $attempt failed — pull and retry..."
+            git pull --rebase --autostash origin main
+            sleep $((attempt * 3))
+          done
+          echo "ERROR: git push failed after 3 attempts."
+          exit 1
