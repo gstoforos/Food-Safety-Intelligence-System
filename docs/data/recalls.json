@@ -76,7 +76,7 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/17397",
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22114/Interne",
   "Notes": "[via OpenAI daily 10:00 Athens search]"
  },
  {
@@ -195,8 +195,8 @@
   "Date": "2026-04-21",
   "Source": "RappelConso (FR)",
   "Company": "Sans marque",
-  "Brand": "—",
-  "Product": "Poisson (vente en poissonnerie) — histamine",
+  "Brand": "Sans marque",
+  "Product": "Thon Albacore (poisson — vente en poissonnerie)",
   "Pathogen": "Histamine (biotoxine endogène)",
   "Reason": "Présence d'histamine",
   "Class": "Volontaire",
@@ -204,8 +204,8 @@
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
-  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22076/Interne",
-  "Notes": "Manually added Apr 22. Category-page URL (Produits de la pêche) used pending fiche ID. [URL needs specific fiche-rappel — currently category listing]"
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22080/Interne",
+  "Notes": "Verified fiche-rappel/22080: Distri Mascareignes, ref 2026-04-0244"
  },
  {
   "Date": "2026-04-21",
@@ -291,8 +291,8 @@
   "Date": "2026-04-20",
   "Source": "RappelConso (FR)",
   "Company": "Sans marque",
-  "Brand": "—",
-  "Product": "Poisson (vente en poissonnerie) — histamine",
+  "Brand": "Sans marque",
+  "Product": "Thon Albacore (vente en poissonnerie, E.Leclerc La Réunion)",
   "Pathogen": "Histamine (biotoxine endogène)",
   "Reason": "Taux élevé Histamine",
   "Class": "Volontaire",
@@ -300,8 +300,8 @@
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
-  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22053/Interne",
-  "Notes": "Toxines endogènes: histamine (poissons, fromages, boissons alcoolisées, charcuteries). Manually added Apr 22. Category-page URL used — specific fiche ID not found via search; update via RappelConso API when scraper is fixed. [URL needs specific fiche-rappel — currently category listing]"
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22080/Interne",
+  "Notes": "Verified fiche-rappel/22080: Distri Mascareignes (E.Leclerc Réunion), ref 2026-04-0244. DLC 20-23/04/2026, sold 13-18/04 at Sainte-Marie. Same incident as Apr 21 row — duplicate scraper capture."
  },
  {
   "Date": "2026-04-20",
