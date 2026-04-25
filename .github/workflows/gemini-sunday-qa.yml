@@ -1,0 +1,121 @@
+name: FSIS Gemini Sunday QA
+
+# ==========================================================================
+# Sundays 23:00 Athens (dispatched by FsisScheduler Apps Script).
+# Replaces FSIS Claude Sunday QA — Gemini has native Google Search grounding,
+# Claude doesn't. The 4 ChatGPT-discovered rules are baked into the prompt:
+#
+#   Rule 1 — France RappelConso: append /Interne, verify IDs (scraper
+#            hallucinates sequential numbers like 17394, 17399, 17400)
+#   Rule 2 — Greece EFET: hallucinated IDs/slugs, must Google-verify
+#   Rule 3 — USA FDA / USDA FSIS / Ireland FSAI: DO NOT TOUCH truncated URLs
+#   Rule 4 — Others: verify, don't aggressive-rewrite
+#
+# Three layers: deterministic + API pre-pass + Gemini grounded verify.
+# Cost: ~$0.05–$0.15/run, ~$0 on Gemini free tier (1500 req/day/key × 5 keys).
+#
+# Athens-time guard: only runs in 22–23 hour window (DST-safe).
+# ==========================================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Audit window in days"
+        required: false
+        default: "14"
+      dry_run:
+        description: "Dry run (no commits)"
+        required: false
+        default: "false"
+      no_ai:
+        description: "Skip Gemini AI checks (deterministic + API only)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  # Share data-writers group — never race against URL guardian, merge-master,
+  # news-feed, scrapers etc.
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Athens-time guard (22–23h window)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          DOW=$(TZ=Europe/Athens date +%a)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] \
+             && [ -n "${{ github.event.inputs.dry_run }}" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "$HOUR" -ge "22" ] && [ "$HOUR" -le "23" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not 22–23 Athens (now $DOW $HOUR). Skipping."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install openpyxl requests google-generativeai
+
+      - name: Run Sunday Gemini QA
+        if: steps.guard.outputs.run == 'true'
+        env:
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
+          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
+          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          GH_TOKEN:          ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL:    "fsis-bot@advfood.tech"
+          GIT_USER_NAME:     "FSIS Bot"
+          QA_DAYS:           ${{ github.event.inputs.days || '14' }}
+          QA_DRY_RUN:        ${{ github.event.inputs.dry_run || 'false' }}
+          QA_NO_AI:          ${{ github.event.inputs.no_ai || 'false' }}
+        run: |
+          set -euo pipefail
+          ARGS="--days $QA_DAYS"
+          if [ "$QA_DRY_RUN" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          if [ "$QA_NO_AI" = "true" ]; then
+            ARGS="$ARGS --no-ai"
+          fi
+          echo "Running: python -m pipeline.sunday_gemini_qa $ARGS"
+          python -m pipeline.sunday_gemini_qa $ARGS
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "Sunday Gemini QA complete — Athens $(TZ=Europe/Athens date)"
+          if [ -d docs/data/sunday-qa ]; then
+            echo "Latest QA reports:"
+            ls -lt docs/data/sunday-qa/*.md 2>/dev/null | head -3 || echo "(none)"
+          fi
