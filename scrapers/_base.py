@@ -71,7 +71,7 @@ DEFAULT_TIMEOUT = 30
 DEFAULT_HEADERS: Dict[str, str] = {
     "User-Agent": (
         "Mozilla/5.0 (compatible; AFTS-FSIS/1.0; "
-        "+https://advfood.tech/food-safety-intelligence)"
+        "+https://advfood.tech/fsis-home)"
     ),
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9",
