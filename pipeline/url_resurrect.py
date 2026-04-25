@@ -132,6 +132,17 @@ def _needs_resurrect(row: Dict[str, Any]) -> bool:
     if "accessdata.fda.gov/scripts/ires" in url:
         return True
 
+    # Case 4: URL is a generic category/listing page (flagged by URL guardian)
+    if "generic" in notes and "needs specific url" in notes:
+        return True
+    # Also catch generic URLs even if not yet flagged by guardian
+    try:
+        from review.url_validator import is_generic_url
+    except ImportError:
+        from url_validator import is_generic_url  # type: ignore
+    if url and is_generic_url(url):
+        return True
+
     return False
 
 

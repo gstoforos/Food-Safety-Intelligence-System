@@ -205,7 +205,8 @@ def _url_health_pass(pending: List[Dict[str, Any]], since_days: int) -> Dict[str
     validated = validate_all(rows_to_check, max_workers=10)
 
     stats = {"checked": len(validated), "ok": 0, "bot_blocked": 0,
-             "blanked_generic": 0, "blanked_404": 0, "blanked_5xx": 0, "kept_403": 0}
+             "blanked_generic": 0, "flagged_generic": 0,
+             "blanked_404": 0, "blanked_5xx": 0, "kept_403": 0}
     for (idx, _), vrow in zip(targets, validated):
         check = vrow.get("_url_check", {})
         reason = check.get("reason", "")
@@ -215,11 +216,19 @@ def _url_health_pass(pending: List[Dict[str, Any]], since_days: int) -> Dict[str
         if reason == "bot_blocked":
             stats["bot_blocked"] += 1
             continue
+        # Generic URL — keep the URL (better than nothing for the user)
+        # but flag it so url_resurrect tries to find the specific page.
+        if reason == "generic":
+            stats["flagged_generic"] += 1
+            original = pending[idx].get("URL", "")
+            notes = str(pending[idx].get("Notes") or "")
+            flag = f"[URL-guardian {date.today().isoformat()}: generic {original[:60]} — needs specific URL]"
+            if "generic" not in notes:  # don't double-flag
+                pending[idx]["Notes"] = (notes + " " + flag).strip()[:500]
+            continue
         if should_blank_url(check):
             original = pending[idx].get("URL", "")
-            if reason == "generic":
-                stats["blanked_generic"] += 1
-            elif 400 <= check.get("status", 0) < 500:
+            if 400 <= check.get("status", 0) < 500:
                 stats["blanked_404"] += 1
             else:
                 stats["blanked_5xx"] += 1
