@@ -9,19 +9,18 @@
       "by_region": {
         "Europe": 1
       },
-      "generated": "2026-04-25T09:50:11Z"
+      "generated": "2026-04-25T10:07:07Z"
     },
     {
       "date": "2026-04-23",
       "url": "daily/2026-04-23.html",
-      "total": 8,
+      "total": 7,
       "tier1": 4,
       "outbreak": 0,
       "by_region": {
-        "Europe": 7,
-        "Asia": 1
+        "Europe": 7
       },
-      "generated": "2026-04-25T09:50:11Z"
+      "generated": "2026-04-25T10:07:07Z"
     },
     {
       "date": "2026-04-22",
@@ -32,7 +31,7 @@
       "by_region": {
         "Europe": 2
       },
-      "generated": "2026-04-25T09:50:11Z"
+      "generated": "2026-04-25T10:07:07Z"
     }
   ]
 }
