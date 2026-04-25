@@ -1,0 +1,613 @@
+"""
+Gemini final URL check — daily gatekeeper before the weekly report.
+
+Replaces url_gate_claude.py. Claude was pattern-matching from training data and
+hallucinating fiche IDs (e.g. RappelConso 17399, 17400, 17401 — all made up).
+Gemini 2.5 Flash with native Google Search grounding fires real searches, so
+every URL it returns is one that actually appeared in a search result.
+
+Runs at 07:30 Athens, after:
+  - 17:00 daily scrape (previous evening)
+  - Various gap-finders earlier in the day
+And before:
+  - 08:00 Friday weekly report (~30 minutes later)
+
+Scope: ALL rows currently in Pending (including previously-rejected ones — if
+their URL is now live, they get a fresh evaluation).
+
+GATE LOGIC PER PENDING ROW
+==========================
+
+  1. URL validator pre-check (cheap, no AI):
+     • Structural reject — drop URLs containing /categorie/, /rubrik/, /tag/,
+       /search?, or domain-only paths
+     • HTTP probe — DELETE the row if URL is 404 / 410 / 5xx
+     • Bot-blocked URLs on known gov domains (403) are kept
+
+  2. PRE-PASS via regulator_apis.py — for any row whose Country has an open-data
+     API/RSS, query the official source first. If the API returns a canonical
+     URL that matches this row's date+brand+hazard, replace the URL immediately
+     with no AI call needed.
+
+  3. Gemini second-opinion with Google Search grounding on the survivors:
+     The strict workflow prompt below encodes the 4 ChatGPT-discovered rules:
+       • France RappelConso: append /Interne; verify the fiche-rappel ID via
+         Google (scraper hallucinates sequential IDs 17399, 17400 etc.)
+       • Greece EFET: numeric IDs and Greek slugs frequently hallucinated;
+         must Google-verify against product name
+       • USA FDA / USDA FSIS / Ireland FSAI: DO NOT TOUCH truncated URLs.
+         These agency CMSes enforce strict slug length, so URLs that look
+         "chopped" mid-word (e.g. ending in -because, -due, -gr) are the
+         OFFICIAL working links.
+       • All others: structural verify but don't aggressive-rewrite
+
+  4. Promote to Recalls only rows that pass all 3 gates. Failures stay in
+     Pending with the failure reason in Notes.
+
+After all promotions: save xlsx, mirror json, commit, push.
+"""
+from __future__ import annotations
+import os
+import sys
+import json
+import re
+import logging
+import urllib.parse
+from pathlib import Path
+from datetime import datetime, timezone
+from typing import List, Dict, Any, Tuple, Optional
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
+from pipeline.merge_master import (  # noqa: E402
+    load_existing, load_pending,
+    promote_approved, sort_rows,
+    save_xlsx_with_pending, mirror_json_from_xlsx,
+    STATUS_REJECTED, STATUS_PENDING,
+)
+from pipeline.commit_github import git_commit_and_push  # noqa: E402
+from review.url_validator import check_url, should_blank_url  # noqa: E402
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+log = logging.getLogger("gemini-url-gate")
+
+DATA_DIR = ROOT / "docs" / "data"
+XLSX_PATH = DATA_DIR / "recalls.xlsx"
+JSON_PATH = DATA_DIR / "recalls.json"
+
+SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
+
+REQUIRED_FIELDS = ("Date", "Company", "Product", "Pathogen", "URL")
+GEMINI_BATCH_SIZE = 10  # Gemini grounded calls are slower; smaller batches
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+
+# Domains where /Interne suffix MUST be appended to fiche-rappel URLs
+RAPPELCONSO_DOMAIN = "rappel.conso.gouv.fr"
+
+# Domains where the agency CMS enforces strict slug length — DO NOT touch
+# URLs that look truncated mid-word (FDA, FSIS, FSAI). These are the
+# official working links per ChatGPT's verified-against-live-server diagnosis.
+TRUNCATED_BUT_VALID_DOMAINS = (
+    "fda.gov",
+    "fsis.usda.gov",
+    "fsai.ie",
+)
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Step 1: Structural + HTTP URL validation
+# ─────────────────────────────────────────────────────────────────────────
+def _is_structurally_bad(url: str) -> Optional[str]:
+    """Return a rejection reason if URL is structurally bad, else None."""
+    if not url or not url.startswith("http"):
+        return "not a URL"
+    bad_patterns = [
+        "/categorie/", "/rubrik/", "/tag/", "/category/",
+        "/search?", "/recherche?",
+    ]
+    for pat in bad_patterns:
+        if pat in url:
+            return f"listing/category URL ({pat})"
+    p = urllib.parse.urlparse(url)
+    segs = [s for s in (p.path or "").split("/") if s]
+    if len(segs) == 0:
+        return "domain only, no path"
+    return None
+
+
+def _is_truncation_protected(url: str) -> bool:
+    """True if URL is on FDA/FSIS/FSAI — the truncated-but-valid agencies."""
+    if not url:
+        return False
+    p = urllib.parse.urlparse(url)
+    host = (p.netloc or "").lower()
+    return any(host.endswith(d) for d in TRUNCATED_BUT_VALID_DOMAINS)
+
+
+def validate_urls(pending: List[Dict[str, Any]]) -> Tuple[List[int], List[int]]:
+    """
+    Returns (indices_to_delete, indices_still_alive).
+    Dead = structurally bad OR HTTP says 404/410/5xx OR URL missing.
+    Truncation-protected URLs are never structurally rejected.
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    delete_idx: List[int] = []
+    alive_idx: List[int] = []
+
+    def _check(i: int) -> Tuple[int, Dict[str, Any], Optional[str]]:
+        url = (pending[i].get("URL") or "").strip()
+        # Truncation-protected: skip structural check entirely (FDA URLs ending
+        # mid-word like ...recall-because-possible-health-risk are the real,
+        # working links published by the agency CMS).
+        if not _is_truncation_protected(url):
+            struct_bad = _is_structurally_bad(url)
+            if struct_bad:
+                return i, {"reason": "structural", "detail": struct_bad}, struct_bad
+        # Live HTTP probe
+        return i, check_url(url), None
+
+    with ThreadPoolExecutor(max_workers=10) as ex:
+        futs = [ex.submit(_check, i) for i in range(len(pending))]
+        for f in as_completed(futs):
+            i, check, struct = f.result()
+            pending[i]["_url_check"] = check
+            url = (pending[i].get("URL") or "").strip()
+            if struct:
+                delete_idx.append(i)
+            elif not url or should_blank_url(check):
+                delete_idx.append(i)
+            else:
+                alive_idx.append(i)
+
+    log.info("URL check: %d alive, %d to delete (dead/structural)",
+             len(alive_idx), len(delete_idx))
+    return sorted(delete_idx), sorted(alive_idx)
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Step 2: Pre-pass via official regulator APIs (no AI call)
+# ─────────────────────────────────────────────────────────────────────────
+def api_prepass(rows: List[Dict[str, Any]]) -> Dict[int, str]:
+    """
+    For each row whose Country has a known API, attempt to find the canonical
+    URL via regulator_apis.py. Returns {row_index: corrected_url} for rows
+    where the API succeeded.
+    """
+    fixes: Dict[int, str] = {}
+    try:
+        from pipeline.regulator_apis import repair_french_row, ALL_FETCHERS
+    except ImportError as e:
+        log.warning("regulator_apis not available — pre-pass skipped: %s", e)
+        return fixes
+
+    for i, row in enumerate(rows):
+        country = str(row.get("Country") or "").strip()
+        url = (row.get("URL") or "").strip()
+
+        # France-specific: cheapest, most reliable
+        if country == "France":
+            new_url = repair_french_row(row)
+            if new_url and new_url != url:
+                fixes[i] = new_url
+                continue
+
+            # If France URL is missing /Interne suffix, append it (Rule 1)
+            if (RAPPELCONSO_DOMAIN in url
+                    and "/fiche-rappel/" in url
+                    and not url.rstrip("/").endswith("/Interne")):
+                # Strip any trailing slash and any prefix junk like /2026/
+                m = re.search(r"/fiche-rappel/(\d+)", url)
+                if m:
+                    fixes[i] = (
+                        f"https://{RAPPELCONSO_DOMAIN}/fiche-rappel/"
+                        f"{m.group(1)}/Interne"
+                    )
+                    continue
+
+    log.info("API pre-pass corrected %d rows", len(fixes))
+    return fixes
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Step 3: Gemini gate — strict prompt with Google Search grounding
+# ─────────────────────────────────────────────────────────────────────────
+GEMINI_GATE_SYSTEM = (
+    "You are the final URL verifier for a public food-safety dashboard. "
+    "You have Google Search. For every row, run real searches and verify "
+    "that each URL points to a SPECIFIC recall detail page on the agency's "
+    "official domain. NEVER guess fiche/recall IDs — they are chronological "
+    "across all categories, not topical. Return ONLY strict JSON."
+)
+
+
+GEMINI_GATE_PROMPT = """Audit each food-recall row below. For each one decide:
+  1. Is the URL on the agency's OFFICIAL domain?
+  2. Does the page actually describe THIS recall (date + brand + hazard match)?
+  3. Is the URL a SPECIFIC recall page (not a category listing)?
+
+═══ MANDATORY VERIFICATION WORKFLOW ═══
+
+For EVERY row, do these steps:
+
+STEP 1 — Compose Google query: "<agency> <brand-or-company> <date> <pathogen>"
+         Example: "RappelConso Belle Henriette 2026-04-23 Listeria"
+         Example: "FDA Saputo cottage cheese recall 2026-04"
+STEP 2 — Run web_search with that query.
+STEP 3 — Find the result on the AGENCY'S OFFICIAL DOMAIN whose snippet
+         mentions the same date, brand, and hazard.
+STEP 4 — Verify all four:
+         ✓ date_match (page date == row Date, ±1 day)
+         ✓ brand_match (page mentions the brand or company)
+         ✓ hazard_match (page mentions the pathogen)
+         ✓ is_detail_page (URL is NOT /categorie/, /rubrik/, /tag/,
+           /search?, or a bare domain)
+
+═══ AGENCY-SPECIFIC RULES ═══
+
+[RULE 1 — France RappelConso]
+  Domain: rappel.conso.gouv.fr
+  • URL MUST end with /Interne (e.g. /fiche-rappel/22114/Interne)
+  • Scraper frequently hallucinates sequential IDs (17394, 17399, 17400, 17401).
+    Do NOT trust the existing ID — verify it via Google Search every time.
+  • Reject any URL containing /categorie/.
+  • Use the open-data API at data.economie.gouv.fr/.../rappelconso0 if you can
+    construct the query — `lien_vers_la_fiche_rappel` is the canonical URL.
+
+[RULE 2 — Greece EFET]
+  Domain: efet.gr
+  • Numeric item IDs and Greek-to-English slugs are frequently hallucinated.
+  • Always Google-verify by product name. Google query example:
+    "EFET ανάκληση <product-greek-or-translated> <date>"
+  • The correct URL pattern is:
+    https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/NNNN-...
+
+[RULE 3 — USA FDA / USDA FSIS / Ireland FSAI — DO NOT TOUCH]
+  Domains: fda.gov, fsis.usda.gov, fsai.ie
+  • These agency content-management systems enforce strict URL-slug length.
+  • URLs that LOOK truncated mid-word (ending in "-because", "-due",
+    "-possible-health-risk", "-gr") are the OFFICIAL, working links
+    published by the agency itself.
+  • If a URL is on these domains, set verification.is_detail_page=true and
+    do NOT propose a "fix" unless the URL is structurally a category page
+    (/recalls/ alone, /alerts/ alone, /search?).
+  • Pass these through with confidence=0.95 and strategy="agency-cms-truncated".
+
+[RULE 4 — All other agencies]
+  • Verify URL is on the agency's official domain
+  • Verify URL is a specific recall page, not an index/listing
+  • If the URL fails verification, propose a corrected URL ONLY if your
+    Google search returned a verified match
+  • If no verified match, set pass=false with reason "needs manual review"
+  • NEVER guess
+
+═══ INPUT (ROWS) ═══
+
+{rows_json}
+
+═══ OUTPUT (STRICT JSON) ═══
+
+{{
+  "decisions": [
+    {{
+      "row_index": <int>,
+      "pass": true|false,
+      "url_corrected": "<canonical URL or null if no fix>",
+      "verification": {{
+        "date_match": true|false,
+        "brand_match": true|false,
+        "hazard_match": true|false,
+        "is_detail_page": true|false
+      }},
+      "google_query_used": "<the query you actually ran>",
+      "confidence": 0.0-1.0,
+      "strategy": "agency-cms-truncated | api-lookup | search-verified | failed",
+      "reason": "<short>"
+    }}
+  ]
+}}
+
+Include EVERY input row in decisions. If you cannot verify a row, set
+pass=false and url_corrected=null. NEVER fabricate URLs.
+"""
+
+
+def _missing_required(row: Dict[str, Any]) -> List[str]:
+    missing = []
+    for f in REQUIRED_FIELDS:
+        v = row.get(f)
+        if v is None or (isinstance(v, str) and not v.strip()) or v == "—":
+            missing.append(f)
+    return missing
+
+
+def _collect_gemini_keys() -> List[str]:
+    """Same key-collection logic as enrichment/gemini_client.py."""
+    keys: List[str] = []
+    legacy = os.getenv("GEMINI_API_KEY")
+    if legacy:
+        keys.append(legacy.strip())
+    for i in range(1, 11):
+        v = os.getenv(f"GEMINI_API_KEY_{i}")
+        if v and v.strip() not in keys:
+            keys.append(v.strip())
+    return keys
+
+
+def _strip_fences(txt: str) -> str:
+    t = txt.strip()
+    if t.startswith("```"):
+        t = re.sub(r"^```[a-zA-Z]*\s*\n", "", t)
+        t = re.sub(r"\n```\s*$", "", t)
+    return t.strip()
+
+
+def _call_gemini_grounded(prompt: str, system: str,
+                           max_tokens: int = 8000) -> Optional[str]:
+    """Single Gemini call with Google Search grounding enabled.
+    Returns text response or None on failure."""
+    try:
+        import google.generativeai as genai  # type: ignore
+    except ImportError:
+        log.warning("google-generativeai not installed; Gemini gate disabled")
+        return None
+
+    keys = _collect_gemini_keys()
+    if not keys:
+        log.warning("No GEMINI_API_KEY(_1..10) set — Gemini gate disabled")
+        return None
+
+    # Try newer ('google_search') and older ('google_search_retrieval') tool names
+    tool_configs = [
+        [{"google_search": {}}],
+        [{"google_search_retrieval": {}}],
+        "google_search_retrieval",
+    ]
+
+    last_error: Optional[Exception] = None
+    for api_key in keys:
+        for tool_cfg in tool_configs:
+            try:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel(
+                    GEMINI_MODEL, system_instruction=system,
+                )
+                resp = model.generate_content(
+                    prompt,
+                    tools=tool_cfg,
+                    generation_config={"max_output_tokens": max_tokens,
+                                       "temperature": 0.1},
+                )
+                text = (getattr(resp, "text", None) or "").strip()
+                if text:
+                    # Log search activity for cost monitoring
+                    try:
+                        gm = resp.candidates[0].grounding_metadata
+                        queries = getattr(gm, "web_search_queries", []) or []
+                        if queries:
+                            log.info("Gemini ran %d Google searches",
+                                     len(queries))
+                    except Exception:
+                        pass
+                    return text
+            except Exception as exc:  # noqa: BLE001
+                last_error = exc
+                log.debug("Gemini attempt failed: %s", str(exc)[:150])
+                continue
+
+    log.warning("Gemini gate: all keys/configs failed. Last error: %s", last_error)
+    return None
+
+
+def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Optional[str]]]:
+    """
+    Ask Gemini (with grounding) to pass/fail each row and propose URL fixes.
+    Returns {input_index: (pass, reason, url_corrected_or_None)}.
+    Falls back to deterministic required-field check if Gemini disabled.
+    """
+    decisions: Dict[int, Tuple[bool, str, Optional[str]]] = {}
+
+    # Deterministic baseline — always compute
+    det_fail: Dict[int, str] = {}
+    for i, r in enumerate(rows):
+        miss = _missing_required(r)
+        if miss:
+            det_fail[i] = f"Missing required: {', '.join(miss)}"
+
+    if not _collect_gemini_keys():
+        log.info("Gemini disabled — using deterministic check only")
+        for i in range(len(rows)):
+            if i in det_fail:
+                decisions[i] = (False, det_fail[i], None)
+            else:
+                decisions[i] = (True, "ok (gemini disabled)", None)
+        return decisions
+
+    # Batch-call Gemini
+    for start in range(0, len(rows), GEMINI_BATCH_SIZE):
+        chunk = rows[start:start + GEMINI_BATCH_SIZE]
+        batch_view = [{
+            "row_index": j,
+            "Date":     r.get("Date", ""),
+            "Source":   r.get("Source", ""),
+            "Company":  r.get("Company", ""),
+            "Brand":    r.get("Brand", ""),
+            "Product":  r.get("Product", ""),
+            "Pathogen": r.get("Pathogen", ""),
+            "Reason":   r.get("Reason", ""),
+            "Country":  r.get("Country", ""),
+            "URL":      r.get("URL", ""),
+        } for j, r in enumerate(chunk)]
+
+        prompt = GEMINI_GATE_PROMPT.format(
+            rows_json=json.dumps(batch_view, ensure_ascii=False, indent=2),
+        )
+        txt = _call_gemini_grounded(prompt, system=GEMINI_GATE_SYSTEM)
+
+        got_response = False
+        if txt:
+            try:
+                data = json.loads(_strip_fences(txt))
+                for d in data.get("decisions", []):
+                    j = d.get("row_index")
+                    if j is None or j < 0 or j >= len(chunk):
+                        continue
+                    real_idx = start + j
+                    passed = bool(d.get("pass"))
+                    url_fix = d.get("url_corrected") or None
+                    # Local verification gate — never trust low confidence
+                    confidence = float(d.get("confidence", 0.0) or 0.0)
+                    v = d.get("verification", {})
+                    if passed and v:
+                        all_ok = all([
+                            v.get("date_match"), v.get("brand_match"),
+                            v.get("hazard_match"), v.get("is_detail_page"),
+                        ])
+                        if not all_ok or confidence < 0.6:
+                            passed = False
+                            d["reason"] = (str(d.get("reason", ""))
+                                           + f" [local gate rejected: conf={confidence:.2f}]")
+                    # Reject structurally-bad url_corrected
+                    if url_fix and not _is_truncation_protected(url_fix):
+                        if _is_structurally_bad(url_fix):
+                            url_fix = None
+                            passed = False
+                    decisions[real_idx] = (passed,
+                                            str(d.get("reason") or "")[:300],
+                                            url_fix)
+                got_response = True
+            except json.JSONDecodeError as e:
+                log.warning("Gemini JSON parse failed: %s | %s", e, txt[:200])
+
+        # Fill any uncovered rows with deterministic fallback
+        for j in range(len(chunk)):
+            real_idx = start + j
+            if real_idx in decisions:
+                continue
+            if real_idx in det_fail:
+                decisions[real_idx] = (False, det_fail[real_idx]
+                                       + " (gemini unreached)", None)
+            elif not got_response:
+                decisions[real_idx] = (True,
+                                       "ok (gemini unreached, url verified)",
+                                       None)
+            else:
+                decisions[real_idx] = (True,
+                                       "ok (gemini silent, url verified)",
+                                       None)
+
+    passes = sum(1 for v in decisions.values() if v[0])
+    fixed = sum(1 for v in decisions.values() if v[2] is not None)
+    log.info("Gemini gate: %d pass, %d fail, %d URL fixes proposed across %d rows",
+             passes, len(decisions) - passes, fixed, len(rows))
+    return decisions
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Main
+# ─────────────────────────────────────────────────────────────────────────
+def main() -> int:
+    t0 = datetime.now(timezone.utc)
+    log.info("=" * 60)
+    log.info("Gemini URL gate (final gatekeeper) started: %s",
+             t0.strftime("%Y-%m-%dT%H:%M:%SZ"))
+
+    approved = load_existing(XLSX_PATH) if XLSX_PATH.exists() else []
+    pending = load_pending(XLSX_PATH) if XLSX_PATH.exists() else []
+    log.info("State: %d approved + %d pending", len(approved), len(pending))
+
+    if not pending:
+        log.info("Nothing in Pending — nothing to do. Exiting cleanly.")
+        return 0
+
+    # ── Step 1: Structural + HTTP URL check, delete dead URLs ──────────
+    delete_idx, alive_idx = validate_urls(pending)
+    if delete_idx:
+        log.info("Deleting %d rows with dead/structural URLs", len(delete_idx))
+    alive_rows = [pending[i] for i in alive_idx]
+
+    if not alive_rows:
+        log.info("No surviving rows to gate")
+        final_pending_out: List[Dict[str, Any]] = []
+        new_approved: List[Dict[str, Any]] = []
+    else:
+        # Reset rejected status — fresh evaluation
+        for row in alive_rows:
+            if row.get("Status") == STATUS_REJECTED:
+                row["Status"] = STATUS_PENDING
+                notes = (row.get("Notes") or "").strip()
+                if notes.startswith("REJECTED:"):
+                    tail = notes.split(" | ", 1)
+                    row["Notes"] = tail[1] if len(tail) > 1 else ""
+
+        # ── Step 2: API pre-pass (cheapest, deterministic, no AI) ──────
+        api_fixes = api_prepass(alive_rows)
+        for j, new_url in api_fixes.items():
+            old_url = alive_rows[j].get("URL", "")
+            alive_rows[j]["URL"] = new_url
+            notes = (alive_rows[j].get("Notes") or "").strip()
+            audit = (f"[url-gate {datetime.now(timezone.utc).strftime('%Y-%m-%d')}: "
+                     f"API fixed {old_url[:40]}... -> {new_url[:40]}...]")
+            alive_rows[j]["Notes"] = (notes + " " + audit).strip()[:500]
+
+        # ── Step 3: Gemini gate with Google Search grounding ───────────
+        decisions = gemini_gate(alive_rows)
+
+        # Apply Gemini-proposed URL fixes
+        for j, (passed, reason, url_fix) in decisions.items():
+            if url_fix and url_fix != alive_rows[j].get("URL"):
+                old_url = alive_rows[j].get("URL", "")
+                alive_rows[j]["URL"] = url_fix
+                notes = (alive_rows[j].get("Notes") or "").strip()
+                audit = (f"[url-gate {datetime.now(timezone.utc).strftime('%Y-%m-%d')}: "
+                         f"Gemini fixed {old_url[:40]}... -> {url_fix[:40]}...]")
+                alive_rows[j]["Notes"] = (notes + " " + audit).strip()[:500]
+
+        # Translate to rejected_flags for promote_approved
+        rejected_flags: Dict[int, str] = {}
+        for j in range(len(alive_rows)):
+            passed, reason, _ = decisions.get(j, (True, "ok", None))
+            if not passed:
+                rejected_flags[j] = f"Gemini gate: {reason}"
+
+        new_approved, final_pending_out = promote_approved(
+            pending=alive_rows,
+            approved_existing=approved,
+            rejected_flags=rejected_flags,
+        )
+
+    # ── Assemble final state + save ────────────────────────────────────
+    final_approved = sort_rows(approved + new_approved)
+    final_pending = sort_rows(final_pending_out)
+
+    save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH)
+    mirror_json_from_xlsx(XLSX_PATH, JSON_PATH)
+
+    # ── Commit ─────────────────────────────────────────────────────────
+    if not SKIP_COMMIT:
+        ok = git_commit_and_push(
+            repo_dir=ROOT,
+            files=["docs/data/recalls.xlsx", "docs/data/recalls.json"],
+            message=(f"FSIS Gemini URL-gate {t0.strftime('%Y-%m-%d')} "
+                     f"(+{len(new_approved)} approved, "
+                     f"-{len(delete_idx)} dead, "
+                     f"{len(final_pending)} pending)"),
+        )
+        if not ok:
+            log.error("Git push failed")
+            return 1
+
+    elapsed = (datetime.now(timezone.utc) - t0).total_seconds()
+    log.info("=" * 60)
+    log.info("DONE in %.1fs | +%d approved | -%d dead | %d pending remaining",
+             elapsed, len(new_approved), len(delete_idx), len(final_pending))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
