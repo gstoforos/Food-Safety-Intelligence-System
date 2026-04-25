@@ -1589,7 +1589,7 @@ def main() -> int:
     ap.add_argument("--site-url",
                     default="https://gstoforos.github.io/Food-Safety-Intelligence-System")
     ap.add_argument("--dashboard-url",
-                    default="https://www.advfood.tech/food-safety-intelligence")
+                    default="https://www.advfood.tech/fsis-recalls")
     ap.add_argument("--summary-json",
                     default=str(ROOT / "data" / "monthly-summary-latest.json"))
     ap.add_argument("--monthly-index",
