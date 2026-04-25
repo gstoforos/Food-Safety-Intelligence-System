@@ -1040,33 +1040,44 @@ def main() -> int:
                  len(new_recalls))
 
     # ========================================================================
-    # STEP 2: Render the daily HTML brief FROM THE RECALLS SHEET.
+    # STEP 2: Render daily HTML briefs FROM THE RECALLS SHEET.
     # ========================================================================
-    # By re-reading Recalls after the write, the brief always matches the
-    # xlsx exactly. OpenAI results that landed in Pending are NOT in the
-    # brief until the URL guardian promotes them in a later run. This means
-    # the brief may look "lighter" than raw OpenAI output, but every entry
-    # has a verified URL and is present in the user-visible Recalls table.
-    brief_recalls = load_recalls_for_date(XLSX_PATH, target)
-    log.info("Rendering brief for %s from Recalls sheet: %d row(s) match",
-             target.isoformat(), len(brief_recalls))
-
+    # Build (or rebuild) the last BRIEF_DAYS days, not just today's target.
+    # Late-caught recalls promoted by the URL guardian after a brief was
+    # first rendered now appear when the next daily search re-renders the
+    # previous days. The dashboard shows all BRIEF_DAYS cards.
+    BRIEF_DAYS = 3
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
-    daily_html_path = DAILY_DIR / f"{target.isoformat()}.html"
-    html = render_daily_html(target, brief_recalls, regions_done)
-    if not args.dry_run:
-        daily_html_path.write_text(html, encoding="utf-8")
-        log.info("Wrote %s", daily_html_path)
-        update_daily_index(target, brief_recalls)
+    brief_paths: list[str] = []
+
+    for offset in range(BRIEF_DAYS):
+        d = target - timedelta(days=offset)
+        day_recalls = load_recalls_for_date(XLSX_PATH, d)
+        log.info("Rendering brief for %s from Recalls sheet: %d row(s) match",
+                 d.isoformat(), len(day_recalls))
+        day_html_path = DAILY_DIR / f"{d.isoformat()}.html"
+        # regions_done only applies to the target day's search; use 0 for
+        # back-fill days (the brief template tolerates 0 gracefully).
+        html = render_daily_html(d, day_recalls,
+                                 regions_done if offset == 0 else 0)
+        if not args.dry_run:
+            day_html_path.write_text(html, encoding="utf-8")
+            log.info("Wrote %s", day_html_path)
+            update_daily_index(d, day_recalls)
+            brief_paths.append(str(day_html_path))
+
+    # Primary brief (today's target) — used in commit message stats
+    brief_recalls = load_recalls_for_date(XLSX_PATH, target)
 
     # --- Commit + push ---
     if not args.dry_run and not SKIP_COMMIT:
-        paths = [str(XLSX_PATH), str(daily_html_path), str(DAILY_INDEX),
-                 str(SPEND_LEDGER)]
+        paths = [str(XLSX_PATH), str(DAILY_INDEX), str(SPEND_LEDGER)]
+        paths.extend(brief_paths)
         msg = (f"Daily recall search {target.isoformat()}: "
                f"+{len(new_recalls)} → Pending, "
                f"{len(brief_recalls)} in brief from Recalls, "
-               f"€{new_week_spent-week_spent:.3f} spent")
+               f"€{new_week_spent-week_spent:.3f} spent "
+               f"(rebuilt {BRIEF_DAYS} daily briefs)")
         git_commit_and_push(ROOT, paths, msg)
         log.info("Committed and pushed.")
 
