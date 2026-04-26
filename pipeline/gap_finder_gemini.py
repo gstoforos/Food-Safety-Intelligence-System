@@ -20,6 +20,9 @@ can actually discover recalls from last week.
 Cost: $0 on Gemini free tier (1 call per run, once per day).
 Model: gemini-2.5-flash (override via GEMINI_MODEL env var).
 Schedule: 05:00 UTC daily (before OpenAI 06:00 UTC, before Claude 19:00 UTC).
+
+SDK: google-genai (new unified SDK, replaces deprecated google.generativeai).
+     Install: pip install google-genai
 """
 from __future__ import annotations
 import os
@@ -81,13 +84,13 @@ def _call_gemini_with_search(prompt: str, system: Optional[str] = None) -> Optio
     Single Gemini call with Google Search grounding enabled.
     Returns the text response, or None on failure.
 
-    Tries the Gemini 2.0 tool name first (`google_search`), falls back to the
-    1.5 name (`google_search_retrieval`) so the code works across SDK versions.
+    Uses the new google.genai SDK (replaces deprecated google.generativeai).
     """
     try:
-        import google.generativeai as genai  # type: ignore
+        from google import genai  # type: ignore
+        from google.genai import types  # type: ignore
     except ImportError:
-        log.error("google-generativeai not installed — add to requirements.txt")
+        log.error("google-genai not installed — run: pip install google-genai")
         return None
 
     keys = _collect_gemini_keys()
@@ -95,52 +98,48 @@ def _call_gemini_with_search(prompt: str, system: Optional[str] = None) -> Optio
         log.error("No GEMINI_API_KEY(_1..10) env var set")
         return None
 
-    # Try each tool-config shape. Newer Gemini SDKs want `google_search`,
-    # older ones want `google_search_retrieval`. Just try both.
-    tool_configs = [
-        [{"google_search": {}}],             # Gemini 2.0+
-        [{"google_search_retrieval": {}}],   # Gemini 1.5 compat
-        "google_search_retrieval",           # SDK string shortcut
-    ]
-
     last_error: Optional[Exception] = None
     # One call — rotate through keys only on hard failure (not output).
     for api_key in keys:
-        for tool_cfg in tool_configs:
-            try:
-                genai.configure(api_key=api_key)
-                if system:
-                    model = genai.GenerativeModel(
-                        GEMINI_MODEL,
-                        system_instruction=system,
-                    )
-                else:
-                    model = genai.GenerativeModel(GEMINI_MODEL)
-                resp = model.generate_content(prompt, tools=tool_cfg)
-                text = (getattr(resp, "text", None) or "").strip()
-                if text:
-                    # Log how many search queries Gemini actually fired
-                    try:
-                        gm = resp.candidates[0].grounding_metadata
-                        queries = getattr(gm, "web_search_queries", []) or []
-                        if queries:
-                            log.info(
-                                "Gemini ran %d Google searches: %s",
-                                len(queries),
-                                " | ".join(str(q)[:60] for q in queries[:5]),
-                            )
-                    except Exception:
-                        pass
-                    return text
-            except Exception as exc:  # noqa: BLE001 - try the next tool shape
-                last_error = exc
-                log.debug("Gemini attempt failed (%s): %s",
-                          type(exc).__name__, str(exc)[:150])
-                continue
-        # If we got here, all tool shapes failed for this key — try next key
-        log.warning("All tool configs failed for one Gemini key, trying next")
+        try:
+            client = genai.Client(api_key=api_key)
+            
+            # Build config with Google Search tool
+            config = types.GenerateContentConfig(
+                system_instruction=system if system else None,
+                tools=[types.Tool(google_search=types.GoogleSearch())],
+            )
+            
+            resp = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt,
+                config=config,
+            )
+            
+            text = (resp.text or "").strip()
+            if text:
+                # Log how many search queries Gemini actually fired
+                try:
+                    if hasattr(resp, 'candidates') and resp.candidates:
+                        gm = getattr(resp.candidates[0], 'grounding_metadata', None)
+                        if gm:
+                            queries = getattr(gm, 'web_search_queries', []) or []
+                            if queries:
+                                log.info(
+                                    "Gemini ran %d Google searches: %s",
+                                    len(queries),
+                                    " | ".join(str(q)[:60] for q in queries[:5]),
+                                )
+                except Exception:
+                    pass
+                return text
+        except Exception as exc:  # noqa: BLE001
+            last_error = exc
+            log.debug("Gemini attempt failed (%s): %s",
+                      type(exc).__name__, str(exc)[:150])
+            continue
 
-    log.error("Gemini gap-finder: all keys/configs failed. Last error: %s", last_error)
+    log.error("Gemini gap-finder: all keys failed. Last error: %s", last_error)
     return None
 
 
@@ -155,16 +154,16 @@ def _strip_fences(txt: str) -> str:
 
 # ---------------------------------------------------------------------------
 # Primary-region weighting — see pipeline/gap_finder_claude.py for full
-# rationale. Gemini's strength is Google Search over multilingual EU
-# regulator pages (BVL, AESAN, AGES, RappelConso, BLV, EFET, ASAE, etc.)
-# plus its 1500-req/day free tier lets it sweep deep. Primary = Europe.
+# rationale. With Claude gap-finder retired (was AsiaPacific primary),
+# Gemini now covers NorthAmerica + UK as primary — FDA, USDA FSIS,
+# CFIA Canada, FSA UK. Europe is well-covered by direct scrapers
+# (29 agencies 2×/day) and doesn't need a dedicated gap-finder primary.
 #
 # Gemini does a single global query (not per-region like Claude/OpenAI),
 # so the primary-region treatment here is to inject an extra banner at
-# the top of the prompt and add Europe-specific multilingual queries to
-# the search-strategy list.
+# the top of the prompt.
 # ---------------------------------------------------------------------------
-PRIMARY_REGION = os.getenv("GAP_PRIMARY_REGION", "Europe")
+PRIMARY_REGION = os.getenv("GAP_PRIMARY_REGION", "NorthAmerica, UK")
 
 
 def _primary_banner(primary: str) -> str:
