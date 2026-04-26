@@ -575,6 +575,32 @@ def main() -> int:
             if not passed:
                 rejected_flags[j] = f"Gemini gate: {reason}"
 
+        # ── Step 4: HARD regulator-domain whitelist ────────────────────
+        # No URL on a news-aggregator domain may enter Recalls. If
+        # Gemini's grounded search couldn't resolve to a regulator URL,
+        # the row stays in Pending (REJECTED) for the next pass.
+        # See pipeline/regulatory_domains.py for the canonical lists.
+        try:
+            from pipeline.regulatory_domains import (
+                is_promotable_to_recalls, is_news_url, is_regulator_url,
+            )
+            for j, row in enumerate(alive_rows):
+                if j in rejected_flags:
+                    continue
+                url = (row.get("URL") or "").strip()
+                if not is_promotable_to_recalls(url):
+                    if is_news_url(url):
+                        rejected_flags[j] = (
+                            "news-aggregator URL — regulator URL required for Recalls"
+                        )
+                    elif not is_regulator_url(url):
+                        rejected_flags[j] = (
+                            "URL not on the regulator-domain whitelist"
+                        )
+        except ImportError as ie:
+            log.warning("regulator_domains module not available (%s) — "
+                        "Recalls promotion proceeds without domain whitelist", ie)
+
         new_approved, final_pending_out = promote_approved(
             pending=alive_rows,
             approved_existing=approved,

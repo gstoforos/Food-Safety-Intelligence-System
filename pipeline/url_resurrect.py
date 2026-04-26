@@ -10,15 +10,26 @@ their Notes field, never getting promoted.
 Solution: one-pass resurrection tool that:
   1. Loads Pending rows
   2. Identifies rows with dead URLs (HTTP 404/5xx + REJECTED marker)
-  3. For each, asks OpenAI gpt-4o-mini "what is the correct URL on
-     <agency site> for the recall described by these fields?"
+  3. For each, asks Gemini 2.5 Flash with Google Search grounding
+     "what is the correct URL on <agency site> for the recall described
+     by these fields?" — Gemini fires real searches and returns URLs
+     that actually appeared in search results.
   4. Probes the proposed URL (HEAD then GET)
-  5. If live -> updates row URL, clears the REJECTED marker from Notes
-  6. If dead -> leaves row in place, logs for manual review
-  7. Writes Pending back, commits
+  5. Validates the proposed URL against the regulator-domain whitelist
+     (rejects news-aggregator URLs even if Gemini proposes one).
+  6. If live + on whitelist -> updates row URL, clears the REJECTED
+     marker from Notes
+  7. If dead -> leaves row in place, logs for manual review
+  8. Writes Pending back, commits
 
-Cost envelope: gpt-4o-mini ~$0.001 per row. At ~20 rejected rows per week,
-that's < $0.05/month.
+Why Gemini and not OpenAI/Claude:
+  Earlier versions used OpenAI gpt-4o-mini (no web search) which
+  hallucinated plausible-looking URLs that pattern-matched real recall
+  pages but didn't actually exist. Gemini 2.5 Flash with native Google
+  Search grounding only returns URLs from real search results.
+
+Cost envelope: Gemini 2.5 Flash free tier (1500 req/day per key).
+At ~20 rejected rows per week, well within free tier.
 
 Invoke:
     python -m pipeline.url_resurrect              # defaults to 50 rows
@@ -46,7 +57,14 @@ from pipeline.merge_master import (  # noqa: E402
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
 from review.url_validator import check_url  # noqa: E402
-from review.openai_client import _call_openai, ENABLED as OPENAI_ENABLED  # noqa: E402
+from pipeline.url_gate_gemini import (  # noqa: E402
+    _call_gemini_grounded, _collect_gemini_keys, _strip_fences,
+)
+from pipeline.regulatory_domains import (  # noqa: E402
+    is_promotable_to_recalls, is_news_url, is_regulator_url,
+)
+
+GEMINI_ENABLED = bool(_collect_gemini_keys())
 
 logging.basicConfig(
     level=logging.INFO,
@@ -147,20 +165,22 @@ def _needs_resurrect(row: Dict[str, Any]) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# OpenAI: propose a correct URL
+# Gemini: propose a correct URL via real Google Search
 # ---------------------------------------------------------------------------
 RESURRECT_SYSTEM = (
-    "You are a food-safety-data operations specialist. Your job is to find the "
-    "CORRECT, LIVE URL on an official regulator's website for a specific food "
-    "recall given its structured fields. Return ONLY strict JSON. "
-    "Do NOT invent URLs — if you cannot confidently name the exact recall page, "
-    "return the best CATEGORY / SEARCH URL on the agency site that filters to "
-    "this recall (e.g. FDA's recall search with the recall_number as a query "
-    "parameter). Never return a homepage with no path."
+    "You are a food-safety-data operations specialist. Use Google Search to "
+    "find the CORRECT, LIVE URL on an official regulator's website for a "
+    "specific food recall given its structured fields. Return ONLY strict "
+    "JSON. NEVER invent URLs — every URL you return MUST appear in your "
+    "Google Search results. Verify the URL is on the agency's official "
+    "domain (no news sites, no aggregators like foodsafetynews.com, "
+    "produktwarnung.eu, food-safety.com, etc.). If you cannot find a live "
+    "regulator URL via search, return an empty url string and strategy "
+    "'give_up' — do not guess."
 )
 
 
-RESURRECT_PROMPT = """Find the correct URL on the regulator website for this specific recall.
+RESURRECT_PROMPT = """Use Google Search to find the correct regulator URL for this recall.
 
 Recall fields:
   Source (agency): {source}
@@ -174,25 +194,38 @@ Recall fields:
   Notes:          {notes}
   Current (BAD) URL: {bad_url}
 
-Rules:
-  1. The URL you return MUST be on the agency's official domain. No news sites, no aggregators.
-  2. If you can cite the specific recall-detail page URL, return that.
-  3. If you cannot cite the specific detail page, return the agency's recall SEARCH URL with a query parameter filtered to this recall's company, product name, or recall ID — whichever is most likely to deliver a working result.
-  4. Do NOT return the bad URL shown above. Do not return it with trivial changes.
-  5. Do NOT invent recall IDs. If the current URL contains an ID that looks wrong, replace it with a search-URL pattern instead.
+Search strategy:
+  1. site:<agency_domain> "<company>" <product or pathogen> <year>
+  2. site:<agency_domain> <pathogen> <date>
+  3. <agency> recall <company> <product> <year>
+  4. If still nothing: search news outlets only to extract the agency's
+     own reference number, then verify by site:<agency_domain> <ref>.
+
+Hard rules:
+  1. The URL MUST be on the agency's official domain. NO news sites,
+     NO aggregators (foodsafetynews.com, food-safety.com, produktwarnung.eu,
+     en.sedaily.com, capitalfm.co.ke, etc.).
+  2. If you cannot cite a specific recall-detail page, return the agency's
+     recall SEARCH URL with a query parameter filtered to this recall's
+     company / product / recall ID — whichever is most likely to deliver a
+     working result.
+  3. Do NOT return the bad URL above. Do not return it with trivial changes.
+  4. Do NOT invent recall IDs. If the current URL has a wrong-looking ID,
+     replace with a search-URL pattern instead.
+  5. If your Google Search returns no plausible regulator URL, return
+     {{"url": "", "confidence": 0.0, "strategy": "give_up", "reasoning": "..."}}.
 
 Return strict JSON:
 {{"url": "https://...", "confidence": 0.0-1.0, "strategy": "specific-page | search | category", "reasoning": "one line why"}}
-
-If you have no plausible URL at all, return:
-{{"url": "", "confidence": 0.0, "strategy": "give_up", "reasoning": "..."}}
 """
 
 
 def propose_url(row: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Ask OpenAI for a replacement URL. Returns dict with url/confidence or None."""
-    if not OPENAI_ENABLED:
-        log.warning("OPENAI_API_KEY not set — cannot propose replacement URLs")
+    """Ask Gemini (with Google Search grounding) for a replacement URL.
+    Returns dict with url/confidence or None.
+    """
+    if not GEMINI_ENABLED:
+        log.warning("GEMINI_API_KEY not set — cannot propose replacement URLs")
         return None
 
     prompt = RESURRECT_PROMPT.format(
@@ -208,28 +241,44 @@ def propose_url(row: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         bad_url=row.get("URL", ""),
     )
 
-    txt = _call_openai(prompt, system=RESURRECT_SYSTEM, max_tokens=400)
+    txt = _call_gemini_grounded(prompt, system=RESURRECT_SYSTEM, max_tokens=1024)
     if not txt:
         return None
 
-    # _call_openai already returns JSON when response_format is JSON, but be defensive
-    txt = txt.strip()
-    if txt.startswith("```"):
-        txt = re.sub(r"^```[a-zA-Z]*\s*\n", "", txt)
-        txt = re.sub(r"\n```\s*$", "", txt).strip()
+    txt = _strip_fences(txt).strip()
     try:
         data = json.loads(txt)
     except json.JSONDecodeError as e:
-        log.warning("OpenAI URL proposal: JSON parse failed (%s) | %s", e, txt[:200])
-        return None
+        # Sometimes Gemini wraps a JSON object in extra prose despite
+        # instructions; try to extract the first {…} block.
+        m = re.search(r"\{[^{}]*\}", txt, re.S)
+        if not m:
+            log.warning("Gemini URL proposal: JSON parse failed (%s) | %s",
+                        e, txt[:200])
+            return None
+        try:
+            data = json.loads(m.group(0))
+        except json.JSONDecodeError:
+            log.warning("Gemini URL proposal: JSON parse failed (%s) | %s",
+                        e, txt[:200])
+            return None
 
     url = (data.get("url") or "").strip()
     if not url or not url.lower().startswith(("http://", "https://")):
         return None
-    # Guard against the model just echoing the bad URL back
+    # Reject Gemini just echoing the bad URL back
     bad = (row.get("URL") or "").strip().lower()
     if bad and url.lower() == bad:
-        log.warning("OpenAI proposed same URL as bad one — rejecting")
+        log.warning("Gemini proposed same URL as bad one — rejecting")
+        return None
+    # Reject news/aggregator URLs even if Gemini proposes them
+    if is_news_url(url):
+        log.warning("Gemini proposed news-aggregator URL (%s) — rejecting "
+                    "(only regulator domains allowed)", url[:80])
+        return None
+    if not is_regulator_url(url):
+        log.warning("Gemini proposed non-regulator URL (%s) — rejecting",
+                    url[:80])
         return None
     return data
 
@@ -271,8 +320,8 @@ def main() -> int:
                     help="Print proposals but do not write xlsx or push")
     args = ap.parse_args()
 
-    if not OPENAI_ENABLED:
-        log.error("OPENAI_API_KEY not set — cannot run resurrector.")
+    if not GEMINI_ENABLED:
+        log.error("GEMINI_API_KEY not set — cannot run resurrector.")
         return 1
 
     if not XLSX_PATH.exists():
@@ -307,7 +356,7 @@ def main() -> int:
 
         proposal = propose_url(row)
         if not proposal:
-            log.info("    -> no proposal from OpenAI")
+            log.info("    -> no proposal from Gemini")
             no_proposal += 1
             continue
 
@@ -339,7 +388,7 @@ def main() -> int:
             ).strip(" |")
             row["Notes"] = (
                 cleaned_notes + f"  [resurrected {datetime.now(timezone.utc).strftime('%Y-%m-%d')}: "
-                f"{old_url[:40]}... -> OK via OpenAI ({strategy}, conf={confidence:.2f})]"
+                f"{old_url[:40]}... -> OK via Gemini grounded search ({strategy}, conf={confidence:.2f})]"
             ).strip()
             # Reset status so URL gate picks it up again as a fresh candidate
             if "Status" in row:
@@ -350,8 +399,8 @@ def main() -> int:
     log.info("RESURRECTION SUMMARY")
     log.info("  Attempted     : %d", len(to_try))
     log.info("  Resurrected   : %d  (URL fixed, back in Pending for URL gate)", resurrected)
-    log.info("  Still dead    : %d  (OpenAI proposal also failed probe)", still_dead)
-    log.info("  No proposal   : %d  (OpenAI couldn't suggest anything)", no_proposal)
+    log.info("  Still dead    : %d  (Gemini proposal also failed probe)", still_dead)
+    log.info("  No proposal   : %d  (Gemini couldn't suggest anything)", no_proposal)
 
     if args.dry_run:
         log.info("Dry run — no writes.")
@@ -370,7 +419,7 @@ def main() -> int:
     log.info("Saved xlsx with %d resurrected Pending rows", resurrected)
 
     if not SKIP_COMMIT:
-        msg = f"url_resurrect: fixed {resurrected} dead URLs in Pending (OpenAI-proposed)"
+        msg = f"url_resurrect: fixed {resurrected} dead URLs in Pending (Gemini-proposed, grounded)"
         git_commit_and_push(ROOT, [str(XLSX_PATH)], msg)
         log.info("Committed and pushed.")
 

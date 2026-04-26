@@ -156,10 +156,11 @@ HOST_TO_SOURCE: Dict[str, Tuple[str, str]] = {
     "nfsa.gov.eg":                  ("NFSA",       "Egypt"),
     "onssa.gov.ma":                 ("ONSSA",      "Morocco"),
     "ncc.org.za":                   ("NCC",        "South Africa"),
-    # Food-safety news outlets (still filtered by URL gate before promotion)
-    "foodsafetynews.com":           ("Food Safety News","Unknown"),
-    "food-safety.com":              ("Food Safety Magazine","Unknown"),
-    "outbreaknewstoday.com":        ("Outbreak News Today","Unknown"),
+    # NOTE: news outlets (foodsafetynews.com, food-safety.com,
+    # outbreaknewstoday.com, produktwarnung.eu, etc.) deliberately
+    # excluded from this dict — they are NOT regulators-of-record and
+    # belong only in the NEWS sheet, never in Recalls. The canonical
+    # news-domain blocklist lives in pipeline/regulatory_domains.py.
 }
 
 

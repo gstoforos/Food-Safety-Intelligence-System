@@ -103,7 +103,49 @@ def git_commit_and_push(repo_dir: Path, files: list[str], message: str) -> bool:
             _run(["git", "-C", cwd, "pull", "--ff-only",
                   "origin", branch])
 
-            # 4. Restore our files on top of the updated remote
+            # 4. Restore our files on top of the updated remote.
+            #
+            # CRITICAL: for cumulative shared state (recalls.xlsx and the
+            # mirror recalls.json), we MUST NOT blindly copy our local
+            # over the freshly-pulled remote — that destroys rows the
+            # remote-winner just added. Instead, merge xlsx by union of
+            # rows (URL primary, fallback to Date+Company+Pathogen) and
+            # regenerate the json mirror from the merged xlsx.
+            xlsx_rel = "docs/data/recalls.xlsx"
+            json_rel = "docs/data/recalls.json"
+            saved_map = dict(saved)
+
+            if xlsx_rel in saved_map and (Path(cwd) / xlsx_rel).exists():
+                try:
+                    from pipeline.xlsx_merge import merge_xlsx_with_remote
+                    from pipeline.merge_master import mirror_json_from_xlsx
+                    remote_xlsx = Path(cwd) / xlsx_rel
+                    counts = merge_xlsx_with_remote(
+                        remote_path=remote_xlsx,
+                        ours_path=saved_map[xlsx_rel],
+                        out_path=remote_xlsx,
+                    )
+                    log.info("Push retry: merged xlsx instead of overwriting "
+                             "(remote=%d, ours=%d, merged=%d recalls)",
+                             counts.get("recalls_remote", -1),
+                             counts.get("recalls_ours", -1),
+                             counts.get("recalls_merged", -1))
+                    saved = [(rel, dst) for rel, dst in saved if rel != xlsx_rel]
+                    if json_rel in saved_map:
+                        try:
+                            mirror_json_from_xlsx(remote_xlsx,
+                                                   Path(cwd) / json_rel)
+                            saved = [(rel, dst) for rel, dst in saved
+                                     if rel != json_rel]
+                        except Exception as je:
+                            log.warning("json mirror regenerate failed: %s", je)
+                except Exception as me:
+                    log.error("xlsx merge failed (%s) — falling back to "
+                              "the legacy ours-wins overwrite. This may "
+                              "cause data loss.", me)
+
+            # For non-cumulative files (logs, configs, html outputs) the
+            # original ours-wins copy is acceptable.
             for rel, dst in saved:
                 dest = Path(cwd) / rel
                 dest.parent.mkdir(parents=True, exist_ok=True)
