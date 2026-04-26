@@ -1,24 +1,35 @@
 """
-pipeline/xlsx_merge.py — safe xlsx union-merge for push-retry.
+pipeline/xlsx_merge.py — safe xlsx union-merge for push-retry conflicts.
 
-When two workflows both modify docs/data/recalls.xlsx and one hits a
-non-fast-forward push, the OLD retry logic in commit_github overwrote
-the freshly-pulled remote xlsx with the loser's stale copy — destroying
-any rows the winner had just added.
+THE BUG THIS FIXES
+==================
+news-feed.yml and merge-master.yml both had a "binary-safe push retry" that
+copied the loser's stale local xlsx to /tmp, pulled the winner's remote, then
+OVERWROTE the freshly-pulled remote with the stale /tmp copy. Result: any
+rows the remote-winner had just added (e.g. an operator's manual upload of
+recalls.xlsx with +11 new rows) got silently destroyed on the next news
+or merge tick.
 
-This module provides `merge_xlsx_with_remote()` which produces a union:
-  • Recalls : union of remote + ours; never shrinks.
-  • Pending : union, minus rows whose dedup_key is in merged Recalls.
-  • NEWS    : union by NEWS dedup key.
+THE FIX
+=======
+On push-retry, instead of overwriting, do a row-level union of:
+  - Recalls : remote ∪ ours; never shrinks. Remote wins on collision.
+  - Pending : remote ∪ ours, minus any row whose dedup_key already
+              appears in the merged Recalls.
+  - NEWS    : remote ∪ ours by NEWS dedup key.
 
 Identity = the same _dedup_key used by merge_master:
 URL primary, fallback to Date+Company+Pathogen.
 
-Used by commit_github.git_commit_and_push retry path.
+Used by:
+  pipeline/commit_github.py  (when called from url_gate_gemini etc.)
+  .github/workflows/news-feed.yml      (via inline Python in retry block)
+  .github/workflows/merge-master.yml   (same pattern)
 """
 from __future__ import annotations
 import logging
 import re
+import sys
 import unicodedata
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -33,10 +44,10 @@ def _dedup_key(row: Dict[str, Any]) -> str:
     url = (row.get("URL") or "").strip().lower()
     if url:
         return url
-    co = unicodedata.normalize("NFD", row.get("Company") or "") \
+    co = unicodedata.normalize("NFD", str(row.get("Company") or "")) \
         .encode("ascii", "ignore").decode().lower()
     co = re.sub(r"[^a-z0-9]", "", co)[:30]
-    return f"{row.get('Date','')}|{co}|{(row.get('Pathogen','') or '')[:30]}"
+    return f"{row.get('Date','')}|{co}|{(str(row.get('Pathogen','')) or '')[:30]}"
 
 
 def _news_dedup_key(row: Dict[str, Any]) -> str:
@@ -44,7 +55,7 @@ def _news_dedup_key(row: Dict[str, Any]) -> str:
     link = (row.get("Link") or "").strip().lower()
     if link:
         return link
-    title = (row.get("Title") or "").strip().lower()[:120]
+    title = (str(row.get("Title") or "")).strip().lower()[:120]
     return f"{row.get('Published (UTC)','')}|{title}"
 
 
@@ -81,7 +92,7 @@ def _merge_unique(
     key_fn,
 ) -> List[Dict[str, Any]]:
     """Union by key_fn; remote wins on collision."""
-    seen = {}
+    seen: Dict[str, Dict[str, Any]] = {}
     out: List[Dict[str, Any]] = []
     for r in remote_rows:
         k = key_fn(r)
@@ -154,3 +165,26 @@ def merge_xlsx_with_remote(
     }
     log.info("xlsx merge: %s", counts)
     return counts
+
+
+# ---------------------------------------------------------------------------
+# CLI for use from inside YAML retry blocks:
+#     python -m pipeline.xlsx_merge <remote_path> <ours_path> <out_path>
+# ---------------------------------------------------------------------------
+def _cli() -> int:
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+    if len(sys.argv) != 4:
+        print("usage: python -m pipeline.xlsx_merge <remote> <ours> <out>",
+              file=sys.stderr)
+        return 2
+    counts = merge_xlsx_with_remote(
+        Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]),
+    )
+    print(f"merged: Recalls={counts['recalls_merged']} "
+          f"Pending={counts['pending_merged']} NEWS={counts['news_merged']}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(_cli())
