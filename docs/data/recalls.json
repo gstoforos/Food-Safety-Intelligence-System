@@ -1968,22 +1968,6 @@
   "Notes": "[Gemini check 2026-04-26: added during manual recovery — verified against webgate.ec.europa.eu]"
  },
  {
-  "Date": "2026-04-02",
-  "Source": "RASFF (EU)",
-  "Company": "Origin: Belgium, France | Distributed: Luxembourg",
-  "Brand": "—",
-  "Product": "Filet de poulet (Chicken fillet)",
-  "Pathogen": "Salmonella",
-  "Reason": "Possible presence of Salmonella in chicken fillet from Belgium and France (Notification 2026.2851)",
-  "Class": "RASFF: information notification for attention",
-  "Country": "Luxembourg",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/835307",
-  "Notes": "[Gemini check 2026-04-26: added during manual recovery — verified against webgate.ec.europa.eu]"
- },
- {
   "Date": "2026-04-01",
   "Source": "FDA",
   "Company": "Tops Friendly Markets",
