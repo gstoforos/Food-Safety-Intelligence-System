@@ -1,29 +1,19 @@
 """
 DEPRECATED — pipeline.url_gate_claude has been retired.
 
-Why
----
-Claude was pattern-matching from training data and hallucinating recall
-URLs (e.g. fabricated RappelConso fiche-rappel IDs 17394, 17399, 17400).
-Gemini 2.5 Flash with native Google Search grounding fires real searches,
-so every URL it accepts/proposes appeared in a real search result.
+The URL gate moved to Gemini 2.5 Flash with native Google Search grounding,
+because Claude (without grounded search) was pattern-matching URLs from
+training data and producing non-existent recall pages.
 
-What this shim does
--------------------
-For backwards compatibility with any pinned cron / external invocation,
-this module transparently delegates to `pipeline.url_gate_gemini.main()`.
-Any `ANTHROPIC_API_KEY` env var is ignored. Set `GEMINI_API_KEY` (or the
-rotation slots `GEMINI_API_KEY_1` … `GEMINI_API_KEY_10`).
+For backwards compatibility with any pinned external invocation, this module
+delegates to `pipeline.url_gate_gemini.main()`. ANTHROPIC_API_KEY is ignored;
+configure GEMINI_API_KEY (or rotation slots GEMINI_API_KEY_1 … _10) instead.
 
-Migration
----------
-Update callers from:
-    python -m pipeline.url_gate_claude
-to:
-    python -m pipeline.url_gate_gemini
+Migration:
+    python -m pipeline.url_gate_claude   →   python -m pipeline.url_gate_gemini
 
-Original Claude implementation preserved at:
-    pipeline/url_gate_claude.py.deprecated.bak
+The original Claude-based implementation is archived at:
+    pipeline/url_gate_claude.py.deprecated
 """
 from __future__ import annotations
 import logging

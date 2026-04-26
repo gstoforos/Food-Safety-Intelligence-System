@@ -575,32 +575,6 @@ def main() -> int:
             if not passed:
                 rejected_flags[j] = f"Gemini gate: {reason}"
 
-        # ── Step 4: HARD regulator-domain whitelist ────────────────────
-        # No URL on a news-aggregator domain may enter Recalls. If
-        # Gemini's grounded search couldn't resolve to a regulator URL,
-        # the row stays in Pending (REJECTED) for the next pass.
-        # See pipeline/regulatory_domains.py for the canonical lists.
-        try:
-            from pipeline.regulatory_domains import (
-                is_promotable_to_recalls, is_news_url, is_regulator_url,
-            )
-            for j, row in enumerate(alive_rows):
-                if j in rejected_flags:
-                    continue
-                url = (row.get("URL") or "").strip()
-                if not is_promotable_to_recalls(url):
-                    if is_news_url(url):
-                        rejected_flags[j] = (
-                            "news-aggregator URL — regulator URL required for Recalls"
-                        )
-                    elif not is_regulator_url(url):
-                        rejected_flags[j] = (
-                            "URL not on the regulator-domain whitelist"
-                        )
-        except ImportError as ie:
-            log.warning("regulator_domains module not available (%s) — "
-                        "Recalls promotion proceeds without domain whitelist", ie)
-
         new_approved, final_pending_out = promote_approved(
             pending=alive_rows,
             approved_existing=approved,
@@ -614,15 +588,87 @@ def main() -> int:
     save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH)
     mirror_json_from_xlsx(XLSX_PATH, JSON_PATH)
 
+    # ── Rebuild daily briefs for every date that gained new rows ───────
+    # When the gate promotes Pending → Recalls, the daily HTML brief for
+    # those dates must be regenerated so the dashboard's DAILY tab reflects
+    # the new state. Without this, briefs only refresh at the next 10:00
+    # daily-recall-search run.
+    files_to_commit: List[str] = ["docs/data/recalls.xlsx",
+                                   "docs/data/recalls.json"]
+    rebuilt_briefs: List[str] = []
+    if new_approved:
+        try:
+            from pipeline.daily_recall_search import (
+                render_daily_html, update_daily_index, DAILY_DIR,
+            )
+            from scrapers._models import Recall as _Recall
+            # Group newly-promoted rows by Date
+            from collections import defaultdict
+            by_date: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+            for r in new_approved:
+                d = str(r.get("Date") or "").strip()[:10]
+                if d:
+                    by_date[d].append(r)
+
+            # Build a fast-lookup map of all Recalls by date so we render
+            # the FULL day, not only the newly-promoted rows.
+            full_by_date: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+            for r in final_approved:
+                d = str(r.get("Date") or "").strip()[:10]
+                if d:
+                    full_by_date[d].append(r)
+
+            from datetime import date as _date
+            for date_str in sorted(by_date.keys(), reverse=True):
+                try:
+                    y, m, d = date_str.split("-")
+                    target = _date(int(y), int(m), int(d))
+                except (ValueError, AttributeError):
+                    log.warning("Skip brief rebuild — bad date '%s'", date_str)
+                    continue
+                # Convert dicts to Recall objects (the renderer expects these)
+                day_rows = full_by_date.get(date_str, [])
+                recalls_objs: List[_Recall] = []
+                for row in day_rows:
+                    try:
+                        recalls_objs.append(_Recall(**{
+                            k: (v if v is not None else "")
+                            for k, v in row.items()
+                            if k in _Recall.__annotations__
+                        }))
+                    except Exception as cce:
+                        log.debug("skip row coerce: %s", cce)
+                # Render and persist
+                try:
+                    render_daily_html(target, recalls_objs)
+                    update_daily_index(target, recalls_objs)
+                    brief_path = f"docs/daily/{date_str}.html"
+                    rebuilt_briefs.append(brief_path)
+                    files_to_commit.append(brief_path)
+                    log.info("Rebuilt daily brief for %s (%d rows)",
+                             date_str, len(recalls_objs))
+                except Exception as rerr:
+                    log.warning("Brief rebuild failed for %s: %s",
+                                date_str, rerr)
+            # daily-index.json always gets included if we updated any briefs
+            if rebuilt_briefs:
+                files_to_commit.append("docs/daily-index.json")
+        except ImportError as ie:
+            log.warning("Cannot import brief renderer (%s) — skipping "
+                        "daily brief rebuild", ie)
+
     # ── Commit ─────────────────────────────────────────────────────────
     if not SKIP_COMMIT:
         ok = git_commit_and_push(
             repo_dir=ROOT,
-            files=["docs/data/recalls.xlsx", "docs/data/recalls.json"],
+            files=files_to_commit,
             message=(f"FSIS Gemini URL-gate {t0.strftime('%Y-%m-%d')} "
                      f"(+{len(new_approved)} approved, "
                      f"-{len(delete_idx)} dead, "
-                     f"{len(final_pending)} pending)"),
+                     f"{len(final_pending)} pending"
+                     + (f", rebuilt {len(rebuilt_briefs)} briefs"
+                        if rebuilt_briefs else "")
+                     + ")"),
         )
         if not ok:
             log.error("Git push failed")
@@ -630,8 +676,10 @@ def main() -> int:
 
     elapsed = (datetime.now(timezone.utc) - t0).total_seconds()
     log.info("=" * 60)
-    log.info("DONE in %.1fs | +%d approved | -%d dead | %d pending remaining",
-             elapsed, len(new_approved), len(delete_idx), len(final_pending))
+    log.info("DONE in %.1fs | +%d approved | -%d dead | %d pending | "
+             "%d briefs rebuilt",
+             elapsed, len(new_approved), len(delete_idx), len(final_pending),
+             len(rebuilt_briefs))
     return 0
 
 

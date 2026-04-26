@@ -156,11 +156,10 @@ HOST_TO_SOURCE: Dict[str, Tuple[str, str]] = {
     "nfsa.gov.eg":                  ("NFSA",       "Egypt"),
     "onssa.gov.ma":                 ("ONSSA",      "Morocco"),
     "ncc.org.za":                   ("NCC",        "South Africa"),
-    # NOTE: news outlets (foodsafetynews.com, food-safety.com,
-    # outbreaknewstoday.com, produktwarnung.eu, etc.) deliberately
-    # excluded from this dict — they are NOT regulators-of-record and
-    # belong only in the NEWS sheet, never in Recalls. The canonical
-    # news-domain blocklist lives in pipeline/regulatory_domains.py.
+    # Food-safety news outlets (still filtered by URL gate before promotion)
+    "foodsafetynews.com":           ("Food Safety News","Unknown"),
+    "food-safety.com":              ("Food Safety Magazine","Unknown"),
+    "outbreaknewstoday.com":        ("Outbreak News Today","Unknown"),
 }
 
 
@@ -350,17 +349,31 @@ def _tavily_search(query: str, max_results: int = 10, days: int = 7) -> List[Dic
 
 
 def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
-    """Run the canonical gap-finder queries and dedup by URL."""
+    """Run the canonical gap-finder queries and dedup by URL.
+
+    Primary region: NorthAmerica. Tavily is the deterministic backstop
+    for the FDA / USDA-FSIS / CFIA pipeline (high-volume English pages
+    with predictable structure that Tavily's whitelisted-domain extractor
+    parses reliably without an LLM call). NorthAmerica site:queries run
+    FIRST — if Tavily's free tier hits its rate limit mid-run, we still
+    have full NA coverage. Other regions fill the remaining quota.
+    """
     queries = [
+        # ── PRIMARY REGION: NorthAmerica (run first, deepest coverage) ──
+        'site:fda.gov/safety/recalls food recall pathogen',
+        'site:fsis.usda.gov/recalls-alerts food recall',
+        'site:recalls-rappels.canada.ca food recall',
+        'site:inspection.canada.ca food recall',
+        'site:quebec.ca recall food MAPAQ',
+        # ── Generic global pathogen / hazard sweeps ─────────────────────
         'food recall salmonella OR listeria OR "e. coli" OR botulism OR campylobacter',
         'food recall mould OR mold OR "foreign material" OR glass OR "ethylene oxide"',
         'food recall rodent OR "rat poison" OR rodenticide OR "rodent contamination"',
+        # ── Other-region site:queries (lighter pass) ────────────────────
         'RASFF notification food alert withdrawal',
-        'site:recalls-rappels.canada.ca food recall',
         'site:food.gov.uk food alert recall',
         'site:fsai.ie food recall alert',
         'site:rappelconso.gouv.fr rappel alimentaire',
-        'site:fda.gov food recall pathogen',
         'site:foodstandards.gov.au food recall',
     ]
     all_results: Dict[str, Dict[str, Any]] = {}

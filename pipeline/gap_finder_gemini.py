@@ -154,6 +154,29 @@ def _strip_fences(txt: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Primary-region weighting — see pipeline/gap_finder_claude.py for full
+# rationale. Gemini's strength is Google Search over multilingual EU
+# regulator pages (BVL, AESAN, AGES, RappelConso, BLV, EFET, ASAE, etc.)
+# plus its 1500-req/day free tier lets it sweep deep. Primary = Europe.
+#
+# Gemini does a single global query (not per-region like Claude/OpenAI),
+# so the primary-region treatment here is to inject an extra banner at
+# the top of the prompt and add Europe-specific multilingual queries to
+# the search-strategy list.
+# ---------------------------------------------------------------------------
+PRIMARY_REGION = os.getenv("GAP_PRIMARY_REGION", "Europe")
+
+
+def _primary_banner(primary: str) -> str:
+    return (
+        f"⚑ PRIMARY-REGION DEEP SWEEP — '{primary}' is your strongest region. "
+        f"Run EXTRA Google Searches in local languages and against every "
+        f"regulator domain in this region. Other regions still in scope but "
+        f"emphasis is on '{primary}'. ⚑\n\n"
+    )
+
+
+# ---------------------------------------------------------------------------
 # Gap-finder prompt — same JSON contract as the Claude + OpenAI variants
 # ---------------------------------------------------------------------------
 
@@ -216,7 +239,11 @@ def query_gemini_for_gaps(since_days: int) -> List[Dict[str, Any]]:
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     year = datetime.now(timezone.utc).strftime("%Y")
     prompt = GAP_FINDER_PROMPT.format(since_days=since_days, today=today, year=year)
-    log.info("Querying Gemini (with Google Search grounding) for pathogen recalls, last %d days", since_days)
+    if PRIMARY_REGION:
+        prompt = _primary_banner(PRIMARY_REGION) + prompt
+    log.info("Querying Gemini (with Google Search grounding) for pathogen "
+             "recalls, last %d days [primary region: %s]",
+             since_days, PRIMARY_REGION or "none")
     txt = _call_gemini_with_search(prompt, system=GAP_FINDER_SYSTEM)
     if not txt:
         log.warning("Gemini gap-finder returned no text")

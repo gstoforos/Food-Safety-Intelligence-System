@@ -138,6 +138,60 @@ REGION_SPECS = [
 ]
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Primary-region weighting — Claude / OpenAI / Gemini / Tavily complement
+# instead of duplicating each other. Each AI is biased toward the region its
+# search backend handles best:
+#
+#   Claude (web_search via Anthropic) → AsiaPacific
+#       Strong English-language reasoning over CFS-HK, MFDS-KR, MHLW-JP,
+#       FSANZ, MPI-NZ pages. Anthropic's web_search returns clean snippets
+#       and Claude follows the citation trail well.
+#
+#   OpenAI (gpt-4o-mini-search-preview) → LATAM_ME_Africa
+#       Bing-backed search has the best coverage of ANVISA, COFEPRIS, ANMAT,
+#       SFDA, NAFDAC, NCC. Spanish/Portuguese pages index well in Bing.
+#
+#   Gemini (2.5 Flash + google_search) → Europe
+#       Google indexes EU regulator pages most completely (BVL, AESAN, AGES,
+#       RappelConso, BLV, EFET, ASAE, etc.) and handles multilingual content
+#       best. Free tier (1500 req/day) lets Gemini do the heaviest sweep.
+#
+#   Tavily (Tavily search + deterministic parsing) → NorthAmerica
+#       FDA / USDA-FSIS / CFIA are high-volume, structurally consistent
+#       English pages — Tavily's whitelisted-domain extractor handles them
+#       reliably without an LLM call.
+#
+# Each gap-finder still sweeps ALL four regions every run (so coverage is
+# global). The PRIMARY_REGION just (a) runs first, (b) gets a longer
+# Search-this-deeply banner injected in its prompt. Override at runtime
+# with --region <X> (single-region run) or --primary-region <X>.
+# ─────────────────────────────────────────────────────────────────────────────
+PRIMARY_REGION = os.getenv("GAP_PRIMARY_REGION", "AsiaPacific")
+
+
+def _primary_banner(primary: str) -> str:
+    """One-paragraph instruction injected at top of prompt when running
+    against the AI's primary region."""
+    return (
+        f"⚑ PRIMARY-REGION DEEP SWEEP — '{primary}' is your strongest region. "
+        f"Spend EXTRA effort here: open every regulator listing page, scroll "
+        f"the 'most recent' / 'press releases' section, and follow links into "
+        f"individual recall pages so you capture details (Date, Company, "
+        f"Brand, Product, Pathogen, full URL). Other regions still in scope "
+        f"but use lighter sweeps. ⚑\n\n"
+    )
+
+
+def _ordered_specs(primary: str) -> List[Dict[str, Any]]:
+    """REGION_SPECS reordered with the primary region first."""
+    primary_spec = next((s for s in REGION_SPECS if s["region"] == primary), None)
+    if not primary_spec:
+        return list(REGION_SPECS)
+    others = [s for s in REGION_SPECS if s["region"] != primary]
+    return [primary_spec] + others
+
+
 def _call_claude_web(prompt: str, system: str, max_tokens: int = 4096) -> str:
     """Claude Haiku 4.5 with web search — requests.post (proven approach)."""
     import requests as _req
@@ -183,7 +237,10 @@ def query_claude_for_gaps(since_days: int, region_filter: str = None) -> List[Di
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     all_recalls: List[Dict[str, Any]] = []
 
-    for i, spec in enumerate(REGION_SPECS):
+    primary = PRIMARY_REGION
+    specs = _ordered_specs(primary)
+
+    for i, spec in enumerate(specs):
         region = spec["region"]
         agencies = spec["agencies"]
 
@@ -191,12 +248,15 @@ def query_claude_for_gaps(since_days: int, region_filter: str = None) -> List[Di
         if region_filter and region != region_filter:
             continue
 
-        log.info("→ Region %s", region)
+        is_primary = (region == primary and not region_filter)
+        log.info("→ Region %s%s", region, "  [PRIMARY]" if is_primary else "")
 
         prompt = GAP_FINDER_PROMPT.format(
             since_days=since_days, today=today,
             region=region, agencies=agencies,
         )
+        if is_primary:
+            prompt = _primary_banner(primary) + prompt
 
         txt = _call_claude_web(prompt, system=GAP_FINDER_SYSTEM)
         if not txt:
