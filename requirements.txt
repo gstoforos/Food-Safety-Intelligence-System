@@ -28,6 +28,10 @@ tzdata>=2024.1
 # --- AI SDKs ---
 # Gemini 2.0 Flash — primary workhorse (scraping + enrichment)
 google-genai>=0.8.0
+# google-generativeai — older SDK with `tools=[{"google_search": {}}]` grounded
+# search support, used by url_gate_gemini, gap_finder_gemini, sunday_gemini_qa
+# and scrapers/_base.py. Different from google-genai (new SDK); both coexist.
+google-generativeai>=0.8.0
 
 # Claude Haiku 4.5 — Tier-1 QA, HTML fallback, URL gate, gap-finder
 anthropic>=0.40.0
