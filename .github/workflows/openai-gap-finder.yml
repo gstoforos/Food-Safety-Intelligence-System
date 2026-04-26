@@ -63,15 +63,21 @@ jobs:
           GIT_USER_EMAIL: "fsis-bot@advfood.tech"
           GIT_USER_NAME: "FSIS Bot"
         run: python -m pipeline.gap_finder_openai
-      - name: Claude URL Gate + Merge
+      - name: Gemini URL Gate + Merge
         if: steps.guard.outputs.run == 'true'
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
+          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
+          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GIT_USER_EMAIL: "fsis-bot@advfood.tech"
           GIT_USER_NAME: "FSIS Bot"
         run: |
-          python -m pipeline.url_gate_claude
+          python -m pipeline.url_gate_gemini
           python -m pipeline.merge_master
 
       - name: Summary
