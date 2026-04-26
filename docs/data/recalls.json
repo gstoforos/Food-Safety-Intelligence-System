@@ -48,6 +48,38 @@
     "Notes": "—  [via OpenAI daily 10:00 Athens search]"
   },
   {
+    "Date": "2026-04-24",
+    "Source": "BVL",
+    "Company": "Orienta Foods GmbH",
+    "Brand": "Rino",
+    "Product": "Rotes Chilipulver (Red Chili Powder), 250g and 500g packages",
+    "Pathogen": "Aflatoxin",
+    "Reason": "Aflatoxin exceedance",
+    "Class": "Recall",
+    "Country": "Germany",
+    "Region": "Europe",
+    "Tier": 3,
+    "Outbreak": 0,
+    "URL": "https://www.lebensmittelwarnung.de/bvl-blv-akt/index.do?ref=v4&view=details&id=BVW-2026-10499",
+    "Notes": "Mindesthaltbarkeitsdatum E2028/1/1 with Chargennummer P2026/1/2 mentioned in news reports.  [via Gemini gap-finder + Google Search]"
+  },
+  {
+    "Date": "2026-04-24",
+    "Source": "BVL (DE)",
+    "Company": "Orienta Foods GmbH",
+    "Brand": "—",
+    "Product": "Rotes Chilipulver der Marke Rino",
+    "Pathogen": "Aflatoxin",
+    "Reason": "Die Orienta Foods GmbH ruft Rotes Chilipulver der Marke Rino (250g und 500g Packungen, MHD E2028/1/1, Charge P2026/1/2) aufgrund von Aflatoxin-Kontamination zurück.",
+    "Class": "Recall",
+    "Country": "Germany",
+    "Region": "Europe",
+    "Tier": 3,
+    "Outbreak": 0,
+    "URL": "https://www.produktwarnung.eu/2026/04/24/rueckruf-aflatoxin-orienta-foods-ruft-rotes-chilipulver-der-marke-rino-zurueck/37845",
+    "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel"
+  },
+  {
     "Date": "2026-04-23",
     "Source": "BVL (DE)",
     "Company": "Green Box Limited",
@@ -160,6 +192,22 @@
     "Notes": "[via OpenAI daily 10:00 Athens search]"
   },
   {
+    "Date": "2026-04-23",
+    "Source": "BVL (DE)",
+    "Company": "Star Impex",
+    "Brand": "—",
+    "Product": "Crab Blue Swimming Cut U/10 12x1 China Casabor Krabben",
+    "Pathogen": "PFOA / PFAS",
+    "Reason": "Star Impex ruft Blaukrabben zurück, da aktuelle Labortests PFOA-Werte (Perfluoroctansäure) ergaben, die über dem Grenzwert liegen.",
+    "Class": "Recall",
+    "Country": "Germany",
+    "Region": "Europe",
+    "Tier": 3,
+    "Outbreak": 0,
+    "URL": "https://www.produktwarnung.eu/2026/04/23/rueckruf-pfoa-star-impex-ruft-blaukrabben-zurueck/37833",
+    "Notes": "[2026-04-26: Pathogen extracted from Reason text; cleared stale Claude-gate rejection] Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel"
+  },
+  {
     "Date": "2026-04-22",
     "Source": "FSAI (IE)",
     "Company": "Good4U",
@@ -190,6 +238,22 @@
     "Outbreak": 0,
     "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-20-2026",
     "Notes": "Specific batches recalled; FSAI also issued matching alert for Ireland on 2026-04-22"
+  },
+  {
+    "Date": "2026-04-21T00:00:00",
+    "Source": "CFIA",
+    "Company": "Various pistachios and pistachio-containing products",
+    "Brand": "Various pistachios and pistachio-containing products",
+    "Product": "Various pistachios and pistachio-containing products products",
+    "Pathogen": "Salmonella",
+    "Reason": "Salmonella",
+    "Class": "Recall",
+    "Country": "Canada",
+    "Region": "North America",
+    "Tier": 2,
+    "Outbreak": 0,
+    "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-pistachios-and-pistachio-containing-products-recalled-due-salmonella-6",
+    "Notes": "The affected products are being recalled from the marketplace due to possible Salmonella contamination.  [via Tavily gap-finder, deterministic extract]"
   },
   {
     "Date": "2026-04-21",
@@ -288,6 +352,22 @@
     "Notes": "Distributed in Ontario and Quebec; Products used primarily by hotels, restaurants and institutions; 10 affected lots; Class 2 recall"
   },
   {
+    "Date": "2026-04-21",
+    "Source": "BVL (DE)",
+    "Company": "Gourmet Celebi",
+    "Brand": "—",
+    "Product": "Pistaziencreme",
+    "Pathogen": "Salmonella spp.",
+    "Reason": "Akar ruft Gourmet Celebi Pistaziencreme (200g, MHD 23.12.2026) wegen Salmonellen zurück und rät vom Verzehr ab.",
+    "Class": "Recall",
+    "Country": "Germany",
+    "Region": "Europe",
+    "Tier": 3,
+    "Outbreak": 0,
+    "URL": "https://www.produktwarnung.eu/2026/04/21/rueckruf-salmonellen-in-gourmet-celebi-pistaziencreme/37809",
+    "Notes": "[2026-04-26: Pathogen extracted from Reason text; cleared stale Claude-gate rejection] Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel"
+  },
+  {
     "Date": "2026-04-20",
     "Source": "RappelConso (FR)",
     "Company": "NEUTRE PETIT PRIX",
@@ -366,6 +446,22 @@
     "Outbreak": 0,
     "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-19-2026-update-1",
     "Notes": "FSA-PRIN-19-2026 Update 1. Manually added Apr 22."
+  },
+  {
+    "Date": "2026-04-18T00:00:00",
+    "Source": "FSANZ",
+    "Company": "ALDI Stores",
+    "Brand": "ALDI Stores",
+    "Product": "Stonemill Sesame Seeds 60g",
+    "Pathogen": "Salmonella",
+    "Reason": "Salmonella",
+    "Class": "Recall",
+    "Country": "Australia",
+    "Region": "Oceania",
+    "Tier": 2,
+    "Outbreak": 0,
+    "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/aldi-stores-stonemill-sesame-seeds-60g",
+    "Notes": "The recall is due to contamination of the food product with Salmonella │ VIC, SA, WA.  [via Tavily gap-finder, deterministic extract]"
   },
   {
     "Date": "2026-04-18",
@@ -494,6 +590,22 @@
     "Outbreak": 0,
     "URL": "https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/southern-alp-sprouts-brand-alfalfa-and-onion-sprouts-and-pams-brand-onion-sprouts-combo-recalled-due-to-the-possible-presence-of-listeria-monocytogenes",
     "Notes": "MPI / NZ Food Safety. Best-before dates 21-23 Apr 2026. Removed from shelves; no illnesses reported. Not exported."
+  },
+  {
+    "Date": "2026-04-14T00:00:00",
+    "Source": "FSAI",
+    "Company": "Recall of various branded Bacon & Cabbage Dinners produced by Ballymaguire Foods",
+    "Brand": "Recall of various branded Bacon & Cabbage Dinners produced by Ballymaguire Foods",
+    "Product": "The below Bacon & Cabbage Dinners are being recalled due to the possible presence of Listeria monocytogenes",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "Listeria monocytogenes",
+    "Class": "Recall",
+    "Country": "Ireland",
+    "Region": "Europe",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-bacon-and-cabbage-dinner",
+    "Notes": "The below Bacon & Cabbage Dinners are being recalled due to the possible presence of Listeria monocytogenes. Recall notices will be displayed at point-of-sale.  [via Tavily gap-finder, deterministic extract]"
   },
   {
     "Date": "2026-04-14",
@@ -958,6 +1070,22 @@
     "Outbreak": 0,
     "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260410_12_HH_Suessware_Pistazie/260410_12_HH_Suessware_Pistazie_Meldung.html",
     "Notes": "Snack product; specific nature of foreign body not detailed [Gemini URL check 2026-04-26]: replaced news URL (https://www.produktwarnung.eu/2026/04/10/rueckruf-fremdkoerp...) with regulator URL"
+  },
+  {
+    "Date": "2026-04-09T00:00:00",
+    "Source": "FSAI",
+    "Company": "Recall of a batch of Pettitt's Cook at Home Basil & Pesto Chicken Fillets due to the presence of Salmonella",
+    "Brand": "Recall of a batch of Pettitt's Cook at Home Basil & Pesto Chicken Fillets due to the presence of Salmonella",
+    "Product": "Message: The above batch of Pettitt's Cook at Home Basil & Pesto Chicken Fillets is being recalled due to the presence of Salmonella.",
+    "Pathogen": "Salmonella",
+    "Reason": "Salmonella",
+    "Class": "Recall",
+    "Country": "Ireland",
+    "Region": "Europe",
+    "Tier": 2,
+    "Outbreak": 0,
+    "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-pettitt-s-basil-pesto-chicken",
+    "Notes": "Message: The above batch of Pettitt's Cook at Home Basil & Pesto Chicken Fillets is being recalled due to the presence of Salmonella.  [via Tavily gap-finder, deterministic extract]"
   },
   {
     "Date": "2026-04-09",
@@ -1792,6 +1920,22 @@
     "Notes": ""
   },
   {
+    "Date": "2026-04-04T00:00:00",
+    "Source": "FSAI",
+    "Company": "Recall of various batches of Brie Mariotte due to the possible presence of Listeria monocytogenes",
+    "Brand": "Recall of various batches of Brie Mariotte due to the possible presence of Listeria monocytogenes",
+    "Product": "Message: The below batches of Brie Mariotte are being recalled due to the possible presence of Listeria monocytogenes",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "Listeria monocytogenes",
+    "Class": "Recall",
+    "Country": "Ireland",
+    "Region": "Europe",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-batches-of-brie-mariotte",
+    "Notes": "Message: The below batches of Brie Mariotte are being recalled due to the possible presence of Listeria monocytogenes. Recall notices will  [via Tavily gap-finder, deterministic extract]"
+  },
+  {
     "Date": "2026-04-04",
     "Source": "CFIA",
     "Company": "Federated Co-operatives Ltd.",
@@ -1838,6 +1982,22 @@
     "Outbreak": 0,
     "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/835992",
     "Notes": "RASFF #2026.2930"
+  },
+  {
+    "Date": "2026-04-02T00:00:00",
+    "Source": "CFIA",
+    "Company": "Auricchio brand Taleggio D.O.P. Cheese",
+    "Brand": "Auricchio brand Taleggio D.O.P. Cheese",
+    "Product": "Auricchio brand Taleggio D.O.P. Cheese products",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "Listeria monocytogenes",
+    "Class": "Recall",
+    "Country": "Canada",
+    "Region": "North America",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://recalls-rappels.canada.ca/en/alert-recall/auricchio-brand-taleggio-dop-cheese-recalled-due-listeria-monocytogenes-1",
+    "Notes": "The affected product is being recalled from the marketplace due to possible Listeria monocytogenes contamination.  [via Tavily gap-finder, deterministic extract]"
   },
   {
     "Date": "2026-04-02",
@@ -1906,43 +2066,11 @@
   {
     "Date": "2026-04-02",
     "Source": "RASFF (EU)",
-    "Company": "Origin: Belgium | Distributed: Belgium",
-    "Brand": "—",
-    "Product": "Meat preparations",
-    "Pathogen": "Salmonella",
-    "Reason": "Salmonella in meat preparations from Belgium (Notification 2026.2863)",
-    "Class": "RASFF: alert notification",
-    "Country": "Belgium",
-    "Region": "Europe",
-    "Tier": 1,
-    "Outbreak": 0,
-    "URL": "https://webgate.ec.europa.eu/rasff-window/screen/list?consumer=5010",
-    "Notes": "[Gemini check 2026-04-26: added during manual recovery — verified against webgate.ec.europa.eu]"
-  },
-  {
-    "Date": "2026-04-02",
-    "Source": "RASFF (EU)",
     "Company": "Origin: Belgium, France | Distributed: Luxembourg",
     "Brand": "—",
     "Product": "Haché veau nature (Minced veal)",
     "Pathogen": "Listeria monocytogenes",
     "Reason": "Possible presence of Listeria monocytogenes in minced veal from Belgium and France (Notification 2026.2851)",
-    "Class": "RASFF: information notification for attention",
-    "Country": "Luxembourg",
-    "Region": "Europe",
-    "Tier": 1,
-    "Outbreak": 0,
-    "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/835307",
-    "Notes": "[Gemini check 2026-04-26: added during manual recovery — verified against webgate.ec.europa.eu]"
-  },
-  {
-    "Date": "2026-04-02",
-    "Source": "RASFF (EU)",
-    "Company": "Origin: Belgium, France | Distributed: Luxembourg",
-    "Brand": "—",
-    "Product": "Filet de poulet (Chicken fillet)",
-    "Pathogen": "Salmonella",
-    "Reason": "Possible presence of Salmonella in chicken fillet from Belgium and France (Notification 2026.2851)",
     "Class": "RASFF: information notification for attention",
     "Country": "Luxembourg",
     "Region": "Europe",
@@ -2016,6 +2144,22 @@
     "Notes": "[2026-04-26: Pathogen extracted from Reason text; cleared stale Claude-gate rejection] Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html"
   },
   {
+    "Date": "2026-04-01",
+    "Source": "MSP (UY)",
+    "Company": "Ministerio de Salud Pública (MSP) Uruguay",
+    "Brand": "—",
+    "Product": "Hongos silvestres (Wild mushrooms)",
+    "Pathogen": "Marine biotoxin",
+    "Reason": "El Ministerio de Salud Pública (MSP) refuerza las recomendaciones para prevenir intoxicaciones por hongos ante el inicio de la temporada de recolección de hongos silvestres.",
+    "Class": "Recall",
+    "Country": "Uruguay",
+    "Region": "Latin America",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://www.gub.uy/ministerio-salud-publica/comunicacion/noticias/ante-inicio-temporada-recoleccion-hongos-msp-refuerza-recomendaciones-para",
+    "Notes": "Gemini/es from https://www.gub.uy/ministerio-salud-publica/comunicacion/noticias"
+  },
+  {
     "Date": "2026-03-31",
     "Source": "AESAN (ES)",
     "Company": "Skandia (initial)",
@@ -2078,6 +2222,22 @@
     "Outbreak": 0,
     "URL": "https://recalls-rappels.canada.ca/en/alert-recall/auricchio-brand-gorgonzola-dop-dolce-recalled-due-listeria-monocytogenes",
     "Notes": "ON/QC"
+  },
+  {
+    "Date": "2026-03-28T00:00:00",
+    "Source": "FSAI",
+    "Company": "Recall of various branded Goat's Cheese products due to the possible presence of Listeria monocytogenes",
+    "Brand": "Recall of various branded Goat's Cheese products due to the possible presence of Listeria monocytogenes",
+    "Product": "Message: The below batches of goat's cheese are being recalled due to the possible presence of Listeria monocytogenes",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "Listeria monocytogenes",
+    "Class": "Recall",
+    "Country": "Ireland",
+    "Region": "Europe",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-branded-goat-s-cheese-products",
+    "Notes": "Message: The below batches of goat's cheese are being recalled due to the possible presence of Listeria monocytogenes. Recall notices will  [via Tavily gap-finder, deterministic extract]"
   },
   {
     "Date": "2026-03-27",
@@ -2206,6 +2366,22 @@
     "Outbreak": 0,
     "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/rueckrufe/rr-tkraeuter.pdf.download.pdf/DE%208-Kr%C3%A4uter-Mixer%20POS.pdf",
     "Notes": "Tiefgekühltes Produkt; Rückruf vom 26.03.2026"
+  },
+  {
+    "Date": "2026-03-25T00:00:00",
+    "Source": "FSA",
+    "Company": "Gilbert’s",
+    "Brand": "Gilbert’s",
+    "Product": "Turkey Breast Pastrami",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "Listeria monocytogenes",
+    "Class": "Recall",
+    "Country": "United Kingdom",
+    "Region": "Europe",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-14-2026",
+    "Notes": "The presence of Listeria monocytogenes in the product listed above. Symptoms caused by Listeria monocytogenes can be similar to flu and  [via Tavily gap-finder, deterministic extract]"
   },
   {
     "Date": "2026-03-25",
@@ -2622,6 +2798,22 @@
     "Outbreak": 0,
     "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_1.pdf",
     "Notes": "HK CFS FISS notification"
+  },
+  {
+    "Date": "2026-03-16T00:00:00",
+    "Source": "CFIA",
+    "Company": "Various pistachio-containing products",
+    "Brand": "Various pistachio-containing products",
+    "Product": "Various pistachio-containing products products",
+    "Pathogen": "Salmonella",
+    "Reason": "Salmonella",
+    "Class": "Recall",
+    "Country": "Canada",
+    "Region": "North America",
+    "Tier": 2,
+    "Outbreak": 0,
+    "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-pistachio-containing-products-recalled-due-salmonella-3",
+    "Notes": "The affected products are being recalled from the marketplace due to possible Salmonella contamination. This recall is linked to an ongoing  [via Tavily gap-finder, deterministic extract]"
   },
   {
     "Date": "2026-03-16",
