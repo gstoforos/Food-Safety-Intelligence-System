@@ -48,6 +48,22 @@
   "Notes": "—  [via OpenAI daily 10:00 Athens search]"
  },
  {
+  "Date": "2026-04-24",
+  "Source": "BVL",
+  "Company": "Orienta Foods GmbH",
+  "Brand": "Rino",
+  "Product": "Rotes Chilipulver (Red Chili Powder), 250g and 500g packages",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Aflatoxin exceedance",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.lebensmittelwarnung.de/bvl-blv-akt/index.do?ref=v4&view=details&id=BVW-2026-10499",
+  "Notes": "Mindesthaltbarkeitsdatum E2028/1/1 with Chargennummer P2026/1/2 mentioned in news reports.  [via Gemini gap-finder + Google Search]"
+ },
+ {
   "Date": "2026-04-23",
   "Source": "BVL (DE)",
   "Company": "Green Box Limited",
