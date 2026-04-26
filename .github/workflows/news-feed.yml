@@ -62,20 +62,22 @@ jobs:
           COMMIT_MSG="auto news update + 7d purge $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M Athens')"
           git commit -m "$COMMIT_MSG"
 
-          # Binary-safe push retry
+          # Safe push retry — row-level union merge instead of binary overwrite
+          # (so manual operator uploads or other workflows don't get clobbered)
           for attempt in 1 2 3; do
             if git push; then
               echo "Push succeeded on attempt $attempt."
               exit 0
             fi
-            echo "Push attempt $attempt failed — binary-safe retry..."
+            echo "Push attempt $attempt failed — safe row-level merge retry..."
             cp docs/data/recalls.xlsx /tmp/our-recalls.xlsx
             git reset --hard HEAD~1
             git pull --ff-only origin main || git pull origin main
-            cp /tmp/our-recalls.xlsx docs/data/recalls.xlsx
+            python -m pipeline.xlsx_merge \
+              docs/data/recalls.xlsx /tmp/our-recalls.xlsx docs/data/recalls.xlsx
             git add docs/data/recalls.xlsx
             if ! git diff --staged --quiet; then
-              git commit -m "$COMMIT_MSG (retry $attempt)"
+              git commit -m "$COMMIT_MSG (retry $attempt, row-merged)"
             fi
             sleep $((attempt * 3))
           done

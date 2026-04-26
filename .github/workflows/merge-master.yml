@@ -63,23 +63,31 @@ jobs:
           COMMIT_MSG="chore(data): hourly Pending→Recalls merge $(TZ=Europe/Athens date +%H:%M)"
           git commit -m "$COMMIT_MSG"
 
-          # Binary-safe push retry: git rebase cannot handle xlsx, so on
-          # failure we save our files, pull remote, restore ours, re-commit.
+          # Safe push retry — row-level union merge instead of binary overwrite.
+          # (Old "binary-safe retry" silently destroyed remote rows that were
+          # added between our checkout and our push, e.g. an operator's
+          # manual recalls.xlsx upload.)
           for attempt in 1 2 3; do
             if git push; then
               echo "Push succeeded on attempt $attempt."
               exit 0
             fi
-            echo "Push attempt $attempt failed — binary-safe retry..."
+            echo "Push attempt $attempt failed — safe row-level merge retry..."
             cp docs/data/recalls.xlsx /tmp/our-recalls.xlsx
-            cp docs/data/recalls.json /tmp/our-recalls.json 2>/dev/null || true
             git reset --hard HEAD~1
             git pull --ff-only origin main || git pull origin main
-            cp /tmp/our-recalls.xlsx docs/data/recalls.xlsx
-            cp /tmp/our-recalls.json docs/data/recalls.json 2>/dev/null || true
+            # Union our just-merged xlsx with the freshly-pulled remote
+            python -m pipeline.xlsx_merge \
+              docs/data/recalls.xlsx /tmp/our-recalls.xlsx docs/data/recalls.xlsx
+            # Regenerate the json mirror from the merged xlsx
+            python -c "from pathlib import Path; \
+                       from pipeline.merge_master import mirror_json_from_xlsx; \
+                       mirror_json_from_xlsx(Path('docs/data/recalls.xlsx'), \
+                                              Path('docs/data/recalls.json'))" \
+              || echo "(json regen warning; continuing)"
             git add docs/data/recalls.xlsx docs/data/recalls.json || true
             if ! git diff --staged --quiet; then
-              git commit -m "$COMMIT_MSG (retry $attempt)"
+              git commit -m "$COMMIT_MSG (retry $attempt, row-merged)"
             fi
             sleep $((attempt * 3))
           done
