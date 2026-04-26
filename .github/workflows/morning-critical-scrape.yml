@@ -66,20 +66,8 @@ jobs:
       - name: Run critical-12 subset scrape
         if: steps.guard.outputs.run == 'true'
         env:
-          # Gemini: singular (current AFTS setup) + numbered slots for future rotation.
           GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
-          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
-          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
           OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
-          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
-          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
-          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
           GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
           AGENCIES_FILTER: "FDA,USDA FSIS,CFIA,RASFF (EU),FSA (UK),RappelConso (FR),BVL (DE),AESAN (ES),AGES (AT),FSANZ (AU),MPI (NZ),EFET (GR)"
           SINCE_DAYS:  ${{ github.event.inputs.since_days || '7' }}
