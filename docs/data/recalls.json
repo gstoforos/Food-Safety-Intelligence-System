@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-04-25",
+  "Source": "CFS",
+  "Company": "Baby HK",
+  "Brand": "Aptamil",
+  "Product": "Profutura DUO Pre D (800g)",
+  "Pathogen": "Bacillus cereus",
+  "Reason": "Possible contamination with heat-stable toxin",
+  "Class": "Recall",
+  "Country": "Hong Kong",
+  "Region": "Asia",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.thestandard.com.hk/news/article/323522/CFS-recalls-Aptamil-baby-formula-over-possible-bacteria-toxin",
+  "Notes": "Recall initiated due to potential Bacillus cereus contamination.  [via OpenAI daily 10:00 Athens search]"
+ },
+ {
   "Date": "2026-04-24",
   "Source": "BVL (DE)",
   "Company": "Rino",
@@ -14,6 +30,22 @@
   "Outbreak": 0,
   "URL": "https://www.produktwarnung.eu/2026/04/24/rueckruf-aflatoxin-orienta-foods-ruft-rotes-chilipulver-der-marke-rino-zurueck/37845",
   "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel"
+ },
+ {
+  "Date": "2026-04-24",
+  "Source": "RappelConso (FR)",
+  "Company": "—",
+  "Brand": "—",
+  "Product": "Fromage de Chèvre Fermier",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Risques microbiologiques",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/46550/Rapex",
+  "Notes": "No brand specified, no lot codes provided.  [via OpenAI daily 10:00 Athens search]"
  },
  {
   "Date": "2026-04-23",
