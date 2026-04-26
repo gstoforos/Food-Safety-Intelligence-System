@@ -1,5 +1,5 @@
 """
-Sunday Gemini QA — weekly deep audit of the Recalls sheet.
+Sunday Gemini QA — weekly deep audit of the Recalls + Pending sheets.
 
 Replaces sunday_claude_qa.py. Claude was pattern-matching from training data
 and hallucinating fiche IDs. Gemini 2.5 Flash with native Google Search
@@ -8,14 +8,16 @@ appeared in a search result.
 
 Runs every Sunday 23:00 Athens via FsisScheduler dispatch.
 
-THREE-LAYER AUDIT
-=================
+THREE-LAYER AUDIT + INTEGRITY CHECKS
+=====================================
 
 Layer 1 — Deterministic fixes (no AI, no cost):
   • Country → Region normalization to canonical 6-region taxonomy
   • Pathogen → Tier consistency (STEC/Listeria/Botulinum/cereulide → Tier-1)
   • Missing Company / placeholder fills for known multi-producer alerts
   • Auto-append /Interne to RappelConso URLs missing it
+  • Duplicate URL detection (full sheet scan)
+  • Dead URL detection (HTTP HEAD check, audit window)
 
 Layer 2 — API pre-pass via regulator_apis.py (no AI, no cost):
   • Every France row with /categorie/ → query RappelConso open-data API for
@@ -30,11 +32,30 @@ Layer 3 — Gemini AI verification with Google Search grounding (paid):
       Rule 3 — USA FDA/FSIS + Ireland FSAI: DO NOT TOUCH truncated URLs
       Rule 4 — Others: verify, don't aggressive-rewrite
 
+Pending Sheet Audit:
+  • Dead URL removal (HTTP HEAD → 4xx/5xx or timeout)
+  • Stale entry removal (>14 days old, never promoted)
+
 OUTPUTS
 =======
-  • Deterministic + API fixes applied IN-PLACE to docs/data/recalls.xlsx
+  • BEFORE snapshot saved to docs/data/recalls_BEFORE_qa.xlsx
+  • Deterministic + API + AI fixes applied IN-PLACE to docs/data/recalls.xlsx
+  • QA Summary sheet added to the AFTER workbook (first tab)
   • Markdown QA report committed to docs/data/sunday-qa/<date>.md
+  • Email to George with BEFORE + AFTER Excel attachments
   • Git commit + push at end
+
+EMAIL SETUP
+===========
+  Requires two GitHub secrets:
+    GMAIL_USER         = georgestof@gmail.com
+    GMAIL_APP_PASSWORD = <16-char app password from Google>
+
+  To create the App Password:
+    1. Go to https://myaccount.google.com/apppasswords
+    2. Select "Mail" and "Other (FSIS Bot)"
+    3. Copy the 16-character password
+    4. Add as GMAIL_APP_PASSWORD secret in GitHub repo settings
 
 COST
 ====
@@ -46,9 +67,13 @@ INVOCATION
   python -m pipeline.sunday_gemini_qa
   python -m pipeline.sunday_gemini_qa --days 30
   python -m pipeline.sunday_gemini_qa --dry-run
-  python -m pipeline.sunday_gemini_qa --no-ai     # deterministic only
+  python -m pipeline.sunday_gemini_qa --no-ai       # deterministic only
+  python -m pipeline.sunday_gemini_qa --no-email     # skip email
 
 Disabled cleanly when no GEMINI_API_KEY env var is present.
+
+SDK: google-genai (new unified SDK, replaces deprecated google.generativeai).
+     Install: pip install google-genai
 """
 from __future__ import annotations
 import argparse
@@ -64,6 +89,13 @@ from typing import List, Dict, Any, Optional, Tuple
 
 import openpyxl
 import requests
+
+from copy import copy as _copy_cell_style
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email import encoders
+import smtplib
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -86,6 +118,10 @@ QA_DIR = ROOT / "docs" / "data" / "sunday-qa"
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 DEFAULT_AUDIT_DAYS = 14
+QA_EMAIL_TO = os.getenv("QA_EMAIL_TO", "georgestof@gmail.com")
+
+# Dead-URL check timeout (seconds)
+URL_CHECK_TIMEOUT = 10
 
 # Canonical FSIS taxonomy (per User Guide § Daily briefs)
 CANONICAL_REGIONS = {
@@ -271,52 +307,50 @@ def _call_gemini_grounded(prompt: str, system: str,
                            max_tokens: int = 4000) -> Optional[str]:
     """Single Gemini call with Google Search grounding. Returns text or None."""
     try:
-        import google.generativeai as genai  # type: ignore
+        from google import genai  # type: ignore
+        from google.genai import types  # type: ignore
     except ImportError:
-        log.warning("google-generativeai not installed; Gemini QA disabled")
+        log.warning("google-genai not installed; Gemini QA disabled")
         return None
 
     keys = _collect_gemini_keys()
     if not keys:
         return None
 
-    tool_configs = [
-        [{"google_search": {}}],
-        [{"google_search_retrieval": {}}],
-        "google_search_retrieval",
-    ]
-
     last_error: Optional[Exception] = None
     for api_key in keys:
-        for tool_cfg in tool_configs:
-            try:
-                genai.configure(api_key=api_key)
-                model = genai.GenerativeModel(
-                    GEMINI_MODEL, system_instruction=system,
-                )
-                resp = model.generate_content(
-                    prompt,
-                    tools=tool_cfg,
-                    generation_config={"max_output_tokens": max_tokens,
-                                       "temperature": 0.1},
-                )
-                text = (getattr(resp, "text", None) or "").strip()
-                if text:
-                    try:
-                        gm = resp.candidates[0].grounding_metadata
-                        queries = getattr(gm, "web_search_queries", []) or []
-                        if queries:
-                            log.debug("Gemini ran %d Google searches",
-                                      len(queries))
-                    except Exception:
-                        pass
-                    return text
-            except Exception as exc:  # noqa: BLE001
-                last_error = exc
-                log.debug("Gemini attempt failed: %s", str(exc)[:150])
-                continue
+        try:
+            client = genai.Client(api_key=api_key)
+            config = types.GenerateContentConfig(
+                system_instruction=system,
+                tools=[types.Tool(google_search=types.GoogleSearch())],
+                max_output_tokens=max_tokens,
+                temperature=0.1,
+            )
+            resp = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt,
+                config=config,
+            )
+            text = (resp.text or "").strip()
+            if text:
+                try:
+                    if hasattr(resp, 'candidates') and resp.candidates:
+                        gm = getattr(resp.candidates[0], 'grounding_metadata', None)
+                        if gm:
+                            queries = getattr(gm, 'web_search_queries', []) or []
+                            if queries:
+                                log.debug("Gemini ran %d Google searches",
+                                          len(queries))
+                except Exception:
+                    pass
+                return text
+        except Exception as exc:  # noqa: BLE001
+            last_error = exc
+            log.debug("Gemini attempt failed: %s", str(exc)[:150])
+            continue
 
-    log.warning("Gemini QA: all keys/configs failed. Last error: %s", last_error)
+    log.warning("Gemini QA: all keys failed. Last error: %s", last_error)
     return None
 
 
@@ -461,6 +495,366 @@ def gemini_audit_row(row: Dict[str, Any]) -> Dict[str, Any]:
 
 
 # ───────────────────────────────────────────────────────────────────────
+# Layer 1.E: Duplicate URL detection
+# ───────────────────────────────────────────────────────────────────────
+def find_duplicate_urls(ws, headers: Dict[str, int]) -> List[Dict[str, Any]]:
+    """Find rows with duplicate URLs in the Recalls sheet."""
+    url_col = headers.get("URL")
+    if not url_col:
+        return []
+    seen: Dict[str, int] = {}   # url → first row
+    dupes: List[Dict[str, Any]] = []
+    for r in range(2, ws.max_row + 1):
+        url = str(ws.cell(r, url_col).value or "").strip()
+        if not url or not url.startswith("http"):
+            continue
+        # Normalise: strip trailing slash, lowercase
+        norm = url.rstrip("/").lower()
+        if norm in seen:
+            dupes.append({
+                "row": r, "first_row": seen[norm],
+                "url": url,
+                "date": str(ws.cell(r, headers.get("Date", 1)).value or ""),
+                "company": str(ws.cell(r, headers.get("Company", 1)).value or "")[:40],
+            })
+        else:
+            seen[norm] = r
+    return dupes
+
+
+# ───────────────────────────────────────────────────────────────────────
+# Layer 1.F: Dead URL detection (HTTP HEAD check)
+# ───────────────────────────────────────────────────────────────────────
+def check_dead_urls(ws, headers: Dict[str, int],
+                    rows_in_window: List[Tuple[int, Dict[str, Any]]]
+                    ) -> List[Dict[str, Any]]:
+    """HEAD-check URLs in the audit window. Returns list of dead entries."""
+    dead: List[Dict[str, Any]] = []
+    for r, row in rows_in_window:
+        url = str(row.get("URL") or "").strip()
+        if not url or not url.startswith("http"):
+            continue
+        try:
+            resp = requests.head(url, timeout=URL_CHECK_TIMEOUT,
+                                 allow_redirects=True,
+                                 headers={"User-Agent": "FSIS-QA-Bot/1.0"})
+            if resp.status_code >= 400:
+                dead.append({
+                    "row": r, "url": url, "status": resp.status_code,
+                    "date": str(row.get("Date") or ""),
+                    "company": str(row.get("Company") or "")[:40],
+                })
+        except requests.RequestException as e:
+            dead.append({
+                "row": r, "url": url, "status": str(e)[:80],
+                "date": str(row.get("Date") or ""),
+                "company": str(row.get("Company") or "")[:40],
+            })
+    return dead
+
+
+# ───────────────────────────────────────────────────────────────────────
+# Pending sheet audit — promote valid, delete garbage
+# ───────────────────────────────────────────────────────────────────────
+def audit_pending(wb: openpyxl.Workbook, dry_run: bool = False
+                  ) -> Dict[str, Any]:
+    """Audit the Pending sheet: check URLs, remove stale/dead entries."""
+    if "Pending" not in wb.sheetnames:
+        return {"checked": 0, "dead_removed": 0, "stale_removed": 0}
+
+    ws = wb["Pending"]
+    if ws.max_row < 2:
+        return {"checked": 0, "dead_removed": 0, "stale_removed": 0}
+
+    H = {ws.cell(1, c).value: c for c in range(1, ws.max_column + 1)}
+    url_col = H.get("URL")
+    date_col = H.get("Date")
+
+    # Walk from bottom to top so row deletion doesn't shift indices
+    rows_to_delete: List[Tuple[int, str]] = []
+    checked = 0
+    cutoff_stale = (date.today() - timedelta(days=14)).isoformat()
+
+    for r in range(ws.max_row, 1, -1):
+        checked += 1
+        url = str(ws.cell(r, url_col).value or "").strip() if url_col else ""
+        row_date = str(ws.cell(r, date_col).value or "") if date_col else ""
+
+        # Check stale (>14 days old, never promoted)
+        if row_date and row_date < cutoff_stale:
+            rows_to_delete.append((r, "stale>14d"))
+            continue
+
+        # Check dead URL
+        if url and url.startswith("http"):
+            try:
+                resp = requests.head(url, timeout=URL_CHECK_TIMEOUT,
+                                     allow_redirects=True,
+                                     headers={"User-Agent": "FSIS-QA-Bot/1.0"})
+                if resp.status_code >= 400:
+                    rows_to_delete.append((r, f"dead_url_{resp.status_code}"))
+            except requests.RequestException:
+                rows_to_delete.append((r, "dead_url_timeout"))
+
+    dead_count = sum(1 for _, reason in rows_to_delete if "dead" in reason)
+    stale_count = sum(1 for _, reason in rows_to_delete if "stale" in reason)
+
+    if not dry_run:
+        for r, reason in rows_to_delete:
+            log.info("Pending: deleting row %d (%s)", r, reason)
+            ws.delete_rows(r, 1)
+
+    return {"checked": checked, "dead_removed": dead_count,
+            "stale_removed": stale_count,
+            "details": [(r, reason) for r, reason in rows_to_delete]}
+
+
+# ───────────────────────────────────────────────────────────────────────
+# Summary sheet builder — adds a "QA Summary" sheet to the workbook
+# ───────────────────────────────────────────────────────────────────────
+def add_summary_sheet(wb: openpyxl.Workbook, summary: Dict[str, Any],
+                      findings: List[Dict], ai_flags: List[Dict],
+                      duplicate_urls: List[Dict], dead_urls: List[Dict],
+                      pending_result: Dict[str, Any]) -> None:
+    """Add a QA Summary sheet to the workbook with all audit results."""
+    if "QA Summary" in wb.sheetnames:
+        del wb["QA Summary"]
+    ws = wb.create_sheet("QA Summary", 0)  # first position
+
+    row = 1
+    # Title
+    ws.cell(row, 1, f"Sunday QA Report — {summary.get('audit_date', '')}")
+    ws.cell(row, 1).font = openpyxl.styles.Font(bold=True, size=14)
+    row += 2
+
+    # Overview
+    for label, val in [
+        ("Audit window (days)", summary.get("audit_days", 14)),
+        ("Engine", "Gemini 2.5 Flash + Google Search grounding"),
+        ("Total fixes applied", len(findings)),
+        ("AI flags (manual review)", len(ai_flags)),
+        ("Duplicate URLs found", len(duplicate_urls)),
+        ("Dead URLs found", len(dead_urls)),
+        ("Pending rows checked", pending_result.get("checked", 0)),
+        ("Pending dead removed", pending_result.get("dead_removed", 0)),
+        ("Pending stale removed", pending_result.get("stale_removed", 0)),
+    ]:
+        ws.cell(row, 1, label)
+        ws.cell(row, 1).font = openpyxl.styles.Font(bold=True)
+        ws.cell(row, 2, val)
+        row += 1
+
+    # Layer breakdown
+    row += 1
+    det = summary.get("deterministic_fixes", {})
+    ws.cell(row, 1, "Layer 1 — Deterministic")
+    ws.cell(row, 1).font = openpyxl.styles.Font(bold=True, size=12)
+    row += 1
+    for k, v in det.items():
+        ws.cell(row, 1, f"  {k}")
+        ws.cell(row, 2, v)
+        row += 1
+
+    row += 1
+    ws.cell(row, 1, "Layer 2 — API pre-pass")
+    ws.cell(row, 1).font = openpyxl.styles.Font(bold=True, size=12)
+    row += 1
+    ws.cell(row, 1, "  URL fixes")
+    ws.cell(row, 2, summary.get("api_fixes", 0))
+    row += 2
+
+    ws.cell(row, 1, "Layer 3 — Gemini verified")
+    ws.cell(row, 1).font = openpyxl.styles.Font(bold=True, size=12)
+    row += 1
+    ws.cell(row, 1, "  URL fixes")
+    ws.cell(row, 2, summary.get("gemini_url_fixes", 0))
+    row += 2
+
+    # Fixes table
+    if findings:
+        ws.cell(row, 1, "ALL APPLIED FIXES")
+        ws.cell(row, 1).font = openpyxl.styles.Font(bold=True, size=12)
+        row += 1
+        for c, h in enumerate(["Row", "Date", "Field", "Old", "New", "Kind"], 1):
+            ws.cell(row, c, h)
+            ws.cell(row, c).font = openpyxl.styles.Font(bold=True)
+        row += 1
+        for f in findings:
+            ws.cell(row, 1, f.get("row"))
+            ws.cell(row, 2, str(f.get("date", ""))[:10])
+            ws.cell(row, 3, f.get("field"))
+            ws.cell(row, 4, str(f.get("old", ""))[:80])
+            ws.cell(row, 5, str(f.get("new", ""))[:80])
+            ws.cell(row, 6, f.get("kind"))
+            row += 1
+        row += 1
+
+    # Duplicate URLs
+    if duplicate_urls:
+        ws.cell(row, 1, "DUPLICATE URLs")
+        ws.cell(row, 1).font = openpyxl.styles.Font(bold=True, size=12,
+                                                      color="FF0000")
+        row += 1
+        for c, h in enumerate(["Row", "First Row", "URL", "Date", "Company"], 1):
+            ws.cell(row, c, h)
+            ws.cell(row, c).font = openpyxl.styles.Font(bold=True)
+        row += 1
+        for d in duplicate_urls:
+            ws.cell(row, 1, d["row"])
+            ws.cell(row, 2, d["first_row"])
+            ws.cell(row, 3, d["url"][:80])
+            ws.cell(row, 4, d.get("date", ""))
+            ws.cell(row, 5, d.get("company", ""))
+            row += 1
+        row += 1
+
+    # Dead URLs
+    if dead_urls:
+        ws.cell(row, 1, "DEAD URLs")
+        ws.cell(row, 1).font = openpyxl.styles.Font(bold=True, size=12,
+                                                      color="FF0000")
+        row += 1
+        for c, h in enumerate(["Row", "URL", "Status", "Date", "Company"], 1):
+            ws.cell(row, c, h)
+            ws.cell(row, c).font = openpyxl.styles.Font(bold=True)
+        row += 1
+        for d in dead_urls:
+            ws.cell(row, 1, d["row"])
+            ws.cell(row, 2, d["url"][:80])
+            ws.cell(row, 3, str(d["status"]))
+            ws.cell(row, 4, d.get("date", ""))
+            ws.cell(row, 5, d.get("company", ""))
+            row += 1
+        row += 1
+
+    # AI flags
+    if ai_flags:
+        ws.cell(row, 1, "AI FLAGS (manual review needed)")
+        ws.cell(row, 1).font = openpyxl.styles.Font(bold=True, size=12,
+                                                      color="FF8800")
+        row += 1
+        for c, h in enumerate(["Row", "Date", "Company", "Issues", "Confidence"], 1):
+            ws.cell(row, c, h)
+            ws.cell(row, c).font = openpyxl.styles.Font(bold=True)
+        row += 1
+        for f in ai_flags:
+            ws.cell(row, 1, f["row"])
+            ws.cell(row, 2, f.get("date", ""))
+            ws.cell(row, 3, f.get("company", ""))
+            ws.cell(row, 4, "; ".join(f.get("issues", []))[:100])
+            ws.cell(row, 5, f"{f.get('confidence', 0):.2f}")
+            row += 1
+
+    # Pending audit
+    if pending_result.get("details"):
+        row += 1
+        ws.cell(row, 1, "PENDING SHEET CLEANUP")
+        ws.cell(row, 1).font = openpyxl.styles.Font(bold=True, size=12)
+        row += 1
+        for c, h in enumerate(["Row", "Reason"], 1):
+            ws.cell(row, c, h)
+            ws.cell(row, c).font = openpyxl.styles.Font(bold=True)
+        row += 1
+        for pr, reason in pending_result["details"]:
+            ws.cell(row, 1, pr)
+            ws.cell(row, 2, reason)
+            row += 1
+
+    # Auto-size column A
+    ws.column_dimensions["A"].width = 30
+    ws.column_dimensions["B"].width = 20
+    ws.column_dimensions["C"].width = 15
+    ws.column_dimensions["D"].width = 60
+    ws.column_dimensions["E"].width = 60
+    ws.column_dimensions["F"].width = 20
+
+
+# ───────────────────────────────────────────────────────────────────────
+# Email sender — BEFORE + AFTER xlsx to George
+# ───────────────────────────────────────────────────────────────────────
+def send_qa_email(before_path: Path, after_path: Path,
+                  summary: Dict[str, Any]) -> bool:
+    """Send QA email via Gmail SMTP with BEFORE/AFTER Excel attachments.
+
+    Requires secrets: GMAIL_USER + GMAIL_APP_PASSWORD.
+    Returns True on success, False otherwise.
+    """
+    gmail_user = os.getenv("GMAIL_USER", "")
+    gmail_pass = os.getenv("GMAIL_APP_PASSWORD", "")
+    if not gmail_user or not gmail_pass:
+        log.warning("GMAIL_USER / GMAIL_APP_PASSWORD not set — email skipped. "
+                     "Set these GitHub secrets to enable QA email.")
+        return False
+
+    to_addr = QA_EMAIL_TO
+    audit_date = summary.get("audit_date", date.today().isoformat())
+    det = summary.get("deterministic_fixes", {})
+    total_fixes = (sum(det.values()) + summary.get("api_fixes", 0)
+                   + summary.get("gemini_url_fixes", 0))
+    flags = summary.get("ai_flags", 0)
+    dupes = summary.get("duplicate_urls", 0)
+    dead = summary.get("dead_urls", 0)
+    pend = summary.get("pending_result", {})
+
+    subject = (f"FSIS Sunday QA — {audit_date} | "
+               f"{total_fixes} fixes, {flags} flags, "
+               f"{dupes} dupes, {dead} dead")
+
+    body = f"""FSIS Sunday QA Report — {audit_date}
+{'=' * 50}
+
+Fixes Applied:     {total_fixes}
+  Region:          {det.get('region', 0)}
+  Tier:            {det.get('tier', 0)}
+  /Interne:        {det.get('interne_appended', 0)}
+  API pre-pass:    {summary.get('api_fixes', 0)}
+  Gemini verified: {summary.get('gemini_url_fixes', 0)}
+
+AI Flags:          {flags} (need manual review)
+Duplicate URLs:    {dupes}
+Dead URLs:         {dead}
+
+Pending Sheet:
+  Checked:         {pend.get('checked', 0)}
+  Dead removed:    {pend.get('dead_removed', 0)}
+  Stale removed:   {pend.get('stale_removed', 0)}
+
+Attached:
+  • recalls_BEFORE.xlsx — snapshot before changes
+  • recalls_AFTER.xlsx  — with all fixes + QA Summary sheet
+
+— FSIS Bot (pipeline.sunday_gemini_qa)
+"""
+
+    msg = MIMEMultipart()
+    msg["From"] = gmail_user
+    msg["To"] = to_addr
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain"))
+
+    for fpath, fname in [(before_path, f"recalls_BEFORE_{audit_date}.xlsx"),
+                          (after_path, f"recalls_AFTER_{audit_date}.xlsx")]:
+        if fpath.exists():
+            with open(fpath, "rb") as fp:
+                part = MIMEBase("application", "octet-stream")
+                part.set_payload(fp.read())
+                encoders.encode_base64(part)
+                part.add_header("Content-Disposition",
+                                f"attachment; filename={fname}")
+                msg.attach(part)
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(gmail_user, gmail_pass)
+            server.sendmail(gmail_user, [to_addr], msg.as_string())
+        log.info("QA email sent to %s", to_addr)
+        return True
+    except Exception as exc:
+        log.error("QA email failed: %s", exc)
+        return False
+
+
+# ───────────────────────────────────────────────────────────────────────
 # Main audit loop
 # ───────────────────────────────────────────────────────────────────────
 def audit(days: int = DEFAULT_AUDIT_DAYS, dry_run: bool = False,
@@ -469,6 +863,12 @@ def audit(days: int = DEFAULT_AUDIT_DAYS, dry_run: bool = False,
     if not XLSX_PATH.exists():
         log.error("Recalls file missing: %s", XLSX_PATH)
         return {"error": "no xlsx"}
+
+    # ── Save BEFORE snapshot ──────────────────────────────────────────
+    before_path = XLSX_PATH.parent / "recalls_BEFORE_qa.xlsx"
+    import shutil
+    shutil.copy2(XLSX_PATH, before_path)
+    log.info("Saved BEFORE snapshot: %s", before_path)
 
     wb = openpyxl.load_workbook(XLSX_PATH)
     ws = wb["Recalls"]
@@ -482,6 +882,14 @@ def audit(days: int = DEFAULT_AUDIT_DAYS, dry_run: bool = False,
                  "interne_appended": 0}
     api_fixes_count = 0
     ai_flags: List[Dict[str, Any]] = []
+
+    # ── Layer 1.E: Duplicate URL detection (full sheet) ───────────────
+    duplicate_urls = find_duplicate_urls(ws, H)
+    if duplicate_urls:
+        log.info("Found %d duplicate URLs", len(duplicate_urls))
+        for d in duplicate_urls:
+            log.info("  Duplicate: row %d = row %d (%s)",
+                     d["row"], d["first_row"], d["url"][:60])
 
     # ── Layer 1+2: Deterministic + API pre-pass ─────────────────────────
     try:
@@ -636,6 +1044,20 @@ def audit(days: int = DEFAULT_AUDIT_DAYS, dry_run: bool = False,
                         "confidence": confidence,
                     })
 
+    # ── Layer 1.F: Dead URL check (audit window only) ───────────────────
+    dead_urls = check_dead_urls(ws, H, rows_in_window)
+    if dead_urls:
+        log.info("Found %d dead URLs in audit window", len(dead_urls))
+        for d in dead_urls:
+            log.info("  Dead: row %d status=%s (%s)",
+                     d["row"], d["status"], d["url"][:60])
+
+    # ── Pending sheet audit ───────────────────────────────────────────
+    pending_result = audit_pending(wb, dry_run=dry_run)
+    if pending_result.get("dead_removed") or pending_result.get("stale_removed"):
+        log.info("Pending cleanup: %d dead + %d stale removed",
+                 pending_result["dead_removed"], pending_result["stale_removed"])
+
     if not dry_run:
         wb.save(XLSX_PATH)
         log.info("Saved fixes to %s", XLSX_PATH)
@@ -648,7 +1070,8 @@ def audit(days: int = DEFAULT_AUDIT_DAYS, dry_run: bool = False,
         "",
         f"**Audit window:** last {days} days (since {cutoff})",
         f"**Engine:** Gemini 2.5 Flash with Google Search grounding",
-        f"**Total findings:** {len(findings)} fixes, {len(ai_flags)} AI flags",
+        f"**Total findings:** {len(findings)} fixes, {len(ai_flags)} AI flags, "
+        f"{len(duplicate_urls)} dupes, {len(dead_urls)} dead URLs",
         "",
         f"**Layer 1 (deterministic):** "
         f"region={det_fixes['region']}, tier={det_fixes['tier']}, "
@@ -688,6 +1111,43 @@ def audit(days: int = DEFAULT_AUDIT_DAYS, dry_run: bool = False,
     else:
         report_lines.append("_No AI flags._")
 
+    # Duplicate URLs section
+    report_lines += ["", "## Duplicate URLs", ""]
+    if duplicate_urls:
+        report_lines.append("| Row | First Row | URL | Date | Company |")
+        report_lines.append("|---|---|---|---|---|")
+        for d in duplicate_urls:
+            report_lines.append(
+                f"| {d['row']} | {d['first_row']} | {d['url'][:60]} "
+                f"| {d.get('date', '')} | {d.get('company', '')} |"
+            )
+    else:
+        report_lines.append("_No duplicates found._")
+
+    # Dead URLs section
+    report_lines += ["", "## Dead URLs", ""]
+    if dead_urls:
+        report_lines.append("| Row | URL | Status | Date | Company |")
+        report_lines.append("|---|---|---|---|---|")
+        for d in dead_urls:
+            report_lines.append(
+                f"| {d['row']} | {d['url'][:60]} | {d['status']} "
+                f"| {d.get('date', '')} | {d.get('company', '')} |"
+            )
+    else:
+        report_lines.append("_No dead URLs._")
+
+    # Pending audit section
+    report_lines += ["", "## Pending Sheet Cleanup", ""]
+    pend_details = pending_result.get("details", [])
+    if pend_details:
+        report_lines.append("| Row | Reason |")
+        report_lines.append("|---|---|")
+        for pr, reason in pend_details:
+            report_lines.append(f"| {pr} | {reason} |")
+    else:
+        report_lines.append("_No Pending cleanup needed._")
+
     report_lines += [
         "",
         "---",
@@ -707,9 +1167,23 @@ def audit(days: int = DEFAULT_AUDIT_DAYS, dry_run: bool = False,
         "gemini_url_fixes": sum(1 for f in findings
                                 if f.get("kind") == "gemini-verified"),
         "ai_flags": len(ai_flags),
+        "duplicate_urls": len(duplicate_urls),
+        "dead_urls": len(dead_urls),
+        "pending_result": pending_result,
         "report_path": str(report_path.relative_to(ROOT)),
+        "before_path": str(before_path),
     }
-    log.info("QA summary: %s", json.dumps(summary, indent=2))
+    log.info("QA summary: %s", json.dumps(summary, indent=2, default=str))
+
+    # ── Add QA Summary sheet to AFTER workbook ────────────────────────
+    if not dry_run:
+        # Reload the saved workbook to add summary sheet
+        wb_after = openpyxl.load_workbook(XLSX_PATH)
+        add_summary_sheet(wb_after, summary, findings, ai_flags,
+                          duplicate_urls, dead_urls, pending_result)
+        wb_after.save(XLSX_PATH)
+        log.info("Added QA Summary sheet to %s", XLSX_PATH)
+
     return summary
 
 
@@ -720,6 +1194,8 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true", help="Don't write changes")
     ap.add_argument("--no-ai", action="store_true",
                     help="Skip Gemini AI checks (deterministic + API only)")
+    ap.add_argument("--no-email", action="store_true",
+                    help="Skip email report")
     args = ap.parse_args()
 
     summary = audit(days=args.days, dry_run=args.dry_run,
@@ -733,7 +1209,10 @@ def main() -> int:
         any_fix = (any(summary["deterministic_fixes"].values())
                    or summary["api_fixes"] > 0
                    or summary["gemini_url_fixes"] > 0)
-        if any_fix or summary["ai_flags"] > 0:
+        pend = summary.get("pending_result", {})
+        pending_changed = (pend.get("dead_removed", 0) > 0
+                           or pend.get("stale_removed", 0) > 0)
+        if any_fix or summary["ai_flags"] > 0 or pending_changed:
             paths = [str(XLSX_PATH), summary["report_path"]]
             msg = (
                 f"Sunday Gemini QA {summary['audit_date']}: "
@@ -742,9 +1221,18 @@ def main() -> int:
                 f"{summary['deterministic_fixes']['interne_appended']} /Interne, "
                 f"{summary['api_fixes']} API, "
                 f"{summary['gemini_url_fixes']} Gemini, "
-                f"{summary['ai_flags']} flags"
+                f"{summary['ai_flags']} flags, "
+                f"{summary.get('duplicate_urls', 0)} dupes, "
+                f"{summary.get('dead_urls', 0)} dead URLs, "
+                f"Pending: -{pend.get('dead_removed', 0)} dead "
+                f"-{pend.get('stale_removed', 0)} stale"
             )
             git_commit_and_push(ROOT, paths, msg)
+
+    # Send email with BEFORE + AFTER Excel
+    if not args.dry_run and not args.no_email:
+        before_path = Path(summary.get("before_path", ""))
+        send_qa_email(before_path, XLSX_PATH, summary)
 
     return 0
 
