@@ -19,7 +19,10 @@ can actually discover recalls from last week.
 
 Cost: $0 on Gemini free tier (1 call per run, once per day).
 Model: gemini-2.5-flash (override via GEMINI_MODEL env var).
-Schedule: 05:00 UTC daily (before OpenAI 06:00 UTC, before Claude 19:00 UTC).
+Schedule: 3×/day (Athens time):
+  03:00 → PRIMARY NorthAmerica, UK
+  14:00 → PRIMARY AsiaPacific, Oceania
+  23:00 → PRIMARY Europe (RASFF, all 26+ EU agencies)
 
 SDK: google-genai (new unified SDK, replaces deprecated google.generativeai).
      Install: pip install google-genai
@@ -153,17 +156,40 @@ def _strip_fences(txt: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Primary-region weighting — see pipeline/gap_finder_claude.py for full
-# rationale. With Claude gap-finder retired (was AsiaPacific primary),
-# Gemini now covers NorthAmerica + UK as primary — FDA, USDA FSIS,
-# CFIA Canada, FSA UK. Europe is well-covered by direct scrapers
-# (29 agencies 2×/day) and doesn't need a dedicated gap-finder primary.
+# Primary-region rotation — three Gemini runs/day, each targets a different
+# region so every continent gets a dedicated deep sweep every 24 hours.
 #
-# Gemini does a single global query (not per-region like Claude/OpenAI),
-# so the primary-region treatment here is to inject an extra banner at
-# the top of the prompt.
+#   03:00 Athens → NorthAmerica, UK   (FDA, USDA FSIS, CFIA, FSA UK)
+#   14:00 Athens → AsiaPacific, Oceania (MHLW, MFDS, CFS HK, SFA, FSANZ, MPI NZ)
+#   23:00 Athens → Europe             (RASFF, RappelConso, BVL, AESAN, AGES,
+#                                      Min. Salute, EFET, AFSCA, all 26+ EU)
+#
+# OpenAI gap-finder (12:00) covers LATAM + ME/Africa as its primary.
+# Tavily (22:00) covers NorthAmerica deterministically.
+# Together the four gap-finders guarantee every region has a primary.
+#
+# Override at runtime: GAP_PRIMARY_REGION=Europe (skips auto-rotation).
 # ---------------------------------------------------------------------------
-PRIMARY_REGION = os.getenv("GAP_PRIMARY_REGION", "NorthAmerica, UK")
+
+def _pick_primary_region() -> str:
+    """Auto-select primary region based on Athens hour."""
+    override = os.getenv("GAP_PRIMARY_REGION", "").strip()
+    if override:
+        return override
+    try:
+        from zoneinfo import ZoneInfo
+        hour = datetime.now(ZoneInfo("Europe/Athens")).hour
+    except ImportError:
+        import pytz  # type: ignore
+        hour = datetime.now(pytz.timezone("Europe/Athens")).hour
+    if hour < 8:        # 03:00 run
+        return "NorthAmerica, UK"
+    elif hour < 18:     # 14:00 run
+        return "AsiaPacific, Oceania"
+    else:               # 23:00 run
+        return "Europe"
+
+PRIMARY_REGION = _pick_primary_region()
 
 
 def _primary_banner(primary: str) -> str:
