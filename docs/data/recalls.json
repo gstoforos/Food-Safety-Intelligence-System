@@ -64,6 +64,22 @@
   "Notes": "Mindesthaltbarkeitsdatum E2028/1/1 with Chargennummer P2026/1/2 mentioned in news reports.  [via Gemini gap-finder + Google Search]"
  },
  {
+  "Date": "2026-04-24",
+  "Source": "BVL (DE)",
+  "Company": "Orienta Foods GmbH",
+  "Brand": "—",
+  "Product": "Rotes Chilipulver der Marke Rino",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Die Orienta Foods GmbH ruft Rotes Chilipulver der Marke Rino (250g und 500g Packungen, MHD E2028/1/1, Charge P2026/1/2) aufgrund von Aflatoxin-Kontamination zurück.",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.produktwarnung.eu/2026/04/24/rueckruf-aflatoxin-orienta-foods-ruft-rotes-chilipulver-der-marke-rino-zurueck/37845",
+  "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel"
+ },
+ {
   "Date": "2026-04-23",
   "Source": "BVL (DE)",
   "Company": "Green Box Limited",
@@ -2046,6 +2062,22 @@
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/rueckrufe/rr-sulfite.pdf.download.pdf/sulfites.pdf",
   "Notes": "[2026-04-26: Pathogen extracted from Reason text; cleared stale Claude-gate rejection] Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html"
+ },
+ {
+  "Date": "2026-04-01",
+  "Source": "MSP (UY)",
+  "Company": "Ministerio de Salud Pública (MSP) Uruguay",
+  "Brand": "—",
+  "Product": "Hongos silvestres (Wild mushrooms)",
+  "Pathogen": "Marine biotoxin",
+  "Reason": "El Ministerio de Salud Pública (MSP) refuerza las recomendaciones para prevenir intoxicaciones por hongos ante el inicio de la temporada de recolección de hongos silvestres.",
+  "Class": "Recall",
+  "Country": "Uruguay",
+  "Region": "Latin America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.gub.uy/ministerio-salud-publica/comunicacion/noticias/ante-inicio-temporada-recoleccion-hongos-msp-refuerza-recomendaciones-para",
+  "Notes": "Gemini/es from https://www.gub.uy/ministerio-salud-publica/comunicacion/noticias"
  },
  {
   "Date": "2026-03-31",
