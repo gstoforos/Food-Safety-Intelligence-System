@@ -171,12 +171,18 @@ def _gemini_api_keys() -> List[str]:
 
 
 def _call_gemini(prompt: str, html: str, language: str = "en") -> str:
-    """Call Gemini 2.0 Flash with key rotation. Returns the raw text response."""
+    """Call Gemini with key rotation. Returns the raw text response.
+
+    Uses the new google-genai SDK (replaces deprecated google.generativeai).
+    Install: pip install google-genai
+    """
     try:
-        import google.generativeai as genai  # type: ignore
+        from google import genai  # type: ignore
+        from google.genai import types  # type: ignore
     except ImportError as exc:
         raise RuntimeError(
-            "google-generativeai is not installed. Add it to requirements.txt."
+            "google-genai is not installed. Add it to requirements.txt "
+            "(pip install google-genai)."
         ) from exc
 
     keys = _gemini_api_keys()
@@ -188,13 +194,18 @@ def _call_gemini(prompt: str, html: str, language: str = "en") -> str:
     if len(html) > GEMINI_MAX_HTML_CHARS:
         html = html[:GEMINI_MAX_HTML_CHARS] + "\n<!-- truncated -->"
 
+    full_prompt = f"{prompt}\n\nLANGUAGE OF PAGE: {language}\n\nHTML:\n{html}"
+
     last_error: Optional[Exception] = None
     for api_key in random.sample(keys, k=len(keys)):
         try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel(GEMINI_MODEL)
-            full_prompt = f"{prompt}\n\nLANGUAGE OF PAGE: {language}\n\nHTML:\n{html}"
-            resp = model.generate_content(full_prompt)
+            client = genai.Client(api_key=api_key)
+            config = types.GenerateContentConfig(temperature=0.1)
+            resp = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=full_prompt,
+                config=config,
+            )
             text = (getattr(resp, "text", None) or "").strip()
             if text:
                 return text
