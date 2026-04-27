@@ -1,0 +1,119 @@
+name: FSIS Claude Check (per-row content verification)
+
+# Daily ~07:45 Athens (FsisScheduler keys this on H=8 for idempotency).
+# Runs after gemini-url-gate (07:00) to do final per-row content
+# verification before promotion. Fetches each Pending row's URL via HTTP,
+# extracts page text, and sends to Claude Haiku 4.5 to verify that
+# Date / Company / Product / Pathogen on the row actually match the
+# regulator page. This catches the "URL works but data is wrong" class
+# of bug (e.g. SFA Nature One Dairy at 2026-04-25 when the page header
+# shows 15 Mar 2026).
+#
+# Verdicts:
+#   pass → promote row to Recalls as-is
+#   fix  → correct the Date (or other fixable field) and promote
+#   fail → keep in Pending with REJECTED status; surface for review
+#
+# Output:
+#   - Verified rows promoted from Pending → Recalls (xlsx + json)
+#   - docs/daily/YYYY-MM-DD.html rebuilt for every date that gained rows
+#   - docs/daily-index.json updated
+#   - One git commit covering all of the above
+#
+# Budget: ~25 KB fetch + ~1K-token Haiku call per row.
+# Haiku 4.5 pricing: $1/M input, $5/M output → ≈ $0.001-0.003 per row.
+# Typical day: 5-10 Pending rows → ≈ $0.02/day → ≈ €0.50/month.
+#
+# Concurrency: shares the `fsis-data-writers` group with merge-master,
+# url-gate, daily-recall-search, sunday-qa so writes never overlap.
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_days:
+        description: "Skip Pending rows older than N days (default 0 = check all)"
+        required: false
+        default: "0"
+      skip_commit:
+        description: "true = run but do not commit/push (dry-run)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  claude-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Athens-time guard (allows manual dispatch any hour;
+                                  scheduled dispatch must be 07-12 Athens)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Manual or FsisScheduler dispatch: always allow
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Dispatched at Athens ${HOUR}:xx — running."
+          elif [ "$HOUR" -ge "07" ] && [ "$HOUR" -le "12" ]; then
+            # Defensive: if a schedule trigger ever gets added, only fire
+            # within the daily window
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Outside 07-12:xx Athens window (now ${HOUR}:xx). Skipping."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run claude_check
+        if: steps.guard.outputs.run == 'true'
+        env:
+          ANTHROPIC_API_KEY:       ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CHECK_SKIP_DAYS:  ${{ github.event.inputs.skip_days || '0' }}
+          SKIP_COMMIT:             ${{ github.event.inputs.skip_commit || 'false' }}
+          GH_TOKEN:                ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL:          "fsis-bot@advfood.tech"
+          GIT_USER_NAME:           "AFTS Intelligence System"
+        run: |
+          python -m pipeline.claude_check
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "Claude check complete — Athens $(TZ=Europe/Athens date)"
+          echo "Recalls sheet rows: $(python -c "
+          import openpyxl
+          try:
+              wb = openpyxl.load_workbook('docs/data/recalls.xlsx', read_only=True)
+              if 'Recalls' in wb.sheetnames:
+                  print(wb['Recalls'].max_row - 1)
+              else:
+                  print('(no Recalls sheet)')
+          except Exception as e:
+              print(f'(unreadable: {e})')
+          ")"
