@@ -8,7 +8,7 @@
 <style>
 :root{--bg:#0a0e1a;--s1:#0f1420;--s2:#141a2a;--brd:#1d2436;--text:#e8edf5;--white:#fff;--muted:#9aa3b5;--dim:#5d6679;--green:#00ff88;--red:#ef4444;--orange:#f97316;--cyan:#06b6d4;--purple:#a78bfa;}
 *{box-sizing:border-box;}
-html,body{margin:0;padding:0;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch;}
+html,body{margin:0;padding:0;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior-y:auto;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;}
 .hdr{padding:18px 24px;background:var(--s1);border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:flex-start;position:relative;}
 .hdr::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--green) 0%,transparent 35%);}
@@ -139,7 +139,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
   .bar-val{flex:0 0 25px;font-size:9px;}
   .src-row{font-size:11px;}
   /* Mobile-friendly table */
-  .tbl-wrap{margin:8px 12px 0;}
+  .tbl-wrap{margin:8px 12px 0;overflow:visible!important;touch-action:auto!important;max-height:none!important;}
   .wrap{padding:12px 16px;}
   .pbar{margin:8px 12px;gap:6px;}
   .ptag{padding:8px 12px;font-size:9px;min-height:44px;display:flex;align-items:center;}
@@ -163,7 +163,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
   .fbar{padding:8px 12px;}
   .tab{padding:10px 12px;font-size:8px;}
   .nav-bar{margin:8px 12px 0;-webkit-overflow-scrolling:touch;}
-  .tbl-wrap{margin:8px 8px 0;-webkit-overflow-scrolling:touch;}
+  .tbl-wrap{margin:8px 8px 0;-webkit-overflow-scrolling:touch;overflow:visible!important;touch-action:auto!important;}
   .wrap{padding:8px 12px;}
   .pbar{margin:8px 8px;}
   .footer{padding:16px 12px;flex-direction:column;text-align:center;}
@@ -236,7 +236,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 </div></div>
 </div>
 
-<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/fsis-recalls" target="_blank">FSIS Page</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="downloadRecallsXlsx();return false;">↓ XLSX</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);color:var(--green);font-family:'DM Mono',monospace;font-size:9px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
+<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/food-safety-intelligence" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="downloadRecallsXlsx();return false;">↓ XLSX</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);color:var(--green);font-family:'DM Mono',monospace;font-size:9px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
 
 <script>
 let ALL=[],filtered=[],page=1,perPage=50,sortCol='date',sortAsc=false,pillFilter='';
@@ -244,6 +244,7 @@ let NEWS=[],NEWS_filtered=[];
 const PC={'Listeria':'#00ff88','Salmonella':'#06b6d4','E. coli':'#f97316','Cereulide':'#ef4444','Clostridium':'#a78bfa','Aflatoxin':'#fbbf24','Hepatitis':'#f472b6','Norovirus':'#818cf8','Campylobacter':'#34d399','Vibrio':'#fb923c','Cronobacter':'#c084fc','Bacillus':'#ef4444','STEC':'#f97316'};
 function pColor(p){if(!p)return'#00ff88';for(const[k,v]of Object.entries(PC))if(p.indexOf(k)>=0)return v;return'#00ff88';}
 function esc(s){return(s==null?'':String(s)).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);}
+function urlLabel(u){if(!u)return'';try{const x=new URL(u);const h=x.hostname.replace(/^www\./,'');const p=(x.pathname||'').replace(/\/$/,'');return h+(p&&p!=='/'?p:'');}catch(e){return String(u).replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'');}}
 
 // ===== FIXED PATHOGEN NORMALIZATION =====
 function normalizePathogen(p){
@@ -412,7 +413,7 @@ function render(){
     const tierCol=r.tier===1?'var(--red)':'var(--orange)';
     const tl=r.tier===1?'TIER-1':'TIER-2';
     const ob=r.is_outbreak===1?' <span style="background:rgba(239,68,68,.1);color:var(--red);font-size:7px;padding:1px 5px;border-radius:2px;font-family:DM Mono,monospace;font-weight:700;letter-spacing:.08em;border:1px solid rgba(239,68,68,.25)">OUTBREAK</span>':'';
-    return`<tr class="${tc}"><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(r.date)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.05em;background:rgba(0,255,136,.08);color:var(--green);border:1px solid rgba(0,255,136,.25)">${esc(r.source)}</span></td><td class="firm" title="${esc(r.company)}">${esc(r.company||r.brand||'—')}</td><td class="prod" title="${esc(r.product)}">${esc((r.product||'').substring(0,80))}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pColor(r.pathogen)}">${esc(r.pathogen)}${ob}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.08em;background:${tierBg};color:${tierCol};border:1px solid ${tierCol}40">${tl}</span></td><td style="font-size:10px;color:var(--muted)">${esc(r.country)}</td><td>${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--green);font-size:11px;text-decoration:none">↗</a>`:''}</td></tr>`;
+    return`<tr class="${tc}"><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(r.date)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.05em;background:rgba(0,255,136,.08);color:var(--green);border:1px solid rgba(0,255,136,.25)">${esc(r.source)}</span></td><td class="firm" title="${esc(r.company)}">${esc(r.company||r.brand||'—')}</td><td class="prod" title="${esc(r.product)}">${esc((r.product||'').substring(0,80))}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pColor(r.pathogen)}">${esc(r.pathogen)}${ob}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.08em;background:${tierBg};color:${tierCol};border:1px solid ${tierCol}40">${tl}</span></td><td style="font-size:10px;color:var(--muted)">${esc(r.country)}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener" title="${esc(r.url)}" style="color:var(--green);font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;">${esc(urlLabel(r.url))} ↗</a>`:''}</td></tr>`;
   }).join('');}
   const total=filtered.length,maxP=Math.max(1,Math.ceil(total/perPage));
   document.getElementById('pinfo').textContent=`Page ${page} of ${maxP} · ${total} records`;
@@ -451,7 +452,7 @@ function renderNews(){
   if(!NEWS_filtered.length){tb.innerHTML='<tr><td colspan="6" class="loading">No matching news.</td></tr>';document.getElementById('news-rcount').textContent='0 items';return;}
   tb.innerHTML=NEWS_filtered.slice(0,200).map(r=>{
     const dateOnly=(r.published||'').substring(0,10);const pcol=pColor(r.pathogen);
-    return`<tr><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(dateOnly)}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pcol}">${esc(r.pathogen)}</td><td style="font-size:10px;color:var(--muted)">${esc(r.event)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.3)">${esc(r.source)}</span></td><td style="font-size:11px;color:var(--white)">${esc(r.title)}</td><td>${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener" style="color:var(--green);font-size:11px">↗</a>`:''}</td></tr>`;
+    return`<tr><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(dateOnly)}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pcol}">${esc(r.pathogen)}</td><td style="font-size:10px;color:var(--muted)">${esc(r.event)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.3)">${esc(r.source)}</span></td><td style="font-size:11px;color:var(--white)">${esc(r.title)}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener" title="${esc(r.link)}" style="color:var(--green);font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;">${esc(urlLabel(r.link))} ↗</a>`:''}</td></tr>`;
   }).join('');
   document.getElementById('news-rcount').textContent=NEWS_filtered.length+' items';
   notifyHeight();
