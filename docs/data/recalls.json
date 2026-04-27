@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-04-25",
+  "Source": "SFA",
+  "Company": "Nature One Dairy",
+  "Brand": "Nature One Dairy",
+  "Product": "Premium Toddler Milk Formula – Step 3 900g",
+  "Pathogen": "Cereulide (B. cereus toxin)",
+  "Reason": "Presence of cereulide toxin",
+  "Class": "Recall",
+  "Country": "Singapore",
+  "Region": "Asia",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.sfa.gov.sg/news-publications/newsroom/recall-of-two-additional-formula-milk-products-due-to-presence-of-cereulide-toxin",
+  "Notes": "Product recalled due to presence of cereulide toxin.  [via OpenAI daily 10:00 Athens search]"
+ },
+ {
   "Date": "2026-04-24",
   "Source": "BVL (DE)",
   "Company": "Rino",
