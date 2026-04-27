@@ -79,7 +79,6 @@
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260424_27_NW_Mettwurst/260424_27_NW_Mettwurst_Meldung.html",
   "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel  [resurrected 2026-04-25: https://www.produktwarnung.eu/2026/04/23... -> OK via OpenAI (search, conf=0.70)] [audit-applied 2026-04-27: produktwarnung.eu→lebensmittelwarnung.de + Date 04-23→04-24 per official page]"
  },
- 
  {
   "Date": "2026-04-23",
   "Source": "RASFF",
