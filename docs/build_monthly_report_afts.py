@@ -122,6 +122,110 @@ CANONICAL_PATHOGENS = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Statistical guard — Z-score is mathematically valid but practically
+# meaningless when the prior-month series is too short. With n=3 baseline
+# months the sample σ collapses to noise and the report can show "Z=+52.8"
+# for what is really "we don't have enough history yet". Set the threshold
+# to the same value the CUSUM model uses (n>=6) so the report stays
+# internally consistent: when CUSUM activates, Z becomes meaningful.
+# ---------------------------------------------------------------------------
+_MIN_BASELINE_MONTHS_FOR_Z = 6
+
+
+def _apply_baseline_size_guard(signals: Dict[str, Any]) -> None:
+    """Mutates signals['mom_trend'] in place. When baseline n is too small,
+    moves the raw Z into a diagnostic key and nulls the public z_score so
+    every consumer (AI prompt, deterministic narrative, KPI badge, meta
+    block) falls through to its existing None-branch ("baseline too narrow").
+    Idempotent — safe to call more than once."""
+    mom = signals.get("mom_trend") or {}
+    series = mom.get("values") or []
+    n_baseline = len(series)
+    mom["baseline_n"] = n_baseline
+    if n_baseline < _MIN_BASELINE_MONTHS_FOR_Z and mom.get("z_score") is not None:
+        mom["z_score_raw"] = mom["z_score"]   # preserved for diagnostics / logs
+        mom["z_score"] = None
+        mom["anomaly_flag"] = False
+        mom["baseline_too_narrow"] = True
+        log.info("Z-score suppressed: baseline n=%d < %d (raw z=%s)",
+                 n_baseline, _MIN_BASELINE_MONTHS_FOR_Z, mom.get("z_score_raw"))
+
+
+# ---------------------------------------------------------------------------
+# Pathogen synonym consolidation — added 2026-04-27 after audit findings
+# revealed splits in W17 (Rodenticide / rat poison / Rodent contamination
+# all appearing as separate pathogen rows for the same HiPP outbreak) and
+# in M03 (multiple STEC and aflatoxin variants). The underlying scrapers
+# preserve regulator-language verbatim by design — this is a presentation-
+# layer normalisation, not a data correction.
+#
+# Buckets are CHEMICALLY/EPIDEMIOLOGICALLY distinct, e.g. rodenticide
+# (anticoagulant poisoning) is NOT folded into rodent contamination
+# (live/dead pests). Salmonella serovars (Typhimurium, Newport, Enteritidis)
+# are deliberately preserved — they are legitimately distinct.
+# ---------------------------------------------------------------------------
+_PATHOGEN_SYNONYMS = {
+    # Rodenticide chemical poisoning
+    "rat poison":                                          "Rodenticide",
+    "Rat poison":                                          "Rodenticide",
+    "Rodenticide (rat poison)":                            "Rodenticide",
+    "rodenticide (rat poison)":                            "Rodenticide",
+    "Rodenticide poisoning":                               "Rodenticide",
+    "Bromadiolone":                                        "Rodenticide",
+    "bromadiolone":                                        "Rodenticide",
+    # Rodent / pest contamination (DIFFERENT category — live pests / droppings)
+    "Rodent contamination (physical/microbial hazard)":    "Rodent contamination",
+    "Rodent contamination (physical/biological hazard)":   "Rodent contamination",
+    "Mouse contamination (physical/biological hazard)":    "Rodent contamination",
+    "Mouse contamination":                                 "Rodent contamination",
+    # Aflatoxin
+    "Aflatoxins":                                          "Aflatoxin",
+    # Bacillus cereus / cereulide
+    "Bacillus cereus / cereulide":                         "Bacillus cereus / Cereulide",
+    "Bacillus cereus (cereulide)":                         "Bacillus cereus / Cereulide",
+    "Cereulide (B. cereus toxin)":                         "Bacillus cereus / Cereulide",
+    "Cereulide":                                           "Bacillus cereus / Cereulide",
+    # E. coli / STEC variants → single bucket
+    "STEC (Shiga toxin-producing E. coli)":                "E. coli STEC",
+    "Shiga toxin-producing E. coli (STEC)":                "E. coli STEC",
+    "E. coli STEC (Shiga toxin-producing)":                "E. coli STEC",
+    "STEC / E. coli O157:H7":                              "E. coli STEC",
+    "E. coli O157:H7":                                     "E. coli STEC",
+    "E. coli":                                             "E. coli STEC",
+    # Marine biotoxins (DSP, PSP, phytoplankton — same toxin family)
+    "Lipophilic biotoxins (DSP)":                          "Marine biotoxins",
+    "Lipophilic biotoxins":                                "Marine biotoxins",
+    "Paralytic shellfish toxins (PSP)":                    "Marine biotoxins",
+    "Paralytic shellfish toxins":                          "Marine biotoxins",
+    "Paralytic Shellfish Toxins (saxitoxins)":             "Marine biotoxins",
+    "Phytoplankton biotoxins":                             "Marine biotoxins",
+    # Salmonella — bare label only; serovars (Typhimurium, etc.) preserved
+    "Salmonella":                                          "Salmonella spp.",
+    # Histamine
+    "Histamine":                                           "Histamine / scombrotoxin",
+    "Histamine (biotoxine endogène)":                      "Histamine / scombrotoxin",
+    "Scombrotoxin":                                        "Histamine / scombrotoxin",
+}
+
+
+def _consolidate_pathogen_label(label: str) -> str:
+    """Map a raw pathogen label to its canonical bucket. Idempotent —
+    canonical labels pass through unchanged."""
+    if not label:
+        return label
+    s = label.strip()
+    return _PATHOGEN_SYNONYMS.get(s, s)
+
+
+def _consolidate_counter(c: Counter) -> Counter:
+    """Return a new Counter with synonymous keys merged."""
+    out: Counter = Counter()
+    for k, v in c.items():
+        out[_consolidate_pathogen_label(k)] += v
+    return out
+
+
 def build_pathogen_history(monthly_cohorts: List[Tuple[str, List[Dict]]]) -> Dict[str, List[int]]:
     """Per-pathogen monthly count series, filtered to canonical pathogens."""
     # Which pathogens appear anywhere in history AND are canonical?
@@ -161,6 +265,12 @@ def compute_month_stats(month_recalls: List[Dict],
         pathogen_counts[canon] += 1
         if weekly.safe_int(r.get("Tier")) == 1:
             pathogen_tier1[canon] += 1
+
+    # Synonym consolidation — merge regulator-language variants that
+    # describe the same hazard (e.g. "Rodenticide", "rat poison",
+    # "Rodenticide (rat poison)" → single "Rodenticide" bucket).
+    pathogen_counts = _consolidate_counter(pathogen_counts)
+    pathogen_tier1  = _consolidate_counter(pathogen_tier1)
 
     country_counts = Counter(
         (r.get("Country") or "Unknown").strip() or "Unknown"
@@ -1216,8 +1326,9 @@ letter-spacing:0.08em;text-transform:uppercase;}}
     </div>
     {svg_mom_sparkline(mom)}
     <div style="font-size:12px;color:var(--muted);margin-top:8px">
-      Rolling 3-month mean: <strong>{mom.get('rolling_mean', '—')}</strong>
+      Rolling {mom.get('baseline_n', 3)}-month mean: <strong>{mom.get('rolling_mean', '—')}</strong>
       &nbsp;·&nbsp; σ: <strong>{mom.get('rolling_std', '—')}</strong>
+      {f'&nbsp;·&nbsp; <span style="color:var(--orange)">baseline too narrow for Z (n &lt; {_MIN_BASELINE_MONTHS_FOR_Z})</span>' if mom.get('baseline_too_narrow') else ''}
     </div>
   </div>
   <div class="trend-panel">
@@ -1632,6 +1743,10 @@ def main() -> int:
         prior_months=[c for _, c in prior_cohorts],
         monthly_count_history=monthly_count_history,
     )
+    # Suppress Z-score when baseline n is too small (sample-σ collapse).
+    # Without this, March 2026 with n=3 baseline shows "Z=+52.8" — a
+    # mathematical artifact of σ=0.71, not a real anomaly signal.
+    _apply_baseline_size_guard(signals)
     pathogen_history = build_pathogen_history(cohorts) if cohorts else {}
     models = run_all_models(
         monthly_counts=monthly_count_history,

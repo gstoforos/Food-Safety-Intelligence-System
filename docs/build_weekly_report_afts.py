@@ -28,6 +28,76 @@ SEVERITY = OrderedDict([
     ("norovirus",6),("hepatitis",7),
 ])
 
+
+# ---------------------------------------------------------------------------
+# Pathogen synonym consolidation (added 2026-04-27).
+# Mirrors the table in build_monthly_report_afts.py — kept separate to
+# preserve the surgical "no shared module" architecture you've used.
+# Buckets are CHEMICALLY/EPIDEMIOLOGICALLY distinct: rodenticide is
+# anticoagulant chemical poisoning (HiPP), distinct from rodent
+# contamination (live pests). Salmonella serovars are deliberately
+# preserved.
+# ---------------------------------------------------------------------------
+_PATHOGEN_SYNONYMS = {
+    # Rodenticide chemical poisoning
+    "rat poison":                                          "Rodenticide",
+    "Rat poison":                                          "Rodenticide",
+    "Rodenticide (rat poison)":                            "Rodenticide",
+    "rodenticide (rat poison)":                            "Rodenticide",
+    "Rodenticide poisoning":                               "Rodenticide",
+    "Bromadiolone":                                        "Rodenticide",
+    "bromadiolone":                                        "Rodenticide",
+    # Rodent / pest contamination (different category)
+    "Rodent contamination (physical/microbial hazard)":    "Rodent contamination",
+    "Rodent contamination (physical/biological hazard)":   "Rodent contamination",
+    "Mouse contamination (physical/biological hazard)":    "Rodent contamination",
+    "Mouse contamination":                                 "Rodent contamination",
+    # Aflatoxin
+    "Aflatoxins":                                          "Aflatoxin",
+    # Bacillus cereus / cereulide
+    "Bacillus cereus / cereulide":                         "Bacillus cereus / Cereulide",
+    "Bacillus cereus (cereulide)":                         "Bacillus cereus / Cereulide",
+    "Cereulide (B. cereus toxin)":                         "Bacillus cereus / Cereulide",
+    "Cereulide":                                           "Bacillus cereus / Cereulide",
+    # E. coli / STEC variants → single bucket
+    "STEC (Shiga toxin-producing E. coli)":                "E. coli STEC",
+    "Shiga toxin-producing E. coli (STEC)":                "E. coli STEC",
+    "E. coli STEC (Shiga toxin-producing)":                "E. coli STEC",
+    "STEC / E. coli O157:H7":                              "E. coli STEC",
+    "E. coli O157:H7":                                     "E. coli STEC",
+    "E. coli":                                             "E. coli STEC",
+    # Marine biotoxins
+    "Lipophilic biotoxins (DSP)":                          "Marine biotoxins",
+    "Lipophilic biotoxins":                                "Marine biotoxins",
+    "Paralytic shellfish toxins (PSP)":                    "Marine biotoxins",
+    "Paralytic shellfish toxins":                          "Marine biotoxins",
+    "Paralytic Shellfish Toxins (saxitoxins)":             "Marine biotoxins",
+    "Phytoplankton biotoxins":                             "Marine biotoxins",
+    # Salmonella — bare label only; serovars preserved
+    "Salmonella":                                          "Salmonella spp.",
+    # Histamine
+    "Histamine":                                           "Histamine / scombrotoxin",
+    "Histamine (biotoxine endogène)":                      "Histamine / scombrotoxin",
+    "Scombrotoxin":                                        "Histamine / scombrotoxin",
+}
+
+
+def _consolidate_pathogen_label(label):
+    """Map raw pathogen label to canonical bucket. Idempotent."""
+    if not label:
+        return label
+    s = str(label).strip()
+    return _PATHOGEN_SYNONYMS.get(s, s)
+
+
+def _consolidate_counter(c):
+    """Return a new Counter with synonymous keys merged."""
+    out = Counter()
+    for k, v in c.items():
+        out[_consolidate_pathogen_label(k)] += v
+    return out
+
+
 def _dot_color(pathogen):
     p = (pathogen or "").lower()
     return "#9333ea" if ("botulinum" in p or "clostridium" in p) else "#dc2626"
@@ -97,9 +167,12 @@ def compute_stats(wr, pr):
         if p: pc[p.split("(")[0].strip()] += 1
         cc[_country_display(r.get("Country","") or "Unknown")] += 1
     pt = len(pr); delta = total - pt
+    # Apply synonym consolidation BEFORE deriving top_pathogen so the KPI
+    # banner and the distribution table never disagree.
+    pc_consolidated = _consolidate_counter(pc)
     return {"total":total,"tier1":tier1,"outbreaks":outbreaks,
-            "top_pathogen":pc.most_common(1)[0] if pc else ("\u2014",0),
-            "pathogen_counts":pc.most_common(20),"country_counts":cc.most_common(20),
+            "top_pathogen":pc_consolidated.most_common(1)[0] if pc_consolidated else ("\u2014",0),
+            "pathogen_counts":pc_consolidated.most_common(20),"country_counts":cc.most_common(20),
             "prev_total":pt,"delta":delta,
             "delta_pct":round(delta/max(pt,1)*100) if pt else 0}
 
