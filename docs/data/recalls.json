@@ -79,22 +79,7 @@
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260424_27_NW_Mettwurst/260424_27_NW_Mettwurst_Meldung.html",
   "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel  [resurrected 2026-04-25: https://www.produktwarnung.eu/2026/04/23... -> OK via OpenAI (search, conf=0.70)] [audit-applied 2026-04-27: produktwarnung.eu→lebensmittelwarnung.de + Date 04-23→04-24 per official page]"
  },
- {
-  "Date": "2026-04-24",
-  "Source": "BVL (DE)",
-  "Company": "Orienta Foods (Rino)",
-  "Brand": "—",
-  "Product": "Rotes Chilipulver",
-  "Pathogen": "Aflatoxin",
-  "Reason": "Die Orienta Foods GmbH ruft Rotes Chilipulver der Marke Rino in den 250g und 500g Packungen zurück. Bei einer Lebensmittelkontrolle wurden Aflatoxine nachgewiesen.",
-  "Class": "Recall",
-  "Country": "Germany",
-  "Region": "Europe",
-  "Tier": 3,
-  "Outbreak": 0,
-  "URL": "https://www.produktwarnung.eu/2026/04/24/rueckruf-aflatoxin-orienta-foods-ruft-rotes-chilipulver-der-marke-rino-zurueck/37845",
-  "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel"
- },
+ 
  {
   "Date": "2026-04-23",
   "Source": "RASFF",
