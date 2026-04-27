@@ -1,4 +1,25 @@
 """
+DEPRECATED — gap_finder_claude is technically dead.
+==========================================================================
+
+This file is kept for git history only. The job has been retired because:
+  • Claude (no native Google Search) was pattern-matching from training
+    data and proposing URLs that didn't exist
+  • Coverage of the same regulators is provided by:
+      - gap_finder_gemini.py  (Google Search grounding, three regions/day)
+      - gap_finder_openai.py  (web search, LATAM + ME/Africa primaries)
+      - gap_finder_tavily.py  (deterministic, no LLM, NorthAmerica primary)
+  • Final per-row verification is handled by claude_check.py against the
+    actual regulator page text — that's where Claude adds value now.
+
+If invoked, this script will exit 0 immediately without writing anything.
+Do NOT remove the cron entry until the orchestration layer has been
+updated; this no-op stub is the safe shim until then.
+
+==========================================================================
+
+Original docstring (preserved for context):
+
 Claude gap-finder — a scheduled job that asks Claude's knowledge base for all
 food pathogen recalls worldwide in the last N days and appends any that aren't
 already in Recalls or Pending.
@@ -328,6 +349,17 @@ def to_recall_objects(raw: List[Dict[str, Any]]) -> List[Recall]:
 
 
 def main() -> int:
+    # ============== DEAD JOB — NO-OP STUB ==============
+    # See module docstring. This finder was retired. Coverage is now
+    # provided by gap_finder_gemini.py + gap_finder_openai.py +
+    # gap_finder_tavily.py, with claude_check.py as the per-row verifier.
+    # We exit 0 silently so any leftover cron entry doesn't fail the
+    # workflow until orchestration is updated.
+    log.info("gap_finder_claude is retired — exiting 0 without changes. "
+             "See module docstring for replacements.")
+    return 0
+    # ===================================================
+
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--region", default=None,

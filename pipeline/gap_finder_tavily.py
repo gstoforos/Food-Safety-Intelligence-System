@@ -68,7 +68,7 @@ log = logging.getLogger("gap-finder-tavily")
 DATA_DIR = ROOT / "docs" / "data"
 XLSX_PATH = DATA_DIR / "recalls.xlsx"
 
-SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "7"))
+SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "5"))
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "").strip()
 
@@ -303,7 +303,14 @@ _DATE_RX = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
 
 
 def _parse_date(tavily_item: Dict[str, Any]) -> str:
-    """Prefer Tavily's published_date; fall back to today if missing."""
+    """Extract publication date from Tavily's item.
+
+    Returns YYYY-MM-DD on success, or '' on failure. CRITICAL: never
+    falls back to today's date — that's the exact bug that put the SFA
+    Nature One Dairy recall in the dashboard at 2026-04-25 instead of
+    its actual publication date 2026-03-15. Rows without a parseable
+    date MUST be dropped by the caller (_item_to_recall).
+    """
     pd = (tavily_item.get("published_date") or "").strip()
     if pd:
         m = _DATE_RX.search(pd)
@@ -315,8 +322,8 @@ def _parse_date(tavily_item: Dict[str, Any]) -> str:
         m = _DATE_RX.search(v)
         if m:
             return m.group(0)
-    # Last resort — today in UTC
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    # No fallback to today — return empty so caller drops the row
+    return ""
 
 
 # ---------------------------------------------------------------------------
@@ -396,12 +403,40 @@ def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 # Tavily item → Recall (pure Python, no AI)
 # ---------------------------------------------------------------------------
+def _is_generic_url(url: str) -> bool:
+    """True if URL is a generic listing/category/disease/transparency page —
+    not a specific recall fiche. Mirrors the patterns in
+    merge_master.validate_pending_row()."""
+    u = url.lower()
+    bad_substrings = (
+        "page=", "/list?", "/a-z/", "animal-disease",
+        "regulatory-transparency", "/categorie/", "/rubrik/", "/tag/",
+        "vertexaisearch",  # defensive (Tavily wouldn't return these but be safe)
+    )
+    if any(p in u for p in bad_substrings):
+        return True
+    # Bare domain or one-segment paths (homepages, root listings)
+    try:
+        from urllib.parse import urlparse as _up
+        path = (_up(url).path or "").strip("/")
+        if not path:
+            return True  # bare domain
+    except Exception:
+        pass
+    return False
+
+
 def _item_to_recall(item: Dict[str, Any]) -> Optional[Recall]:
     """Convert a single Tavily result into a Recall object.
     Returns None if the item has no detectable pathogen/hazard (and is thus
     not a food-safety recall worth pending-promoting)."""
     url = (item.get("url") or "").strip()
     if not url or not url.lower().startswith(("http://", "https://")):
+        return None
+    # Drop generic listing/category/disease pages — defensive backstop.
+    # The merge_master validate_pending_row gate is authoritative, this
+    # just keeps Tavily's logs cleaner.
+    if _is_generic_url(url):
         return None
 
     src = _lookup_source(url)
@@ -427,6 +462,13 @@ def _item_to_recall(item: Dict[str, Any]) -> Optional[Recall]:
         product = (content.split(". ", 1)[0])[:200]
 
     date_str = _parse_date(item)
+    # HARD DROP: no date → no row. Same for pre-2026 dates. The merge_master
+    # validate_pending_row gate would catch these too, but dropping here
+    # keeps the Pending insert log clean.
+    if not date_str:
+        return None
+    if date_str < "2026-01-01":
+        return None
 
     rec = Recall(
         Date=date_str,

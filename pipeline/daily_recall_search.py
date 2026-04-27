@@ -182,9 +182,16 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
     # model saw "20/04/2026" on a RappelConso page, compared to
     # "2026-04-20" in the prompt, and returned nothing because the string
     # didn't match even though it was the same date.
+    #
+    # Window widened from ±1 to ±2 days (5 acceptable dates total) because
+    # regulators commonly publish recalls dated 2-3 days in the past — the
+    # recall happens, internal review takes a few days, then the agency
+    # posts. The narrow ±1 window was missing those late posts.
     yday = target_date
+    d_minus_2 = target_date - timedelta(days=2)
     prev = target_date - timedelta(days=1)
     nxt  = target_date + timedelta(days=1)
+    d_plus_2 = target_date + timedelta(days=2)
     fmt_variants = (
         f"{yday.isoformat()} (ISO) | "
         f"{yday.strftime('%d/%m/%Y')} (EU DD/MM/YYYY as used by RappelConso, "
@@ -197,21 +204,22 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
     return (
         f"TASK: Using your web_search tool, find every food recall, public "
         f"health alert, food safety notice, or product withdrawal officially "
-        f"published by a food regulator in {region} within a 3-day window "
+        f"published by a food regulator in {region} within a 5-day window "
         f"centered on yesterday. The target day is:\n\n"
         f"  TARGET DAY (yesterday Athens time): {fmt_variants}\n"
-        f"  ACCEPTABLE PUBLISH DATES: {prev.isoformat()} | "
-        f"{yday.isoformat()} | {nxt.isoformat()}\n\n"
+        f"  ACCEPTABLE PUBLISH DATES: {d_minus_2.isoformat()} | "
+        f"{prev.isoformat()} | {yday.isoformat()} | "
+        f"{nxt.isoformat()} | {d_plus_2.isoformat()}\n\n"
         f"Include recalls whose publication/issue date falls on ANY of "
-        f"those three dates. Regulator sites often show dates as DD/MM/YYYY "
+        f"those five dates. Regulator sites often show dates as DD/MM/YYYY "
         f"or localized text — normalize them and include if they match one "
-        f"of the three acceptable ISO dates above.\n\n"
+        f"of the five acceptable ISO dates above.\n\n"
         f"REGULATORS TO COVER (search each by name + recent recalls): {agencies}\n\n"
         f"SEARCH STRATEGY:\n"
         f"  - For each regulator, search '<agency name> recall "
         f"{yday.strftime('%B %Y')}' and '<agency name> recent recalls'\n"
-        f"  - Then open the 2-3 most recent recall notices from each agency "
-        f"and check their publication date against the 3-day window\n"
+        f"  - Then open the 3-4 most recent recall notices from each agency "
+        f"and check their publication date against the 5-day window\n"
         f"  - If you see phrases like 'today', 'this week', 'yesterday', "
         f"'hier', 'aujourd'hui', 'heute', translate them using the fact "
         f"that the current date is {nxt.isoformat()}\n\n"
@@ -1042,16 +1050,37 @@ def main() -> int:
     # ========================================================================
     # STEP 2: Render daily HTML briefs FROM THE RECALLS SHEET.
     # ========================================================================
-    # Build (or rebuild) the last BRIEF_DAYS days, not just today's target.
-    # Late-caught recalls promoted by the URL guardian after a brief was
-    # first rendered now appear when the next daily search re-renders the
-    # previous days. The dashboard shows all BRIEF_DAYS cards.
-    BRIEF_DAYS = 3
+    # Regulators commonly publish recalls dated 2-3 days in the past (the
+    # recall happens, a few days pass, then the agency posts it). We therefore
+    # rebuild a sliding window of [today .. target - LOOKBACK_DAYS] every
+    # daily run so any late-promoted row lands in the right brief.
+    #
+    # Also includes TODAY explicitly — recalls promoted same-day need a brief
+    # rendered for today, not just yesterday.
+    #
+    # Env override: BRIEF_LOOKBACK_DAYS (default 4 → covers today, yesterday,
+    # 2 days ago, 3 days ago, 4 days ago = 5 daily briefs total).
+    BRIEF_LOOKBACK_DAYS = int(os.getenv("BRIEF_LOOKBACK_DAYS", "4"))
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
     brief_paths: list[str] = []
 
-    for offset in range(BRIEF_DAYS):
-        d = target - timedelta(days=offset)
+    # Always include today (for same-day promotions) PLUS the
+    # target..target-LOOKBACK window. Use a set + sorted descending list to
+    # avoid double-rendering when target == today.
+    try:
+        from zoneinfo import ZoneInfo
+        today_athens = datetime.now(ZoneInfo("Europe/Athens")).date()
+    except Exception:
+        today_athens = (datetime.now(timezone.utc) + timedelta(hours=3)).date()
+    dates_to_render = {today_athens}
+    for offset in range(BRIEF_LOOKBACK_DAYS + 1):
+        dates_to_render.add(target - timedelta(days=offset))
+    sorted_dates = sorted(dates_to_render, reverse=True)
+    log.info("Will (re)render %d daily briefs: %s",
+             len(sorted_dates),
+             ", ".join(d.isoformat() for d in sorted_dates))
+
+    for d in sorted_dates:
         day_recalls = load_recalls_for_date(XLSX_PATH, d)
         log.info("Rendering brief for %s from Recalls sheet: %d row(s) match",
                  d.isoformat(), len(day_recalls))
@@ -1059,7 +1088,7 @@ def main() -> int:
         # regions_done only applies to the target day's search; use 0 for
         # back-fill days (the brief template tolerates 0 gracefully).
         html = render_daily_html(d, day_recalls,
-                                 regions_done if offset == 0 else 0)
+                                 regions_done if d == target else 0)
         if not args.dry_run:
             day_html_path.write_text(html, encoding="utf-8")
             log.info("Wrote %s", day_html_path)
@@ -1077,7 +1106,8 @@ def main() -> int:
                f"+{len(new_recalls)} → Pending, "
                f"{len(brief_recalls)} in brief from Recalls, "
                f"€{new_week_spent-week_spent:.3f} spent "
-               f"(rebuilt {BRIEF_DAYS} daily briefs)")
+               f"(rebuilt {len(brief_paths)} daily briefs, "
+               f"window: today + {BRIEF_LOOKBACK_DAYS} days back)")
         git_commit_and_push(ROOT, paths, msg)
         log.info("Committed and pushed.")
 

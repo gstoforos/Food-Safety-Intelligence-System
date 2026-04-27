@@ -1,0 +1,493 @@
+"""
+pipeline/claude_check.py — final Claude-based verification stage.
+
+Runs AFTER url_gate_gemini.py and BEFORE Pending → Recalls promotion.
+
+For each row currently in Pending:
+  1. Fetch the regulator URL (text-extracted, ~25K chars, 25s timeout)
+  2. Ask Claude Haiku 4.5 to verify the row's Date / Company / Product /
+     Pathogen against the actual page content
+  3. If Claude finds the row's Date is wrong → correct it with audit trail
+     in Notes: "[claude-check 2026-04-27: corrected Date 2026-04-25 →
+     2026-03-15 (page header)]"
+  4. If Claude finds the row otherwise consistent → mark for promotion
+  5. If Claude finds the page does NOT match the claimed recall (wrong
+     hazard, different company, page is a clarification of a different
+     recall, page is a listing/index, etc.) → keep in Pending with
+     REJECTED status
+
+Catches the failure mode that bit us on the SFA Nature One Dairy row:
+the SFA page header reads "Recall of two additional formula milk products"
+with publication date 15 Mar 2026, but a "Clarification" added later in
+April caused the gap-finder to stamp the row 2026-04-25. Claude reading
+the page text catches the discrepancy and corrects the date back to
+2026-03-15.
+
+This stage complements the Gemini URL gate (url_gate_gemini.py):
+  - Gemini gate: verifies the URL is on the right domain and points to
+    a specific recall page (uses Google Search grounding for cross-check)
+  - Claude check: reads the page itself and verifies the Date / Company /
+    Product / Pathogen on the row actually match what the page says
+
+Cost: Claude Haiku 4.5 (claude-haiku-4-5-20251001). With pages truncated
+to ~25K chars and a few-K-token output, expect <$0.05 per run for typical
+Pending sizes (5–30 rows). Cheap enough to run after every URL-gate run.
+
+Schedule (Athens time):
+  07:30 → url_gate_gemini.py            (URL verification + fixes)
+  07:45 → claude_check.py               (page-content verification)
+  08:00 → weekly report (Friday only)   (consumes Recalls sheet)
+"""
+from __future__ import annotations
+import os
+import sys
+import re
+import json
+import logging
+import time
+from pathlib import Path
+from datetime import datetime, timezone
+from typing import List, Dict, Any, Optional, Tuple
+
+import requests as _requests
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
+from pipeline.merge_master import (  # noqa: E402
+    load_existing, load_pending,
+    promote_approved, sort_rows,
+    save_xlsx_with_pending, mirror_json_from_xlsx,
+    rebuild_daily_briefs_for_promoted,
+    STATUS_REJECTED, STATUS_PENDING,
+)
+from pipeline.commit_github import git_commit_and_push  # noqa: E402
+from review.claude_client import (  # noqa: E402
+    _call_claude, _strip_fences, ENABLED as CLAUDE_ENABLED,
+)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+log = logging.getLogger("claude-check")
+
+DATA_DIR = ROOT / "docs" / "data"
+XLSX_PATH = DATA_DIR / "recalls.xlsx"
+JSON_PATH = DATA_DIR / "recalls.json"
+
+SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
+
+# Page-fetch + Claude limits
+HTML_TRUNCATE_CHARS = 25_000  # plenty for any regulator detail page
+FETCH_TIMEOUT_S = 25
+SLEEP_BETWEEN_ROWS_S = 0.5    # gentle on the regulator + the API
+USER_AGENT = (
+    "Mozilla/5.0 (compatible; AFTS-FSIS-claude-check/1.0; "
+    "+https://advfood.tech/fsis-home)"
+)
+
+# Rows older than this many days are not re-verified (we trust the prior
+# Claude check). 0 means verify every row every run.
+SKIP_IF_VERIFIED_DAYS = int(os.getenv("CLAUDE_CHECK_SKIP_DAYS", "0"))
+
+
+# ---------------------------------------------------------------------------
+# HTML → text extraction (no bs4 dependency required)
+# ---------------------------------------------------------------------------
+
+_RE_SCRIPT = re.compile(r"<(script|style)[^>]*>.*?</\1>", re.IGNORECASE | re.DOTALL)
+_RE_TAG = re.compile(r"<[^>]+>")
+_RE_WS = re.compile(r"[ \t]+")
+_RE_NL = re.compile(r"\n{3,}")
+
+
+def _html_to_text(html: str) -> str:
+    """
+    Cheap HTML→text. Strips <script>/<style>, removes tags, collapses
+    whitespace. Good enough for Claude to read regulator pages that are
+    mostly prose + tables.
+    """
+    if not html:
+        return ""
+    txt = _RE_SCRIPT.sub(" ", html)
+    txt = _RE_TAG.sub(" ", txt)
+    # decode the most common HTML entities
+    txt = (txt.replace("&nbsp;", " ")
+              .replace("&amp;", "&")
+              .replace("&lt;", "<")
+              .replace("&gt;", ">")
+              .replace("&quot;", '"')
+              .replace("&#39;", "'")
+              .replace("&euro;", "€"))
+    # collapse whitespace
+    txt = _RE_WS.sub(" ", txt)
+    txt = _RE_NL.sub("\n\n", txt)
+    return txt.strip()
+
+
+def _fetch_page_text(url: str) -> Tuple[Optional[str], Optional[str]]:
+    """
+    Return (text, error). Text is the page content stripped of HTML and
+    truncated to HTML_TRUNCATE_CHARS. error is None on success, or a
+    short reason string on failure.
+    """
+    if not url or not url.lower().startswith(("http://", "https://")):
+        return None, "no URL"
+    try:
+        resp = _requests.get(
+            url, timeout=FETCH_TIMEOUT_S,
+            headers={"User-Agent": USER_AGENT,
+                     "Accept-Language": "en,fr,de,es,it,el;q=0.9"},
+            allow_redirects=True,
+        )
+    except Exception as exc:
+        return None, f"fetch error: {type(exc).__name__}: {str(exc)[:120]}"
+
+    if resp.status_code >= 400:
+        return None, f"HTTP {resp.status_code}"
+
+    ctype = (resp.headers.get("Content-Type") or "").lower()
+    if "html" not in ctype and "xml" not in ctype and "text" not in ctype:
+        # PDF, image, or other binary — Claude can't read directly here
+        return None, f"non-text content-type: {ctype[:60]}"
+
+    text = _html_to_text(resp.text or "")
+    if len(text) > HTML_TRUNCATE_CHARS:
+        text = text[:HTML_TRUNCATE_CHARS] + "\n\n[... truncated ...]"
+    return text, None
+
+
+# ---------------------------------------------------------------------------
+# Claude prompt
+# ---------------------------------------------------------------------------
+
+CLAUDE_CHECK_SYSTEM = (
+    "You are a senior food-safety analyst doing the final verification "
+    "pass on a recall row before it is published on a public dashboard. "
+    "You read the regulator's actual page text and answer strictly in "
+    "the JSON schema requested. You never invent facts — if the page "
+    "doesn't say something, leave the field blank or set the verdict "
+    "to 'fail'."
+)
+
+CLAUDE_CHECK_PROMPT = """A row is in our Pending sheet, claimed to describe a real food recall on the regulator's page below. Verify it.
+
+═══ ROW (claimed) ═══
+Date     : {Date}
+Source   : {Source}
+Country  : {Country}
+Company  : {Company}
+Brand    : {Brand}
+Product  : {Product}
+Pathogen : {Pathogen}
+Reason   : {Reason}
+URL      : {URL}
+
+═══ PAGE TEXT (text-extracted from the URL above) ═══
+{page_text}
+═══ END PAGE TEXT ═══
+
+INSTRUCTIONS:
+
+1. Find the ORIGINAL recall publication date on the page.
+   • Look for: "Published", "Publication date", "Date du rappel",
+     "Datum", a calendar-icon datestamp at the top of the article,
+     or the date in the page header.
+   • CRITICAL: If the page shows BOTH an original publication date
+     AND a later "Update", "Clarification", "Latest update", or
+     "Last modified" date, ALWAYS use the ORIGINAL publication date.
+     Example: SFA "Recall of two additional formula milk products"
+     published 15 Mar 2026 with a Clarification added 25 Apr 2026 →
+     the date is 2026-03-15, NOT 2026-04-25.
+
+2. Verify each field against the page:
+   • date_match    — does the row's Date equal the ORIGINAL publication
+                     date on the page? (±1 day tolerance for tz quirks)
+   • company_match — does the page mention the row's Company?
+                     "Various brands", "Various producers", "Unbranded",
+                     "sans marque", or "—" are all legitimate values
+                     when the page itself doesn't name a single company.
+   • product_match — does the page describe the row's Product?
+   • pathogen_match — does the page identify the row's Pathogen?
+                     (e.g. "Listeria", "Salmonella", "cereulide",
+                     "B. cereus toxin")
+   • is_recall_page — is the page actually a recall / public-warning /
+                      alert page (not a listing index, search results,
+                      category page, transparency page, or unrelated
+                      content)?
+
+3. If date_match is false but you can identify the correct publication
+   date from the page, return it as date_corrected (YYYY-MM-DD).
+
+4. Set verdict:
+   • "pass"   — all 5 match flags true (or true after applying
+                date_corrected). Row is ready to promote.
+   • "fix"    — only date_match is false but you have a confident
+                correction. We'll apply date_corrected and promote.
+   • "fail"   — anything else. Row stays in Pending for human review.
+
+OUTPUT — strict JSON, no markdown, no commentary:
+
+{{
+  "date_match": true|false,
+  "date_on_page": "YYYY-MM-DD or empty",
+  "date_corrected": "YYYY-MM-DD or empty",
+  "company_match": true|false,
+  "product_match": true|false,
+  "pathogen_match": true|false,
+  "is_recall_page": true|false,
+  "verdict": "pass" | "fix" | "fail",
+  "reason": "short single-sentence rationale"
+}}
+"""
+
+
+def _verify_with_claude(row: Dict[str, Any],
+                         page_text: str) -> Optional[Dict[str, Any]]:
+    """
+    Call Claude Haiku 4.5 with the row + page text. Returns the parsed
+    JSON dict, or None on failure (Claude error / parse error / etc.).
+    """
+    if not CLAUDE_ENABLED:
+        return None
+
+    prompt = CLAUDE_CHECK_PROMPT.format(
+        Date=row.get("Date", ""),
+        Source=row.get("Source", ""),
+        Country=row.get("Country", ""),
+        Company=row.get("Company", ""),
+        Brand=row.get("Brand", "—"),
+        Product=row.get("Product", ""),
+        Pathogen=row.get("Pathogen", ""),
+        Reason=row.get("Reason", ""),
+        URL=row.get("URL", ""),
+        page_text=page_text,
+    )
+    try:
+        raw = _call_claude(prompt=prompt, system=CLAUDE_CHECK_SYSTEM)
+    except Exception as exc:
+        log.warning("Claude call failed: %s: %s",
+                    type(exc).__name__, str(exc)[:120])
+        return None
+    if not raw:
+        return None
+    try:
+        return json.loads(_strip_fences(raw))
+    except json.JSONDecodeError as exc:
+        log.warning("Claude JSON parse failed: %s | %s", exc, raw[:200])
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Per-row verification
+# ---------------------------------------------------------------------------
+
+def _was_recently_verified(row: Dict[str, Any]) -> bool:
+    """True if Notes contains a recent [claude-check ...] audit stamp."""
+    if SKIP_IF_VERIFIED_DAYS <= 0:
+        return False
+    notes = str(row.get("Notes") or "")
+    m = re.search(r"\[claude-check (\d{4}-\d{2}-\d{2})", notes)
+    if not m:
+        return False
+    try:
+        stamp = datetime.strptime(m.group(1), "%Y-%m-%d").date()
+    except ValueError:
+        return False
+    age = (datetime.now(timezone.utc).date() - stamp).days
+    return age <= SKIP_IF_VERIFIED_DAYS
+
+
+def check_row(row: Dict[str, Any]) -> Tuple[str, Optional[str], Optional[str]]:
+    """
+    Verify one Pending row. Returns (verdict, date_correction, reason)
+      verdict in {"pass", "fix", "fail", "skip"}
+      date_correction = new YYYY-MM-DD or None
+      reason = short audit string
+
+    "skip" = transient failure (URL fetch / Claude error). Row stays in
+             Pending unchanged so the next run gets another shot.
+    """
+    if _was_recently_verified(row):
+        return "pass", None, "recently verified — skipping"
+
+    url = str(row.get("URL") or "").strip()
+    text, fetch_err = _fetch_page_text(url)
+    if text is None:
+        return "skip", None, f"fetch failed ({fetch_err})"
+
+    result = _verify_with_claude(row, text)
+    if result is None:
+        return "skip", None, "claude unreachable / parse failed"
+
+    verdict = str(result.get("verdict") or "").lower()
+    if verdict not in ("pass", "fix", "fail"):
+        return "skip", None, f"unknown verdict '{verdict}'"
+
+    date_corr = (str(result.get("date_corrected") or "").strip() or None)
+    if date_corr and not re.match(r"^\d{4}-\d{2}-\d{2}$", date_corr):
+        date_corr = None
+
+    reason_parts = [verdict]
+    if not result.get("is_recall_page", True):
+        reason_parts.append("not a recall page")
+    if not result.get("company_match", True):
+        reason_parts.append("company mismatch")
+    if not result.get("product_match", True):
+        reason_parts.append("product mismatch")
+    if not result.get("pathogen_match", True):
+        reason_parts.append("pathogen mismatch")
+    if not result.get("date_match", True):
+        reason_parts.append(f"date on page={result.get('date_on_page', '?')}")
+    short_reason = "; ".join(reason_parts)
+    if result.get("reason"):
+        short_reason = f"{short_reason} | {str(result['reason'])[:140]}"
+
+    # Refuse to apply a "fix" if the only mismatch is date and the
+    # corrected date is missing — degrade to "fail" for human review.
+    if verdict == "fix" and not date_corr:
+        return "fail", None, f"fix proposed but no date_corrected: {short_reason}"
+
+    return verdict, date_corr, short_reason
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main() -> int:
+    t0 = datetime.now(timezone.utc)
+    log.info("=" * 60)
+    log.info("Claude check (final verification) started: %s",
+             t0.strftime("%Y-%m-%dT%H:%M:%SZ"))
+
+    if not CLAUDE_ENABLED:
+        log.error("Claude not enabled (no ANTHROPIC_API_KEY). Aborting.")
+        return 2
+
+    if not XLSX_PATH.exists():
+        log.error("recalls.xlsx not found at %s", XLSX_PATH)
+        return 1
+
+    approved = load_existing(XLSX_PATH)
+    pending = load_pending(XLSX_PATH)
+    log.info("State: %d approved + %d pending", len(approved), len(pending))
+
+    if not pending:
+        log.info("Nothing in Pending — nothing to do.")
+        return 0
+
+    # Skip rows that are already in REJECTED status — those need human
+    # triage, not another Claude pass.
+    rows_to_check_idx: List[int] = [
+        i for i, r in enumerate(pending)
+        if (r.get("Status") or "").lower() != STATUS_REJECTED
+    ]
+    log.info("Will verify %d rows (skipping %d already-rejected)",
+             len(rows_to_check_idx), len(pending) - len(rows_to_check_idx))
+
+    # Per-row verification
+    today_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    rejected_flags: Dict[int, str] = {}
+    fixed_count = 0
+    pass_count = 0
+    fail_count = 0
+    skip_count = 0
+
+    for n, idx in enumerate(rows_to_check_idx, 1):
+        row = pending[idx]
+        log.info("[%d/%d] %s | %s",
+                 n, len(rows_to_check_idx),
+                 str(row.get("Date", ""))[:10],
+                 str(row.get("URL", ""))[:80])
+        verdict, date_corr, reason = check_row(row)
+
+        # Audit trail in Notes
+        audit = (f"[claude-check {today_iso}: {verdict}"
+                 + (f"; Date {row.get('Date','')} → {date_corr}"
+                    if date_corr else "")
+                 + f"; {reason[:120]}]")
+        notes = (row.get("Notes") or "").strip()
+        # Drop any prior claude-check stamp before appending
+        notes = re.sub(r"\s*\[claude-check[^\]]*\]\s*", " ", notes).strip()
+        row["Notes"] = (notes + " " + audit).strip()[:1000]
+
+        if verdict == "fix" and date_corr:
+            old_date = row.get("Date", "")
+            row["Date"] = date_corr
+            log.info("  → FIX Date %s → %s", old_date, date_corr)
+            fixed_count += 1
+            # treat as pass downstream — promote
+        elif verdict == "fail":
+            rejected_flags[idx] = f"Claude check: {reason[:280]}"
+            log.info("  → FAIL: %s", reason)
+            fail_count += 1
+        elif verdict == "pass":
+            log.info("  → PASS")
+            pass_count += 1
+        else:  # skip
+            log.info("  → SKIP: %s (left untouched, retry next run)", reason)
+            skip_count += 1
+
+        time.sleep(SLEEP_BETWEEN_ROWS_S)
+
+    # Apply rejected_flags + dedup against Recalls via promote_approved.
+    new_approved, remaining = promote_approved(
+        pending=pending,
+        approved_existing=approved,
+        rejected_flags=rejected_flags,
+    )
+
+    log.info("Verdicts: pass=%d, fix=%d, fail=%d, skip=%d (total checked=%d)",
+             pass_count, fixed_count, fail_count, skip_count,
+             pass_count + fixed_count + fail_count + skip_count)
+    log.info("Promotion: %d Pending → Recalls; %d remain in Pending",
+             len(new_approved), len(remaining))
+
+    # Save + commit
+    final_approved = sort_rows(approved + new_approved)
+    final_pending = sort_rows(remaining)
+    save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH)
+    mirror_json_from_xlsx(XLSX_PATH, JSON_PATH)
+
+    # Rebuild daily briefs for every date that gained newly-promoted rows.
+    # Without this, the dashboard's rolling 7-day display + DAILY tab stay
+    # stale until the next 10:00 daily-recall-search run.
+    rebuilt_briefs, brief_files = rebuild_daily_briefs_for_promoted(
+        new_approved, final_approved,
+    )
+    if rebuilt_briefs:
+        log.info("Rebuilt %d daily brief(s)", len(rebuilt_briefs))
+
+    files_to_commit = ["docs/data/recalls.xlsx", "docs/data/recalls.json"]
+    files_to_commit.extend(brief_files)
+
+    if not SKIP_COMMIT:
+        ok = git_commit_and_push(
+            repo_dir=ROOT,
+            files=files_to_commit,
+            message=(f"FSIS Claude check {t0.strftime('%Y-%m-%d')} "
+                     f"(+{len(new_approved)} promoted, "
+                     f"{fixed_count} dates fixed, "
+                     f"{fail_count} failed, {len(remaining)} pending"
+                     + (f", rebuilt {len(rebuilt_briefs)} briefs"
+                        if rebuilt_briefs else "")
+                     + ")"),
+        )
+        if not ok:
+            log.error("Git push failed")
+            return 1
+
+    elapsed = (datetime.now(timezone.utc) - t0).total_seconds()
+    log.info("=" * 60)
+    log.info("DONE in %.1fs | +%d promoted | %d date fixes | %d failed | "
+             "%d still pending | %d briefs rebuilt",
+             elapsed, len(new_approved), fixed_count, fail_count,
+             len(remaining), len(rebuilt_briefs))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

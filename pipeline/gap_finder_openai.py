@@ -116,11 +116,28 @@ def _ordered_specs(primary_list: List[str]) -> List[Dict[str, Any]]:
 GAP_FINDER_SYSTEM = (
     "You are a senior food safety analyst. You search worldwide regulators for "
     "food recalls, public health alerts, RASFF notifications, and market withdrawals. "
-    "You NEVER make up URLs or facts. Return ONLY strict JSON — no markdown, no prose."
+    "You NEVER make up URLs or facts. Return ONLY strict JSON — no markdown, no prose.\n\n"
+    "CRITICAL RULES:\n"
+    "1. Only return recalls published within the last 5 days. Older recalls "
+    "are out of scope — skip them entirely.\n"
+    "2. Every URL must be a DIRECT link to the regulator's official domain "
+    "(fda.gov, fsis.usda.gov, recalls-rappels.canada.ca, "
+    "rappel.conso.gouv.fr, food.gov.uk, fsai.ie, etc.). Never an aggregator, "
+    "never a search-result URL, never an invented URL.\n"
+    "3. The Date field MUST be the date the regulator PUBLISHED the recall, "
+    "extracted from the recall page itself. NEVER use today's date as a "
+    "placeholder. If you cannot find the publication date, omit the row.\n"
+    "4. Do NOT return investigation pages, timeline pages, disease info "
+    "pages, paginated listing pages (?page=), category indices, or "
+    "transparency pages. Only specific individual recall notices.\n"
+    "5. Do NOT return recalls older than 2026. If a recall's URL or content "
+    "shows it is from 2025 or earlier, skip it completely."
 )
 
 
 GAP_FINDER_PROMPT = """Using your web search, find EVERY food recall, public health alert, RASFF notification, or market withdrawal issued in {region} in the last {since_days} days.
+
+Goal: be COMPREHENSIVE. Return every qualifying recall you can find — downstream URL-gate + review steps will verify and reject anything questionable, so over-delivering is preferred to under-delivering. Deliver everything in clean, structured format and let the next stage decide.
 
 Today's date: {today}
 
@@ -142,36 +159,118 @@ OUT of scope: undeclared allergens (unless combined with in-scope hazard),
 labeling errors, quality complaints, non-food products.
 
 For each recall return ALL fields below:
-- Date       : YYYY-MM-DD, the recall / alert publication date
+- Date       : YYYY-MM-DD — the date the REGULATOR PUBLISHED the ORIGINAL
+               recall on their website. Extract this from the recall page
+               itself (datestamp, "Published", "Publication date", "Date du
+               rappel", "Datum", etc.). NEVER substitute today's date.
+               CRITICAL: If the page shows BOTH an original publication
+               date AND a later "Update", "Clarification", "Latest update",
+               or "Last modified" date, ALWAYS use the ORIGINAL publication
+               date — never the update/clarification date. Example: SFA
+               recall published 15 March 2026 with a "Clarification" added
+               25 April 2026 → Date is 2026-03-15, NOT 2026-04-25.
+               If you cannot find the original publication date, OMIT the row.
 - Source     : agency short name, e.g. "FDA", "USDA FSIS", "RASFF", "FSA", "CFIA"
-- Company    : firm / producer name
-- Brand      : commercial brand name ("—" if not stated)
-- Product    : full product description including size / pack where available
+- Company    : firm / producer name as stated on the regulator's page.
+               Legitimate values include real company names AND descriptors
+               like "Various brands", "Various producers", "Unbranded",
+               "sans marque" (RappelConso), "—", or empty when the regulator
+               itself doesn't name a single company (multi-producer recalls,
+               generic raw products, bulk commodity alerts).
+               What is NOT legitimate: page titles or navigation text such
+               as "List of", "Food Alerts", "Recall of …", "Listeriosis",
+               "Food Safety Investigation:", "Timeline of Events:".
+- Brand      : commercial brand name. "—" if not stated; "Various" if many.
+- Product    : full product description including size / pack where available.
+               The actual product name — NOT the recall reason. Never write
+               "due to Salmonella" or "due to Listeria" in this field.
 - Pathogen   : specific pathogen detected, e.g. "Listeria monocytogenes"
 - Reason     : short cause description
 - Class      : recall class ("Recall" / "Alert" / "Class I/II/III" / "Public Health Alert" etc.)
 - Country    : English country name, e.g. "United States", "France"
 - Outbreak   : 1 if illnesses / cases mentioned, else 0
-- URL        : FULL deep-link URL to the specific recall page — NOT a homepage
-               or category page. You MUST include a verifiable URL. If you cannot
-               produce a specific recall-page URL, OMIT that recall entirely.
+- URL        : FULL deep-link URL to the SPECIFIC recall page on the
+               regulator's official domain. NEVER a homepage, category page,
+               paginated listing (?page=), investigation page, transparency
+               page, or aggregator URL. If you cannot produce a verified
+               specific recall-page URL, OMIT the row entirely.
 - Notes      : distribution area, lot / batch info, illness count, extra context
 
-CRITICAL RULES:
-1. Only include recalls you are confident actually happened and whose URL you are
-   confident points to the real recall page. If uncertain, omit.
-2. Never invent or hallucinate URLs. Every URL must be a real page that exists.
-3. The URL must be specific (e.g. .../liquid-blenz-corp-recalls-product-due-..
-   or .../fiche-rappel/12345), NEVER a homepage or category listing.
-4. Coverage goal: worldwide — US, EU member states, UK, Canada, Australia, NZ,
-   Japan, Korea, China/HK, India, Brazil, Mexico, Argentina, South Africa,
-   Middle East, etc.
+CRITICAL RULES (non-negotiable — failure on any one means OMIT the row):
+1. Window: ONLY recalls published in the last {since_days} days. Anything
+   older is out of scope. NEVER return anything dated before 2026-01-01.
+2. URL must be on the regulator's official domain — no aggregators, no
+   search-result URLs, no invented URLs.
+3. Date must be the regulator's publication date extracted from the page,
+   NEVER today's date as a placeholder.
+4. URL must be specific — a recall detail page, not a category listing,
+   not a paginated index, not an investigation/disease/timeline page.
+5. Coverage goal: comprehensive in this region. Include borderline recalls
+   (unusual brands, multi-producer alerts, niche regulators) — downstream
+   gates will verify each one.
 
 Return strict JSON:
 {{"recalls": [{{"Date":"...","Source":"...","Company":"...","Brand":"...","Product":"...","Pathogen":"...","Reason":"...","Class":"...","Country":"...","Outbreak":0,"URL":"...","Notes":"..."}}]}}
 
 If no pathogen recalls happened in the last {since_days} days, return: {{"recalls": []}}
 """
+
+
+# ---------------------------------------------------------------------------
+# Post-filter: strip garbage out of OpenAI output before normalization
+# ---------------------------------------------------------------------------
+# The merge_master.validate_pending_row() gate is the authoritative backstop;
+# this just keeps logs clean and avoids feeding the Recall normalizer junk.
+
+def _post_filter_recalls(recalls: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Remove vertexaisearch redirects, generic pages, pre-2026 dates, and
+    non-http URLs from raw gap-finder output."""
+    clean: List[Dict[str, Any]] = []
+    rejected = 0
+    for r in recalls:
+        url = str(r.get("URL", "") or "").strip()
+
+        # Skip Google redirect URLs (shouldn't appear from OpenAI but be safe)
+        if "vertexaisearch" in url.lower():
+            log.warning("Rejected vertexaisearch URL: %s", url[:80])
+            rejected += 1
+            continue
+
+        # Non-http URL
+        if url and not url.lower().startswith(("http://", "https://")):
+            log.warning("Rejected non-http URL: %s", url[:80])
+            rejected += 1
+            continue
+
+        # Generic / listing / disease / transparency pages
+        url_low = url.lower()
+        bad_substrings = (
+            "page=",
+            "/list?",
+            "/a-z/",
+            "animal-disease",
+            "regulatory-transparency",
+            "/categorie/",
+            "/rubrik/",
+            "/tag/",
+        )
+        if any(p in url_low for p in bad_substrings):
+            log.warning("Rejected generic URL: %s", url[:80])
+            rejected += 1
+            continue
+
+        # Date before 2026
+        d = str(r.get("Date", "") or "")[:10]
+        if d and d < "2026-01-01":
+            log.warning("Rejected pre-2026 recall: %s %s", d, url[:60])
+            rejected += 1
+            continue
+
+        clean.append(r)
+
+    log.info("Post-filter: %d/%d recalls passed (%d rejected)",
+             len(clean), len(recalls), rejected)
+    return clean
 
 
 def _call_openai_search(prompt: str, system: str, max_tokens: int = 4096) -> str:
@@ -250,8 +349,9 @@ def query_openai_for_gaps(since_days: int) -> List[Dict[str, Any]]:
         log.info("  [%s] raw=%d", region, len(rows))
         all_recalls.extend(rows)
 
-    log.info("OpenAI total proposed: %d recalls across %d regions",
+    log.info("OpenAI total proposed: %d recalls across %d regions (pre-filter)",
              len(all_recalls), len(REGION_SPECS))
+    all_recalls = _post_filter_recalls(all_recalls)
     return all_recalls
 
 

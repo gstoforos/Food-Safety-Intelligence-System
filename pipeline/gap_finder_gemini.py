@@ -37,6 +37,8 @@ from pathlib import Path
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
+import requests as _requests
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
@@ -60,7 +62,7 @@ DATA_DIR = ROOT / "docs" / "data"
 XLSX_PATH = DATA_DIR / "recalls.xlsx"
 JSON_PATH = DATA_DIR / "recalls.json"
 
-SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "7"))
+SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "5"))
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
@@ -156,6 +158,111 @@ def _strip_fences(txt: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# vertexaisearch redirect resolution
+# ---------------------------------------------------------------------------
+# Gemini's google.genai SDK returns Google grounding-redirect URLs of the form
+#   https://vertexaisearch.cloud.google.com/grounding-api-redirect/AbCd1234...
+# These are NOT valid recall URLs — they only resolve when followed via HTTP.
+# We HEAD-follow them to extract the actual destination, and reject if the
+# redirect can't be resolved.
+
+def _resolve_vertexaisearch(url: str) -> str:
+    """
+    Resolve a vertexaisearch.cloud.google.com redirect to the actual
+    regulator URL by following HTTP redirects.
+
+    Returns the resolved URL on success, or '' if the redirect fails or
+    the URL is not a vertexaisearch redirect.
+
+    Per spec: if redirect resolution fails, the URL is REJECTED entirely
+    (caller treats empty string as "drop this recall").
+    """
+    if "vertexaisearch.cloud.google.com" not in url:
+        return url
+    try:
+        resp = _requests.head(
+            url, allow_redirects=True, timeout=10,
+            headers={"User-Agent": "FSIS-Bot/1.0"},
+        )
+        if resp.status_code < 400 and resp.url and resp.url != url:
+            log.info("Resolved vertexaisearch -> %s", resp.url[:100])
+            return resp.url
+    except Exception as exc:
+        log.debug("vertexaisearch resolve failed (%s): %s",
+                  type(exc).__name__, str(exc)[:120])
+    # Redirect failed — reject by returning empty
+    return ""
+
+
+# ---------------------------------------------------------------------------
+# Post-filter: remove garbage from gap-finder output before writing to Pending
+# ---------------------------------------------------------------------------
+
+def _post_filter_recalls(recalls: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Strip garbage from raw Gemini output BEFORE creating Recall objects:
+      • vertexaisearch redirects (resolve them, drop if unresolvable)
+      • non-http URLs
+      • generic / paginated / disease-info / transparency pages
+      • dates before 2026-01-01
+
+    The merge_master.validate_pending_row() gate is still the authoritative
+    backstop — this just keeps the logs cleaner and avoids hitting the
+    Recall normalizer with garbage.
+    """
+    clean: List[Dict[str, Any]] = []
+    rejected = 0
+    for r in recalls:
+        url = str(r.get("URL", "") or "").strip()
+
+        # Resolve vertexaisearch redirects (or reject if unresolvable)
+        if "vertexaisearch" in url.lower():
+            resolved = _resolve_vertexaisearch(url)
+            if not resolved:
+                log.warning("Rejected unresolvable Gemini redirect: %s", url[:80])
+                rejected += 1
+                continue
+            r["URL"] = resolved
+            url = resolved
+
+        # Non-http URL
+        if url and not url.lower().startswith(("http://", "https://")):
+            log.warning("Rejected non-http URL: %s", url[:80])
+            rejected += 1
+            continue
+
+        # Generic / listing / disease / transparency pages
+        url_low = url.lower()
+        bad_substrings = (
+            "page=",
+            "/list?",
+            "/a-z/",
+            "animal-disease",
+            "regulatory-transparency",
+            "/categorie/",
+            "/rubrik/",
+            "/tag/",
+        )
+        if any(p in url_low for p in bad_substrings):
+            log.warning("Rejected generic URL: %s", url[:80])
+            rejected += 1
+            continue
+
+        # Date before 2026
+        d = str(r.get("Date", "") or "")[:10]
+        if d and d < "2026-01-01":
+            log.warning("Rejected pre-2026 recall: %s %s", d, url[:60])
+            rejected += 1
+            continue
+
+        clean.append(r)
+
+    log.info("Post-filter: %d/%d recalls passed (%d rejected)",
+             len(clean), len(recalls), rejected)
+    return clean
+
+
+# ---------------------------------------------------------------------------
 # Primary-region rotation — three Gemini runs/day, each targets a different
 # region so every continent gets a dedicated deep sweep every 24 hours.
 #
@@ -208,12 +315,31 @@ def _primary_banner(primary: str) -> str:
 GAP_FINDER_SYSTEM = (
     "You are a senior food safety analyst. Use Google Search to find real, "
     "recent food pathogen recalls worldwide. Return ONLY strict JSON — no "
-    "markdown, no prose, no commentary. Never invent URLs — every URL you "
-    "return must have appeared verbatim in a Google Search result you ran."
+    "markdown, no prose, no commentary.\n\n"
+    "CRITICAL RULES:\n"
+    "1. Only return recalls published within the last 5 days. Older recalls "
+    "are out of scope — skip them entirely.\n"
+    "2. Every URL must be a DIRECT link to a regulator's website "
+    "(fda.gov, fsis.usda.gov, recalls-rappels.canada.ca, "
+    "rappel.conso.gouv.fr, food.gov.uk, fsai.ie, etc.). NEVER return Google "
+    "redirect URLs (vertexaisearch.cloud.google.com), search-result URLs, "
+    "or aggregator URLs.\n"
+    "3. The Date field MUST be the date the regulator PUBLISHED the recall, "
+    "extracted from the recall page itself. NEVER use today's date as a "
+    "placeholder. If you cannot find the publication date, omit the row.\n"
+    "4. Do NOT return investigation pages, timeline pages, disease info "
+    "pages, paginated listing pages (?page=), category indices, or "
+    "transparency pages. Only specific individual recall notices.\n"
+    "5. Do NOT return recalls older than 2026. If a recall's URL or content "
+    "shows it is from 2025 or earlier, skip it completely.\n"
+    "6. Never invent URLs — every URL you return must have appeared "
+    "verbatim in a Google Search result you ran."
 )
 
 
 GAP_FINDER_PROMPT = """Using Google Search, find EVERY food recall / public-health alert issued worldwide in the last {since_days} days whose cause is a PATHOGEN, MICROBIAL CONTAMINATION, or BIOLOGICAL TOXIN.
+
+Goal: be COMPREHENSIVE. Return every qualifying recall you can find — downstream URL-gate + review steps will verify and reject anything questionable, so over-delivering is preferred to under-delivering. Deliver everything in clean, structured format and let the next stage decide.
 
 Today's date: {today}
 
@@ -231,26 +357,58 @@ In scope (pathogens): Listeria, Salmonella, E. coli / STEC / O157:H7, Clostridiu
 OUT of scope (do NOT include): undeclared allergens, foreign objects, labeling errors, mechanical issues, chemical/heavy-metal contamination, pesticide residues.
 
 For each recall return ALL fields below:
-- Date      : YYYY-MM-DD, the publication date
+- Date      : YYYY-MM-DD — the date the REGULATOR PUBLISHED the ORIGINAL
+              recall on their website. Extract this from the recall page
+              itself (datestamp, "Published", "Publication date", "Date du
+              rappel", "Datum", etc.). NEVER substitute today's date.
+              CRITICAL: If the page shows BOTH an original publication date
+              AND a later "Update", "Clarification", "Latest update", or
+              "Last modified" date, ALWAYS use the ORIGINAL publication
+              date — never the update/clarification date. Example: SFA
+              recall published 15 March 2026 with a "Clarification" added
+              25 April 2026 → Date is 2026-03-15, NOT 2026-04-25.
+              If you cannot find the original publication date, OMIT the row.
 - Source    : agency short name, e.g. "FDA", "USDA FSIS", "RASFF", "CFIA"
-- Company   : firm / producer name
-- Brand     : commercial brand name (use "—" if not stated)
-- Product   : full product description including size/pack where available
+- Company   : firm / producer name as stated on the regulator's page.
+              Legitimate values include real company names AND descriptors
+              like "Various brands", "Various producers", "Unbranded",
+              "sans marque" (RappelConso), "—", or empty when the regulator
+              itself doesn't name a single company (multi-producer recalls,
+              generic raw products, bulk commodity alerts).
+              What is NOT legitimate: page titles or navigation text such
+              as "List of", "Food Alerts", "Recall of …", "Listeriosis",
+              "Food Safety Investigation:", "Timeline of Events:".
+- Brand     : commercial brand name. "—" if not stated; "Various" if many.
+- Product   : full product description including size/pack where available.
+              The actual product name — NOT the recall reason. Never write
+              "due to Salmonella" or "due to Listeria" in this field.
 - Pathogen  : specific pathogen, e.g. "Listeria monocytogenes"
 - Reason    : short cause description
 - Class     : recall class ("Recall", "Alert", "Class I/II/III", "Public Health Alert")
 - Country   : English country name, e.g. "USA", "France", "Germany"
 - Outbreak  : 1 if illnesses/cases/deaths mentioned, else 0
-- URL       : FULL deep-link URL to the SPECIFIC recall detail page.
-              MUST be a URL that appeared in your Google Search results.
-              NEVER a homepage, category page, or invented URL.
+- URL       : FULL deep-link URL to the SPECIFIC recall detail page on the
+              regulator's official domain. MUST be a URL that appeared in
+              your Google Search results. NEVER:
+                • a Google redirect (vertexaisearch.cloud.google.com/...)
+                • a homepage, category, or paginated listing page
+                • an invented or guessed URL
 - Notes     : distribution area, lot/batch info, illness count, extra context
 
-CRITICAL RULES:
-1. Every URL must come from a real Google Search result you ran. Do not invent.
-2. The URL must be specific — a recall detail page, not a category listing.
-3. If you cannot find a specific recall-page URL for a potential recall, OMIT it.
-4. Coverage goal: worldwide — US, EU, UK, Canada, Australia, NZ, Japan, Korea, China, India, Brazil, Mexico, Argentina, South Africa, Middle East, etc.
+CRITICAL RULES (non-negotiable — failure on any one means OMIT the row):
+1. Window: ONLY recalls published in the last {since_days} days. Skip anything
+   older. Never return anything dated before 2026-01-01.
+2. URL must be on the regulator's official domain — never a Google redirect,
+   never a search-result URL, never an aggregator.
+3. Date must be the regulator's publication date extracted from the page,
+   NEVER today's date as a placeholder.
+4. URL must be specific — a recall detail page, not a category listing,
+   not a paginated index (?page=N), not an investigation/disease/timeline page.
+5. If you cannot satisfy all of (1)–(4) for a candidate recall, OMIT it.
+
+Beyond those four hard constraints, prefer COMPREHENSIVENESS: include borderline
+recalls (unusual brand names, multi-producer alerts, niche regulators) — the
+downstream URL gate and review process will verify each one.
 
 Return strict JSON:
 {{"recalls": [{{"Date":"...","Source":"...","Company":"...","Brand":"...","Product":"...","Pathogen":"...","Reason":"...","Class":"...","Country":"...","Outbreak":0,"URL":"...","Notes":"..."}}]}}
@@ -280,7 +438,9 @@ def query_gemini_for_gaps(since_days: int) -> List[Dict[str, Any]]:
         log.warning("Gap-finder JSON parse failed: %s | text=%s", e, txt[:300])
         return []
     recalls = data.get("recalls", []) or []
-    log.info("Gemini proposed %d recalls", len(recalls))
+    log.info("Gemini proposed %d recalls (pre-filter)", len(recalls))
+    # Strip garbage before downstream normalization sees it
+    recalls = _post_filter_recalls(recalls)
     return recalls
 
 

@@ -61,6 +61,118 @@ def _dedup_key(row: Dict[str, Any]) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Pending-row validation gate
+# ---------------------------------------------------------------------------
+# This is the SINGLE chokepoint that blocks garbage from EVERY source
+# (scrapers, gap finders, manual injects). Every row added to Pending must
+# pass validate_pending_row() — see PIPELINE_FIX_SPEC.md.
+
+# Generic / non-detail URL patterns we never want in Pending. These are
+# regulator landing/listing/transparency pages, not specific recall fiches.
+_GENERIC_URL_PATTERNS = (
+    r"vertexaisearch\.cloud\.google",        # Gemini grounding redirect
+    r"fsai\.ie/news-alerts/food\?page=",      # FSAI paginated listing
+    r"rasff-window/screen/list\?",            # RASFF list page
+    r"quebec\.ca/.*/listeriosis",             # Quebec disease info
+    r"quebec\.ca/.*/animal-disease",          # Quebec animal disease info
+    r"quebec\.ca/.*/food-recalls$",           # Quebec generic recalls page
+    r"regulatory-transparency-and-openness",  # CFIA transparency pages
+    r"food-safety-investigations/$",          # CFIA investigation index
+    r"/categorie/[\d/]+/?$",                  # RappelConso category index
+    r"/rubrik/[^/]+/?$",                      # produktwarnung.eu rubrik
+    r"/news-and-alerts/food-alerts/?$",       # FSAI alerts root
+    r"/safety/recalls-market-withdrawals-safety-alerts/?$",  # FDA root
+    r"/animal-veterinary/news-events/outbreaks-and-advisories/?$",  # FDA pet root
+)
+
+# Company-field strings that the scraper has clearly bungled (they're page
+# titles, section headers, or page text — never legitimate company names).
+#
+# IMPORTANT — what does NOT belong in this set:
+#   • "Various brands" / "Various producers" / "Multiple brands"  → legit
+#     descriptor when one recall covers many SKUs from different producers
+#     (e.g. BLV Salmonellen-Weichkäse, RASFF multi-country alerts).
+#   • "Unbranded" / "—" / "sans marque" / "No brand"              → legit
+#     descriptor for RappelConso "sans marque" entries, generic raw products,
+#     bulk commodity recalls.
+#   • "Consult Food …", "Various Foods Ltd", etc.                 → real
+#     company names that happen to start with normally-suspect words.
+# Company-field cleanup beyond clear scraper bugs is the URL gate's job +
+# downstream Claude review's job — not this gate's job.
+_GARBAGE_COMPANIES = {
+    "list of",                                       # FSAI/CFIA listing-page H1
+    "food alerts",                                   # FSAI navigation
+    "food alert",                                    # FSAI navigation
+    "listeriosis",                                   # disease name as company
+    "animals can catch and transmit salmonellosis",  # CFIA page text
+    "food safety investigation:",                    # CFIA section header
+    "timeline of events:",                           # CFIA section header
+    "recall of",                                     # FSAI page-title leak (prefix)
+}
+
+# Hard cutoff: nothing dated before this enters Pending.
+_MIN_VALID_DATE = "2026-01-01"
+
+
+def validate_pending_row(
+    row: Dict[str, Any],
+    existing_urls: set,
+) -> Tuple[bool, str]:
+    """
+    Return (is_valid, rejection_reason). Reject garbage before it enters
+    Pending. Called by append_to_pending() for every candidate row, no
+    matter the source (scrapers, gap finders, manual injects).
+
+    Rules — see PIPELINE_FIX_SPEC.md for rationale:
+      • REJECT vertexaisearch redirect URLs (Gemini grounding artifacts)
+      • REJECT generic / category / paginated-listing pages
+      • REJECT URLs that aren't http/https
+      • REJECT garbage Company fields ("List of", "Food Alerts", etc.)
+      • REJECT duplicate URLs already in Recalls or Pending
+      • REJECT dates before 2026-01-01
+
+    `existing_urls` is a set of already-seen lowercased URLs (Recalls +
+    current Pending). Pass an empty set to skip the dedup check.
+    """
+    url = str(row.get("URL", "") or "").strip()
+    company = str(row.get("Company", "") or "").strip()
+    date_str = str(row.get("Date", "") or "")[:10]
+
+    # ── REJECT: vertexaisearch redirect URLs (Gemini grounding artifacts) ──
+    if "vertexaisearch.cloud.google" in url:
+        return False, "Gemini grounding redirect URL, not a real recall"
+
+    # ── REJECT: generic / informational / listing pages ─────────────────
+    for pat in _GENERIC_URL_PATTERNS:
+        if re.search(pat, url, re.IGNORECASE):
+            return False, f"Generic/info page URL: matches {pat}"
+
+    # ── REJECT: URL is not http/https ───────────────────────────────────
+    if url and not url.lower().startswith(("http://", "https://")):
+        return False, f"Invalid URL scheme: {url[:30]}"
+
+    # ── REJECT: company field is clearly a page title, not a company ────
+    co_low = company.lower()
+    if co_low in _GARBAGE_COMPANIES:
+        return False, f'Company field is not a company: "{company}"'
+    # Substring check for "Recall of …" / "List of …" leakage
+    for bad in _GARBAGE_COMPANIES:
+        if co_low.startswith(bad + " ") or co_low.startswith(bad + ":"):
+            return False, f'Company field starts with garbage prefix "{bad}"'
+
+    # ── REJECT: duplicate URL already in Recalls or Pending ─────────────
+    url_norm = url.rstrip("/").lower()
+    if url_norm and url_norm in existing_urls:
+        return False, "Duplicate URL already exists"
+
+    # ── REJECT: date is before 2026-01-01 ───────────────────────────────
+    if date_str and date_str < _MIN_VALID_DATE:
+        return False, f"Date before {_MIN_VALID_DATE}: {date_str}"
+
+    return True, "OK"
+
+
+# ---------------------------------------------------------------------------
 # Load
 # ---------------------------------------------------------------------------
 def _load_sheet(xlsx_path: Path, sheet: str, schema: List[str]) -> List[Dict[str, Any]]:
@@ -72,10 +184,25 @@ def _load_sheet(xlsx_path: Path, sheet: str, schema: List[str]) -> List[Dict[str
     ws = wb[sheet]
     headers = [c.value for c in ws[1]]
     out = []
+    # Defensive: openpyxl may return Date cells as datetime objects when a
+    # cell was manually edited and Excel auto-typed it. Every downstream
+    # consumer (gate, sort, dedup, JSON mirror) expects YYYY-MM-DD strings,
+    # so coerce here at the single source of truth.
+    from datetime import datetime as _dt, date as _dt_date
     for row in ws.iter_rows(min_row=2, values_only=True):
         if all(v in (None, "") for v in row):
             continue
         rec = {h: (v if v is not None else "") for h, v in zip(headers, row)}
+        # Normalise Date column
+        d = rec.get("Date")
+        if isinstance(d, (_dt, _dt_date)):
+            try:
+                rec["Date"] = d.strftime("%Y-%m-%d")
+            except (TypeError, ValueError):
+                rec["Date"] = ""
+        elif d not in (None, "") and not isinstance(d, str):
+            # Excel serial number or other unexpected type
+            rec["Date"] = str(d)[:10]
         # Backfill any schema cols missing from the sheet (schema evolution safety)
         for col in schema:
             rec.setdefault(col, "" if col not in ("Tier", "Outbreak") else 0)
@@ -121,6 +248,19 @@ def append_to_pending(
     """
     keys_in_approved = {_dedup_key(r) for r in approved}
 
+    # Build set of all URLs already present (Recalls + current Pending) for
+    # the validation gate's dedup check. Lowercased + trailing-slash-stripped
+    # to match validate_pending_row()'s normalisation.
+    existing_urls: set = set()
+    for r in approved:
+        u = str(r.get("URL", "") or "").strip().rstrip("/").lower()
+        if u:
+            existing_urls.add(u)
+    for r in existing_pending:
+        u = str(r.get("URL", "") or "").strip().rstrip("/").lower()
+        if u:
+            existing_urls.add(u)
+
     # Index existing pending by key so we can drop rejected duplicates in place.
     # Multiple rows with the same key shouldn't happen, but if they do keep them
     # all (one will match; the others are untouched).
@@ -135,11 +275,24 @@ def append_to_pending(
     appended = 0
     already_pending = 0
     already_approved = 0
+    rejected_by_gate = 0
 
     for r in new_recalls:
         d = r.to_dict() if isinstance(r, Recall) else dict(r)
         for col in SCHEMA:
             d.setdefault(col, "" if col not in ("Tier", "Outbreak") else 0)
+
+        # ── HARD GATE: validate before any other logic. Blocks garbage from
+        # ── ALL sources (scrapers, gap-finders, manual injects).
+        ok, why = validate_pending_row(d, existing_urls)
+        if not ok:
+            log.warning(
+                "Pending gate REJECT: %s | url=%s | company=%s",
+                why, str(d.get("URL", ""))[:100], str(d.get("Company", ""))[:50],
+            )
+            rejected_by_gate += 1
+            continue
+
         k = _dedup_key(d)
 
         if k in keys_in_approved:
@@ -174,9 +327,9 @@ def append_to_pending(
 
     log.info(
         "Pending: kept %d (dropped %d rejected for retry), +%d new, +%d retried "
-        "(skipped: %d already-pending, %d already-approved) = %d total",
+        "(skipped: %d already-pending, %d already-approved, %d gate-rejected) = %d total",
         len(kept), len(indices_to_drop), appended, retried,
-        already_pending, already_approved, len(out),
+        already_pending, already_approved, rejected_by_gate, len(out),
     )
     return out
 
@@ -244,8 +397,26 @@ def promote_approved(
 # Sort / Save
 # ---------------------------------------------------------------------------
 def sort_rows(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Sort newest first by Date string (YYYY-MM-DD sorts lexically)."""
-    return sorted(rows, key=lambda r: (r.get("Date") or ""), reverse=True)
+    """Sort newest first by Date string (YYYY-MM-DD sorts lexically).
+
+    Defensive: rows can land here with Date as a datetime/date object when
+    a cell in the xlsx was manually edited and Excel auto-typed it as a
+    date. Coerce every key to a YYYY-MM-DD string before comparing so the
+    sort never crashes on mixed types.
+    """
+    def _key(r: Dict[str, Any]) -> str:
+        d = r.get("Date")
+        if d is None or d == "":
+            return ""
+        # datetime / date object → ISO string
+        if hasattr(d, "strftime"):
+            try:
+                return d.strftime("%Y-%m-%d")
+            except (TypeError, ValueError):
+                return ""
+        # Anything else → string (truncate to first 10 chars to drop time)
+        return str(d)[:10]
+    return sorted(rows, key=_key, reverse=True)
 
 
 def _write_sheet(wb: Workbook,
@@ -253,7 +424,13 @@ def _write_sheet(wb: Workbook,
                  schema: List[str],
                  rows: List[Dict[str, Any]],
                  header_fill: PatternFill = None) -> None:
-    """(Re)create a sheet with given schema + rows."""
+    """(Re)create a sheet with given schema + rows.
+
+    Defensive: Date cells are forced to YYYY-MM-DD strings with General
+    number_format so an upstream datetime never gets written back as a
+    typed-date cell (which would re-introduce the Excel-serial-leak bug).
+    """
+    from datetime import datetime as _dt, date as _dt_date
     if sheet_name in wb.sheetnames:
         del wb[sheet_name]
     ws = wb.create_sheet(sheet_name)
@@ -270,7 +447,18 @@ def _write_sheet(wb: Workbook,
                     v = int(v) if v not in ("", None) else 0
                 except (ValueError, TypeError):
                     v = 0
-            ws.cell(row=r_idx, column=c_idx, value=v)
+            elif col == "Date":
+                # Force every Date cell to a string + General format
+                if isinstance(v, (_dt, _dt_date)):
+                    try:
+                        v = v.strftime("%Y-%m-%d")
+                    except (TypeError, ValueError):
+                        v = ""
+                elif v not in (None, "") and not isinstance(v, str):
+                    v = str(v)[:10]
+            cell = ws.cell(row=r_idx, column=c_idx, value=v)
+            if col == "Date":
+                cell.number_format = "General"
     ws.freeze_panes = "A2"
 
 
@@ -366,6 +554,100 @@ def mirror_json_from_xlsx(xlsx_path: Path, json_path: Path) -> int:
         json.dump(out, f, ensure_ascii=False, indent=1, default=str)
     log.info("Mirrored %d rows from xlsx -> %s", len(out), json_path)
     return len(out)
+
+
+# ---------------------------------------------------------------------------
+# Daily-brief rebuild helper (used by url_gate, claude_check, merge_master CLI)
+# ---------------------------------------------------------------------------
+def rebuild_daily_briefs_for_promoted(
+    new_approved: List[Dict[str, Any]],
+    full_approved: List[Dict[str, Any]],
+) -> Tuple[List[str], List[str]]:
+    """
+    After Pending → Recalls promotion, rebuild the per-date daily-brief HTML
+    for every date that gained at least one new row. Without this, the
+    dashboard's DAILY tab and rolling 7-day display stay stale until the
+    next scheduled daily-recall-search run.
+
+    Args:
+        new_approved : rows just promoted to Recalls this run
+        full_approved: the FULL Recalls sheet AFTER promotion (so we render
+                       the complete day, not just the newly-added rows)
+
+    Returns:
+        (rebuilt_brief_paths, files_to_commit) — caller is responsible for
+        adding `files_to_commit` to its git_commit_and_push call. Both lists
+        are empty when nothing was promoted or the brief renderer module
+        is unavailable.
+    """
+    files_to_commit: List[str] = []
+    rebuilt_briefs: List[str] = []
+    if not new_approved:
+        return rebuilt_briefs, files_to_commit
+
+    try:
+        from pipeline.daily_recall_search import (  # noqa: WPS433
+            render_daily_html, update_daily_index,
+        )
+        from scrapers._models import Recall as _Recall  # noqa: WPS433
+    except ImportError as ie:
+        log.warning("Cannot import brief renderer (%s) — skipping daily "
+                    "brief rebuild", ie)
+        return rebuilt_briefs, files_to_commit
+
+    from collections import defaultdict
+    from datetime import date as _date
+
+    # Group newly-promoted rows by Date
+    by_date: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    for r in new_approved:
+        d = str(r.get("Date") or "").strip()[:10]
+        if d:
+            by_date[d].append(r)
+
+    # Fast-lookup of ALL Recalls by date so we render the full day, not
+    # only the newly-promoted rows.
+    full_by_date: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    for r in full_approved:
+        d = str(r.get("Date") or "").strip()[:10]
+        if d:
+            full_by_date[d].append(r)
+
+    for date_str in sorted(by_date.keys(), reverse=True):
+        try:
+            y, m, d = date_str.split("-")
+            target = _date(int(y), int(m), int(d))
+        except (ValueError, AttributeError):
+            log.warning("Skip brief rebuild — bad date '%s'", date_str)
+            continue
+
+        day_rows = full_by_date.get(date_str, [])
+        recalls_objs = []
+        for row in day_rows:
+            try:
+                recalls_objs.append(_Recall(**{
+                    k: (v if v is not None else "")
+                    for k, v in row.items()
+                    if k in _Recall.__annotations__
+                }))
+            except Exception as cce:  # noqa: BLE001
+                log.debug("skip row coerce: %s", cce)
+
+        try:
+            render_daily_html(target, recalls_objs)
+            update_daily_index(target, recalls_objs)
+            brief_path = f"docs/daily/{date_str}.html"
+            rebuilt_briefs.append(brief_path)
+            files_to_commit.append(brief_path)
+            log.info("Rebuilt daily brief for %s (%d rows)",
+                     date_str, len(recalls_objs))
+        except Exception as rerr:  # noqa: BLE001
+            log.warning("Brief rebuild failed for %s: %s", date_str, rerr)
+
+    if rebuilt_briefs:
+        files_to_commit.append("docs/daily-index.json")
+
+    return rebuilt_briefs, files_to_commit
 
 
 # ---------------------------------------------------------------------------
@@ -540,4 +822,13 @@ if __name__ == "__main__":
 
     save_xlsx_with_pending(final_approved, sort_rows(remaining), XLSX)
     mirror_json_from_xlsx(XLSX, ROOT / "docs" / "data" / "recalls.json")
+
+    # Rebuild daily briefs for any date that gained newly-promoted rows.
+    # Without this, the dashboard's rolling 7-day display stays stale.
+    rebuilt_briefs, brief_files = rebuild_daily_briefs_for_promoted(
+        new_approved, final_approved,
+    )
+    if rebuilt_briefs:
+        log.info("Rebuilt %d daily brief(s)", len(rebuilt_briefs))
+
     log.info("Done. Recalls=%d, Pending=%d", len(final_approved), len(remaining))

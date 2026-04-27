@@ -101,6 +101,9 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
+from pipeline.merge_master import (  # noqa: E402
+    mirror_json_from_xlsx, rebuild_daily_briefs_for_promoted, load_existing,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -1058,9 +1061,59 @@ def audit(days: int = DEFAULT_AUDIT_DAYS, dry_run: bool = False,
         log.info("Pending cleanup: %d dead + %d stale removed",
                  pending_result["dead_removed"], pending_result["stale_removed"])
 
+    # Track what daily briefs got rebuilt (populated only on non-dry-run save)
+    rebuilt_briefs: List[str] = []
+
     if not dry_run:
         wb.save(XLSX_PATH)
         log.info("Saved fixes to %s", XLSX_PATH)
+
+        # ── Mirror recalls.json (so it never drifts from xlsx) ─────────
+        try:
+            n_mirrored = mirror_json_from_xlsx(
+                XLSX_PATH, ROOT / "docs" / "data" / "recalls.json",
+            )
+            log.info("Mirrored %d rows to recalls.json", n_mirrored)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("recalls.json mirror failed: %s", exc)
+
+        # ── Rebuild daily briefs for every date that had a fix applied ─
+        # Sunday QA modifies existing rows (date corrections, tier
+        # rebalances, /Interne appends, etc.) — every affected date's
+        # brief must be regenerated so the dashboard's rolling 7-day
+        # display + DAILY tab don't go stale.
+        any_fix = (
+            sum(det_fixes.values()) > 0
+            or len(api_fixes) > 0
+            or len(gemini_url_fixes) > 0
+            or len(duplicate_urls) > 0
+            or len(dead_urls) > 0
+        )
+        if any_fix:
+            try:
+                # Re-load the post-save Recalls sheet so the brief
+                # renderer sees the corrected state.
+                full_after = load_existing(XLSX_PATH)
+                # Mark every date in the audit window as "potentially
+                # affected" so we rebuild conservatively.
+                window_dates = {
+                    str(r.get("Date") or "")[:10]
+                    for r in full_after
+                    if str(r.get("Date") or "")[:10] >= cutoff.isoformat()
+                }
+                synthetic_promoted = [
+                    {"Date": d, "URL": "—sunday-qa-marker—"}
+                    for d in window_dates if d
+                ]
+                rebuilt_briefs, _brief_files = rebuild_daily_briefs_for_promoted(
+                    synthetic_promoted, full_after,
+                )
+                if rebuilt_briefs:
+                    log.info("Rebuilt %d daily brief(s) after Sunday QA",
+                              len(rebuilt_briefs))
+            except Exception as exc:  # noqa: BLE001
+                log.warning("daily brief rebuild after Sunday QA failed: %s",
+                            exc)
 
     # ── Write Markdown report ──────────────────────────────────────────
     QA_DIR.mkdir(parents=True, exist_ok=True)
@@ -1172,6 +1225,7 @@ def audit(days: int = DEFAULT_AUDIT_DAYS, dry_run: bool = False,
         "pending_result": pending_result,
         "report_path": str(report_path.relative_to(ROOT)),
         "before_path": str(before_path),
+        "rebuilt_briefs": rebuilt_briefs,
     }
     log.info("QA summary: %s", json.dumps(summary, indent=2, default=str))
 
@@ -1213,7 +1267,13 @@ def main() -> int:
         pending_changed = (pend.get("dead_removed", 0) > 0
                            or pend.get("stale_removed", 0) > 0)
         if any_fix or summary["ai_flags"] > 0 or pending_changed:
-            paths = [str(XLSX_PATH), summary["report_path"]]
+            paths = [str(XLSX_PATH),
+                     str(ROOT / "docs" / "data" / "recalls.json"),
+                     summary["report_path"]]
+            # Include any daily briefs rebuilt during the audit
+            paths.extend([str(ROOT / p) for p in summary.get("rebuilt_briefs", [])])
+            if summary.get("rebuilt_briefs"):
+                paths.append(str(ROOT / "docs" / "daily-index.json"))
             msg = (
                 f"Sunday Gemini QA {summary['audit_date']}: "
                 f"{summary['deterministic_fixes']['region']} region, "

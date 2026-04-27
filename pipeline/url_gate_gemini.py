@@ -350,11 +350,17 @@ def _strip_fences(txt: str) -> str:
 def _call_gemini_grounded(prompt: str, system: str,
                            max_tokens: int = 8000) -> Optional[str]:
     """Single Gemini call with Google Search grounding enabled.
-    Returns text response or None on failure."""
+    Returns text response or None on failure.
+
+    Uses the new google-genai SDK (replaces deprecated google.generativeai).
+    Install: pip install google-genai
+    """
     try:
-        import google.generativeai as genai  # type: ignore
+        from google import genai  # type: ignore
+        from google.genai import types  # type: ignore
     except ImportError:
-        log.warning("google-generativeai not installed; Gemini gate disabled")
+        log.warning("google-genai not installed; Gemini gate disabled. "
+                    "Install with: pip install google-genai")
         return None
 
     keys = _collect_gemini_keys()
@@ -362,45 +368,46 @@ def _call_gemini_grounded(prompt: str, system: str,
         log.warning("No GEMINI_API_KEY(_1..10) set — Gemini gate disabled")
         return None
 
-    # Try newer ('google_search') and older ('google_search_retrieval') tool names
-    tool_configs = [
-        [{"google_search": {}}],
-        [{"google_search_retrieval": {}}],
-        "google_search_retrieval",
-    ]
-
     last_error: Optional[Exception] = None
     for api_key in keys:
-        for tool_cfg in tool_configs:
-            try:
-                genai.configure(api_key=api_key)
-                model = genai.GenerativeModel(
-                    GEMINI_MODEL, system_instruction=system,
-                )
-                resp = model.generate_content(
-                    prompt,
-                    tools=tool_cfg,
-                    generation_config={"max_output_tokens": max_tokens,
-                                       "temperature": 0.1},
-                )
-                text = (getattr(resp, "text", None) or "").strip()
-                if text:
-                    # Log search activity for cost monitoring
-                    try:
-                        gm = resp.candidates[0].grounding_metadata
-                        queries = getattr(gm, "web_search_queries", []) or []
-                        if queries:
-                            log.info("Gemini ran %d Google searches",
-                                     len(queries))
-                    except Exception:
-                        pass
-                    return text
-            except Exception as exc:  # noqa: BLE001
-                last_error = exc
-                log.debug("Gemini attempt failed: %s", str(exc)[:150])
-                continue
+        try:
+            client = genai.Client(api_key=api_key)
 
-    log.warning("Gemini gate: all keys/configs failed. Last error: %s", last_error)
+            config = types.GenerateContentConfig(
+                system_instruction=system if system else None,
+                tools=[types.Tool(google_search=types.GoogleSearch())],
+                max_output_tokens=max_tokens,
+                temperature=0.1,
+            )
+
+            resp = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt,
+                config=config,
+            )
+
+            text = (getattr(resp, "text", None) or "").strip()
+            if text:
+                # Log search activity for cost monitoring
+                try:
+                    if hasattr(resp, "candidates") and resp.candidates:
+                        gm = getattr(resp.candidates[0],
+                                     "grounding_metadata", None)
+                        if gm:
+                            queries = getattr(gm, "web_search_queries", []) or []
+                            if queries:
+                                log.info("Gemini ran %d Google searches",
+                                         len(queries))
+                except Exception:
+                    pass
+                return text
+        except Exception as exc:  # noqa: BLE001
+            last_error = exc
+            log.debug("Gemini attempt failed (%s): %s",
+                      type(exc).__name__, str(exc)[:150])
+            continue
+
+    log.warning("Gemini gate: all keys failed. Last error: %s", last_error)
     return None
 
 
