@@ -15,22 +15,7 @@
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22133/Interne",
   "Notes": "[added 2026-04-27 from audit; fiche 2026-04-0293 / 27-04-2026]"
  },
- {
-  "Date": "2026-04-27",
-  "Source": "CFIA",
-  "Company": "Trouvez des rappels, des avis et des avis de sécurité",
-  "Brand": "Trouvez des rappels, des avis et des avis de sécurité",
-  "Product": "Canada.ca",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Canada",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://recalls-rappels.canada.ca/fr/avis-rappel/certains-produits-fromagers-rappeles-raison-listeria-monocytogenes",
-  "Notes": "Trouvez des rappels, des avis et des avis de sécurité – Canada.ca\n\n# Trouvez des rappels, des avis et des avis de sécurité\n\nRecherche\n\n## Rappels et avis de sécurité prioritaires\n\nTasses rose et blanc à motif de beigne changeant de couleur de Tim Hortons rappelées en raison d’un risque de brûlure Ra  [via Tavily gap-finder, deterministic extract] [url-gate 2026-04-28: Gemini fixed https://recalls-rappels.canada.ca/fr... -> https://recalls-rappels.canada.ca/fr/avi...]"
- },
+
  {
   "Date": "2026-04-24",
   "Source": "BVL (DE)",
