@@ -18,7 +18,6 @@ sys.path.insert(0, str(ROOT))
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 SEVERITY = OrderedDict([
     ("clostridium botulinum",1),("botulinum",1),
@@ -817,14 +816,21 @@ def _process_authority_note(recalls, bot):
     # No trigger fired — return empty string (no P4 appended)
     return ""
 
-def review_with_openai(text):
-    if not OPENAI_API_KEY: return text
+def review_with_claude(text):
+    """Optional grammar polish via Claude Haiku 4.5. Returns text unchanged on failure
+    or when ANTHROPIC_API_KEY is not set. (Replaced OpenAI gpt-4o-mini, Apr 2026.)"""
+    if not CLAUDE_API_KEY: return text
     try:
-        r = requests.post("https://api.openai.com/v1/chat/completions",
-            headers={"Authorization":"Bearer "+OPENAI_API_KEY,"Content-Type":"application/json"},
-            json={"model":"gpt-4o-mini","messages":[{"role":"user","content":"Review this food safety analysis. Fix grammar. Keep structure/facts. Return polished version only.\n\n"+text}],"max_tokens":1200},timeout=60)
-        if r.status_code==200: return r.json()["choices"][0]["message"]["content"]
-    except Exception as e: log.warning("OpenAI: %s",e)
+        r = requests.post("https://api.anthropic.com/v1/messages",
+            headers={"x-api-key": CLAUDE_API_KEY, "anthropic-version": "2023-06-01",
+                     "Content-Type": "application/json"},
+            json={"model": "claude-haiku-4-5-20251001", "max_tokens": 1200,
+                  "messages": [{"role": "user",
+                    "content": "Review this food safety analysis. Fix grammar. Keep structure/facts. Return polished version only.\n\n" + text}]},
+            timeout=60)
+        if r.status_code == 200:
+            return r.json()["content"][0]["text"]
+    except Exception as e: log.warning("Claude polish: %s", e)
     return text
 
 
@@ -1490,7 +1496,7 @@ def build_html(week_end, recalls, prev_week):
     sr = sort_by_severity(recalls)
 
     raw = generate_analysis_claude(stats, recalls)
-    final = review_with_openai(raw)
+    final = review_with_claude(raw)
 
     paras = [p.strip() for p in final.strip().split("\n\n") if p.strip()]
     pa_html = ""; reg = []

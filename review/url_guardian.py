@@ -52,7 +52,10 @@ except ImportError:
 try:
     from review.openai_client import find_missing_recalls
 except ImportError:
-    from openai_client import find_missing_recalls  # type: ignore
+    try:
+        from openai_client import find_missing_recalls  # type: ignore
+    except ImportError:
+        find_missing_recalls = None  # OpenAI client retired Apr 2026
 
 try:
     from review.claude_client import review_tier1
@@ -263,6 +266,9 @@ def _gap_finder_pass(recalls: List[Dict[str, Any]],
     scraped_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     for country, agency in GAP_FINDER_TARGETS:
+        if find_missing_recalls is None:
+            log.info("url_guardian gap-finder skipped (OpenAI retired)")
+            break
         try:
             candidates = find_missing_recalls(country, agency, since_days=gap_days) or []
         except Exception as e:

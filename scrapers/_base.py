@@ -200,7 +200,15 @@ def _call_gemini(prompt: str, html: str, language: str = "en") -> str:
     for api_key in random.sample(keys, k=len(keys)):
         try:
             client = genai.Client(api_key=api_key)
-            config = types.GenerateContentConfig(temperature=0.1)
+            # max_output_tokens=32000 prevents JSON truncation on long pages.
+            # The default cap (~8K) was silently cutting Gemini's response
+            # mid-string on agency listings with many recalls (e.g. KEBS,
+            # observed 2026-04-28: "Unterminated string at char 7298").
+            # Gemini 2.5 Flash supports up to 65K output tokens.
+            config = types.GenerateContentConfig(
+                temperature=0.1,
+                max_output_tokens=32_000,
+            )
             resp = client.models.generate_content(
                 model=GEMINI_MODEL,
                 contents=full_prompt,

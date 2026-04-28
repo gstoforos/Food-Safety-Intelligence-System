@@ -10,7 +10,8 @@ Flow:
   3. Enrich raw rows with Gemini (pathogen / country / class / tier normalization)
   4. Append enriched rows to the Pending sheet (deduped vs Pending + Recalls)
   5. URL validation (HEAD/GET) against Pending rows only
-  6. AI review of newly-scraped pending rows: OpenAI (full pass) + Claude (Tier-1 only)
+  6. AI review of newly-scraped pending rows: Claude full-batch (rejection-grade)
+     + Claude Tier-1 spot check (richer schema for fix suggestions)
   7. Collect rejection reasons from validation + review
   8. Promote approved rows Pending -> Recalls; keep rejected in Pending with reason
   9. Save docs/data/recalls.xlsx (Recalls + Pending + NEWS) and docs/data/recalls.json
@@ -20,12 +21,12 @@ Approval policy (what counts as a rejection):
   - URL is generic / landing-page / 404 / 410 / 5xx  ->  rejected
     (bot-blocked 403 on known gov domains is NOT a rejection — likely valid)
   - Missing required field (Date, Company, Product, Pathogen, URL)  ->  rejected
-  - OpenAI reviewer flags with high-severity issue codes              ->  rejected
+  - Reviewer flags with high-severity issue codes                    ->  rejected
   Otherwise the row is approved and promoted to Recalls.
 
 Environment flags:
   SKIP_AI       : skip Gemini enrichment (keep deterministic normalization only)
-  SKIP_REVIEW   : skip URL validation + OpenAI/Claude review (auto-approve everything)
+  SKIP_REVIEW   : skip URL validation + Claude review (auto-approve everything)
   SKIP_COMMIT   : don't git push (useful for local dry-runs)
   SINCE_DAYS    : how many days back to scrape (default 30)
   MAX_PARALLEL  : thread pool size for scrapers (default 8)
@@ -50,8 +51,8 @@ from scrapers._base import BaseScraper, make_session  # noqa: E402
 from scrapers._models import Recall                    # noqa: E402
 from enrichment.enrich_rows import enrich_recalls      # noqa: E402
 from review.url_validator import validate_all, should_blank_url  # noqa: E402
-from review.openai_client import review_batch as openai_review   # noqa: E402
-from review.claude_client import review_tier1 as claude_review   # noqa: E402
+from review.claude_client import review_tier1 as claude_review_tier1   # noqa: E402
+from review.claude_client import review_batch as claude_review_full   # noqa: E402
 from pipeline.merge_master import (                    # noqa: E402
     load_existing, load_pending,
     append_to_pending, promote_approved,
@@ -204,16 +205,21 @@ def _missing_required(row: Dict[str, Any]) -> List[str]:
 
 
 def apply_reviewer_fixes(rows: List[Dict[str, Any]],
-                         openai_issues: List[Dict[str, Any]],
-                         claude_flags: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+                         review_issues: List[Dict[str, Any]],
+                         tier1_flags: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Apply non-destructive suggested_fixes from reviewers back onto rows.
     Does NOT reject — rejection is decided separately in compute_rejections().
     row_index in issues/flags is assumed to be aligned to `rows` (caller's job).
+
+    `review_issues`  — full-batch reviewer output (suggested_fixes plural,
+                       OpenAI-compatible schema).
+    `tier1_flags`    — Tier-1 spot-check output (suggested_fix singular,
+                       severity schema).
     """
     out = [dict(r) for r in rows]
     fixed = 0
-    for issue in openai_issues:
+    for issue in review_issues:
         idx = issue.get("row_index")
         if idx is None or idx >= len(out) or idx < 0:
             continue
@@ -222,7 +228,7 @@ def apply_reviewer_fixes(rows: List[Dict[str, Any]],
             if k in out[idx] and v:
                 out[idx][k] = v
                 fixed += 1
-    for flag in claude_flags:
+    for flag in tier1_flags:
         idx = flag.get("row_index")
         if idx is None or idx >= len(out) or idx < 0:
             continue
@@ -238,7 +244,7 @@ def apply_reviewer_fixes(rows: List[Dict[str, Any]],
 def compute_rejections(
     pending: List[Dict[str, Any]],
     new_indices: List[int],
-    openai_issues: List[Dict[str, Any]],
+    review_issues: List[Dict[str, Any]],
 ) -> Dict[int, str]:
     """
     Decide which pending rows should be rejected.
@@ -267,9 +273,9 @@ def compute_rejections(
         if missing:
             rejections[idx] = f"Missing required: {', '.join(missing)}"
 
-    # 3) OpenAI high-severity issues.
-    #    openai_issues row_index is relative to new_indices ordering; translate it.
-    for issue in openai_issues:
+    # 3) High-severity issues from the full-batch reviewer.
+    #    review_issues row_index is relative to new_indices ordering; translate it.
+    for issue in review_issues:
         rel_idx = issue.get("row_index")
         if rel_idx is None or rel_idx < 0 or rel_idx >= len(new_indices):
             continue
@@ -343,16 +349,24 @@ def main() -> int:
             pending[idx]["_url_check"] = validated[i].get("_url_check", {})
 
     # ---- 6. AI review on the NEW pending rows only -----------------------
-    openai_issues: List[Dict[str, Any]] = []
-    claude_flags: List[Dict[str, Any]] = []
+    # Architecture (post-OpenAI removal, Apr 2026):
+    #   review_full   — Claude Haiku 4.5 reviewing ALL new rows with the
+    #                   rejection-code schema (URL_INVALID, MISSING_FIELD,
+    #                   etc.). This is the rejection-grade pass that feeds
+    #                   compute_rejections().
+    #   review_tier1  — Claude Haiku 4.5 reviewing ONLY Tier-1 rows with a
+    #                   richer free-text severity schema. This is purely a
+    #                   suggested-fix pass (does NOT cause rejections).
+    review_issues: List[Dict[str, Any]] = []
+    tier1_flags: List[Dict[str, Any]] = []
     if not SKIP_REVIEW and new_indices:
         new_rows = [pending[i] for i in new_indices]
         log.info("AI review pass on %d new rows", len(new_rows))
-        openai_issues = openai_review(new_rows) if new_rows else []
-        claude_flags = claude_review(new_rows) if new_rows else []
+        review_issues = claude_review_full(new_rows) if new_rows else []
+        tier1_flags = claude_review_tier1(new_rows) if new_rows else []
 
         # Apply non-destructive fixes to the new rows, then write them back
-        fixed_new = apply_reviewer_fixes(new_rows, openai_issues, claude_flags)
+        fixed_new = apply_reviewer_fixes(new_rows, review_issues, tier1_flags)
         for i, idx in enumerate(new_indices):
             # Preserve _url_check / ScrapedAt / Status on the original row
             for k, v in fixed_new[i].items():
@@ -363,7 +377,7 @@ def main() -> int:
     # ---- 7. Decide rejections --------------------------------------------
     rejections: Dict[int, str] = {}
     if not SKIP_REVIEW and new_indices:
-        rejections = compute_rejections(pending, new_indices, openai_issues)
+        rejections = compute_rejections(pending, new_indices, review_issues)
 
     # ---- 8. Promote approved rows -> Recalls -----------------------------
     new_approved, pending_after = promote_approved(

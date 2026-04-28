@@ -129,6 +129,60 @@ def review_tier1(rows: List[Dict[str, Any]], batch_size: int = 15) -> List[Dict[
 
 
 # ===========================================================================
+# Mode 1b — Full-batch reviewer (replaces removed review/openai_client.py)
+# ===========================================================================
+# Mirrors the old openai_review's exact output schema so compute_rejections()
+# in pipeline/run_all.py works without changes. Issue codes are the same set
+# defined in REJECTION_CODES on the orchestrator side.
+REVIEW_BATCH_SYSTEM = """You are a senior food safety analyst reviewing recall records for accuracy.
+For each record, flag issues:
+  - URL_INVALID: URL is a homepage, category page, or generic landing (not a specific recall)
+  - URL_MISMATCH: URL likely doesn't match the described recall
+  - MISSING_FIELD: required field empty (Date, Company, Product, Pathogen, URL)
+  - PATHOGEN_INCONSISTENT: pathogen name doesn't match Reason text
+  - DATE_FORMAT: date not in YYYY-MM-DD or seems wrong
+  - COUNTRY_INCONSISTENT: Country doesn't match Source agency
+  - DUPLICATE_RISK: looks like a duplicate of another recent recall
+
+Return strictly as JSON: {"reviews": [{"row_index": <int>, "issues": ["CODE",...], "suggested_fixes": {"FieldName": "value"}, "confidence": 0.0-1.0}]}
+Only include rows with issues. Empty array if all clean."""
+
+
+def review_batch(rows: List[Dict[str, Any]], batch_size: int = 20) -> List[Dict[str, Any]]:
+    """Full review pass (all rows, not just Tier-1). Replaces openai_review.
+
+    Returns list of {row_index, issues, suggested_fixes, confidence}, identical
+    schema to the retired openai_client.review_batch — orchestrator code in
+    pipeline/run_all.py treats both functions interchangeably.
+    """
+    if not ENABLED:
+        return []
+    all_reviews: List[Dict[str, Any]] = []
+    for i in range(0, len(rows), batch_size):
+        chunk = rows[i:i + batch_size]
+        prompt = (
+            f"Review these {len(chunk)} food recall records (row_index relative "
+            f"to this batch starting at 0):\n\n"
+            + json.dumps(chunk, ensure_ascii=False, indent=2)
+        )
+        txt = _call_claude(prompt, system=REVIEW_BATCH_SYSTEM)
+        if not txt:
+            continue
+        try:
+            data = json.loads(_strip_fences(txt))
+            for rev in data.get("reviews", []):
+                # Adjust row_index back to global index (matches openai_review)
+                rev["row_index"] = rev.get("row_index", 0) + i
+                all_reviews.append(rev)
+        except json.JSONDecodeError as e:
+            log.warning("Claude review_batch JSON parse failed: %s | text=%s",
+                        e, txt[:200])
+    log.info("Claude review_batch: %d issues across %d rows",
+             len(all_reviews), len(rows))
+    return all_reviews
+
+
+# ===========================================================================
 # Mode 2 — HTML extraction (FALLBACK scraper, only when Gemini returns 0)
 # ===========================================================================
 EXTRACTION_SYSTEM = (
@@ -149,16 +203,25 @@ Extract food recalls/alerts where the cause is ANY of the following hazard categ
       exceeding regulatory limits
   (d) PHYSICAL HAZARDS (glass fragments, metal fragments, plastic fragments,
       foreign bodies posing injury or choking risk)
+  (e) MYCOTOXINS at levels exceeding regulatory limits or indicative
+      values, including aflatoxins (B1/B2/G1/G2/M1), ochratoxin A, patulin,
+      Alternaria toxins (alternariol/AOH/AME, tenuazonic acid), Fusarium
+      toxins (fumonisin, zearalenone, deoxynivalenol/DON, nivalenol, T-2,
+      HT-2), citrinin, ergot alkaloids (Claviceps)
 
 EXCLUDE: undeclared allergens, labeling errors, mechanical/packaging issues,
-and pesticide residues above MRL — unless linked to one of (a)-(d).
+and pesticide residues above MRL — unless linked to one of (a)-(e).
 
 Canonical hazard names (use these exact strings in the Pathogen field):
   Biological — Listeria monocytogenes, Salmonella spp., E. coli O157:H7,
     STEC, Clostridium botulinum, Norovirus, Hepatitis A, Campylobacter,
     Cyclospora, Vibrio, Cronobacter sakazakii, Bacillus cereus / cereulide,
-    Aflatoxins, Ochratoxin A, Patulin, marine biotoxins (DSP/PSP/ASP),
-    Histamine (scombrotoxin), Shigella, Yersinia, Mycotoxin.
+    marine biotoxins (DSP/PSP/ASP), Histamine (scombrotoxin), Shigella,
+    Yersinia.
+  Mycotoxins — "Aflatoxins", "Ochratoxin A", "Patulin", "Alternaria toxins",
+    "Fumonisin", "Zearalenone", "Deoxynivalenol (DON)", "T-2 / HT-2 toxin",
+    "Citrinin", "Ergot alkaloids", or the generic "Mycotoxin" if the specific
+    toxin is not named.
   Rodenticides — "Rodenticide (rat poison)" (preferred), optionally suffixed
     with the active ingredient e.g. "Rodenticide (bromadiolone)".
   Heavy metals — "Lead (Pb) contamination", "Cadmium (Cd) contamination",

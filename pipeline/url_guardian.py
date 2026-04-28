@@ -26,10 +26,9 @@ Usage:
     print(summary)
 
 Environment variables:
-    OPENAI_API_KEY     — required for gap-finder
-    ANTHROPIC_API_KEY  — optional, used for Tier-1 spot checks
+    ANTHROPIC_API_KEY       — optional, used for Tier-1 spot checks
     GUARDIAN_SINCE_DAYS     — URL-check window (default 14)
-    GUARDIAN_GAP_DAYS       — gap-finder window (default 3)
+    GUARDIAN_GAP_DAYS       — gap-finder window (default 3, retired Apr 2026)
     GUARDIAN_SKIP_AI        — "true" skips gap-finder and Tier-1 review
 """
 from __future__ import annotations
@@ -52,7 +51,13 @@ except ImportError:
 try:
     from review.openai_client import find_missing_recalls
 except ImportError:
-    from openai_client import find_missing_recalls  # type: ignore
+    try:
+        from openai_client import find_missing_recalls  # type: ignore
+    except ImportError:
+        # OpenAI client retired Apr 2026 — gap-finding now handled by
+        # dedicated tavily-gap-finder + exa-gap-finder + gemini-gap-finder
+        # workflows. url_guardian's gap-finder step is a no-op.
+        find_missing_recalls = None  # optional
 
 try:
     from review.claude_client import review_tier1
@@ -253,13 +258,18 @@ def _signature(r: Dict[str, Any]) -> str:
 def _gap_finder_pass(recalls: List[Dict[str, Any]],
                      pending: List[Dict[str, Any]],
                      gap_days: int) -> Dict[str, int]:
-    """Ask OpenAI what recalls we may have missed.
+    """Ask the gap-finder what recalls we may have missed.
+
+    Note: as of Apr 2026 the OpenAI-backed gap-finder is retired — see
+    tavily-gap-finder + exa-gap-finder + gemini-gap-finder workflows for
+    the replacement. This function early-exits when find_missing_recalls
+    is unavailable.
 
     Append novel rows to PENDING (not Recalls).
     Dedup checks against both Recalls and existing Pending.
     """
-    if os.getenv("OPENAI_API_KEY", "").strip() == "":
-        log.info("Gap-finder: OPENAI_API_KEY missing, skipping")
+    if find_missing_recalls is None:
+        log.info("Gap-finder retired — see tavily/exa/gemini-gap-finder workflows")
         return {"suggested": 0, "added": 0, "dupes_rejected": 0}
 
     existing_sigs = {_signature(r) for r in recalls}
@@ -272,6 +282,11 @@ def _gap_finder_pass(recalls: List[Dict[str, Any]],
     scraped_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     for country, agency in GAP_FINDER_TARGETS:
+        if find_missing_recalls is None:
+            # OpenAI gap-finder retired — dedicated workflows handle this now.
+            log.info("url_guardian gap-finder step skipped (OpenAI retired); "
+                     "rely on tavily/exa/gemini-gap-finder workflows instead.")
+            break
         try:
             candidates = find_missing_recalls(country, agency, since_days=gap_days) or []
         except Exception as e:
@@ -431,7 +446,7 @@ if __name__ == "__main__":
     log.info("xlsx exists: %s  (size=%s bytes)",
              xp.exists(),
              xp.stat().st_size if xp.exists() else "n/a")
-    log.info("OPENAI_API_KEY:    %s", "set" if os.getenv("OPENAI_API_KEY") else "NOT SET")
+    log.info("ANTHROPIC_API_KEY: %s", "set" if os.getenv("ANTHROPIC_API_KEY") else "NOT SET")
     log.info("ANTHROPIC_API_KEY: %s", "set" if os.getenv("ANTHROPIC_API_KEY") else "NOT SET")
     log.info("NOTE: recalls.json is NOT written by the guardian")
     log.info("=" * 70)

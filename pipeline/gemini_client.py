@@ -116,16 +116,25 @@ Extract food recalls/alerts where the cause is ANY of the following hazard categ
       exceeding regulatory limits
   (d) PHYSICAL HAZARDS (glass fragments, metal fragments, plastic fragments,
       foreign bodies posing injury or choking risk)
+  (e) MYCOTOXINS at levels exceeding regulatory limits or indicative
+      values, including aflatoxins (B1/B2/G1/G2/M1), ochratoxin A, patulin,
+      Alternaria toxins (alternariol/AOH/AME, tenuazonic acid), Fusarium
+      toxins (fumonisin, zearalenone, deoxynivalenol/DON, nivalenol, T-2,
+      HT-2), citrinin, ergot alkaloids (Claviceps)
 
 EXCLUDE: undeclared allergens, labeling errors, mechanical/packaging issues,
-and pesticide residues above MRL — unless they are linked to one of (a)-(d).
+and pesticide residues above MRL — unless they are linked to one of (a)-(e).
 
 Canonical hazard names (use these exact strings in the Pathogen field):
   Biological — Listeria monocytogenes, Salmonella spp., E. coli O157:H7,
     STEC, Clostridium botulinum, Norovirus, Hepatitis A, Campylobacter,
     Cyclospora, Vibrio, Cronobacter sakazakii, Bacillus cereus / cereulide,
-    Aflatoxins, Ochratoxin A, Patulin, marine biotoxins (DSP/PSP/ASP),
-    Histamine (scombrotoxin), Shigella, Yersinia, Mycotoxin.
+    marine biotoxins (DSP/PSP/ASP), Histamine (scombrotoxin), Shigella,
+    Yersinia.
+  Mycotoxins — "Aflatoxins", "Ochratoxin A", "Patulin", "Alternaria toxins",
+    "Fumonisin", "Zearalenone", "Deoxynivalenol (DON)", "T-2 / HT-2 toxin",
+    "Citrinin", "Ergot alkaloids", or the generic "Mycotoxin" if the specific
+    toxin is not named.
   Rodenticides — "Rodenticide (rat poison)" (preferred), optionally suffixed
     with the active ingredient e.g. "Rodenticide (bromadiolone)".
   Heavy metals — "Lead (Pb) contamination", "Cadmium (Cd) contamination",

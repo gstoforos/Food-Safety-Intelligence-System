@@ -51,9 +51,16 @@ PATHOGEN_KEYWORDS = (
     "shigella", "yersinia", "biotoxin", "histamine", "scombro", "brucell",
     # --- Mould / spoilage ---
     "mould", "mold",
-    # --- Mycotoxins ---
+    # --- Mycotoxins (April 2026+ scope: Alternaria + Fusarium + ergot) ---
     "aflatoxin", "ochratoxin", "patulin", "mycotoxin", "fumonisin",
-    "zearalenone", "deoxynivalenol",
+    "zearalenone", "deoxynivalenol", "nivalenol",
+    "alternaria", "alternariol", "tenuazonic",
+    "t-2 toxin", "ht-2 toxin", "citrinin",
+    "ergot", "claviceps", "fusarium",
+    # Multilingual mycotoxin terms (FR/DE/ES/IT/PT)
+    "ocratoxin", "ocratossin",      # ES/PT/IT (no 'h')
+    "mykotoxin", "micotoxin", "micotossin",
+    "mutterkorn",                   # DE: ergot
     # --- Physical / foreign-body hazards ---
     "glass fragment", "metal fragment", "plastic fragment",
     "foreign object", "foreign body", "foreign material",

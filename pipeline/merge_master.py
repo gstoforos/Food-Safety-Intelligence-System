@@ -23,6 +23,7 @@ import json
 import logging
 import re
 import unicodedata
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 from openpyxl import load_workbook, Workbook
@@ -61,6 +62,69 @@ def _dedup_key(row: Dict[str, Any]) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Near-duplicate detection (catches same-recall-different-URL cases)
+# ---------------------------------------------------------------------------
+# Why this exists: regulators sometimes publish the same recall under two
+# URL formats (FDA's canonical company-slug URL vs. their share-link
+# "?permalink=<hash>" wrapper). The OpenAI/search-based gap finders find
+# the wrapper URL while the direct scraper finds the canonical URL —
+# string dedup can't catch this because the URLs are entirely different
+# paths. Even the date+company+pathogen fallback fails when the gap-finder
+# discovers the recall N days after the scraper did (different Date field).
+#
+# The near-dup index keys on (source, normalized_company, pathogen) and
+# stores a list of dates. A new row is rejected if there's already an
+# entry with the same key dated within NEAR_DUP_WINDOW_DAYS days. This
+# blocks rediscovery duplicates without blocking legitimate same-company
+# recurring recalls (which are usually months apart).
+NEAR_DUP_WINDOW_DAYS = 30
+
+
+def _near_dup_key(row: Dict[str, Any]) -> str:
+    """Normalized (source, company, pathogen) tuple — date-independent."""
+    src = (row.get("Source") or "").strip().lower()
+    co = unicodedata.normalize("NFD", row.get("Company") or "").encode("ascii", "ignore").decode().lower()
+    co = re.sub(r"[^a-z0-9]", "", co)[:30]
+    pa = (row.get("Pathogen") or "").strip().lower()[:50]
+    if not (src and co and pa):
+        return ""  # missing any of the three — can't make a meaningful match
+    return f"{src}|{co}|{pa}"
+
+
+def _build_near_dup_index(rows: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+    """Return {near_dup_key: [date_str, ...]} for all rows with valid keys."""
+    idx: Dict[str, List[str]] = {}
+    for r in rows:
+        k = _near_dup_key(r)
+        d = str(r.get("Date") or "")[:10]
+        if k and d:
+            idx.setdefault(k, []).append(d)
+    return idx
+
+
+def _is_near_duplicate(
+    row: Dict[str, Any], near_dup_index: Dict[str, List[str]],
+) -> Tuple[bool, str]:
+    """Check if `row` is a near-dup of anything in the index. Returns (is_dup, match_date)."""
+    k = _near_dup_key(row)
+    new_date_str = str(row.get("Date") or "")[:10]
+    if not (k and new_date_str and k in near_dup_index):
+        return False, ""
+    try:
+        new_date = datetime.strptime(new_date_str, "%Y-%m-%d").date()
+    except ValueError:
+        return False, ""
+    for old_date_str in near_dup_index[k]:
+        try:
+            old_date = datetime.strptime(old_date_str, "%Y-%m-%d").date()
+            if abs((new_date - old_date).days) <= NEAR_DUP_WINDOW_DAYS:
+                return True, old_date_str
+        except ValueError:
+            continue
+    return False, ""
+
+
+# ---------------------------------------------------------------------------
 # Pending-row validation gate
 # ---------------------------------------------------------------------------
 # This is the SINGLE chokepoint that blocks garbage from EVERY source
@@ -83,6 +147,13 @@ _GENERIC_URL_PATTERNS = (
     r"/news-and-alerts/food-alerts/?$",       # FSAI alerts root
     r"/safety/recalls-market-withdrawals-safety-alerts/?$",  # FDA root
     r"/animal-veterinary/news-events/outbreaks-and-advisories/?$",  # FDA pet root
+    # FDA share-link wrapper format used by their "voluntary-recall" template.
+    # Functionally a SPA route — same recall is also published at the
+    # canonical /safety/recalls-market-withdrawals-safety-alerts/<slug> URL,
+    # which the FDA scraper always finds. Reject the wrapper to prevent
+    # duplicates from search-based gap finders (Tavily/Exa/OpenAI) that
+    # return whichever URL Google indexed first.
+    r"/safety/recalls-market-withdrawals-safety-alerts/voluntary-recall\?permalink=",
 )
 
 # Company-field strings that the scraper has clearly bungled (they're page
@@ -133,6 +204,16 @@ def validate_pending_row(
 
     `existing_urls` is a set of already-seen lowercased URLs (Recalls +
     current Pending). Pass an empty set to skip the dedup check.
+
+    NOTE on near-duplicate detection: helpers _near_dup_key /
+    _build_near_dup_index / _is_near_duplicate exist above for use by
+    standalone audit scripts. They are NOT wired into this gate because
+    European regulators (especially RappelConso) routinely publish one
+    fiche per SKU — same company, same pathogen, same day, different
+    fiche IDs. A naive same-source/company/pathogen+30d gate would
+    falsely reject those legitimate per-SKU rows. Use the helpers only
+    when you've verified the URL host context makes near-dup detection
+    safe (e.g. for FDA where wrapper URLs duplicate canonical URLs).
     """
     url = str(row.get("URL", "") or "").strip()
     company = str(row.get("Company", "") or "").strip()

@@ -61,7 +61,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 log = logging.getLogger("monthly")
 
 CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Brand tokens — mirror the weekly report so the HTML shares a visual identity
 BRAND_ORANGE = weekly.BRAND_ORANGE
