@@ -1,0 +1,102 @@
+name: FSIS Exa Gap Finder (Tavily Fallback)
+
+# Daily at 22:30 ATHENS TIME — runs 30 minutes after tavily-gap-finder.yml
+# (22:00). Uses Exa's neural search index to catch any pathogen recalls
+# Tavily missed, especially on days when Tavily's free-tier credits are
+# exhausted.
+#
+# Pipeline: pipeline.gap_finder_exa unconditionally runs and submits
+# findings to Pending. URL-based dedup at append_to_pending() means on
+# days Tavily ran fine, Exa adds ~zero rows. On days Tavily failed, Exa
+# fills the gap.
+#
+# Cost: $0 — Exa free tier 1,000 requests/month (we use ~270/month).
+
+on:
+  workflow_dispatch:
+    inputs:
+      since_days:
+        description: "Days to look back"
+        required: false
+        default: "7"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  gap-finder-exa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Athens-time guard (22-23:xx window)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          echo "athens_hour=$HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "$HOUR" -ge "22" ] || [ "$HOUR" -le "01" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not 22:xx Athens (now ${HOUR}:xx). Skipping."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Exa gap-finder (Tavily fallback)
+        if: steps.guard.outputs.run == 'true'
+        env:
+          EXA_API_KEY:    ${{ secrets.EXA_API_KEY }}
+          GAP_SINCE_DAYS: ${{ github.event.inputs.since_days || '7' }}
+          SKIP_COMMIT:    "false"
+          GH_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME:  "FSIS Bot"
+        run: |
+          python -m pipeline.gap_finder_exa
+
+      - name: Gemini URL Gate + Merge (only if Exa added rows)
+        if: steps.guard.outputs.run == 'true'
+        env:
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
+          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
+          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          GH_TOKEN:          ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL:    "fsis-bot@advfood.tech"
+          GIT_USER_NAME:     "FSIS Bot"
+        run: |
+          python -m pipeline.url_gate_gemini
+          python -m pipeline.merge_master
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "Exa gap-finder complete — Athens $(TZ=Europe/Athens date)."

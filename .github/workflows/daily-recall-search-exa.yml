@@ -1,0 +1,102 @@
+name: FSIS Daily Recall Search (Exa Fallback)
+
+# Daily at 10:30 ATHENS TIME — runs 30 minutes after daily-recall-search.yml
+# (10:00). Reads docs/data/.daily_search_status.json written by the Tavily
+# run; only proceeds if Tavily flagged should_fallback=true (rate-limited,
+# auth error, or zero results across all regions).
+#
+# On normal days where Tavily succeeded, this script exits in <1s and
+# consumes ZERO Exa quota. On Tavily failure days, this re-runs the same
+# 5-region × ~5-query sweep against Exa's neural index.
+#
+# Cost: $0 — Exa free tier 1,000/month, conditional execution keeps usage
+# minimal.
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Force run even if Tavily succeeded (true/false)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  daily-search-exa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Athens-time guard (10-12:xx window)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          echo "athens_hour=$HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "$HOUR" -ge "09" ] && [ "$HOUR" -le "14" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not 10:xx Athens (now ${HOUR}:xx). Skipping."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Exa daily fallback (gated by Tavily status file)
+        if: steps.guard.outputs.run == 'true'
+        env:
+          EXA_API_KEY:    ${{ secrets.EXA_API_KEY }}
+          EXA_FORCE_RUN:  ${{ github.event.inputs.force || 'false' }}
+          SKIP_COMMIT:    "false"
+          GH_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME:  "FSIS Bot"
+        run: |
+          python -m pipeline.daily_recall_search_exa
+
+      - name: Gemini URL Gate + Merge
+        if: steps.guard.outputs.run == 'true'
+        env:
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
+          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
+          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          GH_TOKEN:          ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL:    "fsis-bot@advfood.tech"
+          GIT_USER_NAME:     "FSIS Bot"
+        run: |
+          python -m pipeline.url_gate_gemini
+          python -m pipeline.merge_master
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "Exa daily fallback complete — Athens $(TZ=Europe/Athens date)."
