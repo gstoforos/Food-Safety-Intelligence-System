@@ -217,7 +217,41 @@ def main() -> int:
             if not pub_dt or pub_dt < cutoff:
                 continue
             summary = (e.get("summary") or e.get("description") or "")
-            summary = re.sub(r"<[^>]+>", " ", summary)  # strip HTML
+            # Strip script/style/comment CONTENT first — the original
+            # `<[^>]+>` regex only removes tags, leaving JS code between
+            # script tags intact (e.g. "{socials = window.socials = ...}"
+            # leaks observed in Food Safety News RSS, audit 2026-04-28).
+            summary = re.sub(r"<script\b[^>]*>.*?</script\s*>", " ", summary,
+                             flags=re.DOTALL | re.IGNORECASE)
+            summary = re.sub(r"<style\b[^>]*>.*?</style\s*>", " ", summary,
+                             flags=re.DOTALL | re.IGNORECASE)
+            summary = re.sub(r"<!--.*?-->", " ", summary, flags=re.DOTALL)
+            summary = re.sub(r"<[^>]+>", " ", summary)  # strip remaining HTML tags
+            # Decode common HTML entities the dashboard would otherwise show literally.
+            summary = (summary
+                       .replace("&nbsp;", " ")
+                       .replace("&amp;", "&")
+                       .replace("&lt;", "<")
+                       .replace("&gt;", ">")
+                       .replace("&quot;", '"')
+                       .replace("&#39;", "'")
+                       .replace("&apos;", "'"))
+            # Belt-and-braces JS-leak guard: truncate at first JS-marker if
+            # any made it through plain-text feeds.
+            for marker in ("{socials", "window.socials", "window.adsbygoogle",
+                           "document.cookie", "addEventListener("):
+                idx = summary.find(marker)
+                if idx >= 0:
+                    summary = summary[:idx].rstrip()
+                    break
+            summary = re.sub(r"\s+", " ", summary).strip()
+            # Strip outlet-branding pipe-suffix from title.
+            for suffix in (f"| {source}", "| Food Safety News", "| CIDRAP",
+                           "| Outbreak News Today", "| Reuters", "| BBC News",
+                           "| The Guardian"):
+                if title.endswith(suffix):
+                    title = title[:-len(suffix)].rstrip(" -|")
+                    break
             text = f"{title} {summary}"
             if _is_excluded(text):
                 continue
