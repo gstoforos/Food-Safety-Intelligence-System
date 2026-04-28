@@ -15,38 +15,7 @@
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22133/Interne",
   "Notes": "[added 2026-04-27 from audit; fiche 2026-04-0293 / 27-04-2026]"
  },
- {
-  "Date": "2026-04-27",
-  "Source": "EFET (GR)",
-  "Company": "",
-  "Brand": "—",
-  "Product": "φυστικιού αράπικου",
-  "Pathogen": "",
-  "Reason": "Recall of peanuts due to the presence of aflatoxins.",
-  "Class": "Recall",
-  "Country": "Greece",
-  "Region": "Europe",
-  "Tier": 3,
-  "Outbreak": 0,
-  "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5376-deltio-typou-enimerosi-anaklisis-fystikioy-arapikoy-logo-parousias-aflatoksinon",
-  "Notes": "Gemini/el from https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat"
- },
- {
-  "Date": "2026-04-26",
-  "Source": "FDA",
-  "Company": "Liquid Blenz Corp",
-  "Brand": "Good Brain Tonic",
-  "Product": "Good Brain Tonic 16 oz & 32 oz",
-  "Pathogen": "Clostridium botulinum",
-  "Reason": "Potential Foodborne Illness - Botulism",
-  "Class": "Recall",
-  "Country": "USA",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/voluntary-recall?permalink=5FB79736370A270049A07A18767073D0FFACB63E37541EF3F06BB0C52294738B",
-  "Notes": "[via OpenAI daily 10:00 Athens search]"
- },
+
  {
   "Date": "2026-04-24",
   "Source": "BVL (DE)",
