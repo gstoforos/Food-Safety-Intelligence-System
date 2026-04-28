@@ -202,11 +202,20 @@ PATHOGEN_PATTERNS: List[Tuple[str, str]] = [
     (r"\bshigella\b",                                               "Shigella"),
     (r"\bvibrio\b",                                                 "Vibrio"),
     (r"\byersinia\b",                                               "Yersinia"),
-    # Mycotoxins / chemical hazards
+    # Mycotoxins / chemical hazards (April 2026+ scope)
     (r"\baflatoxin",                                                "Aflatoxin"),
-    (r"\bochratoxin",                                               "Ochratoxin"),
+    (r"\bochratoxin|\bocratoxin|\bocratossin",                      "Ochratoxin"),
     (r"\bpatulin\b",                                                "Patulin"),
-    (r"\balternaria\s+toxin",                                       "Alternaria toxins"),
+    (r"\balternaria(?:\s+toxin|\s+spp|\b)|\balternariol|\btenuazonic",
+                                                                    "Alternaria toxins"),
+    (r"\bfumonisin",                                                "Fumonisin"),
+    (r"\bzearalenon",                                               "Zearalenone"),
+    (r"\bdeoxynivalenol\b|\bnivalenol\b|\bDON\s+toxin",             "Deoxynivalenol (DON)"),
+    (r"\b(?:ht|t)[\s\-]?2[\s\-]?toxin\b",                           "T-2 / HT-2 toxin"),
+    (r"\bcitrinin\b",                                               "Citrinin"),
+    (r"\bergot\b|\bclaviceps\b|\bmutterkorn\b|\balcaloid\w*\s+(?:de|of|d['e]?)\s*ergot",
+                                                                    "Ergot alkaloids"),
+    (r"\bmycotoxin\b|\bmykotoxin\b|\bmicotoxin|\bmicotossin",       "Mycotoxin"),
     (r"\bhistamine\b|\bscombroid\b",                                "Histamine"),
     (r"\bethylene\s+oxide\b|\bETO\b",                               "Ethylene oxide"),
     # Physical hazards

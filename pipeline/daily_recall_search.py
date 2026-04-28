@@ -78,6 +78,8 @@ XLSX_PATH = DATA_DIR / "recalls.xlsx"
 DAILY_DIR = ROOT / "docs" / "daily"
 DAILY_INDEX = ROOT / "docs" / "daily-index.json"
 SPEND_LEDGER = DATA_DIR / ".spend_ledger.json"
+# Status file — read by daily_recall_search_exa.py to decide whether to fall back.
+STATUS_FILE = DATA_DIR / ".daily_search_status.json"
 
 # ---------------------------------------------------------------------------
 # Budget
@@ -86,13 +88,14 @@ HARD_CAP_EUR_PER_RUN = float(os.getenv("DAILY_BUDGET_EUR_PER_RUN", "1.00"))
 HARD_CAP_EUR_PER_WEEK = float(os.getenv("DAILY_BUDGET_EUR_PER_WEEK", "7.00"))
 USD_TO_EUR = 0.92  # static — close enough; doesn't need to be exact
 
-# gpt-4o-mini-search-preview pricing per 1M tokens
-PRICE_INPUT_USD_PER_1M = 0.15
-PRICE_OUTPUT_USD_PER_1M = 0.60
-
-MODEL = os.getenv("OPENAI_DAILY_MODEL", "gpt-4o-mini-search-preview")
-API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
-API_ENDPOINT = "https://api.openai.com/v1/chat/completions"
+# Tavily free tier: 1,000 searches/month. ~5 queries × 5 regions = 25 per run.
+# At 1 run/day → 750/mo, ~75% of free quota. Fits with margin for retries.
+# Cost is tracked as query-count (€0 in free tier; ledger kept for parity
+# with the legacy OpenAI version so spend-cap logic still works).
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "").strip()
+TAVILY_ENDPOINT = "https://api.tavily.com/search"
+TAVILY_MAX_RESULTS_PER_QUERY = int(os.getenv("TAVILY_MAX_RESULTS", "10"))
+TAVILY_FRESHNESS_DAYS       = int(os.getenv("TAVILY_DAYS", "3"))
 
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 
@@ -230,8 +233,10 @@ def build_user_prompt(target_date: date, region: str, agencies: str) -> str:
         f"Yersinia\n"
         f"  • Biotoxins: histamine/scombrotoxin, marine biotoxins "
         f"(DSP/PSP/ASP, domoic acid, saxitoxin, ciguatera), cereulide\n"
-        f"  • Mycotoxins: aflatoxin, ochratoxin, patulin, Alternaria, "
-        f"fumonisin, zearalenone, deoxynivalenol\n"
+        f"  • Mycotoxins: aflatoxin, ochratoxin, patulin, Alternaria "
+        f"(alternariol/AOH/AME, tenuazonic acid), Fusarium toxins "
+        f"(fumonisin, zearalenone, deoxynivalenol/DON, nivalenol, "
+        f"T-2, HT-2), citrinin, ergot alkaloids (Claviceps)\n"
         f"  • Foreign material: glass, metal, plastic, wood, stone\n"
         f"  • Rodent / insect / pest contamination (physical hazard)\n"
         f"  • Chemical: heavy metals (lead, cadmium, mercury, arsenic) "
@@ -340,78 +345,326 @@ def record_spend(ledger: Dict[str, Any], eur: float, region: str,
 
 
 # ---------------------------------------------------------------------------
-# OpenAI call
+# Tavily search (replaces gpt-4o-mini-search-preview, April 2026 cost cut)
 # ---------------------------------------------------------------------------
-def call_openai_search(target_date: date, region: str, agencies: str,
-                       ledger: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """
-    Single call to gpt-4o-mini-search-preview. Returns parsed JSON or None.
-    Updates the budget ledger.
-    """
-    if not API_KEY:
-        log.error("OPENAI_API_KEY not set")
-        return None
+# Reuse deterministic helpers from gap_finder_tavily.py — same domain
+# whitelist, same pathogen/outbreak/company/product extractors, same date
+# parser. Zero LLM calls in this pipeline.
+from pipeline.gap_finder_tavily import (  # noqa: E402
+    HOST_TO_SOURCE,
+    _lookup_source as _gf_lookup_source,
+    _detect_pathogen as _gf_detect_pathogen,
+    _detect_outbreak as _gf_detect_outbreak,
+    _extract_company_product as _gf_extract_company_product,
+    _parse_date as _gf_parse_date,
+    _is_generic_url as _gf_is_generic_url,
+)
 
+
+# Mycotoxin / chemical / physical hazard markers — used to bucket the
+# detected pathogen text into a hazard_type code that is_in_scope() expects.
+# Order matters (most specific first).
+_HAZARD_TYPE_RULES: List[Tuple[str, "re.Pattern[str]"]] = [
+    ("MYCOTOXIN", re.compile(
+        r"\b(?:aflatox|ochratox|ocratoxin|ocratossin|patulin|alternaria|"
+        r"alternariol|tenuazonic|fumonisin|zearalenon|deoxynivalenol|"
+        r"nivalenol|t[\s\-]?2[\s\-]?toxin|ht[\s\-]?2[\s\-]?toxin|"
+        r"citrinin|ergot|claviceps|mutterkorn|"
+        r"mycotox|mykotoxin|micotoxin|micotossin)\b", re.I)),
+    ("BIOTOXIN", re.compile(
+        r"\b(?:biotoxin|histamine|scombro|domoic|saxitox|tetrodotox|"
+        r"ciguatera|dsp|psp|asp|cereulide)\b", re.I)),
+    ("FOREIGN_MATERIAL", re.compile(
+        r"\b(?:glass|metal|plastic|wood|stone|rubber|bone)\s+"
+        r"(?:fragment|shard|particle|piece)|"
+        r"foreign\s+(?:body|material|object|matter)\b", re.I)),
+    ("PEST_CONTAMINATION", re.compile(
+        r"\b(?:rodenticid|rat\s+poison|rodent|insect|pest)\b", re.I)),
+    ("CHEMICAL", re.compile(
+        r"\b(?:heavy\s+metal|cadmium|lead\s+contamin|mercury\s+contamin|"
+        r"arsenic\s+contamin|pesticid|chlorpyrifos|glyphosate|"
+        r"unauthoris(?:ed|ized)\s+substance|ethylene\s+oxide|"
+        r"chlorate|sudan|melamine|mineral\s+oil|dioxin)\b", re.I)),
+    ("PATHOGEN", re.compile(
+        r"\b(?:listeria|salmonell|e\.?\s*coli|stec|o157|shiga|botulin|"
+        r"norovirus|hepatit|campylobact|cyclospor|vibrio|cronobact|"
+        r"bacillus\s*cereus|shigella|yersinia|brucell|staphyloc)\b", re.I)),
+]
+
+
+def _infer_hazard_type(text: str) -> str:
+    """Bucket a pathogen/reason blob into the codes is_in_scope() accepts."""
+    if not text:
+        return ""
+    for code, rx in _HAZARD_TYPE_RULES:
+        if rx.search(text):
+            return code
+    return ""
+
+
+# Per-region Tavily query templates. We use site:queries against the
+# strongest regulators in each region, plus one generic recent-recall sweep.
+# Each region runs ~5 queries — total per run ≈ 25, well within free tier.
+_REGION_QUERIES: Dict[str, List[str]] = {
+    "Europe": [
+        'site:rappel.conso.gouv.fr OR site:rappelconso.gouv.fr rappel alimentaire',
+        'site:food.gov.uk OR site:foodstandards.gov.scot food alert recall',
+        'site:fsai.ie food recall alert',
+        'site:nvwa.nl OR site:favv-afsca.be food recall',
+        'RASFF notification food alert pathogen withdrawal',
+    ],
+    "NorthAmerica": [
+        'site:fda.gov/safety/recalls food recall pathogen',
+        'site:fsis.usda.gov/recalls-alerts food recall',
+        'site:recalls-rappels.canada.ca food recall',
+        'site:inspection.canada.ca food recall',
+        'site:cdc.gov food outbreak investigation',
+    ],
+    "LATAM": [
+        'site:gov.br/anvisa recall alimento',
+        'site:gob.mx/cofepris alerta alimento',
+        'site:argentina.gob.ar/anmat retiro alimento',
+        'site:ispch.cl OR site:invima.gov.co alerta alimentaria',
+        'recall alimento Brasil OR Mexico OR Argentina patogeno',
+    ],
+    "AsiaPacific": [
+        'site:foodstandards.gov.au food recall',
+        'site:mpi.govt.nz food recall',
+        'site:cfs.gov.hk OR site:sfa.gov.sg food recall alert',
+        'site:fssai.gov.in OR site:fda.gov.ph food recall',
+        'site:mfds.go.kr OR site:mhlw.go.jp food recall',
+    ],
+    "MiddleEastAfrica": [
+        'site:sfda.gov.sa food recall',
+        'site:moccae.gov.ae OR site:gov.il food recall',
+        'site:nafdac.gov.ng food recall alert',
+        'site:fda.gov.gh OR site:thencc.org.za food recall',
+        'food recall withdrawal Africa OR "Middle East" pathogen',
+    ],
+}
+
+
+# Run-level statistics for the status file
+_RUN_STATS: Dict[str, Any] = {
+    "tavily_queries_attempted": 0,
+    "tavily_queries_succeeded": 0,
+    "tavily_results_total":     0,
+    "tavily_rate_limited":      False,
+    "tavily_auth_error":        False,
+    "regions_attempted":        [],
+    "regions_with_results":     [],
+}
+
+
+def _tavily_search_one(query: str) -> Tuple[List[Dict[str, Any]], str]:
+    """Single Tavily search. Returns (results, error_code).
+
+    error_code:
+      ""           — success (results may still be empty)
+      "no_key"     — TAVILY_API_KEY missing
+      "rate_limit" — HTTP 429 or quota message
+      "auth"       — HTTP 401/403
+      "http"       — other non-200
+      "exception"  — request raised
+    """
+    if not TAVILY_API_KEY:
+        log.error("TAVILY_API_KEY not set — skipping search")
+        return [], "no_key"
     body = {
-        "model": MODEL,
-        "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": build_user_prompt(
-                target_date, region, agencies)},
-        ],
-        # gpt-4o-mini-search-preview has web search built in — no temperature
-        # gpt-4o-mini-search-preview does NOT accept temperature != 1
-        "max_tokens": 4096,
-        "web_search_options": {},  # trigger web search
+        "api_key":      TAVILY_API_KEY,
+        "query":        query,
+        "search_depth": "advanced",
+        "include_answer": False,
+        "max_results":  TAVILY_MAX_RESULTS_PER_QUERY,
+        "days":         TAVILY_FRESHNESS_DAYS,
+        "topic":        "news",
     }
-
     try:
-        r = requests.post(
-            API_ENDPOINT,
-            headers={
-                "Authorization": f"Bearer {API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json=body,
-            timeout=120,
-        )
+        r = requests.post(TAVILY_ENDPOINT, json=body, timeout=30)
     except Exception as e:
-        log.warning("OpenAI request failed for %s: %s", region, e)
-        return None
+        log.warning("Tavily call failed: %s", e)
+        return [], "exception"
 
+    if r.status_code == 429:
+        log.warning("Tavily 429 — rate limit / quota exceeded for: %s", query)
+        return [], "rate_limit"
+    if r.status_code in (401, 403):
+        log.warning("Tavily %d — auth failure for: %s", r.status_code, query)
+        return [], "auth"
     if r.status_code != 200:
-        log.warning("OpenAI %d for %s: %s", r.status_code, region, r.text[:300])
-        return None
-
-    resp = r.json()
+        # Tavily returns 432/usage errors when free credits are exhausted
+        body_low = (r.text or "").lower()
+        if r.status_code == 432 or "usage limit" in body_low or "quota" in body_low:
+            log.warning("Tavily %d — quota/usage limit for: %s", r.status_code, query)
+            return [], "rate_limit"
+        log.warning("Tavily %d: %s", r.status_code, r.text[:200])
+        return [], "http"
     try:
-        msg = resp["choices"][0]["message"]["content"]
-    except (KeyError, IndexError):
-        log.warning("Unexpected response shape for %s: %s", region, str(resp)[:300])
+        data = r.json()
+    except Exception as e:
+        log.warning("Tavily JSON parse failed: %s", e)
+        return [], "http"
+    return data.get("results", []) or [], ""
+
+
+def call_tavily_search(target_date: date, region: str, agencies: str,
+                       ledger: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Run the per-region Tavily query set and extract recalls deterministically.
+
+    Returns dict {"recalls": [row_dict, ...]} matching the legacy OpenAI shape,
+    or None if Tavily is unavailable / hit rate-limit and produced nothing.
+    The `agencies` arg is unused (kept for signature parity with the legacy
+    OpenAI path); region-specific queries are picked from _REGION_QUERIES.
+    """
+    queries = _REGION_QUERIES.get(region, [])
+    if not queries:
+        log.warning("No Tavily query template for region %r — skipping", region)
         return None
 
-    usage = resp.get("usage", {}) or {}
-    in_tok = int(usage.get("prompt_tokens", 0))
-    out_tok = int(usage.get("completion_tokens", 0))
-    cost_usd = (in_tok * PRICE_INPUT_USD_PER_1M / 1_000_000 +
-                out_tok * PRICE_OUTPUT_USD_PER_1M / 1_000_000)
-    cost_eur = cost_usd * USD_TO_EUR
-    record_spend(ledger, cost_eur, region, in_tok, out_tok)
-    log.info("  [%s] in=%d out=%d cost≈€%.4f", region, in_tok, out_tok, cost_eur)
+    _RUN_STATS["regions_attempted"].append(region)
 
-    # Strip markdown fences if the model added them
-    text = msg.strip()
-    if text.startswith("```"):
-        text = re.sub(r"^```[a-zA-Z]*\s*\n?", "", text)
-        text = re.sub(r"\n```\s*$", "", text).strip()
+    # Aggregate results across queries, dedup by URL
+    seen_urls: Dict[str, Dict[str, Any]] = {}
+    region_rate_limited = False
+    region_auth = False
+    for q in queries:
+        _RUN_STATS["tavily_queries_attempted"] += 1
+        results, err = _tavily_search_one(q)
+        if err == "rate_limit":
+            _RUN_STATS["tavily_rate_limited"] = True
+            region_rate_limited = True
+            # Stop early — further queries will also fail
+            break
+        if err == "auth":
+            _RUN_STATS["tavily_auth_error"] = True
+            region_auth = True
+            break
+        if err:
+            continue  # other errors: skip this query, try next
+        _RUN_STATS["tavily_queries_succeeded"] += 1
+        _RUN_STATS["tavily_results_total"] += len(results)
+        for r in results:
+            url = (r.get("url") or "").strip()
+            if not url:
+                continue
+            if _gf_lookup_source(url) is None:  # not whitelisted
+                continue
+            if _gf_is_generic_url(url):
+                continue
+            if url not in seen_urls:
+                seen_urls[url] = r
 
+    log.info("  [%s] tavily: %d queries → %d unique whitelisted URLs%s",
+             region, len(queries), len(seen_urls),
+             " (rate-limited)" if region_rate_limited else
+             " (auth)" if region_auth else "")
+
+    if seen_urls:
+        _RUN_STATS["regions_with_results"].append(region)
+
+    # Deterministic extraction → row dicts matching the OpenAI output shape
+    accept_dates = {
+        (target_date - timedelta(days=1)).isoformat(),
+        target_date.isoformat(),
+        (target_date + timedelta(days=1)).isoformat(),
+    }
+    rows: List[Dict[str, Any]] = []
+    for url, item in seen_urls.items():
+        title   = (item.get("title") or "").strip()
+        content = (item.get("content") or "").strip()
+        blob    = title + "  " + content
+
+        pathogen_raw = _gf_detect_pathogen(blob)
+        if not pathogen_raw:
+            continue
+        hazard_type = _infer_hazard_type(blob) or "PATHOGEN"
+
+        outbreak = _gf_detect_outbreak(blob)
+        company, product = _gf_extract_company_product(title, content)
+        if not product:
+            product = (content.split(". ", 1)[0])[:200]
+
+        date_str = _gf_parse_date(item)
+        if not date_str:
+            continue
+        # Date-window guard — must match the OpenAI-era ±1 day window
+        if date_str not in accept_dates:
+            continue
+
+        src_lookup = _gf_lookup_source(url) or ("Tavily-daily", "")
+        source_label, country_guess = src_lookup
+
+        rows.append({
+            "date":        date_str,
+            "source":      source_label or "Tavily-daily",
+            "company":     company or "",
+            "brand":       company or "—",
+            "product":     product or "",
+            "pathogen":    pathogen_raw,
+            "reason":      pathogen_raw + (" — outbreak" if outbreak else ""),
+            "class":       "Recall",
+            "country":     country_guess or "",
+            "outbreak":    outbreak,
+            "url":         url,
+            "notes":       (content[:300] +
+                            "  [via Tavily daily search, deterministic extract]"),
+            "hazard_type": hazard_type,
+        })
+
+    # Record a nominal "spend" of €0 — keeps the ledger schema intact so
+    # downstream commit messages and summaries still work. Tavily free-tier
+    # = €0 per query.
+    record_spend(ledger, 0.0, region, 0, 0)
+    return {"recalls": rows}
+
+
+def write_status_file(ok: bool, recalls_count: int, regions_done: int,
+                      target_date: date) -> None:
+    """Drop a JSON status file the Exa fallback reads to decide whether to run.
+
+    Schema:
+      {
+        "ts": "<ISO UTC>",
+        "target_date": "YYYY-MM-DD",
+        "ok": bool,                  # primary search produced results without quota error
+        "should_fallback": bool,     # true if Exa should run
+        "recalls_count": N,
+        "regions_attempted": [...],
+        "regions_with_results": [...],
+        "tavily_rate_limited": bool,
+        "tavily_auth_error": bool,
+        "tavily_queries_attempted": N,
+        "tavily_queries_succeeded": N,
+      }
+    """
+    # Fallback should fire if (a) Tavily hit rate-limit/auth, OR (b) zero
+    # recalls were extracted from any region — the latter usually means the
+    # free tier silently degraded result quality or all queries returned 0.
+    should_fallback = (
+        _RUN_STATS["tavily_rate_limited"]
+        or _RUN_STATS["tavily_auth_error"]
+        or recalls_count == 0
+    )
+    payload = {
+        "ts":                       datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "target_date":              target_date.isoformat(),
+        "ok":                       ok,
+        "should_fallback":          should_fallback,
+        "recalls_count":            recalls_count,
+        "regions_attempted":        _RUN_STATS["regions_attempted"],
+        "regions_with_results":     _RUN_STATS["regions_with_results"],
+        "tavily_rate_limited":      _RUN_STATS["tavily_rate_limited"],
+        "tavily_auth_error":        _RUN_STATS["tavily_auth_error"],
+        "tavily_queries_attempted": _RUN_STATS["tavily_queries_attempted"],
+        "tavily_queries_succeeded": _RUN_STATS["tavily_queries_succeeded"],
+    }
     try:
-        data = json.loads(text)
-    except json.JSONDecodeError as e:
-        log.warning("[%s] JSON parse failed: %s | %s", region, e, text[:250])
-        return None
-
-    return data
+        STATUS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        STATUS_FILE.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        log.info("Status file written: %s (should_fallback=%s)",
+                 STATUS_FILE, should_fallback)
+    except Exception as e:
+        log.warning("Failed to write status file: %s", e)
 
 
 # ---------------------------------------------------------------------------
@@ -463,8 +716,11 @@ IN_SCOPE_MARKERS = re.compile(
     r"norovirus|hepatit|campylobact|cyclospor|vibrio|cronobact|"
     r"bacillus\s*cereus|cereulide|shigella|yersinia|"
     r"histamine|scombro|biotoxin|dsp|psp|asp|domoic|saxitox|ciguatera|"
-    r"aflatox|ochratox|patulin|alternaria|fumonisin|zearalenone|"
-    r"deoxynivalenol|mycotox|"
+    r"aflatox|ochratox|ocratoxin|ocratossin|patulin|alternaria|alternariol|"
+    r"tenuazonic|fumonisin|zearalenon|deoxynivalenol|nivalenol|"
+    r"\bt[\s\-]?2[\s\-]?toxin|\bht[\s\-]?2[\s\-]?toxin|"
+    r"citrinin|ergot[\s\-]+alkaloid|claviceps|mutterkorn|"
+    r"mycotox|mykotoxin|micotoxin|micotossin|"
     r"glass\s+(?:fragment|shard|particle)|glass\s+in\s+product|"
     r"metal\s+(?:fragment|shard|particle)|"
     r"plastic\s+(?:fragment|shard|particle)|"
@@ -573,7 +829,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
         path_norm = normalize_pathogen(pathogen) or pathogen
         rec = Recall(
             Date=(row.get("date") or "")[:10],
-            Source=row.get("source", "") or "OpenAI-daily",
+            Source=row.get("source", "") or "Tavily-daily",
             Company=(row.get("company") or "")[:200],
             Brand=(row.get("brand") or "—")[:100],
             Product=(row.get("product") or "")[:400],
@@ -586,7 +842,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
             Outbreak=outbreak,
             URL=(row.get("url") or "").strip(),
             Notes=((row.get("notes") or "") +
-                   "  [via OpenAI daily 10:00 Athens search]")[:500],
+                   "  [via Tavily daily search, deterministic extract]")[:500],
         )
         rec = rec.normalize()
         if not rec.URL.lower().startswith(("http://", "https://")):
@@ -889,8 +1145,14 @@ def main() -> int:
                     help="Run API calls but don't write xlsx/html/commit")
     args = ap.parse_args()
 
-    if not API_KEY:
-        log.error("OPENAI_API_KEY not set — cannot run.")
+    if not TAVILY_API_KEY:
+        log.error("TAVILY_API_KEY not set — cannot run.")
+        # No target known yet; use today's UTC date as best-effort marker so
+        # the Exa fallback still sees a recent status file and can run.
+        write_status_file(
+            ok=False, recalls_count=0, regions_done=0,
+            target_date=datetime.now(timezone.utc).date(),
+        )
         return 1
 
     # Determine target date (Athens yesterday)
@@ -958,7 +1220,7 @@ def main() -> int:
             break
 
         log.info("→ Region %s", spec["region"])
-        result = call_openai_search(target, spec["region"], spec["agencies"],
+        result = call_tavily_search(target, spec["region"], spec["agencies"],
                                     ledger)
         regions_done += 1
         if not result:
@@ -1111,8 +1373,15 @@ def main() -> int:
         git_commit_and_push(ROOT, paths, msg)
         log.info("Committed and pushed.")
 
+    # --- Status file for Exa fallback ----------------------------------------
+    # Written unconditionally so the Exa workflow always has a fresh file to
+    # read; should_fallback=True if Tavily hit rate-limit/auth or returned
+    # zero recalls across all regions.
+    write_status_file(
+        ok=True,
+        recalls_count=len(new_recalls),
+        regions_done=regions_done,
+        target_date=target,
+    )
+
     return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
