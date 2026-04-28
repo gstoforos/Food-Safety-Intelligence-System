@@ -3920,6 +3920,22 @@
   "Notes": "Class I; AL/FL/GA/MO/NH/NC/OH"
  },
  {
+  "Date": "2026-01-16",
+  "Source": "RappelConso (FR)",
+  "Company": "AREV",
+  "Brand": "AREV",
+  "Product": "FIGUES SECHEES LERIDA 500g",
+  "Pathogen": "Aflatoxin B1, total aflatoxins, tenuazonic acid (Alternaria)",
+  "Reason": "Dépassement des limites maximales pour les mycotoxines: Aflatoxine B1, aflatoxines totales et acide ténuazonique",
+  "Class": "Class I",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/20978/Interne",
+  "Notes": "[audit-2026-04-28: backfilled — missed by old hazard whitelist before mycotoxin patch (Alternaria/tenuazonic added to scope today)]"
+ },
+ {
   "Date": "2026-01-15",
   "Source": "FDA",
   "Company": "The Ambriola Company",
@@ -4158,21 +4174,5 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814607",
   "Notes": "RASFF #2026.0035"
- },
- {
-  "Date": "2026-01-16",
-  "Source": "RappelConso (FR)",
-  "Company": "AREV",
-  "Brand": "AREV",
-  "Product": "FIGUES SECHEES LERIDA 500g",
-  "Pathogen": "Aflatoxin B1, total aflatoxins, tenuazonic acid (Alternaria)",
-  "Reason": "Dépassement des limites maximales pour les mycotoxines: Aflatoxine B1, aflatoxines totales et acide ténuazonique",
-  "Class": "Class I",
-  "Country": "France",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/20978/Interne",
-  "Notes": "[audit-2026-04-28: backfilled — missed by old hazard whitelist before mycotoxin patch (Alternaria/tenuazonic added to scope today)]"
  }
 ]
