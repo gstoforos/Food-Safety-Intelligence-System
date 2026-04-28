@@ -11,7 +11,7 @@
     "Country": "Canada",
     "Region": "North America",
     "Tier": 1,
-    "Outbreak": 1,
+    "Outbreak": 0,
     "URL": "https://recalls-rappels.canada.ca/en/alert-recall/heeva-fine-foods-brand-pistachio-nuts-recalled-due-salmonella",
     "Notes": "Distributed in Ontario; linked to national CFIA pistachio Salmonella investigation; manually added (scraper missed)"
   },
