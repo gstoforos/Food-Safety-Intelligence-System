@@ -240,26 +240,79 @@ def _strip_code_fences(s: str) -> str:
 
 
 GEMINI_EXTRACTION_PROMPT = """\
-You are extracting FOOD RECALL records from an agency's HTML listing page.
+You are a STRICT EXTRACTOR of food recall records from an agency's HTML page.
+You are NOT a summarizer, interpreter, or guesser. Return ONLY facts that
+appear LITERALLY on the page. If a fact is not on the page, return "" for
+that field. Never infer. Never assume. Never fill in a "likely" pathogen
+from the product type. Never copy text from the HTML <title>, <h1>,
+breadcrumb, navigation, footer, or cookie banner.
 
 Return a JSON array (no prose, no markdown fences). Each item:
 
 {
   "date": "YYYY-MM-DD",
-  "company": "<recalling company or brand>",
-  "product": "<product name / description>",
-  "pathogen": "<contaminant — e.g. Salmonella, Listeria monocytogenes, E. coli O157:H7, Clostridium botulinum. Empty string if not pathogen-related>",
-  "url": "<direct link to the recall DETAIL page; absolute URL>",
-  "description": "<1–2 sentence summary>"
+  "company": "<recalling company, from the page body — NOT page title/nav>",
+  "brand": "<product brand, from the page body — NOT page title/nav>",
+  "product": "<product name / description, from the page body>",
+  "pathogen": "<canonical English hazard label — see rules below>",
+  "url": "<absolute URL to the recall DETAIL page>",
+  "description": "<1–2 sentence summary using only words from the page>"
 }
 
-Rules:
-- Include ONLY pathogen / microbiological / biotoxin / mycotoxin contamination.
-- EXCLUDE: undeclared allergens, label errors, foreign material, packaging defects.
-- If the page has NO recalls matching, return [].
-- Dates must be ISO (YYYY-MM-DD).
-- URLs MUST be absolute and point to the recall DETAIL page (not the listing page).
-- Return ONLY the JSON array. No commentary, no markdown.
+PATHOGEN / HAZARD RULES — return CANONICAL ENGLISH label (translate from
+source language); never invent. Company/Brand/Product stay VERBATIM in
+the source language — only the pathogen field is translated:
+  - Microbiological pathogen named on page → use that name
+      "Listeria monocytogenes", "Salmonella", "E. coli O157:H7", "STEC",
+      "Clostridium botulinum", "Cronobacter", "Norovirus", "Hepatitis A"
+  - Mycotoxin / chemical hazard named on page → use that name
+      "Aflatoxin", "Ochratoxin", "Histamine", "Ethylene oxide", "Lead"
+  - Non-contamination hazard described on page → use the category label:
+      Page says "enthält Fleisch" / "contains meat" / "viande non déclarée"
+        → "Undeclared meat"
+      Page says "Fremdkörper - Plastik" / "foreign body" / "corps étranger"
+        → "Foreign body (plastic)" or "Foreign body (metal)" etc.
+      Page says "Allergenkennzeichnung fehlt" / "undeclared allergen"
+        → "Undeclared allergen (<allergen>)" if named, else "Undeclared allergen"
+      Page says "Falschdeklaration" / "mislabeling" / "étiquetage erroné"
+        → "Mislabeling"
+      Page says "Verpackungsmangel" / "packaging defect"
+        → "Packaging defect"
+      Page says "Rodentizid" / "rat poison" / "rodenticide"
+        → "Rodenticide"
+  - If page mentions NO pathogen, NO chemical hazard, AND NO non-contamination
+    hazard category → return "" for pathogen. Do NOT pick the most likely
+    pathogen for the product type. Empty is correct.
+
+COMPANY / BRAND / PRODUCT RULES:
+  - Extract from the recall TEXT BODY, not from <title>, <h1>, breadcrumb,
+    navigation, "Find recalls" / "Trouvez des rappels" header strings.
+  - If the only candidate string equals the page <title> tag, return "".
+  - If the only candidate string is a bare domain ("canada.ca", "fda.gov",
+    "foodsafetynews.com"), return "".
+  - If a candidate contains any of these substrings, return "" for that field
+    (HTML / JS artifacts the scraper should never see):
+      "{socials", "window.", "querySelector", "&nbsp;", "<title>",
+      "</title>", "[data-progress-bar]", "(function", "document.cookie",
+      "addEventListener"
+
+PAGE-TYPE RULE:
+  - If the URL is a category listing, search results, homepage, or
+    multi-recall index page (rather than a specific recall detail page),
+    return [] (empty array). Do NOT fabricate a single record from the
+    listing's first item.
+
+GENERAL RULES:
+  - Dates must be ISO (YYYY-MM-DD). If the page shows DD.MM.YYYY or
+    DD/MM/YYYY, convert. Never guess a date.
+  - URLs must be absolute and point to the recall DETAIL page.
+  - Hazard SCOPE for this pipeline includes: microbiological pathogens,
+    mycotoxins, chemical contaminants, undeclared allergens, foreign
+    bodies, mislabeling, packaging defects, rodenticides, heavy metals.
+    (Allergens / foreign bodies / mislabeling were OUT of scope in older
+    versions — they are IN scope now.)
+  - If the page has NO recall matching the rules above, return [].
+  - Return ONLY the JSON array. No commentary, no markdown.
 """
 
 
@@ -464,6 +517,7 @@ class GenericGeminiScraper(BaseScraper):
             rec = self._new_recall(
                 Date=str(item.get("date", "")),
                 Company=str(item.get("company", "")),
+                Brand=str(item.get("brand", "")),
                 Product=str(item.get("product", "")),
                 Pathogen=str(item.get("pathogen", "")),
                 Reason=str(item.get("description", "")) or str(item.get("pathogen", "")),
