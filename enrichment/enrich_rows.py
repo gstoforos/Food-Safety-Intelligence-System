@@ -42,11 +42,20 @@ _URL_PATHOGEN_MAP = [
     (r"hepatit[\.\-_]?a",       "Hepatitis A"),
     # Parasites
     (r"cyclospora",             "Cyclospora"),
-    # Mycotoxins / mold
+    # Mycotoxins / mold (April 2026+ scope: Alternaria + Fusarium + ergot)
     (r"aflatoxin",              "Aflatoxins"),
-    (r"ochratoxin",             "Ochratoxin A"),
+    (r"ochratoxin|ocratoxin|ocratossin", "Ochratoxin A"),
     (r"patulin",                "Patulin"),
-    (r"mycotoxin",              "Mycotoxin"),
+    (r"alternariol|tenuazonic|alternaria[\s\-_]+toxin|toxines?[\s\-_]+(?:d['e\s]+)?alternaria",
+                                "Alternaria toxins"),
+    (r"\b(?:ht|t)[\s\-]?2[\s\-]?toxin", "T-2 / HT-2 toxin"),
+    (r"fumonisin",              "Fumonisin"),
+    (r"zearalenon|\bzea\b",     "Zearalenone"),
+    (r"deoxynivalenol|\bdon\s+(?:toxin|mycotoxin)|nivalenol", "Deoxynivalenol (DON)"),
+    (r"citrinin",               "Citrinin"),
+    (r"\bergot\b|\bclaviceps\b|\bmutterkorn\b|\balcaloid\w*\s+(?:de|of|d['e]?)\s*ergot",
+                                "Ergot alkaloids"),
+    (r"mycotoxin|mykotoxin|micotoxin|micotossin", "Mycotoxin"),
     (r"mouskimol|mould|(?<!\w)mold(?!\w)", "Mycotoxin"),  # Greek μούσκα, English mold/mould
     # Marine biotoxins
     (r"scombro|histamin",       "Histamine (scombrotoxin)"),
