@@ -139,10 +139,23 @@ For each record, flag issues:
   - URL_INVALID: URL is a homepage, category page, or generic landing (not a specific recall)
   - URL_MISMATCH: URL likely doesn't match the described recall
   - MISSING_FIELD: required field empty (Date, Company, Product, Pathogen, URL)
-  - PATHOGEN_INCONSISTENT: pathogen name doesn't match Reason text
+  - PATHOGEN_INCONSISTENT: Pathogen value is contradicted by Reason text — e.g. Pathogen="Listeria monocytogenes" but Reason describes a Salmonella outbreak. Distinct from HALLUCINATED_PATHOGEN below: this flags ROWS WITH CONFLICTING evidence; HALLUCINATED flags rows with NO evidence.
   - DATE_FORMAT: date not in YYYY-MM-DD or seems wrong
   - COUNTRY_INCONSISTENT: Country doesn't match Source agency
   - DUPLICATE_RISK: looks like a duplicate of another recent recall
+  - HALLUCINATED_PATHOGEN: Pathogen field is non-empty but neither the value NOR any source-language equivalent appears in the Reason or Notes fields (case-insensitive substring match). Source-language equivalents you must recognize:
+      "Salmonella" ↔ "salmonella" / "salmonellen" (DE) / "salmonelle" (FR) / "salmonelas" (PT) / "salmonelosis" (ES)
+      "Listeria monocytogenes" ↔ "listeria" / "listerien" (DE) / "listéria" (FR) / "l. monocytogenes"
+      "Shiga toxin-producing E. coli (STEC)" ↔ "stec" / "vtec" / "ehec" / "shiga" / "shigatoxin" / "e. coli o157" / "escherichia coli"
+      "Ochratoxin" ↔ "ochratoxin" / "ochratoxine" (FR) / "ocratoxina" (IT/ES)
+      "Aflatoxin" ↔ "aflatoxin" / "aflatoxine" (FR/DE) / "aflatossina" (IT)
+      "Clostridium botulinum" ↔ "botulinum" / "botulism" / "botulisme" (FR) / "botulismus" (DE)
+      "Undeclared meat" ↔ "fleisch" (DE) / "viande" (FR) / "carne" (IT/ES) / "meat"
+      "Undeclared allergen" ↔ "allergen" / "allergie" / "allergène" / "allergeen"
+      "Foreign body" ↔ "fremdkörper" (DE) / "corps étranger" (FR) / "corpo estraneo" (IT) / "metal" / "plastic" / "glass"
+      "Mislabeling" ↔ "falschdeklaration" (DE) / "étiquetage erroné" (FR) / "mislabel" / "mislabelled"
+    Skip this check (do NOT flag) if Reason+Notes combined is shorter than 20 characters — absence of detail is not evidence of hallucination. This catches Gemini fabricating a pathogen unsupported by any other text in the row (e.g. Pathogen="Ochratoxin" while Reason describes undeclared meat).
+  - EXTRACTION_GARBAGE: any of (a) Company == Brand byte-for-byte AND Company contains >5 whitespace-separated words; (b) Product is just a bare domain like "canada.ca", "fda.gov", "fsis.usda.gov"; (c) any of Company / Brand / Product contains an HTML or JS artifact: "{socials", "window.", "querySelector", "&nbsp;", "<title>", "</title>", "[data-progress-bar]", "(function", "document.cookie", "addEventListener".
 
 Return strictly as JSON: {"reviews": [{"row_index": <int>, "issues": ["CODE",...], "suggested_fixes": {"FieldName": "value"}, "confidence": 0.0-1.0}]}
 Only include rows with issues. Empty array if all clean."""
