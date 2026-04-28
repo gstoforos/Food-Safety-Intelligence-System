@@ -92,7 +92,8 @@ AGENCIES_FILTER = {
 }
 
 # High-severity review codes that cause promotion to be withheld.
-REJECTION_CODES = {"URL_INVALID", "URL_MISMATCH", "MISSING_FIELD"}
+REJECTION_CODES = {"URL_INVALID", "URL_MISMATCH", "MISSING_FIELD",
+                   "HALLUCINATED_PATHOGEN", "EXTRACTION_GARBAGE"}
 
 # Required fields for a row to be promotable at all.
 REQUIRED_FIELDS = ("Date", "Company", "Product", "Pathogen", "URL")
@@ -348,6 +349,20 @@ def main() -> int:
         for i, idx in enumerate(new_indices):
             pending[idx]["_url_check"] = validated[i].get("_url_check", {})
 
+    # ---- 5b. Pathogen-in-source verification on NEW pending rows ---------
+    # Layer D anti-hallucination check: fetch each row's URL, plain-textify,
+    # and verify the Pathogen value (or a multilingual equivalent) actually
+    # appears on the page. Catches Gemini-fabricated rows where Pathogen +
+    # Reason are both wrong but mutually consistent (Espido Halim case).
+    # Skips (does NOT reject) rows whose page can't be fetched — transient
+    # network issues should not poison the dataset.
+    pathogen_rejections: Dict[int, str] = {}
+    if not SKIP_REVIEW and new_indices:
+        from pipeline.verify_pathogen_in_source import verify_pending_rows
+        log.info("Pathogen-in-source verification on %d new rows...",
+                 len(new_indices))
+        pathogen_rejections = verify_pending_rows(pending, new_indices)
+
     # ---- 6. AI review on the NEW pending rows only -----------------------
     # Architecture (post-OpenAI removal, Apr 2026):
     #   review_full   — Claude Haiku 4.5 reviewing ALL new rows with the
@@ -378,6 +393,13 @@ def main() -> int:
     rejections: Dict[int, str] = {}
     if not SKIP_REVIEW and new_indices:
         rejections = compute_rejections(pending, new_indices, review_issues)
+        # Merge in Layer D pathogen-in-source verification rejections.
+        # AI review (compute_rejections) wins on collision — its codes
+        # (URL_INVALID/MISSING_FIELD/HALLUCINATED_PATHOGEN/EXTRACTION_GARBAGE)
+        # are higher-fidelity. Layer D backstops cases AI review missed.
+        for idx, reason in pathogen_rejections.items():
+            if idx not in rejections:
+                rejections[idx] = f"Pathogen verification: {reason}"
 
     # ---- 8. Promote approved rows -> Recalls -----------------------------
     new_approved, pending_after = promote_approved(
