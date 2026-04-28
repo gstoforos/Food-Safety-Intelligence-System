@@ -72,7 +72,7 @@ log = logging.getLogger("gap-finder-exa")
 DATA_DIR = ROOT / "docs" / "data"
 XLSX_PATH = DATA_DIR / "recalls.xlsx"
 
-SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "5"))
+SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "7"))
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 EXA_API_KEY = os.getenv("EXA_API_KEY", "").strip()
 

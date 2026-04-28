@@ -28,7 +28,7 @@ Environment flags:
   SKIP_AI       : skip Gemini enrichment (keep deterministic normalization only)
   SKIP_REVIEW   : skip URL validation + Claude review (auto-approve everything)
   SKIP_COMMIT   : don't git push (useful for local dry-runs)
-  SINCE_DAYS    : how many days back to scrape (default 30)
+  SINCE_DAYS    : how many days back to scrape (default 7)
   MAX_PARALLEL  : thread pool size for scrapers (default 8)
 """
 from __future__ import annotations
@@ -76,7 +76,7 @@ DATA_DIR = ROOT / "docs" / "data"
 XLSX_PATH = DATA_DIR / "recalls.xlsx"
 JSON_PATH = DATA_DIR / "recalls.json"
 
-SINCE_DAYS = int(os.getenv("SINCE_DAYS", "30"))
+SINCE_DAYS = int(os.getenv("SINCE_DAYS", "7"))
 MAX_PARALLEL = int(os.getenv("MAX_PARALLEL", "8"))
 SKIP_AI = os.getenv("SKIP_AI", "").lower() in ("1", "true", "yes")
 SKIP_REVIEW = os.getenv("SKIP_REVIEW", "").lower() in ("1", "true", "yes")

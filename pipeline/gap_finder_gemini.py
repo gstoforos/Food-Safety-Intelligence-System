@@ -62,7 +62,7 @@ DATA_DIR = ROOT / "docs" / "data"
 XLSX_PATH = DATA_DIR / "recalls.xlsx"
 JSON_PATH = DATA_DIR / "recalls.json"
 
-SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "5"))
+SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "7"))
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
