@@ -104,15 +104,21 @@ def _call_gemini_with_search(prompt: str, system: Optional[str] = None) -> Optio
         return None
 
     last_error: Optional[Exception] = None
+    last_finish_reason: Optional[str] = None
     # One call — rotate through keys only on hard failure (not output).
     for api_key in keys:
         try:
             client = genai.Client(api_key=api_key)
             
-            # Build config with Google Search tool
+            # Build config with Google Search tool.
+            # max_output_tokens=32_000 mirrors the fix in scrapers/_base.py — the
+            # default cap (~8K) silently truncates Gemini's grounded JSON
+            # mid-string, leaving resp.text empty and producing the misleading
+            # "all keys failed. Last error: None" log line.
             config = types.GenerateContentConfig(
                 system_instruction=system if system else None,
                 tools=[types.Tool(google_search=types.GoogleSearch())],
+                max_output_tokens=32_000,
             )
             
             resp = client.models.generate_content(
@@ -138,13 +144,29 @@ def _call_gemini_with_search(prompt: str, system: Optional[str] = None) -> Optio
                 except Exception:
                     pass
                 return text
+            # 200 OK but empty text — capture finish_reason so the caller can
+            # log a diagnostic instead of "Last error: None". Common causes:
+            # MAX_TOKENS (truncated), SAFETY (filter), RECITATION (filter).
+            try:
+                if hasattr(resp, 'candidates') and resp.candidates:
+                    fr = getattr(resp.candidates[0], 'finish_reason', None)
+                    if fr is not None:
+                        last_finish_reason = str(fr)
+            except Exception:
+                pass
         except Exception as exc:  # noqa: BLE001
             last_error = exc
             log.debug("Gemini attempt failed (%s): %s",
                       type(exc).__name__, str(exc)[:150])
             continue
 
-    log.error("Gemini gap-finder: all keys failed. Last error: %s", last_error)
+    if last_error is None and last_finish_reason:
+        log.error("Gemini gap-finder: all keys returned empty text. "
+                  "finish_reason=%s (likely truncation, safety filter, or "
+                  "recitation block — re-run; if persistent, check the prompt)",
+                  last_finish_reason)
+    else:
+        log.error("Gemini gap-finder: all keys failed. Last error: %s", last_error)
     return None
 
 
