@@ -71,7 +71,7 @@ jobs:
           GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
           OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
           GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
-          SINCE_DAYS:   ${{ github.event.inputs.since_days || '30' }}
+          SINCE_DAYS:   ${{ github.event.inputs.since_days || '7' }}
           MAX_PARALLEL: "8"
           SKIP_AI:      ${{ github.event.inputs.skip_ai || 'false' }}
           SKIP_REVIEW:  "false"
