@@ -354,7 +354,7 @@ Set pass=false with one of these reasons (in priority order):
     this signals the scraper grabbed the page <title> for both fields)
   • product_name is just a bare domain ("canada.ca", "fda.gov", "fsis.usda.gov")
   • Any of the four extracted fields contains JS/HTML artifacts:
-    "{socials", "window.", "querySelector", "&nbsp;", "<title>",
+    "{{socials", "window.", "querySelector", "&nbsp;", "<title>",
     "</title>", "[data-progress-bar]", "(function", "document.cookie",
     "addEventListener"
 

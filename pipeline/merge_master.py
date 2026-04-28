@@ -26,6 +26,7 @@ import unicodedata
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
+from urllib.parse import urlparse
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Font, PatternFill
 
@@ -165,6 +166,13 @@ _GENERIC_URL_PATTERNS = (
     r"/news-and-alerts/food-alerts/?$",       # FSAI alerts root
     r"/safety/recalls-market-withdrawals-safety-alerts/?$",  # FDA root
     r"/animal-veterinary/news-events/outbreaks-and-advisories/?$",  # FDA pet root
+    # CFIA recalls landing page (any locale path or bare host). The CFIA
+    # scraper finds specific recall slugs at recalls-rappels.canada.ca/<lang>/<slug>;
+    # the bare /fr or /en URL is the listing page itself, never a recall.
+    # Triggered by the audit 2026-04-28 leak where the French landing page
+    # entered Recalls with the page H1 ("Trouvez des rappels...") as Company.
+    r"recalls-rappels\.canada\.ca/(?:fr|en)/?$",
+    r"recalls-rappels\.canada\.ca/?$",
     # FDA share-link wrapper format used by their "voluntary-recall" template.
     # Functionally a SPA route — same recall is also published at the
     # canonical /safety/recalls-market-withdrawals-safety-alerts/<slug> URL,
@@ -201,6 +209,64 @@ _GARBAGE_COMPANIES = {
 
 # Hard cutoff: nothing dated before this enters Pending.
 _MIN_VALID_DATE = "2026-01-01"
+
+
+# News-outlet hosts. Any URL whose host (or parent domain) matches lands in
+# the NEWS sheet via scrapers/news.py — never in Recalls. Gap-finders
+# (Tavily/Exa/Gemini) sometimes surface news-article URLs while searching for
+# recall content; without this blocklist they would slip into Pending and
+# get promoted to Recalls with the article <title> tag scraped as Company.
+# Triggered by the audit 2026-04-28 leak (foodsafetynews.com articles
+# appearing in Recalls).
+_NEWS_HOSTS = frozenset({
+    "foodsafetynews.com",
+    "foodpoisonjournal.com",
+    "foodpoisoningbulletin.com",
+    "outbreaknewstoday.com",
+    "cidrap.umn.edu",
+    "food-safety.com",
+    "barfblog.com",
+    "foodbusinessnews.net",
+    "foodnavigator.com",
+    "foodnavigator-usa.com",
+    "just-food.com",
+    "foodmanufacture.co.uk",
+    "foodprocessing.com",
+    "foodengineeringmag.com",
+    "fooddive.com",
+    "reuters.com",
+    "apnews.com",
+    "bbc.com",
+    "bbc.co.uk",
+    "bloomberg.com",
+    "theguardian.com",
+    "nytimes.com",
+    "washingtonpost.com",
+    "medicalxpress.com",
+    "sciencedaily.com",
+    "yahoo.com",
+    "msn.com",
+    "news.google.com",
+})
+
+
+def _host_is_news_outlet(url: str) -> bool:
+    """True if the URL host (or any parent of it) is in _NEWS_HOSTS."""
+    if not url:
+        return False
+    try:
+        host = urlparse(url).netloc.lower()
+    except Exception:
+        return False
+    if host.startswith("www."):
+        host = host[4:]
+    if host in _NEWS_HOSTS:
+        return True
+    # Subdomain match (e.g. recalls.reuters.com endswith .reuters.com)
+    for h in _NEWS_HOSTS:
+        if host.endswith("." + h):
+            return True
+    return False
 
 
 def validate_pending_row(
@@ -241,6 +307,13 @@ def validate_pending_row(
     if "vertexaisearch.cloud.google" in url:
         return False, "Gemini grounding redirect URL, not a real recall"
 
+    # ── REJECT: URL host is a news outlet, not a regulator ──────────────
+    # News articles belong in the NEWS sheet (populated by scrapers/news.py).
+    # Gap-finders sometimes surface news-article URLs while searching for
+    # recall content; reject them at the gate before they reach Recalls.
+    if _host_is_news_outlet(url):
+        return False, f"News outlet URL — belongs in NEWS sheet, not Recalls: {url[:60]}"
+
     # ── REJECT: generic / informational / listing pages ─────────────────
     for pat in _GENERIC_URL_PATTERNS:
         if re.search(pat, url, re.IGNORECASE):
@@ -258,6 +331,16 @@ def validate_pending_row(
     for bad in _GARBAGE_COMPANIES:
         if co_low.startswith(bad + " ") or co_low.startswith(bad + ":"):
             return False, f'Company field starts with garbage prefix "{bad}"'
+    # Article-title leak: scraped <title> tags from news pages contain a
+    # pipe + outlet name (e.g. "Salmonella outbreak ... | Food Safety News")
+    # or HTML/JS fragments. Real company names never contain these.
+    if " | " in company and re.search(
+        r"\|\s*(food\s*safety\s*news|food\s*poison|outbreak\s*news|cidrap|"
+        r"reuters|bbc|bloomberg|guardian)\b", company, re.I):
+        return False, f'Company field is a news article <title> tag: "{company[:60]}"'
+    if re.search(r"window\.\w+|document\.querySelector|<\s*script\b|"
+                 r"\{socials\b|addEventListener\(", company, re.I):
+        return False, f'Company field contains HTML/JS fragment: "{company[:60]}"'
 
     # ── REJECT: duplicate URL already in Recalls or Pending ─────────────
     url_norm = url.rstrip("/").lower()
