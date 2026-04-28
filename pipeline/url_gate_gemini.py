@@ -102,10 +102,79 @@ TRUNCATED_BUT_VALID_DOMAINS = (
 # ─────────────────────────────────────────────────────────────────────────
 # Step 1: Structural + HTTP URL validation
 # ─────────────────────────────────────────────────────────────────────────
+# News-outlet hosts. URLs on these domains are rejected at the gate before
+# any Gemini call — saves tokens and provides defence-in-depth alongside
+# the merge_master.py validate_pending_row() check (audit 2026-04-28).
+_NEWS_HOSTS_GATE = frozenset({
+    "foodsafetynews.com", "foodpoisonjournal.com", "foodpoisoningbulletin.com",
+    "outbreaknewstoday.com", "cidrap.umn.edu", "food-safety.com", "barfblog.com",
+    "foodbusinessnews.net", "foodnavigator.com", "foodnavigator-usa.com",
+    "just-food.com", "foodmanufacture.co.uk", "foodprocessing.com",
+    "foodengineeringmag.com", "fooddive.com",
+    "reuters.com", "apnews.com", "bbc.com", "bbc.co.uk", "bloomberg.com",
+    "theguardian.com", "nytimes.com", "washingtonpost.com",
+    "medicalxpress.com", "sciencedaily.com",
+    "yahoo.com", "msn.com", "news.google.com",
+    "cbc.ca",  # CBC News — Canadian; covers recalls but not the regulator
+})
+
+
+def _is_news_host(url: str) -> bool:
+    """True if URL host (or any parent domain) is a news outlet — these
+    belong in the NEWS sheet, not Recalls."""
+    if not url:
+        return False
+    try:
+        host = urllib.parse.urlparse(url).netloc.lower()
+    except Exception:
+        return False
+    if host.startswith("www."):
+        host = host[4:]
+    if host in _NEWS_HOSTS_GATE:
+        return True
+    for h in _NEWS_HOSTS_GATE:
+        if host.endswith("." + h):
+            return True
+    return False
+
+
+# Strings that should never appear in a real Company / Brand / Product —
+# they're HTML/JS artifacts left over from a sloppy scrape.
+_JS_HTML_ARTIFACTS = (
+    "{socials", "window.", "querySelector", "&nbsp;",
+    "<title>", "</title>", "[data-progress-bar]", "(function",
+    "document.cookie", "addEventListener",
+)
+
+
+def _has_js_html_artifact(s: str) -> bool:
+    if not s:
+        return False
+    return any(a in s for a in _JS_HTML_ARTIFACTS)
+
+
+def _is_bare_domain(s: str) -> bool:
+    """True if s is just a domain like 'canada.ca' or 'fda.gov' (no path)."""
+    if not s or len(s) > 30 or " " in s.strip():
+        return False
+    s = s.strip().lower()
+    # Single token containing a dot and a TLD-looking suffix
+    if s.count(".") in (1, 2) and s.replace(".", "").replace("-", "").isalnum():
+        suffix = s.rsplit(".", 1)[-1]
+        if suffix in {"ca", "gov", "com", "org", "eu", "uk", "de", "fr",
+                      "es", "it", "ch", "nl", "be", "ie", "au", "nz",
+                      "jp", "kr", "cn", "tw", "hk", "sg", "in"}:
+            return True
+    return False
+
+
 def _is_structurally_bad(url: str) -> Optional[str]:
     """Return a rejection reason if URL is structurally bad, else None."""
     if not url or not url.startswith("http"):
         return "not a URL"
+    # News-outlet URLs belong in the NEWS sheet, not Recalls. Cheap pre-Gemini check.
+    if _is_news_host(url):
+        return "news outlet URL — belongs in NEWS sheet, not Recalls"
     bad_patterns = [
         "/categorie/", "/rubrik/", "/tag/", "/category/",
         "/search?", "/recherche?",
@@ -222,7 +291,9 @@ GEMINI_GATE_SYSTEM = (
     "You have Google Search. For every row, run real searches and verify "
     "that each URL points to a SPECIFIC recall detail page on the agency's "
     "official domain. NEVER guess fiche/recall IDs — they are chronological "
-    "across all categories, not topical. Return ONLY strict JSON."
+    "across all categories, not topical. After verification, you must also "
+    "EXTRACT four fields directly from the recall page body (NOT from "
+    "<title>/<h1>/breadcrumb/nav) and report them back. Return ONLY strict JSON."
 )
 
 
@@ -230,8 +301,9 @@ GEMINI_GATE_PROMPT = """Audit each food-recall row below. For each one decide:
   1. Is the URL on the agency's OFFICIAL domain?
   2. Does the page actually describe THIS recall (date + brand + hazard match)?
   3. Is the URL a SPECIFIC recall page (not a category listing)?
+  4. Can the four key fields be cleanly extracted from the page body?
 
-═══ MANDATORY VERIFICATION WORKFLOW ═══
+═══ MANDATORY VERIFICATION + EXTRACTION WORKFLOW ═══
 
 For EVERY row, do these steps:
 
@@ -242,11 +314,49 @@ STEP 2 — Run web_search with that query.
 STEP 3 — Find the result on the AGENCY'S OFFICIAL DOMAIN whose snippet
          mentions the same date, brand, and hazard.
 STEP 4 — Verify all four:
-         ✓ date_match (page date == row Date, ±1 day)
+         ✓ date_match (the row's Date matches the recall's PUBLISHED
+           DATE on the agency page, ±1 day. The published date is the
+           date the agency posted the recall notice — NOT the article's
+           CMS modification date or a copyright year in the footer.)
          ✓ brand_match (page mentions the brand or company)
          ✓ hazard_match (page mentions the pathogen)
          ✓ is_detail_page (URL is NOT /categorie/, /rubrik/, /tag/,
-           /search?, or a bare domain)
+           /search?, or a bare domain. URL must HTTP-resolve — return
+           pass=false with reason "url_dead" if the agency page no
+           longer loads or returns 404/410/5xx)
+STEP 5 — EXTRACT from the recall page BODY (not <title>, <h1>,
+         breadcrumb, navigation, or footer):
+         - company_name        : recalling firm — VERBATIM in source language
+         - brand_name          : product brand — VERBATIM in source language
+         - product_name        : product name — VERBATIM in source language
+         - pathogen_or_hazard  : CANONICAL ENGLISH label (translate from
+           source language: "Listerien" → "Listeria monocytogenes",
+           "salmonelle" → "Salmonella", "ochratoxine" → "Ochratoxin",
+           "Fremdkörper" → "Foreign body", "enthält Fleisch" →
+           "Undeclared meat")
+         If any field is not present in the page body, return "" for it.
+         Never copy from page chrome (title/breadcrumb/nav).
+
+═══ HARD REJECT REASONS ═══
+
+Set pass=false with one of these reasons (in priority order):
+
+[REJECT — news_not_recall]
+  URL host is a news outlet (foodsafetynews.com, food-safety.com,
+  foodpoisonjournal.com, outbreaknewstoday.com, cidrap.umn.edu, cbc.ca,
+  reuters.com, apnews.com, bbc.com, etc.). News sites cover recalls but
+  are not regulator announcements. Belongs in the NEWS sheet, not Recalls.
+
+[REJECT — extraction_failed]
+  Any one of:
+  • company_name == brand_name byte-for-byte AND > 5 words long
+    (real companies and brands are rarely identical multi-word strings;
+    this signals the scraper grabbed the page <title> for both fields)
+  • product_name is just a bare domain ("canada.ca", "fda.gov", "fsis.usda.gov")
+  • Any of the four extracted fields contains JS/HTML artifacts:
+    "{socials", "window.", "querySelector", "&nbsp;", "<title>",
+    "</title>", "[data-progress-bar]", "(function", "document.cookie",
+    "addEventListener"
 
 ═══ AGENCY-SPECIFIC RULES ═══
 
@@ -304,10 +414,16 @@ STEP 4 — Verify all four:
         "hazard_match": true|false,
         "is_detail_page": true|false
       }},
+      "extracted": {{
+        "company_name": "<from page body or empty>",
+        "brand_name": "<from page body or empty>",
+        "product_name": "<from page body or empty>",
+        "pathogen_or_hazard": "<from page body or empty>"
+      }},
       "google_query_used": "<the query you actually ran>",
       "confidence": 0.0-1.0,
       "strategy": "agency-cms-truncated | api-lookup | search-verified | failed",
-      "reason": "<short>"
+      "reason": "<short — use 'news_not_recall' or 'extraction_failed' for the new reject reasons>"
     }}
   ]
 }}
@@ -479,6 +595,30 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                             passed = False
                             d["reason"] = (str(d.get("reason", ""))
                                            + f" [local gate rejected: conf={confidence:.2f}]")
+                    # Local extraction-failed sanity check on the extracted block.
+                    # Defence in depth — never trust Gemini's self-rejection alone.
+                    # Triggers match Layer B HARD REJECT REASONS in the prompt.
+                    if passed:
+                        ex = d.get("extracted", {}) or {}
+                        co = str(ex.get("company_name", "") or "")
+                        br = str(ex.get("brand_name", "") or "")
+                        pr = str(ex.get("product_name", "") or "")
+                        ha = str(ex.get("pathogen_or_hazard", "") or "")
+                        ext_fail_reason = None
+                        if (co and co == br
+                                and len(co.split()) > 5):
+                            ext_fail_reason = ("extraction_failed: "
+                                               "company == brand identically (>5 words)")
+                        elif _is_bare_domain(pr):
+                            ext_fail_reason = ("extraction_failed: "
+                                               f"product is bare domain '{pr}'")
+                        elif any(_has_js_html_artifact(s) for s in (co, br, pr, ha)):
+                            ext_fail_reason = ("extraction_failed: "
+                                               "JS/HTML artifact in extracted field")
+                        if ext_fail_reason:
+                            passed = False
+                            d["reason"] = (str(d.get("reason", ""))
+                                           + f" [local gate: {ext_fail_reason}]")
                     # Reject structurally-bad url_corrected
                     if url_fix and not _is_truncation_protected(url_fix):
                         if _is_structurally_bad(url_fix):
