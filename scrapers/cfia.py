@@ -25,8 +25,15 @@ class CFIAScraper(BaseScraper):
         "stec", "o157", "botulin", "norovirus", "hepatitis", "campylobacter",
         "cyclospora", "vibrio", "cronobacter", "bacillus cereus", "cereulide",
         "shigella", "yersinia", "biotoxin", "histamine", "scombro",
-        # --- Mycotoxins ---
+        # --- Mycotoxins (April 2026+ scope: Alternaria + Fusarium + ergot) ---
         "aflatoxin", "ochratoxin", "patulin", "mycotoxin",
+        "fumonisin", "zearalenone", "deoxynivalenol", "nivalenol",
+        "alternaria", "alternariol", "tenuazonic",
+        "t-2 toxin", "ht-2 toxin", "citrinin",
+        "ergot", "claviceps", "fusarium",
+        # Multilingual (FR/DE/ES/IT/PT)
+        "ocratoxin", "ocratossin", "mykotoxin", "micotoxin",
+        "micotossin", "mutterkorn",
         # --- Rodenticides / criminal tampering ---
         "rodenticide", "rat poison", "bromadiolon", "brodifacoum",
         "difethialon", "difenacoum", "chlorophacinon",
