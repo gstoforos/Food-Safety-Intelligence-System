@@ -15,7 +15,6 @@
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22133/Interne",
   "Notes": "[added 2026-04-27 from audit; fiche 2026-04-0293 / 27-04-2026]"
  },
-
  {
   "Date": "2026-04-24",
   "Source": "BVL (DE)",
@@ -51,8 +50,8 @@
  {
   "Date": "2026-04-24",
   "Source": "RappelConso (FR)",
-  "Company": "—",
-  "Brand": "—",
+  "Company": "Sans marque",
+  "Brand": "Sans marque",
   "Product": "Fromage de Chèvre Fermier",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Risques microbiologiques",
@@ -2846,7 +2845,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://iol.co.za/business/2026-03-16-clicks-recall-made-for-tots-corn-puffs-pulled-from-shelves-over-listeria-concerns/",
-  "Notes": "Distributed: South Africa + Lesotho. Sources: businesstech.co.za, iol.co.za, thestar.co.za. Baker McKenzie alert 2026-04"
+  "Notes": "Distributed: South Africa + Lesotho. Sources: businesstech.co.za, iol.co.za, thestar.co.za. Baker McKenzie alert 2026-04 [audit-2026-04-28: news-aggregator URL — needs official agency URL via url_resurrect]"
  },
  {
   "Date": "2026-03-16",
@@ -2910,7 +2909,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://businesstech.co.za/news/business/853967/another-food-product-pulled-from-shelves-in-south-africa-2/",
-  "Notes": "Part of global cereulide infant formula crisis (37+ countries)"
+  "Notes": "Part of global cereulide infant formula crisis (37+ countries) [audit-2026-04-28: news-aggregator URL — needs official agency URL via url_resurrect]"
  },
  {
   "Date": "2026-03-13",
@@ -3118,7 +3117,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://htxt.co.za/2026/03/contaminated-dog-food-brands-recalled-in-south-africa/",
-  "Notes": "Multi-brand recall via NCC"
+  "Notes": "Multi-brand recall via NCC [audit-2026-04-28: news-aggregator URL — needs official agency URL via url_resurrect]"
  },
  {
   "Date": "2026-03-09",
@@ -3198,7 +3197,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://timelessnews.co.za/nutricia-issues-nationwide-recall-of-infant-formula-after-toxin-detected/",
-  "Notes": "NCC | global cereulide crisis | Dis-Chem + Clicks distribution"
+  "Notes": "NCC | global cereulide crisis | Dis-Chem + Clicks distribution [audit-2026-04-28: news-aggregator URL — needs official agency URL via url_resurrect]"
  },
  {
   "Date": "2026-03-05",
@@ -3470,7 +3469,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.unotv.com/salud/cofepris-actualiza-alerta-por-formulas-para-bebes-advirte-que-representan-un-riesgo-para-la-salud/",
-  "Notes": "COFEPRIS update 19/02/2026 | global cereulide crisis"
+  "Notes": "COFEPRIS update 19/02/2026 | global cereulide crisis [audit-2026-04-28: news-aggregator URL — needs official agency URL via url_resurrect]"
  },
  {
   "Date": "2026-02-18",
@@ -3725,7 +3724,7 @@
   "Region": "Latin America",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.xataka.com.mx/otros-1/cofepris-manda-alerta-masiva-estas-leches-nan-alula-pueden-tener-bacteria-retiran-mexico",
+  "URL": "https://www.gob.mx/cms/uploads/attachment/file/1047052/Alerta_Sanitaria__Nestl__07012026.pdf",
   "Notes": "COFEPRIS alert. Global cereulide crisis (37+ countries)"
  },
  {
@@ -3981,7 +3980,7 @@
   "Region": "Middle East & Africa",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://briefly.co.za/south-africa/237099-nutricia-baby-formula-pulled-mzansi-shelves-toxin-contamination-fears/",
+  "URL": "https://thencc.org.za/product-recall-nan-special-pro-ha-infant-formula-800g/",
   "Notes": "NCC | global cereulide crisis | First SA infant formula recall of 2026"
  },
  {
@@ -4159,5 +4158,21 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814607",
   "Notes": "RASFF #2026.0035"
+ },
+ {
+  "Date": "2026-01-16",
+  "Source": "RappelConso (FR)",
+  "Company": "AREV",
+  "Brand": "AREV",
+  "Product": "FIGUES SECHEES LERIDA 500g",
+  "Pathogen": "Aflatoxin B1, total aflatoxins, tenuazonic acid (Alternaria)",
+  "Reason": "Dépassement des limites maximales pour les mycotoxines: Aflatoxine B1, aflatoxines totales et acide ténuazonique",
+  "Class": "Class I",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/20978/Interne",
+  "Notes": "[audit-2026-04-28: backfilled — missed by old hazard whitelist before mycotoxin patch (Alternaria/tenuazonic added to scope today)]"
  }
 ]
