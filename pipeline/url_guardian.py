@@ -199,17 +199,55 @@ def _in_window(row: Dict[str, Any], cutoff: date) -> bool:
         return False
 
 
-def _url_health_pass(pending: List[Dict[str, Any]], since_days: int) -> Dict[str, int]:
-    """Validate URLs on recent PENDING rows. Blank ones that are truly broken."""
+def _url_health_pass(pending: List[Dict[str, Any]], since_days: int,
+                     skip_if_checked_within_days: int = 7) -> Dict[str, int]:
+    """Validate URLs on recent rows. Blank ones that are truly broken.
+
+    Optimisation (2026-04-28): skip rows whose LastChecked is within the
+    last `skip_if_checked_within_days` days. The url_guardian re-runs
+    every 4 hours via the scheduler — without skipping, every row got
+    re-checked 6× per day, which burned Gemini grounding quota and
+    slowed the workflow. With a 7-day skip window, the typical row gets
+    checked ~once per week instead of ~42×.
+
+    Set `skip_if_checked_within_days=0` to force a re-check of every row
+    (useful for debugging or when the URL-validation logic itself has
+    changed and we want a fresh pass).
+
+    Successful rows have their LastChecked column updated to today's date.
+    Failed rows (blanked URLs, generic URLs) do NOT have LastChecked set —
+    they need to be re-tried on the next run.
+    """
     cutoff = date.today() - timedelta(days=since_days)
-    targets = [(i, r) for i, r in enumerate(pending) if _in_window(r, cutoff)]
-    log.info("URL health: checking %d of %d pending rows (last %d days)",
-             len(targets), len(pending), since_days)
+    today_iso = date.today().isoformat()
+    skip_cutoff = date.today() - timedelta(days=skip_if_checked_within_days)
+
+    def _was_checked_recently(row: Dict[str, Any]) -> bool:
+        if skip_if_checked_within_days <= 0:
+            return False
+        last = str(row.get("LastChecked") or "")[:10]
+        if not last:
+            return False
+        try:
+            d = date.fromisoformat(last)
+            return d >= skip_cutoff
+        except ValueError:
+            return False
+
+    in_window_targets = [(i, r) for i, r in enumerate(pending) if _in_window(r, cutoff)]
+    targets = [(i, r) for i, r in in_window_targets if not _was_checked_recently(r)]
+    skipped_recent = len(in_window_targets) - len(targets)
+
+    log.info("URL health: checking %d of %d in-window rows "
+             "(skipped %d as already checked within %d days)",
+             len(targets), len(in_window_targets),
+             skipped_recent, skip_if_checked_within_days)
 
     rows_to_check = [r for _, r in targets]
     validated = validate_all(rows_to_check, max_workers=10)
 
-    stats = {"checked": len(validated), "ok": 0, "bot_blocked": 0,
+    stats = {"checked": len(validated), "skipped_recent": skipped_recent,
+             "ok": 0, "bot_blocked": 0,
              "blanked_generic": 0, "flagged_generic": 0,
              "blanked_404": 0, "blanked_5xx": 0, "kept_403": 0}
     for (idx, _), vrow in zip(targets, validated):
@@ -217,9 +255,15 @@ def _url_health_pass(pending: List[Dict[str, Any]], since_days: int) -> Dict[str
         reason = check.get("reason", "")
         if reason == "ok":
             stats["ok"] += 1
+            # Mark this URL as freshly verified — next run within the skip
+            # window will leave it alone. Only set LastChecked on success
+            # (or 403 bot-blocked, which is also "URL is fine, just protected").
+            if "LastChecked" in pending[idx] or True:  # always populate
+                pending[idx]["LastChecked"] = today_iso
             continue
         if reason == "bot_blocked":
             stats["bot_blocked"] += 1
+            pending[idx]["LastChecked"] = today_iso
             continue
         # Generic URL — keep the URL (better than nothing for the user)
         # but flag it so url_resurrect tries to find the specific page.
@@ -227,7 +271,7 @@ def _url_health_pass(pending: List[Dict[str, Any]], since_days: int) -> Dict[str
             stats["flagged_generic"] += 1
             original = pending[idx].get("URL", "")
             notes = str(pending[idx].get("Notes") or "")
-            flag = f"[URL-guardian {date.today().isoformat()}: generic {original[:60]} — needs specific URL]"
+            flag = f"[URL-guardian {today_iso}: generic {original[:60]} — needs specific URL]"
             if "generic" not in notes:  # don't double-flag
                 pending[idx]["Notes"] = (notes + " " + flag).strip()[:500]
             continue
@@ -239,7 +283,7 @@ def _url_health_pass(pending: List[Dict[str, Any]], since_days: int) -> Dict[str
                 stats["blanked_5xx"] += 1
             pending[idx]["URL"] = ""
             notes = str(pending[idx].get("Notes") or "")
-            audit = f"[URL-guardian {date.today().isoformat()}: blanked {reason} {original[:60]}]"
+            audit = f"[URL-guardian {today_iso}: blanked {reason} {original[:60]}]"
             pending[idx]["Notes"] = (notes + " " + audit).strip()[:500]
         else:
             stats["kept_403"] += 1

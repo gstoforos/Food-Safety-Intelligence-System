@@ -36,6 +36,24 @@ log = logging.getLogger(__name__)
 SCHEMA = ["Date", "Source", "Company", "Brand", "Product", "Pathogen", "Reason",
           "Class", "Country", "Region", "Tier", "Outbreak", "URL", "Notes"]
 
+# ── Internal-only tracking columns (Recalls sheet only) ──────────────────
+# These columns are appended to the Recalls sheet for internal bookkeeping
+# and are EXCLUDED from the public-facing recalls.json that feeds the
+# dashboard. See mirror_json_from_xlsx() for the filtering.
+#
+# DateAdded   — date the row was first promoted to Recalls (set once,
+#               never changed). Used to distinguish original publication
+#               date (Date) from when FSIS captured it.
+# LastUpdated — date the row was last modified (any field changed). Set
+#               by promote_approved on insert and by audit/fix code paths
+#               that touch existing rows.
+# LastChecked — date a URL gate (Gemini grounded check or url_guardian
+#               reachability check) last validated this row's URL. Used
+#               by url_guardian to skip rows checked recently and avoid
+#               redundant Gemini grounded calls.
+RECALLS_INTERNAL_COLUMNS = ["DateAdded", "LastUpdated", "LastChecked"]
+RECALLS_SCHEMA = SCHEMA + RECALLS_INTERNAL_COLUMNS
+
 # Pending sheet has the same columns plus two tracking columns.
 PENDING_SCHEMA = SCHEMA + ["ScrapedAt", "Status"]
 
@@ -293,7 +311,7 @@ def _load_sheet(xlsx_path: Path, sheet: str, schema: List[str]) -> List[Dict[str
 
 def load_existing(xlsx_path: Path) -> List[Dict[str, Any]]:
     """Read approved Recalls sheet -> list of dicts."""
-    out = _load_sheet(xlsx_path, "Recalls", SCHEMA)
+    out = _load_sheet(xlsx_path, "Recalls", RECALLS_SCHEMA)
     log.info("Loaded %d approved rows from Recalls", len(out))
     return out
 
@@ -463,9 +481,19 @@ def promote_approved(
             continue
         approved_keys.add(k)
 
-        # Strip pending-only tracking columns before inserting into Recalls
+        # Strip pending-only tracking columns before inserting into Recalls.
+        # Fill RECALLS_SCHEMA, including the internal tracking columns:
+        #   DateAdded   = today (when row first promoted to Recalls)
+        #   LastUpdated = today (initial insert counts as an update)
+        #   LastChecked = "" (no URL re-validation has happened yet —
+        #                     url_guardian/url_gate will fill this later)
+        from datetime import date as _today_fn
+        _today = _today_fn.today().isoformat()
         approved_row = {col: clean.get(col, "" if col not in ("Tier", "Outbreak") else 0)
                         for col in SCHEMA}
+        approved_row["DateAdded"] = _today
+        approved_row["LastUpdated"] = _today
+        approved_row["LastChecked"] = ""
         new_approved.append(approved_row)
 
     rejected_kept = sum(1 for r in kept_in_pending if r.get("Status") == STATUS_REJECTED)
@@ -560,7 +588,7 @@ def save_xlsx_with_pending(
             wb.remove(wb.active)
 
     # Write Recalls (approved published data)
-    _write_sheet(wb, "Recalls", SCHEMA, approved_rows)
+    _write_sheet(wb, "Recalls", RECALLS_SCHEMA, approved_rows)
 
     # Write Pending (amber-ish header fill to make the tab visually distinct)
     pending_fill = PatternFill(start_color="FFF3CD", end_color="FFF3CD", fill_type="solid")
@@ -616,6 +644,10 @@ def mirror_json_from_xlsx(xlsx_path: Path, json_path: Path) -> int:
     that json can never drift from xlsx: we read the file that was just
     committed to disk, normalise types (dates to ISO strings), and serialise.
 
+    INTERNAL columns (DateAdded, LastUpdated, LastChecked) are STRIPPED
+    here so they don't leak into the public-facing dashboard. Only the
+    14 SCHEMA columns make it to recalls.json.
+
     Returns the number of rows written.
     """
     rows = load_existing(xlsx_path)
@@ -623,6 +655,9 @@ def mirror_json_from_xlsx(xlsx_path: Path, json_path: Path) -> int:
     for r in rows:
         rec = {}
         for k, v in r.items():
+            # Skip internal-only tracking columns — public consumers never see these
+            if k in RECALLS_INTERNAL_COLUMNS:
+                continue
             if hasattr(v, "isoformat"):
                 rec[k] = v.isoformat()[:10]
             elif v is None:
