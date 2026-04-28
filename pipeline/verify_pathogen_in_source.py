@@ -46,6 +46,7 @@ from __future__ import annotations
 import logging
 import re
 import threading
+import urllib.parse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -67,17 +68,6 @@ LOG_BODY_PREVIEW = 200       # chars of body logged on rejection for debugging
 # ---------------------------------------------------------------------------
 # PATHOGEN_ALIASES
 # ---------------------------------------------------------------------------
-# Maps each canonical English pathogen / hazard label (as produced by
-# Layer A's strict extractor + scrapers._models.normalize_pathogen) to a
-# list of lowercase substrings that should match it on a source page.
-# Includes EN/DE/FR/IT/ES/PT variants where applicable. Keys MUST match
-# the canonical names used by normalize_pathogen() and the new
-# non-contamination categories defined in Layer A's prompt.
-#
-# Maintenance: when adding a new pathogen, also add its source-language
-# equivalents to Layer C's REVIEW_BATCH_SYSTEM prompt in
-# review/claude_client.py to keep the AI review and this verifier
-# aligned.
 PATHOGEN_ALIASES: Dict[str, List[str]] = {
     # ── Microbiological pathogens (Tier 1) ────────────────────────────
     "Listeria monocytogenes": [
@@ -110,20 +100,20 @@ PATHOGEN_ALIASES: Dict[str, List[str]] = {
     ],
     "Norovirus": ["norovirus", "norwalk"],
 
-    # ── E. coli family (canonical + variant keys for normalized lookup) ─
-    "E. coli STEC": [   # post-normalization of "E. coli STEC (Shiga toxin-producing)"
+    # ── E. coli family ────────────────────────────────────────────────
+    "E. coli STEC": [
         "stec", "vtec", "ehec", "shiga", "shigatoxin", "shiga-toxin",
         "shiga toxin", "e. coli o", "escherichia coli", "ecoli",
     ],
-    "STEC": [           # post-normalization of "STEC (Shiga toxin-producing E. coli)"
+    "STEC": [
         "stec", "vtec", "ehec", "shiga", "shigatoxin", "shiga toxin",
         "escherichia coli",
     ],
-    "E. coli": [        # bare "E. coli" canonical
+    "E. coli": [
         "e. coli", "ecoli", "escherichia coli",
     ],
 
-    # ── Histamine (production canonical without "/scombrotoxin") ──────
+    # ── Histamine ─────────────────────────────────────────────────────
     "Histamine": [
         "histamine", "histamin", "scombro", "scombroid", "scombrotoxin",
         "biotoxine endogène",
@@ -182,7 +172,7 @@ PATHOGEN_ALIASES: Dict[str, List[str]] = {
         "mercury", "quecksilber", "mercure", "mercurio",
     ],
 
-    # ── Non-contamination hazards (Layer A canonical labels) ──────────
+    # ── Non-contamination hazards ─────────────────────────────────────
     "Undeclared meat": [
         "undeclared meat", "fleisch", "viande non déclarée",
         "viande non-déclarée", "carne non dichiarata",
@@ -223,12 +213,12 @@ PATHOGEN_ALIASES: Dict[str, List[str]] = {
         "rodenticida", "raticide", "ratticida",
     ],
 
-    # ── Chemical / regulatory contaminants (production canonicals) ────
+    # ── Chemical / regulatory contaminants ────────────────────────────
     "PFOA / PFAS": [
         "pfoa", "pfas", "perfluoroctan", "perfluorooctan",
         "perfluorinated", "perfluor",
     ],
-    "Sulfite": [        # post-normalization of "Sulfites (undeclared)"
+    "Sulfite": [
         "sulfite", "sulphite", "schwefeldioxid",
         "anhydride sulfureux", "sulfito", "soufre",
     ],
@@ -237,8 +227,11 @@ PATHOGEN_ALIASES: Dict[str, List[str]] = {
     "Bacillus cereus / cereulide": [
         "cereulide", "emetic toxin", "b. cereus", "bacillus cereus",
     ],
+    "Bacillus cereus (cereulide)": [
+        "cereulide", "emetic toxin", "b. cereus", "bacillus cereus",
+    ],
 
-    # ── Pest / process failure / mushroom toxins ──────────────────────
+    # ── Pest / process / mushroom toxins ──────────────────────────────
     "Pest contamination": [
         "rodent contamination", "mouse contamination",
         "rodent infestation", "rats infestation",
@@ -262,9 +255,23 @@ PATHOGEN_ALIASES: Dict[str, List[str]] = {
         "muscimol", "ibotenic", "amanita", "fly agaric",
         "fliegenpilz",
     ],
-    "Phytoplankton biotoxins": [   # after parens-strip variants land here
+    "Phytoplankton biotoxins": [
         "phytoplankton", "biotoxin", "saxitoxin", "domoic",
         "tetrodotoxin", "ciguatoxin", "okadaic",
+    ],
+
+    # ── Variant aliases for production canonicals seen in xlsx ────────
+    "Hepatitis A": [
+        "hepatitis a", "hav", "hepatitis-a", "hépatite a",
+    ],
+    "Patulin": ["patulin"],
+    "rat poison": [
+        "rat poison", "rodenticide", "rodentizid",
+        "raticide", "ratticida",
+    ],
+    "Peanut": [
+        "peanut", "erdnuss", "arachide", "cacahuete", "cacahuète",
+        "amendoim", "arachidi",
     ],
 }
 
@@ -272,25 +279,11 @@ PATHOGEN_ALIASES: Dict[str, List[str]] = {
 # ---------------------------------------------------------------------------
 # Internals
 # ---------------------------------------------------------------------------
-# Normalisation patterns applied to the row's Pathogen value before
-# alias-key lookup. Production scrapers + AI extraction emit canonical
-# names with parenthetical suffixes ("Histamine (biotoxine endogène)"),
-# species qualifiers ("Salmonella spp."), serotypes ("Salmonella
-# Typhimurium"), trailing toxin letters ("Ochratoxin A"), and plural
-# forms ("Aflatoxins"). The normaliser strips those to land on a key
-# that exists in PATHOGEN_ALIASES. Patterns are applied iteratively
-# until no further reduction is possible.
 _NORMALIZE_PATTERNS: List[Tuple["re.Pattern[str]", str]] = [
-    # Strip trailing parenthetical: "Histamine (biotoxine endogène)" → "Histamine"
     (re.compile(r"\s*\([^)]*\)\s*$"), ""),
-    # Strip "spp." suffix: "Salmonella spp." → "Salmonella"
-    (re.compile(r"\s+spp\.?\s*$", re.IGNORECASE), ""),
-    # Strip Salmonella serotype: "Salmonella Typhimurium" → "Salmonella"
+    (re.compile(r"\s+spp?\.?\s*$", re.IGNORECASE), ""),
     (re.compile(r"^(salmonella)\s+[A-Z]\w+\s*$", re.IGNORECASE), r"\1"),
-    # Strip toxin trailing letter: "Ochratoxin A" / "Aflatoxin B1" → base
     (re.compile(r"^((?:ochra|afla)toxin)\s+[A-Z]\d?\s*$", re.IGNORECASE), r"\1"),
-    # Strip plural -s on toxin/allergen/sulfite/biotoxin/mycotoxin:
-    # "Aflatoxins" → "Aflatoxin", "Sulfites" → "Sulfite"
     (re.compile(
         r"^((?:ochra|afla)toxin|alternaria|biotoxin|allergen|sulfite|mycotoxin)s\b",
         re.IGNORECASE,
@@ -315,22 +308,19 @@ def _aliases_for(pathogen: str) -> List[str]:
     """Return list of substrings (lowercased) that should match this
     pathogen on a source page. Always includes the literal pathogen
     string itself; then tries direct alias lookup, then a normalised
-    lookup (strips parens / spp. / serotype / trailing letter / plural).
-    Empty list if input is empty/whitespace."""
+    lookup. Empty list if input is empty/whitespace."""
     p = (pathogen or "").strip()
     if not p:
         return []
     out: List[str] = [p.lower()]
     direct = PATHOGEN_ALIASES.get(p)
     if direct is None:
-        # Case-insensitive direct lookup
         p_low = p.lower()
         for key, aliases in PATHOGEN_ALIASES.items():
             if key.lower() == p_low:
                 direct = aliases
                 break
     if direct is None:
-        # Fallback: normalise and look up the stem
         normalized = _normalize_pathogen_for_lookup(p)
         if normalized and normalized.lower() != p.lower():
             n_low = normalized.lower()
@@ -341,7 +331,6 @@ def _aliases_for(pathogen: str) -> List[str]:
                     break
     if direct:
         out.extend(a.lower() for a in direct)
-    # De-dup while preserving order
     seen = set()
     deduped: List[str] = []
     for a in out:
@@ -363,9 +352,45 @@ def _pathogen_in_text(pathogen: str, body_text: str) -> bool:
     return False
 
 
+# Domains that JS-render recall content. Static HTTP fetch only retrieves
+# the SPA shell (nav + footer), never the recall body. Layer D cannot
+# verify pathogens on these hosts without a headless browser, so we SKIP
+# them (do NOT reject) — same disposition as a network failure.
+# Discovered via tools/run_layerD_live.py on 2026-04-28.
+_JS_RENDERED_HOSTS = frozenset({
+    "rappel.conso.gouv.fr",         # Vue.js SPA — fiche pages render client-side
+    "webgate.ec.europa.eu",         # RASFF Window — Angular SPA
+    "recalls-rappels.canada.ca",    # CFIA — Angular SPA on /alert-recall/ pages
+})
+
+
+def _is_js_rendered_host(url: str) -> bool:
+    """True if URL host is a known JS-rendered SPA whose body cannot be
+    verified by static fetch + BeautifulSoup."""
+    if not url:
+        return False
+    try:
+        host = urllib.parse.urlparse(url).netloc.lower()
+    except Exception:
+        return False
+    if host.startswith("www."):
+        host = host[4:]
+    if host in _JS_RENDERED_HOSTS:
+        return True
+    return any(host.endswith("." + h) for h in _JS_RENDERED_HOSTS)
+
+
+def _is_pdf_url(url: str) -> bool:
+    """True if URL is a static PDF link — BeautifulSoup can't extract;
+    skip Layer D for these."""
+    if not url:
+        return False
+    u = url.lower().split("#", 1)[0].split("?", 1)[0]
+    return u.endswith(".pdf") or ".pdf.download" in url.lower()
+
+
 def _fetch_page_text(url: str, session) -> Optional[str]:
-    """Fetch URL and return the visible page text, or None on failure.
-    Caps response size at MAX_PAGE_BYTES; strips script/style/nav/footer."""
+    """Fetch URL and return the visible page text, or None on failure."""
     if not url or not url.startswith(("http://", "https://")):
         return None
     resp = fetch(session, url, method="GET", timeout=HTTP_TIMEOUT_S,
@@ -401,8 +426,7 @@ def verify_pending_rows(
     new_indices: List[int],
     max_workers: int = MAX_WORKERS_DEFAULT,
 ) -> Dict[int, str]:
-    """
-    For each pending row at one of `new_indices`, fetch the source URL
+    """For each pending row at one of `new_indices`, fetch the source URL
     and verify that the row's Pathogen value (or a multilingual
     equivalent) appears in the page body. Return a dict mapping
     pending-row indices to a rejection reason for rows that fail
@@ -410,14 +434,10 @@ def verify_pending_rows(
 
     Rows skipped (NOT rejected, NOT in returned dict):
       - Empty URL or empty Pathogen
+      - URL is on a JS-rendered SPA host (RappelConso/RASFF/CFIA)
+      - URL is a static PDF link
       - Page fetch failed (timeout / 4xx / 5xx / network error)
-      - Page body too short (< MIN_BODY_CHARS) — likely an error page
-        or redirect we couldn't follow
-
-    The fetch is parallelized across `max_workers` threads with an
-    in-memory URL-keyed cache so duplicate URLs in the batch trigger
-    only one fetch.
-    """
+      - Page body too short (< MIN_BODY_CHARS)"""
     rejections: Dict[int, str] = {}
     if not new_indices:
         return rejections
@@ -434,6 +454,20 @@ def verify_pending_rows(
         url = str(row.get("URL") or "").strip()
         pathogen = str(row.get("Pathogen") or "").strip()
         if not url or not pathogen:
+            return None
+
+        # SKIP (do NOT reject) JS-rendered SPAs and static PDFs
+        if _is_js_rendered_host(url):
+            log.info(
+                "verify_pathogen: SKIP (JS-rendered SPA host) idx=%d url=%s pathogen=%s",
+                idx, url[:80], pathogen,
+            )
+            return None
+        if _is_pdf_url(url):
+            log.info(
+                "verify_pathogen: SKIP (PDF URL, no text extractor) idx=%d url=%s pathogen=%s",
+                idx, url[:80], pathogen,
+            )
             return None
 
         # Cache lookup
@@ -515,7 +549,15 @@ if __name__ == "__main__":
                              "das als Weizenbrei ausgelobte Produkt enthält Fleisch")
     assert not _pathogen_in_text("Ochratoxin",
                                  "das als Weizenbrei ausgelobte Produkt enthält Fleisch")
-    print("matcher offline tests: OK")
+    # JS-SPA + PDF skip helpers
+    assert _is_js_rendered_host("https://rappel.conso.gouv.fr/fiche-rappel/22070/Interne")
+    assert _is_js_rendered_host("https://webgate.ec.europa.eu/rasff-window/screen/x")
+    assert _is_js_rendered_host("https://recalls-rappels.canada.ca/en/alert-recall/x")
+    assert not _is_js_rendered_host("https://www.lebensmittelwarnung.de/x")
+    assert _is_pdf_url("https://www.blv.admin.ch/x.pdf.download.pdf/y")
+    assert _is_pdf_url("https://example.com/recall.pdf")
+    assert not _is_pdf_url("https://example.com/recall.html")
+    print("matcher + JS-SPA + PDF skip tests: OK")
 
     # If a URL was passed on argv, do a live check
     if len(sys.argv) > 2:
