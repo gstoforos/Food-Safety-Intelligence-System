@@ -16,6 +16,22 @@
   "Notes": "[added 2026-04-27 from audit; fiche 2026-04-0293 / 27-04-2026]"
  },
  {
+  "Date": "2026-04-27",
+  "Source": "EFET (GR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "φυστικιού αράπικου",
+  "Pathogen": "",
+  "Reason": "Recall of peanuts due to the presence of aflatoxins.",
+  "Class": "Recall",
+  "Country": "Greece",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5376-deltio-typou-enimerosi-anaklisis-fystikioy-arapikoy-logo-parousias-aflatoksinon",
+  "Notes": "Gemini/el from https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat"
+ },
+ {
   "Date": "2026-04-26",
   "Source": "FDA",
   "Company": "Liquid Blenz Corp",
@@ -1742,6 +1758,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21934/Interne",
   "Notes": ""
+ },
+ {
+  "Date": "2026-04-07",
+  "Source": "BLV (CH)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "verschiedenen Weichkäsen",
+  "Pathogen": "Salmonella",
+  "Reason": "Public warning: Salmonella in various soft cheeses.",
+  "Class": "Recall",
+  "Country": "Switzerland",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/oeffentliche-warnungen/ow-salmonellen-weichkaese.pdf.download.pdf/oW_Salmonellen%20in%20verschiedenen%20Weichk%C3%A4sen.pdf",
+  "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html"
  },
  {
   "Date": "2026-04-06",
