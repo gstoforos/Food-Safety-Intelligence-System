@@ -480,6 +480,22 @@
   "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel"
  },
  {
+  "Date": "2026-04-21",
+  "Source": "BVL (DE)",
+  "Company": "Espido Food GmbH",
+  "Brand": "—",
+  "Product": "Weizenbrei Halim (Persian Oatmeal)",
+  "Pathogen": "Ochratoxin",
+  "Reason": "Die Espido Food GmbH informiert über den Rückruf des Artikels Weizenbrei Halim (Persian Oatmeal) in der 500g Packung und dem Mindesthaltbarkeitsdatum 20.03.2025. Wie das Unternehmen mitteilt, wurde bei einer Lebensmittelkontrolle in dem Produkt ein zu hoher Gehalt an Ochratoxin A nachgewiesen. Vom Verzehr wird dringend abgeraten!",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.produktwarnung.eu/2026/04/21/rueckruf-espido-food-ruft-weizenbrei-halim-persian-oatmeal-zurueck/37805",
+  "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel"
+ },
+ {
   "Date": "2026-04-20",
   "Source": "RappelConso (FR)",
   "Company": "NEUTRE PETIT PRIX",
@@ -830,6 +846,22 @@
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/rueckrufe/rr-calmar.pdf.download.pdf/26_04_08%20Ru%CC%88ckruf%20Beira%20Nova%20Calamares%20Warenlos%20%20142026.pdf",
   "Notes": "[2026-04-26: Pathogen extracted from Reason text; cleared stale Claude-gate rejection] Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html"
+ },
+ {
+  "Date": "2026-04-14",
+  "Source": "NCC (ZA)",
+  "Company": "BM Foods Manufacturers (Pty) Ltd (BM Foods)",
+  "Brand": "—",
+  "Product": "Ready-to-eat Hummus products",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "The National Consumer Commission (NCC) has referred BM Foods Manufacturers (Pty) Ltd (BM Foods), a supplier of ready-to-eat Hummus products, to the National Consumer Tribunal over Listeria contamination.",
+  "Class": "Recall",
+  "Country": "South Africa",
+  "Region": "Africa",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://thencc.org.za/national-consumer-commission-refers-hummus-supplier-to-the-tribunal-over-listeria-contamination/",
+  "Notes": "Gemini/en from https://thencc.org.za/media-statements-ncc/"
  },
  {
   "Date": "2026-04-13",
