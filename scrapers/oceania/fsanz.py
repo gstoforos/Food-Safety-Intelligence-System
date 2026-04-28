@@ -38,6 +38,13 @@ _HAZARD_GATE = (
     "cyclospora", "vibrio", "cronobacter", "cereulide", "bacillus cereus",
     "biotoxin", "histamine", "shellfish", "aflatoxin", "ochratoxin",
     "patulin", "yersinia", "shigella", "mycotoxin",
+    # Mycotoxins (April 2026+ scope: Alternaria + Fusarium + ergot)
+    "fumonisin", "zearalenone", "deoxynivalenol", "nivalenol",
+    "alternaria", "alternariol", "tenuazonic",
+    "t-2 toxin", "ht-2 toxin", "citrinin",
+    "ergot", "claviceps", "fusarium",
+    "ocratoxin", "ocratossin", "mykotoxin", "micotoxin",
+    "micotossin", "mutterkorn",
     # Chemical tampering / heavy metals / foreign-body (April 2026+ scope)
     "rodenticide", "rat poison", "bromadiolon",
     "lead contamin", "cadmium", "arsenic", "mercury",
