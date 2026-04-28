@@ -237,10 +237,54 @@ PATHOGEN_PATTERNS: List[Tuple[str, str]] = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Implicit-hazard fallback patterns.
+# Tavily snippets are short — often page <title> + 1-2 sentences. FDA recalls
+# routinely use boilerplate like "Due to Potential Foodborne Illness" without
+# the snippet ever containing the literal pathogen name, even though the
+# recall page itself names Salmonella / Listeria / etc.
+#
+# These patterns act as a SECONDARY tier: if PATHOGEN_PATTERNS doesn't match,
+# we try these. They produce a coarse-grained category that's enough to keep
+# the candidate alive — Gemini URL-gate downstream will re-extract the actual
+# pathogen from the source page itself. The point is to avoid dropping the
+# row at the snippet stage.
+#
+# Order matters — first match wins. Specific allergens before generic ones.
+# Triggered by the audit 2026-04-28: a Ghirardelli Salmonella recall on FDA
+# was dropped because the title said only "Potential Foodborne Illness".
+IMPLICIT_HAZARD_PATTERNS: List[Tuple[str, str]] = [
+    # Specific allergens that have a Layer D PATHOGEN_ALIASES key
+    (r"\bundeclared\s+peanut\b|\bmay\s+contain\s+peanut\b",         "Peanut"),
+    (r"\bundeclared\s+sulphite|\bundeclared\s+sulfite\b",           "Sulfite"),
+    # Generic undeclared allergen — fold into single canonical
+    (r"\bundeclared\s+(milk|dairy|lactose|soy|wheat|gluten|egg|"
+     r"fish|shellfish|crustacean|sesame|tree[\s\-]?nut|almond|"
+     r"cashew|hazelnut|walnut|pecan|pistachio|mustard|celery)\b",   "Undeclared allergen"),
+    (r"\bmay\s+contain.*\b(milk|dairy|soy|wheat|gluten|egg|"
+     r"fish|shellfish|sesame|nut)\b",                               "Undeclared allergen"),
+    (r"\bundeclared\s+allergen\b|\bundeclared\s+ingredient\b",      "Undeclared allergen"),
+    # FDA / regulator boilerplate without explicit pathogen named
+    (r"\bpotential\s+foodborne\s+illness\b|\bfoodborne\s+illness\b","Foodborne pathogen"),
+    (r"\bpotential\s+health\s+(hazard|risk)\b",                     "Pathogen contamination"),
+    (r"\bdue\s+to\s+possible\s+contamination\b",                    "Pathogen contamination"),
+    (r"\brecalled?\b.*\bcontamination\b",                           "Pathogen contamination"),
+    # Physical-hazard softer triggers
+    (r"\bmay\s+contain.*\bforeign\b",                               "Foreign material"),
+]
+
+
 def _detect_pathogen(text: str) -> str:
     """Scan text for pathogen/hazard keywords. Returns canonical name or ''."""
     t = text.lower()
     for pat, name in PATHOGEN_PATTERNS:
+        if re.search(pat, t, flags=re.IGNORECASE):
+            return name
+    # Fallback — implicit hazard signals (FDA boilerplate, undeclared
+    # allergens, "may contain X"). Triggered when primary patterns miss.
+    # Coarse-grained categories are enough; Gemini URL-gate re-extracts the
+    # actual pathogen from the source page downstream.
+    for pat, name in IMPLICIT_HAZARD_PATTERNS:
         if re.search(pat, t, flags=re.IGNORECASE):
             return name
     return ""
@@ -376,7 +420,12 @@ def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
     """
     queries = [
         # ── PRIMARY REGION: NorthAmerica (run first, deepest coverage) ──
-        'site:fda.gov/safety/recalls food recall pathogen',
+        # FDA: cover the actual recall path AND press-release wording.
+        # Broader than `site:fda.gov/safety/recalls food recall pathogen`
+        # which dropped Ghirardelli (audit 2026-04-28) because its snippet
+        # said only "Potential Foodborne Illness" without naming Salmonella.
+        'site:fda.gov/safety/recalls-market-withdrawals-safety-alerts recall',
+        'site:fda.gov "voluntarily recalls" OR "issues recall"',
         'site:fsis.usda.gov/recalls-alerts food recall',
         'site:recalls-rappels.canada.ca food recall',
         'site:inspection.canada.ca food recall',
@@ -385,6 +434,7 @@ def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
         'food recall salmonella OR listeria OR "e. coli" OR botulism OR campylobacter',
         'food recall mould OR mold OR "foreign material" OR glass OR "ethylene oxide"',
         'food recall rodent OR "rat poison" OR rodenticide OR "rodent contamination"',
+        'food recall undeclared allergen OR "may contain"',
         # ── Other-region site:queries (lighter pass) ────────────────────
         'RASFF notification food alert withdrawal',
         'site:food.gov.uk food alert recall',
