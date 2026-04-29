@@ -2,6 +2,38 @@
   {
     "Date": "2026-04-28",
     "Source": "RappelConso (FR)",
+    "Company": "LE FROMAGER DES HALLES",
+    "Brand": "Sans marque",
+    "Product": "Gorgonzola DOP à la cuillère, Pot en plastique (Lot 60023, Date limite de consommation entre le 07/04/2026 et le 24/05/2026)",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "Présence de Listeria monocytogenes",
+    "Class": "Rappel de produit",
+    "Country": "France",
+    "Region": "Europe",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22145/Interne",
+    "Notes": "[fiche 22145 / réf. 2026-04-0305 / 28-04-2026; distributed at GRAND FRAIS; DLC 07/04→24/05/2026; URL repaired 2026-04-29 — previous URL had reference slug instead of integer fiche ID]"
+  },
+  {
+    "Date": "2026-04-28",
+    "Source": "RappelConso (FR)",
+    "Company": "LES ATELIERS DE SEBASTIEN",
+    "Brand": "LES ATELIERS DE SEBASTIEN",
+    "Product": "Gratin poireau au chevre",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "Présence de Listeria monocytogenes",
+    "Class": "Rappel de produit",
+    "Country": "France",
+    "Region": "Europe",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22142/Interne",
+    "Notes": "[fiche 22142 / 28-04-2026; Plats préparés et snacks; URL repaired 2026-04-29 — previous URL had year value as fiche ID]"
+  },
+  {
+    "Date": "2026-04-28",
+    "Source": "RappelConso (FR)",
     "Company": "LES ATELIERS DE SEBASTIEN",
     "Brand": "Les Ateliers de Sébastien",
     "Product": "Bruschetta",
@@ -13,23 +45,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22141/Interne",
-    "Notes": "[added 2026-04-29 from audit; fiche 22141 / 28-04-2026; Plats préparés et snacks; scraper missed — see audit note]"
-  },
-  {
-    "Date": "2026-04-28",
-    "Source": "RappelConso (FR)",
-    "Company": "LES ATELIERS DE SEBASTIEN",
-    "Brand": "Les Ateliers de Sébastien",
-    "Product": "Gratin poireau au chèvre",
-    "Pathogen": "Listeria monocytogenes",
-    "Reason": "potentiel présence de listeria",
-    "Class": "Volontaire",
-    "Country": "France",
-    "Region": "Europe",
-    "Tier": 1,
-    "Outbreak": 0,
-    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22142/Interne",
-    "Notes": "[added 2026-04-29 from audit; fiche 22142 / 28-04-2026; Plats préparés et snacks; scraper missed — see audit note]"
+    "Notes": "[fiche 22141 / 28-04-2026; Plats préparés et snacks; manually added 2026-04-29]"
   },
   {
     "Date": "2026-04-28",
@@ -45,23 +61,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22143/Interne",
-    "Notes": "[added 2026-04-29 from audit; fiche 22143 / 28-04-2026; Plats préparés et snacks; scraper missed — see audit note]"
-  },
-  {
-    "Date": "2026-04-28",
-    "Source": "RappelConso (FR)",
-    "Company": "LE FROMAGER DES HALLES",
-    "Brand": "Sans marque",
-    "Product": "Gorgonzola DOP à la cuillère",
-    "Pathogen": "Listeria monocytogenes",
-    "Reason": "Présence de Listeria monocytogenes",
-    "Class": "Volontaire",
-    "Country": "France",
-    "Region": "Europe",
-    "Tier": 1,
-    "Outbreak": 0,
-    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22145/Interne",
-    "Notes": "[added 2026-04-29 from audit; fiche 22145 / réf. 2026-04-0305 / 28-04-2026; distributed at GRAND FRAIS; DLC 07/04→24/05/2026; scraper missed — see audit note]"
+    "Notes": "[fiche 22143 / 28-04-2026; Plats préparés et snacks; manually added 2026-04-29]"
   },
   {
     "Date": "2026-04-28",
@@ -71,8 +71,8 @@
     "Product": "Powdered beverage mixes",
     "Pathogen": "Salmonella",
     "Reason": "Ghirardelli Chocolate Company of San Leandro, California is voluntarily recalling certain powdered beverage mixes because they have the potential to be contaminated with Salmonella",
-    "Class": null,
-    "Country": null,
+    "Class": "",
+    "Country": "",
     "Region": "North America",
     "Tier": 1,
     "Outbreak": 0,
@@ -86,14 +86,14 @@
     "Brand": "Heeva Fine Foods",
     "Product": "Pistachio Nuts",
     "Pathogen": "Salmonella",
-    "Reason": "Possible Salmonella contamination (CFIA test results)",
+    "Reason": "Pathogen contamination (pistachio outbreak-linked)",
     "Class": "Class 2",
     "Country": "Canada",
     "Region": "North America",
     "Tier": 1,
-    "Outbreak": 0,
+    "Outbreak": 1,
     "URL": "https://recalls-rappels.canada.ca/en/alert-recall/heeva-fine-foods-brand-pistachio-nuts-recalled-due-salmonella",
-    "Notes": "Distributed in Ontario; CFIA RA-81929, ID 17352; no illnesses reported per CFIA notice; pistachio Salmonella investigation context only — not stated in this fiche; manually added 2026-04-28 (scraper missed, polling-window)"
+    "Notes": "Distributed in Ontario; linked to national CFIA pistachio Salmonella investigation; manually added (scraper missed) [outbreak 2026-04-29: 0→1 — linked to CFIA pistachio Salmonella outbreak — PHAC reports 189 illnesses, 26 hospitalisations across 6 provinces (April 2026 update)]"
   },
   {
     "Date": "2026-04-27",
@@ -125,7 +125,7 @@
     "Tier": 3,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22109/Interne",
-    "Notes": "[added 2026-04-29 from audit; fiche 22109 / 27-04-2026; Noix et graines; scraper missed — keyword 'alternaria' absent from rappelconso.py PATHOGEN_KEYWORDS]"
+    "Notes": "[fiche 22109 / 27-04-2026; Noix et graines; manually added 2026-04-29]"
   },
   {
     "Date": "2026-04-27",
@@ -141,7 +141,7 @@
     "Tier": 3,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22108/Interne",
-    "Notes": "[added 2026-04-29 from audit; fiche 22108 / 27-04-2026; Noix et graines; lots 510081/509086/508118/508333; scraper missed — keyword 'alternaria' absent]"
+    "Notes": "[fiche 22108 / 27-04-2026; Noix et graines; manually added 2026-04-29]"
   },
   {
     "Date": "2026-04-27",
@@ -157,7 +157,7 @@
     "Tier": 3,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22107/Interne",
-    "Notes": "[added 2026-04-29 from audit; fiche 22107 / 27-04-2026; Noix et graines; second SUN-brand fiche same day; scraper missed — keyword 'alternaria' absent]"
+    "Notes": "[fiche 22107 / 27-04-2026; Noix et graines; manually added 2026-04-29]"
   },
   {
     "Date": "2026-04-24",
@@ -571,9 +571,9 @@
     "Country": "Canada",
     "Region": "North America",
     "Tier": 2,
-    "Outbreak": 0,
+    "Outbreak": 1,
     "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-pistachios-and-pistachio-containing-products-recalled-due-salmonella-6",
-    "Notes": "The affected products are being recalled from the marketplace due to possible Salmonella contamination.  [via Tavily gap-finder, deterministic extract]"
+    "Notes": "The affected products are being recalled from the marketplace due to possible Salmonella contamination.  [via Tavily gap-finder, deterministic extract] [outbreak 2026-04-29: 0→1 — Update to ongoing CFIA pistachio investigation — 189 illnesses, 26 hospitalisations confirmed by PHAC]"
   },
   {
     "Date": "2026-04-21",
@@ -683,9 +683,9 @@
     "Country": "Czech Republic",
     "Region": "Europe",
     "Tier": 1,
-    "Outbreak": 1,
+    "Outbreak": 0,
     "URL": "https://www.szpi.gov.cz/en/article/cafia-warns-consumers-about-baby-food-that-may-be-contaminated.aspx",
-    "Notes": "Czech retail partners pulled all HiPP baby-food jars as precaution. South Moravian criminal police investigating. Confirm SZPI per-recall URL when published. [Gemini URL check 2026-04-26]: replaced news URL (https://www.foodsafetynews.com/2026/04/rat-poison-finding-pr...) with regulator URL"
+    "Notes": "Czech retail partners pulled all HiPP baby-food jars as precaution. South Moravian criminal police investigating. Confirm SZPI per-recall URL when published. [Gemini URL check 2026-04-26]: replaced news URL (https://www.foodsafetynews.com/2026/04/rat-poison-finding-pr...) with regulator URL [outbreak 2026-04-29: 1→0 — criminal tampering: tampered jars seized before consumption; no illnesses associated with this product]"
   },
   {
     "Date": "2026-04-19",
@@ -747,9 +747,9 @@
     "Country": "Austria",
     "Region": "Europe",
     "Tier": 1,
-    "Outbreak": 1,
+    "Outbreak": 0,
     "URL": "https://www.ages.at/mensch/produktwarnungen-produktrueckrufe/produkt/hipp-gemueseglaeschen-karotte-mit-kartoffel-190-gramm",
-    "Notes": "Entire HiPP baby-food jar line recalled at SPAR Austria (SPAR, EUROSPAR, INTERSPAR, Maximarkt). Criminal tampering spread to Czech Republic and Slovakia. Suspects unknown. Burgenland State Criminal Investigation Office investigating."
+    "Notes": "Entire HiPP baby-food jar line recalled at SPAR Austria (SPAR, EUROSPAR, INTERSPAR, Maximarkt). Criminal tampering spread to Czech Republic and Slovakia. Suspects unknown. Burgenland State Criminal Investigation Office investigating. [outbreak 2026-04-29: 1→0 — criminal tampering case in Austria: tampered jar reported by single customer; no consumption-linked illnesses]"
   },
   {
     "Date": "2026-04-17",
@@ -845,7 +845,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22027/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-15",
@@ -877,7 +877,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22019/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-14",
@@ -1325,7 +1325,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21863/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-09",
@@ -1341,7 +1341,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21968/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-09",
@@ -1357,7 +1357,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21967/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-09",
@@ -1373,7 +1373,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21963/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-09",
@@ -1421,7 +1421,7 @@
     "Tier": 1,
     "Outbreak": 1,
     "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5379-deltio-typou-anaklisi-mi-asfaloys-proiontos-tyri-feta-logo-parousias-listeria",
-    "Notes": "EFET item/5379. Triggered by EODY (Greek public health) epidemiological investigation suggesting listeriosis cluster. Highest profile Greek pathogen recall of 2026."
+    "Notes": "EFET item/5379. Triggered by EODY (Greek public health) epidemiological investigation suggesting listeriosis cluster. Highest profile Greek pathogen recall of 2026. [outbreak 2026-04-29 verified=1: EFET notice: triggered by EODY epidemiological investigation of listeriosis cluster — verified outbreak link]"
   },
   {
     "Date": "2026-04-09",
@@ -1469,7 +1469,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21979/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-08",
@@ -1485,7 +1485,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21974/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-08",
@@ -1501,7 +1501,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21973/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-08",
@@ -1563,9 +1563,9 @@
     "Country": "Brazil",
     "Region": "Latin America",
     "Tier": 2,
-    "Outbreak": 0,
+    "Outbreak": 1,
     "URL": "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2026/proibida-venda-de-suplemento-importado-dos-eua-por-contaminacao-por-salmonella",
-    "Notes": "ANVISA proíbe; ligada a surto USA [Claude-flag 2026-04-16: Pathogen classification error: Salmonella is Tier-2, not Tier-1. Only antibiotic] [Claude-flag 2026-04-16: URL points to ANVISA homepage/news feed, not specific recall page. Does not meet] [audit-applied 2026-04-27: Salmonella standard Tier 2 (no outbreak/AMR/infant context)]"
+    "Notes": "ANVISA proíbe; ligada a surto USA [Claude-flag 2026-04-16: Pathogen classification error: Salmonella is Tier-2, not Tier-1. Only antibiotic] [Claude-flag 2026-04-16: URL points to ANVISA homepage/news feed, not specific recall page. Does not meet] [audit-applied 2026-04-27: Salmonella standard Tier 2 (no outbreak/AMR/infant context)] [outbreak 2026-04-29: 0→1 — ANVISA ban explicitly linked to US Salmonella outbreak in moringa products (Notes: 'ligada a surto USA')]"
   },
   {
     "Date": "2026-04-07",
@@ -1597,7 +1597,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21962/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-07",
@@ -1613,7 +1613,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21961/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-07",
@@ -1869,7 +1869,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21942/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-07",
@@ -1885,12 +1885,12 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21934/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-07",
     "Source": "BLV (CH)",
-    "Company": null,
+    "Company": "",
     "Brand": "—",
     "Product": "verschiedenen Weichkäsen",
     "Pathogen": "Salmonella",
@@ -1917,7 +1917,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21935/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -1933,7 +1933,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21933/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -1949,7 +1949,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21932/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -1965,7 +1965,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21931/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -1981,7 +1981,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21930/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -1997,7 +1997,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21929/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -2013,7 +2013,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21928/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -2029,7 +2029,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21927/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -2045,7 +2045,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21926/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -2061,7 +2061,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21925/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -2077,7 +2077,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21924/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -2093,7 +2093,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21923/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -2109,7 +2109,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21922/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-06",
@@ -2189,7 +2189,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21832/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-04-02",
@@ -2477,7 +2477,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5376-deltio-typou-enimerosi-anaklisis-fystikioy-arapikou-logo-parousias-aflatoksinon",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-26",
@@ -2573,7 +2573,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21734/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-25",
@@ -2589,7 +2589,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21735/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-25",
@@ -2605,7 +2605,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21736/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-25",
@@ -2621,7 +2621,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21737/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-25",
@@ -2637,7 +2637,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21732/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-25",
@@ -2653,7 +2653,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21730/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-25",
@@ -2669,7 +2669,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21710/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-25",
@@ -2701,7 +2701,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21751/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-23",
@@ -2717,7 +2717,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21708/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-23",
@@ -2733,7 +2733,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21741/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-23",
@@ -2829,7 +2829,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21674/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-18",
@@ -2861,7 +2861,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21635/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-17",
@@ -2877,7 +2877,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21632/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-17",
@@ -2893,7 +2893,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21639/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-17",
@@ -2955,9 +2955,9 @@
     "Country": "Canada",
     "Region": "North America",
     "Tier": 2,
-    "Outbreak": 0,
+    "Outbreak": 1,
     "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_4.pdf",
-    "Notes": "Update to Food Incident Post 16 January 2026. Linked to global pistachio outbreak from Iran"
+    "Notes": "Update to Food Incident Post 16 January 2026. Linked to global pistachio outbreak from Iran [outbreak 2026-04-29: 0→1 — explicitly notes 'Linked to global pistachio outbreak from Iran' (PHAC: 189 illnesses, 26 hospitalisations)]"
   },
   {
     "Date": "2026-03-16",
@@ -3085,7 +3085,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21622/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-13",
@@ -3149,7 +3149,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21591/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-11",
@@ -3165,7 +3165,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21578/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-10",
@@ -3245,7 +3245,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21539/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-09",
@@ -3373,7 +3373,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21467/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-03-03",
@@ -3437,7 +3437,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21437/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-02-27",
@@ -3453,7 +3453,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21410/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-02-26",
@@ -3469,7 +3469,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21419/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-02-26",
@@ -3485,7 +3485,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21418/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-02-26",
@@ -3549,7 +3549,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21395/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-02-24",
@@ -3565,7 +3565,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21393/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-02-24",
@@ -3581,7 +3581,7 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21391/Interne",
-    "Notes": null
+    "Notes": ""
   },
   {
     "Date": "2026-02-24",
