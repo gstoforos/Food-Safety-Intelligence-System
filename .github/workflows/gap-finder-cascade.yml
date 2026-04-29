@@ -1,0 +1,80 @@
+name: Gap finder cascade
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_paid:
+        description: "Skip Gemini PAID tier (cost-sensitive runs)"
+        type: boolean
+        default: false
+      skip_claude:
+        description: "Skip Claude fallback step"
+        type: boolean
+        default: false
+      skip_openai:
+        description: "Skip OpenAI fallback step"
+        type: boolean
+        default: false
+
+# Don't fan out — only one cascade at a time per cron slot. If a previous
+# run is still in flight, GitHub will queue this one rather than running
+# both in parallel (which would fight over the recalls.xlsx commit).
+concurrency:
+  group: gap-finder-cascade
+  cancel-in-progress: false
+
+permissions:
+  contents: write       # Cascade scripts commit corrected recalls.xlsx
+
+jobs:
+  cascade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Cascade keys — Gemini FREE first, then PAID, then Claude, then OpenAI.
+      # Set GEMINI_API_KEY_FREE in repo secrets to enable free-tier mode.
+      GEMINI_API_KEY_FREE: ${{ secrets.GEMINI_API_KEY_FREE }}
+      GEMINI_API_KEY:      ${{ secrets.GEMINI_API_KEY }}
+      ANTHROPIC_API_KEY:   ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY:      ${{ secrets.OPENAI_API_KEY }}
+      GAP_SINCE_DAYS:      "7"
+      GAP_STEP_TIMEOUT:    "180"
+      # SKIP_COMMIT left unset — provider scripts handle their own commits
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          if [ -f requirements-additions.txt ]; then
+            pip install -r requirements-additions.txt
+          fi
+
+      - name: Configure git
+        run: |
+          git config user.name  "fsis-cascade-bot"
+          git config user.email "bot@advfood.tech"
+
+      - name: Run cascade
+        run: |
+          ARGS=""
+          if [ "${{ inputs.skip_paid   }}" = "true" ]; then ARGS="$ARGS --skip-paid"; fi
+          if [ "${{ inputs.skip_claude }}" = "true" ]; then ARGS="$ARGS --skip-claude"; fi
+          if [ "${{ inputs.skip_openai }}" = "true" ]; then ARGS="$ARGS --skip-openai"; fi
+          python -m pipeline.gap_finder_cascade $ARGS
+
+      - name: Pull any commits made by the cascade
+        if: always()
+        run: |
+          # Provider scripts auto-commit during the run. Make sure the
+          # workspace is in sync before we declare success.
+          git pull --rebase --autostash || true
