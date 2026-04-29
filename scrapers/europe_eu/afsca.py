@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class AFSCAScraper(GenericGeminiScraper):
     AGENCY = "AFSCA (BE)"
     COUNTRY = "Belgium"
-    INDEX_URLS = ['https://www.favv-afsca.be/professionnels/publications/communiques/rappel/']
+    INDEX_URLS = ['https://favv-afsca.be/fr/produits']
     LANGUAGE = "fr"

@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class LivsmedelsverketScraper(GenericGeminiScraper):
     AGENCY = "Livsmedelsverket (SE)"
     COUNTRY = "Sweden"
-    INDEX_URLS = ['https://www.livsmedelsverket.se/livsmedel-och-innehall/aterkallade-varor']
+    INDEX_URLS = ['https://www.livsmedelsverket.se/om-oss/press/aterkallanden']
     LANGUAGE = "sv"

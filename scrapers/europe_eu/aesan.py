@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class AESANScraper(GenericGeminiScraper):
     AGENCY = "AESAN (ES)"
     COUNTRY = "Spain"
-    INDEX_URLS = ['https://www.aesan.gob.es/AECOSAN/web/seguridad_alimentaria/alertas_alimentarias/listado/alertas.htm']
+    INDEX_URLS = ['https://www.aesan.gob.es/AECOSAN/web/seguridad_alimentaria/ampliacion/listado_alertas_general.htm']
     LANGUAGE = "es"

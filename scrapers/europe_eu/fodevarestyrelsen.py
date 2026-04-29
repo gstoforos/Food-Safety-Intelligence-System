@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class FodevarestyrelsenScraper(GenericGeminiScraper):
     AGENCY = "Fødevarestyrelsen (DK)"
     COUNTRY = "Denmark"
-    INDEX_URLS = ['https://www.foedevarestyrelsen.dk/kost-og-foedevarer/foedevaresikkerhed/tilbagetrukne-foedevarer']
+    INDEX_URLS = ['https://foedevarestyrelsen.dk/kost-og-foedevarer/foedevaresikkerhed/foedevareberedskab/soeg-i-tilbagekaldte-foedevarer']
     LANGUAGE = "da"
