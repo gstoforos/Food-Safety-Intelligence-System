@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class NVWAScraper(GenericGeminiScraper):
     AGENCY = "NVWA (NL)"
     COUNTRY = "Netherlands"
-    INDEX_URLS = ['https://www.nvwa.nl/onderwerpen/veiligheidswaarschuwingen']
+    INDEX_URLS = ['https://www.nvwa.nl/actueel']
     LANGUAGE = "nl"

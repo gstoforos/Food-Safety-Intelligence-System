@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class VTAScraper(GenericGeminiScraper):
     AGENCY = "VTA (EE)"
     COUNTRY = "Estonia"
-    INDEX_URLS = ['https://pta.agri.ee/tarbijale-ja-elukutselisele/toit-ja-zoonoosid/toidualased-teated-ja-tagasikutsumised']
+    INDEX_URLS = ['https://pta.agri.ee/uudised']
     LANGUAGE = "et"
