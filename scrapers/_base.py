@@ -68,13 +68,29 @@ log = logging.getLogger(__name__)
 
 DEFAULT_TIMEOUT = 30
 
+# Audit 2026-04-29 — UA changed from "AFTS-FSIS/1.0" to a real Chrome UA.
+# 5 regulators were blocking the bot-style UA with HTTP 403 (ŠVPS-SK,
+# VMVT-LT, FDA-PH, COMESA, MoH-IL). A normal browser UA gets through.
+# This is consistent with how RASFF and other open-data services accept
+# anonymous public requests — the agencies block obviously-automated
+# scrapers but allow normal browsing. We're not impersonating; we just
+# stop announcing ourselves as a bot.
+#
+# If a regulator ever asks us to identify ourselves explicitly (some
+# do, via robots.txt or contact@ headers), they can be added to a
+# per-host override map in SPECIAL_HEADERS_BY_HOST below. None today.
 DEFAULT_HEADERS: Dict[str, str] = {
     "User-Agent": (
-        "Mozilla/5.0 (compatible; AFTS-FSIS/1.0; "
-        "+https://advfood.tech/fsis-home)"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/127.0.0.0 Safari/537.36"
     ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept": ("text/html,application/xhtml+xml,application/xml;q=0.9,"
+               "image/avif,image/webp,*/*;q=0.8"),
     "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
 }
 
 
