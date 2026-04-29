@@ -459,63 +459,32 @@ function renderNews(){
 }
 
 // ===== WEEKLY REPORTS =====
-function loadReports(){
-  // Embedded reports data (bypasses server file access issues)
-  const reports = [
-    {
-        "filename": "2026-W17.html",
-        "week_num": 17,
-        "year": 2026,
-        "week_start": "2026-04-18",
-        "week_end": "2026-04-24",
-        "generated": "2026-04-24T08:50:48.674250+00:00",
-        "total": 19,
-        "tier1": 9,
-        "outbreaks": 3,
-        "top_pathogen": "Listeria monocytogenes",
-        "summary": "Week 17 saw 19 pathogen recalls with Listeria monocytogenes as primary concern."
-    },
-    {
-        "filename": "2026-W16.html",
-        "week_num": 16,
-        "year": 2026,
-        "week_start": "2026-04-11",
-        "week_end": "2026-04-17",
-        "generated": "2026-04-24T08:50:48.676304+00:00",
-        "total": 14,
-        "tier1": 9,
-        "outbreaks": 0,
-        "top_pathogen": "Listeria monocytogenes",
-        "summary": "Week 16 saw 14 pathogen recalls with Listeria monocytogenes as primary concern."
-    },
-    {
-        "filename": "2026-W15.html",
-        "week_num": 15,
-        "year": 2026,
-        "week_start": "2026-04-04",
-        "week_end": "2026-04-10",
-        "generated": "2026-04-24T08:50:48.678402+00:00",
-        "total": 68,
-        "tier1": 60,
-        "outbreaks": 4,
-        "top_pathogen": "Listeria monocytogenes",
-        "summary": "Week 15 saw 68 pathogen recalls with Listeria monocytogenes as primary concern."
-    },
-    {
-        "filename": "2026-W14.html",
-        "week_num": 14,
-        "year": 2026,
-        "week_start": "2026-03-28",
-        "week_end": "2026-04-03",
-        "generated": "2026-04-24T08:50:48.680448+00:00",
-        "total": 13,
-        "tier1": 8,
-        "outbreaks": 1,
-        "top_pathogen": "Listeria monocytogenes",
-        "summary": "Week 14 saw 13 pathogen recalls with Listeria monocytogenes as primary concern."
+// Fetches data/weekly-index.json on first tab click. The weekly builder
+// (docs/build_weekly_report_afts.py) re-writes this JSON on every Friday
+// run, so the dashboard stays in sync with the corrected dataset. Falls
+// back to a tiny embedded array if the fetch fails (Wix sandbox / cache).
+//
+// Display rule (audit 2026-04-29): show the 4 most recent weekly reports
+// as rich cards. Older reports collapse into a per-year archive below.
+async function loadReports(){
+  const FALLBACK_REPORTS = [];
+  let reports = FALLBACK_REPORTS;
+  try {
+    const r = await fetch('data/weekly-index.json?_=' + Date.now(), {cache: 'no-store'});
+    if (r.ok) {
+      const j = await r.json();
+      const arr = Array.isArray(j) ? j : (Array.isArray(j.reports) ? j.reports : null);
+      if (arr && arr.length) {
+        // Sort newest-first by week_end so the 4 rich cards always show
+        // the freshest weeks even if the JSON isn't pre-sorted.
+        reports = arr.slice().sort((a, b) =>
+          String(b.week_end || '').localeCompare(String(a.week_end || '')));
+      }
     }
-];
-  
+  } catch (e) {
+    console.warn('weekly-index.json fetch failed, using embedded fallback:', e);
+  }
+
   // 1. Defensive filter: never show future-dated weeks even if they snuck into the array
   const todayISO = new Date().toISOString().slice(0,10);
   const published = reports.filter(r => (r.week_end || '') <= todayISO);
@@ -525,9 +494,10 @@ function loadReports(){
     return;
   }
 
-  // 2. Split: most recent 6 as rich cards, remainder as compact archive entries.
-  //    When weeks pile up (52/yr), this keeps the page scannable without hiding content.
-  const RICH_LIMIT = 6;
+  // 2. Split: 4 most recent as rich cards (per FSIS user-guide spec),
+  //    remainder as per-year archive entries that stay scannable as
+  //    weeks accumulate over the year (52/yr ceiling).
+  const RICH_LIMIT = 4;
   const richCards  = published.slice(0, RICH_LIMIT);
   const archive    = published.slice(RICH_LIMIT);
 
@@ -651,11 +621,13 @@ async function loadMonthlyReports(){
     return;
   }
 
-  // Same rich / archive split as weekly: most recent 6 are rich cards, the
-  // rest group by year in a collapsible archive.
-  const RICH_LIMIT = 6;
-  const rich    = published.slice(0, RICH_LIMIT);
-  const archive = published.slice(RICH_LIMIT);
+  // Display rule (audit 2026-04-29): rich cards = every report from the
+  // CURRENT calendar year (accumulate as months ship, max 12). Past years
+  // collapse into the per-year archive. Same convention for yearly tab
+  // when it ships.
+  const currentYearISO = new Date().getFullYear();
+  const rich    = published.filter(r => Number(r.year) === currentYearISO);
+  const archive = published.filter(r => Number(r.year) !== currentYearISO);
 
   const renderRich = r => {
     const mstart = new Date(r.month_start).toLocaleDateString('en-GB', {day:'numeric', month:'short'});
@@ -721,7 +693,10 @@ async function loadDaily(){
     const r = await fetch('daily-index.json?_=' + Date.now(), {cache:'no-store'});
     if(!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
-    const entries = (data.entries || []).slice(0, 60);
+    // Daily list: keep the 7 most recent briefs (rolling week, per spec
+    // 2026-04-29). Older briefs auto-prune from the index by the daily
+    // builder's retention rule, but slice defensively here too.
+    const entries = (data.entries || []).slice(0, 7);
     document.getElementById('daily-count').textContent = ' · ' + entries.length;
     if(!entries.length){
       list.innerHTML = '<p class="loading">No daily briefs yet. First brief appears tomorrow 10:00 Athens.</p>';

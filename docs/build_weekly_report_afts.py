@@ -1567,11 +1567,19 @@ def build_html(week_end, recalls, prev_week):
     return html, stats
 
 def update_dashboard_data(week_end, stats, all_recalls=None):
-    """Update index.html — always shows the 4 most recent weeks that have data
-    in the dataset, regardless of which --week-end was passed to the builder."""
-    idx = ROOT / "docs" / "index.html"
-    if not idx.exists():
-        log.warning("index.html not found — skipping dashboard update"); return
+    """Write docs/data/weekly-index.json — the dashboard's loadReports()
+    fetches this on tab open. Always writes the FULL accumulated history
+    (every Friday-ending week that has at least one recall in the dataset),
+    sorted newest-first. Dashboard handles slicing to 4 rich cards + per-
+    year archive client-side, so we never have to touch index.html.
+
+    Audit 2026-04-29 — switched from regex-mutating index.html (fragile,
+    silently produced stale "outbreaks=3" cards when the dataset was
+    corrected to outbreaks=1) to writing a JSON the dashboard re-fetches
+    on every load. Single source of truth: docs/data/recalls.xlsx Recalls
+    sheet → docs/data/weekly-index.json → dashboard cards.
+    """
+    out = ROOT / "docs" / "data" / "weekly-index.json"
 
     def _make_entry(we, st):
         wn = we.isocalendar()[1]; yr = we.year; ws = we - timedelta(days=6)
@@ -1587,27 +1595,25 @@ def update_dashboard_data(week_end, stats, all_recalls=None):
     entries = []
 
     if all_recalls:
-        # Find the latest recall date in the dataset → snap to its Friday
-        latest = date(2020, 1, 1)
+        # Find every distinct ISO week represented in the recall set, snap
+        # each to its Friday end, build an entry. Only keep weeks whose
+        # Friday is on or before today (no future weeks).
+        today = date.today()
+        week_ends_seen = set()
         for r in all_recalls:
             d = r.get("Date", "")
             if not d: continue
             try: rd = datetime.strptime(str(d)[:10], "%Y-%m-%d").date()
             except ValueError: continue
-            if rd > latest: latest = rd
-        # Snap to the Friday of that week (weekday 4 = Friday)
-        days_until_fri = (4 - latest.weekday()) % 7
-        if days_until_fri == 0 and latest.weekday() != 4:
-            days_until_fri = 7
-        latest_friday = latest + timedelta(days=days_until_fri)
-        # If latest_friday is in the future beyond today+7, cap it
-        today = date.today()
-        if latest_friday > today + timedelta(days=7):
-            latest_friday = today - timedelta(days=(today.weekday() - 4) % 7)
+            # Snap rd's ISO week to that week's Friday (ISO weekday 5 = Fri)
+            iso_year, iso_week, iso_dow = rd.isocalendar()
+            # Friday of the same ISO week:
+            mon = rd - timedelta(days=iso_dow - 1)
+            fri = mon + timedelta(days=4)
+            if fri <= today:
+                week_ends_seen.add(fri)
 
-        # Build 4 entries backward from latest_friday
-        for offset in range(4):
-            we = latest_friday - timedelta(days=7 * offset)
+        for we in sorted(week_ends_seen, reverse=True):
             prev_we = we - timedelta(days=7)
             wr = filter_week(all_recalls, we)
             if not wr: continue
@@ -1619,15 +1625,15 @@ def update_dashboard_data(week_end, stats, all_recalls=None):
         entries = [_make_entry(week_end, stats)]
 
     try:
-        c = idx.read_text()
-        c = re.sub(r"const reports = \[.*?\];",
-                    "const reports = {};".format(json.dumps(entries, indent=4)),
-                    c, flags=re.DOTALL)
-        idx.write_text(c)
-        wk_list = ", ".join("W{}".format(e["week_num"]) for e in entries)
-        log.info("Dashboard updated — %d reports: %s", len(entries), wk_list)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(entries, indent=2, ensure_ascii=False),
+                        encoding="utf-8")
+        wk_list = ", ".join("W{}".format(e["week_num"]) for e in entries[:6])
+        suffix = "" if len(entries) <= 6 else f" (+{len(entries)-6} more)"
+        log.info("Wrote %s — %d entries: %s%s",
+                 out, len(entries), wk_list, suffix)
     except Exception as e:
-        log.error("Dashboard: %s", e)
+        log.error("weekly-index.json write failed: %s", e)
 
 def write_weekly_summary_json(week_end, recalls, stats, data_dir):
     wnum = week_end.isocalendar()[1]; year = week_end.year; ws = week_end - timedelta(days=6)
