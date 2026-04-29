@@ -1,0 +1,108 @@
+name: Scraper health audit
+
+# Runs the full daily orchestrator AND a scraper-health audit afterward.
+# If more than 33% of scrapers hard-failed, the run is marked FAILED so
+# you see it in your Actions tab and email summary.
+#
+# Audit 2026-04-29: prior orchestrator runs silently masked wholesale
+# scraper collapse. Output looked like "DONE in 161s" while 36/66
+# scrapers were broken. This workflow ensures broken scrapers are
+# visible the next morning.
+
+on:
+  workflow_dispatch:
+    inputs:
+      no_fail:
+        description: "Report only — don't fail the run on threshold breach"
+        type: boolean
+        default: false
+  schedule:
+    # Sunday 04:30 Athens (= 01:30 UTC summer / 02:30 UTC winter)
+    # Runs once a week, after Saturday's last scrape settled.
+    - cron: "30 1 * * 0"
+    - cron: "30 2 * * 0"
+
+concurrency:
+  group: scraper-health
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TZ: Europe/Athens
+      # All AI keys; orchestrator may need any of them
+      GEMINI_API_KEY_FREE:   ${{ secrets.GEMINI_API_KEY_FREE }}
+      GEMINI_API_KEY_FREE_2: ${{ secrets.GEMINI_API_KEY_FREE_2 }}
+      GEMINI_API_KEY:        ${{ secrets.GEMINI_API_KEY }}
+      ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY:        ${{ secrets.OPENAI_API_KEY }}
+      # Don't write back to Pending during audit — we just want diagnostics
+      SKIP_COMMIT: "1"
+
+    steps:
+      - name: Hour guard
+        run: |
+          H=$(TZ=Europe/Athens date +%-H)
+          # Weekly schedule means cron may fire at 04 or 05 depending on DST
+          if [ "$H" != "4" ] && [ "$H" != "5" ] && [ -z "${{ github.event.inputs.no_fail }}" ]; then
+            echo "Skipping non-04:00 run (current Athens hour=$H)"
+            exit 0
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          if [ -f requirements-additions.txt ]; then
+            pip install -r requirements-additions.txt
+          fi
+
+      - name: Run scrapers, capture log
+        id: run
+        run: |
+          set +e   # don't fail here; we want the log even on partial failure
+          python -m pipeline.run_all 2>&1 | tee /tmp/run.log
+          rc=${PIPESTATUS[0]}
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          # Always continue to the audit step
+          exit 0
+
+      - name: Audit scraper health
+        run: |
+          ARGS=""
+          if [ "${{ github.event.inputs.no_fail }}" = "true" ]; then
+            ARGS="--no-fail"
+          fi
+          python -m pipeline.scraper_health_audit --log /tmp/run.log $ARGS
+
+      - name: Configure git
+        if: always()
+        run: |
+          git config user.name  "fsis-health-bot"
+          git config user.email "bot@advfood.tech"
+
+      - name: Commit health report
+        if: always()
+        run: |
+          if [[ -n "$(git status --porcelain docs/data/scraper-health.json)" ]]; then
+            git add docs/data/scraper-health.json
+            git commit -m "Scraper health: weekly audit"
+            git pull --rebase --autostash || true
+            git push
+          else
+            echo "No change in scraper-health.json"
+          fi

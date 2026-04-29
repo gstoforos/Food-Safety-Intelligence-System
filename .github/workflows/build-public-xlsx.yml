@@ -35,6 +35,33 @@ jobs:
         run: |
           pip install openpyxl
 
+      # Diagnostic: confirm the script and source data are present BEFORE we
+      # try to import. The earlier failure mode "No module named pipeline.
+      # export_public_xlsx" is unhelpful — this step gives a clear error
+      # naming the missing file and what to do about it.
+      - name: Verify required files exist
+        run: |
+          set -e
+          missing=0
+          for f in pipeline/export_public_xlsx.py docs/data/recalls.xlsx; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Required file missing in repo: $f"
+              missing=1
+            fi
+          done
+          if [ ! -f pipeline/__init__.py ]; then
+            echo "::warning::pipeline/__init__.py missing — creating empty one"
+            touch pipeline/__init__.py
+          fi
+          if [ "$missing" = "1" ]; then
+            echo "::error::Cannot proceed. Most likely cause: pipeline/export_public_xlsx.py was not committed to the repo. Run from your local clone:"
+            echo "    git add pipeline/export_public_xlsx.py"
+            echo "    git commit -m 'Add public xlsx exporter'"
+            echo "    git push"
+            exit 1
+          fi
+          echo "All required files present."
+
       - name: Build public xlsx
         run: |
           python -m pipeline.export_public_xlsx
