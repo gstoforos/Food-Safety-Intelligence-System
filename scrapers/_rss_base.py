@@ -15,14 +15,27 @@ Each concrete subclass sets:
     AGENCY     = "FSAI (IE)"
     COUNTRY    = "Ireland"
     FEED_URL   = "https://www.fsai.ie/rss.aspx"
-    LANGUAGE   = "en"   (optional, for pathogen keyword dialect)
+    LANGUAGE   = "en"   (drives multilingual keyword expansion — see below)
 
 and inherits .scrape(since_days) which:
     1. fetches the feed
     2. parses RSS / Atom XML
-    3. filters to pathogen-related items only
+    3. filters to pathogen-related items only (multilingual)
     4. builds Recall objects via BaseScraper._new_recall()
     5. returns the list
+
+MULTILINGUAL FILTERING (audit 2026-04-29)
+-----------------------------------------
+Pathogen / hazard vocabulary lives in scrapers/_pathogen_vocab.py — single
+source of truth, ~158 universal terms + ~493 native-language terms across
+34 locales. The base class automatically merges:
+
+    CORE  ∪  for_languages(self.LANGUAGE)  ∪  self.EXTRA_PATHOGEN_KEYWORDS
+
+every time _mentions_pathogen() is called. Concrete subclasses get
+correct local-language coverage just by setting LANGUAGE; they only need
+to add EXTRA_PATHOGEN_KEYWORDS for genuinely-unique vocabulary not yet
+in _pathogen_vocab.BY_LANGUAGE.
 """
 from __future__ import annotations
 
@@ -31,63 +44,41 @@ import re
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from scrapers._base import BaseScraper, fetch
 from scrapers._models import Recall, normalize_pathogen
+from scrapers._pathogen_vocab import (
+    CORE,
+    NON_PATHOGEN_REJECTS as VOCAB_REJECTS,
+    for_languages,
+)
 
 log = logging.getLogger(__name__)
 
 
-# Comprehensive pathogen keyword list — matches the FDA / CFIA scraper set.
-# Used BEFORE calling normalize_pathogen() as a cheap pre-filter (many RSS
-# items have nothing to do with pathogens and should be dropped fast).
-PATHOGEN_KEYWORDS = (
-    # --- Biological ---
-    "listeria", "salmonella", "e. coli", "e.coli", "escherichia coli",
-    "stec", "o157", "o26", "o103", "o111", "o121", "o145",
-    "shiga", "botulin", "norovirus", "hepatitis", "campylobacter",
-    "cyclospora", "vibrio", "cronobacter", "bacillus cereus", "cereulide",
-    "shigella", "yersinia", "biotoxin", "histamine", "scombro", "brucell",
-    # --- Mould / spoilage ---
-    "mould", "mold",
-    # --- Mycotoxins (April 2026+ scope: Alternaria + Fusarium + ergot) ---
-    "aflatoxin", "ochratoxin", "patulin", "mycotoxin", "fumonisin",
-    "zearalenone", "deoxynivalenol", "nivalenol",
-    "alternaria", "alternariol", "tenuazonic",
-    "t-2 toxin", "ht-2 toxin", "citrinin",
-    "ergot", "claviceps", "fusarium",
-    # Multilingual mycotoxin terms (FR/DE/ES/IT/PT)
-    "ocratoxin", "ocratossin",      # ES/PT/IT (no 'h')
-    "mykotoxin", "micotoxin", "micotossin",
-    "mutterkorn",                   # DE: ergot
-    # --- Physical / foreign-body hazards ---
-    "glass fragment", "metal fragment", "plastic fragment",
-    "foreign object", "foreign body", "foreign material",
-    # --- Chemical ---
-    "ethylene oxide", "dioxin", "mineral oil", "moah", "mosh",
-    "heavy metal", "lead contamin", "cadmium", "mercury contamin",
-    "arsenic", "rodenticide", "rat poison", "chlorate",
-    "sudan", "melamine",
-    # --- Pest ---
-    "rodent", "insect", "pest contamination",
-    # --- Native-language equivalents (commonly seen in EU agency feeds) ---
-    "listeriose", "listeriosis", "salmonellose", "salmonelose",
-    "botulismus", "botulisme", "botulismo",
-    "mikrobiologisch", "microbiológica", "microbiologico", "microbiologique",
-    "moisissure", "schimmel",
-)
+# Backward-compat re-export — anything that previously did
+#   `from scrapers._rss_base import PATHOGEN_KEYWORDS`
+# still works. Now sourced from the central vocab.
+PATHOGEN_KEYWORDS: Tuple[str, ...] = CORE
 
 
-# Non-pathogen markers — reject items that are only about these
-NON_PATHOGEN_REJECTS = (
-    "undeclared milk", "undeclared egg", "undeclared peanut", "undeclared soy",
-    "undeclared wheat", "undeclared gluten", "undeclared nut", "undeclared fish",
-    "undeclared shellfish", "undeclared sesame", "undeclared sulphite",
-    "allergen labelling", "allergen labeling",
-    "glass fragment", "glass piece", "plastic fragment", "plastic piece",
-    "metal fragment", "metal piece", "foreign body", "foreign object",
-)
+# Backward-compat: the original module had its own NON_PATHOGEN_REJECTS list.
+# Mirrored to the centralised one but kept available under the old name.
+NON_PATHOGEN_REJECTS: Tuple[str, ...] = VOCAB_REJECTS
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Per-LANGUAGE keyword cache — for_languages() does some work, no point
+# re-doing it on every RSS item.
+# ─────────────────────────────────────────────────────────────────────────
+_LANG_CACHE: dict = {}
+
+
+def _keywords_for_language(lang: str) -> Tuple[str, ...]:
+    if lang not in _LANG_CACHE:
+        _LANG_CACHE[lang] = for_languages(lang)
+    return _LANG_CACHE[lang]
 
 
 def _parse_rss_date(raw: str) -> Optional[datetime]:
@@ -158,8 +149,18 @@ class BaseRegulatorRSS(BaseScraper):
     inherits .scrape() unchanged in most cases.
 
     Override points for agency quirks:
-        EXTRA_PATHOGEN_KEYWORDS : extend the default whitelist (e.g. CFIA adds
-                                  heavy-metal and rodenticide keywords)
+        LANGUAGE                : ISO-639 code. Drives multilingual keyword
+                                  expansion via _pathogen_vocab.for_languages().
+                                  Use the BY_LANGUAGE keys: "fr", "de", "es",
+                                  "it", "pt", "nl", "sv", "da", "no", "fi",
+                                  "pl", "hu", "ro", "bg", "cs", "sk", "sl",
+                                  "hr", "et", "lv", "lt", "el", "tr", "ar",
+                                  "he", "ja", "ko", "zh", "zh-Hant", "id",
+                                  "ms", "th", "vi", "is", "en".
+        EXTRA_PATHOGEN_KEYWORDS : agency-specific terms NOT yet in the central
+                                  vocab. Use sparingly — better to add to
+                                  _pathogen_vocab.BY_LANGUAGE so other agencies
+                                  benefit too. Tuple of lowercase strings.
         FEED_URL                : RSS URL
         FEED_URLS               : multiple RSS URLs (subclass sets this OR FEED_URL)
         REQUIRE_FOOD_CONTEXT    : True (default) drops items that don't mention
@@ -180,9 +181,32 @@ class BaseRegulatorRSS(BaseScraper):
         "produtos alimentares", "voedsel", "livsmedel", "ruoka",
         "élelmiszer", "foodstuff", "dairy", "meat", "fish", "seafood",
         "cheese", "poultry", "produce", "beverage", "infant formula",
+        # Multilingual additions (audit 2026-04-29) so REQUIRE_FOOD_CONTEXT
+        # doesn't silently drop foreign-language fiches that lack the
+        # English word "food".
+        "food", "alimentos", "alimentaire", "alimentar",
+        "ζώο", "τρόφιμο", "τρόφιμα",                  # Greek
+        "élelmiszer",                                  # Hungarian
+        "żywność",                                     # Polish
+        "pārtika", "maistas", "toit", "toiduainete",   # LV/LT/ET
+        "храна",                                       # Bulgarian
+        "potravina", "potraviny",                      # CZ/SK
+        "živilo", "živila", "hrana", "hrane",          # SI/HR
+        "gıda",                                        # Turkish
+        "غذاء",                                        # Arabic
+        "מזון",                                        # Hebrew
+        "食品", "食物",                                  # JA/ZH/KO
+        "식품",                                         # Korean
+        "makanan",                                     # Indonesian/Malay
+        "อาหาร",                                       # Thai
+        "thực phẩm",                                  # Vietnamese
+        "matvæli",                                     # Icelandic
     )
 
-    # Optional: localize class attr for easier debugging
+    # Optional: localise class attr for easier debugging AND multilingual
+    # keyword expansion. Default "en" gives you English + the universal
+    # CORE list, which is what every previously-existing RSS scraper
+    # already had — so this change is fully backward-compatible.
     LANGUAGE: str = "en"
 
     # --- Public API ---
@@ -228,36 +252,36 @@ class BaseRegulatorRSS(BaseScraper):
     def _parse_feed(self, body: bytes) -> List[dict]:
         """Parse RSS 2.0 or Atom, return list of normalized item dicts."""
         root = ET.fromstring(body)
+
+        # RSS 2.0
+        items_xml = list(root.iter("item"))
         items: List[dict] = []
-
-        # RSS 2.0: /rss/channel/item
-        for it in root.iter("item"):
-            items.append({
-                "title": (it.findtext("title") or "").strip(),
-                "link": (it.findtext("link") or "").strip(),
-                "description": _strip_html(it.findtext("description") or ""),
-                "pubDate": (it.findtext("pubDate") or "").strip(),
-            })
-
-        if items:
+        if items_xml:
+            for it in items_xml:
+                items.append({
+                    "title":       (it.findtext("title") or "").strip(),
+                    "link":        (it.findtext("link") or "").strip(),
+                    "description": _strip_html(it.findtext("description") or ""),
+                    "pubDate":     (it.findtext("pubDate")
+                                    or it.findtext("{http://purl.org/dc/elements/1.1/}date")
+                                    or "").strip(),
+                })
             return items
 
-        # Atom: entries with namespaces
-        # Use endswith match to be namespace-agnostic
-        for entry in root.iter():
-            if not entry.tag.endswith("entry"):
-                continue
-            title = ""
+        # Atom
+        atom_ns = "{http://www.w3.org/2005/Atom}"
+        for it in root.iter(f"{atom_ns}entry"):
+            title = (it.findtext(f"{atom_ns}title") or "").strip()
             link = ""
+            for ln in it.iter(f"{atom_ns}link"):
+                if ln.attrib.get("rel", "alternate") == "alternate":
+                    link = ln.attrib.get("href", "").strip()
+                    break
             desc = ""
             pub = ""
-            for child in entry:
-                tag = child.tag.split("}", 1)[-1]  # strip namespace
-                if tag == "title":
-                    title = (child.text or "").strip()
-                elif tag == "link":
-                    link = child.get("href") or (child.text or "").strip()
-                elif tag in ("summary", "content"):
+            for child in it:
+                tag = child.tag.replace(atom_ns, "")
+                if tag in ("summary", "content"):
                     desc = _strip_html(child.text or "")
                 elif tag in ("published", "updated"):
                     pub = (child.text or "").strip()
@@ -291,7 +315,7 @@ class BaseRegulatorRSS(BaseScraper):
 
         # Require food context (unless disabled)
         if self.REQUIRE_FOOD_CONTEXT:
-            if not any(term in merged for term in self.FOOD_CONTEXT_TERMS):
+            if not any(term.lower() in merged for term in self.FOOD_CONTEXT_TERMS):
                 # Allow obvious food-type words even without "food"
                 if not re.search(r"\b(beef|chicken|pork|lamb|milk|yogurt|cheese|butter|pasta|bread|infant formula|baby food|sausage|salami|ham|spread)\b", merged, re.I):
                     return None
@@ -311,10 +335,19 @@ class BaseRegulatorRSS(BaseScraper):
         # Extract company
         company = _extract_company_from_title(title)
 
-        # Outbreak flag
+        # Outbreak flag (multilingual: also catches German, French,
+        # Spanish, Italian, Portuguese illness terms)
         outbreak = 1 if re.search(
-            r"\b(outbreak|illness|sick|death|hospitali[sz]|cases? reported|linked to illness)\b",
-            merged,
+            r"\b("
+            r"outbreak|illness|sick|death|hospitali[sz]|cases? reported|linked to illness|"
+            r"épidémie|maladie|hospitalisé|décès|"
+            r"ausbruch|krankheit|krankenhaus|todesfall|"
+            r"brote|enfermedad|hospitalizado|muerte|"
+            r"epidemia|malattia|ricoverato|decesso|"
+            r"surto|doença|hospitalizado|"
+            r"επιδημία|ασθένεια|νοσηλεύεται"
+            r")\b",
+            merged, re.IGNORECASE | re.UNICODE,
         ) else 0
 
         return self._new_recall(
@@ -331,9 +364,21 @@ class BaseRegulatorRSS(BaseScraper):
         )
 
     def _mentions_pathogen(self, text_lc: str) -> bool:
-        """Cheap pre-filter — is any pathogen keyword present?"""
-        keywords = PATHOGEN_KEYWORDS + tuple(k.lower() for k in self.EXTRA_PATHOGEN_KEYWORDS)
-        return any(kw in text_lc for kw in keywords)
+        """Cheap pre-filter — is any pathogen keyword present?
+
+        Combines (in order, deduped via _LANG_CACHE):
+          - CORE (universal scientific names)
+          - for_languages(self.LANGUAGE) (locale-specific terms)
+          - self.EXTRA_PATHOGEN_KEYWORDS (agency-specific overrides)
+        """
+        kws = _keywords_for_language(self.LANGUAGE) + tuple(
+            k.lower() for k in self.EXTRA_PATHOGEN_KEYWORDS
+        )
+        return any(kw in text_lc for kw in kws)
 
 
-__all__ = ["BaseRegulatorRSS", "PATHOGEN_KEYWORDS"]
+__all__ = [
+    "BaseRegulatorRSS",
+    "PATHOGEN_KEYWORDS",        # backward-compat re-export
+    "NON_PATHOGEN_REJECTS",     # backward-compat re-export
+]
