@@ -1,10 +1,21 @@
-"""RappelConso France — official open data API (data.economie.gouv.fr)."""
+"""RappelConso France — official open data API (data.economie.gouv.fr).
+
+IMPORTANT — KNOWN API LATENCY (per Data.gouv.fr docs, audit 2026-04-29):
+  This open-data endpoint is updated via a BATCH SYNC ONCE EVERY 24 HOURS,
+  not in real time. The consumer-facing site rappel.conso.gouv.fr publishes
+  fiches as soon as DGCCRF approves them; the API mirror lags by up to 24h.
+
+  Consequence: this scraper alone cannot guarantee same-day capture of a
+  fiche published in the morning. The companion review/rappelconso_html_freshness.py
+  hits the live HTML site directly and runs hourly to backstop that gap.
+"""
 from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import List
 import logging
 from scrapers._base import BaseScraper, fetch
 from scrapers._models import Recall
+from scrapers._pathogen_vocab import for_languages
 
 log = logging.getLogger(__name__)
 
@@ -24,22 +35,24 @@ class RappelConsoScraper(BaseScraper):
         "rappelconso0",
     )
 
-    PATHOGEN_KEYWORDS = (
-        "listeria", "salmonella", "salmonelle", "e. coli", "stec",
-        "escherichia", "shigatox", "botulin", "norovirus",
-        "campylobacter", "cyclospora", "vibrio", "cronobacter",
-        "bacillus cereus", "cereulide", "histamine", "biotoxin",
-        "biotoxine", "aflatoxin", "ochratoxin", "patulin", "mycotox",
-        "alternaria",  # April 20 2026 SUNCHEFS case was Alternaria toxins
-        "hépatit", "hepatit",
-    )
+    # Multilingual pathogen keywords pulled from scrapers/_pathogen_vocab.py.
+    # for_languages("en", "fr") = CORE (158 universal scientific names) +
+    # BY_LANGUAGE["fr"] (45 French terms) — covers every variant of
+    # listeria/salmonella/alternaria/etc. that has ever appeared on a
+    # French-language recall fiche.
+    PATHOGEN_KEYWORDS = for_languages("en", "fr")
 
     def _try_dataset(self, dataset: str, since_days: int):
         url = f"{self.API_BASE}/{dataset}/records"
         cutoff = (datetime.utcnow() - timedelta(days=since_days)).strftime("%Y-%m-%d")
         params = {
             "where": f'date_publication >= "{cutoff}" AND categorie_de_produit = "Alimentation"',
-            "limit": 100,
+            # 30-day window can produce >100 food recalls (typical RappelConso
+            # volume is 5-10/day, so 30d ≈ 150-300). limit=100 silently
+            # truncated the OLDEST rows in the window, losing rare mycotoxin
+            # recalls when a busy day pushed them off the page.
+            #   audit 2026-04-29 — bumped 100 → 500
+            "limit": 500,
             "order_by": "date_publication DESC",
         }
         r = fetch(self.session, url, params=params)
@@ -68,6 +81,10 @@ class RappelConsoScraper(BaseScraper):
         out: List[Recall] = []
         for rec in results:
             try:
+                # Combine motif + risques for keyword check. The Alternaria
+                # 27/04/2026 fiches (22107/08/09) had risques="Autres
+                # contaminants chimiques" and motif="...toxines d'Alternaria"
+                # — only the motif side carried the actionable keyword.
                 reason = ((rec.get("motif_du_rappel") or "").lower() + " " +
                           (rec.get("risques_encourus_par_le_consommateur") or "").lower())
                 if not any(p in reason for p in self.PATHOGEN_KEYWORDS):
