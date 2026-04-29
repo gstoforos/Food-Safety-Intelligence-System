@@ -1,4 +1,12 @@
-"""CFIA Canada food recall RSS feed."""
+"""CFIA Canada food recall RSS feed.
+
+Canada is officially BILINGUAL — CFIA recall notices appear in both English
+and French on the same RSS feed (Anglophone provinces use the EN version,
+Quebec uses the FR version, both reference the same underlying recall).
+We pull from EN feed but match keywords in BOTH languages so a recall whose
+RSS title happens to land in French (rare but does happen for Quebec-
+distributed products) cannot be silently dropped.
+"""
 from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import List
@@ -6,6 +14,7 @@ import logging
 import re
 from scrapers._base import BaseScraper, fetch
 from scrapers._models import Recall
+from scrapers._pathogen_vocab import for_languages
 
 log = logging.getLogger(__name__)
 
@@ -15,45 +24,11 @@ class CFIAScraper(BaseScraper):
     COUNTRY = "Canada"
     FEED_URL = "https://recalls-rappels.canada.ca/en/rss.xml"
 
-    # Keyword list aligned with FDA scraper (April 2026 expansion). The
-    # previous narrow list missed the April 16 Auricchio Taleggio recall and
-    # would have missed any rodenticide / mycotoxin / heavy-metal incident
-    # published through CFIA's RSS. Kept pathogen keywords first for speed.
-    PATHOGEN_KEYWORDS = (
-        # --- Biological (unchanged) ---
-        "listeria", "salmonella", "e. coli", "e.coli", "escherichia coli",
-        "stec", "o157", "botulin", "norovirus", "hepatitis", "campylobacter",
-        "cyclospora", "vibrio", "cronobacter", "bacillus cereus", "cereulide",
-        "shigella", "yersinia", "biotoxin", "histamine", "scombro",
-        # --- Mycotoxins (April 2026+ scope: Alternaria + Fusarium + ergot) ---
-        "aflatoxin", "ochratoxin", "patulin", "mycotoxin",
-        "fumonisin", "zearalenone", "deoxynivalenol", "nivalenol",
-        "alternaria", "alternariol", "tenuazonic",
-        "t-2 toxin", "ht-2 toxin", "citrinin",
-        "ergot", "claviceps", "fusarium",
-        # Multilingual (FR/DE/ES/IT/PT)
-        "ocratoxin", "ocratossin", "mykotoxin", "micotoxin",
-        "micotossin", "mutterkorn",
-        # --- Rodenticides / criminal tampering ---
-        "rodenticide", "rat poison", "bromadiolon", "brodifacoum",
-        "difethialon", "difenacoum", "chlorophacinon",
-        # --- Heavy metals (anchored to avoid false positives on "lead") ---
-        "lead contamin", "elevated lead", "levels of lead", "lead in product",
-        "excess lead", "cadmium", "arsenic", "mercury contamin",
-        "mercury level", "heavy metal",
-        # --- Physical / foreign-body hazards ---
-        "glass fragment", "glass piece", "glass shard",
-        "metal fragment", "metal piece", "metal shard",
-        "plastic fragment", "plastic piece",
-        "foreign object", "foreign body", "foreign material",
-        # --- Mould / spoilage ---
-        "mould", "mold",
-        # --- Chemical (expanded) ---
-        "ethylene oxide", "dioxin", "mineral oil",
-        "chlorate", "sudan", "melamine",
-        # --- Pest ---
-        "rodent", "insect",
-    )
+    # Bilingual keyword set: English (universal CORE) + French (Quebec).
+    # Centralised — the previous hardcoded 60-keyword list duplicated terms
+    # already in scrapers/_pathogen_vocab.py and was missing several
+    # mycotoxin variants. Now derived from the single source of truth.
+    PATHOGEN_KEYWORDS = for_languages("en", "fr")
 
     def scrape(self, since_days: int = 30) -> List[Recall]:
         from xml.etree import ElementTree as ET
@@ -77,9 +52,14 @@ class CFIAScraper(BaseScraper):
                 merged = (title + " " + desc).lower()
                 if not any(p in merged for p in self.PATHOGEN_KEYWORDS):
                     continue
+                # Food-context check (CFIA RSS includes consumer products too)
                 if "food" not in merged and "aliment" not in merged:
-                    # CFIA RSS includes consumer products too
-                    if not any(k in merged for k in ("recall - food", "rappel", "salmon", "listeria", "e. coli")):
+                    if not any(k in merged for k in (
+                        "recall - food", "rappel", "salmon", "listeria", "e. coli",
+                        # Bilingual food-product hints
+                        "viande", "fromage", "poisson", "lait", "produit laitier",
+                        "meat", "cheese", "fish", "milk", "dairy",
+                    )):
                         continue
                 # Parse date
                 try:
@@ -91,22 +71,26 @@ class CFIAScraper(BaseScraper):
                         continue
                 if d.replace(tzinfo=None) < cutoff:
                     continue
-                # Extract company/product from title (format: "Company recalls Product due to ...")
-                m = re.match(r"^(.+?)\s+(?:recalls?|brand|recalled|may contain).*", title, re.I)
+                # Extract company/product from title — bilingual verb match
+                m = re.match(
+                    r"^(.+?)\s+(?:recalls?|brand|recalled|may contain|"
+                    r"rappelle|rappelés?|marque|peut contenir).*",
+                    title, re.I,
+                )
                 company = m.group(1).strip() if m else title.split(" - ")[0]
                 out.append(self._new_recall(
                     Date=d.strftime("%Y-%m-%d"),
                     Company=company[:100],
                     Brand="—",
                     Product=title[:300],
-                    Pathogen=title[:120],
-                    Reason=desc[:300] or title[:300],
+                    Pathogen=desc[:200],
+                    Reason=desc[:300],
                     Class="Recall",
                     URL=link,
-                    Outbreak=1 if "illness" in merged or "outbreak" in merged else 0,
+                    Outbreak=0,
                     Notes="CFIA RSS",
                 ))
             except Exception as e:
-                log.warning("CFIA item parse failed: %s", e)
+                log.warning("CFIA row parse failed: %s", e)
         log.info("CFIA: %d pathogen recalls", len(out))
         return out
