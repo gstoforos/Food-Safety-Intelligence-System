@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class ThaiFDAScraper(GenericGeminiScraper):
     AGENCY = "Thai FDA"
     COUNTRY = "Thailand"
-    INDEX_URLS = ['https://www.fda.moph.go.th/sites/food/SitePages/news.aspx']
+    INDEX_URLS = ['https://food.fda.moph.go.th/consumer-alertnews/category/food-safety-news']
     LANGUAGE = "th"
