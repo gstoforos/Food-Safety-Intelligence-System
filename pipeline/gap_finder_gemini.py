@@ -564,18 +564,76 @@ def query_gemini_for_gaps(since_days: int) -> List[Dict[str, Any]]:
     txt = _call_gemini_with_search(prompt, system=GAP_FINDER_SYSTEM)
     if not txt:
         log.warning("Gemini gap-finder returned no text")
-        return []
+        # Sentinel: distinguishes "no text from API" (a real failure)
+        # from "API returned a valid empty list" (success). The cascade's
+        # main() checks this so it can roll forward to Claude/OpenAI
+        # instead of silently treating it as success.
+        return None
     txt = _strip_fences(txt)
     try:
         data = json.loads(txt)
-    except json.JSONDecodeError as e:
-        log.warning("Gap-finder JSON parse failed: %s | text=%s", e, txt[:300])
-        return []
+    except json.JSONDecodeError:
+        # Audit 2026-04-29: Gemini sometimes returns prose like
+        #   "I have reviewed the search results and will now filter..."
+        # before the JSON object, especially when grounding ran 20+
+        # searches. Try to recover by extracting the first balanced
+        # {...} block. If that ALSO fails, signal a real failure
+        # (return None) so the cascade rolls forward — previously we
+        # returned [] which the cascade silently accepted as success.
+        recovered = _extract_first_json_object(txt)
+        if recovered is None:
+            log.warning("Gap-finder JSON parse failed (no recoverable JSON "
+                        "block) | text=%s", txt[:300])
+            return None  # signal failure to main() → cascade fallback
+        try:
+            data = json.loads(recovered)
+            log.info("Gap-finder JSON: recovered from prose-wrapped output "
+                     "(%d chars of prose stripped)", len(txt) - len(recovered))
+        except json.JSONDecodeError as e:
+            log.warning("Gap-finder JSON parse failed even after recovery: "
+                        "%s | recovered=%s", e, recovered[:200])
+            return None  # signal failure to main()
     recalls = data.get("recalls", []) or []
     log.info("Gemini proposed %d recalls (pre-filter)", len(recalls))
     # Strip garbage before downstream normalization sees it
     recalls = _post_filter_recalls(recalls)
     return recalls
+
+
+def _extract_first_json_object(txt: str) -> Optional[str]:
+    """Return the first balanced {...} block in txt, or None if no
+    well-formed object can be located.
+
+    Walks the text tracking brace depth, ignoring braces inside strings.
+    Handles escape sequences inside strings so the model can return
+    nested JSON without confusing the depth counter.
+    """
+    start = txt.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    escape = False
+    for i in range(start, len(txt)):
+        ch = txt[i]
+        if escape:
+            escape = False
+            continue
+        if in_string:
+            if ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_string = False
+            continue
+        if ch == '"':
+            in_string = True
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return txt[start:i + 1]
+    return None  # unbalanced
 
 
 # ---------------------------------------------------------------------------
@@ -642,8 +700,20 @@ def main() -> int:
 
     # 2. Query Gemini with Google Search grounding
     raw = query_gemini_for_gaps(SINCE_DAYS)
+    # Audit 2026-04-29: query_gemini_for_gaps now returns:
+    #   None  → real failure (no text, JSON parse failed irrecoverably)
+    #   []    → success, Gemini found zero new recalls (valid empty)
+    #   [...] → success, Gemini found N recalls
+    # The cascade's success/fail rule depends on this distinction:
+    # rc=0 stops the cascade, rc=2 lets it roll forward to Claude/OpenAI.
+    if raw is None:
+        log.error("Gemini gap-finder: query failed irrecoverably "
+                  "(no text or unparseable JSON). Cascade should fall "
+                  "through to next provider.")
+        return 2  # ← signals failure to gap_finder_cascade.py
     if not raw:
-        log.info("Gemini gap-finder: nothing proposed this run.")
+        log.info("Gemini gap-finder: nothing proposed this run "
+                 "(Gemini returned an empty list — valid result, no gap found).")
         return 0
 
     # 3. Normalize into Recall objects, filter garbage

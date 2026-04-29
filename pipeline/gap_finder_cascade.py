@@ -170,11 +170,19 @@ def run_cascade(skip_paid: bool = False, skip_claude: bool = False,
     log.info("Gap-finder cascade started: %s (per-step timeout=%ds)",
              started, CASCADE_TIMEOUT_S)
 
+    # Step names clarified 2026-04-29 — the previous "Gemini FREE" /
+    # "Gemini PAID" labels were misleading because step 1 internally
+    # rotates through ALL keys (free first, then paid as fallback). What
+    # actually distinguishes the two cascade steps:
+    #   Step 1: try the full key chain, free-first
+    #   Step 2: skip the free key entirely (use paid only) — for use
+    #           when free was rate-limited and the rate limit hasn't
+    #           reset yet, so retrying it would just waste 60s timing out
     steps: List[Tuple[str, Callable[[], Tuple[bool, int, str]]]] = [
-        ("Gemini FREE",  lambda: _try_gemini(force_paid=False)),
+        ("Gemini (free→paid)", lambda: _try_gemini(force_paid=False)),
     ]
     if not skip_paid:
-        steps.append(("Gemini PAID", lambda: _try_gemini(force_paid=True)))
+        steps.append(("Gemini (paid only)", lambda: _try_gemini(force_paid=True)))
     if not skip_claude:
         steps.append(("Claude",      _try_claude))
     if not skip_openai:

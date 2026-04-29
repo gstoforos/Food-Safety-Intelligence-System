@@ -537,10 +537,42 @@ def _missing_required(row: Dict[str, Any]) -> List[str]:
 
 
 def _collect_gemini_keys() -> List[str]:
-    """Same key-collection logic as enrichment/gemini_client.py."""
+    """Key collection with FREE-tier preference (audit 2026-04-29).
+
+    The URL gate runs once daily with ~9 batches × ~5K tokens. That's
+    ~30 calls/day total — well under the gemini-2.5-flash free-tier daily
+    cap of 250 req/day. We use a SECOND free-tier key (GEMINI_API_KEY_-
+    FREE_2) so the gate doesn't compete with the gap-finder cascade for
+    the primary free-tier key's daily quota. Falls back to paid keys if
+    the free key is rate-limited.
+
+    Order:
+      1. GEMINI_API_KEY_FREE_2  (gate's dedicated free-tier key)
+      2. GEMINI_API_KEY_FREE_3..5  (extra free-tier keys, if any)
+      3. GEMINI_API_KEY  (paid, fallback)
+      4. GEMINI_API_KEY_1..10  (additional paid keys, fallback)
+
+    To switch to free-tier-only operation:
+      • Create a 2nd free-tier API key (different Google account from the
+        primary GEMINI_API_KEY_FREE used by the gap-finder cascade)
+      • Set GEMINI_API_KEY_FREE_2 in GitHub Secrets
+      • This module picks it up automatically. Cost on this line drops
+        from ~€3/mo to €0.
+    """
     keys: List[str] = []
+
+    # ── Free-tier keys first (URL gate's dedicated quota) ────────────────
+    free_2 = os.getenv("GEMINI_API_KEY_FREE_2")
+    if free_2 and free_2.strip():
+        keys.append(free_2.strip())
+    for i in range(3, 6):  # FREE_3..FREE_5
+        v = os.getenv(f"GEMINI_API_KEY_FREE_{i}")
+        if v and v.strip() not in keys:
+            keys.append(v.strip())
+
+    # ── Paid keys as fallback ───────────────────────────────────────────
     legacy = os.getenv("GEMINI_API_KEY")
-    if legacy:
+    if legacy and legacy.strip() not in keys:
         keys.append(legacy.strip())
     for i in range(1, 11):
         v = os.getenv(f"GEMINI_API_KEY_{i}")
