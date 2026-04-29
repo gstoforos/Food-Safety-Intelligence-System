@@ -5,6 +5,7 @@ from typing import List
 import logging
 from scrapers._base import BaseScraper, fetch
 from scrapers._models import Recall
+from scrapers._pathogen_vocab import for_languages
 
 log = logging.getLogger(__name__)
 
@@ -14,10 +15,13 @@ class USDAFSISScraper(BaseScraper):
     COUNTRY = "USA"
     BASE_URL = "https://www.fsis.usda.gov/fsis/api/recall/v/1"
 
-    PATHOGEN_KEYWORDS = (
-        "listeria", "salmonella", "e. coli", "stec", "shiga",
-        "botulin", "trichin", "campylobacter", "yersinia",
-    )
+    # Audit 2026-04-29: previous list had only 9 keywords. FSIS recalls
+    # routinely cite Bacillus cereus, Cronobacter, Cyclospora, Norovirus,
+    # Hepatitis A and a handful of mycotoxins (e.g. peanut-paste aflatoxin
+    # cross-contaminations) — none of which would match a 9-keyword list.
+    # Now uses the central vocab CORE list (158 universal terms) which
+    # includes every pathogen FSIS has ever cited as a recall trigger.
+    PATHOGEN_KEYWORDS = for_languages("en")
 
     def scrape(self, since_days: int = 30) -> List[Recall]:
         cutoff = datetime.utcnow() - timedelta(days=since_days)
