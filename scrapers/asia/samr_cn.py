@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class SAMRScraper(GenericGeminiScraper):
     AGENCY = "SAMR (CN)"
     COUNTRY = "China"
-    INDEX_URLS = ['https://www.samr.gov.cn/spcjs/tzgg/']
+    INDEX_URLS = ['https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/spcjs/']
     LANGUAGE = "zh"
