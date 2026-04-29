@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class NebihScraper(GenericGeminiScraper):
     AGENCY = "Nébih (HU)"
     COUNTRY = "Hungary"
-    INDEX_URLS = ['https://portal.nebih.gov.hu/elelmiszerlanc-felugyelet/elelmiszerek-visszahivasa']
+    INDEX_URLS = ['https://portal.nebih.gov.hu/termekvisszahivas']
     LANGUAGE = "hu"

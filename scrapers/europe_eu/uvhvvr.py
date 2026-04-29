@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class UVHVVRScraper(GenericGeminiScraper):
     AGENCY = "UVHVVR (SI)"
     COUNTRY = "Slovenia"
-    INDEX_URLS = ['https://www.gov.si/teme/odpoklici-in-opozorila-zivila/']
+    INDEX_URLS = ['https://www.gov.si/zbirke/seznami/nevarna-zivila/']
     LANGUAGE = "sl"

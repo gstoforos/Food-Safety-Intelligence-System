@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class HAHScraper(GenericGeminiScraper):
     AGENCY = "HAH (HR)"
     COUNTRY = "Croatia"
-    INDEX_URLS = ['https://www.hah.hr/category/obavijesti/']
+    INDEX_URLS = ['https://www.hapih.hr/kategorija/obavijesti-za-potrosace/']
     LANGUAGE = "hr"
