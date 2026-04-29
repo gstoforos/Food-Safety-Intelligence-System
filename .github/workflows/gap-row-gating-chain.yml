@@ -1,0 +1,142 @@
+name: FSIS Gap-Row Gating Chain (2× Gemini + Claude)
+
+# ==========================================================================
+# Runs the full gap-finder verification chain in one job:
+#   1. url_gate_gemini  (advances pending_gap → pending_gap_v1)
+#   2. url_gate_gemini  (advances pending_gap_v1 → pending_gap_v2)
+#   3. claude_check     (advances pending_gap_v2 → pending; promotion-ready)
+#
+# After this completes, the next merge_master run will promote any rows
+# that reached "pending" to Recalls. Failures at any step land the row in
+# Status="rejected" via the existing rejected_flags machinery.
+#
+# Why two separate Gemini runs (not one with two prompts)?
+# Per operator policy (2026-04-29) — the two checks must be INDEPENDENT
+# verifications. Two separate runs differ in: model sampling (non-zero
+# temperature), Google Search index state, and grounding result set. Two
+# prompts in one process share too much state to count as independent.
+#
+# Schedule: triggered manually after gap-finders write fresh pending_gap
+# rows. Could also be wired to a cron — but the trigger should run AFTER
+# scrapers and gap-finders, BEFORE the next merge_master tick.
+#
+# Concurrency group `fsis-data-writers` is shared with merge-master,
+# news-feed, url-gate so xlsx commits never collide.
+# ==========================================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      sleep_between_gemini_s:
+        description: "Seconds to sleep between the two Gemini runs (default: 60)"
+        required: false
+        default: "60"
+      skip_claude:
+        description: "true = run only the two Gemini passes (no Claude step)"
+        required: false
+        default: "false"
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  gate-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      # Suppress per-step commits — we'll do one combined commit at the end
+      SKIP_COMMIT: "1"
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+      GIT_USER_NAME:  "AFTS Intelligence System"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Gemini URL gate — pass 1 (pending_gap → pending_gap_v1)
+        env:
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
+          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
+        run: python -m pipeline.url_gate_gemini
+
+      - name: Sleep between Gemini runs (independence)
+        run: sleep ${{ inputs.sleep_between_gemini_s || 60 }}
+
+      - name: Gemini URL gate — pass 2 (pending_gap_v1 → pending_gap_v2)
+        env:
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
+          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
+        run: python -m pipeline.url_gate_gemini
+
+      - name: Claude page-content verification (pending_gap_v2 → pending)
+        if: ${{ inputs.skip_claude != true }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python -m pipeline.claude_check
+
+      - name: Commit the gated workbook
+        run: |
+          git config --local user.email "$GIT_USER_EMAIL"
+          git config --local user.name  "$GIT_USER_NAME"
+          git add docs/data/recalls.xlsx docs/data/recalls.json || true
+          if git diff --staged --quiet; then
+            echo "No gating changes this run."
+            exit 0
+          fi
+          STAMP=$(TZ=Europe/Athens date '+%Y-%m-%d %H:%M Athens')
+          git commit -m "Gap-row gating chain: 2× Gemini + Claude ($STAMP)"
+
+          # Safe push retry — same row-level union as the other writers
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Push succeeded on attempt $attempt."
+              exit 0
+            fi
+            echo "Push attempt $attempt failed — safe row-level merge retry..."
+            cp docs/data/recalls.xlsx /tmp/our-recalls.xlsx
+            git reset --hard HEAD~1
+            git pull --ff-only origin main || git pull origin main
+            python -m pipeline.xlsx_merge \
+              docs/data/recalls.xlsx /tmp/our-recalls.xlsx docs/data/recalls.xlsx
+            python -c "from pathlib import Path; \
+                       from pipeline.merge_master import mirror_json_from_xlsx; \
+                       mirror_json_from_xlsx(Path('docs/data/recalls.xlsx'), \
+                                              Path('docs/data/recalls.json'))" \
+              || echo "(json regen warning; continuing)"
+            git add docs/data/recalls.xlsx docs/data/recalls.json || true
+            if ! git diff --staged --quiet; then
+              git commit -m "Gap-row gating chain: 2× Gemini + Claude ($STAMP, retry $attempt, row-merged)"
+            fi
+            sleep $((attempt * 3))
+          done
+          echo "ERROR: git push failed after 3 attempts."
+          exit 1
