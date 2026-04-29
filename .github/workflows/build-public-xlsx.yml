@@ -1,0 +1,56 @@
+name: Build public xlsx
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/data/recalls.xlsx"
+  workflow_dispatch: {}
+
+# Don't fan out — only one rebuild at a time. If a previous run is still
+# in flight, GitHub will queue this one rather than racing the commit.
+concurrency:
+  group: build-public-xlsx
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install openpyxl
+
+      - name: Build public xlsx
+        run: |
+          python -m pipeline.export_public_xlsx
+
+      - name: Configure git
+        run: |
+          git config user.name  "fsis-export-bot"
+          git config user.email "bot@advfood.tech"
+
+      - name: Commit if changed
+        run: |
+          if [[ -n "$(git status --porcelain docs/data/afts-recalls-public.xlsx)" ]]; then
+            git add docs/data/afts-recalls-public.xlsx
+            git commit -m "Auto-build: public xlsx export (no Notes, no internal dates)"
+            git pull --rebase --autostash || true
+            git push
+          else
+            echo "No changes to public xlsx — skipping commit."
+          fi
