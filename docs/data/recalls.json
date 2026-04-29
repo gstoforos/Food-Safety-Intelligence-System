@@ -48,6 +48,22 @@
   "Notes": "Distributed in GRAND FRAIS stores.  [via Gemini gap-finder + Google Search] [url-gate 2026-04-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [url-gate 2026-04-29: Gemini fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...]"
  },
  {
+  "Date": "2026-04-28",
+  "Source": "Rappel Conso",
+  "Company": "AMANDIS LES ATELIERS DE SEBASTIEN",
+  "Brand": "LES ATELIERS DE SEBASTIEN",
+  "Product": "Gratin poireau au chevre",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Présence de Listeria monocytogenes",
+  "Class": "Rappel de produit",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/2026/Interne",
+  "Notes": "Consumer advised to return product to point of sale.  [via Gemini gap-finder + Google Search] [url-gate 2026-04-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...]"
+ },
+ {
   "Date": "2026-04-27",
   "Source": "RappelConso (FR)",
   "Company": "LE PERE CHENE",
