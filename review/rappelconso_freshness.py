@@ -1,41 +1,46 @@
 """
-RappelConso freshness check — every-hour deterministic backstop.
+RappelConso freshness check — every-hour deterministic backstop (API path).
 
 WHY THIS EXISTS
 ---------------
-Audit on 2026-04-29 found that the 18:00 Athens daily-scrape silently
-failed to capture 4 Listeria recalls published mid-day on 28/04
-(RappelConso fiches 22141, 22142, 22143, 22145) plus 3 Alternaria
-toxin recalls from 27/04 (fiches 22107, 22108, 22109). The Listeria
-ones were on the keyword whitelist; the Alternaria ones were not (now
-fixed in scrapers/rappelconso.py). But the underlying lesson is that
-ANY single scrape is a single point of failure — silent network errors,
-upstream API hiccups, or LLM-prompt regressions can take an entire
-batch offline.
+Audit 2026-04-29 found that the 18:00 Athens daily-scrape silently failed
+to capture 4 Listeria recalls published mid-day on 28/04 (RappelConso
+fiches 22141, 22142, 22143, 22145) plus 3 Alternaria toxin recalls from
+27/04 (fiches 22107, 22108, 22109). The Listeria ones were on the
+keyword whitelist; the Alternaria ones were not (now fixed). But the
+underlying lesson is that ANY single scrape is a single point of
+failure — silent network errors, upstream API hiccups, LLM-prompt
+regressions can take an entire batch offline.
 
 This script is a defensive backstop that runs hourly and:
-
   1. Pulls the LAST 7 DAYS of "Alimentation" recalls from the open-data
      API directly. No LLM, no third-party search, no Google indexing
      latency.
   2. Compares URLs against docs/data/recalls.xlsx (Recalls + Pending).
   3. For each URL not present, decides if it's in pathogen scope using
-     the same PATHOGEN_KEYWORDS used by the regular scraper.
+     the centralised multilingual vocabulary.
   4. Appends each in-scope missing row directly to the Pending sheet
-     (the URL Guardian + merge_master will promote them on the next
-     pass).
+     (the URL Guardian + merge_master will promote them on the next pass).
 
 Cost: 0 €. One unauthenticated GET to data.economie.gouv.fr per run.
-Latency: < 10 s in the typical case.
-Idempotency: URLs already in Recalls or Pending are skipped silently.
+
+KNOWN LIMITATION — 24-HOUR API DELAY (per Data.gouv.fr docs)
+-------------------------------------------------------------
+The data.economie.gouv.fr open-data endpoint is updated via a BATCH SYNC
+ONCE EVERY 24 HOURS. The consumer-facing rappel.conso.gouv.fr publishes
+fiches in real time; the API mirror lags by up to 24h. So this script
+alone cannot guarantee same-day capture.
+
+That's why the companion review/rappelconso_html_freshness.py exists —
+it scrapes the live HTML site directly. Run BOTH on the same hourly cron
+(this one is cheap, the HTML one fills the gap the API can't).
 
 SCHEDULING
 ----------
-Add to FsisScheduler.gs as an HOURLY periodic dispatch (same pattern as
-merge-master.yml):
+Add to FsisScheduler.gs as an HOURLY periodic dispatch:
 
-    // RappelConso freshness check — hourly, deterministic backstop
-    dispatchOnce("rappelconso-freshness.yml", dayKey + ":rcfresh:" + H);
+    dispatchOnce("rappelconso-freshness.yml",      dayKey + ":rcfresh:" + H);
+    dispatchOnce("rappelconso-html-freshness.yml", dayKey + ":rchtml:"  + H);
 
 CLI
 ---
@@ -49,7 +54,7 @@ import logging
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, List, Dict, Any
 
 import requests
 
@@ -59,9 +64,10 @@ sys.path.insert(0, str(ROOT))
 from scrapers._models import (  # noqa: E402
     Recall, normalize_pathogen, normalize_country, infer_region, assign_tier,
 )
-from scrapers.rappelconso import RappelConsoScraper  # noqa: E402  (for keyword list reuse)
+from scrapers._pathogen_vocab import for_languages  # noqa: E402
 from pipeline.merge_master import (  # noqa: E402
-    load_existing, load_pending, append_to_pending, save_xlsx_with_pending,
+    load_existing, load_pending,
+    append_to_pending, sort_rows, save_xlsx_with_pending,
 )
 
 logging.basicConfig(
@@ -78,12 +84,16 @@ API_URL = (
     "rappelconso0/records"
 )
 
+# Cache the FR+EN keyword set once at module load. for_languages() is
+# pure but does some dict iteration — no need to repeat per row.
+PATHOGEN_KEYWORDS = for_languages("en", "fr")
+
 
 # ─────────────────────────────────────────────────────────────────────────
-# Live API pull — same query shape as scrapers/rappelconso.py
+# Live API pull — same query shape as scrapers/europe_eu/rappelconso.py
 # ─────────────────────────────────────────────────────────────────────────
 
-def fetch_recent(days: int) -> list[dict]:
+def fetch_recent(days: int) -> List[Dict[str, Any]]:
     cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%d")
     params = {
         "where": f'date_publication >= "{cutoff}" AND categorie_de_produit = "Alimentation"',
@@ -92,7 +102,6 @@ def fetch_recent(days: int) -> list[dict]:
     }
     headers = {
         # data.economie.gouv.fr returns 403 on bare urllib User-Agent.
-        # Same UA the production scraper uses.
         "User-Agent": "Mozilla/5.0 (FSIS-freshness/1.0) Python/requests",
         "Accept": "application/json",
     }
@@ -110,36 +119,20 @@ def fetch_recent(days: int) -> list[dict]:
 # Filter: only pathogen / mycotoxin scope
 # ─────────────────────────────────────────────────────────────────────────
 
-def in_pathogen_scope(rec: dict) -> bool:
-    """Same predicate as scrapers/rappelconso.py:scrape() — kept in sync
-    by importing the keyword tuple directly. No second source of truth."""
+def in_pathogen_scope(rec: Dict[str, Any]) -> bool:
+    """Same predicate the production scraper uses, but sourced from the
+    centralised _pathogen_vocab so the two cannot drift apart."""
     blob = (
         (rec.get("motif_du_rappel") or "").lower()
         + " "
         + (rec.get("risques_encourus_par_le_consommateur") or "").lower()
     )
-    return any(kw in blob for kw in RappelConsoScraper.PATHOGEN_KEYWORDS)
+    return any(kw in blob for kw in PATHOGEN_KEYWORDS)
 
 
-# ─────────────────────────────────────────────────────────────────────────
-# Gap detection
-# ─────────────────────────────────────────────────────────────────────────
-
-def existing_urls(xlsx_path: Path) -> set[str]:
-    """Return every URL already in Recalls or Pending. Case-sensitive,
-    trailing whitespace stripped — matches how merge_master de-dupes."""
-    urls: set[str] = set()
-    for sheet_loader in (load_existing, load_pending):
-        for r in sheet_loader(str(xlsx_path)):
-            u = (getattr(r, "URL", "") or "").strip()
-            if u:
-                urls.add(u)
-    return urls
-
-
-def to_recall(rec: dict) -> Recall:
-    """Convert a RappelConso API row to a Recall object — same shape the
-    regular scraper produces, so downstream code can't tell the difference."""
+def to_recall(rec: Dict[str, Any]) -> Recall:
+    """Convert a RappelConso API row to a Recall — same shape the regular
+    scraper produces, so downstream code can't tell the difference."""
     pathogen_raw = (rec.get("risques_encourus_par_le_consommateur") or "")[:200]
     motif = (rec.get("motif_du_rappel") or "")[:300]
     # If the "risques" field is generic ("Autres contaminants chimiques"),
@@ -176,7 +169,7 @@ def to_recall(rec: dict) -> Recall:
         Outbreak=0,
         URL=url,
         Notes=(
-            f"[freshness backstop {datetime.now(timezone.utc).strftime('%Y-%m-%d')}; "
+            f"[freshness backstop API {datetime.now(timezone.utc).strftime('%Y-%m-%d')}; "
             f"fiche {fid or '?'}; {(rec.get('distributeurs') or '')[:100]}]"
         ),
     ).normalize()
@@ -213,10 +206,16 @@ def main(argv: Iterable[str] | None = None) -> int:
              args.days, len(in_scope), len(rows))
 
     # 3. Compare to existing data
-    have = existing_urls(xlsx_path)
+    approved = load_existing(xlsx_path)
+    pending = load_pending(xlsx_path)
+    have = set()
+    for r in approved + pending:
+        u = (r.get("URL") or "").strip()
+        if u:
+            have.add(u)
     log.info("Existing URLs in Recalls + Pending: %d", len(have))
 
-    missing: list[Recall] = []
+    missing: List[Recall] = []
     for rec in in_scope:
         url = (rec.get("lien_vers_la_fiche_rappel") or "").strip()
         if not url:
@@ -226,19 +225,17 @@ def main(argv: Iterable[str] | None = None) -> int:
                 f"https://rappel.conso.gouv.fr/fiche-rappel/{fid}/Interne"
                 if fid else ""
             )
-        if not url:
-            continue
-        if url in have:
+        if not url or url in have:
             continue
         missing.append(to_recall(rec))
 
     # 4. Report
     if not missing:
-        log.info("No gaps found — RappelConso coverage is complete for the "
-                 "last %d days.", args.days)
+        log.info("No gaps found — RappelConso API coverage is complete for "
+                 "the last %d days.", args.days)
         return 0
 
-    log.warning("FOUND %d MISSING RAPPELCONSO RECALLS:", len(missing))
+    log.warning("FOUND %d MISSING RAPPELCONSO RECALLS (API path):", len(missing))
     for r in missing:
         log.warning("  %s | %s | %s | %s", r.Date, r.Brand[:25], r.Product[:40], r.URL)
 
@@ -246,12 +243,26 @@ def main(argv: Iterable[str] | None = None) -> int:
         log.info("--dry-run: not writing.")
         return 0
 
-    # 5. Append to Pending
-    pending = load_pending(str(xlsx_path))
-    pending = append_to_pending(pending, missing)
-    save_xlsx_with_pending(str(xlsx_path), pending=pending)
-    log.info("Appended %d rows to Pending. merge_master will promote on "
-             "the next hourly pass.", len(missing))
+    # 5. Append to Pending — using the canonical 4-arg signature.
+    # append_to_pending RETURNS the combined list, doesn't mutate.
+    scraped_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    new_pending = append_to_pending(
+        existing_pending=pending,
+        approved=approved,
+        new_recalls=missing,
+        scraped_at=scraped_at,
+    )
+    added = len(new_pending) - len(pending)
+    log.info("Appended %d rows to Pending (total pending=%d). "
+             "merge_master will promote on next hourly pass.",
+             added, len(new_pending))
+
+    # 6. Persist — Recalls sheet untouched, only Pending modified
+    save_xlsx_with_pending(
+        approved_rows=sort_rows(approved),
+        pending_rows=sort_rows(new_pending),
+        xlsx_path=xlsx_path,
+    )
     return 0
 
 
