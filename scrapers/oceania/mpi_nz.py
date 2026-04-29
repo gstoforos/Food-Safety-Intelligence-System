@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class MPINZScraper(GenericGeminiScraper):
     AGENCY = "MPI (NZ)"
     COUNTRY = "New Zealand"
-    INDEX_URLS = ['https://www.mpi.govt.nz/food-safety-home/food-recalls/recalled-food-products/']
+    INDEX_URLS = ['https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products']
     LANGUAGE = "en"
