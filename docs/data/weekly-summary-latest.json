@@ -1,98 +1,98 @@
 {
-  "filename": "2026-W17.html",
-  "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W17.html",
+  "filename": "2026-W18.html",
+  "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W18.html",
   "dashboard_url": "https://www.advfood.tech/fsis-recalls",
-  "week_num": 17,
+  "week_num": 18,
   "year": 2026,
-  "week_start": "2026-04-18",
-  "week_end": "2026-04-24",
-  "week_start_display": "18 Apr",
-  "week_end_display": "24 Apr 2026",
-  "generated_utc": "2026-04-24T08:50:48.681563+00:00",
+  "week_start": "2026-04-25",
+  "week_end": "2026-05-01",
+  "week_start_display": "25 Apr",
+  "week_end_display": "1 May 2026",
+  "generated_utc": "2026-04-29T07:15:30.466728+00:00",
   "stats": {
-    "total": 19,
-    "tier1": 9,
-    "outbreaks": 3,
-    "delta": 5,
-    "delta_pct": 36
+    "total": 10,
+    "tier1": 7,
+    "outbreaks": 1,
+    "delta": -27,
+    "delta_pct": -73
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 4,
-    "pct": 21
+    "cases": 5,
+    "pct": 50
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
-      "date": "2026-04-21",
+      "date": "2026-04-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Salaisons THAURIN",
-      "brand": "Salaisons THAURIN",
-      "product": "Charcuterie — Viandes",
+      "company": "LE FROMAGER DES HALLES",
+      "brand": "Sans marque",
+      "product": "Gorgonzola DOP à la cuillère, Pot en plastique (Lot 60023, Date limite de consommation entre le 07/04/2026 et le 24/05/2026)",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/categorie/94"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22145/Interne"
     },
     {
       "rank": 2,
-      "date": "2026-04-21",
+      "date": "2026-04-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Southern Alp Sprouts",
-      "brand": "Southern Alp Sprouts",
-      "product": "Alfalfa & Onion Sprouts - 120g",
-      "country": "New Zealand",
-      "source": "MPI (NZ)",
-      "url": "https://www.mpi.govt.nz/news/media-releases/sprout-products-recalled-due-to-the-possible-presence-of-listeria"
+      "company": "LES ATELIERS DE SEBASTIEN",
+      "brand": "LES ATELIERS DE SEBASTIEN",
+      "product": "Gratin poireau au chevre",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22142/Interne"
     },
     {
       "rank": 3,
-      "date": "2026-04-21",
+      "date": "2026-04-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "GAEC DE LA CASCADE",
-      "brand": "—",
-      "product": "Terrine forestière",
+      "company": "LES ATELIERS DE SEBASTIEN",
+      "brand": "Les Ateliers de Sébastien",
+      "product": "Bruschetta",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/2026/17370"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22141/Interne"
     },
     {
       "rank": 4,
-      "date": "2026-04-20",
+      "date": "2026-04-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "NEUTRE PETIT PRIX",
-      "brand": "NEUTRE PETIT PRIX",
-      "product": "COPPA 8 TRANCHES 80G (barquette) — Viandes",
+      "company": "LES ATELIERS DE SEBASTIEN",
+      "brand": "Les Ateliers de Sébastien",
+      "product": "MINI QUICHE AU BLEU",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22052/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22143/Interne"
     },
     {
       "rank": 5,
-      "date": "2026-04-21",
-      "pathogen": "E. coli STEC (Shiga toxin-producing)",
-      "pathogen_raw": "E. coli STEC (Shiga toxin-producing)",
+      "date": "2026-04-27",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Sans marque",
-      "brand": "—",
-      "product": "Lait et produits laitiers",
+      "company": "LE PERE CHENE",
+      "brand": "Le Père Chêne",
+      "product": "Salade de museau de bœuf",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/categorie/64"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22133/Interne"
     }
   ],
-  "country_count": 11
+  "country_count": 3
 }
