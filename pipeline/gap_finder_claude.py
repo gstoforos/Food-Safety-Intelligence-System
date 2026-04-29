@@ -1,24 +1,27 @@
 """
-DEPRECATED — gap_finder_claude is technically dead.
+Claude gap-finder — REACTIVATED 2026-04-29
 ==========================================================================
 
-This file is kept for git history only. The job has been retired because:
-  • Claude (no native Google Search) was pattern-matching from training
-    data and proposing URLs that didn't exist
-  • Coverage of the same regulators is provided by:
-      - gap_finder_gemini.py  (Google Search grounding, three regions/day)
-      - gap_finder_openai.py  (web search, LATAM + ME/Africa primaries)
-      - gap_finder_tavily.py  (deterministic, no LLM, NorthAmerica primary)
-  • Final per-row verification is handled by claude_check.py against the
-    actual regulator page text — that's where Claude adds value now.
+Was previously retired with a no-op stub (see git log) because earlier
+versions had no native web access and pattern-matched URLs from training
+data. That's solved: this module now uses Claude's web_search_20250305
+tool (`_call_claude_web` below) so every URL Claude returns must have
+appeared in a real search result it ran.
 
-If invoked, this script will exit 0 immediately without writing anything.
-Do NOT remove the cron entry until the orchestration layer has been
-updated; this no-op stub is the safe shim until then.
+Runs alongside gap_finder_gemini.py, gap_finder_tavily.py, and
+gap_finder_exa.py. Each one's search backend indexes regulator pages
+differently — Tavily and Exa are deterministic, Gemini is grounded on
+Google, and Claude (via Anthropic web_search) tends to follow citation
+trails through news outlets to original recall pages well. Different
+gaps caught by different finders.
+
+Cost (claude-haiku-4-5): ~$0.005 per region × 4 regions × 1 run/day ≈
+$0.60/month. Cheaper than the OpenAI/search-tool alternative and
+worth keeping as a fourth independent backstop.
 
 ==========================================================================
 
-Original docstring (preserved for context):
+Original docstring:
 
 Claude gap-finder — a scheduled job that asks Claude's knowledge base for all
 food pathogen recalls worldwide in the last N days and appends any that aren't
@@ -349,17 +352,14 @@ def to_recall_objects(raw: List[Dict[str, Any]]) -> List[Recall]:
 
 
 def main() -> int:
-    # ============== DEAD JOB — NO-OP STUB ==============
-    # See module docstring. This finder was retired. Coverage is now
-    # provided by gap_finder_gemini.py + gap_finder_openai.py +
-    # gap_finder_tavily.py, with claude_check.py as the per-row verifier.
-    # We exit 0 silently so any leftover cron entry doesn't fail the
-    # workflow until orchestration is updated.
-    log.info("gap_finder_claude is retired — exiting 0 without changes. "
-             "See module docstring for replacements.")
-    return 0
-    # ===================================================
-
+    # Audit 2026-04-29: REACTIVATED from no-op-stub state. The retirement
+    # rationale (Claude pattern-matching from training data without web
+    # access) is solved by Claude's web_search_20250305 tool, which
+    # gap_finder_claude now uses (see _call_claude_web below). Run this in
+    # parallel with the Gemini / Tavily / Exa gap-finders — they catch
+    # different gaps because each one's search backend indexes regulator
+    # pages differently. Set ANTHROPIC_API_KEY (and optionally
+    # ANTHROPIC_MODEL=claude-haiku-4-5-20251001) to enable.
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--region", default=None,
