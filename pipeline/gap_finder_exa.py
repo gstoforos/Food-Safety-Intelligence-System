@@ -230,7 +230,7 @@ def main() -> int:
 
     # 2. Extract structured fields deterministically (reuse Tavily helper —
     #    works because we normalized Exa response shape to Tavily's keys above)
-    recalls = results_to_recalls(items)
+    recalls = results_to_recalls(items, finder_name="Exa")
     if not recalls:
         log.info("Exa gap-finder: no rows with detectable pathogens/hazards.")
         return 0

@@ -214,7 +214,7 @@ def main() -> int:
         return 0
 
     # 2. Deterministic extraction (reuse Tavily helpers)
-    recalls = results_to_recalls(items)
+    recalls = results_to_recalls(items, finder_name="Exa")
     if not recalls:
         log.info("Exa: no rows with detectable pathogens/hazards.")
         return 0

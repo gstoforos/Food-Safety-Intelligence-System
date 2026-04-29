@@ -465,7 +465,14 @@ def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
 def _is_generic_url(url: str) -> bool:
     """True if URL is a generic listing/category/disease/transparency page —
     not a specific recall fiche. Mirrors the patterns in
-    merge_master.validate_pending_row()."""
+    merge_master.validate_pending_row().
+
+    Audit 2026-04-29: also catches structurally-bogus RappelConso fiche
+    IDs that Gemini-style hallucinations slip in. Tavily and Exa are
+    crawler-indexed (they return real pages they've seen, not invented
+    URLs), so they almost never produce these directly — but `daily_-
+    recall_search_exa.py` shares this filter with the Gemini path, and
+    it's cheap enough to apply universally."""
     u = url.lower()
     bad_substrings = (
         "page=", "/list?", "/a-z/", "animal-disease",
@@ -474,6 +481,26 @@ def _is_generic_url(url: str) -> bool:
     )
     if any(p in u for p in bad_substrings):
         return True
+
+    # ── RappelConso fiche-ID sanity ─────────────────────────────────────
+    # Real fiche IDs are 5-digit integers (currently in the 22000s).
+    # Reject:
+    #   - Year-as-fid: /fiche-rappel/2026/Interne
+    #   - Slug-as-fid: /fiche-rappel/2026-04-0305/Interne
+    #   - Sentinel/year values: 2000-2100
+    #   - Implausibly small: < 1000
+    if "rappel.conso.gouv.fr" in u or "rappelconso.gouv.fr" in u:
+        import re as _re
+        m_fid = _re.search(r"/fiche-rappel/([^/]+)", u)
+        if not m_fid:
+            return True  # No fid → not a specific fiche page
+        fid = m_fid.group(1).strip()
+        if not fid.isdigit():
+            return True  # Slug-as-fid hallucination
+        n = int(fid)
+        if n < 1000 or (2000 <= n <= 2100):
+            return True  # Sentinel/year value
+
     # Bare domain or one-segment paths (homepages, root listings)
     try:
         from urllib.parse import urlparse as _up
@@ -485,10 +512,18 @@ def _is_generic_url(url: str) -> bool:
     return False
 
 
-def _item_to_recall(item: Dict[str, Any]) -> Optional[Recall]:
-    """Convert a single Tavily result into a Recall object.
-    Returns None if the item has no detectable pathogen/hazard (and is thus
-    not a food-safety recall worth pending-promoting)."""
+def _item_to_recall(item: Dict[str, Any],
+                    finder_name: str = "Tavily") -> Optional[Recall]:
+    """Convert a single search-engine result into a Recall object.
+    Returns None if the item has no detectable pathogen/hazard.
+
+    Audit 2026-04-29: added finder_name parameter so daily_recall_search_exa
+    can label its rows correctly. Previously every row got '[via Tavily
+    gap-finder]' regardless of which engine actually produced it, which
+    broke leak forensics — the 7 leaked rows on 2026-04-29 looked like
+    they came from Gemini (because they passed through gap_finder_gemini
+    too) when in fact the search hits originated from Exa.
+    """
     url = (item.get("url") or "").strip()
     if not url or not url.lower().startswith(("http://", "https://")):
         return None
@@ -543,7 +578,7 @@ def _item_to_recall(item: Dict[str, Any]) -> Optional[Recall]:
         Tier=assign_tier(pathogen, outbreak),
         Outbreak=outbreak,
         URL=url,
-        Notes=(content[:300] + "  [via Tavily gap-finder, deterministic extract]"),
+        Notes=(content[:300] + f"  [via {finder_name} gap-finder, deterministic extract]"),
     )
     try:
         rec = rec.normalize()
@@ -556,17 +591,18 @@ def _item_to_recall(item: Dict[str, Any]) -> Optional[Recall]:
     return rec
 
 
-def results_to_recalls(items: List[Dict[str, Any]]) -> List[Recall]:
+def results_to_recalls(items: List[Dict[str, Any]],
+                       finder_name: str = "Tavily") -> List[Recall]:
     out: List[Recall] = []
     dropped_no_hazard = 0
     for item in items:
-        rec = _item_to_recall(item)
+        rec = _item_to_recall(item, finder_name=finder_name)
         if rec is None:
             dropped_no_hazard += 1
             continue
         out.append(rec)
-    log.info("Tavily: %d items → %d valid recalls (dropped %d with no detectable hazard)",
-             len(items), len(out), dropped_no_hazard)
+    log.info("%s: %d items → %d valid recalls (dropped %d with no detectable hazard)",
+             finder_name, len(items), len(out), dropped_no_hazard)
     return out
 
 
