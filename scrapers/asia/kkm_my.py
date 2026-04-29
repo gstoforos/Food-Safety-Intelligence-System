@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class KKMScraper(GenericGeminiScraper):
     AGENCY = "KKM (MY)"
     COUNTRY = "Malaysia"
-    INDEX_URLS = ['https://www.moh.gov.my/index.php/pages/view/4019']
+    INDEX_URLS = ['https://hq.moh.gov.my/fsq/ms/kenyataan-akhbar']
     LANGUAGE = "ms"
