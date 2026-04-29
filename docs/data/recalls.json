@@ -4335,20 +4335,4 @@
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814607",
   "Notes": "RASFF #2026.0035"
  },
- {
-  "Date": "2026-04-23",
-  "Source": "FSANZ",
-  "Company": "Australian food",
-  "Brand": "Australian food",
-  "Product": "| Food Standards Australia New Zealand",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls",
-  "Notes": "Australian food recalls | Food Standards Australia New Zealand\n\nFood recalls remove unsafe food from sale to protect consumers. Food can be recalled for a range of reasons, including product contamination, undeclared allergens and labelling errors. When a recall happens, FSANZ works with food busine  [via Exa gap-finder, deterministic extract]"
- }
-]
+ ]
