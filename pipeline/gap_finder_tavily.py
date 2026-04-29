@@ -462,6 +462,46 @@ def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 # Tavily item → Recall (pure Python, no AI)
 # ---------------------------------------------------------------------------
+# ── Known regulator landing/listing pages — never specific recalls ──────
+# Hard-coded set checked by `_is_generic_url`. Any URL appearing here was
+# leaked into Recalls at least once via Exa/Tavily — add new entries when
+# new leaks surface. Compare against URL stripped of trailing slash, query
+# string, and fragment (handled in `_is_generic_url`). All entries lower-
+# cased; scheme included so we don't accidentally reject a path that
+# happens to share a regulator's hostname.
+_KNOWN_REGULATOR_LANDINGS = frozenset({
+    # FSANZ (Australia) — Apr 2026 leak
+    "https://www.foodstandards.gov.au/food-recalls",
+    "https://www.foodstandards.gov.au/food-recalls/recalls",
+    "https://www.foodstandards.gov.au/consumer/safety/recalls",
+    # FDA (USA) — recalls landing
+    "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts",
+    "https://www.fda.gov/safety/recalls",
+    "https://www.fda.gov/food/recalls-outbreaks-emergencies",
+    # USDA FSIS — recalls landing
+    "https://www.fsis.usda.gov/recalls",
+    "https://www.fsis.usda.gov/recalls-alerts",
+    # CFIA (Canada) — recall hub
+    "https://recalls-rappels.canada.ca/en",
+    "https://recalls-rappels.canada.ca/fr",
+    "https://inspection.canada.ca/food-recall-warnings-and-allergy-alerts",
+    # FSA (UK) — alerts hub
+    "https://www.food.gov.uk/news-alerts",
+    "https://www.food.gov.uk/about-us/recalls-and-alerts",
+    # RappelConso (FR) — fiche check below catches /fiche-rappel/* but the
+    # bare landing page itself needs to be rejected explicitly.
+    "https://rappel.conso.gouv.fr",
+    "https://rappel.conso.gouv.fr/recherche",
+    # AESAN (Spain), AGES (Austria), AFSCA (Belgium), NVWA (Netherlands)
+    "https://www.aesan.gob.es/aecosan/web/seguridad_alimentaria/subseccion/alertas_alimentarias.htm",
+    "https://www.ages.at/konsument/lebensmittelwarnungen",
+    "https://www.afsca.be/professionnels/publications/communications/rappels",
+    "https://www.nvwa.nl/onderwerpen/voedselveiligheid/veiligheidswaarschuwingen",
+    # MPI New Zealand
+    "https://www.mpi.govt.nz/food-safety-home/food-recalls",
+})
+
+
 def _is_generic_url(url: str) -> bool:
     """True if URL is a generic listing/category/disease/transparency page —
     not a specific recall fiche. Mirrors the patterns in
@@ -472,8 +512,37 @@ def _is_generic_url(url: str) -> bool:
     crawler-indexed (they return real pages they've seen, not invented
     URLs), so they almost never produce these directly — but `daily_-
     recall_search_exa.py` shares this filter with the Gemini path, and
-    it's cheap enough to apply universally."""
+    it's cheap enough to apply universally.
+
+    Audit 2026-04-29 (leak forensics): an Exa search hit returned the
+    FSANZ landing page (foodstandards.gov.au/food-recalls) whose <title>
+    starts with "Australian food recalls" and whose body intro mentions
+    Listeria as an example hazard. The path-segment heuristic below
+    *claims* to catch one-segment paths, but in fact it only catches the
+    bare-domain case — `/food-recalls` strips to a non-empty string.
+    Result: the row was promoted to Recalls with Company="Australian food",
+    URL=the listing page itself. The per-regulator scrapers (e.g. FSANZ
+    `_LISTING_URLS`) reject these correctly; gap-finders bypass those
+    scrapers and write directly to Pending, so the rejection has to live
+    here too. New `_KNOWN_REGULATOR_LANDINGS` set below mirrors that
+    pattern. Add new entries as new leaks surface."""
     u = url.lower()
+
+    # ── Hard-coded regulator landing/listing pages ──────────────────────
+    # These are real pages that return HTTP 200 (so the URL gate accepts
+    # them) and whose host is a whitelisted regulator domain (so the
+    # `_lookup_source` check accepts them) — but they are NEVER specific
+    # recall pages. Compare against the URL stripped of trailing slash,
+    # query string, and fragment.
+    try:
+        from urllib.parse import urlsplit as _us
+        sp = _us(url)
+        canonical = f"{sp.scheme.lower()}://{sp.netloc.lower()}{sp.path.rstrip('/')}"
+    except Exception:
+        canonical = u.split("?", 1)[0].split("#", 1)[0].rstrip("/")
+    if canonical in _KNOWN_REGULATOR_LANDINGS:
+        return True
+
     bad_substrings = (
         "page=", "/list?", "/a-z/", "animal-disease",
         "regulatory-transparency", "/categorie/", "/rubrik/", "/tag/",
