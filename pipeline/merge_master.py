@@ -430,6 +430,22 @@ def append_to_pending(
     """
     keys_in_approved = {_dedup_key(r) for r in approved}
 
+    # ── Near-duplicate index (audit 2026-04-29) ──────────────────────────
+    # Catches hallucinated-URL gap-finder duplicates that string dedup
+    # can't see. Example: scraper has Listeria/LES ATELIERS DE SEBASTIEN/
+    # 2026-04-28 at /fiche-rappel/22142/Interne (real). Gemini gap-finder
+    # then hallucinates the same recall at /fiche-rappel/22185/Interne
+    # (fake). _dedup_key() compares URLs → no match → both land in
+    # Pending → URL gate runs once a day at 07:00 → in the meantime
+    # merge_master promotes the hallucinated one to Recalls.
+    #
+    # _is_near_duplicate keys on (source, normalized_company, pathogen)
+    # within a 30-day window — so the same (source, company, pathogen)
+    # appearing at a different URL within 30 days is rejected as a near-
+    # dup before it ever lands in Pending. This catches the leak at
+    # ingest time, not promotion time.
+    near_dup_index = _build_near_dup_index(approved + existing_pending)
+
     # Build set of all URLs already present (Recalls + current Pending) for
     # the validation gate's dedup check. Lowercased + trailing-slash-stripped
     # to match validate_pending_row()'s normalisation.
@@ -479,6 +495,23 @@ def append_to_pending(
 
         if k in keys_in_approved:
             already_approved += 1
+            continue
+
+        # ── Near-duplicate check (audit 2026-04-29) ─────────────────────
+        # Reject if a recall with the same (source, normalized_company,
+        # pathogen) was already approved or pended within the last 30
+        # days. This is the gate that stops gap-finder URL hallucinations
+        # from ever entering Pending — even when their hallucinated URL
+        # is structurally valid (5-digit fiche ID in the right range).
+        is_near, match_date = _is_near_duplicate(d, near_dup_index)
+        if is_near:
+            log.warning(
+                "Pending near-dup REJECT: same (source, company, pathogen) "
+                "already exists dated %s | new url=%s | company=%s",
+                match_date, str(d.get("URL", ""))[:100],
+                str(d.get("Company", ""))[:50],
+            )
+            rejected_by_gate += 1
             continue
 
         if k in pending_by_key:
@@ -971,10 +1004,30 @@ def append_news_to_xlsx(
 
 # =========================================================================
 # CLI entry point — run by the hourly merge-master workflow.
-# Validates Pending URLs and promotes approved rows to Recalls.
+#
+# AUDIT 2026-04-29 — promotion semantics tightened:
+#   The hourly CLI used to call promote_approved() with rejected_flags driven
+#   only by review/url_validator (HTTP HEAD/GET reachability). That meant
+#   ANY row with a 200-returning URL was promoted to Recalls — including
+#   hallucinated RappelConso fiches (e.g. /fiche-rappel/22180/Interne) that
+#   render a soft-200 page even when the fiche ID doesn't exist. This let
+#   ~7 hallucinated Gemini gap-finder rows leak from the 07:34 Exa run into
+#   Recalls before the once-daily 07:00 Gemini URL gate could catch them.
+#
+#   New rule (per George 2026-04-29):
+#     "Only data from URL Gemini followed by Claude check must be allowed
+#      1 or two times per day."
+#
+#   The hourly CLI is now a JANITOR ONLY — it cleans malformed URLs from
+#   Pending and removes Pending rows whose URL has been confirmed dead,
+#   but it NEVER promotes to Recalls. Promotion happens exclusively via:
+#     1. pipeline/url_gate_gemini.py     (07:00 Athens — Gemini URL gate)
+#     2. pipeline/claude_check.py        (07:45 Athens — Claude content check)
+#
+#   To override (e.g. backfill, manual catch-up), set MERGE_MASTER_PROMOTE=1.
 # =========================================================================
 if __name__ == "__main__":
-    import sys
+    import sys, os
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -992,38 +1045,82 @@ if __name__ == "__main__":
     log.info("State: %d approved, %d pending", len(approved), len(pending))
 
     if not pending:
-        log.info("No Pending rows — nothing to promote.")
+        log.info("No Pending rows — nothing to do.")
         sys.exit(0)
 
-    # Validate URLs
+    # ── URL reachability check (cheap janitor pass) ─────────────────────
+    # We still validate URLs at every hourly run so dead URLs can be
+    # marked rejected in Pending. We do NOT use the result to drive
+    # promotion — that would re-create the leak this CLI is here to
+    # prevent.
     from review.url_validator import validate_all
-    log.info("Validating %d Pending URLs...", len(pending))
+    log.info("Validating %d Pending URLs (janitor pass — no promotion)...",
+             len(pending))
     validated = validate_all(pending, max_workers=5)
 
+    # Mark broken-URL rows as rejected so they don't promote later.
+    # Anything that's currently 'pending' AND has a confirmed bad URL
+    # gets stamped REJECTED so the next gate pass skips it.
     rejected_flags = {}
     for idx, row in enumerate(validated):
         check = row.get("_url_check", {})
+        # Only reject if the URL check says it's BROKEN. Reachable URLs
+        # stay 'pending' until the URL gate validates them properly.
         if not check.get("ok", False):
             rejected_flags[idx] = check.get("reason", "URL check failed")
 
-    # Remove _url_check from rows
+    # Strip the runtime _url_check field before persisting
     clean_pending = [{k: v for k, v in row.items() if k != "_url_check"}
                      for row in validated]
 
-    new_approved, remaining = promote_approved(clean_pending, approved, rejected_flags)
+    # ── Promotion gate ──────────────────────────────────────────────────
+    # OFF by default — only the once-daily Gemini URL gate (07:00) and
+    # Claude check (07:45) workflows are permitted to promote rows to
+    # Recalls. The hourly CLI just stamps rejections and exits.
+    promote_enabled = os.environ.get("MERGE_MASTER_PROMOTE", "").strip() in (
+        "1", "true", "yes")
 
-    if new_approved:
-        log.info("Promoted %d rows Pending → Recalls", len(new_approved))
-        final_approved = sort_rows(approved + new_approved)
+    if promote_enabled:
+        log.info("MERGE_MASTER_PROMOTE=1 — promotion ENABLED for this run "
+                 "(use only for backfill/manual catch-up)")
+        new_approved, remaining = promote_approved(
+            clean_pending, approved, rejected_flags,
+        )
+        if new_approved:
+            log.info("Promoted %d rows Pending → Recalls", len(new_approved))
+            final_approved = sort_rows(approved + new_approved)
+        else:
+            log.info("No rows promoted this run.")
+            final_approved = sort_rows(approved)
     else:
-        log.info("No rows promoted this run.")
+        log.info("Janitor mode (default): NOT promoting. Only the daily "
+                 "Gemini URL gate + Claude check are allowed to advance "
+                 "rows from Pending → Recalls.")
+        # We still update Pending with rejection stamps for broken URLs.
+        # Walk clean_pending; for any idx in rejected_flags, copy the
+        # rejection note onto the row so the next gate pass skips it.
+        for idx, row in enumerate(clean_pending):
+            if idx in rejected_flags and row.get("Status") != STATUS_REJECTED:
+                reason = rejected_flags[idx]
+                orig_notes = (row.get("Notes") or "").strip()
+                if not orig_notes.startswith("REJECTED:"):
+                    row["Notes"] = f"REJECTED: {reason}" + (
+                        f" | {orig_notes}" if orig_notes else "")
+                row["Status"] = STATUS_REJECTED
+        new_approved = []
+        remaining = clean_pending
         final_approved = sort_rows(approved)
+        if rejected_flags:
+            log.info("Marked %d Pending row(s) as rejected (broken URL)",
+                     len(rejected_flags))
 
     save_xlsx_with_pending(final_approved, sort_rows(remaining), XLSX)
     mirror_json_from_xlsx(XLSX, ROOT / "docs" / "data" / "recalls.json")
 
     # Rebuild daily briefs for any date that gained newly-promoted rows.
     # Without this, the dashboard's rolling 7-day display stays stale.
+    # In janitor mode (no promotion), new_approved is empty — this is a
+    # cheap no-op.
     rebuilt_briefs, brief_files = rebuild_daily_briefs_for_promoted(
         new_approved, final_approved,
     )
