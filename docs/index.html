@@ -244,7 +244,6 @@ let NEWS=[],NEWS_filtered=[];
 const PC={'Listeria':'#00ff88','Salmonella':'#06b6d4','E. coli':'#f97316','Cereulide':'#ef4444','Clostridium':'#a78bfa','Aflatoxin':'#fbbf24','Hepatitis':'#f472b6','Norovirus':'#818cf8','Campylobacter':'#34d399','Vibrio':'#fb923c','Cronobacter':'#c084fc','Bacillus':'#ef4444','STEC':'#f97316'};
 function pColor(p){if(!p)return'#00ff88';for(const[k,v]of Object.entries(PC))if(p.indexOf(k)>=0)return v;return'#00ff88';}
 function esc(s){return(s==null?'':String(s)).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);}
-function urlLabel(u){if(!u)return'';try{const x=new URL(u);const h=x.hostname.replace(/^www\./,'');const p=(x.pathname||'').replace(/\/$/,'');return h+(p&&p!=='/'?p:'');}catch(e){return String(u).replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'');}}
 
 // ===== FIXED PATHOGEN NORMALIZATION =====
 function normalizePathogen(p){
@@ -299,15 +298,18 @@ function notifyHeight(){
   }
 }
 
-// ===== DOWNLOADS — Recalls only (strip Pending + NEWS) =====
+// ===== DOWNLOADS — Recalls only (strip Pending + NEWS + Notes) =====
 // Rebuild a clean workbook from in-memory ALL so subscribers never receive
 // the Pending worktable or the NEWS ingestion sheet in their download.
+// Notes column also stripped — internal provenance (AI vendor names, audit
+// stamps, manual-edit traces) must not leak to subscribers. See
+// pipeline/export_public_xlsx.py for the full audit rationale.
 function _recallsExportRows(){
   return ALL.map(r=>({
     Date:r.date, Source:r.source, Company:r.company, Brand:r.brand,
     Product:r.product, Pathogen:r.pathogen, Reason:r.reason, Class:r.class_,
     Country:r.country, Region:r.region, Tier:r.tier, Outbreak:r.is_outbreak,
-    URL:r.url, Notes:r.notes
+    URL:r.url
   }));
 }
 function downloadRecallsXlsx(){
@@ -413,7 +415,7 @@ function render(){
     const tierCol=r.tier===1?'var(--red)':'var(--orange)';
     const tl=r.tier===1?'TIER-1':'TIER-2';
     const ob=r.is_outbreak===1?' <span style="background:rgba(239,68,68,.1);color:var(--red);font-size:7px;padding:1px 5px;border-radius:2px;font-family:DM Mono,monospace;font-weight:700;letter-spacing:.08em;border:1px solid rgba(239,68,68,.25)">OUTBREAK</span>':'';
-    return`<tr class="${tc}"><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(r.date)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.05em;background:rgba(0,255,136,.08);color:var(--green);border:1px solid rgba(0,255,136,.25)">${esc(r.source)}</span></td><td class="firm" title="${esc(r.company)}">${esc(r.company||r.brand||'—')}</td><td class="prod" title="${esc(r.product)}">${esc((r.product||'').substring(0,80))}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pColor(r.pathogen)}">${esc(r.pathogen)}${ob}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.08em;background:${tierBg};color:${tierCol};border:1px solid ${tierCol}40">${tl}</span></td><td style="font-size:10px;color:var(--muted)">${esc(r.country)}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener" title="${esc(r.url)}" style="color:var(--green);font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;">${esc(urlLabel(r.url))} ↗</a>`:''}</td></tr>`;
+    return`<tr class="${tc}"><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(r.date)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.05em;background:rgba(0,255,136,.08);color:var(--green);border:1px solid rgba(0,255,136,.25)">${esc(r.source)}</span></td><td class="firm" title="${esc(r.company)}">${esc(r.company||r.brand||'—')}</td><td class="prod" title="${esc(r.product)}">${esc((r.product||'').substring(0,80))}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pColor(r.pathogen)}">${esc(r.pathogen)}${ob}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.08em;background:${tierBg};color:${tierCol};border:1px solid ${tierCol}40">${tl}</span></td><td style="font-size:10px;color:var(--muted)">${esc(r.country)}</td><td>${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--green);font-size:11px;text-decoration:none">↗</a>`:''}</td></tr>`;
   }).join('');}
   const total=filtered.length,maxP=Math.max(1,Math.ceil(total/perPage));
   document.getElementById('pinfo').textContent=`Page ${page} of ${maxP} · ${total} records`;
@@ -452,39 +454,70 @@ function renderNews(){
   if(!NEWS_filtered.length){tb.innerHTML='<tr><td colspan="6" class="loading">No matching news.</td></tr>';document.getElementById('news-rcount').textContent='0 items';return;}
   tb.innerHTML=NEWS_filtered.slice(0,200).map(r=>{
     const dateOnly=(r.published||'').substring(0,10);const pcol=pColor(r.pathogen);
-    return`<tr><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(dateOnly)}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pcol}">${esc(r.pathogen)}</td><td style="font-size:10px;color:var(--muted)">${esc(r.event)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.3)">${esc(r.source)}</span></td><td style="font-size:11px;color:var(--white)">${esc(r.title)}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener" title="${esc(r.link)}" style="color:var(--green);font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;">${esc(urlLabel(r.link))} ↗</a>`:''}</td></tr>`;
+    return`<tr><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(dateOnly)}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pcol}">${esc(r.pathogen)}</td><td style="font-size:10px;color:var(--muted)">${esc(r.event)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.3)">${esc(r.source)}</span></td><td style="font-size:11px;color:var(--white)">${esc(r.title)}</td><td>${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener" style="color:var(--green);font-size:11px">↗</a>`:''}</td></tr>`;
   }).join('');
   document.getElementById('news-rcount').textContent=NEWS_filtered.length+' items';
   notifyHeight();
 }
 
 // ===== WEEKLY REPORTS =====
-// Fetches data/weekly-index.json on first tab click. The weekly builder
-// (docs/build_weekly_report_afts.py) re-writes this JSON on every Friday
-// run, so the dashboard stays in sync with the corrected dataset. Falls
-// back to a tiny embedded array if the fetch fails (Wix sandbox / cache).
-//
-// Display rule (audit 2026-04-29): show the 4 most recent weekly reports
-// as rich cards. Older reports collapse into a per-year archive below.
-async function loadReports(){
-  const FALLBACK_REPORTS = [];
-  let reports = FALLBACK_REPORTS;
-  try {
-    const r = await fetch('data/weekly-index.json?_=' + Date.now(), {cache: 'no-store'});
-    if (r.ok) {
-      const j = await r.json();
-      const arr = Array.isArray(j) ? j : (Array.isArray(j.reports) ? j.reports : null);
-      if (arr && arr.length) {
-        // Sort newest-first by week_end so the 4 rich cards always show
-        // the freshest weeks even if the JSON isn't pre-sorted.
-        reports = arr.slice().sort((a, b) =>
-          String(b.week_end || '').localeCompare(String(a.week_end || '')));
-      }
+function loadReports(){
+  // Embedded reports data (bypasses server file access issues)
+  const reports = [
+    {
+        "filename": "2026-W17.html",
+        "week_num": 17,
+        "year": 2026,
+        "week_start": "2026-04-18",
+        "week_end": "2026-04-24",
+        "generated": "2026-04-24T08:50:48.674250+00:00",
+        "total": 19,
+        "tier1": 9,
+        "outbreaks": 3,
+        "top_pathogen": "Listeria monocytogenes",
+        "summary": "Week 17 saw 19 pathogen recalls with Listeria monocytogenes as primary concern."
+    },
+    {
+        "filename": "2026-W16.html",
+        "week_num": 16,
+        "year": 2026,
+        "week_start": "2026-04-11",
+        "week_end": "2026-04-17",
+        "generated": "2026-04-24T08:50:48.676304+00:00",
+        "total": 14,
+        "tier1": 9,
+        "outbreaks": 0,
+        "top_pathogen": "Listeria monocytogenes",
+        "summary": "Week 16 saw 14 pathogen recalls with Listeria monocytogenes as primary concern."
+    },
+    {
+        "filename": "2026-W15.html",
+        "week_num": 15,
+        "year": 2026,
+        "week_start": "2026-04-04",
+        "week_end": "2026-04-10",
+        "generated": "2026-04-24T08:50:48.678402+00:00",
+        "total": 68,
+        "tier1": 60,
+        "outbreaks": 4,
+        "top_pathogen": "Listeria monocytogenes",
+        "summary": "Week 15 saw 68 pathogen recalls with Listeria monocytogenes as primary concern."
+    },
+    {
+        "filename": "2026-W14.html",
+        "week_num": 14,
+        "year": 2026,
+        "week_start": "2026-03-28",
+        "week_end": "2026-04-03",
+        "generated": "2026-04-24T08:50:48.680448+00:00",
+        "total": 13,
+        "tier1": 8,
+        "outbreaks": 1,
+        "top_pathogen": "Listeria monocytogenes",
+        "summary": "Week 14 saw 13 pathogen recalls with Listeria monocytogenes as primary concern."
     }
-  } catch (e) {
-    console.warn('weekly-index.json fetch failed, using embedded fallback:', e);
-  }
-
+];
+  
   // 1. Defensive filter: never show future-dated weeks even if they snuck into the array
   const todayISO = new Date().toISOString().slice(0,10);
   const published = reports.filter(r => (r.week_end || '') <= todayISO);
@@ -494,10 +527,9 @@ async function loadReports(){
     return;
   }
 
-  // 2. Split: 4 most recent as rich cards (per FSIS user-guide spec),
-  //    remainder as per-year archive entries that stay scannable as
-  //    weeks accumulate over the year (52/yr ceiling).
-  const RICH_LIMIT = 4;
+  // 2. Split: most recent 6 as rich cards, remainder as compact archive entries.
+  //    When weeks pile up (52/yr), this keeps the page scannable without hiding content.
+  const RICH_LIMIT = 6;
   const richCards  = published.slice(0, RICH_LIMIT);
   const archive    = published.slice(RICH_LIMIT);
 
@@ -621,13 +653,11 @@ async function loadMonthlyReports(){
     return;
   }
 
-  // Display rule (audit 2026-04-29): rich cards = every report from the
-  // CURRENT calendar year (accumulate as months ship, max 12). Past years
-  // collapse into the per-year archive. Same convention for yearly tab
-  // when it ships.
-  const currentYearISO = new Date().getFullYear();
-  const rich    = published.filter(r => Number(r.year) === currentYearISO);
-  const archive = published.filter(r => Number(r.year) !== currentYearISO);
+  // Same rich / archive split as weekly: most recent 6 are rich cards, the
+  // rest group by year in a collapsible archive.
+  const RICH_LIMIT = 6;
+  const rich    = published.slice(0, RICH_LIMIT);
+  const archive = published.slice(RICH_LIMIT);
 
   const renderRich = r => {
     const mstart = new Date(r.month_start).toLocaleDateString('en-GB', {day:'numeric', month:'short'});
@@ -693,10 +723,7 @@ async function loadDaily(){
     const r = await fetch('daily-index.json?_=' + Date.now(), {cache:'no-store'});
     if(!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
-    // Daily list: keep the 7 most recent briefs (rolling week, per spec
-    // 2026-04-29). Older briefs auto-prune from the index by the daily
-    // builder's retention rule, but slice defensively here too.
-    const entries = (data.entries || []).slice(0, 7);
+    const entries = (data.entries || []).slice(0, 60);
     document.getElementById('daily-count').textContent = ' · ' + entries.length;
     if(!entries.length){
       list.innerHTML = '<p class="loading">No daily briefs yet. First brief appears tomorrow 10:00 Athens.</p>';
