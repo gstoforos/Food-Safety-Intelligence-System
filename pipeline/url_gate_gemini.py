@@ -186,6 +186,37 @@ def _is_structurally_bad(url: str) -> Optional[str]:
     segs = [s for s in (p.path or "").split("/") if s]
     if len(segs) == 0:
         return "domain only, no path"
+
+    # ── RappelConso fiche-ID sanity (audit 2026-04-29) ──────────────────
+    # Real URL shape: https://rappel.conso.gouv.fr/fiche-rappel/<int>/Interne
+    # where <int> is a 4-or-5-digit fiche number assigned chronologically
+    # (currently in the 22000s). The site also uses a separate reference
+    # slug (e.g. "2026-04-0305") but the fiche-rappel/<...>/Interne path
+    # requires the integer ID, NOT the slug.
+    #
+    # Two real-world failure modes the audit caught:
+    #   1. Gemini hallucinated /fiche-rappel/2026/Interne (year as fid)
+    #   2. Gemini used /fiche-rappel/2026-04-0305/Interne (reference slug
+    #      stuffed into the integer-ID slot)
+    # Both passed the previous \d+ regex fallback in api_prepass and were
+    # silently re-stamped with "API fixed" audit notes.
+    host = (p.netloc or "").lower()
+    if host.startswith("www."):
+        host = host[4:]
+    if host in ("rappel.conso.gouv.fr", "rappelconso.gouv.fr"):
+        m_fid = re.search(r"/fiche-rappel/([^/]+)", url)
+        if not m_fid:
+            return "rappelconso URL missing fiche-rappel/<id>"
+        fid = m_fid.group(1).strip()
+        if not fid.isdigit():
+            return (f"rappelconso fiche ID is not numeric ({fid!r}); "
+                    "URL likely hallucinated")
+        n = int(fid)
+        if n < 1000:
+            return f"rappelconso fiche ID too small ({n}); not a real fiche"
+        if 2000 <= n <= 2100:
+            return f"rappelconso fiche ID is a year value ({n}); URL hallucinated"
+
     return None
 
 
@@ -273,9 +304,26 @@ def api_prepass(rows: List[Dict[str, Any]]) -> Dict[int, str]:
                 # Strip any trailing slash and any prefix junk like /2026/
                 m = re.search(r"/fiche-rappel/(\d+)", url)
                 if m:
+                    fid_str = m.group(1)
+                    n = int(fid_str)
+                    # Bounds check (audit 2026-04-29): \d+ alone matched
+                    # year values like "2026" and silently legitimized
+                    # hallucinated URLs. Real fiche IDs are 4-5 digits,
+                    # currently in the 20000s. Reject anything that looks
+                    # like a year (2000–2100) or that's implausibly small
+                    # (<1000) — let those rows die at the gate instead of
+                    # being re-stamped with a false "API fixed" audit note.
+                    if n < 1000 or (2000 <= n <= 2100):
+                        log.warning(
+                            "Skipping bogus fiche-ID %s for row %d (%s) — "
+                            "looks like a year or sentinel value, not a "
+                            "real fiche number",
+                            fid_str, i, (row.get("Brand") or "")[:40],
+                        )
+                        continue
                     fixes[i] = (
                         f"https://{RAPPELCONSO_DOMAIN}/fiche-rappel/"
-                        f"{m.group(1)}/Interne"
+                        f"{fid_str}/Interne"
                     )
                     continue
 
@@ -336,6 +384,50 @@ STEP 5 — EXTRACT from the recall page BODY (not <title>, <h1>,
            "Undeclared meat")
          If any field is not present in the page body, return "" for it.
          Never copy from page chrome (title/breadcrumb/nav).
+
+STEP 6 — DETERMINE THE OUTBREAK FLAG (audit 2026-04-29 — STRICT RULE).
+
+         An OUTBREAK means real human illness — at least one person has
+         actually GOTTEN SICK from this hazard. NOT a precautionary recall,
+         NOT a tampering/criminal-act seizure where products were pulled
+         BEFORE consumption, NOT a routine surveillance test that found a
+         pathogen in a sealed product nobody ate.
+
+         Set "outbreak_verified": 1 ONLY if the recall notice OR a
+         linked official public-health page states ONE OR MORE of:
+            • specific number of confirmed/probable illnesses or cases
+              ("166 illnesses", "two cases of listeriosis", "26 hospitalised")
+            • the words "outbreak" / "épidémie" / "Ausbruch" / "brote" /
+              "epidemia" / "surto" / "επιδημία" used to describe THIS
+              specific hazard (not a generic precaution paragraph)
+            • epidemiological investigation triggered by reported illness
+              ("triggered by EODY epidemiological investigation",
+              "linked to ongoing CFIA investigation into N illnesses")
+            • death(s) attributed to the hazard
+            • the recall is part of a NAMED ongoing outbreak with
+              published case counts (e.g., "linked to the global pistachio
+              Salmonella outbreak — 189 illnesses across 6 provinces")
+
+         Set "outbreak_verified": 0 if any of these are true:
+            • notice explicitly says "no reported illnesses",
+              "no illnesses associated with this product",
+              "aucun cas signalé", "keine Erkrankungen gemeldet"
+            • routine sampling caught the contamination (lab test only,
+              product not yet consumed, no illness link)
+            • criminal tampering / extortion: jars seized before sale or
+              by a single complainant; no consumption-linked illnesses
+              (HiPP rat-poison Austria 2026-04-18 is the canonical
+              example: jars seized, no one ate them, NOT outbreak)
+            • the "outbreak" word appears only in the brand name, header,
+              or boilerplate ("see our outbreak resources page")
+
+         Default to 0 when in doubt. False positives on outbreak inflate
+         risk and erode trust. The pathogen field already tells us a
+         dangerous bacterium was detected; outbreak_verified separates
+         "we caught it" from "people are sick."
+
+         Also set "outbreak_evidence": short verbatim quote from the page
+         that proves your decision (max 200 chars). "" if outbreak_verified=0.
 
 ═══ HARD REJECT REASONS ═══
 
@@ -420,6 +512,8 @@ Set pass=false with one of these reasons (in priority order):
         "product_name": "<from page body or empty>",
         "pathogen_or_hazard": "<from page body or empty>"
       }},
+      "outbreak_verified": 0|1,
+      "outbreak_evidence": "<short verbatim quote proving the verdict, '' if 0>",
       "google_query_used": "<the query you actually ran>",
       "confidence": 0.0-1.0,
       "strategy": "agency-cms-truncated | api-lookup | search-verified | failed",
@@ -624,9 +718,30 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                         if _is_structurally_bad(url_fix):
                             url_fix = None
                             passed = False
+
+                    # ── Pull the new outbreak verdict (audit 2026-04-29) ──
+                    # Gemini returns 0/1 for outbreak_verified plus a short
+                    # evidence quote. We carry both into the decision tuple
+                    # so the gate-apply step can update Outbreak in the row.
+                    # Only treat as a definitive verdict when Gemini gave us
+                    # a non-empty evidence quote. Empty evidence → leave the
+                    # existing scraper-set Outbreak value alone.
+                    ob_raw = d.get("outbreak_verified")
+                    ob_evidence = str(d.get("outbreak_evidence") or "").strip()
+                    outbreak_verdict: Optional[int]
+                    if ob_raw is None or ob_evidence == "":
+                        outbreak_verdict = None
+                    else:
+                        try:
+                            outbreak_verdict = 1 if int(ob_raw) == 1 else 0
+                        except (TypeError, ValueError):
+                            outbreak_verdict = None
+
                     decisions[real_idx] = (passed,
                                             str(d.get("reason") or "")[:300],
-                                            url_fix)
+                                            url_fix,
+                                            outbreak_verdict,
+                                            ob_evidence[:200])
                 got_response = True
             except json.JSONDecodeError as e:
                 log.warning("Gemini JSON parse failed: %s | %s", e, txt[:200])
@@ -636,22 +751,28 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
             real_idx = start + j
             if real_idx in decisions:
                 continue
+            # Fallback tuples — when Gemini didn't give us a verdict on
+            # outbreak we leave None so the apply step doesn't change
+            # whatever the scraper set.
             if real_idx in det_fail:
-                decisions[real_idx] = (False, det_fail[real_idx]
-                                       + " (gemini unreached)", None)
+                decisions[real_idx] = (False,
+                                       det_fail[real_idx] + " (gemini unreached)",
+                                       None, None, "")
             elif not got_response:
                 decisions[real_idx] = (True,
                                        "ok (gemini unreached, url verified)",
-                                       None)
+                                       None, None, "")
             else:
                 decisions[real_idx] = (True,
                                        "ok (gemini silent, url verified)",
-                                       None)
+                                       None, None, "")
 
     passes = sum(1 for v in decisions.values() if v[0])
     fixed = sum(1 for v in decisions.values() if v[2] is not None)
-    log.info("Gemini gate: %d pass, %d fail, %d URL fixes proposed across %d rows",
-             passes, len(decisions) - passes, fixed, len(rows))
+    outbreak_set = sum(1 for v in decisions.values() if v[3] is not None)
+    log.info("Gemini gate: %d pass, %d fail, %d URL fixes, "
+             "%d outbreak verdicts across %d rows",
+             passes, len(decisions) - passes, fixed, outbreak_set, len(rows))
     return decisions
 
 
@@ -705,8 +826,19 @@ def main() -> int:
         # ── Step 3: Gemini gate with Google Search grounding ───────────
         decisions = gemini_gate(alive_rows)
 
-        # Apply Gemini-proposed URL fixes
-        for j, (passed, reason, url_fix) in decisions.items():
+        # Apply Gemini-proposed URL fixes + outbreak verdicts
+        outbreak_changes = 0
+        for j, decision in decisions.items():
+            # Decision tuple is now 5-element: (passed, reason, url_fix,
+            # outbreak_verdict, outbreak_evidence). Older tuples were
+            # 3-element — handle both for safety during rollout.
+            if len(decision) == 5:
+                passed, reason, url_fix, outbreak_verdict, ob_evidence = decision
+            else:
+                passed, reason, url_fix = decision[:3]
+                outbreak_verdict, ob_evidence = None, ""
+
+            # URL fix
             if url_fix and url_fix != alive_rows[j].get("URL"):
                 old_url = alive_rows[j].get("URL", "")
                 alive_rows[j]["URL"] = url_fix
@@ -715,10 +847,36 @@ def main() -> int:
                          f"Gemini fixed {old_url[:40]}... -> {url_fix[:40]}...]")
                 alive_rows[j]["Notes"] = (notes + " " + audit).strip()[:500]
 
+            # ── Outbreak verdict (audit 2026-04-29) ─────────────────────
+            # Apply ONLY if Gemini gave us a non-None verdict AND the
+            # value differs from what's in the row. Stamp an audit note
+            # with the verbatim evidence quote so future debugging can
+            # trace why the flag flipped.
+            if outbreak_verdict is not None:
+                current = alive_rows[j].get("Outbreak")
+                # Coerce current to int (Outbreak may be 0/1, "0"/"1", or None)
+                try:
+                    current_int = int(current) if current is not None else None
+                except (TypeError, ValueError):
+                    current_int = None
+                if current_int != outbreak_verdict:
+                    alive_rows[j]["Outbreak"] = outbreak_verdict
+                    outbreak_changes += 1
+                    notes = (alive_rows[j].get("Notes") or "").strip()
+                    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                    audit = (f"[outbreak {today}: {current_int}→{outbreak_verdict} — "
+                             f"{ob_evidence[:120]}]")
+                    alive_rows[j]["Notes"] = (notes + " " + audit).strip()[:500]
+        if outbreak_changes:
+            log.info("Outbreak field updated on %d rows by Gemini verdict",
+                     outbreak_changes)
+
         # Translate to rejected_flags for promote_approved
         rejected_flags: Dict[int, str] = {}
         for j in range(len(alive_rows)):
-            passed, reason, _ = decisions.get(j, (True, "ok", None))
+            decision = decisions.get(j, (True, "ok", None, None, ""))
+            passed = decision[0]
+            reason = decision[1] if len(decision) > 1 else "ok"
             if not passed:
                 rejected_flags[j] = f"Gemini gate: {reason}"
 

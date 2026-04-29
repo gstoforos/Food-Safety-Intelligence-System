@@ -72,10 +72,51 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 # ---------------------------------------------------------------------------
 
 def _collect_gemini_keys() -> List[str]:
-    """Same key-collection logic as enrichment/gemini_client.py."""
+    """Same key-collection logic as enrichment/gemini_client.py, but with
+    a FREE-TIER PREFERENCE bolted on (audit 2026-04-29).
+
+    The gap-finder is the highest-volume Gemini caller — three runs/day
+    × 9 queries each = ~27 req/day. That's ~10% of the free-tier daily
+    cap (250 req/day on gemini-2.5-flash). So we prefer the free-tier
+    key when it's set, and fall back to paid keys ONLY if the free-tier
+    request is rate-limited or the key isn't configured.
+
+    Order returned (first one tried first by the rotation loop):
+      1. GEMINI_API_KEY_FREE       — the free-tier key (if set)
+      2. GEMINI_API_KEY_FREE_2..5  — additional free-tier keys (rotation)
+      3. GEMINI_API_KEY            — the legacy / paid key
+      4. GEMINI_API_KEY_1..10      — additional paid keys
+
+    To switch to free-tier-only operation: set GEMINI_API_KEY_FREE in
+    GitHub Secrets, drop GEMINI_API_KEY (or leave it as a cold backup).
+    Cost drops from ~$1.50/day to $0.
+
+    To create a free-tier key:
+      1. sign in at aistudio.google.com with a different Google account
+      2. Get API key → Create API key in new project
+      3. DO NOT link a billing account — that's what keeps it free-tier
+      4. Copy the key into GitHub Actions secrets as GEMINI_API_KEY_FREE
+    """
     keys: List[str] = []
+
+    # ── Free-tier keys first (skip entirely if cascade asked for paid only) ─
+    # The cascade orchestrator (pipeline/gap_finder_cascade.py) sets
+    # GAP_GEMINI_DISABLE_FREE=1 when retrying after a free-tier failure,
+    # so we don't waste a second call on the same rate-limited key.
+    if os.getenv("GAP_GEMINI_DISABLE_FREE", "").strip() in ("1", "true", "yes"):
+        log.info("GAP_GEMINI_DISABLE_FREE set — skipping FREE-tier keys")
+    else:
+        free_legacy = os.getenv("GEMINI_API_KEY_FREE")
+        if free_legacy:
+            keys.append(free_legacy.strip())
+        for i in range(2, 6):  # FREE_2..FREE_5
+            v = os.getenv(f"GEMINI_API_KEY_FREE_{i}")
+            if v and v.strip() not in keys:
+                keys.append(v.strip())
+
+    # ── Paid keys as fallback ───────────────────────────────────────────
     legacy = os.getenv("GEMINI_API_KEY")
-    if legacy:
+    if legacy and legacy.strip() not in keys:
         keys.append(legacy.strip())
     for i in range(1, 11):
         v = os.getenv(f"GEMINI_API_KEY_{i}")
@@ -106,7 +147,17 @@ def _call_gemini_with_search(prompt: str, system: Optional[str] = None) -> Optio
     last_error: Optional[Exception] = None
     last_finish_reason: Optional[str] = None
     # One call — rotate through keys only on hard failure (not output).
-    for api_key in keys:
+    # Free-tier keys come first (see _collect_gemini_keys() docstring).
+    free_keys = {os.getenv("GEMINI_API_KEY_FREE", "").strip()}
+    for i in range(2, 6):
+        v = os.getenv(f"GEMINI_API_KEY_FREE_{i}", "").strip()
+        if v:
+            free_keys.add(v)
+    free_keys.discard("")
+    for key_idx, api_key in enumerate(keys):
+        tier = "FREE" if api_key in free_keys else "PAID"
+        log.info("Gemini call: key #%d (%s tier), model=%s",
+                 key_idx + 1, tier, GEMINI_MODEL)
         try:
             client = genai.Client(api_key=api_key)
             
@@ -270,6 +321,37 @@ def _post_filter_recalls(recalls: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             rejected += 1
             continue
 
+        # ── RappelConso fiche-ID sanity (audit 2026-04-29) ──────────────
+        # Audit caught Gemini hallucinating two failure modes for
+        # rappel.conso.gouv.fr URLs:
+        #   1. /fiche-rappel/2026/Interne   (year-as-fiche-ID)
+        #   2. /fiche-rappel/2026-04-0305/  (reference slug instead of
+        #                                    the integer fiche ID)
+        # The url-gate's lazy \d+ regex couldn't tell the difference and
+        # silently re-stamped both with "API fixed" audit notes. Catch
+        # them HERE before they ever reach Pending so the gate doesn't
+        # have to clean up afterward.
+        if ("rappel.conso.gouv.fr" in url_low
+                or "rappelconso.gouv.fr" in url_low):
+            import re as _re
+            m_fid = _re.search(r"/fiche-rappel/([^/]+)", url_low)
+            if not m_fid:
+                log.warning("Rejected rappelconso URL (no fiche-rappel/ID): %s", url[:80])
+                rejected += 1
+                continue
+            fid = m_fid.group(1).strip()
+            if not fid.isdigit():
+                log.warning("Rejected rappelconso URL with non-numeric fiche ID "
+                            "(likely hallucinated): %s -> fid=%r", url[:80], fid)
+                rejected += 1
+                continue
+            n = int(fid)
+            if n < 1000 or (2000 <= n <= 2100):
+                log.warning("Rejected rappelconso URL with sentinel/year fiche ID "
+                            "(likely hallucinated): %s -> fid=%d", url[:80], n)
+                rejected += 1
+                continue
+
         # Date before 2026
         d = str(r.get("Date", "") or "")[:10]
         if d and d < "2026-01-01":
@@ -408,13 +490,43 @@ For each recall return ALL fields below:
 - Reason    : short cause description
 - Class     : recall class ("Recall", "Alert", "Class I/II/III", "Public Health Alert")
 - Country   : English country name, e.g. "USA", "France", "Germany"
-- Outbreak  : 1 if illnesses/cases/deaths mentioned, else 0
+- Outbreak  : STRICT RULE — set 1 ONLY if real human illness is reported.
+              Set 1 if the recall notice or a linked public-health page says:
+                • a specific number of confirmed/probable illnesses or cases
+                  ("166 illnesses", "two cases of listeriosis", "26 hospitalised")
+                • the word outbreak / épidémie / Ausbruch / brote / surto /
+                  επιδημία describing THIS hazard (not boilerplate)
+                • epidemiological investigation triggered by reported illness
+                • death(s) attributed to the hazard
+                • the recall is part of a NAMED ongoing outbreak with a
+                  published case count
+              Set 0 if any of these are true:
+                • notice says "no reported illnesses" / "no illnesses
+                  associated with this product" / "aucun cas signalé" /
+                  "keine Erkrankungen gemeldet"
+                • routine sampling caught it (lab test only, no consumption)
+                • criminal tampering / extortion: jars seized before sale,
+                  no consumption-linked illnesses (HiPP rat-poison Austria
+                  2026-04-18 is the canonical example: 0, NOT 1)
+                • the word "outbreak" appears only in boilerplate
+              Default to 0 in any doubt. The pathogen field already tells
+              us the bacterium was detected; Outbreak separates "we caught
+              it" from "people are sick."
 - URL       : FULL deep-link URL to the SPECIFIC recall detail page on the
               regulator's official domain. MUST be a URL that appeared in
               your Google Search results. NEVER:
                 • a Google redirect (vertexaisearch.cloud.google.com/...)
                 • a homepage, category, or paginated listing page
                 • an invented or guessed URL
+                • for rappel.conso.gouv.fr: a URL whose fiche ID is the
+                  current year ("/fiche-rappel/2026/Interne") or a
+                  reference slug ("/fiche-rappel/2026-04-0305/Interne") —
+                  the path requires the INTEGER fiche number (5 digits,
+                  currently in the 22000s), e.g.
+                  https://rappel.conso.gouv.fr/fiche-rappel/22141/Interne
+                  If you cannot find that integer in the search snippet,
+                  OMIT the row — never guess and never substitute a year
+                  or a slug.
 - Notes     : distribution area, lot/batch info, illness count, extra context
 
 CRITICAL RULES (non-negotiable — failure on any one means OMIT the row):
