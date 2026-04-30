@@ -719,7 +719,6 @@
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22053/Interne",
   "Notes": "Fiche réf. 2026-04-0221. Commercialisation: 2025-11-27 → 2026-03-19. Manually added Apr 22. NOTE: 'alternaria' was missing from RappelConso scraper's PATHOGEN_KEYWORDS — added in the patch file."
  },
-
  {
   "Date": "2026-04-18",
   "Source": "AGES (AT)",
