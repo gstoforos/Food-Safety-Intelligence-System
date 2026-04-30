@@ -1422,3 +1422,15 @@ def main() -> int:
     )
 
     return 0
+
+
+if __name__ == "__main__":
+    # PRE-EXISTING BUG (caught 2026-04-30): this block was missing from the
+    # original file. Without it, `python -m pipeline.daily_recall_search`
+    # imports the module and exits 0 immediately — main() is never called.
+    # The 10:00 Athens daily-recall-search workflow has been a no-op since
+    # it was created; daily briefs were only being generated as side-effects
+    # in merge_master.py and url_gate_gemini.py when those workflows
+    # promoted Pending→Recalls. Adding this entry point makes the daily
+    # search actually do its primary job.
+    sys.exit(main())
