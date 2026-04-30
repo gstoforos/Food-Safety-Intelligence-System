@@ -107,6 +107,9 @@ jobs:
           OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
           BACKFILL_FROM:     ${{ github.event.inputs.backfill_from || '' }}
           THIS_WEEK_END:     ${{ steps.week.outputs.week_end }}
+          # Number of most-recent Fridays the builder ALWAYS rebuilds against
+          # the current Recalls sheet. Must match docs/index.html RICH_LIMIT.
+          FSIS_WEEKLY_VISIBLE: "4"
         run: |
           python -m pipeline.build_missing_weekly_reports \
             --this-week-end "$THIS_WEEK_END" \
@@ -136,8 +139,13 @@ jobs:
         run: |
           git config --local user.email "fsis-bot@advfood.tech"
           git config --local user.name  "AFTS Intelligence System"
+          # NOTE: docs/data/weekly-index.json must be committed — the
+          # dashboard's loadReports() fetches this file. Previously
+          # only weekly-summary-latest.json was committed and the
+          # dashboard fell back to a stale embedded array.
           git add 'docs/20*-W*.html' 'docs/20*-W*.pdf' \
                   docs/data/weekly-summary-latest.json \
+                  docs/data/weekly-index.json \
                   docs/index.html || true
           if git diff --staged --quiet; then
             echo "No weekly-report changes to commit."
