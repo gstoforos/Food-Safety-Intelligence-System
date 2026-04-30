@@ -66,6 +66,9 @@ from pipeline.commit_github import git_commit_and_push  # noqa: E402
 from review.claude_client import (  # noqa: E402
     _call_claude, _strip_fences, ENABLED as CLAUDE_ENABLED,
 )
+from pipeline._url_year import is_year_mismatch  # noqa: E402
+from pipeline._pathogen_scope import is_in_scope as is_tier1_pathogen  # noqa: E402
+from pipeline._news_mirror_blocklist import is_news_mirror  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -219,15 +222,76 @@ INSTRUCTIONS:
                       category page, transparency page, or unrelated
                       content)?
 
+2b. Cross-check Date and URL (locked 2026-04-30):
+   • date_pre_2026 — is the row's Date (or date_corrected) before
+                     2026-01-01? If yes → fail with reason "date_pre_2026".
+                     FSIS scope is 2026 onward only.
+   • url_year_mismatch — does the URL clearly encode a year that:
+                     (a) is < 2026, OR
+                     (b) differs from the row's Date year by >1 year?
+                     URL year patterns: /fiche-rappel/YYYY-MM-NNNN/,
+                     /YYYY/MM/DD/, F-NNNN-YYYY, /YYYY/ with non-digit
+                     boundary. CRITICAL: numeric-only fiche IDs like
+                     /fiche-rappel/22019/ are sequential IDs, NOT years.
+                     PDF filenames with random digits do NOT encode years.
+                     If yes → fail with reason "url_year_mismatch".
+   • news_mirror_domain — is the URL on a news-mirror or aggregator
+                     domain (sedaily.com, reuters.com, beaconbio.org,
+                     ilfattoalimentare.it, foodsafetynews.com, cnn.com,
+                     bbc.com, etc.)? If yes → fail with reason
+                     "news_mirror_domain". These are not official sources.
+
+2c. Cross-check Company and Brand (locked 2026-04-30):
+   • For ALL non-RASFF sources: Company must be the RECALLING FIRM
+     (manufacturer / packer / "Source of the record" / brand chip on
+     the page), and Brand must be the product brand chip on the page.
+     - Distributor/retailer names (Carrefour, Monoprix, Intermarché,
+       Grand Frais, Leclerc, Auchan) in the page Notes are RESELLERS,
+       NOT the recalling firm.
+     - If Company looks like it was autofilled with a distributor name
+       and the actual page shows a different "Source of the record",
+       fail with reason "company_is_distributor".
+     - If page has no extractable recalling firm at all, fail with
+       reason "empty_company_or_brand". Row stays in Pending for retry.
+
+   • For RASFF (EU) rows ONLY (Source contains "RASFF"):
+     - Company should be a 3-letter origin country code (e.g. "GRC",
+       "DEU"); "UNK" allowed for unknown origin.
+     - Brand should be 3-letter destination country codes
+       (e.g. "FRA, DEU, ITA").
+     - If Company is empty or not a 3-letter code AND not "UNK" → fail
+       with reason "rasff_company_format".
+
+2d. Cross-check Pathogen (locked 2026-04-30):
+   • Pathogen must be in FSIS Tier-1 scope:
+     Listeria, Salmonella, STEC/E.coli, C. botulinum, B. cereus,
+     mycotoxins (aflatoxin/ochratoxin/etc.), Cronobacter, Hep A,
+     Norovirus, Staphylococcus enterotoxin, Campylobacter.
+   • If Pathogen is empty, "—", or anything else (Histamine, Marine
+     biotoxin, Foreign body, allergens, heavy metals, sulfites,
+     rodenticides, PFAS, etc.) → fail with reason
+     "pathogen_out_of_scope".
+
+2e. Extraction-garbage check (locked 2026-04-30):
+   • If Company == Brand AND value is a generic landing-page word
+     ("Home", "Index", "Page", "Recalls", "Alerts", "Welcome",
+     "Main") → fail with reason "extraction_garbage".
+   • If Product matches the Source agency name (Source="NAFDAC",
+     Product="NAFDAC") → fail with reason "extraction_garbage".
+   • If URL ends in /home/, /index/, /main/ → fail with reason
+     "extraction_garbage".
+
 3. If date_match is false but you can identify the correct publication
    date from the page, return it as date_corrected (YYYY-MM-DD).
 
 4. Set verdict:
    • "pass"   — all 5 match flags true (or true after applying
-                date_corrected). Row is ready to promote.
+                date_corrected) AND no failure from 2b/2c/2d/2e.
+                Apply Tier=1 to the row (it's in scope by definition).
    • "fix"    — only date_match is false but you have a confident
-                correction. We'll apply date_corrected and promote.
-   • "fail"   — anything else. Row stays in Pending for human review.
+                correction. Apply date_corrected. Re-check date_pre_2026
+                and url_year_mismatch on the corrected date.
+   • "fail"   — anything else. Row stays in Pending with reason in Notes.
 
 OUTPUT — strict JSON, no markdown, no commentary:
 
@@ -239,6 +303,13 @@ OUTPUT — strict JSON, no markdown, no commentary:
   "product_match": true|false,
   "pathogen_match": true|false,
   "is_recall_page": true|false,
+  "date_pre_2026": true|false,
+  "url_year_mismatch": true|false,
+  "news_mirror_domain": true|false,
+  "pathogen_out_of_scope": true|false,
+  "company_is_distributor": true|false,
+  "extraction_garbage": true|false,
+  "tier1_pathogen": true|false,
   "verdict": "pass" | "fix" | "fail",
   "reason": "short single-sentence rationale"
 }}
@@ -350,6 +421,41 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Optional[str], Optional[str]]:
     # corrected date is missing — degrade to "fail" for human review.
     if verdict == "fix" and not date_corr:
         return "fail", None, f"fix proposed but no date_corrected: {short_reason}"
+
+    # Post-decision sanity (locked 2026-04-30) — hard rules that
+    # override Claude's verdict if violated.
+    final_url = url
+    final_pathogen = str(row.get("Pathogen", "") or "")
+
+    if is_news_mirror(final_url):
+        return "fail", None, f"news_mirror_domain | {short_reason}"
+
+    # Use date_corrected if Claude proposed one, else row's date
+    try:
+        check_date_str = date_corr if date_corr else str(row.get("Date", ""))[:10]
+        check_date_obj = (datetime.fromisoformat(check_date_str).date()
+                          if check_date_str else None)
+    except (TypeError, ValueError):
+        check_date_obj = None
+
+    if check_date_obj and check_date_obj.year < 2026:
+        return "fail", None, f"date_pre_2026: {check_date_obj.isoformat()} | {short_reason}"
+
+    year_issue = is_year_mismatch(check_date_obj, final_url)
+    if year_issue:
+        return "fail", None, f"url_year_mismatch: {year_issue} | {short_reason}"
+
+    if not is_tier1_pathogen(final_pathogen):
+        return "fail", None, f"pathogen_out_of_scope: {final_pathogen!r} | {short_reason}"
+
+    # Extraction garbage check
+    company = str(row.get("Company") or "").strip().lower()
+    brand = str(row.get("Brand") or "").strip().lower()
+    GARBAGE = {"home","index","page","recalls","alerts","alert","recall","welcome","main"}
+    if company and company == brand and company in GARBAGE:
+        return "fail", None, f"extraction_garbage: Company=Brand={company!r} | {short_reason}"
+    if re.search(r"/(home|index|main|welcome)/?$", final_url.lower()):
+        return "fail", None, f"extraction_garbage: URL is landing page | {short_reason}"
 
     return verdict, date_corr, short_reason
 

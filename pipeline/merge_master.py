@@ -355,6 +355,44 @@ def validate_pending_row(
     # page, not a search/landing/consumer shell.
     is_rasff = source.upper().startswith("RASFF")
 
+    # ── Final gate (locked 2026-04-30) — modules imported at function ──
+    # Local imports to avoid circular deps (merge_master is imported by
+    # both url_gate_gemini and claude_check, which import these too).
+    try:
+        from pipeline._url_year import is_year_mismatch
+        from pipeline._pathogen_scope import is_in_scope as _is_tier1_pathogen
+        from pipeline._news_mirror_blocklist import is_news_mirror as _is_news_mirror
+    except ImportError:
+        is_year_mismatch = None
+        _is_tier1_pathogen = None
+        _is_news_mirror = None
+
+    if _is_news_mirror is not None and _is_news_mirror(url):
+        return False, "news_mirror_domain (locked 2026-04-30)"
+
+    pathogen_str = str(row.get("Pathogen", "") or "")
+    if _is_tier1_pathogen is not None and not _is_tier1_pathogen(pathogen_str):
+        return False, f"pathogen_out_of_scope: {pathogen_str!r}"
+
+    if is_year_mismatch is not None:
+        try:
+            row_d = (datetime.fromisoformat(date_str).date()
+                     if date_str else None)
+        except (TypeError, ValueError):
+            row_d = None
+        ym_reason = is_year_mismatch(row_d, url)
+        if ym_reason:
+            return False, f"url_year_mismatch: {ym_reason}"
+
+    # Extraction garbage
+    company_lc = company.lower()
+    brand_lc = str(row.get("Brand", "") or "").strip().lower()
+    GARBAGE = {"home","index","page","recalls","alerts","alert","recall","welcome","main"}
+    if company_lc and company_lc == brand_lc and company_lc in GARBAGE:
+        return False, f"extraction_garbage: Company=Brand={company_lc!r}"
+    if re.search(r"/(home|index|main|welcome)/?$", url.lower()):
+        return False, "extraction_garbage: URL is landing page"
+
     # ── REJECT: vertexaisearch redirect URLs (Gemini grounding artifacts) ──
     if "vertexaisearch.cloud.google" in url:
         return False, "Gemini grounding redirect URL, not a real recall"

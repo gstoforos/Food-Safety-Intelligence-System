@@ -69,6 +69,9 @@ from pipeline.merge_master import (  # noqa: E402
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
 from review.url_validator import check_url, should_blank_url  # noqa: E402
+from pipeline._url_year import is_year_mismatch  # noqa: E402
+from pipeline._pathogen_scope import is_in_scope as is_tier1_pathogen  # noqa: E402
+from pipeline._news_mirror_blocklist import is_news_mirror  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -451,6 +454,82 @@ Set pass=false with one of these reasons (in priority order):
     "</title>", "[data-progress-bar]", "(function", "document.cookie",
     "addEventListener"
 
+[REJECT — date_pre_2026]
+  Row's Date is before 2026-01-01. FSIS scope is 2026 onward only.
+
+[REJECT — url_year_mismatch]
+  URL clearly encodes a year AND that year is < 2026 OR differs from the
+  row's Date year by more than 1 year. URL year patterns we recognise:
+    • RappelConso new: /fiche-rappel/YYYY-MM-NNNN/
+    • produktwarnung.eu: /YYYY/MM/DD/
+    • FDA: F-NNNN-YYYY
+    • FSIS: /recalls/...-YYYY
+    • Generic /YYYY/ with non-digit boundary
+  CRITICAL: numeric-only fiche IDs like /fiche-rappel/22019/Interne are
+  sequential IDs, NOT years. Do not extract years from those, or from
+  PDF filenames, or from random embedded digits.
+
+[REJECT — news_mirror_domain]
+  URL is on a news-mirror or aggregator domain (sedaily.com, reuters.com,
+  beaconbio.org, ilfattoalimentare.it, foodsafetynews.com, etc.) — even
+  if the row's Source label claims a regulator. These are not official
+  sources.
+
+[REJECT — pathogen_out_of_scope]
+  Pathogen field is empty OR not in FSIS Tier-1 scope. Tier-1 scope:
+    • Listeria monocytogenes
+    • Salmonella (any serovar)
+    • Shiga toxin-producing E. coli / STEC / O157 / O104 / O121 / O26 / etc.
+    • Clostridium botulinum / botulism
+    • Bacillus cereus / cereulide
+    • Aflatoxin / Ochratoxin / mycotoxins (any)
+    • Cronobacter sakazakii
+    • Hepatitis A / Norovirus
+    • Staphylococcus aureus enterotoxin
+    • Campylobacter
+  Anything else (Histamine, Marine biotoxin, Foreign body, allergens,
+  heavy metals, sulfites, rodenticides, PFAS, etc.) → reject as out of scope.
+
+[REJECT — extraction_garbage]
+  Page extraction returned a homepage or landing page, not a recall.
+  Indicators:
+    • Company == Brand AND value is a generic word ("Home", "Index",
+      "Page", "Recalls", "Alerts", "Welcome", "Main")
+    • Product matches the agency name (Source="NAFDAC", Product="NAFDAC")
+    • URL ends in /home/, /index/, /main/, /welcome/
+  Reject these — they are scraper artifacts, not real recalls.
+
+[COMPANY/BRAND — recalling firm rule]
+  CRITICAL: Company is the RECALLING FIRM (manufacturer, packer, "Source
+  of the record" / "Marque de salubrité" / brand chip on the page). It
+  is NOT the distributor or retailer.
+
+  Distributor lists in Notes (Carrefour, Monoprix, Intermarché, Grand
+  Frais, Leclerc, Auchan, etc.) are RESELLERS, NOT the recalling firm.
+
+  Example RappelConso fiche (salmon verrines case):
+    Page shows:
+      Source of the record: OCEAN DELIGHTS
+      Brand chip: Ocean Delights
+      Product: 4 verrines aux 2 saumons - 160g
+      Distributors (in Notes): Carrefour, Intermarché, Leclerc...
+    EXTRACT:
+      company_name = "OCEAN DELIGHTS"
+      brand_name   = "Ocean Delights"
+      product_name = "4 verrines aux 2 saumons - 160g"
+    DO NOT extract:
+      company_name = "Carrefour"     ← WRONG: that's a distributor
+
+  RASFF (EU) SPECIAL CASE — Source contains "RASFF":
+    company_name = "<origin country 3-letter ISO code>" (e.g. "GRC", "DEU")
+    brand_name   = "<destination countries, 3-letter ISO, comma-separated>"
+                   (e.g. "FRA, DEU, ITA")
+    If origin unknown, set company_name="UNK".
+
+  If the page truly has no recalling firm extractable: leave company_name
+  and brand_name empty. The row stays in Pending with
+  Status=needs_extraction for retry on next run.
+
 ═══ AGENCY-SPECIFIC RULES ═══
 
 [RULE 1 — France RappelConso]
@@ -518,7 +597,7 @@ Set pass=false with one of these reasons (in priority order):
       "google_query_used": "<the query you actually ran>",
       "confidence": 0.0-1.0,
       "strategy": "agency-cms-truncated | api-lookup | search-verified | failed",
-      "reason": "<short — use 'news_not_recall' or 'extraction_failed' for the new reject reasons>"
+      "reason": "<short — one of: news_not_recall | extraction_failed | date_pre_2026 | url_year_mismatch | news_mirror_domain | pathogen_out_of_scope | extraction_garbage | empty_company_or_brand>"
     }}
   ]
 }}
@@ -912,6 +991,46 @@ def main() -> int:
             reason = decision[1] if len(decision) > 1 else "ok"
             if not passed:
                 rejected_flags[j] = f"Gemini gate: {reason}"
+                continue
+
+            # Post-decision sanity checks (locked 2026-04-30) — catch
+            # rows the model approved but that violate hard rules.
+            row = alive_rows[j]
+            url = row.get("URL", "") or ""
+            pathogen = row.get("Pathogen", "") or ""
+
+            # 1. News-mirror domain — hard reject
+            if is_news_mirror(url):
+                rejected_flags[j] = "news_mirror_domain"
+                continue
+
+            # 2. URL year vs Date year mismatch
+            try:
+                row_date = (datetime.fromisoformat(str(row.get("Date",""))[:10]).date()
+                            if row.get("Date") else None)
+            except (TypeError, ValueError):
+                row_date = None
+            year_issue = is_year_mismatch(row_date, url)
+            if year_issue:
+                rejected_flags[j] = f"url_year_mismatch: {year_issue}"
+                continue
+
+            # 3. Pathogen out of FSIS Tier-1 scope
+            if not is_tier1_pathogen(pathogen):
+                rejected_flags[j] = f"pathogen_out_of_scope: {pathogen!r}"
+                continue
+
+            # 4. Extraction garbage (Company=Brand=generic word)
+            company = str(row.get("Company") or "").strip().lower()
+            brand = str(row.get("Brand") or "").strip().lower()
+            GARBAGE = {"home","index","page","recalls","alerts","alert",
+                       "recall","welcome","main"}
+            if company and company == brand and company in GARBAGE:
+                rejected_flags[j] = f"extraction_garbage: Company=Brand={company!r}"
+                continue
+            if re.search(r"/(home|index|main|welcome)/?$", url.lower()):
+                rejected_flags[j] = "extraction_garbage: URL is landing page"
+                continue
 
         # ── Gap-finder gating state machine advance (audit 2026-04-29) ──
         # pending_gap → v1 (one Gemini pass), pending_gap_v1 → v2 (two
@@ -942,14 +1061,17 @@ def main() -> int:
             log.info("Gap-gating advanced: %d (pending_gap → v1), %d (v1 → v2)",
                      gap_advances["v0_to_v1"], gap_advances["v1_to_v2"])
 
-        new_approved, final_pending_out = promote_approved(
-            pending=alive_rows,
-            approved_existing=approved,
-            rejected_flags=rejected_flags,
-        )
+        # ARCHITECTURAL RULE (locked 2026-04-30):
+        # url_gate_gemini.py is verify-and-tag-only. It NEVER promotes
+        # rows to Recalls. Promotion only happens via merge_master.py
+        # AFTER claude_check.py has also passed.
+        # Rows that pass this gate stay in Pending with their advanced
+        # Status (pending_gap_v1 / pending_gap_v2 / pending) for Claude.
+        new_approved = []           # nothing promoted from this gate
+        final_pending_out = alive_rows
 
     # ── Assemble final state + save ────────────────────────────────────
-    final_approved = sort_rows(approved + new_approved)
+    final_approved = sort_rows(approved)   # Recalls untouched by this gate
     final_pending = sort_rows(final_pending_out)
 
     save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH)
