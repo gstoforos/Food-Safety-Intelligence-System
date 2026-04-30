@@ -1,28 +1,39 @@
 """
-AFTS FSIS — Weekly report gap-filler.
+AFTS FSIS — Weekly report builder, rolling-window edition.
 
-Scans docs/ for existing 20YY-W<NN>.html files and builds any missing
-ISO weeks from --from through --this-week-end (inclusive). Each build
-runs the weekly builder with --week-end <Friday>.
+Rebuilds the most recent N=VISIBLE_WEEKS Fridays against the current
+Recalls sheet on every run (so retroactive promotions land in the right
+week), and gap-fills any older missing Friday between --from and
+--this-week-end.
 
-NEVER overwrites an existing weekly HTML. Idempotent.
+Selection rules (rev 2026-04-30):
+  1. PRESERVED_WEEKS (W15, W16 — George's manuals) are NEVER touched.
+  2. The N most recent Fridays are ALWAYS rebuilt — same model as the
+     daily briefs. Default N=4, matches dashboard RICH_LIMIT in
+     docs/index.html. Override via FSIS_WEEKLY_VISIBLE env var.
+  3. Older Fridays inside [--from, this_week_end - N weeks] are built
+     ONLY if their HTML file is missing on disk (gap-fill).
+
+Idempotent for case 3 (won't overwrite older weeks); intentionally
+non-idempotent for case 2 (the whole point is to refresh the visible
+window every Friday).
 
 Usage (called from .github/workflows/afts-weekly-report.yml):
 
     python -m pipeline.build_missing_weekly_reports \\
-        --this-week-end 2026-04-26 \\
+        --this-week-end 2026-05-01 \\
         --from "" \\
         --xlsx docs/data/recalls.xlsx \\
         --docs-dir docs \\
         --builder docs/build_weekly_report_afts.py
 
-If --from is omitted or empty, defaults to the week ending 2026-04-12
-(W15 — the oldest manually-created week; gap-fill starts AFTER that).
+If --from is omitted or empty, defaults to the week ending 2026-04-17.
 """
 from __future__ import annotations
 
 import argparse
 import logging
+import os
 import re
 import subprocess
 import sys
@@ -142,11 +153,25 @@ def main() -> int:
     log.info("Already present in docs/: %s",
              ", ".join(f"{y}-W{w:02d}" for (y, w) in sorted(have)) or "(none)")
 
-    # Selection rules:
+    # Selection rules (rev 2026-04-30 — match dashboard RICH_LIMIT):
     #  1. PRESERVED weeks (W15, W16) are ALWAYS skipped — George's manuals.
-    #  2. The "current" week (== this_week_end) is ALWAYS rebuilt — this
-    #     Friday's run produces a fresh report for the week that just closed.
-    #  3. Past weeks are built only if the HTML file is missing.
+    #  2. The N=VISIBLE_WEEKS most recent Fridays (this_week_end and the
+    #     3 prior) are ALWAYS rebuilt against the current Recalls sheet —
+    #     same rule as the daily briefs (data accumulates retroactively).
+    #  3. Any older Friday in [from_week_end, this_week_end - N weeks]
+    #     range is built ONLY if its HTML file is missing (gap-fill).
+    #
+    # VISIBLE_WEEKS=4 mirrors the dashboard's RICH_LIMIT in docs/index.html.
+    # If you change one, change the other.
+    VISIBLE_WEEKS = int(os.getenv("FSIS_WEEKLY_VISIBLE", "4"))
+    rebuild_window = {
+        this_week_end - timedelta(days=7 * i)
+        for i in range(VISIBLE_WEEKS)
+    }
+    log.info("Rebuild window (most recent %d Fridays): %s",
+             VISIBLE_WEEKS,
+             ", ".join(d.isoformat() for d in sorted(rebuild_window, reverse=True)))
+
     this_week_key = (_iso_year(this_week_end), _iso_week(this_week_end))
     missing_dates: List[date] = []
     for d in candidates:
@@ -154,11 +179,15 @@ def main() -> int:
         if key in PRESERVED_WEEKS:
             log.info("Preserving manual week %s-W%02d (skipping).", *key)
             continue
-        if key == this_week_key:
-            log.info("Current week %s-W%02d — will rebuild (fresh Friday run).", *key)
+        if d in rebuild_window:
+            # In the visible window → always rebuild.
+            log.info("Visible week %s-W%02d (%s) — rebuilding against current Recalls sheet.",
+                     *key, d.isoformat())
             missing_dates.append(d)
             continue
         if key not in have:
+            # Older than visible window AND HTML missing → gap-fill.
+            log.info("Older week %s-W%02d missing on disk — gap-filling.", *key)
             missing_dates.append(d)
 
     if not missing_dates:
