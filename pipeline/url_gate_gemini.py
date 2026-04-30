@@ -65,6 +65,7 @@ from pipeline.merge_master import (  # noqa: E402
     promote_approved, sort_rows,
     save_xlsx_with_pending, mirror_json_from_xlsx,
     STATUS_REJECTED, STATUS_PENDING,
+    STATUS_PENDING_GAP, STATUS_PENDING_GAP_V1, STATUS_PENDING_GAP_V2,
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
 from review.url_validator import check_url, should_blank_url  # noqa: E402
@@ -911,6 +912,35 @@ def main() -> int:
             reason = decision[1] if len(decision) > 1 else "ok"
             if not passed:
                 rejected_flags[j] = f"Gemini gate: {reason}"
+
+        # ── Gap-finder gating state machine advance (audit 2026-04-29) ──
+        # pending_gap → v1 (one Gemini pass), pending_gap_v1 → v2 (two
+        # passes). pending_gap_v2 is NOT advanced here — claude_check is
+        # the one that flips v2 → "pending". Two independent Gemini runs
+        # required (different sampling, different network conditions)
+        # before Claude is even consulted.
+        gap_advances = {"v0_to_v1": 0, "v1_to_v2": 0}
+        today_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        for j in range(len(alive_rows)):
+            if j in rejected_flags:
+                continue  # let promote_approved mark it rejected
+            row = alive_rows[j]
+            cur = (row.get("Status") or "").strip()
+            new_status = None
+            if cur == STATUS_PENDING_GAP:
+                new_status = STATUS_PENDING_GAP_V1
+                gap_advances["v0_to_v1"] += 1
+            elif cur == STATUS_PENDING_GAP_V1:
+                new_status = STATUS_PENDING_GAP_V2
+                gap_advances["v1_to_v2"] += 1
+            if new_status:
+                row["Status"] = new_status
+                notes = (row.get("Notes") or "").strip()
+                tag = f"[gap-gate {today_iso}: {cur} → {new_status}]"
+                row["Notes"] = (notes + " " + tag).strip()[:1000]
+        if any(gap_advances.values()):
+            log.info("Gap-gating advanced: %d (pending_gap → v1), %d (v1 → v2)",
+                     gap_advances["v0_to_v1"], gap_advances["v1_to_v2"])
 
         new_approved, final_pending_out = promote_approved(
             pending=alive_rows,

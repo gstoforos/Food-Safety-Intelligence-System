@@ -402,7 +402,15 @@ def main() -> int:
         scraped_at=scraped_at,
     )
     net_new = len(pending) - before
-    log.info("Gap-finder added %d net-new rows to Pending", net_new)
+    # ── Gap-finder gating (audit 2026-04-29): see gap_finder_tavily.py
+    from pipeline.merge_master import STATUS_PENDING_GAP
+    tagged = 0
+    for r in pending:
+        if r.get("ScrapedAt") == scraped_at:
+            r["Status"] = STATUS_PENDING_GAP
+            tagged += 1
+    log.info("Gap-finder added %d net-new rows to Pending "
+             "(%d tagged Status=pending_gap)", net_new, tagged)
 
     # ---- Save ------------------------------------------------------------
     save_xlsx_with_pending(approved, sort_rows(pending), XLSX_PATH)

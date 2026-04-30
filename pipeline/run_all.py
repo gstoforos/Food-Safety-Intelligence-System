@@ -195,13 +195,53 @@ def run_news_scrapers(scrapers, since_days: int = 7) -> List[Dict]:
 # ---------------------------------------------------------------------------
 # Validation + review helpers
 # ---------------------------------------------------------------------------
+import re as _re_rasff_url
+
+# RASFF (EU) requires a different schema: Company holds origin/distributed
+# countries (not a real company), and the URL must point to a specific
+# notification page, not a search/landing/consumer shell. See the row
+# example documented at end of recalls.json:
+#   {"Source": "RASFF (EU)",
+#    "Company": "Origin: Italy | Distributed: France, Germany",
+#    "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814607"}
+_RASFF_NOTIFICATION_URL_RE = _re_rasff_url.compile(
+    r"^https://webgate\.ec\.europa\.eu/rasff-window/screen/notification/\d+/?$",
+    _re_rasff_url.IGNORECASE,
+)
+
+
+def _is_rasff_source(source: str) -> bool:
+    """True if this row is from RASFF (the EU rapid-alert system)."""
+    return (source or "").strip().upper().startswith("RASFF")
+
+
+def _required_fields_for_source(source: str) -> tuple:
+    """Source-aware required-field set. RASFF schema swaps Company for
+    Country (origin), because RASFF doesn't publish company names — it
+    publishes origin + distributed country information instead. Other
+    sources keep the default REQUIRED_FIELDS."""
+    if _is_rasff_source(source):
+        return ("Date", "Product", "Pathogen", "URL", "Country")
+    return REQUIRED_FIELDS
+
+
 def _missing_required(row: Dict[str, Any]) -> List[str]:
-    """Return list of missing required-field names."""
+    """Return list of missing required-field names. Source-aware: RASFF
+    rows are evaluated against the RASFF schema (origin/distributed
+    countries instead of Company)."""
+    required = _required_fields_for_source(row.get("Source", ""))
     missing = []
-    for f in REQUIRED_FIELDS:
+    for f in required:
         v = row.get(f)
         if v is None or (isinstance(v, str) and not v.strip()) or v == "—":
             missing.append(f)
+    # Extra check: for RASFF, the URL must point to a specific notification
+    # page. Anything else (landing page, search shell, consumer portal)
+    # is rejected the same way as a missing required field.
+    if _is_rasff_source(row.get("Source", "")):
+        url = str(row.get("URL", "") or "").strip()
+        if url and not _RASFF_NOTIFICATION_URL_RE.match(url):
+            missing.append("URL (must be /screen/notification/<id>)")
     return missing
 
 

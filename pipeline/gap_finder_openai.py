@@ -234,7 +234,15 @@ def main() -> int:
         scraped_at=scraped_at,
     )
     added = len(new_pending) - len(pending)
-    log.info("OpenAI gap-finder: added %d new rows to Pending", added)
+    # ── Gap-finder gating (audit 2026-04-29): see gap_finder_tavily.py
+    from pipeline.merge_master import STATUS_PENDING_GAP
+    tagged = 0
+    for r in new_pending:
+        if r.get("ScrapedAt") == scraped_at:
+            r["Status"] = STATUS_PENDING_GAP
+            tagged += 1
+    log.info("OpenAI gap-finder: added %d new rows to Pending "
+             "(%d tagged Status=pending_gap)", added, tagged)
 
     if added == 0:
         log.info("No new rows — already covered upstream. Exiting.")

@@ -60,6 +60,7 @@ from pipeline.merge_master import (  # noqa: E402
     save_xlsx_with_pending, mirror_json_from_xlsx,
     rebuild_daily_briefs_for_promoted,
     STATUS_REJECTED, STATUS_PENDING,
+    STATUS_PENDING_GAP_V2,
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
 from review.claude_client import (  # noqa: E402
@@ -432,6 +433,28 @@ def main() -> int:
             skip_count += 1
 
         time.sleep(SLEEP_BETWEEN_ROWS_S)
+
+    # ── Gap-finder gating state machine advance (audit 2026-04-29) ──────
+    # Any pending_gap_v2 row that just passed Claude verification gets
+    # promoted out of the gap-gating ladder by flipping its Status to
+    # plain "pending". The next merge_master run will then promote it to
+    # Recalls under normal rules. Failures are already in rejected_flags
+    # and will be marked STATUS_REJECTED by promote_approved.
+    gap_promoted_to_pending = 0
+    today_iso2 = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    for idx in rows_to_check_idx:
+        if idx in rejected_flags:
+            continue  # FAIL — let promote_approved mark rejected
+        row = pending[idx]
+        if (row.get("Status") or "").strip() == STATUS_PENDING_GAP_V2:
+            row["Status"] = STATUS_PENDING
+            notes = (row.get("Notes") or "").strip()
+            tag = f"[gap-gate {today_iso2}: pending_gap_v2 → pending (Claude verified)]"
+            row["Notes"] = (notes + " " + tag).strip()[:1000]
+            gap_promoted_to_pending += 1
+    if gap_promoted_to_pending:
+        log.info("Gap-gating advanced: %d rows pending_gap_v2 → pending "
+                 "(eligible for next merge_master)", gap_promoted_to_pending)
 
     # Apply rejected_flags + dedup against Recalls via promote_approved.
     new_approved, remaining = promote_approved(

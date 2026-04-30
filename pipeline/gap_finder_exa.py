@@ -246,8 +246,16 @@ def main() -> int:
         scraped_at=scraped_at,
     )
     added = len(new_pending) - len(pending)
+    # ── Gap-finder gating (audit 2026-04-29): see gap_finder_tavily.py
+    from pipeline.merge_master import STATUS_PENDING_GAP
+    tagged = 0
+    for r in new_pending:
+        if r.get("ScrapedAt") == scraped_at:
+            r["Status"] = STATUS_PENDING_GAP
+            tagged += 1
     log.info("Exa gap-finder: added %d new rows to Pending "
-             "(0 = Tavily already covered them)", added)
+             "(%d tagged Status=pending_gap; 0 = Tavily already covered them)",
+             added, tagged)
 
     if added == 0:
         log.info("No new findings — Tavily appears to have full coverage. Exiting.")

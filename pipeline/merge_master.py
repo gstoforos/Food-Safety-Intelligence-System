@@ -66,6 +66,33 @@ STATUS_PENDING = "pending"
 STATUS_APPROVED = "approved"   # transient — promoted rows are removed from Pending
 STATUS_REJECTED = "rejected"
 
+# ── Gap-finder gating state machine (audit 2026-04-29) ──────────────────
+# Gap-finder rows (Tavily/Exa/Gemini/Claude/OpenAI search-based recall
+# discovery) are LESS trustworthy than scraper rows because they come from
+# search-engine indexes, not from authoritative regulator pages. Per
+# operator policy, they must NOT be auto-promoted to Recalls. Instead,
+# they sit in Pending under one of these gating states until they pass:
+#   1. Two independent Gemini URL grounding checks (different runs,
+#      different model invocations — non-determinism is the point), then
+#   2. One Claude page-content verification.
+# State transitions (see promote_gap_rows.py / url_gate_gemini.py /
+# claude_check.py for the implementations):
+#   pending_gap     -- written by gap-finders; first url_gate run will
+#                      either advance to pending_gap_v1 or reject.
+#   pending_gap_v1  -- one Gemini URL pass. Second url_gate run advances
+#                      to pending_gap_v2 or rejects.
+#   pending_gap_v2  -- two Gemini URL passes. claude_check advances to
+#                      pending (eligible for normal merge) or rejects.
+# promote_approved skips ANY pending_gap* row — they never reach Recalls
+# until claude_check has flipped them back to plain "pending".
+STATUS_PENDING_GAP    = "pending_gap"
+STATUS_PENDING_GAP_V1 = "pending_gap_v1"
+STATUS_PENDING_GAP_V2 = "pending_gap_v2"
+
+GAP_GATING_STATUSES = frozenset({
+    STATUS_PENDING_GAP, STATUS_PENDING_GAP_V1, STATUS_PENDING_GAP_V2,
+})
+
 
 # ---------------------------------------------------------------------------
 # Dedup
@@ -218,6 +245,19 @@ _MIN_VALID_DATE = "2026-01-01"
 # get promoted to Recalls with the article <title> tag scraped as Company.
 # Triggered by the audit 2026-04-28 leak (foodsafetynews.com articles
 # appearing in Recalls).
+# ── RASFF (EU) URL pattern (audit 2026-04-29) ──────────────────────────────
+# RASFF rows are accepted only when the URL is a specific notification
+# detail page. The Window app at /screen/search and /screen/consumers is
+# a Vue/Angular SPA shell with no recall content. The notification deep-
+# link route /screen/notification/<id> IS rendered server-side enough to
+# carry the recall record. validate_pending_row enforces this constraint
+# only when Source starts with "RASFF". See _missing_required in
+# run_all.py for the equivalent check during scraper run.
+_RASFF_NOTIFICATION_URL_RE = re.compile(
+    r"^https://webgate\.ec\.europa\.eu/rasff-window/screen/notification/\d+/?$",
+    re.IGNORECASE,
+)
+
 _NEWS_HOSTS = frozenset({
     "foodsafetynews.com",
     "foodpoisonjournal.com",
@@ -302,6 +342,18 @@ def validate_pending_row(
     url = str(row.get("URL", "") or "").strip()
     company = str(row.get("Company", "") or "").strip()
     date_str = str(row.get("Date", "") or "")[:10]
+    source = str(row.get("Source", "") or "").strip()
+
+    # ── RASFF (EU) schema awareness (audit 2026-04-29) ──────────────────
+    # RASFF rows don't publish company names — they publish origin and
+    # distributed countries instead. The Company field on a valid RASFF
+    # row holds the formatted string "Origin: <X> | Distributed: <Y>".
+    # That string contains a pipe, which would trip the news-article-
+    # title leak check below. Detect RASFF up front so we can skip
+    # company-garbage heuristics for these rows AND impose the inverse
+    # constraint: RASFF URL must point to a /screen/notification/<id>
+    # page, not a search/landing/consumer shell.
+    is_rasff = source.upper().startswith("RASFF")
 
     # ── REJECT: vertexaisearch redirect URLs (Gemini grounding artifacts) ──
     if "vertexaisearch.cloud.google" in url:
@@ -314,6 +366,18 @@ def validate_pending_row(
     if _host_is_news_outlet(url):
         return False, f"News outlet URL — belongs in NEWS sheet, not Recalls: {url[:60]}"
 
+    # ── RASFF URL gate (audit 2026-04-29) ───────────────────────────────
+    # RASFF rows must point to a specific notification page. Anything
+    # else (the search SPA shell at /screen/search, the consumer portal
+    # at /screen/consumers, or a bare /rasff-window root) is rejected
+    # here. The notification page is the only URL that contains the
+    # actual recall record. The gap-finder URL filter rejects the same
+    # landing pages, but this is the structural gate at promotion time.
+    if is_rasff:
+        if not _RASFF_NOTIFICATION_URL_RE.match(url):
+            return False, (f"RASFF row URL must be /screen/notification/<id>, "
+                           f"got: {url[:80]}")
+
     # ── REJECT: generic / informational / listing pages ─────────────────
     for pat in _GENERIC_URL_PATTERNS:
         if re.search(pat, url, re.IGNORECASE):
@@ -324,23 +388,26 @@ def validate_pending_row(
         return False, f"Invalid URL scheme: {url[:30]}"
 
     # ── REJECT: company field is clearly a page title, not a company ────
-    co_low = company.lower()
-    if co_low in _GARBAGE_COMPANIES:
-        return False, f'Company field is not a company: "{company}"'
-    # Substring check for "Recall of …" / "List of …" leakage
-    for bad in _GARBAGE_COMPANIES:
-        if co_low.startswith(bad + " ") or co_low.startswith(bad + ":"):
-            return False, f'Company field starts with garbage prefix "{bad}"'
-    # Article-title leak: scraped <title> tags from news pages contain a
-    # pipe + outlet name (e.g. "Salmonella outbreak ... | Food Safety News")
-    # or HTML/JS fragments. Real company names never contain these.
-    if " | " in company and re.search(
-        r"\|\s*(food\s*safety\s*news|food\s*poison|outbreak\s*news|cidrap|"
-        r"reuters|bbc|bloomberg|guardian)\b", company, re.I):
-        return False, f'Company field is a news article <title> tag: "{company[:60]}"'
-    if re.search(r"window\.\w+|document\.querySelector|<\s*script\b|"
-                 r"\{socials\b|addEventListener\(", company, re.I):
-        return False, f'Company field contains HTML/JS fragment: "{company[:60]}"'
+    # Skipped for RASFF rows — their Company field legitimately contains
+    # the "Origin: <X> | Distributed: <Y>" pattern.
+    if not is_rasff:
+        co_low = company.lower()
+        if co_low in _GARBAGE_COMPANIES:
+            return False, f'Company field is not a company: "{company}"'
+        # Substring check for "Recall of …" / "List of …" leakage
+        for bad in _GARBAGE_COMPANIES:
+            if co_low.startswith(bad + " ") or co_low.startswith(bad + ":"):
+                return False, f'Company field starts with garbage prefix "{bad}"'
+        # Article-title leak: scraped <title> tags from news pages contain a
+        # pipe + outlet name (e.g. "Salmonella outbreak ... | Food Safety News")
+        # or HTML/JS fragments. Real company names never contain these.
+        if " | " in company and re.search(
+            r"\|\s*(food\s*safety\s*news|food\s*poison|outbreak\s*news|cidrap|"
+            r"reuters|bbc|bloomberg|guardian)\b", company, re.I):
+            return False, f'Company field is a news article <title> tag: "{company[:60]}"'
+        if re.search(r"window\.\w+|document\.querySelector|<\s*script\b|"
+                     r"\{socials\b|addEventListener\(", company, re.I):
+            return False, f'Company field contains HTML/JS fragment: "{company[:60]}"'
 
     # ── REJECT: duplicate URL already in Recalls or Pending ─────────────
     url_norm = url.rstrip("/").lower()
@@ -449,12 +516,22 @@ def append_to_pending(
     # Build set of all URLs already present (Recalls + current Pending) for
     # the validation gate's dedup check. Lowercased + trailing-slash-stripped
     # to match validate_pending_row()'s normalisation.
+    #
+    # IMPORTANT (audit 2026-04-29): exclude URLs of rows currently in
+    # Status="rejected" from existing_urls. The retry path further down
+    # promises that a freshly-scraped row matching a rejected row will
+    # DELETE the old row and re-queue the new one. That promise was dead
+    # because validate_pending_row's dup-URL check fired first (the URL
+    # was in existing_urls regardless of Status), bouncing the retry
+    # before the retry logic ever ran.
     existing_urls: set = set()
     for r in approved:
         u = str(r.get("URL", "") or "").strip().rstrip("/").lower()
         if u:
             existing_urls.add(u)
     for r in existing_pending:
+        if (r.get("Status") or "").lower() == STATUS_REJECTED:
+            continue  # let the retry path handle this URL
         u = str(r.get("URL", "") or "").strip().rstrip("/").lower()
         if u:
             existing_urls.add(u)
@@ -578,6 +655,16 @@ def promote_approved(
 
         # Previously-rejected rows: leave alone, don't re-promote, don't re-reject
         if clean.get("Status") == STATUS_REJECTED and idx not in rejected_flags:
+            kept_in_pending.append(clean)
+            continue
+
+        # ── Gap-finder gating lock (audit 2026-04-29) ─────────────────
+        # pending_gap / pending_gap_v1 / pending_gap_v2 rows must NOT
+        # reach Recalls until claude_check flips them to "pending".
+        # Failures are still routed through rejected_flags above by the
+        # gate scripts. This is the structural guarantee that the FSANZ
+        # "Australian food" landing-page incident cannot recur.
+        if clean.get("Status") in GAP_GATING_STATUSES and idx not in rejected_flags:
             kept_in_pending.append(clean)
             continue
 

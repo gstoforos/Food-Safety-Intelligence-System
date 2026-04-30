@@ -1297,14 +1297,23 @@ def main() -> int:
             scraped_at=scraped_at,
         )
         pending_delta = len(updated_pending) - len(pending)
+        # ── Gap-finder gating (audit 2026-04-29): Tavily search-based
+        # discovery, same trust level as gap_finder_tavily.py.
+        from pipeline.merge_master import STATUS_PENDING_GAP
+        tagged = 0
+        for r in updated_pending:
+            if r.get("ScrapedAt") == scraped_at:
+                r["Status"] = STATUS_PENDING_GAP
+                tagged += 1
         save_xlsx_with_pending(
             xlsx_path=XLSX_PATH,
             approved_rows=sort_rows(approved),  # Recalls sheet untouched
             pending_rows=sort_rows(updated_pending),
         )
-        log.info("Appended %d candidate rows to PENDING sheet (pending "
-                 "total=%d). URL guardian will validate + promote to Recalls.",
-                 pending_delta, len(updated_pending))
+        log.info("Appended %d candidate rows to PENDING sheet "
+                 "(%d tagged Status=pending_gap; pending total=%d). "
+                 "URL guardian will validate + promote to Recalls.",
+                 pending_delta, tagged, len(updated_pending))
     elif new_recalls:
         log.info("DRY RUN: would append %d candidate rows to PENDING",
                  len(new_recalls))

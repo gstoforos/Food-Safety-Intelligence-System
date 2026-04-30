@@ -499,6 +499,17 @@ _KNOWN_REGULATOR_LANDINGS = frozenset({
     "https://www.nvwa.nl/onderwerpen/voedselveiligheid/veiligheidswaarschuwingen",
     # MPI New Zealand
     "https://www.mpi.govt.nz/food-safety-home/food-recalls",
+    # ── RASFF Window (EU) — SPA shells (audit 2026-04-29) ──
+    # Specific notification URLs at /screen/notification/<id> are real
+    # pages and must pass; only the search/consumer/landing shells are
+    # rejected here. The RASFF row schema (validate_pending_row + run_all
+    # _missing_required) further requires the URL to be a /notification/
+    # detail page, not anything under /screen/search or /screen/consumers.
+    "https://webgate.ec.europa.eu/rasff-window",
+    "https://webgate.ec.europa.eu/rasff-window/screen",
+    "https://webgate.ec.europa.eu/rasff-window/screen/search",
+    "https://webgate.ec.europa.eu/rasff-window/screen/consumers",
+    "https://webgate.ec.europa.eu/rasff-window/screen/list",
 })
 
 
@@ -716,7 +727,17 @@ def main() -> int:
         scraped_at=scraped_at,
     )
     added = len(new_pending) - len(pending)
-    log.info("Tavily gap-finder: added %d new rows to Pending", added)
+    # ── Gap-finder gating (audit 2026-04-29): tag fresh rows pending_gap
+    # so merge_master holds them until 2× Gemini + Claude verify. Match
+    # by ScrapedAt timestamp — tail-slice misses retried-rejected rows.
+    from pipeline.merge_master import STATUS_PENDING_GAP
+    tagged = 0
+    for r in new_pending:
+        if r.get("ScrapedAt") == scraped_at:
+            r["Status"] = STATUS_PENDING_GAP
+            tagged += 1
+    log.info("Tavily gap-finder: added %d new rows to Pending "
+             "(%d tagged Status=pending_gap)", added, tagged)
 
     save_xlsx_with_pending(
         xlsx_path=XLSX_PATH,
