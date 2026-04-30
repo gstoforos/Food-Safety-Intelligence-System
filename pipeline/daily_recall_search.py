@@ -88,14 +88,14 @@ HARD_CAP_EUR_PER_RUN = float(os.getenv("DAILY_BUDGET_EUR_PER_RUN", "1.00"))
 HARD_CAP_EUR_PER_WEEK = float(os.getenv("DAILY_BUDGET_EUR_PER_WEEK", "7.00"))
 USD_TO_EUR = 0.92  # static — close enough; doesn't need to be exact
 
-# Tavily free tier: 1,000 searches/month. ~5 queries × 5 regions = 25 per run.
+# Exa free tier: 1,000 searches/month. ~5 queries × 5 regions = 25 per run.
 # At 1 run/day → 750/mo, ~75% of free quota. Fits with margin for retries.
 # Cost is tracked as query-count (€0 in free tier; ledger kept for parity
 # with the legacy OpenAI version so spend-cap logic still works).
-TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "").strip()
-TAVILY_ENDPOINT = "https://api.tavily.com/search"
-TAVILY_MAX_RESULTS_PER_QUERY = int(os.getenv("TAVILY_MAX_RESULTS", "10"))
-TAVILY_FRESHNESS_DAYS       = int(os.getenv("TAVILY_DAYS", "3"))
+EXA_API_KEY = os.getenv("EXA_API_KEY", "").strip()
+EXA_ENDPOINT = "https://api.exa.ai/search"
+EXA_MAX_RESULTS = int(os.getenv("EXA_MAX_RESULTS", "10"))
+EXA_DAYS        = int(os.getenv("EXA_DAYS", "3"))
 
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 
@@ -345,9 +345,10 @@ def record_spend(ledger: Dict[str, Any], eur: float, region: str,
 
 
 # ---------------------------------------------------------------------------
-# Tavily search (replaces gpt-4o-mini-search-preview, April 2026 cost cut)
+# Exa search (replaces Tavily, April 2026: see commit log)
 # ---------------------------------------------------------------------------
-# Reuse deterministic helpers from gap_finder_tavily.py — same domain
+# Reuse deterministic helpers from gap_finder_tavily.py — Exa returns
+# Tavily-shaped result dicts so the same extractor works unchanged
 # whitelist, same pathogen/outbreak/company/product extractors, same date
 # parser. Zero LLM calls in this pipeline.
 from pipeline.gap_finder_tavily import (  # noqa: E402
@@ -402,7 +403,7 @@ def _infer_hazard_type(text: str) -> str:
     return ""
 
 
-# Per-region Tavily query templates. We use site:queries against the
+# Per-region Exa query templates. We use site:queries against the
 # strongest regulators in each region, plus one generic recent-recall sweep.
 # Each region runs ~5 queries — total per run ≈ 25, well within free tier.
 _REGION_QUERIES: Dict[str, List[str]] = {
@@ -446,79 +447,102 @@ _REGION_QUERIES: Dict[str, List[str]] = {
 
 # Run-level statistics for the status file
 _RUN_STATS: Dict[str, Any] = {
-    "tavily_queries_attempted": 0,
-    "tavily_queries_succeeded": 0,
-    "tavily_results_total":     0,
-    "tavily_rate_limited":      False,
-    "tavily_auth_error":        False,
+    "exa_queries_attempted": 0,
+    "exa_queries_succeeded": 0,
+    "exa_results_total":     0,
+    "exa_rate_limited":      False,
+    "exa_auth_error":        False,
     "regions_attempted":        [],
     "regions_with_results":     [],
 }
 
 
-def _tavily_search_one(query: str) -> Tuple[List[Dict[str, Any]], str]:
-    """Single Tavily search. Returns (results, error_code).
+def _exa_search_one(query: str) -> Tuple[List[Dict[str, Any]], str]:
+    """Single Exa search. Returns (results, error_code) — same shape as the
+    legacy Tavily wrapper so the per-region aggregator keeps working.
+
+    Result items are normalized to Tavily's keys {url, title, content,
+    published_date} so the downstream extractor (results_to_recalls in
+    gap_finder_tavily) handles them unchanged.
 
     error_code:
       ""           — success (results may still be empty)
-      "no_key"     — TAVILY_API_KEY missing
-      "rate_limit" — HTTP 429 or quota message
+      "no_key"     — EXA_API_KEY missing
+      "rate_limit" — HTTP 429 or quota/credits message
       "auth"       — HTTP 401/403
       "http"       — other non-200
       "exception"  — request raised
     """
-    if not TAVILY_API_KEY:
-        log.error("TAVILY_API_KEY not set — skipping search")
+    if not EXA_API_KEY:
+        log.error("EXA_API_KEY not set — skipping search")
         return [], "no_key"
+
+    start_date = (datetime.now(timezone.utc).date()
+                  - timedelta(days=EXA_DAYS)).isoformat()
     body = {
-        "api_key":      TAVILY_API_KEY,
-        "query":        query,
-        "search_depth": "advanced",
-        "include_answer": False,
-        "max_results":  TAVILY_MAX_RESULTS_PER_QUERY,
-        "days":         TAVILY_FRESHNESS_DAYS,
-        "topic":        "news",
+        "query":              query,
+        "type":               "auto",
+        "category":           "news",
+        "numResults":         EXA_MAX_RESULTS,
+        "startPublishedDate": f"{start_date}T00:00:00.000Z",
+        "contents":           {"text": {"maxCharacters": 2000}},
     }
     try:
-        r = requests.post(TAVILY_ENDPOINT, json=body, timeout=30)
+        r = requests.post(
+            EXA_ENDPOINT, json=body, timeout=30,
+            headers={"x-api-key": EXA_API_KEY,
+                     "Content-Type": "application/json"},
+        )
     except Exception as e:
-        log.warning("Tavily call failed: %s", e)
+        log.warning("Exa call failed: %s", e)
         return [], "exception"
 
     if r.status_code == 429:
-        log.warning("Tavily 429 — rate limit / quota exceeded for: %s", query)
+        log.warning("Exa 429 — rate limit / quota for: %s", query)
         return [], "rate_limit"
     if r.status_code in (401, 403):
-        log.warning("Tavily %d — auth failure for: %s", r.status_code, query)
+        log.warning("Exa %d — auth failure for: %s", r.status_code, query)
         return [], "auth"
     if r.status_code != 200:
-        # Tavily returns 432/usage errors when free credits are exhausted
         body_low = (r.text or "").lower()
-        if r.status_code == 432 or "usage limit" in body_low or "quota" in body_low:
-            log.warning("Tavily %d — quota/usage limit for: %s", r.status_code, query)
+        if "credits" in body_low or "usage limit" in body_low or "quota" in body_low:
+            log.warning("Exa %d — quota/credits exhausted for: %s",
+                        r.status_code, query)
             return [], "rate_limit"
-        log.warning("Tavily %d: %s", r.status_code, r.text[:200])
+        log.warning("Exa %d: %s", r.status_code, r.text[:200])
         return [], "http"
     try:
         data = r.json()
     except Exception as e:
-        log.warning("Tavily JSON parse failed: %s", e)
+        log.warning("Exa JSON parse failed: %s", e)
         return [], "http"
-    return data.get("results", []) or [], ""
+
+    # Normalize to Tavily-shaped result list — text+highlights flattened to
+    # `content`, publishedDate camelCase → published_date snake_case.
+    out: List[Dict[str, Any]] = []
+    for item in data.get("results", []) or []:
+        text_field = item.get("text") or " ".join(item.get("highlights") or [])
+        out.append({
+            "title":          item.get("title", "") or "",
+            "url":            item.get("url", "") or "",
+            "content":        text_field,
+            "published_date": item.get("publishedDate", "") or "",
+        })
+    return out, ""
 
 
-def call_tavily_search(target_date: date, region: str, agencies: str,
+def call_exa_search(target_date: date, region: str, agencies: str,
                        ledger: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Run the per-region Tavily query set and extract recalls deterministically.
+    """Run the per-region Exa query set and extract recalls deterministically.
 
-    Returns dict {"recalls": [row_dict, ...]} matching the legacy OpenAI shape,
-    or None if Tavily is unavailable / hit rate-limit and produced nothing.
+    Returns dict {"recalls": [row_dict, ...]} matching the legacy OpenAI/Tavily shape,
+    or None if Exa is unavailable / hit rate-limit and produced nothing.
     The `agencies` arg is unused (kept for signature parity with the legacy
     OpenAI path); region-specific queries are picked from _REGION_QUERIES.
     """
     queries = _REGION_QUERIES.get(region, [])
     if not queries:
-        log.warning("No Tavily query template for region %r — skipping", region)
+        log.warning("No Exa query template for region %r — skipping", region)
         return None
 
     _RUN_STATS["regions_attempted"].append(region)
@@ -528,21 +552,21 @@ def call_tavily_search(target_date: date, region: str, agencies: str,
     region_rate_limited = False
     region_auth = False
     for q in queries:
-        _RUN_STATS["tavily_queries_attempted"] += 1
-        results, err = _tavily_search_one(q)
+        _RUN_STATS["exa_queries_attempted"] += 1
+        results, err = _exa_search_one(q)
         if err == "rate_limit":
-            _RUN_STATS["tavily_rate_limited"] = True
+            _RUN_STATS["exa_rate_limited"] = True
             region_rate_limited = True
             # Stop early — further queries will also fail
             break
         if err == "auth":
-            _RUN_STATS["tavily_auth_error"] = True
+            _RUN_STATS["exa_auth_error"] = True
             region_auth = True
             break
         if err:
             continue  # other errors: skip this query, try next
-        _RUN_STATS["tavily_queries_succeeded"] += 1
-        _RUN_STATS["tavily_results_total"] += len(results)
+        _RUN_STATS["exa_queries_succeeded"] += 1
+        _RUN_STATS["exa_results_total"] += len(results)
         for r in results:
             url = (r.get("url") or "").strip()
             if not url:
@@ -554,7 +578,7 @@ def call_tavily_search(target_date: date, region: str, agencies: str,
             if url not in seen_urls:
                 seen_urls[url] = r
 
-    log.info("  [%s] tavily: %d queries → %d unique whitelisted URLs%s",
+    log.info("  [%s] exa: %d queries → %d unique whitelisted URLs%s",
              region, len(queries), len(seen_urls),
              " (rate-limited)" if region_rate_limited else
              " (auth)" if region_auth else "")
@@ -591,12 +615,12 @@ def call_tavily_search(target_date: date, region: str, agencies: str,
         if date_str not in accept_dates:
             continue
 
-        src_lookup = _gf_lookup_source(url) or ("Tavily-daily", "")
+        src_lookup = _gf_lookup_source(url) or ("Exa-daily", "")
         source_label, country_guess = src_lookup
 
         rows.append({
             "date":        date_str,
-            "source":      source_label or "Tavily-daily",
+            "source":      source_label or "Exa-daily",
             "company":     company or "",
             "brand":       company or "—",
             "product":     product or "",
@@ -607,12 +631,12 @@ def call_tavily_search(target_date: date, region: str, agencies: str,
             "outbreak":    outbreak,
             "url":         url,
             "notes":       (content[:300] +
-                            "  [via Tavily daily search, deterministic extract]"),
+                            "  [via Exa daily search, deterministic extract]"),
             "hazard_type": hazard_type,
         })
 
     # Record a nominal "spend" of €0 — keeps the ledger schema intact so
-    # downstream commit messages and summaries still work. Tavily free-tier
+    # downstream commit messages and summaries still work. Exa free-tier
     # = €0 per query.
     record_spend(ledger, 0.0, region, 0, 0)
     return {"recalls": rows}
@@ -631,18 +655,18 @@ def write_status_file(ok: bool, recalls_count: int, regions_done: int,
         "recalls_count": N,
         "regions_attempted": [...],
         "regions_with_results": [...],
-        "tavily_rate_limited": bool,
-        "tavily_auth_error": bool,
-        "tavily_queries_attempted": N,
-        "tavily_queries_succeeded": N,
+        "exa_rate_limited": bool,
+        "exa_auth_error": bool,
+        "exa_queries_attempted": N,
+        "exa_queries_succeeded": N,
       }
     """
     # Fallback should fire if (a) Tavily hit rate-limit/auth, OR (b) zero
     # recalls were extracted from any region — the latter usually means the
     # free tier silently degraded result quality or all queries returned 0.
     should_fallback = (
-        _RUN_STATS["tavily_rate_limited"]
-        or _RUN_STATS["tavily_auth_error"]
+        _RUN_STATS["exa_rate_limited"]
+        or _RUN_STATS["exa_auth_error"]
         or recalls_count == 0
     )
     payload = {
@@ -653,10 +677,10 @@ def write_status_file(ok: bool, recalls_count: int, regions_done: int,
         "recalls_count":            recalls_count,
         "regions_attempted":        _RUN_STATS["regions_attempted"],
         "regions_with_results":     _RUN_STATS["regions_with_results"],
-        "tavily_rate_limited":      _RUN_STATS["tavily_rate_limited"],
-        "tavily_auth_error":        _RUN_STATS["tavily_auth_error"],
-        "tavily_queries_attempted": _RUN_STATS["tavily_queries_attempted"],
-        "tavily_queries_succeeded": _RUN_STATS["tavily_queries_succeeded"],
+        "exa_rate_limited":      _RUN_STATS["exa_rate_limited"],
+        "exa_auth_error":        _RUN_STATS["exa_auth_error"],
+        "exa_queries_attempted": _RUN_STATS["exa_queries_attempted"],
+        "exa_queries_succeeded": _RUN_STATS["exa_queries_succeeded"],
     }
     try:
         STATUS_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -829,7 +853,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
         path_norm = normalize_pathogen(pathogen) or pathogen
         rec = Recall(
             Date=(row.get("date") or "")[:10],
-            Source=row.get("source", "") or "Tavily-daily",
+            Source=row.get("source", "") or "Exa-daily",
             Company=(row.get("company") or "")[:200],
             Brand=(row.get("brand") or "—")[:100],
             Product=(row.get("product") or "")[:400],
@@ -842,7 +866,7 @@ def to_recall(row: Dict[str, Any]) -> Optional[Recall]:
             Outbreak=outbreak,
             URL=(row.get("url") or "").strip(),
             Notes=((row.get("notes") or "") +
-                   "  [via Tavily daily search, deterministic extract]")[:500],
+                   "  [via Exa daily search, deterministic extract]")[:500],
         )
         rec = rec.normalize()
         if not rec.URL.lower().startswith(("http://", "https://")):
@@ -1145,10 +1169,10 @@ def main() -> int:
                     help="Run API calls but don't write xlsx/html/commit")
     args = ap.parse_args()
 
-    if not TAVILY_API_KEY:
-        log.error("TAVILY_API_KEY not set — cannot run.")
+    if not EXA_API_KEY:
+        log.error("EXA_API_KEY not set — cannot run.")
         # No target known yet; use today's UTC date as best-effort marker so
-        # the Exa fallback still sees a recent status file and can run.
+        # any downstream watcher still sees a recent status file.
         write_status_file(
             ok=False, recalls_count=0, regions_done=0,
             target_date=datetime.now(timezone.utc).date(),
@@ -1220,7 +1244,7 @@ def main() -> int:
             break
 
         log.info("→ Region %s", spec["region"])
-        result = call_tavily_search(target, spec["region"], spec["agencies"],
+        result = call_exa_search(target, spec["region"], spec["agencies"],
                                     ledger)
         regions_done += 1
         if not result:
@@ -1297,7 +1321,7 @@ def main() -> int:
             scraped_at=scraped_at,
         )
         pending_delta = len(updated_pending) - len(pending)
-        # ── Gap-finder gating (audit 2026-04-29): Tavily search-based
+        # ── Gap-finder gating (audit 2026-04-29): Exa search-based
         # discovery, same trust level as gap_finder_tavily.py.
         from pipeline.merge_master import STATUS_PENDING_GAP
         tagged = 0
@@ -1321,29 +1345,32 @@ def main() -> int:
     # ========================================================================
     # STEP 2: Render daily HTML briefs FROM THE RECALLS SHEET.
     # ========================================================================
-    # Regulators commonly publish recalls dated 2-3 days in the past (the
-    # recall happens, a few days pass, then the agency posts it). We therefore
-    # rebuild a sliding window of [today .. target - LOOKBACK_DAYS] every
-    # daily run so any late-promoted row lands in the right brief.
+    # This step is FREE — it just reads docs/data/recalls.xlsx and writes
+    # HTML files. No search, no API call, no cost. The 7-day report is
+    # rebuilt from existing Excel data on every run.
     #
-    # Also includes TODAY explicitly — recalls promoted same-day need a brief
-    # rendered for today, not just yesterday.
+    # Why re-render all 7 days every run: regulators commonly publish recalls
+    # dated 2-3 days in the past (the recall happens, a few days pass, then
+    # the agency posts it). Re-rendering the full dashboard window ensures
+    # any late-promoted row lands in the right day's brief.
     #
-    # Env override: BRIEF_LOOKBACK_DAYS (default 4 → covers today, yesterday,
-    # 2 days ago, 3 days ago, 4 days ago = 5 daily briefs total).
-    BRIEF_LOOKBACK_DAYS = int(os.getenv("BRIEF_LOOKBACK_DAYS", "4"))
+    # Window = exactly the 7 days the dashboard shows = target..target-6.
+    # Matches KEEP_DAYS=7 in update_daily_index() so every entry visible on
+    # the dashboard is rebuilt against the current Recalls sheet.
+    #
+    # We do NOT render `today_athens` here. Today's brief would be `target+1`
+    # which sits outside the dashboard's [target..target-6] window, would
+    # expand the visible feed to 8 cards, and would push the oldest day off
+    # the bottom. Tomorrow's run (when today becomes the new target) renders
+    # today's brief.
+    #
+    # Env override: BRIEF_LOOKBACK_DAYS (default 6 → target + 6 days back =
+    # 7 daily briefs total, exactly matching KEEP_DAYS).
+    BRIEF_LOOKBACK_DAYS = int(os.getenv("BRIEF_LOOKBACK_DAYS", "6"))
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
     brief_paths: list[str] = []
 
-    # Always include today (for same-day promotions) PLUS the
-    # target..target-LOOKBACK window. Use a set + sorted descending list to
-    # avoid double-rendering when target == today.
-    try:
-        from zoneinfo import ZoneInfo
-        today_athens = datetime.now(ZoneInfo("Europe/Athens")).date()
-    except Exception:
-        today_athens = (datetime.now(timezone.utc) + timedelta(hours=3)).date()
-    dates_to_render = {today_athens}
+    dates_to_render = set()
     for offset in range(BRIEF_LOOKBACK_DAYS + 1):
         dates_to_render.add(target - timedelta(days=offset))
     sorted_dates = sorted(dates_to_render, reverse=True)
@@ -1378,7 +1405,8 @@ def main() -> int:
                f"{len(brief_recalls)} in brief from Recalls, "
                f"€{new_week_spent-week_spent:.3f} spent "
                f"(rebuilt {len(brief_paths)} daily briefs, "
-               f"window: today + {BRIEF_LOOKBACK_DAYS} days back)")
+               f"window: {target.isoformat()} → "
+               f"{(target - timedelta(days=BRIEF_LOOKBACK_DAYS)).isoformat()})")
         git_commit_and_push(ROOT, paths, msg)
         log.info("Committed and pushed.")
 

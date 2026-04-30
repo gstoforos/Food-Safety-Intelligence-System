@@ -101,9 +101,9 @@ def should_run() -> tuple[bool, str]:
         return True, "Status file timestamp unparseable — running defensively"
 
     if payload.get("should_fallback"):
-        return True, ("Tavily flagged should_fallback=true "
-                      f"(rate_limited={payload.get('tavily_rate_limited')}, "
-                      f"auth_error={payload.get('tavily_auth_error')}, "
+        return True, ("Primary search flagged should_fallback=true "
+                      f"(rate_limited={payload.get('exa_rate_limited', payload.get('tavily_rate_limited'))}, "
+                      f"auth_error={payload.get('exa_auth_error', payload.get('tavily_auth_error'))}, "
                       f"recalls={payload.get('recalls_count')})")
 
     return False, (f"Tavily ran fine (recalls={payload.get('recalls_count')}, "
