@@ -1,27 +1,36 @@
 {
   "entries": [
     {
+      "date": "2026-04-29",
+      "url": "daily/2026-04-29.html",
+      "total": 0,
+      "tier1": 0,
+      "outbreak": 0,
+      "by_region": {},
+      "generated": "2026-04-30T14:57:07Z"
+    },
+    {
       "date": "2026-04-28",
       "url": "daily/2026-04-28.html",
       "total": 6,
-      "tier1": 5,
+      "tier1": 6,
       "outbreak": 1,
       "by_region": {
         "Europe": 4,
         "North America": 2
       },
-      "generated": "2026-04-29T07:14:51Z"
+      "generated": "2026-04-30T14:57:07Z"
     },
     {
       "date": "2026-04-27",
       "url": "daily/2026-04-27.html",
-      "total": 1,
+      "total": 4,
       "tier1": 1,
       "outbreak": 0,
       "by_region": {
-        "Europe": 1
+        "Europe": 4
       },
-      "generated": "2026-04-28T07:05:51Z"
+      "generated": "2026-04-30T14:57:07Z"
     },
     {
       "date": "2026-04-26",
@@ -30,7 +39,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-04-28T07:05:51Z"
+      "generated": "2026-04-30T14:57:08Z"
     },
     {
       "date": "2026-04-25",
@@ -39,18 +48,18 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-04-28T07:05:51Z"
+      "generated": "2026-04-30T14:57:08Z"
     },
     {
       "date": "2026-04-24",
       "url": "daily/2026-04-24.html",
-      "total": 4,
+      "total": 5,
       "tier1": 3,
       "outbreak": 0,
       "by_region": {
-        "Europe": 4
+        "Europe": 5
       },
-      "generated": "2026-04-28T07:05:52Z"
+      "generated": "2026-04-30T14:57:08Z"
     },
     {
       "date": "2026-04-23",
@@ -61,18 +70,7 @@
       "by_region": {
         "Europe": 10
       },
-      "generated": "2026-04-28T07:05:52Z"
-    },
-    {
-      "date": "2026-04-22",
-      "url": "daily/2026-04-22.html",
-      "total": 4,
-      "tier1": 2,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 4
-      },
-      "generated": "2026-04-27T19:41:37Z"
+      "generated": "2026-04-30T14:57:08Z"
     }
   ]
 }
