@@ -719,22 +719,7 @@
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22053/Interne",
   "Notes": "Fiche réf. 2026-04-0221. Commercialisation: 2025-11-27 → 2026-03-19. Manually added Apr 22. NOTE: 'alternaria' was missing from RappelConso scraper's PATHOGEN_KEYWORDS — added in the patch file."
  },
- {
-  "Date": "2026-04-18",
-  "Source": "FSANZ",
-  "Company": "ALDI Stores",
-  "Brand": "ALDI Stores",
-  "Product": "Stonemill Sesame Seeds 60g",
-  "Pathogen": "Salmonella",
-  "Reason": "Salmonella",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/aldi-stores-stonemill-sesame-seeds-60g",
-  "Notes": "The recall is due to contamination of the food product with Salmonella │ VIC, SA, WA.  [via Tavily gap-finder, deterministic extract]"
- },
+
  {
   "Date": "2026-04-18",
   "Source": "AGES (AT)",
