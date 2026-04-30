@@ -76,8 +76,12 @@ jobs:
       - name: Run daily recall search
         if: steps.guard.outputs.run == 'true'
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_DAILY_MODEL: "gpt-4o-mini-search-preview"
+          # Search backend: Exa free tier (1,000 searches/mo, ~750 used).
+          # Cost: €0/run, €0/month. Brief rendering itself is just Excel→HTML
+          # and costs nothing regardless of search backend.
+          EXA_API_KEY:    ${{ secrets.EXA_API_KEY }}
+          EXA_MAX_RESULTS: "10"
+          EXA_DAYS:        "3"
           DAILY_BUDGET_EUR_PER_RUN:  "0.15"
           DAILY_BUDGET_EUR_PER_WEEK: "1.00"
           SKIP_COMMIT: "false"
