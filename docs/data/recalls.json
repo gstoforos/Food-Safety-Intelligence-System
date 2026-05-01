@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-04-29",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "produits de la pêche et d'aquaculture",
+  "Pathogen": "Marine biotoxin",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22157/Interne",
+  "Notes": "[Claude-flag 2026-04-30: Missing critical information: Company name is empty; Product description is gene]"
+ },
+ {
   "Date": "2026-04-28",
   "Source": "RappelConso (FR)",
   "Company": "LE FROMAGER DES HALLES",
@@ -432,6 +448,22 @@
   "Notes": "boucheries, rôtisserie"
  },
  {
+  "Date": "2026-04-23",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "produits de la pêche et d'aquaculture",
+  "Pathogen": "Histamine / scombrotoxin",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22113/Interne",
+  "Notes": ""
+ },
+ {
   "Date": "2026-04-22",
   "Source": "RappelConso (FR)",
   "Company": "E.Leclerc",
@@ -656,6 +688,54 @@
   "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel"
  },
  {
+  "Date": "2026-04-21",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "fruits et légumes",
+  "Pathogen": "",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22055/Interne",
+  "Notes": ""
+ },
+ {
+  "Date": "2026-04-21",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "produits de la pêche et d'aquaculture",
+  "Pathogen": "Histamine / scombrotoxin",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22082/Interne",
+  "Notes": ""
+ },
+ {
+  "Date": "2026-04-21",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "produits de la pêche et d'aquaculture",
+  "Pathogen": "Marine biotoxin",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22067/Interne",
+  "Notes": "[Claude-flag 2026-04-30: Missing critical information: Company name is empty; Product description is gene]"
+ },
+ {
   "Date": "2026-04-20",
   "Source": "VFA",
   "Company": "HiPP",
@@ -766,6 +846,22 @@
   "Outbreak": 0,
   "URL": "https://www.ages.at/mensch/produktwarnungen-produktrueckrufe/produkt/hipp-gemueseglaeschen-karotte-mit-kartoffel-190-gramm",
   "Notes": "Entire HiPP baby-food jar line recalled at SPAR Austria (SPAR, EUROSPAR, INTERSPAR, Maximarkt). Criminal tampering spread to Czech Republic and Slovakia. Suspects unknown. Burgenland State Criminal Investigation Office investigating. [outbreak 2026-04-29: 1→0 — criminal tampering case in Austria: tampered jar reported by single customer; no consumption-linked illnesses]"
+ },
+ {
+  "Date": "2026-04-18",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "produits de la pêche et d'aquaculture",
+  "Pathogen": "Histamine / scombrotoxin",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22056/Interne",
+  "Notes": ""
  },
  {
   "Date": "2026-04-17",
@@ -990,6 +1086,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22036/interne",
   "Notes": "par nos soins"
+ },
+ {
+  "Date": "2026-04-15",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "fruits et légumes",
+  "Pathogen": "",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22039/Interne",
+  "Notes": ""
  },
  {
   "Date": "2026-04-14",
@@ -1456,6 +1568,22 @@
   "Notes": "aucun distributeur ¤vente en direct sur le marché de barbezieux et le marché de baignes"
  },
  {
+  "Date": "2026-04-10",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "produits de la pêche et d'aquaculture",
+  "Pathogen": "",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22005/Interne",
+  "Notes": ""
+ },
+ {
   "Date": "2026-04-09",
   "Source": "RappelConso (FR)",
   "Company": "LES ATELIERS DE SEBASTIEN",
@@ -1616,6 +1744,38 @@
   "Notes": "la racotiere"
  },
  {
+  "Date": "2026-04-09",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "produits de la pêche et d'aquaculture",
+  "Pathogen": "Histamine / scombrotoxin",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21987/Interne",
+  "Notes": ""
+ },
+ {
+  "Date": "2026-04-09",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "aliments diététiques et nutrition",
+  "Pathogen": "",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21811/Interne",
+  "Notes": ""
+ },
+ {
   "Date": "2026-04-08",
   "Source": "RappelConso (FR)",
   "Company": "DELIN",
@@ -1726,6 +1886,22 @@
   "Outbreak": 1,
   "URL": "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2026/proibida-venda-de-suplemento-importado-dos-eua-por-contaminacao-por-salmonella",
   "Notes": "ANVISA proíbe; ligada a surto USA [Claude-flag 2026-04-16: Pathogen classification error: Salmonella is Tier-2, not Tier-1. Only antibiotic] [Claude-flag 2026-04-16: URL points to ANVISA homepage/news feed, not specific recall page. Does not meet] [audit-applied 2026-04-27: Salmonella standard Tier 2 (no outbreak/AMR/infant context)] [outbreak 2026-04-29: 0→1 — ANVISA ban explicitly linked to US Salmonella outbreak in moringa products (Notes: 'ligada a surto USA')]"
+ },
+ {
+  "Date": "2026-04-08",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "produits de la pêche et d'aquaculture",
+  "Pathogen": "Histamine / scombrotoxin",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21975/Interne",
+  "Notes": ""
  },
  {
   "Date": "2026-04-07",
@@ -2734,6 +2910,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21907/interne",
   "Notes": "api,carrefour,e.leclerc,epic,franprix,galeries gourmandes,intermarché,otera,relais h,relay,u express"
+ },
+ {
+  "Date": "2026-04-06",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "plats préparés et snacks",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "",
+  "Class": "Volontaire",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/14000/Interne",
+  "Notes": ""
  },
  {
   "Date": "2026-04-04",
