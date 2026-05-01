@@ -1,15 +1,26 @@
 {
   "entries": [
     {
+      "date": "2026-05-01",
+      "url": "daily/2026-05-01.html",
+      "total": 0,
+      "tier1": 0,
+      "outbreak": 0,
+      "by_region": {},
+      "generated": "2026-05-01T08:00:29Z"
+    },
+    {
       "date": "2026-04-30",
       "url": "daily/2026-04-30.html",
-      "total": 1,
-      "tier1": 1,
-      "outbreak": 1,
+      "total": 5,
+      "tier1": 4,
+      "outbreak": 0,
       "by_region": {
-        "Oceania": 1
+        "Oceania": 1,
+        "Europe": 3,
+        "North America": 1
       },
-      "generated": "2026-05-01T07:05:10Z"
+      "generated": "2026-05-01T08:00:29Z"
     },
     {
       "date": "2026-04-29",
@@ -20,19 +31,19 @@
       "by_region": {
         "Europe": 1
       },
-      "generated": "2026-05-01T07:05:10Z"
+      "generated": "2026-05-01T08:00:29Z"
     },
     {
       "date": "2026-04-28",
       "url": "daily/2026-04-28.html",
       "total": 6,
       "tier1": 6,
-      "outbreak": 1,
+      "outbreak": 0,
       "by_region": {
         "Europe": 4,
         "North America": 2
       },
-      "generated": "2026-05-01T07:05:10Z"
+      "generated": "2026-05-01T08:00:30Z"
     },
     {
       "date": "2026-04-27",
@@ -43,7 +54,7 @@
       "by_region": {
         "Europe": 4
       },
-      "generated": "2026-05-01T07:05:10Z"
+      "generated": "2026-05-01T08:00:30Z"
     },
     {
       "date": "2026-04-26",
@@ -52,7 +63,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-05-01T07:05:10Z"
+      "generated": "2026-05-01T08:00:30Z"
     },
     {
       "date": "2026-04-25",
@@ -61,18 +72,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-05-01T07:05:10Z"
-    },
-    {
-      "date": "2026-04-24",
-      "url": "daily/2026-04-24.html",
-      "total": 6,
-      "tier1": 4,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 6
-      },
-      "generated": "2026-05-01T07:05:10Z"
+      "generated": "2026-05-01T08:00:30Z"
     }
   ]
 }
