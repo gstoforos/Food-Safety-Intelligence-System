@@ -62,12 +62,15 @@ log = logging.getLogger("monthly")
 
 CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
-# Brand tokens — mirror the weekly report so the HTML shares a visual identity
-BRAND_ORANGE = weekly.BRAND_ORANGE
-BRAND_BLACK  = weekly.BRAND_BLACK
-TIER1_RED    = weekly.TIER1_RED
-TIER2_AMBER  = weekly.TIER2_AMBER
-OUTBREAK_VIO = weekly.OUTBREAK_VIO
+# Brand tokens — mirror the weekly report so the HTML shares a visual identity.
+# If weekly doesn't export them (older versions or current refactored state),
+# fall back to the canonical AFTS palette so the monthly build never crashes
+# on a missing constant.
+BRAND_ORANGE = getattr(weekly, "BRAND_ORANGE", "#E8601A")
+BRAND_BLACK  = getattr(weekly, "BRAND_BLACK",  "#0a0e1a")
+TIER1_RED    = getattr(weekly, "TIER1_RED",    "#dc2626")
+TIER2_AMBER  = getattr(weekly, "TIER2_AMBER",  "#f59e0b")
+OUTBREAK_VIO = getattr(weekly, "OUTBREAK_VIO", "#7c3aed")
 
 escape = _html_escape
 

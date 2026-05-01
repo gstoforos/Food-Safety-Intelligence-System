@@ -156,6 +156,210 @@ def _safe_int(v, default=0):
 
 def _country_display(c): return COUNTRY_DISPLAY.get(c, c)
 
+
+# ───────────────────────────────────────────────────────────────────────
+# Public helper API — used by docs/build_monthly_report_afts.py.
+#
+# Historical note: the monthly builder imports six helpers from this
+# module — safe_int, severity_score, is_report_grade_url,
+# pathogen_badge_color, rank_top_recalls, render_top5_row. Two were
+# already implemented as private (_safe_int, _severity_score). The
+# other four were authored inside build_html() in past iterations and
+# never hoisted to module scope, so the monthly build broke with
+# AttributeError until this section was added (2026-05-01).
+#
+# Exposed here at module scope so:
+#   • the monthly builder can call weekly.<name>(…) without changes
+#   • unit tests can import them in isolation
+#   • the weekly builder itself can use them in build_html() for any
+#     future consolidation of duplicated inline code
+#
+# All functions return primitives (str, int, list, tuple) — no side
+# effects, no I/O, no global state.
+# ───────────────────────────────────────────────────────────────────────
+
+#: Return value type for `severity_score()` — kept as a 2-tuple so the
+#: monthly builder's `_, canon = severity_score(name)` unpack works.
+def safe_int(v, default=0):
+    """Public alias for _safe_int. Convert v to int, returning default on
+    failure. Accepts strings, floats, None, or anything that int() can
+    coerce; never raises."""
+    return _safe_int(v, default)
+
+
+def severity_score(pathogen):
+    """Return (score, canonical_name) for a pathogen string.
+
+    Score: lower = more severe (1 = botulism, 2 = listeria, ..., 99 = unknown).
+    Canonical name: synonym-collapsed display label using _PATHOGEN_SYNONYMS.
+
+    Caller patterns:
+      score = severity_score(name)[0]
+      _, canon = severity_score(name)
+    """
+    score = _severity_score(pathogen)
+    canonical = _PATHOGEN_SYNONYMS.get(pathogen or "", pathogen or "Unknown")
+    return score, canonical
+
+
+def pathogen_badge_color(canonical):
+    """Hex colour used for a pathogen's badge / table dot / progress-bar.
+
+    Uses canonical names (post-synonym-collapse) so synonyms map to the
+    same colour. The palette tracks SEVERITY tiers — botulism is the
+    most-saturated red, listeria deep amber, salmonella mid-amber, the
+    less-acute hazards in muted greys / blues.
+    """
+    name = (canonical or "").lower()
+    # Tier 1 — fatal-risk pathogens
+    if "botulin" in name:                            return "#b91c1c"   # deep red
+    if "listeria" in name:                           return "#dc2626"   # red
+    if "stec" in name or "shiga" in name or "o157" in name:
+                                                     return "#ea580c"   # orange-red
+    # Tier 2 — common acute pathogens
+    if "salmonella" in name:                         return "#f59e0b"   # amber
+    if "campylobacter" in name:                      return "#d97706"   # amber-dark
+    if "e. coli" in name or "escherichia" in name:   return "#f97316"   # orange
+    if "vibrio" in name:                             return "#0891b2"   # cyan
+    if "cronobacter" in name:                        return "#0d9488"   # teal
+    # Tier 3 — viral / parasitic
+    if "norovirus" in name or "norwalk" in name:     return "#7c3aed"   # violet
+    if "hepatitis" in name:                          return "#a855f7"   # purple
+    if "cyclospora" in name or "crypto" in name or "giardia" in name:
+                                                     return "#9333ea"   # purple-dark
+    # Tier 4 — toxins / chemical / physical
+    if "aflatox" in name or "ochra" in name or "fumon" in name or "patulin" in name:
+                                                     return "#854d0e"   # brown
+    if "histamine" in name or "scombro" in name:     return "#a16207"   # khaki
+    if "rodenticide" in name or "rat poison" in name:
+                                                     return "#1e293b"   # near-black
+    if any(t in name for t in ("lead", "cadmium", "mercury", "arsenic")):
+                                                     return "#475569"   # slate
+    if "physical" in name or "glass" in name or "metal" in name:
+                                                     return "#525252"   # neutral
+    # Default
+    return "#6b7280"   # grey
+
+
+def is_report_grade_url(url):
+    """True if the URL points at a primary regulator / official source.
+
+    Used in the monthly summary JSON so subscribers see only links to
+    authoritative sources (FDA, USDA, CFIA, RASFF, RappelConso, etc.)
+    and not aggregator/news rewrites. Hostname-based — match-anything
+    in a small allow-list, no live HTTP check.
+    """
+    if not url:
+        return False
+    u = str(url).lower()
+    if not u.startswith(("http://", "https://")):
+        return False
+    # Strip protocol + leading "www." for substring matching
+    host = u.split("://", 1)[1].split("/", 1)[0].lstrip("www.")
+    REGULATOR_HOSTS = (
+        # USA
+        "fda.gov", "fsis.usda.gov", "cdc.gov", "epa.gov",
+        # Canada
+        "canada.ca", "inspection.canada.ca", "gnb.ca", "mapaq.gouv.qc.ca",
+        # EU + member states
+        "europa.eu", "efsa.europa.eu", "rasff.eu",
+        "rappel.conso.gouv.fr", "economie.gouv.fr",
+        "bvl.bund.de", "bund.de",
+        "salute.gov.it",
+        "aesan.gob.es", "mscbs.gob.es",
+        "efet.gr", "minagric.gr",
+        "voedselveiligheid.be", "favv.be", "afsca.be",
+        "blv.admin.ch",
+        "ages.at",
+        "szpi.gov.cz",
+        # UK
+        "food.gov.uk", "fss.scot", "gov.uk",
+        # Asia-Pacific
+        "mpi.govt.nz", "foodstandards.gov.au", "foodstandards.govt.nz",
+        "sfa.gov.sg", "cfs.gov.hk", "mfds.go.kr", "mhlw.go.jp",
+        "fda.gov.tw",
+        # Latin America + Africa
+        "anvisa.gov.br", "anmat.gob.ar", "cofepris.gob.mx",
+        "nrcs.gov.za", "nccsa.org.za",
+    )
+    return any(host == h or host.endswith("." + h) for h in REGULATOR_HOSTS)
+
+
+def rank_top_recalls(recalls, n=10):
+    """Return up to n recalls sorted by composite severity rank.
+
+    Ordering:
+      1. Severity score (lower = more severe; from severity_score())
+      2. Tier (1 < 2 < 3; missing = 99)
+      3. Outbreak flag (True before False)
+      4. Date (newer first)
+      5. Country alpha (deterministic tie-breaker for replays)
+    """
+    def _rank_key(r):
+        sev_score, _ = severity_score(r.get("Pathogen") or "")
+        tier = _safe_int(r.get("Tier"), 99)
+        outbreak_truthy = r.get("Outbreak") in (True, 1, "1", "TRUE", "True", "true", "Y", "Yes")
+        # Negative date for newer-first ordering
+        try:
+            d = datetime.strptime(str(r.get("Date") or "")[:10], "%Y-%m-%d")
+            d_key = -d.toordinal()
+        except (ValueError, TypeError):
+            d_key = 0
+        return (sev_score, tier, 0 if outbreak_truthy else 1, d_key,
+                str(r.get("Country") or "").lower())
+    return sorted(recalls, key=_rank_key)[:n]
+
+
+def render_top5_row(rank, r):
+    """Render ONE table row (HTML <tr>) for the top-N recalls table.
+
+    The function name predates the rename to top-10 — kept for backward
+    compatibility with existing call sites in the monthly builder.
+
+    Layout (5 columns): rank, date, country | source, pathogen badge,
+    company / product. Responsive widths handled by CSS in the surrounding
+    document; the builder is responsible for the wrapping <table>.
+    """
+    canon_name = severity_score(r.get("Pathogen") or "")[1]
+    badge_color = pathogen_badge_color(canon_name)
+    date_str = str(r.get("Date") or "")[:10] or "—"
+    country  = _country_display(r.get("Country") or "—")
+    source   = AUTHORITY_DISPLAY.get(r.get("Source") or r.get("Agency") or "", r.get("Source") or r.get("Agency") or "—")
+    company  = r.get("Company") or "—"
+    product  = r.get("Product") or r.get("Description") or "—"
+    if len(product) > 110:
+        product = product[:107] + "…"
+
+    # Tier / outbreak chips (best-effort; missing fields render nothing)
+    chips = []
+    tier = _safe_int(r.get("Tier"), 99)
+    if tier == 1:   chips.append('<span class="chip chip-tier-1">Tier&nbsp;1</span>')
+    elif tier == 2: chips.append('<span class="chip chip-tier-2">Tier&nbsp;2</span>')
+    if r.get("Outbreak") in (True, 1, "1", "TRUE", "True", "true", "Y", "Yes"):
+        chips.append('<span class="chip chip-outbreak">Outbreak</span>')
+    chip_html = " ".join(chips)
+
+    return (
+        f'<tr>'
+        f'<td class="num rank">#{rank}</td>'
+        f'<td class="date">{html_mod.escape(date_str)}</td>'
+        f'<td class="src">'
+        f'<div class="country">{html_mod.escape(country)}</div>'
+        f'<div class="agency">{html_mod.escape(source)}</div>'
+        f'</td>'
+        f'<td class="pathogen">'
+        f'<span class="path-dot" style="background:{badge_color}"></span>'
+        f'<em class="path-name">{html_mod.escape(canon_name)}</em>'
+        f'{("&nbsp;" + chip_html) if chip_html else ""}'
+        f'</td>'
+        f'<td class="prod">'
+        f'<div class="company">{html_mod.escape(company)}</div>'
+        f'<div class="product">{html_mod.escape(product)}</div>'
+        f'</td>'
+        f'</tr>'
+    )
+
+
 def compute_stats(wr, pr):
     total = len(wr)
     tier1 = sum(1 for r in wr if _safe_int(r.get("Tier")) == 1)

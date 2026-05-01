@@ -281,7 +281,8 @@ def _hotspot(
         return {
             "row_labels": row_labels,
             "col_labels": col_labels,
-            "matrix":     [[{"observed": 0, "expected": 0.0, "stdres": 0.0, "ratio": 0.0}
+            "matrix":     [[{"observed": 0, "expected": 0.0, "stdres": 0.0,
+                             "ratio": 0.0, "hotspot": False}
                             for _ in col_labels] for _ in row_labels],
             "hotspots":   [],
         }
@@ -302,9 +303,13 @@ def _hotspot(
                 "expected": _round(exp, 2) or 0.0,
                 "stdres":   _round(stdres, 2) or 0.0,
                 "ratio":    _round(ratio, 2) or 0.0,
+                # Per-cell flag the SVG renderer reads to draw the red
+                # outline around significant hotspot cells (>2σ AND ≥3 obs,
+                # matching the threshold used to populate the `hotspots` list).
+                "hotspot":  bool(stdres >= 2.0 and obs >= 3),
             }
             rowcells.append(entry)
-            if stdres >= 2.0 and obs >= 3:  # require ≥3 obs to suppress dust
+            if entry["hotspot"]:
                 hotspots.append({
                     "country":  rl,
                     "pathogen": cl,
