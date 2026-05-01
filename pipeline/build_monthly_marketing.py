@@ -445,7 +445,7 @@ def main() -> int:
     p.add_argument("--out-dir", required=True, type=Path,
                    help="Output directory (e.g. docs/marketing)")
     p.add_argument("--out-name", default=None,
-                   help="Output filename (default: <month_tag>.pdf)")
+                   help="Output filename (default: <month_tag>-marketing.pdf)")
     args = p.parse_args()
 
     summary = load_summary(args.summary)
@@ -458,18 +458,10 @@ def main() -> int:
         log.error("Could not derive month_tag from summary")
         return 1
 
-    out_name = args.out_name or f"{month_tag}.pdf"
+    out_name = args.out_name or f"{month_tag}-marketing.pdf"
     out_path = args.out_dir / out_name
 
     html = build_html(summary)
-
-    # Write HTML alongside (useful for QA before PDF render)
-    html_path = out_path.with_suffix(".html")
-    html_path.parent.mkdir(parents=True, exist_ok=True)
-    html_path.write_text(html, encoding="utf-8")
-    log.info("Wrote marketing HTML: %s (%d bytes)",
-             html_path, html_path.stat().st_size)
-
     render_pdf(html, out_path)
     return 0
 
