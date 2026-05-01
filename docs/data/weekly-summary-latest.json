@@ -4,52 +4,52 @@
   "dashboard_url": "https://www.advfood.tech/fsis-recalls",
   "week_num": 18,
   "year": 2026,
-  "week_start": "2026-04-25",
-  "week_end": "2026-05-01",
-  "week_start_display": "25 Apr",
-  "week_end_display": "1 May 2026",
-  "generated_utc": "2026-05-01T05:06:31.909496+00:00",
+  "week_start": "2026-04-27",
+  "week_end": "2026-05-03",
+  "week_start_display": "27 Apr",
+  "week_end_display": "3 May 2026",
+  "generated_utc": "2026-05-01T08:00:27.948141+00:00",
   "stats": {
-    "total": 11,
-    "tier1": 8,
-    "outbreaks": 1,
-    "delta": -32,
-    "delta_pct": -74
+    "total": 16,
+    "tier1": 12,
+    "outbreaks": 0,
+    "delta": -22,
+    "delta_pct": -58
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 5,
-    "pct": 45
+    "cases": 7,
+    "pct": 44
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
-      "date": "2026-04-28",
+      "date": "2026-04-30",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "LE FROMAGER DES HALLES",
-      "brand": "Sans marque",
-      "product": "Gorgonzola DOP à la cuillère, Pot en plastique (Lot 60023, Date limite de consommation entre le 07/04/2026 et le 24/05/2026)",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22145/Interne"
+      "company": "Concordia Traders (Aust) Pty Ltd",
+      "brand": "Concordia Traders (Aust) Pty Ltd",
+      "product": "Enoki Mushroom 350 g",
+      "country": "Australia",
+      "source": "FSANZ (AU)",
+      "url": "https://www.foodstandards.gov.au/food-recalls/recall-alert/concordia-traders-aust-pty-ltd-enoki-mushroom-350g"
     },
     {
       "rank": 2,
-      "date": "2026-04-28",
+      "date": "2026-04-30",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "LES ATELIERS DE SEBASTIEN",
-      "brand": "LES ATELIERS DE SEBASTIEN",
-      "product": "Gratin poireau au chevre",
+      "company": "Carrefour France",
+      "brand": "Unbranded",
+      "product": "Ground beef (steak haché), sold at the traditional counter on customer demand — Carrefour Market Beuzeville ONLY",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22142/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22159/Interne"
     },
     {
       "rank": 3,
@@ -58,12 +58,12 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "LES ATELIERS DE SEBASTIEN",
-      "brand": "Les Ateliers de Sébastien",
-      "product": "Bruschetta",
+      "company": "Le Fromager Des Halles",
+      "brand": "Unbranded",
+      "product": "Spoonable Gorgonzola DOP, plastic pot (Lot 60023, use-by between 2026-04-07 and 2026-05-24)",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22141/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22145/Interne"
     },
     {
       "rank": 4,
@@ -72,27 +72,27 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "LES ATELIERS DE SEBASTIEN",
-      "brand": "Les Ateliers de Sébastien",
-      "product": "MINI QUICHE AU BLEU",
+      "company": "Amandis",
+      "brand": "LES ATELIERS DE SEBASTIEN",
+      "product": "Goat-cheese and leek gratin (Lot 1132600010, use-by 2026-05-07)",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22143/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22142/Interne"
     },
     {
       "rank": 5,
-      "date": "2026-04-27",
+      "date": "2026-04-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "LE PERE CHENE",
-      "brand": "Le Père Chêne",
-      "product": "Salade de museau de bœuf",
+      "company": "Amandis",
+      "brand": "LES ATELIERS DE SEBASTIEN",
+      "product": "Bruschetta — varieties: 4 fromages, catalane, flammekueche, italienne, kebab, margarita, océane (Lots 1132600047 to 1132600053, use-by 2026-04-29)",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22133/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22141/Interne"
     }
   ],
-  "country_count": 3
+  "country_count": 4
 }
