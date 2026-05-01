@@ -120,6 +120,13 @@ jobs:
             --docs-dir docs \
             --kind monthly
 
+      - name: Build marketing one-pager PDF (public lead magnet on hub.html)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pipeline.build_monthly_marketing \
+            --summary docs/data/monthly-summary-latest.json \
+            --out-dir docs/marketing
+
       - name: Wire pdf_url into monthly-index.json (so hub auto-renders)
         if: steps.guard.outputs.run == 'true'
         run: |
@@ -134,6 +141,8 @@ jobs:
           git config --local user.email "fsis-bot@advfood.tech"
           git config --local user.name  "AFTS Intelligence System"
           git add 'docs/20*-M*.html' 'docs/20*-M*.pdf' \
+                  'docs/marketing/20*-M*.pdf' \
+                  'docs/marketing/20*-M*.html' \
                   docs/data/monthly-summary-latest.json \
                   docs/data/monthly-summary-20*.json \
                   docs/data/monthly-index.json || true
