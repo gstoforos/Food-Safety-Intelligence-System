@@ -15,6 +15,10 @@ on:
         description: "Skip OpenAI fallback step"
         type: boolean
         default: false
+      gap_since_days:
+        description: "How many days back to scan for gaps. 14:00 slot = 2 (catches new since the prior 23:00 sweep). 23:00 slot = 7 (full safety-net sweep). Default 7 covers manual dispatch."
+        type: string
+        default: "7"
 
 # Don't fan out — only one cascade at a time per cron slot. If a previous
 # run is still in flight, GitHub will queue this one rather than running
@@ -37,8 +41,17 @@ jobs:
       GEMINI_API_KEY:      ${{ secrets.GEMINI_API_KEY }}
       ANTHROPIC_API_KEY:   ${{ secrets.ANTHROPIC_API_KEY }}
       OPENAI_API_KEY:      ${{ secrets.OPENAI_API_KEY }}
-      GAP_SINCE_DAYS:      "7"
-      GAP_STEP_TIMEOUT:    "180"
+      # Lookback window. Differentiated per slot by FsisScheduler.gs:
+      #   14:00 slot dispatches with "2"  (catches new since prior 23:00 sweep)
+      #   23:00 slot dispatches with "7"  (full safety-net sweep)
+      # Manual dispatches default to "7". Smaller windows = smaller LLM context
+      # = faster + cheaper provider calls.
+      GAP_SINCE_DAYS:      ${{ inputs.gap_since_days || '7' }}
+      # Per-step timeout. Was 180s — tightened to 90s 2026-04-30: APIs that
+      # haven't started responding in 90s are typically stuck (Gemini/Claude/
+      # OpenAI all respond <30s when healthy), so failover faster instead of
+      # burning wall-clock waiting on a hung connection.
+      GAP_STEP_TIMEOUT:    "90"
       # SKIP_COMMIT left unset — provider scripts handle their own commits
 
     steps:

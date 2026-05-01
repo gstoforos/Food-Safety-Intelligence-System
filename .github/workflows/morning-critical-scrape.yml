@@ -6,16 +6,23 @@ name: FSIS Morning Critical-Agency Scrape
 # to ~12h for the agencies that produce the bulk of recalls, without
 # doubling the full API load.
 #
-# Two DST crons + hour guard so it always fires at 08:00 Athens
-# regardless of DST offset.
+# Dispatched by FsisScheduler.gs at 08:00 Athens (workflow_dispatch
+# only; no GitHub cron). The Athens-time guard below is a defensive
+# net for clock drift / dispatcher delays.
+#
+# 2026-04-30 — SINCE_DAYS dropped 7 → 2 for daily fires. Daily passes
+# don't benefit from a 7-day window — duplicates already in the corpus
+# get dedup'd anyway, but the bigger window means more rows scanned
+# per agency listing + more Gemini calls in the URL gate. Manual
+# dispatches can still pass since_days=7 (or higher) for backfill.
 
 on:
   workflow_dispatch:
     inputs:
       since_days:
-        description: "Days to look back"
+        description: "Days to look back. Default 2 covers daily-fire deduplication. Pass 7+ for backfill via manual dispatch."
         required: false
-        default: "7"
+        default: "2"
 
 permissions:
   contents: write
@@ -30,13 +37,13 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Athens-time guard (03-05:xx window)
+      - name: Athens-time guard (06-10:xx window for the 08:00 fire)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" -ge "03" ] && [ "$HOUR" -le "08" ]; then
+          elif [ "$HOUR" -ge "06" ] && [ "$HOUR" -le "10" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
