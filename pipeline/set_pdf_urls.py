@@ -68,7 +68,14 @@ def main() -> int:
         if not filename.endswith(".html"):
             continue
         pdf_name = filename[:-5] + ".pdf"   # 2026-M04.html -> 2026-M04.pdf
-        pdf_path = docs_dir / pdf_name
+        # The PUBLIC pdf_url points at the MARKETING one-pager
+        # (docs/marketing/<tag>.pdf), NOT the full subscriber PDF
+        # (docs/<tag>.pdf). The subscriber edition stays gated for
+        # paying subscribers and is fetched only by the Apps Script
+        # mailer via raw.githubusercontent. The marketing one-pager
+        # is the lead magnet — top-10 ranked incidents only, no
+        # analytical narrative.
+        marketing_pdf_path = docs_dir / "marketing" / pdf_name
         existing = e.get("pdf_url")
 
         # Skip legacy entries that already point to a Wix (or any external)
@@ -77,12 +84,12 @@ def main() -> int:
             log.info("Keep legacy pdf_url for %s: %s", filename, existing)
             continue
 
-        # Only set pdf_url if we actually committed the PDF in this run.
-        if not pdf_path.exists():
-            log.info("No PDF yet for %s — leaving pdf_url unset.", filename)
+        # Only set pdf_url if the marketing PDF was committed in this run.
+        if not marketing_pdf_path.exists():
+            log.info("No marketing PDF yet for %s — leaving pdf_url unset.", filename)
             continue
 
-        new_url = f"{site_url}/{pdf_name}"
+        new_url = f"{site_url}/marketing/{pdf_name}"
         if existing == new_url:
             continue
         e["pdf_url"] = new_url
