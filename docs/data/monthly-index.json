@@ -10,7 +10,8 @@
     "tier1": 198,
     "outbreaks": 6,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "April 2026: 236 recalls, 198 Tier-1, 6 outbreak(s). Leading pathogen: Listeria monocytogenes."
+    "summary": "April 2026: 236 recalls, 198 Tier-1, 6 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "pdf_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M04.pdf"
   },
   {
     "filename": "2026-M03.html",
