@@ -289,25 +289,59 @@ def is_report_grade_url(url):
 def rank_top_recalls(recalls, n=10):
     """Return up to n recalls sorted by composite severity rank.
 
-    Ordering:
-      1. Severity score (lower = more severe; from severity_score())
-      2. Tier (1 < 2 < 3; missing = 99)
-      3. Outbreak flag (True before False)
-      4. Date (newer first)
-      5. Country alpha (deterministic tie-breaker for replays)
+    Three-phase ordering (lower phase wins outright; ties broken inside
+    the phase):
+
+      Phase 0  — VERIFIED OUTBREAKS  (Outbreak truthy)
+                 Outbreaks indicate active human illness, so they are
+                 escalated above every non-outbreak recall regardless of
+                 the underlying pathogen. Inside the phase: severity score
+                 (lower = more severe) → tier → date desc → country.
+                 Effect: a Listeria outbreak outranks a Salmonella outbreak
+                 from the same day, but BOTH outrank a non-outbreak
+                 Clostridium botulinum recall.
+
+      Phase 1  — Clostridium botulinum (non-outbreak)
+                 Pulled out of the general pool because botulism toxin
+                 is fatal-risk even at single-recall scale and warrants
+                 prominence on the marketing one-pager. Inside the phase:
+                 tier → date desc → country.
+
+      Phase 2  — EVERYTHING ELSE  (by severity → tier → date desc → country)
+
+    Pre-2026-05-01 the ranker used a flat (severity, tier, outbreak, date)
+    key. That collapsed the three Apr-2026 botulinum recalls (sev=1)
+    to ranks 1-3 and pushed the Good4U Salmonella outbreak (sev=4) out
+    of top-10 entirely — which is the wrong editorial signal for the
+    public marketing PDF. Phase-based fix mirrors how George curates
+    the headline-incidents list in the subscriber report.
     """
+    OUTBREAK_TRUTHY = {True, 1, "1", "TRUE", "True", "true", "Y", "Yes"}
+
     def _rank_key(r):
-        sev_score, _ = severity_score(r.get("Pathogen") or "")
-        tier = _safe_int(r.get("Tier"), 99)
-        outbreak_truthy = r.get("Outbreak") in (True, 1, "1", "TRUE", "True", "true", "Y", "Yes")
-        # Negative date for newer-first ordering
+        pathogen = r.get("Pathogen") or ""
+        sev_score, _ = severity_score(pathogen)
+        tier        = _safe_int(r.get("Tier"), 99)
+        is_outbreak = r.get("Outbreak") in OUTBREAK_TRUTHY
+        is_botulin  = "botulin" in pathogen.lower()
+
+        if is_outbreak:
+            phase = 0
+        elif is_botulin:
+            phase = 1
+        else:
+            phase = 2
+
+        # Negative ordinal → newer-first ordering
         try:
             d = datetime.strptime(str(r.get("Date") or "")[:10], "%Y-%m-%d")
             d_key = -d.toordinal()
         except (ValueError, TypeError):
             d_key = 0
-        return (sev_score, tier, 0 if outbreak_truthy else 1, d_key,
-                str(r.get("Country") or "").lower())
+
+        country_key = str(r.get("Country") or "").lower()
+        return (phase, sev_score, tier, d_key, country_key)
+
     return sorted(recalls, key=_rank_key)[:n]
 
 
