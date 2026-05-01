@@ -261,6 +261,7 @@ def is_report_grade_url(url):
         "fda.gov", "fsis.usda.gov", "cdc.gov", "epa.gov",
         # Canada
         "canada.ca", "inspection.canada.ca", "gnb.ca", "mapaq.gouv.qc.ca",
+        "quebec.ca",
         # EU + member states
         "europa.eu", "efsa.europa.eu", "rasff.eu",
         "rappel.conso.gouv.fr", "economie.gouv.fr",
