@@ -4,22 +4,22 @@
   "dashboard_url": "https://www.advfood.tech/fsis-recalls",
   "week_num": 18,
   "year": 2026,
-  "week_start": "2026-04-27",
-  "week_end": "2026-05-03",
-  "week_start_display": "27 Apr",
-  "week_end_display": "3 May 2026",
-  "generated_utc": "2026-05-01T08:00:27.948141+00:00",
+  "week_start": "2026-04-25",
+  "week_end": "2026-05-01",
+  "week_start_display": "25 Apr",
+  "week_end_display": "1 May 2026",
+  "generated_utc": "2026-05-01T10:52:52.612388+00:00",
   "stats": {
-    "total": 16,
+    "total": 17,
     "tier1": 12,
     "outbreaks": 0,
-    "delta": -22,
-    "delta_pct": -58
+    "delta": -25,
+    "delta_pct": -60
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
     "cases": 7,
-    "pct": 44
+    "pct": 41
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -44,7 +44,7 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Carrefour France",
+      "company": "CARREFOUR FRANCE CARREFOUR",
       "brand": "Unbranded",
       "product": "Ground beef (steak haché), sold at the traditional counter on customer demand — Carrefour Market Beuzeville ONLY",
       "country": "France",
@@ -58,7 +58,7 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Le Fromager Des Halles",
+      "company": "LE FROMAGER DES HALLES",
       "brand": "Unbranded",
       "product": "Spoonable Gorgonzola DOP, plastic pot (Lot 60023, use-by between 2026-04-07 and 2026-05-24)",
       "country": "France",
