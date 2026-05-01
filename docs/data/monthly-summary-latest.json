@@ -1,293 +1,331 @@
 {
-  "month": "2026-M03",
-  "month_name": "March",
+  "month": "2026-M04",
+  "month_name": "April",
   "year": 2026,
-  "window_start": "2026-03-01",
-  "window_end": "2026-03-31",
-  "total": 66,
-  "tier1": 35,
-  "outbreaks": 3,
-  "delta": 37,
-  "delta_pct": 128,
+  "window_start": "2026-04-01",
+  "window_end": "2026-04-30",
+  "total": 236,
+  "tier1": 198,
+  "outbreaks": 6,
+  "delta": 162,
+  "delta_pct": 219,
   "top_pathogen": [
-    "Salmonella spp.",
-    27
+    "Listeria monocytogenes",
+    146
   ],
   "top_countries": [
     [
       "France",
-      29
+      167
     ],
     [
       "Canada",
+      14
+    ],
+    [
+      "Germany",
+      13
+    ],
+    [
+      "Switzerland",
+      9
+    ],
+    [
+      "USA",
       5
-    ],
-    [
-      "New Zealand",
-      4
-    ],
-    [
-      "South Africa",
-      4
-    ],
-    [
-      "Unknown",
-      3
     ]
   ],
   "top_sources": [
     [
       "RappelConso (FR)",
-      22
+      167
     ],
     [
-      "CFS (HK) - aggregator (RappelConso FR)",
-      7
-    ],
-    [
-      "RASFF (EU)",
-      4
-    ],
-    [
-      "NCC (ZA)",
-      4
+      "BVL (DE)",
+      13
     ],
     [
       "CFIA",
-      3
+      12
+    ],
+    [
+      "BLV (CH)",
+      9
+    ],
+    [
+      "RASFF",
+      7
     ]
   ],
   "mom_trend": {
     "values": [
       [
         "2026-01",
-        28
-      ],
-      [
-        "2026-02",
         29
       ],
       [
+        "2026-02",
+        27
+      ],
+      [
         "2026-03",
-        66
+        74
+      ],
+      [
+        "2026-04",
+        236
       ]
     ],
-    "current": 66,
-    "prior": 29,
-    "delta_abs": 37,
-    "delta_pct": 127.6,
-    "rolling_mean": 28.5,
-    "rolling_std": 0.71,
-    "z_score": 52.82,
+    "delta_pct": 219,
     "direction": "up",
-    "anomaly_flag": true,
-    "interpretation": "66 recalls · +127.6% vs prior month · Z=+52.8 · anomalous (|Z|>2)"
+    "z_score": null,
+    "z_score_raw": 7.2,
+    "anomaly_flag": false,
+    "baseline_n": 4,
+    "baseline_too_narrow": true
   },
   "hotspots": [
     {
-      "country": "France",
-      "pathogen": "Salmonella",
-      "observed": 19,
-      "expected": 11.86,
-      "stdres": 2.07,
-      "ratio": 1.6
+      "country": "Canada",
+      "pathogen": "Salmonella spp.",
+      "observed": 6,
+      "expected": 1.7,
+      "stdres": 3.3,
+      "ratio": 3.53
+    },
+    {
+      "country": "Germany",
+      "pathogen": "Salmonella spp.",
+      "observed": 4,
+      "expected": 1.31,
+      "stdres": 2.35,
+      "ratio": 3.06
     }
   ],
-  "clusters": [],
+  "clusters": [
+    {
+      "pathogen": "Salmonella spp.",
+      "size": 4,
+      "span_days": 4,
+      "start": "2026-04-06",
+      "end": "2026-04-10",
+      "countries": [
+        "Brazil",
+        "Canada",
+        "Taiwan"
+      ]
+    },
+    {
+      "pathogen": "Salmonella spp.",
+      "size": 4,
+      "span_days": 7,
+      "start": "2026-04-21",
+      "end": "2026-04-28",
+      "countries": [
+        "Canada",
+        "Ireland",
+        "United Kingdom"
+      ]
+    }
+  ],
   "concentration": {
-    "hhi_source": 1414.0,
-    "hhi_bucket": "diverse",
-    "gini_country": 0.552,
-    "gini_bucket": "moderate",
-    "tier1_share": 0.53,
-    "baseline_tier1_share": 0.526,
-    "tier1_intensity_ratio": 1.01,
+    "n_countries": 24,
     "n_sources": 23,
-    "n_countries": 19
+    "gini": 0.812,
+    "gini_bucket": "highly concentrated",
+    "hhi": 5102.0,
+    "hhi_bucket": "highly concentrated",
+    "top_country_share": 0.708
   },
   "severity": {
-    "score": 32.7,
-    "bucket": "normal",
-    "components": {
-      "tier1_share": 0.53,
-      "outbreak_rate": 0.045,
-      "highsev_share": 0.242
-    }
+    "score": 52.2,
+    "bucket": "elevated",
+    "tier1_count": 198,
+    "outbreak_count": 11,
+    "tier1_share": 0.839,
+    "outbreak_share": 0.047
   },
-  "emerging": [],
+  "emerging": [
+    {
+      "pathogen": "Listeria monocytogenes",
+      "count": 146,
+      "share_current": 0.619,
+      "share_hist_mean": 0.173,
+      "z_score": 5.2,
+      "growth_pct": 1846
+    }
+  ],
   "linear_trend": {
     "status": "active",
-    "model": "linear_trend_projection",
-    "intercept": 22.0,
-    "slope": 19.0,
-    "slope_per_month": 19.0,
-    "slope_significant": false,
-    "t_stat": 1.83,
-    "next_month_point": 79.0,
+    "n": 4,
+    "slope_per_month": 66.8,
+    "intercept": -8.7,
+    "r_squared": 0.763,
+    "slope_se": 26.347,
+    "slope_significant": true,
+    "next_month_point": 258,
     "next_month_ci95": [
-      26.4,
-      131.6
+      76,
+      441
     ],
-    "residual_se": 14.7,
-    "r_squared": 0.77,
-    "note": "Slope not statistically significant — trend may be flat or underpowered."
+    "note": "Trend is rising; slope is statistically significant."
   },
-  "narrative": "March 2026 produced 66 pathogen-related recall incidents across the AFTS monitoring network, a 127.6% move above the prior month, a +52.8-sigma anomaly vs the prior-month baseline. Salmonella spp. dominated with 27 of 66 incidents (41%). The composite severity index closed at 32.7/100 (normal), with 35 Tier-1 critical events and 3 outbreak clusters on record. The standout hotspot was France × Salmonella, with 19 recalls against an independence-baseline expectation of 11.86 (stdres +2.07).\n\nStructurally, the month reads as moderately uneven geographically with signal diversity consistent with broad regulatory engagement (Source HHI 1414.0, Geographic Gini 0.552). For a Salmonella spp.-dominated month, the relevant failure modes are post-process environmental harbourage in Zone 1 of RTE lines, sanitation SOP drift, and cold-chain lapses — not thermal underprocess. The Tier-1 intensity ratio of 1.01x vs the rolling baseline indicates severity is in line.\n\nLooking forward, operators in Salmonella spp.-relevant commodity categories should re-verify the single highest-leverage control this month: environmental monitoring swab frequency on RTE deli and dairy lines, or pasteurisation D-value validation on low-moisture commodities, whichever matches their product mix. The linear-trend projection for next month stands at 79.0 recalls (95% CI [26.4, 131.6]), with r²=0.77. Documentation packages should be ready for rapid regulatory response given continued inspection intensity.\n\nProcess Authority Note: 7 incident(s) in this window carry thermal-processing or anaerobic-packaging signals. Shelf-stable low-acid, acidified, aseptic/UHT, hot-filled, and reduced-oxygen-packaged products must be reviewed to confirm the scheduled thermal process under a qualified process authority — required under FDA 21 CFR 113/114, EU Reg. 852/2004, CFIA SFCR, FSANZ Food Standards Code Ch. 3, and Japan's Food Sanitation Act. Typical compliance gaps: unfiled or outdated scheduled process, deviation resolved without qualified review, seal-integrity lapse, or formulation change not re-evaluated.",
-  "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M03.html",
-  "all_month_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M03-all.html",
+  "narrative": "April 2026 produced 236 pathogen-related recall incidents across the AFTS monitoring network, a 219% move above the prior month — the rolling baseline is too narrow for a Z estimate this early in the series. Listeria monocytogenes dominated with 146 of 236 incidents (62%). The composite severity index closed at 52.2/100 (elevated), with 198 Tier-1 critical events and 6 outbreak clusters on record. The standout hotspot was Canada × Salmonella spp., with 6 recalls against an independence-baseline expectation of 1.7 (stdres +3.30).\n\nStructurally, the month reads as  with mixed signal concentration (Source HHI None, Geographic Gini None). For a Listeria monocytogenes-dominated month, the relevant failure modes are post-process environmental harbourage in Zone 1 of RTE lines, sanitation SOP drift, and cold-chain lapses — not thermal underprocess. The Tier-1 intensity ratio of Nonex vs the rolling baseline indicates severity is in line.\n\nLooking forward, operators in Listeria monocytogenes-relevant commodity categories should re-verify the single highest-leverage control this month: environmental monitoring swab frequency on RTE deli and dairy lines, or pasteurisation D-value validation on low-moisture commodities, whichever matches their product mix. The linear-trend projection for next month stands at 258 recalls (95% CI [76, 441]), with r²=0.763. Documentation packages should be ready for rapid regulatory response given continued inspection intensity.\n\nProcess Authority Note: This window includes Clostridium botulinum or botulism-relevant recalls — a hazard category for which scheduled-process adequacy is a mandatory regulatory requirement, not a recommended best practice. Across global jurisdictions — FDA (21 CFR 113/114), EU (Reg. 852/2004 and 2073/2005, with RASFF/EFSA oversight), CFIA (Safe Food for Canadians Regulations), FSA / FSS in the UK, FSANZ in Australia and New Zealand, and MHLW in Japan — the common principle is that low-acid, aseptic, and commercially sterile products require a scheduled process established by a qualified process authority and executed under documented GMP oversight. Recall events in this category most commonly trace to an unfiled or outdated scheduled process, a process deviation resolved without qualified review, or a formulation or packaging change introduced without process re-evaluation. Manufacturers producing low-acid canned, acidified, fermented, or anaerobically packaged products should confirm with a qualified process authority that filings, GMP programmes, and deviation handling remain current before any production change.",
+  "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M04.html",
+  "all_month_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M04-all.html",
   "dashboard_url": "https://www.advfood.tech/fsis-recalls",
   "top10": [
     {
       "rank": 1,
-      "date": "2026-03-06",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "company": "AOSTE SNC",
-      "brand": "AOSTE",
-      "product": "Jambon cuit supérieur cuisiné à l'os 4 tranches 260g AOSTE",
-      "country": "France",
-      "source": "RappelConso (FR)",
+      "date": "2026-04-14",
+      "pathogen": "Clostridium botulinum",
+      "pathogen_raw": "Clostridium botulinum",
+      "company": "Liquid Blenz Corp",
+      "brand": "Good Brain Tonic",
+      "product": "Good Brain Tonic 16 oz (UPC 860010984468) and 32 oz (UPC 860010984475) — all codes",
+      "country": "USA",
+      "source": "FDA",
       "tier": 1,
       "outbreak": 0,
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/21548/Interne",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/liquid-blenz-corp-recalls-product-due-possible-health-risk",
       "url_ok": true
     },
     {
       "rank": 2,
-      "date": "2026-03-08",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "company": "Origin: Unknown | Distributed: Unknown",
-      "brand": "—",
-      "product": "Meat products",
-      "country": "Unknown",
-      "source": "RASFF (EU)",
+      "date": "2026-04-13",
+      "pathogen": "Clostridium botulinum",
+      "pathogen_raw": "Clostridium botulinum",
+      "company": "Marché Rio",
+      "brand": "Unbranded",
+      "product": "Haitian spices in plastic container, refrigerated",
+      "country": "Canada",
+      "source": "MAPAQ QC",
       "tier": 1,
       "outbreak": 0,
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/828968",
-      "url_ok": true
+      "url": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-innocuite-non-assuree-depices-haitiennes-vendues-par-lentreprise-marche-rio-69749",
+      "url_ok": false
     },
     {
       "rank": 3,
-      "date": "2026-03-09",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "company": "AOSTE",
-      "brand": "AOSTE",
-      "product": "Cooked ham products",
-      "country": "France",
-      "source": "CFS (HK) - aggregator (RappelConso FR)",
+      "date": "2026-04-01",
+      "pathogen": "Clostridium botulinum",
+      "pathogen_raw": "Clostridium botulinum",
+      "company": "Tops Friendly Markets",
+      "brand": "Christopher Ranch / Garland",
+      "product": "Fresh peeled garlic (NY/PA/VT distribution)",
+      "country": "USA",
+      "source": "FDA",
       "tier": 1,
       "outbreak": 0,
-      "url": "https://www.cfs.gov.hk/english/rc/subject/files/20260309_1.pdf",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/tops-issues-recall-christopher-ranch-peeled-garlic-garland-fresh-peeled-garlic-because-possible",
       "url_ok": true
     },
     {
       "rank": 4,
-      "date": "2026-03-10",
+      "date": "2026-04-09",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
-      "company": "Origin: Belgium | Distributed: Luxembourg",
-      "brand": "—",
-      "product": "Cooked sausage",
-      "country": "Belgium",
-      "source": "RASFF (EU)",
+      "company": "Νικολαος Τσατσουλης & Υιοι Ο.Ε.",
+      "brand": "ΦΕΤΑ ΒΥΤΙΝΑΣ Π.Ο.Π. ΒΑΡΕΛΙ",
+      "product": "Feta PDO in barrel (batch ΦΕ-2751, produced 2026-01-24, use-by 2027-07-24)",
+      "country": "Greece",
+      "source": "EFET (GR)",
       "tier": 1,
-      "outbreak": 0,
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/829360",
+      "outbreak": 1,
+      "url": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5379-deltio-typou-anaklisi-mi-asfaloys-proiontos-tyri-feta-logo-parousias-listeria",
       "url_ok": true
     },
     {
       "rank": 5,
-      "date": "2026-03-16",
+      "date": "2026-04-30",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
-      "company": "AOSTE",
-      "brand": "AOSTE",
-      "product": "Cooked ham products",
-      "country": "France",
-      "source": "CFS (HK) - aggregator (RappelConso FR)",
+      "company": "Concordia Traders (Aust) Pty Ltd",
+      "brand": "Concordia Traders (Aust) Pty Ltd",
+      "product": "Enoki Mushroom 350 g",
+      "country": "Australia",
+      "source": "FSANZ (AU)",
       "tier": 1,
       "outbreak": 0,
-      "url": "https://www.cfs.gov.hk/english/rc/subject/files/20260316_1.pdf",
+      "url": "https://www.foodstandards.gov.au/food-recalls/recall-alert/concordia-traders-aust-pty-ltd-enoki-mushroom-350g",
       "url_ok": true
     },
     {
       "rank": 6,
-      "date": "2026-03-16",
+      "date": "2026-04-30",
       "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria",
-      "company": "Emborg",
-      "brand": "Emborg",
-      "product": "Emmentaler cheese 200g",
-      "country": "New Zealand",
-      "source": "CFS (HK) - aggregator (MPI NZ)",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "Carrefour France",
+      "brand": "Unbranded",
+      "product": "Ground beef (steak haché), sold at the traditional counter on customer demand — Carrefour Market Beuzeville ONLY",
+      "country": "France",
+      "source": "RappelConso (FR)",
       "tier": 1,
       "outbreak": 0,
-      "url": "https://www.cfs.gov.hk/english/rc/subject/files/20260316_3.pdf",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22159/Interne",
       "url_ok": true
     },
     {
       "rank": 7,
-      "date": "2026-03-18",
+      "date": "2026-04-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
-      "company": "Importations Mini Italia",
-      "brand": "Auricchio",
-      "product": "Taleggio D.O.P. Cheese",
-      "country": "Canada",
-      "source": "CFS (HK) - aggregator (CFIA)",
+      "company": "Le Fromager Des Halles",
+      "brand": "Unbranded",
+      "product": "Spoonable Gorgonzola DOP, plastic pot (Lot 60023, use-by between 2026-04-07 and 2026-05-24)",
+      "country": "France",
+      "source": "RappelConso (FR)",
       "tier": 1,
       "outbreak": 0,
-      "url": "https://www.cfs.gov.hk/english/rc/subject/files/20260318_2.pdf",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22145/Interne",
       "url_ok": true
     },
     {
       "rank": 8,
-      "date": "2026-03-19",
+      "date": "2026-04-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
-      "company": "Metro Chef",
-      "brand": "Metro Chef",
-      "product": "Bloc Serrano 2.2KG Env Metro Chef ham",
+      "company": "Amandis",
+      "brand": "LES ATELIERS DE SEBASTIEN",
+      "product": "Goat-cheese and leek gratin (Lot 1132600010, use-by 2026-05-07)",
       "country": "France",
-      "source": "CFS (HK) - aggregator (RappelConso FR)",
+      "source": "RappelConso (FR)",
       "tier": 1,
       "outbreak": 0,
-      "url": "https://www.cfs.gov.hk/english/rc/subject/files/20260319_1.pdf",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22142/Interne",
       "url_ok": true
     },
     {
       "rank": 9,
-      "date": "2026-03-20",
+      "date": "2026-04-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
-      "company": "Goodfood Group Limited",
-      "brand": "Emborg",
-      "product": "Emborg Emmentaler cheese 200g",
-      "country": "New Zealand",
-      "source": "MPI (NZ)",
+      "company": "Amandis",
+      "brand": "LES ATELIERS DE SEBASTIEN",
+      "product": "Bruschetta — varieties: 4 fromages, catalane, flammekueche, italienne, kebab, margarita, océane (Lots 1132600047 to 1132600053, use-by 2026-04-29)",
+      "country": "France",
+      "source": "RappelConso (FR)",
       "tier": 1,
       "outbreak": 0,
-      "url": "https://www.mpi.govt.nz/news/media-releases/emborg-emmentaler-cheese-recalled-due-to-possible-presence-of-listeria",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22141/Interne",
       "url_ok": true
     },
     {
       "rank": 10,
-      "date": "2026-03-20",
+      "date": "2026-04-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
-      "company": "AMBROSI",
-      "brand": "AMBROSI",
-      "product": "GORGONZOLA DOP 1-8 1.5KG ENV X 4 AMBROSI cheese",
+      "company": "Amandis",
+      "brand": "LES ATELIERS DE SEBASTIEN",
+      "product": "Mini blue-cheese quiche x4 (Lot 1142600252, use-by 2026-05-01)",
       "country": "France",
-      "source": "CFS (HK) - aggregator (RappelConso FR)",
+      "source": "RappelConso (FR)",
       "tier": 1,
       "outbreak": 0,
-      "url": "https://www.cfs.gov.hk/english/rc/subject/files/20260320_1.pdf",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22143/Interne",
       "url_ok": true
     }
   ],
-  "email_html": "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937\">\n<div style=\"max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb\">\n\n<div style=\"background:#0a0e1a;color:#fff;padding:20px 24px\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em\">\nAdvanced Food-Tech Solutions <span style=\"color:#E8601A\">·</span> AFTS</div>\n<div style=\"font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px\">\nMonthly Briefing · March 2026</div>\n</div>\n\n<div style=\"padding:28px 24px 16px\">\n<h1 style=\"font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:#0a0e1a\">Pathogen Surveillance · March 2026</h1>\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px\">\n01 Mar – 31 Mar 2026 · 66 recalls · 35 Tier-1 · 3 outbreaks\n</div>\n\n<table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;border-collapse:collapse;margin-bottom:20px\">\n<tr>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#0a0e1a\">66</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Total</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#dc2626\">35</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Tier-1</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#9333ea\">3</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Outbreaks</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:18px;color:#E8601A;font-style:italic\">Salmonella spp.</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Leading</div>\n</td>\n</tr>\n</table>\n\n<div style=\"background:#f9fafb;border-left:3px solid #E8601A;padding:14px 18px;margin-bottom:20px\">\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px\">Month signal</div>\n<div style=\"font-size:14px;line-height:1.55\"><strong>127.6%</strong> vs prior month\n· Z = +52.8 (anomalous)\n· severity index <strong>32.7/100</strong> (normal).</div>\n<div style=\"font-size:13px;margin-top:8px\"><strong>Top hotspot:</strong> France × <em>Salmonella</em> (19 recalls, 1.6× expected).</div><div style=\"font-size:13px;margin-top:8px\"><strong>Next-month forecast:</strong> 79.0 recalls (95% CI [26.4, 131.6]).</div>\n</div>\n\n<div style=\"text-align:center;margin:28px 0 12px\">\n<a href=\"https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M03.html\" target=\"_blank\" style=\"display:inline-block;background:#0a0e1a;color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px\">View Full Monthly Report →</a>\n</div>\n\n<div style=\"font-size:11px;color:#94a3b8;text-align:center;margin-top:20px\">\nAdvanced Food-Tech Solutions · advfood.tech · info@advfood.tech\n</div>\n</div>\n</div>\n</body></html>",
-  "generated_at": "2026-04-19T19:24:01.081942+00:00"
+  "email_html": "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937\">\n<div style=\"max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb\">\n\n<div style=\"background:#0a0e1a;color:#fff;padding:20px 24px\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em\">\nAdvanced Food-Tech Solutions <span style=\"color:#E8601A\">·</span> AFTS</div>\n<div style=\"font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px\">\nMonthly Briefing · April 2026</div>\n</div>\n\n<div style=\"padding:28px 24px 16px\">\n<h1 style=\"font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:#0a0e1a\">Pathogen Surveillance · April 2026</h1>\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px\">\n01 Apr – 30 Apr 2026 · 236 recalls · 198 Tier-1 · 6 outbreaks\n</div>\n\n<table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;border-collapse:collapse;margin-bottom:20px\">\n<tr>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#0a0e1a\">236</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Total</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#dc2626\">198</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Tier-1</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#7c3aed\">6</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Outbreaks</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:18px;color:#E8601A;font-style:italic\">Listeria monocytogenes</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Leading</div>\n</td>\n</tr>\n</table>\n\n<div style=\"background:#f9fafb;border-left:3px solid #E8601A;padding:14px 18px;margin-bottom:20px\">\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px\">Month signal</div>\n<div style=\"font-size:14px;line-height:1.55\"><strong>219%</strong> vs prior month\n\n· severity index <strong>52.2/100</strong> (elevated).</div>\n<div style=\"font-size:13px;margin-top:8px\"><strong>Top hotspot:</strong> Canada × <em>Salmonella spp.</em> (6 recalls, 3.53× expected).</div><div style=\"font-size:13px;margin-top:8px\"><strong>Next-month forecast:</strong> 258 recalls (95% CI [76, 441]).</div>\n</div>\n\n<div style=\"text-align:center;margin:28px 0 12px\">\n<a href=\"https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M04.html\" target=\"_blank\" style=\"display:inline-block;background:#0a0e1a;color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px\">View Full Monthly Report →</a>\n</div>\n\n<div style=\"font-size:11px;color:#94a3b8;text-align:center;margin-top:20px\">\nAdvanced Food-Tech Solutions · advfood.tech · info@advfood.tech\n</div>\n</div>\n</div>\n</body></html>",
+  "generated_at": "2026-05-01T08:11:52.319914+00:00"
 }
