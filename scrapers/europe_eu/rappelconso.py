@@ -246,10 +246,22 @@ class RappelConsoScraper(BaseScraper):
                 url = (self._first(rec, self.URL_FIELDS) or
                        (f"https://rappel.conso.gouv.fr/fiche-rappel/{fid}/Interne"
                         if fid else ""))
+                # Normalise the (Company, Brand) pair before emit. RappelConso
+                # operators hand-enter rows with inconsistent casing and
+                # routinely PREPEND the parent distributor to the brand
+                # (e.g. "AMANDIS LES ATELIERS DE SEBASTIEN" + brand
+                # "LES ATELIERS DE SEBASTIEN") which makes the same
+                # producer appear as 3 different rows in the same week.
+                # Shared normaliser converges them — see scrapers/_company_normalise.py.
+                from scrapers._company_normalise import normalise_company_brand
+                _co, _br = normalise_company_brand(
+                    self._first(rec, self.COMPANY_FIELDS),
+                    self._first(rec, self.BRAND_FIELDS) or "—",
+                )
                 out.append(self._new_recall(
                     Date=pub_date,
-                    Company=self._first(rec, self.COMPANY_FIELDS),
-                    Brand=self._first(rec, self.BRAND_FIELDS) or "—",
+                    Company=_co,
+                    Brand=_br,
                     Product=(self._first(rec, self.PRODUCT_FIELDS) or
                              self._first(rec, self.SUBCATEGORY_FIELDS))[:300],
                     Pathogen=self._first(rec, self.RISKS_FIELDS)[:200],
