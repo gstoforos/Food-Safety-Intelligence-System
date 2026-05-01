@@ -1,470 +1,475 @@
+#!/usr/bin/env python3
 """
-AFTS FSIS — Monthly MARKETING one-pager builder.
+build_monthly_marketing.py
+==========================
+Renders the single-page FSIS marketing (lead-magnet) PDF in the canonical
+March/April 2026 layout. One entry point: `render_marketing_pdf(out_path, m)`.
 
-This is the PUBLIC-FACING PDF that lands on hub.html / advfood.tech and is
-linked from monthly-index.json's `pdf_url`. It is DIFFERENT from the
-subscriber report:
+Layout contract:
+  · header: tiny letter-spaced AFTS line + "FOOD SAFETY INTELLIGENCE SYSTEM"
+            + huge MONTH YEAR (navy)
+  · orange accent line
+  · meta strip (six cells: title, period, recalls, tier-1, outbreaks, leading)
+  · three large stat tiles
+  · "§ TOP N CRITICAL INCIDENTS · MONTH YEAR" section bar
+  · top-N table — black/navy SOURCE labels, orange "view →" link,
+                  black/navy OUTBREAK labels (NOT orange)
+  · navy two-column footer (AFTS bold left · two-line tagline right)
 
-    docs/2026-M04.html   — full subscriber report (paid product, 9 sections)
-    docs/2026-M04.pdf    — render of the above (full subscriber edition)
-
-THIS BUILDER produces:
-
-    docs/marketing/2026-M04.pdf  — single-page marketing teaser:
-        • Header bar (AFTS branding)
-        • Subhead line with month / window / counts / leading pathogen
-        • Three big stat tiles (Total / Tier-1 / Outbreaks)
-        • § Top 10 Critical Incidents table (rank/date/pathogen/co/product/src)
-        • Footer with generated stamp + contact
-
-The marketing one-pager is the LEAD MAGNET — it shows enough to be
-useful (the top-10 ranked incidents) but withholds the analytical depth
-of the subscriber report. Subscribers get the full PDF via the Apps
-Script mailer; the public sees only this one-pager.
-
-Usage:
-    python -m pipeline.build_monthly_marketing \\
-        --summary docs/data/monthly-summary-latest.json \\
-        --out-dir docs/marketing
+Source/Outbreak labels are intentionally black-ink (deviation from earlier
+March prototype). All other styling matches March.
 """
+
 from __future__ import annotations
+import os
+from typing import List, Dict, Optional, TypedDict
 
-import argparse
-import json
-import logging
-import sys
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Dict, List
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.colors import HexColor
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-)
-log = logging.getLogger("monthly_marketing")
 
-# Brand palette — matches the subscriber report and AFTS website. Kept in
-# sync with docs/build_monthly_report_afts.py BRAND dict.
-ORANGE = "#E8601A"
-INK    = "#1f2937"
-BLACK  = "#0a0e1a"
-MUTED  = "#6b7280"
-RED    = "#dc2626"
-AMBER  = "#f59e0b"
-GREEN  = "#059669"
-BG     = "#ffffff"
-S1     = "#f9fafb"
-BRD    = "#e5e7eb"
+# =============================================================================
+# CONSTANTS
+# =============================================================================
 
-# Pathogen → tier-1 colour. Mirrors weekly/monthly badge colours so the
-# one-pager renders the same chips that appear in the subscriber report.
-PATHOGEN_COLOR = {
-    "clostridium botulinum":  "#b91c1c",
-    "c. botulinum":           "#b91c1c",
-    "e. coli":                "#ea580c",
-    "e. coli stec":           "#ea580c",
-    "stec":                   "#ea580c",
-    "listeria monocytogenes": "#dc2626",
-    "listeria":               "#dc2626",
-    "salmonella":             "#f59e0b",
-    "salmonella spp.":        "#f59e0b",
-    "campylobacter":          "#d97706",
-    "histamine":              "#a16207",
-    "bacillus cereus":        "#6b7280",
-    "rodenticide":            "#1e293b",
+# Sampled from the canonical March 2026 PDF
+ORANGE = HexColor("#E8601A")   # AFTS brand
+NAVY   = HexColor("#111827")   # title / footer / source / outbreak
+INK    = HexColor("#1F2937")   # body text
+MUTED  = HexColor("#6B7280")   # secondary labels
+LINE   = HexColor("#E5E7EB")   # row dividers
+BAND   = HexColor("#F3F4F6")   # section header / meta strip / table head
+ALT    = HexColor("#F9FAFB")   # subtle alt row
+WHITE  = HexColor("#FFFFFF")
+
+H_REG  = "Helvetica"
+H_BOLD = "Helvetica-Bold"
+H_MONO = "Courier"
+
+PAGE_W, PAGE_H = A4
+MARGIN_L = 28
+MARGIN_R = 28
+CONTENT_W = PAGE_W - MARGIN_L - MARGIN_R
+
+
+# =============================================================================
+# UNICODE / GREEK FONT REGISTRATION (one-time, idempotent)
+# =============================================================================
+
+_DEJAVU_CANDIDATES = [
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",                      # Debian/Ubuntu
+    "/usr/share/fonts/dejavu/DejaVuSans.ttf",                               # Fedora/CentOS
+    "/Library/Fonts/DejaVuSans.ttf",                                        # macOS (manual)
+    "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",                 # macOS fallback
+    "C:/Windows/Fonts/DejaVuSans.ttf",                                      # Windows (manual)
+    "C:/Windows/Fonts/arial.ttf",                                           # Windows fallback
+]
+_DEJAVU_BOLD_CANDIDATES = [
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf",
+    "/Library/Fonts/DejaVuSans-Bold.ttf",
+    "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
+    "C:/Windows/Fonts/DejaVuSans-Bold.ttf",
+    "C:/Windows/Fonts/arialbd.ttf",
+]
+
+UNICODE_FONT_NAME = "DejaVu"
+UNICODE_FONT_BOLD = "DejaVu-Bold"
+_UNICODE_FONT_OK = False
+
+
+def _register_unicode_font() -> bool:
+    """Register a Unicode TTF for Greek/extended-Latin once. Returns True on success."""
+    global _UNICODE_FONT_OK
+    if _UNICODE_FONT_OK:
+        return True
+    if UNICODE_FONT_NAME in pdfmetrics.getRegisteredFontNames():
+        _UNICODE_FONT_OK = True
+        return True
+    reg_path = next((p for p in _DEJAVU_CANDIDATES      if os.path.exists(p)), None)
+    bold_path = next((p for p in _DEJAVU_BOLD_CANDIDATES if os.path.exists(p)), None)
+    if not reg_path:
+        return False
+    try:
+        pdfmetrics.registerFont(TTFont(UNICODE_FONT_NAME, reg_path))
+        if bold_path:
+            pdfmetrics.registerFont(TTFont(UNICODE_FONT_BOLD, bold_path))
+        _UNICODE_FONT_OK = True
+        return True
+    except Exception:
+        return False
+
+
+def _needs_unicode(s: str) -> bool:
+    """True if string contains chars beyond Latin Extended-B (Helvetica core can't render)."""
+    return any(ord(ch) > 0x024F for ch in s)
+
+
+# =============================================================================
+# PATHOGEN ABBREVIATION (matches March convention)
+# =============================================================================
+
+# Genera that should be displayed by genus only (per March style)
+_GENUS_ONLY = {"Listeria", "Salmonella", "Campylobacter", "Cronobacter", "Vibrio", "Yersinia"}
+
+# Explicit overrides
+_PATHOGEN_OVERRIDES = {
+    "Listeria monocytogenes":   "Listeria",
+    "Salmonella enterica":      "Salmonella",
+    "Salmonella spp.":          "Salmonella",
+    "Clostridium botulinum":    "C. botulinum",
+    "Clostridium perfringens":  "C. perfringens",
+    "Escherichia coli":         "E. coli",
+    "E. coli O157:H7":          "E. coli / STEC",
+    "Shigatoxin-producing E. coli": "E. coli / STEC",
+    "Bacillus cereus":          "B. cereus",
+    "Bacillus cereus / cereulide": "B. cereus",
+    "Staphylococcus aureus":    "S. aureus",
 }
 
 
-# ──────────────────────────────────────────────────────────────────────
-# Data helpers
-# ──────────────────────────────────────────────────────────────────────
-def load_summary(path: Path) -> Dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def fmt_int(n) -> str:
-    try:
-        return f"{int(n):,}"
-    except Exception:
-        return "—"
-
-
-def pathogen_color(name: str) -> str:
-    n = (name or "").strip().lower()
-    return PATHOGEN_COLOR.get(n, MUTED)
-
-
-def _h(s: str) -> str:
-    """Minimal HTML escape for inline content."""
-    if s is None:
+def abbreviate_pathogen(name: str) -> str:
+    """Apply March-style abbreviation: genus-only or first-initial.species."""
+    if not name:
         return ""
-    return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-            .replace('"', "&quot;").replace("'", "&#x27;"))
+    name = name.strip()
+    if name in _PATHOGEN_OVERRIDES:
+        return _PATHOGEN_OVERRIDES[name]
+    parts = name.split()
+    # Single-word genus already
+    if len(parts) == 1:
+        return parts[0]
+    # Genus that should display alone
+    if parts[0] in _GENUS_ONLY:
+        return parts[0]
+    # Two-word "Genus species" → abbreviate genus
+    return f"{parts[0][0]}. {' '.join(parts[1:])}"
 
 
-def fmt_date(iso: str) -> str:
-    """2026-04-30 → 30 Apr 2026 (matching March example exact format)."""
-    try:
-        return datetime.fromisoformat(iso[:10]).strftime("%-d %b %Y")
-    except Exception:
-        return iso or ""
+def extract_leading_genus(name: str) -> str:
+    """For the meta strip 'LEADING:' label — uppercase genus only."""
+    if not name:
+        return ""
+    return name.strip().split()[0].upper()
 
 
-# ──────────────────────────────────────────────────────────────────────
-# Top-10 row rendering — table layout matching March one-pager
-# ──────────────────────────────────────────────────────────────────────
-def render_top10_row(rec: Dict[str, Any]) -> str:
-    """Render one <tr> for the § Top 10 table.
+# =============================================================================
+# DATA SHAPE
+# =============================================================================
 
-    Source layout (from monthly summary's top10 array):
-        rank, date, pathogen, pathogen_raw, company, brand, product,
-        country, source, tier, outbreak, url, url_ok
-    """
-    rank      = rec.get("rank", "")
-    date      = rec.get("date", "")[:10]
-    path_canon = rec.get("pathogen") or rec.get("pathogen_raw", "")
-    co        = rec.get("company") or "—"
-    country   = rec.get("country", "")
-    product   = rec.get("product", "")
-    source    = rec.get("source", "")
-    tier      = rec.get("tier", 3)
-    outbreak  = rec.get("outbreak", 0)
-    url       = rec.get("url", "")
-    url_ok    = rec.get("url_ok", False)
+class IncidentRow(TypedDict, total=False):
+    date: str         # ISO "YYYY-MM-DD"
+    pathogen: str     # full Latin name; will be auto-abbreviated
+    outbreak: bool    # True → "OUTBREAK" tag below pathogen
+    company: str      # may contain Greek / extended-Latin
+    country: str
+    product: str      # long; will wrap
+    source: str       # agency label, e.g. "FDA", "EFET (GR)", "RappelConso (FR)"
 
-    # Truncate product to fit one-pager width (~60 chars)
-    if len(product) > 78:
-        product = product[:75] + "…"
-    if len(co) > 40:
-        co = co[:38] + "…"
 
-    color = pathogen_color(path_canon)
+class MonthData(TypedDict, total=False):
+    month_tag:        str    # "APRIL 2026"
+    period_line:      str    # "01 APR – 30 APR 2026"
+    total_recalls:    int    # 236
+    tier1:            int    # 198
+    outbreaks:        int    # 6
+    leading_pathogen: str    # full name → genus extracted automatically
+    section_title:    str    # OPTIONAL — autogenerated if omitted
+    rows:             List[IncidentRow]   # length = 9, 10, etc.
 
-    chips = []
-    if tier == 1:
-        chips.append(
-            f'<span style="display:inline-block;background:{RED};color:#fff;'
-            f'font-size:8.5px;font-weight:700;padding:1.5px 5px;'
-            f'border-radius:3px;letter-spacing:0.04em;margin-left:4px">T1</span>'
+
+# =============================================================================
+# DRAWING HELPERS
+# =============================================================================
+
+def _draw_letter_spaced(c, x, y, text, font, size, color, tracking=1.4):
+    c.setFont(font, size)
+    c.setFillColor(color)
+    cx = x
+    for ch in text:
+        c.drawString(cx, y, ch)
+        cx += c.stringWidth(ch, font, size) + tracking
+
+
+def _text_w(text, font, size):
+    return pdfmetrics.stringWidth(text, font, size)
+
+
+def _wrap(text, font, size, max_w):
+    out = []
+    for paragraph in text.split("\n"):
+        words = paragraph.split(" ")
+        if not words:
+            out.append("")
+            continue
+        line = words[0]
+        for w in words[1:]:
+            test = line + " " + w
+            if _text_w(test, font, size) <= max_w:
+                line = test
+            else:
+                out.append(line)
+                line = w
+        out.append(line)
+    return out
+
+
+# =============================================================================
+# MAIN RENDERER
+# =============================================================================
+
+def render_marketing_pdf(out_path: str, m: MonthData) -> str:
+    """Render the marketing PDF for one month. Returns out_path."""
+
+    have_unicode = _register_unicode_font()
+    section_title = m.get("section_title") or \
+                    f"§ TOP {len(m['rows'])} CRITICAL INCIDENTS · {m['month_tag']}"
+    leading = extract_leading_genus(m["leading_pathogen"])
+
+    c = canvas.Canvas(out_path, pagesize=A4)
+    c.setTitle(f"FSIS · Monthly Pathogen Surveillance · {m['month_tag']}")
+    c.setAuthor("Advanced Food-Tech Solutions")
+
+    y = PAGE_H
+
+    # -------- HEADER ----------------------------------------------------------
+    y -= 32
+    _draw_letter_spaced(c, MARGIN_L, y,
+                        "ADVANCED FOOD-TECH SOLUTIONS · AFTS",
+                        H_BOLD, 7.2, NAVY, tracking=1.6)
+    y -= 22
+    c.setFont(H_BOLD, 14); c.setFillColor(NAVY)
+    c.drawString(MARGIN_L, y, "FOOD SAFETY INTELLIGENCE SYSTEM")
+    y -= 38
+    c.setFont(H_BOLD, 32); c.setFillColor(NAVY)
+    c.drawString(MARGIN_L, y, m["month_tag"])
+
+    y -= 16
+    c.setStrokeColor(ORANGE); c.setLineWidth(2.2)
+    c.line(MARGIN_L, y, PAGE_W - MARGIN_R, y)
+    y -= 12
+
+    # -------- META STRIP ------------------------------------------------------
+    meta_h = 30
+    meta_y = y - meta_h
+    c.setFillColor(BAND)
+    c.rect(MARGIN_L, meta_y, CONTENT_W, meta_h, fill=1, stroke=0)
+
+    cells = [
+        ("Monthly Pathogen Surveillance ·", m["month_tag"].title(), 0.00),
+        (m["period_line"],                  "",                     0.27),
+        (str(m["total_recalls"]),           "RECALLS",              0.43),
+        (str(m["tier1"]),                   "TIER-1",               0.53),
+        (str(m["outbreaks"]),               "OUTBREAKS",            0.63),
+        ("LEADING:",                        leading,                0.78),
+    ]
+    nums = {str(m["total_recalls"]), str(m["tier1"]), str(m["outbreaks"])}
+    for top_text, bot_text, frac_x in cells:
+        cx = MARGIN_L + CONTENT_W * frac_x + 8
+        c.setFont(H_BOLD, 8.5 if top_text in nums else 7.2)
+        c.setFillColor(NAVY)
+        c.drawString(cx, meta_y + meta_h / 2 + 1.5, top_text)
+        if bot_text:
+            c.setFont(H_BOLD, 7.2)
+            c.setFillColor(NAVY if bot_text == leading else MUTED)
+            c.drawString(cx, meta_y + meta_h / 2 - 8, bot_text)
+    y = meta_y - 18
+
+    # -------- THREE STAT TILES -----------------------------------------------
+    tile_h = 86
+    tile_y = y - tile_h
+    third = CONTENT_W / 3.0
+    c.setStrokeColor(LINE); c.setLineWidth(0.6)
+    c.line(MARGIN_L + third,     tile_y + 12, MARGIN_L + third,     tile_y + tile_h - 12)
+    c.line(MARGIN_L + 2 * third, tile_y + 12, MARGIN_L + 2 * third, tile_y + tile_h - 12)
+
+    for i, (num, lbl) in enumerate([
+        (str(m["total_recalls"]), "TOTAL RECALLS"),
+        (str(m["tier1"]),         "TIER-1 CRITICAL"),
+        (str(m["outbreaks"]),     "OUTBREAKS"),
+    ]):
+        cx = MARGIN_L + third * i + 12
+        c.setFont(H_BOLD, 46); c.setFillColor(NAVY)
+        c.drawString(cx, tile_y + 28, num)
+        c.setFont(H_BOLD, 8.5); c.setFillColor(MUTED)
+        c.drawString(cx + 3, tile_y + 14, lbl)
+    y = tile_y - 18
+
+    # -------- SECTION HEADER STRIP -------------------------------------------
+    sec_h = 22
+    sec_y = y - sec_h
+    c.setFillColor(BAND)
+    c.rect(MARGIN_L, sec_y, CONTENT_W, sec_h, fill=1, stroke=0)
+    c.setFont(H_BOLD, 8.5); c.setFillColor(NAVY)
+    c.drawString(MARGIN_L + 8, sec_y + sec_h / 2 - 3, section_title)
+    y = sec_y - 6
+
+    # -------- TABLE -----------------------------------------------------------
+    col_x = [
+        MARGIN_L + 0,
+        MARGIN_L + 26,
+        MARGIN_L + 95,
+        MARGIN_L + 215,
+        MARGIN_L + 365,
+        PAGE_W - MARGIN_R - 78,
+    ]
+    col_right = PAGE_W - MARGIN_R
+    col_widths = [
+        col_x[1] - col_x[0] - 6,
+        col_x[2] - col_x[1] - 6,
+        col_x[3] - col_x[2] - 6,
+        col_x[4] - col_x[3] - 8,
+        col_x[5] - col_x[4] - 10,
+        col_right - col_x[5] - 4,
+    ]
+
+    # table header
+    th_h = 22
+    th_y = y - th_h
+    c.setFont(H_BOLD, 7.2); c.setFillColor(MUTED)
+    headers = ["#", "DATE", "PATHOGEN", "COMPANY / BRAND", "PRODUCT", "SOURCE"]
+    for i, h in enumerate(headers):
+        if i == 5:
+            w = _text_w(h, H_BOLD, 7.2)
+            c.drawString(col_right - w - 2, th_y + th_h / 2 - 2.5, h)
+        else:
+            c.drawString(col_x[i] + (1 if i == 0 else 0), th_y + th_h / 2 - 2.5, h)
+    c.setStrokeColor(LINE); c.setLineWidth(0.5)
+    c.line(MARGIN_L, th_y, PAGE_W - MARGIN_R, th_y)
+    y = th_y - 4
+
+    # data rows
+    PAD_TOP = 5
+    PAD_BOT = 5
+    PRODUCT_FONT_SIZE = 7.5
+    PRODUCT_LEADING = 9.0
+    COMPANY_FONT_SIZE = 8.2
+    COMPANY_LEADING = 10.0
+
+    for idx, row in enumerate(m["rows"], start=1):
+        date     = row["date"]
+        pathogen = abbreviate_pathogen(row["pathogen"])
+        flag     = "OUTBREAK" if row.get("outbreak") else None
+        company  = row["company"]
+        country  = row.get("country", "")
+        product  = row.get("product", "")
+        source   = row["source"]
+
+        comp_font = UNICODE_FONT_NAME if (have_unicode and _needs_unicode(company)) else H_REG
+
+        prod_lines = _wrap(product, H_REG, PRODUCT_FONT_SIZE, col_widths[4])
+        comp_lines = _wrap(company, comp_font, COMPANY_FONT_SIZE, col_widths[3])
+        src_lines  = _wrap(source, H_BOLD, 8, col_widths[5])
+
+        n_path = 1 + (1 if flag else 0)
+        max_h  = max(
+            len(prod_lines) * PRODUCT_LEADING,
+            (len(comp_lines) + 1) * COMPANY_LEADING,
+            n_path * 10,
+            (len(src_lines) + 1) * 9.5,
+            18,
         )
-    if outbreak:
-        chips.append(
-            f'<span style="display:inline-block;background:{ORANGE};color:#fff;'
-            f'font-size:8.5px;font-weight:700;padding:1.5px 5px;'
-            f'border-radius:3px;letter-spacing:0.04em;margin-left:3px">OUTBREAK</span>'
-        )
-    chip_html = "".join(chips)
+        row_h = max_h + PAD_TOP + PAD_BOT
+        row_y = y - row_h
 
-    src_cell = _h(source)
-    if url and url_ok:
-        src_cell += (
-            f'<br><a href="{_h(url)}" target="_blank" '
-            f'style="color:{ORANGE};text-decoration:none;'
-            f'font-size:9px;font-weight:600">view →</a>'
-        )
+        if idx % 2 == 0:
+            c.setFillColor(ALT)
+            c.rect(MARGIN_L, row_y, CONTENT_W, row_h, fill=1, stroke=0)
 
-    return (
-        f'<tr style="border-bottom:1px solid {BRD}">'
-        f'<td style="padding:7px 6px;font-weight:700;color:{ORANGE};'
-        f'font-family:Georgia,serif;font-size:13px;text-align:center">{rank}</td>'
-        f'<td style="padding:7px 6px;font-size:9.5px;color:{MUTED};white-space:nowrap">{_h(date)}</td>'
-        f'<td style="padding:7px 6px;font-size:10px">'
-        f'<span style="display:inline-block;width:7px;height:7px;border-radius:50%;'
-        f'background:{color};margin-right:4px"></span>'
-        f'<em style="font-style:italic;color:{INK};font-weight:600">{_h(path_canon)}</em>'
-        f'{chip_html}</td>'
-        f'<td style="padding:7px 6px;font-size:10px">'
-        f'<div style="font-weight:700;color:{BLACK}">{_h(co)}</div>'
-        f'<div style="color:{MUTED};font-size:9px">{_h(country)}</div></td>'
-        f'<td style="padding:7px 6px;font-size:9.5px;color:{INK};line-height:1.4">{_h(product)}</td>'
-        f'<td style="padding:7px 6px;font-size:9.5px;color:{MUTED};white-space:nowrap;text-align:right">{src_cell}</td>'
-        f'</tr>'
-    )
+        c.setStrokeColor(LINE); c.setLineWidth(0.4)
+        c.line(MARGIN_L, row_y, PAGE_W - MARGIN_R, row_y)
 
+        text_top_y = y - PAD_TOP - 8
 
-# ──────────────────────────────────────────────────────────────────────
-# Page builder
-# ──────────────────────────────────────────────────────────────────────
-def build_html(summary: Dict[str, Any]) -> str:
-    """Build the full single-page marketing one-pager HTML.
+        # #
+        c.setFont(H_BOLD, 11); c.setFillColor(NAVY)
+        c.drawString(col_x[0] + 2, text_top_y, str(idx))
 
-    Layout matches the March 2026 reference exactly:
-      header bar → subhead line → 3 stat tiles → § Top 10 table → footer
-    """
-    month_name = summary.get("month_name", "Month")
-    year       = summary.get("year", "")
-    win_start  = summary.get("window_start") or summary.get("month_start") or ""
-    win_end    = summary.get("window_end")   or summary.get("month_end")   or ""
+        # DATE
+        c.setFont(H_MONO, 7.5); c.setFillColor(INK)
+        c.drawString(col_x[1], text_top_y, date)
 
-    # Header date strip: "01 APR – 30 APR 2026"
-    try:
-        ws = datetime.fromisoformat(win_start[:10])
-        we = datetime.fromisoformat(win_end[:10])
-        date_strip = f"{ws.strftime('%d %b').upper()} – {we.strftime('%d %b %Y').upper()}"
-    except Exception:
-        date_strip = f"{win_start} – {win_end}"
+        # PATHOGEN + T1 (+ optional OUTBREAK black)
+        c.setFont(H_REG, 8.5); c.setFillColor(INK)
+        c.drawString(col_x[2], text_top_y, pathogen)
+        c.setFont(H_BOLD, 7.5); c.setFillColor(NAVY)
+        c.drawString(col_x[2] + _text_w(pathogen, H_REG, 8.5) + 5, text_top_y, "T1")
+        if flag:
+            c.setFont(H_BOLD, 7); c.setFillColor(NAVY)   # OUTBREAK in black
+            c.drawString(col_x[2], text_top_y - 11, flag)
 
-    # Stats — accept either nested s.stats.total or flat s.total
-    stats = summary.get("stats") or {}
-    total     = stats.get("total")     if stats else summary.get("total", "—")
-    tier1     = stats.get("tier1")     if stats else summary.get("tier1", "—")
-    outbreaks = stats.get("outbreaks") if stats else summary.get("outbreaks", "—")
+        # COMPANY / BRAND (+ country muted)
+        cy = text_top_y
+        c.setFont(comp_font, COMPANY_FONT_SIZE); c.setFillColor(INK)
+        for ln in comp_lines:
+            c.drawString(col_x[3], cy, ln); cy -= COMPANY_LEADING
+        c.setFont(H_REG, 7.2); c.setFillColor(MUTED)
+        c.drawString(col_x[3], cy, country)
 
-    # Leading pathogen — same nested-or-flat tolerance
-    lp = summary.get("leading_pathogen") or {}
-    if isinstance(lp, dict):
-        lead_name = lp.get("name") or "—"
-    else:
-        tp = summary.get("top_pathogen")
-        lead_name = tp[0] if isinstance(tp, list) and tp else (tp or "—")
+        # PRODUCT
+        py = text_top_y
+        c.setFont(H_REG, PRODUCT_FONT_SIZE); c.setFillColor(INK)
+        for ln in prod_lines:
+            c.drawString(col_x[4], py, ln); py -= PRODUCT_LEADING
 
-    # Top 10 — already pre-shaped by the monthly builder. Take up to 10.
-    top10 = summary.get("top10") or []
-    top10 = top10[:10]
-    section_title = f"§ TOP {len(top10)} CRITICAL INCIDENTS · {month_name.upper()} {year}"
-    rows_html = "".join(render_top10_row(r) for r in top10) if top10 else (
-        f'<tr><td colspan="6" style="padding:18px;text-align:center;'
-        f'color:{MUTED};font-style:italic">No critical incidents recorded for this period.</td></tr>'
-    )
+        # SOURCE — black bold, right-aligned + orange "view →"
+        sy = text_top_y
+        c.setFont(H_BOLD, 8); c.setFillColor(NAVY)
+        for ln in src_lines:
+            w = _text_w(ln, H_BOLD, 8)
+            c.drawString(col_right - w - 2, sy, ln); sy -= 10
+        c.setFont(H_REG, 7.5); c.setFillColor(ORANGE)
+        view_text = "view →"
+        vw = _text_w(view_text, H_REG, 7.5)
+        c.drawString(col_right - vw - 2, sy - 1, view_text)
 
-    gen_stamp = datetime.now(timezone.utc).astimezone().strftime("%-d %b %Y · %H:%M Athens")
+        y = row_y
 
-    return f"""<!doctype html>
-<html><head><meta charset="utf-8">
-<title>AFTS · Monthly Briefing · {_h(month_name)} {year}</title>
-<style>
-  @page {{ size: A4; margin: 14mm 12mm 12mm 12mm; }}
-  * {{ box-sizing: border-box; }}
-  body {{
-    margin: 0; padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: {INK}; background: {BG};
-    font-size: 10.5px; line-height: 1.45;
-  }}
-  .header-bar {{
-    background: {BLACK}; color: #fff;
-    padding: 10px 16px;
-    margin-bottom: 0;
-  }}
-  .header-eyebrow {{
-    font-family: monospace;
-    font-size: 8.5px;
-    color: #94a3b8;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-bottom: 3px;
-  }}
-  .header-title {{
-    font-family: Georgia, serif;
-    font-weight: 800;
-    font-size: 18px;
-    letter-spacing: -0.01em;
-  }}
-  .header-month {{
-    font-family: monospace;
-    font-size: 10px;
-    color: {ORANGE};
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    margin-top: 2px;
-  }}
-  .subhead {{
-    background: {S1};
-    border-left: 3px solid {ORANGE};
-    padding: 10px 14px;
-    margin: 0;
-    font-size: 10px;
-    line-height: 1.55;
-    color: {INK};
-  }}
-  .subhead strong {{ color: {BLACK}; font-weight: 800; }}
-  .stats-row {{
-    display: flex;
-    gap: 10px;
-    padding: 14px 0 16px 0;
-    margin: 0;
-  }}
-  .stat-tile {{
-    flex: 1;
-    border: 1px solid {BRD};
-    background: {S1};
-    padding: 12px 8px;
-    text-align: center;
-  }}
-  .stat-tile .num {{
-    font-family: Georgia, serif;
-    font-weight: 800;
-    font-size: 28px;
-    line-height: 1;
-    color: {BLACK};
-  }}
-  .stat-tile.tier1 .num {{ color: {RED}; }}
-  .stat-tile.outbreak .num {{ color: {ORANGE}; }}
-  .stat-tile .lbl {{
-    font-family: monospace;
-    font-size: 8.5px;
-    color: {MUTED};
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-top: 5px;
-    font-weight: 700;
-  }}
-  .section-title {{
-    font-family: Georgia, serif;
-    font-weight: 800;
-    font-size: 13px;
-    color: {BLACK};
-    margin: 6px 0 8px 0;
-    padding-bottom: 5px;
-    border-bottom: 2px solid {BLACK};
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-  }}
-  table.top10 {{
-    width: 100%;
-    border-collapse: collapse;
-    border-top: 1px solid {BRD};
-  }}
-  table.top10 thead th {{
-    font-family: monospace;
-    font-size: 8.5px;
-    color: {MUTED};
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    text-align: left;
-    padding: 6px 6px;
-    border-bottom: 1px solid {BRD};
-    font-weight: 700;
-  }}
-  table.top10 thead th.center {{ text-align: center; }}
-  table.top10 thead th.right  {{ text-align: right; }}
-  .footer {{
-    margin-top: 16px;
-    padding-top: 10px;
-    border-top: 1px solid {BRD};
-    font-size: 9px;
-    color: {MUTED};
-    line-height: 1.55;
-    text-align: center;
-  }}
-  .footer .brand {{
-    font-family: Georgia, serif;
-    font-weight: 800;
-    color: {BLACK};
-    font-size: 9.5px;
-    letter-spacing: 0.02em;
-    margin-bottom: 3px;
-  }}
-  .footer .tagline {{ color: {INK}; }}
-  .footer .contact {{ font-family: monospace; letter-spacing: 0.06em; }}
-</style>
-</head>
-<body>
+    # -------- FOOTER ----------------------------------------------------------
+    foot_h = 46
+    c.setFillColor(NAVY); c.rect(0, 0, PAGE_W, foot_h, fill=1, stroke=0)
+    c.setFillColor(WHITE)
+    _draw_letter_spaced(c, MARGIN_L, foot_h / 2 - 2,
+                        "ADVANCED FOOD-TECH SOLUTIONS · AFTS",
+                        H_BOLD, 7.0, WHITE, tracking=0.8)
+    right_top = "Food Process Engineering · Thermal Processing · Regulatory Compliance"
+    right_bot = "advfood.tech · info@advfood.tech · Athens, Greece"
+    c.setFont(H_REG, 7.0); c.setFillColor(WHITE)
+    c.drawString(PAGE_W - MARGIN_R - _text_w(right_top, H_REG, 7.0), foot_h / 2 + 4, right_top)
+    c.drawString(PAGE_W - MARGIN_R - _text_w(right_bot, H_REG, 7.0), foot_h / 2 - 8, right_bot)
 
-<div class="header-bar">
-  <div class="header-eyebrow">Advanced Food-Tech Solutions · AFTS</div>
-  <div class="header-title">Food Safety Intelligence System</div>
-  <div class="header-month">{_h(month_name).upper()} {year}</div>
-</div>
-
-<div class="subhead">
-  <strong>Monthly Pathogen Surveillance · {_h(month_name)} {year}</strong>
-   · {date_strip} · <strong>{fmt_int(total)}</strong> recalls
-   · <strong>{fmt_int(tier1)}</strong> Tier-1
-   · <strong>{fmt_int(outbreaks)}</strong> outbreaks
-   · <strong>Leading: {_h(lead_name)}</strong>
-</div>
-
-<div class="stats-row">
-  <div class="stat-tile total">
-    <div class="num">{fmt_int(total)}</div>
-    <div class="lbl">Total Recalls</div>
-  </div>
-  <div class="stat-tile tier1">
-    <div class="num">{fmt_int(tier1)}</div>
-    <div class="lbl">Tier-1 Critical</div>
-  </div>
-  <div class="stat-tile outbreak">
-    <div class="num">{fmt_int(outbreaks)}</div>
-    <div class="lbl">Outbreaks</div>
-  </div>
-</div>
-
-<div class="section-title">{_h(section_title)}</div>
-
-<table class="top10">
-  <thead>
-    <tr>
-      <th class="center" style="width:4%">#</th>
-      <th style="width:11%">Date</th>
-      <th style="width:23%">Pathogen</th>
-      <th style="width:22%">Company / Country</th>
-      <th style="width:30%">Product</th>
-      <th class="right" style="width:10%">Source</th>
-    </tr>
-  </thead>
-  <tbody>
-    {rows_html}
-  </tbody>
-</table>
-
-<div class="footer">
-  <div class="brand">ADVANCED FOOD-TECH SOLUTIONS · AFTS</div>
-  <div class="tagline">
-    Food Process Engineering · Thermal Processing · Regulatory Compliance
-  </div>
-  <div style="margin-top:4px">Generated {gen_stamp}</div>
-  <div class="contact" style="margin-top:3px">
-    advfood.tech · info@advfood.tech · Athens, Greece
-  </div>
-</div>
-
-</body></html>
-"""
+    c.showPage()
+    c.save()
+    return out_path
 
 
-# ──────────────────────────────────────────────────────────────────────
-# PDF render
-# ──────────────────────────────────────────────────────────────────────
-def render_pdf(html: str, out_path: Path) -> None:
-    """Render the HTML one-pager to PDF using WeasyPrint."""
-    from weasyprint import HTML
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    HTML(string=html).write_pdf(str(out_path))
-    log.info("Wrote marketing PDF: %s (%d bytes)",
-             out_path, out_path.stat().st_size)
-
-
-# ──────────────────────────────────────────────────────────────────────
-# Main
-# ──────────────────────────────────────────────────────────────────────
-def main() -> int:
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--summary", required=True, type=Path,
-                   help="Path to monthly-summary-latest.json")
-    p.add_argument("--out-dir", required=True, type=Path,
-                   help="Output directory (e.g. docs/marketing)")
-    p.add_argument("--out-name", default=None,
-                   help="Output filename (default: <month_tag>-marketing.pdf)")
-    args = p.parse_args()
-
-    summary = load_summary(args.summary)
-    month_tag = (
-        summary.get("month_tag")
-        or summary.get("month")
-        or (summary.get("month_end", "")[:7].replace("-", "-M") if summary.get("month_end") else None)
-    )
-    if not month_tag:
-        log.error("Could not derive month_tag from summary")
-        return 1
-
-    out_name = args.out_name or f"{month_tag}-marketing.pdf"
-    out_path = args.out_dir / out_name
-
-    html = build_html(summary)
-    render_pdf(html, out_path)
-    return 0
-
+# =============================================================================
+# CLI / standalone test
+# =============================================================================
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # smoke test with April 2026 content
+    sample: MonthData = {
+        "month_tag":        "APRIL 2026",
+        "period_line":      "01 APR – 30 APR 2026",
+        "total_recalls":    236,
+        "tier1":            198,
+        "outbreaks":        6,
+        "leading_pathogen": "Listeria monocytogenes",
+        "rows": [
+            {"date": "2026-04-14", "pathogen": "Clostridium botulinum",
+             "company": "Liquid Blenz Corp", "country": "USA",
+             "product": "Good Brain Tonic 16 oz (UPC 860010984468) and 32 oz (UPC 860010984475) — all codes",
+             "source": "FDA"},
+            {"date": "2026-04-09", "pathogen": "Listeria monocytogenes", "outbreak": True,
+             "company": "Νικόλαος Τσατσούλης & Υιοί Ο.Ε.", "country": "Greece",
+             "product": "Feta PDO in barrel (batch ΦΕ-2751, produced 2026-01-24, use-by 2027-07-24)",
+             "source": "EFET (GR)"},
+            # ... etc
+        ],
+    }
+    out = render_marketing_pdf("test_marketing.pdf", sample)
+    print(f"wrote {out}")
