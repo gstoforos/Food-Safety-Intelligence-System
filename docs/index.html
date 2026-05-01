@@ -2,6 +2,15 @@
 <html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Cache-busting: this page is embedded as an iframe inside Wix
+     (advfood.tech/fsistest). Without these tags, Wix's CDN holds a
+     stale copy of the rendered cards even after weekly-index.json
+     updates on GitHub Pages. Telling browsers/proxies not to cache
+     the HTML means each pageview re-fetches and the JS then re-fetches
+     weekly-index.json with its own cache-buster query string. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>AFTS · Food Safety Intelligence System</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -461,9 +470,12 @@ function renderNews(){
 }
 
 // ===== WEEKLY REPORTS =====
-function loadReports(){
-  // Embedded reports data (bypasses server file access issues)
-  const reports = [
+// Fetches data/weekly-index.json (committed by the Friday weekly-report
+// workflow) on first tab click. The JSON is the single source of truth;
+// the embedded FALLBACK_REPORTS only renders if the fetch fails (cache,
+// offline, or a fresh-deploy race condition). Mirrors the monthly loader.
+async function loadReports(){
+  const FALLBACK_REPORTS = [
     {
         "filename": "2026-W17.html",
         "week_num": 17,
@@ -517,8 +529,25 @@ function loadReports(){
         "summary": "Week 14 saw 13 pathogen recalls with Listeria monocytogenes as primary concern."
     }
 ];
-  
-  // 1. Defensive filter: never show future-dated weeks even if they snuck into the array
+
+  let reports = FALLBACK_REPORTS;
+  try {
+    // Cache-bust so the published index refresh isn't trapped behind an
+    // old Service Worker or CDN cache (same trick as monthly loader).
+    const r = await fetch('data/weekly-index.json?_=' + Date.now(), {cache: 'no-store'});
+    if (r.ok) {
+      const j = await r.json();
+      // Accept either a bare array or a wrapped {reports:[...]} object.
+      const arr = Array.isArray(j) ? j : (Array.isArray(j.reports) ? j.reports : null);
+      if (arr && arr.length) {
+        reports = arr.slice().sort((a, b) => String(b.week_end || '').localeCompare(String(a.week_end || '')));
+      }
+    }
+  } catch (e) {
+    console.warn('weekly-index.json fetch failed, using embedded fallback:', e);
+  }
+
+  // 1. Defensive filter: never show future-dated weeks.
   const todayISO = new Date().toISOString().slice(0,10);
   const published = reports.filter(r => (r.week_end || '') <= todayISO);
   document.getElementById('rep-count').textContent = published.length ? '· '+published.length : '';
@@ -527,9 +556,8 @@ function loadReports(){
     return;
   }
 
-  // 2. Split: most recent 6 as rich cards, remainder as compact archive entries.
-  //    When weeks pile up (52/yr), this keeps the page scannable without hiding content.
-  const RICH_LIMIT = 6;
+  // 2. Split: most recent 4 as rich cards (per spec), remainder in archive.
+  const RICH_LIMIT = 4;
   const richCards  = published.slice(0, RICH_LIMIT);
   const archive    = published.slice(RICH_LIMIT);
 
@@ -551,14 +579,11 @@ function loadReports(){
     </div>`;
   };
 
-  // Archive: one-line rows grouped by year, collapsible.
-  // Only rendered when there's content beyond the rich cards.
   const renderArchive = rows => {
-    if(!rows.length) return '';
-    // Group by year
+    if (!rows.length) return '';
     const byYear = {};
     rows.forEach(r => { (byYear[r.year] = byYear[r.year] || []).push(r); });
-    const years = Object.keys(byYear).sort((a,b)=>b-a);
+    const years = Object.keys(byYear).sort((a, b) => b - a);
     const currentYear = new Date().getFullYear();
     const yearBlocks = years.map(y => {
       const entries = byYear[y].map(r => {

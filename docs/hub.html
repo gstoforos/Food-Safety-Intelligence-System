@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<!-- Cache-busting (see docs/index.html for full rationale): this page
+     is embedded inside Wix (advfood.tech/2026-recalls-market-withdrawals)
+     and Wix's CDN aggressively caches iframe contents. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <title>Food Safety Intelligence System · Advanced Food-Tech Solutions</title>
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,600;0,700;0,800;0,900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
