@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-04-30",
+  "Source": "FSANZ",
+  "Company": "Concordia Traders (Aust) Pty Ltd",
+  "Brand": "Concordia Traders (Aust) Pty Ltd",
+  "Product": "Enoki Mushroom 350g",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes — outbreak",
+  "Class": "Recall",
+  "Country": "Australia",
+  "Region": "Oceania",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/concordia-traders-aust-pty-ltd-enoki-mushroom-350g",
+  "Notes": "Concordia Traders (Aust) Pty Ltd - Enoki Mushroom 350g | Food Standards Australia New Zealand\n\nPublished 30 April 2026\n\nConcordia Traders (Aust) Pty Ltd are conducting a recall of the above products. The product has been available for sale in Asian grocers in VIC, NSW and SA.\n\nDate Marking: USE BY 2  [via Exa gap-finder, deterministic extract] [gap-gate 2026-04-30: pending_gap → pending_gap_v1] [gap-gate 2026-05-01: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-01: pass; pass | All fields verified: publication date 2026-04-30 matches row; company Concordia Traders (Aust) Pty Ltd is the rec] [gap-gate 2026-05-01: pending_gap_v2 → pending (Claude verified)]"
+ },
+ {
   "Date": "2026-04-29",
   "Source": "RappelConso (FR)",
   "Company": "",
