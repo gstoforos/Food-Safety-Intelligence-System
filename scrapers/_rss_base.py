@@ -350,10 +350,16 @@ class BaseRegulatorRSS(BaseScraper):
             merged, re.IGNORECASE | re.UNICODE,
         ) else 0
 
+        # Normalise (Company, Brand) — see scrapers/_company_normalise.py
+        # RSS feeds rarely emit both fields, but the company string
+        # benefits from the casing pass for all-caps regulators.
+        from scrapers._company_normalise import normalise_company_brand
+        _co, _br = normalise_company_brand(company, "—")
+
         return self._new_recall(
             Date=pub.strftime("%Y-%m-%d"),
-            Company=company,
-            Brand="—",
+            Company=_co,
+            Brand=_br,
             Product=title[:300],
             Pathogen=pathogen or (title[:100] if pathogen == "" else pathogen),
             Reason=desc[:300] or title[:300],

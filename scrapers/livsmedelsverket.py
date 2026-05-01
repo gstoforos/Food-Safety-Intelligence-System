@@ -48,10 +48,16 @@ class RappelConsoScraper(BaseScraper):
                 fid = rec.get("identifiant_unique_de_l_alerte") or ref
                 url = (rec.get("lien_vers_la_fiche_rappel") or
                        (f"https://rappel.conso.gouv.fr/fiche-rappel/{fid}/Interne" if fid else ""))
+                # Normalise (Company, Brand) — see scrapers/_company_normalise.py
+                from scrapers._company_normalise import normalise_company_brand
+                _co, _br = normalise_company_brand(
+                    rec.get("nom_de_la_societe_responsable_de_la_commercialisation", ""),
+                    rec.get("nom_de_la_marque_du_produit", "—"),
+                )
                 out.append(self._new_recall(
                     Date=rec.get("date_publication", "")[:10],
-                    Company=rec.get("nom_de_la_societe_responsable_de_la_commercialisation", ""),
-                    Brand=rec.get("nom_de_la_marque_du_produit", "—"),
+                    Company=_co,
+                    Brand=_br,
                     Product=(rec.get("noms_des_modeles_ou_references", "") or
                              rec.get("sous_categorie_de_produit", ""))[:300],
                     Pathogen=rec.get("risques_encourus_par_le_consommateur", "")[:200],

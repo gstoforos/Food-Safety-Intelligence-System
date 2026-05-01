@@ -94,10 +94,13 @@ class CFIAScraper(BaseScraper):
                 # Extract company/product from title (format: "Company recalls Product due to ...")
                 m = re.match(r"^(.+?)\s+(?:recalls?|brand|recalled|may contain).*", title, re.I)
                 company = m.group(1).strip() if m else title.split(" - ")[0]
+                # Normalise (Company, Brand) — see scrapers/_company_normalise.py
+                from scrapers._company_normalise import normalise_company_brand
+                _co, _br = normalise_company_brand(company[:100], "—")
                 out.append(self._new_recall(
                     Date=d.strftime("%Y-%m-%d"),
-                    Company=company[:100],
-                    Brand="—",
+                    Company=_co,
+                    Brand=_br,
                     Product=title[:300],
                     Pathogen=title[:120],
                     Reason=desc[:300] or title[:300],

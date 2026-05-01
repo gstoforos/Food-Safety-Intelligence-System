@@ -139,10 +139,13 @@ class FSANZScraper(BaseScraper):
                     dropped_no_hazard += 1
                     continue
 
+                # Normalise (Company, Brand) — see scrapers/_company_normalise.py
+                from scrapers._company_normalise import normalise_company_brand
+                _co, _br = normalise_company_brand(title.split(" - ")[0][:120], "—")
                 out.append(self._new_recall(
                     Date=d.strftime("%Y-%m-%d"),
-                    Company=title.split(" - ")[0][:120],
-                    Brand="—",
+                    Company=_co,
+                    Brand=_br,
                     Product=title[:300],
                     Pathogen=pathogen,
                     Reason=text[:400],

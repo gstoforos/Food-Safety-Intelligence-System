@@ -47,10 +47,16 @@ class USDAFSISScraper(BaseScraper):
                 reason = (rec.get("field_summary", "") or "").lower()
                 if not any(p in reason for p in self.PATHOGEN_KEYWORDS):
                     continue
+                # Normalise (Company, Brand) — see scrapers/_company_normalise.py
+                from scrapers._company_normalise import normalise_company_brand
+                _co, _br = normalise_company_brand(
+                    rec.get("field_establishment", "") or rec.get("field_recall_company", ""),
+                    "—",
+                )
                 out.append(self._new_recall(
                     Date=d.strftime("%Y-%m-%d"),
-                    Company=rec.get("field_establishment", "") or rec.get("field_recall_company", ""),
-                    Brand="—",
+                    Company=_co,
+                    Brand=_br,
                     Product=(rec.get("field_product_items", "") or rec.get("title", ""))[:300],
                     Pathogen=rec.get("field_summary", "")[:200],
                     Reason=rec.get("field_summary", "")[:300],
