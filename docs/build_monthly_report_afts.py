@@ -1585,12 +1585,60 @@ def write_monthly_summary_json(month_start: date, month_end: date,
     email_html = build_monthly_email_html(stats, signals, models,
                                           month_start, month_end, report_url)
 
+    # Build the nested objects the Apps Script mailer expects (matches the
+    # exact shape that weekly-summary-latest.json uses, so buildSubject_,
+    # buildEmailHtml_, buildEmailText_ all read s.stats.total / s.stats.tier1
+    # / s.stats.outbreaks and s.leading_pathogen.name without crashing).
+    tp = stats.get("top_pathogen")
+    if tp and len(tp) >= 2:
+        leading_pathogen_obj = {
+            "name": tp[0],
+            "cases": tp[1],
+            "pct":  round(tp[1] / max(stats["total"], 1) * 100),
+        }
+    else:
+        leading_pathogen_obj = {"name": "Mixed", "cases": 0, "pct": 0}
+
+    stats_obj = {
+        "total":     stats["total"],
+        "tier1":     stats["tier1"],
+        "outbreaks": stats["outbreaks"],
+        "delta":     stats.get("delta", 0),
+        "delta_pct": stats.get("delta_pct", 0),
+    }
+
+    # top_threats — exactly the shape the mailer's threatRows mapper reads.
+    # The mailer iterates s.top_threats (slice(0,5)) and reads .rank, .date,
+    # .country, .pathogen, .company, .brand, .product, .url, .tier, .outbreak.
+    # We have all of that already in top10_out, just renamed.
+    top_threats_obj = [{
+        "rank":     t["rank"],
+        "date":     t["date"],
+        "country":  t["country"],
+        "pathogen": t["pathogen"],
+        "company":  t["company"],
+        "brand":    t["brand"],
+        "product":  t["product"],
+        "url":      t["url"],
+        "tier":     t["tier"],
+        "outbreak": t["outbreak"],
+    } for t in top10_out[:5]]
+
     payload = {
         "month":            year_m,
+        "month_tag":        year_m,           # mailer uses this to locate docs/<month_tag>.pdf
         "month_name":       month_name,
         "year":             year,
+        "month_num":        month_start.month,
         "window_start":     month_start.isoformat(),
         "window_end":       month_end.isoformat(),
+        "month_end":        month_end.isoformat(),  # mailer fallback for monthTag
+        # Nested objects (mailer reads these — required to NOT crash)
+        "stats":            stats_obj,
+        "leading_pathogen": leading_pathogen_obj,
+        "top_threats":      top_threats_obj,
+        # Flat fields kept for backward compatibility with anything else
+        # that may have been reading the flat shape (dashboard, other scripts)
         "total":            stats["total"],
         "tier1":            stats["tier1"],
         "outbreaks":        stats["outbreaks"],
@@ -1612,6 +1660,10 @@ def write_monthly_summary_json(month_start: date, month_end: date,
         "dashboard_url":    dashboard_url,
         "top10":            top10_out,
         "email_html":       email_html,
+        # Both keys for compatibility — weekly uses generated_utc, monthly
+        # was written with generated_at; emit both so the mailer's stale
+        # guard (which checks generated_utc) works in either codebase.
+        "generated_utc":    datetime.now(timezone.utc).isoformat(),
         "generated_at":     datetime.now(timezone.utc).isoformat(),
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
