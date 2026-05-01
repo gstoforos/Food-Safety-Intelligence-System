@@ -45,8 +45,6 @@ BAND   = HexColor("#F3F4F6")   # section header / meta strip / table head
 ALT    = HexColor("#F9FAFB")   # subtle alt row
 WHITE  = HexColor("#FFFFFF")
 
-H_REG  = "Helvetica"
-H_BOLD = "Helvetica-Bold"
 H_MONO = "Courier"
 
 PAGE_W, PAGE_H = A4
@@ -56,56 +54,106 @@ CONTENT_W = PAGE_W - MARGIN_L - MARGIN_R
 
 
 # =============================================================================
-# UNICODE / GREEK FONT REGISTRATION (one-time, idempotent)
+# EMBEDDED BODY FONT REGISTRATION
 # =============================================================================
+#
+# Strategy: register a Unicode TTF family at module import and use it as the
+# primary body family. Embedding the font into the PDF means every viewer —
+# Acrobat, Preview, Chrome, Wix iframe, mobile, low-spec readers — renders the
+# document identically. Without embedding, PDF-core "Helvetica" gets
+# substituted on systems missing it, and Times Roman is the common fallback
+# (which is why earlier exports looked serif on some machines).
+#
+# Family preference, in order:
+#   1. Liberation Sans   — metric-compatible with Helvetica/Arial → existing
+#                          column coordinates and width math just work; full
+#                          Greek + extended-Latin coverage; embeddable.
+#   2. DejaVu Sans       — wider than Helvetica (would shift the layout) but
+#                          present on the GH-Actions runner via fonts-dejavu-core.
+#   3. Helvetica core    — last-resort fallback; NOT embedded, may render as
+#                          Times on viewers without Helvetica installed.
 
-_DEJAVU_CANDIDATES = [
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",                      # Debian/Ubuntu
-    "/usr/share/fonts/dejavu/DejaVuSans.ttf",                               # Fedora/CentOS
-    "/Library/Fonts/DejaVuSans.ttf",                                        # macOS (manual)
-    "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",                 # macOS fallback
-    "C:/Windows/Fonts/DejaVuSans.ttf",                                      # Windows (manual)
-    "C:/Windows/Fonts/arial.ttf",                                           # Windows fallback
+_FONT_FAMILIES = [
+    # (family_label, regular_paths, bold_paths, italic_paths)
+    ("Liberation",
+        [
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+            "/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
+            "/Library/Fonts/LiberationSans-Regular.ttf",
+        ],
+        [
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+            "/usr/share/fonts/liberation/LiberationSans-Bold.ttf",
+            "/Library/Fonts/LiberationSans-Bold.ttf",
+        ],
+        [
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Italic.ttf",
+            "/usr/share/fonts/liberation/LiberationSans-Italic.ttf",
+            "/Library/Fonts/LiberationSans-Italic.ttf",
+        ]),
+    ("DejaVu",
+        [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/dejavu/DejaVuSans.ttf",
+            "/Library/Fonts/DejaVuSans.ttf",
+            "C:/Windows/Fonts/DejaVuSans.ttf",
+        ],
+        [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf",
+            "/Library/Fonts/DejaVuSans-Bold.ttf",
+            "C:/Windows/Fonts/DejaVuSans-Bold.ttf",
+        ],
+        [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf",
+            "/usr/share/fonts/dejavu/DejaVuSans-Oblique.ttf",
+            "/Library/Fonts/DejaVuSans-Oblique.ttf",
+            "C:/Windows/Fonts/DejaVuSans-Oblique.ttf",
+        ]),
 ]
-_DEJAVU_BOLD_CANDIDATES = [
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-    "/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf",
-    "/Library/Fonts/DejaVuSans-Bold.ttf",
-    "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
-    "C:/Windows/Fonts/DejaVuSans-Bold.ttf",
-    "C:/Windows/Fonts/arialbd.ttf",
-]
-
-UNICODE_FONT_NAME = "DejaVu"
-UNICODE_FONT_BOLD = "DejaVu-Bold"
-_UNICODE_FONT_OK = False
 
 
-def _register_unicode_font() -> bool:
-    """Register a Unicode TTF for Greek/extended-Latin once. Returns True on success."""
-    global _UNICODE_FONT_OK
-    if _UNICODE_FONT_OK:
-        return True
-    if UNICODE_FONT_NAME in pdfmetrics.getRegisteredFontNames():
-        _UNICODE_FONT_OK = True
-        return True
-    reg_path = next((p for p in _DEJAVU_CANDIDATES      if os.path.exists(p)), None)
-    bold_path = next((p for p in _DEJAVU_BOLD_CANDIDATES if os.path.exists(p)), None)
-    if not reg_path:
-        return False
-    try:
-        pdfmetrics.registerFont(TTFont(UNICODE_FONT_NAME, reg_path))
-        if bold_path:
-            pdfmetrics.registerFont(TTFont(UNICODE_FONT_BOLD, bold_path))
-        _UNICODE_FONT_OK = True
-        return True
-    except Exception:
-        return False
+def _register_body_family():
+    """Register the first available family. Returns dict with regular/bold/italic font names."""
+    for label, reg_paths, bold_paths, ital_paths in _FONT_FAMILIES:
+        reg_path  = next((p for p in reg_paths  if os.path.exists(p)), None)
+        bold_path = next((p for p in bold_paths if os.path.exists(p)), None)
+        if not (reg_path and bold_path):
+            continue
+        try:
+            reg_name  = label
+            bold_name = f"{label}-Bold"
+            ital_name = f"{label}-Italic"
+            registered = pdfmetrics.getRegisteredFontNames()
+            if reg_name not in registered:
+                pdfmetrics.registerFont(TTFont(reg_name, reg_path))
+            if bold_name not in registered:
+                pdfmetrics.registerFont(TTFont(bold_name, bold_path))
+            ital_resolved = reg_name  # fallback to regular if italic TTF missing
+            ital_path = next((p for p in ital_paths if os.path.exists(p)), None)
+            if ital_path:
+                if ital_name not in pdfmetrics.getRegisteredFontNames():
+                    pdfmetrics.registerFont(TTFont(ital_name, ital_path))
+                ital_resolved = ital_name
+            return {"regular": reg_name, "bold": bold_name, "italic": ital_resolved}
+        except Exception:
+            continue
+    return {}
 
 
-def _needs_unicode(s: str) -> bool:
-    """True if string contains chars beyond Latin Extended-B (Helvetica core can't render)."""
-    return any(ord(ch) > 0x024F for ch in s)
+_BODY = _register_body_family()
+
+if _BODY:
+    H_REG  = _BODY["regular"]    # "Liberation" or "DejaVu"
+    H_BOLD = _BODY["bold"]       # "Liberation-Bold" or "DejaVu-Bold"
+    H_ITAL = _BODY["italic"]     # "Liberation-Italic" or "DejaVu-Italic" (or regular fallback)
+else:
+    # Last-resort fallback — PDF-core Helvetica. NOT embedded. May substitute
+    # to Times on viewers missing Helvetica. Production hosts should always
+    # have Liberation or DejaVu installed.
+    H_REG  = "Helvetica"
+    H_BOLD = "Helvetica-Bold"
+    H_ITAL = "Helvetica-Oblique"
 
 
 # =============================================================================
@@ -168,6 +216,7 @@ class IncidentRow(TypedDict, total=False):
     country: str
     product: str      # long; will wrap
     source: str       # agency label, e.g. "FDA", "EFET (GR)", "RappelConso (FR)"
+    url: str          # source URL — wired into clickable "view →" link annotation
 
 
 class MonthData(TypedDict, total=False):
@@ -224,7 +273,6 @@ def _wrap(text, font, size, max_w):
 def render_marketing_pdf(out_path: str, m: MonthData) -> str:
     """Render the marketing PDF for one month. Returns out_path."""
 
-    have_unicode = _register_unicode_font()
     section_title = m.get("section_title") or \
                     f"§ TOP {len(m['rows'])} CRITICAL INCIDENTS · {m['month_tag']}"
     leading = extract_leading_genus(m["leading_pathogen"])
@@ -358,10 +406,8 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
         product  = row.get("product", "")
         source   = row["source"]
 
-        comp_font = UNICODE_FONT_NAME if (have_unicode and _needs_unicode(company)) else H_REG
-
         prod_lines = _wrap(product, H_REG, PRODUCT_FONT_SIZE, col_widths[4])
-        comp_lines = _wrap(company, comp_font, COMPANY_FONT_SIZE, col_widths[3])
+        comp_lines = _wrap(company, H_BOLD, COMPANY_FONT_SIZE, col_widths[3])
         src_lines  = _wrap(source, H_BOLD, 8, col_widths[5])
 
         n_path = 1 + (1 if flag else 0)
@@ -392,18 +438,18 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
         c.setFont(H_MONO, 7.5); c.setFillColor(INK)
         c.drawString(col_x[1], text_top_y, date)
 
-        # PATHOGEN + T1 (+ optional OUTBREAK black)
-        c.setFont(H_REG, 8.5); c.setFillColor(INK)
+        # PATHOGEN (italic) + T1 (black bold) + optional OUTBREAK (black bold)
+        c.setFont(H_ITAL, 8.5); c.setFillColor(INK)
         c.drawString(col_x[2], text_top_y, pathogen)
         c.setFont(H_BOLD, 7.5); c.setFillColor(NAVY)
-        c.drawString(col_x[2] + _text_w(pathogen, H_REG, 8.5) + 5, text_top_y, "T1")
+        c.drawString(col_x[2] + _text_w(pathogen, H_ITAL, 8.5) + 5, text_top_y, "T1")
         if flag:
             c.setFont(H_BOLD, 7); c.setFillColor(NAVY)   # OUTBREAK in black
             c.drawString(col_x[2], text_top_y - 11, flag)
 
         # COMPANY / BRAND (+ country muted)
         cy = text_top_y
-        c.setFont(comp_font, COMPANY_FONT_SIZE); c.setFillColor(INK)
+        c.setFont(H_BOLD, COMPANY_FONT_SIZE); c.setFillColor(INK)
         for ln in comp_lines:
             c.drawString(col_x[3], cy, ln); cy -= COMPANY_LEADING
         c.setFont(H_REG, 7.2); c.setFillColor(MUTED)
@@ -424,7 +470,23 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
         c.setFont(H_REG, 7.5); c.setFillColor(ORANGE)
         view_text = "view →"
         vw = _text_w(view_text, H_REG, 7.5)
-        c.drawString(col_right - vw - 2, sy - 1, view_text)
+        view_x = col_right - vw - 2
+        view_y = sy - 1
+        c.drawString(view_x, view_y, view_text)
+        # subtle orange underline so "view →" reads as a link
+        c.setStrokeColor(ORANGE); c.setLineWidth(0.5)
+        c.line(view_x, view_y - 1.2, view_x + vw, view_y - 1.2)
+
+        # Clickable annotation — covers the entire SOURCE column for this row,
+        # so clicking anywhere on the agency label or "view →" opens the recall.
+        url = (row.get("url") or "").strip()
+        if url:
+            c.linkURL(
+                url,
+                (col_x[5] - 4, row_y, col_right, y),
+                relative=0,
+                thickness=0,
+            )
 
         y = row_y
 
@@ -447,29 +509,111 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
 
 
 # =============================================================================
-# CLI / standalone test
+# JSON ADAPTER  (monthly-summary-latest.json  →  MonthData)
+# =============================================================================
+#
+# Reads the canonical FSIS summary JSON (produced by docs/build_monthly_report_afts.py)
+# and adapts it to the MonthData shape consumed by render_marketing_pdf().
+#
+# Required JSON keys:
+#   month         "2026-M04"           — used for output filename
+#   month_name    "April"              — used for big header (uppercased)
+#   year          2026
+#   window_start  "2026-04-01" (ISO)
+#   window_end    "2026-04-30" (ISO)
+#   stats         { total, tier1, outbreaks, ... }
+#   leading_pathogen { name, ... }
+#   top10         [ {date, pathogen, pathogen_raw, company, brand, country,
+#                    product, source, tier, outbreak, url}, ... × 10 ]
+#
+# top10 is preferred over top_threats because top10 has the `source` field
+# already populated and contains 10 entries (top_threats has 5 and no source).
+# =============================================================================
+
+def _load_summary_json(summary_path: str):
+    """Load monthly-summary-latest.json → (MonthData, file_tag)."""
+    import json
+    from datetime import date
+
+    with open(summary_path, encoding="utf-8") as f:
+        s = json.load(f)
+
+    month_name = s["month_name"]                       # "April"
+    year       = s["year"]                             # 2026
+    file_tag   = s["month"]                            # "2026-M04" (filename stem)
+    pretty_tag = f"{month_name.upper()} {year}"        # "APRIL 2026" (big header)
+
+    ws = date.fromisoformat(s["window_start"])
+    we = date.fromisoformat(s["window_end"])
+    abbr = month_name[:3].upper()                      # "APR"
+    period_line = f"{ws.strftime('%d')} {abbr} – {we.strftime('%d')} {abbr} {year}"
+
+    leading = (s.get("leading_pathogen") or {}).get("name", "")
+
+    rows: List[IncidentRow] = []
+    # Prefer top10 (10 entries, has `source`). Fall back to top_threats only if missing.
+    top_list = s.get("top10") or s.get("top_threats") or []
+    for it in top_list:
+        rows.append({
+            "date":     it.get("date", ""),
+            "pathogen": it.get("pathogen_raw") or it.get("pathogen", ""),
+            "outbreak": bool(it.get("outbreak")),
+            "company":  it.get("company") or "",
+            "country":  it.get("country") or "",
+            "product":  it.get("product") or "",
+            "source":   it.get("source") or "",
+            "url":      it.get("url") or "",
+        })
+
+    md: MonthData = {
+        "month_tag":        pretty_tag,
+        "period_line":      period_line,
+        "total_recalls":    int((s.get("stats") or {}).get("total",     s.get("total", 0))),
+        "tier1":            int((s.get("stats") or {}).get("tier1",     s.get("tier1", 0))),
+        "outbreaks":        int((s.get("stats") or {}).get("outbreaks", s.get("outbreaks", 0))),
+        "leading_pathogen": leading,
+        "rows":             rows,
+    }
+    return md, file_tag
+
+
+# =============================================================================
+# CLI ENTRY POINT
+# =============================================================================
+#
+# Invoked by .github/workflows/afts-monthly-report.yml as:
+#   python -m pipeline.build_monthly_marketing \
+#     --summary docs/data/monthly-summary-latest.json \
+#     --out-dir docs/marketing
+#
+# Output: <out-dir>/<month>-marketing.pdf  (e.g. docs/marketing/2026-M04-marketing.pdf)
+# This filename is what pipeline/set_pdf_urls.py looks for when wiring
+# pdf_url into monthly-index.json (hub.html consumes that field).
 # =============================================================================
 
 if __name__ == "__main__":
-    # smoke test with April 2026 content
-    sample: MonthData = {
-        "month_tag":        "APRIL 2026",
-        "period_line":      "01 APR – 30 APR 2026",
-        "total_recalls":    236,
-        "tier1":            198,
-        "outbreaks":        6,
-        "leading_pathogen": "Listeria monocytogenes",
-        "rows": [
-            {"date": "2026-04-14", "pathogen": "Clostridium botulinum",
-             "company": "Liquid Blenz Corp", "country": "USA",
-             "product": "Good Brain Tonic 16 oz (UPC 860010984468) and 32 oz (UPC 860010984475) — all codes",
-             "source": "FDA"},
-            {"date": "2026-04-09", "pathogen": "Listeria monocytogenes", "outbreak": True,
-             "company": "Νικόλαος Τσατσούλης & Υιοί Ο.Ε.", "country": "Greece",
-             "product": "Feta PDO in barrel (batch ΦΕ-2751, produced 2026-01-24, use-by 2027-07-24)",
-             "source": "EFET (GR)"},
-            # ... etc
-        ],
-    }
-    out = render_marketing_pdf("test_marketing.pdf", sample)
-    print(f"wrote {out}")
+    import argparse
+    import pathlib
+    import sys
+
+    p = argparse.ArgumentParser(
+        description="Render the FSIS monthly marketing one-pager PDF (lead magnet).",
+    )
+    p.add_argument("--summary", required=True,
+                   help="Path to monthly-summary-latest.json")
+    p.add_argument("--out-dir", required=True,
+                   help="Directory to write <month>-marketing.pdf into")
+    args = p.parse_args()
+
+    if not os.path.exists(args.summary):
+        print(f"ERROR: summary file not found: {args.summary}", file=sys.stderr)
+        sys.exit(2)
+
+    md, file_tag = _load_summary_json(args.summary)
+
+    out_dir = pathlib.Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = str(out_dir / f"{file_tag}-marketing.pdf")
+
+    render_marketing_pdf(out_path, md)
+    print(f"wrote {out_path}")
