@@ -146,8 +146,13 @@ def _linear_trend(monthly_counts: Sequence[Tuple[str, int]]) -> Dict[str, Any]:
     ss_tot = sum((y - mean_y) ** 2 for y in ys)
     r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else 0.0
 
-    # Slope SE + t-stat (Student-t with n-2 df, asymptotic to z; for
-    # small n we approximate "significant" as |t| ≥ 2.0).
+    # Slope SE + t-stat. With n-2 degrees of freedom, the critical t for a
+    # two-sided 95% test is 4.30 at dof=2 (n=4), 2.78 at dof=4 (n=6),
+    # 2.23 at dof=10 (n=12), 2.07 at dof=22 (n=24). The legacy "|t|≥2"
+    # rule is only reasonable once dof is at least ~10, i.e. n≥12. Below
+    # that, we explicitly refuse the significance claim and label the
+    # estimate as exploratory — matches review-1 correction (a 4-month
+    # series cannot be 95% significant at the |t|≥2 threshold).
     if n > 2:
         sigma2 = ss_res / (n - 2)
         slope_se = math.sqrt(sigma2 / sxx) if sxx > 0 else 0.0
@@ -155,7 +160,8 @@ def _linear_trend(monthly_counts: Sequence[Tuple[str, int]]) -> Dict[str, Any]:
         sigma2 = 0.0
         slope_se = 0.0
     t_stat = slope / slope_se if slope_se > 0 else 0.0
-    slope_significant = abs(t_stat) >= 2.0
+    MIN_N_FOR_SIGNIFICANCE = 12   # ~dof=10, where t-crit ≈ 2.23 ≈ "≥ 2"
+    slope_significant = (n >= MIN_N_FOR_SIGNIFICANCE) and (abs(t_stat) >= 2.0)
 
     # Next-month forecast + 95% CI (point ± 1.96 × prediction-SE)
     x_next = n  # next index after last
@@ -168,16 +174,28 @@ def _linear_trend(monthly_counts: Sequence[Tuple[str, int]]) -> Dict[str, Any]:
     ci_lo = point - 1.96 * pred_se
     ci_hi = point + 1.96 * pred_se
 
-    note = (f"Trend is {'rising' if slope > 0 else 'falling' if slope < 0 else 'flat'}; "
-            f"slope {'is' if slope_significant else 'not'} statistically significant.")
+    direction = "rising" if slope > 0 else "falling" if slope < 0 else "flat"
+    if n < MIN_N_FOR_SIGNIFICANCE:
+        note = (f"Direction: {direction} (slope {slope:+.1f}/month, r²={r2:.2f}). "
+                f"Estimate is exploratory — only {n} monthly observations available; "
+                f"a formal significance test requires n ≥ {MIN_N_FOR_SIGNIFICANCE} "
+                f"(critical t at α=0.05 is approximately {2.0 if n >= 12 else 4.30 if n == 4 else 3.18 if n == 5 else 2.78 if n == 6 else 2.45 if n == 7 else 2.31 if n == 8 else 2.23 if n == 9 else 2.18:.2f} "
+                f"with the current n−2 = {n-2} degrees of freedom).")
+    else:
+        note = (f"Direction: {direction} (slope {slope:+.1f}/month, r²={r2:.2f}, "
+                f"t={t_stat:.2f}); slope "
+                f"{'is statistically significant at α=0.05' if slope_significant else 'is NOT statistically significant at α=0.05'} "
+                f"with n-2 = {n-2} degrees of freedom.")
 
     return {
         "status":            "active",
         "n":                 n,
+        "n_dof":             max(0, n - 2),
         "slope_per_month":   _round(slope, 2) or 0.0,
         "intercept":         _round(intercept, 2) or 0.0,
         "r_squared":         _round(r2, 3) or 0.0,
         "slope_se":          _round(slope_se, 3) or 0.0,
+        "t_stat":            _round(t_stat, 2) or 0.0,
         "slope_significant": slope_significant,
         "next_month_point":  int(round(max(0, point))),
         "next_month_ci95":   [int(round(max(0, ci_lo))), int(round(max(0, ci_hi)))],

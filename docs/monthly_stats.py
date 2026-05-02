@@ -450,8 +450,39 @@ def _bucket_hhi(h: float) -> str:
     return "competitive / diffuse"
 
 
-def _concentration(month_recalls: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Concentration of recalls across countries (for HHI/Gini buckets)."""
+def _concentration(month_recalls: List[Dict[str, Any]],
+                   prior_months: Optional[List[List[Dict[str, Any]]]] = None
+                   ) -> Dict[str, Any]:
+    """Concentration & intensity metrics for the current month.
+
+    Returns
+    -------
+    dict with keys:
+      hhi_source            HHI computed on AGENCY/SOURCE counts (1.0 when one
+                            agency owns 100% of recalls; 0+ when many agencies
+                            contribute roughly evenly).  Reported on the 0-10000
+                            scale (squared-share-percent sum).
+      hhi_bucket            "diverse" (<1500) / "moderate" (1500-2500) /
+                            "concentrated" (>2500).
+      gini_country          Gini coefficient on COUNTRY counts (0 = perfectly
+                            even across countries, 1 = single-country regime).
+      gini_bucket           "even" (<0.4) / "moderate" (0.4-0.6) /
+                            "very_uneven" (>0.6).
+      tier1_share           Tier-1 fraction of THIS month's recalls.
+      baseline_tier1_share  Average Tier-1 fraction across prior_months
+                            (None if no prior data).
+      tier1_intensity_ratio (this-month tier1_share) / (baseline tier1_share),
+                            None when baseline is missing or zero.  >1 means
+                            this month is more critical-heavy than baseline.
+      n_countries           Distinct countries present this month.
+      n_sources             Distinct agencies present this month.
+      top_country_share     Largest single-country share (0-1).
+
+    Pre-2026-05-01 the function emitted `hhi`/`gini` (HHI was computed on the
+    same country counts as Gini, which double-counted geography and missed
+    source concentration entirely).  The renamed keys align with the builder
+    template (`Source HHI`, `Geographic Gini`) and review-1 corrections.
+    """
     country_counts = Counter(
         (r.get("Country") or "Unknown").strip() or "Unknown"
         for r in month_recalls
@@ -462,16 +493,43 @@ def _concentration(month_recalls: List[Dict[str, Any]]) -> Dict[str, Any]:
     )
     cvals = list(country_counts.values())
     svals = list(source_counts.values())
-    g = _gini(cvals)
-    h = _hhi(cvals)
+
+    gini_country = _gini(cvals)
+    hhi_source   = _hhi(svals)
+
+    # Tier-1 share & intensity ratio against the prior-month baseline
+    def _tier1_share(rows: List[Dict[str, Any]]) -> Optional[float]:
+        if not rows:
+            return None
+        n_total = len(rows)
+        n_t1 = sum(1 for r in rows
+                   if str(r.get("Tier") or "").strip() in ("1", "1.0"))
+        return (n_t1 / n_total) if n_total else None
+
+    this_share = _tier1_share(month_recalls) or 0.0
+    baseline_share: Optional[float] = None
+    if prior_months:
+        prior_shares = [s for s in (_tier1_share(m) for m in prior_months)
+                        if s is not None]
+        if prior_shares:
+            baseline_share = sum(prior_shares) / len(prior_shares)
+
+    if baseline_share and baseline_share > 0:
+        intensity_ratio: Optional[float] = round(this_share / baseline_share, 2)
+    else:
+        intensity_ratio = None
+
     return {
-        "n_countries": len(country_counts),
-        "n_sources":   len(source_counts),
-        "gini":        _round(g, 3) or 0.0,
-        "gini_bucket": _bucket_gini(g),
-        "hhi":         _round(h, 0) or 0.0,
-        "hhi_bucket":  _bucket_hhi(h),
-        "top_country_share": _round(
+        "hhi_source":           _round(hhi_source, 0) or 0.0,
+        "hhi_bucket":           _bucket_hhi(hhi_source),
+        "gini_country":         _round(gini_country, 3) or 0.0,
+        "gini_bucket":          _bucket_gini(gini_country),
+        "tier1_share":          _round(this_share, 3) or 0.0,
+        "baseline_tier1_share": _round(baseline_share, 3) if baseline_share is not None else None,
+        "tier1_intensity_ratio": intensity_ratio,
+        "n_countries":          len(country_counts),
+        "n_sources":            len(source_counts),
+        "top_country_share":    _round(
             max(cvals) / sum(cvals) if cvals and sum(cvals) else 0.0, 3
         ) or 0.0,
     }
@@ -574,7 +632,17 @@ def _severity(month_recalls: List[Dict[str, Any]]) -> Dict[str, Any]:
                 "tier1_share": 0.0, "outbreak_share": 0.0}
 
     tier1_count    = sum(1 for r in month_recalls if _is_tier1(r))
-    outbreak_count = sum(1 for r in month_recalls if _is_outbreak(r))
+    # Use the same strict criterion as the headline KPI panel
+    # (Outbreak field == 1) so the published `6 outbreaks` figure
+    # reproduces the severity-index calculation exactly. Free-text
+    # mentions of illness/hospital are captured separately via
+    # _is_outbreak() in the cluster module, but they do NOT enter the
+    # severity score — that would create a 6 vs 11 inconsistency
+    # between the KPI panel and the §09 formula derivation.
+    outbreak_count = sum(
+        1 for r in month_recalls
+        if str(r.get("Outbreak") or "").strip() in ("1", "1.0")
+    )
     tier1_share    = tier1_count / n
     outbreak_share = outbreak_count / n
 
@@ -658,7 +726,7 @@ def compute_monthly_signals(
         "mom_trend":     _mom_trend(monthly_count_history, len(month_recalls)),
         "hotspot":       _hotspot(month_recalls),
         "cluster":       _cluster(month_recalls),
-        "concentration": _concentration(month_recalls),
+        "concentration": _concentration(month_recalls, prior_months=prior_months),
         "growth":        _growth(month_recalls, prior_months),
         "severity":      _severity(month_recalls),
         "cadence":       _cadence(month_recalls),
