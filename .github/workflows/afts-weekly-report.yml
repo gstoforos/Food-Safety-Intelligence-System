@@ -69,20 +69,11 @@ jobs:
           python-version: "3.11"
           cache: "pip"
 
-      - name: Install system deps for WeasyPrint
-        if: steps.guard.outputs.run == 'true'
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends \
-            libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libcairo2 \
-            libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-dejavu-core
-
       - name: Install Python dependencies
         if: steps.guard.outputs.run == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install weasyprint==63.1
 
       - name: Resolve this-week's end-date (Friday)
         if: steps.guard.outputs.run == 'true' && github.event.inputs.force_week_end == ''
@@ -129,21 +120,16 @@ jobs:
             --xlsx     docs/data/recalls.xlsx \
             --index    docs/index.html
 
-      - name: Convert each new weekly HTML → PDF
-        if: steps.guard.outputs.run == 'true'
-        run: |
-          python -m pipeline.html_to_pdf --docs-dir docs --kind weekly
-
       - name: Commit outputs
         if: steps.guard.outputs.run == 'true'
         run: |
           git config --local user.email "fsis-bot@advfood.tech"
           git config --local user.name  "AFTS Intelligence System"
-          # NOTE: docs/data/weekly-index.json must be committed — the
-          # dashboard's loadReports() fetches this file. Previously
-          # only weekly-summary-latest.json was committed and the
-          # dashboard fell back to a stale embedded array.
-          git add 'docs/20*-W*.html' 'docs/20*-W*.pdf' \
+          # Subscriber PDFs decommissioned 2026-05-02 — HTML is the
+          # canonical deliverable. Browser print-to-PDF gives users a
+          # better result than WeasyPrint did, and the live HTML is
+          # what subscribers click in the email.
+          git add 'docs/20*-W*.html' \
                   docs/data/weekly-summary-latest.json \
                   docs/data/weekly-index.json \
                   docs/index.html || true

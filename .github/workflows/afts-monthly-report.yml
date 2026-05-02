@@ -26,6 +26,12 @@ name: AFTS Monthly Report
 # ==========================================================================
 
 on:
+  schedule:
+    # 1st of every month, 09:00 ATHENS local — duplicated for DST.
+    # The Athens-time-guard step below ensures only the right cron
+    # actually runs (the wrong one exits cleanly).
+    - cron: "0 6 1 * *"   # EET  (winter, UTC+2 → 09:00 Athens = 06:00 UTC + 1h)
+    - cron: "0 5 1 * *"   # EEST (summer, UTC+3 → 09:00 Athens = 06:00 UTC)
   workflow_dispatch:
     inputs:
       force_month_end:
@@ -75,13 +81,11 @@ jobs:
           python-version: "3.11"
           cache: "pip"
 
-      - name: Install system deps for WeasyPrint (PDF)
+      - name: Install fonts for marketing PDF (reportlab embeds Liberation Sans)
         if: steps.guard.outputs.run == 'true'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
-            libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz0b libcairo2 \
-            libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info \
             fonts-liberation fonts-dejavu-core
 
       - name: Install Python dependencies
@@ -89,7 +93,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install weasyprint==63.1
 
       - name: Gap-fill — build only months missing from monthly-index.json
         if: steps.guard.outputs.run == 'true' && github.event.inputs.force_month_end == ''
@@ -114,13 +117,6 @@ jobs:
             --month-end "${{ github.event.inputs.force_month_end }}" \
             --xlsx docs/data/recalls.xlsx
 
-      - name: Convert monthly HTML → PDF (one per month, idempotent)
-        if: steps.guard.outputs.run == 'true'
-        run: |
-          python -m pipeline.html_to_pdf \
-            --docs-dir docs \
-            --kind monthly
-
       - name: Build marketing one-pager PDF (public lead magnet on hub.html)
         if: steps.guard.outputs.run == 'true'
         run: |
@@ -141,7 +137,11 @@ jobs:
         run: |
           git config --local user.email "fsis-bot@advfood.tech"
           git config --local user.name  "AFTS Intelligence System"
-          git add 'docs/20*-M*.html' 'docs/20*-M*.pdf' \
+          # Subscriber monthly PDFs decommissioned 2026-05-02 — HTML
+          # is the canonical deliverable; subscribers print-to-PDF in
+          # their browser if needed. Marketing one-pager PDF stays as
+          # the public lead magnet on hub.html.
+          git add 'docs/20*-M*.html' \
                   'docs/marketing/20*-M*.pdf' \
                   'docs/marketing/20*-M*.html' \
                   docs/data/monthly-summary-latest.json \
