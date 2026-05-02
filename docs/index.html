@@ -112,8 +112,8 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .arch-tier1{color:var(--red);font-weight:700;}
 .arch-top{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'DM Sans',sans-serif;font-size:12px;}
 .arch-go{color:var(--dim);text-align:right;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.04em;}
-.arch-url{color:var(--green);opacity:0.8;margin-right:4px;text-decoration:underline;text-decoration-color:rgba(0,255,136,0.3);text-underline-offset:2px;}
-.arch-row:hover .arch-url{opacity:1;text-decoration-color:rgba(0,255,136,0.7);}
+.arch-url{color:var(--green);opacity:0.85;margin-right:4px;font-weight:500;}
+.arch-row:hover .arch-url{opacity:1;}
 @media(max-width:700px){.arch-row{grid-template-columns:48px 1fr 40px 46px 24px;gap:8px;font-size:10px;}.arch-top{display:none;}}
 /* Enhanced Mobile Responsiveness */
 @media(max-width:920px){
@@ -575,7 +575,7 @@ async function loadReports(){
         <span class="stat-outbreak"><strong style="color:var(--orange)">${r.outbreaks}</strong> outbreaks</span>
       </div>
       <div class="report-actions">
-        <a class="report-btn primary" href="${esc(r.filename)}" target="_blank" onclick="event.stopPropagation()">Open Report &rarr;</a>
+        <a class="report-btn primary" href="${esc(r.filename)}" target="_blank" onclick="event.stopPropagation()">${esc(r.filename.replace(/\.html$/i,''))} &nearr;</a>
       </div>
     </div>`;
   };
@@ -596,7 +596,7 @@ async function loadReports(){
           <span class="arch-total">${r.total}</span>
           <span class="arch-tier1">${r.tier1} T1</span>
           <span class="arch-top">${esc(r.top_pathogen||'—')}</span>
-          <span class="arch-go"><span class="arch-url">advfood.tech</span> &rarr;</span>
+          <span class="arch-go"><span class="arch-url">${esc(r.filename.replace(/\.html$/i,''))}</span> &nearr;</span>
         </a>`;
       }).join('');
       const openAttr = (String(y) === String(currentYear)) ? ' open' : '';
@@ -697,7 +697,7 @@ async function loadMonthlyReports(){
         <span class="stat-outbreak"><strong style="color:var(--orange)">${r.outbreaks}</strong> outbreaks</span>
       </div>
       <div class="report-actions">
-        <a class="report-btn primary" href="${esc(r.filename)}" target="_blank" onclick="event.stopPropagation()">Open Report &rarr;</a>
+        <a class="report-btn primary" href="${esc(r.filename)}" target="_blank" onclick="event.stopPropagation()">${esc(r.filename.replace(/\.html$/i,''))} &nearr;</a>
       </div>
     </div>`;
   };
@@ -718,7 +718,7 @@ async function loadMonthlyReports(){
           <span class="arch-total">${r.total}</span>
           <span class="arch-tier1">${r.tier1} T1</span>
           <span class="arch-top">${esc(r.top_pathogen||'—')}</span>
-          <span class="arch-go"><span class="arch-url">advfood.tech</span> &rarr;</span>
+          <span class="arch-go"><span class="arch-url">${esc(r.filename.replace(/\.html$/i,''))}</span> &nearr;</span>
         </a>`;
       }).join('');
       const openAttr = (String(y) === String(currentYear)) ? ' open' : '';
@@ -770,7 +770,7 @@ async function loadDaily(){
           <span style="color:var(--dim);font-size:10px">${regionLabel}</span>
         </div>
         <div class="report-actions">
-          <a class="report-btn primary" href="${e.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open brief →</a>
+          <a class="report-btn primary" href="${e.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${e.url.replace(/^.*\//,'').replace(/\.html$/i,'')} &nearr;</a>
         </div>
       </div>`;
     }).join('');
