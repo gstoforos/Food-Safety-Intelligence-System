@@ -45,6 +45,15 @@ a{color:inherit;text-decoration:none;}
 .month-card[data-stripe="3"]::before{background:linear-gradient(90deg,var(--acc2),var(--acc));}
 .month-card[data-stripe="4"]::before{background:linear-gradient(90deg,#374151,#4b5563);}
 .month-card:hover{border-color:rgba(0,229,160,.3);transform:translateY(-2px);}
+/* Live preview thumbnail at top of each card. The img is a server-side
+   screenshot of the actual report HTML (via thum.io); the parent div
+   holds a gradient fallback that shows if the screenshot fails to load
+   (the JS swaps in the .mc-thumb--fallback class via onerror). */
+.mc-thumb{position:relative;width:calc(100% + 36px);margin:-20px -18px 12px;height:140px;overflow:hidden;background:linear-gradient(135deg,#1a1f2e,#0f1219);border-bottom:1px solid var(--border);}
+.mc-thumb img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
+.mc-thumb::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(15,18,25,.55));pointer-events:none;}
+.mc-thumb--fallback{background:linear-gradient(135deg,#0f766e 0%,#1e3a8a 100%);}
+.mc-thumb--fallback::before{content:'AFTS';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.18);font-family:'JetBrains Mono',monospace;font-size:38px;font-weight:800;letter-spacing:.08em;}
 .mc-period{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
 .mc-title{font-size:17px;font-weight:800;line-height:1.2;color:#fff;}
 .mc-sub{font-size:12px;color:var(--muted);line-height:1.4;}
@@ -151,12 +160,18 @@ a{color:inherit;text-decoration:none;}
    Mar+ auto-link to 2026-MXX.html on same origin.
    ────────────────────────────────────────────── */
 var IDX_URL = 'data/monthly-index.json';
+// Public site URL — used to build absolute URLs for thum.io thumbnail
+// previews and any other external integrations. Must match the
+// GitHub Pages deployment target.
+var SITE_URL = 'https://gstoforos.github.io/Food-Safety-Intelligence-System';
 
-/* Legacy Jan/Feb PDFs hosted on Wix (one-time, never changed) */
+/* Legacy Jan/Feb PDFs hosted on Wix (one-time, never changed).
+   M03 was migrated to the auto-generated marketing PDF on
+   2026-05-02 — its pdf_url now lives in monthly-index.json
+   alongside April and every future automated month. */
 var LEGACY_PDF = {
   '2026-M01':'https://www.advfood.tech/_files/ugd/2f8d35_ba11aad7c3b04e628aee49ea60708931.pdf',
-  '2026-M02':'https://www.advfood.tech/_files/ugd/2f8d35_990e8bcb73474933945b1531dd45dbd6.pdf',
-  '2026-M03':'https://www.advfood.tech/_files/ugd/2f8d35_5fb3aeebd9d84c109b50001972d0c144.pdf'
+  '2026-M02':'https://www.advfood.tech/_files/ugd/2f8d35_990e8bcb73474933945b1531dd45dbd6.pdf'
 };
 
 function mkey(e){ return e.year+'-M'+String(e.month_num).padStart(2,'0'); }
@@ -190,7 +205,22 @@ function renderCard(e, stripe){
       + '<div class="mc-stat"><span class="mc-num rd">'+e.outbreaks+'</span><span class="mc-lbl">Outbreak-Linked</span></div>'
       + '</div>'
     : '';
+
+  // Thumbnail preview — live screenshot of the actual subscriber HTML
+  // page. Replaces the arrow-only CTA with a visible mini-preview of
+  // the real report so visitors see what they're about to download.
+  // thum.io renders 800x600 PNG of the URL; we cache 1 day.
+  var reportPageUrl = SITE_URL + '/' + e.filename;
+  var thumbUrl = 'https://image.thum.io/get/width/520/crop/680/maxAge/24/'
+               + encodeURIComponent(reportPageUrl);
+  var thumb = '<div class="mc-thumb">'
+            + '<img src="'+thumbUrl+'" alt="Preview of '+e.month_name+' report" '
+            + 'loading="lazy" '
+            + 'onerror="this.parentElement.classList.add(\'mc-thumb--fallback\');this.remove();">'
+            + '</div>';
+
   return '<a class="month-card" data-stripe="'+stripe+'" href="'+lnk.href+'" target="_blank" rel="noopener noreferrer">'
+    + thumb
     + '<div class="mc-period">'+e.month_name+'</div>'
     + '<div class="mc-title">Recalls &amp; Safety Alerts</div>'
     + '<div class="mc-sub">Market withdrawals &amp; safety alerts</div>'
