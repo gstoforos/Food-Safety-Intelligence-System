@@ -111,7 +111,9 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .arch-total{color:var(--text);font-weight:700;text-align:right;}
 .arch-tier1{color:var(--red);font-weight:700;}
 .arch-top{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'DM Sans',sans-serif;font-size:12px;}
-.arch-go{color:var(--dim);text-align:right;}
+.arch-go{color:var(--dim);text-align:right;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.04em;}
+.arch-url{color:var(--green);opacity:0.8;margin-right:4px;text-decoration:underline;text-decoration-color:rgba(0,255,136,0.3);text-underline-offset:2px;}
+.arch-row:hover .arch-url{opacity:1;text-decoration-color:rgba(0,255,136,0.7);}
 @media(max-width:700px){.arch-row{grid-template-columns:48px 1fr 40px 46px 24px;gap:8px;font-size:10px;}.arch-top{display:none;}}
 /* Enhanced Mobile Responsiveness */
 @media(max-width:920px){
@@ -245,7 +247,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 </div></div>
 </div>
 
-<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/food-safety-intelligence" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="downloadRecallsXlsx();return false;">↓ XLSX</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);color:var(--green);font-family:'DM Mono',monospace;font-size:9px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
+<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/fsis-home" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="downloadRecallsXlsx();return false;">↓ XLSX</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);color:var(--green);font-family:'DM Mono',monospace;font-size:9px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
 
 <script>
 let ALL=[],filtered=[],page=1,perPage=50,sortCol='date',sortAsc=false,pillFilter='';
@@ -573,8 +575,7 @@ async function loadReports(){
         <span class="stat-outbreak"><strong style="color:var(--orange)">${r.outbreaks}</strong> outbreaks</span>
       </div>
       <div class="report-actions">
-        <a class="report-btn primary" href="${esc(r.filename)}" target="_blank" onclick="event.stopPropagation()">→ View Report</a>
-        <a class="report-btn secondary" href="#" onclick="event.preventDefault();event.stopPropagation();downloadReportPDF('${esc(r.filename)}')">↓ Download PDF</a>
+        <a class="report-btn primary" href="${esc(r.filename)}" target="_blank" onclick="event.stopPropagation()">Open Report &rarr;</a>
       </div>
     </div>`;
   };
@@ -595,7 +596,7 @@ async function loadReports(){
           <span class="arch-total">${r.total}</span>
           <span class="arch-tier1">${r.tier1} T1</span>
           <span class="arch-top">${esc(r.top_pathogen||'—')}</span>
-          <span class="arch-go">→</span>
+          <span class="arch-go"><span class="arch-url">advfood.tech</span> &rarr;</span>
         </a>`;
       }).join('');
       const openAttr = (String(y) === String(currentYear)) ? ' open' : '';
@@ -696,8 +697,7 @@ async function loadMonthlyReports(){
         <span class="stat-outbreak"><strong style="color:var(--orange)">${r.outbreaks}</strong> outbreaks</span>
       </div>
       <div class="report-actions">
-        <a class="report-btn primary" href="${esc(r.filename)}" target="_blank" onclick="event.stopPropagation()">→ View Report</a>
-        <a class="report-btn secondary" href="#" onclick="event.preventDefault();event.stopPropagation();downloadReportPDF('${esc(r.filename)}')">↓ Download PDF</a>
+        <a class="report-btn primary" href="${esc(r.filename)}" target="_blank" onclick="event.stopPropagation()">Open Report &rarr;</a>
       </div>
     </div>`;
   };
@@ -718,7 +718,7 @@ async function loadMonthlyReports(){
           <span class="arch-total">${r.total}</span>
           <span class="arch-tier1">${r.tier1} T1</span>
           <span class="arch-top">${esc(r.top_pathogen||'—')}</span>
-          <span class="arch-go">→</span>
+          <span class="arch-go"><span class="arch-url">advfood.tech</span> &rarr;</span>
         </a>`;
       }).join('');
       const openAttr = (String(y) === String(currentYear)) ? ' open' : '';
@@ -781,12 +781,7 @@ async function loadDaily(){
   }
 }
 
-// Download PDF: link directly to the WeasyPrint-generated PDF file.
-// The pipeline (html_to_pdf.py) produces YYYY-WNN.pdf alongside the HTML.
-// WeasyPrint preserves clickable hyperlinks; browser print does not.
-function downloadReportPDF(filename){
-  if(!filename){console.error('downloadReportPDF: filename required');return;}
-  var pdfFile = filename.replace(/\.html$/i, '.pdf');
-  window.open(pdfFile, '_blank');
-}
+// Subscriber PDF generation decommissioned 2026-05-02 — HTML is the
+// canonical deliverable. The marketing one-pager PDF stays as a public
+// lead magnet and is linked via `pdf_url` on monthly-index.json entries.
 </script></body></html>
