@@ -351,46 +351,76 @@ def render_top5_row(rank, r):
     The function name predates the rename to top-10 — kept for backward
     compatibility with existing call sites in the monthly builder.
 
-    Layout (5 columns): rank, date, country | source, pathogen badge,
-    company / product. Responsive widths handled by CSS in the surrounding
-    document; the builder is responsible for the wrapping <table>.
+    Layout (6 columns, must match `<thead>` in build_monthly_report_afts.py):
+      1. # (rank)
+      2. Date
+      3. Pathogen (italic name + tier chip + outbreak chip)
+      4. Company / Brand (company on top, brand muted below if present)
+      5. Product (truncated to 110 chars)
+      6. Jurisdiction & Source (country on top, agency below, link to source)
+
+    Pre-2026-05-01 this emitted only 5 cells in a different column order,
+    which silently shifted every td by one column under WeasyPrint and
+    produced the broken Apr-2026 subscriber PDF. The 6-cell layout below
+    aligns with the <thead> declaration in both §08 and Appendix A.
     """
     canon_name = severity_score(r.get("Pathogen") or "")[1]
     badge_color = pathogen_badge_color(canon_name)
     date_str = str(r.get("Date") or "")[:10] or "—"
     country  = _country_display(r.get("Country") or "—")
-    source   = AUTHORITY_DISPLAY.get(r.get("Source") or r.get("Agency") or "", r.get("Source") or r.get("Agency") or "—")
+    source   = AUTHORITY_DISPLAY.get(
+        r.get("Source") or r.get("Agency") or "",
+        r.get("Source") or r.get("Agency") or "—"
+    )
     company  = r.get("Company") or "—"
+    brand    = (r.get("Brand") or "").strip()
     product  = r.get("Product") or r.get("Description") or "—"
     if len(product) > 110:
         product = product[:107] + "…"
+    url      = (r.get("URL") or "").strip()
 
     # Tier / outbreak chips (best-effort; missing fields render nothing)
     chips = []
     tier = _safe_int(r.get("Tier"), 99)
-    if tier == 1:   chips.append('<span class="chip chip-tier-1">Tier&nbsp;1</span>')
+    if   tier == 1: chips.append('<span class="chip chip-tier-1">Tier&nbsp;1</span>')
     elif tier == 2: chips.append('<span class="chip chip-tier-2">Tier&nbsp;2</span>')
     if r.get("Outbreak") in (True, 1, "1", "TRUE", "True", "true", "Y", "Yes"):
         chips.append('<span class="chip chip-outbreak">Outbreak</span>')
     chip_html = " ".join(chips)
 
+    # Brand sub-line only if it's distinct from company and not the placeholder "—"
+    brand_html = ""
+    if brand and brand not in ("—", company):
+        brand_html = f'<div class="brand">{html_mod.escape(brand)}</div>'
+
+    # Source cell: agency name as a link to URL (if present), else plain text
+    if url:
+        source_html = (
+            f'<div class="country">{html_mod.escape(country)}</div>'
+            f'<div class="agency"><a href="{html_mod.escape(url)}" target="_blank" '
+            f'rel="noopener">{html_mod.escape(source)} &rarr;</a></div>'
+        )
+    else:
+        source_html = (
+            f'<div class="country">{html_mod.escape(country)}</div>'
+            f'<div class="agency">{html_mod.escape(source)}</div>'
+        )
+
     return (
         f'<tr>'
         f'<td class="num rank">#{rank}</td>'
         f'<td class="date">{html_mod.escape(date_str)}</td>'
-        f'<td class="src">'
-        f'<div class="country">{html_mod.escape(country)}</div>'
-        f'<div class="agency">{html_mod.escape(source)}</div>'
-        f'</td>'
         f'<td class="pathogen">'
         f'<span class="path-dot" style="background:{badge_color}"></span>'
         f'<em class="path-name">{html_mod.escape(canon_name)}</em>'
         f'{("&nbsp;" + chip_html) if chip_html else ""}'
         f'</td>'
-        f'<td class="prod">'
-        f'<div class="company">{html_mod.escape(company)}</div>'
-        f'<div class="product">{html_mod.escape(product)}</div>'
+        f'<td class="company">'
+        f'<div class="company-name">{html_mod.escape(company)}</div>'
+        f'{brand_html}'
         f'</td>'
+        f'<td class="prod">{html_mod.escape(product)}</td>'
+        f'<td class="src">{source_html}</td>'
         f'</tr>'
     )
 
@@ -495,7 +525,7 @@ def _fallback_p1_to_p3(stats, recalls):
     """P1-P3 only. The PA Note is always handled by _process_authority_note()."""
     tp, tc = stats["top_pathogen"]; t = stats["total"]
     pct = round(tc/max(t,1)*100)
-    p1 = ("This week produced {} pathogen-related recall incidents across the AFTS "
+    p1 = ("This week produced {} food-safety hazard recall incidents across the AFTS "
           "monitoring network, with {} classified as Tier-1 and {} confirmed outbreak "
           "event(s). {} dominated the surveillance window, accounting for {} of {} "
           "incidents ({}%). The elevated Tier-1 ratio indicates sustained regulatory "
@@ -1625,7 +1655,7 @@ __CSS_PLACEHOLDER__
   <div class="kpi">
     <div class="kpi-label">Leading Pathogen</div>
     <div class="kpi-value orange">{top_pathogen_name}</div>
-    <div class="kpi-top">{top_cnt} cases &middot; {top_pct}% of total</div>
+    <div class="kpi-top">{top_cnt} recall incidents &middot; {top_pct}% of total</div>
   </div>
 </div>
 
@@ -1791,7 +1821,7 @@ def build_html(week_end, recalls, prev_week):
 
     wsd = _fmt_date_short(ws); wed = _fmt_date(week_end)
     period = "{} &ndash; {}".format(wsd, wed)
-    pub = datetime.now(timezone.utc).strftime("%-d %b %Y &middot; %H:%M UTC")
+    pub = (week_end + timedelta(days=1)).strftime("%-d %b %Y")
     nf = _fmt_date(week_end + timedelta(days=7))
 
     html = HTML_TEMPLATE.format(

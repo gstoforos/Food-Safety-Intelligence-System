@@ -390,7 +390,7 @@ MONTH BASELINE
   Total recalls:    {stats['total']}
   Tier-1 critical:  {stats['tier1']}
   Outbreaks:        {stats['outbreaks']}
-  Leading pathogen: {stats['top_pathogen'][0]} ({stats['top_pathogen'][1]} cases)
+  Leading pathogen: {stats['top_pathogen'][0]} ({stats['top_pathogen'][1]} recall incidents)
 
 MoM TREND
   Series:           {mom.get('values')}
@@ -472,6 +472,7 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
                         pa_trigger: Dict[str, Any]) -> str:
     mom = signals["mom_trend"]
     hs  = signals["hotspot"]
+    cl  = signals["cluster"]
     co  = signals["concentration"]
     sv  = signals["severity"]
     lt  = models["linear_trend"]
@@ -489,13 +490,24 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
                 if mom.get("z_score") is not None else
                 " — the rolling baseline is too narrow for a Z estimate this early in the series")
 
-    p1 = (f"{month_name} {year} produced {stats['total']} pathogen-related recall incidents "
+    cluster_count = cl.get("cluster_count", 0)
+    if stats['outbreaks'] and cluster_count:
+        outbreak_phrase = (f"{stats['outbreaks']} outbreak-associated event(s), "
+                           f"forming {cluster_count} same-pathogen temporal cluster(s)")
+    elif stats['outbreaks']:
+        outbreak_phrase = f"{stats['outbreaks']} outbreak-associated event(s) (no temporal clustering)"
+    elif cluster_count:
+        outbreak_phrase = f"{cluster_count} temporal cluster(s) (no outbreak label)"
+    else:
+        outbreak_phrase = "no outbreak-associated events"
+
+    p1 = (f"{month_name} {year} produced {stats['total']} food-safety hazard recall incidents "
           f"across the AFTS monitoring network, a {mom.get('delta_pct')}% move "
           f"{'above' if mom.get('direction')=='up' else 'below' if mom.get('direction')=='down' else 'flat vs'} "
           f"the prior month{z_phrase}. {top_name} dominated with {top_count} of "
           f"{stats['total']} incidents ({pct}%). The composite severity index closed at "
           f"{sv.get('score')}/100 ({sv.get('bucket')}), with {stats['tier1']} Tier-1 "
-          f"critical events and {stats['outbreaks']} outbreak clusters on record.{hotspot_txt}")
+          f"critical events and {outbreak_phrase} on record.{hotspot_txt}")
 
     bucket_phrase = {"diverse": "signal diversity consistent with broad regulatory engagement",
                      "moderate": "moderate source concentration",
@@ -505,19 +517,43 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
                    "moderate": "moderately uneven geographically",
                    "very_uneven": "strongly concentrated in a single country"}.get(
         co.get("gini_bucket"), "")
+
+    intensity = co.get("tier1_intensity_ratio")
+    if intensity is None:
+        intensity_clause = (
+            "The Tier-1 intensity ratio is not yet computable — the prior-month "
+            "baseline has too few observations to anchor a stable ratio."
+        )
+    else:
+        intensity_clause = (
+            f"The Tier-1 intensity ratio of {intensity:.2f}× vs the rolling baseline "
+            f"indicates severity is "
+            f"{'elevated' if intensity > 1.1 else 'in line' if 0.9 <= intensity <= 1.1 else 'below baseline'}."
+        )
+
     p2 = (f"Structurally, the month reads as {gini_phrase} with {bucket_phrase} "
           f"(Source HHI {co.get('hhi_source')}, Geographic Gini {co.get('gini_country')}). "
           f"For a {top_name}-dominated month, the relevant failure modes are "
           f"post-process environmental harbourage in Zone 1 of RTE lines, sanitation SOP "
-          f"drift, and cold-chain lapses — not thermal underprocess. The Tier-1 intensity "
-          f"ratio of {co.get('tier1_intensity_ratio')}x vs the rolling baseline indicates "
-          f"severity is {'elevated' if (co.get('tier1_intensity_ratio') or 1) > 1.1 else 'in line'}.")
+          f"drift, and cold-chain lapses — not thermal underprocess. {intensity_clause}")
 
     lt_txt = ""
     if lt.get("status") == "active":
-        lt_txt = (f" The linear-trend projection for next month stands at "
-                  f"{lt.get('next_month_point')} recalls (95% CI "
-                  f"{lt.get('next_month_ci95')}), with r²={lt.get('r_squared')}.")
+        n_obs = lt.get("n", 0)
+        if n_obs < 12 or not lt.get("slope_significant"):
+            lt_txt = (f" The linear-trend projection for next month stands at "
+                      f"{lt.get('next_month_point')} recalls (95% CI "
+                      f"{lt.get('next_month_ci95')}), with r²={lt.get('r_squared')}, "
+                      f"slope {lt.get('slope_per_month')}/month and t={lt.get('t_stat')} "
+                      f"on {lt.get('n_dof', max(0, n_obs-2))} degrees of freedom. The estimate "
+                      f"is exploratory because the series is short — only {n_obs} monthly "
+                      f"observation(s) — and the slope is not statistically significant at α=0.05.")
+        else:
+            lt_txt = (f" The linear-trend projection for next month stands at "
+                      f"{lt.get('next_month_point')} recalls (95% CI "
+                      f"{lt.get('next_month_ci95')}), with r²={lt.get('r_squared')}, "
+                      f"slope {lt.get('slope_per_month')}/month and t={lt.get('t_stat')} "
+                      f"on {lt.get('n_dof', n_obs-2)} degrees of freedom — significant at α=0.05.")
 
     p3 = (f"Looking forward, operators in {top_name}-relevant commodity categories should "
           f"re-verify the single highest-leverage control this month: environmental "
@@ -541,7 +577,7 @@ def svg_mom_sparkline(mom: Dict[str, Any], w: int = 320, h: int = 72) -> str:
     """Sparkline of month-over-month counts with current-month marker."""
     values = mom.get("values", [])
     if not values or len(values) < 2:
-        return f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg"></svg>'
+        return f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;"></svg>'
     counts = [c for _, c in values]
     labels = [ym for ym, _ in values]
     mx = max(counts) or 1
@@ -564,7 +600,7 @@ def svg_mom_sparkline(mom: Dict[str, Any], w: int = 320, h: int = 72) -> str:
         for (x, _), lbl in zip(points, labels)
     )
     return (
-        f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg">'
+        f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;">'
         f'<defs><linearGradient id="sg" x1="0" x2="0" y1="0" y2="1">'
         f'<stop offset="0%" stop-color="{direction_colour}" stop-opacity="0.35"/>'
         f'<stop offset="100%" stop-color="{direction_colour}" stop-opacity="0"/>'
@@ -595,7 +631,7 @@ def svg_hotspot_heatmap(hs: Dict[str, Any], w: int = 620) -> str:
         (cell["observed"] for row in mat for cell in row), default=1
     ) or 1
 
-    out = [f'<svg width="{W}" height="{H}" xmlns="http://www.w3.org/2000/svg">']
+    out = [f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;">']
 
     # Column headers (pathogens, rotated-ish — kept horizontal for email compat, truncated)
     for j, col in enumerate(cols):
@@ -718,7 +754,7 @@ def svg_outbreak_timeline(cl: Dict[str, Any], month_start: date, month_end: date
         lx += 12 + 8 + len(p[:18]) * 5.5 + 10
 
     return (
-        f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg">'
+        f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;">'
         f'<line x1="{pad_x}" y1="{axis_y}" x2="{w-pad_x}" y2="{axis_y}" '
         f'stroke="#94a3b8" stroke-width="1.5"/>'
         f'{"".join(ticks)}'
@@ -731,7 +767,7 @@ def svg_outbreak_timeline(cl: Dict[str, Any], month_start: date, month_end: date
 def svg_weekly_cadence(cadence: Dict[str, Any], w: int = 300, h: int = 72) -> str:
     weeks = cadence.get("weeks", [])
     if not weeks:
-        return f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg"></svg>'
+        return f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;"></svg>'
     counts = [wk["count"] for wk in weeks]
     labels = [wk["label"].split("-W")[-1] for wk in weeks]
     mx = max(counts) or 1
@@ -752,7 +788,7 @@ def svg_weekly_cadence(cadence: Dict[str, Any], w: int = 300, h: int = 72) -> st
             f'<text x="{x+bar_w/2:.1f}" y="{h-2:.1f}" text-anchor="middle" '
             f'font-size="8" font-family="DM Mono,monospace" fill="#64748b">W{lbl}</text>'
         )
-    return f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg">{"".join(bars)}</svg>'
+    return f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;">{"".join(bars)}</svg>'
 
 
 def svg_severity_gauge(sv: Dict[str, Any], w: int = 200, h: int = 110) -> str:
@@ -781,7 +817,7 @@ def svg_severity_gauge(sv: Dict[str, Any], w: int = 200, h: int = 110) -> str:
     nx = cx + (r - 8) * math.cos(math.radians(180 - needle_angle))
     ny = cy - (r - 8) * math.sin(math.radians(180 - needle_angle))
     return (
-        f'<svg width="{w}" height="{h}" xmlns="http://www.w3.org/2000/svg">'
+        f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;">'
         f'{tracks}'
         f'<line x1="{cx}" y1="{cy}" x2="{nx:.1f}" y2="{ny:.1f}" '
         f'stroke="{BRAND_BLACK}" stroke-width="2.5"/>'
@@ -803,7 +839,7 @@ def render_models_panel(models: Dict[str, Any]) -> str:
     """HTML card list for the § 07 Predictive Outlook section."""
     order = [
         ("linear_trend",  "Linear trend projection",  "OLS on total monthly counts"),
-        ("poisson",       "Poisson per-pathogen forecast", "For rare pathogens (<10 cases/mo)"),
+        ("poisson",       "Poisson per-pathogen forecast", "For rare pathogens (<10 incidents/mo)"),
         ("cusum",         "CUSUM change-point detection", "Page-1954 tabular CUSUM"),
         ("ols_seasonal",  "OLS with seasonal dummies", "Linear trend + month-of-year effects"),
         ("stl",           "STL decomposition", "Trend + seasonal + residual (LOESS)"),
@@ -988,8 +1024,15 @@ def build_monthly_html(month_start: date, month_end: date,
     sv   = signals["severity"]
     cad  = signals["cadence"]
 
-    # Pathogen distribution table
+    # Pathogen / hazard distribution table.
+    # Reconcile the displayed rows back to the headline `total`. The
+    # `pathogen_counts` list comes back from compute_stats() as the most_common
+    # 15 entries — which on a heavy month leaves a residual that previously
+    # silently disappeared (review-1 #2: distribution summed to 221 not 236).
+    # We now emit an explicit "Other / not shown" row when residual > 0.
     total_safe = stats["total"] or 1
+    listed_sum = sum(c for _, c in stats["pathogen_counts"])
+    residual   = max(0, stats["total"] - listed_sum)
     path_rows_html = ""
     for name, count in stats["pathogen_counts"]:
         pct = round(count / total_safe * 100)
@@ -1001,6 +1044,16 @@ def build_monthly_html(month_start: date, month_end: date,
 <td><span class="path-dot" style="background:{color}"></span><em class="path-name">{escape(name)}</em></td>
 <td class="num">{count}</td>
 <td><div class="bar"><div class="bar-fill" style="width:{bar_w}%;background:{color}"></div></div></td>
+<td class="num muted">{pct}%</td>
+</tr>"""
+    if residual > 0:
+        pct = round(residual / total_safe * 100)
+        bar_w = max(4, min(100, pct))
+        path_rows_html += f"""
+<tr>
+<td><span class="path-dot" style="background:#9ca3af"></span><em class="path-name">Other / not shown above</em></td>
+<td class="num">{residual}</td>
+<td><div class="bar"><div class="bar-fill" style="width:{bar_w}%;background:#9ca3af"></div></div></td>
 <td class="num muted">{pct}%</td>
 </tr>"""
 
@@ -1037,18 +1090,50 @@ def build_monthly_html(month_start: date, month_end: date,
     intensity    = co.get("tier1_intensity_ratio")
     intensity_txt = (f'{intensity}×' if intensity is not None else 'n/a')
 
-    # Emerging / declining lists
+    # Emerging / declining lists. The growth module collapses all Salmonella
+    # serovars (Typhimurium, Bovismorbificans, etc.) to "Salmonella spp."
+    # for the Z-score calculation, while §03 distribution preserves serovars
+    # — so the emerging count for "Salmonella spp." here is the SUM across
+    # serovars. We label it explicitly so the 29-here vs 27+2-in-§03 reads
+    # as a deliberate aggregation, not a discrepancy.
+    def _aggregation_hint(name: str) -> str:
+        n = name.strip().lower()
+        if n in ("salmonella spp.", "salmonella"):
+            return " <span class=\"agg-note\">(all serovars combined)</span>"
+        if n in ("e. coli stec", "stec"):
+            return " <span class=\"agg-note\">(all STEC variants combined)</span>"
+        return ""
+
     emerging_html = "".join(
-        f'<li><em>{escape(e["pathogen"])}</em>: {e["count"]} cases, Z={e["z_score"]:+.2f}, '
+        f'<li><em>{escape(e["pathogen"])}</em>{_aggregation_hint(e["pathogen"])}: '
+        f'{e["count"]} recall incidents, Z={e["z_score"]:+.2f}, '
         f'MoM {e["growth_pct"]:+.0f}%</li>'
         for e in gr.get("emerging", [])[:4]
     ) or '<li class="empty">No pathogens with &gt;2σ month-over-month emergence.</li>'
 
     declining_html = "".join(
-        f'<li><em>{escape(d["pathogen"])}</em>: {d["count"]} cases, Z={d["z_score"]:+.2f}, '
+        f'<li><em>{escape(d["pathogen"])}</em>{_aggregation_hint(d["pathogen"])}: '
+        f'{d["count"]} recall incidents, Z={d["z_score"]:+.2f}, '
         f'MoM {d["growth_pct"]:+.0f}%</li>'
         for d in gr.get("declining", [])[:3]
     ) or '<li class="empty">No pathogens with &gt;2σ month-over-month decline.</li>'
+
+    # HHI / Gini reproducibility tables (review-1 audit guidance)
+    src_total = sum(c for _, c in stats["source_counts"]) or 1
+    hhi_rows_html = "".join(
+        f'<tr><td class="repro-lbl">{escape(name)}</td>'
+        f'<td class="repro-num">{cnt}</td>'
+        f'<td class="repro-num">{cnt/src_total*100:.1f}%</td>'
+        f'<td class="repro-num">{((cnt/src_total)*100)**2:.1f}</td></tr>'
+        for name, cnt in stats["source_counts"][:12]
+    )
+    cty_total = sum(c for _, c in stats["country_counts"]) or 1
+    gini_rows_html = "".join(
+        f'<tr><td class="repro-lbl">{escape(name)}</td>'
+        f'<td class="repro-num">{cnt}</td>'
+        f'<td class="repro-num">{cnt/cty_total*100:.1f}%</td></tr>'
+        for name, cnt in stats["country_counts"][:12]
+    )
 
     # Cluster summary
     if cl.get("clusters"):
@@ -1092,7 +1177,7 @@ def build_monthly_html(month_start: date, month_end: date,
 --violet:{OUTBREAK_VIO}; --green:#059669;
 }}
 *{{box-sizing:border-box;}}
-html,body{{margin:0;padding:0;background:#f5f5f7;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--ink);font-size:14px;line-height:1.6;}}
+html,body{{margin:0;padding:0;background:#f5f5f7;font-family:'Times New Roman',Times,Georgia,serif;color:var(--ink);font-size:14.5px;line-height:1.5;}}
 body{{padding:28px 16px 60px;}}
 .page{{max-width:980px;margin:0 auto;background:#fff;padding:36px 44px;border:1px solid var(--brd);}}
 a{{color:var(--orange);}} a:hover{{color:{BRAND_BLACK};}}
@@ -1141,8 +1226,8 @@ border-top:1px solid var(--brd);font-size:13.5px;line-height:1.7;}}
 letter-spacing:0.08em;text-transform:uppercase;color:var(--red);font-size:10px;margin-right:8px;}}
 
 /* Trend panel */
-.trend-grid{{display:grid;grid-template-columns:1.6fr 1fr;gap:20px;margin-bottom:6px;}}
-@media(max-width:760px){{.trend-grid{{grid-template-columns:1fr;}}}}
+.trend-grid{{display:grid;grid-template-columns:1fr;gap:20px;margin-bottom:6px;justify-items:center;}}
+.trend-grid > * {{ width:100%; max-width:680px; }}
 .trend-panel{{background:var(--s1);padding:18px 22px;border-left:3px solid var(--orange);}}
 .trend-num{{font-family:Syne,sans-serif;font-weight:800;font-size:30px;color:{BRAND_BLACK};}}
 .trend-num.up{{color:var(--red);}} .trend-num.down{{color:var(--green);}}
@@ -1151,14 +1236,16 @@ letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;}}
 .trend-row{{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px;}}
 
 /* Heatmap */
-.heat-panel{{background:var(--s1);padding:20px 22px;}}
+.heat-panel{{background:var(--s1);padding:20px 22px;text-align:center;}}
+.heat-panel svg{{max-width:100%;height:auto;display:block;margin:0 auto;}}
 .hotspot-list{{margin:12px 0 0;padding:0;list-style:none;font-size:13px;}}
 .hotspot-list li{{padding:6px 0;color:var(--ink);border-top:1px dashed var(--brd);}}
 .hotspot-list li:first-child{{border-top:none;}}
 .hotspot-list li.empty{{color:var(--muted);font-style:italic;}}
 
 /* Timeline */
-.timeline-panel{{background:var(--s1);padding:20px 22px;}}
+.timeline-panel{{background:var(--s1);padding:20px 22px;text-align:center;}}
+.timeline-panel svg{{max-width:100%;height:auto;display:block;margin:0 auto;}}
 
 /* Concentration */
 .conc-grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:10px;}}
@@ -1199,24 +1286,38 @@ table.mini td{{padding:4px 6px;border-bottom:1px solid var(--brd);}}
 table.mini td.num{{text-align:right;font-family:'DM Mono',monospace;}}
 
 /* Tables */
-table{{width:100%;border-collapse:collapse;font-size:12.5px;}}
-table.paths td{{padding:8px 10px;border-bottom:1px solid #f3f4f6;vertical-align:middle;}}
+table{{width:100%;border-collapse:collapse;font-size:11.5px;}}
+table.paths td{{padding:6px 8px;border-bottom:1px solid #f3f4f6;vertical-align:middle;font-size:12px;}}
 table.paths td.num{{text-align:right;font-family:'DM Mono',monospace;}}
 table.paths td.muted{{color:var(--muted);}}
+.agg-note{{font-size:10.5px;color:var(--muted);font-style:italic;font-weight:normal;}}
+table.repro{{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:6px;}}
+table.repro td{{padding:4px 6px;border-bottom:1px dotted #e5e7eb;vertical-align:top;}}
+table.repro td.repro-lbl{{color:var(--ink);}}
+table.repro td.repro-num{{text-align:right;font-family:'DM Mono',monospace;font-variant-numeric:tabular-nums;color:var(--muted);}}
 .path-dot{{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle;}}
 .bar{{background:var(--s2);height:6px;border-radius:1px;width:100%;min-width:120px;}}
 .bar-fill{{height:6px;border-radius:1px;}}
 
 /* Top 10 table (reuses weekly .top5 styles) */
-table.top5 {{ table-layout:fixed; width:100%; margin-top:8px; }}
-table.top5 th {{ background:{BRAND_BLACK}; color:#fff; font-family:'DM Mono',monospace; font-size:10px; font-weight:700; padding:10px 8px; text-align:left; letter-spacing:0.1em; }}
-table.top5 td {{ padding:10px 8px; border-bottom:1px solid #f3f4f6; vertical-align:top; word-wrap:break-word; overflow-wrap:break-word; }}
+table.top5 {{ table-layout:fixed; width:100%; margin-top:8px; font-size:11px; }}
+table.top5 th {{ background:{BRAND_BLACK}; color:#fff; font-family:'DM Mono',monospace; font-size:9.5px; font-weight:700; padding:8px 6px; text-align:left; letter-spacing:0.08em; }}
+table.top5 td {{ padding:8px 6px; border-bottom:1px solid #f3f4f6; vertical-align:top; word-wrap:break-word; overflow-wrap:break-word; word-break:normal; hyphens:none; font-size:11px; line-height:1.35; }}
 table.top5 th:nth-child(1), table.top5 td:nth-child(1) {{ width:5%; }}
-table.top5 th:nth-child(2), table.top5 td:nth-child(2) {{ width:9%; }}
-table.top5 th:nth-child(3), table.top5 td:nth-child(3) {{ width:19%; }}
-table.top5 th:nth-child(4), table.top5 td:nth-child(4) {{ width:18%; }}
-table.top5 th:nth-child(5), table.top5 td:nth-child(5) {{ width:30%; }}
-table.top5 th:nth-child(6), table.top5 td:nth-child(6) {{ width:19%; }}
+table.top5 th:nth-child(2), table.top5 td:nth-child(2) {{ width:11%; }}
+table.top5 th:nth-child(3), table.top5 td:nth-child(3) {{ width:21%; }}
+table.top5 th:nth-child(4), table.top5 td:nth-child(4) {{ width:17%; }}
+table.top5 th:nth-child(5), table.top5 td:nth-child(5) {{ width:28%; }}
+table.top5 th:nth-child(6), table.top5 td:nth-child(6) {{ width:18%; }}
+table.top5 td.num.rank {{ font-family:'DM Mono',monospace; font-size:13px; font-weight:700; color:{BRAND_ORANGE}; white-space:nowrap; }}
+table.top5 td.date {{ font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); white-space:nowrap; }}
+table.top5 td.pathogen {{ word-break:normal; }}
+table.top5 td.pathogen .path-name {{ white-space:normal; }}
+table.top5 td.company .company-name {{ font-weight:700; color:{BRAND_BLACK}; }}
+table.top5 td.company .brand {{ font-size:11px; color:var(--muted); margin-top:2px; font-style:italic; }}
+table.top5 td.src .country {{ font-weight:600; color:var(--ink); font-size:11.5px; }}
+table.top5 td.src .agency {{ font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); margin-top:2px; }}
+table.top5 td.src .agency a {{ color:{BRAND_ORANGE}; text-decoration:none; }}
 .rank-num{{font-family:Syne,sans-serif;font-weight:800;font-size:22px;color:{BRAND_ORANGE};
 text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}}
 .rank-num.rank-num--multi{{font-size:18px;}}
@@ -1228,10 +1329,10 @@ text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums;letter-sp
 .src-sub{{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}}
 .src-link{{color:{BRAND_ORANGE};font-size:11px;text-decoration:none;font-family:'DM Mono',monospace;}}
 .src-na{{font-family:'DM Mono',monospace;font-size:10px;color:#94a3b8;font-style:italic;}}
-.chip-tier1,.chip-tier2,.chip-outbreak{{display:inline-block;color:#fff;font-size:9px;
-font-weight:700;padding:2px 6px;border-radius:2px;letter-spacing:0.06em;margin-left:5px;}}
-.chip-tier1{{background:{TIER1_RED};}}
-.chip-tier2{{background:{TIER2_AMBER};color:#1f2937;}}
+.chip-tier-1,.chip-tier-2,.chip-outbreak,.chip-tier1,.chip-tier2{{display:inline-block;color:#fff;font-size:9px;
+font-weight:700;padding:2px 6px;border-radius:2px;letter-spacing:0.06em;margin-left:5px;white-space:nowrap;}}
+.chip-tier-1,.chip-tier1{{background:{TIER1_RED};}}
+.chip-tier-2,.chip-tier2{{background:{TIER2_AMBER};color:#1f2937;}}
 .chip-outbreak{{background:{OUTBREAK_VIO};}}
 
 .meth{{background:var(--s1);padding:20px 24px;font-size:13px;line-height:1.7;color:var(--body);}}
@@ -1254,11 +1355,215 @@ color:{BRAND_BLACK};letter-spacing:-0.01em;margin:0;}}
 .appendix-count{{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
 letter-spacing:0.08em;text-transform:uppercase;}}
 
-@media print{{
-  body{{background:#fff;padding:0;}} .page{{border:none;padding:18px 14mm;max-width:none;}}
-  .sec-head{{page-break-after:avoid;}} .kpi-strip{{page-break-inside:avoid;}}
-  table.top5 tr{{page-break-inside:avoid;}}
-  .appendix-head{{page-break-before:always;page-break-after:avoid;}}
+/* ─────────────────────────────────────────────────────────────────
+   PRINT / PDF — mirror the mobile HTML aesthetic.
+   WeasyPrint applies @media print for PDF rendering. Goal: a clean,
+   readable single-column flow at A4 (matching what users see on a
+   phone), not a cramped desktop dashboard squashed onto paper.
+   ───────────────────────────────────────────────────────────── */
+@media print {{
+  /* Page setup — A4 portrait with comfortable side margins.
+     The @bottom-center page-margin box renders a footer on every
+     page with brand left, page number right. WeasyPrint reads the
+     CSS `counter(page)` / `counter(pages)` pseudo-counters. */
+  @page {{
+    size: A4 portrait;
+    margin: 14mm 12mm 18mm 12mm;
+    @bottom-left {{
+      content: "AFTS · Food Safety Intelligence System";
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 8pt;
+      color: #6b7280;
+      padding-bottom: 4mm;
+    }}
+    @bottom-right {{
+      content: "Page " counter(page) " / " counter(pages);
+      font-family: 'DM Mono', monospace;
+      font-size: 8pt;
+      color: #6b7280;
+      padding-bottom: 4mm;
+    }}
+  }}
+
+  body {{
+    background: #fff;
+    padding: 0;
+    font-family: 'Times New Roman', Times, Georgia, serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+    color: var(--ink);
+  }}
+
+  .page {{
+    border: none;
+    padding: 0;
+    max-width: none;
+    background: transparent;
+  }}
+
+  /* Headings — Times Roman, generous spacing */
+  h1.r-title {{ font-size: 22pt; line-height: 1.2; margin: 0 0 8px; }}
+  .sub {{ font-size: 8pt; }}
+  .sec-title {{ font-size: 14pt; }}
+  .sec-num {{ font-size: 9pt; }}
+
+  /* KPI strip — 3-column grid (matches mobile) */
+  .kpi-strip {{ grid-template-columns: repeat(3, 1fr); gap: 8px; }}
+  .kpi {{ padding: 10px 10px; }}
+  .kpi-value {{ font-size: 22pt; }}
+  .kpi-lbl, .kpi-top {{ font-size: 8pt; }}
+
+  /* Concentration / growth / models / trend — 1-column flow */
+  .conc-grid, .growth-grid, .mdl-grid, .trend-grid {{
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }}
+  .conc-val {{ font-size: 18pt; }}
+
+  /* SVG charts — bigger so they're actually readable on paper.
+     380px is roughly half an A4 page in landscape orientation,
+     about right for a single-chart panel. */
+  svg {{
+    max-width: 100%;
+    max-height: 380px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }}
+  /* Heatmap allowed even more height for matrix legibility */
+  .heat-panel svg {{ max-height: 480px; }}
+
+  /* Chart panels — keep each chart panel together as one atomic
+     block. Use the ACTUAL class names that exist in the rendered
+     HTML (verified via `grep class= 2026-M04.html`):
+       .trend-panel    — MoM trend, weekly cadence (each one a card)
+       .heat-panel     — Country × Pathogen heatmap container
+       .timeline-panel — Outbreak timeline container
+       .growth-panel   — Emerging / declining lists
+       .conc-card      — Source HHI / Geographic Gini / Tier-1 Intensity
+       .analysis       — Intelligence Analysis narrative card
+       .pa-note        — Process Authority note block
+       .meth           — Methodology card
+       table.paths     — Hazard distribution table (16 rows)
+       table.repro     — HHI/Gini reproducibility tables (12 rows each)
+     Each one needs `page-break-inside: avoid` so it doesn't split. */
+  .trend-panel,
+  .heat-panel,
+  .timeline-panel,
+  .growth-panel,
+  .conc-card,
+  .analysis,
+  .pa-note,
+  .meth,
+  table.paths,
+  table.repro {{
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }}
+
+  /* Section headers must stay with the content that follows.
+     Without this, a §04 header lands at the bottom of page 4
+     and its heatmap pushes to page 5 — exactly the bug from
+     the user's page 3→4 screenshot. */
+  .sec-head {{
+    page-break-after: avoid;
+    break-after: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }}
+  .sec-caption {{
+    page-break-before: avoid;
+    break-before: avoid;
+  }}
+
+  /* Top-10 + Appendix tables — smaller font, tighter padding,
+     keep rows together */
+  table.top5 {{ font-size: 8.5pt; }}
+  table.top5 th {{ font-size: 7pt; padding: 6px 5px; }}
+  table.top5 td {{ font-size: 8.5pt; padding: 6px 5px; line-height: 1.3; }}
+  table.top5 tr {{ page-break-inside: avoid; break-inside: avoid; }}
+
+  table.paths {{ font-size: 9pt; }}
+  table.paths td {{ padding: 5px 7px; }}
+  table.paths tr {{ page-break-inside: avoid; break-inside: avoid; }}
+
+  /* Reproducibility tables (§09a) */
+  table.repro {{ font-size: 8.5pt; }}
+  table.repro td {{ padding: 3px 6px; }}
+  table.repro tr {{ page-break-inside: avoid; break-inside: avoid; }}
+
+  /* Methodology + narrative cards */
+  .meth, .analysis {{ font-size: 10pt; line-height: 1.55; padding: 14px 16px; }}
+  .meth p, .analysis p {{ margin: 0 0 10px; }}
+
+  /* KPI strip stays together */
+  .kpi-strip {{ page-break-inside: avoid; break-inside: avoid; }}
+
+  /* Appendix A always starts a new page */
+  .appendix-head {{
+    page-break-before: always; break-before: page;
+    page-break-after: avoid; break-after: avoid;
+    page-break-inside: avoid; break-inside: avoid;
+  }}
+
+  /* Hide the body-level "Generated …" footer — page-numbers come
+     from the @page @bottom-* margin boxes now */
+  .footer {{ display: none; }}
+}}
+
+/* ─────────────────────────────────────────────────────────────────
+   MOBILE — phones at ≤640px and tablets ≤900px.
+   Strategy: shrink page padding, stack KPI/concentration grids
+   into 1 column, scale typography, and wrap the wide Top-10 /
+   Appendix tables in a horizontally-scrollable container so
+   columns stay readable rather than collapsing.
+   ───────────────────────────────────────────────────────────── */
+@media (max-width:900px) {{
+  body {{ padding:14px 10px 40px; font-size:13.5px; }}
+  .page {{ padding:22px 18px; max-width:100%; }}
+  h1.r-title {{ font-size:24px; }}
+  .sub {{ font-size:9.5px; line-height:1.5; }}
+
+  /* KPI strip: 6 cols → 2 cols on tablet, 1 col on phone */
+  .kpi-strip {{ grid-template-columns:repeat(2,1fr); }}
+  .kpi {{ padding:14px 12px; }}
+  .kpi-value {{ font-size:24px; }}
+
+  /* Concentration / growth / models stack to 1 column */
+  .conc-grid, .growth-grid, .mdl-grid, .trend-grid {{ grid-template-columns:1fr !important; }}
+  .conc-val {{ font-size:20px; }}
+
+  /* Top-10 + Appendix tables get horizontal scroll on narrow
+     viewports. table-layout:fixed with a min-width preserves the
+     6-column structure; the wrapper provides the swipe surface. */
+  table.top5 {{ display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; min-width:0; }}
+  table.top5 thead, table.top5 tbody {{ display:table; width:auto; min-width:680px; }}
+  table.top5 thead {{ width:680px; }}
+  table.top5 tbody {{ width:680px; }}
+  table.top5 td {{ font-size:11.5px; padding:8px 6px; }}
+  table.top5 td.date {{ font-size:10.5px; }}
+
+  /* SVG charts scale with container */
+  svg {{ max-width:100%; height:auto; }}
+  .heat-panel, .timeline-panel {{ overflow-x:auto; -webkit-overflow-scrolling:touch; }}
+
+  /* Appendix table — same scroll treatment */
+  table.paths {{ font-size:12px; }}
+  table.paths td {{ padding:6px 8px; }}
+
+  /* Methodology card — tighter padding */
+  .meth {{ padding:16px 18px; font-size:12.5px; }}
+
+  /* Section headings */
+  .sec-title {{ font-size:18px; }}
+  .sec-num {{ font-size:11px; }}
+}}
+
+@media (max-width:640px) {{
+  .kpi-strip {{ grid-template-columns:1fr; }}
+  .mast {{ flex-direction:column; align-items:flex-start; gap:10px; }}
+  h1.r-title {{ font-size:21px; line-height:1.2; }}
+  .page {{ padding:18px 14px; }}
 }}
 </style></head><body><div class="page">
 
@@ -1270,10 +1575,10 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   <div class="pill">{escape(month_name)} {year}</div>
 </div>
 
-<h1 class="r-title">Pathogen Surveillance <span class="accent">·</span> {escape(month_name)} {year}</h1>
+<h1 class="r-title">Food Safety Hazard &amp; Pathogen Surveillance <span class="accent">·</span> {escape(month_name)} {year}</h1>
 <div class="sub">{month_start.strftime('%d %b %Y')} – {month_end.strftime('%d %b %Y')}
- &middot; {stats['total']} recalls across {len(stats.get('country_counts', []))} jurisdictions
- &middot; {len(stats.get('source_counts', []))} regulatory sources</div>
+ &middot; {stats['total']} recall incidents across {co.get('n_countries', len(stats.get('country_counts', [])))} jurisdictions
+ &middot; {co.get('n_sources', len(stats.get('source_counts', [])))} regulatory sources</div>
 
 <div class="kpi-strip">
   <div class="kpi">
@@ -1294,7 +1599,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   <div class="kpi">
     <div class="kpi-label">Leading Pathogen</div>
     <div class="kpi-value orange">{escape(top_pathogen_name)}</div>
-    <div class="kpi-top">{stats['top_pathogen'][1]} cases · {top_pathogen_pct}%</div>
+    <div class="kpi-top">{stats['top_pathogen'][1]} recall incidents &middot; {top_pathogen_pct}%</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">MoM Change</div>
@@ -1343,13 +1648,14 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   </div>
 </div>
 
-<!-- § 03 Pathogen Distribution -->
-<div class="sec-head"><span class="sec-num">§ 03</span><h2 class="sec-title">Pathogen Distribution</h2><span class="sec-rule"></span></div>
+<!-- § 03 Hazard & Pathogen Distribution -->
+<div class="sec-head"><span class="sec-num">§ 03</span><h2 class="sec-title">Hazard &amp; Pathogen Distribution</h2><span class="sec-rule"></span></div>
+<p class="sec-caption">Distribution covers all reported food-safety hazards in the window — biological pathogens (Listeria, Salmonella, STEC, Campylobacter, etc.), biological toxins (marine biotoxins, histamine, cereulide), mycotoxins (aflatoxin, ochratoxin A, alternaria), heavy metals, residues, and physical/foreign-body contamination. Rows are ranked by share of total recall incidents.</p>
 <table class="paths"><tbody>{path_rows_html}</tbody></table>
 
 <!-- § 04 Country × Pathogen Hotspot Matrix -->
 <div class="sec-head"><span class="sec-num">§ 04</span><h2 class="sec-title">Country × Pathogen Hotspot Matrix</h2><span class="sec-rule"></span></div>
-<p class="sec-caption">Cells show observed recall counts. σ values are standardised residuals vs an independence-baseline expected count; cells with σ&gt;2 are statistically over-represented and are bordered in red.</p>
+<p class="sec-caption">Cells show observed recall counts. σ values are standardised residuals vs an independence-baseline expected count; cells with σ&gt;2 are statistically over-represented and are bordered in red. <strong>Caveat:</strong> hotspot flags are screening signals only — many cells have small expected counts, multiple country×hazard cells are tested simultaneously, and no multiple-comparison correction is applied. Treat any flag as a prompt for editorial review, not as a confirmatory epidemiological finding; for formal inference an exact / Monte-Carlo test or a Bonferroni / FDR adjustment is recommended.</p>
 <div class="heat-panel">
   {svg_hotspot_heatmap(hs)}
   <div style="margin-top:16px;font-family:'DM Mono',monospace;font-size:10px;
@@ -1433,9 +1739,33 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 <!-- § 09 Methodology -->
 <div class="sec-head"><span class="sec-num">§ 09</span><h2 class="sec-title">Methodology &amp; Sources</h2><span class="sec-rule"></span></div>
 <div class="meth">
-  <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, pathogen classification, and the engineering interpretation of each recall are developed under the process authority of AFTS, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP.</p>
-  <p><strong>Statistical methods.</strong> Month-over-month Z-scores use the rolling-prior-months mean and sample standard deviation; the hotspot matrix uses standardised chi-square residuals (σ&gt;2 flags over-representation vs independence); source concentration is quantified via the Herfindahl-Hirschman Index and geographic distribution via the Gini coefficient; outbreak clusters are detected via a sliding 14-day window over same-pathogen events. Predictive models are gated to activate only when data history meets the minimum size required for valid estimation.</p>
-  <p><strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from 70+ countries and 15+ agencies (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso, BVL, AESAN, EFET and national authorities) into the accumulative Recalls sheet. AI narrative is produced against AFTS process-authority prompts and edited for publication. Figures and pathogen names are preserved verbatim from source data.</p>
+  <p><strong>Definitions.</strong> A <em>recall incident</em> is a single regulator-published recall fiche / notice covering one identified product or product family. Where a single multi-country event is reported by two regulators (for example FSAI in Ireland plus FSA in the United Kingdom), each regulator's notice counts as one incident — the incident table accordingly shows the multi-jurisdictional footprint rather than de-duplicating to a single row. <em>Tier-1</em> indicates an immediate public-health risk (Listeria, Salmonella, STEC, Campylobacter, Cronobacter, Vibrio, Hepatitis A, marine biotoxins, mycotoxins above regulatory limits, undeclared major allergens). <em>Outbreak-associated</em> means the regulator's notice cites confirmed human cases or epidemiologically-linked illnesses, not merely a positive product test.</p>
+
+  <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, hazard classification, and the engineering interpretation of each recall are developed under the process authority of AFTS, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP.</p>
+
+  <p><strong>Statistical methods.</strong> Month-over-month <em>Z-scores</em> use the rolling-prior-months mean and sample standard deviation; the score is suppressed (n/a) when the baseline contains fewer than six months. The <em>hotspot matrix</em> uses standardised chi-square residuals against an independence-baseline expected count; cells with σ&gt;2 are flagged as over-represented but are screening signals only (no multiple-comparison correction; small expected counts in many cells). <em>Source concentration</em> uses the Herfindahl-Hirschman Index on agency counts (HHI = Σ s²ᵢ × 10000, where sᵢ is each agency's share; &lt;1500 diverse, 1500–2500 moderate, &gt;2500 concentrated). <em>Geographic distribution</em> uses the Gini coefficient on country counts (0 = perfectly even, 1 = single-country regime; &lt;0.4 even, 0.4–0.6 moderate, &gt;0.6 uneven). <em>Outbreak clusters</em> are detected via a sliding 14-day window over same-pathogen outbreak events (cluster threshold: ≥3 events). The <em>composite severity index</em> (0–100) is a transparent two-component blend: <strong>100 × (0.60 × Tier-1 share + 0.40 × outbreak rate)</strong>, where Tier-1 share = Tier-1 incidents ÷ total incidents and outbreak rate = outbreak-flagged incidents ÷ total incidents (using the same criterion as the headline outbreaks KPI). For April 2026 this evaluates to 100 × (0.60 × 198/236 + 0.40 × 6/236) = 51.4. Buckets: ≥65 critical, ≥45 elevated, ≥25 moderate, &lt;25 low. Predictive models are gated to activate only when data history meets the minimum size required for valid estimation; the linear-trend OLS reports a 95% CI but does not claim slope significance until n ≥ 12 monthly observations (so dof ≥ 10, where the t-critical at α = 0.05 falls below 2.23).</p>
+
+  <p><strong>Reporting-system caveats.</strong> National recall-publication regimes differ in granularity. France's RappelConso publishes one fiche per identified product/lot configuration, often producing several fiches per single root-cause event; the headline French count therefore reflects a transparent, item-level reporting practice rather than a higher true incidence. EU member-state counts likewise reflect both the actual hazard signal and each authority's publication discipline. Treat country totals as a recall-publication signal, not as a direct food-safety league table.</p>
+
+  <p><strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from 70+ countries and 15+ agencies (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso, BVL, AESAN, EFET and national authorities) into the accumulative Recalls sheet. AI narrative is produced against AFTS process-authority prompts and edited for publication. Figures, hazard names, and source URLs are preserved verbatim from regulator data.</p>
+</div>
+
+<!-- §09a — HHI / Gini reproducibility table -->
+<div class="sec-head"><span class="sec-num">§ 09a</span><h2 class="sec-title">Concentration Reproducibility</h2><span class="sec-rule"></span></div>
+<p class="sec-caption">Per review-1 audit guidance — the source-count table reproduces Source HHI = {co.get('hhi_source')} on agency shares, and the country-count table reproduces Geographic Gini = {co.get('gini_country')} on country counts. Top 12 of each are shown; the residual rows behave identically and contribute proportionally smaller s².</p>
+<div class="conc-grid">
+  <div class="conc-card">
+    <div class="conc-lbl">Source / Agency &middot; share &middot; HHI s²ᵢ contribution</div>
+    <table class="repro"><tbody>
+      {hhi_rows_html}
+    </tbody></table>
+  </div>
+  <div class="conc-card">
+    <div class="conc-lbl">Country &middot; count &middot; share</div>
+    <table class="repro"><tbody>
+      {gini_rows_html}
+    </tbody></table>
+  </div>
 </div>
 
 <!-- Appendix A — Complete Recall Register -->
@@ -1445,7 +1775,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   <span class="sec-rule"></span>
   <span class="appendix-count">{stats['total']} recalls</span>
 </div>
-<p class="sec-caption">Every pathogen-related recall recorded in {escape(month_name)} {year}, ranked by severity. This appendix replaces the companion page for subscriber convenience.</p>
+<p class="sec-caption">Every food-safety hazard recall recorded in {escape(month_name)} {year}, ranked by severity. This appendix replaces the companion page for subscriber convenience.</p>
 <table class="top5"><thead><tr>
 <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th>
 <th>Product</th><th>Jurisdiction &amp; Source</th>
@@ -1455,7 +1785,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   <div class="fb">Advanced Food-Tech Solutions <em>·</em> AFTS</div>
   Food Process Engineering · Thermal Processing · Regulatory Compliance<br>
   advfood.tech · info@advfood.tech · Athens, Greece<br>
-  Generated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}
+  Generated {(month_end + timedelta(days=1)).strftime('%d %B %Y')}
 </div>
 
 </div></body></html>"""
@@ -1501,7 +1831,7 @@ Monthly Briefing · {escape(month_name)}</div>
 </div>
 
 <div style="padding:28px 24px 16px">
-<h1 style="font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:{BRAND_BLACK}">Pathogen Surveillance · {escape(month_name)}</h1>
+<h1 style="font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:{BRAND_BLACK}">Hazard &amp; Pathogen Surveillance · {escape(month_name)}</h1>
 <div style="font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px">
 {month_start.strftime('%d %b')} – {month_end.strftime('%d %b %Y')} · {stats['total']} recalls · {stats['tier1']} Tier-1 · {stats['outbreaks']} outbreaks
 </div>
