@@ -1,0 +1,95 @@
+name: FSIS OpenAI Gap Finder
+
+# Daily at 00:00 ATHENS TIME — OpenAI gpt-4o-mini as a gap-finder.
+# RE-ENABLED 2026-05-03 as parallel fallback for the midnight
+# gap-finder-cascade.yml (gap_since_days=7 safety-net sweep).
+# Both fire simultaneously at 00:00 Athens via FsisScheduler.gs.
+# If cascade succeeds, OpenAI's results are deduped at the
+# Pending-append step (URL dedup). If cascade fails for any
+# reason (all 4 internal providers exhausted), OpenAI still ran
+# in parallel and its results land in Pending normally.
+#
+# Cost: single global query, ~$0.01/run = ~€0.30/month
+# (~$3.65/year). Cheaper than Claude as the OpenAI fallback choice.
+#
+# Two DST crons + Athens hour guard. Currently dispatch-only
+# (workflow_dispatch). The 23-01 hour guard window covers
+# overnight DST drift.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  openai-gap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Athens-time guard (23-01:xx window)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "$HOUR" -ge "23" ] || [ "$HOUR" -le "1" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not 00:xx Athens (now ${HOUR}:xx). Skipping."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run OpenAI gap-finder
+        if: steps.guard.outputs.run == 'true'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME: "FSIS Bot"
+        run: python -m pipeline.gap_finder_openai
+      - name: Gemini URL Gate + Merge
+        if: steps.guard.outputs.run == 'true'
+        env:
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
+          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
+          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME: "FSIS Bot"
+        run: |
+          python -m pipeline.url_gate_gemini
+          python -m pipeline.merge_master
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: echo "OpenAI gap-finder complete — Athens $(TZ=Europe/Athens date)"
