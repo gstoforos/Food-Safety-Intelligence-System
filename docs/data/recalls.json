@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-05-03",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "Herta",
+  "Product": "Herta",
+  "Pathogen": "Salmonella",
+  "Reason": "Due to the detection of an isolated presence of Salmonella on a batch of Smoked Bacon 200g+25%, and despite being a product requiring cooking, HERTA is recalling the indicated batches.",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22176/Interne",
+  "Notes": "carrefour, provera, auchan, intermarché, leclerc, système u, casino, monoprix [url-gate 2026-05-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...]"
+ },
+ {
   "Date": "2026-04-30",
   "Source": "USDA FSIS",
   "Company": "Mama Cozzi's Pizza Kitchen",
