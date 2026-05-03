@@ -581,6 +581,16 @@ def main() -> int:
     save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH)
     mirror_json_from_xlsx(XLSX_PATH, JSON_PATH)
 
+    # Mirror promotions into the Weekly_Review sheet + refresh the
+    # JSON slice the Apps Script Thursday-17:00 mailer reads.
+    try:
+        from pipeline.weekly_review_capture import record_promotions  # noqa: E402
+        n_wr = record_promotions(new_approved, xlsx_path=XLSX_PATH)
+        if n_wr:
+            log.info("Weekly_Review: appended %d row(s)", n_wr)
+    except Exception as _wr_err:  # never block promotion on capture failure
+        log.warning("Weekly_Review capture failed: %s", _wr_err)
+
     # Rebuild daily briefs for every date that gained newly-promoted rows.
     # Without this, the dashboard's rolling 7-day display + DAILY tab stay
     # stale until the next 10:00 daily-recall-search run.
@@ -590,7 +600,11 @@ def main() -> int:
     if rebuilt_briefs:
         log.info("Rebuilt %d daily brief(s)", len(rebuilt_briefs))
 
-    files_to_commit = ["docs/data/recalls.xlsx", "docs/data/recalls.json"]
+    files_to_commit = [
+        "docs/data/recalls.xlsx",
+        "docs/data/recalls.json",
+        "docs/data/weekly-review-latest.json",
+    ]
     files_to_commit.extend(brief_files)
 
     if not SKIP_COMMIT:

@@ -1242,6 +1242,18 @@ if __name__ == "__main__":
     save_xlsx_with_pending(final_approved, sort_rows(remaining), XLSX)
     mirror_json_from_xlsx(XLSX, ROOT / "docs" / "data" / "recalls.json")
 
+    # Mirror promotions into the Weekly_Review sheet + refresh the JSON
+    # slice consumed by the Apps Script Thursday-17:00 mailer. Captures
+    # the (rare) backfill / MERGE_MASTER_PROMOTE=1 path too.
+    if new_approved:
+        try:
+            from pipeline.weekly_review_capture import record_promotions  # noqa: E402
+            n_wr = record_promotions(new_approved, xlsx_path=XLSX)
+            if n_wr:
+                log.info("Weekly_Review: appended %d row(s)", n_wr)
+        except Exception as _wr_err:
+            log.warning("Weekly_Review capture failed: %s", _wr_err)
+
     # Rebuild daily briefs for any date that gained newly-promoted rows.
     # Without this, the dashboard's rolling 7-day display stays stale.
     # In janitor mode (no promotion), new_approved is empty — this is a
