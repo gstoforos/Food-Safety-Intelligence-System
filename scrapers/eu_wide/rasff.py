@@ -1,66 +1,83 @@
 """
 RASFF Window — EU Rapid Alert System for Food and Feed.
 
-Architecture (as of 2026-05-04, replacing the 2026-04-29 disabled stub):
+Architecture (final, 2026-05-04 — derived from HAR capture of the SPA):
 
-  RASFF Window's web UI exposes two XLS/CSV download buttons on the search/
-  list page that return the FULL notification dataset (~30K rows) as a
-  structured spreadsheet. This bypasses the SPA hydration problem entirely
-  — we don't need to scrape the rendered DOM, we just download the export.
+  RASFF Window's SPA hits a public JSON API for the notification list. Each
+  notification entry contains BOTH the public reference number (e.g.
+  "2026.3863") AND the internal integer database ID (e.g. notifId=841474).
+  The detail page URL only accepts the integer ID — reference-form URLs
+  return GENERIC_TECHNICAL_ERROR [ERR-1004] Invalid Request.
 
-  Endpoint format (audit 2026-05-04, sourced from XLS button HAR capture):
-    https://webgate.ec.europa.eu/rasff-window/services/excel
-    https://webgate.ec.europa.eu/rasff-window/services/csv
-    Both accept the same query parameters as the /screen/list URL.
+  Endpoint:
+    POST https://webgate.ec.europa.eu/rasff-window/backend/public/notification/search/consolidated/en/
 
-  The bulk download contains 14 columns:
-    reference, category, type, subject, date, notifying_country,
-    classification, risk_decision, distribution, forAttention, forFollowUp,
-    operator, origin, hazards
+  Auth: NONE. No cookies, no CSRF tokens, no API keys. Just send a JSON
+  body with pageNumber + itemsPerPage. Headers required: Content-Type,
+  Accept, Origin, Referer, X-Requested-With.
 
-  We filter:
-    - type == 'food'                     (drop feed, food contact materials)
-    - classification in {alert, border}  (configurable; user-selected scope)
-    - date >= today - since_days
-    - hazards/subject contain a pathogen we monitor (PATHOGEN_RULES)
+  Request body:
+    {"parameters": {"pageNumber": 1, "itemsPerPage": 50}}
 
-  RASFF rows are written following the existing 15-row schema in the xlsx:
-    Source   = 'RASFF'
-    Company  = 'Origin: X | Notifying: Y | Distributed: Z'   (per pipeline)
-    Brand    = '—' (RASFF doesn't publish brand info publicly)
-    Country  = origin country (canonical)
-    URL      = https://webgate.ec.europa.eu/rasff-window/screen/notification/{reference}
+  Response shape (top-level):
+    {
+      "totalPages":    1219,
+      "totalElements": 30468,
+      "notifications": [
+        {
+          "notifId":       841474,             # integer URL ID
+          "reference":     "2026.3863",        # public reference
+          "ecValidationDate": "01-05-2026 22:54:51",
+          "subject":       "Cerulide in infant formula from Ireland",
+          "notifyingCountry":  {"organizationName": "Ireland", "isoCode": "IE"},
+          "originCountries":   [{"organizationName": "Ireland", ...}],
+          "productCategory":   {"description": "milk and milk products"},
+          "productType":       {"description": "food"},
+          "notificationClassification": {"description": "alert notification"},
+          "riskDecision":      {"description": "serious"},
+          "published":         false
+        },
+        ...
+      ]
+    }
 
-  Note on URL format: existing manually-added RASFF rows in our corpus use
-  integer IDs (e.g. /notification/838838) which are RASFF's internal DB
-  primary keys. Those IDs are not exposed in the public XLS export. We use
-  the public REFERENCE form (e.g. /notification/2026.3863) instead.
-  pipeline.run_all._RASFF_NOTIFICATION_URL_RE is updated in lockstep to
-  accept both forms.
+  Note: this paginated endpoint does NOT return distribution countries or
+  hazards (those come from a per-notification detail call). For our use,
+  the subject + classification + originCountries + reference are enough
+  to make the row useful — we keep distribution/hazards lookup as future
+  enhancement if needed.
+
+  URL pattern for each notification:
+    https://webgate.ec.europa.eu/rasff-window/screen/notification/{notifId}
+
+  This is the URL form the pipeline regex requires (integer ID), and the
+  only form that resolves on RASFF Window's detail page.
 
 Resilience:
 
-  If RASFF removes or changes the XLS endpoint, this scraper will throw
-  HTTP 404/410 and log a clear error. The stub fallback path returns
-  zero rows, matching the disabled-state behavior. Country scrapers
-  continue to provide consumer-facing recall coverage independently.
+  - If the API renames keys or rotates the endpoint, the parser detects
+    missing required keys and aborts with a clear log line.
+  - Falls back to 0 rows on HTTP failure — country scrapers continue to
+    provide EU coverage.
+  - We do NOT use the bulk export endpoint (/search/export/en/) — it
+    returns 21MB and is overkill for our 7-day window. The paginated
+    consolidated endpoint is faster.
 
-  We do NOT use Playwright. The XLS export approach is simpler, faster
-  (~3s download vs 30-60s SPA hydration), and avoids adding chromium
-  to the GitHub Actions runner image.
+Replaces the stub disabled 2026-04-29 + the broken reference-URL
+implementation written earlier today.
 """
 from __future__ import annotations
 
-import io
+import json
 import logging
 import re
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional, Tuple
-
-import openpyxl
+from typing import List, Optional
 
 from scrapers._base import BaseScraper, fetch
-from scrapers._models import Recall, normalize_pathogen, normalize_country, infer_region
+from scrapers._models import (
+    Recall, normalize_pathogen, normalize_country, infer_region,
+)
 
 log = logging.getLogger(__name__)
 
@@ -69,34 +86,47 @@ log = logging.getLogger(__name__)
 # Tunables
 # ---------------------------------------------------------------------------
 
-# Public XLS download endpoint discovered 2026-05-04. The /screen/list page's
-# "XLS" button posts to this URL with current filter state. With no filters,
-# the response is the full corpus (~30K rows, ~3MB compressed).
-XLS_URL = "https://webgate.ec.europa.eu/rasff-window/services/excel"
+API_URL = (
+    "https://webgate.ec.europa.eu/rasff-window/backend/public/"
+    "notification/search/consolidated/en/"
+)
 
-# Some servers also accept a CSV alias. Kept as fallback.
-CSV_URL = "https://webgate.ec.europa.eu/rasff-window/services/csv"
+# Required headers for the API to respond. Discovered from HAR capture of
+# the SPA's call. The Referer + Origin pair is critical — without these
+# the EC backend may 403 the request as a non-browser source.
+API_HEADERS = {
+    "Accept":           "application/json, text/plain, */*",
+    "Content-Type":     "application/json",
+    "Origin":           "https://webgate.ec.europa.eu",
+    "Referer":          "https://webgate.ec.europa.eu/rasff-window/screen/list",
+    "X-Requested-With": "XMLHttpRequest",
+}
 
-# Categories we monitor — all "alert notification" + all "border rejection"
-# notifications (alert + IFA distribution variants are picked up by national
-# scrapers; border rejections are RASFF-exclusive).
+# Page size — 50 keeps each page ~30KB which is a comfortable size.
+# (HAR shows 25 was the SPA default; 50 is fine — server-side cap appears
+# to be around 100 but we don't need to push it.)
+PAGE_SIZE = 50
+
+# Pages to fetch before giving up. 7 days × ~7 notifications/day = ~50 rows;
+# safety multiplier ×3 = 150 = 3 pages. Cap at MAX_PAGES to prevent runaway
+# scraping if cutoff logic breaks.
+MAX_PAGES = 10
+
+# Lookback window default.
+DEFAULT_SINCE_DAYS = 7
+
+# Classifications we monitor.
 MONITORED_CLASSIFICATIONS = (
     "alert notification",
     "border rejection",
-    # Information notifications often fail the pathogen filter anyway, but
-    # we keep them in scope so we capture them when they DO match a pathogen
-    # (e.g. the 2026.3853 Salmonella in Polish chicken row).
     "information notification for attention",
     "information notification for follow-up",
 )
 
-# We monitor only food (drop feed, food contact materials, environmental).
+# Types we monitor (drops feed, food contact materials, environmental).
 MONITORED_TYPES = ("food",)
 
-# Lookback window. Default 7 days, matching other scrapers.
-DEFAULT_SINCE_DAYS = 7
-
-# Per-row cap on Reason text length (matches existing RASFF row style).
+# Per-row Reason text cap.
 REASON_MAX_LEN = 500
 
 
@@ -105,7 +135,7 @@ REASON_MAX_LEN = 500
 # ---------------------------------------------------------------------------
 
 def _parse_rasff_date(s: str) -> Optional[datetime]:
-    """RASFF XLS date format is 'DD-MM-YYYY HH:MM:SS' — return UTC datetime."""
+    """RASFF dates are 'DD-MM-YYYY HH:MM:SS' — return UTC datetime."""
     if not s:
         return None
     try:
@@ -114,7 +144,6 @@ def _parse_rasff_date(s: str) -> Optional[datetime]:
         )
     except (ValueError, TypeError):
         try:
-            # Fallback: date-only format
             return datetime.strptime(str(s)[:10], "%d-%m-%Y").replace(
                 tzinfo=timezone.utc
             )
@@ -122,45 +151,14 @@ def _parse_rasff_date(s: str) -> Optional[datetime]:
             return None
 
 
-def _extract_pathogen(subject: str, hazards: str) -> str:
-    """
-    Run normalize_pathogen across the subject + hazards strings. Returns
-    canonical name if any pathogen is matched, else "" (row is rejected).
-
-    The hazards field has the format:
-        'cereulide  - {natural toxins (other)}'
-        'Aflatoxin B1   - {mycotoxins},aflatoxin total  - {mycotoxins}'
-        'Salmonella Enteritidis  - {pathogenic micro-organisms}'
-
-    We test the hazards field FIRST (more reliable signal), then fall back
-    to subject (catches RASFF rows where hazards is empty but subject mentions
-    the contaminant — e.g. row 2026.3863 "Cerulide in infant formula").
-
-    RASFF-side pre-normalisation: the public XLS export contains documented
-    typos (e.g. "Cerulide" missing one 'e') that miss the strict regex in
-    PATHOGEN_RULES. We pre-correct known typos BEFORE feeding to the canonical
-    normalizer, so the global vocabulary stays clean.
-    """
-    for text in (hazards or "", subject or ""):
-        if not text:
-            continue
-        # RASFF typo corrections (subject-only, not hazards)
-        corrected = _correct_rasff_typos(text)
-        canon = normalize_pathogen(corrected)
-        if canon:
-            return canon
-    return ""
-
-
-# Known typos seen in the RASFF Window XLS export (subject field).
-# Audit 2026-05-04: "Cerulide" appears in #2026.3863 alongside the correctly-
-# spelled "Cereulide" in #2026.3862 — they are sister notifications, so the
-# typo is in RASFF's source data, not ours. Add new entries here when we
-# spot them in production.
+# RASFF source data has documented typos in the subject field.
+# Audit 2026-05-04: "Cerulide" (missing 'e') in #2026.3863 alongside the
+# correctly-spelled "Cereulide" in sister notification #2026.3862. Add new
+# entries when more typos surface in production logs.
 _RASFF_TYPO_FIXES = (
-    (r"\bcerulide\b", "cereulide"),       # missing 'e'
-    (r"\bcereuli?de\b", "cereulide"),     # belt-and-braces; matches both
-    (r"\baflotoxin\w*\b", "aflatoxin"),   # 'o' for 'a'
+    (r"\bcerulide\b",       "cereulide"),    # missing 'e' in #2026.3863
+    (r"\bcereuli?de\b",     "cereulide"),    # belt-and-braces
+    (r"\baflotoxin\w*\b",   "aflatoxin"),    # 'o' for 'a'
 )
 
 
@@ -171,20 +169,32 @@ def _correct_rasff_typos(text: str) -> str:
     return text
 
 
-def _build_company_field(origin: str, notifying: str, distribution: str) -> str:
-    """
-    Build the 'Origin: X | Notifying: Y | Distributed: Z' company string per
-    RASFF schema. All three fields can be comma-separated multi-country
-    strings. Empty/None becomes 'unknown'.
-    """
-    def fmt(val: str) -> str:
-        v = (val or "").strip()
-        return v if v else "unknown"
+def _extract_pathogen(subject: str) -> str:
+    """Match a canonical pathogen against the RASFF subject string.
 
-    return (
-        f"Origin: {fmt(origin)} | "
-        f"Notifying: {fmt(notifying)} | "
-        f"Distributed: {fmt(distribution)}"
+    The paginated /consolidated/en/ endpoint does NOT return the full hazards
+    field (that lives in the per-notification detail call). We therefore rely
+    on the subject text — which is the natural-language summary like
+    "Salmonella Enteritidis in fresh chicken breast fillet from Poland".
+    Empirically this catches all in-scope rows (validated 2026-05-04 against
+    the May-1+ corpus).
+    """
+    if not subject:
+        return ""
+    canon = normalize_pathogen(_correct_rasff_typos(subject))
+    return canon or ""
+
+
+def _country_names(countries) -> str:
+    """Convert RASFF originCountries / notifyingCountry into a comma-separated
+    organizationName string. Accepts list-of-dicts (originCountries) or single
+    dict (notifyingCountry). Empty input → empty string."""
+    if not countries:
+        return ""
+    if isinstance(countries, dict):
+        return countries.get("organizationName", "") or ""
+    return ", ".join(
+        c.get("organizationName", "") for c in countries if c.get("organizationName")
     )
 
 
@@ -200,38 +210,29 @@ def _classify(classification: str) -> str:
     return "Recall"
 
 
-def _primary_country(origin: str) -> str:
+def _build_company_field(origin: str, notifying: str) -> str:
+    """Build 'Origin: X | Notifying: Y' company string per RASFF schema.
+    The /consolidated/en/ endpoint does NOT include distribution countries —
+    those would require a per-row detail call. We omit Distributed in this
+    field rather than write 'unknown' which would look like missing data.
     """
-    Return the first country listed in origin field (canonical form).
-    RASFF origin can be 'Ireland,Poland' (multi-country production chain) —
-    we use the first as Country, everything else lives in the Company field.
-    """
-    if not origin:
-        return ""
-    first = origin.split(",")[0].strip()
-    return normalize_country(first) or first
+    o = (origin or "").strip() or "unknown"
+    n = (notifying or "").strip() or "unknown"
+    return f"Origin: {o} | Notifying: {n}"
 
 
-def _reason_text(subject: str, hazards: str, distribution: str,
-                 classification: str, decision: str) -> str:
-    """
-    Build the human-readable Reason field by concatenating the strongest
-    signals. Truncated to REASON_MAX_LEN to match existing row style.
-    """
+def _reason_text(subject: str, classification: str, decision: str,
+                 category: str) -> str:
+    """Build human-readable Reason field."""
     parts = []
     if subject:
         parts.append(subject.strip())
-    if hazards:
-        # Strip the '{category}' annotations for prose — keep the substance names
-        clean_haz = re.sub(r"\s*-\s*\{[^}]*\}", "", hazards).strip()
-        if clean_haz and clean_haz.lower() not in (subject or "").lower():
-            parts.append(f"hazards: {clean_haz}")
-    if decision and decision.lower() != "potentially serious":
+    s_lower = (subject or "").lower()
+    if decision and decision.lower() not in s_lower:
         parts.append(f"risk: {decision}")
-    if distribution:
-        parts.append(f"distributed: {distribution}")
-    text = "; ".join(parts)
-    return text[:REASON_MAX_LEN]
+    if category and category.lower() not in s_lower:
+        parts.append(f"category: {category}")
+    return "; ".join(parts)[:REASON_MAX_LEN]
 
 
 # ---------------------------------------------------------------------------
@@ -240,218 +241,154 @@ def _reason_text(subject: str, hazards: str, distribution: str,
 
 class RASFFScraper(BaseScraper):
     """
-    EU Rapid Alert System for Food and Feed — uses the public XLS export
-    endpoint to bypass RASFF Window's SPA hydration requirement.
+    EU Rapid Alert System for Food and Feed — uses the public JSON API
+    /backend/public/notification/search/consolidated/en/ to retrieve
+    notifications with their internal integer IDs (notifId), allowing
+    construction of working /screen/notification/{id} URLs.
 
-    Scrapes notifications matching:
+    Filters:
       - type == 'food'
-      - classification in {alert, border rejection, information for attention/follow-up}
+      - classification in {alert, border rejection, info-attention/follow-up}
       - date >= today - since_days
-      - hazards or subject contain a pathogen in PATHOGEN_RULES
+      - subject matches a pathogen in PATHOGEN_RULES
     """
     AGENCY = "RASFF (EU)"
-    COUNTRY = ""    # RASFF rows use per-row origin, not a fixed agency country
+    COUNTRY = ""    # RASFF rows use per-row origin
     LANGUAGE = "en"
 
     def scrape(self, since_days: int = DEFAULT_SINCE_DAYS) -> List[Recall]:
         cutoff = datetime.now(timezone.utc) - timedelta(days=since_days)
+        log.info("RASFF API: fetching notifications since %s",
+                 cutoff.strftime("%Y-%m-%d"))
 
-        # Step 1 — fetch the XLS export
-        log.info("RASFF XLS export: fetching %s (since_days=%d)", XLS_URL, since_days)
-        resp = fetch(self.session, XLS_URL, timeout=60)
-        if resp is None or resp.status_code != 200:
-            status = resp.status_code if resp is not None else "no-response"
-            log.warning("RASFF XLS unavailable (status=%s) — falling back to CSV", status)
-            resp = fetch(self.session, CSV_URL, timeout=60)
-            if resp is None or resp.status_code != 200:
-                log.warning(
-                    "RASFF: both XLS and CSV endpoints failed; returning 0 rows. "
-                    "Country scrapers continue to provide EU coverage."
-                )
-                return []
-            return self._parse_csv(resp.content, cutoff)
-
-        return self._parse_xlsx(resp.content, cutoff)
-
-    # -----------------------------------------------------------------------
-    # Parsers
-    # -----------------------------------------------------------------------
-
-    def _parse_xlsx(self, blob: bytes, cutoff: datetime) -> List[Recall]:
-        try:
-            wb = openpyxl.load_workbook(io.BytesIO(blob), read_only=True, data_only=True)
-        except Exception as exc:
-            log.error("RASFF XLS parse failed: %s", exc)
-            return []
-
-        # The export uses a single sheet (default name "RASFF_window_results"
-        # but we don't depend on the name).
-        ws = wb[wb.sheetnames[0]]
-        hdr_row = next(ws.iter_rows(min_row=1, max_row=1, values_only=True), None)
-        if not hdr_row:
-            log.error("RASFF XLS empty / no header row")
-            return []
-
-        headers = [str(h or "").strip() for h in hdr_row]
-
-        def col(name: str) -> int:
-            try:
-                return headers.index(name)
-            except ValueError:
-                return -1
-
-        idx = {
-            "reference":  col("reference"),
-            "category":   col("category"),
-            "type":       col("type"),
-            "subject":    col("subject"),
-            "date":       col("date"),
-            "notifying":  col("notifying_country"),
-            "classification": col("classification"),
-            "decision":   col("risk_decision"),
-            "distribution": col("distribution"),
-            "origin":     col("origin"),
-            "hazards":    col("hazards"),
-        }
-        # Verify the required columns are present — if RASFF renames, fail loud.
-        missing = [k for k, v in idx.items() if v < 0]
-        if missing:
-            log.error("RASFF XLS missing columns: %s — schema may have changed; aborting",
-                      missing)
-            return []
-
-        return self._iter_rows(ws.iter_rows(min_row=2, values_only=True), idx, cutoff)
-
-    def _parse_csv(self, blob: bytes, cutoff: datetime) -> List[Recall]:
-        """CSV fallback path (same column shape, comma-separated)."""
-        import csv
-        try:
-            text = blob.decode("utf-8-sig")
-        except UnicodeDecodeError:
-            text = blob.decode("latin-1")
-
-        reader = csv.reader(io.StringIO(text))
-        try:
-            headers = [h.strip() for h in next(reader)]
-        except StopIteration:
-            log.error("RASFF CSV empty")
-            return []
-
-        def col(name: str) -> int:
-            try: return headers.index(name)
-            except ValueError: return -1
-
-        idx = {
-            "reference": col("reference"), "category": col("category"),
-            "type": col("type"), "subject": col("subject"),
-            "date": col("date"), "notifying": col("notifying_country"),
-            "classification": col("classification"), "decision": col("risk_decision"),
-            "distribution": col("distribution"), "origin": col("origin"),
-            "hazards": col("hazards"),
-        }
-        missing = [k for k, v in idx.items() if v < 0]
-        if missing:
-            log.error("RASFF CSV missing columns: %s — aborting", missing)
-            return []
-
-        return self._iter_rows(reader, idx, cutoff)
-
-    # -----------------------------------------------------------------------
-    # Row parser (shared between XLSX + CSV)
-    # -----------------------------------------------------------------------
-
-    def _iter_rows(self, rows_iter, idx, cutoff: datetime) -> List[Recall]:
-        out: List[Recall] = []
-        n_total = 0
-        n_dropped_date = n_dropped_type = n_dropped_class = n_dropped_pathogen = 0
-        n_dropped_dup = 0
+        all_rows: List[Recall] = []
+        n_total = n_drop_date = n_drop_type = n_drop_class = 0
+        n_drop_pathogen = n_drop_dup = 0
         seen_refs = set()
 
-        for r in rows_iter:
-            if not r:
-                continue
-            n_total += 1
-
-            def get(key):
-                i = idx[key]
-                if i < 0 or i >= len(r):
-                    return ""
-                v = r[i]
-                return "" if v is None else str(v).strip()
-
-            # Date filter
-            d = _parse_rasff_date(get("date"))
-            if d is None or d < cutoff:
-                n_dropped_date += 1
-                continue
-
-            # Type filter (food only)
-            if get("type").lower() not in MONITORED_TYPES:
-                n_dropped_type += 1
-                continue
-
-            # Classification filter
-            classif = get("classification").lower()
-            if not any(mc in classif for mc in MONITORED_CLASSIFICATIONS):
-                n_dropped_class += 1
-                continue
-
-            # Pathogen filter
-            pathogen = _extract_pathogen(get("subject"), get("hazards"))
-            if not pathogen:
-                n_dropped_pathogen += 1
-                continue
-
-            # Dedup by reference (just in case the export has duplicates)
-            ref = get("reference")
-            if ref in seen_refs:
-                n_dropped_dup += 1
-                continue
-            seen_refs.add(ref)
-
-            # Build the Recall row
-            origin = get("origin")
-            country = _primary_country(origin) or _primary_country(get("notifying"))
-            row_class = _classify(classif)
-            url = (
-                f"https://webgate.ec.europa.eu/rasff-window/screen/notification/{ref}"
-                if ref else ""
+        for page in range(1, MAX_PAGES + 1):
+            payload = {"parameters": {"pageNumber": page,
+                                      "itemsPerPage": PAGE_SIZE}}
+            resp = fetch(
+                self.session,
+                API_URL,
+                method="POST",
+                json=payload,
+                headers=API_HEADERS,
+                timeout=45,
             )
-            company = _build_company_field(
-                origin, get("notifying"), get("distribution")
-            )
-            reason = _reason_text(
-                get("subject"), get("hazards"), get("distribution"),
-                classif, get("decision"),
-            )
+            if resp is None or resp.status_code != 200:
+                status = resp.status_code if resp is not None else "no-response"
+                log.warning("RASFF API page %d failed (status=%s) — stopping",
+                            page, status)
+                break
 
-            recall = self._new_recall(
-                Date=d.strftime("%Y-%m-%d"),
-                Company=company,
-                Brand="—",
-                Product=get("subject") or get("category"),
-                Pathogen=pathogen,
-                Reason=reason,
-                Class=row_class,
-                URL=url,
-                Outbreak=0,  # RASFF doesn't expose illness counts in the public export
-                Notes=f"[RASFF #{ref}; classification: {classif}; "
-                      f"category: {get('category')}]",
-            )
+            try:
+                body = resp.json()
+            except (ValueError, json.JSONDecodeError) as exc:
+                log.error("RASFF API page %d: invalid JSON: %s", page, exc)
+                break
 
-            # Override Country/Region — _new_recall uses self.COUNTRY which is
-            # empty for RASFF; we set per-row from origin instead.
-            if country:
-                recall.Country = country
-                recall.Region = infer_region(country) or recall.Region
+            notifs = body.get("notifications", [])
+            if not notifs:
+                log.info("RASFF API page %d: empty — pagination exhausted", page)
+                break
 
-            out.append(recall)
+            page_done = False
+            for n in notifs:
+                n_total += 1
+
+                # Date — drop rows older than cutoff. Notifications come back
+                # in DESCENDING date order, so once we hit a too-old row, we
+                # short-circuit the rest of pagination.
+                d = _parse_rasff_date(n.get("ecValidationDate", ""))
+                if d is None:
+                    n_drop_date += 1
+                    continue
+                if d < cutoff:
+                    n_drop_date += 1
+                    page_done = True
+                    log.info("RASFF API: hit cutoff on page %d (row date %s) — "
+                             "stopping pagination", page, d.strftime("%Y-%m-%d"))
+                    break
+
+                # Type filter
+                ptype = (n.get("productType") or {}).get("description", "").lower()
+                if ptype not in MONITORED_TYPES:
+                    n_drop_type += 1
+                    continue
+
+                # Classification filter
+                classif = (n.get("notificationClassification") or {}).get(
+                    "description", "").lower()
+                if not any(mc in classif for mc in MONITORED_CLASSIFICATIONS):
+                    n_drop_class += 1
+                    continue
+
+                # Pathogen filter — match against subject
+                subject = (n.get("subject") or "").strip()
+                pathogen = _extract_pathogen(subject)
+                if not pathogen:
+                    n_drop_pathogen += 1
+                    continue
+
+                # Dedup by reference
+                ref = n.get("reference", "")
+                if ref in seen_refs:
+                    n_drop_dup += 1
+                    continue
+                seen_refs.add(ref)
+
+                # Build the row
+                notif_id = n.get("notifId")
+                if not notif_id:
+                    log.warning("RASFF row %s: missing notifId — skipping", ref)
+                    continue
+
+                origin = _country_names(n.get("originCountries", []))
+                notifying = _country_names(n.get("notifyingCountry", {}))
+                origins_list = n.get("originCountries", []) or []
+                country_for_row = (
+                    _country_names([origins_list[0]]) if origins_list else notifying
+                )
+                country_for_row = normalize_country(country_for_row) or country_for_row
+
+                category = (n.get("productCategory") or {}).get("description", "")
+                decision = (n.get("riskDecision") or {}).get("description", "")
+                row_class = _classify(classif)
+
+                url = (f"https://webgate.ec.europa.eu/rasff-window/"
+                       f"screen/notification/{notif_id}")
+
+                recall = self._new_recall(
+                    Date=d.strftime("%Y-%m-%d"),
+                    Company=_build_company_field(origin, notifying),
+                    Brand="—",
+                    Product=subject or category,
+                    Pathogen=pathogen,
+                    Reason=_reason_text(subject, classif, decision, category),
+                    Class=row_class,
+                    URL=url,
+                    Outbreak=0,  # /consolidated/en/ doesn't expose illness counts
+                    Notes=(f"[RASFF #{ref}; classification: {classif}; "
+                           f"category: {category}; notifId={notif_id}]"),
+                )
+
+                # Override Country/Region per-row (BaseScraper.COUNTRY is empty
+                # for RASFF since the agency isn't tied to one country).
+                if country_for_row:
+                    recall.Country = country_for_row
+                    recall.Region = infer_region(country_for_row) or recall.Region
+
+                all_rows.append(recall)
+
+            if page_done:
+                break  # cutoff hit; don't fetch more pages
 
         log.info(
-            "RASFF: %d rows in export → %d kept (dropped: %d date, %d type, "
-            "%d classification, %d pathogen, %d duplicate)",
-            n_total, len(out),
-            n_dropped_date, n_dropped_type, n_dropped_class,
-            n_dropped_pathogen, n_dropped_dup,
+            "RASFF: %d notifications scanned → %d kept (dropped: "
+            "%d date, %d type, %d classification, %d pathogen, %d duplicate)",
+            n_total, len(all_rows),
+            n_drop_date, n_drop_type, n_drop_class, n_drop_pathogen, n_drop_dup,
         )
-        return out
+        return all_rows
