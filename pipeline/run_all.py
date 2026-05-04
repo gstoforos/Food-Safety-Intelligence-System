@@ -204,8 +204,16 @@ import re as _re_rasff_url
 #   {"Source": "RASFF (EU)",
 #    "Company": "Origin: Italy | Distributed: France, Germany",
 #    "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814607"}
+#
+# 2026-05-04 — accept BOTH URL forms RASFF uses publicly:
+#   - integer ID:    /notification/838838    (RASFF DB primary key, exposed by SPA only)
+#   - reference no:  /notification/2026.3863 (public reference, exposed by XLS export)
+# The reference form is what the production scraper writes (the XLS export
+# contains references but not internal IDs); the integer-ID form is preserved
+# for historically-added rows + manual additions captured from the SPA.
 _RASFF_NOTIFICATION_URL_RE = _re_rasff_url.compile(
-    r"^https://webgate\.ec\.europa\.eu/rasff-window/screen/notification/\d+/?$",
+    r"^https://webgate\.ec\.europa\.eu/rasff-window/screen/notification/"
+    r"(\d+|\d{4}\.\d+)/?$",
     _re_rasff_url.IGNORECASE,
 )
 
