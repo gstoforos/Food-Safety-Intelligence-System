@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import asdict, dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 # ---------------------------------------------------------------------------
@@ -238,31 +238,283 @@ def normalize_pathogen(raw: Any) -> str:
     return ""
 
 
-def assign_tier(pathogen: Any, outbreak: Any = 0) -> int:
-    """
-    Map (canonical pathogen name, outbreak flag) to severity tier.
+# ---------------------------------------------------------------------------
+# Tier assignment — HYBRID framework (v2.0, 2026-05-04)
+# ---------------------------------------------------------------------------
+# Per docs/fsis_reviewer_prompts.md:
+#   1. If regulator's Class field matches a known severity label → use that
+#   2. Otherwise apply FDA Class I/II/III framework based on pathogen +
+#      product type (RTE vs cooking-required)
+#   3. Apply Outbreak bump: outbreak=1 → bump tier one level up (max 1)
+# ---------------------------------------------------------------------------
 
-        Tier 1 = critical
-        Tier 2 = major
-        Tier 3 = minor (default when pathogen unknown)
+# Regulator class strings (lower-cased) → base tier. Grounded in actual
+# Class values that appear in recalls.xlsx across 28+ regulators.
+_CLASS_TIER_MAP: Dict[str, int] = {
+    # --- Tier 1 (CRITICAL — regulator marked highest severity) ---
+    "class i":                                1,
+    "class 1":                                1,
+    "public health alert":                    1,
+    "public health alert (phl)":              1,
+    "mandatory recall":                       1,
+    "mandatory recall (prefectural order)":   1,
+    "imposé par arrêté préfectoral":          1,
+    "impératif":                              1,
+    "imperative":                             1,
+    "imperativo":                             1,
+    "outbreak":                               1,
+    "administrative action":                  1,
 
-    Outbreak=1 bumps the tier up by one (minimum tier 1) — an outbreak with
-    even a Tier-3 pathogen is materially more serious than a recall alone.
+    # --- Tier 3 (MINOR — regulator marked lowest severity) ---
+    "class iii":                              3,
+    "class 3":                                3,
+    "advisory":                               3,
+    "information":                            3,
+    "information notification":               3,
+    "information notification for attention": 3,
+    "border rejection":                       3,
+    "border rejection notification":          3,
+    "notification":                           3,
+
+    # --- Tier 2 (MAJOR — regulator marked mid severity, OR generic "Recall" / "Alert") ---
+    "class ii":                               2,
+    "class 2":                                2,
+    "recall":                                 2,
+    "alert":                                  2,
+    "alert notification":                     2,
+    "voluntary":                              2,
+    "voluntary recall":                       2,
+    "conseillé":                              2,
+    "food alert":                             2,
+    "product recall information notice":      2,
+    "regional public warning":                2,
+}
+
+
+# Ready-to-eat (RTE) product keywords. Used for the FDA framework fallback:
+# Salmonella, Hep A, Norovirus in RTE foods → Tier 1; in cooking-required
+# foods → Tier 2.
+_RTE_KEYWORDS: List[str] = [
+    # English
+    "ready-to-eat", "ready to eat", "rte ", " rte",
+    "deli ", "deli-", "delicatessen",
+    "peanut butter", "almond butter", "cashew butter", "nut butter",
+    "ice cream", "ice-cream", "frozen yogurt", "gelato",
+    "soft cheese", "fresh cheese", "queso fresco", "feta", "ricotta",
+    "brie", "camembert", "blue cheese", "roquefort",
+    "pâté", "pate ", "rillettes", "terrine",
+    "salad", "coleslaw", "guacamole", "hummus", "salsa", "dip",
+    "sandwich", "wrap", "burrito", "sushi", "nigiri", "sashimi",
+    "smoked fish", "smoked salmon", "lox", "gravlax",
+    "cold-smoked", "cured meat", "salami", "chorizo", "prosciutto",
+    "ham", "mortadella", "bologna",
+    "raw oyster", "oysters",   # eaten raw
+    "frozen berries", "frozen berry", "frozen fruit",   # often eaten raw in smoothies
+    "sprouts", "alfalfa sprouts", "bean sprouts",  # eaten raw in salads
+    "leafy greens", "lettuce", "spinach", "kale", "arugula", "rocket",
+    "dry pet food", "kibble",  # children/elderly handle without washing hands
+    # German
+    "verzehrfertig", "rohwurst", "räucherlachs",
+    # French
+    "prêt à consommer", "prêt-à-consommer", "charcuterie", "saumon fumé",
+    # Spanish
+    "listo para consumo", "embutido", "queso fresco",
+    # Italian
+    "pronto al consumo", "salume",
+]
+
+# Cooking-required product keywords. Salmonella/Campylobacter in these
+# is Tier 2 — consumer cooks before eating.
+_COOKING_REQUIRED_KEYWORDS: List[str] = [
+    "raw chicken", "raw poultry", "raw turkey", "raw duck",
+    "raw beef", "raw pork", "raw lamb", "raw veal",
+    "ground beef", "ground turkey", "ground chicken", "ground pork",
+    "minced meat", "mince",
+    "raw egg", "in-shell egg", "shell egg",
+    "uncooked", "raw meat",
+    "fresh chicken", "fresh poultry", "fresh beef", "fresh pork",
+]
+
+# Vulnerable-population product keywords. Foreign body / contaminants in
+# these → Tier 1 (FDA framework).
+_VULNERABLE_POPULATION_KEYWORDS: List[str] = [
+    "infant", "baby food", "infant formula", "follow-on formula",
+    "toddler", "baby snack", "baby cereal",
+    "medical food", "enteral nutrition", "nutritional supplement for elderly",
+    "Säuglingsnahrung", "Babynahrung",                # German
+    "aliments pour bébé", "lait infantile",           # French
+    "alimentos para bebé",                            # Spanish
+    "alimenti per bebè", "latte per neonati",         # Italian
+]
+
+# Always-Tier-1 hazards. Hard rules H1-H5 — these override product type.
+_ALWAYS_TIER_1_PATHOGENS: set = {
+    "Listeria monocytogenes",
+    "Shiga toxin-producing E. coli (STEC)",
+    "Clostridium botulinum",
+    "Cereulide (B. cereus toxin)",
+    "Marine biotoxin",
+}
+
+
+def _match_class_to_tier(klass: Any) -> Optional[int]:
+    """Try to map a regulator's Class string to a tier. Returns None if
+    no match — caller falls back to FDA framework."""
+    if not klass:
+        return None
+    s = str(klass).strip().lower()
+    if not s:
+        return None
+
+    # Direct lookup
+    if s in _CLASS_TIER_MAP:
+        return _CLASS_TIER_MAP[s]
+
+    # Fuzzy: check if any keyword is in the string
+    # Order matters — check Tier 1 markers first, then Tier 3, then Tier 2.
+    if any(t1 in s for t1 in (
+        "class i", "class 1", "public health alert", "mandatory",
+        "impératif", "imperative", "imperativo", "outbreak",
+        "administrative action", "imposé par arrêté",
+    )):
+        return 1
+    if any(t3 in s for t3 in (
+        "class iii", "class 3", "information", "border rejection",
+        "notification", "advisory",
+    )):
+        return 3
+    if any(t2 in s for t2 in (
+        "class ii", "class 2", "recall", "alert", "voluntary",
+        "conseillé", "food alert", "warning",
+    )):
+        return 2
+    return None
+
+
+def _is_rte_product(product: Any) -> bool:
+    if not product:
+        return False
+    p = str(product).strip().lower()
+    return any(kw in p for kw in _RTE_KEYWORDS)
+
+
+def _is_cooking_required_product(product: Any) -> bool:
+    if not product:
+        return False
+    p = str(product).strip().lower()
+    return any(kw in p for kw in _COOKING_REQUIRED_KEYWORDS)
+
+
+def _is_vulnerable_population_product(product: Any) -> bool:
+    if not product:
+        return False
+    p = str(product).strip().lower()
+    return any(kw in p for kw in _VULNERABLE_POPULATION_KEYWORDS)
+
+
+def _fda_framework_tier(pathogen_canonical: str, product: Any) -> int:
     """
-    if not pathogen:
-        base = 3
-    else:
+    Apply FDA Class I/II/III framework when no regulator class is present.
+    Pure pathogen + product type reasoning — no outbreak bump applied here
+    (caller does that).
+    """
+    # H1-H5: always Tier 1 hazards (override product type)
+    if pathogen_canonical in _ALWAYS_TIER_1_PATHOGENS:
+        return 1
+
+    # Salmonella, Hep A, Norovirus: Tier 1 in RTE, Tier 2 in cooking-required
+    rte_borderline = {"Salmonella", "Hepatitis A virus", "Norovirus"}
+    if pathogen_canonical in rte_borderline:
+        if _is_rte_product(product):
+            return 1
+        if _is_cooking_required_product(product):
+            return 2
+        # Neither marker — assume Tier 2 (default for these pathogens
+        # without explicit RTE indicator). Conservative.
+        return 2
+
+    # Campylobacter, Yersinia, Vibrio etc. — always Tier 2 (FDA Class II)
+    tier_2_pathogens = {
+        "Campylobacter", "Vibrio", "Cyclospora cayetanensis",
+        "Yersinia enterocolitica", "Cronobacter sakazakii",
+        "Bacillus cereus", "Brucella", "Shigella",
+        "Staphylococcus enterotoxin", "Histamine / scombrotoxin",
+        "Escherichia coli (generic)",
+        "Aflatoxin", "Ochratoxin", "Mycotoxin", "Alternaria toxins",
+        "T-2 / HT-2 toxin", "Ergot alkaloids", "Citrinin",
+    }
+    if pathogen_canonical in tier_2_pathogens:
+        return 2
+
+    # Foreign body / physical hazards
+    if pathogen_canonical and "foreign body" in pathogen_canonical.lower():
+        if _is_vulnerable_population_product(product):
+            return 1   # H13: foreign body in baby food = Tier 1
+        return 3       # H14: foreign body in adult food = Tier 3
+
+    # Heavy metals, rodenticide, chemical contaminants — Tier 1
+    if pathogen_canonical and any(m in pathogen_canonical.lower() for m in (
+        "heavy metal", "lead ", "mercury", "arsenic",
+        "rodenticide", "bromadiolone", "warfarin", "cyanide", "methanol",
+    )):
+        return 1
+
+    # Default — unknown pathogen / mild contaminant → Tier 3
+    return 3
+
+
+def assign_tier(
+    pathogen: Any,
+    outbreak: Any = 0,
+    klass: Any = "",
+    product: Any = "",
+) -> int:
+    """
+    Map (pathogen, outbreak, regulator-class, product) to severity tier
+    using the HYBRID framework defined in docs/fsis_reviewer_prompts.md.
+
+        Tier 1 = critical (FDA Class I)
+        Tier 2 = major    (FDA Class II)
+        Tier 3 = minor    (FDA Class III)
+
+    Algorithm:
+      1. If regulator's Class field is recognized, use that as base tier.
+      2. Otherwise apply FDA framework: pathogen + product type.
+      3. Apply Outbreak bump: outbreak=1 → max(1, base_tier - 1).
+
+    Backward compatibility: callers that pass only (pathogen, outbreak)
+    still work — klass and product default to "". When class+product are
+    not provided, the FDA framework defaults to a pathogen-only heuristic
+    via the closed Tier-1 list and the legacy _TIERS pathogen lookup.
+    """
+    # Step 1 — Try regulator class first
+    base = _match_class_to_tier(klass)
+
+    # Normalize pathogen to canonical name (used by both paths below)
+    canonical = ""
+    if pathogen:
         p = str(pathogen).strip()
-        base = _TIERS.get(p, 0)
-        if base == 0:
-            # Not in lookup by canonical; try matching as raw string
+        canonical = p
+        if p not in _TIERS:
             for name, pattern in _COMPILED_RULES:
                 if pattern.search(p):
-                    base = _TIERS.get(name, 3)
+                    canonical = name
                     break
-            if base == 0:
-                base = 3
 
+    # H1-H5 OVERRIDE: always-Tier-1 pathogens win even when a regulator
+    # marked them as Class II/III. Regulators occasionally mis-classify
+    # (e.g., Listeria flagged as just "Recall" without severity tag).
+    # The pathogen severity is non-negotiable for these 5.
+    if canonical in _ALWAYS_TIER_1_PATHOGENS:
+        base = 1
+    elif base is None:
+        # Step 2 — Fall back to FDA framework when no regulator class match
+        if not pathogen:
+            base = 3
+        else:
+            base = _fda_framework_tier(canonical, product)
+
+    # Step 3 — Outbreak bump
     try:
         outbreak_int = 1 if int(outbreak or 0) else 0
     except (TypeError, ValueError):
