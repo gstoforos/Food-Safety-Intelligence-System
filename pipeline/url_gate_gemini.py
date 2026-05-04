@@ -433,6 +433,92 @@ STEP 6 — DETERMINE THE OUTBREAK FLAG (audit 2026-04-29 — STRICT RULE).
          Also set "outbreak_evidence": short verbatim quote from the page
          that proves your decision (max 200 chars). "" if outbreak_verified=0.
 
+STEP 7 — DETERMINE THE TIER (added 2026-05-04 — see docs/fsis_reviewer_prompts.md).
+
+         FSIS uses the HYBRID framework: trust the regulator's own class
+         when present, otherwise apply the FDA Class I/II/III framework
+         based on outcome severity (NOT pathogen alone).
+
+         Step 7a — Try the regulator's own classification first.
+         If the row's "Class" field matches one of these, use the mapped Tier:
+
+           → TIER 1: FDA "Class I", USDA FSIS "Class I", USDA FSIS
+             "Public Health Alert", CFIA "Class 1", MAPAQ "Class 1",
+             RappelConso "Mandatory recall (prefectural order)", EFET
+             "Mandatory recall", MFDS "Public health alert", MFDS
+             "Administrative action", BeaconBio "Outbreak", or any class
+             containing "Mandatory" / "Class I" / "Class 1" / "Imperative" /
+             "Impératif" / "Public Health Alert"
+
+           → TIER 2: FDA "Class II", CFIA "Class 2", RappelConso
+             "Voluntary", RappelConso "Recall", RASFF "Alert", FSA "Alert"
+             / "Recall", FSAI "Recall", AESAN "Alert", AGES "Recall",
+             BLV/BVL "Recall" / "Alert", FSANZ "Recall", MPI "Recall" /
+             "Alert", Min. Salute "Alert", ANVISA "Alert", MSP "Advisory",
+             CFS "Food Alert", CFIA "Recall", NCC "Recall", or any class
+             containing just "Recall" / "Alert" / "Advisory" / "Conseillé"
+             without severity qualifier
+
+           → TIER 3: FDA "Class III", FDA "Advisory", CFIA "Class 3",
+             CFIA "Notification", RASFF "Information" / "Border rejection"
+
+         Step 7b — If no regulator class match, apply FDA framework:
+
+           → TIER 1 (FDA Class I — death or serious adverse health):
+             • Botulinum toxin, marine biotoxins, cereulide → ANY food
+             • Listeria, STEC, Hep A, Norovirus → ANY food
+             • Salmonella → READY-TO-EAT food (peanut butter, deli meat,
+               raw nuts, ice cream, prepared salads, soft cheese, dry pet
+               food, sprouts, frozen berries)
+             • Heavy metals at toxic levels, rodenticide if consumed
+             • Foreign body in baby food / vulnerable-population food
+             • Confirmed outbreak (any pathogen, any food) — bumped via
+               outbreak rule below
+
+           → TIER 2 (FDA Class II — temporary or reversible):
+             • Salmonella → COOKING-REQUIRED food (raw poultry, raw beef,
+               raw pork, raw eggs in shell, ground meats, fresh poultry)
+             • Campylobacter, Yersinia, Vibrio, Cyclospora, Cronobacter,
+               generic (non-STEC) E. coli, vegetative B. cereus, Brucella,
+               Shigella, Staph enterotoxin, histamine
+             • Mycotoxins above action level (aflatoxin, ochratoxin, etc.)
+             • Foreign body in adult food
+
+           → TIER 3 (FDA Class III — unlikely to cause harm):
+             • Labeling violations, net-weight discrepancies
+             • Quality issues with no safety component
+             • Pathogen in environmental swab only (not product)
+             • Unknown pathogen / empty pathogen field (default)
+
+         Step 7c — Apply Outbreak bump rule:
+             final_tier = max(1, base_tier - 1)   if outbreak_verified == 1
+             final_tier = base_tier               if outbreak_verified == 0
+
+         HARD RULES — never override:
+           H1  Cereulide is ALWAYS Tier 1
+           H2  Botulinum is ALWAYS Tier 1
+           H3  STEC / E. coli O157 / VTEC / EHEC is ALWAYS Tier 1
+           H4  Listeria monocytogenes in ANY food is ALWAYS Tier 1
+               (overrides any regulator downgrade — regulator misclassification)
+           H5  Marine biotoxins are ALWAYS Tier 1
+           H6  Salmonella in RTE food is Tier 1 (FDA Class I)
+           H7  Salmonella in cooking-required food is Tier 2 (Class II)
+           H8  Generic "E. coli" without STEC indicator is Tier 3
+           H9  Bacillus cereus alone is Tier 3 (cereulide is the Tier 1 path)
+           H13 Foreign body in baby food / vulnerable population → Tier 1
+           H14 Foreign body in adult food, no injuries → Tier 3
+           H15 When regulator marks Class I / Class 1 / Mandatory /
+               Public Health Alert, that IS Tier 1
+           H16 When regulator class disagrees with FDA framework but H1-H5
+               don't apply, regulator wins
+
+         Set "tier_verified" to the computed final_tier (1, 2, or 3).
+         Set "tier_method" to one of:
+             "regulator_class" — matched the regulator class table
+             "fda_framework"   — applied FDA framework (no regulator class)
+             "hybrid"          — regulator class present but bumped via outbreak
+         Set "tier_mismatch": true if the row's existing Tier ≠ tier_verified.
+
 ═══ HARD REJECT REASONS ═══
 
 Set pass=false with one of these reasons (in priority order):
