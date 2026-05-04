@@ -1,0 +1,124 @@
+name: FSIS OpenRouter Check (evening dissent reviewer)
+
+# Daily ~20:00 Athens (FsisScheduler keys this on H=20 for idempotency).
+# Runs after the evening gemini-url-gate (19:00) to provide a SECOND
+# independent reviewer pass on rows added by the 18:00 daily-scrape.
+#
+# This is a DISSENT REVIEWER — same task as claude-check.py (verify each
+# Pending row against its source URL) but a different model (DeepSeek/Llama
+# /Qwen via OpenRouter), so subtle errors that one reviewer misses, the
+# other might catch.
+#
+# Verdicts (same as claude-check):
+#   pass → promote row to Recalls as-is
+#   fix  → apply auto-corrections (Date / Company / Brand / Product) and promote
+#   fail → keep in Pending with REJECTED status; surface for review
+#
+# Output:
+#   - Verified rows promoted Pending → Recalls (xlsx + json)
+#   - docs/daily/YYYY-MM-DD.html rebuilt for every date that gained rows
+#   - docs/daily-index.json updated
+#   - One git commit covering all of the above
+#
+# Budget: free path = $0/run (DeepSeek :free or Llama :free).
+# Paid worst case: ~$0.0006/row × 30 rows × 30 days = $0.50/mo.
+#
+# Concurrency: shares the `fsis-data-writers` group with merge-master,
+# url-gate, daily-recall-search, claude-check so writes never overlap.
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_days:
+        description: "Skip Pending rows older than N days (default 0 = check all)"
+        required: false
+        default: "0"
+      skip_commit:
+        description: "true = run but do not commit/push (dry-run)"
+        required: false
+        default: "false"
+      model:
+        description: "Override OPENROUTER_MODEL (default: deepseek/deepseek-chat-v3.1:free)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  openrouter-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Athens-time guard (allows manual dispatch any hour;
+                                  scheduled dispatch must be 19-23 Athens)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Manual or FsisScheduler dispatch: always allow
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Dispatched at Athens ${HOUR}:xx — running."
+          elif [ "$HOUR" -ge "19" ] && [ "$HOUR" -le "23" ]; then
+            # Defensive: if a schedule trigger is added later, only
+            # fire within the evening window
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Outside 19-23:xx Athens window (now ${HOUR}:xx). Skipping."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run openrouter_check
+        if: steps.guard.outputs.run == 'true'
+        env:
+          OPENROUTER_API_KEY:       ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL:         ${{ github.event.inputs.model || 'deepseek/deepseek-r1:free' }}
+          OPENROUTER_FALLBACK_MODEL: "deepseek/deepseek-chat-v3.1"
+          CLAUDE_CHECK_SKIP_DAYS:   ${{ github.event.inputs.skip_days || '0' }}
+          SKIP_COMMIT:              ${{ github.event.inputs.skip_commit || 'false' }}
+          GH_TOKEN:                 ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL:           "fsis-bot@advfood.tech"
+          GIT_USER_NAME:            "AFTS Intelligence System"
+        run: |
+          python -m pipeline.openrouter_check
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "OpenRouter check complete — Athens $(TZ=Europe/Athens date)"
+          echo "Recalls sheet rows: $(python -c "
+          import openpyxl
+          try:
+              wb = openpyxl.load_workbook('docs/data/recalls.xlsx', read_only=True)
+              if 'Recalls' in wb.sheetnames:
+                  print(wb['Recalls'].max_row - 1)
+              else:
+                  print('(no Recalls sheet)')
+          except Exception as e:
+              print(f'(unreadable: {e})')
+          ")"
