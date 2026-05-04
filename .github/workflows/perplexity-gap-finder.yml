@@ -1,0 +1,101 @@
+name: FSIS Perplexity Gap Finder
+
+# Daily at 00:00 ATHENS TIME — Perplexity Sonar (via OpenRouter) as a
+# gap-finder. REPLACED the OpenAI gap-finder 2026-05-03 to cut spend
+# from ~€2.76/mo to ~€0.20/mo (~€31/year savings) while preserving the
+# midnight cross-check role.
+#
+# Perplexity Sonar uses Perplexity's own search index (not Bing, not
+# Google), so this still provides INDEX DIVERSITY against the cascade's
+# Gemini→Claude→OpenAI path that runs in parallel at 00:00 — different
+# search backend = different recall coverage = better safety net.
+#
+# Routes via OpenRouter (openrouter.ai) so the same OPENROUTER_API_KEY
+# also serves the dissent reviewer in claude_check.py (item #2). One
+# $10 deposit covers both. Free tier is 1000 req/day; we use ~1/day.
+#
+# Cost: ~30 runs/month × ~7K tokens at $1/M = ~€0.20/month.
+#
+# Two DST crons + Athens hour guard. Currently dispatch-only
+# (workflow_dispatch). The 23-01 hour guard window covers
+# overnight DST drift.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  perplexity-gap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Athens-time guard (23-01:xx window)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "$HOUR" -ge "23" ] || [ "$HOUR" -le "1" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not 00:xx Athens (now ${HOUR}:xx). Skipping."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Perplexity gap-finder
+        if: steps.guard.outputs.run == 'true'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          PERPLEXITY_MODEL: ${{ vars.PERPLEXITY_MODEL || 'perplexity/sonar' }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME: "FSIS Bot"
+        run: python -m pipeline.gap_finder_perplexity
+
+      - name: Gemini URL Gate + Merge
+        if: steps.guard.outputs.run == 'true'
+        env:
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
+          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
+          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME: "FSIS Bot"
+        run: |
+          python -m pipeline.url_gate_gemini
+          python -m pipeline.merge_master
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: echo "Perplexity gap-finder complete — Athens $(TZ=Europe/Athens date)"
