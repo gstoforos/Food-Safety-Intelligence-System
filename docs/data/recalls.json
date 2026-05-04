@@ -106,7 +106,7 @@
   "Class": "Public Health Alert",
   "Country": "USA",
   "Region": "North America",
-  "Tier": 1,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-various-meat-and-poultry-products-containing-fda",
   "Notes": "FSIS PHA covering many establishments downstream of California Dairies Inc. milk-powder recall. [tier-fix 2026-05-04: PHA → Tier 1 per H15 (regulator class trumps pathogen-only lookup)]"
