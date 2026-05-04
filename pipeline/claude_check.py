@@ -186,6 +186,9 @@ Company  : {Company}
 Brand    : {Brand}
 Product  : {Product}
 Pathogen : {Pathogen}
+Class    : {Class}
+Tier     : {Tier}
+Outbreak : {Outbreak}
 Reason   : {Reason}
 URL      : {URL}
 
@@ -293,6 +296,95 @@ INSTRUCTIONS:
                 and url_year_mismatch on the corrected date.
    • "fail"   — anything else. Row stays in Pending with reason in Notes.
 
+4b. VERIFY THE TIER (added 2026-05-04 — see docs/fsis_reviewer_prompts.md).
+
+   FSIS uses the HYBRID framework: regulator class first, FDA framework
+   fallback, outbreak bump on top.
+
+   Step 4b-i. Try regulator class first. If the row's "Class" matches
+   one of these (case-insensitive), use the mapped Tier:
+     → TIER 1: "Class I", "Class 1", "Mandatory recall (prefectural order)",
+       "Public Health Alert", "Mandatory recall", "Administrative action",
+       "Outbreak", or any class containing "Mandatory" / "Imperative" /
+       "Impératif" / "Public Health Alert"
+     → TIER 2: "Class II", "Class 2", "Voluntary", "Recall", "Alert",
+       "Alert notification", "Advisory", "Conseillé", "Food Alert",
+       "Product Recall Information Notice"
+     → TIER 3: "Class III", "Class 3", "Information", "Border rejection",
+       "Notification" (without severity qualifier)
+
+   Step 4b-ii. If no regulator class match (or Class is empty), apply
+   FDA framework:
+     → TIER 1 (FDA Class I — death or serious adverse health):
+       • Botulinum, marine biotoxins, cereulide → ANY food
+       • Listeria, STEC, Hep A, Norovirus → ANY food
+       • Salmonella → READY-TO-EAT food (peanut butter, deli meat, soft
+         cheese, ice cream, prepared salads, raw nuts, sprouts, frozen
+         berries, dry pet food)
+       • Heavy metals at toxic levels, rodenticide if consumed
+       • Foreign body in baby food / vulnerable-population food
+     → TIER 2 (FDA Class II — temporary or reversible):
+       • Salmonella → COOKING-REQUIRED food (raw poultry, raw beef, raw
+         pork, raw eggs in shell, ground meats, fresh poultry)
+       • Campylobacter, Yersinia, Vibrio, Cyclospora, Cronobacter,
+         generic (non-STEC) E. coli, vegetative B. cereus, Brucella,
+         Shigella, Staph enterotoxin, histamine
+       • Mycotoxins above action level
+       • Foreign body in adult food
+     → TIER 3 (FDA Class III — unlikely to cause harm):
+       • Labeling violations, net-weight discrepancies, quality issues
+       • Pathogen in environmental swab only
+       • Unknown pathogen / empty pathogen field (default)
+
+   Step 4b-iii. Apply Outbreak bump:
+       final_tier = max(1, base_tier - 1)   if Outbreak == 1
+       final_tier = base_tier               if Outbreak == 0
+
+   HARD RULES (never override):
+     H1  Cereulide is ALWAYS Tier 1
+     H2  Botulinum is ALWAYS Tier 1
+     H3  STEC / E. coli O157 / VTEC / EHEC is ALWAYS Tier 1
+     H4  Listeria monocytogenes in ANY food is ALWAYS Tier 1
+         (overrides any regulator downgrade — likely misclassification)
+     H5  Marine biotoxins are ALWAYS Tier 1
+     H6  Salmonella in RTE food is Tier 1 (FDA Class I)
+     H7  Salmonella in cooking-required food is Tier 2 (Class II)
+     H8  Generic "E. coli" without STEC indicator is Tier 3
+     H9  Bacillus cereus alone is Tier 3 (cereulide is the Tier 1 path)
+     H13 Foreign body in baby food / vulnerable-population food → Tier 1
+     H14 Foreign body in adult food, no injuries → Tier 3
+
+   Output:
+     tier_verified = the computed final_tier (1, 2, or 3)
+     tier_method   = "regulator_class" | "fda_framework" | "hybrid"
+     tier_mismatch = true if row's existing Tier ≠ tier_verified
+
+4c. VERIFY THE OUTBREAK FLAG (STRICT rule — see docs/fsis_reviewer_prompts.md §5).
+
+   Outbreak = 1 ONLY if the page (or a linked official health page)
+   states ONE OR MORE of:
+     • specific number of confirmed/probable illnesses/cases
+       ("166 illnesses", "two cases", "26 hospitalised")
+     • the word "outbreak" / "épidémie" / "Ausbruch" / "brote" /
+       "epidemia" describing THIS hazard (not generic boilerplate)
+     • epidemiological investigation triggered by reported illness
+     • death(s) attributed to the hazard
+     • named ongoing outbreak with published case counts
+
+   Outbreak = 0 if:
+     • notice says "no reported illnesses" / "aucun cas signalé"
+     • routine sampling caught it (lab test only, product not consumed)
+     • criminal tampering with no consumption (HiPP rat-poison Austria
+       2026-04-18 → outbreak=0)
+     • "outbreak" word only in brand name or boilerplate
+
+   Default to 0 when in doubt.
+
+   Output:
+     outbreak_verified = 0 or 1
+     outbreak_evidence = short verbatim quote (max 200 chars), "" if =0
+     outbreak_mismatch = true if row's existing Outbreak ≠ outbreak_verified
+
 OUTPUT — strict JSON, no markdown, no commentary:
 
 {{
@@ -310,6 +402,12 @@ OUTPUT — strict JSON, no markdown, no commentary:
   "company_is_distributor": true|false,
   "extraction_garbage": true|false,
   "tier1_pathogen": true|false,
+  "tier_verified": 1|2|3,
+  "tier_method": "regulator_class" | "fda_framework" | "hybrid",
+  "tier_mismatch": true|false,
+  "outbreak_verified": 0|1,
+  "outbreak_evidence": "<verbatim quote, max 200 chars>",
+  "outbreak_mismatch": true|false,
   "verdict": "pass" | "fix" | "fail",
   "reason": "short single-sentence rationale"
 }}
@@ -333,6 +431,9 @@ def _verify_with_claude(row: Dict[str, Any],
         Brand=row.get("Brand", "—"),
         Product=row.get("Product", ""),
         Pathogen=row.get("Pathogen", ""),
+        Class=row.get("Class", ""),
+        Tier=row.get("Tier", ""),
+        Outbreak=row.get("Outbreak", ""),
         Reason=row.get("Reason", ""),
         URL=row.get("URL", ""),
         page_text=page_text,
