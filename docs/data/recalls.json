@@ -108,8 +108,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.3863",
-  "Notes": "[RASFF #2026.3863; cereulide in infant formula; H1 cereulide → Tier 1; H13 vulnerable population (infants); follow-up: Malta. manual-add 2026-05-04]"
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841474",
+  "Notes": "[RASFF #2026.3863; cereulide in infant formula; H1 cereulide → Tier 1; H13 vulnerable population (infants); follow-up: Malta. manual-add 2026-05-04; notifId=841474]"
  },
  {
   "Date": "2026-05-01",
@@ -124,8 +124,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.3862",
-  "Notes": "[RASFF #2026.3862; cereulide in infant formula manufactured in Poland; sister to #2026.3863 from Ireland; H1 cereulide → Tier 1; H13 vulnerable population. manual-add 2026-05-04]"
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841471",
+  "Notes": "[RASFF #2026.3862; cereulide in infant formula manufactured in Poland; sister to #2026.3863 from Ireland; H1 cereulide → Tier 1; H13 vulnerable population. manual-add 2026-05-04; notifId=841471]"
  },
  {
   "Date": "2026-05-01",
@@ -140,8 +140,8 @@
   "Region": "South America",
   "Tier": 2,
   "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.3858",
-  "Notes": "[RASFF #2026.3858; aflatoxin in Peru-origin groundnuts (notifying: Netherlands; follow-up: France); recurring third-country origin pattern. manual-add 2026-05-04]"
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841438",
+  "Notes": "[RASFF #2026.3858; aflatoxin in Peru-origin groundnuts (notifying: Netherlands; follow-up: France); recurring third-country origin pattern. manual-add 2026-05-04; notifId=841438]"
  },
  {
   "Date": "2026-05-01",
@@ -156,8 +156,8 @@
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.3853",
-  "Notes": "[RASFF #2026.3853; Salmonella Enteritidis in raw poultry from Poland — Tier 2 per FDA framework (cooking-required product, no PHA, classification = information notification for attention). manual-add 2026-05-04]"
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838827",
+  "Notes": "[RASFF #2026.3853; Salmonella Enteritidis in raw poultry from Poland — Tier 2 per FDA framework (cooking-required product, no PHA, classification = information notification for attention). manual-add 2026-05-04; notifId=838827]"
  },
  {
   "Date": "2026-04-30",
