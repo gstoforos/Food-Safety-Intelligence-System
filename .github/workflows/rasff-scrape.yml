@@ -4,15 +4,17 @@ name: FSIS RASFF Scrape (EU Rapid Alert System)
 #   04:30 → after morning-critical-scrape, before gemini-url-gate
 #   16:30 → afternoon catch-up before evening daily-scrape
 #
-# Each run downloads the public XLS export from RASFF Window
-# (https://webgate.ec.europa.eu/rasff-window/services/excel),
-# filters to last 7 days, food + alert/border/info-attention,
-# and writes pathogen-matched rows to Pending. Typical runtime:
-# ~5-15 seconds (the 30K-row XLS is ~3MB).
+# Each run hits RASFF Window's public JSON API (no auth, no Playwright)
+# and writes pathogen-matched rows to Pending. Typical runtime: 5-15s
+# (1-3 paginated calls of ~30KB each).
+#
+# Architecture: uses the canonical AGENCIES_FILTER pattern from
+# pipeline.run_all — same approach as morning-critical-scrape.yml — so
+# the full enrichment, review, merge, and commit logic runs unchanged.
 #
 # Concurrency: shares the `fsis-data-writers` group with merge-master,
-# url-gate, daily-recall-search, claude-check, openrouter-check so
-# writes to docs/data/recalls.xlsx never overlap.
+# url-gate, daily-recall-search, claude-check so writes to
+# docs/data/recalls.xlsx never overlap.
 
 on:
   workflow_dispatch:
@@ -75,65 +77,31 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run RASFF scraper standalone
+      - name: Run RASFF scraper via run_all (AGENCIES_FILTER)
         if: steps.guard.outputs.run == 'true'
         env:
-          RASFF_SINCE_DAYS: ${{ github.event.inputs.since_days || '7' }}
+          # Limit run_all to ONLY the RASFF scraper. AGENCY string must
+          # match scrapers/eu_wide/rasff.py's RASFFScraper.AGENCY exactly.
+          AGENCIES_FILTER:  "RASFF (EU)"
+          SINCE_DAYS:       ${{ github.event.inputs.since_days || '7' }}
           SKIP_COMMIT:      ${{ github.event.inputs.skip_commit || 'false' }}
-          GH_TOKEN:         ${{ secrets.GITHUB_TOKEN }}
-          GIT_USER_EMAIL:   "fsis-bot@advfood.tech"
-          GIT_USER_NAME:    "AFTS Intelligence System"
+          # Skip AI enrichment + review for this fast 2x/day pass.
+          # The morning-critical-scrape + claude-check pipelines re-process
+          # any new RASFF rows when they next run.
+          SKIP_AI:          "true"
+          SKIP_REVIEW:      "true"
+          # Gemini keys not needed when SKIP_AI=true, but pass them through
+          # in case run_all's enrichment imports require them at module level.
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          GH_TOKEN:          ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL:    "fsis-bot@advfood.tech"
+          GIT_USER_NAME:     "AFTS Intelligence System"
         run: |
-          # Run only the RASFF scraper (not the full 68-scraper sweep) and
-          # merge results into Pending. This re-uses the orchestrator's
-          # merge_master + commit logic via a focused entry point.
-          python -c "
-          import logging, os, sys
-          sys.path.insert(0, '.')
-          logging.basicConfig(
-              level=logging.INFO,
-              format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-          )
-
-          from scrapers.eu_wide.rasff import RASFFScraper
-          from pipeline.merge_master import (
-              load_pending, append_to_pending, save_xlsx_with_pending,
-              load_recalls,
-          )
-          from pipeline.commit_github import git_commit_and_push
-
-          since = int(os.getenv('RASFF_SINCE_DAYS', '7'))
-          skip_commit = os.getenv('SKIP_COMMIT', 'false').lower() == 'true'
-
-          scraper = RASFFScraper()
-          rows = scraper.scrape(since_days=since)
-          print(f'RASFF scraper: {len(rows)} pathogen-matched rows extracted')
-
-          if not rows:
-              print('No new RASFF rows — skipping commit')
-              sys.exit(0)
-
-          recalls = load_recalls()
-          pending = load_pending()
-          n_added = append_to_pending(rows, pending, recalls)
-          print(f'Append to Pending: +{n_added} new rows (after dedup)')
-
-          if n_added == 0:
-              print('All RASFF rows were duplicates — no commit needed')
-              sys.exit(0)
-
-          save_xlsx_with_pending(recalls, pending)
-
-          if skip_commit:
-              print('SKIP_COMMIT=true — not pushing')
-              sys.exit(0)
-
-          git_commit_and_push(
-              message=f'RASFF scrape: +{n_added} rows to Pending',
-              paths=['docs/data/recalls.xlsx'],
-          )
-          print(f'Committed and pushed {n_added} RASFF rows')
-          "
+          python -m pipeline.run_all
 
       - name: Summary
         if: steps.guard.outputs.run == 'true' && always()
