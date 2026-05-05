@@ -55,8 +55,12 @@ SCHEMA = ["Date", "Source", "Company", "Brand", "Product", "Pathogen", "Reason",
 RECALLS_INTERNAL_COLUMNS = ["DateAdded", "LastUpdated", "LastChecked"]
 RECALLS_SCHEMA = SCHEMA + RECALLS_INTERNAL_COLUMNS
 
-# Pending sheet has the same columns plus two tracking columns.
-PENDING_SCHEMA = SCHEMA + ["ScrapedAt", "Status"]
+# Pending sheet has the same columns plus three tracking columns.
+# Audit 2026-05-05 — added RejectedBy column to track which reviewers have
+# rejected this row. Stored as a comma-separated set of reviewer names
+# (e.g. "claude-check,gemini-url-gate"). Used by mark_rejected_with_counter
+# to physically delete rows once 2+ DIFFERENT reviewers have rejected.
+PENDING_SCHEMA = SCHEMA + ["ScrapedAt", "Status", "RejectedBy"]
 
 NEWS_HEADERS = ["Published (UTC)", "Pathogen", "Event", "Source", "Title",
                 "Link", "Retrieved (UTC)"]
@@ -207,6 +211,26 @@ _GENERIC_URL_PATTERNS = (
     # duplicates from search-based gap finders (Tavily/Exa/OpenAI) that
     # return whichever URL Google indexed first.
     r"/safety/recalls-market-withdrawals-safety-alerts/voluntary-recall\?permalink=",
+    # ── 2026-05-05 audit additions (gap-finder garbage patterns) ───────────
+    # Generic full-text search query pages — these aren't recalls, they're
+    # search-result lists. CFIA, RappelConso, EFSA, FSANZ all have these.
+    r"/search/site",                                # CFIA "advanced search"
+    r"/search\?",                                   # generic search query
+    r"/recherche\?",                                # French generic search
+    r"/recherche/",                                 # French search path
+    r"/buscador",                                   # Spanish search
+    r"/suche\?",                                    # German search
+    # Pagination pages — never recall-specific
+    r"/page/\d+/?(?:$|\?)",                         # /page/50/, /page/2/?...
+    r"\bpage=\d+",                                  # ?page=50
+    # Notification circulars / regulatory bulletins — these are notices ABOUT
+    # things to come, not recalls themselves. FSANZ, ANSES, USDA-FSIS all have
+    # circular indexes that should never appear in our recall feed.
+    r"/notification-circulars?/?$",
+    r"/notification-circulars?/index",
+    r"/circulars?/notification-circular-",          # FSANZ specific circular ID
+    r"/bulletins?/?$",
+    r"/news-circulars?/?$",
 )
 
 # Company-field strings that the scraper has clearly bungled (they're page
@@ -667,6 +691,157 @@ def append_to_pending(
 # ---------------------------------------------------------------------------
 # Promotion: Pending -> Recalls
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Rejection counter (audit 2026-05-05)
+# ---------------------------------------------------------------------------
+# Two-strikes-and-out: a Pending row is physically deleted once 2 DIFFERENT
+# reviewers have rejected it. Single-reviewer rejections sit in Pending with
+# Status=rejected, available for retry on the next scrape (the existing
+# append_to_pending re-queue path).
+#
+# Reviewer name is parsed from the rejection reason via a `<reviewer>: <text>`
+# convention. claude_check stamps "Claude check: <reason>", url_gate_gemini
+# stamps "Gemini gate: <reason>", openrouter_check stamps "OpenRouter:
+# <reason>", and merge_master itself uses "Pending gate: <reason>" for
+# structural rejects (broken URLs, missing fields).
+#
+# Returns (should_delete, updated_row). Caller decides whether to drop the
+# row from kept_in_pending based on should_delete.
+
+def _reviewer_from_reason(reason: str) -> str:
+    """Extract canonical reviewer name from rejection reason string.
+
+    Maps the leading 'reviewer: ...' prefix to one of the canonical names:
+      claude-check, gemini-url-gate, openrouter-check, pending-gate, manual.
+    Returns 'unknown' if no recognised prefix is found — these are still
+    counted (so the counter advances) but logged for investigation.
+    """
+    r = (reason or "").strip().lower()
+    if r.startswith("claude check") or r.startswith("claude-check"):
+        return "claude-check"
+    if r.startswith("gemini gate") or r.startswith("gemini-url-gate") or \
+            r.startswith("gemini url gate"):
+        return "gemini-url-gate"
+    if r.startswith("openrouter") or r.startswith("openrouter-check"):
+        return "openrouter-check"
+    if r.startswith("pending gate") or r.startswith("pending-gate"):
+        return "pending-gate"
+    if r.startswith("url validator") or r.startswith("url-validator"):
+        return "url-validator"
+    if r.startswith("manual"):
+        return "manual"
+    return "unknown"
+
+
+def mark_rejected_with_counter(row: Dict[str, Any], reason: str
+                               ) -> Tuple[bool, Dict[str, Any]]:
+    """Apply a rejection to a Pending row, tracking which reviewers reject it.
+
+    Args:
+        row    : the Pending row dict (mutated in place)
+        reason : human-readable rejection reason, ideally prefixed with
+                 reviewer name (e.g. "Claude check: company mismatch")
+
+    Returns:
+        (should_delete, updated_row)
+
+        should_delete is True when 2+ DIFFERENT reviewers have rejected this
+        row — caller is expected to drop the row from the Pending list.
+
+        Repeat rejections by the SAME reviewer are idempotent: Notes is
+        updated with the latest reason but the counter doesn't double-count.
+    """
+    reviewer = _reviewer_from_reason(reason)
+
+    # Parse existing reviewer set from the RejectedBy column
+    raw = (row.get("RejectedBy") or "").strip()
+    rejected_by = set(filter(None, (s.strip() for s in raw.split(","))))
+
+    # Same-reviewer repeat is idempotent (still update Notes for visibility)
+    is_new_reviewer = reviewer not in rejected_by
+    rejected_by.add(reviewer)
+
+    row["RejectedBy"] = ",".join(sorted(rejected_by))
+    row["Status"] = STATUS_REJECTED
+
+    # Stamp reason into Notes (preserve any prior REJECTED: prefix history
+    # by appending instead of overwriting if a previous reviewer already
+    # tagged it).
+    orig_notes = (row.get("Notes") or "").strip()
+    new_stamp = f"REJECTED: {reason}"
+    if orig_notes.startswith("REJECTED:"):
+        # Already has a rejection stamp — append the new reviewer's reason
+        # so the audit trail is preserved.
+        if reason not in orig_notes:
+            row["Notes"] = f"{orig_notes} || {reviewer}: {reason}"
+    else:
+        row["Notes"] = new_stamp + (f" | {orig_notes}" if orig_notes else "")
+
+    # Two-strikes-and-out: only DIFFERENT reviewers count toward delete.
+    should_delete = len(rejected_by) >= 2
+
+    if should_delete:
+        log.info(
+            "Pending DELETE (2+ reviewers rejected): RejectedBy=%s | url=%s",
+            row["RejectedBy"], str(row.get("URL", ""))[:100],
+        )
+
+    return should_delete, row
+
+
+def cleanup_orphan_rejected(pending: List[Dict[str, Any]],
+                            min_age_hours: int = 24
+                            ) -> Tuple[List[Dict[str, Any]], int]:
+    """Physically delete already-rejected Pending rows older than min_age_hours.
+
+    Catches orphan rejections from before the RejectedBy counter was added —
+    rows that have Status=rejected and a REJECTED: prefix in Notes but no
+    RejectedBy column. After 24h these are unlikely to be re-validated, so
+    we delete them to keep the Pending sheet clean.
+
+    Returns (filtered_pending, n_deleted).
+    """
+    from datetime import datetime, timezone, timedelta
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=min_age_hours)
+
+    filtered: List[Dict[str, Any]] = []
+    n_deleted = 0
+    for r in pending:
+        if (r.get("Status") or "").lower() != STATUS_REJECTED:
+            filtered.append(r)
+            continue
+
+        # If RejectedBy already tracks 2+ reviewers, mark_rejected_with_counter
+        # would have deleted this row already — keep it as-is for the caller.
+        rejected_by = set(filter(None, (
+            s.strip() for s in (r.get("RejectedBy") or "").split(","))))
+        if len(rejected_by) >= 2:
+            n_deleted += 1
+            continue  # delete (already past the counter threshold)
+
+        # Otherwise, age-based delete: anything rejected >24h ago goes away.
+        scraped_at = (r.get("ScrapedAt") or "").strip()
+        try:
+            sa = datetime.fromisoformat(scraped_at.replace("Z", "+00:00"))
+            if sa.tzinfo is None:
+                sa = sa.replace(tzinfo=timezone.utc)
+        except (ValueError, TypeError):
+            sa = None
+
+        if sa is None or sa < cutoff:
+            n_deleted += 1
+            log.info(
+                "Pending DELETE (orphan rejected, age>=%dh): url=%s",
+                min_age_hours, str(r.get("URL", ""))[:100],
+            )
+            continue
+
+        filtered.append(r)
+
+    return filtered, n_deleted
+
+
+# ---------------------------------------------------------------------------
 def promote_approved(
     pending: List[Dict[str, Any]],
     approved_existing: List[Dict[str, Any]],
@@ -708,10 +883,13 @@ def promote_approved(
 
         if idx in rejected_flags:
             reason = rejected_flags[idx]
-            orig_notes = (clean.get("Notes") or "").strip()
-            if not orig_notes.startswith("REJECTED:"):
-                clean["Notes"] = f"REJECTED: {reason}" + (f" | {orig_notes}" if orig_notes else "")
-            clean["Status"] = STATUS_REJECTED
+            # Use the counter — returns should_delete=True after 2+ different
+            # reviewers reject this row. Otherwise just stamp Status=rejected
+            # and append rejection reason to Notes.
+            should_delete, _ = mark_rejected_with_counter(clean, reason)
+            if should_delete:
+                # Drop from Pending entirely — 2 reviewers agree it's bad.
+                continue
             kept_in_pending.append(clean)
             continue
 
@@ -1198,6 +1376,23 @@ if __name__ == "__main__":
     clean_pending = [{k: v for k, v in row.items() if k != "_url_check"}
                      for row in validated]
 
+    # ── Cleanup orphan rejected rows (audit 2026-05-05) ─────────────────
+    # Physically delete Pending rows that are already rejected and either:
+    #   (a) have RejectedBy with 2+ different reviewers (counter triggered)
+    #   (b) are older than 24h (orphaned from before the counter existed)
+    # Runs every cycle so the Pending sheet doesn't accumulate stale
+    # rejections forever.
+    clean_pending, n_cleaned = cleanup_orphan_rejected(clean_pending)
+    if n_cleaned > 0:
+        log.info("Cleanup: physically deleted %d orphan rejected rows", n_cleaned)
+        # Re-index rejected_flags after deletion: any flag pointing at a now-
+        # deleted index is stale, but since we iterated by index BEFORE
+        # the cleanup, the flags still match positions in `validated`. After
+        # cleanup, `clean_pending` has fewer entries — rejected_flags must
+        # be remapped or cleared. Simplest safe choice: clear it. The next
+        # url-validator run will re-flag any remaining broken URLs.
+        rejected_flags = {}
+
     # ── Promotion gate ──────────────────────────────────────────────────
     # OFF by default — only the once-daily Gemini URL gate (07:00) and
     # Claude check (07:45) workflows are permitted to promote rows to
@@ -1227,11 +1422,12 @@ if __name__ == "__main__":
         for idx, row in enumerate(clean_pending):
             if idx in rejected_flags and row.get("Status") != STATUS_REJECTED:
                 reason = rejected_flags[idx]
-                orig_notes = (row.get("Notes") or "").strip()
-                if not orig_notes.startswith("REJECTED:"):
-                    row["Notes"] = f"REJECTED: {reason}" + (
-                        f" | {orig_notes}" if orig_notes else "")
-                row["Status"] = STATUS_REJECTED
+                # Use the counter — returns should_delete=True after 2+
+                # different reviewers reject. should_delete in janitor mode
+                # is harder to act on (we'd have to remove from clean_pending
+                # mid-iteration), so we mark them and let the next
+                # cleanup_orphan_rejected pass handle physical deletion.
+                _should_delete, _ = mark_rejected_with_counter(row, reason)
         new_approved = []
         remaining = clean_pending
         final_approved = sort_rows(approved)
