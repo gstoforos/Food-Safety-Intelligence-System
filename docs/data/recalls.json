@@ -96,6 +96,22 @@
   "Notes": "FDA company announcement May 2, 2026; 63,078 total units in recall (~16,428 sold to consumers); distributed via a2MC website, Amazon, and Meijer (Operation Fly Formula); importation rights expired Dec 31, 2025 (product already discontinued before recall); no illnesses reported. [manual-add 2026-05-04: cereulide → H1 Tier 1; infant formula → H13 vulnerable population; outbreak=0 per H10 explicit denial]"
  },
  {
+  "Date": "2026-05-02",
+  "Source": "NAFDAC",
+  "Company": "Page 50",
+  "Brand": "Page 50",
+  "Product": "NAFDAC",
+  "Pathogen": "Norovirus",
+  "Reason": "Norovirus",
+  "Class": "Recall",
+  "Country": "Nigeria",
+  "Region": "Africa",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://nafdac.gov.ng/page/50/?dir=ASC&gid=56&Itemid=103&limit=10&option=com_docman&order=name&task=cat_view",
+  "Notes": "fail; company mismatch; product mismatch; date on page=2019-09-20 | Row date 2026-05-02 is post-2026 cutoff (locked 2026-04-30); page shows Public Alert No. 0020/2019 dated 2019 (pre-2026 scope); Company and  | Page 50 – NAFDAC\n\n## Public Alert No: 0021/2019 – Alert on Recall of Solartep Tablets Batch Number F17S0826 Due to Unsatisfactory Report of Laboratory Analysis\n\n, The National Agency for Food and Drug Administration and Control (NAFDAC) has directed the Managing Director of Solutions Pharmaceutical   [via Exa gap-finder, deterministic extract] [gap-gate 2026-05-04: pending_gap → pending_gap_v1] [claude-check 2026-05-04: fail; date_pre_2026: 2019-09-20 | fail; company mismatch; product mismatch; date on page=2019-09-20 | Row date 2026-05-02 is p] [claude-check 2026-05-04: REJECTED — extraction_garbage: URL is 2019 pagination index, not a recall page. Gap-finder hallucination. Add */page/[0-9]+/ to URL blocklist.]"
+ },
+ {
   "Date": "2026-05-01",
   "Source": "RASFF",
   "Company": "Origin: Ireland | Notifying: Ireland | Distributed: Malta",
@@ -238,6 +254,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22155/Interne",
   "Notes": "[fiche 22155 / ref. 2026-04-0315 / 2026-04-30; sold 2026-04-22 to 2026-04-24; SINGLE-STORE recall (Carrefour Contact Targon only); recall ends 2026-05-16; CLAUDE-CHECK NOTE: pipeline rejected this for \"company mismatch — Carrefour is distributor\" but per locked rule \"Origine de la fiche wins\" — Carrefour IS the legitimate recalling firm here (counter-cut meat, same precedent as fiche 22028 Vieux Pané which was approved)] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France']"
+ },
+ {
+  "Date": "2026-04-30",
+  "Source": "Taiwan FDA",
+  "Company": "Bebelac",
+  "Brand": "Bebelac",
+  "Product": "Infant Milk Formula (Bebelac 1 400mg, Bebelac 1 900mg, Bebelac AR 400mg)",
+  "Pathogen": "Bacillus cereus",
+  "Reason": "Possible Cereulide toxin contamination",
+  "Class": "Recall",
+  "Country": "Jordan (originating recall), reported by Taiwan",
+  "Region": "Unknown",
+  "Tier": 3,
+  "Outbreak": 1,
+  "URL": "https://www.fda.gov.tw/item.aspx?sid=1938&id=422",
+  "Notes": "URL returns 404 error ('The Resource cannot be found'); page content is not accessible and contains no recall data to verify against the row | Alert from Jordan JFDA via PIC/S RAPID ALERT SYSTEM. Taiwan FDA noted no import inspection records for these specific products in Taiwan.  [via Gemini gap-finder + Google Search] [gap-gate 2026-05-01: pending_gap → pending_gap_v1] [gap-gate 2026-05-01: pending_gap_v1 → pending_gap_v2] [outbreak 2026-05-03: 0→1 — ECDC has received reports of diarrhoea in infants following consumption of the recalled products. National investigation] [claude-check 2026-05-04: fail; fail; not a recall page; company mismatch; product mismatch; pathogen mismatch; date on page= | URL returns 404 error ('] [claude-check 2026-05-04: REJECTED — URL returns 404. Bebelac/cereulide recall is real (Jordan JFDA via PIC/S RAPID ALERT), but this Taiwan FDA URL is dead. Find live alternative source URL or manually add row.]"
  },
  {
   "Date": "2026-04-29",
