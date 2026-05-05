@@ -1,31 +1,9 @@
 {
   "week_end": "2026-05-07",
-  "generated_utc": "2026-05-04T09:30:19+00:00",
-  "row_count": 1,
+  "generated_utc": "2026-05-05T04:11:23+00:00",
+  "row_count": 0,
   "tier1_count": 0,
   "outbreak_count": 0,
   "dissent_count": 0,
-  "rows": [
-    {
-      "Date": "2026-05-01",
-      "Source": "USDA FSIS",
-      "Company": "Richelieu Foods",
-      "Brand": "Mama Cozzi's",
-      "Product": "Biscuit Crust Sausage & Cheese Breakfast Pizza (18.5 oz), Biscuit Crust Cooked Pork Belly Crumbles, Cooked Bacon topping, Pepper & Onion Breakfast Pizza (17.15 oz)",
-      "Pathogen": "Salmonella",
-      "Reason": "Possible Salmonella contamination from FDA-regulated dairy ingredients (recalled milk powder)",
-      "Class": "Public Health Alert",
-      "Country": "USA",
-      "Region": "North America",
-      "Tier": 2,
-      "Outbreak": 0,
-      "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-various-meat-and-poultry-products-containing-fda-regulated",
-      "Notes": "Sold nationwide. Best if used by dates are October 15, 2026, October 21, 2026, October 22, 2026, October 23, 2026, and October 24, 2026. Establishment number 5699.  [via Gemini gap-finder + Google Search] [gap-gate 2026-05-01: pending_gap → pending_gap_v1] [gap-gate 2026-05-01: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-04: skip; fetch failed (HTTP 403)] [gap-gate 2026-05-04: pending_gap_v2 → pending (Claude verified)]",
-      "DateAdded": "2026-05-04",
-      "LastUpdated": "2026-05-04",
-      "LastChecked": "",
-      "Week_Added": "2026-05-07",
-      "Reviewed": "N"
-    }
-  ]
+  "rows": []
 }
