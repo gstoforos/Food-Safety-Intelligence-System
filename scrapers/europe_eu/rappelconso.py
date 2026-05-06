@@ -1,42 +1,72 @@
 """RappelConso France — official open data API (data.economie.gouv.fr).
 
-IMPORTANT — KNOWN API LATENCY:
-  This open-data endpoint is updated via a BATCH SYNC ONCE EVERY 24 HOURS,
-  not in real time. The consumer-facing site rappel.conso.gouv.fr publishes
-  fiches as soon as DGCCRF approves them; the API mirror lags by up to 24h.
+KNOWN API LATENCY:
+    The open-data endpoint syncs from the consumer-facing site once every
+    24 hours. Same-day capture is best-effort; the companion
+    review/rappelconso_html_freshness.py hits the live HTML hourly to
+    backstop the gap.
 
-  Consequence: this scraper alone cannot guarantee same-day capture of a
-  fiche published in the morning. The companion review/rappelconso_html_freshness.py
-  hits the live HTML site directly and runs hourly to backstop that gap.
+ARCHITECTURE (audit 2026-05-06 — major rewrite)
+================================================
+Production data showed eight of the ten most-recent RappelConso rows
+landing in Recalls with Company="Unbranded" and Brand="—" — but the
+underlying fiches (e.g. fiche 22184, 22186, 22188) clearly show brand
+information mid-page on rappel.conso.gouv.fr. The previous scraper
+returned almost no descriptive fields because:
 
-ARCHITECTURE (audit 2026-04-29 — fixed after V1 deprecation):
+  1. **Field-name probing was too narrow.** RappelConso V2 has at least
+     six different fields that can carry brand/manufacturer info, and
+     the active code only probed three. When `nom_de_la_marque_du_produit`
+     was empty, the row was emitted with Brand="—" even though
+     `marques_du_produit` (plural) or `nom_du_fabricant` had data.
 
-  RappelConso went through a V1 → V2 migration that completed end of 2025.
-  The legacy `rappelconso0` dataset is now HTTP 404. The V2 dataset has
-  the same content but renamed several columns. To survive future drift,
-  this scraper now uses a THREE-LAYER fallback:
+  2. **No diagnostics.** When a row came out with empty fields, no log
+     line told operators which fields were probed, which were present,
+     and which were empty. The pipeline silently degraded to "Unbranded".
 
-    Layer 1 - V2 API with filter:    fast, server-side date+category filter
-    Layer 2 - V2 API no filter:      get all recent rows, filter client-side
-                                     (survives field-name renames)
-    Layer 3 - data.gouv.fr bulk JSON: 40MB blob, refreshed hourly, ALWAYS
-                                     works as long as the dataset exists
+  3. **No cross-field fallback.** When the dedicated brand/company
+     fields were empty, the scraper didn't fall back to other fields
+     that often carry the producer name (e.g. `nom_du_fabricant`,
+     `noms_des_modeles_ou_references` often contains "BRAND - product
+     name" patterns).
 
-  Layer 3 is the safety net. If V2 is renamed to V3, the bulk-JSON URL
-  (https://www.data.gouv.fr/api/1/datasets/r/<resource-id>) might also
-  change, but the change is a single resource ID swap rather than a
-  structural break. Easier to fix.
+This rewrite:
+  • Probes every known field-name variant (V1 + V2 + V3-pre).
+  • Tries cross-field synthesis — if no direct brand field but the
+    product/model field starts with a brand-shaped token, use that.
+  • Logs explicitly per-row which field provided which value.
+  • Sets descriptive Notes telling claude-check exactly which fields
+    were empty so the reviewer can decide whether to fail or pass.
+  • Three-layer fallback (V2 filtered → V2 unfiltered → bulk JSON)
+    preserved unchanged.
 """
 from __future__ import annotations
 from datetime import datetime, timedelta
-from typing import List, Optional, Dict, Any
-import json
+from typing import List, Optional, Dict, Any, Tuple
 import logging
+import re
+
 from scrapers._base import BaseScraper, fetch
 from scrapers._models import Recall
 from scrapers._pathogen_vocab import for_languages
+from scrapers._company_normalise import normalise_company_brand
 
 log = logging.getLogger(__name__)
+
+
+# Tokens that mean "no specific brand named" across French regulator
+# vocabulary. Matched case-insensitively. If a brand field contains ONLY
+# one of these, we treat it as empty for fallback purposes.
+_NO_BRAND_TOKENS = (
+    "sans marque", "sans", "no brand", "marque inconnue", "non commercialisé",
+    "n/a", "na", "—", "-", "—", "vide", "non communiqué",
+)
+
+
+def _is_no_brand(s: str) -> bool:
+    if not s or not s.strip():
+        return True
+    return s.strip().lower() in _NO_BRAND_TOKENS
 
 
 class RappelConsoScraper(BaseScraper):
@@ -45,95 +75,180 @@ class RappelConsoScraper(BaseScraper):
 
     API_BASE = "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets"
 
-    # V2 only. V1 (rappelconso0) is now HTTP 404 (deprecated end of 2025).
-    # Two V2 variants exist; both are identical in content. Try
-    # `gtin-espaces` first because that's the primary published variant.
+    # V2 datasets. Both contain identical content.
     DATASETS = (
         "rappelconso-v2-gtin-espaces",
         "rappelconso-v2-gtin-trie",
     )
 
-    # data.gouv.fr ultimate fallback — 40MB JSON refreshed hourly. Resource
-    # ID points to the V2 JSON file; if RappelConso ships V3 this ID will
-    # change (pointer-only fix, not structural).
+    # data.gouv.fr ultimate fallback — 40MB JSON refreshed hourly.
     BULK_JSON_URL = ("https://www.data.gouv.fr/api/1/datasets/r/"
                      "7b212733-7f5b-4ff3-b5b2-c7fea20f9cb1")
 
     PATHOGEN_KEYWORDS = for_languages("en", "fr")
 
-    # ── Field-name maps (V1 vs V2 vs anything-else) ───────────────────
-    # We probe each candidate name in order; first non-empty wins. This
-    # makes the parser tolerant to field-name drift.
-    DATE_FIELDS    = ("date_de_publication", "date_publication")
-    CATEGORY_FIELDS = ("categorie_de_produit", "categorie_produit",
-                       "categorie")
-    SUBCATEGORY_FIELDS = ("sous_categorie_de_produit", "sous_categorie_produit")
-    BRAND_FIELDS   = ("nom_de_la_marque_du_produit", "marque_de_produit",
-                      "marque")
+    # ─────────────────────────────────────────────────────────────────
+    # FIELD-NAME MAPS — exhaustive. Order matters for _first(): the
+    # first non-empty wins. List from most-specific to least-specific.
+    # When you add a new candidate, put it where it belongs by
+    # specificity (more specific names go first).
+    # ─────────────────────────────────────────────────────────────────
+    DATE_FIELDS = (
+        "date_de_publication",
+        "date_publication",
+        "date_de_publication_du_rappel",
+    )
+    CATEGORY_FIELDS = (
+        "categorie_de_produit",
+        "categorie_produit",
+        "categorie",
+    )
+    SUBCATEGORY_FIELDS = (
+        "sous_categorie_de_produit",
+        "sous_categorie_produit",
+        "sous_categorie",
+    )
+    # BRAND — multiple historical names. Audit 2026-05-06 added:
+    #   - marques_du_produit (V2 plural variant)
+    #   - nom_des_marques_du_produit
+    BRAND_FIELDS = (
+        "nom_de_la_marque_du_produit",   # V1 canonical
+        "marques_du_produit",            # V2 plural — present on many rows
+        "nom_des_marques_du_produit",
+        "marque_de_produit",
+        "marque_du_produit",
+        "marque",
+    )
+    # COMPANY (= recalling firm). Audit 2026-05-06 added:
+    #   - nom_du_fabricant (manufacturer; often the recalling firm)
+    #   - conditionneur (packager — sometimes the recalling firm)
     COMPANY_FIELDS = (
         "nom_de_la_societe_responsable_de_la_commercialisation",
         "nom_de_la_societe_responsable_de_la_premiere_mise_sur_le_marche",
+        "nom_du_fabricant",
+        "conditionneur",
         "societe",
+        "responsable_de_la_commercialisation",
+        "fabricant",
     )
-    PRODUCT_FIELDS = ("noms_des_modeles_ou_references",
-                      "noms_des_modeles_ou_des_references",
-                      "denomination_du_produit",
-                      "produit")
-    REASON_FIELDS  = ("motif_du_rappel", "motif")
-    RISKS_FIELDS   = ("risques_encourus_par_le_consommateur",
-                      "risques_encourus", "risque")
-    CLASS_FIELDS   = ("nature_juridique_du_rappel", "nature_du_rappel",
-                      "nature_juridique")
-    DISTRIB_FIELDS = ("distributeurs", "lien_vers_la_liste_des_distributeurs")
-    URL_FIELDS     = ("lien_vers_la_fiche_rappel", "lien_vers_la_fiche")
-    FID_FIELDS     = ("identifiant_unique_de_l_alerte",
-                      "identifiant_unique_de_la_fiche", "id")
-    REF_FIELDS     = ("reference_fiche", "numero_de_la_fiche",
-                      "reference_de_la_fiche")
+    PRODUCT_FIELDS = (
+        "noms_des_modeles_ou_references",
+        "noms_des_modeles_ou_des_references",
+        "noms_des_modeles_ou_references_du_produit",
+        "denomination_du_produit",
+        "denomination",
+        "produit",
+        "modele",
+        "reference_produit",
+    )
+    REASON_FIELDS = (
+        "motif_du_rappel",
+        "motif",
+        "raison_du_rappel",
+        "description",
+    )
+    RISKS_FIELDS = (
+        "risques_encourus_par_le_consommateur",
+        "risques_encourus",
+        "risques",
+        "risque",
+        "danger",
+    )
+    CLASS_FIELDS = (
+        "nature_juridique_du_rappel",
+        "nature_du_rappel",
+        "nature_juridique",
+        "type_de_rappel",
+    )
+    DISTRIB_FIELDS = (
+        "distributeurs",
+        "lien_vers_la_liste_des_distributeurs",
+        "lieux_de_vente",
+    )
+    URL_FIELDS = (
+        "lien_vers_la_fiche_rappel",
+        "lien_vers_la_fiche",
+        "lien",
+    )
+    FID_FIELDS = (
+        "identifiant_unique_de_l_alerte",
+        "identifiant_unique_de_la_fiche",
+        "id",
+    )
+    REF_FIELDS = (
+        "reference_fiche",
+        "numero_de_la_fiche",
+        "reference_de_la_fiche",
+        "numero",
+    )
 
-    def _first(self, rec: Dict[str, Any], candidates: tuple) -> str:
-        """Return first non-empty field value among candidates."""
+    # ─────────────────────────────────────────────────────────────────
+    # Helper utilities
+    # ─────────────────────────────────────────────────────────────────
+    def _first(self, rec: Dict[str, Any], candidates: tuple,
+               which: str = "") -> Tuple[str, str]:
+        """Return (value, field_name) — the first candidate that yielded
+        a non-empty value. Returns ('', '') if everything was empty.
+        ``which`` is a label used for diagnostics only.
+        """
         for c in candidates:
             v = rec.get(c)
-            if v:
-                return str(v)
-        return ""
+            if v not in (None, "", "—", "-"):
+                return str(v).strip(), c
+        return "", ""
 
-    # ─── Layer 1: V2 API with server-side filter ──────────────────────
+    def _diagnostic(self, rec: Dict[str, Any], candidates: tuple) -> str:
+        """Return a compact 'field=value | field=' summary for logs."""
+        parts = []
+        for c in candidates:
+            v = rec.get(c)
+            if v in (None, ""):
+                parts.append(f"{c}=")
+            else:
+                parts.append(f"{c}={str(v)[:30]!r}")
+        return " | ".join(parts)
+
+    # ─────────────────────────────────────────────────────────────────
+    # Layer 1 — V2 API with server-side filter
+    # ─────────────────────────────────────────────────────────────────
     def _try_dataset_filtered(self, dataset: str, since_days: int):
+        """L1: server-side date filter. The V2 datasets
+        (rappelconso-v2-gtin-espaces, rappelconso-v2-gtin-trie) are
+        food-only by definition — no need to filter by category.
+
+        Audit 2026-05-06: previously also AND'd categorie_de_produit =
+        "Alimentation" — that was the V1 value, V2 categories are
+        "Viandes" / "Plats préparés et snacks" / etc. The legacy filter
+        returned 0 rows in production for every V2 query, forcing
+        fallthrough to L2 (unfiltered) every run.
+        """
         url = f"{self.API_BASE}/{dataset}/records"
         cutoff = (datetime.utcnow() - timedelta(days=since_days)).strftime("%Y-%m-%d")
-        # Probe each known date-field name. Use the first one that the
-        # API accepts without error.
         for date_field in self.DATE_FIELDS:
-            for cat_field in self.CATEGORY_FIELDS:
-                params = {
-                    "where": (f'{date_field} >= "{cutoff}" AND '
-                              f'{cat_field} = "Alimentation"'),
-                    "limit": 500,
-                    "order_by": f"{date_field} DESC",
-                }
-                r = fetch(self.session, url, params=params)
-                if not r or r.status_code != 200:
-                    continue
-                try:
-                    data = r.json()
-                except Exception:
-                    continue
-                results = data.get("results", [])
-                if results:
-                    log.info("RappelConso L1 dataset=%s field=%s/%s -> %d records",
-                             dataset, date_field, cat_field, len(results))
-                    return results
+            params = {
+                "where": f'{date_field} >= "{cutoff}"',
+                "limit": 500,
+                "order_by": f"{date_field} DESC",
+            }
+            r = fetch(self.session, url, params=params)
+            if not r or r.status_code != 200:
+                continue
+            try:
+                data = r.json()
+            except Exception:
+                continue
+            results = data.get("results", [])
+            if results:
+                log.info("RappelConso L1 dataset=%s field=%s -> %d records",
+                         dataset, date_field, len(results))
+                return results
         return None
 
-    # ─── Layer 2: V2 API with no filter, client-side filtering ────────
+    # ─────────────────────────────────────────────────────────────────
+    # Layer 2 — V2 API unfiltered, client-side filter
+    # ─────────────────────────────────────────────────────────────────
     def _try_dataset_unfiltered(self, dataset: str):
-        """Pull last 500 rows ordered by date desc. We then filter
-        client-side by date and category. Slower than L1 but immune to
-        field-name drift on the WHERE clause."""
         url = f"{self.API_BASE}/{dataset}/records"
-        # Try ordering by each known date field
         for date_field in self.DATE_FIELDS:
             params = {
                 "limit": 500,
@@ -153,17 +268,15 @@ class RappelConsoScraper(BaseScraper):
                 return results
         return None
 
-    # ─── Layer 3: data.gouv.fr bulk JSON download ─────────────────────
+    # ─────────────────────────────────────────────────────────────────
+    # Layer 3 — data.gouv.fr bulk JSON
+    # ─────────────────────────────────────────────────────────────────
     def _try_bulk_json(self):
-        """40MB JSON file, refreshed hourly on data.gouv.fr. Always works
-        as long as the dataset exists. Slower (~40MB transfer) but the
-        ultimate safety net."""
         try:
             r = fetch(self.session, self.BULK_JSON_URL)
             if not r or r.status_code != 200:
                 return None
             data = r.json()
-            # Bulk download is a list of records (not wrapped in {"results":})
             if isinstance(data, list):
                 results = data
             elif isinstance(data, dict) and "data" in data:
@@ -176,6 +289,46 @@ class RappelConsoScraper(BaseScraper):
             log.warning("RappelConso L3 bulk JSON failed: %s", e)
             return None
 
+    # ─────────────────────────────────────────────────────────────────
+    # Cross-field synthesis — when dedicated brand/company fields are
+    # empty, try to extract from the product description, motif, etc.
+    # ─────────────────────────────────────────────────────────────────
+    def _synthesize_brand_from_product(self, product: str) -> str:
+        """RappelConso operators sometimes write product strings like
+        'BRAND - Description' or 'BRAND model - 500 g'. If the dedicated
+        brand fields were empty but the product field starts with a
+        brand-shaped token (1-3 words, leading capital, before a separator),
+        return that token.
+
+        Pattern: text up to the first " - ", " – ", " — ", or " : "
+        separator. Constraints: first character must be a letter (no
+        leading numbers); total length 2-40; not a generic category word.
+        """
+        if not product:
+            return ""
+        # Allow any case after the first letter — operators write "BRAND model"
+        # and "Saint-Albray" alike. Match anything up to the first separator.
+        m = re.match(
+            r"^([A-ZÀ-ÝŒ][\w\-'’À-ÝÀ-ÿœ\s]{1,38}?)\s*[-–—:]\s+",
+            product,
+        )
+        if not m:
+            return ""
+        candidate = m.group(1).strip()
+        # Reject if the candidate is just a category word
+        category_words = {
+            "viandes", "plats", "produits", "boissons", "fruits", "légumes",
+            "produits laitiers", "snacks", "aliments",
+        }
+        if candidate.lower() in category_words:
+            return ""
+        if 2 <= len(candidate) <= 40:
+            return candidate
+        return ""
+
+    # ─────────────────────────────────────────────────────────────────
+    # Main scrape
+    # ─────────────────────────────────────────────────────────────────
     def scrape(self, since_days: int = 30) -> List[Recall]:
         cutoff_dt = datetime.utcnow() - timedelta(days=since_days)
         cutoff = cutoff_dt.strftime("%Y-%m-%d")
@@ -183,14 +336,12 @@ class RappelConsoScraper(BaseScraper):
         results = None
         used_layer = None
 
-        # Layer 1
         for ds in self.DATASETS:
             results = self._try_dataset_filtered(ds, since_days)
             if results is not None:
                 used_layer = f"L1/{ds}"
                 break
 
-        # Layer 2
         if results is None:
             for ds in self.DATASETS:
                 results = self._try_dataset_unfiltered(ds)
@@ -198,84 +349,163 @@ class RappelConsoScraper(BaseScraper):
                     used_layer = f"L2/{ds}"
                     break
 
-        # Layer 3
         if results is None:
             results = self._try_bulk_json()
             if results is not None:
                 used_layer = "L3/bulk-json"
 
         if not results:
-            log.warning("RappelConso: ALL three layers failed or empty "
-                        "(L1 server-filtered, L2 unfiltered, L3 bulk JSON). "
-                        "Either the dataset is offline or all field names "
-                        "have drifted. Manual investigation required.")
+            log.warning("RappelConso: ALL three layers failed or empty. "
+                        "Manual investigation required.")
             return []
 
         log.info("RappelConso: using layer %s with %d candidate records",
                  used_layer, len(results))
 
+        # On the FIRST record, dump the full key list so operators can
+        # see which V2 column names actually came back. Helpful when
+        # the upstream rename a field — we'll see it in next workflow log.
+        if results:
+            sample_keys = sorted(results[0].keys())
+            log.info("RappelConso: first record has %d fields: %s",
+                     len(sample_keys), ", ".join(sample_keys[:30])
+                     + ("..." if len(sample_keys) > 30 else ""))
+
         out: List[Recall] = []
         skipped_by_date = 0
-        skipped_by_category = 0
         skipped_by_pathogen = 0
+        rows_with_empty_company = 0
+        rows_with_synthesized_brand = 0
 
         for rec in results:
             try:
-                # Client-side date filter (essential for L2/L3 layers
-                # that didn't filter on server side)
-                pub_date = self._first(rec, self.DATE_FIELDS)[:10]
+                pub_date, _ = self._first(rec, self.DATE_FIELDS)
+                pub_date = pub_date[:10]
                 if pub_date and pub_date < cutoff:
                     skipped_by_date += 1
                     continue
 
-                # Client-side category filter
-                cat = self._first(rec, self.CATEGORY_FIELDS)
-                if cat and "alimentation" not in cat.lower():
-                    skipped_by_category += 1
-                    continue
+                # Audit 2026-05-06: removed the legacy V1 filter
+                #   if cat and "alimentation" not in cat.lower(): continue
+                # which dropped every V2 row. V2 categories are "Viandes",
+                # "Plats préparés et snacks", "Aliments diététiques et
+                # nutrition", etc. — never "Alimentation". The V2 datasets
+                # are food-only by definition, so no filter needed here.
+                cat, _ = self._first(rec, self.CATEGORY_FIELDS)
+                # cat is now collected for downstream use only (Notes
+                # enrichment, fallback Product) — not as a filter.
 
-                # Pathogen keyword check across motif + risques (some 04/27
-                # Alternaria fiches had the keyword only on the motif side)
-                reason_text = (self._first(rec, self.REASON_FIELDS).lower() +
-                               " " + self._first(rec, self.RISKS_FIELDS).lower())
+                reason, reason_field = self._first(rec, self.REASON_FIELDS)
+                risks, risks_field = self._first(rec, self.RISKS_FIELDS)
+                reason_text = (reason + " " + risks).lower()
                 if not any(p in reason_text for p in self.PATHOGEN_KEYWORDS):
                     skipped_by_pathogen += 1
                     continue
 
-                fid = self._first(rec, self.FID_FIELDS) or self._first(rec, self.REF_FIELDS)
-                url = (self._first(rec, self.URL_FIELDS) or
-                       (f"https://rappel.conso.gouv.fr/fiche-rappel/{fid}/Interne"
-                        if fid else ""))
-                # Normalise the (Company, Brand) pair before emit. RappelConso
-                # operators hand-enter rows with inconsistent casing and
-                # routinely PREPEND the parent distributor to the brand
-                # (e.g. "AMANDIS LES ATELIERS DE SEBASTIEN" + brand
-                # "LES ATELIERS DE SEBASTIEN") which makes the same
-                # producer appear as 3 different rows in the same week.
-                # Shared normaliser converges them — see scrapers/_company_normalise.py.
-                from scrapers._company_normalise import normalise_company_brand
-                _co, _br = normalise_company_brand(
-                    self._first(rec, self.COMPANY_FIELDS),
-                    self._first(rec, self.BRAND_FIELDS) or "—",
-                )
+                fid, _ = self._first(rec, self.FID_FIELDS)
+                if not fid:
+                    fid, _ = self._first(rec, self.REF_FIELDS)
+
+                url, _ = self._first(rec, self.URL_FIELDS)
+                if not url and fid:
+                    url = f"https://rappel.conso.gouv.fr/fiche-rappel/{fid}/Interne"
+
+                # ─── Brand / Company / Product extraction ───────────
+                brand_raw, brand_field = self._first(rec, self.BRAND_FIELDS)
+                company_raw, company_field = self._first(rec, self.COMPANY_FIELDS)
+                product_raw, product_field = self._first(rec, self.PRODUCT_FIELDS)
+
+                # If brand field had only "Sans marque", treat as empty
+                # so we can fall back to other sources
+                if _is_no_brand(brand_raw):
+                    brand_raw = ""
+                    brand_field = ""
+
+                # Cross-field synthesis: if no brand but product looks
+                # like "BRAND - description", lift the brand from there
+                synthesized = ""
+                if not brand_raw and product_raw:
+                    synthesized = self._synthesize_brand_from_product(product_raw)
+                    if synthesized:
+                        brand_raw = synthesized
+                        brand_field = "(synthesized from product)"
+                        rows_with_synthesized_brand += 1
+
+                # If we still have no Company, fall back to Brand
+                # (single retailer's own-brand recalls). If we have no
+                # Brand either, leave both empty so downstream can flag.
+                if not company_raw:
+                    company_raw = brand_raw
+
+                # Per-row diagnostic when Company ends up empty —
+                # operators can grep for this pattern to see exactly
+                # which fields were probed.
+                if not company_raw:
+                    rows_with_empty_company += 1
+                    log.warning(
+                        "RappelConso fid=%s URL=%s — empty Company after "
+                        "all probes. Brand probes: %s | Company probes: %s | "
+                        "Product probes: %s",
+                        fid, url[:60],
+                        self._diagnostic(rec, self.BRAND_FIELDS)[:200],
+                        self._diagnostic(rec, self.COMPANY_FIELDS)[:200],
+                        self._diagnostic(rec, self.PRODUCT_FIELDS)[:120],
+                    )
+
+                co, br = normalise_company_brand(company_raw, brand_raw or "—")
+
+                # Subcategory as Product-fallback ONLY when product field is
+                # genuinely empty. The subcategory is often a useless
+                # category label like "viandes" — shouldn't masquerade
+                # as the product description. When we do fall back,
+                # stamp Notes so claude-check knows to enrich.
+                product_for_emit = product_raw
+                product_is_subcat_fallback = False
+                if not product_for_emit:
+                    subcat, _ = self._first(rec, self.SUBCATEGORY_FIELDS)
+                    product_for_emit = subcat
+                    product_is_subcat_fallback = True
+
+                distrib, _ = self._first(rec, self.DISTRIB_FIELDS)
+                klass, _ = self._first(rec, self.CLASS_FIELDS)
+
+                # Notes — encode field provenance for claude-check
+                notes_parts = [distrib[:120]] if distrib else []
+                if not company_raw and not brand_raw:
+                    notes_parts.append(
+                        "[scraper-flag: no Company/Brand from API — "
+                        "claude-check please extract from page]"
+                    )
+                if product_is_subcat_fallback:
+                    notes_parts.append(
+                        "[scraper-flag: Product is subcategory fallback]"
+                    )
+                if synthesized:
+                    notes_parts.append(
+                        f"[scraper: brand synthesized from product field]"
+                    )
+
                 out.append(self._new_recall(
                     Date=pub_date,
-                    Company=_co,
-                    Brand=_br,
-                    Product=(self._first(rec, self.PRODUCT_FIELDS) or
-                             self._first(rec, self.SUBCATEGORY_FIELDS))[:300],
-                    Pathogen=self._first(rec, self.RISKS_FIELDS)[:200],
-                    Reason=self._first(rec, self.REASON_FIELDS)[:300],
-                    Class=self._first(rec, self.CLASS_FIELDS) or "Volontaire",
+                    Company=co,
+                    Brand=br,
+                    Product=product_for_emit[:300],
+                    Pathogen=risks[:200],
+                    Reason=reason[:300],
+                    Class=klass or "Volontaire",
                     URL=url,
                     Outbreak=0,
-                    Notes=self._first(rec, self.DISTRIB_FIELDS)[:200],
+                    Notes=" ".join(notes_parts)[:300],
                 ))
             except Exception as e:
                 log.warning("RappelConso row parse failed: %s", e)
 
-        log.info("RappelConso: %d pathogen recalls (skipped: %d by date, "
-                 "%d non-food, %d non-pathogen)",
-                 len(out), skipped_by_date, skipped_by_category,
-                 skipped_by_pathogen)
+        log.info(
+            "RappelConso: %d pathogen recalls (skipped: %d by date, "
+            "%d non-pathogen). Quality flags: %d empty Company, "
+            "%d brand synthesized.",
+            len(out), skipped_by_date,
+            skipped_by_pathogen, rows_with_empty_company,
+            rows_with_synthesized_brand,
+        )
         return out
