@@ -20,9 +20,9 @@ on:
   workflow_dispatch:
     inputs:
       since_days:
-        description: "Lookback window in days (default: 7)"
+        description: "Lookback window in days (default: 3 — see scrapers/eu_wide/rasff.py)"
         required: false
-        default: "7"
+        default: "3"
       skip_commit:
         description: "true = run but do not commit/push (dry-run)"
         required: false
@@ -83,7 +83,7 @@ jobs:
           # Limit run_all to ONLY the RASFF scraper. AGENCY string must
           # match scrapers/eu_wide/rasff.py's RASFFScraper.AGENCY exactly.
           AGENCIES_FILTER:  "RASFF (EU)"
-          SINCE_DAYS:       ${{ github.event.inputs.since_days || '7' }}
+          SINCE_DAYS:       ${{ github.event.inputs.since_days || '3' }}
           SKIP_COMMIT:      ${{ github.event.inputs.skip_commit || 'false' }}
           # Skip AI enrichment + review for this fast 2x/day pass.
           # The morning-critical-scrape + claude-check pipelines re-process
