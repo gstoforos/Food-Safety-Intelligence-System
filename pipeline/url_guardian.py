@@ -86,7 +86,12 @@ RECALLS_SCHEMA = ["Date", "Source", "Company", "Brand", "Product", "Pathogen",
                   "Reason", "Class", "Country", "Region", "Tier", "Outbreak",
                   "URL", "Notes"]
 
-PENDING_SCHEMA = RECALLS_SCHEMA + ["ScrapedAt", "Status"]
+# Audit 2026-05-06 — added RejectedBy. Pre-fix this stripped the Phase A
+# rejection-counter column on every 4-hour url_guardian write, undoing
+# any RejectedBy data that claude-check / url-gate had stamped between
+# the previous merge-master tick and now. Must mirror the canonical
+# merge_master.PENDING_SCHEMA.
+PENDING_SCHEMA = RECALLS_SCHEMA + ["ScrapedAt", "Status", "RejectedBy"]
 
 NEWS_HEADERS = ["Published (UTC)", "Pathogen", "Event", "Source", "Title",
                 "Link", "Retrieved (UTC)"]
@@ -153,27 +158,50 @@ def _save_xlsx(xlsx_path: Path,
                pending: List[Dict[str, Any]],
                news_rows: List[Dict[str, Any]],
                news_headers: List[str]):
-    """Save all three sheets.  Recalls is written UNCHANGED."""
-    wb = Workbook()
-    if wb.active and wb.active.max_row == 1 and wb.active.max_column == 1:
-        wb.remove(wb.active)
+    """Save Recalls / Pending / NEWS, preserving any other sheets that
+    already exist in the workbook (e.g. Weekly_Review, mailer-state tabs).
 
+    Recalls is written UNCHANGED — the guardian only mutates Pending —
+    but we still rewrite Recalls so its schema stays canonical after
+    a row is appended via the (now-retired) gap-finder branch.
+
+    Audit 2026-05-06 — pre-fix this function called Workbook(), which
+    creates a brand-new empty workbook. Combined with wb.save() that
+    destroyed every sheet not explicitly re-written here. Weekly_Review
+    was the most frequent victim: it gets created by
+    pipeline.weekly_review_capture.record_promotions on every promotion
+    cycle and was then wiped on the next 4-hour url_guardian tick. The
+    fix below switches to load_workbook() when the file exists, mirroring
+    the pattern in merge_master.save_xlsx_with_pending. The NEWS branch
+    is also consolidated — pre-fix the else-branch (no news_rows) called
+    wb.create_sheet("NEWS") which would have created "NEWS1" if NEWS was
+    already present in the loaded workbook.
+    """
+    if xlsx_path.exists():
+        wb = load_workbook(xlsx_path)
+    else:
+        wb = Workbook()
+        if wb.active and wb.active.max_row == 1 and wb.active.max_column == 1:
+            wb.remove(wb.active)
+
+    # Recalls + Pending — _write_sheet() deletes-first, so safe regardless
+    # of whether the sheet was loaded from disk or not.
     _write_sheet(wb, "Recalls", RECALLS_SCHEMA, recalls)
 
     pending_fill = PatternFill(start_color="FFF3CD", end_color="FFF3CD",
                                fill_type="solid")
     _write_sheet(wb, "Pending", PENDING_SCHEMA, pending, header_fill=pending_fill)
 
-    if news_rows:
-        _write_sheet(wb, "NEWS", news_headers, news_rows)
-    else:
-        nw = wb.create_sheet("NEWS")
-        for i, h in enumerate(NEWS_HEADERS, 1):
-            c = nw.cell(row=1, column=i, value=h)
-            c.font = Font(bold=True)
-        nw.freeze_panes = "A2"
+    # NEWS — single path, always recreate. Use loaded headers when present,
+    # otherwise the canonical default. _write_sheet writes header row +
+    # freeze_panes even when rows is empty, so an "empty NEWS" preserves
+    # the schema invariant.
+    _write_sheet(wb,
+                 "NEWS",
+                 news_headers if news_headers else NEWS_HEADERS,
+                 news_rows or [])
 
-    # Sheet order: Recalls, Pending, NEWS
+    # Sheet order: Recalls, Pending, (auxiliary sheets — Weekly_Review etc.), NEWS
     ordered = []
     for name in ["Recalls", "Pending"]:
         if name in wb.sheetnames:
