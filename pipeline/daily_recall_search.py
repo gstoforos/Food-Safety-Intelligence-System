@@ -608,8 +608,16 @@ def call_exa_search(target_date: date, region: str, agencies: str,
         if not product:
             product = (content.split(". ", 1)[0])[:200]
 
-        date_str = _gf_parse_date(item)
-        if not date_str:
+        # _gf_parse_date now returns (date_str, fallback_flag).
+        # daily_recall_search runs a TIGHT date-window check (must be
+        # within accept_dates) — fallback dates would always pass that
+        # check trivially (today is in the window) and pollute results,
+        # so for this caller we still drop rows without a real date.
+        # gap-finding (gap_finder_tavily / gap_finder_exa) keeps the
+        # fallback rows because the downstream claude-check page review
+        # can fix the Date field.
+        date_str, date_is_fallback = _gf_parse_date(item)
+        if date_is_fallback or not date_str:
             continue
         # Date-window guard — must match the OpenAI-era ±1 day window
         if date_str not in accept_dates:

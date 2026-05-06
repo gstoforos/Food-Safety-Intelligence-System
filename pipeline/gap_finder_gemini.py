@@ -304,53 +304,19 @@ def _post_filter_recalls(recalls: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             rejected += 1
             continue
 
-        # Generic / listing / disease / transparency pages
-        url_low = url.lower()
-        bad_substrings = (
-            "page=",
-            "/list?",
-            "/a-z/",
-            "animal-disease",
-            "regulatory-transparency",
-            "/categorie/",
-            "/rubrik/",
-            "/tag/",
-        )
-        if any(p in url_low for p in bad_substrings):
+        # Generic / listing / disease / transparency / search / pagination /
+        # circular pages — single source of truth in pipeline/_url_filters.
+        # Pre-2026-05-06 this had a hardcoded `bad_substrings` tuple that
+        # drifted apart from merge_master and gap_finder_tavily; FDA recall
+        # URLs were never affected but CFIA /search/site et al. slipped past.
+        from pipeline._url_filters import is_generic_url as _is_generic
+        if _is_generic(url):
             log.warning("Rejected generic URL: %s", url[:80])
             rejected += 1
             continue
 
-        # ── RappelConso fiche-ID sanity (audit 2026-04-29) ──────────────
-        # Audit caught Gemini hallucinating two failure modes for
-        # rappel.conso.gouv.fr URLs:
-        #   1. /fiche-rappel/2026/Interne   (year-as-fiche-ID)
-        #   2. /fiche-rappel/2026-04-0305/  (reference slug instead of
-        #                                    the integer fiche ID)
-        # The url-gate's lazy \d+ regex couldn't tell the difference and
-        # silently re-stamped both with "API fixed" audit notes. Catch
-        # them HERE before they ever reach Pending so the gate doesn't
-        # have to clean up afterward.
-        if ("rappel.conso.gouv.fr" in url_low
-                or "rappelconso.gouv.fr" in url_low):
-            import re as _re
-            m_fid = _re.search(r"/fiche-rappel/([^/]+)", url_low)
-            if not m_fid:
-                log.warning("Rejected rappelconso URL (no fiche-rappel/ID): %s", url[:80])
-                rejected += 1
-                continue
-            fid = m_fid.group(1).strip()
-            if not fid.isdigit():
-                log.warning("Rejected rappelconso URL with non-numeric fiche ID "
-                            "(likely hallucinated): %s -> fid=%r", url[:80], fid)
-                rejected += 1
-                continue
-            n = int(fid)
-            if n < 1000 or (2000 <= n <= 2100):
-                log.warning("Rejected rappelconso URL with sentinel/year fiche ID "
-                            "(likely hallucinated): %s -> fid=%d", url[:80], n)
-                rejected += 1
-                continue
+        # RappelConso fiche-ID sanity is now handled by the shared
+        # is_generic_url() above — see pipeline/_url_filters.py.
 
         # Date before 2026
         d = str(r.get("Date", "") or "")[:10]

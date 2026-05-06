@@ -350,40 +350,164 @@ def _extract_company_product(title: str, content: str) -> Tuple[str, str]:
 
 
 # ---------------------------------------------------------------------------
-# Date handling
+# Date handling — multi-format (audit 2026-05-06)
 # ---------------------------------------------------------------------------
+# Pre-fix: only matched ISO YYYY-MM-DD via single regex, then dropped any
+# row with no date. Production data shows this systematically misses
+# fresh FDA + CFIA recalls because:
+#   • Tavily's `published_date` field is best-effort metadata extraction
+#     and is often empty for fresh pages.
+#   • Recall page text typically formats dates as "May 5, 2026" or
+#     "5 May 2026" or "Recall date: 2026-05-05" (mixed locales),
+#     none of which the previous \d{4}-\d{2}-\d{2} regex matched.
+#
+# Post-fix: try (1) Tavily's published_date as ISO, (2) every plausible
+# date format embedded in title+content (EN "May 5, 2026", "5 May 2026",
+# "May 5 2026", FR "5 mai 2026", DE "5. Mai 2026", IT "5 maggio 2026",
+# ES "5 de mayo de 2026", US "5/5/2026" / "05/05/2026", ISO with time).
+# When NONE parse, return today's date with a sentinel marker so
+# _item_to_recall can write the row to Pending with a Notes flag for
+# claude-check to fix during page-content review.
+
 _DATE_RX = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
 
+# Numeric date: 5/5/2026, 05/05/2026, 5-5-2026 (US-style M/D/Y by default)
+_NUMERIC_DATE_RX = re.compile(
+    r"\b(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4})\b"
+)
 
-def _parse_date(tavily_item: Dict[str, Any]) -> str:
-    """Extract publication date from Tavily's item.
+# Written month names — multilingual. Order: English, French, German,
+# Italian, Spanish, Portuguese. Lowercased before matching.
+_MONTH_NAMES = {
+    "january": 1, "february": 2, "march": 3, "april": 4, "may": 5,
+    "june": 6, "july": 7, "august": 8, "september": 9, "october": 10,
+    "november": 11, "december": 12,
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "jun": 6,
+    "jul": 7, "aug": 8, "sep": 9, "sept": 9, "oct": 10, "nov": 11, "dec": 12,
+    "janvier": 1, "février": 2, "fevrier": 2, "mars": 3, "avril": 4, "mai": 5,
+    "juin": 6, "juillet": 7, "août": 8, "aout": 8, "septembre": 9,
+    "octobre": 10, "novembre": 11, "décembre": 12, "decembre": 12,
+    "januar": 1, "februar": 2, "märz": 3, "marz": 3, "mai": 5, "juni": 6,
+    "juli": 7, "oktober": 10, "dezember": 12,
+    "gennaio": 1, "febbraio": 2, "marzo": 3, "aprile": 4, "maggio": 5,
+    "giugno": 6, "luglio": 7, "agosto": 8, "settembre": 9, "ottobre": 10,
+    "dicembre": 12,
+    "enero": 1, "febrero": 2, "abril": 4, "mayo": 5, "junio": 6,
+    "julio": 7, "septiembre": 9, "octubre": 10, "noviembre": 11, "diciembre": 12,
+    "janeiro": 1, "fevereiro": 2, "março": 3, "marco": 3, "abril": 4, "maio": 5,
+    "junho": 6, "julho": 7, "setembro": 9, "outubro": 10, "novembro": 11,
+    "dezembro": 12,
+}
+# Build a regex matching any month name as a whole-word token
+_MONTH_PATTERN = "|".join(sorted(_MONTH_NAMES.keys(), key=len, reverse=True))
 
-    Returns YYYY-MM-DD on success, or '' on failure. CRITICAL: never
-    falls back to today's date — that's the exact bug that put the SFA
-    Nature One Dairy recall in the dashboard at 2026-04-25 instead of
-    its actual publication date 2026-03-15. Rows without a parseable
-    date MUST be dropped by the caller (_item_to_recall).
+# "May 5, 2026" / "May 5 2026" / "5 May 2026" / "5. Mai 2026" / "5 de mayo de 2026"
+_WRITTEN_DATE_RX_MD = re.compile(
+    rf"\b({_MONTH_PATTERN})\s+(\d{{1,2}})(?:st|nd|rd|th)?[,.\s]+(\d{{4}})\b",
+    re.IGNORECASE,
+)
+_WRITTEN_DATE_RX_DM = re.compile(
+    rf"\b(\d{{1,2}})(?:\.|st|nd|rd|th)?\s+(?:de\s+)?({_MONTH_PATTERN})\s+"
+    rf"(?:de\s+)?(\d{{4}})\b",
+    re.IGNORECASE,
+)
+
+
+def _parse_date(tavily_item: Dict[str, Any]) -> Tuple[str, bool]:
+    """Extract publication date from a Tavily/Exa search result.
+
+    Returns ``(YYYY-MM-DD, fallback_flag)`` where ``fallback_flag=True``
+    means we couldn't find a real date and used today as a placeholder.
+    Caller should stamp ``[date-unknown]`` in Notes so claude-check
+    fixes the Date field on its next pass.
+
+    Audit 2026-05-06: previous version returned ``""`` (empty) on no-date
+    and ``_item_to_recall`` dropped the row silently. Production data
+    shows this systematically blocks fresh FDA+CFIA recalls because
+    their pages don't carry standard ``article:published_time`` Open
+    Graph metadata and their title/content uses written-out dates.
+    The fix is to keep the row, mark it for downstream enrichment.
     """
+    # 1. Tavily/Exa-provided published_date field (most reliable when present)
     pd = (tavily_item.get("published_date") or "").strip()
     if pd:
         m = _DATE_RX.search(pd)
         if m:
-            return m.group(0)
-    # Try content/title for an ISO date
-    for fld in ("content", "title"):
-        v = (tavily_item.get(fld) or "")
-        m = _DATE_RX.search(v)
-        if m:
-            return m.group(0)
-    # No fallback to today — return empty so caller drops the row
-    return ""
+            return m.group(0), False
+
+    # 2. Search title + content for any of the supported formats
+    blob = " ".join(
+        str(tavily_item.get(fld) or "")
+        for fld in ("title", "content", "snippet", "description")
+    )
+
+    # 2a. ISO YYYY-MM-DD
+    m = _DATE_RX.search(blob)
+    if m:
+        return m.group(0), False
+
+    # 2b. Written-month "Month Day, Year"  → 2026-05-05
+    m = _WRITTEN_DATE_RX_MD.search(blob)
+    if m:
+        try:
+            mon_name = m.group(1).lower()
+            day = int(m.group(2))
+            year = int(m.group(3))
+            mon = _MONTH_NAMES.get(mon_name)
+            if mon and 1 <= day <= 31 and 2020 <= year <= 2100:
+                return f"{year:04d}-{mon:02d}-{day:02d}", False
+        except (ValueError, KeyError):
+            pass
+
+    # 2c. Written-month "Day Month Year"  → 2026-05-05
+    m = _WRITTEN_DATE_RX_DM.search(blob)
+    if m:
+        try:
+            day = int(m.group(1))
+            mon_name = m.group(2).lower()
+            year = int(m.group(3))
+            mon = _MONTH_NAMES.get(mon_name)
+            if mon and 1 <= day <= 31 and 2020 <= year <= 2100:
+                return f"{year:04d}-{mon:02d}-{day:02d}", False
+        except (ValueError, KeyError):
+            pass
+
+    # 2d. Numeric M/D/Y or D/M/Y (ambiguous — assume M/D/Y for US-leaning
+    # corpus, but accept both interpretations if both look valid)
+    m = _NUMERIC_DATE_RX.search(blob)
+    if m:
+        a, b, year = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        if 2020 <= year <= 2100:
+            # Try M/D first (US format dominates our corpus)
+            if 1 <= a <= 12 and 1 <= b <= 31:
+                return f"{year:04d}-{a:02d}-{b:02d}", False
+            # Fall back to D/M
+            if 1 <= b <= 12 and 1 <= a <= 31:
+                return f"{year:04d}-{b:02d}-{a:02d}", False
+
+    # 3. Last resort — return today's date, flag as fallback so
+    #    _item_to_recall can mark the row "needs claude-check Date enrichment"
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    return today, True
 
 
 # ---------------------------------------------------------------------------
 # Tavily search
 # ---------------------------------------------------------------------------
-def _tavily_search(query: str, max_results: int = 10, days: int = 7) -> List[Dict[str, Any]]:
-    """Single Tavily search. Returns raw result dicts or [] on failure."""
+def _tavily_search(query: str, max_results: int = 10, days: int = 7,
+                   topic: str = "news") -> List[Dict[str, Any]]:
+    """Single Tavily search. Returns raw result dicts or [] on failure.
+
+    Audit 2026-05-06 — added ``topic`` parameter. Pre-fix every query
+    used ``topic="news"`` which restricts Tavily's index to news-domain
+    pages. Government regulator pages on fda.gov, fsis.usda.gov,
+    recalls-rappels.canada.ca etc. are not always classified as "news"
+    in Tavily's taxonomy — they're regulator notices. The news topic
+    over-filtered FDA + CFIA recalls. Passing ``topic="general"`` for
+    site-restricted regulator queries widens the search to the full
+    Tavily index. Generic-language queries keep ``topic="news"`` because
+    those rely on Tavily's news ranking to surface fresh recalls.
+    """
     if not TAVILY_API_KEY:
         log.error("TAVILY_API_KEY not set — skipping search")
         return []
@@ -394,7 +518,7 @@ def _tavily_search(query: str, max_results: int = 10, days: int = 7) -> List[Dic
         "include_answer": False,        # we parse raw results ourselves
         "max_results":  max_results,
         "days":         days,           # restrict to recent N days
-        "topic":        "news",         # recall announcements are news
+        "topic":        topic,          # "general" for site:regulator, "news" for free queries
     }
     try:
         r = requests.post(TAVILY_ENDPOINT, json=body, timeout=30)
@@ -418,34 +542,38 @@ def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
     FIRST — if Tavily's free tier hits its rate limit mid-run, we still
     have full NA coverage. Other regions fill the remaining quota.
     """
-    queries = [
+    # Per-query topic (audit 2026-05-06): site:regulator queries use
+    # "general" because regulator pages aren't always classified as news
+    # in Tavily's taxonomy. Free-text queries keep "news" because those
+    # rely on Tavily's news ranking to surface recent recalls.
+    queries: List[Tuple[str, str]] = [
         # ── PRIMARY REGION: NorthAmerica (run first, deepest coverage) ──
         # FDA: cover the actual recall path AND press-release wording.
         # Broader than `site:fda.gov/safety/recalls food recall pathogen`
         # which dropped Ghirardelli (audit 2026-04-28) because its snippet
         # said only "Potential Foodborne Illness" without naming Salmonella.
-        'site:fda.gov/safety/recalls-market-withdrawals-safety-alerts recall',
-        'site:fda.gov "voluntarily recalls" OR "issues recall"',
-        'site:fsis.usda.gov/recalls-alerts food recall',
-        'site:recalls-rappels.canada.ca food recall',
-        'site:inspection.canada.ca food recall',
-        'site:quebec.ca recall food MAPAQ',
-        # ── Generic global pathogen / hazard sweeps ─────────────────────
-        'food recall salmonella OR listeria OR "e. coli" OR botulism OR campylobacter',
-        'food recall mould OR mold OR "foreign material" OR glass OR "ethylene oxide"',
-        'food recall rodent OR "rat poison" OR rodenticide OR "rodent contamination"',
-        'food recall undeclared allergen OR "may contain"',
+        ('site:fda.gov/safety/recalls-market-withdrawals-safety-alerts recall',  "general"),
+        ('site:fda.gov "voluntarily recalls" OR "issues recall"',                "general"),
+        ('site:fsis.usda.gov/recalls-alerts food recall',                        "general"),
+        ('site:recalls-rappels.canada.ca food recall',                           "general"),
+        ('site:inspection.canada.ca food recall',                                "general"),
+        ('site:quebec.ca recall food MAPAQ',                                     "general"),
+        # ── Generic global pathogen / hazard sweeps (news ranking helps) ─
+        ('food recall salmonella OR listeria OR "e. coli" OR botulism OR campylobacter',  "news"),
+        ('food recall mould OR mold OR "foreign material" OR glass OR "ethylene oxide"',  "news"),
+        ('food recall rodent OR "rat poison" OR rodenticide OR "rodent contamination"',   "news"),
+        ('food recall undeclared allergen OR "may contain"',                              "news"),
         # ── Other-region site:queries (lighter pass) ────────────────────
-        'RASFF notification food alert withdrawal',
-        'site:food.gov.uk food alert recall',
-        'site:fsai.ie food recall alert',
-        'site:rappelconso.gouv.fr rappel alimentaire',
-        'site:foodstandards.gov.au food recall',
+        ('RASFF notification food alert withdrawal',                  "news"),
+        ('site:food.gov.uk food alert recall',                        "general"),
+        ('site:fsai.ie food recall alert',                            "general"),
+        ('site:rappelconso.gouv.fr rappel alimentaire',               "general"),
+        ('site:foodstandards.gov.au food recall',                     "general"),
     ]
     all_results: Dict[str, Dict[str, Any]] = {}
-    for q in queries:
-        log.info("Tavily search: %s", q)
-        results = _tavily_search(q, max_results=10, days=since_days)
+    for q, topic in queries:
+        log.info("Tavily search [topic=%s]: %s", topic, q)
+        results = _tavily_search(q, max_results=10, days=since_days, topic=topic)
         log.info("  -> %d raw results", len(results))
         for r in results:
             url = (r.get("url") or "").strip()
@@ -462,150 +590,20 @@ def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 # Tavily item → Recall (pure Python, no AI)
 # ---------------------------------------------------------------------------
-# ── Known regulator landing/listing pages — never specific recalls ──────
-# Hard-coded set checked by `_is_generic_url`. Any URL appearing here was
-# leaked into Recalls at least once via Exa/Tavily — add new entries when
-# new leaks surface. Compare against URL stripped of trailing slash, query
-# string, and fragment (handled in `_is_generic_url`). All entries lower-
-# cased; scheme included so we don't accidentally reject a path that
-# happens to share a regulator's hostname.
-_KNOWN_REGULATOR_LANDINGS = frozenset({
-    # FSANZ (Australia) — Apr 2026 leak
-    "https://www.foodstandards.gov.au/food-recalls",
-    "https://www.foodstandards.gov.au/food-recalls/recalls",
-    "https://www.foodstandards.gov.au/consumer/safety/recalls",
-    # FDA (USA) — recalls landing
-    "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts",
-    "https://www.fda.gov/safety/recalls",
-    "https://www.fda.gov/food/recalls-outbreaks-emergencies",
-    # USDA FSIS — recalls landing
-    "https://www.fsis.usda.gov/recalls",
-    "https://www.fsis.usda.gov/recalls-alerts",
-    # CFIA (Canada) — recall hub + search shells (audit 2026-05-05).
-    # The bare /en and /fr landings were already covered; the /search/site
-    # advanced-search shell and its locale variants were not. Specific
-    # alert pages live at /<lang>/alert-recall/<slug> and pass through.
-    "https://recalls-rappels.canada.ca/en",
-    "https://recalls-rappels.canada.ca/fr",
-    "https://recalls-rappels.canada.ca/en/search/site",
-    "https://recalls-rappels.canada.ca/fr/search/site",
-    "https://recalls-rappels.canada.ca/en/recherche",
-    "https://recalls-rappels.canada.ca/fr/recherche",
-    "https://inspection.canada.ca/food-recall-warnings-and-allergy-alerts",
-    # FSA (UK) — alerts hub
-    "https://www.food.gov.uk/news-alerts",
-    "https://www.food.gov.uk/about-us/recalls-and-alerts",
-    # FSAI (Ireland) — alerts root (audit 2026-05-05)
-    "https://www.fsai.ie/news-and-alerts/food-alerts",
-    # RappelConso (FR) — fiche check below catches /fiche-rappel/* but the
-    # bare landing page itself needs to be rejected explicitly.
-    "https://rappel.conso.gouv.fr",
-    "https://rappel.conso.gouv.fr/recherche",
-    # AESAN (Spain), AGES (Austria), AFSCA (Belgium), NVWA (Netherlands)
-    "https://www.aesan.gob.es/aecosan/web/seguridad_alimentaria/subseccion/alertas_alimentarias.htm",
-    "https://www.ages.at/konsument/lebensmittelwarnungen",
-    "https://www.afsca.be/professionnels/publications/communications/rappels",
-    "https://www.nvwa.nl/onderwerpen/voedselveiligheid/veiligheidswaarschuwingen",
-    # MPI New Zealand
-    "https://www.mpi.govt.nz/food-safety-home/food-recalls",
-    # ── RASFF Window (EU) — SPA shells (audit 2026-04-29) ──
-    # Specific notification URLs at /screen/notification/<id> are real
-    # pages and must pass; only the search/consumer/landing shells are
-    # rejected here. The RASFF row schema (validate_pending_row + run_all
-    # _missing_required) further requires the URL to be a /notification/
-    # detail page, not anything under /screen/search or /screen/consumers.
-    "https://webgate.ec.europa.eu/rasff-window",
-    "https://webgate.ec.europa.eu/rasff-window/screen",
-    "https://webgate.ec.europa.eu/rasff-window/screen/search",
-    "https://webgate.ec.europa.eu/rasff-window/screen/consumers",
-    "https://webgate.ec.europa.eu/rasff-window/screen/list",
-})
+# ── URL filtering (audit 2026-05-06) ──────────────────────────────────────
+# Hoisted to pipeline/_url_filters.py — single source of truth shared with
+# merge_master, gap_finder_exa, daily_recall_search. Pre-fix, four
+# separate copies of this list drifted apart and search-result-shell URLs
+# (CFIA /search/site, FSANZ /circulars/notification-circular-) sailed past
+# the gap-finders' own filters until merge_master's validate_pending_row
+# rejected them downstream — wasting reviewer slots in the meantime.
+# Importing the shared module guarantees identical filtering everywhere.
+from pipeline._url_filters import (
+    is_generic_url as _is_generic_url,                    # noqa: F401
+    KNOWN_REGULATOR_LANDINGS as _KNOWN_REGULATOR_LANDINGS,  # noqa: F401
+)
 
 
-def _is_generic_url(url: str) -> bool:
-    """True if URL is a generic listing/category/disease/transparency page —
-    not a specific recall fiche. Mirrors the patterns in
-    merge_master.validate_pending_row() — KEEP IN SYNC.
-
-    Drift between this function and merge_master._GENERIC_URL_PATTERNS lets
-    listing pages reach Pending (where they consume one Gemini reviewer
-    slot before merge_master finally rejects them on validate_pending_row).
-    Caught the CFIA /search/site leak on 2026-05-05.
-    """
-    u = url.lower()
-
-    # ── Hard-coded regulator landing/listing pages ──────────────────────
-    # These are real pages that return HTTP 200 (so the URL gate accepts
-    # them) and whose host is a whitelisted regulator domain (so the
-    # `_lookup_source` check accepts them) — but they are NEVER specific
-    # recall pages. Compare against the URL stripped of trailing slash,
-    # query string, and fragment.
-    try:
-        from urllib.parse import urlsplit as _us
-        sp = _us(url)
-        canonical = f"{sp.scheme.lower()}://{sp.netloc.lower()}{sp.path.rstrip('/')}"
-    except Exception:
-        canonical = u.split("?", 1)[0].split("#", 1)[0].rstrip("/")
-    if canonical in _KNOWN_REGULATOR_LANDINGS:
-        return True
-
-    # ── Generic-listing substring filter ──────────────────────────────
-    # Mirrors merge_master._GENERIC_URL_PATTERNS (substring form — these
-    # patterns don't need anchoring). Audit 2026-05-05: original list was
-    # missing /search/site, /search?, /recherche, /buscador, /suche?,
-    # /page/, page=, and the notification-circular family.
-    bad_substrings = (
-        # Original (pre-2026-05-05)
-        "/list?", "/a-z/", "animal-disease",
-        "regulatory-transparency", "/categorie/", "/rubrik/", "/tag/",
-        "vertexaisearch",
-        # Search-result shells (CFIA, FSAI, RappelConso, AESAN, BVL)
-        "/search/site",
-        "/search?",
-        "/recherche?",
-        "/recherche/",
-        "/buscador",
-        "/suche?",
-        # Pagination
-        "/page/",
-        "page=",
-        # Notification circulars / regulatory bulletins
-        "/notification-circular",   # covers singular + plural + index
-        "/circulars/notification-circular-",
-        "/bulletins/",
-        "/news-circulars/",
-    )
-    if any(p in u for p in bad_substrings):
-        return True
-
-    # ── RappelConso fiche-ID sanity ─────────────────────────────────────
-    # Real fiche IDs are 5-digit integers (currently in the 22000s).
-    # Reject:
-    #   - Year-as-fid: /fiche-rappel/2026/Interne
-    #   - Slug-as-fid: /fiche-rappel/2026-04-0305/Interne
-    #   - Sentinel/year values: 2000-2100
-    #   - Implausibly small: < 1000
-    if "rappel.conso.gouv.fr" in u or "rappelconso.gouv.fr" in u:
-        import re as _re
-        m_fid = _re.search(r"/fiche-rappel/([^/]+)", u)
-        if not m_fid:
-            return True  # No fid → not a specific fiche page
-        fid = m_fid.group(1).strip()
-        if not fid.isdigit():
-            return True  # Slug-as-fid hallucination
-        n = int(fid)
-        if n < 1000 or (2000 <= n <= 2100):
-            return True  # Sentinel/year value
-
-    # Bare domain or one-segment paths (homepages, root listings)
-    try:
-        from urllib.parse import urlparse as _up
-        path = (_up(url).path or "").strip("/")
-        if not path:
-            return True  # bare domain
-    except Exception:
-        pass
-    return False
 
 
 def _item_to_recall(item: Dict[str, Any],
@@ -651,14 +649,19 @@ def _item_to_recall(item: Dict[str, Any],
         # Use first sentence of content as fallback product/description
         product = (content.split(". ", 1)[0])[:200]
 
-    date_str = _parse_date(item)
-    # HARD DROP: no date → no row. Same for pre-2026 dates. The merge_master
-    # validate_pending_row gate would catch these too, but dropping here
-    # keeps the Pending insert log clean.
-    if not date_str:
-        return None
+    date_str, date_is_fallback = _parse_date(item)
+    # HARD DROP: pre-2026 dates remain rejected (sentinel/year-mismatch leak).
+    # The "no date" branch is gone — _parse_date now always returns a date,
+    # using today as a placeholder when extraction fails. The placeholder
+    # is flagged via date_is_fallback so we can stamp Notes for claude-check
+    # to fix the Date field during page-content review.
     if date_str < "2026-01-01":
         return None
+    notes_suffix = (
+        f"  [via {finder_name} gap-finder, deterministic extract]"
+        + (" [date-unknown: claude-check please verify Date]"
+           if date_is_fallback else "")
+    )
 
     rec = Recall(
         Date=date_str,
@@ -674,7 +677,7 @@ def _item_to_recall(item: Dict[str, Any],
         Tier=assign_tier(pathogen, outbreak),
         Outbreak=outbreak,
         URL=url,
-        Notes=(content[:300] + f"  [via {finder_name} gap-finder, deterministic extract]"),
+        Notes=(content[:300] + notes_suffix),
     )
     try:
         rec = rec.normalize()

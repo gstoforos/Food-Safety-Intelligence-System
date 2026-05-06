@@ -162,22 +162,70 @@ def _try_openai() -> Tuple[bool, int, str]:
 CASCADE_TIMEOUT_S = int(os.environ.get("GAP_STEP_TIMEOUT", "180"))
 
 
+# ─────────────────────────────────────────────────────────────────────────
+# Pending-row-count helper (audit 2026-05-06).
+#
+# The cascade's success rule used to be just `rc == 0`. That treated a
+# legitimate "Gemini ran but found zero new recalls" as success and stopped
+# the cascade, never trying Claude/OpenAI as a backup. Production data
+# (2026-05-04 → 2026-05-06) shows this misses real fresh recalls regularly
+# — Gemini's grounded search returns [] when its search budget is
+# exhausted or when Google hasn't yet indexed the recall page.
+#
+# The new rule:
+#     rc == 0 AND added > 0  → real success, stop
+#     rc == 0 AND added == 0 → fall-through (try next provider)
+#     rc != 0                → fall-through (existing behavior)
+#
+# Empty result with EVERY cascade step failing is logged loudly so
+# operators can tell "nothing new today" apart from "all providers
+# silently no-op'd".
+# ─────────────────────────────────────────────────────────────────────────
+_XLSX_PATH = Path(os.environ.get(
+    "FSIS_XLSX_PATH",
+    str(Path(__file__).resolve().parent.parent / "docs" / "data" / "recalls.xlsx"),
+))
+
+
+def _pending_count() -> int:
+    """Read the current Pending sheet row count. Used to detect whether a
+    cascade step actually wrote anything new. Resilient to xlsx-missing
+    (returns 0) and to load failure (returns -1, caller treats as 'unknown').
+    """
+    try:
+        if not _XLSX_PATH.exists():
+            return 0
+        import openpyxl
+        wb = openpyxl.load_workbook(_XLSX_PATH, read_only=True, data_only=True)
+        if "Pending" not in wb.sheetnames:
+            wb.close()
+            return 0
+        ws = wb["Pending"]
+        # max_row counts header row too — subtract 1
+        n = max(0, ws.max_row - 1)
+        wb.close()
+        return n
+    except Exception as e:
+        log.warning("_pending_count: failed to read xlsx (%s) — "
+                    "treating as unknown", e)
+        return -1
+
+
 def run_cascade(skip_paid: bool = False, skip_claude: bool = False,
                 skip_openai: bool = False) -> int:
-    """Returns 0 if any provider succeeded, 1 if all failed."""
+    """Run the cascade. Returns 0 if any provider added rows, 1 otherwise.
+
+    Audit 2026-05-06 — success rule tightened. Pre-fix: rc==0 stopped
+    the cascade unconditionally, even when Gemini "succeeded" with zero
+    rows. Post-fix: a step counts as success ONLY if it (a) returned
+    rc==0 AND (b) actually wrote rows to Pending. Empty-result success
+    falls through to the next provider.
+    """
     started = datetime.now(timezone.utc).isoformat()
     log.info("=" * 60)
     log.info("Gap-finder cascade started: %s (per-step timeout=%ds)",
              started, CASCADE_TIMEOUT_S)
 
-    # Step names clarified 2026-04-29 — the previous "Gemini FREE" /
-    # "Gemini PAID" labels were misleading because step 1 internally
-    # rotates through ALL keys (free first, then paid as fallback). What
-    # actually distinguishes the two cascade steps:
-    #   Step 1: try the full key chain, free-first
-    #   Step 2: skip the free key entirely (use paid only) — for use
-    #           when free was rate-limited and the rate limit hasn't
-    #           reset yet, so retrying it would just waste 60s timing out
     steps: List[Tuple[str, Callable[[], Tuple[bool, int, str]]]] = [
         ("Gemini (free→paid)", lambda: _try_gemini(force_paid=False)),
     ]
@@ -188,10 +236,22 @@ def run_cascade(skip_paid: bool = False, skip_claude: bool = False,
     if not skip_openai:
         steps.append(("OpenAI",      _try_openai))
 
+    # Snapshot Pending count BEFORE the cascade — every per-step delta is
+    # measured against this. If a step fails (rc!=0 or exception), Pending
+    # is unchanged and the next step still measures from the original
+    # baseline. If a step succeeds with rows, the next step's "added"
+    # measures only its own contribution.
+    initial_pending = _pending_count()
+    log.info("Cascade baseline: Pending has %d rows", initial_pending)
+
     last_msg = ""
+    total_added = 0
+    cascade_summary: List[str] = []  # provider-by-provider for final log
+
     for idx, (name, fn) in enumerate(steps, 1):
         log.info("─" * 50)
         log.info("Cascade call %d/%d: %s", idx, len(steps), name)
+        before = _pending_count()
         t0 = time.time()
         try:
             with step_timeout(CASCADE_TIMEOUT_S):
@@ -200,20 +260,59 @@ def run_cascade(skip_paid: bool = False, skip_claude: bool = False,
             ok, msg = False, f"timeout: {e}"
         elapsed = time.time() - t0
         last_msg = msg
+        after = _pending_count()
+        # added = how many rows this step contributed. -1 means we couldn't
+        # measure (e.g. xlsx load failed); treat as 0 for accounting but
+        # log a warning so operators know the metric is unreliable.
+        if before < 0 or after < 0:
+            added_this_step = 0
+            log.warning("Cascade row-count metric unreliable (before=%d after=%d)",
+                        before, after)
+        else:
+            added_this_step = max(0, after - before)
+        total_added += added_this_step
 
-        if ok:
+        # Step-level success classification:
+        #   rc==0 AND added>0  → STOP (real success)
+        #   rc==0 AND added==0 → fall through (empty-result; try next)
+        #   rc!=0              → fall through (failure)
+        if ok and added_this_step > 0:
             log.info("✓ Cascade success at step %d (%s) in %.1fs — STOP",
                      idx, name, elapsed)
             log.info("  Message: %s", msg)
+            log.info("  Added: %d new rows to Pending", added_this_step)
+            cascade_summary.append(f"{name}=+{added_this_step}")
+            log.info("Cascade summary: %s | total +%d rows",
+                     " → ".join(cascade_summary), total_added)
             return 0
+        elif ok and added_this_step == 0:
+            log.warning("⊘ Step %d (%s) ran successfully in %.1fs but added "
+                        "ZERO rows — falling through to next provider",
+                        idx, name, elapsed)
+            log.warning("  Message: %s", msg)
+            cascade_summary.append(f"{name}=0(empty)")
         else:
             log.warning("✗ Step %d (%s) failed in %.1fs — falling through",
                         idx, name, elapsed)
             log.warning("  Reason: %s", msg)
+            cascade_summary.append(f"{name}=fail")
 
-    log.error("All %d cascade providers failed. Last message: %s",
-              len(steps), last_msg)
+    # All steps exhausted. Determine outcome:
+    if total_added > 0:
+        # Some intermediate step added rows but its rc said 'success';
+        # subsequent steps still ran. This shouldn't happen with the
+        # current logic (a successful step returns immediately) but is
+        # defensible if a step writes rows then returns rc!=0 by accident.
+        log.info("✓ Cascade completed with +%d total rows (across %d steps)",
+                 total_added, len(steps))
+        log.info("Cascade summary: %s", " → ".join(cascade_summary))
+        return 0
+    log.error("All %d cascade providers ran but added ZERO rows total.",
+              len(steps))
+    log.error("Cascade summary: %s", " → ".join(cascade_summary))
+    log.error("Last message: %s", last_msg)
     return 1
+
 
 
 def main() -> int:
