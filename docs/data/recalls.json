@@ -80,22 +80,6 @@
   "Notes": "[RASFF #2026.3902; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=839461]"
  },
  {
-  "Date": "2026-05-04",
-  "Source": "RASFF (EU)",
-  "Company": "Origin: Germany | Notifying: Netherlands",
-  "Brand": "—",
-  "Product": "salmonella in various chicken products from Germany",
-  "Pathogen": "Salmonella",
-  "Reason": "salmonella in various chicken products from Germany; risk: serious; category: poultry meat and poultry meat products",
-  "Class": "Information",
-  "Country": "Germany",
-  "Region": "Europe",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841489",
-  "Notes": "[RASFF #2026.3906; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=841489]"
- },
- {
   "Date": "2026-05-03",
   "Source": "RappelConso (FR)",
   "Company": "",
@@ -414,22 +398,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841078",
   "Notes": "[RASFF #2026.3792; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=841078]"
- },
- {
-  "Date": "2026-04-30",
-  "Source": "Taiwan FDA",
-  "Company": "Bebelac",
-  "Brand": "Bebelac",
-  "Product": "Infant Milk Formula (Bebelac 1 400mg, Bebelac 1 900mg, Bebelac AR 400mg)",
-  "Pathogen": "Bacillus cereus",
-  "Reason": "Possible Cereulide toxin contamination",
-  "Class": "Recall",
-  "Country": "Jordan (originating recall), reported by Taiwan",
-  "Region": "Unknown",
-  "Tier": 3,
-  "Outbreak": 1,
-  "URL": "https://www.fda.gov.tw/TC/siteContent.aspx?sid=1938&id=422",
-  "Notes": "URL returns 404 error ('The Resource cannot be found'); page content is not accessible and contains no recall data to verify against the row | URL returns 404 error ('The Resource cannot be found'); page content is not accessible and contains no recall data to verify against the row | Alert from Jordan JFDA via PIC/S RAPID ALERT SYSTEM. Taiwan FDA noted no import inspection records for these specific products in Taiwan.  [via Gemini gap-finder + Google Search] [gap-gate 2026-05-01: pending_gap →"
  },
  {
   "Date": "2026-04-29",
