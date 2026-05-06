@@ -481,13 +481,22 @@ _KNOWN_REGULATOR_LANDINGS = frozenset({
     # USDA FSIS — recalls landing
     "https://www.fsis.usda.gov/recalls",
     "https://www.fsis.usda.gov/recalls-alerts",
-    # CFIA (Canada) — recall hub
+    # CFIA (Canada) — recall hub + search shells (audit 2026-05-05).
+    # The bare /en and /fr landings were already covered; the /search/site
+    # advanced-search shell and its locale variants were not. Specific
+    # alert pages live at /<lang>/alert-recall/<slug> and pass through.
     "https://recalls-rappels.canada.ca/en",
     "https://recalls-rappels.canada.ca/fr",
+    "https://recalls-rappels.canada.ca/en/search/site",
+    "https://recalls-rappels.canada.ca/fr/search/site",
+    "https://recalls-rappels.canada.ca/en/recherche",
+    "https://recalls-rappels.canada.ca/fr/recherche",
     "https://inspection.canada.ca/food-recall-warnings-and-allergy-alerts",
     # FSA (UK) — alerts hub
     "https://www.food.gov.uk/news-alerts",
     "https://www.food.gov.uk/about-us/recalls-and-alerts",
+    # FSAI (Ireland) — alerts root (audit 2026-05-05)
+    "https://www.fsai.ie/news-and-alerts/food-alerts",
     # RappelConso (FR) — fiche check below catches /fiche-rappel/* but the
     # bare landing page itself needs to be rejected explicitly.
     "https://rappel.conso.gouv.fr",
@@ -516,27 +525,13 @@ _KNOWN_REGULATOR_LANDINGS = frozenset({
 def _is_generic_url(url: str) -> bool:
     """True if URL is a generic listing/category/disease/transparency page —
     not a specific recall fiche. Mirrors the patterns in
-    merge_master.validate_pending_row().
+    merge_master.validate_pending_row() — KEEP IN SYNC.
 
-    Audit 2026-04-29: also catches structurally-bogus RappelConso fiche
-    IDs that Gemini-style hallucinations slip in. Tavily and Exa are
-    crawler-indexed (they return real pages they've seen, not invented
-    URLs), so they almost never produce these directly — but `daily_-
-    recall_search_exa.py` shares this filter with the Gemini path, and
-    it's cheap enough to apply universally.
-
-    Audit 2026-04-29 (leak forensics): an Exa search hit returned the
-    FSANZ landing page (foodstandards.gov.au/food-recalls) whose <title>
-    starts with "Australian food recalls" and whose body intro mentions
-    Listeria as an example hazard. The path-segment heuristic below
-    *claims* to catch one-segment paths, but in fact it only catches the
-    bare-domain case — `/food-recalls` strips to a non-empty string.
-    Result: the row was promoted to Recalls with Company="Australian food",
-    URL=the listing page itself. The per-regulator scrapers (e.g. FSANZ
-    `_LISTING_URLS`) reject these correctly; gap-finders bypass those
-    scrapers and write directly to Pending, so the rejection has to live
-    here too. New `_KNOWN_REGULATOR_LANDINGS` set below mirrors that
-    pattern. Add new entries as new leaks surface."""
+    Drift between this function and merge_master._GENERIC_URL_PATTERNS lets
+    listing pages reach Pending (where they consume one Gemini reviewer
+    slot before merge_master finally rejects them on validate_pending_row).
+    Caught the CFIA /search/site leak on 2026-05-05.
+    """
     u = url.lower()
 
     # ── Hard-coded regulator landing/listing pages ──────────────────────
@@ -554,10 +549,31 @@ def _is_generic_url(url: str) -> bool:
     if canonical in _KNOWN_REGULATOR_LANDINGS:
         return True
 
+    # ── Generic-listing substring filter ──────────────────────────────
+    # Mirrors merge_master._GENERIC_URL_PATTERNS (substring form — these
+    # patterns don't need anchoring). Audit 2026-05-05: original list was
+    # missing /search/site, /search?, /recherche, /buscador, /suche?,
+    # /page/, page=, and the notification-circular family.
     bad_substrings = (
-        "page=", "/list?", "/a-z/", "animal-disease",
+        # Original (pre-2026-05-05)
+        "/list?", "/a-z/", "animal-disease",
         "regulatory-transparency", "/categorie/", "/rubrik/", "/tag/",
-        "vertexaisearch",  # defensive (Tavily wouldn't return these but be safe)
+        "vertexaisearch",
+        # Search-result shells (CFIA, FSAI, RappelConso, AESAN, BVL)
+        "/search/site",
+        "/search?",
+        "/recherche?",
+        "/recherche/",
+        "/buscador",
+        "/suche?",
+        # Pagination
+        "/page/",
+        "page=",
+        # Notification circulars / regulatory bulletins
+        "/notification-circular",   # covers singular + plural + index
+        "/circulars/notification-circular-",
+        "/bulletins/",
+        "/news-circulars/",
     )
     if any(p in u for p in bad_substrings):
         return True
