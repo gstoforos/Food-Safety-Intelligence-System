@@ -8,23 +8,37 @@
   "week_end": "2026-05-08",
   "week_start_display": "2 May",
   "week_end_display": "8 May 2026",
-  "generated_utc": "2026-05-06T05:36:06.482987+00:00",
+  "generated_utc": "2026-05-06T18:19:05.600362+00:00",
   "stats": {
-    "total": 8,
-    "tier1": 5,
+    "total": 20,
+    "tier1": 10,
     "outbreaks": 0,
-    "delta": -31,
-    "delta_pct": -79
+    "delta": -30,
+    "delta_pct": -60
   },
   "leading_pathogen": {
-    "name": "Listeria monocytogenes",
-    "cases": 3,
-    "pct": 38
+    "name": "Salmonella spp.",
+    "cases": 9,
+    "pct": 45
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
+      "date": "2026-05-05",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Origin: Belgium | Notifying: Belgium",
+      "brand": "\u2014",
+      "product": "Listeria monocytogenes in ham from Belgium",
+      "country": "Belgium",
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841909"
+    },
+    {
+      "rank": 2,
       "date": "2026-05-04",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -38,7 +52,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22177/Interne"
     },
     {
-      "rank": 2,
+      "rank": 3,
       "date": "2026-05-04",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -52,7 +66,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22173/Interne"
     },
     {
-      "rank": 3,
+      "rank": 4,
       "date": "2026-05-04",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -66,35 +80,21 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22156/Interne"
     },
     {
-      "rank": 4,
-      "date": "2026-05-03",
+      "rank": 5,
+      "date": "2026-05-05",
       "pathogen": "Salmonella",
       "pathogen_raw": "Salmonella",
       "tier": 1,
       "outbreak": false,
-      "company": "",
-      "brand": "Herta",
-      "product": "Herta",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22176/Interne"
-    },
-    {
-      "rank": 5,
-      "date": "2026-05-04",
-      "pathogen": "Salmonella",
-      "pathogen_raw": "Salmonella",
-      "tier": 2,
-      "outbreak": false,
-      "company": "Origin: Poland | Notifying: Lithuania",
-      "brand": "\u2014",
-      "product": "Salmonella Infantis in fresh broiler chicken thigh meat from Poland",
-      "country": "Poland",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839461"
+      "company": "Alarjawi (recalling firm); distributed in Ontario",
+      "brand": "Alarjawi",
+      "product": "Green Zaatar (spice mix)",
+      "country": "Canada",
+      "source": "CFIA",
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/alarjawi-brand-green-zaatar-recalled-due-salmonella"
     }
   ],
-  "country_count": 4,
-  "updated_at": "2026-05-06T05:36:06.482987+00:00",
+  "country_count": 11,
+  "updated_at": "2026-05-06T18:19:05.600362+00:00",
   "regenerated_for_late_data": true
 }
