@@ -214,8 +214,15 @@ INSTRUCTIONS:
                      date on the page? (±1 day tolerance for tz quirks)
    • company_match — does the page mention the row's Company?
                      "Various brands", "Various producers", "Unbranded",
-                     "sans marque", or "—" are all legitimate values
-                     when the page itself doesn't name a single company.
+                     "sans marque", or "—" are legitimate values ONLY
+                     when the page itself doesn't name a single company
+                     (multi-producer recalls, generic raw products, bulk
+                     commodity alerts). If the page DOES name a specific
+                     brand or manufacturer mid-page (typical for retail
+                     recalls — RappelConso, FDA, CFIA — even when the
+                     row says "Unbranded"), set company_match=false so
+                     the row gets re-scraped on the next pass instead of
+                     being promoted with a wrong Company value.
    • product_match — does the page describe the row's Product?
    • pathogen_match — does the page identify the row's Pathogen?
                      (e.g. "Listeria", "Salmonella", "cereulide",
@@ -557,6 +564,38 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Optional[str], Optional[str]]:
         return "fail", None, f"extraction_garbage: Company=Brand={company!r} | {short_reason}"
     if re.search(r"/(home|index|main|welcome)/?$", final_url.lower()):
         return "fail", None, f"extraction_garbage: URL is landing page | {short_reason}"
+
+    # Company-placeholder enforcement (audit 2026-05-06).
+    # Production data showed RappelConso V2 API returning empty Company
+    # fields for retail-level recalls (fiches 22184/22186/22188 had
+    # Company="Unbranded" while the actual page named the producer
+    # mid-page). Pre-fix, claude-check accepted "Unbranded" as a
+    # legitimate value because the prompt instructs it to treat
+    # "Unbranded"/"sans marque"/"—" as legitimate when the page itself
+    # doesn't name a single company. But Claude's own `company_match`
+    # signal said the page DID name a company — so accepting Unbranded
+    # was wrong.
+    #
+    # New rule: if Claude reports company_match=false AND the row's
+    # Company field is a placeholder ("Unbranded", "—", "sans marque",
+    # empty, "various brands"), fail the row so it stays in Pending for
+    # the next reviewer pass to retry with a richer scrape. Multi-producer
+    # recalls (where Unbranded is genuinely correct) will have
+    # company_match=true from Claude (since the page also says "Various"
+    # / "Multiple" / "—") and pass through unchanged.
+    company_match = result.get("company_match", True)
+    placeholder_companies = {
+        "", "—", "-", "unbranded", "sans marque",
+        "various brands", "various producers", "multiple brands",
+        "no brand", "marque inconnue", "n/a", "na",
+    }
+    is_rasff = "rasff" in str(row.get("Source") or "").lower()
+    if (not company_match and not is_rasff and company in placeholder_companies):
+        return ("fail", None,
+                f"placeholder_company_with_company_mismatch: "
+                f"Company={row.get('Company')!r} but Claude says page "
+                f"DOES name a company → row needs re-scrape with full "
+                f"field probing | {short_reason}")
 
     return verdict, date_corr, short_reason
 
