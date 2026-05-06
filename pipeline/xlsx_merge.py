@@ -59,6 +59,21 @@ def _news_dedup_key(row: Dict[str, Any]) -> str:
     return f"{row.get('Published (UTC)','')}|{title}"
 
 
+def _wr_dedup_key(row: Dict[str, Any]) -> str:
+    """Weekly_Review dedup key — URL+Date, matching the rule used by
+    pipeline.weekly_review_capture._existing_keys.
+
+    A row is uniquely identified by its (URL, Date) pair within the
+    Weekly_Review sheet. If two pushes both wrote the same recall to
+    Weekly_Review (different timestamps, identical URL+Date), they
+    collapse to one row in the merge — preserving the earlier-written
+    one's Week_Added, Reviewed, and audit-trail fields.
+    """
+    url = (str(row.get("URL", "")) or "").strip().lower()
+    d = str(row.get("Date", ""))[:10]
+    return f"{url}|{d}" if url else f"||{d}|{row.get('Pathogen','')}"
+
+
 def _read_sheet(xlsx_path: Path, sheet: str) -> Tuple[List[str], List[Dict[str, Any]]]:
     if not xlsx_path.exists():
         return [], []
@@ -129,7 +144,11 @@ def merge_xlsx_with_remote(
     pen_headers, pen_remote = _read_sheet(remote_path, "Pending")
     _, pen_ours = _read_sheet(ours_path, "Pending")
     if not pen_headers:
-        pen_headers = rec_headers + ["ScrapedAt", "Status"]
+        # Audit 2026-05-06 — added RejectedBy column (Phase A counter
+        # support). Without this, push-retry conflicts would silently
+        # strip the RejectedBy column, breaking the 2-reviewer-rejection
+        # delete logic in merge_master.cleanup_orphan_rejected.
+        pen_headers = rec_headers + ["ScrapedAt", "Status", "RejectedBy"]
     pen_merged_raw = _merge_unique(pen_remote, pen_ours, _dedup_key)
     pen_merged = [r for r in pen_merged_raw if _dedup_key(r) not in rec_keys]
 
@@ -142,12 +161,46 @@ def merge_xlsx_with_remote(
         )
     news_merged = _merge_unique(news_remote, news_ours, _news_dedup_key)
 
+    # ── Weekly_Review (audit 2026-05-06) ──────────────────────────────
+    # Pre-2026-05-06 this module silently dropped the Weekly_Review sheet
+    # on every push-retry conflict. The xlsx_merge.merge_xlsx_with_remote
+    # path created a fresh workbook with only Recalls/Pending/NEWS, so any
+    # operator-built or mailer-state Weekly_Review tab was destroyed on
+    # the next news-feed or merge-master tick.
+    #
+    # Now we union both sides by URL+Date dedup (matches the rule that
+    # weekly_review_capture.record_promotions uses). Headers come from
+    # remote if present, else from ours, else from the Phase B canonical
+    # template.
+    wr_headers, wr_remote = _read_sheet(remote_path, "Weekly_Review")
+    _, wr_ours = _read_sheet(ours_path, "Weekly_Review")
+    if not wr_headers:
+        _, wr_ours_headers_attempt = wr_ours, None
+        # fall back to ours' headers if available
+        wr_headers_local, _ = _read_sheet(ours_path, "Weekly_Review")
+        if wr_headers_local:
+            wr_headers = wr_headers_local
+        else:
+            # Canonical schema used by pipeline/weekly_review_capture.py
+            wr_headers = rec_headers + [
+                "DateAdded", "LastUpdated", "LastChecked",
+                "Week_Added", "Reviewed",
+            ]
+    wr_merged = _merge_unique(wr_remote, wr_ours, _wr_dedup_key)
+
     wb = Workbook()
     rec_ws = wb.active
     rec_ws.title = "Recalls"
     _write_sheet(rec_ws, rec_headers, rec_merged)
     pen_ws = wb.create_sheet("Pending")
     _write_sheet(pen_ws, pen_headers, pen_merged)
+    if wr_merged or wr_remote or wr_ours:
+        # Only create Weekly_Review if at least one side had data.
+        # If both sides had ZERO Weekly_Review rows AND no Weekly_Review
+        # sheet existed, don't create an empty one — record_promotions
+        # will create it on the next promotion.
+        wr_ws = wb.create_sheet("Weekly_Review")
+        _write_sheet(wr_ws, wr_headers, wr_merged)
     news_ws = wb.create_sheet("NEWS")
     _write_sheet(news_ws, news_headers, news_merged)
     wb.save(out_path)
@@ -159,6 +212,9 @@ def merge_xlsx_with_remote(
         "pending_remote": len(pen_remote),
         "pending_ours":   len(pen_ours),
         "pending_merged": len(pen_merged),
+        "weekly_review_remote": len(wr_remote),
+        "weekly_review_ours":   len(wr_ours),
+        "weekly_review_merged": len(wr_merged),
         "news_remote":    len(news_remote),
         "news_ours":      len(news_ours),
         "news_merged":    len(news_merged),
