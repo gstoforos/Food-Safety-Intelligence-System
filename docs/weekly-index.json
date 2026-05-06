@@ -5,12 +5,12 @@
     "year": 2026,
     "week_start": "2026-04-25",
     "week_end": "2026-05-01",
-    "generated": "2026-05-01T08:00:27.882111+00:00",
-    "total": 16,
-    "tier1": 12,
+    "generated": "2026-05-06T19:30:56.296632+00:00",
+    "total": 50,
+    "tier1": 22,
     "outbreaks": 0,
-    "top_pathogen": "Listeria monocytogenes",
-    "summary": "Week 18 saw 16 pathogen recalls with Listeria monocytogenes as primary concern."
+    "top_pathogen": "Salmonella spp.",
+    "summary": "Week 18 saw 50 pathogen recalls with Salmonella spp. as primary concern."
   },
   {
     "filename": "2026-W17.html",
@@ -18,12 +18,12 @@
     "year": 2026,
     "week_start": "2026-04-18",
     "week_end": "2026-04-24",
-    "generated": "2026-05-01T08:00:27.885820+00:00",
-    "total": 42,
-    "tier1": 33,
+    "generated": "2026-05-06T19:30:56.296632+00:00",
+    "total": 79,
+    "tier1": 35,
     "outbreaks": 3,
-    "top_pathogen": "Listeria monocytogenes",
-    "summary": "Week 17 saw 42 pathogen recalls with Listeria monocytogenes as primary concern."
+    "top_pathogen": "Salmonella spp.",
+    "summary": "Week 17 saw 79 pathogen recalls with Salmonella spp. as primary concern."
   },
   {
     "filename": "2026-W16.html",
@@ -31,12 +31,12 @@
     "year": 2026,
     "week_start": "2026-04-11",
     "week_end": "2026-04-17",
-    "generated": "2026-05-01T08:00:27.889406+00:00",
-    "total": 28,
-    "tier1": 19,
+    "generated": "2026-05-06T19:30:56.296632+00:00",
+    "total": 68,
+    "tier1": 25,
     "outbreaks": 0,
-    "top_pathogen": "Listeria monocytogenes",
-    "summary": "Week 16 saw 28 pathogen recalls with Listeria monocytogenes as primary concern."
+    "top_pathogen": "Salmonella spp.",
+    "summary": "Week 16 saw 68 pathogen recalls with Salmonella spp. as primary concern."
   },
   {
     "filename": "2026-W15.html",
@@ -44,12 +44,12 @@
     "year": 2026,
     "week_start": "2026-04-04",
     "week_end": "2026-04-10",
-    "generated": "2026-05-01T08:00:27.893070+00:00",
-    "total": 110,
-    "tier1": 101,
+    "generated": "2026-05-06T19:30:56.296632+00:00",
+    "total": 127,
+    "tier1": 106,
     "outbreaks": 2,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "Week 15 saw 110 pathogen recalls with Listeria monocytogenes as primary concern."
+    "summary": "Week 15 saw 127 pathogen recalls with Listeria monocytogenes as primary concern."
   },
   {
     "filename": "2026-W14.html",
@@ -109,12 +109,12 @@
     "year": 2026,
     "week_start": "2026-02-28",
     "week_end": "2026-03-06",
-    "generated": "2026-05-01T08:00:27.910961+00:00",
+    "generated": "2026-05-06T19:30:56.296632+00:00",
     "total": 6,
     "tier1": 6,
     "outbreaks": 1,
-    "top_pathogen": "Bacillus cereus / Cereulide",
-    "summary": "Week 10 saw 6 pathogen recalls with Bacillus cereus / Cereulide as primary concern."
+    "top_pathogen": "Salmonella spp.",
+    "summary": "Week 10 saw 6 pathogen recalls with Salmonella spp. as primary concern."
   },
   {
     "filename": "2026-W09.html",
@@ -148,12 +148,12 @@
     "year": 2026,
     "week_start": "2026-02-07",
     "week_end": "2026-02-13",
-    "generated": "2026-05-01T08:00:27.921682+00:00",
+    "generated": "2026-05-06T19:30:56.296632+00:00",
     "total": 7,
     "tier1": 5,
     "outbreaks": 2,
-    "top_pathogen": "Norovirus",
-    "summary": "Week 7 saw 7 pathogen recalls with Norovirus as primary concern."
+    "top_pathogen": "Salmonella spp.",
+    "summary": "Week 7 saw 7 pathogen recalls with Salmonella spp. as primary concern."
   },
   {
     "filename": "2026-W06.html",
@@ -161,12 +161,12 @@
     "year": 2026,
     "week_start": "2026-01-31",
     "week_end": "2026-02-06",
-    "generated": "2026-05-01T08:00:27.925291+00:00",
+    "generated": "2026-05-06T19:30:56.296632+00:00",
     "total": 5,
     "tier1": 5,
     "outbreaks": 0,
-    "top_pathogen": "Salmonella Enteritidis",
-    "summary": "Week 6 saw 5 pathogen recalls with Salmonella Enteritidis as primary concern."
+    "top_pathogen": "Salmonella spp.",
+    "summary": "Week 6 saw 5 pathogen recalls with Salmonella spp. as primary concern."
   },
   {
     "filename": "2026-W05.html",
@@ -174,12 +174,12 @@
     "year": 2026,
     "week_start": "2026-01-24",
     "week_end": "2026-01-30",
-    "generated": "2026-05-01T08:00:27.928822+00:00",
+    "generated": "2026-05-06T19:30:56.296632+00:00",
     "total": 2,
     "tier1": 2,
     "outbreaks": 1,
-    "top_pathogen": "Salmonella Newport",
-    "summary": "Week 5 saw 2 pathogen recalls with Salmonella Newport as primary concern."
+    "top_pathogen": "Bacillus cereus / Cereulide",
+    "summary": "Week 5 saw 2 pathogen recalls with Bacillus cereus / Cereulide as primary concern."
   },
   {
     "filename": "2026-W04.html",

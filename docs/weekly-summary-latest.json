@@ -4,27 +4,69 @@
   "dashboard_url": "https://www.advfood.tech/fsis-recalls",
   "week_num": 18,
   "year": 2026,
-  "week_start": "2026-04-27",
-  "week_end": "2026-05-03",
-  "week_start_display": "27 Apr",
-  "week_end_display": "3 May 2026",
-  "generated_utc": "2026-05-01T08:00:27.948141+00:00",
+  "week_start": "2026-04-25",
+  "week_end": "2026-05-01",
+  "week_start_display": "25 Apr",
+  "week_end_display": "1 May 2026",
+  "generated_utc": "2026-05-06T19:32:05.297222+00:00",
   "stats": {
-    "total": 16,
-    "tier1": 12,
+    "total": 50,
+    "tier1": 22,
     "outbreaks": 0,
-    "delta": -22,
-    "delta_pct": -58
+    "delta": -29,
+    "delta_pct": -37
   },
   "leading_pathogen": {
-    "name": "Listeria monocytogenes",
-    "cases": 7,
-    "pct": 44
+    "name": "Salmonella spp.",
+    "cases": 19,
+    "pct": 38
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
+      "date": "2026-05-01",
+      "pathogen": "Bacillus cereus / Cereulide",
+      "pathogen_raw": "Cereulide (B. cereus toxin)",
+      "tier": 1,
+      "outbreak": false,
+      "company": "RASFF \u2014 origin: Ireland",
+      "brand": "Unbranded",
+      "product": "Infant formula from Ireland",
+      "country": "Ireland",
+      "source": "RASFF",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841474"
+    },
+    {
+      "rank": 2,
+      "date": "2026-05-01",
+      "pathogen": "Bacillus cereus / Cereulide",
+      "pathogen_raw": "Cereulide (B. cereus toxin)",
+      "tier": 1,
+      "outbreak": false,
+      "company": "RASFF \u2014 origin: Poland",
+      "brand": "Unbranded",
+      "product": "Infant formula manufactured in Poland",
+      "country": "Poland",
+      "source": "RASFF",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841471"
+    },
+    {
+      "rank": 3,
+      "date": "2026-05-01",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Sun Rich Foods Canada Inc.",
+      "brand": "Unbranded",
+      "product": "Broccoli Carbonara Pasta Salad, 3.27 kg (UPC 060243020739; multiple lot codes BB 26 MR 26 \u2192 BB 26 AL 10)",
+      "country": "Canada",
+      "source": "CFIA",
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-broccoli-carbonara-pasta-salad-recalled-due-listeria-monocytogenes"
+    },
+    {
+      "rank": 4,
       "date": "2026-04-30",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -38,7 +80,7 @@
       "url": "https://www.foodstandards.gov.au/food-recalls/recall-alert/concordia-traders-aust-pty-ltd-enoki-mushroom-350g"
     },
     {
-      "rank": 2,
+      "rank": 5,
       "date": "2026-04-30",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -46,53 +88,11 @@
       "outbreak": false,
       "company": "Carrefour France",
       "brand": "Unbranded",
-      "product": "Ground beef (steak haché), sold at the traditional counter on customer demand — Carrefour Market Beuzeville ONLY",
+      "product": "Ground beef (steak hach\u00e9), sold at the traditional counter on customer demand \u2014 Carrefour Market Beuzeville ONLY",
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22159/Interne"
-    },
-    {
-      "rank": 3,
-      "date": "2026-04-28",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Le Fromager Des Halles",
-      "brand": "Unbranded",
-      "product": "Spoonable Gorgonzola DOP, plastic pot (Lot 60023, use-by between 2026-04-07 and 2026-05-24)",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22145/Interne"
-    },
-    {
-      "rank": 4,
-      "date": "2026-04-28",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Amandis",
-      "brand": "LES ATELIERS DE SEBASTIEN",
-      "product": "Goat-cheese and leek gratin (Lot 1132600010, use-by 2026-05-07)",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22142/Interne"
-    },
-    {
-      "rank": 5,
-      "date": "2026-04-28",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Amandis",
-      "brand": "LES ATELIERS DE SEBASTIEN",
-      "product": "Bruschetta — varieties: 4 fromages, catalane, flammekueche, italienne, kebab, margarita, océane (Lots 1132600047 to 1132600053, use-by 2026-04-29)",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22141/Interne"
     }
   ],
-  "country_count": 4
+  "country_count": 20
 }
