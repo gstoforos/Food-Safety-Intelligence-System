@@ -1050,6 +1050,24 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
         txt = _call_gemini_grounded(prompt, system=GEMINI_GATE_SYSTEM)
 
         got_response = False
+        # Audit 2026-05-06: Pre-fix, when Gemini returned prose instead of
+        # JSON the parse failure left got_response=False, which made the
+        # fallback loop below default rows to PASS ("ok (gemini unreached,
+        # url verified)"). This was unsafe: Gemini DID respond — just
+        # incoherently — so we have no signal that the row is actually
+        # clean. Production log on 2026-05-06 19:12 showed two sequential
+        # parse failures where the gate marked all 11 alive rows as
+        # "pass, 0 fail" without any actual verification.
+        #
+        # Fix: track the cause separately. If Gemini was unreachable
+        # (no text returned at all — likely network/auth/quota), the
+        # URL is still alive (validated in step 1) so default-pass is
+        # safe. But if Gemini RESPONDED with non-JSON prose, we know
+        # the model was confused and we should NOT trust it — keep the
+        # row in Pending for the next gate run (status STATUS_REJECTED
+        # is reset at the start of each run, so this is a retry, not a
+        # permanent rejection).
+        gemini_responded_with_prose = False
         if txt:
             try:
                 data = json.loads(_strip_fences(txt))
@@ -1132,6 +1150,12 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                 got_response = True
             except json.JSONDecodeError as e:
                 log.warning("Gemini JSON parse failed: %s | %s", e, txt[:200])
+                # Gemini RESPONDED but not in JSON. The model is confused
+                # (saw a hard row, hit a guardrail, or got stuck mid-thought).
+                # Mark this so the fallback path defaults to FAIL — the row
+                # stays in Pending for the next run instead of being silently
+                # promoted with no actual verification.
+                gemini_responded_with_prose = True
 
         # Fill any uncovered rows with deterministic fallback
         for j in range(len(chunk)):
@@ -1145,11 +1169,27 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                 decisions[real_idx] = (False,
                                        det_fail[real_idx] + " (gemini unreached)",
                                        None, None, "")
+            elif gemini_responded_with_prose:
+                # Audit 2026-05-06: parse-failure-defaults-to-FAIL.
+                # Gemini responded but with non-JSON prose — we have NO
+                # signal this row is OK. Mark it for retry. The row
+                # stays in Pending; next gate run will try again, and
+                # the cost-saver pre-pass may handle it deterministically
+                # if its smell improved (claude-check often reformats
+                # ambiguous rows between gate runs).
+                decisions[real_idx] = (False,
+                                       "gemini parse failed (prose) — retry next run",
+                                       None, None, "")
             elif not got_response:
+                # Gemini API genuinely unreachable (no text returned).
+                # URL is alive (validated in step 1) and required fields
+                # are present (det check passed). Safe to default-pass.
                 decisions[real_idx] = (True,
                                        "ok (gemini unreached, url verified)",
                                        None, None, "")
             else:
+                # got_response=True but this specific row wasn't in
+                # Gemini's decisions array. Treat the same as unreached.
                 decisions[real_idx] = (True,
                                        "ok (gemini silent, url verified)",
                                        None, None, "")
