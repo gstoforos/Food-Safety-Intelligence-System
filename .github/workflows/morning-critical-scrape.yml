@@ -76,7 +76,7 @@ jobs:
           GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
           OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
           GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
-          AGENCIES_FILTER: "FDA,USDA FSIS,CFIA,RASFF (EU),FSA (UK),RappelConso (FR),BVL (DE),AESAN (ES),AGES (AT),FSANZ (AU),MPI (NZ),EFET (GR)"
+          AGENCIES_FILTER: "FDA,USDA FSIS,CFIA,RASFF (EU),FSA (UK),FSAI (IE),RappelConso (FR),BVL (DE),AESAN (ES),AGES (AT),FSANZ (AU),MPI (NZ),EFET (GR)"
           SINCE_DAYS:  ${{ github.event.inputs.since_days || '7' }}
           SKIP_COMMIT: "false"
           GIT_USER_EMAIL: "fsis-bot@advfood.tech"
