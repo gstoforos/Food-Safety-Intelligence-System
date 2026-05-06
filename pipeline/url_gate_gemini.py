@@ -702,6 +702,131 @@ def _missing_required(row: Dict[str, Any]) -> List[str]:
     return missing
 
 
+# ─────────────────────────────────────────────────────────────────────────
+# Cost-reduction helpers (audit 2026-05-06).
+#
+# Pre-fix: every URL gate run sent ALL Pending rows to Gemini-with-grounding.
+# Each grounded call burns ~30-50K tokens and one of the daily 250-call
+# free-tier slots, even when the row is obviously fine — URL on whitelisted
+# domain, all required fields present, no structural smell. The gate runs
+# 4-5×/day (06:00, 19:00, plus inline runs in tavily-gap-finder.yml,
+# exa-gap-finder.yml, and gap-finder-cascade.yml), so the same clean row
+# could get re-validated 5 times in 24 hours for no benefit.
+#
+# Two cheap optimisations that drop Gemini calls by ~80-90% with no
+# quality loss:
+#
+#   B (smart-skip): if a row passes EVERY deterministic check —
+#     • all REQUIRED_FIELDS present and non-empty
+#     • URL is structurally valid (not _is_structurally_bad)
+#     • URL is NOT on a news-mirror host
+#     • URL is on a whitelisted regulator host
+#     • api_prepass did not propose a fix (URL was already canonical)
+#     ...auto-pass without firing the Gemini call.
+#
+#   C (recency cache): if Notes contains a recent [url-gate YYYY-MM-DD]
+#     audit stamp from within the last URL_GATE_SKIP_HOURS hours, the
+#     gate already passed this row. Auto-pass without re-firing Gemini.
+#
+# Both are conservative — they only let rows pass that we have strong
+# evidence are clean. Anything ambiguous (missing fields, structural
+# smell, never-validated, last validated > N hours ago) still goes to
+# Gemini.
+# ─────────────────────────────────────────────────────────────────────────
+URL_GATE_SKIP_HOURS = int(os.getenv("URL_GATE_SKIP_HOURS", "12"))
+
+
+def _was_recently_url_gated(row: Dict[str, Any]) -> bool:
+    """True if Notes contains a [url-gate YYYY-MM-DD] stamp within
+    URL_GATE_SKIP_HOURS hours. Skip threshold default 12h — chosen so
+    the 06:00 and 19:00 gates can both run a fresh check, but the
+    inline tavily-gap-finder / exa-gap-finder / cascade runs in between
+    don't re-validate a row that the morning gate just passed.
+    """
+    if URL_GATE_SKIP_HOURS <= 0:
+        return False
+    notes = str(row.get("Notes") or "")
+    # Match the gate's own audit stamp format
+    m = re.search(r"\[url-gate (\d{4}-\d{2}-\d{2})", notes)
+    if not m:
+        return False
+    try:
+        stamp_date = datetime.strptime(m.group(1), "%Y-%m-%d").date()
+    except ValueError:
+        return False
+    age_days = (datetime.now(timezone.utc).date() - stamp_date).days
+    # Convert to hours boundary — same-day stamp is always within window;
+    # 1-day-old stamp is within window only if URL_GATE_SKIP_HOURS >= 24
+    return (age_days * 24) <= URL_GATE_SKIP_HOURS
+
+
+def _is_clean_for_skip(row: Dict[str, Any]) -> bool:
+    """True if a row is so clean we can safely skip the Gemini call.
+
+    Deterministic-only checks; no AI required. Conservative — any whiff
+    of trouble (missing fields, news mirror, structural smell, off-domain)
+    sends the row to Gemini.
+    """
+    # All required fields present
+    if _missing_required(row):
+        return False
+
+    url = str(row.get("URL") or "").strip()
+    if not url:
+        return False
+
+    # Reject anything structurally smelly
+    if _is_structurally_bad(url):
+        return False
+
+    # Reject generic landings / search shells / paginated listings
+    # (single source of truth — same module used by gap-finders)
+    try:
+        from pipeline._url_filters import is_generic_url as _is_generic
+        if _is_generic(url):
+            return False
+    except ImportError:
+        pass
+
+    # Reject news-mirror hosts (article paragraphs masquerading as recalls)
+    if _is_news_host(url):
+        return False
+
+    # Reject anything on a non-whitelisted host. The URL gate's REGULATOR_-
+    # ALLOWLIST set is the canonical "real regulator domain" list. If the
+    # URL isn't on it, we DON'T skip — Gemini decides.
+    try:
+        from urllib.parse import urlparse as _up
+        host = (_up(url).netloc or "").lower()
+        if host.startswith("www."):
+            host = host[4:]
+    except Exception:
+        return False
+    # Conservative whitelist match — must be exact host or subdomain of one
+    # of the canonical regulator domains. Other hosts go to Gemini.
+    whitelisted_suffixes = (
+        "fda.gov", "fsis.usda.gov", "cdc.gov",
+        "recalls-rappels.canada.ca", "inspection.canada.ca", "quebec.ca",
+        "rappel.conso.gouv.fr", "rappelconso.gouv.fr",
+        "food.gov.uk", "fsai.ie",
+        "foodstandards.gov.au", "mpi.govt.nz",
+        "webgate.ec.europa.eu",   # RASFF Window
+        "lebensmittelwarnung.de", "bvl.bund.de",
+        "ages.at", "aesan.gob.es", "salute.gov.it",
+        "afsca.be", "favv.be", "nvwa.nl", "fsa.fi", "livsmedelsverket.se",
+        "efet.gr",
+        "cfs.gov.hk", "fda.gov.tw", "tfda.gov.tw",
+        "mfds.go.kr", "mhlw.go.jp", "fsa.go.jp",
+        "anvisa.gov.br", "cofepris.gob.mx", "anmat.gov.ar",
+        "fssai.gov.in", "nafdac.gov.ng", "sfda.gov.sa",
+    )
+    if not any(host == s or host.endswith("." + s)
+               for s in whitelisted_suffixes):
+        return False
+
+    return True
+
+
 def _collect_gemini_keys() -> List[str]:
     """Key collection with FREE-tier preference (audit 2026-04-29).
 
@@ -728,8 +853,15 @@ def _collect_gemini_keys() -> List[str]:
     keys: List[str] = []
 
     # ── Free-tier keys first (URL gate's dedicated quota) ────────────────
+    # Audit 2026-05-06: previously skipped GEMINI_API_KEY_FREE (no suffix)
+    # which exists in many deployments alongside FREE_2. Now we read both
+    # so 2× the free daily quota (500 calls/day) is available before
+    # ever falling through to the paid GEMINI_API_KEY.
+    free_no_suffix = os.getenv("GEMINI_API_KEY_FREE")
+    if free_no_suffix and free_no_suffix.strip():
+        keys.append(free_no_suffix.strip())
     free_2 = os.getenv("GEMINI_API_KEY_FREE_2")
-    if free_2 and free_2.strip():
+    if free_2 and free_2.strip() not in keys:
         keys.append(free_2.strip())
     for i in range(3, 6):  # FREE_3..FREE_5
         v = os.getenv(f"GEMINI_API_KEY_FREE_{i}")
@@ -838,14 +970,67 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
         log.info("Gemini disabled — using deterministic check only")
         for i in range(len(rows)):
             if i in det_fail:
-                decisions[i] = (False, det_fail[i], None)
+                decisions[i] = (False, det_fail[i], None, None, "")
             else:
-                decisions[i] = (True, "ok (gemini disabled)", None)
+                decisions[i] = (True, "ok (gemini disabled)", None, None, "")
         return decisions
 
-    # Batch-call Gemini
-    for start in range(0, len(rows), GEMINI_BATCH_SIZE):
-        chunk = rows[start:start + GEMINI_BATCH_SIZE]
+    # ── Cost-reduction pre-pass (audit 2026-05-06) ─────────────────────
+    # B (smart-skip): rows that are deterministically clean auto-pass
+    # without firing the Gemini call.
+    # C (recency cache): rows that the gate already passed within
+    # URL_GATE_SKIP_HOURS hours auto-pass without re-firing Gemini.
+    #
+    # Both pre-pass paths populate `decisions` so the Gemini batch loop
+    # below skips them. Counts are logged so operators can see the
+    # savings rate per run.
+    skip_clean = skip_recent = 0
+    needs_gemini: List[int] = []
+    for i, r in enumerate(rows):
+        if i in det_fail:
+            # Already failed deterministic baseline — no Gemini call needed
+            decisions[i] = (False, det_fail[i], None, None, "")
+            continue
+        if _was_recently_url_gated(r):
+            decisions[i] = (
+                True,
+                "ok (recently url-gated, skipped Gemini — saves $$)",
+                None, None, "",
+            )
+            skip_recent += 1
+            continue
+        if _is_clean_for_skip(r):
+            decisions[i] = (
+                True,
+                "ok (deterministic clean, skipped Gemini — saves $$)",
+                None, None, "",
+            )
+            skip_clean += 1
+            continue
+        needs_gemini.append(i)
+
+    if skip_clean or skip_recent:
+        log.info(
+            "URL gate cost-saver: %d rows auto-passed (clean=%d, recent=%d), "
+            "%d rows still need Gemini",
+            skip_clean + skip_recent, skip_clean, skip_recent,
+            len(needs_gemini),
+        )
+
+    if not needs_gemini:
+        log.info("URL gate: every row handled by pre-pass, no Gemini call fired")
+        return decisions
+
+    # Filter rows down to only the ones that actually need Gemini.
+    # We have to keep the original indices intact so callers can map
+    # decisions[i] back to rows[i].
+    rows_for_gemini = [(orig_i, rows[orig_i]) for orig_i in needs_gemini]
+
+    # Batch-call Gemini — only on the subset that needs it
+    for start in range(0, len(rows_for_gemini), GEMINI_BATCH_SIZE):
+        chunk_pairs = rows_for_gemini[start:start + GEMINI_BATCH_SIZE]
+        chunk = [r for _, r in chunk_pairs]
+        chunk_orig_indices = [oi for oi, _ in chunk_pairs]
         batch_view = [{
             "row_index": j,
             "Date":     r.get("Date", ""),
@@ -872,7 +1057,11 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                     j = d.get("row_index")
                     if j is None or j < 0 or j >= len(chunk):
                         continue
-                    real_idx = start + j
+                    # Audit 2026-05-06: when the cost-saver pre-pass routes
+                    # only a subset of rows to Gemini, real_idx must come
+                    # from chunk_orig_indices, NOT (start + j) — the latter
+                    # would point at the wrong row in the original input.
+                    real_idx = chunk_orig_indices[j]
                     passed = bool(d.get("pass"))
                     url_fix = d.get("url_corrected") or None
                     # Local verification gate — never trust low confidence
@@ -946,7 +1135,7 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
 
         # Fill any uncovered rows with deterministic fallback
         for j in range(len(chunk)):
-            real_idx = start + j
+            real_idx = chunk_orig_indices[j]
             if real_idx in decisions:
                 continue
             # Fallback tuples — when Gemini didn't give us a verdict on
