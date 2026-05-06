@@ -413,6 +413,14 @@ _REGION_QUERIES: Dict[str, List[str]] = {
         'site:fsai.ie food recall alert',
         'site:nvwa.nl OR site:favv-afsca.be food recall',
         'RASFF notification food alert pathogen withdrawal',
+        # Audit 2026-05-06: EU non-FR/UK/IE/NL/BE coverage was missing.
+        # Adds the 5 highest-volume EU-member regulators that publish in
+        # their own languages (where English keyword queries underperform).
+        'site:lebensmittelwarnung.de Lebensmittel Rückruf',
+        'site:salute.gov.it richiamo alimenti',
+        'site:aesan.gob.es alerta alimentaria',
+        'site:ages.at Lebensmittel Warnung',
+        'site:livsmedelsverket.se livsmedel återkallelse',
     ],
     "NorthAmerica": [
         'site:fda.gov/safety/recalls food recall pathogen',

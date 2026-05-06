@@ -316,15 +316,43 @@ _RECALL_VERBS = (
     r"recalls?|recalled|recalling|issues?\s+recall|withdraws?|withdrawn|"
     r"pulls?|pulled|alerts?|alerted|warns?|warned"
 )
+# Audit 2026-05-06: improved for FDA-style "Brand X Issues Voluntary Recall of Y".
+# Pre-fix output: Company="Brand X Issues Voluntary", Product="of Y" (broken).
+# Now we accept optional filler ("Issues/Announces/Initiates/Conducts" +
+# "Voluntary/Precautionary/Nationwide/Class I/Class II") between the brand
+# and the recall verb so "Brand X" gets captured cleanly.
+_RECALL_VERBS_WITH_FILLER = (
+    r"(?:issues?|announces?|initiates?|conducts?|expands?)\s+"
+    r"(?:a\s+)?(?:voluntary|precautionary|nationwide|"
+    r"class\s+i+|class\s+1|class\s+2|class\s+3)\s+recall(?:\s+of)?|"
+    + _RECALL_VERBS
+)
 _TITLE_SPLIT_RX = re.compile(
-    r"^(?P<company>.{3,120}?)\s+(?:" + _RECALL_VERBS + r")\s+(?P<product>.+?)"
+    r"^(?P<company>.{3,120}?)\s+(?:" + _RECALL_VERBS_WITH_FILLER + r")\s+(?P<product>.+?)"
     r"(?:\s+(?:due\s+to|over|after|because\s+of|linked\s+to|for)\s+|$)",
     flags=re.IGNORECASE,
 )
 
-# News outlets often prefix with agency name — strip common prefixes before parsing
+# News outlets often prefix with agency name — strip common prefixes before parsing.
+# Audit 2026-05-06: also strip the "Recall of [specific/a] [batch(es)] of"
+# pattern that FSAI, CFIA, and RappelConso use as the canonical headline
+# format. Production data showed FSAI rows rejected by merge_master because
+# Company came in as "Recall of specific batches of Rosabella Moringa
+# capsules" — the title-split regex couldn't find a recall verb after that
+# leading clause, so the whole title fell through to fallback as the company.
 _TITLE_PREFIXES = re.compile(
-    r"^\s*(?:FDA|USDA|CFIA|FSA|FSANZ|FSAI|RASFF)\s+(?:Alert|Notice|Update|Recall)[:\s-]+",
+    r"^\s*(?:"
+    # Agency-name prefixes from news outlets
+    r"(?:FDA|USDA|CFIA|FSA|FSANZ|FSAI|RASFF|HPRA|HSE)\s+(?:Alert|Notice|Update|Recall|Press\s+Release)[:\s\-]+"
+    r"|"
+    # FSAI / RappelConso / CFIA canonical openers — both EN and FR
+    r"Recall\s+of\s+(?:specific\s+)?(?:a\s+)?(?:batches?\s+of\s+|batch\s+of\s+)?"
+    r"|"
+    r"Rappel\s+(?:de\s+|du\s+|d['']\s*)?(?:certaines?\s+)?(?:lots?\s+(?:de\s+|d['']\s*)?)?"
+    r"|"
+    # Generic "Notice/Alert: " prefixes
+    r"(?:Public\s+Health\s+)?(?:Alert|Notice|Advisory|Warning)\s*[:\-]\s+"
+    r")",
     flags=re.IGNORECASE,
 )
 
@@ -567,7 +595,35 @@ def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
         ('RASFF notification food alert withdrawal',                  "news"),
         ('site:food.gov.uk food alert recall',                        "general"),
         ('site:fsai.ie food recall alert',                            "general"),
-        ('site:rappelconso.gouv.fr rappel alimentaire',               "general"),
+        # Audit 2026-05-06: query domain typo. Production recall URLs
+        # are at `rappel.conso.gouv.fr/fiche-rappel/<id>/Interne` (note
+        # the dot — `rappel` is a SUBDOMAIN of `conso.gouv.fr`).
+        # The previous query used `rappelconso.gouv.fr` (no dot, no
+        # subdomain), which doesn't index recall content — every Tavily
+        # run returned 0 results for France.
+        ('site:rappel.conso.gouv.fr OR site:rappelconso.gouv.fr rappel alimentaire',  "general"),
+        # ── Coverage expansion (audit 2026-05-06) ────────────────────────
+        # Pre-fix: only 9 of 75 whitelisted regulators were queried. Major
+        # EU and Asia-Pac members had no dedicated query, relying on news-
+        # topic searches that rarely surface the regulator URL directly.
+        # The added queries below target the highest-volume non-RASFF EU
+        # member-state regulators plus the major Asia-Pac food authorities
+        # whose dedicated scrapers are weakest.
+        # ── EU (non-FR) ──
+        ('site:lebensmittelwarnung.de Lebensmittel Rückruf',          "general"),
+        ('site:salute.gov.it richiamo alimenti',                      "general"),
+        ('site:aesan.gob.es alerta alimentaria retirada',             "general"),
+        ('site:ages.at Lebensmittel Warnung',                         "general"),
+        ('site:nvwa.nl voedsel terugroep',                            "general"),
+        ('site:afsca.be OR site:favv-afsca.be voedsel terugroep rappel', "general"),
+        ('site:livsmedelsverket.se livsmedel återkallelse',           "general"),
+        # ── Asia-Pacific ──
+        ('site:mpi.govt.nz food recall',                              "general"),
+        ('site:mfds.go.kr OR site:mfds.go.kr/eng food recall 회수',    "general"),
+        ('site:fssai.gov.in food recall',                             "general"),
+        ('site:cfs.gov.hk food alert recall',                         "general"),
+        # ── EU bodies ──
+        ('site:webgate.ec.europa.eu/rasff-window notification',       "general"),
         ('site:foodstandards.gov.au food recall',                     "general"),
     ]
     all_results: Dict[str, Dict[str, Any]] = {}

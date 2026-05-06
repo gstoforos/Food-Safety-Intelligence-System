@@ -166,12 +166,31 @@ def _run_exa_queries(since_days: int) -> List[Dict[str, Any]]:
         'site:fda.gov/safety/recalls food recall pathogen',
         'site:fsis.usda.gov/recalls-alerts food recall',
         'site:recalls-rappels.canada.ca food recall',
+        'site:inspection.canada.ca food recall',
         # ── Europe ──
         'site:rappel.conso.gouv.fr OR site:rappelconso.gouv.fr rappel alimentaire',
         'site:food.gov.uk food alert recall',
         'site:fsai.ie food recall alert',
+        # ── Audit 2026-05-06: EU non-FR coverage expansion ──
+        # Pre-fix: Exa only queried 7 regulators directly. Member-state
+        # alerts (Germany, Italy, Spain, Austria, Netherlands, Belgium,
+        # Sweden) had to come through cross-region news queries, which
+        # rarely surface the regulator URL itself.
+        'site:lebensmittelwarnung.de Lebensmittel Rückruf',
+        'site:salute.gov.it richiamo alimenti',
+        'site:aesan.gob.es alerta alimentaria',
+        'site:ages.at Lebensmittel Warnung',
+        'site:nvwa.nl voedsel terugroep',
+        'site:afsca.be OR site:favv-afsca.be voedsel terugroep rappel',
+        'site:livsmedelsverket.se livsmedel återkallelse',
         # ── Asia-Pacific ──
         'site:foodstandards.gov.au food recall',
+        'site:mpi.govt.nz food recall',
+        'site:mfds.go.kr food recall',
+        'site:fssai.gov.in food recall',
+        'site:cfs.gov.hk food alert recall',
+        # ── EU body ──
+        'site:webgate.ec.europa.eu/rasff-window notification',
         # ── Cross-region generic ──
         'food recall salmonella OR listeria OR "e. coli" OR botulism OR campylobacter',
         'food recall mould OR mold OR "foreign material" OR glass OR "ethylene oxide" '

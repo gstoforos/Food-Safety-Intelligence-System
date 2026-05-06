@@ -415,10 +415,10 @@ Today's date: {today}
 
 SEARCH STRATEGY: Run multiple Google searches to cover all major regulators. Example queries to run:
 - "food recall {year} salmonella listeria" site:fda.gov OR site:fsis.usda.gov OR site:cdc.gov
-- "food recall {year}" site:rappelconso.gouv.fr OR site:food.gov.uk OR site:fsai.ie
+- "food recall {year}" site:rappel.conso.gouv.fr OR site:food.gov.uk OR site:fsai.ie
 - "food recall {year}" site:inspection.canada.ca OR site:foodstandards.gov.au OR site:mpi.govt.nz
 - "Lebensmittelrückruf {year}" site:lebensmittelwarnung.de OR site:ages.at
-- "rappel aliment {year}" site:rappelconso.gouv.fr
+- "rappel aliment {year}" site:rappel.conso.gouv.fr
 - "retiro alimento {year}" site:aesan.gob.es
 - Agencies to cover: FDA, USDA FSIS, EU RASFF, FSA UK, FSAI Ireland, FSANZ Australia/NZ, CFIA Canada, AESAN Spain, BVL Germany, RappelConso France, EFET Greece, Min. Salute Italy, CFS Hong Kong, MFDS Korea, MHLW Japan, ANVISA Brazil, COFEPRIS Mexico, FSSAI India, NAFDAC Nigeria, SFDA Saudi Arabia, and any others.
 
