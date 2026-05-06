@@ -69,7 +69,10 @@ jobs:
         env:
           TAVILY_API_KEY:    ${{ secrets.TAVILY_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          # Free-tier keys checked first by url_gate_gemini.py
+          GEMINI_API_KEY_FREE:    ${{ secrets.GEMINI_API_KEY_FREE }}
+          GEMINI_API_KEY_FREE_2:  ${{ secrets.GEMINI_API_KEY_FREE_2 }}
+          GEMINI_API_KEY:         ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
           GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
           GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
@@ -85,7 +88,10 @@ jobs:
       - name: Gemini URL Gate + Merge
         if: steps.guard.outputs.run == 'true'
         env:
-          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          # Free-tier keys checked first by url_gate_gemini.py
+          GEMINI_API_KEY_FREE:    ${{ secrets.GEMINI_API_KEY_FREE }}
+          GEMINI_API_KEY_FREE_2:  ${{ secrets.GEMINI_API_KEY_FREE_2 }}
+          GEMINI_API_KEY:         ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
           GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
           GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
