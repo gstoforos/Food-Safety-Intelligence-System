@@ -1018,7 +1018,18 @@ def load_recalls_for_date(xlsx_path: Path, target: date) -> List[Recall]:
 
 
 def render_daily_html(target_date: date, recalls: List[Recall],
-                      regions_scanned: int) -> str:
+                      regions_scanned: int = 0) -> str:
+    # regions_scanned default added 2026-05-07 — the brief-rebuild paths
+    # in merge_master.rebuild_daily_briefs_for_promoted() and url_gate_gemini's
+    # equivalent re-render historical daily briefs after a promotion and
+    # don't have a fresh "regions scanned today" count. The original signature
+    # made regions_scanned required, which crashed those rebuild paths with
+    # "missing 1 required positional argument" — observed today on 7 historical
+    # briefs (2026-01-23, 2026-02-04, 2026-02-06, 2026-03-02, 2026-03-05,
+    # 2026-04-30, 2026-05-06). The comment at the daily_recall_search call
+    # site explicitly says "use 0 for back-fill days (the brief template
+    # tolerates 0 gracefully)" — so 0 is the documented sentinel. Default
+    # value here lets brief-rebuild callers omit the arg without crashing.
     t1 = sum(1 for r in recalls if r.Tier == 1)
     outbreak = sum(1 for r in recalls if r.Outbreak == 1)
     pretty = target_date.strftime("%A, %d %B %Y")
