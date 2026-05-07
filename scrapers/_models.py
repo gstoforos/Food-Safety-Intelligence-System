@@ -105,7 +105,98 @@ class Recall:
         if not self.Class:
             self.Class = "Recall"
 
+        # Translate non-English Class values to canonical English short form.
+        # Added 2026-05-07 after audit found 8 raw "Volontaire" + 82 verbose
+        # "Mandatory recall (prefectural order)" rows in the Recalls sheet —
+        # neither matched the operator-stated rule that all fields except
+        # Company/Brand must be in English (US). RappelConso's API returns
+        # `nature_juridique_du_rappel` in French; no scraper translated it
+        # and the prompt-level rule never made it into code.
+        self.Class = _normalize_class_language(self.Class)
+
         return self
+
+
+# ---------------------------------------------------------------------------
+# Class language normalization
+# ---------------------------------------------------------------------------
+# Operator rule (2026-05-07): every field except Company and Brand must be
+# stored in English (US). Class values come straight from regulator APIs,
+# many of which publish in their native language. Map them here so the
+# Recalls sheet stays English regardless of source.
+#
+# Match strategy:
+#   1. Exact case-insensitive lookup (CLASS_TRANSLATIONS) — fastest path,
+#      covers the literal API enum values.
+#   2. Substring fallback (CLASS_SUBSTRING_RULES) — catches noisy variants
+#      like "Volontaire (sans arrêté préfectoral)" or "Rappel volontaire".
+#   3. If neither matches, the value is returned unchanged. We do NOT
+#      attempt heuristic translation — that's the LLM gate's job.
+#
+# Canonical English short forms:
+#   "Voluntary"  — producer-initiated recall, no regulator order
+#   "Mandatory"  — regulator-imposed recall (prefectural order, ministerial
+#                  decree, administrative action — collapsed to one label)
+#   Existing English values ("Class I", "Recall", "Alert", etc.) pass through.
+
+CLASS_TRANSLATIONS: Dict[str, str] = {
+    # --- French (RappelConso, AFSCA-FR, etc.) ---
+    "volontaire":                                  "Voluntary",
+    "rappel volontaire":                           "Voluntary",
+    "volontaire (sans arrêté préfectoral)":        "Voluntary",
+    "imposé par arrêté préfectoral":               "Mandatory",
+    "rappel imposé":                               "Mandatory",
+    "impératif":                                   "Mandatory",
+    # Verbose English already produced by older translations — collapse to
+    # the short form per operator preference.
+    "mandatory recall (prefectural order)":        "Mandatory",
+    "mandatory recall":                            "Mandatory",
+    # --- Italian (Min. Salute) ---
+    "richiamo volontario":                         "Voluntary",
+    "richiamo":                                    "Recall",
+    # --- Spanish (AESAN) ---
+    "retirada voluntaria":                         "Voluntary",
+    "alerta sanitaria":                            "Alert",
+    # --- German (BVL) ---
+    "freiwilliger rückruf":                        "Voluntary",
+    "rückruf":                                     "Recall",
+    # --- Portuguese (ASAE) ---
+    "recolhimento voluntário":                     "Voluntary",
+}
+
+# Substring rules run after exact lookup misses. Order matters — first
+# matching substring wins, so "imposé"/"mandatory" must be checked before
+# "volontaire"/"voluntary" (an "Imposé volontairement" hypothetical would
+# be Mandatory, not Voluntary).
+CLASS_SUBSTRING_RULES: Tuple[Tuple[str, str], ...] = (
+    ("imposé par arrêté",      "Mandatory"),
+    ("arrêté préfectoral",     "Mandatory"),
+    ("prefectural order",      "Mandatory"),
+    ("rappel imposé",          "Mandatory"),
+    ("mandatory",              "Mandatory"),
+    ("volontaire",             "Voluntary"),
+    ("rappel volontaire",      "Voluntary"),
+    ("retirada voluntaria",    "Voluntary"),
+    ("richiamo volontario",    "Voluntary"),
+    ("recolhimento voluntário","Voluntary"),
+    ("freiwilliger rückruf",   "Voluntary"),
+)
+
+
+def _normalize_class_language(value: str) -> str:
+    """Map a regulator-supplied Class value to its English short form.
+
+    Returns the input unchanged if no rule matches — never raises.
+    """
+    if not value:
+        return value
+    key = value.strip().lower()
+    if key in CLASS_TRANSLATIONS:
+        return CLASS_TRANSLATIONS[key]
+    for needle, replacement in CLASS_SUBSTRING_RULES:
+        if needle in key:
+            return replacement
+    return value
 
 
 # ---------------------------------------------------------------------------
