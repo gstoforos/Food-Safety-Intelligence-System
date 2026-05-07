@@ -16,7 +16,7 @@ on:
         type: boolean
         default: false
       gap_since_days:
-        description: "How many days back to scan for gaps. 14:00 slot = 2 (catches new since the prior 23:00 sweep). 23:00 slot = 7 (full safety-net sweep). Default 7 covers manual dispatch."
+        description: "How many days back to scan for gaps. Default 7 — covers the gap between Tue/Thu/Sat fires."
         type: string
         default: "7"
 
@@ -35,18 +35,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      # Cascade keys — Gemini FREE first, then PAID, then Claude, then OpenAI.
-      # Set GEMINI_API_KEY_FREE in repo secrets to enable free-tier mode.
-      GEMINI_API_KEY_FREE: ${{ secrets.GEMINI_API_KEY_FREE }}
-      GEMINI_API_KEY:      ${{ secrets.GEMINI_API_KEY }}
-      ANTHROPIC_API_KEY:   ${{ secrets.ANTHROPIC_API_KEY }}
-      OPENAI_API_KEY:      ${{ secrets.OPENAI_API_KEY }}
-      # Lookback window. Differentiated per slot by FsisScheduler.gs:
-      #   14:00 slot dispatches with "2"  (catches new since prior 23:00 sweep)
-      #   23:00 slot dispatches with "7"  (full safety-net sweep)
-      # Manual dispatches default to "7". Smaller windows = smaller LLM context
-      # = faster + cheaper provider calls.
-      GAP_SINCE_DAYS:      ${{ inputs.gap_since_days || '7' }}
+      # Gemini key cascade order (audit 2026-05-07):
+      #   1) GEMINI_API_KEY_FREE    — primary free-tier key (Tier 1 quota)
+      #   2) GEMINI_API_KEY_FREE_2  — secondary free-tier key (overflow)
+      #   3) GEMINI_API_KEY         — paid key, last resort only
+      # gap_finder_gemini._collect_gemini_keys() iterates GEMINI_API_KEY_FREE*
+      # in order, then falls through to the paid GEMINI_API_KEY.
+      GEMINI_API_KEY_FREE:   ${{ secrets.GEMINI_API_KEY_FREE }}
+      GEMINI_API_KEY_FREE_2: ${{ secrets.GEMINI_API_KEY_FREE_2 }}
+      GEMINI_API_KEY:        ${{ secrets.GEMINI_API_KEY }}
+      ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY:        ${{ secrets.OPENAI_API_KEY }}
+      # Lookback window — 7 days covers the gap between Tue/Thu/Sat fires.
+      # FsisScheduler.gs now restricts cascade dispatch to Tue/Thu/Sat only
+      # (was daily). With ~48-72h between fires a 7-day window catches
+      # everything that publishes between sweeps with a safety margin.
+      GAP_SINCE_DAYS:        ${{ inputs.gap_since_days || '7' }}
       # Per-step timeout. Was 180s — tightened to 90s 2026-04-30: APIs that
       # haven't started responding in 90s are typically stuck (Gemini/Claude/
       # OpenAI all respond <30s when healthy), so failover faster instead of
