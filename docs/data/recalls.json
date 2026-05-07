@@ -96,6 +96,38 @@
   "Notes": "au primeur du chantre¤quartier le chantre, 1750 avenue de provence, 26320 saint-marcel-lès-valence [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [Claude-flag 2026-05-06: Missing Company field (empty string). Critical for Tier-1 STEC recall.]"
  },
  {
+  "Date": "2026-05-06",
+  "Source": "USDA FSIS",
+  "Company": "Envolve Foods",
+  "Brand": "Envolve Foods",
+  "Product": "Chicken and Beef Products",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "http://www.fsis.usda.gov/recalls-alerts/envolve-foods-recalls-chicken-and-beef-products-due-possible-salmonella-and-listeria",
+  "Notes": "WASHINGTON, Oct. 19, 2018 Envolve Foods, a Corona, Calif. establishment, is recalling approximately 292,764 pounds of ready-to-eat chicken and beef products that contain a vegetable ingredient that may be contaminated with Salmonella and Listeria monocytogenes, the U.S. Department of Agricultures Fo  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_ [claude-check 2026-05-07: skip; fetch failed (HTTP 403)] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)]"
+ },
+ {
+  "Date": "2026-05-06",
+  "Source": "USDA FSIS",
+  "Company": "Target Corporation",
+  "Brand": "Target Corporation",
+  "Product": "Frozen Ready-To-Eat and Non-Ready-To-Eat Meat and Poultry Products",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes — outbreak",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "http://www.fsis.usda.gov/recalls-alerts/target-corporation-recalls-frozen-ready-eat-and-non-ready-eat-meat-and-poultry",
+  "Notes": "1122.2 pounds\n\n### FSIS Announcement\n\nWASHINGTON, March 29, 2018 Target Corporation, located in Minneapolis, Minn. is recalling an undetermined amount of frozen ready-to-eat and not-ready-to-eat meat and poultry products due to temperature abuse during transport, which may have resulted in the growt  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-07: skip; fetch failed (HTTP 403)] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)]"
+ },
+ {
   "Date": "2026-05-05",
   "Source": "RASFF (EU)",
   "Company": "Origin: Netherlands | Notifying: Belgium",
@@ -750,6 +782,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841078",
   "Notes": "[RASFF #2026.3792; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=841078]"
+ },
+ {
+  "Date": "2026-04-30",
+  "Source": "USDA FSIS",
+  "Company": "FSIS Issues Public Health",
+  "Brand": "FSIS Issues Public Health",
+  "Product": "for Various Meat and Poultry Products Containing FDA-Regulated Dairy Products That Have Been Recalled",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "http://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-various-meat-and-poultry-products-containing-fda",
+  "Notes": "WASHINGTON, APRIL 30, 2026 – The U.S. Department of Agriculture’s Food Safety and Inspection Service (FSIS) is issuing a public health alert for meat and poultry products containing FDA-regulated dairy ingredients that may be contaminated with Salmonella. FSIS expects additional downstream products   [via Tavily gap-finder, deterministic extract] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-07: skip; fetch failed (HTTP 403)] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)]"
  },
  {
   "Date": "2026-04-29",
@@ -7408,6 +7456,22 @@
   "Notes": "[fiche 21467 / 2026-03-05]"
  },
  {
+  "Date": "2026-03-05",
+  "Source": "FSANZ",
+  "Company": "Bajaria Global Pty Ltd T/a The Spice Merchants",
+  "Brand": "Bajaria Global Pty Ltd T/a The Spice Merchants",
+  "Product": "Fresh 'N' Frozen Favour-ita Grated Coconut 400g | Food Standards Australia New Zealand",
+  "Pathogen": "Hepatitis A virus",
+  "Reason": "Hepatitis A — outbreak",
+  "Class": "Recall",
+  "Country": "Australia",
+  "Region": "Oceania",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/bajaria-global-pty-ltd-ta-spice-merchants-fresh-n-frozen-favour-ita",
+  "Notes": "Home\n\n## Main navigation\n\n## Search\n\nSearch\n\n## Secondary menu\n\n## Main navigation\n\n## Secondary menu\n\n# Bajaria Global Pty Ltd T/a The Spice Merchants - Fresh 'N' Frozen Favour-ita Grated Coconut 400g\n\nA black plastic package labelled Grated Coconut 400g\n\nBajaria Global Pty Ltd T/a The Spice Mercha  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_ [claude-check 2026-05-07: fix; Date 2026-05-06 → 2026-03-05; fix; date on page=2026-03-05 | Date on page is 2026-03-05 (Published 5 March 2026), not 2026-05-06 as claimed; Outbreak ] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)]"
+ },
+ {
   "Date": "2026-03-03",
   "Source": "FSA (UK)",
   "Company": "Sacor (Compleat Food Group)",
@@ -7454,6 +7518,22 @@
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260302_1.pdf",
   "Notes": "[HK CFS FISS notification of Czech Agriculture & Food Inspection Authority recall; part of GLOBAL CEREULIDE INFANT FORMULA CRISIS]"
+ },
+ {
+  "Date": "2026-03-02",
+  "Source": "CFIA",
+  "Company": "Various macadamia nuts and macadamia nut-containing products",
+  "Brand": "Various macadamia nuts and macadamia nut-containing products",
+  "Product": "due to Salmonella - Canada.ca",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella — outbreak",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-macadamia-nuts-and-macadamia-nut-containing-products-recalled-due-salmonella",
+  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by the Canadian Food Inspection Agency’s inspection activities.\n\nThere have been no reported illnesses associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_ [claude-check 2026-05-07: fix; Date 2026-05-06 → 2026-03-02; fix; company mismatch; date on page=2026-03-02 | Date should be 2026-03-02 (original publication), not 2026-05-06; Compa] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)]"
  },
  {
   "Date": "2026-02-27",
@@ -7824,6 +7904,38 @@
   "Notes": "[fiche 21234 / ref. 2026-02-0109 / 2026-02-06; REPAIRED broken row — Origine extracted from page (Belgian poultry processor PLUKON MAASMECHELEN); 7 SKUs single lot 26022001; sold 2026-01-27 to 2026-02-06; distributed nationwide via Carrefour, Intermarché, Colruyt, COOP-U]"
  },
  {
+  "Date": "2026-02-06",
+  "Source": "FSA",
+  "Company": "Danone",
+  "Brand": "Danone",
+  "Product": "several Aptamil and Cow & Gate First Infant Milk and Follow on Milk formula products",
+  "Pathogen": "Cereulide (B. cereus toxin)",
+  "Reason": "Cereulide",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-05-2026",
+  "Notes": "### About product recalls and withdrawals\n\nIf there is a problem with a food product that means it should not be sold, then it might be 'withdrawn' (taken off the shelves) or 'recalled' (when customers are asked to return the product). The FSA issues Product Recall Information Notices to let consume  [via Tavily gap-finder, deterministic extract] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_v2] [Claude-flag 2026-05-06: Notes field contain [claude-check 2026-05-07: fix; Date 2026-06-11 → 2026-02-06; fix; date on page=2026-02-06 | Row date 2026-06-11 does not match page publication date 2026-02-06; corrected date appli] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)]"
+ },
+ {
+  "Date": "2026-02-06",
+  "Source": "FSAI",
+  "Company": "Advice on Danone infant formula and follow-on formula",
+  "Brand": "Advice on Danone infant formula and follow-on formula",
+  "Product": "| Food Safety Authority of Ireland",
+  "Pathogen": "Cereulide (B. cereus toxin)",
+  "Reason": "Cereulide",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/consumer-advice/food-safety-and-hygiene/danone-infant-formula-and-follow-on-formula-recall",
+  "Notes": "## Where can I find food alert and food allergen alerts?\n\nVisit the  alerts section on our website.  Subscribe for food and/or food allergen alerts.\n\n## How do I subscribe for food alerts and food allergen alerts?\n\nYou can get food alerts and food allergen alerts by text or email via our Subscriptio  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_ [claude-check 2026-05-07: fix; Date 2026-05-06 → 2026-02-06; fix; date on page=2026-02-06 | Row date is 2026-05-06 but page shows original publication date 2026-02-06 (updated 6 Feb] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)]"
+ },
+ {
   "Date": "2026-02-05",
   "Source": "FDA",
   "Company": "Prime Food Processing LLC",
@@ -7854,6 +7966,22 @@
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/aliments-johnvince-brand-pecans-halves-raw-recalled-due-salmonella",
   "Notes": "[CFIA Class 2; QC distribution]"
+ },
+ {
+  "Date": "2026-02-04",
+  "Source": "FSA",
+  "Company": "Update 2: Nestlé",
+  "Brand": "Update 2: Nestlé",
+  "Product": "several SMA Infant Formula and Follow-On Formula",
+  "Pathogen": "Cereulide (B. cereus toxin)",
+  "Reason": "Cereulide",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-02-2026-update-2",
+  "Notes": "### About product recalls and withdrawals\n\nIf there is a problem with a food product that means it should not be sold, then it might be 'withdrawn' (taken off the shelves) or 'recalled' (when customers are asked to return the product). The FSA issues Product Recall Information Notices to let consume  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_ [claude-check 2026-05-07: fix; Date 2026-05-06 → 2026-02-04; fix; date on page=2026-02-04 | Row date 2026-05-06 does not match page publication date 2026-02-04 (Last updated: 4 Febr] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)]"
  },
  {
   "Date": "2026-02-03",
@@ -7966,6 +8094,22 @@
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/oeffentliche-warnungen/ow-bio-power-mix.pdf.download.pdf/Oeffentliche%20Warnung_Salmonellen%20in%20Bio%20Power%20Mix_verkauft%20bei%20Migros%20DE.pdf",
   "Notes": "[BLV public warning 2026-01-23; sold at Migros stores]"
+ },
+ {
+  "Date": "2026-01-23",
+  "Source": "FSAI",
+  "Company": "Danone infant formula and follow-on formula",
+  "Brand": "Danone infant formula and follow-on formula",
+  "Product": "| Food Safety Authority of Ireland",
+  "Pathogen": "Cereulide (B. cereus toxin)",
+  "Reason": "Cereulide",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/latest-news/danone-infant-formula-and-follow-on-formula-recall",
+  "Notes": "The Food Safety Authority of Ireland (FSAI) today advises that Danone is recalling specific batches of its infant formula and follow-on formula due to the potential presence of cereulide. The implicated products were manufactured in Ireland and exported to a number of EU countries, the UK and third   [via Tavily gap-finder, deterministic extract] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-07: pass; pass | All fields verified: date 2026-01-23 matches page header; Company (Danone) and Product (infant formula and follow] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)]"
  },
  {
   "Date": "2026-01-22",
