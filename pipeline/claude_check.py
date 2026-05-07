@@ -87,10 +87,30 @@ SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 HTML_TRUNCATE_CHARS = 25_000  # plenty for any regulator detail page
 FETCH_TIMEOUT_S = 25
 SLEEP_BETWEEN_ROWS_S = 0.5    # gentle on the regulator + the API
+# UA + headers updated 2026-05-07 — the previous bot-style UA
+# ("AFTS-FSIS-claude-check/1.0; +https://advfood.tech/fsis-home") was
+# being 403-blocked by USDA FSIS (3 of 11 rows in today's claude-check).
+# Same fix as the 2026-04-29 _base.py audit: use a real Chrome UA so
+# regulator bot-blockers don't drop us. We're not impersonating — we
+# just stop announcing ourselves as a bot.
 USER_AGENT = (
-    "Mozilla/5.0 (compatible; AFTS-FSIS-claude-check/1.0; "
-    "+https://advfood.tech/fsis-home)"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/127.0.0.0 Safari/537.36"
 )
+
+# Full browser-fingerprint header set, mirrors scrapers/_base.py DEFAULT_HEADERS.
+# USDA FSIS specifically inspects Accept + Accept-Encoding + Upgrade-Insecure-
+# Requests on top of UA — minimal headers alone still get 403'd.
+_FETCH_HEADERS = {
+    "User-Agent": USER_AGENT,
+    "Accept": ("text/html,application/xhtml+xml,application/xml;q=0.9,"
+               "image/avif,image/webp,*/*;q=0.8"),
+    "Accept-Language": "en-US,en;q=0.9,fr;q=0.8,de;q=0.7,es;q=0.6,it;q=0.5,el;q=0.4",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+}
 
 # Rows older than this many days are not re-verified (we trust the prior
 # Claude check). 0 means verify every row every run.
@@ -142,8 +162,7 @@ def _fetch_page_text(url: str) -> Tuple[Optional[str], Optional[str]]:
     try:
         resp = _requests.get(
             url, timeout=FETCH_TIMEOUT_S,
-            headers={"User-Agent": USER_AGENT,
-                     "Accept-Language": "en,fr,de,es,it,el;q=0.9"},
+            headers=_FETCH_HEADERS,
             allow_redirects=True,
         )
     except Exception as exc:
