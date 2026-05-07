@@ -41,9 +41,18 @@ log = logging.getLogger(__name__)
 class FSAUKScraper(BaseScraper):
     AGENCY = "FSA (UK)"
     COUNTRY = "United Kingdom"
+    # FSA's Linked-Data API uses LDA-spec query parameters:
+    #   - `_limit`  (NOT _pageSize — that's the food-hygiene-ratings API,
+    #     a different host. food-alerts uses _limit per
+    #     https://data.food.gov.uk/food-alerts/ui/reference)
+    #   - `_sort`   prefix `-` for descending
+    #
+    # The previous URL used `_pageSize=100&_view=published` — both rejected
+    # by the backend with HTTP 400 ("Bad Request"). 2026-05-07 audit run
+    # captured the actual server response body confirming the param error.
     FEED_URL = (
-        "https://data.food.gov.uk/food-alerts/id?_sort=-created"
-        "&_view=published&_pageSize=100"
+        "https://data.food.gov.uk/food-alerts/id"
+        "?_sort=-created&_limit=100"
     )
 
     PATHOGEN_KEYWORDS = (
