@@ -87,6 +87,47 @@ def _pathogen_from_url(url: str) -> Optional[str]:
             return canonical
     return None
 
+
+# ---------------------------------------------------------------------------
+# HTML-fallback hallucination guard
+# ---------------------------------------------------------------------------
+# Several scrapers (FSAI, CFIA L3, FDA HTML fallback) emit "candidate" rows
+# from a listing page when the structured feed is dead. These rows have:
+#   • Pathogen=""    (no keyword in title)
+#   • URL=detail page (not yet fetched)
+#   • Notes="…claude-check needs to enrich…" or "…HTML listing fallback…"
+#
+# Sending these to Gemini's enrich_row() asks it to "fill in missing fields"
+# from the title alone — but the actual recall reason (plastic pieces,
+# incorrect use-by date, allergen, missing label) is on the detail page,
+# not in the title. Gemini's prior pulls toward common pathogens like
+# Listeria for dairy/RTE titles, producing confident hallucinations.
+#
+# Production evidence (audit 2026-05-07): 3 FSAI rows tagged Listeria by
+# Gemini, all rejected by pipeline.verify_pathogen_in_source — actual
+# reasons were plastic pieces, missing use-by date, incorrect use-by date.
+# Net cost: wasted Gemini quota + noisy reject logs + zero pipeline value.
+#
+# For these rows we skip Gemini and rely only on the URL-keyword fallback
+# (slugs like "…due-to-salmonella" or "…listeria-monocytogenes" carry the
+# pathogen explicitly). Anything not in the URL stays empty and gets
+# routed through merge_master's normal scope-gate; claude-check fetches
+# the detail page on its scheduled cycle and assigns a verified pathogen.
+_HTML_FALLBACK_NOTES_TOKENS = (
+    "claude-check needs to enrich",
+    "html listing fallback",
+    "html fallback",
+)
+
+
+def _is_html_fallback_placeholder(r: Recall) -> bool:
+    """True if this row was emitted by a scraper's HTML-fallback path
+    (no detail-page context). AI enrichment must not invent a pathogen
+    for these — see module note above."""
+    notes = (r.Notes or "").lower()
+    return any(tok in notes for tok in _HTML_FALLBACK_NOTES_TOKENS)
+
+
 # Heuristic: rows that look "incomplete enough" to warrant a Gemini call
 def _needs_enrichment(r: Recall) -> bool:
     if not r.Pathogen or r.Pathogen.strip() in ("", "—", "unknown", "—"):
@@ -106,6 +147,7 @@ def enrich_recalls(recalls: List[Recall], use_ai: bool = True, max_ai_calls: int
     """
     out: List[Recall] = []
     ai_used = 0
+    ai_skipped_fallback = 0
     url_rescued = 0
     for r in recalls:
         # Deterministic normalization first
@@ -115,8 +157,15 @@ def enrich_recalls(recalls: List[Recall], use_ai: bool = True, max_ai_calls: int
         if not r.Region and r.Country:
             r.Region = infer_region(r.Country)
 
-        # AI enrichment if needed and within budget
-        if use_ai and _needs_enrichment(r) and ai_used < max_ai_calls:
+        # AI enrichment if needed and within budget. Skip HTML-fallback
+        # placeholders — Gemini hallucinates pathogens from titles alone
+        # (see _is_html_fallback_placeholder docstring above). The URL
+        # fallback below catches URL-encoded pathogens; everything else
+        # waits for claude-check's detail-page fetch on its next cycle.
+        if (use_ai
+                and _needs_enrichment(r)
+                and not _is_html_fallback_placeholder(r)
+                and ai_used < max_ai_calls):
             try:
                 fixed = enrich_row(r.to_dict())
                 # Apply only if Gemini returned something usable
@@ -131,11 +180,16 @@ def enrich_recalls(recalls: List[Recall], use_ai: bool = True, max_ai_calls: int
                 ai_used += 1
             except Exception as e:
                 log.warning("Gemini enrichment failed for row: %s", e)
+        elif (use_ai
+                and _needs_enrichment(r)
+                and _is_html_fallback_placeholder(r)):
+            ai_skipped_fallback += 1
 
         # URL-keyword fallback: if pathogen is STILL missing after AI,
         # scan the URL for known pathogen strings (catches BLV/BVL PDF
         # recalls where the pathogen is in the filename but not in
-        # machine-readable metadata)
+        # machine-readable metadata, and HTML-fallback rows where Gemini
+        # was correctly skipped above)
         if not r.Pathogen and r.URL:
             url_pathogen = _pathogen_from_url(r.URL)
             if url_pathogen:
@@ -149,5 +203,7 @@ def enrich_recalls(recalls: List[Recall], use_ai: bool = True, max_ai_calls: int
         if not r.Region and r.Country:
             r.Region = infer_region(r.Country)
         out.append(r)
-    log.info("Enrichment complete: %d rows, %d AI-enriched, %d URL-rescued", len(out), ai_used, url_rescued)
+    log.info("Enrichment complete: %d rows, %d AI-enriched, "
+             "%d AI-skipped (HTML-fallback placeholder), %d URL-rescued",
+             len(out), ai_used, ai_skipped_fallback, url_rescued)
     return out
