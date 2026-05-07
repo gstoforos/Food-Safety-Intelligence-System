@@ -429,13 +429,16 @@ _MONTH_NAMES = {
 # Build a regex matching any month name as a whole-word token
 _MONTH_PATTERN = "|".join(sorted(_MONTH_NAMES.keys(), key=len, reverse=True))
 
-# "May 5, 2026" / "May 5 2026" / "5 May 2026" / "5. Mai 2026" / "5 de mayo de 2026"
+# "May 5, 2026" / "May 5 2026" / "Oct. 19, 2018" / "5 May 2026" / "5 de mayo de 2026"
+# Audit 2026-05-06: optional period after the month name is critical —
+# US/USDA boilerplate uses "Oct. 19, 2018" / "Apr. 30, 2026" formats
+# which previously failed the regex entirely and fell back to today.
 _WRITTEN_DATE_RX_MD = re.compile(
-    rf"\b({_MONTH_PATTERN})\s+(\d{{1,2}})(?:st|nd|rd|th)?[,.\s]+(\d{{4}})\b",
+    rf"\b({_MONTH_PATTERN})\.?\s+(\d{{1,2}})(?:st|nd|rd|th)?[,.\s]+(\d{{4}})\b",
     re.IGNORECASE,
 )
 _WRITTEN_DATE_RX_DM = re.compile(
-    rf"\b(\d{{1,2}})(?:\.|st|nd|rd|th)?\s+(?:de\s+)?({_MONTH_PATTERN})\s+"
+    rf"\b(\d{{1,2}})(?:\.|st|nd|rd|th)?\s+(?:de\s+)?({_MONTH_PATTERN})\.?\s+"
     rf"(?:de\s+)?(\d{{4}})\b",
     re.IGNORECASE,
 )
@@ -482,7 +485,12 @@ def _parse_date(tavily_item: Dict[str, Any]) -> Tuple[str, bool]:
             day = int(m.group(2))
             year = int(m.group(3))
             mon = _MONTH_NAMES.get(mon_name)
-            if mon and 1 <= day <= 31 and 2020 <= year <= 2100:
+            # Audit 2026-05-06: widened year range from 2020-2100 to 2010-2030.
+            # Previously a real "March 29, 2018" date was rejected by the
+            # narrow 2020-2100 window and fell through to today's date —
+            # making 8-year-old recalls look fresh. Now we parse them so
+            # _item_to_recall can drop them via the staleness check below.
+            if mon and 1 <= day <= 31 and 2010 <= year <= 2030:
                 return f"{year:04d}-{mon:02d}-{day:02d}", False
         except (ValueError, KeyError):
             pass
@@ -495,7 +503,7 @@ def _parse_date(tavily_item: Dict[str, Any]) -> Tuple[str, bool]:
             mon_name = m.group(2).lower()
             year = int(m.group(3))
             mon = _MONTH_NAMES.get(mon_name)
-            if mon and 1 <= day <= 31 and 2020 <= year <= 2100:
+            if mon and 1 <= day <= 31 and 2010 <= year <= 2030:
                 return f"{year:04d}-{mon:02d}-{day:02d}", False
         except (ValueError, KeyError):
             pass
@@ -505,7 +513,7 @@ def _parse_date(tavily_item: Dict[str, Any]) -> Tuple[str, bool]:
     m = _NUMERIC_DATE_RX.search(blob)
     if m:
         a, b, year = int(m.group(1)), int(m.group(2)), int(m.group(3))
-        if 2020 <= year <= 2100:
+        if 2010 <= year <= 2030:
             # Try M/D first (US format dominates our corpus)
             if 1 <= a <= 12 and 1 <= b <= 31:
                 return f"{year:04d}-{a:02d}-{b:02d}", False
@@ -625,6 +633,20 @@ def _run_tavily_queries(since_days: int) -> List[Dict[str, Any]]:
         # ── EU bodies ──
         ('site:webgate.ec.europa.eu/rasff-window notification',       "general"),
         ('site:foodstandards.gov.au food recall',                     "general"),
+        # ── Audit 2026-05-06 batch 2: missing-markets coverage ────────────
+        # Production data showed these regulators are 21-109 days stale OR
+        # have zero direct scraper captures. The dedicated 10-line Gemini-
+        # wrapper scrapers (sfa_sg.py, tfda_tw.py, samr_cn.py, mhlw_jp.py,
+        # blv_ch.py) silently fail like FSAI did. Direct site:queries via
+        # Tavily are the most reliable backfill until those scrapers can
+        # be hardened with deterministic HTML parsing.
+        ('site:mhlw.go.jp shokuhin recall',                           "general"),
+        ('site:caa.go.jp food recall safety',                         "general"),
+        ('site:sfa.gov.sg food recall',                               "general"),
+        ('site:fda.gov.tw recall food OR 食品 OR 回收',                 "general"),
+        ('site:blv.admin.ch Lebensmittel Rückruf OR Rappel',          "general"),
+        ('site:samr.gov.cn 食品 召回 OR 不合格',                          "general"),
+        ('site:efet.gr ανάκληση τροφίμων',                            "general"),
     ]
     all_results: Dict[str, Dict[str, Any]] = {}
     for q, topic in queries:
@@ -707,12 +729,42 @@ def _item_to_recall(item: Dict[str, Any],
 
     date_str, date_is_fallback = _parse_date(item)
     # HARD DROP: pre-2026 dates remain rejected (sentinel/year-mismatch leak).
-    # The "no date" branch is gone — _parse_date now always returns a date,
-    # using today as a placeholder when extraction fails. The placeholder
-    # is flagged via date_is_fallback so we can stamp Notes for claude-check
-    # to fix the Date field during page-content review.
     if date_str < "2026-01-01":
         return None
+
+    # ── Date sanity gate (audit 2026-05-06) ──────────────────────────────
+    # Pre-fix production data showed 4 of 11 Tavily-sourced Pending rows
+    # had wildly wrong dates: two 2018 USDA recalls stamped 2026-05-06,
+    # one FSA-PRIN-05-2026 stamped 2026-06-11 (36 days FUTURE), one
+    # 103-day-old Danone Ireland recall surfaced as "fresh".
+    #
+    # Drop rows where the date is implausible:
+    #   • Older than today - 90 days  → archived recall, regular scrapers
+    #     handled it long ago, no value re-discovering it now.
+    #   • Newer than today + 30 days  → hallucinated future date (real
+    #     recalls aren't published 30+ days in advance).
+    # We allow the fallback ("today") to pass since the Notes tag already
+    # flags it for claude-check Date enrichment.
+    if not date_is_fallback:
+        try:
+            row_d = datetime.strptime(date_str, "%Y-%m-%d").date()
+            today = datetime.utcnow().date()
+            age_days = (today - row_d).days
+            if age_days > 90:
+                # Stale — drop. Don't pollute Pending with old recalls
+                # the scrapers already covered when they were fresh.
+                return None
+            if age_days < -30:
+                # Date is in the FUTURE by more than 30 days. Either
+                # Tavily extracted a "next review" / "valid until" date
+                # from the regulator page, or the extractor confused
+                # year fields. Drop.
+                return None
+        except ValueError:
+            # Couldn't parse our own output — shouldn't happen, but
+            # don't crash the gap-finder if it does.
+            pass
+
     notes_suffix = (
         f"  [via {finder_name} gap-finder, deterministic extract]"
         + (" [date-unknown: claude-check please verify Date]"

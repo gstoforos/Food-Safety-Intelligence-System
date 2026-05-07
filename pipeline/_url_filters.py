@@ -65,6 +65,7 @@ KNOWN_REGULATOR_LANDINGS = frozenset({
     # FSANZ (Australia)
     "https://www.foodstandards.gov.au/food-recalls",
     "https://www.foodstandards.gov.au/food-recalls/recalls",
+    "https://www.foodstandards.gov.au/food-recalls/recall-alert",  # Tavily Row 10 leak (audit 2026-05-06)
     "https://www.foodstandards.gov.au/consumer/safety/recalls",
     # FDA (USA)
     "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts",
@@ -86,6 +87,10 @@ KNOWN_REGULATOR_LANDINGS = frozenset({
     "https://www.food.gov.uk/about-us/recalls-and-alerts",
     # FSAI (Ireland)
     "https://www.fsai.ie/news-and-alerts/food-alerts",
+    "https://www.fsai.ie/news-alerts/food",                  # Tavily Row 7 leak (audit 2026-05-06)
+    "https://www.fsai.ie/news-and-alerts",
+    "https://www.fsai.ie/news-and-alerts/latest-news",
+    "https://www.fsai.ie/consumer-advice",                   # advice section root
     # RappelConso (FR)
     "https://rappel.conso.gouv.fr",
     "https://rappel.conso.gouv.fr/recherche",

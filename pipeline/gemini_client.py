@@ -202,26 +202,64 @@ def extract_recalls_from_html(
 
 
 def enrich_row(row: Dict[str, Any]) -> Dict[str, Any]:
-    """Use Gemini to fill in missing/inconsistent fields on a recall row."""
+    """Use Gemini to fill in missing/inconsistent fields on a recall row.
+
+    Audit 2026-05-07: tightened to FORBID modifying Product / Company /
+    Brand / Reason fields. Gemini was freelancing and adding English
+    clarifications like "Picodon (cheese)" to native-language product
+    names — turning RappelConso French rows into English/French hybrids
+    that look broken on a French-language dashboard.
+
+    Pathogen and Country normalization to English/Latin scientific names
+    is preserved (universal microbiology naming convention; Country in
+    English is needed for cross-language dashboards).
+    """
     prompt = f"""You are a food safety analyst enriching a recall record.
 
 Current record:
 {json.dumps(row, ensure_ascii=False, indent=2)}
 
-Fill in or correct any missing/inconsistent fields. Return strict JSON with the same keys.
-- Normalize Pathogen to canonical name (e.g. "Listeria monocytogenes" not "listeria")
-- Normalize Country to English (e.g. "Germany" not "DE" or "Deutschland")
-- Set Class if missing ("Recall" or "Alert")
-- Outbreak = 1 only if illnesses/cases are explicitly mentioned
+Fill in or correct ONLY these fields. Return strict JSON with the same keys.
+
+ALLOWED MODIFICATIONS (only these):
+- Pathogen: normalize to canonical scientific name only
+  (e.g. "Listeria monocytogenes" not "listeria"; "Salmonella" not "salm")
+- Country: normalize to English country name only
+  (e.g. "Germany" not "DE" or "Deutschland")
+- Class: set to "Recall" or "Alert" if currently empty
+- Outbreak: set to 1 ONLY if illnesses/cases are explicitly mentioned in
+  the record. If absent or unclear, leave at 0.
+
+FORBIDDEN — DO NOT MODIFY (return verbatim):
+- Product: NEVER add English clarifications, translations, or category
+  hints like "(cheese)", "(meat)", "(seafood)". The Product field is
+  shown as-is on the public dashboard. Adding English text to French/
+  Italian/Spanish/etc. product names breaks language consistency.
+- Company: return verbatim — no expansion, translation, or normalization
+- Brand: return verbatim — no normalization or de-duplication
+- Reason: return verbatim — preserve the regulator's original wording in
+  the source language
+- URL, Date, Source: return verbatim
 
 Return ONLY a JSON object with the fields, no commentary."""
     txt = _call_gemini(prompt)
     if not txt:
         return row
     try:
-        return {**row, **json.loads(txt)}
+        gemini_response = json.loads(txt)
     except json.JSONDecodeError:
         return row
+
+    # Belt-and-braces: even if Gemini violates the prompt, force-preserve
+    # the verbatim fields. Gemini cannot change Product/Company/Brand/
+    # Reason regardless of what its response says.
+    PROTECTED_FIELDS = ("Product", "Company", "Brand", "Reason",
+                        "URL", "Date", "Source")
+    sanitized = {**row, **gemini_response}
+    for k in PROTECTED_FIELDS:
+        if k in row:
+            sanitized[k] = row[k]
+    return sanitized
 
 
 def get_call_stats() -> Dict[str, Any]:
