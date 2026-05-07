@@ -1,28 +1,41 @@
 name: FSIS Morning Critical-Agency Scrape
 
-# Morning 12-agency scrape at 08:00 ATHENS TIME (not UTC).
+# ============================================================================
+# Morning critical-agency scrape — fires 04:00 ATHENS local time, dispatched
+# by FsisScheduler.gs (workflow_dispatch only; no GitHub cron).
+#
+# ARCHITECTURE (audit 2026-05-07 — strict scrape-to-Pending rule):
+#
+#   This workflow is SCRAPE-ONLY. Every row it produces lands in Pending.
+#   Nothing in this workflow runs Gemini enrichment, Claude review, URL
+#   gate, pathogen verification, or merge promotion. Those happen in the
+#   scheduled gate/check/merge chain later in the day:
+#
+#       06:00 Athens — gemini-url-gate.yml      (URL gate, 1st pass)
+#       07:00 Athens — claude-check.yml         (Claude per-row check)
+#       07:30 Athens — merge-master.yml         (Pending -> Recalls)
+#       19:00 Athens — gemini-url-gate.yml      (URL gate, 2nd pass)
+#       (and additional merge slots through the day)
+#
+#   So the only path from Pending into Recalls is via that chain. This
+#   workflow's job ends at "row appended to Pending sheet, xlsx saved,
+#   pushed to GitHub". Promotion is somebody else's problem.
+#
+#   Lookback rule: scrapers look back today + 3 days (SINCE_DAYS=3).
+#   Manual dispatches can override for backfill.
+#
 # Pairs with daily-scrape.yml which runs the full 66-agency pass at
 # 17:00 Athens. This morning pass cuts Tier-1 alert latency from ~24h
-# to ~12h for the agencies that produce the bulk of recalls, without
-# doubling the full API load.
-#
-# Dispatched by FsisScheduler.gs at 08:00 Athens (workflow_dispatch
-# only; no GitHub cron). The Athens-time guard below is a defensive
-# net for clock drift / dispatcher delays.
-#
-# 2026-04-30 — SINCE_DAYS dropped 7 → 2 for daily fires. Daily passes
-# don't benefit from a 7-day window — duplicates already in the corpus
-# get dedup'd anyway, but the bigger window means more rows scanned
-# per agency listing + more Gemini calls in the URL gate. Manual
-# dispatches can still pass since_days=7 (or higher) for backfill.
+# to ~12h for the agencies that produce the bulk of recalls.
+# ============================================================================
 
 on:
   workflow_dispatch:
     inputs:
       since_days:
-        description: "Days to look back. Default 2 covers daily-fire deduplication. Pass 7+ for backfill via manual dispatch."
+        description: "Days to look back. Default 3 (today + 3 days back). Pass 7+ for backfill."
         required: false
-        default: "2"
+        default: "3"
 
 permissions:
   contents: write
@@ -37,17 +50,18 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Athens-time guard (06-10:xx window for the 08:00 fire)
+      - name: Athens-time guard (02-06 window for the 04:00 fire)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" -ge "06" ] && [ "$HOUR" -le "10" ]; then
+            echo "Manual dispatch — running regardless of hour."
+          elif [ "$HOUR" -ge "02" ] && [ "$HOUR" -le "06" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Not 08:xx Athens (now ${HOUR}:xx). Skipping."
+            echo "Not 04:xx Athens (now ${HOUR}:xx). Skipping."
           fi
 
       - name: Checkout
@@ -70,34 +84,39 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run critical-12 subset scrape
+      - name: Scrape critical-12 to Pending (SCRAPE-ONLY — no AI, no review, no merge)
         if: steps.guard.outputs.run == 'true'
         env:
+          # Scrapers that internally use Gemini for HTML extraction still
+          # need GEMINI_API_KEY available — that's the scraping mechanism
+          # itself, not the post-scrape enrichment pass. SKIP_AI below
+          # disables the post-scrape enrichment; it does NOT touch the
+          # in-scraper extraction.
           GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
-          OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
           GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+
+          # Scrape lookback: today + 3 calendar days back (audit 2026-05-07).
+          SINCE_DAYS:  ${{ github.event.inputs.since_days || '3' }}
+
+          # SCRAPE-ONLY MODE — every row stays in Pending.
+          # SKIP_AI=1       → no Gemini enrichment pass
+          # SKIP_REVIEW=1   → no URL validation, no pathogen-in-source verify, no Claude review
+          # SKIP_PROMOTE=1  → no promote_approved; Recalls untouched
+          SKIP_AI:       "1"
+          SKIP_REVIEW:   "1"
+          SKIP_PROMOTE:  "1"
+          SKIP_COMMIT:   "false"
+
           AGENCIES_FILTER: "FDA,USDA FSIS,CFIA,RASFF (EU),FSA (UK),FSAI (IE),RappelConso (FR),BVL (DE),AESAN (ES),AGES (AT),FSANZ (AU),MPI (NZ),EFET (GR)"
-          SINCE_DAYS:  ${{ github.event.inputs.since_days || '7' }}
-          SKIP_COMMIT: "false"
           GIT_USER_EMAIL: "fsis-bot@advfood.tech"
           GIT_USER_NAME:  "AFTS Intelligence System"
         run: |
           python -m pipeline.run_all
 
-
-      - name: Gemini URL Gate + Merge
-        if: steps.guard.outputs.run == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
-          GIT_USER_NAME: "FSIS Bot"
-        run: |
-          python -m pipeline.url_gate_gemini
-          python -m pipeline.merge_master
-
       - name: Summary
         if: steps.guard.outputs.run == 'true' && always()
         run: |
           echo "Morning scrape complete — Athens $(TZ=Europe/Athens date)."
-          echo "Next full pass at 17:00 Athens via daily-scrape.yml."
+          echo "All new rows landed in Pending. The 06:00 gemini-url-gate +"
+          echo "07:00 claude-check + 07:30 merge-master chain handles promotion."
+          echo "Next full-fleet pass at 17:00 Athens via daily-scrape.yml."
