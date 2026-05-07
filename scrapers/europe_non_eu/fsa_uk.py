@@ -72,18 +72,28 @@ class FSAUKScraper(BaseScraper):
     )
 
     def scrape(self, since_days: int = 30) -> List[Recall]:
+        # 2026-05-07 audit: previous code used `if not r:` which collapses
+        # `r is None` (network/exception) and `r.status_code >= 400`
+        # (HTTP error response) into the same branch with the misleading
+        # message "no response". Distinguish both, log the actual status,
+        # and include a body preview so future debugging starts with real
+        # data — same pattern as FDA / CFIA / FSAI.
         r = fetch(self.session, self.FEED_URL,
                   headers={"Accept": "application/json"})
-        if not r:
-            log.warning("FSA UK: API fetch failed (no response)")
+        if r is None:
+            log.warning("FSA UK: fetch returned None (network/timeout/DNS) "
+                        "for %s", self.FEED_URL)
             return []
         if r.status_code != 200:
-            log.warning("FSA UK: API HTTP %d", r.status_code)
+            log.warning("FSA UK: HTTP %d for %s (body[:120]=%r)",
+                        r.status_code, self.FEED_URL,
+                        r.text[:120] if r.text else "")
             return []
         try:
             data = r.json()
         except Exception as e:
-            log.warning("FSA UK: JSON parse failed: %s", e)
+            log.warning("FSA UK: JSON parse failed: %s | body[:120]=%r",
+                        e, r.text[:120] if r.text else "")
             return []
 
         items = data.get("items", [])
