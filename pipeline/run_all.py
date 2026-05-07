@@ -81,6 +81,12 @@ MAX_PARALLEL = int(os.getenv("MAX_PARALLEL", "8"))
 SKIP_AI = os.getenv("SKIP_AI", "").lower() in ("1", "true", "yes")
 SKIP_REVIEW = os.getenv("SKIP_REVIEW", "").lower() in ("1", "true", "yes")
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
+# SKIP_PROMOTE (audit 2026-05-07): scrape-only mode. New rows go to Pending
+# and stay there. promote_approved is bypassed entirely. The scheduled
+# url-gate / claude-check / merge-master workflows are then the ONLY path
+# to Recalls. Used by morning-critical-scrape and any other workflow whose
+# only job is to populate Pending.
+SKIP_PROMOTE = os.getenv("SKIP_PROMOTE", "").lower() in ("1", "true", "yes")
 
 # Optional comma-separated list of AGENCY values to include.
 # Empty/unset = run all discovered scrapers (the default 17:00 UTC behaviour).
@@ -341,9 +347,9 @@ def main() -> int:
     scraped_at = t0.strftime("%Y-%m-%dT%H:%M:%SZ")
     log.info("=" * 60)
     log.info("FSIS daily run started: %s", scraped_at)
-    log.info("Config: since_days=%d, parallel=%d, ai=%s, review=%s, commit=%s",
+    log.info("Config: since_days=%d, parallel=%d, ai=%s, review=%s, promote=%s, commit=%s",
              SINCE_DAYS, MAX_PARALLEL,
-             not SKIP_AI, not SKIP_REVIEW, not SKIP_COMMIT)
+             not SKIP_AI, not SKIP_REVIEW, not SKIP_PROMOTE, not SKIP_COMMIT)
     log.info("Data dir: %s", DATA_DIR)
 
     # ---- 1. Load state: approved (Recalls) + existing Pending --------------
@@ -442,13 +448,23 @@ def main() -> int:
                 rejections[idx] = f"Pathogen verification: {reason}"
 
     # ---- 8. Promote approved rows -> Recalls -----------------------------
-    new_approved, pending_after = promote_approved(
-        pending=pending,
-        approved_existing=approved,
-        rejected_flags=rejections,
-    )
-    final_approved = sort_rows(approved + new_approved)
-    final_pending = sort_rows(pending_after)
+    if SKIP_PROMOTE:
+        # Scrape-only mode: new rows stay in Pending. The scheduled
+        # url-gate -> claude-check -> merge-master chain is the only
+        # path to Recalls. (Audit 2026-05-07.)
+        log.info("SKIP_PROMOTE set — leaving %d new rows in Pending; "
+                 "Recalls untouched", len(new_indices))
+        new_approved = []
+        final_approved = sort_rows(approved)
+        final_pending = sort_rows(pending)
+    else:
+        new_approved, pending_after = promote_approved(
+            pending=pending,
+            approved_existing=approved,
+            rejected_flags=rejections,
+        )
+        final_approved = sort_rows(approved + new_approved)
+        final_pending = sort_rows(pending_after)
 
     log.info("Summary: +%d approved (total %d), Pending now %d (rejected kept: %d)",
              len(new_approved), len(final_approved), len(final_pending),
