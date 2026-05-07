@@ -944,7 +944,24 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
             except json.JSONDecodeError as e:
                 log.warning("Gemini JSON parse failed: %s | %s", e, txt[:200])
 
-        # Fill any uncovered rows with deterministic fallback
+        # Fill any uncovered rows with deterministic fallback.
+        #
+        # Audit 2026-05-07 — flipped default from PASS to FAIL on rows
+        # where Gemini did not return a verdict (JSON parse error, network
+        # silence, or row skipped in returned JSON). This is the original
+        # audit bug #1 root cause: a JSONDecodeError left got_response=False
+        # and the fallback silent-passed every row in the chunk, which let
+        # the gap-gating state machine advance pending_gap_v0 → v1 → v2
+        # without any actual Gemini verification. A bad row needs only two
+        # parse failures to land in claude-check as if it had been double-
+        # verified by Gemini.
+        #
+        # New semantics: no Gemini verdict = FAIL. The row goes into
+        # rejected_flags and merge_master will mark it Status=rejected
+        # via the standard path. "Once rejected, stays rejected" (per the
+        # 2026-05-07 architectural fix) is the correct behavior here —
+        # if Gemini was unreachable for a row the operator can manually
+        # clear the Status field once Gemini is back.
         for j in range(len(chunk)):
             real_idx = start + j
             if real_idx in decisions:
@@ -957,12 +974,12 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                                        det_fail[real_idx] + " (gemini unreached)",
                                        None, None, "")
             elif not got_response:
-                decisions[real_idx] = (True,
-                                       "ok (gemini unreached, url verified)",
+                decisions[real_idx] = (False,
+                                       "FAIL: gemini parse error (safety default — audit 2026-05-07)",
                                        None, None, "")
             else:
-                decisions[real_idx] = (True,
-                                       "ok (gemini silent, url verified)",
+                decisions[real_idx] = (False,
+                                       "FAIL: gemini silent on this row (safety default — audit 2026-05-07)",
                                        None, None, "")
 
     passes = sum(1 for v in decisions.values() if v[0])
