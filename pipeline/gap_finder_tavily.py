@@ -521,10 +521,13 @@ def _parse_date(tavily_item: Dict[str, Any]) -> Tuple[str, bool]:
             if 1 <= b <= 12 and 1 <= a <= 31:
                 return f"{year:04d}-{b:02d}-{a:02d}", False
 
-    # 3. Last resort — return today's date, flag as fallback so
-    #    _item_to_recall can mark the row "needs claude-check Date enrichment"
-    today = datetime.utcnow().strftime("%Y-%m-%d")
-    return today, True
+    # 3. Last resort — return EMPTY date with fallback flag (audit 2026-05-07).
+    #    Previous version returned today's date, which caused 45% wrong-Date
+    #    rate observed in 2026-05-07 morning claude-check (5 of 11 rows had
+    #    today's date stamped on recalls 2-3 months old). claude-check now
+    #    fills the real date from the regulator page during content review;
+    #    the row carries Date="" until then, with a Notes flag.
+    return "", True
 
 
 # ---------------------------------------------------------------------------
@@ -729,7 +732,12 @@ def _item_to_recall(item: Dict[str, Any],
 
     date_str, date_is_fallback = _parse_date(item)
     # HARD DROP: pre-2026 dates remain rejected (sentinel/year-mismatch leak).
-    if date_str < "2026-01-01":
+    # Audit 2026-05-07: skip the pre-2026 check on fallback rows where
+    # date_str="" — empty string would compare True < "2026-01-01" and
+    # silently drop the row before claude-check ever sees it. Fallback rows
+    # land in Pending with Date="", and claude-check fills it during the
+    # next content review pass.
+    if not date_is_fallback and date_str < "2026-01-01":
         return None
 
     # ── Date sanity gate (audit 2026-05-06) ──────────────────────────────
