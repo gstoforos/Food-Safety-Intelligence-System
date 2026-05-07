@@ -96,6 +96,38 @@
   "Notes": "au primeur du chantre¤quartier le chantre, 1750 avenue de provence, 26320 saint-marcel-lès-valence [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [Claude-flag 2026-05-06: Missing Company field (empty string). Critical for Tier-1 STEC recall.]"
  },
  {
+  "Date": "2026-05-06",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Uzbekistan | Notifying: Latvia",
+  "Brand": "—",
+  "Product": "Exceed level of Ochratoxin A 62 ± 32 µg/kg in raisins from Uzbekistan",
+  "Pathogen": "Ochratoxin",
+  "Reason": "Exceed level of Ochratoxin A 62 ± 32 µg/kg in raisins from Uzbekistan; risk: serious; category: fruits and vegetables",
+  "Class": "Information",
+  "Country": "Uzbekistan",
+  "Region": "Unknown",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839115",
+  "Notes": "[RASFF #2026.3972; classification: information notification for attention; category: fruits and vegetables; notifId=839115]"
+ },
+ {
+  "Date": "2026-05-06",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Hungary | Notifying: Slovakia",
+  "Brand": "—",
+  "Product": "Aflatoxins in mini corn wafers from Slovakia, raw material from Hungary.",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Aflatoxins in mini corn wafers from Slovakia, raw material from Hungary.; risk: serious; category: cereals and bakery products",
+  "Class": "Alert",
+  "Country": "Hungary",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841142",
+  "Notes": "[RASFF #2026.3957; classification: alert notification; category: cereals and bakery products; notifId=841142]"
+ },
+ {
   "Date": "2026-05-05",
   "Source": "RASFF (EU)",
   "Company": "Origin: Netherlands | Notifying: Belgium",
