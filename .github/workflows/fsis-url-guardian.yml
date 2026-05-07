@@ -1,15 +1,22 @@
-name: FSIS URL Guardian (19:00 Athens, once daily)
+name: FSIS URL Guardian (every 4h)
 
-# Runs once daily at 19:00 Athens (12-hour offset from 07:00 url-gate).
-# Dispatched by the Apps Script FsisScheduler project — this workflow
-# itself is workflow_dispatch only. Tasks:
-#   1. Validate URLs in docs/data/recalls.xlsx (blanks truly-broken, keeps bot-blocks)
-#   2. Ask OpenAI for missing recalls per major agency (gap-finder, last 3 days)
-#   3. Optional Claude Haiku spot-check on Tier-1 rows
-#   4. Commit updated xlsx + json back to the repo
+# Fires every 4 hours at 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 Athens —
+# 6 runs/day, dispatched by the Apps Script FsisScheduler project. This
+# workflow itself is workflow_dispatch only.
 #
-# Lightweight by design: 1 LLM call per agency (8 agencies max), ~$0.05/run.
-# 7 runs/week = ~$0.35/week. Heavy full scrape runs separately at 18:00.
+# Tasks (audit 2026-05-07):
+#   1. Validate URLs on PENDING rows (blanks truly-broken 4xx/5xx, keeps
+#      bot-blocked 403s from known gov domains)
+#   2. Commit updated xlsx back to the repo (recalls.json untouched —
+#      run_all.py is the sole authority for mirroring Recalls -> JSON)
+#
+# Retired components (still in code as dead/inert):
+#   - OpenAI gap-finder: retired Apr 2026; tavily/exa/gemini gap-finders
+#     handle this in dedicated workflows.
+#   - Claude Tier-1 spot-check: disabled 2026-05-07; the daily
+#     claude-check.yml workflow at 07:00 Athens covers Tier-1 verification.
+#
+# Cost: $0/run. URL health is HTTP HEAD/GET only — no LLM calls.
 
 on:
   workflow_dispatch:
@@ -66,8 +73,11 @@ jobs:
       - name: Run URL Guardian
         shell: bash
         env:
+          # Anthropic key removed 2026-05-07 — Tier-1 Claude spot-check disabled.
+          # Guardian is now URL-health-only with no LLM cost.
+          # OpenAI key kept here (gap-finder already inert via find_missing_recalls=None;
+          # the env var costs nothing while the secret is untouched).
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GUARDIAN_SINCE_DAYS: ${{ github.event.inputs.since_days || '14' }}
           GUARDIAN_GAP_DAYS: ${{ github.event.inputs.gap_days || '3' }}
           GUARDIAN_SKIP_AI: ${{ github.event.inputs.skip_ai || 'false' }}
