@@ -702,131 +702,6 @@ def _missing_required(row: Dict[str, Any]) -> List[str]:
     return missing
 
 
-# ─────────────────────────────────────────────────────────────────────────
-# Cost-reduction helpers (audit 2026-05-06).
-#
-# Pre-fix: every URL gate run sent ALL Pending rows to Gemini-with-grounding.
-# Each grounded call burns ~30-50K tokens and one of the daily 250-call
-# free-tier slots, even when the row is obviously fine — URL on whitelisted
-# domain, all required fields present, no structural smell. The gate runs
-# 4-5×/day (06:00, 19:00, plus inline runs in tavily-gap-finder.yml,
-# exa-gap-finder.yml, and gap-finder-cascade.yml), so the same clean row
-# could get re-validated 5 times in 24 hours for no benefit.
-#
-# Two cheap optimisations that drop Gemini calls by ~80-90% with no
-# quality loss:
-#
-#   B (smart-skip): if a row passes EVERY deterministic check —
-#     • all REQUIRED_FIELDS present and non-empty
-#     • URL is structurally valid (not _is_structurally_bad)
-#     • URL is NOT on a news-mirror host
-#     • URL is on a whitelisted regulator host
-#     • api_prepass did not propose a fix (URL was already canonical)
-#     ...auto-pass without firing the Gemini call.
-#
-#   C (recency cache): if Notes contains a recent [url-gate YYYY-MM-DD]
-#     audit stamp from within the last URL_GATE_SKIP_HOURS hours, the
-#     gate already passed this row. Auto-pass without re-firing Gemini.
-#
-# Both are conservative — they only let rows pass that we have strong
-# evidence are clean. Anything ambiguous (missing fields, structural
-# smell, never-validated, last validated > N hours ago) still goes to
-# Gemini.
-# ─────────────────────────────────────────────────────────────────────────
-URL_GATE_SKIP_HOURS = int(os.getenv("URL_GATE_SKIP_HOURS", "12"))
-
-
-def _was_recently_url_gated(row: Dict[str, Any]) -> bool:
-    """True if Notes contains a [url-gate YYYY-MM-DD] stamp within
-    URL_GATE_SKIP_HOURS hours. Skip threshold default 12h — chosen so
-    the 06:00 and 19:00 gates can both run a fresh check, but the
-    inline tavily-gap-finder / exa-gap-finder / cascade runs in between
-    don't re-validate a row that the morning gate just passed.
-    """
-    if URL_GATE_SKIP_HOURS <= 0:
-        return False
-    notes = str(row.get("Notes") or "")
-    # Match the gate's own audit stamp format
-    m = re.search(r"\[url-gate (\d{4}-\d{2}-\d{2})", notes)
-    if not m:
-        return False
-    try:
-        stamp_date = datetime.strptime(m.group(1), "%Y-%m-%d").date()
-    except ValueError:
-        return False
-    age_days = (datetime.now(timezone.utc).date() - stamp_date).days
-    # Convert to hours boundary — same-day stamp is always within window;
-    # 1-day-old stamp is within window only if URL_GATE_SKIP_HOURS >= 24
-    return (age_days * 24) <= URL_GATE_SKIP_HOURS
-
-
-def _is_clean_for_skip(row: Dict[str, Any]) -> bool:
-    """True if a row is so clean we can safely skip the Gemini call.
-
-    Deterministic-only checks; no AI required. Conservative — any whiff
-    of trouble (missing fields, news mirror, structural smell, off-domain)
-    sends the row to Gemini.
-    """
-    # All required fields present
-    if _missing_required(row):
-        return False
-
-    url = str(row.get("URL") or "").strip()
-    if not url:
-        return False
-
-    # Reject anything structurally smelly
-    if _is_structurally_bad(url):
-        return False
-
-    # Reject generic landings / search shells / paginated listings
-    # (single source of truth — same module used by gap-finders)
-    try:
-        from pipeline._url_filters import is_generic_url as _is_generic
-        if _is_generic(url):
-            return False
-    except ImportError:
-        pass
-
-    # Reject news-mirror hosts (article paragraphs masquerading as recalls)
-    if _is_news_host(url):
-        return False
-
-    # Reject anything on a non-whitelisted host. The URL gate's REGULATOR_-
-    # ALLOWLIST set is the canonical "real regulator domain" list. If the
-    # URL isn't on it, we DON'T skip — Gemini decides.
-    try:
-        from urllib.parse import urlparse as _up
-        host = (_up(url).netloc or "").lower()
-        if host.startswith("www."):
-            host = host[4:]
-    except Exception:
-        return False
-    # Conservative whitelist match — must be exact host or subdomain of one
-    # of the canonical regulator domains. Other hosts go to Gemini.
-    whitelisted_suffixes = (
-        "fda.gov", "fsis.usda.gov", "cdc.gov",
-        "recalls-rappels.canada.ca", "inspection.canada.ca", "quebec.ca",
-        "rappel.conso.gouv.fr", "rappelconso.gouv.fr",
-        "food.gov.uk", "fsai.ie",
-        "foodstandards.gov.au", "mpi.govt.nz",
-        "webgate.ec.europa.eu",   # RASFF Window
-        "lebensmittelwarnung.de", "bvl.bund.de",
-        "ages.at", "aesan.gob.es", "salute.gov.it",
-        "afsca.be", "favv.be", "nvwa.nl", "fsa.fi", "livsmedelsverket.se",
-        "efet.gr",
-        "cfs.gov.hk", "fda.gov.tw", "tfda.gov.tw",
-        "mfds.go.kr", "mhlw.go.jp", "fsa.go.jp",
-        "anvisa.gov.br", "cofepris.gob.mx", "anmat.gov.ar",
-        "fssai.gov.in", "nafdac.gov.ng", "sfda.gov.sa",
-    )
-    if not any(host == s or host.endswith("." + s)
-               for s in whitelisted_suffixes):
-        return False
-
-    return True
-
-
 def _collect_gemini_keys() -> List[str]:
     """Key collection with FREE-tier preference (audit 2026-04-29).
 
@@ -853,15 +728,8 @@ def _collect_gemini_keys() -> List[str]:
     keys: List[str] = []
 
     # ── Free-tier keys first (URL gate's dedicated quota) ────────────────
-    # Audit 2026-05-06: previously skipped GEMINI_API_KEY_FREE (no suffix)
-    # which exists in many deployments alongside FREE_2. Now we read both
-    # so 2× the free daily quota (500 calls/day) is available before
-    # ever falling through to the paid GEMINI_API_KEY.
-    free_no_suffix = os.getenv("GEMINI_API_KEY_FREE")
-    if free_no_suffix and free_no_suffix.strip():
-        keys.append(free_no_suffix.strip())
     free_2 = os.getenv("GEMINI_API_KEY_FREE_2")
-    if free_2 and free_2.strip() not in keys:
+    if free_2 and free_2.strip():
         keys.append(free_2.strip())
     for i in range(3, 6):  # FREE_3..FREE_5
         v = os.getenv(f"GEMINI_API_KEY_FREE_{i}")
@@ -970,67 +838,14 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
         log.info("Gemini disabled — using deterministic check only")
         for i in range(len(rows)):
             if i in det_fail:
-                decisions[i] = (False, det_fail[i], None, None, "")
+                decisions[i] = (False, det_fail[i], None)
             else:
-                decisions[i] = (True, "ok (gemini disabled)", None, None, "")
+                decisions[i] = (True, "ok (gemini disabled)", None)
         return decisions
 
-    # ── Cost-reduction pre-pass (audit 2026-05-06) ─────────────────────
-    # B (smart-skip): rows that are deterministically clean auto-pass
-    # without firing the Gemini call.
-    # C (recency cache): rows that the gate already passed within
-    # URL_GATE_SKIP_HOURS hours auto-pass without re-firing Gemini.
-    #
-    # Both pre-pass paths populate `decisions` so the Gemini batch loop
-    # below skips them. Counts are logged so operators can see the
-    # savings rate per run.
-    skip_clean = skip_recent = 0
-    needs_gemini: List[int] = []
-    for i, r in enumerate(rows):
-        if i in det_fail:
-            # Already failed deterministic baseline — no Gemini call needed
-            decisions[i] = (False, det_fail[i], None, None, "")
-            continue
-        if _was_recently_url_gated(r):
-            decisions[i] = (
-                True,
-                "ok (recently url-gated, skipped Gemini — saves $$)",
-                None, None, "",
-            )
-            skip_recent += 1
-            continue
-        if _is_clean_for_skip(r):
-            decisions[i] = (
-                True,
-                "ok (deterministic clean, skipped Gemini — saves $$)",
-                None, None, "",
-            )
-            skip_clean += 1
-            continue
-        needs_gemini.append(i)
-
-    if skip_clean or skip_recent:
-        log.info(
-            "URL gate cost-saver: %d rows auto-passed (clean=%d, recent=%d), "
-            "%d rows still need Gemini",
-            skip_clean + skip_recent, skip_clean, skip_recent,
-            len(needs_gemini),
-        )
-
-    if not needs_gemini:
-        log.info("URL gate: every row handled by pre-pass, no Gemini call fired")
-        return decisions
-
-    # Filter rows down to only the ones that actually need Gemini.
-    # We have to keep the original indices intact so callers can map
-    # decisions[i] back to rows[i].
-    rows_for_gemini = [(orig_i, rows[orig_i]) for orig_i in needs_gemini]
-
-    # Batch-call Gemini — only on the subset that needs it
-    for start in range(0, len(rows_for_gemini), GEMINI_BATCH_SIZE):
-        chunk_pairs = rows_for_gemini[start:start + GEMINI_BATCH_SIZE]
-        chunk = [r for _, r in chunk_pairs]
-        chunk_orig_indices = [oi for oi, _ in chunk_pairs]
+    # Batch-call Gemini
+    for start in range(0, len(rows), GEMINI_BATCH_SIZE):
+        chunk = rows[start:start + GEMINI_BATCH_SIZE]
         batch_view = [{
             "row_index": j,
             "Date":     r.get("Date", ""),
@@ -1050,24 +865,6 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
         txt = _call_gemini_grounded(prompt, system=GEMINI_GATE_SYSTEM)
 
         got_response = False
-        # Audit 2026-05-06: Pre-fix, when Gemini returned prose instead of
-        # JSON the parse failure left got_response=False, which made the
-        # fallback loop below default rows to PASS ("ok (gemini unreached,
-        # url verified)"). This was unsafe: Gemini DID respond — just
-        # incoherently — so we have no signal that the row is actually
-        # clean. Production log on 2026-05-06 19:12 showed two sequential
-        # parse failures where the gate marked all 11 alive rows as
-        # "pass, 0 fail" without any actual verification.
-        #
-        # Fix: track the cause separately. If Gemini was unreachable
-        # (no text returned at all — likely network/auth/quota), the
-        # URL is still alive (validated in step 1) so default-pass is
-        # safe. But if Gemini RESPONDED with non-JSON prose, we know
-        # the model was confused and we should NOT trust it — keep the
-        # row in Pending for the next gate run (status STATUS_REJECTED
-        # is reset at the start of each run, so this is a retry, not a
-        # permanent rejection).
-        gemini_responded_with_prose = False
         if txt:
             try:
                 data = json.loads(_strip_fences(txt))
@@ -1075,11 +872,7 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                     j = d.get("row_index")
                     if j is None or j < 0 or j >= len(chunk):
                         continue
-                    # Audit 2026-05-06: when the cost-saver pre-pass routes
-                    # only a subset of rows to Gemini, real_idx must come
-                    # from chunk_orig_indices, NOT (start + j) — the latter
-                    # would point at the wrong row in the original input.
-                    real_idx = chunk_orig_indices[j]
+                    real_idx = start + j
                     passed = bool(d.get("pass"))
                     url_fix = d.get("url_corrected") or None
                     # Local verification gate — never trust low confidence
@@ -1150,16 +943,10 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                 got_response = True
             except json.JSONDecodeError as e:
                 log.warning("Gemini JSON parse failed: %s | %s", e, txt[:200])
-                # Gemini RESPONDED but not in JSON. The model is confused
-                # (saw a hard row, hit a guardrail, or got stuck mid-thought).
-                # Mark this so the fallback path defaults to FAIL — the row
-                # stays in Pending for the next run instead of being silently
-                # promoted with no actual verification.
-                gemini_responded_with_prose = True
 
         # Fill any uncovered rows with deterministic fallback
         for j in range(len(chunk)):
-            real_idx = chunk_orig_indices[j]
+            real_idx = start + j
             if real_idx in decisions:
                 continue
             # Fallback tuples — when Gemini didn't give us a verdict on
@@ -1169,27 +956,11 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                 decisions[real_idx] = (False,
                                        det_fail[real_idx] + " (gemini unreached)",
                                        None, None, "")
-            elif gemini_responded_with_prose:
-                # Audit 2026-05-06: parse-failure-defaults-to-FAIL.
-                # Gemini responded but with non-JSON prose — we have NO
-                # signal this row is OK. Mark it for retry. The row
-                # stays in Pending; next gate run will try again, and
-                # the cost-saver pre-pass may handle it deterministically
-                # if its smell improved (claude-check often reformats
-                # ambiguous rows between gate runs).
-                decisions[real_idx] = (False,
-                                       "gemini parse failed (prose) — retry next run",
-                                       None, None, "")
             elif not got_response:
-                # Gemini API genuinely unreachable (no text returned).
-                # URL is alive (validated in step 1) and required fields
-                # are present (det check passed). Safe to default-pass.
                 decisions[real_idx] = (True,
                                        "ok (gemini unreached, url verified)",
                                        None, None, "")
             else:
-                # got_response=True but this specific row wasn't in
-                # Gemini's decisions array. Treat the same as unreached.
                 decisions[real_idx] = (True,
                                        "ok (gemini silent, url verified)",
                                        None, None, "")
@@ -1231,14 +1002,32 @@ def main() -> int:
         final_pending_out: List[Dict[str, Any]] = []
         new_approved: List[Dict[str, Any]] = []
     else:
-        # Reset rejected status — fresh evaluation
-        for row in alive_rows:
-            if row.get("Status") == STATUS_REJECTED:
-                row["Status"] = STATUS_PENDING
-                notes = (row.get("Notes") or "").strip()
-                if notes.startswith("REJECTED:"):
-                    tail = notes.split(" | ", 1)
-                    row["Notes"] = tail[1] if len(tail) > 1 else ""
+        # ─── AUDIT 2026-05-07 — REMOVED rejection-reset bypass ──────────────
+        #
+        # Previous code (lines deleted below) reset every Status=rejected
+        # row back to Status=pending at the start of each gate run, with
+        # the comment "Reset rejected status — fresh evaluation". This was
+        # a SILENT BYPASS of claude-check rejections.
+        #
+        # Concrete failure case (2026-05-06):
+        #   Tavily injected 2 fabricated "2026-05-06" rows for old USDA
+        #   FSIS recalls (Envolve Foods Oct 2018, Target Corp Mar 2018).
+        #   claude-check fetched the pages, returned date_corrected=2018,
+        #   triggered the date_pre_2026 hard rule → FAIL → Status=rejected.
+        #   Next url_gate_gemini run flipped Status=rejected → pending.
+        #   Gemini was disabled in env, so deterministic-only check ran;
+        #   URL was alive, no re-rejection. Next merge_master promoted
+        #   both fabricated rows to Recalls with Date=2026-05-06.
+        #
+        # The Phase A rejection counter was also bypassed: it tracks
+        # RejectedBy across runs to delete after 2 different-reviewer
+        # rejects. Resetting Status=rejected zeros that counter silently.
+        #
+        # Fix: leave Status=rejected alone. Once rejected, stays rejected.
+        # If a row was rejected in error, the operator can manually clear
+        # the Status field in the xlsx Pending sheet, or delete the row.
+        # Automated "fresh evaluation" is removed.
+        # ────────────────────────────────────────────────────────────────────
 
         # ── Step 2: API pre-pass (cheapest, deterministic, no AI) ──────
         api_fixes = api_prepass(alive_rows)
