@@ -21,7 +21,8 @@ name: FSIS Morning Critical-Agency Scrape
 #   workflow's job ends at "row appended to Pending sheet, xlsx saved,
 #   pushed to GitHub". Promotion is somebody else's problem.
 #
-#   Lookback rule: scrapers look back today + 3 days (SINCE_DAYS=3).
+#   Lookback rule: scrapers look back today + 7 days (SINCE_DAYS=7) to
+#   cover FDA publication lag.
 #   Manual dispatches can override for backfill.
 #
 # Pairs with daily-scrape.yml which runs the full 66-agency pass at
@@ -33,9 +34,9 @@ on:
   workflow_dispatch:
     inputs:
       since_days:
-        description: "Days to look back. Default 3 (today + 3 days back). Pass 7+ for backfill."
+        description: "Days to look back. Default 7 (today + 7 days back, covers FDA publication lag). Pass 14+ for backfill."
         required: false
-        default: "3"
+        default: "7"
 
 permissions:
   contents: write
@@ -95,8 +96,9 @@ jobs:
           GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
 
-          # Scrape lookback: today + 3 calendar days back (audit 2026-05-07).
-          SINCE_DAYS:  ${{ github.event.inputs.since_days || '3' }}
+          # Scrape lookback: today + 7 calendar days back (covers FDA
+          # publication lag — audit 2026-05-07).
+          SINCE_DAYS:  ${{ github.event.inputs.since_days || '7' }}
 
           # SCRAPE-ONLY MODE — every row stays in Pending.
           # SKIP_AI=1       → no Gemini enrichment pass

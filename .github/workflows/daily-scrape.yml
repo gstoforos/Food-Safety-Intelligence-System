@@ -1,20 +1,42 @@
 name: FSIS Daily Scrape
 
-# Full 66-agency scrape at 17:00 ATHENS TIME (not UTC).
-# Pairs with morning-critical-scrape.yml which runs at 08:00 Athens.
-# Two DST crons + hour guard so the correct one fires year-round.
+# ============================================================================
+# Full 66-agency scrape — fires 18:00 ATHENS local time, dispatched by
+# FsisScheduler.gs (workflow_dispatch only; no GitHub cron).
+#
+# ARCHITECTURE (audit 2026-05-07 — strict scrape-to-Pending rule):
+#
+#   This workflow is SCRAPE-ONLY. Every row it produces lands in Pending.
+#   Nothing in this workflow runs Gemini enrichment, Claude review, URL
+#   gate, pathogen verification, or merge promotion. Those happen in the
+#   scheduled gate/check/merge chain:
+#
+#       06:00 Athens — gemini-url-gate.yml      (URL gate, 1st pass)
+#       07:00 Athens — claude-check.yml         (Claude per-row check)
+#       07:30 Athens — merge-master.yml         (Pending -> Recalls)
+#       19:00 Athens — gemini-url-gate.yml      (URL gate, 2nd pass — runs
+#                                                 ~1h after this scrape)
+#       18:30 Athens — merge-master.yml         (post-scrape merge slot)
+#
+#   The 18:30 merge slot was put on the schedule specifically to flush the
+#   Pending rows this 18:00 scrape adds, after the 19:00 url-gate has
+#   verified them — so promotion latency is ~3-4 hours from scrape to live.
+#
+#   Lookback: today + 7 calendar days (SINCE_DAYS=7) to cover FDA
+#   publication lag. Manual dispatches
+#   can override for backfill.
+#
+# Pairs with morning-critical-scrape.yml at 04:00 Athens (subset of 13
+# high-volume agencies). This workflow is the full fleet.
+# ============================================================================
 
 on:
   workflow_dispatch:
     inputs:
       since_days:
-        description: "Days to look back"
+        description: "Days to look back. Default 7 (today + 7 days back, covers FDA publication lag). Pass 14+ for backfill."
         required: false
-        default: "30"
-      skip_ai:
-        description: "Skip AI enrichment (true/false)"
-        required: false
-        default: "false"
+        default: "7"
 
 permissions:
   contents: write
@@ -31,18 +53,19 @@ jobs:
       contents: write
 
     steps:
-      - name: Athens-time guard (17-19:xx window)
+      - name: Athens-time guard (16-20 window for the 18:00 fire)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
           echo "athens_hour=$HOUR"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" -ge "16" ] && [ "$HOUR" -le "22" ]; then
+            echo "Manual dispatch — running regardless of hour."
+          elif [ "$HOUR" -ge "16" ] && [ "$HOUR" -le "20" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Not 17:xx Athens (now ${HOUR}:xx). Skipping."
+            echo "Not 18:xx Athens (now ${HOUR}:xx). Skipping."
           fi
 
       - name: Checkout
@@ -65,33 +88,36 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run pipeline
+      - name: Scrape full 66-agency fleet to Pending (SCRAPE-ONLY — no AI, no review, no merge)
         if: steps.guard.outputs.run == 'true'
         env:
+          # Scrapers that internally use Gemini for HTML extraction still
+          # need GEMINI_API_KEY available — that's the scraping mechanism
+          # itself, not the post-scrape enrichment pass. SKIP_AI below
+          # disables the post-scrape enrichment; it does NOT touch the
+          # in-scraper extraction.
           GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
-          OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
           GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+
+          # Scrape lookback: today + 7 calendar days back (covers FDA
+          # publication lag — audit 2026-05-07).
           SINCE_DAYS:   ${{ github.event.inputs.since_days || '7' }}
           MAX_PARALLEL: "8"
-          SKIP_AI:      ${{ github.event.inputs.skip_ai || 'false' }}
-          SKIP_REVIEW:  "false"
-          SKIP_COMMIT:  "false"
+
+          # SCRAPE-ONLY MODE — every row stays in Pending.
+          # SKIP_AI=1       → no Gemini enrichment pass
+          # SKIP_REVIEW=1   → no URL validation, no pathogen-in-source verify, no Claude review
+          # SKIP_PROMOTE=1  → no promote_approved; Recalls untouched
+          SKIP_AI:       "1"
+          SKIP_REVIEW:   "1"
+          SKIP_PROMOTE:  "1"
+          SKIP_COMMIT:   "false"
+
           GH_TOKEN:     ${{ secrets.GITHUB_TOKEN }}
           GIT_USER_EMAIL: "fsis-bot@advfood.tech"
           GIT_USER_NAME:  "FSIS Bot"
         run: |
           python -m pipeline.run_all
-
-      - name: Gemini URL Gate + Merge
-        if: steps.guard.outputs.run == 'true'
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
-          GIT_USER_NAME: "FSIS Bot"
-        run: |
-          python -m pipeline.url_gate_gemini
-          python -m pipeline.merge_master
 
       - name: Upload run log artifact
         if: steps.guard.outputs.run == 'true' && always()
@@ -102,3 +128,10 @@ jobs:
             docs/data/recalls.xlsx
             docs/data/recalls.json
           retention-days: 14
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "Daily full-fleet scrape complete — Athens $(TZ=Europe/Athens date)."
+          echo "All new rows landed in Pending. The 19:00 gemini-url-gate +"
+          echo "18:30 merge-master chain handles promotion."
