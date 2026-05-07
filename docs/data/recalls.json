@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-05-07",
+  "Source": "FSAI (IE)",
+  "Company": "A packet of Enoki Mushroom",
+  "Brand": "—",
+  "Product": "A packet of Enoki Mushroom",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "A packet of Enoki Mushroom",
+  "Class": "Alert",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-green-box-limited-en",
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page"
+ },
+ {
   "Date": "2026-05-06",
   "Source": "RappelConso (FR)",
   "Company": "Salaisons Jouvin",
