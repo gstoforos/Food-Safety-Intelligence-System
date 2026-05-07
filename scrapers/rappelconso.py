@@ -100,7 +100,7 @@ class RappelConsoScraper(BaseScraper):
                              rec.get("sous_categorie_de_produit", ""))[:300],
                     Pathogen=rec.get("risques_encourus_par_le_consommateur", "")[:200],
                     Reason=rec.get("motif_du_rappel", "")[:300],
-                    Class=rec.get("nature_juridique_du_rappel", "Volontaire"),
+                    Class=rec.get("nature_juridique_du_rappel", "Voluntary"),
                     URL=url,
                     Outbreak=0,
                     Notes=(rec.get("distributeurs", "") or "")[:200],
