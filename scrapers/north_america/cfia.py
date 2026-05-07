@@ -206,11 +206,14 @@ class CFIAScraper(BaseScraper):
     AGENCY = "CFIA"
     COUNTRY = "Canada"
 
-    # RSS feed first. CFIA has historically served RSS 2.0 here.
+    # RSS feed list. Audit 2026-05-07 — CFIA migrated their RSS feed
+    # to a per-category path; the legacy /en/rss.xml etc. all return 404.
+    # The canonical food-recalls feed verified live 2026-05-07 is:
+    #     https://recalls-rappels.canada.ca/en/feed/cfia-alerts-recalls
+    # (linked from https://recalls-rappels.canada.ca/en/rss-feeds — the
+    # public feed-discovery hub on canada.ca.)
     FEED_URLS = (
-        "https://recalls-rappels.canada.ca/en/rss.xml",
-        "https://recalls-rappels.canada.ca/en/rss",
-        "https://recalls-rappels.canada.ca/rss.xml",
+        "https://recalls-rappels.canada.ca/en/feed/cfia-alerts-recalls",
     )
 
     # HTML listing — the page operators visit. Used when RSS is dead

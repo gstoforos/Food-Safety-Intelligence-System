@@ -141,12 +141,15 @@ class FDAPressReleaseScraper(BaseScraper):
     AGENCY = "FDA"
     COUNTRY = "USA"
 
-    # Canonical FDA RSS feed for recalls, market withdrawals & safety alerts.
-    # Verified live as of 2026-05-06. If FDA migrates the feed in the
-    # future, we fall back to fetching the listing HTML (see _FALLBACK_URL).
+    # Canonical FDA RSS feed. Audit 2026-05-07 — the previous feed at
+    # /rss-feeds/recalls/rss.xml went dark (no response). Switched to the
+    # food-specific feed which is verified live 2026-05-07 and has the
+    # bonus of being pre-filtered to food (no need for the post-filter
+    # _FOOD_CONTEXT_TOKENS pass to drop drug/device/cosmetic items).
+    # If FDA migrates the feed, fall back to the listing HTML.
     FEED_URL = (
         "https://www.fda.gov/about-fda/contact-fda/stay-informed/"
-        "rss-feeds/recalls/rss.xml"
+        "rss-feeds/food-safety-recalls/rss.xml"
     )
     FALLBACK_URL = (
         "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts"
