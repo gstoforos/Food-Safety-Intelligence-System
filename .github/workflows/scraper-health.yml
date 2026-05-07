@@ -73,6 +73,15 @@ jobs:
 
       - name: Run scrapers, capture log
         id: run
+        env:
+          # Audit 2026-05-07: scraper health is a measurement workflow, not
+          # a data-ingestion one. Run scrapers so we can see who's failing,
+          # but do NOT enrich (enrich_row hallucinates Listeria onto non-
+          # pathogen recalls), do NOT review, do NOT promote. Any new rows
+          # land in Pending; the regular gate/check/merge chain handles them.
+          SKIP_AI: "1"
+          SKIP_REVIEW: "1"
+          SKIP_PROMOTE: "1"
         run: |
           set +e   # don't fail here; we want the log even on partial failure
           python -m pipeline.run_all 2>&1 | tee /tmp/run.log

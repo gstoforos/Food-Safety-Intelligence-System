@@ -64,6 +64,13 @@ jobs:
 
       - name: Run scrapers, capture full log
         id: run
+        env:
+          # Audit 2026-05-07: scrape so we can audit health, but block
+          # enrichment hallucination + claude review + promotion. New rows
+          # land in Pending; the regular gate/check/merge chain handles them.
+          SKIP_AI: "1"
+          SKIP_REVIEW: "1"
+          SKIP_PROMOTE: "1"
         run: |
           set +e
           python -m pipeline.run_all 2>&1 | tee /tmp/run.log

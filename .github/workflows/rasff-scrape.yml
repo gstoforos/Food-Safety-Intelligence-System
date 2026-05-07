@@ -90,6 +90,7 @@ jobs:
           # any new RASFF rows when they next run.
           SKIP_AI:          "true"
           SKIP_REVIEW:      "true"
+          SKIP_PROMOTE:     "1"   # Audit 2026-05-07: rows stay in Pending; merge-master.yml promotes.
           # Gemini keys not needed when SKIP_AI=true, but pass them through
           # in case run_all's enrichment imports require them at module level.
           GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
