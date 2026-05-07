@@ -8,6 +8,23 @@ from scrapers._models import Recall
 
 log = logging.getLogger(__name__)
 
+# openFDA enforcement-reports endpoint has a documented publication lag of
+# 5–30 days from press release to API visibility (recalls flow in only after
+# FDA formally classifies them in the weekly enforcement-reports cycle —
+# see scrapers/north_america/fda_press.py docstring for the full audit trail).
+#
+# The orchestrator runs daily with SINCE_DAYS=2 (a tight rolling window
+# appropriate for fast feeds like RappelConso / RASFF). Passing that 2-day
+# window straight through to openFDA would guarantee 0 results on virtually
+# every run because no recall has had time to flow into the API yet.
+#
+# Floor the lookback at MIN_SINCE_DAYS internally so we always sweep the
+# full lag horizon. merge_master dedupes by URL across runs, so re-fetching
+# is safe and free; the extra work also lets us absorb late Class I/II/III
+# classifications, distribution_pattern fields etc. that openFDA back-fills
+# onto previously-seen recalls.
+MIN_SINCE_DAYS = 35
+
 
 class FDAScraper(BaseScraper):
     AGENCY = "FDA"
@@ -23,17 +40,28 @@ class FDAScraper(BaseScraper):
     )
 
     def scrape(self, since_days: int = 30) -> List[Recall]:
-        since = (datetime.utcnow() - timedelta(days=since_days)).strftime("%Y%m%d")
-        params = {
-            "search": f"recall_initiation_date:[{since}+TO+99991231]",
-            "limit": 100,
-        }
-        # openFDA expects encoded URL; use requests' params kwarg
+        # Floor the lookback to absorb openFDA's 5–30d publication lag
+        # (see module docstring). The caller's smaller window is preserved
+        # in `requested_window` for the Notes field.
+        requested_window = since_days
+        effective_window = max(since_days, MIN_SINCE_DAYS)
+        if effective_window != requested_window:
+            log.info(
+                "FDA openFDA: orchestrator since_days=%d, but openFDA has "
+                "5–30d publication lag — using effective window %d days",
+                requested_window, effective_window,
+            )
+        since = (datetime.utcnow() - timedelta(days=effective_window)).strftime("%Y%m%d")
+        # openFDA expects URL-encoded query; requests' default encoding mangles
+        # the [TO] syntax so we pre-build the URL.
         url = f"{self.BASE_URL}?search=recall_initiation_date:[{since}+TO+99991231]&limit=100"
         r = fetch(self.session, url)
-        if not r:
+        if r is None or r.status_code != 200:
+            log.warning("FDA openFDA: fetch failed (status=%s) for %s",
+                        r.status_code if r is not None else None, url)
             return []
         data = r.json()
+        total_results = len(data.get("results", []) or [])
         out: List[Recall] = []
         for rec in data.get("results", []):
             reason = (rec.get("reason_for_recall") or "").lower()
@@ -85,5 +113,9 @@ class FDAScraper(BaseScraper):
                     f"distrib={rec.get('distribution_pattern','')[:120]}"
                 ),
             ))
-        log.info("FDA: %d pathogen recalls in last %d days", len(out), since_days)
+        log.info(
+            "FDA openFDA: %d pathogen recalls in last %d days "
+            "(API returned %d total, %d non-pathogen filtered out)",
+            len(out), effective_window, total_results, total_results - len(out),
+        )
         return out
