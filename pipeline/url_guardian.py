@@ -467,11 +467,12 @@ def guardian_run(xlsx_path: str = "docs/data/recalls.xlsx",
         except Exception as e:
             log.warning("Gap-finder pass failed (non-fatal): %s", e)
             gap_stats = {"suggested": 0, "added": 0, "error": str(e)}
-        try:
-            tier1_stats = _tier1_spot_check(pending, since_days)
-        except Exception as e:
-            log.warning("Tier-1 spot-check failed (non-fatal): %s", e)
-            tier1_stats = {"flags": 0, "reviewed": 0, "error": str(e)}
+        # Claude Tier-1 spot-check disabled 2026-05-07 — the URL guardian
+        # is now URL-health-only with no LLM cost. Tier-1 verification is
+        # handled by the daily claude-check.yml workflow at 07:00 Athens.
+        # The _tier1_spot_check function is left in place as dead code in
+        # case we want to re-enable it; it is no longer called.
+        tier1_stats = {"flags": 0, "reviewed": 0, "skipped": "no-llm-cost-2026-05-07"}
 
     # 3. Sort pending newest-first
     pending.sort(key=lambda r: str(r.get("Date") or ""), reverse=True)
