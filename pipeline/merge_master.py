@@ -25,7 +25,7 @@ import re
 import unicodedata
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from urllib.parse import urlparse
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Font, PatternFill
@@ -101,14 +101,132 @@ GAP_GATING_STATUSES = frozenset({
 # ---------------------------------------------------------------------------
 # Dedup
 # ---------------------------------------------------------------------------
+def _normalize_url_for_dedup(url: str) -> str:
+    """Normalize a URL for dedup comparison.
+
+    Audit 2026-05-06: previously the dedup key was just url.strip().lower().
+    That missed http:// vs https:// duplicates — production showed a Tavily-
+    sourced http://www.fsis.usda.gov/... slipping past the gate even though
+    the https:// version was already in Recalls.
+
+    Normalizations applied (all lowercase):
+      • strip protocol (http:// → '', https:// → '')
+      • strip leading 'www.'
+      • strip trailing '/'
+      • strip URL fragment '#...'
+      • strip non-canonical query strings (utm_*, ref, etc.) but PRESERVE
+        identifier-style query params (permalink, id, fiche, ref, recall_id)
+    """
+    if not url:
+        return ""
+    s = url.strip().lower()
+    s = s.split("#", 1)[0]
+    if s.startswith("https://"):
+        s = s[8:]
+    elif s.startswith("http://"):
+        s = s[7:]
+    if s.startswith("www."):
+        s = s[4:]
+    if "?" in s:
+        path, _, query = s.partition("?")
+        keepers = []
+        for kv in query.split("&"):
+            k = kv.split("=", 1)[0]
+            if k in ("permalink", "id", "fiche", "ref", "recall_id"):
+                keepers.append(kv)
+        s = path + (("?" + "&".join(keepers)) if keepers else "")
+    if s.endswith("/"):
+        s = s[:-1]
+    return s
+
+
 def _dedup_key(row: Dict[str, Any]) -> str:
-    """URL primary, fallback to date+company+pathogen."""
-    url = (row.get("URL") or "").strip().lower()
+    """URL primary (normalized), fallback to date+company+pathogen."""
+    url = _normalize_url_for_dedup(row.get("URL") or "")
     if url:
         return url
     co = unicodedata.normalize("NFD", row.get("Company") or "").encode("ascii", "ignore").decode().lower()
     co = re.sub(r"[^a-z0-9]", "", co)[:30]
     return f"{row.get('Date','')}|{co}|{(row.get('Pathogen','') or '')[:30]}"
+
+
+# ---------------------------------------------------------------------------
+# Date-consistency check (audit 2026-05-06: defense-in-depth)
+# ---------------------------------------------------------------------------
+# Production failure 2026-05-06: two USDA FSIS recalls from 2018 ("Oct. 19,
+# 2018" Envolve Foods Listeria + "March 29, 2018" Target Corp Listeria)
+# were promoted from Pending to Recalls and surfaced on the public dashboard
+# with Date=2026-05-06 (today's date stamped by the Tavily date-extractor
+# fallback). Three independent gates failed:
+#   1. Tavily date-extractor regex didn't accept "Oct." (period after abbrev)
+#   2. URL gate Gemini returned prose; parse-failure path defaulted to PASS
+#   3. Pending → Recalls promotion had NO date-sanity check at all
+#
+# This function is the third-line defense. It compares the Date field
+# against any date pattern found in Notes. If Notes mentions a year that's
+# more than 1 year older than Date's year, the promotion is rejected and
+# the row stays in Pending for manual review.
+
+# Date-extraction regex used at the promotion gate. Matches:
+#   "Oct. 19, 2018"   "March 29, 2018"   "2018-10-19"   "19 March 2018"
+_PROMOTION_OLD_DATE_RX = re.compile(
+    r"\b(?:"
+    r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|"
+    r"january|february|march|april|june|july|august|"
+    r"september|october|november|december)\.?\s+\d{1,2}[,\s]+(\d{4})"
+    r"|"
+    r"(\d{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])"
+    r"|"
+    r"\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|"
+    r"january|february|march|april|june|july|august|"
+    r"september|october|november|december)\.?\s+(\d{4})"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+def _check_date_consistency(row: Dict[str, Any]) -> Optional[str]:
+    """Reject promotion when Notes mentions a year far older than Date field.
+
+    Returns None if the row is consistent (or no date found in Notes).
+    Returns a rejection-reason string if inconsistent.
+
+    Heuristic: scan Notes for date patterns; if the OLDEST year mentioned
+    is more than 1 calendar year older than the Date field's year, the
+    Date field is almost certainly a date-extractor fallback (today's
+    date stamped on an old archived page).
+
+    Conservative — only rejects when the gap is unambiguous (>1 year).
+    Rows where Notes mentions e.g. "in 2025" while Date is 2026 will pass.
+    """
+    date_field = str(row.get("Date") or "")[:10]
+    notes = str(row.get("Notes") or "")
+    if not date_field or not notes:
+        return None
+    try:
+        date_year = int(date_field[:4])
+    except ValueError:
+        return None
+
+    # Find all 4-digit years mentioned in date contexts in Notes
+    years_found = []
+    for m in _PROMOTION_OLD_DATE_RX.finditer(notes):
+        for g in m.groups():
+            if g and g.isdigit() and len(g) == 4:
+                yr = int(g)
+                if 2000 <= yr <= date_year + 1:
+                    years_found.append(yr)
+                break
+
+    if not years_found:
+        return None
+
+    oldest = min(years_found)
+    if oldest <= date_year - 2:
+        return (f"date_inconsistent: Date field is {date_field} but Notes "
+                f"mentions {oldest} (likely date-extractor fallback on an "
+                f"archived page)")
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -889,6 +1007,19 @@ def promote_approved(
             should_delete, _ = mark_rejected_with_counter(clean, reason)
             if should_delete:
                 # Drop from Pending entirely — 2 reviewers agree it's bad.
+                continue
+            kept_in_pending.append(clean)
+            continue
+
+        # ── Date-consistency gate (audit 2026-05-06: defense-in-depth) ──
+        # Last-line defense against date-extractor fallback bugs. If
+        # Notes mentions a year far older than the Date field, the
+        # extractor probably stamped today's date on an archived page.
+        # Refuse to promote; row stays in Pending for manual review.
+        date_problem = _check_date_consistency(clean)
+        if date_problem:
+            should_delete, _ = mark_rejected_with_counter(clean, date_problem)
+            if should_delete:
                 continue
             kept_in_pending.append(clean)
             continue
