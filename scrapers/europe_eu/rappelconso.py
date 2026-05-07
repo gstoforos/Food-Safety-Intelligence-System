@@ -492,7 +492,7 @@ class RappelConsoScraper(BaseScraper):
                     Product=product_for_emit[:300],
                     Pathogen=risks[:200],
                     Reason=reason[:300],
-                    Class=klass or "Volontaire",
+                    Class=klass or "Voluntary",
                     URL=url,
                     Outbreak=0,
                     Notes=" ".join(notes_parts)[:300],
