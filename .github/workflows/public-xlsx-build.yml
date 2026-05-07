@@ -1,0 +1,112 @@
+# =============================================================================
+# Public XLSX Build — Daily 23:30 Athens
+# =============================================================================
+# Builds the formatted public Excel file shipped via the dashboard's
+# "↓ XLSX" download button at advfood.tech/fsis-home.
+#
+# Reads:  docs/data/recalls.xlsx        (operator file, raw)
+# Writes: docs/data/afts-recalls-public.xlsx
+#         (formatted: black-on-grey title, color-coded tiers, AutoFilter,
+#          freeze panes, hyperlink URLs — no operator-only columns)
+#
+# Schedule: daily at 23:30 Athens local time. Late-evening rebuild gives
+# the website a fresh formatted download for the next morning's visitors,
+# after all day's scrape/merge activity has settled.
+#
+# Cron is Athens local time (audit 2026-04-29 / 2026-05-07 rule):
+#   - 23:30 Athens EET  (UTC+2, winter) → 21:30 UTC
+#   - 23:30 Athens EEST (UTC+3, summer) → 20:30 UTC
+# A `TZ=Europe/Athens` hour-guard step short-circuits the inactive cron
+# so we never double-run on DST handover days.
+#
+# Manual trigger via workflow_dispatch supported for ad-hoc rebuilds.
+# =============================================================================
+
+name: Public XLSX Build (Daily 23:30 Athens)
+
+on:
+  schedule:
+    - cron: '30 20 * * *'   # 23:30 Athens EEST (summer)
+    - cron: '30 21 * * *'   # 23:30 Athens EET  (winter)
+  workflow_dispatch: {}
+
+# Single-run lane: skip overlapping runs rather than queueing them up.
+concurrency:
+  group: public-xlsx-build
+  cancel-in-progress: false
+
+# Need write access to push the rebuilt xlsx back to main.
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Athens hour guard
+        # Only proceed when the Athens local hour is actually 23. The two
+        # cron lines above intentionally fire on both DST offsets so one
+        # of them is always correct; this guard short-circuits the wrong
+        # one. On manual workflow_dispatch we always proceed.
+        id: guard
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch — bypassing hour guard."
+            echo "go=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          ATHENS_H=$(TZ=Europe/Athens date +%H)
+          echo "Athens hour: $ATHENS_H"
+          if [ "$ATHENS_H" = "23" ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Skipping — Athens hour is $ATHENS_H, not 23."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Python
+        if: steps.guard.outputs.go == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install openpyxl
+
+      - name: Build public xlsx
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          python -m pipeline.build_public_xlsx \
+            --src docs/data/recalls.xlsx \
+            --dst docs/data/afts-recalls-public.xlsx \
+            --verbose
+
+      - name: Commit and push if changed
+        if: steps.guard.outputs.go == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Only commit if the rebuilt xlsx differs from what's in main.
+          # `git diff --quiet` exits 0 if no changes, 1 if changes exist.
+          if git diff --quiet -- docs/data/afts-recalls-public.xlsx; then
+            echo "No changes to docs/data/afts-recalls-public.xlsx — nothing to commit."
+            exit 0
+          fi
+
+          STAMP=$(TZ=Europe/Athens date +%Y-%m-%d)
+          git add docs/data/afts-recalls-public.xlsx
+          git commit -m "Rebuild public xlsx ${STAMP} (daily 23:30 Athens)"
+          # Pull-rebase to dodge concurrent commits from other workflows.
+          git pull --rebase --autostash origin main || true
+          git push origin HEAD:main
