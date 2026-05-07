@@ -350,7 +350,16 @@ fetch('data/recalls.xlsx').then(r=>r.arrayBuffer()).then(buf=>{
   const ws=wb.Sheets['Recalls']||wb.Sheets[wb.SheetNames[0]];
   const raw=XLSX.utils.sheet_to_json(ws,{defval:''});
   ALL=raw.map(r=>({date:String(r.Date||''),source:String(r.Source||''),company:String(r.Company||''),brand:String(r.Brand||''),product:String(r.Product||''),pathogen:String(r.Pathogen||''),reason:String(r.Reason||''),class_:String(r.Class||''),country:String(r.Country||''),region:String(r.Region||''),tier:parseInt(r.Tier||3),is_outbreak:parseInt(r.Outbreak||0),url:String(r.URL||''),notes:String(r.Notes||'')}));
-  ALL.sort((a,b)=>b.date.localeCompare(a.date));filtered=[...ALL];init();
+  ALL.sort((a,b)=>b.date.localeCompare(a.date));
+  // Audit 2026-05-07 — Recall Intelligence tab now scopes to LAST 7 DAYS only.
+  // The Daily / Weekly / Monthly tabs read their own JSON files and are
+  // unaffected. Older recalls remain in the underlying recalls.xlsx for
+  // reports + downloads, but the live dashboard shows only the rolling
+  // 7-day window so KPIs / ticker / charts reflect "what's happening NOW"
+  // rather than cumulative all-time counts.
+  const _cutoff7 = new Date(Date.now() - 7*24*60*60*1000).toISOString().slice(0,10);
+  ALL = ALL.filter(r => r.date >= _cutoff7);
+  filtered=[...ALL];init();
   // Also load NEWS sheet from same buffer
   loadNewsFromBuffer(wb);
 }).catch(e=>{document.getElementById('tbody').innerHTML='<tr><td colspan="8" class="loading">Failed: '+e.message+'</td></tr>';});
@@ -368,7 +377,7 @@ function loadNewsFromBuffer(wb){
 
 function init(){
   renderKPIs();renderCharts();renderPills();populateFilters();renderTicker();render();
-  document.getElementById('meta').innerHTML='Updated: '+(ALL[0]?ALL[0].date:'—')+' · '+ALL.length+' records<br>Source: data/recalls.xlsx';
+  document.getElementById('meta').innerHTML='Updated: '+(ALL[0]?ALL[0].date:'—')+' · '+ALL.length+' recalls (last 7 days)<br>Source: data/recalls.xlsx';
   notifyHeight();
   if(window.parent!==window){new ResizeObserver(()=>{notifyHeight();}).observe(document.body);}
 }
@@ -436,8 +445,27 @@ function render(){
   notifyHeight();
 }
 function renderTicker(){
-  const recent=ALL.slice(0,8),items=recent.map(r=>{const tag=r.tier===1?'t1-tag':'t2-tag',label=r.tier===1?'TIER-1':'TIER-2';return`<span class="tick-item"><span class="tick-tag ${tag}">${label}</span>${esc(r.company||r.brand)} · ${esc(r.pathogen)} · ${esc(r.country)}</span>`;}).join('');
-  document.getElementById('ticker').innerHTML=items+items;
+  // Audit 2026-05-07 — TOP 5 of last 7 days, ranked by severity:
+  //   1) Tier 1 before Tier 2 before Tier 3
+  //   2) Outbreak rows surfaced ahead of non-outbreak within same tier
+  //   3) Newer dates ahead of older within same tier+outbreak class
+  // Replaces the previous "most recent 8" which surfaced whatever was
+  // last touched by a scraper rather than what actually matters most.
+  const ranked = [...ALL].sort((a,b) => {
+    if (a.tier !== b.tier) return a.tier - b.tier;            // tier 1 first
+    if (a.is_outbreak !== b.is_outbreak) return b.is_outbreak - a.is_outbreak;
+    return b.date.localeCompare(a.date);                       // newer first
+  });
+  const top5 = ranked.slice(0, 5);
+  const items = top5.map(r => {
+    const tag = r.tier===1 ? 't1-tag' : (r.tier===2 ? 't2-tag' : 't2-tag');
+    const label = r.tier===1 ? 'TIER-1' : (r.tier===2 ? 'TIER-2' : 'TIER-3');
+    const ob = r.is_outbreak===1 ? ' · OUTBREAK' : '';
+    return `<span class="tick-item"><span class="tick-tag ${tag}">${label}${ob}</span>${esc(r.company||r.brand)} · ${esc(r.pathogen)} · ${esc(r.country)}</span>`;
+  }).join('');
+  // Doubled for infinite scroll. With only 5 items the loop is shorter,
+  // so quadruple to keep the ticker visually full at all times.
+  document.getElementById('ticker').innerHTML = items + items + items + items;
 }
 document.querySelectorAll('th[data-col]').forEach(th=>th.addEventListener('click',()=>{const c=th.dataset.col;if(sortCol===c)sortAsc=!sortAsc;else{sortCol=c;sortAsc=true;}applyFilters();}));
 document.getElementById('prev').addEventListener('click',()=>{page--;render();});
