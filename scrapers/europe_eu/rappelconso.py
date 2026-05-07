@@ -108,20 +108,26 @@ class RappelConsoScraper(BaseScraper):
         "sous_categorie_produit",
         "sous_categorie",
     )
-    # BRAND — multiple historical names. Audit 2026-05-06 added:
-    #   - marques_du_produit (V2 plural variant)
-    #   - nom_des_marques_du_produit
+    # BRAND — multiple historical names. Audit 2026-05-07 added the V2
+    # canonical name (`marque_produit`) at the top — confirmed from the
+    # orchestrator's first-record key dump on the L3 bulk JSON. With this
+    # populated, the existing brand-as-Company fallback at scrape() will
+    # auto-fill Company too.
     BRAND_FIELDS = (
+        "marque_produit",                # ✅ V2 canonical (data.gouv.fr 2026)
         "nom_de_la_marque_du_produit",   # V1 canonical
-        "marques_du_produit",            # V2 plural — present on many rows
+        "marques_du_produit",            # V2 plural variant
         "nom_des_marques_du_produit",
         "marque_de_produit",
         "marque_du_produit",
         "marque",
     )
-    # COMPANY (= recalling firm). Audit 2026-05-06 added:
-    #   - nom_du_fabricant (manufacturer; often the recalling firm)
-    #   - conditionneur (packager — sometimes the recalling firm)
+    # COMPANY (= recalling firm). V2 appears to have dropped most of the
+    # explicit COMPANY fields the V1 schema carried — none of the probes
+    # below match the V2 first-record dump (2026-05-07). Brand-as-Company
+    # fallback in scrape() now does the heavy lifting; this list remains
+    # in case data.gouv.fr re-introduces them or for older V1 records
+    # served via a different layer.
     COMPANY_FIELDS = (
         "nom_de_la_societe_responsable_de_la_commercialisation",
         "nom_de_la_societe_responsable_de_la_premiere_mise_sur_le_marche",
@@ -131,8 +137,17 @@ class RappelConsoScraper(BaseScraper):
         "responsable_de_la_commercialisation",
         "fabricant",
     )
+    # PRODUCT — V2 dropped the plural prefix `noms_des_`. Confirmed
+    # 2026-05-07: actual fields are `modeles_ou_references` and
+    # `identification_produits`. Also adding `libelle` (the recall title
+    # / descriptive label) as a final fallback — a populated title is
+    # always better than empty Product, and it lets the brand-from-product
+    # synthesizer have something to chew on.
     PRODUCT_FIELDS = (
-        "noms_des_modeles_ou_references",
+        "modeles_ou_references",         # ✅ V2 canonical
+        "identification_produits",       # ✅ V2 canonical (alt)
+        "libelle",                       # ✅ V2 — title fallback
+        "noms_des_modeles_ou_references",   # V1
         "noms_des_modeles_ou_des_references",
         "noms_des_modeles_ou_references_du_produit",
         "denomination_du_produit",
@@ -142,20 +157,28 @@ class RappelConsoScraper(BaseScraper):
         "reference_produit",
     )
     REASON_FIELDS = (
-        "motif_du_rappel",
+        "motif_rappel",                  # ✅ V2 canonical (2026-05-07 audit)
+        "motif_du_rappel",               # V1
         "motif",
         "raison_du_rappel",
         "description",
     )
     RISKS_FIELDS = (
+        # `risques_encourus_par_le_consommateur` is still in the V2 export
+        # (kept under its long V1 name even though hidden from the
+        # visualisation per the 2023-10-26 changelog). Today's run captures
+        # confirm it's the field carrying pathogen text. Keep it first.
         "risques_encourus_par_le_consommateur",
+        "description_complementaire_risque",  # ✅ V2 backup (visible in dump)
+        "risques_consommateur",          # V2 hypothesised short form
         "risques_encourus",
         "risques",
         "risque",
         "danger",
     )
     CLASS_FIELDS = (
-        "nature_juridique_du_rappel",
+        "nature_juridique_rappel",       # ✅ V2 canonical (2026-05-07 audit)
+        "nature_juridique_du_rappel",    # V1
         "nature_du_rappel",
         "nature_juridique",
         "type_de_rappel",
