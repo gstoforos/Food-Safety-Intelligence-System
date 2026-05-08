@@ -374,7 +374,41 @@ _GARBAGE_COMPANIES = {
     "food safety investigation:",                    # CFIA section header
     "timeline of events:",                           # CFIA section header
     "recall of",                                     # FSAI page-title leak (prefix)
+    # Audit 2026-05-07 — Tavily gap-finder dumped 22 garbage rows where
+    # Company was a regulator name, page category, or generic landing-page
+    # word instead of an actual company. Adding the leakers below.
+    "aesan", "favv", "nvwa", "mfds", "blv", "efet", "sfa", "ages",
+    "afsca", "cfs", "fsai", "fsa", "fsanz", "mhlw", "samr",            # regulator names
+    "food", "food incident post", "press release",                      # page categories
+    "welcome", "welkom", "willkommen", "bienvenue",                     # multilingual landing-page greetings
+    "bericht", "rapport", "report",                                     # annual report titles
+    "press releases",                                                   # navigation
+    "search", "browse", "alerts and recalls", "recalls and alerts",     # nav
+    # Audit 2026-05-07: "update" and "notification" REMOVED — they were
+    # over-aggressive. "Update 2: Nestlé" (Danone Cereulide story) is a
+    # legitimate recall that needs claude-check enrichment of its Company
+    # field, not a hard reject. Operator rule: fill, don't delete.
 }
+
+# Audit 2026-05-07 — Company strings that begin with a file-format marker
+# (e.g. "[PDF] Imported food risk statement", "[XLS] Sheet1") are scraped
+# straight from search-engine result snippets where the engine prefixes
+# binary attachments. They are NEVER legitimate company names.
+_FILE_TITLE_PREFIX_RE = re.compile(
+    r"^\s*\[(PDF|XLS|XLSX|XLSM|DOC|DOCX|CSV|TSV|RTF|PPT|PPTX|ODT)\]",
+    re.IGNORECASE,
+)
+
+# Audit 2026-05-07 — URLs ending in document-format extensions are almost
+# never per-incident recall pages. They are policy PDFs, monitoring
+# spreadsheets, annual reports, and search-result file attachments. Reject
+# them at the gate. The exception list is empty for now; add specific URL
+# patterns here if a regulator legitimately publishes recalls as PDFs.
+_DOCUMENT_URL_RE = re.compile(
+    r"\.(pdf|xls|xlsx|xlsm|csv|tsv|doc|docx|ppt|pptx|odt|odp|ods)"
+    r"(\?|#|$)",
+    re.IGNORECASE,
+)
 
 # Hard cutoff: nothing dated before this enters Pending.
 _MIN_VALID_DATE = "2026-01-01"
@@ -593,6 +627,32 @@ def validate_pending_row(
     url_norm = url.rstrip("/").lower()
     if url_norm and url_norm in existing_urls:
         return False, "Duplicate URL already exists"
+
+    # ── REJECT: Company starts with a file-format prefix [PDF]/[XLS]/etc.
+    # Audit 2026-05-07 — Tavily dumped 6 rows like "[XLS] Sheet1",
+    # "[PDF] Imported food risk statement Peanuts/pistach...". These are
+    # search-result attachments, never real companies.
+    if not is_rasff and _FILE_TITLE_PREFIX_RE.match(company):
+        return False, f"Company starts with file-format marker: {company[:60]!r}"
+
+    # ── REJECT: URL points to a document file (.pdf, .xls, .docx, etc.) ──
+    # Audit 2026-05-07 — Tavily indexed regulator PDFs (annual reports,
+    # monitoring tables, policy documents) and surfaced them as recall
+    # pages. They never are. The few regulators that DO publish individual
+    # recalls as PDFs (rare) can be allow-listed here when needed.
+    if _DOCUMENT_URL_RE.search(url):
+        return False, f"URL is a document file, not a recall page: {url[-40:]!r}"
+
+    # NOTE (audit 2026-05-07): Empty Date and future-Date gates were
+    # considered here but REMOVED per operator principle "fill, don't
+    # delete". RappelConso (France) and other regulators routinely publish
+    # rows with sparse Date fields that get enriched downstream by
+    # claude-check (which fetches the URL and corrects the Date). Future-
+    # dated rows are defended against in two other places: gap_finder_*.py
+    # already drops rows >30 days in the future, and claude-check
+    # cross-checks Date against URL content as part of its review prompt.
+    # Adding a strict gate here would block legitimate recalls that need
+    # enrichment from ever reaching the queue.
 
     # ── REJECT: date is before 2026-01-01 ───────────────────────────────
     if date_str and date_str < _MIN_VALID_DATE:
