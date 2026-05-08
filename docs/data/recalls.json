@@ -336,6 +336,22 @@
   "Notes": "franprix [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [Claude-flag 2026-05-06: Missing Company field (empty string). Critical for Tier-1 Listeria recall.]"
  },
  {
+  "Date": "2026-05-05",
+  "Source": "RappelConso (FR)",
+  "Company": "",
+  "Brand": "—",
+  "Product": "viandes",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22190/Interne",
+  "Notes": "magasin produits régionaux, marchés [scraper-flag: no Company/Brand from API — claude-check please extract from page] [scraper-flag: Product is subcategory fallback] [url-gate 2026-05-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-08: pass; pass | All fields verified: date 2026-05-05 matches page; company MONT CHARVIN SALAISONS identified; product 'saucisson ]"
+ },
+ {
   "Date": "2026-05-04",
   "Source": "RappelConso (FR)",
   "Company": "Vracbio",
