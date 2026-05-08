@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class FDAGHScraper(GenericGeminiScraper):
     AGENCY = "FDA (GH)"
     COUNTRY = "Ghana"
-    INDEX_URLS = ['https://fdaghana.gov.gh/index.php/news/recall-notices/']
+    INDEX_URLS = ['https://fdaghana.gov.gh/category/product-recalls-alerts/']
     LANGUAGE = "en"
