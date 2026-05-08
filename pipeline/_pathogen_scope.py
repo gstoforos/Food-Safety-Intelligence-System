@@ -27,13 +27,37 @@ TIER1_KEYWORDS = (
 )
 
 
-def is_in_scope(pathogen: str) -> bool:
-    """True if pathogen matches FSIS Tier-1 scope."""
+# Sentinel values that mean "no pathogen identified yet" — distinct from
+# "pathogen identified but not in our Tier-1 scope". Empty rows are
+# candidates for AI enrichment (claude_check / gemini); out-of-scope rows
+# are real but ignored by FSIS scope.
+_EMPTY_SENTINELS = ("—", "-", "", "unknown", "none", "n/a", "na", "tbd")
+
+
+def is_empty_pathogen(pathogen: str) -> bool:
+    """True if Pathogen field is empty or a placeholder sentinel.
+
+    Distinguishes "we don't know yet, need enrichment" from "we know it's
+    out of scope". Used by merge_master.validate_pending_row to route
+    empty-pathogen rows to a `pending_enrichment` status instead of
+    rejecting them outright at the gate.
+    """
     if not pathogen:
+        return True
+    s = str(pathogen).strip().lower()
+    return s in _EMPTY_SENTINELS
+
+
+def is_in_scope(pathogen: str) -> bool:
+    """True if pathogen matches FSIS Tier-1 scope.
+
+    Returns False for both empty and out-of-scope values. Callers that
+    need to distinguish those two cases must call is_empty_pathogen()
+    first.
+    """
+    if is_empty_pathogen(pathogen):
         return False
     s = str(pathogen).strip().lower()
-    if s in ("—", "-", "", "unknown", "none"):
-        return False
     return any(t in s for t in TIER1_KEYWORDS)
 
 

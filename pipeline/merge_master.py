@@ -103,8 +103,36 @@ STATUS_PENDING_GAP    = "pending_gap"
 STATUS_PENDING_GAP_V1 = "pending_gap_v1"
 STATUS_PENDING_GAP_V2 = "pending_gap_v2"
 
+# ── Enrichment gating (audit 2026-05-08) ───────────────────────────────
+# Scraper rows that arrive with an empty Pathogen field — typically from
+# HTML-listing fallback paths (FSAI, INVIMA, RappelConso "sans marque",
+# CFIA L1 placeholder rows) — used to be hard-rejected at the pathogen
+# scope gate. That meant signal got dumped on the floor whenever the
+# orchestrator ran without claude_check (`ai=False, review=False`).
+# Now they're admitted to Pending under this status. claude_check and
+# the Gemini enrichers look for STATUS_PENDING_ENRICHMENT rows, fill in
+# Pathogen from the page content, and flip the status back to plain
+# "pending" (or rejected if the pathogen turns out to be out of scope).
+# promote_approved skips this status — same structural guarantee that
+# protects pending_gap* rows.
+STATUS_PENDING_ENRICHMENT = "pending_enrichment"
+
+# Sentinel reason returned by validate_pending_row for rows that pass
+# every other gate but have an empty Pathogen field. append_to_pending
+# converts this into Status=STATUS_PENDING_ENRICHMENT instead of the
+# default Status=STATUS_PENDING.
+OK_PENDING_ENRICHMENT = "OK_PENDING_ENRICHMENT"
+
 GAP_GATING_STATUSES = frozenset({
     STATUS_PENDING_GAP, STATUS_PENDING_GAP_V1, STATUS_PENDING_GAP_V2,
+})
+
+# Any non-promotable Pending status. promote_approved uses this set as
+# the structural lock against auto-promotion. Add new gating statuses
+# here, NOT to GAP_GATING_STATUSES (which retains its narrow gap-finder
+# semantics for code that introspects it).
+NON_PROMOTABLE_STATUSES = GAP_GATING_STATUSES | frozenset({
+    STATUS_PENDING_ENRICHMENT,
 })
 
 
@@ -512,18 +540,40 @@ def validate_pending_row(
     # both url_gate_gemini and claude_check, which import these too).
     try:
         from pipeline._url_year import is_year_mismatch
-        from pipeline._pathogen_scope import is_in_scope as _is_tier1_pathogen
+        from pipeline._pathogen_scope import (
+            is_in_scope as _is_tier1_pathogen,
+            is_empty_pathogen as _is_empty_pathogen,
+        )
         from pipeline._news_mirror_blocklist import is_news_mirror as _is_news_mirror
     except ImportError:
         is_year_mismatch = None
         _is_tier1_pathogen = None
+        _is_empty_pathogen = None
         _is_news_mirror = None
 
     if _is_news_mirror is not None and _is_news_mirror(url):
         return False, "news_mirror_domain (locked 2026-04-30)"
 
+    # ── Pathogen scope check (audit 2026-05-08) ─────────────────────────
+    # This check runs AFTER all URL/garbage/dedup checks (further below)
+    # so that an empty-pathogen row from a junk URL still gets rejected
+    # by the URL gate first — we don't want claude_check wasting AI calls
+    # trying to enrich pathogen on a vertexaisearch redirect or a news-
+    # outlet URL.
+    #
+    # Outcome of this gate has three branches:
+    #   1. Pathogen is empty/sentinel  → defer until end, accept into
+    #      Pending with Status=pending_enrichment for AI enrichment.
+    #   2. Pathogen is present but not Tier-1  → reject NOW. We already
+    #      know what it is, no enrichment will change that.
+    #   3. Pathogen is Tier-1  → continue to remaining gates.
     pathogen_str = str(row.get("Pathogen", "") or "")
-    if _is_tier1_pathogen is not None and not _is_tier1_pathogen(pathogen_str):
+    pathogen_empty = (
+        _is_empty_pathogen is not None and _is_empty_pathogen(pathogen_str)
+    )
+    if (_is_tier1_pathogen is not None
+            and not pathogen_empty
+            and not _is_tier1_pathogen(pathogen_str)):
         return False, f"pathogen_out_of_scope: {pathogen_str!r}"
 
     if is_year_mismatch is not None:
@@ -608,6 +658,12 @@ def validate_pending_row(
     if date_str and date_str < _MIN_VALID_DATE:
         return False, f"Date before {_MIN_VALID_DATE}: {date_str}"
 
+    # All other gates passed. If pathogen was empty, signal to caller
+    # that this row should land in Pending with Status=pending_enrichment
+    # so an AI enrichment step can fill in the Pathogen field. Otherwise
+    # this is a fully-validated row ready for normal pending flow.
+    if pathogen_empty:
+        return True, OK_PENDING_ENRICHMENT
     return True, "OK"
 
 
@@ -738,6 +794,7 @@ def append_to_pending(
     fresh_rows: List[Dict[str, Any]] = []
     retried = 0
     appended = 0
+    appended_enrichment = 0
     already_pending = 0
     already_approved = 0
     rejected_by_gate = 0
@@ -757,6 +814,13 @@ def append_to_pending(
             )
             rejected_by_gate += 1
             continue
+
+        # Sentinel from validate_pending_row: row passed every other gate
+        # but Pathogen is empty. Land it in Pending under enrichment
+        # status so claude_check / Gemini can fill the field in the next
+        # AI pass. promote_approved skips this status — see
+        # NON_PROMOTABLE_STATUSES.
+        needs_enrichment = (why == OK_PENDING_ENRICHMENT)
 
         k = _dedup_key(d)
 
@@ -781,6 +845,9 @@ def append_to_pending(
             rejected_by_gate += 1
             continue
 
+        new_status = (STATUS_PENDING_ENRICHMENT
+                      if needs_enrichment else STATUS_PENDING)
+
         if k in pending_by_key:
             # Look at the FIRST matching row's status (practically there's only one)
             existing_idx = pending_by_key[k][0]
@@ -789,7 +856,7 @@ def append_to_pending(
                 # Drop the old rejected row, re-queue the fresh scrape
                 indices_to_drop.add(existing_idx)
                 d["ScrapedAt"] = scraped_at
-                d["Status"] = STATUS_PENDING
+                d["Status"] = new_status
                 fresh_rows.append(d)
                 retried += 1
             else:
@@ -799,18 +866,22 @@ def append_to_pending(
 
         # Brand new key
         d["ScrapedAt"] = scraped_at
-        d["Status"] = STATUS_PENDING
+        d["Status"] = new_status
         fresh_rows.append(d)
-        appended += 1
+        if needs_enrichment:
+            appended_enrichment += 1
+        else:
+            appended += 1
 
     # Assemble output: existing pending minus dropped + new/retried
     kept = [r for i, r in enumerate(existing_pending) if i not in indices_to_drop]
     out = kept + fresh_rows
 
     log.info(
-        "Pending: kept %d (dropped %d rejected for retry), +%d new, +%d retried "
+        "Pending: kept %d (dropped %d rejected for retry), +%d new, "
+        "+%d new awaiting enrichment, +%d retried "
         "(skipped: %d already-pending, %d already-approved, %d gate-rejected) = %d total",
-        len(kept), len(indices_to_drop), appended, retried,
+        len(kept), len(indices_to_drop), appended, appended_enrichment, retried,
         already_pending, already_approved, rejected_by_gate, len(out),
     )
     return out
@@ -1016,13 +1087,19 @@ def promote_approved(
             kept_in_pending.append(clean)
             continue
 
-        # ── Gap-finder gating lock (audit 2026-04-29) ─────────────────
-        # pending_gap / pending_gap_v1 / pending_gap_v2 rows must NOT
-        # reach Recalls until claude_check flips them to "pending".
-        # Failures are still routed through rejected_flags above by the
-        # gate scripts. This is the structural guarantee that the FSANZ
-        # "Australian food" landing-page incident cannot recur.
-        if clean.get("Status") in GAP_GATING_STATUSES and idx not in rejected_flags:
+        # ── Non-promotable Pending statuses (gating lock) ─────────────
+        # pending_gap / pending_gap_v1 / pending_gap_v2 — gap-finder rows
+        #   awaiting Gemini URL grounding + Claude content verification.
+        # pending_enrichment — scraper rows missing Pathogen, awaiting AI
+        #   enrichment (claude_check / Gemini fills the field, then flips
+        #   the status back to "pending").
+        # All of these must NOT reach Recalls until the responsible AI
+        # step has flipped them to plain "pending". Failures are still
+        # routed through rejected_flags above by the gate scripts. This
+        # is the structural guarantee that the FSANZ "Australian food"
+        # landing-page incident cannot recur, and now also that empty-
+        # pathogen rows can't accidentally promote.
+        if clean.get("Status") in NON_PROMOTABLE_STATUSES and idx not in rejected_flags:
             kept_in_pending.append(clean)
             continue
 
