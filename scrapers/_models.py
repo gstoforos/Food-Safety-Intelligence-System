@@ -438,13 +438,22 @@ _VULNERABLE_POPULATION_KEYWORDS: List[str] = [
     "alimenti per bebè", "latte per neonati",         # Italian
 ]
 
-# Always-Tier-1 hazards. Hard rules H1-H5 — these override product type.
+# Always-Tier-1 hazards. Hard rules H1-H6 — these override product type.
+#
+# Audit 2026-05-07 — added "Salmonella" per reviewer-prompts-v2 (locked
+# 2026-05-01): "Salmonella always Tier 1". The previous HYBRID FDA
+# framework treated Salmonella as RTE-conditional (Tier 1 if RTE product,
+# Tier 2 otherwise), which produced 4 Tier-2 Salmonella rows in today's
+# Tavily gap-finder run — a locked-rule violation. Moving Salmonella into
+# the always-Tier-1 set short-circuits the RTE-borderline path so all
+# Salmonella recalls are Tier 1 regardless of product type.
 _ALWAYS_TIER_1_PATHOGENS: set = {
     "Listeria monocytogenes",
     "Shiga toxin-producing E. coli (STEC)",
     "Clostridium botulinum",
     "Cereulide (B. cereus toxin)",
     "Marine biotoxin",
+    "Salmonella",
 }
 
 
@@ -513,8 +522,10 @@ def _fda_framework_tier(pathogen_canonical: str, product: Any) -> int:
     if pathogen_canonical in _ALWAYS_TIER_1_PATHOGENS:
         return 1
 
-    # Salmonella, Hep A, Norovirus: Tier 1 in RTE, Tier 2 in cooking-required
-    rte_borderline = {"Salmonella", "Hepatitis A virus", "Norovirus"}
+    # Audit 2026-05-07 — Salmonella removed from this list because it now
+    # matches _ALWAYS_TIER_1_PATHOGENS above and never reaches this code
+    # path. Hep A and Norovirus remain RTE-conditional per FDA framework.
+    rte_borderline = {"Hepatitis A virus", "Norovirus"}
     if pathogen_canonical in rte_borderline:
         if _is_rte_product(product):
             return 1
