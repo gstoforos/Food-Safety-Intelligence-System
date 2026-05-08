@@ -4,36 +4,38 @@
       "date": "2026-05-07",
       "url": "daily/2026-05-07.html",
       "total": 5,
-      "tier1": 0,
+      "tier1": 5,
       "outbreak": 0,
       "by_region": {
         "Europe": 5
       },
-      "generated": "2026-05-07T17:01:12Z"
+      "generated": "2026-05-08T07:04:06Z"
     },
     {
       "date": "2026-05-06",
       "url": "daily/2026-05-06.html",
-      "total": 6,
-      "tier1": 4,
+      "total": 9,
+      "tier1": 5,
       "outbreak": 0,
       "by_region": {
-        "Europe": 6
+        "Europe": 7,
+        "Unknown": 1,
+        "North America": 1
       },
-      "generated": "2026-05-07T07:11:43Z"
+      "generated": "2026-05-08T07:04:06Z"
     },
     {
       "date": "2026-05-05",
       "url": "daily/2026-05-05.html",
-      "total": 14,
+      "total": 15,
       "tier1": 6,
       "outbreak": 0,
       "by_region": {
-        "Europe": 10,
+        "Europe": 11,
         "Africa": 1,
         "North America": 3
       },
-      "generated": "2026-05-08T04:05:37Z"
+      "generated": "2026-05-08T07:04:06Z"
     },
     {
       "date": "2026-05-04",
@@ -45,7 +47,7 @@
         "Europe": 6,
         "North America": 1
       },
-      "generated": "2026-05-07T07:11:43Z"
+      "generated": "2026-05-08T07:04:07Z"
     },
     {
       "date": "2026-05-03",
@@ -56,31 +58,32 @@
       "by_region": {
         "Europe": 1
       },
-      "generated": "2026-05-07T07:11:43Z"
+      "generated": "2026-05-08T07:04:07Z"
     },
     {
       "date": "2026-05-02",
       "url": "daily/2026-05-02.html",
-      "total": 1,
-      "tier1": 1,
+      "total": 2,
+      "tier1": 2,
       "outbreak": 0,
       "by_region": {
-        "North America": 1
+        "North America": 1,
+        "Europe": 1
       },
-      "generated": "2026-05-07T07:11:44Z"
+      "generated": "2026-05-08T07:04:07Z"
     },
     {
       "date": "2026-05-01",
       "url": "daily/2026-05-01.html",
-      "total": 5,
-      "tier1": 3,
-      "outbreak": 0,
+      "total": 6,
+      "tier1": 4,
+      "outbreak": 1,
       "by_region": {
-        "Europe": 3,
+        "Europe": 4,
         "South America": 1,
         "North America": 1
       },
-      "generated": "2026-05-07T07:11:44Z"
+      "generated": "2026-05-08T07:04:07Z"
     }
   ]
 }
