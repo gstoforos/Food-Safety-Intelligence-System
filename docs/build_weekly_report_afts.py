@@ -29,6 +29,21 @@ SEVERITY = OrderedDict([
 
 
 # ---------------------------------------------------------------------------
+# Plural-aware count phrasing (added 2026-05-08).
+# Replaces the legacy "{n} thing(s)" pattern with grammatical phrasing.
+# Use as: _count_phrase(n, "incident") -> "1 incident" / "5 incidents".
+# Pass zero= to override the n==0 case (e.g. "no confirmed outbreak events").
+# ---------------------------------------------------------------------------
+def _count_phrase(n: int, singular: str, *, plural: str = None,
+                  zero: str = None) -> str:
+    if n == 0 and zero is not None:
+        return zero
+    if n == 1:
+        return f"{n} {singular}"
+    return f"{n} {plural or singular + 's'}"
+
+
+# ---------------------------------------------------------------------------
 # Pathogen synonym consolidation (added 2026-04-27).
 # Mirrors the table in build_monthly_report_afts.py — kept separate to
 # preserve the surgical "no shared module" architecture you've used.
@@ -488,7 +503,7 @@ Jurisdictions this week: {}
 
 Generate EXACTLY these three paragraphs (plain text, no HTML, no headers, no paragraph numbers):
 1. Executive overview — total, tier-1, outbreaks, leading pathogen %, interpret as regulatory-pressure signal.
-2. Pathogen-specific process-engineering analysis for {} — name the specific product categories at risk (e.g. for Listeria: RTE deli / dairy / cooked-meat; for Salmonella: low-moisture foods / peanut butter / flour / spices; for STEC: raw beef / leafy greens / sprouts), the specific failure modes (e.g. Zone 1 environmental harbourage, sanitation SOP drift, post-lethality recontamination for Listeria), and cite the specific regulatory frameworks (21 CFR 117 Preventive Controls, 21 CFR 113/114 thermal lethality, 6-log Listeria reduction, FDA Produce Safety Rule 21 CFR 112, etc. as applicable).
+2. Pathogen-specific process-engineering analysis for {} — name the specific product categories at risk (e.g. for Listeria: RTE deli / dairy / cooked-meat; for Salmonella: low-moisture foods / peanut butter / flour / spices; for STEC: raw beef / leafy greens / sprouts), the specific failure modes (e.g. Zone 1 environmental harbourage, sanitation SOP drift, post-lethality recontamination for Listeria), and cite the specific regulatory frameworks (21 CFR 117 Preventive Controls, 21 CFR 113/114 thermal lethality, validated lethality for L. monocytogenes under FDA CPG 555.320 / 9 CFR 430, FDA Produce Safety Rule 21 CFR 112, etc. as applicable).
 3. Regulatory/geographic assessment — name the actual authorities active this week ({}). Close with AFTS recommendation to re-verify the single highest-leverage control for the commodity and confirm documentation packages are ready for rapid regulatory response.
 
 Tone: professional, process-engineering voice, no emojis, no bullets, no colons at paragraph starts. 3-5 sentences each. Preserve the word 'AFTS' exactly where referenced. Do NOT write a Process Authority Note — that is appended separately.""".format(
@@ -526,11 +541,14 @@ def _fallback_p1_to_p3(stats, recalls):
     tp, tc = stats["top_pathogen"]; t = stats["total"]
     pct = round(tc/max(t,1)*100)
     p1 = ("This week produced {} food-safety hazard recall incidents across the AFTS "
-          "monitoring network, with {} classified as Tier-1 and {} confirmed outbreak "
-          "event(s). {} dominated the surveillance window, accounting for {} of {} "
+          "monitoring network, with {} classified as Tier-1 and {}. {} dominated the "
+          "surveillance window, accounting for {} of {} "
           "incidents ({}%). The elevated Tier-1 ratio indicates sustained regulatory "
           "pressure and should be read by food manufacturers as a signal of tightening "
-          "enforcement.").format(t, stats["tier1"], stats["outbreaks"], tp, tc, t, pct)
+          "enforcement.").format(t, stats["tier1"],
+                                 _count_phrase(stats["outbreaks"], "confirmed outbreak event",
+                                               zero="no confirmed outbreak events"),
+                                 tp, tc, t, pct)
     p2 = _pathogen_narrative(tp, pct)
     auths = _jurisdictions_from_recalls(recalls or [])
     if auths:
@@ -718,7 +736,7 @@ def _process_authority_note(recalls, bot):
 
     Triggers (evaluated in severity order; first match wins):
       1. Clostridium / botulinum   - scheduled-thermal-process / LACF filing
-      2. Listeria monocytogenes    - RTE sanitation / env-monitoring / 6-log
+      2. Listeria monocytogenes    - RTE sanitation / env-monitoring / validated lethality
       3. Salmonella in low-moisture - kill-step validation, wet-dry segregation
       4. Salmonella (other)        - kill-step + supplier verification
       5. E. coli STEC              - raw-material supplier verification, kill-step
@@ -876,7 +894,7 @@ def _process_authority_note(recalls, bot):
 
         # Regulator names for the closing sentence
         AUTHORITY_NAMES = {
-            "US":"FDA and USDA FSIS", "EU":"the national competent authority under RASFF",
+            "US":"FDA and USDA FSIS", "EU":"the national competent authority (with RASFF notification)",
             "UK":"the FSA", "CA":"CFIA", "AU_NZ":"FSANZ",
             "JP":"Japan MHLW", "KR":"MFDS",
         }
@@ -898,7 +916,7 @@ def _process_authority_note(recalls, bot):
     # ------------------------------------------------------------------
     if bot:
         regs = _regs_for("botulinum", bot)
-        return ("This window contains {n} incident(s) implicating Clostridium or "
+        return ("This window contains {ip} implicating Clostridium or "
                 "botulinum toxin, with {co} cited for {path}. Any shelf-stable "
                 "low-acid, acidified, aseptic/UHT, hot-filled, or reduced-oxygen-"
                 "packaged product in the affected category must be reviewed to "
@@ -913,7 +931,7 @@ def _process_authority_note(recalls, bot):
                 "classification on a low-acid product reliably triggers a "
                 "regulatory process-filing audit by {regulators} with formal "
                 "inspection-findings issuance on the subsequent visit."
-                ).format(n=len(bot), co=_names(bot),
+                ).format(ip=_count_phrase(len(bot), "incident"), co=_names(bot),
                          path=bot[0].get("Pathogen","Clostridium botulinum"),
                          primary=regs["primary"], parallels=regs["parallels"],
                          regulators=regs["regulators"])
@@ -924,7 +942,7 @@ def _process_authority_note(recalls, bot):
     lst = _by_pathogen("listeria")
     if lst:
         regs = _regs_for("listeria", lst)
-        return ("This window contains {n} Listeria monocytogenes incident(s), "
+        return ("This window contains {ip}, "
                 "with {co} among those cited. Ready-to-eat (RTE) manufacturers "
                 "\u2014 particularly deli, soft cheese and dairy (including raw-"
                 "milk cheese), charcuterie and cured-meat, smoked and cured "
@@ -933,8 +951,8 @@ def _process_authority_note(recalls, bot):
                 "programme (EMP), Zone 1\u20134 sampling plan, and corrective-"
                 "action triggers under {primary}{parallels}. The process-"
                 "authority deliverable for this hazard class is a validated "
-                "6-log L. monocytogenes reduction at the kill step (where one "
-                "exists) or a documented post-lethality control programme where "
+                "lethality at the kill step (where one exists) or a documented "
+                "post-lethality control programme where "
                 "the organism cannot be eliminated in-pack. Typical compliance "
                 "gaps: incomplete Zone 1 sampling, sanitation SOPs not validated "
                 "against worst-case soil load, equipment hollows harbouring "
@@ -942,7 +960,8 @@ def _process_authority_note(recalls, bot):
                 "not mapped. Tier-1 classification with RTE product categories "
                 "routinely triggers an EMP audit and formal inspection-findings "
                 "issuance by {regulators}."
-                ).format(n=len(lst), co=_names(lst),
+                ).format(ip=_count_phrase(len(lst), "Listeria monocytogenes incident"),
+                         co=_names(lst),
                          primary=regs["primary"], parallels=regs["parallels"],
                          regulators=regs["regulators"])
 
@@ -953,7 +972,7 @@ def _process_authority_note(recalls, bot):
     sal_lm = [r for r in sal if _is_low_moisture(r)]
     if sal_lm:
         regs = _regs_for("salmonella_lm", sal_lm)
-        return ("This window contains {n} Salmonella incident(s) in low-moisture "
+        return ("This window contains {ip} in low-moisture "
                 "food categories, with {co} among those cited. Low-moisture "
                 "foods \u2014 peanut and nut butters, flour and grain, milk "
                 "powder and infant formula, spices and dried herbs, chocolate "
@@ -972,14 +991,15 @@ def _process_authority_note(recalls, bot):
                 "dry side. Tier-1 classification in this product class "
                 "routinely triggers a kill-step revalidation and formal "
                 "inspection-findings issuance by {regulators}."
-                ).format(n=len(sal_lm), co=_names(sal_lm),
+                ).format(ip=_count_phrase(len(sal_lm), "Salmonella incident"),
+                         co=_names(sal_lm),
                          primary=regs["primary"], parallels=regs["parallels"],
                          regulators=regs["regulators"])
 
     # Trigger 4 — Plain Salmonella (no low-moisture)
     if sal:
         regs = _regs_for("salmonella", sal)
-        return ("This window contains {n} Salmonella incident(s), with {co} "
+        return ("This window contains {ip}, with {co} "
                 "among those cited. The process-authority deliverable for "
                 "Salmonella-implicated product is the validated kill step for "
                 "the commodity (thermal, high-pressure, or equivalent), the "
@@ -994,7 +1014,8 @@ def _process_authority_note(recalls, bot):
                 "reconstruction. Tier-1 classification here triggers HACCP-"
                 "plan reassessment and formal enforcement action by "
                 "{regulators}."
-                ).format(n=len(sal), co=_names(sal),
+                ).format(ip=_count_phrase(len(sal), "Salmonella incident"),
+                         co=_names(sal),
                          primary=regs["primary"], parallels=regs["parallels"],
                          regulators=regs["regulators"])
 
@@ -1004,8 +1025,7 @@ def _process_authority_note(recalls, bot):
     stec = _by_pathogen("stec", "e. coli", "escherichia")
     if stec:
         regs = _regs_for("stec", stec)
-        return ("This window contains {n} E. coli (STEC / shiga-toxin-"
-                "producing) incident(s), with {co} among those cited. The "
+        return ("This window contains {ip}, with {co} among those cited. The "
                 "pathogen has an infectious dose as low as ~10 organisms, and "
                 "the process-authority deliverable is a validated kill step "
                 "demonstrating \u22655-log STEC reduction for non-intact-beef "
@@ -1022,7 +1042,8 @@ def _process_authority_note(recalls, bot):
                 "protocols unvalidated. Tier-1 STEC classification in these "
                 "product categories routinely triggers formal enforcement "
                 "action by {regulators}."
-                ).format(n=len(stec), co=_names(stec),
+                ).format(ip=_count_phrase(len(stec), "E. coli (STEC / shiga-toxin-producing) incident"),
+                         co=_names(stec),
                          primary=regs["primary"], parallels=regs["parallels"],
                          regulators=regs["regulators"])
 
@@ -1045,9 +1066,9 @@ def _process_authority_note(recalls, bot):
 
     if multi_jurisdiction_outbreak or high_tier1_pressure:
         if multi_jurisdiction_outbreak:
-            anchor = ("a multi-jurisdiction outbreak pattern ({n_ob} confirmed "
-                      "outbreak event(s) across {n_co} countries: {countries})"
-                      ).format(n_ob=len(outbreaks),
+            anchor = ("a multi-jurisdiction outbreak pattern ({ep} across "
+                      "{n_co} countries: {countries})"
+                      ).format(ep=_count_phrase(len(outbreaks), "confirmed outbreak event"),
                                n_co=len(outbreak_countries),
                                countries=", ".join(sorted(outbreak_countries)))
             basis_rows = outbreaks
@@ -1740,7 +1761,7 @@ __CSS_PLACEHOLDER__
   <span class="sec-rule"></span>
 </div>
 <div class="meth">
-  <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, pathogen classification, and the engineering interpretation of each recall are developed under the process authority of AFTS, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP. This is what the AFTS platform brings that pure data feeds do not &mdash; data under engineering authority.</p>
+  <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, pathogen classification, and the engineering interpretation of each recall are developed by the AFTS process-authority practice, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP. This is what the AFTS platform brings that pure data feeds do not &mdash; interpretation under engineering authority.</p>
   <p><strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from 66 primary sources across 60+ countries (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso, BVL, AESAN, EFET, and national authorities) and processes each record through Gemini (extraction), OpenAI GPT (normalisation), and Claude (Tier-1 validation). Records are de-duplicated and harmonised into the accumulative dataset.</p>
   <p><strong>This briefing.</strong> Statistical analysis filters the accumulative dataset to the reporting week ({period}). AI-generated narrative is produced against AFTS process-authority prompts and edited for publication. Figures and pathogen names are preserved verbatim from source data.</p>
 </div>

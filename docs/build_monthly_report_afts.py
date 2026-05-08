@@ -44,6 +44,7 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 import build_weekly_report_afts as weekly  # noqa: E402
+_count_phrase = weekly._count_phrase  # plural-aware counting helper
 from pathogen_italic import italicise_prose  # noqa: E402
 from monthly_stats import (  # noqa: E402
     compute_monthly_signals,
@@ -437,8 +438,8 @@ Return only the three paragraphs separated by a single blank line."""
 
     if pa_extension:
         prompt += "\n\n" + pa_extension
-        log.info("Process Authority trigger fired (monthly): %d matching incident(s)",
-                 pa_trigger.get("total_matches", 0))
+        log.info("Process Authority trigger fired (monthly): %s",
+                 _count_phrase(pa_trigger.get("total_matches", 0), "matching incident"))
 
     try:
         r = requests.post(
@@ -492,12 +493,13 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
 
     cluster_count = cl.get("cluster_count", 0)
     if stats['outbreaks'] and cluster_count:
-        outbreak_phrase = (f"{stats['outbreaks']} outbreak-associated event(s), "
-                           f"forming {cluster_count} same-pathogen temporal cluster(s)")
+        outbreak_phrase = (f"{_count_phrase(stats['outbreaks'], 'outbreak-associated event')}, "
+                           f"forming {_count_phrase(cluster_count, 'same-pathogen temporal cluster')}")
     elif stats['outbreaks']:
-        outbreak_phrase = f"{stats['outbreaks']} outbreak-associated event(s) (no temporal clustering)"
+        outbreak_phrase = (f"{_count_phrase(stats['outbreaks'], 'outbreak-associated event')} "
+                           f"(no temporal clustering)")
     elif cluster_count:
-        outbreak_phrase = f"{cluster_count} temporal cluster(s) (no outbreak label)"
+        outbreak_phrase = f"{_count_phrase(cluster_count, 'temporal cluster')} (no outbreak label)"
     else:
         outbreak_phrase = "no outbreak-associated events"
 
@@ -1594,7 +1596,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   <div class="kpi">
     <div class="kpi-label">Outbreaks</div>
     <div class="kpi-value vio">{stats['outbreaks']}</div>
-    <div class="kpi-top">{cl.get('cluster_count',0)} cluster(s) flagged</div>
+    <div class="kpi-top">{_count_phrase(cl.get('cluster_count',0), 'cluster')} flagged</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">Leading Pathogen</div>
@@ -1741,7 +1743,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 <div class="meth">
   <p><strong>Definitions.</strong> A <em>recall incident</em> is a single regulator-published recall fiche / notice covering one identified product or product family. Where a single multi-country event is reported by two regulators (for example FSAI in Ireland plus FSA in the United Kingdom), each regulator's notice counts as one incident — the incident table accordingly shows the multi-jurisdictional footprint rather than de-duplicating to a single row. <em>Tier-1</em> indicates an immediate public-health risk (Listeria, Salmonella, STEC, Campylobacter, Cronobacter, Vibrio, Hepatitis A, marine biotoxins, mycotoxins above regulatory limits, undeclared major allergens). <em>Outbreak-associated</em> means the regulator's notice cites confirmed human cases or epidemiologically-linked illnesses, not merely a positive product test.</p>
 
-  <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, hazard classification, and the engineering interpretation of each recall are developed under the process authority of AFTS, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP.</p>
+  <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, hazard classification, and the engineering interpretation of each recall are developed by the AFTS process-authority practice, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP.</p>
 
   <p><strong>Statistical methods.</strong> Month-over-month <em>Z-scores</em> use the rolling-prior-months mean and sample standard deviation; the score is suppressed (n/a) when the baseline contains fewer than six months. The <em>hotspot matrix</em> uses standardised chi-square residuals against an independence-baseline expected count; cells with σ&gt;2 are flagged as over-represented but are screening signals only (no multiple-comparison correction; small expected counts in many cells). <em>Source concentration</em> uses the Herfindahl-Hirschman Index on agency counts (HHI = Σ s²ᵢ × 10000, where sᵢ is each agency's share; &lt;1500 diverse, 1500–2500 moderate, &gt;2500 concentrated). <em>Geographic distribution</em> uses the Gini coefficient on country counts (0 = perfectly even, 1 = single-country regime; &lt;0.4 even, 0.4–0.6 moderate, &gt;0.6 uneven). <em>Outbreak clusters</em> are detected via a sliding 14-day window over same-pathogen outbreak events (cluster threshold: ≥3 events). The <em>composite severity index</em> (0–100) is a transparent two-component blend: <strong>100 × (0.60 × Tier-1 share + 0.40 × outbreak rate)</strong>, where Tier-1 share = Tier-1 incidents ÷ total incidents and outbreak rate = outbreak-flagged incidents ÷ total incidents (using the same criterion as the headline outbreaks KPI). For April 2026 this evaluates to 100 × (0.60 × 198/236 + 0.40 × 6/236) = 51.4. Buckets: ≥65 critical, ≥45 elevated, ≥25 moderate, &lt;25 low. Predictive models are gated to activate only when data history meets the minimum size required for valid estimation; the linear-trend OLS reports a 95% CI but does not claim slope significance until n ≥ 12 monthly observations (so dof ≥ 10, where the t-critical at α = 0.05 falls below 2.23).</p>
 
