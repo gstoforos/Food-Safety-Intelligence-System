@@ -1,0 +1,134 @@
+name: AFTS Weekly_Review Wipe
+
+# ==========================================================================
+# Runs every THURSDAY at 17:30 ATHENS TIME (not UTC).
+# 30 minutes after the Apps Script `sendThursdayManualReview` mailer fires
+# at 17:00 Athens — gives the email time to send before we wipe the source.
+#
+# What this does:
+#   1. Empties docs/data/recalls.xlsx::Weekly_Review (header preserved)
+#   2. Regenerates docs/data/weekly-review-latest.json (will be empty)
+#   3. Commits + pushes
+#
+# What this does NOT do:
+#   - Does NOT touch Recalls sheet (promoted rows persist forever)
+#   - Does NOT touch Rejected sheet (audit archive persists forever)
+#   - Does NOT touch Pending sheet (active review queue is unaffected)
+#
+# Two DST crons + Athens hour-guard, identical pattern to the rest of
+# AFTS. Athens 17:30 = UTC 14:30 (summer EEST) / 15:30 (winter EET).
+# Cron uses min/hour/dom/mon/dow with Sunday=0, so Thursday=4.
+#
+# Authoritative cutoff: Thursday 17:00 Athens (see weekly_review_capture.py
+# REVIEW_HOUR_LOCAL = 17). This workflow runs 30 minutes after — i.e. by
+# the time it fires, every promotion eligible for the Thursday 17:00
+# email has already been mirrored into Weekly_Review and the email has
+# been sent. Wiping at 17:30 means promotions arriving 17:00→17:30 land
+# in NEXT Thursday's window, which is the desired behavior per the
+# weekly_review_capture cutoff math.
+# ==========================================================================
+
+on:
+  schedule:
+    - cron: '30 14 * * 4'   # Thursday 14:30 UTC = 17:30 EEST (Athens summer)
+    - cron: '30 15 * * 4'   # Thursday 15:30 UTC = 17:30 EET  (Athens winter)
+  workflow_dispatch:        # allow manual run / catch-up
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  wipe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Athens-time guard (Thursday 17:xx Athens)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          DOW=$(TZ=Europe/Athens date +%u)   # 1=Mon .. 7=Sun
+          echo "athens_hour=$HOUR dow=$DOW"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Manually dispatched — running."
+          elif [ "$HOUR" = "17" ] && [ "$DOW" = "4" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Athens Thursday 17:xx — running."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not Athens Thursday 17:xx (now DOW=$DOW hour=$HOUR). Skipping."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Wipe Weekly_Review sheet
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m tools.wipe_weekly_review --yes
+
+      - name: Commit + push
+        if: steps.guard.outputs.run == 'true'
+        env:
+          GH_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME:  "AFTS Intelligence System"
+        run: |
+          git config user.email "$GIT_USER_EMAIL"
+          git config user.name  "$GIT_USER_NAME"
+          if git diff --quiet docs/data/recalls.xlsx docs/data/weekly-review-latest.json 2>/dev/null; then
+            echo "No changes (sheet was already empty). Skipping commit."
+            exit 0
+          fi
+          git add docs/data/recalls.xlsx docs/data/weekly-review-latest.json
+          git commit -m "Weekly_Review wipe — $(TZ=Europe/Athens date +%Y-%m-%d) (post-Thursday-email reset)"
+          # Use commit_github retry if available (handles concurrent pushes)
+          for i in 1 2 3; do
+            if git push; then
+              echo "Pushed (attempt $i)"
+              exit 0
+            fi
+            echo "Push attempt $i failed — pulling and retrying"
+            git pull --rebase --autostash || git pull --no-rebase --strategy-option=ours
+          done
+          echo "All push attempts failed" >&2
+          exit 1
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "Weekly_Review wipe complete — Athens $(TZ=Europe/Athens date)"
+          echo "Weekly_Review row count after wipe:"
+          python -c "
+          import openpyxl
+          try:
+              wb = openpyxl.load_workbook('docs/data/recalls.xlsx', read_only=True)
+              if 'Weekly_Review' in wb.sheetnames:
+                  print(f'  {wb[\"Weekly_Review\"].max_row - 1} rows (should be 0)')
+              else:
+                  print('  (no Weekly_Review sheet)')
+          except Exception as e:
+              print(f'  (unreadable: {e})')
+          "
