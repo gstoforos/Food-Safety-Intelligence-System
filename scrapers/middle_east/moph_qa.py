@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class MoPHQAScraper(GenericGeminiScraper):
     AGENCY = "MoPH (QA)"
     COUNTRY = "Qatar"
-    INDEX_URLS = ['https://www.moph.gov.qa/english/Pages/news.aspx']
+    INDEX_URLS = ['https://www.moph.gov.qa/english/mediacenter/Announcements/Pages/default.aspx']
     LANGUAGE = "en"

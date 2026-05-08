@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class SFDAScraper(GenericGeminiScraper):
     AGENCY = "SFDA (SA)"
     COUNTRY = "Saudi Arabia"
-    INDEX_URLS = ['https://www.sfda.gov.sa/en/news-list']
+    INDEX_URLS = ['https://www.sfda.gov.sa/en/taxonomy/term/1']
     LANGUAGE = "en"
