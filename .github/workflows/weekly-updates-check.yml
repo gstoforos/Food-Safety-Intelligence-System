@@ -1,0 +1,126 @@
+name: AFTS Weekly Updates Check
+
+# ==========================================================================
+# Runs every WEDNESDAY at 09:00 ATHENS TIME.
+#
+# Walks the last 4 Friday-ending weeks. If any week's recall count in the
+# current dataset differs from the count baked into the existing HTML
+# report, that week is rebuilt and listed in
+# docs/data/weekly-updates-pending.json.
+#
+# The Apps Script subscriber mailer reads the manifest at 10:00 Athens
+# (1h later) and sends one combined update email if any weeks changed.
+# Empty manifest = no email = silent skip.
+#
+# Two DST crons + Athens hour-guard, identical pattern to the rest of
+# AFTS. Athens 09:00 = UTC 06:00 (summer EEST) / 07:00 (winter EET).
+# Cron uses min/hour/dom/mon/dow with Sunday=0, so Wednesday=3.
+# ==========================================================================
+
+on:
+  schedule:
+    - cron: '0 6 * * 3'   # Wednesday 06:00 UTC = 09:00 EEST (Athens summer)
+    - cron: '0 7 * * 3'   # Wednesday 07:00 UTC = 09:00 EET  (Athens winter)
+  workflow_dispatch: {}   # manual run / catch-up
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Athens-time guard (Wednesday 09:xx Athens)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          DOW=$(TZ=Europe/Athens date +%u)   # 1=Mon .. 7=Sun
+          echo "athens_hour=$HOUR dow=$DOW"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Manually dispatched — running."
+          elif [ "$HOUR" = "09" ] && [ "$DOW" = "3" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Athens Wednesday 09:xx — running."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Skip: not Athens Wednesday 09:xx (DOW=$DOW hour=$HOUR)."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check & rebuild last 4 weeks
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pipeline.build_weekly_updates_check
+
+      - name: Commit + push manifest (and any rebuilt HTML)
+        if: steps.guard.outputs.run == 'true'
+        env:
+          GH_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME:  "AFTS Intelligence System"
+        run: |
+          git config user.email "$GIT_USER_EMAIL"
+          git config user.name  "$GIT_USER_NAME"
+          # Stage manifest + any rebuilt weekly HTML files
+          git add docs/data/weekly-updates-pending.json
+          git add docs/*-W*.html 2>/dev/null || true
+
+          if git diff --cached --quiet; then
+            echo "No file changes to commit (manifest unchanged, no weeks rebuilt)."
+            exit 0
+          fi
+
+          git commit -m "Weekly updates check $(TZ=Europe/Athens date +%Y-%m-%d)"
+          for i in 1 2 3; do
+            if git push; then
+              echo "Pushed (attempt $i)"
+              exit 0
+            fi
+            echo "Push attempt $i failed — pulling and retrying"
+            git pull --rebase --autostash || git pull --no-rebase --strategy-option=ours
+          done
+          echo "All push attempts failed" >&2
+          exit 1
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "Weekly updates check complete — Athens $(TZ=Europe/Athens date)"
+          if [ -f docs/data/weekly-updates-pending.json ]; then
+            python3 -c "
+          import json
+          m = json.load(open('docs/data/weekly-updates-pending.json'))
+          updates = m.get('updated_weeks', [])
+          print(f'  Anchor Friday: {m.get(\"anchor_friday\", \"?\")}')
+          print(f'  Checked back:  {m.get(\"checked_back_weeks\", \"?\")} weeks')
+          print(f'  Updated:       {len(updates)} week(s)')
+          for w in updates:
+              print(f'    W{w[\"week_num\"]:02d} ({w[\"week_end\"]}): {w[\"old_total\"]} -> {w[\"new_total\"]} (+{w[\"delta\"]})')
+          "
+          fi
