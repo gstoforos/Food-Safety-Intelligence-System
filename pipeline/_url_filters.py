@@ -101,6 +101,16 @@ KNOWN_REGULATOR_LANDINGS = frozenset({
     "https://www.nvwa.nl/onderwerpen/voedselveiligheid/veiligheidswaarschuwingen",
     # MPI New Zealand
     "https://www.mpi.govt.nz/food-safety-home/food-recalls",
+    # CFS Hong Kong — multiple listing variants (Tavily/Exa Row 4 leak, audit 2026-05-08)
+    "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/whatsnew_fa.html",
+    "https://www.cfs.gov.hk/english/rc/subject/fi_list.html",
+    "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa",
+    "https://www.cfs.gov.hk/english/whatsnew/whatsnew_act",
+    "https://www.cfs.gov.hk/english/programme/programme_rafs/programme_rafs.html",
+    # SFA Singapore — risk-at-a-glance is educational, not recall (audit 2026-05-08)
+    "https://www.sfa.gov.sg/food-safety-tips/food-risk-concerns/risk-at-a-glance",
+    "https://www.sfa.gov.sg/food-safety-tips",
+    "https://www.sfa.gov.sg/food-information/recall",
     # RASFF Window (EU) — SPA shells
     "https://webgate.ec.europa.eu/rasff-window",
     "https://webgate.ec.europa.eu/rasff-window/screen",
@@ -147,6 +157,13 @@ GENERIC_URL_PATTERNS = (
     r"/circulars?/notification-circular-",          # FSANZ circular ID
     r"/bulletins?/?$",
     r"/news-circulars?/?$",
+    # 2026-05-08 audit additions (Tavily/Exa garbage suppression)
+    r"sfa\.gov\.sg/food-safety-tips/food-risk-concerns/",     # SFA educational
+    r"sfa\.gov\.sg/food-information/?$",                       # SFA listing root
+    r"cfs\.gov\.hk/.*/whatsnew_fa/?$",                         # CFS HK what's new index
+    r"cfs\.gov\.hk/.*/fi_list\.html",                          # CFS HK food incidents list
+    r"cfs\.gov\.hk/.*/programme_rafs",                         # CFS HK RAFS programme root
+    r"/risk-at-a-glance",                                      # any-regulator risk-explainer pages
 )
 
 # Lazy-compiled cache

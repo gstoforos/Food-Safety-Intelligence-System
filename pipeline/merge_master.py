@@ -23,7 +23,7 @@ import json
 import logging
 import re
 import unicodedata
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 from urllib.parse import urlparse
@@ -61,6 +61,16 @@ RECALLS_SCHEMA = SCHEMA + RECALLS_INTERNAL_COLUMNS
 # (e.g. "claude-check,gemini-url-gate"). Used by mark_rejected_with_counter
 # to physically delete rows once 2+ DIFFERENT reviewers have rejected.
 PENDING_SCHEMA = SCHEMA + ["ScrapedAt", "Status", "RejectedBy"]
+
+# ── Rejected sheet (audit 2026-05-08, per operator decision) ─────────────
+# Rows that BOTH morning-pair (Gemini URL gate + Claude check) AND/OR
+# evening-pair (Gemini URL gate + OpenRouter check) reject get archived
+# to the Rejected sheet for human audit. Previously these rows were just
+# physically deleted by the 2-reviewer counter — that loses evidence and
+# makes it impossible to spot reviewer bias or systemic false-rejections.
+# RejectedAt = UTC timestamp at which the 2nd-reviewer rejection landed
+# RejectedBy = comma-separated set of reviewer names (already in PENDING_SCHEMA)
+REJECTED_SCHEMA = SCHEMA + ["ScrapedAt", "Status", "RejectedBy", "RejectedAt"]
 
 NEWS_HEADERS = ["Published (UTC)", "Pathogen", "Event", "Source", "Title",
                 "Link", "Retrieved (UTC)"]
@@ -374,41 +384,7 @@ _GARBAGE_COMPANIES = {
     "food safety investigation:",                    # CFIA section header
     "timeline of events:",                           # CFIA section header
     "recall of",                                     # FSAI page-title leak (prefix)
-    # Audit 2026-05-07 — Tavily gap-finder dumped 22 garbage rows where
-    # Company was a regulator name, page category, or generic landing-page
-    # word instead of an actual company. Adding the leakers below.
-    "aesan", "favv", "nvwa", "mfds", "blv", "efet", "sfa", "ages",
-    "afsca", "cfs", "fsai", "fsa", "fsanz", "mhlw", "samr",            # regulator names
-    "food", "food incident post", "press release",                      # page categories
-    "welcome", "welkom", "willkommen", "bienvenue",                     # multilingual landing-page greetings
-    "bericht", "rapport", "report",                                     # annual report titles
-    "press releases",                                                   # navigation
-    "search", "browse", "alerts and recalls", "recalls and alerts",     # nav
-    # Audit 2026-05-07: "update" and "notification" REMOVED — they were
-    # over-aggressive. "Update 2: Nestlé" (Danone Cereulide story) is a
-    # legitimate recall that needs claude-check enrichment of its Company
-    # field, not a hard reject. Operator rule: fill, don't delete.
 }
-
-# Audit 2026-05-07 — Company strings that begin with a file-format marker
-# (e.g. "[PDF] Imported food risk statement", "[XLS] Sheet1") are scraped
-# straight from search-engine result snippets where the engine prefixes
-# binary attachments. They are NEVER legitimate company names.
-_FILE_TITLE_PREFIX_RE = re.compile(
-    r"^\s*\[(PDF|XLS|XLSX|XLSM|DOC|DOCX|CSV|TSV|RTF|PPT|PPTX|ODT)\]",
-    re.IGNORECASE,
-)
-
-# Audit 2026-05-07 — URLs ending in document-format extensions are almost
-# never per-incident recall pages. They are policy PDFs, monitoring
-# spreadsheets, annual reports, and search-result file attachments. Reject
-# them at the gate. The exception list is empty for now; add specific URL
-# patterns here if a regulator legitimately publishes recalls as PDFs.
-_DOCUMENT_URL_RE = re.compile(
-    r"\.(pdf|xls|xlsx|xlsm|csv|tsv|doc|docx|ppt|pptx|odt|odp|ods)"
-    r"(\?|#|$)",
-    re.IGNORECASE,
-)
 
 # Hard cutoff: nothing dated before this enters Pending.
 _MIN_VALID_DATE = "2026-01-01"
@@ -627,32 +603,6 @@ def validate_pending_row(
     url_norm = url.rstrip("/").lower()
     if url_norm and url_norm in existing_urls:
         return False, "Duplicate URL already exists"
-
-    # ── REJECT: Company starts with a file-format prefix [PDF]/[XLS]/etc.
-    # Audit 2026-05-07 — Tavily dumped 6 rows like "[XLS] Sheet1",
-    # "[PDF] Imported food risk statement Peanuts/pistach...". These are
-    # search-result attachments, never real companies.
-    if not is_rasff and _FILE_TITLE_PREFIX_RE.match(company):
-        return False, f"Company starts with file-format marker: {company[:60]!r}"
-
-    # ── REJECT: URL points to a document file (.pdf, .xls, .docx, etc.) ──
-    # Audit 2026-05-07 — Tavily indexed regulator PDFs (annual reports,
-    # monitoring tables, policy documents) and surfaced them as recall
-    # pages. They never are. The few regulators that DO publish individual
-    # recalls as PDFs (rare) can be allow-listed here when needed.
-    if _DOCUMENT_URL_RE.search(url):
-        return False, f"URL is a document file, not a recall page: {url[-40:]!r}"
-
-    # NOTE (audit 2026-05-07): Empty Date and future-Date gates were
-    # considered here but REMOVED per operator principle "fill, don't
-    # delete". RappelConso (France) and other regulators routinely publish
-    # rows with sparse Date fields that get enriched downstream by
-    # claude-check (which fetches the URL and corrects the Date). Future-
-    # dated rows are defended against in two other places: gap_finder_*.py
-    # already drops rows >30 days in the future, and claude-check
-    # cross-checks Date against URL content as part of its review prompt.
-    # Adding a strict gate here would block legitimate recalls that need
-    # enrichment from ever reaching the queue.
 
     # ── REJECT: date is before 2026-01-01 ───────────────────────────────
     if date_str and date_str < _MIN_VALID_DATE:
@@ -1024,21 +974,38 @@ def promote_approved(
     pending: List[Dict[str, Any]],
     approved_existing: List[Dict[str, Any]],
     rejected_flags: Dict[int, str],
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Split the Pending list into (new_approved_rows_for_Recalls, rows_to_keep_in_Pending).
+    Split the Pending list into
+        (new_approved_rows_for_Recalls,
+         rows_to_keep_in_Pending,
+         rows_to_archive_to_Rejected).
 
     - `rejected_flags` maps pending-row-index -> rejection reason string.
-      Rows listed here are marked Status='rejected' and KEPT in Pending
-      (with reason written into Notes as 'REJECTED: <reason> | <orig notes>').
+      First-time rejections: stamp Status='rejected', keep in Pending
+      with reason appended to Notes.
+      Second-DIFFERENT-reviewer rejection: row is REMOVED from Pending and
+      added to the archive list (caller writes it to the Rejected sheet).
     - Rows NOT in rejected_flags (and whose current Status is 'pending') are
       treated as approved and moved to Recalls, deduped against approved_existing.
     - Rows already marked 'rejected' in a prior run stay in Pending untouched.
+
+    Audit 2026-05-08: third return value (archive list) added per operator
+    decision — previously second-rejector deletes were silent and untraceable.
+    Now they accumulate in a Rejected sheet for human audit.
     """
     approved_keys = {_dedup_key(r) for r in approved_existing}
 
     new_approved: List[Dict[str, Any]] = []
     kept_in_pending: List[Dict[str, Any]] = []
+    archived_rejected: List[Dict[str, Any]] = []
+
+    archive_ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def _archive(clean_row: Dict[str, Any]) -> None:
+        """Stamp RejectedAt and append to archive list."""
+        clean_row["RejectedAt"] = archive_ts
+        archived_rejected.append(clean_row)
 
     for idx, row in enumerate(pending):
         # Strip runtime-only fields (e.g. _url_check) before persisting
@@ -1066,7 +1033,8 @@ def promote_approved(
             # and append rejection reason to Notes.
             should_delete, _ = mark_rejected_with_counter(clean, reason)
             if should_delete:
-                # Drop from Pending entirely — 2 reviewers agree it's bad.
+                # 2 reviewers agree it's bad — archive to Rejected sheet.
+                _archive(clean)
                 continue
             kept_in_pending.append(clean)
             continue
@@ -1080,6 +1048,7 @@ def promote_approved(
         if date_problem:
             should_delete, _ = mark_rejected_with_counter(clean, date_problem)
             if should_delete:
+                _archive(clean)
                 continue
             kept_in_pending.append(clean)
             continue
@@ -1107,9 +1076,11 @@ def promote_approved(
         new_approved.append(approved_row)
 
     rejected_kept = sum(1 for r in kept_in_pending if r.get("Status") == STATUS_REJECTED)
-    log.info("Promotion: %d approved -> Recalls, %d kept in Pending (%d rejected)",
-             len(new_approved), len(kept_in_pending), rejected_kept)
-    return new_approved, kept_in_pending
+    log.info("Promotion: %d approved -> Recalls, %d kept in Pending (%d rejected, "
+             "%d archived to Rejected sheet)",
+             len(new_approved), len(kept_in_pending), rejected_kept,
+             len(archived_rejected))
+    return new_approved, kept_in_pending, archived_rejected
 
 
 # ---------------------------------------------------------------------------
@@ -1185,10 +1156,16 @@ def save_xlsx_with_pending(
     approved_rows: List[Dict[str, Any]],
     pending_rows: List[Dict[str, Any]],
     xlsx_path: Path,
+    newly_rejected_rows: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
     """
     Save BOTH sheets (Recalls + Pending), preserving NEWS sheet if present.
-    Sheet order: Recalls (0), Pending (1), NEWS (last).
+    Sheet order: Recalls (0), Pending (1), Rejected (2), NEWS (last).
+
+    Audit 2026-05-08: optional `newly_rejected_rows` arg. When supplied, these
+    rows are APPENDED to the Rejected sheet (audit archive — never overwritten).
+    Pre-existing rows in the Rejected sheet are preserved across runs so
+    operators can inspect the full history of what 2-reviewer-rejection killed.
     """
     if xlsx_path.exists():
         wb = load_workbook(xlsx_path)
@@ -1204,6 +1181,35 @@ def save_xlsx_with_pending(
     pending_fill = PatternFill(start_color="FFF3CD", end_color="FFF3CD", fill_type="solid")
     _write_sheet(wb, "Pending", PENDING_SCHEMA, pending_rows, header_fill=pending_fill)
 
+    # ── Rejected (audit archive — append-only) ─────────────────────────
+    # Read any existing rows first; append new rejections; rewrite full sheet.
+    if newly_rejected_rows:
+        existing_rejected: List[Dict[str, Any]] = []
+        if "Rejected" in wb.sheetnames:
+            ws_rej = wb["Rejected"]
+            headers_rej = [c.value for c in ws_rej[1]]
+            for r in ws_rej.iter_rows(min_row=2, values_only=True):
+                if all(v in (None, "") for v in r):
+                    continue
+                rec = {h: (v if v is not None else "") for h, v in zip(headers_rej, r)}
+                # Backfill missing columns
+                for col in REJECTED_SCHEMA:
+                    rec.setdefault(col, "" if col not in ("Tier", "Outbreak") else 0)
+                existing_rejected.append(rec)
+        # Defensive: don't double-append a row whose URL+RejectedAt already
+        # appears in existing_rejected (re-runs of save with same archive list).
+        seen = {(r.get("URL", ""), r.get("RejectedAt", "")) for r in existing_rejected}
+        deduped_new = [r for r in newly_rejected_rows
+                       if (r.get("URL", ""), r.get("RejectedAt", "")) not in seen]
+        all_rejected = existing_rejected + deduped_new
+        rejected_fill = PatternFill(start_color="F8D7DA", end_color="F8D7DA",
+                                    fill_type="solid")  # rose
+        _write_sheet(wb, "Rejected", REJECTED_SCHEMA, all_rejected,
+                     header_fill=rejected_fill)
+        if deduped_new:
+            log.info("Rejected sheet: appended %d row(s) (total now %d)",
+                     len(deduped_new), len(all_rejected))
+
     # Ensure NEWS sheet exists (empty if it wasn't there before)
     if "NEWS" not in wb.sheetnames:
         news = wb.create_sheet("NEWS")
@@ -1212,9 +1218,12 @@ def save_xlsx_with_pending(
             c.font = Font(bold=True)
         news.freeze_panes = "A2"
 
-    # Reorder: Recalls, Pending, (others), NEWS last
+    # Reorder: Recalls, Pending, Rejected, (others), NEWS last
     ordered = ["Recalls", "Pending"]
-    others = [s for s in wb.sheetnames if s not in ("Recalls", "Pending", "NEWS")]
+    if "Rejected" in wb.sheetnames:
+        ordered.append("Rejected")
+    others = [s for s in wb.sheetnames
+              if s not in ("Recalls", "Pending", "Rejected", "NEWS")]
     ordered += others
     if "NEWS" in wb.sheetnames:
         ordered.append("NEWS")
@@ -1591,10 +1600,11 @@ if __name__ == "__main__":
     promote_enabled = os.environ.get("MERGE_MASTER_PROMOTE", "").strip() in (
         "1", "true", "yes")
 
+    archived_rejected: List[Dict[str, Any]] = []
     if promote_enabled:
         log.info("MERGE_MASTER_PROMOTE=1 — promotion ENABLED for this run "
                  "(use only for backfill/manual catch-up)")
-        new_approved, remaining = promote_approved(
+        new_approved, remaining, archived_rejected = promote_approved(
             clean_pending, approved, rejected_flags,
         )
         if new_approved:
@@ -1610,23 +1620,31 @@ if __name__ == "__main__":
         # We still update Pending with rejection stamps for broken URLs.
         # Walk clean_pending; for any idx in rejected_flags, copy the
         # rejection note onto the row so the next gate pass skips it.
+        # Audit 2026-05-08: when 2nd reviewer rejection lands here in
+        # janitor mode, archive the row to Rejected sheet AND drop it
+        # from remaining (was previously left orphaned for cleanup_orphan
+        # to find on next run — now handled atomically).
+        archive_ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        survivors: List[Dict[str, Any]] = []
         for idx, row in enumerate(clean_pending):
             if idx in rejected_flags and row.get("Status") != STATUS_REJECTED:
                 reason = rejected_flags[idx]
-                # Use the counter — returns should_delete=True after 2+
-                # different reviewers reject. should_delete in janitor mode
-                # is harder to act on (we'd have to remove from clean_pending
-                # mid-iteration), so we mark them and let the next
-                # cleanup_orphan_rejected pass handle physical deletion.
-                _should_delete, _ = mark_rejected_with_counter(row, reason)
+                should_delete, _ = mark_rejected_with_counter(row, reason)
+                if should_delete:
+                    row["RejectedAt"] = archive_ts
+                    archived_rejected.append(row)
+                    continue
+            survivors.append(row)
         new_approved = []
-        remaining = clean_pending
+        remaining = survivors
         final_approved = sort_rows(approved)
         if rejected_flags:
-            log.info("Marked %d Pending row(s) as rejected (broken URL)",
-                     len(rejected_flags))
+            log.info("Marked %d Pending row(s) as rejected; archived %d to "
+                     "Rejected sheet (2nd-reviewer)",
+                     len(rejected_flags), len(archived_rejected))
 
-    save_xlsx_with_pending(final_approved, sort_rows(remaining), XLSX)
+    save_xlsx_with_pending(final_approved, sort_rows(remaining), XLSX,
+                           newly_rejected_rows=archived_rejected)
     mirror_json_from_xlsx(XLSX, ROOT / "docs" / "data" / "recalls.json")
 
     # Mirror promotions into the Weekly_Review sheet + refresh the JSON

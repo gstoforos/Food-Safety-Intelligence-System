@@ -448,6 +448,7 @@ def main() -> int:
                 rejections[idx] = f"Pathogen verification: {reason}"
 
     # ---- 8. Promote approved rows -> Recalls -----------------------------
+    archived_rejected: list = []  # populated only when SKIP_PROMOTE unset
     if SKIP_PROMOTE:
         # Scrape-only mode: new rows stay in Pending. The scheduled
         # url-gate -> claude-check -> merge-master chain is the only
@@ -458,7 +459,10 @@ def main() -> int:
         final_approved = sort_rows(approved)
         final_pending = sort_rows(pending)
     else:
-        new_approved, pending_after = promote_approved(
+        # Audit 2026-05-08: 3-tuple return — archived_rejected feeds
+        # save_xlsx_with_pending so 2-reviewer-rejected rows are preserved
+        # in the Rejected sheet rather than silently dropped.
+        new_approved, pending_after, archived_rejected = promote_approved(
             pending=pending,
             approved_existing=approved,
             rejected_flags=rejections,
@@ -474,7 +478,8 @@ def main() -> int:
     # Architecture: xlsx is the single source of truth. Write xlsx first,
     # then mirror recalls.json FROM the saved xlsx (never from the
     # in-memory list) so they cannot drift from each other.
-    save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH)
+    save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH,
+                           newly_rejected_rows=archived_rejected)
     mirror_json_from_xlsx(XLSX_PATH, JSON_PATH)
 
     # ---- 9b. NEWS feed scrapers -----------------------------------------

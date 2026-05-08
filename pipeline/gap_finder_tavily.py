@@ -683,6 +683,59 @@ from pipeline._url_filters import (
     is_generic_url as _is_generic_url,                    # noqa: F401
     KNOWN_REGULATOR_LANDINGS as _KNOWN_REGULATOR_LANDINGS,  # noqa: F401
 )
+# Audit 2026-05-08: news-mirror blocklist applied at GAP-FINDER stage,
+# not just merge_master gate. Previously a Tavily/Exa row from
+# foodsafetynews.com / cidrap.umn.edu / etc. would consume a reviewer
+# slot before being rejected downstream. Now we drop them at extract.
+from pipeline._news_mirror_blocklist import is_news_mirror as _is_news_mirror
+
+# Audit 2026-05-08: known-garbage Company values produced by
+# _extract_company_product when the page is a regulator landing /
+# press-release index / educational article. Claude consistently flags
+# these as "Company is generic landing-page text" → FAIL. Reject at
+# Tavily filter so they never reach the reviewer queue.
+_GARBAGE_COMPANY_TOKENS = frozenset({
+    # Generic page-title artefacts
+    "food", "food incident post", "press release", "news",
+    "what's new", "whats new", "recall", "recalls", "alert", "alerts",
+    "food alert", "food alerts", "food recall", "food recalls",
+    "food safety", "food safety news", "food poisoning",
+    "advisory", "advisories", "notice", "notices",
+    # Regulator names (extracted as Company when the page is a landing)
+    "fda", "usda", "fsis", "cfia", "fsa", "fsai", "fsanz", "mpi",
+    "aesan", "ages", "bvl", "afsca", "favv", "nvwa", "rasff",
+    "efet", "cfs", "sfa", "mfds", "mhlw", "fssai", "anvisa",
+    "centre for food safety", "food standards agency",
+    "food standards australia new zealand",
+    "agencia española de seguridad alimentaria",
+    "agencia española de seguridad alimentaria y nutrición",
+    "ministry of food and drug safety",
+    "european commission",
+})
+
+
+def _is_garbage_company(company: str) -> bool:
+    """True if extracted Company is a known landing-page / regulator-name
+    artefact rather than an actual recalling firm. Conservative: only
+    matches whole-string equality (case-insensitive) so legitimate company
+    names that happen to contain "Food" (e.g. "Wholesome Food Ltd") are
+    NOT rejected.
+    """
+    if not company:
+        return False
+    c = company.strip().lower().rstrip(".:;,")
+    return c in _GARBAGE_COMPANY_TOKENS
+
+
+def _hazard_in_title_or_lede(title: str, content: str) -> bool:
+    """True if a pathogen/hazard keyword appears in the title or first 300
+    chars of content. Pre-fix, _detect_pathogen scanned the entire blob,
+    so unrelated articles that mentioned "Salmonella" in a footer or
+    related-reading section were promoted to recall candidates. The
+    actual recalls always mention the hazard up-front.
+    """
+    head = (title or "") + "  " + ((content or "")[:300])
+    return bool(_detect_pathogen(head))
 
 
 
@@ -698,6 +751,12 @@ def _item_to_recall(item: Dict[str, Any],
     broke leak forensics — the 7 leaked rows on 2026-04-29 looked like
     they came from Gemini (because they passed through gap_finder_gemini
     too) when in fact the search hits originated from Exa.
+
+    Audit 2026-05-08: tightened filtering after Exa run produced 50%
+    garbage that hit merge_master gate-rejects. New defenses:
+      - news-mirror blocklist applied here (not only at gate)
+      - garbage-Company detector (drops "Food" / "Press Release" / etc.)
+      - hazard mention required in title or first 300 chars (not anywhere)
     """
     url = (item.get("url") or "").strip()
     if not url or not url.lower().startswith(("http://", "https://")):
@@ -706,6 +765,10 @@ def _item_to_recall(item: Dict[str, Any],
     # The merge_master validate_pending_row gate is authoritative, this
     # just keeps Tavily's logs cleaner.
     if _is_generic_url(url):
+        return None
+    # Audit 2026-05-08: news-mirror domains rejected here, not just at
+    # the merge_master gate. Saves a reviewer slot per leaked row.
+    if _is_news_mirror(url):
         return None
 
     src = _lookup_source(url)
@@ -717,6 +780,12 @@ def _item_to_recall(item: Dict[str, Any],
     content = (item.get("content") or "").strip()
     blob = (title + "  " + content)
 
+    # Audit 2026-05-08: hazard must appear in title OR first 300 chars of
+    # content. Recall pages always lead with the pathogen; articles that
+    # only mention it in a "related reading" footer are not recalls.
+    if not _hazard_in_title_or_lede(title, content):
+        return None
+
     pathogen_raw = _detect_pathogen(blob)
     if not pathogen_raw:
         return None  # no recognised food-safety hazard → drop
@@ -726,6 +795,11 @@ def _item_to_recall(item: Dict[str, Any],
     country  = normalize_country(country_guess) or country_guess
 
     company, product = _extract_company_product(title, content)
+    # Audit 2026-05-08: drop rows where Company comes back as a known
+    # landing-page / regulator-name artefact. Claude rejects these
+    # uniformly anyway; we save the API call.
+    if _is_garbage_company(company):
+        return None
     if not product:
         # Use first sentence of content as fallback product/description
         product = (content.split(". ", 1)[0])[:200]

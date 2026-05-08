@@ -748,11 +748,61 @@ def _collect_gemini_keys() -> List[str]:
 
 
 def _strip_fences(txt: str) -> str:
+    """Robust JSON extraction — survives prose preamble and code fences.
+
+    Gemini 2.5 Flash with Google Search grounding has a strong tendency to
+    emit narrative preamble before the JSON ("Step 1: Process row 0...").
+    Pre-2026-05-08 this killed every batch with a JSONDecodeError on the
+    first character. The new strategy:
+
+      1. Strip any ``` fences.
+      2. Strip any <think>...</think> blocks (DeepSeek R1 style — harmless
+         on Gemini, useful when this helper is reused elsewhere).
+      3. Find the first '{' and walk forward respecting string literals
+         to the matching '}'. Return that substring. Anything before
+         the '{' (prose) and after the '}' (trailing notes) is dropped.
+      4. If no balanced object is found, return the original string and
+         let json.loads raise — the caller logs the problem.
+    """
+    if not txt:
+        return txt
     t = txt.strip()
+    # ``` fences
     if t.startswith("```"):
         t = re.sub(r"^```[a-zA-Z]*\s*\n", "", t)
         t = re.sub(r"\n```\s*$", "", t)
-    return t.strip()
+    # <think> blocks (DeepSeek R1)
+    t = re.sub(r"<think>.*?</think>", "", t, flags=re.DOTALL)
+    t = t.strip()
+
+    # Walk to find the first balanced JSON object.
+    start = t.find("{")
+    if start < 0:
+        return t  # no object — caller will error appropriately
+    depth = 0
+    in_str = False
+    esc = False
+    for i in range(start, len(t)):
+        c = t[i]
+        if esc:
+            esc = False
+            continue
+        if c == "\\":
+            esc = True
+            continue
+        if c == '"':
+            in_str = not in_str
+            continue
+        if in_str:
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return t[start:i + 1]
+    # Unbalanced — return tail starting from first '{' for best-effort parse
+    return t[start:]
 
 
 def _call_gemini_grounded(prompt: str, system: str,
@@ -939,7 +989,15 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                                             str(d.get("reason") or "")[:300],
                                             url_fix,
                                             outbreak_verdict,
-                                            ob_evidence[:200])
+                                            ob_evidence[:200],
+                                            # Audit 2026-05-08: carry Gemini's
+                                            # page-extracted values to the
+                                            # apply step. Gemini reads the URL
+                                            # and pulls these from page text;
+                                            # the apply step fills any empty
+                                            # / garbage fields on the row so
+                                            # claude-check sees clean data.
+                                            d.get("extracted") or {})
                 got_response = True
             except json.JSONDecodeError as e:
                 log.warning("Gemini JSON parse failed: %s | %s", e, txt[:200])
@@ -972,15 +1030,15 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
             if real_idx in det_fail:
                 decisions[real_idx] = (False,
                                        det_fail[real_idx] + " (gemini unreached)",
-                                       None, None, "")
+                                       None, None, "", {})
             elif not got_response:
                 decisions[real_idx] = (False,
                                        "FAIL: gemini parse error (safety default — audit 2026-05-07)",
-                                       None, None, "")
+                                       None, None, "", {})
             else:
                 decisions[real_idx] = (False,
                                        "FAIL: gemini silent on this row (safety default — audit 2026-05-07)",
-                                       None, None, "")
+                                       None, None, "", {})
 
     passes = sum(1 for v in decisions.values() if v[0])
     fixed = sum(1 for v in decisions.values() if v[2] is not None)
@@ -1059,17 +1117,21 @@ def main() -> int:
         # ── Step 3: Gemini gate with Google Search grounding ───────────
         decisions = gemini_gate(alive_rows)
 
-        # Apply Gemini-proposed URL fixes + outbreak verdicts
+        # Apply Gemini-proposed URL fixes + outbreak verdicts + page-extracted enrichment
         outbreak_changes = 0
+        enrichment_changes = 0
         for j, decision in decisions.items():
-            # Decision tuple is now 5-element: (passed, reason, url_fix,
-            # outbreak_verdict, outbreak_evidence). Older tuples were
-            # 3-element — handle both for safety during rollout.
-            if len(decision) == 5:
+            # Decision tuple is now 6-element: (passed, reason, url_fix,
+            # outbreak_verdict, outbreak_evidence, extracted). Older tuples
+            # were 5- or 3-element — handle all for safety during rollout.
+            if len(decision) == 6:
+                passed, reason, url_fix, outbreak_verdict, ob_evidence, extracted = decision
+            elif len(decision) == 5:
                 passed, reason, url_fix, outbreak_verdict, ob_evidence = decision
+                extracted = {}
             else:
                 passed, reason, url_fix = decision[:3]
-                outbreak_verdict, ob_evidence = None, ""
+                outbreak_verdict, ob_evidence, extracted = None, "", {}
 
             # URL fix
             if url_fix and url_fix != alive_rows[j].get("URL"):
@@ -1079,6 +1141,57 @@ def main() -> int:
                 audit = (f"[url-gate {datetime.now(timezone.utc).strftime('%Y-%m-%d')}: "
                          f"Gemini fixed {old_url[:40]}... -> {url_fix[:40]}...]")
                 alive_rows[j]["Notes"] = (notes + " " + audit).strip()[:500]
+
+            # ── Page-extracted enrichment (audit 2026-05-08) ───────────────
+            # Gemini reads the URL with Google Search grounding and pulls
+            # Company / Brand / Product / Pathogen from page content. When
+            # the row's existing value is empty or known-garbage, write
+            # Gemini's extracted value in. This is the fix for the V1-broken
+            # RappelConso rows where Company is blank but the page clearly
+            # names the recalling firm — Gemini sees it, we now apply it
+            # before claude-check runs, claude-check passes the row, and it
+            # promotes correctly.
+            #
+            # We only fill, never overwrite a non-empty non-garbage value:
+            # if the scraper got it right, we trust it. Gemini corrections
+            # to known-wrong values happen via the verdict=fail / corrected
+            # path in claude-check, not here.
+            if extracted and isinstance(extracted, dict):
+                _PLACEHOLDERS = {
+                    "", "—", "-", "unbranded", "sans marque", "n/a", "na",
+                    "none", "various", "multiple", "various brands",
+                    "marque inconnue", "no brand",
+                }
+                _GARBAGE = {
+                    "home", "index", "page", "recalls", "alerts", "alert",
+                    "recall", "welcome", "main", "press release", "food",
+                    "food incident post", "aesan", "fsai",
+                }
+
+                def _is_empty_or_garbage(v: str) -> bool:
+                    s = (v or "").strip().lower()
+                    return s in _PLACEHOLDERS or s in _GARBAGE or len(s) < 2
+
+                # Pairs: (row_field, extracted_key)
+                _ENRICH = (
+                    ("Company",  "company_name"),
+                    ("Brand",    "brand_name"),
+                    ("Product",  "product_name"),
+                    ("Pathogen", "pathogen_or_hazard"),
+                )
+                for row_field, ex_key in _ENRICH:
+                    new_val = str(extracted.get(ex_key, "") or "").strip()
+                    if not new_val or len(new_val) < 2:
+                        continue
+                    cur_val = str(alive_rows[j].get(row_field, "") or "")
+                    if _is_empty_or_garbage(cur_val) and not _is_empty_or_garbage(new_val):
+                        alive_rows[j][row_field] = new_val
+                        enrichment_changes += 1
+                        notes = (alive_rows[j].get("Notes") or "").strip()
+                        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                        audit = (f"[gemini-enrich {today}: {row_field} "
+                                 f"{cur_val!r}→{new_val[:60]!r}]")
+                        alive_rows[j]["Notes"] = (notes + " " + audit).strip()[:500]
 
             # ── Outbreak verdict (audit 2026-04-29) ─────────────────────
             # Apply ONLY if Gemini gave us a non-None verdict AND the
@@ -1103,11 +1216,14 @@ def main() -> int:
         if outbreak_changes:
             log.info("Outbreak field updated on %d rows by Gemini verdict",
                      outbreak_changes)
+        if enrichment_changes:
+            log.info("Page-extracted enrichment applied to %d field(s) across rows",
+                     enrichment_changes)
 
         # Translate to rejected_flags for promote_approved
         rejected_flags: Dict[int, str] = {}
         for j in range(len(alive_rows)):
-            decision = decisions.get(j, (True, "ok", None, None, ""))
+            decision = decisions.get(j, (True, "ok", None, None, "", {}))
             passed = decision[0]
             reason = decision[1] if len(decision) > 1 else "ok"
             if not passed:

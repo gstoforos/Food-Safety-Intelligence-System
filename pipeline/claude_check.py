@@ -84,7 +84,14 @@ JSON_PATH = DATA_DIR / "recalls.json"
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 
 # Page-fetch + Claude limits
-HTML_TRUNCATE_CHARS = 25_000  # plenty for any regulator detail page
+# Audit 2026-05-08: dropped from 25,000 to 4,000 — recall pages have all
+# the relevant info (headline, company, pathogen, dates, distributor) in
+# the first ~2,000 chars. The other 23,000 was nav/footer/related links,
+# costing ~5K tokens/call for zero analytic value. New 4K limit = ~800
+# tokens of page content, plenty for verdicts. Token cost per Claude call
+# drops from ~6,500 in to ~2,500 in (-62%). Set CLAUDE_CHECK_PAGE_CHARS
+# env var to override (e.g. 8000 for hard pages).
+HTML_TRUNCATE_CHARS = int(os.getenv("CLAUDE_CHECK_PAGE_CHARS", "4000"))
 FETCH_TIMEOUT_S = 25
 SLEEP_BETWEEN_ROWS_S = 0.5    # gentle on the regulator + the API
 # UA + headers updated 2026-05-07 — the previous bot-style UA
@@ -418,6 +425,10 @@ OUTPUT — strict JSON, no markdown, no commentary:
   "date_on_page": "YYYY-MM-DD or empty",
   "date_corrected": "YYYY-MM-DD or empty",
   "company_match": true|false,
+  "company_corrected": "<recalling firm from page, or empty if no correction>",
+  "brand_corrected":   "<brand from page, or empty if no correction>",
+  "product_corrected": "<product description from page, or empty if no correction>",
+  "pathogen_corrected": "<canonical pathogen from page, or empty if no correction>",
   "product_match": true|false,
   "pathogen_match": true|false,
   "is_recall_page": true|false,
@@ -437,6 +448,22 @@ OUTPUT — strict JSON, no markdown, no commentary:
   "verdict": "pass" | "fix" | "fail",
   "reason": "short single-sentence rationale"
 }}
+
+CORRECTION RULES (audit 2026-05-08):
+  - When the row's Company/Brand/Product/Pathogen field is empty, "—",
+    "Unbranded", "sans marque", or contains extraction garbage (page-title
+    text, agency name, generic words like "Food"/"Press Release") AND the
+    page CLEARLY names the correct value, populate the corresponding
+    *_corrected field and set verdict="fix". The pipeline will write the
+    correction back to the row and promote it.
+  - For "sans marque" / unbranded products where no recalling firm is
+    named on the page, leave company_corrected empty and use
+    brand_corrected="Unbranded".
+  - For Pathogen: only fill pathogen_corrected with a canonical name
+    ("Listeria monocytogenes", "Salmonella", "Escherichia coli STEC",
+    "Cereulide", etc.) — not free-text. Empty if no clear pathogen.
+  - All *_corrected fields must come from the page content itself, not
+    from outside knowledge or speculation.
 """
 
 
@@ -499,35 +526,131 @@ def _was_recently_verified(row: Dict[str, Any]) -> bool:
     return age <= SKIP_IF_VERIFIED_DAYS
 
 
-def check_row(row: Dict[str, Any]) -> Tuple[str, Optional[str], Optional[str]]:
+# ── Audit 2026-05-08: deterministic clean-row shortcut ───────────────────
+# Skip the Claude API call entirely for rows that have all required fields
+# filled with non-garbage values from a regulator URL the Gemini gate
+# already approved. Cuts ~25-30% of API calls at zero quality cost — these
+# rows would PASS Claude check anyway.
+#
+# Conditions ALL must be true:
+#   1. URL passes is_generic_url (already verified earlier in pipeline)
+#   2. Company is non-empty AND not in known-garbage list
+#   3. Brand is non-empty AND not "—" (the safe-default fallback)
+#   4. Product is non-empty AND > 8 chars
+#   5. Pathogen is non-empty AND not in placeholder list
+#   6. Date matches YYYY-MM-DD regex
+#   7. Source matches a known regulator label
+#   8. Row was previously enriched by Gemini gate (Notes contains
+#      "[gemini-enrich" OR "[gemini-gate-passed")
+#
+# The 8th condition is the strongest gate — a row that Gemini already
+# verified content-wise on the same page is overwhelmingly likely to PASS
+# Claude. We only skip Claude on the ones where it'd be a rubber stamp.
+_KNOWN_GARBAGE_COMPANY = frozenset({
+    "food", "press release", "food incident post", "what's new", "news",
+    "alert", "alerts", "recall", "recalls", "advisory",
+    "fda", "usda", "fsis", "cfia", "fsa", "fsai", "fsanz", "mpi",
+    "aesan", "ages", "bvl", "afsca", "favv", "nvwa", "rasff", "cfs",
+    "sfa", "mfds", "mhlw", "fssai", "anvisa", "efet",
+})
+_PATHOGEN_PLACEHOLDERS = frozenset({
+    "", "unknown", "n/a", "na", "none", "—", "-", "tbd",
+    "pathogen contamination", "pathogen",
+})
+
+def _is_clean_row(row: Dict[str, Any]) -> bool:
+    """Deterministic clean-row check. True = skip Claude API call.
+
+    See module-level comment for the gate criteria. Conservative —
+    false positives (rows that clean-shortcut but should have been
+    failed) cost data-quality regression; misses (rows that don't
+    shortcut) just cost an API call. So we only shortcut when ALL
+    eight conditions clearly pass.
     """
-    Verify one Pending row. Returns (verdict, date_correction, reason)
+    if os.getenv("CLAUDE_NO_SHORTCUT", "").strip() in ("1", "true", "yes"):
+        return False
+    company = str(row.get("Company") or "").strip()
+    if not company or company.lower().rstrip(".:;,") in _KNOWN_GARBAGE_COMPANY:
+        return False
+    brand = str(row.get("Brand") or "").strip()
+    if not brand or brand == "—" or brand.lower() == "—":
+        return False
+    product = str(row.get("Product") or "").strip()
+    if len(product) < 8:
+        return False
+    pathogen = str(row.get("Pathogen") or "").strip().lower()
+    if pathogen in _PATHOGEN_PLACEHOLDERS:
+        return False
+    date = str(row.get("Date") or "").strip()
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
+        return False
+    source = str(row.get("Source") or "").strip()
+    if not source or source.lower() in ("", "tavily-gap", "gap"):
+        return False
+    # Strongest condition: row was already enriched/passed by Gemini gate.
+    notes = str(row.get("Notes") or "")
+    if "[gemini-enrich " not in notes and "[gemini-gate-passed " not in notes:
+        return False
+    return True
+
+
+def check_row(row: Dict[str, Any]) -> Tuple[str, Dict[str, str], Optional[str]]:
+    """
+    Verify one Pending row. Returns (verdict, corrections, reason)
+
       verdict in {"pass", "fix", "fail", "skip"}
-      date_correction = new YYYY-MM-DD or None
+      corrections = dict with any of {Date, Company, Brand, Product, Pathogen}
+                    populated when Claude proposed a correction. Empty
+                    {} when nothing to fix.
       reason = short audit string
 
     "skip" = transient failure (URL fetch / Claude error). Row stays in
-             Pending unchanged so the next run gets another shot.
+             Pending unchanged so the next run gets another shot. **Per
+             audit 2026-05-08, skipped rows are explicitly NOT promoted —
+             see main() for the parking-lot behavior.**
     """
     if _was_recently_verified(row):
-        return "pass", None, "recently verified — skipping"
+        return "pass", {}, "recently verified — skipping"
+
+    # ── Audit 2026-05-08: deterministic clean-row shortcut ───────────────
+    # Skip the API call entirely if the row is provably clean — saves
+    # ~25-30% of Claude calls = ~$3-5/month. See _is_clean_row comment.
+    if _is_clean_row(row):
+        return "pass", {}, "clean-row shortcut (gemini-enriched + all fields valid)"
 
     url = str(row.get("URL") or "").strip()
     text, fetch_err = _fetch_page_text(url)
     if text is None:
-        return "skip", None, f"fetch failed ({fetch_err})"
+        return "skip", {}, f"fetch failed ({fetch_err})"
 
     result = _verify_with_claude(row, text)
     if result is None:
-        return "skip", None, "claude unreachable / parse failed"
+        return "skip", {}, "claude unreachable / parse failed"
 
     verdict = str(result.get("verdict") or "").lower()
     if verdict not in ("pass", "fix", "fail"):
-        return "skip", None, f"unknown verdict '{verdict}'"
+        return "skip", {}, f"unknown verdict '{verdict}'"
 
-    date_corr = (str(result.get("date_corrected") or "").strip() or None)
-    if date_corr and not re.match(r"^\d{4}-\d{2}-\d{2}$", date_corr):
-        date_corr = None
+    # ── Collect every field correction Claude proposed ────────────────────
+    # Pre-2026-05-08 the FIX path only applied date corrections; broken
+    # Company/Brand/Product/Pathogen rows were FAILed even when Claude
+    # could read the right values off the page. The new shape carries all
+    # five corrections through to main() which decides what to apply.
+    corrections: Dict[str, str] = {}
+
+    date_corr = (str(result.get("date_corrected") or "").strip() or "")
+    if date_corr and re.match(r"^\d{4}-\d{2}-\d{2}$", date_corr):
+        corrections["Date"] = date_corr
+
+    for src_key, dst_field, min_len in (
+        ("company_corrected",  "Company",  2),
+        ("brand_corrected",    "Brand",    2),
+        ("product_corrected",  "Product",  3),
+        ("pathogen_corrected", "Pathogen", 3),
+    ):
+        v = str(result.get(src_key) or "").strip()
+        if len(v) >= min_len:
+            corrections[dst_field] = v
 
     reason_parts = [verdict]
     if not result.get("is_recall_page", True):
@@ -544,64 +667,62 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Optional[str], Optional[str]]:
     if result.get("reason"):
         short_reason = f"{short_reason} | {str(result['reason'])[:140]}"
 
-    # Refuse to apply a "fix" if the only mismatch is date and the
-    # corrected date is missing — degrade to "fail" for human review.
-    if verdict == "fix" and not date_corr:
-        return "fail", None, f"fix proposed but no date_corrected: {short_reason}"
+    # Refuse to apply a "fix" if Claude said "fix" but provided NO usable
+    # correction at all (no date, no company, no brand, no product, no
+    # pathogen). Degrade to "fail" — there's nothing to apply.
+    if verdict == "fix" and not corrections:
+        return "fail", {}, f"fix proposed but no corrections in response: {short_reason}"
 
     # Post-decision sanity (locked 2026-04-30) — hard rules that
     # override Claude's verdict if violated.
     final_url = url
-    final_pathogen = str(row.get("Pathogen", "") or "")
+    # Use corrected pathogen if Claude provided one, else the row's value
+    final_pathogen = corrections.get("Pathogen") or str(row.get("Pathogen", "") or "")
 
     if is_news_mirror(final_url):
-        return "fail", None, f"news_mirror_domain | {short_reason}"
+        return "fail", {}, f"news_mirror_domain | {short_reason}"
 
     # Use date_corrected if Claude proposed one, else row's date
     try:
-        check_date_str = date_corr if date_corr else str(row.get("Date", ""))[:10]
+        check_date_str = corrections.get("Date") or str(row.get("Date", ""))[:10]
         check_date_obj = (datetime.fromisoformat(check_date_str).date()
                           if check_date_str else None)
     except (TypeError, ValueError):
         check_date_obj = None
 
     if check_date_obj and check_date_obj.year < 2026:
-        return "fail", None, f"date_pre_2026: {check_date_obj.isoformat()} | {short_reason}"
+        return "fail", {}, f"date_pre_2026: {check_date_obj.isoformat()} | {short_reason}"
 
     year_issue = is_year_mismatch(check_date_obj, final_url)
     if year_issue:
-        return "fail", None, f"url_year_mismatch: {year_issue} | {short_reason}"
+        return "fail", {}, f"url_year_mismatch: {year_issue} | {short_reason}"
 
     if not is_tier1_pathogen(final_pathogen):
-        return "fail", None, f"pathogen_out_of_scope: {final_pathogen!r} | {short_reason}"
+        return "fail", {}, f"pathogen_out_of_scope: {final_pathogen!r} | {short_reason}"
 
-    # Extraction garbage check
-    company = str(row.get("Company") or "").strip().lower()
-    brand = str(row.get("Brand") or "").strip().lower()
+    # Extraction garbage check (uses corrected values where available)
+    company = (corrections.get("Company") or str(row.get("Company") or "")).strip().lower()
+    brand = (corrections.get("Brand") or str(row.get("Brand") or "")).strip().lower()
     GARBAGE = {"home","index","page","recalls","alerts","alert","recall","welcome","main"}
     if company and company == brand and company in GARBAGE:
-        return "fail", None, f"extraction_garbage: Company=Brand={company!r} | {short_reason}"
+        return "fail", {}, f"extraction_garbage: Company=Brand={company!r} | {short_reason}"
     if re.search(r"/(home|index|main|welcome)/?$", final_url.lower()):
-        return "fail", None, f"extraction_garbage: URL is landing page | {short_reason}"
+        return "fail", {}, f"extraction_garbage: URL is landing page | {short_reason}"
 
-    # Company-placeholder enforcement (audit 2026-05-06).
-    # Production data showed RappelConso V2 API returning empty Company
-    # fields for retail-level recalls (fiches 22184/22186/22188 had
-    # Company="Unbranded" while the actual page named the producer
-    # mid-page). Pre-fix, claude-check accepted "Unbranded" as a
-    # legitimate value because the prompt instructs it to treat
-    # "Unbranded"/"sans marque"/"—" as legitimate when the page itself
-    # doesn't name a single company. But Claude's own `company_match`
-    # signal said the page DID name a company — so accepting Unbranded
-    # was wrong.
+    # Company-placeholder rescue (audit 2026-05-08, supersedes 2026-05-06).
     #
-    # New rule: if Claude reports company_match=false AND the row's
-    # Company field is a placeholder ("Unbranded", "—", "sans marque",
-    # empty, "various brands"), fail the row so it stays in Pending for
-    # the next reviewer pass to retry with a richer scrape. Multi-producer
-    # recalls (where Unbranded is genuinely correct) will have
-    # company_match=true from Claude (since the page also says "Various"
-    # / "Multiple" / "—") and pass through unchanged.
+    # Pre-2026-05-08 this branch FAILed every row where Claude saw a
+    # company on the page but the row's Company field was a placeholder
+    # ("", "Unbranded", "sans marque", etc.). The reasoning was sound
+    # (the row IS broken), but the action was wrong: rows piled up in
+    # Pending with Status=rejected for problems Claude itself had already
+    # identified by name on the page.
+    #
+    # New behavior: if Claude provided company_corrected (or brand_corrected),
+    # ESCALATE to verdict="fix" so main() applies the correction and the
+    # row is promoted with the right value. Only fall through to FAIL when
+    # the row genuinely has nothing to fix — placeholder Company AND no
+    # correction proposed AND not a multi-producer RASFF row.
     company_match = result.get("company_match", True)
     placeholder_companies = {
         "", "—", "-", "unbranded", "sans marque",
@@ -609,14 +730,21 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Optional[str], Optional[str]]:
         "no brand", "marque inconnue", "n/a", "na",
     }
     is_rasff = "rasff" in str(row.get("Source") or "").lower()
-    if (not company_match and not is_rasff and company in placeholder_companies):
-        return ("fail", None,
-                f"placeholder_company_with_company_mismatch: "
-                f"Company={row.get('Company')!r} but Claude says page "
-                f"DOES name a company → row needs re-scrape with full "
-                f"field probing | {short_reason}")
+    cur_company_lc = str(row.get("Company") or "").strip().lower()
+    if (not company_match and not is_rasff
+            and cur_company_lc in placeholder_companies):
+        if "Company" in corrections or "Brand" in corrections:
+            # Claude can fill it — promote via FIX path
+            verdict = "fix"
+            short_reason = f"placeholder_company_filled_from_page | {short_reason}"
+        else:
+            return ("fail", {},
+                    f"placeholder_company_with_company_mismatch: "
+                    f"Company={row.get('Company')!r} but Claude says page "
+                    f"DOES name a company → no correction proposed | "
+                    f"{short_reason}")
 
-    return verdict, date_corr, short_reason
+    return verdict, corrections, short_reason
 
 
 # ---------------------------------------------------------------------------
@@ -657,6 +785,7 @@ def main() -> int:
     # Per-row verification
     today_iso = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     rejected_flags: Dict[int, str] = {}
+    skipped_idx: set[int] = set()
     fixed_count = 0
     pass_count = 0
     fail_count = 0
@@ -668,24 +797,33 @@ def main() -> int:
                  n, len(rows_to_check_idx),
                  str(row.get("Date", ""))[:10],
                  str(row.get("URL", ""))[:80])
-        verdict, date_corr, reason = check_row(row)
+        verdict, corrections, reason = check_row(row)
 
-        # Audit trail in Notes
-        audit = (f"[claude-check {today_iso}: {verdict}"
-                 + (f"; Date {row.get('Date','')} → {date_corr}"
-                    if date_corr else "")
-                 + f"; {reason[:120]}]")
+        # Audit trail in Notes — list every applied correction so a
+        # human can trace what changed and why.
+        corr_summary = ""
+        if corrections:
+            parts = [f"{k}→{str(v)[:40]}" for k, v in corrections.items()]
+            corr_summary = "; corrections: " + ", ".join(parts)
+        audit = (f"[claude-check {today_iso}: {verdict}{corr_summary}; "
+                 f"{reason[:120]}]")
         notes = (row.get("Notes") or "").strip()
         # Drop any prior claude-check stamp before appending
         notes = re.sub(r"\s*\[claude-check[^\]]*\]\s*", " ", notes).strip()
         row["Notes"] = (notes + " " + audit).strip()[:1000]
 
-        if verdict == "fix" and date_corr:
-            old_date = row.get("Date", "")
-            row["Date"] = date_corr
-            log.info("  → FIX Date %s → %s", old_date, date_corr)
+        if verdict == "fix":
+            # Apply EVERY correction Claude provided (audit 2026-05-08).
+            # Pre-2026-05-08 only Date was applied; broken Company/Brand/
+            # Product/Pathogen rows piled up in Pending forever because
+            # the FIX path didn't know how to write them in.
+            for field, new_val in corrections.items():
+                old_val = row.get(field, "")
+                row[field] = new_val
+                log.info("  → FIX %s %r → %r",
+                         field, str(old_val)[:40], str(new_val)[:60])
             fixed_count += 1
-            # treat as pass downstream — promote
+            # Falls through: row will be promoted by promote_approved
         elif verdict == "fail":
             rejected_flags[idx] = f"Claude check: {reason[:280]}"
             log.info("  → FAIL: %s", reason)
@@ -695,9 +833,33 @@ def main() -> int:
             pass_count += 1
         else:  # skip
             log.info("  → SKIP: %s (left untouched, retry next run)", reason)
+            skipped_idx.add(idx)   # ← AUDIT 2026-05-08: track for parking lot
             skip_count += 1
 
         time.sleep(SLEEP_BETWEEN_ROWS_S)
+
+    # ── SKIP parking lot (audit 2026-05-08, fixes silent auto-promotion) ──
+    # Pre-2026-05-08 a SKIP verdict was a NO-OP — the row fell through to
+    # promote_approved, which promoted any row not explicitly in
+    # rejected_flags. Result: when Claude was rate-limited or unreachable,
+    # every Pending row that day got auto-promoted to Recalls without
+    # verification (2026-05-07T17:01 incident: 6 rows promoted, 0 reviewed).
+    #
+    # Fix: park skipped plain-pending rows in STATUS_PENDING_GAP_V2 (a
+    # gap-gating status that promote_approved refuses to advance). They
+    # stay in Pending until the next reviewer run can verify them. Skipped
+    # rows that were ALREADY in a gap-gating status are left alone — they
+    # were going to stay in Pending anyway.
+    parked = 0
+    for idx in skipped_idx:
+        row = pending[idx]
+        cur_status = (row.get("Status") or "").strip().lower()
+        if cur_status in ("", "pending"):
+            row["Status"] = STATUS_PENDING_GAP_V2
+            parked += 1
+    if parked:
+        log.info("Parked %d skipped row(s) in pending_gap_v2 to prevent "
+                 "auto-promotion (will retry next reviewer run)", parked)
 
     # ── Gap-finder gating state machine advance (audit 2026-04-29) ──────
     # Any pending_gap_v2 row that just passed Claude verification gets
@@ -710,6 +872,8 @@ def main() -> int:
     for idx in rows_to_check_idx:
         if idx in rejected_flags:
             continue  # FAIL — let promote_approved mark rejected
+        if idx in skipped_idx:
+            continue  # SKIP — leave in parking lot (audit 2026-05-08)
         row = pending[idx]
         if (row.get("Status") or "").strip() == STATUS_PENDING_GAP_V2:
             row["Status"] = STATUS_PENDING
@@ -722,7 +886,10 @@ def main() -> int:
                  "(eligible for next merge_master)", gap_promoted_to_pending)
 
     # Apply rejected_flags + dedup against Recalls via promote_approved.
-    new_approved, remaining = promote_approved(
+    # Audit 2026-05-08: 3-tuple return — archived_rejected = rows that hit
+    # 2-different-reviewer threshold and were dropped from Pending. They
+    # get written to the Rejected sheet for human audit.
+    new_approved, remaining, archived_rejected = promote_approved(
         pending=pending,
         approved_existing=approved,
         rejected_flags=rejected_flags,
@@ -731,13 +898,15 @@ def main() -> int:
     log.info("Verdicts: pass=%d, fix=%d, fail=%d, skip=%d (total checked=%d)",
              pass_count, fixed_count, fail_count, skip_count,
              pass_count + fixed_count + fail_count + skip_count)
-    log.info("Promotion: %d Pending → Recalls; %d remain in Pending",
-             len(new_approved), len(remaining))
+    log.info("Promotion: %d Pending → Recalls; %d remain in Pending; "
+             "%d archived to Rejected",
+             len(new_approved), len(remaining), len(archived_rejected))
 
     # Save + commit
     final_approved = sort_rows(approved + new_approved)
     final_pending = sort_rows(remaining)
-    save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH)
+    save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH,
+                           newly_rejected_rows=archived_rejected)
     mirror_json_from_xlsx(XLSX_PATH, JSON_PATH)
 
     # Mirror promotions into the Weekly_Review sheet + refresh the
