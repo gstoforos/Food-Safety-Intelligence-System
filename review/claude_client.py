@@ -35,18 +35,49 @@ if not ENABLED:
 # Low-level call
 # ===========================================================================
 def _call_claude(prompt: str, max_tokens: int = 4000,
-                 system: Optional[str] = None) -> Optional[str]:
-    """Single Messages-API call. Returns text content, or None on failure."""
+                 system: Optional[str] = None,
+                 cache_system: bool = True) -> Optional[str]:
+    """Single Messages-API call. Returns text content, or None on failure.
+
+    Audit 2026-05-08: prompt caching enabled by default. The `system`
+    string is static across all calls in a given workflow run (Claude
+    check uses CLAUDE_CHECK_SYSTEM, OpenRouter check via monkey-patch
+    uses the same). Marking it `cache_control: ephemeral` makes the
+    second-and-subsequent calls in a run pay the cached-input rate
+    ($0.10/M Haiku, $0.30/M Sonnet) instead of fresh input. With ~70
+    calls/run, this drops input cost by ~85%.
+
+    Cache TTL is 5 minutes (Anthropic default). The Claude check + URL
+    gate runs complete in ~3 minutes so caching covers the whole run.
+
+    Set CLAUDE_NO_CACHE=1 to disable (for debugging or if you suspect
+    cache poisoning is causing weird verdicts).
+    """
     if not ENABLED:
         return None
-    body = {
+    no_cache = os.getenv("CLAUDE_NO_CACHE", "").strip() in ("1", "true", "yes")
+    use_cache = cache_system and not no_cache and system and len(system) > 1024 // 4
+    # Anthropic minimum: cache breakpoints need ≥1024 tokens (Haiku/Sonnet).
+    # System prompt of ~250+ chars is ~60 tokens — too small alone. We
+    # check len > 256 chars as a proxy and fall through if too short.
+    body: Dict[str, Any] = {
         "model": MODEL,
         "max_tokens": max_tokens,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.1,
     }
     if system:
-        body["system"] = system
+        if use_cache and len(system) >= 256:
+            # Send system as a content-block list with cache_control
+            body["system"] = [
+                {
+                    "type": "text",
+                    "text": system,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ]
+        else:
+            body["system"] = system
     try:
         r = requests.post(
             "https://api.anthropic.com/v1/messages",
@@ -61,7 +92,21 @@ def _call_claude(prompt: str, max_tokens: int = 4000,
         if r.status_code != 200:
             log.warning("Claude %d: %s", r.status_code, r.text[:200])
             return None
-        content = r.json().get("content", [])
+        resp_json = r.json()
+        # Audit 2026-05-08: log cache hits when present so operators can
+        # verify caching is working and saving money.
+        usage = resp_json.get("usage", {})
+        if usage.get("cache_read_input_tokens"):
+            log.debug("Claude cache HIT: %d cached, %d fresh, %d output",
+                      usage.get("cache_read_input_tokens", 0),
+                      usage.get("input_tokens", 0),
+                      usage.get("output_tokens", 0))
+        elif usage.get("cache_creation_input_tokens"):
+            log.debug("Claude cache WRITE: %d cached, %d fresh, %d output",
+                      usage.get("cache_creation_input_tokens", 0),
+                      usage.get("input_tokens", 0),
+                      usage.get("output_tokens", 0))
+        content = resp_json.get("content", [])
         # Collect all text blocks (Messages API can return multiple)
         texts = [blk.get("text", "") for blk in content if blk.get("type") == "text"]
         return "\n".join(t for t in texts if t) or None
