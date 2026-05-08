@@ -60,6 +60,7 @@ log = logging.getLogger(__name__)
 _NO_BRAND_TOKENS = (
     "sans marque", "sans", "no brand", "marque inconnue", "non commercialisé",
     "n/a", "na", "—", "-", "—", "vide", "non communiqué",
+    "aucune marque", "aucune", "non concerné",
 )
 
 
@@ -67,6 +68,96 @@ def _is_no_brand(s: str) -> bool:
     if not s or not s.strip():
         return True
     return s.strip().lower() in _NO_BRAND_TOKENS
+
+
+# Audit 2026-05-08: capitalized-name heuristic for recovering the recalling
+# firm from RappelConso V2 free-text fields (informations_complementaires,
+# description_complementaire_risque, distributeurs, motif_rappel) when the
+# structured brand/company probes come up empty. RappelConso V2 dropped the
+# explicit Company field; the producer's name is now buried in narrative
+# text on retail-unbranded recalls (e.g. "Pierre Sajous" for fid 22196).
+#
+# Strategy:
+#   - Look for 2-4 word capitalized phrases that look like company names
+#     (e.g. "Pierre Sajous", "Salaisons Jouvin", "Les Ateliers", "Ferme
+#     Baracand", "Mont Charvin Salaisons").
+#   - Reject phrases that match common French sentence-start words or are
+#     all-uppercase short tokens (likely product codes / abbreviations).
+#   - Reject geographic / generic / regulatory tokens that appear in
+#     French recall narrative ("France", "Europe", "DGCCRF", "Auchan",
+#     etc. — unless those ARE the recalling firm, but we can't tell from
+#     text alone, and false positives are worse than misses here).
+_SENTENCE_STARTERS = {
+    # Common French sentence/phrase starters that can be capitalized
+    "Le", "La", "Les", "Un", "Une", "Des", "Du", "De", "Au", "Aux",
+    "Ce", "Cette", "Ces", "Cet", "Il", "Elle", "Ils", "Elles", "Nous",
+    "Vous", "Je", "Tu", "On",
+    "Suite", "Apres", "Après", "Avant", "Pour", "Par", "Sans", "Avec",
+    "Dans", "Selon", "Lors", "Depuis", "Si", "Bien", "Parmi", "Vers",
+    "Sur", "Sous", "Entre", "Chez", "Mais", "Et", "Ou", "Donc", "Or",
+    "Ni", "Car",
+    # Recall narrative
+    "Rappel", "Rappels", "Avis", "Information", "Communication",
+    "Produit", "Produits", "Lot", "Lots", "Date", "Dates",
+    "Risque", "Risques", "Mesures", "Conduites", "Distribué",
+    "Commercialisé", "Vendu", "Acheté", "Acheteur", "Consommateur",
+    "Consommer", "Boucherie", "Charcuterie", "Boulangerie",
+    "Voir", "Cliquez", "Contactez", "Téléphonez",
+    # Regulatory bodies and frameworks (treat as boilerplate, not firm)
+    "DGCCRF", "Direction", "Préfecture", "Préfectoral", "Préfet",
+    "Ministère", "République", "France", "Europe", "Européen", "Européenne",
+}
+
+
+def _extract_firm_from_text(*texts: str) -> str:
+    """Best-effort recovery of the recalling firm from RappelConso V2
+    free-text fields. Scans for 2-4 word capitalized phrases that look
+    like company names. Returns "" if nothing plausible is found.
+
+    Conservative by design — false-positives (extracting the wrong name)
+    are worse than misses (Claude/Gemini can fill it later from the page).
+
+    Examples that should be recovered:
+      "...rappel des produits de la société Pierre Sajous suite à..."
+      "...fabriqués par Les Ateliers Charcuterie et distribués par..."
+      "...Ferme Baracand recall..."
+    """
+    import re as _re
+    blob = " ".join(t for t in texts if t)
+    if not blob or len(blob) < 8:
+        return ""
+    # Find capitalized name candidates (2-4 words, each starting uppercase)
+    # First word cannot be a sentence-starter; must contain at least
+    # one lowercase letter (rules out screaming-caps codes like "DLC").
+    pattern = _re.compile(
+        r"\b([A-ZÀÂÉÈÊËÎÏÔÙÛÜŸÇ][a-zàâéèêëîïôùûüÿç'-]+"
+        r"(?:\s+(?:de\s+|du\s+|des\s+|la\s+|le\s+|les\s+|d'|l'|et\s+)?"
+        r"[A-ZÀÂÉÈÊËÎÏÔÙÛÜŸÇ][a-zàâéèêëîïôùûüÿç'-]+){0,3})"
+    )
+    for match in pattern.finditer(blob):
+        name = match.group(1).strip()
+        words = name.split()
+        if len(words) < 2:
+            continue  # single capital token = too noisy
+        first_word = words[0]
+        # Articles like "Les Ateliers" / "Le Comptoir" / "La Boulangerie"
+        # are legitimate company-name prefixes — accept them ONLY when
+        # followed by a non-starter capitalized word.
+        _ARTICLE_PREFIXES = {"Le", "La", "Les", "L'", "Du", "De", "Des"}
+        if first_word in _SENTENCE_STARTERS and first_word not in _ARTICLE_PREFIXES:
+            continue
+        if first_word in _ARTICLE_PREFIXES:
+            # Second word must be a "real" capitalized word, not another starter
+            if words[1] in _SENTENCE_STARTERS:
+                continue
+        # Length sanity — too long likely captured a sentence
+        if len(name) > 60:
+            continue
+        # Reject if every word is in starter list
+        if all(w in _SENTENCE_STARTERS for w in words):
+            continue
+        return name
+    return ""
 
 
 class RappelConsoScraper(BaseScraper):
@@ -439,8 +530,13 @@ class RappelConsoScraper(BaseScraper):
                 product_raw, product_field = self._first(rec, self.PRODUCT_FIELDS)
 
                 # If brand field had only "Sans marque", treat as empty
-                # so we can fall back to other sources
+                # so we can fall back to other sources. Track the flag —
+                # if we can't recover Company from secondary fields below,
+                # we'll set Brand="Unbranded" (per audit 2026-05-08 rule)
+                # rather than emit a meaningless "—".
+                was_unbranded = False
                 if _is_no_brand(brand_raw):
+                    was_unbranded = True
                     brand_raw = ""
                     brand_field = ""
 
@@ -454,11 +550,37 @@ class RappelConsoScraper(BaseScraper):
                         brand_field = "(synthesized from product)"
                         rows_with_synthesized_brand += 1
 
+                # ── Audit 2026-05-08: V2 Company recovery from free text ──
+                # When standard probes fail (RappelConso V2 dropped explicit
+                # Company field on retail-unbranded recalls), try to extract
+                # the recalling firm from informations_complementaires,
+                # description_complementaire_risque, distributeurs, and
+                # motif_rappel. The same row class previously produced empty
+                # Company → Pending row → Claude FAIL ("page DOES name
+                # company") → stuck loop. Now we try harder before giving up.
+                recovered_firm = ""
+                if not company_raw:
+                    info_text = str(rec.get("informations_complementaires") or "")
+                    risk_text = str(rec.get("description_complementaire_risque") or "")
+                    motif_text = str(rec.get("motif_rappel") or rec.get("motif_du_rappel") or "")
+                    distrib_text = str(rec.get("distributeurs") or "")
+                    pub_text = str(rec.get("informations_complementaires_publiques") or "")
+                    recovered_firm = _extract_firm_from_text(
+                        info_text, risk_text, motif_text, distrib_text, pub_text,
+                    )
+                    if recovered_firm:
+                        company_raw = recovered_firm
+                        company_field = "(recovered from free text)"
+
                 # If we still have no Company, fall back to Brand
                 # (single retailer's own-brand recalls). If we have no
-                # Brand either, leave both empty so downstream can flag.
+                # Brand either AND the row was originally "sans marque",
+                # set Brand="Unbranded" (per the reviewer-prompts v2 rule
+                # — these are loose retail products with no brand).
                 if not company_raw:
                     company_raw = brand_raw
+                if was_unbranded and not brand_raw:
+                    brand_raw = "Unbranded"
 
                 # Per-row diagnostic when Company ends up empty —
                 # operators can grep for this pattern to see exactly
