@@ -6,5 +6,5 @@ from scrapers._base import GenericGeminiScraper
 class SFAScraper(GenericGeminiScraper):
     AGENCY = "SFA (SG)"
     COUNTRY = "Singapore"
-    INDEX_URLS = ['https://www.sfa.gov.sg/food-information/recall-faq']
+    INDEX_URLS = ['https://www.sfa.gov.sg/news-publications/newsroom']
     LANGUAGE = "en"
