@@ -97,7 +97,12 @@ jobs:
         if: steps.guard.outputs.run == 'true'
         env:
           OPENROUTER_API_KEY:       ${{ secrets.OPENROUTER_API_KEY }}
-          OPENROUTER_MODEL:         ${{ github.event.inputs.model || 'deepseek/deepseek-r1:free' }}
+          # Audit 2026-05-08: was 'deepseek/deepseek-r1:free' which OpenRouter
+          # decommissioned (returns HTTP 404 "No endpoints found"). Switched
+          # to deepseek-chat-v3.1:free which matches the script's documented
+          # default. If this also dies in the future, set the input above
+          # at workflow_dispatch time to override.
+          OPENROUTER_MODEL:         ${{ github.event.inputs.model || 'deepseek/deepseek-chat-v3.1:free' }}
           OPENROUTER_FALLBACK_MODEL: "deepseek/deepseek-chat-v3.1"
           CLAUDE_CHECK_SKIP_DAYS:   ${{ github.event.inputs.skip_days || '0' }}
           SKIP_COMMIT:              ${{ github.event.inputs.skip_commit || 'false' }}

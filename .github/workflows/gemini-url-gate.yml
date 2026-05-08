@@ -71,7 +71,14 @@ jobs:
           GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
           GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
           GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
-          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
+          # Audit 2026-05-08: defaulted to flash-lite (was flash). The
+          # URL gate task is per-row structured-output verification which
+          # flash-lite handles fine; flash-lite is $0.10/$0.40 per MTok
+          # vs flash at $0.30/$2.50 (4x cheaper output). Same free-tier
+          # RPD limits (1,500/day per key) so $0/month either way unless
+          # paid fallback kicks in. Set repo var GEMINI_MODEL_URL_GATE to
+          # override (e.g. 'gemini-2.5-flash' for hard pages).
+          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL_URL_GATE || vars.GEMINI_MODEL || 'gemini-2.5-flash-lite' }}
           SKIP_COMMIT: "false"
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GIT_USER_EMAIL: "fsis-bot@advfood.tech"
