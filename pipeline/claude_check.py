@@ -77,6 +77,13 @@ logging.basicConfig(
 )
 log = logging.getLogger("claude-check")
 
+# Audit-stamp tag prefix used in Notes. Default for the morning Claude
+# pass; openrouter_check overrides this at import time so the evening
+# dissent reviewer's verdicts surface as [openrouter-check ...] in the
+# Thursday review email and in the Notes field. Keep this in sync with
+# the regex below — both must match the same prefix string.
+CHECKER_TAG = "claude-check"
+
 DATA_DIR = ROOT / "docs" / "data"
 XLSX_PATH = DATA_DIR / "recalls.xlsx"
 JSON_PATH = DATA_DIR / "recalls.json"
@@ -511,11 +518,17 @@ def _verify_with_claude(row: Dict[str, Any],
 # ---------------------------------------------------------------------------
 
 def _was_recently_verified(row: Dict[str, Any]) -> bool:
-    """True if Notes contains a recent [claude-check ...] audit stamp."""
+    """True if Notes contains a recent stamp from THIS reviewer.
+
+    Matches CHECKER_TAG specifically — claude-check should re-verify
+    rows that openrouter-check stamped (and vice versa), because they
+    are independent dissent reviewers. Only the same reviewer's prior
+    stamp triggers the cooldown skip.
+    """
     if SKIP_IF_VERIFIED_DAYS <= 0:
         return False
     notes = str(row.get("Notes") or "")
-    m = re.search(r"\[claude-check (\d{4}-\d{2}-\d{2})", notes)
+    m = re.search(rf"\[{re.escape(CHECKER_TAG)} (\d{{4}}-\d{{2}}-\d{{2}})", notes)
     if not m:
         return False
     try:
@@ -805,11 +818,14 @@ def main() -> int:
         if corrections:
             parts = [f"{k}→{str(v)[:40]}" for k, v in corrections.items()]
             corr_summary = "; corrections: " + ", ".join(parts)
-        audit = (f"[claude-check {today_iso}: {verdict}{corr_summary}; "
+        audit = (f"[{CHECKER_TAG} {today_iso}: {verdict}{corr_summary}; "
                  f"{reason[:120]}]")
         notes = (row.get("Notes") or "").strip()
-        # Drop any prior claude-check stamp before appending
-        notes = re.sub(r"\s*\[claude-check[^\]]*\]\s*", " ", notes).strip()
+        # Drop any prior stamp from THIS reviewer before appending. Each
+        # reviewer (claude-check vs openrouter-check) only replaces its
+        # own stamp so the other reviewer's verdict survives — that's
+        # the whole point of the dissent-reviewer setup.
+        notes = re.sub(rf"\s*\[{re.escape(CHECKER_TAG)}[^\]]*\]\s*", " ", notes).strip()
         row["Notes"] = (notes + " " + audit).strip()[:1000]
 
         if verdict == "fix":

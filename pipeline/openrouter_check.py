@@ -49,7 +49,7 @@ if str(ROOT) not in sys.path:
 # Import claude_check so we can patch and reuse its main()
 from pipeline import claude_check  # noqa: E402
 from review.openrouter_client import (  # noqa: E402
-    _call_openrouter, _strip_fences, ENABLED as OPENROUTER_ENABLED,
+    _call_openrouter, _clean_response, ENABLED as OPENROUTER_ENABLED,
 )
 
 log = logging.getLogger("openrouter-check")
@@ -96,14 +96,19 @@ def _verify_with_openrouter(row: Dict[str, Any],
     if not raw:
         return None
     try:
-        return json.loads(_strip_fences(raw))
+        # Use _clean_response, NOT _strip_fences. DeepSeek R1, QwQ, and
+        # other reasoning models prepend <think>...</think> blocks before
+        # the JSON answer; _strip_fences only handles ```json wrappers
+        # and would leave the thinking block in place, crashing the
+        # parser on every row. _clean_response strips both.
+        return json.loads(_clean_response(raw))
     except json.JSONDecodeError as exc:
         log.warning("OpenRouter JSON parse failed: %s | %s", exc, raw[:200])
         return None
 
 
 # ============================================================
-# Patch claude_check at runtime + change the audit tag
+# Patch claude_check at runtime + override audit tag
 # ============================================================
 # Override the verifier so claude_check.check_row() goes through OpenRouter
 claude_check._verify_with_claude = _verify_with_openrouter
@@ -111,12 +116,15 @@ claude_check._verify_with_claude = _verify_with_openrouter
 # Override CLAUDE_ENABLED (used as a guard in check_row)
 claude_check.CLAUDE_ENABLED = OPENROUTER_ENABLED
 
-# Replace the audit stamp tag in the main() loop. main() builds the
-# audit string with literal "[claude-check ..." — we can't change that
-# without forking the function, but we CAN add a marker via the logger
-# name to make grep'ing easier. For the audit Notes itself, we'll
-# search-replace "claude-check" -> "openrouter-check" by patching the
-# regex used to drop prior stamps.
+# Override CHECKER_TAG so audit stamps written to Notes read
+# "[openrouter-check 2026-05-08: pass; ...]" instead of "[claude-check ...]".
+# This single override now drives BOTH the stamp-writing format string
+# and the prior-stamp regex inside claude_check.main(), AND the cooldown
+# regex in _was_recently_verified (so openrouter-check re-verifies rows
+# that claude-check stamped this morning, and vice versa — independent
+# dissent reviewers, as designed).
+claude_check.CHECKER_TAG = "openrouter-check"
+
 _orig_main = claude_check.main
 
 
@@ -130,18 +138,8 @@ def main():
     log.info("FSIS OpenRouter check (dissent reviewer)")
     log.info("Model: %s",
              os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-chat-v3.1:free"))
+    log.info("Audit tag: [%s ...]", claude_check.CHECKER_TAG)
     log.info("=" * 60)
-
-    # Patch the audit-stamp regex + tag literal at module level by string
-    # surgery on the source file would be invasive — instead we monkeypatch
-    # the audit prefix using a simple wrapper. The cleanest way is to
-    # override sys.modules["pipeline.claude_check"]'s "TAG" constant if
-    # it had one; since it doesn't, we accept that audit stamps will
-    # show "[claude-check ...]" but the GitHub Actions log makes the
-    # source crystal-clear (workflow name = "FSIS OpenRouter Check").
-    #
-    # If you want explicit "[openrouter-check ...]" stamps, add a
-    # CHECKER_TAG constant to claude_check.py and use it there.
 
     return _orig_main()
 
