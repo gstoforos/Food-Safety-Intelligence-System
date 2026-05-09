@@ -1,6 +1,18 @@
 {
-  "generated_utc": "2026-05-08T17:59:27.909431+00:00",
+  "generated_utc": "2026-05-09T04:52:25.973100+00:00",
   "checked_back_weeks": 4,
-  "anchor_friday": "2026-05-01",
-  "updated_weeks": []
+  "anchor_friday": "2026-05-08",
+  "updated_weeks": [
+    {
+      "year": 2026,
+      "week_num": 19,
+      "filename": "2026-W19.html",
+      "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W19.html",
+      "week_start": "2026-05-02",
+      "week_end": "2026-05-08",
+      "old_total": 39,
+      "new_total": 43,
+      "delta": 4
+    }
+  ]
 }
