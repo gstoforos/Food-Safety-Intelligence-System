@@ -71,6 +71,7 @@ from build_weekly_report_afts import (  # noqa: E402
     load_recalls,
     filter_week,
     build_html,
+    compute_stats,
     _extract_total_from_html,
     _extract_published_from_html,
     update_dashboard_data,
@@ -185,14 +186,23 @@ def main() -> int:
             "delta": int(dataset_total - old_total),
         })
 
-    # ── Dashboard refresh (audit 2026-05-09, hardened) ──────────────────
-    # Update docs/data/weekly-index.json on EVERY Wednesday run, not only
-    # when we rebuilt HTML. Reason: the JSON can drift out of sync with
-    # the dataset between Friday-builds (e.g. a row promoted to Recalls
-    # over the weekend changes a prior week's count, but the HTML count
-    # already matches because someone manually rebuilt the HTML and
-    # forgot the JSON). This unconditional refresh closes that drift gap.
-    # Cost is one xlsx scan + one small JSON write — cheap and idempotent.
+    # ── Unconditional JSON refresh (audit 2026-05-09, hardened twice) ───
+    # The dashboard reads docs/data/weekly-index.json; the Friday weekly
+    # mailer reads docs/data/weekly-summary-latest.json. BOTH can drift
+    # out of sync with the dataset between Friday-builds — e.g. a row
+    # promotes to Recalls over the weekend, the prior week's count
+    # changes, but if no HTML rebuild fires (because someone manually
+    # ran build_html earlier and the HTML count already matches), the
+    # JSONs stay frozen at last Friday's snapshot.
+    #
+    # Solution: regenerate BOTH files on EVERY Wednesday run, regardless
+    # of whether HTML reports needed rebuilding. Costs one xlsx scan +
+    # two small JSON writes — cheap, idempotent, removes the drift gap.
+    #
+    # weekly-index.json     → all weeks, totals/tier1/outbreaks per week.
+    # weekly-summary-latest → anchor (most-recent Friday) week's full
+    #                         summary with leading_pathogen + top_threats,
+    #                         shape consumed by Friday Apps Script mailer.
     try:
         most_recent_we = (
             max(datetime.strptime(w["week_end"], "%Y-%m-%d").date()
@@ -203,6 +213,27 @@ def main() -> int:
         log.info("Dashboard JSON refreshed: docs/data/weekly-index.json")
     except Exception as e:
         log.warning("update_dashboard_data failed (non-fatal): %s", e)
+
+    try:
+        # Anchor-week summary — what the Friday weekly mailer reads.
+        # Always emit for anchor_friday (most recent Friday-ending week)
+        # using the CURRENT dataset, so the mailer's Friday digest sees
+        # late-promoted recalls even when the W##.html hasn't itself
+        # been rebuilt this run.
+        anchor_recalls = filter_week(all_recalls, anchor_friday)
+        prev_anchor_recalls = filter_week(
+            all_recalls, anchor_friday - timedelta(days=7)
+        )
+        anchor_stats = compute_stats(anchor_recalls, prev_anchor_recalls)
+        write_weekly_summary_json(
+            anchor_friday, anchor_recalls, anchor_stats,
+            ROOT / "docs" / "data",
+        )
+        log.info("Summary JSON refreshed: docs/data/weekly-summary-latest.json "
+                 "(anchor=%s, total=%d)",
+                 anchor_friday, len(anchor_recalls))
+    except Exception as e:
+        log.warning("weekly-summary-latest.json refresh failed (non-fatal): %s", e)
 
     # Sort oldest week first for natural reading order in the email
     updated.sort(key=lambda w: w["week_end"])
