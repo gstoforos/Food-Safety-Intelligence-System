@@ -1,0 +1,90 @@
+name: FSIS Brave Gap Finder (3rd deterministic finder)
+
+# Daily at 02:00 ATHENS TIME — runs after the midnight LLM cascade
+# (00:00 Athens) and before the 06:00 morning URL gate. Provides a
+# fourth discovery layer alongside Tavily (22:00) and Exa (22:30)
+# with an independent search index.
+#
+# Pipeline: pipeline.gap_finder_brave unconditionally runs and submits
+# findings to Pending. URL-based dedup at append_to_pending() means on
+# days Tavily+Exa already covered everything, Brave adds ~zero rows.
+# On days those finders missed a regulator update, Brave fills the gap.
+#
+# Cost: $0 — Brave free tier 2,000 queries/month (we use ~660/month).
+# Rate limit: 1 query/second — gap_finder_brave.py paces calls accordingly.
+
+on:
+  workflow_dispatch:
+    inputs:
+      since_days:
+        description: "Days to look back"
+        required: false
+        default: "7"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  gap-finder-brave:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Athens-time guard (01-04:xx window)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          echo "athens_hour=$HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Manual dispatch: always allow (operator override).
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            if [ "$HOUR" -ge "01" ] && [ "$HOUR" -le "04" ]; then
+              echo "In scheduled 02:xx Athens window — allowing."
+            else
+              echo "Outside scheduled window (now ${HOUR}:xx) but manual dispatch — allowing."
+            fi
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not a dispatch event."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Brave gap-finder
+        if: steps.guard.outputs.run == 'true'
+        env:
+          BRAVE_API_KEY:  ${{ secrets.BRAVE_API_KEY }}
+          GAP_SINCE_DAYS: ${{ github.event.inputs.since_days || '7' }}
+          SKIP_COMMIT:    "false"
+          GH_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME:  "AFTS Intelligence System"
+        run: |
+          python -m pipeline.gap_finder_brave
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "Brave gap-finder complete — Athens $(TZ=Europe/Athens date)."
