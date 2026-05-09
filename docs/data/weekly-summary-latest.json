@@ -8,17 +8,17 @@
   "week_end": "2026-05-08",
   "week_start_display": "2 May",
   "week_end_display": "8 May 2026",
-  "generated_utc": "2026-05-08T07:01:33.595583+00:00",
+  "generated_utc": "2026-05-09T07:01:44.372989+00:00",
   "stats": {
-    "total": 39,
-    "tier1": 23,
+    "total": 43,
+    "tier1": 26,
     "outbreaks": 0,
-    "delta": -15,
-    "delta_pct": -28
+    "delta": -11,
+    "delta_pct": -20
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 17,
+    "cases": 19,
     "pct": 44
   },
   "ai_lead_paragraph": "",
@@ -94,5 +94,5 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22186/Interne"
     }
   ],
-  "country_count": 14
+  "country_count": 15
 }
