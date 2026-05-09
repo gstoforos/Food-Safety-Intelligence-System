@@ -902,13 +902,18 @@ def main() -> int:
                  "(eligible for next merge_master)", gap_promoted_to_pending)
 
     # Apply rejected_flags + dedup against Recalls via promote_approved.
-    # Audit 2026-05-08: 3-tuple return — archived_rejected = rows that hit
-    # 2-different-reviewer threshold and were dropped from Pending. They
-    # get written to the Rejected sheet for human audit.
+    # Audit 2026-05-09: archive_immediately=True signals to promote_approved
+    # that this is the FINAL reviewer (Claude/OpenRouter) — every rejection
+    # archives to Rejected + Weekly_Rejected and evicts from Pending. Per
+    # operator spec: Gemini = first reviewer (enrich + tag), Claude/OR =
+    # second reviewer = final verdict, ~1 hour after Gemini in each session.
+    # Without this kw, default behavior is the safer first-reviewer flow
+    # (Status=rejected stamp, stays in Pending, 2-reviewer-counter safety net).
     new_approved, remaining, archived_rejected = promote_approved(
         pending=pending,
         approved_existing=approved,
         rejected_flags=rejected_flags,
+        archive_immediately=True,
     )
 
     log.info("Verdicts: pass=%d, fix=%d, fail=%d, skip=%d (total checked=%d)",
@@ -934,6 +939,19 @@ def main() -> int:
             log.info("Weekly_Review: appended %d row(s)", n_wr)
     except Exception as _wr_err:  # never block promotion on capture failure
         log.warning("Weekly_Review capture failed: %s", _wr_err)
+
+    # Mirror rejections into the Weekly_Rejected sheet + refresh JSON
+    # slice. Same Thursday cutoff / wipe semantics as Weekly_Review.
+    # Single-reviewer eviction policy (2026-05-09): archived_rejected
+    # contains EVERY claude-check rejection from this run, not just
+    # those that hit a 2-different-reviewer threshold.
+    try:
+        from pipeline.weekly_rejected_capture import record_rejections  # noqa: E402
+        n_wj = record_rejections(archived_rejected, xlsx_path=XLSX_PATH)
+        if n_wj:
+            log.info("Weekly_Rejected: appended %d row(s)", n_wj)
+    except Exception as _wj_err:  # never block run on capture failure
+        log.warning("Weekly_Rejected capture failed: %s", _wj_err)
 
     # Rebuild daily briefs for every date that gained newly-promoted rows.
     # Without this, the dashboard's rolling 7-day display + DAILY tab stay

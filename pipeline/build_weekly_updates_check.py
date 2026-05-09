@@ -72,6 +72,9 @@ from build_weekly_report_afts import (  # noqa: E402
     filter_week,
     build_html,
     _extract_total_from_html,
+    _extract_published_from_html,
+    update_dashboard_data,
+    write_weekly_summary_json,
 )
 
 XLSX = ROOT / "docs" / "data" / "recalls.xlsx"
@@ -147,11 +150,28 @@ def main() -> int:
         # Rebuild: same call signature as build_weekly_report_afts.refresh_stale_weeks
         prev_prev_end = week_end - timedelta(days=7)
         prev_week_recalls = filter_week(all_recalls, prev_prev_end)
-        html, _stats = build_html(week_end, dataset_recalls, prev_week_recalls)
+        # Preserve original publish date so the rebuilt HTML stamps
+        # "(updated <today>)" rather than silently overwriting the
+        # PUBLISHED line. None on fresh builds (existing_total was None).
+        orig_pub = _extract_published_from_html(report_path) if existing_total is not None else None
+        html, stats = build_html(week_end, dataset_recalls, prev_week_recalls,
+                                 original_published=orig_pub)
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(html, encoding="utf-8")
-        log.info("W%02d rebuilt -> %s (%d recalls)",
-                 wnum, report_path, dataset_total)
+        log.info("W%02d rebuilt -> %s (%d recalls, original_pub=%r)",
+                 wnum, report_path, dataset_total, orig_pub)
+
+        # Refresh per-week summary JSON used by dashboard / mailer.
+        # update_dashboard_data() handles the all-weeks index — called
+        # once after the loop. write_weekly_summary_json is per-week.
+        try:
+            write_weekly_summary_json(
+                week_end, dataset_recalls, stats,
+                ROOT / "docs" / "data",
+            )
+        except Exception as e:
+            log.warning("write_weekly_summary_json failed for W%02d: %s",
+                        wnum, e)
 
         updated.append({
             "year": year,
@@ -165,14 +185,58 @@ def main() -> int:
             "delta": int(dataset_total - old_total),
         })
 
+    # ── Dashboard refresh (audit 2026-05-09) ────────────────────────────
+    # If any week was rebuilt, update docs/data/weekly-index.json so the
+    # index dashboard's loadReports() sees the new totals on next page
+    # load. Without this, hub.html's WEEKLY tab keeps showing the stale
+    # pre-rebuild numbers (e.g. W19 = "39 pathogen recalls" while the
+    # rebuilt 2026-W19.html report itself shows 43). update_dashboard_data
+    # writes the FULL accumulated history each call, so a single invocation
+    # at the end refreshes every entry — no need to call per-rebuild.
+    if updated:
+        try:
+            # week_end arg unused when all_recalls is provided (the function
+            # iterates all distinct ISO weeks); pass the most recent rebuilt
+            # week for log clarity. Stats arg also unused in all-recalls mode.
+            most_recent_we = max(
+                datetime.strptime(w["week_end"], "%Y-%m-%d").date()
+                for w in updated
+            )
+            update_dashboard_data(most_recent_we, stats={}, all_recalls=all_recalls)
+            log.info("Dashboard JSON refreshed: docs/data/weekly-index.json")
+        except Exception as e:
+            log.warning("update_dashboard_data failed (non-fatal): %s", e)
+
     # Sort oldest week first for natural reading order in the email
     updated.sort(key=lambda w: w["week_end"])
+
+    # Apps Script mailer hint (audit 2026-05-09):
+    # The Wednesday email's primary CTA button (currently labeled
+    # "VISIT THE DASHBOARD →") should link to the rebuilt weekly report
+    # when exactly ONE week was updated, NOT to the index dashboard.
+    # When multiple weeks updated, fall back to the index dashboard with
+    # a hash anchor pointing at the WEEKLY tab. Empty manifest → no email
+    # so this field is unused.
+    INDEX_DASHBOARD_URL = "https://www.advfood.tech/#weekly"
+    if len(updated) == 1:
+        primary_cta = {
+            "label": "VIEW REFRESHED REPORT",
+            "url": updated[0]["report_url"],
+        }
+    elif len(updated) > 1:
+        primary_cta = {
+            "label": "VIEW WEEKLY DASHBOARD",
+            "url": INDEX_DASHBOARD_URL,
+        }
+    else:
+        primary_cta = None
 
     manifest = {
         "generated_utc": datetime.now(timezone.utc).isoformat(),
         "checked_back_weeks": LOOKBACK_WEEKS,
         "anchor_friday": anchor_friday.isoformat(),
         "updated_weeks": updated,
+        "primary_cta": primary_cta,
     }
     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
     MANIFEST.write_text(
