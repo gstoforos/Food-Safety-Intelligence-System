@@ -185,27 +185,24 @@ def main() -> int:
             "delta": int(dataset_total - old_total),
         })
 
-    # ── Dashboard refresh (audit 2026-05-09) ────────────────────────────
-    # If any week was rebuilt, update docs/data/weekly-index.json so the
-    # index dashboard's loadReports() sees the new totals on next page
-    # load. Without this, hub.html's WEEKLY tab keeps showing the stale
-    # pre-rebuild numbers (e.g. W19 = "39 pathogen recalls" while the
-    # rebuilt 2026-W19.html report itself shows 43). update_dashboard_data
-    # writes the FULL accumulated history each call, so a single invocation
-    # at the end refreshes every entry — no need to call per-rebuild.
-    if updated:
-        try:
-            # week_end arg unused when all_recalls is provided (the function
-            # iterates all distinct ISO weeks); pass the most recent rebuilt
-            # week for log clarity. Stats arg also unused in all-recalls mode.
-            most_recent_we = max(
-                datetime.strptime(w["week_end"], "%Y-%m-%d").date()
-                for w in updated
-            )
-            update_dashboard_data(most_recent_we, stats={}, all_recalls=all_recalls)
-            log.info("Dashboard JSON refreshed: docs/data/weekly-index.json")
-        except Exception as e:
-            log.warning("update_dashboard_data failed (non-fatal): %s", e)
+    # ── Dashboard refresh (audit 2026-05-09, hardened) ──────────────────
+    # Update docs/data/weekly-index.json on EVERY Wednesday run, not only
+    # when we rebuilt HTML. Reason: the JSON can drift out of sync with
+    # the dataset between Friday-builds (e.g. a row promoted to Recalls
+    # over the weekend changes a prior week's count, but the HTML count
+    # already matches because someone manually rebuilt the HTML and
+    # forgot the JSON). This unconditional refresh closes that drift gap.
+    # Cost is one xlsx scan + one small JSON write — cheap and idempotent.
+    try:
+        most_recent_we = (
+            max(datetime.strptime(w["week_end"], "%Y-%m-%d").date()
+                for w in updated)
+            if updated else anchor_friday
+        )
+        update_dashboard_data(most_recent_we, stats={}, all_recalls=all_recalls)
+        log.info("Dashboard JSON refreshed: docs/data/weekly-index.json")
+    except Exception as e:
+        log.warning("update_dashboard_data failed (non-fatal): %s", e)
 
     # Sort oldest week first for natural reading order in the email
     updated.sort(key=lambda w: w["week_end"])
