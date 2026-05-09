@@ -1045,6 +1045,8 @@ def promote_approved(
     pending: List[Dict[str, Any]],
     approved_existing: List[Dict[str, Any]],
     rejected_flags: Dict[int, str],
+    *,
+    archive_immediately: bool = False,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Split the Pending list into
@@ -1052,18 +1054,48 @@ def promote_approved(
          rows_to_keep_in_Pending,
          rows_to_archive_to_Rejected).
 
+    Two-reviewer architecture (locked 2026-05-09):
+        Reviewer 1 = Gemini URL gate (pipeline/url_gate_gemini.py)
+            • Enriches missing fields (Company / Brand / Pathogen)
+            • Validates URLs, sets pass/fail tags
+            • NEVER promotes to Recalls (verify-and-tag-only rule)
+            • Calls this function with archive_immediately=False (default)
+
+        Reviewer 2 = Claude (morning) OR OpenRouter (evening) — FINAL verdict
+            • Per-row content verification, the binding pass/reject
+            • Calls this function with archive_immediately=True
+            • Eviction is final: row → Weekly_Rejected, removed from Pending
+              (caller invokes weekly_rejected_capture.record_rejections
+              before/at the moment this returns, so the row is captured
+              before its Pending slot disappears)
+
+    Eviction policy controlled by `archive_immediately`:
+        False (default — first reviewer / janitor / orchestrator):
+            Stamp Status='rejected' in Pending, append reason to Notes.
+            Counter-driven 2-reviewer threshold still applies as a safety
+            net for hypothetical first-reviewer-only call paths (backfill,
+            MERGE_MASTER_PROMOTE=1) — protects against Gemini-only
+            eviction if a future config change ever routes its
+            rejected_flags here.
+        True (second reviewer — Claude or OpenRouter):
+            Single-pass eviction. Every row in rejected_flags is archived
+            and removed from Pending immediately. The first reviewer has
+            already had its say; this is the binding verdict.
+
     - `rejected_flags` maps pending-row-index -> rejection reason string.
-      First-time rejections: stamp Status='rejected', keep in Pending
-      with reason appended to Notes.
-      Second-DIFFERENT-reviewer rejection: row is REMOVED from Pending and
-      added to the archive list (caller writes it to the Rejected sheet).
     - Rows NOT in rejected_flags (and whose current Status is 'pending') are
       treated as approved and moved to Recalls, deduped against approved_existing.
-    - Rows already marked 'rejected' in a prior run stay in Pending untouched.
+    - Rows already marked 'rejected' in a prior run get archived
+      out of Pending on the next call (legacy migration after the
+      2026-05-09 single-reviewer-eviction policy change).
 
     Audit 2026-05-08: third return value (archive list) added per operator
     decision — previously second-rejector deletes were silent and untraceable.
     Now they accumulate in a Rejected sheet for human audit.
+
+    Audit 2026-05-09: `archive_immediately` kw-only param added. Makes the
+    "Claude/OR is the final reviewer" semantic explicit at the call site
+    rather than implicit in caller knowledge.
     """
     approved_keys = {_dedup_key(r) for r in approved_existing}
 
@@ -1082,10 +1114,24 @@ def promote_approved(
         # Strip runtime-only fields (e.g. _url_check) before persisting
         clean = {k: v for k, v in row.items() if not k.startswith("_")}
 
-        # Previously-rejected rows: leave alone, don't re-promote, don't re-reject
+        # Previously-rejected rows in Pending should not exist after the
+        # 2026-05-09 single-reviewer-eviction policy took effect — every
+        # second-reviewer rejection archives immediately. This guard
+        # handles legacy Status=rejected rows from before the policy
+        # change (e.g. xlsx loaded from an older snapshot). When the
+        # SECOND reviewer (Claude/OR) runs, migrate them out; when the
+        # first reviewer / janitor runs, leave alone (they don't have
+        # the authority to evict).
         if clean.get("Status") == STATUS_REJECTED and idx not in rejected_flags:
-            kept_in_pending.append(clean)
-            continue
+            if archive_immediately:
+                # Second reviewer present — finalize the legacy rejection.
+                # One-time migration; subsequent runs see an empty stream.
+                _archive(clean)
+                continue
+            else:
+                # First reviewer / janitor — preserve as-is.
+                kept_in_pending.append(clean)
+                continue
 
         # ── Non-promotable Pending statuses (gating lock) ─────────────
         # pending_gap / pending_gap_v1 / pending_gap_v2 — gap-finder rows
@@ -1105,24 +1151,62 @@ def promote_approved(
 
         if idx in rejected_flags:
             reason = rejected_flags[idx]
-            # Use the counter — returns should_delete=True after 2+ different
-            # reviewers reject this row. Otherwise just stamp Status=rejected
-            # and append rejection reason to Notes.
-            should_delete, _ = mark_rejected_with_counter(clean, reason)
-            if should_delete:
-                # 2 reviewers agree it's bad — archive to Rejected sheet.
+            if archive_immediately:
+                # ── SECOND REVIEWER (Claude / OpenRouter) — FINAL verdict ─
+                # Single-pass eviction per the operator spec (audit
+                # 2026-05-09). Mirror to Weekly_Rejected happens in the
+                # CALLER (claude_check / openrouter_check), which invokes
+                # weekly_rejected_capture.record_rejections immediately
+                # after this function returns — capture-before-delete.
+                #
+                # Counter is still bumped (audit trail in Notes) so the
+                # operator's Thursday review can spot rows rejected
+                # multiple times across runs.
+                mark_rejected_with_counter(clean, reason)
+                if not clean.get("RejectedBy"):
+                    rb_match = re.search(
+                        r"(claude-check|openrouter-check)",
+                        str(reason), re.IGNORECASE,
+                    )
+                    clean["RejectedBy"] = (
+                        rb_match.group(1).lower() if rb_match else "unknown"
+                    )
                 _archive(clean)
                 continue
-            kept_in_pending.append(clean)
-            continue
+            else:
+                # ── FIRST REVIEWER (Gemini) or janitor / orchestrator ────
+                # Don't evict — let the second reviewer (Claude/OR) make
+                # the binding call on the next session. Stamp Status=
+                # rejected so url-gate skips re-checking the URL but
+                # keep the row in Pending for Claude/OR to review.
+                #
+                # 2-reviewer threshold safety net: if the SAME row gets
+                # rejected by 2 different reviewers without ever being
+                # finalised by Claude/OR (e.g. Gemini twice in a row,
+                # claude-check workflow broken), the counter trips and
+                # the row is archived. Belt-and-suspenders for the case
+                # where the Claude/OR step is failing silently.
+                should_delete, _ = mark_rejected_with_counter(clean, reason)
+                if should_delete:
+                    _archive(clean)
+                    continue
+                kept_in_pending.append(clean)
+                continue
 
         # ── Date-consistency gate (audit 2026-05-06: defense-in-depth) ──
         # Last-line defense against date-extractor fallback bugs. If
         # Notes mentions a year far older than the Date field, the
         # extractor probably stamped today's date on an archived page.
-        # Refuse to promote; row stays in Pending for manual review.
+        # Honors archive_immediately like rejected_flags above —
+        # second reviewer archives, first reviewer parks in Pending.
         date_problem = _check_date_consistency(clean)
         if date_problem:
+            if archive_immediately:
+                mark_rejected_with_counter(clean, date_problem)
+                if not clean.get("RejectedBy"):
+                    clean["RejectedBy"] = "date-consistency-gate"
+                _archive(clean)
+                continue
             should_delete, _ = mark_rejected_with_counter(clean, date_problem)
             if should_delete:
                 _archive(clean)
