@@ -1644,7 +1644,7 @@ __CSS_PLACEHOLDER__
     <div class="report-meta">
       <strong>ISSUE</strong> &middot; Week {wnum}, {year}<br>
       <strong>PERIOD</strong> &middot; {period}<br>
-      <strong>PUBLISHED</strong> &middot; {published}
+      <strong>{published_label}</strong> &middot; {published}
     </div>
   </div>
 </header>
@@ -1781,22 +1781,20 @@ __CSS_PLACEHOLDER__
 def build_html(week_end, recalls, prev_week, original_published=None):
     """Build a weekly report HTML.
 
-    original_published:  None  → fresh publish; PUBLISHED line shows
-                                 the formulaic week_end+1 date.
-                         str   → rebuild; PUBLISHED line preserves the
-                                 original date and appends "(updated <today>)".
-                                 The string is the date-as-rendered (e.g.
-                                 "9 May 2026") returned by
-                                 _extract_published_from_html() against
-                                 the existing HTML.
+    original_published:  None  → fresh publish; header reads
+                                 "PUBLISHED · {week_end + 1}".
+                         str   → rebuild; header reads
+                                 "UPDATED · {today}". The string itself
+                                 (returned by _extract_published_from_html)
+                                 is just the "this is a rebuild" signal —
+                                 its content is no longer used in render.
 
-    Audit 2026-05-09 — added original_published. Pre-this change, every
-    rebuild silently overwrote the PUBLISHED date with the new build's
-    week_end+1, which on Wednesday rebuilds is identical to the original
-    Saturday publish — so the user couldn't see that the report had been
-    revised. Now rebuilds carry an explicit "(updated DD MMM YYYY)"
-    suffix and the dashboard reflects the new totals via
-    update_dashboard_data() called by the rebuild caller.
+    Audit 2026-05-09 — added original_published with label-flip semantics.
+    Pre-this change, every rebuild silently overwrote the PUBLISHED date
+    with the new build's week_end+1, which on Wednesday rebuilds is
+    identical to the original Saturday publish — so the user couldn't see
+    that the report had been revised. Now rebuilds carry an explicit
+    UPDATED label with today's date.
     """
     stats = compute_stats(recalls, prev_week)
     ws = week_end - timedelta(days=6)
@@ -1861,25 +1859,24 @@ def build_html(week_end, recalls, prev_week, original_published=None):
 
     wsd = _fmt_date_short(ws); wed = _fmt_date(week_end)
     period = "{} &ndash; {}".format(wsd, wed)
-    # Original-publish date stays formulaic (week_end + 1, the Saturday
-    # after the reporting week closes). If we're rebuilding, original_published
-    # comes in already-formatted from the existing HTML, so we use it
-    # verbatim and append "(updated <today>)" to make the revision visible.
+    # Header label flips between two states (audit 2026-05-09):
+    #   First publish (original_published is None) →
+    #     "PUBLISHED · {week_end + 1}" — the formulaic Saturday-after-week-close.
+    #   Rebuild (original_published is set) →
+    #     "UPDATED · {today}" — the actual rebuild date.
+    # The label change is the visible signal that the user is looking at
+    # a revised version of a previously-published weekly briefing.
     if original_published:
-        today_str = datetime.now(timezone.utc).strftime("%-d %b %Y")
-        # Defensive: if rebuild fires same day as the original publish,
-        # don't append a redundant "(updated <same-day>)" — this happens
-        # when the Saturday Friday-builder runs after a Friday late-promote.
-        if today_str.strip() != original_published.strip():
-            pub = "{} (updated {})".format(original_published, today_str)
-        else:
-            pub = original_published
+        published_label = "UPDATED"
+        pub = datetime.now(timezone.utc).strftime("%-d %b %Y")
     else:
+        published_label = "PUBLISHED"
         pub = (week_end + timedelta(days=1)).strftime("%-d %b %Y")
     nf = _fmt_date(week_end + timedelta(days=7))
 
     html = HTML_TEMPLATE.format(
-        wnum=wnum, year=year, period=period, published=pub, total=total,
+        wnum=wnum, year=year, period=period,
+        published=pub, published_label=published_label, total=total,
         n_jurisdictions=len(stats["country_counts"]), delta_html=dh,
         tier1=stats["tier1"], outbreaks=stats["outbreaks"],
         top_pathogen_name=esc(tp), top_cnt=tc, top_pct=tpct,
@@ -2000,30 +1997,25 @@ def _extract_total_from_html(path):
 
 
 def _extract_published_from_html(path):
-    """Read an existing report HTML and extract the original PUBLISHED date.
+    """Read an existing report HTML and detect whether it has a header
+    date marker (either "PUBLISHED" or "UPDATED").
 
-    Returns the date string verbatim (e.g. "9 May 2026") or None if the
-    file doesn't exist or the marker can't be found.
+    Returns the verbatim date string (e.g. "9 May 2026") or None.
 
-    Used by Wednesday weekly-updates-check (and Friday refresh_stale_weeks)
-    to PRESERVE the original first-publication date when rebuilding a
-    stale report — the rebuild then renders as
-    "PUBLISHED · 9 May 2026 (updated 13 May 2026)" instead of overwriting
-    with today's date and pretending it's a fresh publication.
+    The CONTENT of the returned string is no longer used by build_html
+    after the 2026-05-09 label-flip change — but the FACT that it
+    returned non-None is the signal "this is a rebuild, flip the label
+    to UPDATED and use today's date." Successive rebuilds keep flipping
+    the date forward as expected.
 
-    Two patterns supported:
+    Two patterns supported (an already-rebuilt report carries UPDATED):
       • Fresh publish:  "PUBLISHED</strong> &middot; 9 May 2026"
-      • Already updated: "PUBLISHED</strong> &middot; 9 May 2026 (updated 13 May 2026)"
-        — in this case the ORIGINAL date is returned, not the update date,
-        so successive rebuilds keep stamping against the same first-publish.
+      • After rebuild:  "UPDATED</strong> &middot; 13 May 2026"
     """
     try:
         html = Path(path).read_text(encoding="utf-8")
-        # Match either "PUBLISHED</strong> &middot; <date>" or
-        # "PUBLISHED</strong> &middot; <date> (updated <date2>)" — capture the
-        # first date only (original publish).
         m = re.search(
-            r'<strong>PUBLISHED</strong>\s*&middot;\s*([^<(]+?)(?:\s*\(updated|<)',
+            r'<strong>(?:PUBLISHED|UPDATED)</strong>\s*&middot;\s*([^<]+?)<',
             html,
         )
         if m:
