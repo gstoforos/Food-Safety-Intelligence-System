@@ -13,7 +13,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/shining-sea-fish-co-recalls-ma-cohens-kippered-herring-because-possible-health-risk",
-    "Notes": "Voluntary recall. Company announcement 2026-05-05; FDA publish date 2026-05-08. Manually added 2026-05-09 — FDA scraper missed (audit gap)."
+    "Notes": "Voluntary recall. Company announcement 2026-05-05; FDA publish date 2026-05-08. Manually added 2026-05-09 — FDA scraper missed (Akamai 404 audit gap)."
   },
   {
     "Date": "2026-05-08",
@@ -29,7 +29,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/spring-mulberry-expands-voluntary-recall-select-chocolate-bars-because-possible-health-risk",
-    "Notes": "Voluntary recall. Company announcement 2026-05-08; FDA publish date 2026-05-08. Second expansion of original 2026-01-12 recall (initial) and 2026-01-15 expansion. Date-ingredient root cause — distinct cluster from California Dairies milk powder. Manually added 2026-05-09 — FDA scraper missed (audit gap)."
+    "Notes": "Voluntary recall. Company announcement 2026-05-08; FDA publish date 2026-05-08. Second expansion of original 2026-01-12 recall and 2026-01-15 first expansion. Date-ingredient root cause — distinct cluster from California Dairies milk powder. Manually added 2026-05-09 — FDA scraper missed (Akamai 404 audit gap)."
   },
   {
     "Date": "2026-05-08",
@@ -45,39 +45,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/legacy-snack-solutions-voluntarily-recalls-giant-eagle-baked-pita-chips-parmesan-garlic-herb-because",
-    "Notes": "Voluntary recall. Company announcement 2026-05-07; FDA publish date 2026-05-08. Downstream of California Dairies milk powder Salmonella recall (same cascade as Mama Cozzi 2026-04-30, Pork King Good 2026-05-05, Utz Zapp's/Dirty 2026-05-04, Sanfilippo 2026-05-06, Stoltzfus 2026-05-07, JCB Flavors 2026-05-07). Manually added 2026-05-09 — FDA scraper missed (audit gap)."
-  },
-  {
-    "Date": "2026-05-07",
-    "Source": "FDA",
-    "Company": "Stoltzfus Family Dairy LLC",
-    "Brand": "Stoltzfus Family Dairy",
-    "Product": "Sour Cream and Onion Cheese Curds 8 oz bag — Best By 03/25/2026, 04/23/2026, 04/29/2026, 05/06/2026 — distributed within New York only (grocery, gas stations, Country stores)",
-    "Pathogen": "Salmonella",
-    "Reason": "Potential Salmonella — California Dairies, Inc. milk powder cascade (milk powder → Sour Cream & Onion seasoning blend → cheese curds)",
-    "Class": "Recall",
-    "Country": "United States",
-    "Region": "North America",
-    "Tier": 1,
-    "Outbreak": 0,
-    "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/stoltzfus-family-dairy-recalls-sour-cream-and-onion-cheese-curds-because-possible-health-risk",
-    "Notes": "Voluntary recall. Company announcement 2026-05-07; FDA publish date 2026-05-07. Downstream California Dairies milk powder Salmonella cascade. Manually added 2026-05-09 — FDA scraper missed (audit gap)."
-  },
-  {
-    "Date": "2026-05-07",
-    "Source": "FDA",
-    "Company": "JCB Flavors, LLC",
-    "Brand": "Wildlife Seasoning",
-    "Product": "Topical popcorn seasonings (Watertown, WI)",
-    "Pathogen": "Salmonella",
-    "Reason": "Potential Salmonella — California Dairies, Inc. milk powder cascade (milk powder ingredient in seasoning blend)",
-    "Class": "Recall",
-    "Country": "United States",
-    "Region": "North America",
-    "Tier": 1,
-    "Outbreak": 0,
-    "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jcb-flavors-llc-issues-voluntary-recall-topical-seasonings-due-potential-health-risk",
-    "Notes": "Voluntary recall. Company announcement 2026-05-06; FDA publish date 2026-05-07. Downstream California Dairies milk powder Salmonella cascade. Manually added 2026-05-09 — FDA scraper missed (audit gap)."
+    "Notes": "Voluntary recall. Company announcement 2026-05-07; FDA publish date 2026-05-08. Downstream California Dairies milk powder Salmonella cascade. Manually added 2026-05-09 — FDA scraper missed (Akamai 404 audit gap)."
   },
   {
     "Date": "2026-05-07",
@@ -160,20 +128,84 @@
     "Notes": "[manual-promote 2026-05-08: Company filled per claude-check]"
   },
   {
-    "Date": "2026-05-06",
-    "Source": "FDA",
-    "Company": "John B. Sanfilippo & Son, Inc.",
-    "Brand": "Fisher / Squirrel Brand / Southern Style Nuts / Good & Gather",
-    "Product": "Snack mixes (8 SKUs): Fisher Tex Mex Trail Mix 30 oz; Southern Style Nuts Gourmet Hunter Mix 23/30/36 oz; Squirrel Brand Travelers Mix 16 oz, Town & Country Mix 7.5/16 oz; Good & Gather Mexican Street Corn Trail Mix 8 oz (Target exclusive). Multiple Best-By dates 01/2027–08/2027. Distributed via retail, e-commerce, QVC, Target.",
+    "Date": "2026-05-07",
+    "Source": "RASFF (EU)",
+    "Company": "Origin: United States | Notifying: Belgium",
+    "Brand": "BEL, DEU",
+    "Product": "Aflatoxins in pistachios from US via Jordan to Belgium and Germany",
+    "Pathogen": "Aflatoxin",
+    "Reason": "Aflatoxins in pistachios from US via Jordan to Belgium and Germany; risk: potentially serious; category: nuts, nut products and seeds",
+    "Class": "Alert",
+    "Country": "USA",
+    "Region": "North America",
+    "Tier": 2,
+    "Outbreak": 0,
+    "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/842515",
+    "Notes": "[RASFF #2026.4020; classification: alert notification; category: nuts, nut products and seeds; notifId=842515] [gemini-enrich 2026-05-08: Brand '—'→'BEL, DEU'] [claude-check 2026-05-09: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  },
+  {
+    "Date": "2026-05-07",
+    "Source": "RASFF (EU)",
+    "Company": "Origin: unknown origin | Notifying: Finland",
+    "Brand": "SWE",
+    "Product": "Salmonella and ochratoxin A in pistachio nuts via Sweden.",
     "Pathogen": "Salmonella",
-    "Reason": "Potential Salmonella — California Dairies, Inc. milk powder cascade (milk powder → 3rd-party seasoning supplier → snack mixes)",
+    "Reason": "Salmonella and ochratoxin A in pistachio nuts via Sweden.; risk: serious; category: nuts, nut products and seeds",
+    "Class": "Alert",
+    "Country": "unknown origin",
+    "Region": "Unknown",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.4017",
+    "Notes": "[RASFF #2026.4017; classification: alert notification; category: nuts, nut products and seeds; notifId=842548] [url-gate 2026-05-08: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [gemini-enrich 2026-05-08: Brand '—'→'SWE'] [claude-check 2026-05-09: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  },
+  {
+    "Date": "2026-05-07",
+    "Source": "RappelConso (FR)",
+    "Company": "FRANKAVIR INTERMARCHE",
+    "Brand": "Unbranded",
+    "Product": "brochette de poulet mariné thym et citron",
+    "Pathogen": "Salmonella",
+    "Reason": "un contrôle microbiologique a mis en évidence dans un lot de ce produit la présence de salmonelle",
+    "Class": "volontaire (sans arrêté préfectoral)",
+    "Country": "France",
+    "Region": "Europe",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22215/Interne",
+    "Notes": "intermarché gex [url-gate 2026-05-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-08: Company ''→'FRANKAVIR INTERMARCHE'] [claude-check 2026-05-09: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  },
+  {
+    "Date": "2026-05-07",
+    "Source": "FDA",
+    "Company": "Stoltzfus Family Dairy LLC",
+    "Brand": "Stoltzfus Family Dairy",
+    "Product": "Sour Cream and Onion Cheese Curds 8 oz bag — Best By 03/25/2026, 04/23/2026, 04/29/2026, 05/06/2026 — distributed within New York only (grocery, gas stations, Country stores)",
+    "Pathogen": "Salmonella",
+    "Reason": "Potential Salmonella — California Dairies, Inc. milk powder cascade (milk powder → Sour Cream & Onion seasoning blend → cheese curds)",
     "Class": "Recall",
     "Country": "United States",
     "Region": "North America",
     "Tier": 1,
     "Outbreak": 0,
-    "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/john-b-sanfilippo-son-inc-voluntarily-recalls-snack-mix-products-due-possible-health-risk",
-    "Notes": "Voluntary recall. Company announcement 2026-05-05; FDA publish date 2026-05-06. Downstream California Dairies milk powder Salmonella cascade — same as Mama Cozzi/Pork King Good/Utz/Ghirardelli/Stoltzfus/JCB/Legacy Snack. Manually added 2026-05-09 — FDA scraper missed (audit gap)."
+    "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/stoltzfus-family-dairy-recalls-sour-cream-and-onion-cheese-curds-because-possible-health-risk",
+    "Notes": "Voluntary recall. Company announcement 2026-05-07; FDA publish date 2026-05-07. Downstream California Dairies milk powder Salmonella cascade. Manually added 2026-05-09 — FDA scraper missed (Akamai 404 audit gap)."
+  },
+  {
+    "Date": "2026-05-07",
+    "Source": "FDA",
+    "Company": "JCB Flavors, LLC",
+    "Brand": "Wildlife Seasoning",
+    "Product": "Topical popcorn seasonings (Watertown, WI)",
+    "Pathogen": "Salmonella",
+    "Reason": "Potential Salmonella — California Dairies, Inc. milk powder cascade (milk powder ingredient in seasoning blend)",
+    "Class": "Recall",
+    "Country": "United States",
+    "Region": "North America",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jcb-flavors-llc-issues-voluntary-recall-topical-seasonings-due-potential-health-risk",
+    "Notes": "Voluntary recall. Company announcement 2026-05-06; FDA publish date 2026-05-07. Downstream California Dairies milk powder Salmonella cascade. Manually added 2026-05-09 — FDA scraper missed (Akamai 404 audit gap)."
   },
   {
     "Date": "2026-05-06",
@@ -318,6 +350,22 @@
     "Outbreak": 0,
     "URL": "https://recalls-rappels.canada.ca/en/alert-recall/germina-brand-brocoli-calabrese-seeds-recalled-due-possible-contamination-pathogenic-coli",
     "Notes": "[manual-promote 2026-05-08: Outbreak corrected from 1 to 0 per claude-check]"
+  },
+  {
+    "Date": "2026-05-06",
+    "Source": "FDA",
+    "Company": "John B. Sanfilippo & Son, Inc.",
+    "Brand": "Fisher / Squirrel Brand / Southern Style Nuts / Good & Gather",
+    "Product": "Snack mixes (8 SKUs): Fisher Tex Mex Trail Mix 30 oz; Southern Style Nuts Gourmet Hunter Mix 23/30/36 oz; Squirrel Brand Travelers Mix 16 oz, Town & Country Mix 7.5/16 oz; Good & Gather Mexican Street Corn Trail Mix 8 oz (Target exclusive). Multiple Best-By dates 01/2027–08/2027. Distributed via retail, e-commerce, QVC, Target.",
+    "Pathogen": "Salmonella",
+    "Reason": "Potential Salmonella — California Dairies, Inc. milk powder cascade (milk powder → 3rd-party seasoning supplier → snack mixes)",
+    "Class": "Recall",
+    "Country": "United States",
+    "Region": "North America",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/john-b-sanfilippo-son-inc-voluntarily-recalls-snack-mix-products-due-possible-health-risk",
+    "Notes": "Voluntary recall. Company announcement 2026-05-05; FDA publish date 2026-05-06. Downstream California Dairies milk powder Salmonella cascade — same as Mama Cozzi/Pork King Good/Utz/Ghirardelli/Stoltzfus/JCB/Legacy Snack. Manually added 2026-05-09 — FDA scraper missed (Akamai 404 audit gap)."
   },
   {
     "Date": "2026-05-05",
@@ -718,6 +766,22 @@
     "Outbreak": 0,
     "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-green-box-limited-enoki-mushrooms",
     "Notes": "[manual-promote 2026-05-08: Company corrected from FSAI HTML-fallback garbage]"
+  },
+  {
+    "Date": "2026-05-02",
+    "Source": "FSAI",
+    "Company": "Green Box Limited",
+    "Brand": "Green Box Limited",
+    "Product": "Green Box Limited Enoki Mushroom (Cendawan Enoki), pack size 100g, batch codes G22029 and G22030",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "Listeria monocytogenes",
+    "Class": "Recall",
+    "Country": "Ireland",
+    "Region": "Europe",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-green-box-limited-en",
+    "Notes": "Food Safety Authority of Ireland\n\n# Food Alerts\n\n## Recall of specific batches of Green Box Limited Enoki Mushrooms due to the presence of Listeria monocytogenes\n\nSaturday, 02 May 2026\n\n| Alert Summary | |\n --- |\n| Category 1: | For Action |\n| Alert Notification: | 2026.19 |\n| Product Identification  [via Tavily gap-finder, deterministic extract] [gap-gate 2026-05-08: pending_gap → pending_gap_v1] [gap-gate 2026-05-09: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-09: fix; corrections: Company→Green Box Limited, Brand→Green Box Limited, Product→Green Box Limited Enoki Mushroom (Cendaw, Pathogen→Listeria monocytogenes; fix; company mismatch; product mismatch | Row's Company, Brand, and Product fields contain extraction garbage (page titl] [gap-gate 2026-05-09: pending_gap_v2 → pending (Claude verified)]"
   },
   {
     "Date": "2026-05-01",
