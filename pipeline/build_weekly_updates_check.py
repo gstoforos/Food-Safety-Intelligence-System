@@ -74,6 +74,7 @@ from build_weekly_report_afts import (  # noqa: E402
     compute_stats,
     _extract_total_from_html,
     _extract_published_from_html,
+    _extract_label_from_html,
     update_dashboard_data,
     write_weekly_summary_json,
 )
@@ -133,15 +134,36 @@ def main() -> int:
         dataset_recalls = filter_week(all_recalls, week_end)
         dataset_total = len(dataset_recalls)
         existing_total = _extract_total_from_html(report_path)
+        existing_label = _extract_label_from_html(report_path)
 
+        # ── Decision branch (audit 2026-05-09) ──────────────────────────
+        # 1. No existing HTML            → fresh build (label="PUBLISHED")
+        # 2. Count differs               → rebuild         (label="UPDATED")
+        # 3. Count matches + UPDATED     → genuinely unchanged, skip
+        # 4. Count matches + PUBLISHED   → STUCK LABEL: rebuild once to
+        #    flip "PUBLISHED" → "UPDATED". This handles the legacy state
+        #    where a previous rebuild updated the count from N to N+k but
+        #    pre-dated this label-flip code, so the label was overwritten
+        #    with "PUBLISHED" rather than transitioning to "UPDATED".
+        #    After this one-shot fix, label="UPDATED" and the unchanged
+        #    branch (case 3) will skip on subsequent runs.
+        label_flip_only = False
         if existing_total is None:
             log.info("W%02d: no existing report at %s — building fresh",
                      wnum, report_path)
             old_total = 0
         elif existing_total == dataset_total:
-            log.info("W%02d (%s): unchanged — %d recalls",
-                     wnum, week_end, dataset_total)
-            continue
+            if existing_label == "PUBLISHED":
+                log.info("W%02d (%s): count matches (%d) but label is "
+                         "PUBLISHED — flipping to UPDATED",
+                         wnum, week_end, dataset_total)
+                old_total = existing_total
+                label_flip_only = True
+            else:
+                log.info("W%02d (%s): unchanged — %d recalls (label=%s)",
+                         wnum, week_end, dataset_total,
+                         existing_label or "—")
+                continue
         else:
             log.info("W%02d (%s): STALE — was %d, now %d (Δ %+d)",
                      wnum, week_end, existing_total, dataset_total,
@@ -173,6 +195,14 @@ def main() -> int:
         except Exception as e:
             log.warning("write_weekly_summary_json failed for W%02d: %s",
                         wnum, e)
+
+        # Skip manifest append on label-flip-only rebuilds — count didn't
+        # change, so the Wednesday subscriber email shouldn't list this
+        # week as "revised". The HTML, dashboard JSON, and summary JSON
+        # all get the new UPDATED label, but no email goes out about it.
+        if label_flip_only:
+            log.info("W%02d: label flip applied (no manifest entry)", wnum)
+            continue
 
         updated.append({
             "year": year,
