@@ -15,6 +15,20 @@ name: AFTS Weekly Updates Check
 # Two DST crons + Athens hour-guard, identical pattern to the rest of
 # AFTS. Athens 09:00 = UTC 06:00 (summer EEST) / 07:00 (winter EET).
 # Cron uses min/hour/dom/mon/dow with Sunday=0, so Wednesday=3.
+#
+# Hardened 2026-05-09:
+#   • Commit step now scans staged files for git-conflict markers before
+#     pushing — aborts loudly rather than committing a corrupt manifest
+#     that crashes downstream parsers (which is what the JSONDecodeError
+#     "line 2 column 1 (char 2)" was: the previous run's git pull --rebase
+#     left "<<<<<<< HEAD"-style markers in weekly-updates-pending.json).
+#   • Summary step replaced fragile inline python -c heredoc with bash
+#     + jq + cat fallback. The Summary is informational only — it must
+#     NEVER crash the workflow over a parse error. If the manifest is
+#     malformed it now just dumps the raw bytes so we can see the issue.
+#   • Stages weekly-index.json and weekly-summary-*.json alongside the
+#     manifest, since v3 of build_weekly_updates_check unconditionally
+#     refreshes both on every run.
 # ==========================================================================
 
 on:
@@ -60,6 +74,33 @@ jobs:
           fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Sanity check — no pre-existing conflict markers in tracked JSON
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          # Belt-and-braces: if a previous run pushed conflict markers into
+          # the repo, surface them now and abort BEFORE we run python (which
+          # would otherwise read garbage from the stale weekly-index.json
+          # and write more garbage on top).
+          BAD=$(grep -lE '^(<<<<<<< |=======$|>>>>>>> )' \
+                  docs/data/weekly-updates-pending.json \
+                  docs/data/weekly-index.json \
+                  docs/data/weekly-summary-latest.json \
+                  2>/dev/null || true)
+          if [ -n "$BAD" ]; then
+            echo "::error::Conflict markers found in committed file(s):"
+            echo "$BAD"
+            echo "---"
+            for f in $BAD; do
+              echo "=== $f ==="
+              head -50 "$f"
+              echo "..."
+            done
+            echo "Manual fix required: edit the file(s), remove the marker"
+            echo "blocks, commit & push. Then re-run this workflow."
+            exit 1
+          fi
+          echo "OK: no conflict markers in tracked data files."
+
       - name: Set up Python 3.11
         if: steps.guard.outputs.run == 'true'
         uses: actions/setup-python@v5
@@ -78,6 +119,34 @@ jobs:
         run: |
           python -m pipeline.build_weekly_updates_check
 
+      - name: Validate generated JSON before staging
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          # Catch the corruption AT THE SOURCE — if the python step somehow
+          # produced malformed JSON or wrote conflict markers, fail here
+          # rather than committing the bad file.
+          for f in \
+              docs/data/weekly-updates-pending.json \
+              docs/data/weekly-index.json \
+              docs/data/weekly-summary-latest.json
+          do
+            if [ -f "$f" ]; then
+              if ! python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$f"; then
+                echo "::error::Malformed JSON: $f"
+                echo "=== Raw content ==="
+                cat "$f"
+                exit 1
+              fi
+              if grep -qE '^(<<<<<<< |=======$|>>>>>>> )' "$f"; then
+                echo "::error::Conflict markers in freshly-written file: $f"
+                echo "=== Raw content ==="
+                cat "$f"
+                exit 1
+              fi
+            fi
+          done
+          echo "OK: all generated JSON files are valid and marker-free."
+
       - name: Commit + push manifest (and any rebuilt HTML)
         if: steps.guard.outputs.run == 'true'
         env:
@@ -87,45 +156,87 @@ jobs:
         run: |
           git config user.email "$GIT_USER_EMAIL"
           git config user.name  "$GIT_USER_NAME"
-          # Stage manifest + any rebuilt weekly HTML files +
-          # the dashboard JSON (refreshed by build_weekly_updates_check
-          # when any week rebuilt, audit 2026-05-09) +
-          # per-week summary JSONs that the mailer / dashboard read.
+
+          # Stage manifest + dashboard JSONs + any rebuilt weekly HTML files
           git add docs/data/weekly-updates-pending.json
           git add docs/data/weekly-index.json 2>/dev/null || true
           git add docs/data/weekly-summary-*.json 2>/dev/null || true
           git add docs/*-W*.html 2>/dev/null || true
 
           if git diff --cached --quiet; then
-            echo "No file changes to commit (manifest unchanged, no weeks rebuilt)."
+            echo "No file changes to commit (everything matches HEAD)."
             exit 0
           fi
 
           git commit -m "Weekly updates check $(TZ=Europe/Athens date +%Y-%m-%d)"
+
+          # Push with retry. On rejection, fetch + rebase WITHOUT autostash
+          # (we have no working-tree changes — we already committed). If
+          # rebase fails due to genuine conflicts, abort cleanly: do NOT
+          # fall through to a strategy that may write conflict markers
+          # into committed files.
           for i in 1 2 3; do
             if git push; then
               echo "Pushed (attempt $i)"
               exit 0
             fi
-            echo "Push attempt $i failed — pulling and retrying"
-            git pull --rebase --autostash || git pull --no-rebase --strategy-option=ours
+            echo "Push attempt $i failed — fetching + rebasing"
+            git fetch origin "${GITHUB_REF_NAME:-main}"
+            if ! git rebase "origin/${GITHUB_REF_NAME:-main}"; then
+              echo "::error::Rebase failed — refusing to write conflict markers."
+              echo "Aborting rebase."
+              git rebase --abort || true
+              if grep -lE '^(<<<<<<< |=======$|>>>>>>> )' \
+                  docs/data/*.json docs/*-W*.html 2>/dev/null; then
+                echo "::error::Conflict markers detected in working tree after aborted rebase."
+              fi
+              exit 1
+            fi
+            # Re-validate JSONs after rebase (paranoia)
+            for f in docs/data/weekly-updates-pending.json \
+                     docs/data/weekly-index.json \
+                     docs/data/weekly-summary-latest.json
+            do
+              [ -f "$f" ] && grep -qE '^(<<<<<<< |=======$|>>>>>>> )' "$f" && {
+                echo "::error::Conflict markers in $f after rebase"
+                exit 1
+              }
+            done
           done
-          echo "All push attempts failed" >&2
+          echo "::error::All push attempts failed"
           exit 1
 
       - name: Summary
         if: steps.guard.outputs.run == 'true' && always()
         run: |
           echo "Weekly updates check complete — Athens $(TZ=Europe/Athens date)"
-          if [ -f docs/data/weekly-updates-pending.json ]; then
-            python3 -c "
-          import json
-          m = json.load(open('docs/data/weekly-updates-pending.json'))
-          updates = m.get('updated_weeks', [])
-          print(f'  Anchor Friday: {m.get(\"anchor_friday\", \"?\")}')
-          print(f'  Checked back:  {m.get(\"checked_back_weeks\", \"?\")} weeks')
-          print(f'  Updated:       {len(updates)} week(s)')
-          for w in updates:
-              print(f'    W{w[\"week_num\"]:02d} ({w[\"week_end\"]}): {w[\"old_total\"]} -> {w[\"new_total\"]} (+{w[\"delta\"]})')
-          "
+          MANIFEST=docs/data/weekly-updates-pending.json
+          if [ ! -f "$MANIFEST" ]; then
+            echo "No manifest written."
+            exit 0
           fi
+
+          # Robust: parse with jq if possible, fall back to a raw cat.
+          # NEVER fail this step over a parse error — Summary is purely
+          # informational and the workflow has already done its real work.
+          if jq empty "$MANIFEST" 2>/dev/null; then
+            ANCHOR=$(jq -r '.anchor_friday // "?"' "$MANIFEST")
+            BACK=$(jq -r '.checked_back_weeks // "?"' "$MANIFEST")
+            COUNT=$(jq -r '.updated_weeks | length' "$MANIFEST")
+            echo "  Anchor Friday: $ANCHOR"
+            echo "  Checked back:  $BACK weeks"
+            echo "  Updated:       $COUNT week(s)"
+            jq -r '.updated_weeks[]? | "    W\(.week_num) (\(.week_end)): \(.old_total) -> \(.new_total) (+\(.delta))"' "$MANIFEST"
+            CTA_LABEL=$(jq -r '.primary_cta.label // "-"' "$MANIFEST")
+            CTA_URL=$(jq -r '.primary_cta.url // "-"' "$MANIFEST")
+            if [ "$CTA_LABEL" != "-" ]; then
+              echo "  CTA:           $CTA_LABEL -> $CTA_URL"
+            fi
+          else
+            echo "::warning::Manifest is not valid JSON — dumping raw content:"
+            echo "--- $MANIFEST ---"
+            cat "$MANIFEST"
+            echo "--- end ---"
+          fi
+          # Always exit 0 — Summary failures must not fail the workflow.
+          exit 0
