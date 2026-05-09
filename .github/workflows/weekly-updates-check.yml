@@ -87,8 +87,13 @@ jobs:
         run: |
           git config user.email "$GIT_USER_EMAIL"
           git config user.name  "$GIT_USER_NAME"
-          # Stage manifest + any rebuilt weekly HTML files
+          # Stage manifest + any rebuilt weekly HTML files +
+          # the dashboard JSON (refreshed by build_weekly_updates_check
+          # when any week rebuilt, audit 2026-05-09) +
+          # per-week summary JSONs that the mailer / dashboard read.
           git add docs/data/weekly-updates-pending.json
+          git add docs/data/weekly-index.json 2>/dev/null || true
+          git add docs/data/weekly-summary-*.json 2>/dev/null || true
           git add docs/*-W*.html 2>/dev/null || true
 
           if git diff --cached --quiet; then

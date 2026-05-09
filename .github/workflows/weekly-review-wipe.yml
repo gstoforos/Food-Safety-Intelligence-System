@@ -1,4 +1,4 @@
-name: AFTS Weekly_Review Wipe
+name: AFTS Weekly_Review + Weekly_Rejected Wipe
 
 # ==========================================================================
 # Runs every THURSDAY at 17:30 ATHENS TIME (not UTC).
@@ -7,12 +7,15 @@ name: AFTS Weekly_Review Wipe
 #
 # What this does:
 #   1. Empties docs/data/recalls.xlsx::Weekly_Review (header preserved)
-#   2. Regenerates docs/data/weekly-review-latest.json (will be empty)
-#   3. Commits + pushes
+#   2. Empties docs/data/recalls.xlsx::Weekly_Rejected (header preserved)
+#   3. Regenerates docs/data/weekly-review-latest.json (will be empty)
+#   4. Regenerates docs/data/weekly-rejected-latest.json (will be empty)
+#   5. Commits + pushes
 #
 # What this does NOT do:
 #   - Does NOT touch Recalls sheet (promoted rows persist forever)
-#   - Does NOT touch Rejected sheet (audit archive persists forever)
+#   - Does NOT touch Rejected sheet (permanent audit archive — separate
+#     from the rolling Weekly_Rejected)
 #   - Does NOT touch Pending sheet (active review queue is unaffected)
 #
 # Two DST crons + Athens hour-guard, identical pattern to the rest of
@@ -20,12 +23,12 @@ name: AFTS Weekly_Review Wipe
 # Cron uses min/hour/dom/mon/dow with Sunday=0, so Thursday=4.
 #
 # Authoritative cutoff: Thursday 17:00 Athens (see weekly_review_capture.py
-# REVIEW_HOUR_LOCAL = 17). This workflow runs 30 minutes after — i.e. by
-# the time it fires, every promotion eligible for the Thursday 17:00
-# email has already been mirrored into Weekly_Review and the email has
-# been sent. Wiping at 17:30 means promotions arriving 17:00→17:30 land
-# in NEXT Thursday's window, which is the desired behavior per the
-# weekly_review_capture cutoff math.
+# and weekly_rejected_capture.py REVIEW_HOUR_LOCAL = 17). This workflow
+# runs 30 minutes after — i.e. by the time it fires, every promotion +
+# rejection eligible for the Thursday 17:00 email has already been
+# mirrored into the rolling sheets and the email has been sent. Wiping
+# at 17:30 means rows arriving 17:00→17:30 land in NEXT Thursday's
+# window, which is the desired behavior per the cutoff math.
 # ==========================================================================
 
 on:
@@ -89,6 +92,16 @@ jobs:
         run: |
           python -m tools.wipe_weekly_review --yes
 
+      - name: Wipe Weekly_Rejected sheet
+        # Audit 2026-05-09 — added in lockstep with Weekly_Review wipe.
+        # Both sheets follow the same Thursday cutoff / wipe lifecycle,
+        # so we run them in the same workflow step group. If either
+        # script fails, the other still runs (set +e behavior is the
+        # GitHub Actions default per-step).
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m tools.wipe_weekly_rejected --yes
+
       - name: Commit + push
         if: steps.guard.outputs.run == 'true'
         env:
@@ -98,12 +111,12 @@ jobs:
         run: |
           git config user.email "$GIT_USER_EMAIL"
           git config user.name  "$GIT_USER_NAME"
-          if git diff --quiet docs/data/recalls.xlsx docs/data/weekly-review-latest.json 2>/dev/null; then
-            echo "No changes (sheet was already empty). Skipping commit."
+          if git diff --quiet docs/data/recalls.xlsx docs/data/weekly-review-latest.json docs/data/weekly-rejected-latest.json 2>/dev/null; then
+            echo "No changes (sheets were already empty). Skipping commit."
             exit 0
           fi
-          git add docs/data/recalls.xlsx docs/data/weekly-review-latest.json
-          git commit -m "Weekly_Review wipe — $(TZ=Europe/Athens date +%Y-%m-%d) (post-Thursday-email reset)"
+          git add docs/data/recalls.xlsx docs/data/weekly-review-latest.json docs/data/weekly-rejected-latest.json
+          git commit -m "Weekly_Review + Weekly_Rejected wipe — $(TZ=Europe/Athens date +%Y-%m-%d) (post-Thursday-email reset)"
           # Use commit_github retry if available (handles concurrent pushes)
           for i in 1 2 3; do
             if git push; then
@@ -119,16 +132,17 @@ jobs:
       - name: Summary
         if: steps.guard.outputs.run == 'true' && always()
         run: |
-          echo "Weekly_Review wipe complete — Athens $(TZ=Europe/Athens date)"
-          echo "Weekly_Review row count after wipe:"
+          echo "Weekly_Review + Weekly_Rejected wipe complete — Athens $(TZ=Europe/Athens date)"
+          echo "Sheet row counts after wipe:"
           python -c "
           import openpyxl
           try:
               wb = openpyxl.load_workbook('docs/data/recalls.xlsx', read_only=True)
-              if 'Weekly_Review' in wb.sheetnames:
-                  print(f'  {wb[\"Weekly_Review\"].max_row - 1} rows (should be 0)')
-              else:
-                  print('  (no Weekly_Review sheet)')
+              for sn in ('Weekly_Review', 'Weekly_Rejected'):
+                  if sn in wb.sheetnames:
+                      print(f'  {sn}: {wb[sn].max_row - 1} rows (should be 0)')
+                  else:
+                      print(f'  {sn}: (sheet does not exist yet)')
           except Exception as e:
               print(f'  (unreadable: {e})')
           "
