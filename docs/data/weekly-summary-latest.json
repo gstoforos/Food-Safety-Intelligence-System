@@ -8,23 +8,37 @@
   "week_end": "2026-05-08",
   "week_start_display": "2 May",
   "week_end_display": "8 May 2026",
-  "generated_utc": "2026-05-09T07:01:44.372989+00:00",
+  "generated_utc": "2026-05-09T08:02:39.542381+00:00",
   "stats": {
-    "total": 43,
-    "tier1": 26,
+    "total": 49,
+    "tier1": 32,
     "outbreaks": 0,
-    "delta": -11,
-    "delta_pct": -20
+    "delta": -5,
+    "delta_pct": -9
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 19,
-    "pct": 44
+    "cases": 24,
+    "pct": 49
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
+      "date": "2026-05-08",
+      "pathogen": "Clostridium botulinum",
+      "pathogen_raw": "Clostridium botulinum",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Shining Sea Fish Co.",
+      "brand": "Ma Cohen's",
+      "product": "Ma Cohen's Kippered Herring — uneviscerated smoked fish >5\" (LOT 25028 exp 2026-06-03; LOT 25055 exp 2026-05-12; LOT 25079 exp 2026-05-03; LOT 26344 exp 2026-07-22) — retail grocery distribution MI, MN, ND",
+      "country": "United States",
+      "source": "FDA",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/shining-sea-fish-co-recalls-ma-cohens-kippered-herring-because-possible-health-risk"
+    },
+    {
+      "rank": 2,
       "date": "2026-05-06",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -38,7 +52,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22194/Interne"
     },
     {
-      "rank": 2,
+      "rank": 3,
       "date": "2026-05-06",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -52,7 +66,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22193/Interne"
     },
     {
-      "rank": 3,
+      "rank": 4,
       "date": "2026-05-06",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -66,7 +80,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22205/Interne"
     },
     {
-      "rank": 4,
+      "rank": 5,
       "date": "2026-05-05",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -78,20 +92,6 @@
       "country": "Belgium",
       "source": "RASFF (EU)",
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841909"
-    },
-    {
-      "rank": 5,
-      "date": "2026-05-05",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "FOODMAKER",
-      "brand": "FOODMAKER",
-      "product": "Salade Penne Chicken Lemon 300g (Lot TGT 01/05/2026, GTIN 5407009903120)",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22186/Interne"
     }
   ],
   "country_count": 15
