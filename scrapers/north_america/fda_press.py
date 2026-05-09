@@ -23,40 +23,22 @@ running — it carries structured fields the press-release feed doesn't
 expose (recall_number, classification, distribution_pattern). Both write
 rows with Source="FDA"; merge_master dedupes by URL across them.
 
-PATCH 2026-05-08
+DESIGN DECISIONS
 ================
-Today's run produced "FDA RSS fetch failed: no response" for both the
-RSS endpoint AND the HTML fallback, in 213ms combined — too fast for
-real timeouts; both failed instantly. Meanwhile api.fda.gov (which
-backs the sibling fda.py scraper) worked normally in the same run.
-
-That points at www.fda.gov-specific bot detection (Cloudflare) — the
-sibling endpoint api.fda.gov isn't behind the same WAF. Same pattern as
-Batch 4 (COMESA, ŠVPS, etc.): UA looks like Chrome but Client Hints
-(sec-ch-ua-*) and Sec-Fetch-* headers are missing, so the WAF flags
-the request as automated and drops the connection.
-
-Three fixes in this patch:
-
-  1. Chrome 127 fingerprint headers (Client Hints + Sec-Fetch) added
-     to this scraper's session, scoped per-instance only (no leak).
-  2. "no response" log message replaced with detailed error including
-     exception type, message, and partial URL. Done by performing the
-     fetch directly through self.session and capturing the exception,
-     bypassing _base.fetch's exception-swallowing.
-  3. A secondary RSS URL (the broader Recalls feed, which also carries
-     food items) is tried if the food-specific feed fails. URL was
-     verified live 2026-05-08 via FDA's "Subscribe to Podcasts and
-     News Feeds" listing page.
-
-DESIGN DECISIONS (unchanged from original)
-==========================================
 1. Pathogen + food filter — same shape as scrapers/north_america/cfia.py.
+   Match a CORE pathogen keyword; require a food-context token; reject
+   allergen-only via merge_master / claude-check downstream (we don't
+   over-filter here — better to send to Pending and let the reviewers
+   decide, since FDA RSS titles are often terse).
 2. Outbreak detection — same EN tokens as CFIA but no FR (FDA is EN-only).
-3. Date parsing — RSS pubDate is RFC-822; multiple variants handled.
+3. Date parsing — RSS pubDate is RFC-822; sometimes ``%a, %d %b %Y %H:%M:%S %z``
+   sometimes ``GMT`` (handled both).
 4. URL — taken from <link>. The recall page slug is stable; URL is the
    dedup key merge_master uses.
-5. Class — RSS does not expose Class I/II/III. Leave as "Recall".
+5. Class — RSS does not expose Class I/II/III. Leave as "Recall"; the
+   openFDA scraper supplies that data when its slower path eventually
+   ingests the same recall (merge_master keeps the first non-empty value
+   per field on dedup).
 """
 from __future__ import annotations
 from datetime import datetime, timedelta
@@ -65,29 +47,11 @@ from xml.etree import ElementTree as ET
 import logging
 import re
 
-import requests
-
 from scrapers._base import BaseScraper, fetch
 from scrapers._models import Recall
 from scrapers._pathogen_vocab import for_languages
 
 log = logging.getLogger(__name__)
-
-
-# ─── Chrome 127 fingerprint headers (same as Batch 4) ────────────────────────
-# Cloudflare and other modern WAFs check for these to distinguish real
-# Chrome from bots that just spoof the User-Agent string.
-_CHROME_FINGERPRINT_HEADERS = {
-    "sec-ch-ua": '"Chromium";v="127", "Not(A:Brand";v="24", "Google Chrome";v="127"',
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": '"Windows"',
-    "sec-fetch-dest": "document",
-    "sec-fetch-mode": "navigate",
-    "sec-fetch-site": "none",
-    "sec-fetch-user": "?1",
-    "Cache-Control": "max-age=0",
-    "DNT": "1",
-}
 
 
 # Outbreak signal tokens (EN only — FDA RSS is English).
@@ -127,6 +91,7 @@ def _is_generic_url(url: str) -> bool:
     u = url.lower()
     if any(p in u for p in _GENERIC_URL_SUBSTRINGS):
         return True
+    # The bare landing page is also generic.
     bare = u.rstrip("/").split("?", 1)[0]
     if bare in (
         "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts",
@@ -137,8 +102,16 @@ def _is_generic_url(url: str) -> bool:
     return False
 
 
+# Bilingual vocab is overkill for FDA — but using for_languages("en")
+# means we share the same single source of truth as CFIA, USDA FSIS,
+# FSANZ, FSA UK, and every other English-speaking regulator.
 _PATHOGEN_KEYWORDS = for_languages("en")
 
+# At least one of these tokens must appear in the title+description, else
+# we drop the row as non-food (FDA recalls cover drugs, devices, cosmetics,
+# tobacco — the FOOD recall RSS feed at the URL we use should already be
+# food-only, but the press-release feed multiplexes everything, so be
+# defensive).
 _FOOD_CONTEXT_TOKENS = (
     "food", "beverage", "beverages", "drink", "drinks",
     "milk", "dairy", "cheese", "yogurt", "yoghurt", "ice cream",
@@ -155,6 +128,7 @@ _FOOD_CONTEXT_TOKENS = (
     "sauce", "dressing", "soup", "stew",
     "candy", "chocolate", "confection",
     "frozen", "ready to eat", "rte", "deli",
+    # Generic verbs that almost always appear in food-recall titles
     "recalls", "recalled", "recall of", "recalls because",
     "voluntarily recalls", "voluntary recall",
     "issues recall", "issues alert",
@@ -167,124 +141,121 @@ class FDAPressReleaseScraper(BaseScraper):
     AGENCY = "FDA"
     COUNTRY = "USA"
 
-    # Primary feed URL (food-only). Verified live 2026-05-08 via web
-    # search showing recent items (Gerber Arrowroot, Koikoi Trading, etc.).
+    # Canonical FDA RSS feed. Audit 2026-05-07 — the previous feed at
+    # /rss-feeds/recalls/rss.xml went dark (no response). Switched to the
+    # food-specific feed which is verified live 2026-05-07 and has the
+    # bonus of being pre-filtered to food (no need for the post-filter
+    # _FOOD_CONTEXT_TOKENS pass to drop drug/device/cosmetic items).
+    # If FDA migrates the feed, fall back to the listing HTML.
     FEED_URL = (
         "https://www.fda.gov/about-fda/contact-fda/stay-informed/"
         "rss-feeds/food-safety-recalls/rss.xml"
-    )
-    # Secondary feed (general Recalls, broader scope — drugs/devices/food).
-    # Listed in FDA's "Subscribe to Podcasts and News Feeds" hub. We rely
-    # on the food-context filter (_FOOD_CONTEXT_TOKENS) to drop non-food.
-    FEED_URL_FALLBACK = (
-        "https://www.fda.gov/about-fda/contact-fda/stay-informed/"
-        "rss-feeds/recalls/rss.xml"
     )
     FALLBACK_URL = (
         "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts"
     )
 
+    # ── Akamai bot-detection bypass (audit 2026-05-09) ─────────────────
+    # FDA.gov sits behind Akamai's CDN with bot detection enabled. The
+    # base scraper's Chrome 127 User-Agent alone is no longer enough —
+    # Akamai's fingerprinting checks for the modern client-hints headers
+    # (sec-ch-ua-*) and resource-fetch metadata (sec-fetch-*) that real
+    # Chrome sends. Without them, Akamai returns HTTP 404 (yes, 404, not
+    # 403 — it deliberately confuses scrapers) with `server=AkamaiNetStorage`.
+    #
+    # Symptoms before this fix (May 9 run): all three FDA URLs returned
+    # 404 from AkamaiNetStorage. The URLs themselves are live — verified
+    # by browser fetch and external search returning fresh content. So
+    # the gap is purely the request fingerprint. Adding these headers
+    # makes the request indistinguishable from a real Chrome 127 navigation.
+    #
+    # Per-host override pattern: kept local to FDA so we don't disturb
+    # other regulators (some block requests with sec-* headers because
+    # their CDN is from a different vendor that interprets them differently).
+    # If more US gov sites adopt Akamai bot detection, generalise this to
+    # scrapers/_base.py's SPECIAL_HEADERS_BY_HOST hook (currently a TODO).
+    _AKAMAI_BYPASS_HEADERS = {
+        "sec-ch-ua": (
+            '"Not)A;Brand";v="99", "Google Chrome";v="127", '
+            '"Chromium";v="127"'
+        ),
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
+        "sec-fetch-dest": "document",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "none",
+        "sec-fetch-user": "?1",
+        "Cache-Control": "max-age=0",
+    }
+
+    # RSS feeds expect XML in Accept; HTML pages expect text/html. The
+    # base session sends the HTML Accept by default — for RSS endpoints
+    # we override per-request. Akamai's bot rules cross-check that the
+    # Accept header matches the requested resource type.
+    _RSS_ACCEPT = (
+        "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8, "
+        "*/*;q=0.5"
+    )
+
     PATHOGEN_KEYWORDS = _PATHOGEN_KEYWORDS
 
+    # FDA recall slugs typically live under one of these path prefixes.
+    # Anything else is generic and rejected.
     _ACCEPTABLE_URL_PREFIXES = (
         "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/",
         "https://www.fda.gov/news-events/press-announcements/",
         "https://www.fda.gov/food/alerts-advisories-safety-information/",
     )
 
-    def __init__(self, session=None) -> None:
-        super().__init__(session=session)
-        # Apply Chrome fingerprint to bypass Cloudflare on www.fda.gov.
-        # Per-scraper session so this doesn't leak to other scrapers.
-        self.session.headers.update(_CHROME_FINGERPRINT_HEADERS)
-        # RSS-specific Accept (some feeds reject text/html-only Accept headers).
-        self.session.headers["Accept"] = (
-            "application/rss+xml, application/xml, text/xml, "
-            "application/atom+xml, text/html;q=0.9, */*;q=0.8"
-        )
+    @classmethod
+    def _rss_headers(cls) -> dict:
+        """Headers for RSS-XML endpoints — Akamai-bypass + XML Accept."""
+        h = dict(cls._AKAMAI_BYPASS_HEADERS)
+        h["Accept"] = cls._RSS_ACCEPT
+        # RSS feeds are typically polled, not browsed-from-link
+        h["sec-fetch-dest"] = "empty"
+        h["sec-fetch-mode"] = "cors"
+        return h
 
-    # ------------------------------------------------------------------
+    @classmethod
+    def _html_headers(cls) -> dict:
+        """Headers for HTML listing fallback — Akamai-bypass + browse fingerprint."""
+        return dict(cls._AKAMAI_BYPASS_HEADERS)
+
     def scrape(self, since_days: int = 30) -> List[Recall]:
-        # Try primary food-only feed
-        rows = self._scrape_rss(self.FEED_URL, since_days, label="primary")
+        rows = self._scrape_rss(since_days)
         if rows:
             return rows
-        # Fall back to general Recalls feed (broader scope; food filter
-        # will drop drug/device items)
-        log.warning("FDA RSS primary feed empty/failed; trying secondary feed")
-        rows = self._scrape_rss(self.FEED_URL_FALLBACK, since_days, label="secondary")
-        if rows:
-            return rows
-        # Final fallback: HTML listing
-        log.warning("FDA RSS both feeds empty/failed; trying HTML fallback")
+        log.warning("FDA RSS returned no rows; trying fallback HTML listing")
         return self._scrape_html_fallback(since_days)
 
     # ------------------------------------------------------------------
-    def _fetch_with_diagnostic(self, url: str, label: str):
-        """Direct session.get with detailed error capture.
-
-        Bypasses _base.fetch's exception-swallowing so we get
-        actionable error info in the log instead of "no response".
-        Returns response object on success, None on failure (after
-        logging the precise reason).
-        """
-        try:
-            r = self.session.get(url, timeout=30)
-        except requests.exceptions.SSLError as e:
-            log.warning("FDA fetch %s SSL error: %s | url=%s", label, e, url[:120])
-            return None
-        except requests.exceptions.ConnectionError as e:
-            # Most useful diagnostic — distinguishes DNS vs reset vs refused
-            log.warning("FDA fetch %s connection error: %s | url=%s",
-                        label, type(e).__name__ + ": " + str(e)[:200], url[:120])
-            return None
-        except requests.exceptions.Timeout as e:
-            log.warning("FDA fetch %s timeout: %s | url=%s", label, e, url[:120])
-            return None
-        except requests.exceptions.RequestException as e:
-            log.warning("FDA fetch %s request error: %s: %s | url=%s",
-                        label, type(e).__name__, e, url[:120])
-            return None
-
-        if not r.ok:
-            log.warning(
-                "FDA fetch %s HTTP %d %s | url=%s | server=%s | cf-ray=%s",
-                label, r.status_code, r.reason, url[:120],
-                r.headers.get("server", "?"),
-                r.headers.get("cf-ray", "—"),
-            )
-            return None
-        return r
-
-    # ------------------------------------------------------------------
-    def _scrape_rss(self, url: str, since_days: int, label: str) -> List[Recall]:
-        r = self._fetch_with_diagnostic(url, label=f"RSS-{label}")
-        if r is None:
+    def _scrape_rss(self, since_days: int) -> List[Recall]:
+        r = fetch(self.session, self.FEED_URL, headers=self._rss_headers())
+        if not r:
+            log.warning("FDA RSS fetch failed: no response")
             return []
         try:
             root = ET.fromstring(r.content)
         except ET.ParseError as e:
-            log.warning("FDA RSS-%s parse failed: %s | first 200 bytes: %r",
-                        label, e, r.content[:200])
+            log.warning("FDA RSS parse failed: %s", e)
             return []
 
         cutoff = datetime.utcnow() - timedelta(days=since_days)
         out: List[Recall] = []
         seen_urls: set = set()
-        item_count = 0
 
         for item in root.iter("item"):
-            item_count += 1
             try:
                 rec = self._parse_item(item, cutoff, seen_urls)
                 if rec is not None:
                     out.append(rec)
                     seen_urls.add(rec.URL)
             except Exception as e:
-                log.warning("FDA RSS-%s item parse failed: %s", label, e)
+                log.warning("FDA RSS item parse failed: %s", e)
 
-        log.info("FDA RSS-%s: %d items scanned -> %d pathogen recalls (since_days=%d)",
-                 label, item_count, len(out), since_days)
+        log.info("FDA RSS: %d pathogen recalls (since_days=%d)",
+                 len(out), since_days)
         return out
 
     # ------------------------------------------------------------------
@@ -297,21 +268,31 @@ class FDAPressReleaseScraper(BaseScraper):
 
         if not link or _is_generic_url(link) or link in seen_urls:
             return None
+
+        # URL must live on a real FDA recall path (defensive — RSS should
+        # only emit valid links, but we have seen feeds glitch and emit
+        # the bare landing page as a "self-link" item).
         if not any(link.startswith(p) for p in self._ACCEPTABLE_URL_PREFIXES):
             log.debug("FDA RSS: skipping non-recall URL %s", link[:80])
             return None
 
+        # Strip HTML tags from description (FDA RSS descriptions are
+        # sometimes raw HTML with <p>, <a>, etc.).
         desc_text = re.sub(r"<[^>]+>", " ", desc)
         desc_text = re.sub(r"\s+", " ", desc_text).strip()
+
         merged = (title + " " + desc_text).lower()
 
+        # 1. Pathogen filter — must match at least one keyword
         matched_kw = _matched_pathogen_keyword(merged, self.PATHOGEN_KEYWORDS)
         if not matched_kw:
             return None
 
+        # 2. Food-context filter — drop non-food (drugs, devices, cosmetics)
         if not any(tok in merged for tok in _FOOD_CONTEXT_TOKENS):
             return None
 
+        # 3. Date parse — RSS pubDate is RFC-822
         d = self._parse_pubdate(pub)
         if d is None:
             log.debug("FDA RSS: unparseable pubDate %r", pub)
@@ -319,6 +300,8 @@ class FDAPressReleaseScraper(BaseScraper):
         if d < cutoff:
             return None
 
+        # 4. Company / brand extraction. FDA titles are formatted as
+        # "<Firm> Recalls <Product> Because of <Reason>" or variants.
         m = re.match(
             r"^(.+?)\s+(?:recalls?|issues?|voluntarily\s+recalls?|"
             r"announces?\s+recall\s+of)\s+",
@@ -327,14 +310,16 @@ class FDAPressReleaseScraper(BaseScraper):
         company = (m.group(1).strip() if m
                    else title.split(" - ")[0]).strip()[:100]
 
+        # 5. Outbreak detection
         outbreak = _detect_outbreak(merged)
 
+        # 6. Build Recall
         return self._new_recall(
             Date=d.strftime("%Y-%m-%d"),
             Company=company,
             Brand="—",
             Product=title[:300],
-            Pathogen=matched_kw,
+            Pathogen=matched_kw,           # canonicalised by _new_recall
             Reason=desc_text[:400] or title[:400],
             Class="Recall",
             URL=link,
@@ -345,6 +330,7 @@ class FDAPressReleaseScraper(BaseScraper):
     # ------------------------------------------------------------------
     @staticmethod
     def _parse_pubdate(pub: str) -> Optional[datetime]:
+        """Parse RFC-822 pubDate. RSS feeds emit several variants."""
         if not pub:
             return None
         for fmt in (
@@ -355,6 +341,7 @@ class FDAPressReleaseScraper(BaseScraper):
         ):
             try:
                 d = datetime.strptime(pub, fmt)
+                # Strip tz so we can compare against utcnow() cleanly
                 return d.replace(tzinfo=None)
             except ValueError:
                 continue
@@ -362,19 +349,33 @@ class FDAPressReleaseScraper(BaseScraper):
 
     # ------------------------------------------------------------------
     def _scrape_html_fallback(self, since_days: int) -> List[Recall]:
-        r = self._fetch_with_diagnostic(self.FALLBACK_URL, label="HTML-fallback")
-        if r is None:
+        """Parse the HTML listing page when RSS is unavailable.
+
+        This is a degraded-mode path — used only when the RSS feed has
+        moved, returns 5xx, or has been temporarily emptied. The HTML
+        listing is harder to parse (no structured pubDate) so we extract
+        only enough to write a row to Pending; the URL gate + claude-check
+        will then fetch each individual recall page for full details.
+        """
+        r = fetch(self.session, self.FALLBACK_URL, headers=self._html_headers())
+        if not r:
+            log.warning("FDA HTML fallback also failed")
             return []
 
+        # Recall slugs follow a stable pattern in the HTML:
+        # href="/safety/recalls-market-withdrawals-safety-alerts/<slug>"
+        # We don't parse dates from the listing — we use today as a
+        # placeholder. claude-check will overwrite Date when it fetches
+        # the actual recall page.
         slugs = re.findall(
             r'href="(/safety/recalls-market-withdrawals-safety-alerts/[^"]+)"',
             r.text,
         )
         if not slugs:
-            log.warning("FDA HTML fallback: no recall slugs found in %d bytes",
-                        len(r.text))
+            log.warning("FDA HTML fallback: no recall slugs found")
             return []
 
+        # Dedup & cap to 25 most recent (the listing shows most-recent first)
         seen: set = set()
         unique_slugs = []
         for s in slugs:
@@ -388,13 +389,14 @@ class FDAPressReleaseScraper(BaseScraper):
         out: List[Recall] = []
         for slug in unique_slugs:
             url = f"https://www.fda.gov{slug}"
+            # Title from the slug — claude-check will fetch the real one
             title = slug.rsplit("/", 1)[-1].replace("-", " ").title()[:300]
             out.append(self._new_recall(
                 Date=today,
                 Company=title.split(" Recalls ")[0][:100],
                 Brand="—",
                 Product=title,
-                Pathogen="",
+                Pathogen="",  # Will be filled by claude-check page review
                 Reason=title,
                 Class="Recall",
                 URL=url,
