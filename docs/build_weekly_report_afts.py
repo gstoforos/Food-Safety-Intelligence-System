@@ -2025,6 +2025,32 @@ def _extract_published_from_html(path):
     return None
 
 
+def _extract_label_from_html(path):
+    """Read an existing report HTML and return its header label —
+    either "PUBLISHED" or "UPDATED" — or None.
+
+    Companion to _extract_published_from_html. Used by the Wednesday
+    weekly-updates check (audit 2026-05-09) to detect the case where
+    a report's count matches the current dataset BUT the label is
+    still "PUBLISHED" — typically because a previous rebuild fired
+    before this label-flip code was deployed and overwrote the file
+    with a stale "PUBLISHED" header. The Wednesday flow uses this
+    signal to force a one-shot rebuild that flips the label to
+    "UPDATED" without waiting for a count change.
+    """
+    try:
+        html = Path(path).read_text(encoding="utf-8")
+        m = re.search(
+            r'<strong>(PUBLISHED|UPDATED)</strong>\s*&middot;\s*[^<]+<',
+            html,
+        )
+        if m:
+            return m.group(1)
+    except Exception:
+        pass
+    return None
+
+
 def refresh_stale_weeks(all_recalls, current_week_end, n_previous=1):
     """Check up to n_previous weeks before current_week_end.
     If the recall count in the dataset differs from what's baked into
