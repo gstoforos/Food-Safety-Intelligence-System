@@ -1778,7 +1778,26 @@ __CSS_PLACEHOLDER__
 </html>"""
 
 
-def build_html(week_end, recalls, prev_week):
+def build_html(week_end, recalls, prev_week, original_published=None):
+    """Build a weekly report HTML.
+
+    original_published:  None  → fresh publish; PUBLISHED line shows
+                                 the formulaic week_end+1 date.
+                         str   → rebuild; PUBLISHED line preserves the
+                                 original date and appends "(updated <today>)".
+                                 The string is the date-as-rendered (e.g.
+                                 "9 May 2026") returned by
+                                 _extract_published_from_html() against
+                                 the existing HTML.
+
+    Audit 2026-05-09 — added original_published. Pre-this change, every
+    rebuild silently overwrote the PUBLISHED date with the new build's
+    week_end+1, which on Wednesday rebuilds is identical to the original
+    Saturday publish — so the user couldn't see that the report had been
+    revised. Now rebuilds carry an explicit "(updated DD MMM YYYY)"
+    suffix and the dashboard reflects the new totals via
+    update_dashboard_data() called by the rebuild caller.
+    """
     stats = compute_stats(recalls, prev_week)
     ws = week_end - timedelta(days=6)
     wnum = week_end.isocalendar()[1]; year = week_end.year
@@ -1842,7 +1861,21 @@ def build_html(week_end, recalls, prev_week):
 
     wsd = _fmt_date_short(ws); wed = _fmt_date(week_end)
     period = "{} &ndash; {}".format(wsd, wed)
-    pub = (week_end + timedelta(days=1)).strftime("%-d %b %Y")
+    # Original-publish date stays formulaic (week_end + 1, the Saturday
+    # after the reporting week closes). If we're rebuilding, original_published
+    # comes in already-formatted from the existing HTML, so we use it
+    # verbatim and append "(updated <today>)" to make the revision visible.
+    if original_published:
+        today_str = datetime.now(timezone.utc).strftime("%-d %b %Y")
+        # Defensive: if rebuild fires same day as the original publish,
+        # don't append a redundant "(updated <same-day>)" — this happens
+        # when the Saturday Friday-builder runs after a Friday late-promote.
+        if today_str.strip() != original_published.strip():
+            pub = "{} (updated {})".format(original_published, today_str)
+        else:
+            pub = original_published
+    else:
+        pub = (week_end + timedelta(days=1)).strftime("%-d %b %Y")
     nf = _fmt_date(week_end + timedelta(days=7))
 
     html = HTML_TEMPLATE.format(
@@ -1966,6 +1999,40 @@ def _extract_total_from_html(path):
     return None
 
 
+def _extract_published_from_html(path):
+    """Read an existing report HTML and extract the original PUBLISHED date.
+
+    Returns the date string verbatim (e.g. "9 May 2026") or None if the
+    file doesn't exist or the marker can't be found.
+
+    Used by Wednesday weekly-updates-check (and Friday refresh_stale_weeks)
+    to PRESERVE the original first-publication date when rebuilding a
+    stale report — the rebuild then renders as
+    "PUBLISHED · 9 May 2026 (updated 13 May 2026)" instead of overwriting
+    with today's date and pretending it's a fresh publication.
+
+    Two patterns supported:
+      • Fresh publish:  "PUBLISHED</strong> &middot; 9 May 2026"
+      • Already updated: "PUBLISHED</strong> &middot; 9 May 2026 (updated 13 May 2026)"
+        — in this case the ORIGINAL date is returned, not the update date,
+        so successive rebuilds keep stamping against the same first-publish.
+    """
+    try:
+        html = Path(path).read_text(encoding="utf-8")
+        # Match either "PUBLISHED</strong> &middot; <date>" or
+        # "PUBLISHED</strong> &middot; <date> (updated <date2>)" — capture the
+        # first date only (original publish).
+        m = re.search(
+            r'<strong>PUBLISHED</strong>\s*&middot;\s*([^<(]+?)(?:\s*\(updated|<)',
+            html,
+        )
+        if m:
+            return m.group(1).strip()
+    except Exception:
+        pass
+    return None
+
+
 def refresh_stale_weeks(all_recalls, current_week_end, n_previous=1):
     """Check up to n_previous weeks before current_week_end.
     If the recall count in the dataset differs from what's baked into
@@ -1994,11 +2061,17 @@ def refresh_stale_weeks(all_recalls, current_week_end, n_previous=1):
                       wnum, existing_total, dataset_total)
 
         prev_week_recalls = filter_week(all_recalls, prev_prev_end)
-        html, stats = build_html(prev_end, dataset_recalls, prev_week_recalls)
+        # Preserve the original publish date so the rebuilt HTML shows
+        # "PUBLISHED · <orig> (updated <today>)" instead of overwriting
+        # with today's date. Falls back to None (fresh build) if the
+        # existing HTML doesn't carry a parseable PUBLISHED marker.
+        orig_pub = _extract_published_from_html(report_path)
+        html, stats = build_html(prev_end, dataset_recalls, prev_week_recalls,
+                                 original_published=orig_pub)
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(html, encoding="utf-8")
-        log.info("W%02d refreshed -> %s (%d bytes, %d recalls)",
-                  wnum, report_path, len(html), dataset_total)
+        log.info("W%02d refreshed -> %s (%d bytes, %d recalls, original_pub=%r)",
+                  wnum, report_path, len(html), dataset_total, orig_pub)
         rebuilt.append(prev_end)
 
     return rebuilt
