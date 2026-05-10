@@ -1,17 +1,28 @@
 {
   "entries": [
     {
+      "date": "2026-05-09",
+      "url": "daily/2026-05-09.html",
+      "total": 1,
+      "tier1": 1,
+      "outbreak": 1,
+      "by_region": {
+        "North America": 1
+      },
+      "generated": "2026-05-10T07:13:30Z"
+    },
+    {
       "date": "2026-05-08",
       "url": "daily/2026-05-08.html",
-      "total": 6,
-      "tier1": 6,
+      "total": 7,
+      "tier1": 7,
       "outbreak": 0,
       "by_region": {
-        "North America": 3,
+        "North America": 4,
         "Europe": 2,
         "Asia": 1
       },
-      "generated": "2026-05-10T04:02:36Z"
+      "generated": "2026-05-10T07:13:30Z"
     },
     {
       "date": "2026-05-07",
@@ -24,7 +35,7 @@
         "North America": 3,
         "Unknown": 1
       },
-      "generated": "2026-05-09T08:04:54Z"
+      "generated": "2026-05-10T07:13:30Z"
     },
     {
       "date": "2026-05-06",
@@ -37,7 +48,7 @@
         "Unknown": 1,
         "North America": 2
       },
-      "generated": "2026-05-09T08:04:54Z"
+      "generated": "2026-05-10T07:13:30Z"
     },
     {
       "date": "2026-05-05",
@@ -50,7 +61,7 @@
         "Africa": 1,
         "North America": 3
       },
-      "generated": "2026-05-09T08:04:54Z"
+      "generated": "2026-05-10T07:13:31Z"
     },
     {
       "date": "2026-05-04",
@@ -62,7 +73,7 @@
         "Europe": 6,
         "North America": 1
       },
-      "generated": "2026-05-09T08:04:54Z"
+      "generated": "2026-05-10T07:13:31Z"
     },
     {
       "date": "2026-05-03",
@@ -73,19 +84,7 @@
       "by_region": {
         "Europe": 1
       },
-      "generated": "2026-05-09T08:04:55Z"
-    },
-    {
-      "date": "2026-05-02",
-      "url": "daily/2026-05-02.html",
-      "total": 3,
-      "tier1": 3,
-      "outbreak": 0,
-      "by_region": {
-        "North America": 1,
-        "Europe": 2
-      },
-      "generated": "2026-05-09T08:04:55Z"
+      "generated": "2026-05-10T07:13:31Z"
     }
   ]
 }
