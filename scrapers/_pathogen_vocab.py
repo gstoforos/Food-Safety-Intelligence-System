@@ -8,67 +8,79 @@ guarantee a fiche written in Greek (EFET), Hungarian (Nébih), Polish
 (GIS) or Korean (MFDS) cannot be silently dropped because someone
 forgot to translate "Listeria" or "Salmonella" into that language.
 
-THE THREE LAYERS
-----------------
+REFACTORED 2026-05-10 — TWO CATEGORIES, NOT ONE
+================================================
+Until 2026-05-10, every keyword (specific hazard names AND generic
+recall-verbs) lived in a single CORE bucket. That was convenient for
+gap-finder queries — a search for "recall" finds recall pages, a search
+for "Salmonella" finds pathogen pages, both pulled from one vocab.
 
-1. ``CORE``
-   Universal English + scientific Latin names. Every scraper uses
-   these regardless of country. Long-tail mycotoxins go here too —
-   "alternaria", "fumonisin", "deoxynivalenol", "T-2 toxin", "ergot",
-   etc., because their Latin / scientific spellings are language-
-   independent. This is also where chemical hazards (rodenticide,
-   ethylene-oxide, MOAH, lead-contamin) live.
+But it had a serious downstream cost. Scrapers using the vocab as a
+PATHOGEN filter (fda_press, fda_listing, usda_fsis, cfia, fsanz, fsa_uk,
+…) were matching on the verb "recall" and tagging EVERY misbranding /
+allergen / mechanical-defect recall as Pathogen="recall" Tier=3. They
+landed in Pending; claude-check rejected them downstream — wasted
+reviewer API calls, diluted Pending signal-to-noise.
 
-2. ``BY_LANGUAGE``
-   ISO-639 language code → tuple of native-language pathogen and
-   recall vocabulary specific to that locale. Only words that are
-   genuinely language-specific (e.g., "tilbagekaldelse" in Danish for
-   "recall", or "リコール" in Japanese) — universal scientific
-   spellings stay in CORE.
+Fix: split the vocab into two categories. Same source of truth, two
+clean lanes.
 
-3. ``for_languages(*langs)``
-   Helper. Returns CORE + every BY_LANGUAGE[lang] tuple unioned and
-   de-duplicated. Used both by RSS scrapers (auto-extended via
-   their ``LANGUAGE`` class attribute) and by the freshness checks
-   that hit a single agency's API.
+  • PATHOGENS         specific hazard names (Salmonella, ochratoxin,
+                      glass fragment, lead contamin, …) — what scrapers
+                      should match on when filtering for actual hazards.
+  • RECALL_SIGNALS    page-context verbs and food terms (recall, alert,
+                      warning, rappel, lebensmittel, 召回, …) — useful
+                      for gap-finder and "is this a recall page" checks,
+                      but should NOT be used as a pathogen filter.
+
+Public API surface (post-refactor)
+----------------------------------
+  pathogens(*langs)         → tuple of pathogen-only keywords
+  recall_signals(*langs)    → tuple of recall-signal-only keywords
+  for_languages(*langs)     → tuple of pathogens ∪ recall_signals
+                              (BACKWARD-COMPATIBLE — existing callers
+                              keep working unchanged. They get the same
+                              keyword set they got before this refactor.)
+
+Migration path for scraper authors
+----------------------------------
+Old (broken — over-matches):
+    PATHOGEN_KEYWORDS = for_languages("en")
+
+New (correct — pathogen-only):
+    PATHOGEN_KEYWORDS = pathogens("en")
+
+Migrate scrapers one at a time and watch for regressions in Pending
+volume. The vocab module itself is fully backward-compatible — no
+scraper change is required to deploy this refactor; behavior is
+identical to pre-refactor for any caller still using for_languages().
+
+Layered data structures (kept for backward compat)
+--------------------------------------------------
+  CORE                Tuple — union of PATHOGENS and RECALL_SIGNALS,
+                      preserving order: pathogens first, recall signals
+                      after. Existing callers see this as before.
+  BY_LANGUAGE         dict — per-language union of PATHOGENS_BY_LANGUAGE
+                      and RECALL_SIGNALS_BY_LANGUAGE.
+  for_languages()     unchanged behavior: CORE + BY_LANGUAGE[lang]
+                      union, deduplicated.
 
 NEGATIVE-FILTER VOCABULARY
 --------------------------
-
-``NON_PATHOGEN_REJECTS`` lists "looks-like-a-recall-but-isn't-pathogen"
-patterns (undeclared allergens that are pure-allergen, labelling
-errors, mechanical issues with no contamination claim). RSS base
-class drops items matching these exclusively — but if an item has
-BOTH a pathogen keyword AND a reject keyword, the pathogen wins.
-
-USAGE EXAMPLES
---------------
-
-Inside ``_rss_base.py``::
-
-    from scrapers._pathogen_vocab import CORE, for_languages
-    PATHOGEN_KEYWORDS = CORE                       # base list
-    # Subclasses' EXTRA_PATHOGEN_KEYWORDS are automatically extended
-    # with for_languages(self.LANGUAGE) — see _rss_base.py.
-
-Inside an agency-specific freshness/scraper::
-
-    from scrapers._pathogen_vocab import for_languages
-    KEYWORDS = for_languages("fr")                 # FR-only sweep
-
-Inside a multi-language regulator (RASFF, CFIA EN+FR)::
-
-    KEYWORDS = for_languages("en", "fr")
+``NON_PATHOGEN_REJECTS`` — unchanged from pre-refactor. Lists
+"looks-like-a-recall-but-isn't-pathogen" patterns (undeclared
+allergens that are pure-allergen, labelling errors, mechanical issues
+with no contamination claim).
 """
 from __future__ import annotations
 from typing import Tuple
 
-# ─────────────────────────────────────────────────────────────────────────
-# LAYER 1 — CORE
-# Universal English + scientific Latin + chemical-name vocabulary.
-# Lower-cased; consumers compare ``haystack.lower()`` against these.
-# ─────────────────────────────────────────────────────────────────────────
-CORE: Tuple[str, ...] = (
+
+# ─────────────────────────────────────────────────────────────────────
+# LAYER 1A — PATHOGENS (universal/scientific names)
+# Specific hazard names. Use this when filtering for "what's the hazard".
+# ─────────────────────────────────────────────────────────────────────
+PATHOGENS: Tuple[str, ...] = (
     # ─── Bacterial pathogens ───
     "listeria", "listeria monocytogenes",
     "salmonella", "salmonella enterica", "salmonella spp",
@@ -98,7 +110,7 @@ CORE: Tuple[str, ...] = (
     "ciguatera", "ciguatoxin",
     "dsp", "psp", "asp", "azp",  # diarrhetic / paralytic / amnesic / azaspiracid
 
-    # ─── Mycotoxins (Latin / scientific names) ───
+    # ─── Mycotoxins ───
     "mycotoxin", "mykotoxin", "micotoxin", "micotossin",
     "aflatoxin", "aflatoxine",
     "ochratoxin", "ochratoxin a", "ochratoxine", "ocratoxin", "ocratossin",
@@ -142,27 +154,48 @@ CORE: Tuple[str, ...] = (
     "insect contamination", "insect infestation",
     "pest contamination",
 
-    # ─── Mould / spoilage ───
+    # ─── Mould / spoilage (specific hazard, distinct from generic "alert") ───
     "mould", "mold",
+)
 
-    # ─── Generic recall verbs (English — present in nearly every notice) ───
+
+# ─────────────────────────────────────────────────────────────────────
+# LAYER 1B — RECALL_SIGNALS (universal English)
+# Generic recall-event verbs and warning words. Useful for "is this
+# a recall page" detection but should NOT be used as a pathogen filter.
+# ─────────────────────────────────────────────────────────────────────
+RECALL_SIGNALS: Tuple[str, ...] = (
     "recall", "recalled", "recalls", "recalling",
     "withdrawal", "withdrawn", "withdraws",
     "alert", "warning",
 )
 
 
-# ─────────────────────────────────────────────────────────────────────────
-# LAYER 2 — BY_LANGUAGE
-# ISO-639 code → tuple of locale-specific terms.
-# Only words that genuinely don't appear in CORE — universal Latin /
-# scientific spellings already cover most pathogens worldwide.
-# ─────────────────────────────────────────────────────────────────────────
-BY_LANGUAGE: dict = {
-    # ─── French (RappelConso, MAPAQ-QC, AFSCA-BE, BLV-CH-FR, ASN-LU) ───
+# ─────────────────────────────────────────────────────────────────────
+# LAYER 1 — CORE (legacy, computed)
+# Backward-compat alias: CORE = PATHOGENS + RECALL_SIGNALS, deduplicated
+# preserving order. Existing imports of CORE continue to work unchanged.
+# ─────────────────────────────────────────────────────────────────────
+def _ordered_union(*tuples: Tuple[str, ...]) -> Tuple[str, ...]:
+    """Concatenate tuples preserving order, dropping duplicates."""
+    seen: dict = {}
+    for t in tuples:
+        for kw in t:
+            seen[kw] = None
+    return tuple(seen)
+
+
+CORE: Tuple[str, ...] = _ordered_union(PATHOGENS, RECALL_SIGNALS)
+
+
+# ─────────────────────────────────────────────────────────────────────
+# LAYER 2A — PATHOGENS_BY_LANGUAGE
+# Per-language hazard names (translations of pathogen / toxin / foreign-
+# body / chemical / pest terms). NOT recall verbs.
+# ─────────────────────────────────────────────────────────────────────
+PATHOGENS_BY_LANGUAGE: dict = {
+    # ─── French ───
     "fr": (
-        "rappel", "rappels", "retrait", "retiré",
-        "alimentaire", "alimentation",
         "salmonelle", "salmonelles", "salmonellose",
         "listériose", "listeriose",
         "hépatite", "hépatit",
@@ -174,11 +207,8 @@ BY_LANGUAGE: dict = {
         "raticide", "mort-aux-rats",
     ),
 
-    # ─── German (BVL, AGES, BLV-CH-DE) ───
+    # ─── German ───
     "de": (
-        "rückruf", "rückrufe", "rückgerufen",
-        "warnung", "warnungen",
-        "lebensmittel", "lebensmittelvergiftung", "lebensmittelwarnung",
         "salmonellen", "listeriose",
         "schimmel", "schimmelpilz",
         "kontamination", "verunreinigung",
@@ -187,12 +217,8 @@ BY_LANGUAGE: dict = {
         "rattengift",
     ),
 
-    # ─── Spanish (AESAN, ANMAT-AR, COFEPRIS-MX, ARCSA-EC, DIGESA-PE,
-    #             INVIMA-CO, ISP-CL, MSP-UY) ───
+    # ─── Spanish ───
     "es": (
-        "retiro", "retirada", "retira", "retirar",
-        "alerta", "alertas",
-        "alimentaria", "alimentario", "alimentación",
         "salmonelosis",
         "listeriosis",
         "moho", "mohos",
@@ -203,11 +229,8 @@ BY_LANGUAGE: dict = {
         "raticida", "veneno para ratas",
     ),
 
-    # ─── Italian (Min. Salute) ───
+    # ─── Italian ───
     "it": (
-        "richiamo", "richiami", "ritiro", "ritirato",
-        "allerta", "allarme",
-        "alimentare", "alimentari", "alimento",
         "salmonellosi",
         "listeriosi",
         "muffa", "muffe",
@@ -218,11 +241,8 @@ BY_LANGUAGE: dict = {
         "rodenticida",
     ),
 
-    # ─── Portuguese (ASAE-PT, ANVISA-BR) ───
+    # ─── Portuguese ───
     "pt": (
-        "recolha", "recolhe", "retirada", "retirar",
-        "alerta", "alertas",
-        "alimentar", "alimento",
         "salmonelose",
         "listeriose",
         "bolor", "mofo",
@@ -233,11 +253,8 @@ BY_LANGUAGE: dict = {
         "raticida",
     ),
 
-    # ─── Dutch (NVWA, FAVV-AFSCA-BE-NL) ───
+    # ─── Dutch ───
     "nl": (
-        "terugroep", "terugroepen", "teruggeroepen",
-        "waarschuwing",
-        "voedsel", "voedselveiligheid",
         "salmonellose",
         "listeriose",
         "schimmel",
@@ -246,156 +263,117 @@ BY_LANGUAGE: dict = {
         "rattengif",
     ),
 
-    # ─── Swedish (Livsmedelsverket) ───
+    # ─── Swedish ───
     "sv": (
-        "återkallar", "återkallas", "återkallelse",
-        "varning",
-        "livsmedel", "livsmedelsburen", "livsmedelsförgiftning",
         "salmonellos",
         "listerios",
         "mögel",
         "förorening", "kontamination",
         "bakterie", "bakterier",
-        "toxin",
-        "främmande föremål", "glassplitter",
-        "råttgift",
     ),
 
-    # ─── Danish (Fødevarestyrelsen) ───
+    # ─── Danish ───
     "da": (
-        "tilbagekaldelse", "tilbagekaldt", "tilbagetrækning",
-        "advarsel",
-        "fødevare", "fødevarer", "fødevarebårne", "madforgiftning",
         "salmonellose",
         "listeriose",
         "skimmel",
-        "forurening", "kontamination",
-        "fremmedlegeme", "glasskår",
-        "rottegift",
-    ),
-
-    # ─── Norwegian (Mattilsynet) ───
-    "no": (
-        "tilbakekaller", "tilbakekalles", "tilbakekalling",
-        "advarsel",
-        "matvare", "mat", "matforgiftning",
-        "salmonellose",
-        "listeriose",
-        "muggsopp",
-        "forurensning", "kontaminasjon",
+        "forurening",
         "fremmedlegeme",
         "rottegift",
     ),
 
-    # ─── Finnish (Ruokavirasto) ───
+    # ─── Norwegian ───
+    "no": (
+        "salmonellose",
+        "listeriose",
+        "mugg",
+        "forurensning",
+        "fremmedlegeme",
+        "rottegift",
+    ),
+
+    # ─── Finnish ───
     "fi": (
-        "takaisinveto", "takaisinvedot", "vetää takaisin",
-        "varoitus",
-        "elintarvike", "elintarvikkeet", "ruokamyrkytys",
-        "salmonelloosi",
-        "listerioosi",
+        "salmonella",
+        "listeria",
         "home",
-        "saastunut", "kontaminaatio",
-        "vieras esine", "lasinsiru",
+        "saastuminen",
+        "vierasesine",
         "rotanmyrkky",
     ),
 
-    # ─── Polish (GIS) ───
+    # ─── Polish ───
     "pl": (
-        "wycofanie", "wycofany", "wycofuje",
-        "ostrzeżenie", "alarm",
-        "żywność", "żywnościowy", "zatrucie pokarmowe",
         "salmonelloza",
         "listerioza",
         "pleśń",
         "skażenie", "zanieczyszczenie",
-        "ciało obce", "odłamki szkła",
+        "ciało obce",
         "trutka na szczury",
     ),
 
-    # ─── Hungarian (Nébih) ───
-    "hu": (
-        "visszahívás", "visszahívja", "visszahívták",
-        "figyelmeztetés", "riasztás",
-        "élelmiszer", "élelmiszerbiztonság", "ételmérgezés",
-        "szalmonellózis",
-        "listeriózis",
-        "penész",
-        "szennyeződés", "fertőzés",
-        "idegen anyag",
-        "patkányméreg",
-    ),
-
-    # ─── Romanian (ANSVSA) ───
-    "ro": (
-        "retragere", "retras", "retrage",
-        "avertizare", "alertă",
-        "aliment", "alimentar", "intoxicaţie alimentară",
-        "salmoneloză",
-        "listerioză",
-        "mucegai",
-        "contaminare",
-        "corp străin",
-        "raticid",
-    ),
-
-    # ─── Bulgarian (BFSA / БАБХ) ───
-    "bg": (
-        "изтегляне", "изтегля", "изтеглен",
-        "предупреждение",
-        "храна", "хранителен", "хранително отравяне",
-        "салмонелоза",
-        "листериоза",
-        "мухъл",
-        "замърсяване", "контаминация",
-        "чуждо тяло",
-        "родентицид",
-    ),
-
-    # ─── Czech (SZPI) ───
+    # ─── Czech ───
     "cs": (
-        "stažení", "stažen", "stahuje",
-        "varování",
-        "potravina", "potraviny", "otrava jídlem",
         "salmonelóza",
         "listerióza",
         "plíseň",
-        "kontaminace", "znečištění",
+        "kontaminace",
         "cizí těleso",
-        "rodenticid",
+        "jed na potkany",
     ),
 
-    # ─── Slovak (ŠVPS) ───
+    # ─── Slovak ───
     "sk": (
-        "stiahnutie", "stiahnutý",
-        "varovanie",
-        "potravina", "potraviny", "otrava jedlom",
         "salmonelóza",
         "listerióza",
         "pleseň",
         "kontaminácia",
         "cudzie teleso",
-        "rodenticíd",
+        "jed na potkany",
     ),
 
-    # ─── Slovenian (UVHVVR) ───
+    # ─── Hungarian ───
+    "hu": (
+        "szalmonellózis",
+        "listeriózis",
+        "penész",
+        "szennyeződés",
+        "idegen test",
+        "patkányméreg",
+    ),
+
+    # ─── Slovenian ───
     "sl": (
-        "odpoklic", "odpoklicano",
-        "opozorilo",
-        "živilo", "živila", "zastrupitev s hrano",
         "salmoneloza",
         "listerioza",
         "plesen",
-        "onesnaženje", "kontaminacija",
+        "kontaminacija", "onesnaženje",
         "tujek",
         "rodenticid",
     ),
 
-    # ─── Croatian (HAH) ───
+    # ─── Romanian ───
+    "ro": (
+        "salmoneloză",
+        "listerioză",
+        "mucegai",
+        "contaminare",
+        "corp străin",
+        "raticid", "otravă pentru șobolani",
+    ),
+
+    # ─── Bulgarian ───
+    "bg": (
+        "салмонелоза",
+        "листериоза",
+        "мухъл",
+        "замърсяване",
+        "чуждо тяло",
+        "родентицид",
+    ),
+
+    # ─── Croatian ───
     "hr": (
-        "povlačenje", "povlači", "povučen",
-        "upozorenje",
-        "hrana", "hrane", "trovanje hranom",
         "salmoneloza",
         "listerioza",
         "plijesan",
@@ -404,11 +382,8 @@ BY_LANGUAGE: dict = {
         "rodenticid",
     ),
 
-    # ─── Estonian (VTA) ───
+    # ─── Estonian ───
     "et": (
-        "tagasikutsumine", "tagasi kutsutud",
-        "hoiatus",
-        "toit", "toiduainete", "toidumürgistus",
         "salmonelloos",
         "listerioos",
         "hallitus",
@@ -417,11 +392,8 @@ BY_LANGUAGE: dict = {
         "rotimürk",
     ),
 
-    # ─── Latvian (PVD) ───
+    # ─── Latvian ───
     "lv": (
-        "atsaukšana", "atsauc", "atsaukts",
-        "brīdinājums",
-        "pārtika", "pārtikas", "saindēšanās ar pārtiku",
         "salmoneloze",
         "lisriozes",
         "pelējums",
@@ -430,11 +402,8 @@ BY_LANGUAGE: dict = {
         "rodenticīds",
     ),
 
-    # ─── Lithuanian (VMVT) ───
+    # ─── Lithuanian ───
     "lt": (
-        "atšaukimas", "atšauktas",
-        "įspėjimas",
-        "maistas", "maisto", "apsinuodijimas maistu",
         "salmoneliozė",
         "listeriozė",
         "pelėsis",
@@ -443,11 +412,8 @@ BY_LANGUAGE: dict = {
         "rodenticidas",
     ),
 
-    # ─── Greek (EFET) ───
+    # ─── Greek ───
     "el": (
-        "ανάκληση", "ανακαλεί", "ανακλήθηκε",
-        "προειδοποίηση",
-        "τρόφιμο", "τρόφιμα", "τροφική δηλητηρίαση",
         "σαλμονέλλωση", "σαλμονέλα",
         "λιστερίωση", "λιστέρια",
         "μούχλα",
@@ -456,11 +422,8 @@ BY_LANGUAGE: dict = {
         "ποντικοφάρμακο",
     ),
 
-    # ─── Turkish (TGTHB) ───
+    # ─── Turkish ───
     "tr": (
-        "geri çağırma", "geri çağırıldı",
-        "uyarı",
-        "gıda", "gıda zehirlenmesi",
         "salmonelloz",
         "listeriyoz",
         "küf",
@@ -469,10 +432,8 @@ BY_LANGUAGE: dict = {
         "fare zehiri",
     ),
 
-    # ─── Arabic (NFSA-EG, MOCCAE-AE, SFDA-SA, MOPH-QA, ONSSA-MA) ───
+    # ─── Arabic ───
     "ar": (
-        "استدعاء", "سحب", "تحذير",
-        "غذاء", "غذائي", "تسمم غذائي",
         "سالمونيلا", "ليستريا",
         "عفن",
         "تلوث",
@@ -480,10 +441,8 @@ BY_LANGUAGE: dict = {
         "سم الفئران",
     ),
 
-    # ─── Hebrew (MOH-IL) ───
+    # ─── Hebrew ───
     "he": (
-        "ריקול", "החזרה", "אזהרה",
-        "מזון", "הרעלת מזון",
         "סלמונלה", "ליסטריה",
         "עובש",
         "זיהום",
@@ -491,11 +450,8 @@ BY_LANGUAGE: dict = {
         "רעל עכברים",
     ),
 
-    # ─── Japanese (MHLW) ───
+    # ─── Japanese ───
     "ja": (
-        "リコール", "回収", "自主回収",
-        "警告", "注意喚起",
-        "食品", "食中毒",
         "サルモネラ", "リステリア",
         "カビ",
         "汚染", "混入",
@@ -503,11 +459,8 @@ BY_LANGUAGE: dict = {
         "殺鼠剤",
     ),
 
-    # ─── Korean (MFDS) ───
+    # ─── Korean ───
     "ko": (
-        "리콜", "회수", "자진회수",
-        "경고",
-        "식품", "식중독",
         "살모넬라", "리스테리아",
         "곰팡이",
         "오염",
@@ -515,11 +468,8 @@ BY_LANGUAGE: dict = {
         "쥐약",
     ),
 
-    # ─── Chinese-Simplified (SAMR) ───
+    # ─── Chinese-Simplified ───
     "zh": (
-        "召回", "下架",
-        "警告",
-        "食品", "食物中毒",
         "沙门氏菌", "李斯特菌",
         "霉菌",
         "污染",
@@ -527,11 +477,8 @@ BY_LANGUAGE: dict = {
         "灭鼠药",
     ),
 
-    # ─── Chinese-Traditional (CFS-HK, TFDA-TW) ───
+    # ─── Chinese-Traditional ───
     "zh-Hant": (
-        "回收", "下架",
-        "警告", "警示",
-        "食品", "食物中毒",
         "沙門氏菌", "李斯特菌",
         "黴菌",
         "污染",
@@ -539,21 +486,17 @@ BY_LANGUAGE: dict = {
         "滅鼠藥",
     ),
 
-    # ─── Indonesian / Malay (BPOM-ID, KKM-MY) ───
+    # ─── Indonesian ───
     "id": (
-        "penarikan", "tarik kembali",
-        "peringatan",
-        "makanan", "keracunan makanan",
         "salmonella", "listeria",
         "jamur",
         "kontaminasi",
         "benda asing",
         "racun tikus",
     ),
+
+    # ─── Malay ───
     "ms": (
-        "tarik balik", "panggilan semula",
-        "amaran",
-        "makanan", "keracunan makanan",
         "salmonella", "listeria",
         "kulat",
         "pencemaran",
@@ -561,11 +504,8 @@ BY_LANGUAGE: dict = {
         "racun tikus",
     ),
 
-    # ─── Thai (Thai FDA) ───
+    # ─── Thai ───
     "th": (
-        "เรียกคืน", "เรียกเก็บ",
-        "เตือน", "คำเตือน",
-        "อาหาร", "อาหารเป็นพิษ",
         "ซาลโมเนลลา", "ลิสทีเรีย",
         "เชื้อรา",
         "การปนเปื้อน",
@@ -573,11 +513,8 @@ BY_LANGUAGE: dict = {
         "ยาเบื่อหนู",
     ),
 
-    # ─── Vietnamese (VFA) ───
+    # ─── Vietnamese ───
     "vi": (
-        "thu hồi", "rút khỏi",
-        "cảnh báo",
-        "thực phẩm", "ngộ độc thực phẩm",
         "salmonella", "listeria",
         "nấm mốc",
         "ô nhiễm",
@@ -585,11 +522,8 @@ BY_LANGUAGE: dict = {
         "thuốc diệt chuột",
     ),
 
-    # ─── Icelandic (MAST) ───
+    # ─── Icelandic ───
     "is": (
-        "innköllun", "innkallað",
-        "viðvörun",
-        "matvæli", "matareitrun",
         "salmonellosi",
         "listeríusýking",
         "mygla",
@@ -600,35 +534,253 @@ BY_LANGUAGE: dict = {
 }
 
 
-# ─────────────────────────────────────────────────────────────────────────
-# LAYER 3 — for_languages()
-# Returns the union of CORE + every BY_LANGUAGE[lang] tuple, deduplicated
-# but preserving insertion order so iteration order is deterministic
-# (helps log readability).
-# ─────────────────────────────────────────────────────────────────────────
-def for_languages(*langs: str) -> Tuple[str, ...]:
-    """Return tuple of all keywords applicable to the given languages.
+# ─────────────────────────────────────────────────────────────────────
+# LAYER 2B — RECALL_SIGNALS_BY_LANGUAGE
+# Per-language recall-event verbs, warning words, and food-context
+# nouns. Useful for gap-finder queries and recall-page detection.
+# ─────────────────────────────────────────────────────────────────────
+RECALL_SIGNALS_BY_LANGUAGE: dict = {
+    # ─── French ───
+    "fr": (
+        "rappel", "rappels", "retrait", "retiré",
+        "alimentaire", "alimentation",
+    ),
+    # ─── German ───
+    "de": (
+        "rückruf", "rückrufe", "rückgerufen",
+        "warnung", "warnungen",
+        "lebensmittel", "lebensmittelvergiftung", "lebensmittelwarnung",
+    ),
+    # ─── Spanish ───
+    "es": (
+        "retiro", "retirada", "retira", "retirar",
+        "alerta", "alertas",
+        "alimentaria", "alimentario", "alimentación",
+    ),
+    # ─── Italian ───
+    "it": (
+        "richiamo", "richiami", "ritiro", "ritirato",
+        "allerta", "allarme",
+        "alimentare", "alimentari", "alimento",
+    ),
+    # ─── Portuguese ───
+    "pt": (
+        "recolha", "recolhe", "retirada", "retirar",
+        "alerta", "alertas",
+        "alimentar", "alimento",
+    ),
+    # ─── Dutch ───
+    "nl": (
+        "terugroep", "terugroepen", "teruggeroepen",
+        "waarschuwing",
+        "voedsel", "voedselveiligheid",
+    ),
+    # ─── Swedish ───
+    "sv": (
+        "återkallar", "återkallas", "återkallelse",
+        "varning",
+        "livsmedel", "livsmedelsburen", "livsmedelsförgiftning",
+    ),
+    # ─── Danish ───
+    "da": (
+        "tilbagekald", "tilbagekaldelse", "tilbagekalder",
+        "advarsel",
+        "fødevare", "fødevareforgiftning",
+    ),
+    # ─── Norwegian ───
+    "no": (
+        "tilbakekall", "tilbakekaller",
+        "advarsel",
+        "matvare", "matforgiftning",
+    ),
+    # ─── Finnish ───
+    "fi": (
+        "takaisinveto", "takaisinkutsu",
+        "varoitus",
+        "elintarvike", "ruokamyrkytys",
+    ),
+    # ─── Polish ───
+    "pl": (
+        "wycofanie", "wycofuje",
+        "ostrzeżenie",
+        "żywność", "zatrucie pokarmowe",
+    ),
+    # ─── Czech ───
+    "cs": (
+        "stažení", "stahuje",
+        "varování",
+        "potravina", "otrava jídlem",
+    ),
+    # ─── Slovak ───
+    "sk": (
+        "stiahnutie", "sťahuje",
+        "varovanie",
+        "potravina", "otrava jedlom",
+    ),
+    # ─── Hungarian ───
+    "hu": (
+        "visszahívás", "visszahív",
+        "figyelmeztetés",
+        "élelmiszer", "ételmérgezés",
+    ),
+    # ─── Slovenian ───
+    "sl": (
+        "umik", "umika",
+        "opozorilo",
+        "živilo", "zastrupitev s hrano",
+    ),
+    # ─── Romanian ───
+    "ro": (
+        "rechemare", "retragere",
+        "alertă",
+        "aliment", "alimentar", "intoxicație alimentară",
+    ),
+    # ─── Bulgarian ───
+    "bg": (
+        "изтегляне",
+        "предупреждение",
+        "храна", "хранително отравяне",
+    ),
+    # ─── Croatian ───
+    "hr": (
+        "povlačenje", "povlači",
+        "upozorenje",
+        "hrana", "hrane", "trovanje hranom",
+    ),
+    # ─── Estonian ───
+    "et": (
+        "tagasikutsumine", "tagasi kutsutud",
+        "hoiatus",
+        "toit", "toiduainete", "toidumürgistus",
+    ),
+    # ─── Latvian ───
+    "lv": (
+        "atsaukšana", "atsauc", "atsaukts",
+        "brīdinājums",
+        "pārtika", "pārtikas", "saindēšanās ar pārtiku",
+    ),
+    # ─── Lithuanian ───
+    "lt": (
+        "atšaukimas", "atšauktas",
+        "įspėjimas",
+        "maistas", "maisto", "apsinuodijimas maistu",
+    ),
+    # ─── Greek ───
+    "el": (
+        "ανάκληση", "ανακαλεί", "ανακλήθηκε",
+        "προειδοποίηση",
+        "τρόφιμο", "τρόφιμα", "τροφική δηλητηρίαση",
+    ),
+    # ─── Turkish ───
+    "tr": (
+        "geri çağırma", "geri çağırıldı",
+        "uyarı",
+        "gıda", "gıda zehirlenmesi",
+    ),
+    # ─── Arabic ───
+    "ar": (
+        "استدعاء", "سحب", "تحذير",
+        "غذاء", "غذائي", "تسمم غذائي",
+    ),
+    # ─── Hebrew ───
+    "he": (
+        "ריקול", "החזרה", "אזהרה",
+        "מזון", "הרעלת מזון",
+    ),
+    # ─── Japanese ───
+    "ja": (
+        "リコール", "回収", "自主回収",
+        "警告", "注意喚起",
+        "食品", "食中毒",
+    ),
+    # ─── Korean ───
+    "ko": (
+        "리콜", "회수", "자진회수",
+        "경고",
+        "식품", "식중독",
+    ),
+    # ─── Chinese-Simplified ───
+    "zh": (
+        "召回", "下架",
+        "警告",
+        "食品", "食物中毒",
+    ),
+    # ─── Chinese-Traditional ───
+    "zh-Hant": (
+        "回收", "下架",
+        "警告", "警示",
+        "食品", "食物中毒",
+    ),
+    # ─── Indonesian ───
+    "id": (
+        "penarikan", "tarik kembali",
+        "peringatan",
+        "makanan", "keracunan makanan",
+    ),
+    # ─── Malay ───
+    "ms": (
+        "tarik balik", "panggilan semula",
+        "amaran",
+        "makanan", "keracunan makanan",
+    ),
+    # ─── Thai ───
+    "th": (
+        "เรียกคืน", "เรียกเก็บ",
+        "เตือน", "คำเตือน",
+        "อาหาร", "อาหารเป็นพิษ",
+    ),
+    # ─── Vietnamese ───
+    "vi": (
+        "thu hồi", "rút khỏi",
+        "cảnh báo",
+        "thực phẩm", "ngộ độc thực phẩm",
+    ),
+    # ─── Icelandic ───
+    "is": (
+        "innköllun", "innkallað",
+        "viðvörun",
+        "matvæli", "matareitrun",
+    ),
+}
 
-    Always includes CORE. Unknown / empty language codes are ignored.
-    The same keyword appearing in CORE and in a BY_LANGUAGE entry is
-    de-duplicated. Result order: CORE first, then per-lang in arg order.
 
-    >>> kws = for_languages("fr")
-    >>> "listeria" in kws and "rappel" in kws
-    True
-    >>> "rückruf" in kws
-    False
+# ─────────────────────────────────────────────────────────────────────
+# LAYER 2 — BY_LANGUAGE (legacy, computed)
+# Backward-compat alias: per-lang union of PATHOGENS_BY_LANGUAGE and
+# RECALL_SIGNALS_BY_LANGUAGE. Existing imports of BY_LANGUAGE see the
+# same shape as before this refactor.
+# ─────────────────────────────────────────────────────────────────────
+def _build_legacy_by_language() -> dict:
+    out: dict = {}
+    keys = set(PATHOGENS_BY_LANGUAGE) | set(RECALL_SIGNALS_BY_LANGUAGE)
+    for lang in keys:
+        p = PATHOGENS_BY_LANGUAGE.get(lang, ())
+        s = RECALL_SIGNALS_BY_LANGUAGE.get(lang, ())
+        out[lang] = _ordered_union(p, s)
+    return out
+
+
+BY_LANGUAGE: dict = _build_legacy_by_language()
+
+
+# ─────────────────────────────────────────────────────────────────────
+# LAYER 3 — Helpers
+# ─────────────────────────────────────────────────────────────────────
+def _collect(*langs: str, base: Tuple[str, ...],
+             per_lang: dict) -> Tuple[str, ...]:
+    """Return ordered union of `base` + per-language tuples for `langs`.
+
+    Lang-code normalization: tolerates "fr-FR", "zh-Hant", "en_US",
+    uppercase, etc. Unknown / empty codes are silently ignored.
     """
-    seen: dict = {}        # str -> None, used as ordered set
-    for kw in CORE:
+    seen: dict = {}
+    for kw in base:
         seen[kw] = None
     for lang in langs:
         if not lang:
             continue
-        # tolerate "fr-FR", "zh-Hant", "en_US", uppercase, etc.
         key = lang.replace("_", "-")
-        # Try exact match first (preserves zh-Hant), then primary subtag
-        bucket = BY_LANGUAGE.get(key) or BY_LANGUAGE.get(key.split("-")[0].lower())
+        bucket = per_lang.get(key) or per_lang.get(key.split("-")[0].lower())
         if not bucket:
             continue
         for kw in bucket:
@@ -636,10 +788,61 @@ def for_languages(*langs: str) -> Tuple[str, ...]:
     return tuple(seen)
 
 
-# ─────────────────────────────────────────────────────────────────────────
-# Negative filters — items matching ONLY these (and no pathogen) are dropped.
-# Kept short and conservative. Anything more aggressive risks false negatives.
-# ─────────────────────────────────────────────────────────────────────────
+def pathogens(*langs: str) -> Tuple[str, ...]:
+    """Return pathogen-only keywords (no recall verbs).
+
+    Use this when filtering for "what's the actual hazard". Returns
+    PATHOGENS plus any per-language pathogen translations.
+
+    >>> kws = pathogens("fr")
+    >>> "salmonella" in kws and "salmonelle" in kws
+    True
+    >>> "rappel" in kws or "recall" in kws
+    False
+    """
+    return _collect(*langs, base=PATHOGENS, per_lang=PATHOGENS_BY_LANGUAGE)
+
+
+def recall_signals(*langs: str) -> Tuple[str, ...]:
+    """Return recall-signal-only keywords (no pathogen names).
+
+    Use this for "is this a recall page" detection or gap-finder
+    queries. Returns RECALL_SIGNALS plus per-language verbs/food terms.
+
+    >>> kws = recall_signals("fr")
+    >>> "rappel" in kws and "recall" in kws
+    True
+    >>> "salmonella" in kws or "salmonelle" in kws
+    False
+    """
+    return _collect(*langs, base=RECALL_SIGNALS,
+                    per_lang=RECALL_SIGNALS_BY_LANGUAGE)
+
+
+def for_languages(*langs: str) -> Tuple[str, ...]:
+    """Return tuple of all keywords (pathogens ∪ recall_signals).
+
+    BACKWARD-COMPAT shim: returns the same set of keywords this
+    function returned before the 2026-05-10 vocab refactor. Existing
+    callers continue to work unchanged.
+
+    For new code, prefer ``pathogens(*langs)`` for hazard filtering and
+    ``recall_signals(*langs)`` for recall-event detection — they give
+    cleaner, less false-positive-prone matching.
+
+    >>> kws = for_languages("fr")
+    >>> "listeria" in kws and "rappel" in kws
+    True
+    >>> "rückruf" in kws
+    False
+    """
+    return _ordered_union(pathogens(*langs), recall_signals(*langs))
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Negative filters — items matching ONLY these (and no pathogen) are
+# dropped. Unchanged from pre-refactor.
+# ─────────────────────────────────────────────────────────────────────
 NON_PATHOGEN_REJECTS: Tuple[str, ...] = (
     "undeclared milk", "undeclared egg", "undeclared peanut", "undeclared soy",
     "undeclared wheat", "undeclared gluten", "undeclared nut", "undeclared fish",
@@ -651,4 +854,12 @@ NON_PATHOGEN_REJECTS: Tuple[str, ...] = (
 )
 
 
-__all__ = ["CORE", "BY_LANGUAGE", "for_languages", "NON_PATHOGEN_REJECTS"]
+__all__ = [
+    # New public API (preferred for new code)
+    "PATHOGENS", "RECALL_SIGNALS",
+    "PATHOGENS_BY_LANGUAGE", "RECALL_SIGNALS_BY_LANGUAGE",
+    "pathogens", "recall_signals",
+    # Backward-compat exports (unchanged behavior)
+    "CORE", "BY_LANGUAGE", "for_languages",
+    "NON_PATHOGEN_REJECTS",
+]

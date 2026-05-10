@@ -58,6 +58,7 @@ from scrapers._models import (
     normalize_country,
     normalize_pathogen,
 )
+from scrapers._akamai_fetch import fetch_via_curl_cffi, is_akamai_host
 
 log = logging.getLogger(__name__)
 
@@ -154,6 +155,11 @@ def fetch(
         session = make_session()
     if timeout is None:
         timeout = getattr(session, "request_timeout", DEFAULT_TIMEOUT)
+    # Per-host routing: Akamai-protected gov sites need curl_cffi TLS
+    # impersonation. See scrapers/_akamai_fetch.py for the host list +
+    # rationale. All other hosts use the standard requests path.
+    if is_akamai_host(url):
+        return fetch_via_curl_cffi(url, method=method, timeout=timeout, **kwargs)
     try:
         return session.request(method, url, timeout=timeout, **kwargs)
     except requests.RequestException as exc:
