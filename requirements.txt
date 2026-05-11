@@ -10,6 +10,12 @@ beautifulsoup4>=4.12.0
 lxml>=5.0.0
 html5lib>=1.1
 
+# --- Akamai TLS impersonation (FDA, USDA FSIS, FDA-PH, MoH-IL) ---
+# Required by scrapers/_akamai_fetch.py — routes the 4 Akamai-protected
+# regulator hosts through curl-impersonate so the TLS handshake matches
+# real Chrome instead of Python requests. Added 2026-05-11.
+curl-cffi>=0.7.0
+
 # --- RSS / Atom feeds (news_feeds scrapers) ---
 feedparser>=6.0.11
 
