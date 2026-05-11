@@ -299,18 +299,45 @@ def _extract_text(data: Dict[str, Any]) -> Optional[str]:
     Gemini wraps text in candidates[0].content.parts[N].text. With
     responseMimeType=application/json there's typically one part with
     the full JSON string. Defensive against malformed responses.
+
+    Audit 2026-05-11: detect MAX_TOKENS truncation explicitly. If the
+    model hits the output cap mid-JSON, returning the partial text
+    causes JSONDecodeError ("Unterminated string ...") downstream and
+    the caller SKIPs. The skip is correct, but logging it as a generic
+    parse failure obscured the real cause for 3 rows in the 2026-05-11
+    20:00 Athens run on gemini-2.5-flash-lite (which has a tighter
+    output budget than flash). Distinguish the two so the fix
+    (raise maxOutputTokens) is visible.
     """
     try:
         candidates = data.get("candidates") or []
         if not candidates:
             log.warning("Gemini response missing candidates: %s", str(data)[:200])
             return None
-        parts = (candidates[0].get("content") or {}).get("parts") or []
+        cand0 = candidates[0]
+        finish_reason = (cand0.get("finishReason") or "").upper()
+        parts = (cand0.get("content") or {}).get("parts") or []
         if not parts:
-            log.warning("Gemini response missing parts: %s", str(data)[:200])
+            log.warning("Gemini response missing parts (finishReason=%s): %s",
+                        finish_reason or "unspecified", str(data)[:200])
             return None
         # Join all text parts (usually just one, but defensive)
         text = "".join(p.get("text", "") for p in parts).strip()
+        if finish_reason == "MAX_TOKENS":
+            # Truncated mid-output. The JSON is unparseable; signal SKIP
+            # to the caller so the row is retried next run with hopefully
+            # a different model / key / capacity.
+            log.warning("Gemini response truncated by MAX_TOKENS (got %d chars). "
+                        "Bump maxOutputTokens or use gemini-2.5-flash (not -lite). "
+                        "Tail: %s",
+                        len(text), text[-120:])
+            return None
+        if finish_reason and finish_reason not in ("STOP", "MODEL_LENGTH"):
+            # SAFETY, RECITATION, OTHER, etc. — model refused / filtered.
+            log.warning("Gemini response stopped with finishReason=%s "
+                        "(text len=%d). Treating as failure.",
+                        finish_reason, len(text))
+            return None
         return text if text else None
     except (KeyError, IndexError, TypeError, AttributeError) as exc:
         log.warning("Gemini response parse error: %s | %s", exc, str(data)[:200])
