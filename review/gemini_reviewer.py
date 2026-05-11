@@ -60,12 +60,25 @@ MODEL ROUTING
 
 KEY ROTATION
 ============
-Reuses the existing 5-key pool (GEMINI_API_KEY_1..5, fallback to
-GEMINI_API_KEY). On HTTP 429 (rate limit) the key is marked blocked
-for this process and the next call rotates to another. When all keys
-are blocked, we drop to the fallback model (which has its own per-key
+Reuses the existing FREE-tier key pool exclusively:
+  GEMINI_API_KEY_FREE    — primary free-tier key
+  GEMINI_API_KEY_FREE_2  — secondary free-tier key
+  GEMINI_REVIEWER_KEY    — optional override (single dedicated key for isolation)
+
+DELIBERATELY EXCLUDED:
+  GEMINI_API_KEY         — this is your paid key, not used by the reviewer.
+                           Adding it here would silently route reviewer load
+                           onto the paid quota when free keys throttle — the
+                           opposite of the cost-defensive posture this module
+                           is built for.
+
+On HTTP 429 (rate limit) the key is marked blocked for this process and
+the next call rotates to another. When all FREE keys are blocked for the
+primary model, we drop to the fallback model (which has its own per-key
 quota, separate from the primary's quota — Google's free tier is
-model-specific, not account-wide).
+model-specific, not account-wide). If both models exhaust their free key
+pools simultaneously, calls return None and rows SKIP for retry next
+run — same contract as the OpenRouter client had.
 
 REASONING-MODEL ARTIFACT HANDLING
 =================================
@@ -77,10 +90,14 @@ GEMINI_REVIEWER_MODEL env var will continue to parse cleanly.
 
 ENABLE
 ======
-Set at least one of GEMINI_API_KEY_1..5 or GEMINI_API_KEY. If no key
-is configured, ENABLED=False and all calls return None — pipeline
+Set at least one of GEMINI_API_KEY_FREE or GEMINI_API_KEY_FREE_2 (or
+the optional override GEMINI_REVIEWER_KEY). If no free key is
+configured, ENABLED=False and all calls return None — pipeline
 treats this as fetch-failure and SKIPs the row (same behavior as the
 OpenRouter client did).
+
+NOTE: the paid GEMINI_API_KEY is deliberately ignored — see KEY
+ROTATION section above for the rationale.
 """
 from __future__ import annotations
 import os
@@ -116,14 +133,32 @@ TIMEOUT = 60  # Gemini Flash typically responds in 2-8s; 60s is generous
 # Key rotation pool (mirrors pipeline/gemini_client.py pattern)
 # ============================================================================
 def _collect_keys() -> List[str]:
-    """Read all GEMINI_API_KEY_* env vars (1-10), fall back to GEMINI_API_KEY."""
+    """Build the free-tier key rotation pool.
+
+    Priority order:
+      1. GEMINI_REVIEWER_KEY — explicit override, isolates the reviewer
+         on a single dedicated key (useful for debugging quota issues).
+      2. GEMINI_API_KEY_FREE + GEMINI_API_KEY_FREE_2 — the standard
+         two-key free-tier rotation pool (matches the secrets configured
+         in the FSIS GitHub Actions repo as of 2026-05-11).
+
+    DELIBERATELY does NOT read GEMINI_API_KEY (paid). If both free keys
+    are exhausted, calls return None — the reviewer SKIPs rows for retry
+    next run rather than silently spilling load onto the paid key. This
+    keeps the reviewer's $0/month cost guarantee intact regardless of
+    how heavily other pipeline stages are using the paid key.
+
+    Add a third free key (e.g. GEMINI_API_KEY_FREE_3) to the OS env and
+    extend the loop below to pick it up — no other changes needed.
+    """
+    # Explicit override path: single dedicated key for full isolation
+    override = os.getenv("GEMINI_REVIEWER_KEY")
+    if override:
+        return [override.strip()]
+
     keys: List[str] = []
-    for i in range(1, 11):
-        v = os.getenv(f"GEMINI_API_KEY_{i}")
-        if v:
-            keys.append(v.strip())
-    if not keys:
-        v = os.getenv("GEMINI_API_KEY")
+    for name in ("GEMINI_API_KEY_FREE", "GEMINI_API_KEY_FREE_2"):
+        v = os.getenv(name)
         if v:
             keys.append(v.strip())
     return keys
