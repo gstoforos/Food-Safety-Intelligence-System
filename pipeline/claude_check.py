@@ -61,6 +61,7 @@ from pipeline.merge_master import (  # noqa: E402
     rebuild_daily_briefs_for_promoted,
     STATUS_REJECTED, STATUS_PENDING,
     STATUS_PENDING_GAP_V2,
+    STATUS_PENDING_ENRICHMENT,
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
 from review.claude_client import (  # noqa: E402
@@ -629,6 +630,21 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Dict[str, str], Optional[str]]:
     # Skip the API call entirely if the row is provably clean — saves
     # ~25-30% of Claude calls = ~$3-5/month. See _is_clean_row comment.
     if _is_clean_row(row):
+        # AUDIT 2026-05-11: shortcut must still enforce Tier-1 scope.
+        # Gemini's enricher (url_gate_gemini.py:1182-1194) writes any
+        # pathogen-shaped string from the page (Asbestos, Electrical
+        # shock, Mechanical hazard, Nitrosamines, phthalates, etc.)
+        # into the Pathogen field without scope validation. The
+        # shortcut used to wave these through as "all fields non-empty";
+        # the API-path branch enforces scope at line 713 but never ran.
+        # Without this check, 15+ non-food RappelConso recalls (cars,
+        # toys, electrical appliances) would have promoted to Recalls
+        # once Bug 1 (status flip) was fixed.
+        final_pathogen = str(row.get("Pathogen") or "")
+        if not is_tier1_pathogen(final_pathogen):
+            return ("fail", {},
+                    f"pathogen_out_of_scope: {final_pathogen!r} | "
+                    f"clean-row shortcut: out of Tier-1 scope")
         return "pass", {}, "clean-row shortcut (gemini-enriched + all fields valid)"
 
     url = str(row.get("URL") or "").strip()
@@ -900,6 +916,37 @@ def main() -> int:
     if gap_promoted_to_pending:
         log.info("Gap-gating advanced: %d rows pending_gap_v2 → pending "
                  "(eligible for next merge_master)", gap_promoted_to_pending)
+
+    # ── pending_enrichment unlock (audit 2026-05-11) ─────────────────────
+    # Mirror of pending_gap_v2 → pending above. pending_enrichment rows
+    # pass Claude via the clean-row shortcut once Gemini has filled the
+    # Pathogen field, but pre-2026-05-11 there was no code to flip the
+    # Status back. The result: rows sat in Pending forever (every run
+    # rubber-stamping them via the shortcut, every promote_approved call
+    # skipping them because pending_enrichment is in NON_PROMOTABLE_STATUSES).
+    # Discovered 2026-05-11 — 18 rows stranded, none had ever promoted
+    # despite passing Claude every run since 2026-05-09.
+    #
+    # Failures from the shortcut's new scope check (Patch 2) are caught
+    # by rejected_flags above and don't reach this block.
+    enrich_promoted_to_pending = 0
+    for idx in rows_to_check_idx:
+        if idx in rejected_flags:
+            continue  # FAIL — let promote_approved mark rejected
+        if idx in skipped_idx:
+            continue  # SKIP — leave in parking lot
+        row = pending[idx]
+        if (row.get("Status") or "").strip() == STATUS_PENDING_ENRICHMENT:
+            row["Status"] = STATUS_PENDING
+            notes = (row.get("Notes") or "").strip()
+            tag = (f"[enrich-gate {today_iso2}: "
+                   f"pending_enrichment → pending (Claude verified)]")
+            row["Notes"] = (notes + " " + tag).strip()[:1000]
+            enrich_promoted_to_pending += 1
+    if enrich_promoted_to_pending:
+        log.info("Enrichment-gating advanced: %d rows pending_enrichment → "
+                 "pending (eligible for promote_approved this run)",
+                 enrich_promoted_to_pending)
 
     # Apply rejected_flags + dedup against Recalls via promote_approved.
     # Audit 2026-05-09: archive_immediately=True signals to promote_approved
