@@ -62,14 +62,12 @@ RECALLS_SCHEMA = SCHEMA + RECALLS_INTERNAL_COLUMNS
 # to physically delete rows once 2+ DIFFERENT reviewers have rejected.
 PENDING_SCHEMA = SCHEMA + ["ScrapedAt", "Status", "RejectedBy"]
 
-# ── Rejected sheet (audit 2026-05-08, per operator decision) ─────────────
-# Rows that BOTH morning-pair (Gemini URL gate + Claude check) AND/OR
-# evening-pair (Gemini URL gate + OpenRouter check) reject get archived
-# to the Rejected sheet for human audit. Previously these rows were just
-# physically deleted by the 2-reviewer counter — that loses evidence and
-# makes it impossible to spot reviewer bias or systemic false-rejections.
-# RejectedAt = UTC timestamp at which the 2nd-reviewer rejection landed
-# RejectedBy = comma-separated set of reviewer names (already in PENDING_SCHEMA)
+# ── Rejected sheet — DEPRECATED 2026-05-11 ─────────────────────────────
+# The standalone "Rejected" sheet was removed (per operator decision)
+# in favor of Weekly_Rejected as the single source of rejection truth.
+# REJECTED_SCHEMA is kept here only because external scripts may still
+# import the name. New code should reference WEEKLY_REJECTED_HEADERS
+# in pipeline/weekly_rejected_capture.py instead.
 REJECTED_SCHEMA = SCHEMA + ["ScrapedAt", "Status", "RejectedBy", "RejectedAt"]
 
 NEWS_HEADERS = ["Published (UTC)", "Pathogen", "Event", "Source", "Title",
@@ -1238,7 +1236,7 @@ def promote_approved(
 
     rejected_kept = sum(1 for r in kept_in_pending if r.get("Status") == STATUS_REJECTED)
     log.info("Promotion: %d approved -> Recalls, %d kept in Pending (%d rejected, "
-             "%d archived to Rejected sheet)",
+             "%d archived to Weekly_Rejected)",
              len(new_approved), len(kept_in_pending), rejected_kept,
              len(archived_rejected))
     return new_approved, kept_in_pending, archived_rejected
@@ -1321,12 +1319,17 @@ def save_xlsx_with_pending(
 ) -> None:
     """
     Save BOTH sheets (Recalls + Pending), preserving NEWS sheet if present.
-    Sheet order: Recalls (0), Pending (1), Rejected (2), NEWS (last).
+    Sheet order: Recalls (0), Pending (1), (auxiliary — Weekly_Review,
+    Weekly_Rejected, etc.), NEWS (last).
 
-    Audit 2026-05-08: optional `newly_rejected_rows` arg. When supplied, these
-    rows are APPENDED to the Rejected sheet (audit archive — never overwritten).
-    Pre-existing rows in the Rejected sheet are preserved across runs so
-    operators can inspect the full history of what 2-reviewer-rejection killed.
+    Audit 2026-05-08: optional `newly_rejected_rows` arg. Originally these
+    rows were written to a separate "Rejected" sheet. As of 2026-05-11
+    that sheet is removed — rejections live in Weekly_Rejected only,
+    populated by the caller via weekly_rejected_capture.record_rejections.
+    The kwarg is preserved for API compatibility but no longer drives
+    a sheet write in this function. Callers should pass the rows here
+    AND to record_rejections; the former is now a no-op, the latter is
+    the authoritative path.
     """
     if xlsx_path.exists():
         wb = load_workbook(xlsx_path)
@@ -1342,34 +1345,27 @@ def save_xlsx_with_pending(
     pending_fill = PatternFill(start_color="FFF3CD", end_color="FFF3CD", fill_type="solid")
     _write_sheet(wb, "Pending", PENDING_SCHEMA, pending_rows, header_fill=pending_fill)
 
-    # ── Rejected (audit archive — append-only) ─────────────────────────
-    # Read any existing rows first; append new rejections; rewrite full sheet.
-    if newly_rejected_rows:
-        existing_rejected: List[Dict[str, Any]] = []
-        if "Rejected" in wb.sheetnames:
-            ws_rej = wb["Rejected"]
-            headers_rej = [c.value for c in ws_rej[1]]
-            for r in ws_rej.iter_rows(min_row=2, values_only=True):
-                if all(v in (None, "") for v in r):
-                    continue
-                rec = {h: (v if v is not None else "") for h, v in zip(headers_rej, r)}
-                # Backfill missing columns
-                for col in REJECTED_SCHEMA:
-                    rec.setdefault(col, "" if col not in ("Tier", "Outbreak") else 0)
-                existing_rejected.append(rec)
-        # Defensive: don't double-append a row whose URL+RejectedAt already
-        # appears in existing_rejected (re-runs of save with same archive list).
-        seen = {(r.get("URL", ""), r.get("RejectedAt", "")) for r in existing_rejected}
-        deduped_new = [r for r in newly_rejected_rows
-                       if (r.get("URL", ""), r.get("RejectedAt", "")) not in seen]
-        all_rejected = existing_rejected + deduped_new
-        rejected_fill = PatternFill(start_color="F8D7DA", end_color="F8D7DA",
-                                    fill_type="solid")  # rose
-        _write_sheet(wb, "Rejected", REJECTED_SCHEMA, all_rejected,
-                     header_fill=rejected_fill)
-        if deduped_new:
-            log.info("Rejected sheet: appended %d row(s) (total now %d)",
-                     len(deduped_new), len(all_rejected))
+    # ── Rejected sheet — REMOVED (audit 2026-05-11, per operator decision) ─
+    # The standalone "Rejected" sheet was duplicate audit infrastructure.
+    # Weekly_Rejected already captures every rejection with the same
+    # schema + Thursday-review semantics, and is the single source the
+    # Apps Script mailer reads. Keeping both meant rows could drift
+    # between them (33 vs 44 dedup gap observed 2026-05-11 17:23 run).
+    #
+    # newly_rejected_rows is still accepted for backward compatibility
+    # with callers that pass it, but it's now passed through to the
+    # Weekly_Rejected mirroring done by callers (pipeline.claude_check /
+    # pipeline.gemini_check invoke weekly_rejected_capture.record_rejections
+    # immediately after this function returns). No sheet write here.
+    #
+    # One-shot cleanup: if a legacy "Rejected" sheet exists in the
+    # workbook from before this patch, remove it so the xlsx converges
+    # on the new schema. Idempotent — once removed, subsequent saves
+    # don't touch it.
+    if "Rejected" in wb.sheetnames:
+        del wb["Rejected"]
+        log.info("Removed legacy Rejected sheet (deprecated 2026-05-11; "
+                 "rejections live in Weekly_Rejected only)")
 
     # Ensure NEWS sheet exists (empty if it wasn't there before)
     if "NEWS" not in wb.sheetnames:
@@ -1379,12 +1375,13 @@ def save_xlsx_with_pending(
             c.font = Font(bold=True)
         news.freeze_panes = "A2"
 
-    # Reorder: Recalls, Pending, Rejected, (others), NEWS last
+    # Reorder: Recalls, Pending, (others — Weekly_Review/Weekly_Rejected/etc.), NEWS last
+    # (audit 2026-05-11: standalone "Rejected" sheet removed — rejections
+    # are mirrored to Weekly_Rejected by callers, so it's no longer in
+    # the explicit order list.)
     ordered = ["Recalls", "Pending"]
-    if "Rejected" in wb.sheetnames:
-        ordered.append("Rejected")
     others = [s for s in wb.sheetnames
-              if s not in ("Recalls", "Pending", "Rejected", "NEWS")]
+              if s not in ("Recalls", "Pending", "NEWS")]
     ordered += others
     if "NEWS" in wb.sheetnames:
         ordered.append("NEWS")

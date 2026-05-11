@@ -132,7 +132,17 @@ def _verify_with_gemini(row: Dict[str, Any],
         raw = _call_gemini(
             prompt=prompt,
             system=claude_check.CLAUDE_CHECK_SYSTEM,
-            max_tokens=4000,
+            # Audit 2026-05-11: bumped from 4000 → 8192. The reviewer
+            # JSON is short (~30 fields) but on gemini-2.5-flash-lite
+            # the model was truncating mid-string at ~350-400 chars
+            # during the 2026-05-11 20:00 Athens run (3 rows SKIPped
+            # with "Unterminated string" JSON parse errors). The cap
+            # had nothing to do with the JSON size — flash-lite was
+            # apparently rendering reasoning tokens against the same
+            # budget despite responseMimeType=application/json. The
+            # _extract_text helper now also detects MAX_TOKENS finish
+            # reasons explicitly so the cause is visible in logs.
+            max_tokens=8192,
         )
     except Exception as exc:
         log.warning("Gemini call failed: %s: %s",
