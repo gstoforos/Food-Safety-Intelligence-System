@@ -82,16 +82,45 @@ GAP_FINDER_TARGETS: List[Tuple[str, str]] = [
     ("Australia",     "FSANZ"),
 ]
 
-RECALLS_SCHEMA = ["Date", "Source", "Company", "Brand", "Product", "Pathogen",
-                  "Reason", "Class", "Country", "Region", "Tier", "Outbreak",
-                  "URL", "Notes"]
-
-# Audit 2026-05-06 — added RejectedBy. Pre-fix this stripped the Phase A
-# rejection-counter column on every 4-hour url_guardian write, undoing
-# any RejectedBy data that claude-check / url-gate had stamped between
-# the previous merge-master tick and now. Must mirror the canonical
-# merge_master.PENDING_SCHEMA.
-PENDING_SCHEMA = RECALLS_SCHEMA + ["ScrapedAt", "Status", "RejectedBy"]
+# RECALLS_SCHEMA / PENDING_SCHEMA — mirror the canonical definitions from
+# pipeline.merge_master so this module can never silently strip internal
+# tracking columns when it rewrites the Recalls sheet.
+#
+# AUDIT 2026-05-12 — pre-fix this defined its own 14-column RECALLS_SCHEMA
+# without DateAdded / LastUpdated / LastChecked / report_week. Because
+# _save_xlsx → _write_sheet writes the Recalls sheet using THIS schema,
+# every 4-hour url_guardian tick was stripping all four internal columns
+# from Recalls. Symptoms: report_week stamps disappeared, the weekly
+# builder's stamp-based filter fell back to legacy date math, and the
+# audit-2026-05-06 fix (which only patched PENDING_SCHEMA) was masking
+# the same bug class for Recalls. Reusing merge_master's RECALLS_SCHEMA
+# directly eliminates the drift permanently.
+#
+# Same audit also caught the 2026-05-06 PENDING_SCHEMA case where RejectedBy
+# was being stripped — that's now also sourced from merge_master.
+try:
+    from pipeline.merge_master import (
+        RECALLS_SCHEMA as _MM_RECALLS_SCHEMA,
+        PENDING_SCHEMA as _MM_PENDING_SCHEMA,
+    )
+    RECALLS_SCHEMA = list(_MM_RECALLS_SCHEMA)
+    PENDING_SCHEMA = list(_MM_PENDING_SCHEMA)
+except ImportError:
+    # Fallback for stand-alone use (no pipeline package on path). Must be
+    # kept in sync with pipeline/merge_master.py manually — but the import
+    # path above is the normal case in production.
+    RECALLS_SCHEMA = [
+        "Date", "Source", "Company", "Brand", "Product", "Pathogen",
+        "Reason", "Class", "Country", "Region", "Tier", "Outbreak",
+        "URL", "Notes",
+        "DateAdded", "LastUpdated", "LastChecked", "report_week",
+    ]
+    PENDING_SCHEMA = (
+        ["Date", "Source", "Company", "Brand", "Product", "Pathogen",
+         "Reason", "Class", "Country", "Region", "Tier", "Outbreak",
+         "URL", "Notes"]
+        + ["ScrapedAt", "Status", "RejectedBy"]
+    )
 
 NEWS_HEADERS = ["Published (UTC)", "Pathogen", "Event", "Source", "Title",
                 "Link", "Retrieved (UTC)"]
