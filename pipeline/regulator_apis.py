@@ -228,9 +228,20 @@ def fetch_france(since_days: int = 7,
 
     Docs: https://data.economie.gouv.fr/explore/dataset/rappelconso0/api/
     Endpoint confirmed via Anthropic web_search 2026-04-25.
+
+    SCOPE GUARD (audit 2026-05-12): WHERE clause restricts to
+    categorie_de_produit = "Alimentation". Without this, RappelConso's
+    open-data feed leaks fiches from cars, jewelry, electrical, toys,
+    asbestos crafts, etc. into the food-safety pipeline, which then
+    survive until claude-check (~$0.003/row in wasted Haiku calls plus
+    operator noise). Result-side category validation provides defense
+    in depth in case the API ever stops honouring the WHERE filter.
     """
     cutoff = (date.today() - timedelta(days=since_days)).isoformat()
-    where = [f"date_de_publication >= date'{cutoff}'"]
+    where = [
+        f"date_de_publication >= date'{cutoff}'",
+        "categorie_de_produit = 'Alimentation'",
+    ]
 
     if hazard:
         h_low = hazard.lower()
@@ -259,6 +270,7 @@ def fetch_france(since_days: int = 7,
         "limit": "100",
         "select": ",".join([
             "reference_fiche",
+            "categorie_de_produit",
             "nom_de_la_marque_du_produit",
             "noms_des_modeles_ou_references",
             "sous_categorie_de_produit",
@@ -274,7 +286,16 @@ def fetch_france(since_days: int = 7,
     if not data:
         return []
     out = []
+    n_non_food_skipped = 0
     for rec in data.get("results", []) or []:
+        # Defense in depth: even with WHERE filter, verify category in
+        # the response body. If the upstream API ever broadens the
+        # filter semantics or returns cached cross-category records,
+        # this drops them before they enter our pipeline.
+        cat = str(rec.get("categorie_de_produit") or "").strip()
+        if cat and cat != "Alimentation":
+            n_non_food_skipped += 1
+            continue
         url = rec.get("lien_vers_la_fiche_rappel") or ""
         if "fiche-rappel" not in url:
             continue
@@ -289,6 +310,9 @@ def fetch_france(since_days: int = 7,
             "source": "RappelConso",
             "raw": rec,
         })
+    if n_non_food_skipped:
+        log.warning("fetch_france: dropped %d non-food records that slipped "
+                    "past the WHERE filter", n_non_food_skipped)
     log.info("fetch_france(since=%dd, hazard=%s): %d records",
              since_days, hazard[:20], len(out))
     return out
@@ -872,6 +896,15 @@ def repair_french_row(row: Dict[str, Any]) -> Optional[str]:
 
     Given a Recalls row dict for France with a generic URL, return a
     canonical fiche-rappel URL or None if no unique match.
+
+    SCOPE GUARD (audit 2026-05-12): WHERE clause restricts the API
+    lookup to categorie_de_produit = "Alimentation" so URL-gate "API
+    fixes" cannot resolve a row to a non-food fiche (cars, jewelry,
+    electrical, asbestos, choking-hazard toys, etc.). Without this
+    guard, claude-check sees those non-food rows ~12h later, pays a
+    Haiku call per row to reject them as pathogen_out_of_scope, and
+    pollutes Weekly_Rejected. Defense in depth: the chosen result is
+    re-validated against categorie_de_produit before being returned.
     """
     if str(row.get("Country") or "").strip() != "France":
         return None
@@ -885,8 +918,11 @@ def repair_french_row(row: Dict[str, Any]) -> Optional[str]:
     # Date-window query — same date or within 1 day
     cutoff = (datetime.fromisoformat(date_iso).date() - timedelta(days=1)).isoformat()
     today = (datetime.fromisoformat(date_iso).date() + timedelta(days=1)).isoformat()
-    where = [f"date_de_publication >= date'{cutoff}' "
-             f"AND date_de_publication <= date'{today}'"]
+    where = [
+        f"date_de_publication >= date'{cutoff}' "
+        f"AND date_de_publication <= date'{today}'",
+        "categorie_de_produit = 'Alimentation'",
+    ]
 
     hazard = str(row.get("Pathogen") or "")
     if hazard:
@@ -917,13 +953,28 @@ def repair_french_row(row: Dict[str, Any]) -> Optional[str]:
         "where":  " AND ".join(where),
         "limit":  "5",
         "select": "lien_vers_la_fiche_rappel,nom_de_la_marque_du_produit,"
-                  "noms_des_modeles_ou_references,date_de_publication",
+                  "noms_des_modeles_ou_references,date_de_publication,"
+                  "categorie_de_produit",
     }
     data = _safe_get_json(RAPPELCONSO_API, params=params)
     if not data:
         return None
     results = data.get("results") or []
     if not results:
+        return None
+
+    # Defense in depth: filter to Alimentation in the response too.
+    # Belt-and-suspenders in case the upstream WHERE clause is ever
+    # broadened or cached cross-category results bleed through.
+    results = [
+        r for r in results
+        if not r.get("categorie_de_produit")
+        or r.get("categorie_de_produit") == "Alimentation"
+    ]
+    if not results:
+        log.warning("repair_french_row: API returned only non-food "
+                    "fiches for brand=%s date=%s — refusing to fix URL",
+                    brand[:40], date_iso)
         return None
 
     # Prefer brand-matching result; otherwise first
