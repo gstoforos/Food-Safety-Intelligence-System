@@ -92,14 +92,20 @@ JSON_PATH = DATA_DIR / "recalls.json"
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
 
 # Page-fetch + Claude limits
-# Audit 2026-05-08: dropped from 25,000 to 4,000 — recall pages have all
-# the relevant info (headline, company, pathogen, dates, distributor) in
-# the first ~2,000 chars. The other 23,000 was nav/footer/related links,
-# costing ~5K tokens/call for zero analytic value. New 4K limit = ~800
-# tokens of page content, plenty for verdicts. Token cost per Claude call
-# drops from ~6,500 in to ~2,500 in (-62%). Set CLAUDE_CHECK_PAGE_CHARS
-# env var to override (e.g. 8000 for hard pages).
-HTML_TRUNCATE_CHARS = int(os.getenv("CLAUDE_CHECK_PAGE_CHARS", "4000"))
+# Audit 2026-05-12: bumped from 4000 → 8000. CFIA pages have the
+# "Original published date" + "Date modified" in a metadata footer
+# AFTER the article body. At 4000 chars that footer was being
+# truncated away, leaving Haiku only the page header (which says
+# "Last updated YYYY-MM-DD" — the SAME date for current recalls but
+# could differ when an old recall is updated). Today's 04:15 run
+# FIX'd two stale 2025 CFIA pumpkin-seeds/Camembert recalls with
+# corrections instead of catching the pre-2026 dates because the
+# 4000-char cap stripped the authoritative dcterms metadata block.
+#
+# At 8000 chars: ~2K tokens input vs. ~800 at 4K. Still under
+# Haiku's 200K context; cost delta is +$0.001 per call ($0.10/M
+# cached input). Set CLAUDE_CHECK_PAGE_CHARS env var to override.
+HTML_TRUNCATE_CHARS = int(os.getenv("CLAUDE_CHECK_PAGE_CHARS", "8000"))
 FETCH_TIMEOUT_S = 25
 SLEEP_BETWEEN_ROWS_S = 0.5    # gentle on the regulator + the API
 # UA + headers updated 2026-05-07 — the previous bot-style UA
@@ -166,11 +172,281 @@ def _html_to_text(html: str) -> str:
     return txt.strip()
 
 
+# ── Deterministic publication-date extraction ───────────────────────
+# Patterns by regulator. Audit 2026-05-12: today's 04:15 claude-check
+# missed the 2025-05-10 (Hope Eco-Farm pumpkin seeds) and 2025-08-13
+# (Mon Père Camembert) dates that the CFIA pages had IN THE METADATA
+# in two different places (Dublin Core <meta> tags AND the body
+# "Original published date:" line). Today's Haiku FIX'd Company/Brand/
+# Product/Pathogen but completely missed the date → both rows advanced
+# pending_gap → pending_gap_v1 (one step closer to promoting two
+# stale 2025 recalls). Yesterday's run on the same URLs correctly
+# returned date_pre_2026. The fix: extract these dates DETERMINISTICALLY
+# from page HTML using regex BEFORE handing to Claude, so that an
+# eventual pre-2026 hit short-circuits to FAIL with no LLM call.
+#
+# Each pattern is regulator-specific and anchored to text that only
+# appears on real recall pages (not landing pages / FAQ / listings).
+_PUB_DATE_PATTERNS = [
+    # CFIA / Canada.ca Dublin Core meta + body
+    re.compile(r'meta-dcterms\.issued:\s*(\d{4}-\d{2}-\d{2})', re.IGNORECASE),
+    re.compile(r'<meta[^>]+name=["\']dcterms\.issued["\'][^>]+content=["\'](\d{4}-\d{2}-\d{2})', re.IGNORECASE),
+    re.compile(r'Original\s+published\s+date\D{0,30}(\d{4}-\d{2}-\d{2})', re.IGNORECASE),
+    re.compile(r'Last\s+updated\D{0,30}(\d{4}-\d{2}-\d{2})', re.IGNORECASE),
+    re.compile(r'Date\s+modified\D{0,30}(\d{4}-\d{2}-\d{2})', re.IGNORECASE),
+    # FDA recall pages
+    re.compile(r'<time[^>]+datetime=["\'](\d{4}-\d{2}-\d{2})', re.IGNORECASE),
+    # FSAI Ireland (day-month-year text)
+    re.compile(r'Alert\s+Date\D{0,30}(\d{1,2}\s+\w+\s+\d{4})', re.IGNORECASE),
+    # FSIS USDA
+    re.compile(r'<meta[^>]+property=["\']article:published_time["\'][^>]+content=["\'](\d{4}-\d{2}-\d{2})', re.IGNORECASE),
+    re.compile(r'meta-article:published_time:\s*(\d{4}-\d{2}-\d{2})', re.IGNORECASE),
+    # FSANZ / MPI New Zealand
+    re.compile(r'Date\s+published\D{0,30}(\d{1,2}\s+\w+\s+\d{4})', re.IGNORECASE),
+    # Generic "Published: YYYY-MM-DD"
+    re.compile(r'Published\D{0,30}(\d{4}-\d{2}-\d{2})', re.IGNORECASE),
+    # RappelConso France
+    re.compile(r'Publi[ée]\s+le\D{0,30}(\d{1,2}/\d{1,2}/\d{4})', re.IGNORECASE),
+    # INVIMA Colombia (PDF text after extraction)
+    re.compile(r'Bogot[áa],?\s+(\d{1,2})\s+(\w+)\s+(\d{4})', re.IGNORECASE),
+]
+
+_MONTH_NAMES = {
+    # English
+    "january":1,"february":2,"march":3,"april":4,"may":5,"june":6,
+    "july":7,"august":8,"september":9,"october":10,"november":11,"december":12,
+    "jan":1,"feb":2,"mar":3,"apr":4,"jun":6,"jul":7,"aug":8,
+    "sep":9,"sept":9,"oct":10,"nov":11,"dec":12,
+    # Spanish
+    "enero":1,"febrero":2,"marzo":3,"abril":4,"mayo":5,"junio":6,
+    "julio":7,"agosto":8,"septiembre":9,"setiembre":9,"octubre":10,
+    "noviembre":11,"diciembre":12,
+    # French
+    "janvier":1,"février":2,"fevrier":2,"mars":3,"avril":4,"mai":5,"juin":6,
+    "juillet":7,"août":8,"aout":8,"septembre":9,"octobre":10,
+    "novembre":11,"décembre":12,"decembre":12,
+}
+
+
+def _normalize_extracted_date(raw: str) -> Optional[str]:
+    """Convert any of the matched date shapes to ISO YYYY-MM-DD or None."""
+    if not raw:
+        return None
+    s = raw.strip().lower()
+    # Already ISO
+    m = re.match(r"^(\d{4})-(\d{1,2})-(\d{1,2})$", s)
+    if m:
+        y, mo, d = (int(g) for g in m.groups())
+        try:
+            return datetime(y, mo, d).date().isoformat()
+        except ValueError:
+            return None
+    # DD/MM/YYYY (RappelConso) or MM/DD/YYYY (FDA — disambiguate by value)
+    m = re.match(r"^(\d{1,2})/(\d{1,2})/(\d{4})$", s)
+    if m:
+        a, b, y = (int(g) for g in m.groups())
+        # In European format the first number is day; if a > 12 it must be day
+        if a > 12:
+            d, mo = a, b
+        elif b > 12:
+            mo, d = a, b
+        else:
+            # Ambiguous — default to DD/MM (RappelConso convention)
+            d, mo = a, b
+        try:
+            return datetime(y, mo, d).date().isoformat()
+        except ValueError:
+            return None
+    # "12 May 2026" / "12 mayo 2026" / "12 mai 2026"
+    m = re.match(r"^(\d{1,2})\s+(\w+)\s+(\d{4})$", s)
+    if m:
+        d, mon_name, y = m.group(1), m.group(2), m.group(3)
+        mo = _MONTH_NAMES.get(mon_name.lower())
+        if mo:
+            try:
+                return datetime(int(y), mo, int(d)).date().isoformat()
+            except ValueError:
+                return None
+    return None
+
+
+def _extract_publication_date(raw_html_or_text: str) -> Optional[str]:
+    """Run the regulator patterns over raw HTML or PDF-extracted text.
+
+    Returns the first successfully-parsed ISO date, or None. Conservative
+    by design — we only short-circuit Claude when we're sure we have the
+    right date. The patterns are anchored to text that appears ONLY on
+    real recall pages (meta tags, "Original published date:", "Alert
+    Date:", "Published:") so false positives on landing/index pages are
+    rare. Even if a false positive happens, the date is then passed to
+    Claude as a HINT in the page text — Claude can override.
+    """
+    if not raw_html_or_text:
+        return None
+    for pat in _PUB_DATE_PATTERNS:
+        m = pat.search(raw_html_or_text)
+        if not m:
+            continue
+        groups = m.groups()
+        if len(groups) == 1:
+            iso = _normalize_extracted_date(groups[0])
+            if iso:
+                return iso
+        elif len(groups) == 3:
+            # INVIMA "Bogotá, 6 mayo 2026" — day, month-name, year
+            d, mon_name, y = groups
+            mo = _MONTH_NAMES.get(str(mon_name).lower())
+            if mo:
+                try:
+                    return datetime(int(y), mo, int(d)).date().isoformat()
+                except ValueError:
+                    pass
+    return None
+
+
+# ── Metadata-block extractor ────────────────────────────────────────
+# Before stripping HTML for Claude, harvest the bits that almost always
+# contain the authoritative publication date. Prepended to the page_text
+# as a "PAGE METADATA" header so it survives the 8000-char truncate.
+_META_TAG_RX = re.compile(
+    r'<meta[^>]+(?:name|property)=["\']'
+    r'(dcterms\.(?:issued|modified)|article:published_time|article:modified_time|'
+    r'last-modified|publication-date|date|datepublished|datemodified)'
+    r'["\'][^>]*content=["\']([^"\']+)["\']',
+    re.IGNORECASE,
+)
+_TITLE_RX = re.compile(r'<title[^>]*>([^<]+)</title>', re.IGNORECASE | re.DOTALL)
+_H1_RX = re.compile(r'<h1[^>]*>(.*?)</h1>', re.IGNORECASE | re.DOTALL)
+
+
+def _extract_metadata_block(html: str) -> str:
+    """Extract HTML metadata that the truncate buffer would otherwise drop.
+
+    Returns a short text block (≤500 chars) of key→value pairs ready to
+    prepend to the page_text passed to Claude. Includes:
+      • Dublin Core dcterms.issued / dcterms.modified
+      • OpenGraph article:published_time / article:modified_time
+      • <title>
+      • First <h1>
+    """
+    if not html:
+        return ""
+    parts: List[str] = []
+    seen = set()
+    for m in _META_TAG_RX.finditer(html):
+        key = m.group(1).lower()
+        val = m.group(2).strip()
+        if (key, val) in seen:
+            continue
+        seen.add((key, val))
+        parts.append(f"  meta-{key}: {val}")
+    title_m = _TITLE_RX.search(html)
+    if title_m:
+        t = re.sub(r"\s+", " ", title_m.group(1)).strip()[:200]
+        if t:
+            parts.append(f"  <title>: {t}")
+    h1_m = _H1_RX.search(html)
+    if h1_m:
+        h1 = _RE_TAG.sub(" ", h1_m.group(1))
+        h1 = re.sub(r"\s+", " ", h1).strip()[:200]
+        if h1:
+            parts.append(f"  <h1>: {h1}")
+    if not parts:
+        return ""
+    return "PAGE METADATA (authoritative for dates):\n" + "\n".join(parts) + "\n\n"
+
+
+# ── PDF text extraction (added 2026-05-12) ──────────────────────────
+# Pre-2026-05-12 _fetch_page_text returned (None, "non-text content-type:
+# application/pdf") for every PDF URL → claude-check SKIPped them
+# indefinitely. INVIMA (Colombia), ANMAT (Argentina), DIGEMID (Peru),
+# SENASICA (Mexico), and food.gov.uk's FSA-PRIN bulletins all publish
+# recalls primarily as PDFs. Without a PDF text extractor, the entire
+# Latin America regulator set was unreviewable, and two INVIMA
+# pending rows (Alert 127-2026 PURIFRESK water; Alert 123-2026 BICHOTA
+# sildenafil-adulterated supplement) had been SKIPping for days.
+#
+# Strategy: try pypdf (lightest dep), then PyPDF2 (older fork), then
+# pdfplumber (heaviest, best at columnar layouts). All three are pure-
+# Python; if none are installed, fall back to the pre-2026-05-12 SKIP
+# behavior with a clearer log message.
+def _extract_pdf_text(pdf_bytes: bytes) -> Optional[str]:
+    """Best-effort PDF → text. Returns None if no extractor is installed."""
+    if not pdf_bytes:
+        return None
+
+    # Strategy 1: pypdf (modern, lightweight, pure-Python)
+    try:
+        from pypdf import PdfReader  # type: ignore
+        import io
+        reader = PdfReader(io.BytesIO(pdf_bytes))
+        pages_text = []
+        for page in reader.pages[:20]:   # cap at 20 pages for safety
+            try:
+                pages_text.append(page.extract_text() or "")
+            except Exception:
+                continue
+        full = "\n".join(pages_text).strip()
+        if full:
+            return full
+    except ImportError:
+        pass
+    except Exception as exc:
+        log.warning("pypdf failed: %s: %s", type(exc).__name__, str(exc)[:120])
+
+    # Strategy 2: PyPDF2 (legacy fork)
+    try:
+        from PyPDF2 import PdfReader as PdfReader2  # type: ignore
+        import io
+        reader = PdfReader2(io.BytesIO(pdf_bytes))
+        pages_text = []
+        for page in reader.pages[:20]:
+            try:
+                pages_text.append(page.extract_text() or "")
+            except Exception:
+                continue
+        full = "\n".join(pages_text).strip()
+        if full:
+            return full
+    except ImportError:
+        pass
+    except Exception as exc:
+        log.warning("PyPDF2 failed: %s: %s", type(exc).__name__, str(exc)[:120])
+
+    # Strategy 3: pdfplumber (heaviest, best at tables)
+    try:
+        import pdfplumber  # type: ignore
+        import io
+        with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+            pages_text = []
+            for page in pdf.pages[:20]:
+                try:
+                    pages_text.append(page.extract_text() or "")
+                except Exception:
+                    continue
+            full = "\n".join(pages_text).strip()
+            if full:
+                return full
+    except ImportError:
+        pass
+    except Exception as exc:
+        log.warning("pdfplumber failed: %s: %s",
+                    type(exc).__name__, str(exc)[:120])
+
+    return None
+
+
 def _fetch_page_text(url: str) -> Tuple[Optional[str], Optional[str]]:
     """
     Return (text, error). Text is the page content stripped of HTML and
-    truncated to HTML_TRUNCATE_CHARS. error is None on success, or a
-    short reason string on failure.
+    truncated to HTML_TRUNCATE_CHARS, with a PAGE METADATA preamble
+    containing Dublin Core / OpenGraph publication-date tags so Claude
+    always sees the authoritative date even when the body truncates.
+
+    Handles HTML, XML, plain text, AND PDF (added 2026-05-12). Returns
+    error string only when (a) the URL itself fails, OR (b) PDF extraction
+    isn't available, OR (c) the content-type is something we don't handle
+    (image, video, etc.).
     """
     if not url or not url.lower().startswith(("http://", "https://")):
         return None, "no URL"
@@ -187,14 +463,43 @@ def _fetch_page_text(url: str) -> Tuple[Optional[str], Optional[str]]:
         return None, f"HTTP {resp.status_code}"
 
     ctype = (resp.headers.get("Content-Type") or "").lower()
+
+    # PDF branch — extract text via pypdf / PyPDF2 / pdfplumber (audit 2026-05-12)
+    if "pdf" in ctype or url.lower().endswith(".pdf"):
+        pdf_text = _extract_pdf_text(resp.content or b"")
+        if pdf_text is None:
+            return None, (
+                "PDF text extraction unavailable — install pypdf "
+                "(pip install pypdf) to enable PDF reviewing"
+            )
+        # PDFs have no HTML metadata block but we can still run the
+        # deterministic date extractor on the extracted text.
+        date_iso = _extract_publication_date(pdf_text)
+        meta_block = ""
+        if date_iso:
+            meta_block = (
+                f"PAGE METADATA (extracted deterministically from PDF text):\n"
+                f"  publication_date: {date_iso}\n\n"
+            )
+        if len(pdf_text) > HTML_TRUNCATE_CHARS:
+            pdf_text = pdf_text[:HTML_TRUNCATE_CHARS] + "\n\n[... truncated ...]"
+        return meta_block + pdf_text, None
+
     if "html" not in ctype and "xml" not in ctype and "text" not in ctype:
-        # PDF, image, or other binary — Claude can't read directly here
+        # Image, video, or other binary — Claude can't read directly
         return None, f"non-text content-type: {ctype[:60]}"
 
-    text = _html_to_text(resp.text or "")
+    raw_html = resp.text or ""
+    # Extract metadata BEFORE stripping tags so Dublin Core dcterms.issued
+    # / OpenGraph article:published_time survive the html-to-text pass and
+    # the 8000-char truncate. This is what keeps the CFIA "Original
+    # published date: 2025-05-10" visible to Claude even when the article
+    # body is long.
+    meta_block = _extract_metadata_block(raw_html)
+    text = _html_to_text(raw_html)
     if len(text) > HTML_TRUNCATE_CHARS:
         text = text[:HTML_TRUNCATE_CHARS] + "\n\n[... truncated ...]"
-    return text, None
+    return meta_block + text, None
 
 
 # ---------------------------------------------------------------------------
@@ -651,6 +956,27 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Dict[str, str], Optional[str]]:
     text, fetch_err = _fetch_page_text(url)
     if text is None:
         return "skip", {}, f"fetch failed ({fetch_err})"
+
+    # ── Deterministic date pre-check (audit 2026-05-12) ───────────────
+    # Before paying for the Claude/Gemini call, scan the page text for
+    # an authoritative publication date via regulator-specific regex
+    # (CFIA dcterms.issued, FDA <time datetime>, FSAI "Alert Date",
+    # FSIS article:published_time, RappelConso "Publié le", INVIMA PDF
+    # "Bogotá, DD mes YYYY", etc.). If we find a date AND it's pre-2026,
+    # short-circuit FAIL — no LLM call needed, no risk of Haiku
+    # stochastically missing the date and FIX-promoting a stale recall
+    # (which is what happened to the Hope Eco-Farm 2025-05-10 and
+    # Mon Père 2025-08-13 rows in today's 04:15 run).
+    page_date_iso = _extract_publication_date(text)
+    if page_date_iso:
+        try:
+            page_d = datetime.fromisoformat(page_date_iso).date()
+            if page_d.year < 2026:
+                return ("fail", {},
+                        f"date_pre_2026: {page_date_iso} "
+                        f"(deterministic extract, no LLM call)")
+        except ValueError:
+            pass
 
     result = _verify_with_claude(row, text)
     if result is None:

@@ -1,8 +1,18 @@
-"""FSIS Tier-1 pathogen scope — locked 2026-04-30.
+"""FSIS Tier-1 pathogen scope — locked 2026-04-30; expanded 2026-05-12.
 
 Only recalls whose Pathogen matches one of these get into Recalls.
 Anything else is silently dropped (or stays in Pending for re-extraction
 if Company/Brand is missing).
+
+EXPANSION 2026-05-12 — undeclared pharmaceutical adulteration:
+INVIMA Alert 123-2026 (BICHOTA "Concentrado de frutas...") was
+notified to INFOSAN (WHO/FAO) and the EU RASFF system because the
+product contained undeclared sildenafil. INFOSAN treats undeclared
+pharmaceutical adulteration as a critical food-safety hazard equivalent
+to bacterial contamination. The pre-2026-05-12 scope rejected such rows
+as "pathogen_out_of_scope" — a false negative. Added the adulteration
+vocabulary so similar cases (FDA "undeclared drug ingredient" recalls,
+RASFF "unauthorized substance" notifications) are now in scope.
 """
 from __future__ import annotations
 
@@ -24,6 +34,14 @@ TIER1_KEYWORDS = (
     "ochratoxin", "ochratoxine",
     "mycotoxin", "mycotoxine",
     "fumonisin", "zearalenone", "deoxynivalenol", "patulin",
+    # Undeclared pharmaceutical adulteration (expanded 2026-05-12)
+    # — INFOSAN-notifiable adulterants commonly found in spiked
+    # "natural" supplements (sexual enhancers, weight-loss products).
+    # FDA "undeclared drug ingredient" recall category equivalents.
+    "sildenafil", "tadalafil", "vardenafil",
+    "sibutramine", "phenolphthalein",
+    "undeclared drug", "undeclared pharmaceutical",
+    "adulteration", "adulterated",
 )
 
 

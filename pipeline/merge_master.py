@@ -1301,6 +1301,36 @@ def promote_approved(
         _today = _today_fn.today().isoformat()
         approved_row = {col: clean.get(col, "" if col not in ("Tier", "Outbreak") else 0)
                         for col in SCHEMA}
+
+        # ── Class language normalisation (audit 2026-05-12) ──────────────
+        # Recall.__post_init__() runs _normalize_class_language() at
+        # scraper time, but rows that enter Pending via gap-finders or
+        # URL-gate enrichment paths bypass that constructor entirely —
+        # they're built as plain dicts and travel through validate_pending_row
+        # / claude_check / promote_approved without ever being instantiated
+        # as a Recall dataclass. Consequence: French/Italian/Spanish/Portuguese/
+        # German Class strings ("volontaire (sans arrêté préfectoral)",
+        # "richiamo volontario", "rückruf", etc.) leaked all the way into
+        # the public Recalls sheet, breaking the English-only convention
+        # operators rely on for weekly-report rendering and the language
+        # convention "only Company/Brand may stay in source language".
+        # Normalising here — at the LAST gate before write — guarantees
+        # every Class value in Recalls is the canonical English short form
+        # ("Voluntary", "Mandatory", "Recall", "Alert", "Class I", etc.)
+        # regardless of which scraper or gap-finder path admitted the row.
+        # Local import avoids the merge_master ↔ scrapers cycle.
+        try:
+            from scrapers._models import _normalize_class_language  # noqa: WPS433
+            approved_row["Class"] = _normalize_class_language(
+                approved_row.get("Class") or "")
+        except Exception as exc:
+            # Never let normalisation crash promotion — log and fall through
+            # with the original value. Worst case: an un-normalised Class
+            # leaks (same as the pre-2026-05-12 behaviour).
+            log.warning("Class normalisation skipped for %s: %s: %s",
+                        approved_row.get("URL", "<no-url>"),
+                        type(exc).__name__, str(exc)[:80])
+
         approved_row["DateAdded"] = _today
         approved_row["LastUpdated"] = _today
         approved_row["LastChecked"] = ""
