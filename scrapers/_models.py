@@ -215,8 +215,15 @@ PATHOGEN_RULES: List[Tuple[str, str]] = [
     # --- Tier 1 (critical) ---
     ("Listeria monocytogenes",
         r"\blisteria(\s*monocytogenes)?\b|\bl\.?\s*monocytogenes\b"),
+    # STEC: matches STEC/VTEC/EHEC keywords OR an O-serotype after either
+    # "E. coli" (abbreviated) or "Escherichia coli" (full Latin form).
+    # Audit 2026-05-12: pre-fix the O-serotype branch only matched the
+    # abbreviated form, so "Escherichia coli O157" emitted by some
+    # regulator feeds slipped past STEC matching and fell through to the
+    # generic E. coli rule → wrong Tier (3 instead of 1) and wrong canonical.
     ("Shiga toxin-producing E. coli (STEC)",
-        r"\b(shiga[\s-]?toxin|stec|vtec|ehec)\b|\be\.?\s*coli\s*o\d{2,3}\b"),
+        r"\b(shiga[\s-]?toxin|stec|vtec|ehec)\b"
+        r"|\b(?:e\.?\s*coli|escherichia\s+coli)\s*o\d{2,3}\b"),
     ("Clostridium botulinum",
         r"\bc(lostridium)?\.?\s*botulinum\b|\bbotulism\b|\bbotulinum\s*toxin\b"),
     ("Cereulide (B. cereus toxin)",
@@ -230,7 +237,21 @@ PATHOGEN_RULES: List[Tuple[str, str]] = [
     ("Norovirus", r"\bnorovirus\b"),
 
     # --- Tier 3 (minor) ---
-    ("Escherichia coli (generic)", r"\be\.?\s*coli\b"),  # after STEC check
+    # Generic E. coli: matches both "E. coli" (abbreviated, with optional
+    # period and whitespace) AND "Escherichia coli" (full Latin form).
+    # Audit 2026-05-12: pre-fix \be\.?\s*coli\b required an `e` followed
+    # by optional period + whitespace + `coli`, which only matches the
+    # abbreviated form. Rows from regulators that emit the full Latin
+    # name (RappelConso "Escherichia coli", some CFIA RA-numbers,
+    # several EU food alert agencies) had Pathogen="" after
+    # normalize_pathogen() → assign_tier defaulted to Tier 3 via the FDA
+    # framework default branch rather than the explicit tier_2_pathogens
+    # entry → COOPERATIVE U oysters row got Tier 3 instead of Tier 2
+    # (FDA Class II for generic E. coli in cooking-required food).
+    # MUST come after the STEC rule above so first-match-wins correctly
+    # routes O-serotype strings to STEC.
+    ("Escherichia coli (generic)",
+        r"\b(?:e\.?\s*coli|escherichia\s+coli)\b"),
     ("Campylobacter", r"\bcampylobacter\b"),
     ("Vibrio", r"\bvibrio\b"),
     ("Cyclospora cayetanensis", r"\bcyclospora\b"),
