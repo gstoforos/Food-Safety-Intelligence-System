@@ -1630,13 +1630,30 @@ def rebuild_daily_briefs_for_promoted(
                 log.debug("skip row coerce: %s", cce)
 
         try:
-            render_daily_html(target, recalls_objs)
+            # Audit 2026-05-12: this previously called render_daily_html()
+            # but threw away its return value, never writing the HTML file
+            # to disk — the function returns the rendered markup but the
+            # caller is responsible for persisting it. Only update_daily_index
+            # was actually doing IO, so the dashboard's daily-index.json
+            # would reflect the new counts while docs/daily/{date}.html
+            # stayed stale (or, for newly-promoted dates with no prior
+            # brief, never existed at all). Most visible symptom: dashboard
+            # DAILY tab showed total=N for a date but clicking it 404'd
+            # because the HTML wasn't there. Fixed by capturing the returned
+            # HTML and persisting it before the index update.
+            html = render_daily_html(target, recalls_objs)
+            # Resolve docs/daily path relative to this module file (ROOT
+            # is only a local in main()). Mirrors the convention used in
+            # pipeline.daily_recall_search.
+            _root = Path(__file__).resolve().parent.parent
+            brief_path = _root / "docs" / "daily" / f"{date_str}.html"
+            brief_path.parent.mkdir(parents=True, exist_ok=True)
+            brief_path.write_text(html, encoding="utf-8")
             update_daily_index(target, recalls_objs)
-            brief_path = f"docs/daily/{date_str}.html"
-            rebuilt_briefs.append(brief_path)
-            files_to_commit.append(brief_path)
-            log.info("Rebuilt daily brief for %s (%d rows)",
-                     date_str, len(recalls_objs))
+            rebuilt_briefs.append(str(brief_path))
+            files_to_commit.append(f"docs/daily/{date_str}.html")
+            log.info("Rebuilt daily brief for %s (%d rows) -> %s",
+                     date_str, len(recalls_objs), brief_path)
         except Exception as rerr:  # noqa: BLE001
             log.warning("Brief rebuild failed for %s: %s", date_str, rerr)
 
