@@ -1,0 +1,256 @@
+name: AFTS Monthly Updates Check
+
+# ==========================================================================
+# Runs on the 8TH OF EVERY MONTH at 09:00 ATHENS TIME.
+#
+# Walks the last 3 closed months (current anchor = previous calendar
+# month, plus the 2 months before it). For each, compares the recall
+# count baked into the existing monthly HTML report against the current
+# dataset count and decides what to do:
+#
+#   - No HTML at all                    → first build (label="PUBLISHED")
+#   - Count differs from dataset         → rebuild       (label="UPDATED")
+#   - Count matches, label is "UPDATED"  → skip (genuinely unchanged)
+#   - Count matches, label is "PUBLISHED" or legacy missing label
+#                                        → flip to "UPDATED" via rebuild
+#
+# Each rebuild also rebuilds the public marketing one-pager PDF (the
+# lead magnet on hub.html) and runs set_pdf_urls so monthly-index.json
+# stays aligned with the freshly-regenerated PDFs.
+#
+# Mirrors the weekly-updates-check.yml hardening:
+#   • Pre-flight conflict-marker scan on tracked JSON
+#   • Post-build JSON validation (Python json.load + marker grep)
+#   • Safe rebase strategy on push conflict (no autostash, no ours/theirs
+#     merge — abort cleanly if rebase fails rather than committing
+#     conflicted files)
+#   • jq-based Summary step that NEVER fails the workflow over a parse
+#     error (fallback: dump raw bytes)
+#
+# Schedule:
+#   Athens 09:00 = UTC 06:00 (EEST summer) / 07:00 (EET winter).
+#   Two cron lines + Athens hour-guard so only the right one runs.
+# ==========================================================================
+
+on:
+  schedule:
+    - cron: '0 6 8 * *'   # 8th of month, 06:00 UTC = 09:00 EEST (Athens summer)
+    - cron: '0 7 8 * *'   # 8th of month, 07:00 UTC = 09:00 EET  (Athens winter)
+  workflow_dispatch: {}   # manual run / catch-up
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers     # share the lock with weekly + merge_master
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30   # marketing PDF + 3 monthly rebuilds can take several min
+
+    steps:
+      - name: Athens-time guard (8th of month, 09:xx Athens)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          DAY=$(TZ=Europe/Athens date +%d)
+          echo "athens_hour=$HOUR  day=$DAY"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Manually dispatched — running."
+          elif [ "$HOUR" = "09" ] && [ "$DAY" = "08" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Athens 8th-of-month 09:xx — running."
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Skip: not Athens 8th-of-month 09:xx (day=$DAY hour=$HOUR)."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sanity check — no pre-existing conflict markers in tracked JSON
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          # Belt-and-braces: if a previous run pushed conflict markers into
+          # the repo, surface them now and abort BEFORE we run python
+          # (which would otherwise read garbage and write more garbage).
+          BAD=$(grep -lE '^(<<<<<<< |=======$|>>>>>>> )' \
+                  docs/data/monthly-updates-pending.json \
+                  docs/data/monthly-index.json \
+                  docs/data/monthly-summary-latest.json \
+                  2>/dev/null || true)
+          if [ -n "$BAD" ]; then
+            echo "::error::Conflict markers found in committed file(s):"
+            echo "$BAD"
+            for f in $BAD; do
+              echo "=== $f ==="
+              head -50 "$f"
+              echo "..."
+            done
+            echo "Manual fix required: edit, remove markers, commit, push, re-run."
+            exit 1
+          fi
+          echo "OK: no conflict markers in tracked monthly data files."
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install fonts for marketing PDF (reportlab embeds Liberation Sans)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            fonts-liberation fonts-dejavu-core
+
+      - name: Install Python dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check & rebuild last 3 months
+        if: steps.guard.outputs.run == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python -m pipeline.build_monthly_updates_check
+
+      - name: Validate generated JSON before staging
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          # Catch the corruption AT THE SOURCE — if something produced
+          # malformed JSON or wrote conflict markers, fail here rather
+          # than committing a bad file.
+          for f in \
+              docs/data/monthly-updates-pending.json \
+              docs/data/monthly-index.json \
+              docs/data/monthly-summary-latest.json
+          do
+            if [ -f "$f" ]; then
+              if ! python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$f"; then
+                echo "::error::Malformed JSON: $f"
+                echo "=== Raw content ==="
+                cat "$f"
+                exit 1
+              fi
+              if grep -qE '^(<<<<<<< |=======$|>>>>>>> )' "$f"; then
+                echo "::error::Conflict markers in freshly-written file: $f"
+                cat "$f"
+                exit 1
+              fi
+            fi
+          done
+          echo "OK: all generated JSON files are valid and marker-free."
+
+      - name: Commit + push (manifest, indices, rebuilt HTML, marketing PDFs)
+        if: steps.guard.outputs.run == 'true'
+        env:
+          GH_TOKEN:       ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME:  "AFTS Intelligence System"
+        run: |
+          git config user.email "$GIT_USER_EMAIL"
+          git config user.name  "$GIT_USER_NAME"
+
+          # Stage everything the orchestrator may have touched:
+          #   - manifest                         (always)
+          #   - monthly-index + summary-latest   (always)
+          #   - rebuilt 2026-MXX.html + companion  (per-rebuild)
+          #   - marketing one-pager PDFs         (per-rebuild)
+          git add docs/data/monthly-updates-pending.json
+          git add docs/data/monthly-index.json 2>/dev/null || true
+          git add docs/data/monthly-summary-latest.json 2>/dev/null || true
+          git add 'docs/20*-M*.html' 2>/dev/null || true
+          git add 'docs/marketing/20*-M*-marketing.pdf' 2>/dev/null || true
+          git add 'docs/marketing/20*-M*.html' 2>/dev/null || true
+
+          if git diff --cached --quiet; then
+            echo "No file changes to commit (everything matches HEAD)."
+            exit 0
+          fi
+
+          git commit -m "Monthly updates check $(TZ=Europe/Athens date +%Y-%m-%d)"
+
+          # Push with retry. On rejection, fetch + rebase WITHOUT autostash
+          # (we have no working-tree changes — we already committed).
+          # If rebase fails due to genuine conflicts, abort cleanly: do NOT
+          # fall through to a strategy that may leave conflict markers in
+          # committed files.
+          for i in 1 2 3; do
+            if git push; then
+              echo "Pushed (attempt $i)"
+              exit 0
+            fi
+            echo "Push attempt $i failed — fetching + rebasing"
+            git fetch origin "${GITHUB_REF_NAME:-main}"
+            if ! git rebase "origin/${GITHUB_REF_NAME:-main}"; then
+              echo "::error::Rebase failed — refusing to write conflict markers."
+              git rebase --abort || true
+              if grep -lE '^(<<<<<<< |=======$|>>>>>>> )' \
+                  docs/data/*.json docs/*-M*.html 2>/dev/null; then
+                echo "::error::Conflict markers detected in working tree after aborted rebase."
+              fi
+              exit 1
+            fi
+            for f in docs/data/monthly-updates-pending.json \
+                     docs/data/monthly-index.json \
+                     docs/data/monthly-summary-latest.json
+            do
+              [ -f "$f" ] && grep -qE '^(<<<<<<< |=======$|>>>>>>> )' "$f" && {
+                echo "::error::Conflict markers in $f after rebase"
+                exit 1
+              }
+            done
+          done
+          echo "::error::All push attempts failed"
+          exit 1
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          echo "Monthly updates check complete — Athens $(TZ=Europe/Athens date)"
+          MANIFEST=docs/data/monthly-updates-pending.json
+          if [ ! -f "$MANIFEST" ]; then
+            echo "No manifest written."
+            exit 0
+          fi
+
+          # Robust: parse with jq if possible, fall back to a raw cat.
+          # NEVER fail this step over a parse error — Summary is purely
+          # informational and the workflow has already done its real work.
+          if jq empty "$MANIFEST" 2>/dev/null; then
+            ANCHOR=$(jq -r '.anchor_month_end // "?"' "$MANIFEST")
+            BACK=$(jq -r '.checked_back_months // "?"' "$MANIFEST")
+            COUNT=$(jq -r '.updated_months | length' "$MANIFEST")
+            FLIPS=$(jq -r '.label_flips | length' "$MANIFEST")
+            echo "  Anchor month-end: $ANCHOR"
+            echo "  Checked back:     $BACK months"
+            echo "  Updated:          $COUNT month(s) (data drift)"
+            echo "  Label-flips:      $FLIPS month(s) (cosmetic, no email)"
+            jq -r '.updated_months[]? | "    \(.year_m) (\(.month_end)): \(.old_total) -> \(.new_total) (delta \(.delta))"' "$MANIFEST"
+            jq -r '.label_flips[]? | "    \(.) (label flip)"' "$MANIFEST"
+            CTA_LABEL=$(jq -r '.primary_cta.label // "-"' "$MANIFEST")
+            CTA_URL=$(jq -r '.primary_cta.url // "-"' "$MANIFEST")
+            if [ "$CTA_LABEL" != "-" ]; then
+              echo "  CTA:              $CTA_LABEL -> $CTA_URL"
+            fi
+          else
+            echo "::warning::Manifest is not valid JSON — dumping raw content:"
+            echo "--- $MANIFEST ---"
+            cat "$MANIFEST"
+            echo "--- end ---"
+          fi
+          # Always exit 0 — Summary failures must not fail the workflow.
+          exit 0
