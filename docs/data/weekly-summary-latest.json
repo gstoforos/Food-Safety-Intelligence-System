@@ -5,37 +5,37 @@
   "week_num": 19,
   "year": 2026,
   "week_start": "2026-05-02",
-  "week_end": "2026-05-08",
+  "week_end": "2026-05-07",
   "week_start_display": "2 May",
-  "week_end_display": "8 May 2026",
-  "generated_utc": "2026-05-09T08:02:39.542381+00:00",
+  "week_end_display": "7 May 2026",
+  "generated_utc": "2026-05-12T17:56:18.909351+00:00",
   "stats": {
-    "total": 49,
-    "tier1": 32,
-    "outbreaks": 0,
-    "delta": -5,
-    "delta_pct": -9
+    "total": 51,
+    "tier1": 33,
+    "outbreaks": 1,
+    "delta": -3,
+    "delta_pct": -6
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 24,
-    "pct": 49
+    "cases": 23,
+    "pct": 45
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
-      "date": "2026-05-08",
-      "pathogen": "Clostridium botulinum",
-      "pathogen_raw": "Clostridium botulinum",
+      "date": "2026-05-07",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Shining Sea Fish Co.",
-      "brand": "Ma Cohen's",
-      "product": "Ma Cohen's Kippered Herring — uneviscerated smoked fish >5\" (LOT 25028 exp 2026-06-03; LOT 25055 exp 2026-05-12; LOT 25079 exp 2026-05-03; LOT 26344 exp 2026-07-22) — retail grocery distribution MI, MN, ND",
-      "country": "United States",
-      "source": "FDA",
-      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/shining-sea-fish-co-recalls-ma-cohens-kippered-herring-because-possible-health-risk"
+      "company": "BORDON DENIS",
+      "brand": "Unbranded",
+      "product": "tomme",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22219/Interne"
     },
     {
       "rank": 2,
@@ -94,5 +94,5 @@
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841909"
     }
   ],
-  "country_count": 15
+  "country_count": 14
 }
