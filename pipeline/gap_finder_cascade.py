@@ -1,6 +1,6 @@
 """
 Gap-finder cascade — single entry point that tries multiple LLM gap-finders
-in priority order, stopping at the first success.
+in priority order, stopping at the first one that adds rows.
 
 CASCADE ORDER (audit 2026-04-29):
   Call 1   Gemini FREE tier (gemini-2.5-flash + Google Search grounding)
@@ -9,30 +9,66 @@ CASCADE ORDER (audit 2026-04-29):
            — €0.10/run; only if free-tier rate-limited or returned no
              usable response.
   Call 3   Claude (claude-haiku-4-5 + web_search_20250305)
-           — ~$0.005/run; only if both Gemini calls failed.
+           — ~$0.005/run; only if both Gemini calls failed or returned 0 rows.
   Call 4   OpenAI (gpt-4o-mini-search-preview)
            — ~$0.10/run; final fallback.
 
-"Failed" means an EXCEPTION was raised, the API returned no usable text,
-or the JSON parse failed. Returning ZERO recalls is NOT failure — it's a
-valid result and the cascade stops.
+Per-step timeout: 90 seconds. A hung call rolls forward to the next provider
+so the entire cron slot can't get blocked.
 
-Per-step timeout: 120 seconds. A hung call rolls forward to the next
-provider so the entire cron slot can't get blocked.
+OUTCOME CLASSIFICATION (audit 2026-05-13)
+-----------------------------------------
+Each step lands in one of three buckets:
+
+  SUCCESS_WITH_ROWS   rc == 0 AND at least 1 row landed in Pending after
+                      the push retry / xlsx_merge dance settled.
+                      → cascade STOPS and returns 0.
+
+  SUCCESS_EMPTY       rc == 0 but 0 rows landed. Three sub-cases that we
+                      DON'T try to disambiguate at this layer:
+                        (a) the provider genuinely found nothing new
+                        (b) the provider found candidates but every one
+                            was de-duplicated by merge_master (already
+                            in Pending or Recalls)
+                        (c) a candidate WAS staged but lost in xlsx_merge
+                            conflict resolution because a parallel writer
+                            had just approved the same URL into Recalls
+                            (this is correct behaviour — the row is a
+                             duplicate of something just promoted)
+                      → cascade FALLS THROUGH to the next provider.
+
+  FAILED              Exception, timeout, or rc != 0.
+                      → cascade FALLS THROUGH to the next provider.
+
+After the loop:
+  • any SUCCESS_WITH_ROWS  → already returned 0 above
+  • ≥1 SUCCESS_EMPTY       → return 0 with a "no new recalls today" log
+                              (the world has no new recalls right now,
+                               or everything found was a duplicate —
+                               that is NOT a failure)
+  • all FAILED             → return 1 with a loud error so the operator
+                              actually investigates a real outage
+
+Pre-2026-05-13 the cascade returned 1 whenever total_added == 0, which
+treated quiet days (every provider runs fine but finds nothing new) as
+errors and turned the GitHub Actions runs page red. The audit on
+2026-05-12's 20:15 run showed this: 4 providers ran, 0 errored, 1 row
+was found by OpenAI but then correctly dropped by xlsx_merge because a
+parallel workflow had just approved the same URL — cascade exited 1.
 
 CALL-SITE INTEGRATION
 ---------------------
-Replace the FOUR separate workflow YAMLs (gemini-gap-finder.yml,
-claude-gap-finder.yml, openai-gap-finder.yml, ...) with ONE workflow
-that invokes this script. The orchestrator handles fallbacks internally.
-Tavily and Exa stay independent (deterministic search, free, run on
-their own dedicated schedule — they're complementary, not in the cascade).
+Single workflow .github/workflows/gap-finder-cascade.yml invokes this
+script. Tavily and Exa stay independent on their own dedicated schedule
+— they're complementary deterministic-search backstops, not in the
+cascade.
 
 CLI
 ---
     python -m pipeline.gap_finder_cascade               # default
     python -m pipeline.gap_finder_cascade --skip-paid   # never escalate to paid Gemini
-    python -m pipeline.gap_finder_cascade --dry-run     # don't write to Pending
+    python -m pipeline.gap_finder_cascade --skip-claude
+    python -m pipeline.gap_finder_cascade --skip-openai
 """
 from __future__ import annotations
 import argparse
@@ -43,8 +79,9 @@ import sys
 import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
+from enum import Enum
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, List, Tuple
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -86,10 +123,21 @@ def step_timeout(seconds: int):
 
 
 # ─────────────────────────────────────────────────────────────────────────
-# Provider adapters — each function tries one provider, returns
-#   (success, recalls_added_to_pending, message)
-# success = True  → cascade stops
-# success = False → next provider is tried
+# Step outcome — three-state classifier replaces the old (ok, added) tuple
+# semantics at the cascade-level decision boundary (audit 2026-05-13).
+# ─────────────────────────────────────────────────────────────────────────
+class StepOutcome(Enum):
+    SUCCESS_WITH_ROWS = "rows"     # rc==0 AND added>0 → stop cascade
+    SUCCESS_EMPTY     = "empty"    # rc==0 AND added==0 → fall through, NOT a failure
+    FAILED            = "fail"     # exception/timeout/rc!=0 → fall through
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Provider adapters — each function tries one provider and returns
+#   (ok, added_unused, msg)
+# where ok==True means rc==0 (the provider ran without error). The
+# `added_unused` field is kept for log-message compatibility; actual row
+# counting is done by the cascade via _pending_count() before/after.
 # ─────────────────────────────────────────────────────────────────────────
 
 def _try_gemini(force_paid: bool = False) -> Tuple[bool, int, str]:
@@ -113,8 +161,6 @@ def _try_gemini(force_paid: bool = False) -> Tuple[bool, int, str]:
         os.environ.pop("GAP_GEMINI_DISABLE_FREE", None)
 
     try:
-        # gap_finder_gemini.main() returns 0 on success, non-zero on failure.
-        # It writes directly to Pending; the cascade just needs the rc.
         rc = gap_finder_gemini.main()
         return (rc == 0), 0, f"main() returned {rc}"
     except Exception as e:  # noqa: BLE001
@@ -161,26 +207,6 @@ def _try_openai() -> Tuple[bool, int, str]:
 
 CASCADE_TIMEOUT_S = int(os.environ.get("GAP_STEP_TIMEOUT", "180"))
 
-
-# ─────────────────────────────────────────────────────────────────────────
-# Pending-row-count helper (audit 2026-05-06).
-#
-# The cascade's success rule used to be just `rc == 0`. That treated a
-# legitimate "Gemini ran but found zero new recalls" as success and stopped
-# the cascade, never trying Claude/OpenAI as a backup. Production data
-# (2026-05-04 → 2026-05-06) shows this misses real fresh recalls regularly
-# — Gemini's grounded search returns [] when its search budget is
-# exhausted or when Google hasn't yet indexed the recall page.
-#
-# The new rule:
-#     rc == 0 AND added > 0  → real success, stop
-#     rc == 0 AND added == 0 → fall-through (try next provider)
-#     rc != 0                → fall-through (existing behavior)
-#
-# Empty result with EVERY cascade step failing is logged loudly so
-# operators can tell "nothing new today" apart from "all providers
-# silently no-op'd".
-# ─────────────────────────────────────────────────────────────────────────
 _XLSX_PATH = Path(os.environ.get(
     "FSIS_XLSX_PATH",
     str(Path(__file__).resolve().parent.parent / "docs" / "data" / "recalls.xlsx"),
@@ -189,8 +215,8 @@ _XLSX_PATH = Path(os.environ.get(
 
 def _pending_count() -> int:
     """Read the current Pending sheet row count. Used to detect whether a
-    cascade step actually wrote anything new. Resilient to xlsx-missing
-    (returns 0) and to load failure (returns -1, caller treats as 'unknown').
+    cascade step actually wrote anything new that survived the push. -1
+    on load failure (treated as 'unknown' by the caller — no row credit).
     """
     try:
         if not _XLSX_PATH.exists():
@@ -201,8 +227,7 @@ def _pending_count() -> int:
             wb.close()
             return 0
         ws = wb["Pending"]
-        # max_row counts header row too — subtract 1
-        n = max(0, ws.max_row - 1)
+        n = max(0, ws.max_row - 1)  # max_row counts the header row too
         wb.close()
         return n
     except Exception as e:
@@ -213,13 +238,18 @@ def _pending_count() -> int:
 
 def run_cascade(skip_paid: bool = False, skip_claude: bool = False,
                 skip_openai: bool = False) -> int:
-    """Run the cascade. Returns 0 if any provider added rows, 1 otherwise.
+    """Run the cascade. Exit-code policy (audit 2026-05-13):
 
-    Audit 2026-05-06 — success rule tightened. Pre-fix: rc==0 stopped
-    the cascade unconditionally, even when Gemini "succeeded" with zero
-    rows. Post-fix: a step counts as success ONLY if it (a) returned
-    rc==0 AND (b) actually wrote rows to Pending. Empty-result success
-    falls through to the next provider.
+        any step  SUCCESS_WITH_ROWS                 → 0  (real success, stop)
+        ≥1 step   SUCCESS_EMPTY                     → 0  ("nothing new today")
+        every step FAILED                           → 1  (real outage)
+
+    Returning 0 on the SUCCESS_EMPTY-only path is the change vs the
+    2026-05-06 logic. Empty/duplicate-only results are a legitimate
+    outcome — the world doesn't produce a brand-new recall on every
+    cron tick, and merge_master + xlsx_merge correctly de-dup against
+    rows that have just been approved. Reporting that as a workflow
+    failure (red CI) drowns out real failures.
     """
     started = datetime.now(timezone.utc).isoformat()
     log.info("=" * 60)
@@ -236,17 +266,13 @@ def run_cascade(skip_paid: bool = False, skip_claude: bool = False,
     if not skip_openai:
         steps.append(("OpenAI",      _try_openai))
 
-    # Snapshot Pending count BEFORE the cascade — every per-step delta is
-    # measured against this. If a step fails (rc!=0 or exception), Pending
-    # is unchanged and the next step still measures from the original
-    # baseline. If a step succeeds with rows, the next step's "added"
-    # measures only its own contribution.
     initial_pending = _pending_count()
     log.info("Cascade baseline: Pending has %d rows", initial_pending)
 
     last_msg = ""
     total_added = 0
-    cascade_summary: List[str] = []  # provider-by-provider for final log
+    outcomes: List[Tuple[str, StepOutcome]] = []
+    summary_parts: List[str] = []  # provider-by-provider for final log
 
     for idx, (name, fn) in enumerate(steps, 1):
         log.info("─" * 50)
@@ -261,9 +287,7 @@ def run_cascade(skip_paid: bool = False, skip_claude: bool = False,
         elapsed = time.time() - t0
         last_msg = msg
         after = _pending_count()
-        # added = how many rows this step contributed. -1 means we couldn't
-        # measure (e.g. xlsx load failed); treat as 0 for accounting but
-        # log a warning so operators know the metric is unreliable.
+
         if before < 0 or after < 0:
             added_this_step = 0
             log.warning("Cascade row-count metric unreliable (before=%d after=%d)",
@@ -272,47 +296,65 @@ def run_cascade(skip_paid: bool = False, skip_claude: bool = False,
             added_this_step = max(0, after - before)
         total_added += added_this_step
 
-        # Step-level success classification:
-        #   rc==0 AND added>0  → STOP (real success)
-        #   rc==0 AND added==0 → fall through (empty-result; try next)
-        #   rc!=0              → fall through (failure)
         if ok and added_this_step > 0:
+            outcome = StepOutcome.SUCCESS_WITH_ROWS
             log.info("✓ Cascade success at step %d (%s) in %.1fs — STOP",
                      idx, name, elapsed)
             log.info("  Message: %s", msg)
             log.info("  Added: %d new rows to Pending", added_this_step)
-            cascade_summary.append(f"{name}=+{added_this_step}")
+            outcomes.append((name, outcome))
+            summary_parts.append(f"{name}=+{added_this_step}")
             log.info("Cascade summary: %s | total +%d rows",
-                     " → ".join(cascade_summary), total_added)
+                     " → ".join(summary_parts), total_added)
             return 0
-        elif ok and added_this_step == 0:
+        elif ok:
+            outcome = StepOutcome.SUCCESS_EMPTY
             log.warning("⊘ Step %d (%s) ran successfully in %.1fs but added "
                         "ZERO rows — falling through to next provider",
                         idx, name, elapsed)
             log.warning("  Message: %s", msg)
-            cascade_summary.append(f"{name}=0(empty)")
+            summary_parts.append(f"{name}=0(empty)")
         else:
+            outcome = StepOutcome.FAILED
             log.warning("✗ Step %d (%s) failed in %.1fs — falling through",
                         idx, name, elapsed)
             log.warning("  Reason: %s", msg)
-            cascade_summary.append(f"{name}=fail")
+            summary_parts.append(f"{name}=fail")
+        outcomes.append((name, outcome))
 
-    # All steps exhausted. Determine outcome:
+    # ─────────────────────────────────────────────────────────────────
+    # Loop ended without a SUCCESS_WITH_ROWS short-circuit. Classify
+    # the overall run.
+    # ─────────────────────────────────────────────────────────────────
+    has_empty_success = any(o == StepOutcome.SUCCESS_EMPTY for _, o in outcomes)
+    all_failed = all(o == StepOutcome.FAILED for _, o in outcomes)
+    n_empty = sum(1 for _, o in outcomes if o == StepOutcome.SUCCESS_EMPTY)
+    n_failed = sum(1 for _, o in outcomes if o == StepOutcome.FAILED)
+
     if total_added > 0:
-        # Some intermediate step added rows but its rc said 'success';
-        # subsequent steps still ran. This shouldn't happen with the
-        # current logic (a successful step returns immediately) but is
-        # defensible if a step writes rows then returns rc!=0 by accident.
+        # Defensive: a step wrote rows but its rc != 0 so we didn't
+        # short-circuit. Treat as success.
         log.info("✓ Cascade completed with +%d total rows (across %d steps)",
                  total_added, len(steps))
-        log.info("Cascade summary: %s", " → ".join(cascade_summary))
+        log.info("Cascade summary: %s", " → ".join(summary_parts))
         return 0
-    log.error("All %d cascade providers ran but added ZERO rows total.",
-              len(steps))
-    log.error("Cascade summary: %s", " → ".join(cascade_summary))
-    log.error("Last message: %s", last_msg)
-    return 1
 
+    if all_failed:
+        log.error("All %d cascade providers FAILED — no provider ran "
+                  "successfully today.", len(steps))
+        log.error("Cascade summary: %s", " → ".join(summary_parts))
+        log.error("Last message: %s", last_msg)
+        return 1
+
+    # has_empty_success == True: at least one provider ran cleanly and
+    # found nothing new (or everything it found was a duplicate of rows
+    # already in Pending/Recalls). That's a legitimate quiet result.
+    log.info("◌ Cascade complete: no new recalls today "
+             "(%d provider(s) ran empty, %d failed). NOT a workflow "
+             "failure — see merge_master logs for any duplicates "
+             "filtered upstream.", n_empty, n_failed)
+    log.info("Cascade summary: %s", " → ".join(summary_parts))
+    return 0
 
 
 def main() -> int:
