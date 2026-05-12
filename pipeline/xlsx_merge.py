@@ -188,6 +188,34 @@ def merge_xlsx_with_remote(
             ]
     wr_merged = _merge_unique(wr_remote, wr_ours, _wr_dedup_key)
 
+    # ── Weekly_Rejected (audit 2026-05-12) ────────────────────────────
+    # Pre-2026-05-12 this module silently dropped the Weekly_Rejected
+    # sheet on every push-retry conflict — same bug class as the
+    # 2026-05-06 Weekly_Review case, missed because Weekly_Rejected was
+    # added later (audit 2026-05-09) and never propagated here.
+    # Observed in production: every gap-finder cascade / news-feed run
+    # that hit a non-fast-forward and fell back to xlsx_merge ended with
+    # a fresh workbook containing only Recalls/Pending/Weekly_Review/NEWS.
+    # The 30-row Weekly_Rejected sheet that claude-check had written
+    # minutes earlier was gone after the merge, breaking the operator's
+    # Thursday review email.
+    #
+    # Same union logic and dedup_key as Weekly_Review (URL+Date), since
+    # passes and rejects share the same identity rule.
+    wj_headers, wj_remote = _read_sheet(remote_path, "Weekly_Rejected")
+    _, wj_ours = _read_sheet(ours_path, "Weekly_Rejected")
+    if not wj_headers:
+        wj_headers_local, _ = _read_sheet(ours_path, "Weekly_Rejected")
+        if wj_headers_local:
+            wj_headers = wj_headers_local
+        else:
+            # Canonical schema used by pipeline/weekly_rejected_capture.py
+            wj_headers = rec_headers + [
+                "DateAdded", "LastUpdated", "LastChecked",
+                "Week_Added", "RejectedBy", "RejectionReason", "Reviewed",
+            ]
+    wj_merged = _merge_unique(wj_remote, wj_ours, _wr_dedup_key)
+
     wb = Workbook()
     rec_ws = wb.active
     rec_ws.title = "Recalls"
@@ -201,6 +229,12 @@ def merge_xlsx_with_remote(
         # will create it on the next promotion.
         wr_ws = wb.create_sheet("Weekly_Review")
         _write_sheet(wr_ws, wr_headers, wr_merged)
+    if wj_merged or wj_remote or wj_ours:
+        # Same gating logic as Weekly_Review — only materialize the sheet
+        # if at least one side had a row. Empty Weekly_Rejected sheets
+        # are recreated by weekly_rejected_capture.record_rejections.
+        wj_ws = wb.create_sheet("Weekly_Rejected")
+        _write_sheet(wj_ws, wj_headers, wj_merged)
     news_ws = wb.create_sheet("NEWS")
     _write_sheet(news_ws, news_headers, news_merged)
     wb.save(out_path)
@@ -215,6 +249,9 @@ def merge_xlsx_with_remote(
         "weekly_review_remote": len(wr_remote),
         "weekly_review_ours":   len(wr_ours),
         "weekly_review_merged": len(wr_merged),
+        "weekly_rejected_remote": len(wj_remote),
+        "weekly_rejected_ours":   len(wj_ours),
+        "weekly_rejected_merged": len(wj_merged),
         "news_remote":    len(news_remote),
         "news_ours":      len(news_ours),
         "news_merged":    len(news_merged),
