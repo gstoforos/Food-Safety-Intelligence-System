@@ -156,13 +156,52 @@ def load_recalls(xlsx_path):
             for row in ws.iter_rows(min_row=2, values_only=True)]
 
 def filter_week(recalls, week_end):
-    ws = week_end - timedelta(days=6); out = []
+    """Return rows belonging to the weekly report ending Friday `week_end`.
+
+    Audit 2026-05-10: prefer the sticky `report_week` stamp set by
+    merge_master.compute_report_week() at promote time. Fall back to
+    legacy date-window math ONLY for rows that have no stamp yet — i.e.
+    historical rows promoted before 2026-05-10 (everything dated
+    before 2026-05-02 per migrate_recalls_report_week.py).
+
+    Why prefer the stamp:
+      • Late-arriving rows (scraped Wednesday for an event published the
+        prior Thursday) get correctly attributed to LAST week's report
+        instead of leaking into THIS week's date window.
+      • Friday-dated rows are deferred to NEXT week's report (the AM
+        ship-time scrape can't yet capture full Friday data); the legacy
+        date math wrongly included them in the same-day report.
+
+    Stamp rule (mirrored in merge_master.compute_report_week):
+        report_week = "W{nn}", nn = ISO week of the smallest Friday > Date.
+
+    Legacy fallback window (for rows with empty report_week):
+        week_end - 6  ≤  Date  ≤  week_end   (Sat..Fri inclusive, 7 days).
+        This is the OLD inclusive-Friday rule under which historical
+        weekly reports (W01..W19 of 2026) were originally built. Keeping
+        it as fallback preserves identical output for refresh_stale_weeks
+        runs against pre-stamp data.
+    """
+    expected_tag = "W{:02d}".format(week_end.isocalendar()[1])
+    legacy_ws = week_end - timedelta(days=6)
+    out = []
     for r in recalls:
-        d = r.get("Date","")
-        if not d: continue
-        try: rd = datetime.strptime(str(d)[:10],"%Y-%m-%d").date()
-        except ValueError: continue
-        if ws <= rd <= week_end: out.append(r)
+        stamp = (r.get("report_week") or "").strip()
+        if stamp:
+            # New path: trust the sticky stamp set at promote time.
+            if stamp == expected_tag:
+                out.append(r)
+            continue
+        # Legacy fallback: date-window math (pre-stamp historical rows).
+        d = r.get("Date", "")
+        if not d:
+            continue
+        try:
+            rd = datetime.strptime(str(d)[:10], "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        if legacy_ws <= rd <= week_end:
+            out.append(r)
     return out
 
 def _safe_int(v, default=0):
