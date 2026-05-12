@@ -204,6 +204,75 @@ def filter_week(recalls, week_end):
             out.append(r)
     return out
 
+
+def _display_window(week_end, filtered_recalls):
+    """Return (display_start, display_end) for the report period header.
+
+    Audit 2026-05-12: the displayed period depends on whether the report
+    was built under the OLD inclusive-Friday rule (Sat→Fri, 7 days) or
+    the NEW Friday-strict rule (Fri→Thu, 7 days). A report is treated
+    as new-rule iff at least one of its filtered rows carries a
+    report_week stamp — that stamp is set only by compute_report_week()
+    at promote time and only exists for rows dated ≥ 2026-05-02 per
+    migrate_recalls_report_week.py.
+
+    NEW rule (any row stamped):
+        display_start = week_end − 7 (previous Friday — first data day)
+        display_end   = week_end − 1 (Thursday — last data day)
+        ship Friday itself is NOT in the data window (rows dated that
+        day get stamped to NEXT week's report).
+
+    LEGACY rule (no stamped rows — pre-migration historicals):
+        display_start = week_end − 6 (Saturday)
+        display_end   = week_end    (Friday — ship day INCLUDED)
+        matches what W01..W18 of 2026 originally shipped, so historical
+        reports keep their published display.
+
+    Transitional W19 caveat: the migration intentionally left rows
+    dated 2026-05-01 (the prior ship Friday under the OLD rule) blank
+    rather than re-stamping them W19, so W19's filtered set starts at
+    May 2. display_start therefore derives from week_end − 6 in the
+    new-rule branch only if no row predates that — otherwise we let
+    the actual min(date) anchor the display start, so the period header
+    matches the data it summarises. Same applies to display_end vs
+    week_end − 1: if the last stamped row is earlier, use that.
+    """
+    any_stamp = any((r.get("report_week") or "").strip() for r in filtered_recalls)
+    if any_stamp:
+        # New-rule window: Friday (week_end − 7) through Thursday (week_end − 1).
+        rule_start = week_end - timedelta(days=7)
+        rule_end = week_end - timedelta(days=1)
+        # Tighten to actual data span — only for new-rule weeks. Handles the
+        # transitional W19 case where the rule window starts at Fri May 1
+        # but the migration left May 1 blank-stamped, so its earliest
+        # stamped row is Sat May 2. Legacy weeks are NEVER tightened —
+        # their period header must match what shipped at the time.
+        parsed_dates = []
+        for r in filtered_recalls:
+            d = r.get("Date", "")
+            if not d:
+                continue
+            try:
+                parsed_dates.append(datetime.strptime(str(d)[:10], "%Y-%m-%d").date())
+            except ValueError:
+                continue
+        if parsed_dates:
+            ds = min(parsed_dates); de = max(parsed_dates)
+            display_start = max(rule_start, ds)
+            display_end = min(rule_end, de)
+            if display_start > display_end:
+                display_start, display_end = rule_start, rule_end
+        else:
+            display_start, display_end = rule_start, rule_end
+    else:
+        # Legacy rule: Saturday (week_end − 6) through Friday (week_end).
+        # No tightening — preserves the published display for W01..W18 of
+        # 2026 even if the dataset is later corrected (rows added/removed).
+        display_start = week_end - timedelta(days=6)
+        display_end = week_end
+    return display_start, display_end
+
+
 def _safe_int(v, default=0):
     try: return int(v)
     except (ValueError, TypeError): return default
@@ -1836,7 +1905,12 @@ def build_html(week_end, recalls, prev_week, original_published=None):
     UPDATED label with today's date.
     """
     stats = compute_stats(recalls, prev_week)
-    ws = week_end - timedelta(days=6)
+    # Display window (audit 2026-05-12): under the new-rule (any row in
+    # `recalls` carries a report_week stamp), the period runs Fri→Thu
+    # (week_end−7 .. week_end−1) — the ship Friday is NOT part of the
+    # data window. Legacy reports (no stamped rows) keep Sat→Fri
+    # (week_end−6 .. week_end). See _display_window() for full reasoning.
+    ws, display_end_date = _display_window(week_end, recalls)
     wnum = week_end.isocalendar()[1]; year = week_end.year
     total = stats["total"]
     sr = sort_by_severity(recalls)
@@ -1896,7 +1970,7 @@ def build_html(week_end, recalls, prev_week, original_published=None):
         crows += '        <tr>\n          <td>{}</td>\n          <td>{}</td>\n          <td class="num">{}</td>\n          <td class="num">{}%</td>\n        </tr>\n'.format(esc(country), esc(auth), cnt, pct)
     if not crows: crows = '        <tr><td class="empty" colspan="4">No geographic data</td></tr>\n'
 
-    wsd = _fmt_date_short(ws); wed = _fmt_date(week_end)
+    wsd = _fmt_date_short(ws); wed = _fmt_date(display_end_date)
     period = "{} &ndash; {}".format(wsd, wed)
     # Header label flips between two states (audit 2026-05-09):
     #   First publish (original_published is None) →
@@ -1940,11 +2014,15 @@ def update_dashboard_data(week_end, stats, all_recalls=None):
     """
     out = ROOT / "docs" / "data" / "weekly-index.json"
 
-    def _make_entry(we, st):
-        wn = we.isocalendar()[1]; yr = we.year; ws = we - timedelta(days=6)
+    def _make_entry(we, st, wr_for_display=None):
+        wn = we.isocalendar()[1]; yr = we.year
+        # Display window via _display_window so JSON matches HTML period.
+        # New-rule (stamped) reports: ws=we−7 (Fri), we_display=we−1 (Thu).
+        # Legacy reports: ws=we−6 (Sat), we_display=we (Fri).
+        ws, we_display = _display_window(we, wr_for_display or [])
         tp_name = st["top_pathogen"][0] if st["top_pathogen"] else "Mixed"
         return {"filename":"{}-W{:02d}.html".format(yr,wn),"week_num":wn,"year":yr,
-                "week_start":ws.strftime("%Y-%m-%d"),"week_end":we.strftime("%Y-%m-%d"),
+                "week_start":ws.strftime("%Y-%m-%d"),"week_end":we_display.strftime("%Y-%m-%d"),
                 "generated":datetime.now(timezone.utc).isoformat(),
                 "total":st["total"],"tier1":st["tier1"],"outbreaks":st["outbreaks"],
                 "top_pathogen":tp_name,
@@ -1978,7 +2056,7 @@ def update_dashboard_data(week_end, stats, all_recalls=None):
             if not wr: continue
             pr = filter_week(all_recalls, prev_we)
             st = compute_stats(wr, pr)
-            entries.append(_make_entry(we, st))
+            entries.append(_make_entry(we, st, wr_for_display=wr))
     else:
         # Fallback: just the current week
         entries = [_make_entry(week_end, stats)]
@@ -1995,7 +2073,12 @@ def update_dashboard_data(week_end, stats, all_recalls=None):
         log.error("weekly-index.json write failed: %s", e)
 
 def write_weekly_summary_json(week_end, recalls, stats, data_dir):
-    wnum = week_end.isocalendar()[1]; year = week_end.year; ws = week_end - timedelta(days=6)
+    wnum = week_end.isocalendar()[1]; year = week_end.year
+    # Audit 2026-05-12: week_end in this JSON is the DISPLAY end (Thu for
+    # new-rule, Fri for legacy) so the dashboard formats it correctly.
+    # The HTML filename and isocalendar-derived wnum still anchor to the
+    # ship Friday — only the displayed window shifts.
+    ws, we_display = _display_window(week_end, recalls)
     tp = stats.get("top_pathogen")
     leading = {"name":tp[0],"cases":tp[1],"pct":round(tp[1]/max(stats["total"],1)*100)} if tp and len(tp)>=2 else {"name":"Mixed","cases":0,"pct":0}
     sr = sort_by_severity(recalls); threats = []
@@ -2009,8 +2092,8 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir):
     summary = {"filename":"{}-W{:02d}.html".format(year,wnum),
         "report_url":"https://gstoforos.github.io/Food-Safety-Intelligence-System/{}-W{:02d}.html".format(year,wnum),
         "dashboard_url":"https://www.advfood.tech/fsis-recalls",
-        "week_num":wnum,"year":year,"week_start":ws.isoformat(),"week_end":week_end.isoformat(),
-        "week_start_display":ws.strftime("%-d %b"),"week_end_display":week_end.strftime("%-d %b %Y"),
+        "week_num":wnum,"year":year,"week_start":ws.isoformat(),"week_end":we_display.isoformat(),
+        "week_start_display":ws.strftime("%-d %b"),"week_end_display":we_display.strftime("%-d %b %Y"),
         "generated_utc":datetime.now(timezone.utc).isoformat(),
         "stats":{"total":stats["total"],"tier1":stats["tier1"],"outbreaks":stats["outbreaks"],
                  "delta":stats.get("delta",0),"delta_pct":stats.get("delta_pct",0)},
