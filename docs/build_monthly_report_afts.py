@@ -33,6 +33,7 @@ import calendar
 import json
 import logging
 import os
+import re
 import sys
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
@@ -984,6 +985,92 @@ font-weight:700;padding:2px 6px;border-radius:2px;letter-spacing:0.06em;margin-l
 
 
 # ---------------------------------------------------------------------------
+# HTML EXTRACTION HELPERS  (added 2026-05-09)
+# ---------------------------------------------------------------------------
+# These three helpers let pipeline/build_monthly_updates_check.py reason
+# about the state of a previously-built monthly HTML on disk, without
+# re-running the full builder. They mirror the equivalent helpers in
+# build_weekly_report_afts.py (_extract_total_from_html etc.) so the
+# weekly and monthly drift-detection paths use the same patterns.
+#
+# Pattern matched (rendered into the masthead by build_monthly_html):
+#     <strong>PUBLISHED</strong> &middot; 1 May 2026
+#   or after a rebuild:
+#     <strong>UPDATED</strong> &middot; 8 May 2026
+# ---------------------------------------------------------------------------
+
+# Total Recalls KPI is the FIRST <div class="kpi-value">N</div> in the
+# rendered monthly HTML — the KPI strip puts Total Recalls leftmost.
+_KPI_TOTAL_RE = re.compile(r'<div class="kpi-value">(\d+)</div>')
+
+# Masthead label line: matches both PUBLISHED and UPDATED variants.
+_MASTHEAD_LABEL_RE = re.compile(
+    r'<strong>(PUBLISHED|UPDATED)</strong>\s*&middot;\s*([^<]+?)<'
+)
+
+
+def _extract_total_from_html_monthly(path: Path) -> Optional[int]:
+    """Read the Total Recalls value from an existing monthly report HTML.
+
+    Returns the int (e.g. 359) or None if the file doesn't exist or no
+    KPI value can be found. The first kpi-value div in the masthead's
+    KPI strip is always Total Recalls — see the build_monthly_html
+    template for the layout contract.
+    """
+    try:
+        html = Path(path).read_text(encoding="utf-8")
+        m = _KPI_TOTAL_RE.search(html)
+        if m:
+            return int(m.group(1))
+    except Exception:
+        pass
+    return None
+
+
+def _extract_published_from_html_monthly(path: Path) -> Optional[str]:
+    """Detect whether an existing monthly HTML carries a header date
+    marker (either PUBLISHED or UPDATED).
+
+    Returns the verbatim date string (e.g. "1 May 2026") on match, or
+    None. The CONTENT of the returned string is NOT used by
+    build_monthly_html after the 2026-05-09 label-flip change — the FACT
+    that it returned non-None is the signal "this is a rebuild, flip the
+    label to UPDATED and use today's date." Successive rebuilds keep
+    flipping the date forward as expected.
+    """
+    try:
+        html = Path(path).read_text(encoding="utf-8")
+        m = _MASTHEAD_LABEL_RE.search(html)
+        if m:
+            return m.group(2).strip()
+    except Exception:
+        pass
+    return None
+
+
+def _extract_label_from_html_monthly(path: Path) -> Optional[str]:
+    """Return the literal header label — "PUBLISHED" or "UPDATED" — from
+    an existing monthly HTML, or None.
+
+    Companion to _extract_published_from_html_monthly. Used by the
+    monthly-updates-check Wednesday-equivalent flow to detect the
+    "stuck PUBLISHED label after legacy rebuild" case where a report's
+    count matches the dataset BUT the header is still PUBLISHED because
+    it was overwritten by a builder version that pre-dated this label-
+    flip code. The check forces a one-shot rebuild to flip to UPDATED
+    without waiting for a count change.
+    """
+    try:
+        html = Path(path).read_text(encoding="utf-8")
+        m = _MASTHEAD_LABEL_RE.search(html)
+        if m:
+            return m.group(1)
+    except Exception:
+        pass
+    return None
+
+
+# ---------------------------------------------------------------------------
 # MAIN HTML RENDER
 # ---------------------------------------------------------------------------
 def build_monthly_html(month_start: date, month_end: date,
@@ -991,10 +1078,43 @@ def build_monthly_html(month_start: date, month_end: date,
                        stats: Dict[str, Any],
                        signals: Dict[str, Any],
                        models: Dict[str, Any],
-                       narrative: str) -> str:
+                       narrative: str,
+                       original_published: Optional[str] = None) -> str:
+    """Render the subscriber-edition monthly HTML.
+
+    original_published:  None  → fresh publish; masthead reads
+                                 "PUBLISHED · {month_end + 1}".
+                         str   → rebuild; masthead reads
+                                 "UPDATED · {today}". The string itself
+                                 (returned by _extract_published_from_html_monthly)
+                                 is just the "this is a rebuild" signal —
+                                 its content is no longer used in render.
+
+    Audit 2026-05-09 — added original_published with label-flip semantics
+    matching the weekly report. Pre-this change, every rebuild silently
+    re-stamped the PUBLISHED date with month_end+1 (the formulaic publish
+    day-after), so the user couldn't tell a rebuilt April report from
+    its first edition. Now rebuilds carry an explicit UPDATED label
+    with today's date.
+    """
     month_name = month_start.strftime("%B")
     year       = month_start.year
     year_m     = f"{year}-M{month_start.month:02d}"
+
+    # Header label flips between two states (audit 2026-05-09):
+    #   First publish (original_published is None) →
+    #     "PUBLISHED · {month_end + 1}" — formulaic 1st-of-next-month,
+    #     matching the afts-monthly-report.yml first-of-month build.
+    #   Rebuild (original_published is set) →
+    #     "UPDATED · {today}" — the actual rebuild date.
+    # The label change is the visible signal that the user is looking
+    # at a revised version of a previously-published monthly briefing.
+    if original_published:
+        published_label = "UPDATED"
+        pub_date = datetime.now(timezone.utc).strftime("%-d %b %Y")
+    else:
+        published_label = "PUBLISHED"
+        pub_date = (month_end + timedelta(days=1)).strftime("%-d %b %Y")
 
     # Paragraphs with italic pathogens + PA-note styling
     paragraphs = [p.strip() for p in narrative.split("\n\n") if p.strip()]
@@ -1191,6 +1311,9 @@ text-transform:uppercase;letter-spacing:-0.01em;}}
 .brand em{{color:{BRAND_ORANGE};font-style:normal;}}
 .tagline{{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
 text-transform:uppercase;letter-spacing:0.14em;margin-top:4px;}}
+.pubdate{{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+text-transform:uppercase;letter-spacing:0.12em;margin-top:6px;}}
+.pubdate strong{{color:{BRAND_BLACK};font-weight:700;}}
 .pill{{background:{BRAND_BLACK};color:#fff;font-family:'DM Mono',monospace;font-size:10px;
 padding:5px 12px;letter-spacing:0.12em;text-transform:uppercase;}}
 h1.r-title{{font-family:Syne,Georgia,serif;font-weight:800;font-size:30px;color:{BRAND_BLACK};
@@ -1573,6 +1696,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   <div>
     <div class="brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div>
     <div class="tagline">Food Safety Intelligence System · Monthly Briefing</div>
+    <div class="pubdate"><strong>{published_label}</strong> &middot; {pub_date}</div>
   </div>
   <div class="pill">{escape(month_name)} {year}</div>
 </div>
@@ -2145,9 +2269,30 @@ def main() -> int:
     )
 
     # HTML + companion page
-    html = build_monthly_html(month_start, month_end_full, month_recalls,
-                              stats, signals, models, narrative)
     out_path = Path(args.output) if args.output else (ROOT / f"{month_start.year}-M{month_start.month:02d}.html")
+
+    # Auto-detect rebuild vs fresh publish (audit 2026-05-09):
+    # If a previous build of this month already exists on disk, this
+    # invocation is a REBUILD — the masthead label flips to "UPDATED · {today}".
+    # Fresh first-time builds (no prior file) render "PUBLISHED · {1st of next month}".
+    #
+    # The signal is FILE EXISTENCE, not the presence of a date marker —
+    # legacy HTMLs built before this label-flip code lack the marker
+    # entirely, but they ARE prior builds and should be treated as such.
+    is_rebuild = out_path.exists() and _extract_total_from_html_monthly(out_path) is not None
+    if is_rebuild:
+        prior_label_date = _extract_published_from_html_monthly(out_path)
+        log.info("Existing monthly HTML detected at %s (prior label='%s') — "
+                 "rebuild will render UPDATED label",
+                 out_path, prior_label_date or "<legacy: no label>")
+    else:
+        log.info("No prior monthly HTML at %s — first publish, PUBLISHED label", out_path)
+
+    # Pass a non-empty string when this is a rebuild — build_monthly_html only
+    # checks truthiness of original_published; the value's content is ignored.
+    html = build_monthly_html(month_start, month_end_full, month_recalls,
+                              stats, signals, models, narrative,
+                              original_published=("rebuild" if is_rebuild else None))
     out_path.write_text(html, encoding="utf-8")
     log.info("Monthly report: %s (%d bytes)", out_path, len(html))
 
