@@ -52,7 +52,17 @@ SCHEMA = ["Date", "Source", "Company", "Brand", "Product", "Pathogen", "Reason",
 #               reachability check) last validated this row's URL. Used
 #               by url_guardian to skip rows checked recently and avoid
 #               redundant Gemini grounded calls.
-RECALLS_INTERNAL_COLUMNS = ["DateAdded", "LastUpdated", "LastChecked"]
+# report_week — sticky stamp identifying which weekly report this row
+#               belongs to (e.g. "W19", "W20"). Set ONCE at promote time
+#               from the row's Date using compute_report_week() and never
+#               overwritten — even if the row is later edited or the URL
+#               re-validated. The weekly builder filters by this stamp
+#               instead of doing date-window math, so late-arriving rows
+#               (e.g. scraped Wednesday for an event published the prior
+#               Thursday) correctly land in the right week's report.
+#               See compute_report_week() below for the rule.
+#               Introduced 2026-05-10 per operator instruction.
+RECALLS_INTERNAL_COLUMNS = ["DateAdded", "LastUpdated", "LastChecked", "report_week"]
 RECALLS_SCHEMA = SCHEMA + RECALLS_INTERNAL_COLUMNS
 
 # Pending sheet has the same columns plus three tracking columns.
@@ -132,6 +142,67 @@ GAP_GATING_STATUSES = frozenset({
 NON_PROMOTABLE_STATUSES = GAP_GATING_STATUSES | frozenset({
     STATUS_PENDING_ENRICHMENT,
 })
+
+
+# ---------------------------------------------------------------------------
+# Weekly-report stamping (audit 2026-05-10)
+# ---------------------------------------------------------------------------
+# Each row promoted to Recalls is stamped with `report_week` so the weekly
+# builder can filter by the stamp instead of computing a date window. This
+# matters for late-arriving rows: a row scraped Wednesday for an event
+# published the prior Thursday must end up in LAST week's report — not this
+# week's. Stamping at promote time (from the row's Date, not the scrape
+# time) makes that automatic.
+#
+# RULE: report_week = "W{nn}" where nn = ISO week number of the SMALLEST
+# Friday F such that F > row_date (strictly greater, not >=).
+#
+# Why "strictly greater": each weekly report ships Friday morning. A row
+# dated Friday F itself isn't yet captured by F's AM scrape, so it lands
+# in the NEXT week's report. Verifications (with date → next-Fri-strict
+# → ISO week of that Friday):
+#   2026-05-01  Fri  →  2026-05-08  →  W19
+#   2026-05-02  Sat  →  2026-05-08  →  W19
+#   2026-05-07  Thu  →  2026-05-08  →  W19
+#   2026-05-08  Fri  →  2026-05-15  →  W20
+#   2026-05-14  Thu  →  2026-05-15  →  W20
+#
+# The stamp is STICKY — once set, never recomputed. URL re-validation,
+# pathogen enrichment, and any other audit-fix code paths that touch an
+# existing Recalls row must NEVER overwrite report_week.
+#
+# All Recalls insertions go through promote_approved() — there's no other
+# code path that writes to Recalls — so stamping there covers every row.
+# That includes the audit-2026-05-11 pending_enrichment unlock path: when
+# stranded rows get their Status flipped back to "pending" and Claude's
+# clean-row shortcut approves them, they pass through promote_approved
+# and get stamped from their own Date (not the scrape time), so a
+# previously-stuck row published 2026-05-05 stamps as W19 even if the
+# unlock happens in week 21.
+def compute_report_week(date_str: str) -> str:
+    """Return the report_week stamp for a given row date.
+
+    Args:
+        date_str: ISO date string (YYYY-MM-DD) or anything coerce-able.
+
+    Returns:
+        "W{nn}" where nn is zero-padded ISO week of the next-Friday-after.
+        Empty string if the date can't be parsed.
+    """
+    if not date_str:
+        return ""
+    try:
+        d = datetime.strptime(str(date_str)[:10], "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        return ""
+    from datetime import timedelta as _td
+    # Mon=0 .. Fri=4 .. Sun=6
+    days_until_next_friday = (4 - d.weekday()) % 7
+    if days_until_next_friday == 0:
+        # d itself is Friday — strict next is +7
+        days_until_next_friday = 7
+    next_friday = d + _td(days=days_until_next_friday)
+    return f"W{next_friday.isocalendar()[1]:02d}"
 
 
 # ---------------------------------------------------------------------------
@@ -1225,6 +1296,7 @@ def promote_approved(
         #   LastUpdated = today (initial insert counts as an update)
         #   LastChecked = "" (no URL re-validation has happened yet —
         #                     url_guardian/url_gate will fill this later)
+        #   report_week = stamp from row Date (sticky — see compute_report_week)
         from datetime import date as _today_fn
         _today = _today_fn.today().isoformat()
         approved_row = {col: clean.get(col, "" if col not in ("Tier", "Outbreak") else 0)
@@ -1232,6 +1304,7 @@ def promote_approved(
         approved_row["DateAdded"] = _today
         approved_row["LastUpdated"] = _today
         approved_row["LastChecked"] = ""
+        approved_row["report_week"] = compute_report_week(approved_row.get("Date", ""))
         new_approved.append(approved_row)
 
     rejected_kept = sum(1 for r in kept_in_pending if r.get("Status") == STATUS_REJECTED)
