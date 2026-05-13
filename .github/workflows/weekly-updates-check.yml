@@ -1,7 +1,7 @@
 name: AFTS Weekly Updates Check
 
 # ==========================================================================
-# Runs every WEDNESDAY at 09:00 ATHENS TIME.
+# Runs every WEDNESDAY at 09:00 ATHENS TIME via FsisScheduler.gs.
 #
 # Walks the last 4 Friday-ending weeks. If any week's recall count in the
 # current dataset differs from the count baked into the existing HTML
@@ -12,9 +12,25 @@ name: AFTS Weekly Updates Check
 # (1h later) and sends one combined update email if any weeks changed.
 # Empty manifest = no email = silent skip.
 #
-# Two DST crons + Athens hour-guard, identical pattern to the rest of
-# AFTS. Athens 09:00 = UTC 06:00 (summer EEST) / 07:00 (winter EET).
-# Cron uses min/hour/dom/mon/dow with Sunday=0, so Wednesday=3.
+# SCHEDULING (2026-05-13 — single source of truth):
+#   FsisScheduler.gs (Apps Script) dispatches this workflow every
+#   Wednesday at 09:00 Athens. The internal GitHub `cron:` block was
+#   REMOVED to eliminate double-fire — previously the workflow was
+#   firing TWICE at 06:00 UTC (once from internal cron, once from
+#   FsisScheduler dispatch), which produced 3 entries in the shared
+#   `fsis-data-writers` concurrency group, evicting the queued one
+#   and causing 5-second ⚠ failures. FsisScheduler is Athens-aware
+#   (handles DST correctly) and remains the single dispatch source
+#   per the project-wide "all schedules are Athens-local" rule.
+#
+# CONCURRENCY (2026-05-13):
+#   Moved out of the shared `fsis-data-writers` group into its own
+#   `fsis-weekly-updates` group. This workflow only writes to
+#   docs/data/weekly-updates-pending.json, weekly-index.json,
+#   weekly-summary-latest.json, and rebuilt 20*-W*.html files —
+#   none of which overlap with the morning scrape/review cascade
+#   that owns the fsis-data-writers lock. Isolating it removes the
+#   eviction risk at the busy 09:00 Athens slot.
 #
 # Hardened 2026-05-09:
 #   • Commit step now scans staged files for git-conflict markers before
@@ -32,16 +48,13 @@ name: AFTS Weekly Updates Check
 # ==========================================================================
 
 on:
-  schedule:
-    - cron: '0 6 * * 3'   # Wednesday 06:00 UTC = 09:00 EEST (Athens summer)
-    - cron: '0 7 * * 3'   # Wednesday 07:00 UTC = 09:00 EET  (Athens winter)
-  workflow_dispatch: {}   # manual run / catch-up
+  workflow_dispatch: {}   # FsisScheduler.gs is the only entry point
 
 permissions:
   contents: write
 
 concurrency:
-  group: fsis-data-writers
+  group: fsis-weekly-updates
   cancel-in-progress: false
 
 jobs:
@@ -56,9 +69,15 @@ jobs:
           HOUR=$(TZ=Europe/Athens date +%H)
           DOW=$(TZ=Europe/Athens date +%u)   # 1=Mon .. 7=Sun
           echo "athens_hour=$HOUR dow=$DOW"
+          # Since we removed the internal cron (2026-05-13), every fire
+          # here is a workflow_dispatch from FsisScheduler.gs (or a
+          # manual run). FsisScheduler already self-gates on Wed 09:00
+          # Athens, so we can run unconditionally on workflow_dispatch.
+          # The guard remains for manual UI dispatches and for the audit
+          # trail in the workflow log.
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "Manually dispatched — running."
+            echo "Dispatched (manual or FsisScheduler) — running."
           elif [ "$HOUR" = "09" ] && [ "$DOW" = "3" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Athens Wednesday 09:xx — running."
@@ -116,6 +135,16 @@ jobs:
 
       - name: Check & rebuild last 4 weeks
         if: steps.guard.outputs.run == 'true'
+        env:
+          # Claude API used by docs/build_weekly_report_afts.py for
+          # original-publish-date inference (review_with_claude) and the
+          # 3-paragraph analyst summary (generate_analysis_claude).
+          # Without the key the script falls back to a less-accurate
+          # parser — script still completes, but accuracy degrades.
+          # Added 2026-05-13 (was previously missing — monthly workflow
+          # already had it).
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY:    ${{ secrets.OPENAI_API_KEY }}
         run: |
           python -m pipeline.build_weekly_updates_check
 

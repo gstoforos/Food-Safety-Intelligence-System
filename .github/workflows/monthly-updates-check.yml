@@ -1,7 +1,7 @@
 name: AFTS Monthly Updates Check
 
 # ==========================================================================
-# Runs on the 8TH OF EVERY MONTH at 09:00 ATHENS TIME.
+# Runs on the 8TH OF EVERY MONTH at 09:00 ATHENS TIME via FsisScheduler.gs.
 #
 # Walks the last 3 closed months (current anchor = previous calendar
 # month, plus the 2 months before it). For each, compares the recall
@@ -18,6 +18,25 @@ name: AFTS Monthly Updates Check
 # lead magnet on hub.html) and runs set_pdf_urls so monthly-index.json
 # stays aligned with the freshly-regenerated PDFs.
 #
+# SCHEDULING (2026-05-13 — single source of truth):
+#   FsisScheduler.gs (Apps Script) dispatches this workflow on the
+#   8th of each month at 09:00 Athens. The internal GitHub `cron:`
+#   block was REMOVED to eliminate double-fire with the FsisScheduler
+#   dispatch — same hardening applied to weekly-updates-check.yml on
+#   the same day. FsisScheduler is Athens-aware (handles DST correctly)
+#   and is now the single dispatch source per the project-wide
+#   "all schedules are Athens-local" rule.
+#
+# CONCURRENCY (2026-05-13):
+#   Moved out of the shared `fsis-data-writers` group into its own
+#   `fsis-monthly-updates` group. This workflow only writes to
+#   docs/data/monthly-updates-pending.json, monthly-index.json,
+#   monthly-summary-latest.json, rebuilt 20*-M*.html files, and the
+#   marketing one-pager PDFs in docs/marketing/ — none of which
+#   overlap with the morning scrape/review cascade that owns the
+#   fsis-data-writers lock. Isolation removes the eviction risk at
+#   the busy 09:00 Athens slot on the 8th.
+#
 # Mirrors the weekly-updates-check.yml hardening:
 #   • Pre-flight conflict-marker scan on tracked JSON
 #   • Post-build JSON validation (Python json.load + marker grep)
@@ -26,23 +45,16 @@ name: AFTS Monthly Updates Check
 #     conflicted files)
 #   • jq-based Summary step that NEVER fails the workflow over a parse
 #     error (fallback: dump raw bytes)
-#
-# Schedule:
-#   Athens 09:00 = UTC 06:00 (EEST summer) / 07:00 (EET winter).
-#   Two cron lines + Athens hour-guard so only the right one runs.
 # ==========================================================================
 
 on:
-  schedule:
-    - cron: '0 6 8 * *'   # 8th of month, 06:00 UTC = 09:00 EEST (Athens summer)
-    - cron: '0 7 8 * *'   # 8th of month, 07:00 UTC = 09:00 EET  (Athens winter)
-  workflow_dispatch: {}   # manual run / catch-up
+  workflow_dispatch: {}   # FsisScheduler.gs is the only entry point
 
 permissions:
   contents: write
 
 concurrency:
-  group: fsis-data-writers     # share the lock with weekly + merge_master
+  group: fsis-monthly-updates
   cancel-in-progress: false
 
 jobs:
@@ -57,9 +69,15 @@ jobs:
           HOUR=$(TZ=Europe/Athens date +%H)
           DAY=$(TZ=Europe/Athens date +%d)
           echo "athens_hour=$HOUR  day=$DAY"
+          # Since we removed the internal cron (2026-05-13), every fire
+          # here is a workflow_dispatch from FsisScheduler.gs (or a
+          # manual run). FsisScheduler already self-gates on day-8 09:00
+          # Athens, so we can run unconditionally on workflow_dispatch.
+          # The guard remains for manual UI dispatches and for the audit
+          # trail in the workflow log.
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "Manually dispatched — running."
+            echo "Dispatched (manual or FsisScheduler) — running."
           elif [ "$HOUR" = "09" ] && [ "$DAY" = "08" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Athens 8th-of-month 09:xx — running."
