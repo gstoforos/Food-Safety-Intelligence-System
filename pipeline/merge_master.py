@@ -1594,12 +1594,56 @@ def rebuild_daily_briefs_for_promoted(
     from collections import defaultdict
     from datetime import date as _date
 
-    # Group newly-promoted rows by Date
+    # ------------------------------------------------------------------
+    # Audit 2026-05-13: today (Athens) must NEVER be rebuilt here.
+    #
+    # The daily-brief design rule (see pipeline.daily_recall_search.main,
+    # ~line 1388) is explicit: the dashboard window is [target..target-6]
+    # where target = yesterday Athens. Today's brief is rendered TOMORROW
+    # at 10:00 Athens, when today becomes the new "target". Rendering it
+    # earlier:
+    #   • inflates the dashboard to 8 cards (today + yesterday + 6 back)
+    #   • pushes the oldest day off the visible feed
+    #   • writes a partial brief based on whatever rows happen to have
+    #     been promoted before the day ends, instead of the complete day
+    #
+    # The bug: this helper iterated every Date present in `new_approved`
+    # without filtering today/future. When the 17:11 claude_check promoted
+    # rows dated 2026-05-13, docs/daily/2026-05-13.html got written and
+    # daily-index.json got a 2026-05-13 entry — exactly what the 10:00
+    # Thursday workflow is supposed to do, and what George explicitly
+    # forbids today's runs from doing.
+    #
+    # Fix: compute today_athens once, skip any date_str >= today_athens
+    # from the rebuild loop. Promoted rows dated today still land in the
+    # Recalls sheet (xlsx) and in recalls.json — only the daily-brief HTML
+    # + daily-index.json entry are deferred until tomorrow morning.
+    # ------------------------------------------------------------------
+    try:
+        from zoneinfo import ZoneInfo  # noqa: WPS433
+        _today_athens = datetime.now(ZoneInfo("Europe/Athens")).date()
+    except Exception:  # noqa: BLE001 — fall back to UTC if tzdata missing
+        _today_athens = datetime.now(timezone.utc).date()
+    _today_iso = _today_athens.isoformat()
+
+    # Group newly-promoted rows by Date, deferring today/future dates.
     by_date: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    _deferred: Dict[str, int] = {}
     for r in new_approved:
         d = str(r.get("Date") or "").strip()[:10]
-        if d:
-            by_date[d].append(r)
+        if not d:
+            continue
+        if d >= _today_iso:
+            _deferred[d] = _deferred.get(d, 0) + 1
+            continue
+        by_date[d].append(r)
+
+    if _deferred:
+        for d_iso, n in sorted(_deferred.items()):
+            log.info("Skip brief rebuild for %s (%d row(s)): today/future "
+                     "Athens — will be rendered by tomorrow's 10:00 "
+                     "daily-recall-search run (today_athens=%s)",
+                     d_iso, n, _today_iso)
 
     # Fast-lookup of ALL Recalls by date so we render the full day, not
     # only the newly-promoted rows.
