@@ -253,10 +253,13 @@ tr:hover td{background:rgba(255,255,255,.02);}
 /* Locked elements — tabs/buttons that require subscription. Greyed by default,
    on hover they morph into an orange Subscribe CTA so the upgrade path is
    one click away from anywhere on the page. */
-.promo-locked{position:relative;cursor:pointer!important;opacity:.55;transition:opacity .15s,color .15s,background .15s,border-color .15s;}
-.promo-locked::after{content:'🔒';font-size:9px;margin-left:6px;opacity:.7;}
-.promo-locked:hover{opacity:1;color:var(--ai)!important;border-color:var(--ai)!important;}
-.promo-locked:hover::after{content:'→ Subscribe';font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--ai);letter-spacing:.08em;}
+/* Locked state — visually unambiguous: dimmed, lower saturation,
+   always-visible padlock + Subscribe hint. Hovering brightens to AI green
+   so the call-to-action reads as "subscribe to unlock". */
+.promo-locked{position:relative;cursor:pointer!important;opacity:.48;filter:saturate(.45);transition:opacity .15s,color .15s,background .15s,border-color .15s,filter .15s;}
+.promo-locked::after{content:' 🔒';font-size:11px;margin-left:5px;opacity:.85;display:inline-block;vertical-align:1px;}
+.promo-locked:hover{opacity:1;filter:saturate(1);color:var(--ai)!important;border-color:var(--ai)!important;}
+.promo-locked:hover::after{content:' 🔒 Subscribe';font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--ai);letter-spacing:.08em;text-transform:uppercase;}
 /* Inside the locked tab, the active-bottom-border indicator is suppressed
    because hovering it shouldn't suggest you can enter the tab. */
 .promo-locked.tab:hover{border-bottom-color:var(--ai)!important;}
@@ -320,6 +323,16 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .promo-topbar a{color:#fff;font-weight:800;text-decoration:none;border-bottom:2px solid #fff;padding-bottom:1px;transition:filter .15s,letter-spacing .15s;}
 .promo-topbar a:hover{filter:brightness(1.15);letter-spacing:.12em;}
 @media(max-width:600px){.promo-topbar{font-size:10px;padding:8px 12px;gap:8px;flex-wrap:wrap;text-align:center;}.promo-topbar b{font-size:13px;}}
+
+/* Click-to-continue state — fires when the 30s countdown reaches zero.
+   Cross-origin iframes can't auto-navigate the parent without a user
+   gesture, so the topbar morphs into a giant pulsing button. One tap
+   on this counts as activation → target="_top" escapes the iframe. */
+.promo-topbar.promo-topbar-ready{padding:16px 18px;animation:promoPulseGlow 1.6s ease-in-out infinite;}
+.promo-topbar-continue{display:block;width:100%;text-align:center;color:#fff !important;font-family:'DM Mono',monospace;font-size:14px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border:none;padding:0;text-shadow:0 0 10px rgba(255,255,255,.4);}
+.promo-topbar-continue:hover{filter:brightness(1.12);letter-spacing:.16em;}
+@keyframes promoPulseGlow{0%,100%{box-shadow:0 2px 14px rgba(255,99,0,.45);}50%{box-shadow:0 4px 32px rgba(255,99,0,.95);}}
+@media(max-width:600px){.promo-topbar-continue{font-size:12px;letter-spacing:.10em;}}
 
 </style></head><body class="promo-mode">
 <div class="promo-topbar" id="promo-topbar" role="banner" aria-live="polite">→ Continuing to subscription plans in <b id="promo-counter">30</b>s · <a href="https://www.advfood.tech/fsis-plans" target="_top">Subscribe now →</a></div>
@@ -1179,32 +1192,73 @@ function _promoSampleRecalls(){
 }
 
 function _promoNavigatePlans(e){
-  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();  // blocks inline onclick on the SAME element
+  }
+  // Path 1 — try top-window nav. Works if Wix iframe has allow-top-navigation
+  // (typically it doesn't, but harmless).
   try { window.top.location.href = PROMO_PLANS_URL; return; } catch(_){}
+  // Path 2 — synthetic <a target="_top"> click. Inherits user gesture.
+  try {
+    var a = document.createElement('a');
+    a.href = PROMO_PLANS_URL;
+    a.target = '_top';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    return;
+  } catch(_){}
+  // Path 3 — open new tab. Works in sandboxed iframes with allow-popups
+  // (Wix default). Most reliable cross-origin path with a user gesture.
+  try {
+    var w = window.open(PROMO_PLANS_URL, '_blank', 'noopener');
+    if (w) return;
+  } catch(_){}
+  // Path 4 — postMessage to parent (if a Velo onMessage handler is wired up)
   try { window.parent.postMessage({afts:'navigate', url:PROMO_PLANS_URL}, '*'); } catch(_){}
+  // Last resort — navigate inside the iframe (visibly broken but better
+  // than no feedback at all)
   try { window.location.href = PROMO_PLANS_URL; } catch(_){}
 }
 
 function _promoLockTabs(){
   // Lock every tab EXCEPT the one currently active. Active tab keeps
   // working so visitors can interact with the visible sample content.
+  // Stripping the inline onclick is critical — capture-phase listeners
+  // alone don't block sibling inline handlers on the same element.
   document.querySelectorAll('.tab').forEach(tab => {
     if (tab.classList.contains('active')) return;
     tab.classList.add('promo-locked');
     tab.setAttribute('title', 'Subscribe to unlock');
+    tab.removeAttribute('onclick');         // kill switchTab(), downloadRecallsXlsx(), window.open()
+    tab.removeAttribute('aria-disabled');   // (re-applied by Yearly tab below if set)
     tab.addEventListener('click', _promoNavigatePlans, true);
   });
 }
 
 function _promoLockDownloads(){
+  // Anchor-based download links
   document.querySelectorAll('a[onclick*="download"], a[onclick*="Recalls"], a[onclick*="Xlsx"], a[onclick*="Json"]').forEach(a => {
     a.classList.add('promo-locked');
     a.removeAttribute('onclick');
+    a.removeAttribute('href');
     a.setAttribute('title', 'Subscribe to download');
     a.addEventListener('click', _promoNavigatePlans, true);
   });
+  // Button-based download/action triggers (XLSX, Alerts, archive actions)
+  document.querySelectorAll('button[onclick*="download"], button[onclick*="Recalls"], button[onclick*="Xlsx"], button[onclick*="Json"], button[onclick*="alerts.html"]').forEach(b => {
+    b.classList.add('promo-locked');
+    b.removeAttribute('onclick');
+    b.setAttribute('title', 'Subscribe to unlock');
+    b.addEventListener('click', _promoNavigatePlans, true);
+  });
+  // Report cards, pagination, archive links
   document.querySelectorAll('.report-btn, .pb, .arch-url').forEach(b => {
     b.classList.add('promo-locked');
+    b.removeAttribute('onclick');
     b.setAttribute('title', 'Subscribe to unlock');
     b.addEventListener('click', _promoNavigatePlans, true);
   });
@@ -1257,11 +1311,16 @@ function _promoApplyAll(){
 
 // 30-second auto-redirect — fires once the dashboard data is on screen so
 // visitors have actually seen the product before being routed to the plans
-// page. Cross-origin top-navigation strategy reuses _promoNavigatePlans.
+// page. Cross-origin top-navigation can't fire programmatically from an
+// iframe without a user gesture, so on countdown end we transform the
+// topbar into a giant click-to-continue link (user click = valid gesture
+// = target="_top" navigates cleanly). We ALSO postMessage to the parent
+// in case a Wix Velo listener is wired up — see Wix onMessage hook below.
 const PROMO_AUTOREDIRECT_SECONDS = 30;
 function _promoStartCountdown(){
   const counterEl = document.getElementById('promo-counter');
-  if (!counterEl) return;
+  const topbar    = document.getElementById('promo-topbar');
+  if (!counterEl || !topbar) return;
   if (window._promo_timer) clearInterval(window._promo_timer);
   let n = PROMO_AUTOREDIRECT_SECONDS;
   counterEl.textContent = n;
@@ -1270,7 +1329,14 @@ function _promoStartCountdown(){
     counterEl.textContent = Math.max(0, n);
     if (n <= 0) {
       clearInterval(window._promo_timer);
-      _promoNavigatePlans();
+      // Try optional Velo-listener path first (harmless if no listener)
+      try { window.parent.postMessage({afts:'navigate', url:PROMO_PLANS_URL}, '*'); } catch(_){}
+      // Transform topbar → unmissable click-to-continue (requires user click)
+      topbar.classList.add('promo-topbar-ready');
+      topbar.innerHTML =
+        '<a href="' + PROMO_PLANS_URL + '" target="_top" rel="noopener" class="promo-topbar-continue">' +
+        '→ &nbsp;Click to continue to subscription plans&nbsp; →' +
+        '</a>';
     }
   }, 1000);
 }
