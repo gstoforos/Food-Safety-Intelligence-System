@@ -1,33 +1,7 @@
 {
-  "generated_utc": "2026-05-09T08:02:39.542705+00:00",
+  "generated_utc": "2026-05-13T07:09:59.244354+00:00",
   "checked_back_weeks": 4,
   "anchor_friday": "2026-05-08",
-  "updated_weeks": [
-    {
-      "year": 2026,
-      "week_num": 16,
-      "filename": "2026-W16.html",
-      "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W16.html",
-      "week_start": "2026-04-11",
-      "week_end": "2026-04-17",
-      "old_total": 68,
-      "new_total": 69,
-      "delta": 1
-    },
-    {
-      "year": 2026,
-      "week_num": 19,
-      "filename": "2026-W19.html",
-      "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W19.html",
-      "week_start": "2026-05-02",
-      "week_end": "2026-05-08",
-      "old_total": 43,
-      "new_total": 49,
-      "delta": 6
-    }
-  ],
-  "primary_cta": {
-    "label": "VIEW WEEKLY DASHBOARD",
-    "url": "https://www.advfood.tech/#weekly"
-  }
+  "updated_weeks": [],
+  "primary_cta": null
 }
