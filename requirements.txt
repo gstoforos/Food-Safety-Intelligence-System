@@ -63,3 +63,14 @@ python-dotenv>=1.0.1
 
 # --- Validation / robustness ---
 tenacity>=8.2.3
+
+# --- PDF text extraction (claude_check PDF reviewer) ---
+# Added 2026-05-13. Latin American regulators (INVIMA, ANMAT) and AU FSANZ
+# publish recalls primarily as PDFs. Without pypdf, claude_check SKIPs
+# every PDF URL with "PDF text extraction unavailable" and the row stays
+# in Pending forever. Two INVIMA rows (Alert 127-2026 PURIFRESK,
+# Alert 123-2026 BICHOTA) and 1 FSANZ row had been SKIPping for days
+# before this was added. Pure-Python, no system deps. Fallback chain
+# in pipeline.claude_check._extract_pdf_text tries pypdf first, then
+# PyPDF2, then pdfplumber — pypdf alone covers ~all real cases.
+pypdf>=4.0.0
