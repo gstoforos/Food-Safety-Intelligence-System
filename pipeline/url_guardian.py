@@ -187,12 +187,29 @@ def _save_xlsx(xlsx_path: Path,
                pending: List[Dict[str, Any]],
                news_rows: List[Dict[str, Any]],
                news_headers: List[str]):
-    """Save Recalls / Pending / NEWS, preserving any other sheets that
-    already exist in the workbook (e.g. Weekly_Review, mailer-state tabs).
+    """Save Pending + NEWS. Recalls is left UNTOUCHED on disk.
 
-    Recalls is written UNCHANGED — the guardian only mutates Pending —
-    but we still rewrite Recalls so its schema stays canonical after
-    a row is appended via the (now-retired) gap-finder branch.
+    Audit 2026-05-13 — the previous version of this function reloaded the
+    workbook from disk and then rewrote the Recalls sheet from the
+    in-memory `recalls` snapshot that was captured at the start of
+    guardian_run() (~4 seconds earlier). Comment + log message both said
+    "Recalls UNCHANGED" but the actual write was happening every run.
+
+    The data-loss scenario: claude_check.py promotes Pending → Recalls
+    and pushes (e.g. Recalls=595). Guardian started before that push with
+    its own checkout / older Recalls snapshot (e.g. Recalls=588). Guardian
+    reaches _save_xlsx, rewrites Recalls back to 588 — silently undoing
+    every promotion. The 2026-05-13 17:11 run log shows exactly this race:
+    claude-check saved Recalls=595 at 17:11:26 and pushed at 17:11:28;
+    guardian then loaded "588 recalls (READ-ONLY)" at 17:11:51 and would
+    have saved 588 back if its workspace ever reached the master branch.
+
+    Fix: stop touching Recalls entirely. We still call load_workbook()
+    at the top so other sheets (Weekly_Review, mailer-state tabs) are
+    preserved — Recalls just rides along untouched from whatever was
+    on disk at the moment of this fresh load. The `recalls` parameter
+    is kept in the signature for back-compat with the existing call site
+    in guardian_run(); it's now informational only (used in the log line).
 
     Audit 2026-05-06 — pre-fix this function called Workbook(), which
     creates a brand-new empty workbook. Combined with wb.save() that
@@ -213,10 +230,18 @@ def _save_xlsx(xlsx_path: Path,
         if wb.active and wb.active.max_row == 1 and wb.active.max_column == 1:
             wb.remove(wb.active)
 
-    # Recalls + Pending — _write_sheet() deletes-first, so safe regardless
-    # of whether the sheet was loaded from disk or not.
-    _write_sheet(wb, "Recalls", RECALLS_SCHEMA, recalls)
+    # Recalls: DO NOT rewrite. Whatever load_workbook just read from disk
+    # is the freshest authoritative state. The `recalls` argument is the
+    # snapshot from guardian_run() entry and may now be stale — using it
+    # would silently revert any concurrent claude-check / gemini-check
+    # promotion that landed between guardian_run() entry and here.
+    # (Historical: the line removed at this point was
+    #     _write_sheet(wb, "Recalls", RECALLS_SCHEMA, recalls)
+    #  Keeping the comment as a tombstone so the bug doesn't regrow.)
 
+    # Pending — guardian IS authoritative for Pending mutations (URL health
+    # flags, dead-URL evictions). Rewrite it from the post-pass in-memory
+    # snapshot.
     pending_fill = PatternFill(start_color="FFF3CD", end_color="FFF3CD",
                                fill_type="solid")
     _write_sheet(wb, "Pending", PENDING_SCHEMA, pending, header_fill=pending_fill)
