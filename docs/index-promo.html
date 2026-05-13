@@ -1225,12 +1225,16 @@ function _promoNavigatePlans(e){
 }
 
 function _promoLockTabs(){
-  // Lock every tab EXCEPT the one currently active. Active tab keeps
-  // working so visitors can interact with the visible sample content.
+  // Tabs that stay fully functional in preview mode:
+  //   tab-recalls — the sample recall feed (already active by default)
+  //   tab-news    — live regulator news, shown as-in-index per spec
+  // Everything else (Daily / Weekly / Monthly / Yearly / XLSX / Alerts)
+  // is locked and clicks redirect to the plans page.
   // Stripping the inline onclick is critical — capture-phase listeners
   // alone don't block sibling inline handlers on the same element.
+  const UNLOCKED_TAB_IDS = ['tab-recalls', 'tab-news'];
   document.querySelectorAll('.tab').forEach(tab => {
-    if (tab.classList.contains('active')) return;
+    if (UNLOCKED_TAB_IDS.indexOf(tab.id) !== -1) return;
     tab.classList.add('promo-locked');
     tab.setAttribute('title', 'Subscribe to unlock');
     tab.removeAttribute('onclick');         // kill switchTab(), downloadRecallsXlsx(), window.open()
@@ -1303,9 +1307,8 @@ function _promoApplyAll(){
   _promoDisableFilters();
   _promoInsertSampleBanner();
   _promoApplyTableSample();
-  // Trim news to 5 items so the news section stays a teaser too.
-  const newsRows = document.querySelectorAll('#news-tbody tr');
-  newsRows.forEach((row, i) => { if (i >= 5) row.style.display = 'none'; });
+  // Live News tab is fully functional in preview mode — show every row
+  // exactly as the index page does. (Recall feed is still sampled to 15.)
   _promoStartCountdown();
 }
 
