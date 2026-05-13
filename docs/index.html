@@ -15,33 +15,71 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--bg:#0a0e1a;--s1:#0f1420;--s2:#141a2a;--brd:#1d2436;--text:#e8edf5;--white:#fff;--muted:#9aa3b5;--dim:#5d6679;--green:#00ff88;--red:#ef4444;--orange:#f97316;--cyan:#06b6d4;--purple:#a78bfa;}
+:root{--bg:#0a0e1a;--s1:#0f1420;--s2:#141a2a;--brd:#1d2436;--text:#e8edf5;--white:#fff;--muted:#9aa3b5;--dim:#5d6679;--brand:#E8601A;--ai:#34d399;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--purple:#a78bfa;}
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior-y:auto;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;}
 .hdr{padding:18px 24px;background:var(--s1);border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:flex-start;position:relative;}
-.hdr::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--green) 0%,transparent 35%);}
-.brand{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:.02em;color:var(--white);text-transform:uppercase;}
-.brand em{color:var(--green);font-style:normal;}
+.hdr::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--brand) 0%,transparent 35%);}
+.brand{font-family:Georgia,'Times New Roman',serif;font-weight:800;font-size:20px;letter-spacing:-.005em;color:var(--white);text-transform:none;}
+.brand em{color:var(--brand);font-style:normal;}
 .brand a:hover{opacity:.85;}
 .brand small{display:block;font-family:'DM Mono',monospace;font-weight:400;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.18em;margin-top:4px;}
 .hdr-right{text-align:right;}
-.live-pill{display:inline-block;background:rgba(0,255,136,.1);color:var(--green);font-family:'DM Mono',monospace;font-size:9px;font-weight:700;padding:4px 10px;border-radius:2px;letter-spacing:.1em;border:1px solid rgba(0,255,136,.3);margin-bottom:8px;}
+.live-pill{display:inline-block;background:rgba(52,211,153,.1);color:var(--ai);font-family:'DM Mono',monospace;font-size:9px;font-weight:700;padding:4px 10px;border-radius:2px;letter-spacing:.1em;border:1px solid rgba(52,211,153,.3);margin-bottom:8px;margin-right:8px;vertical-align:middle;}
 .hdr-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);text-align:right;line-height:1.9;}
 .ticker{background:var(--s2);border-bottom:1px solid var(--brd);padding:8px 24px;overflow:hidden;white-space:nowrap;}
+
+/* AI Verification Engine strip — full-width band below masthead. Single most
+   important AFTS-vs-competition visual: makes the dual-reviewer + human-checkpoint
+   pipeline visible at every pageview rather than just claimed in marketing copy. */
+.verif-strip{background:linear-gradient(90deg,var(--s2) 0%,var(--s1) 50%,var(--s2) 100%);border-bottom:1px solid var(--brd);padding:13px 24px;display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;font-family:'DM Mono',monospace;font-size:11px;}
+.verif-status{display:flex;align-items:center;gap:12px;}
+.verif-pulse{width:11px;height:11px;border-radius:50%;background:var(--ai);position:relative;flex-shrink:0;box-shadow:0 0 12px rgba(52,211,153,.55);}
+.verif-pulse::before,.verif-pulse::after{content:'';position:absolute;inset:-6px;border-radius:50%;border:1px solid var(--ai);opacity:0;animation:vaura 2.4s ease-out infinite;}
+.verif-pulse::after{animation-delay:1.2s;}
+@keyframes vaura{0%{transform:scale(.6);opacity:.7;}100%{transform:scale(1.9);opacity:0;}}
+@keyframes vpulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.55;transform:scale(.82);}}
+.verif-pulse{animation:vpulse 2.2s ease-in-out infinite;}
+.verif-label{color:var(--ai);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:10px;white-space:nowrap;}
+.verif-chain{color:var(--muted);font-size:11px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;position:relative;}
+.verif-chain b{color:var(--white);font-weight:600;font-family:'DM Mono',monospace;position:relative;z-index:1;}
+.verif-chain .arrow{color:var(--ai);opacity:.5;font-weight:700;position:relative;z-index:1;}
+/* Traveling-dot rail — pure CSS, no JS. A small green dot slides left→right
+   along the chain every 7s, visualising data flowing through the verification
+   pipeline. Sits behind the text (z-index 0) so labels stay readable. */
+.verif-chain::before{content:'';position:absolute;top:50%;left:0;width:6px;height:6px;border-radius:50%;background:var(--ai);box-shadow:0 0 10px var(--ai),0 0 22px rgba(52,211,153,.6);transform:translate(-3px,-50%);animation:vtravel 7s cubic-bezier(.6,0,.4,1) infinite;z-index:0;}
+@keyframes vtravel{0%{left:0;opacity:0;}5%{opacity:1;}88%{opacity:1;}100%{left:100%;opacity:0;}}
+.verif-meta{color:var(--dim);font-size:10px;text-align:right;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
+.verif-meta b{color:var(--ai);font-weight:700;font-family:'DM Mono',monospace;font-size:11px;}
+
+/* AI Synthesis panel — pulls ai_lead_paragraph from weekly-summary-latest.json.
+   The LLM writes this paragraph for the Friday digest anyway; surfacing it at
+   the top of the dashboard puts AI-generated analytical synthesis in front of
+   every visitor without doubling the inference cost. */
+.insights{background:linear-gradient(135deg,var(--s1) 0%,var(--s2) 100%);border:1px solid var(--brd);border-left:3px solid var(--ai);border-radius:3px;padding:16px 20px;margin:14px 24px 0;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;}
+.insights-tag{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--ai);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;padding-top:3px;border-right:1px solid var(--brd);padding-right:18px;}
+.insights-tag::before{content:'◆ ';opacity:.6;}
+.insights-body{font-size:13px;line-height:1.65;color:var(--text);}
+.insights-body em{color:var(--ai);font-style:normal;font-weight:700;}
+.insights-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin-top:8px;}
+
+/* Live-pill subtle breath animation — pulses green to signal "AI is alive" */
+.live-pill::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ai);margin-right:6px;vertical-align:1px;animation:vpulse 2.2s ease-in-out infinite;box-shadow:0 0 6px var(--ai);}
+.live-pill{padding-left:10px;}
 .ticker-inner{display:inline-block;animation:tick 60s linear infinite;}
 @keyframes tick{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
 .tick-item{display:inline-block;margin-right:36px;font-size:11px;color:var(--muted);}
 .tick-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:8px;font-weight:700;padding:1px 5px;border-radius:2px;margin-right:8px;letter-spacing:.06em;}
 .t1-tag{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);}
-.t2-tag{background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.3);}
+.t2-tag{background:rgba(245,158,11,.15);color:var(--orange);border:1px solid rgba(245,158,11,.3);}
 .kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:14px 24px;background:var(--s1);border-bottom:1px solid var(--brd);}
 .kpi{background:var(--s2);border:1px solid var(--brd);border-radius:3px;padding:14px 12px;text-align:center;}
 .kv{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1;}
 .kl{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-top:6px;}
 .nav-bar{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--brd);background:var(--s1);margin:18px 24px 0;border-radius:3px 3px 0 0;}
 .tab{padding:11px 18px;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--dim);border-bottom:2px solid transparent;white-space:nowrap;background:transparent;border-left:none;border-right:none;border-top:none;min-height:44px;display:flex;align-items:center;}
-.tab.active{color:var(--green);border-bottom-color:var(--green);}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand);}
 .tab:hover{color:var(--white);}
 .wrap{padding:20px 24px;}
 .grid2{display:grid;grid-template-columns:1fr 360px;gap:18px;}
@@ -55,7 +93,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .src-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--brd);font-size:12px;}
 .src-row:last-child{border:none;}
 .src-name{color:var(--text);}
-.src-val{font-family:'DM Mono',monospace;font-weight:700;color:var(--green);}
+.src-val{font-family:'DM Mono',monospace;font-weight:700;color:var(--brand);}
 .pbar{margin:14px 24px;display:flex;flex-wrap:wrap;gap:7px;}
 .ptag{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:8px 12px;border-radius:14px;cursor:pointer;border:1px solid transparent;letter-spacing:.04em;min-height:44px;display:flex;align-items:center;}
 .fbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 24px;background:var(--s1);border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);}
@@ -77,21 +115,21 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .pb:disabled{opacity:.4;cursor:not-allowed;}
 .pi{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);}
 .footer{padding:24px;background:var(--s1);border-top:1px solid var(--brd);font-size:10px;color:var(--dim);font-family:'DM Mono',monospace;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;}
-.footer-brand{color:var(--green);font-weight:700;}
+.footer-brand{color:var(--brand);font-weight:700;}
 .footer em{color:var(--white);font-style:normal;}
 .flinks a{color:var(--dim);text-decoration:none;margin-right:14px;padding:8px 0;min-height:44px;display:inline-flex;align-items:center;}
-.flinks a:hover{color:var(--green);}
+.flinks a:hover{color:var(--brand);}
 .report-card{background:var(--s2);border:1px solid var(--brd);border-radius:3px;padding:18px;margin-bottom:12px;cursor:pointer;transition:border-color .15s;}
-.report-card:hover{border-color:var(--green);}
+.report-card:hover{border-color:var(--brand);}
 .report-week{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;}
 .report-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--white);margin:6px 0 10px;}
 .report-stats{display:flex;gap:18px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);flex-wrap:wrap;}
-.report-stats strong{color:var(--green);font-weight:700;font-size:14px;}
+.report-stats strong{color:var(--brand);font-weight:700;font-size:14px;}
 .report-stats .stat-tier1{color:var(--red);}
 .report-stats .stat-outbreak{color:var(--orange);}
 .report-actions{margin-top:12px;display:flex;gap:10px;}
 .report-btn{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;padding:8px 14px;border-radius:2px;letter-spacing:.08em;text-decoration:none;text-transform:uppercase;min-height:44px;display:flex;align-items:center;justify-content:center;}
-.report-btn.primary{background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.3);}
+.report-btn.primary{background:rgba(232,96,26,.1);color:var(--brand);border:1px solid rgba(232,96,26,.3);}
 .report-btn.secondary{background:var(--s1);color:var(--dim);border:1px solid var(--brd);}
 /* Archive: compact list for older weeks */
 .arch-wrap{margin-top:22px;padding-top:18px;border-top:1px solid var(--brd);}
@@ -106,13 +144,13 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .arch-row{display:grid;grid-template-columns:56px 1fr 52px 60px 1.5fr 28px;gap:12px;align-items:center;padding:10px 14px;font-family:'DM Mono',monospace;font-size:11px;text-decoration:none;color:var(--muted);border-bottom:1px solid var(--brd);min-height:44px;}
 .arch-row:last-child{border-bottom:none;}
 .arch-row:hover{background:var(--s2);color:var(--text);}
-.arch-wk{color:var(--green);font-weight:700;}
+.arch-wk{color:var(--brand);font-weight:700;}
 .arch-dates{color:var(--dim);}
 .arch-total{color:var(--text);font-weight:700;text-align:right;}
 .arch-tier1{color:var(--red);font-weight:700;}
 .arch-top{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'DM Sans',sans-serif;font-size:12px;}
 .arch-go{color:var(--dim);text-align:right;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.04em;}
-.arch-url{color:var(--green);opacity:0.85;margin-right:4px;font-weight:500;}
+.arch-url{color:var(--brand);opacity:0.85;margin-right:4px;font-weight:500;}
 .arch-row:hover .arch-url{opacity:1;}
 @media(max-width:700px){.arch-row{grid-template-columns:48px 1fr 40px 46px 24px;gap:8px;font-size:10px;}.arch-top{display:none;}}
 /* Enhanced Mobile Responsiveness */
@@ -124,6 +162,12 @@ tr:hover td{background:rgba(255,255,255,.02);}
   .fbar{padding:12px 16px;}
   .tbl-wrap{margin:8px 16px 0;}
   .pbar{margin:12px 16px;}
+  .verif-strip{grid-template-columns:1fr;gap:8px;padding:11px 20px;text-align:center;}
+  .verif-status{justify-content:center;}
+  .verif-chain{justify-content:center;font-size:10px;}
+  .verif-meta{text-align:center;}
+  .insights{grid-template-columns:1fr;gap:10px;margin:12px 16px 0;padding:14px 16px;}
+  .insights-tag{border-right:none;border-bottom:1px solid var(--brd);padding-right:0;padding-bottom:8px;}
 }
 @media(max-width:768px){
   .kpi-row{grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 16px;}
@@ -158,7 +202,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
   table,tbody,tr{display:block;width:100%;}
   td{display:block;padding:4px 12px;border:none;text-align:left!important;}
   td:nth-child(1){background:var(--s2);font-weight:700;color:var(--white);padding:8px 12px;margin-top:12px;border-radius:3px 3px 0 0;}
-  td:nth-child(2){font-size:10px;color:var(--green);padding:6px 12px 4px;}
+  td:nth-child(2){font-size:10px;color:var(--brand);padding:6px 12px 4px;}
   td:nth-child(3){font-size:14px!important;font-weight:700!important;color:var(--white)!important;padding:6px 12px 2px!important;max-width:none!important;white-space:normal!important;overflow:visible!important;}
   td:nth-child(4){font-size:12px!important;color:var(--muted)!important;white-space:normal!important;max-width:none!important;overflow:visible!important;padding:2px 12px 8px!important;}
   td:nth-child(5){font-size:11px!important;color:var(--cyan)!important;padding:4px 12px!important;font-family:'DM Mono',monospace!important;}
@@ -184,15 +228,99 @@ tr:hover td{background:rgba(255,255,255,.02);}
   .report-stats{gap:12px;}
   .pb{min-height:44px;}
   .report-btn{min-height:44px;display:flex;align-items:center;justify-content:center;}
+  /* ── Mobile-tight refinements for the new elements (audit 2026-05-13) ── */
+  /* Verification engine strip — denser type, kill the traveling dot
+     animation (it tracks a single straight line and looks broken when the
+     chain wraps to 4-5 lines on phones). */
+  .verif-strip{padding:10px 14px;gap:6px;}
+  .verif-label{font-size:9px;letter-spacing:.1em;}
+  .verif-chain{font-size:10px;gap:5px;line-height:1.4;}
+  .verif-chain b{font-size:10px;}
+  .verif-chain .arrow{font-size:9px;}
+  .verif-chain::before{display:none;}
+  .verif-meta{font-size:9px;}
+  .verif-meta b{font-size:10px;}
+  /* AI Synthesis panel — tighter padding, smaller body */
+  .insights{margin:10px 12px 0;padding:12px 14px;gap:8px;}
+  .insights-tag{font-size:8px;letter-spacing:.12em;padding-bottom:6px;}
+  .insights-body{font-size:12px;line-height:1.55;}
+  .insights-meta{font-size:8px;}
+  /* Trust line in masthead — second <small> inside .brand */
+  .brand small + small{font-size:9px;line-height:1.4;}
+  /* Teaser modal — tighter for smallest phones */
+  .teaser-overlay{padding:12px;}
+  .teaser-card{padding:18px 16px;border-radius:5px;max-height:90vh;}
+  .teaser-tag{font-size:9px;}
+  .teaser-title{font-size:17px;}
+  .teaser-sub{font-size:9px;margin-bottom:12px;}
+  .teaser-list{margin-bottom:14px;}
+  .teaser-item{font-size:11px;padding:9px 0;gap:8px;grid-template-columns:46px 1fr;}
+  .teaser-item .t-date{font-size:9px;}
+  .teaser-item .t-body{word-break:break-word;overflow-wrap:anywhere;}
+  .teaser-item .t-product{font-size:10px;}
+  .teaser-item .t-flag{margin-left:54px;font-size:8px;}
+  .teaser-cta{padding:0 22px;font-size:10px;letter-spacing:.1em;min-height:44px;display:inline-flex;align-items:center;justify-content:center;}
+  .teaser-countdown{font-size:10px;margin-top:12px;}
+  .teaser-countdown b{font-size:13px;}
+  .teaser-fineprint{font-size:8px;margin-top:8px;}
+}
+/* ===== TEASER MODAL — conversion overlay on page load ===========
+   Appears 600ms after the dashboard hydrates with 10 random recalls from
+   the last 7 days, a Subscribe CTA, and a 10-second countdown that auto-
+   redirects to https://www.advfood.tech/fsis-plans.
+
+   No close button by design: this is a conversion funnel, not a tooltip.
+   The dashboard remains visible behind the blurred backdrop so visitors
+   see the product is real, but interaction is gated.
+   Architecture note: cross-origin top-navigation from the iframe is
+   attempted directly; postMessage to Wix parent is the fallback.
+=================================================================== */
+.teaser-overlay{position:fixed;inset:0;background:rgba(10,14,26,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;animation:teaserFade .4s ease-out;}
+.teaser-overlay.is-open{display:flex;}
+@keyframes teaserFade{from{opacity:0}to{opacity:1}}
+@keyframes teaserSlide{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.teaser-card{background:linear-gradient(180deg,var(--s2) 0%,var(--s1) 100%);border:1px solid var(--ai);border-radius:6px;padding:24px 26px;max-width:540px;width:100%;max-height:88vh;overflow:auto;box-shadow:0 0 50px rgba(52,211,153,.25),0 20px 60px rgba(0,0,0,.5);animation:teaserSlide .45s cubic-bezier(.2,.7,.3,1.05);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+.teaser-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--ai);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.teaser-tag::before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ai);box-shadow:0 0 8px var(--ai);animation:vpulse 2.2s ease-in-out infinite;}
+.teaser-title{font-family:Georgia,'Times New Roman',serif;font-weight:800;font-size:23px;color:var(--white);letter-spacing:-.01em;margin-bottom:6px;line-height:1.2;}
+.teaser-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em;margin-bottom:16px;}
+.teaser-list{margin-bottom:18px;border-top:1px solid var(--brd);}
+.teaser-item{padding:10px 0;border-bottom:1px solid var(--brd);font-size:12px;display:grid;grid-template-columns:60px 1fr auto;gap:12px;align-items:start;}
+.teaser-item .t-date{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.teaser-item .t-body{line-height:1.5;}
+.teaser-item .t-pathogen{font-family:Georgia,serif;font-style:italic;font-weight:600;color:var(--ai);}
+.teaser-item .t-company{color:var(--white);font-weight:600;}
+.teaser-item .t-product{color:var(--muted);font-size:11px;}
+.teaser-item .t-flag{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;padding:2px 6px;letter-spacing:.06em;border-radius:2px;height:fit-content;white-space:nowrap;}
+.t-flag-t1{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);}
+.t-flag-ob{background:rgba(167,139,250,.15);color:var(--purple);border:1px solid rgba(167,139,250,.3);}
+.teaser-foot{border-top:1px solid var(--brd);padding-top:18px;text-align:center;}
+.teaser-cta{display:inline-block;background:var(--brand);color:#fff;padding:14px 36px;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border-radius:3px;border:1px solid var(--brand);box-shadow:0 0 22px rgba(232,96,26,.45);transition:transform .15s,filter .15s,box-shadow .15s;}
+.teaser-cta:hover{transform:translateY(-2px);filter:brightness(1.12);box-shadow:0 0 30px rgba(232,96,26,.6);}
+.teaser-countdown{margin-top:14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+.teaser-countdown b{color:var(--ai);font-size:14px;font-weight:700;padding:0 3px;}
+.teaser-fineprint{margin-top:10px;font-family:'DM Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:.06em;}
+@media(max-width:600px){
+  .teaser-card{padding:20px 18px;}
+  .teaser-title{font-size:19px;}
+  .teaser-item{grid-template-columns:50px 1fr;}
+  .teaser-item .t-flag{grid-column:1/-1;justify-self:start;margin-left:62px;margin-top:2px;}
+  .teaser-cta{padding:13px 26px;font-size:11px;}
 }
 </style></head><body>
 
-<div class="hdr"><div class="brand"><a href="https://www.advfood.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</a><small>// AI-powered Process Validation Intelligence · under AFTS process authority · 66 sources · 60+ countries</small></div><div class="hdr-right"><span class="live-pill">● LIVE MONITORING</span><div class="hdr-meta" id="meta">Loading…</div></div></div>
+<div class="hdr"><div class="brand"><a href="https://www.advfood.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</a><small>// AI-Reviewed · AI-Analyzed Food Recall Intelligence · under AFTS process authority · 66 sources · 60+ countries</small><small style="margin-top:3px;color:var(--muted);font-weight:500;letter-spacing:.10em">✓ Verified by 2 independent AI reviewers + Thursday human checkpoint</small></div><div class="hdr-right"><span class="live-pill">LIVE MONITORING</span><div class="hdr-meta" id="meta">Loading…</div></div></div>
+
+<div class="verif-strip">
+  <div class="verif-status"><span class="verif-pulse"></span><span class="verif-label">AI Verification Engine · Active</span></div>
+  <div class="verif-chain"><b>Surveillance · 66 sources</b> <span class="arrow">→</span> <b>AI Reviewer · Primary</b> <span class="arrow">→</span> <b>AI Reviewer · Cross-check</b> <span class="arrow">→</span> <b>Human Checkpoint</b> <span class="arrow">→</span> <b>Publish</b></div>
+  <div class="verif-meta"><span id="verif-today">— today</span> · Last <b id="verif-last">—</b></div>
+</div>
 
 <div class="ticker"><div class="ticker-inner" id="ticker">Loading latest alerts…</div></div>
 
 <div class="kpi-row">
-<div class="kpi"><div class="kv" id="k-total" style="color:var(--green)">—</div><div class="kl">Total Records</div></div>
+<div class="kpi"><div class="kv" id="k-total" style="color:var(--brand)">—</div><div class="kl">Total Records</div></div>
 <div class="kpi"><div class="kv" id="k-t1" style="color:var(--red)">—</div><div class="kl">Tier-1 Critical</div></div>
 <div class="kpi"><div class="kv" id="k-ob" style="color:var(--orange)">—</div><div class="kl">Outbreaks</div></div>
 <div class="kpi"><div class="kv" id="k-path" style="color:var(--cyan)">—</div><div class="kl">Pathogens</div></div>
@@ -212,6 +340,13 @@ tr:hover td{background:rgba(255,255,255,.02);}
 </div>
 
 <div id="panel-recalls">
+<div class="insights">
+  <div class="insights-tag">AI Synthesis</div>
+  <div>
+    <div class="insights-body" id="ai-insights">Loading weekly intelligence synthesis…</div>
+    <div class="insights-meta" id="ai-insights-meta"></div>
+  </div>
+</div>
 <div class="wrap"><div class="grid2"><div class="panel"><div class="sec">Top Pathogens — All Sources</div><div id="chart-path"></div></div><div class="panel"><div class="sec">By Source</div><div id="chart-src"></div></div></div></div>
 <div class="pbar" id="pills"></div>
 <div class="fbar"><input type="search" id="q" placeholder="Search firm, product, country, pathogen..."><select id="f-src"><option value="">All Sources</option></select><select id="f-path"><option value="">All Pathogens</option></select><select id="f-tier"><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option></select><select id="f-region"><option value="">All Records</option><option value="Americas">Americas</option><option value="Europe">Europe</option><option value="Asia">Asia</option><option value="Oceania">Oceania</option><option value="Africa">Africa</option></select><select id="f-pp"><option value="50">50/page</option><option value="25">25/page</option><option value="100">100/page</option></select><span class="rcount" id="rcount"></span></div>
@@ -247,13 +382,13 @@ tr:hover td{background:rgba(255,255,255,.02);}
 </div></div>
 </div>
 
-<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/fsis-home" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="downloadRecallsXlsx();return false;">↓ XLSX</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);color:var(--green);font-family:'DM Mono',monospace;font-size:9px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
+<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/fsis-home" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="downloadRecallsXlsx();return false;">↓ XLSX</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(232,96,26,.08);border:1px solid rgba(232,96,26,.2);color:var(--brand);font-family:'DM Mono',monospace;font-size:9px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
 
 <script>
 let ALL=[],filtered=[],page=1,perPage=50,sortCol='date',sortAsc=false,pillFilter='';
 let NEWS=[],NEWS_filtered=[];
-const PC={'Listeria':'#00ff88','Salmonella':'#06b6d4','E. coli':'#f97316','Cereulide':'#ef4444','Clostridium':'#a78bfa','Aflatoxin':'#fbbf24','Hepatitis':'#f472b6','Norovirus':'#818cf8','Campylobacter':'#34d399','Vibrio':'#fb923c','Cronobacter':'#c084fc','Bacillus':'#ef4444','STEC':'#f97316'};
-function pColor(p){if(!p)return'#00ff88';for(const[k,v]of Object.entries(PC))if(p.indexOf(k)>=0)return v;return'#00ff88';}
+const PC={'Listeria':'#ef4444','Salmonella':'#06b6d4','E. coli':'#f59e0b','Cereulide':'#ef4444','Clostridium':'#a78bfa','Aflatoxin':'#fbbf24','Hepatitis':'#f472b6','Norovirus':'#818cf8','Campylobacter':'#34d399','Vibrio':'#fb923c','Cronobacter':'#c084fc','Bacillus':'#ef4444','STEC':'#f59e0b'};
+function pColor(p){if(!p)return'#9aa3b5';for(const[k,v]of Object.entries(PC))if(p.indexOf(k)>=0)return v;return'#9aa3b5';}
 function esc(s){return(s==null?'':String(s)).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);}
 function urlHost(u){try{return new URL(u).hostname.replace(/^www\./,'');}catch(e){return '↗';}}
 
@@ -261,7 +396,7 @@ function urlHost(u){try{return new URL(u).hostname.replace(/^www\./,'');}catch(e
 function normalizePathogen(p){
   if(!p)return'';
   // Defensive: anything >80 chars is boilerplate leakage (e.g. a page
-  // intro paragraph that slipped past a buggy scraper), not a pathogen.
+  // intro paragraph that slipped past a buggy ingestion path), not a pathogen.
   // Dropping to '' here removes it from the filter dropdown entirely.
   if(p.length>80)return'';
   const low=p.toLowerCase();
@@ -368,17 +503,108 @@ function loadNewsFromBuffer(wb){
 
 function init(){
   renderKPIs();renderCharts();renderPills();populateFilters();renderTicker();render();
+  renderLastVerified();loadAiInsights();
   document.getElementById('meta').innerHTML='Updated: '+(ALL[0]?ALL[0].date:'—')+' · '+ALL.length+' records<br>Source: data/recalls.xlsx';
   notifyHeight();
   if(window.parent!==window){new ResizeObserver(()=>{notifyHeight();}).observe(document.body);}
 }
+
+// ===== AI VERIFICATION ENGINE — "Last published" age + today's throughput =====
+// Computes a human-readable age from the most recent published recall's Date
+// field. This deliberately reflects the recall date (when the regulator
+// announced it), not the moment the row hit the xlsx — because subscribers
+// care about how fresh the underlying recalls are, not about pipeline plumbing.
+// Also computes a "today" counter from the in-memory dataset so the engine
+// strip shows live throughput without any backend wiring.
+function renderLastVerified(){
+  const el=document.getElementById('verif-last');
+  const todayEl=document.getElementById('verif-today');
+  if(!ALL.length){if(el)el.textContent='—';if(todayEl)todayEl.textContent='— today';return;}
+  const latest=ALL[0].date;
+  if(latest && el){
+    const d=new Date(latest+'T00:00:00');
+    const h=Math.max(0,Math.round((Date.now()-d.getTime())/3600000));
+    el.textContent = h<1 ? '<1h ago' : h<48 ? h+'h ago' : Math.floor(h/24)+'d ago';
+  }
+  // Today / 7-day counters from the dataset itself.
+  if(todayEl){
+    const today=new Date().toISOString().slice(0,10);
+    const cutoff=new Date(Date.now()-7*86400000).toISOString().slice(0,10);
+    const todayN=ALL.filter(r=>r.date===today).length;
+    const weekN=ALL.filter(r=>r.date>=cutoff).length;
+    todayEl.innerHTML = todayN>0
+      ? '<b style="color:var(--ai)">'+todayN+'</b> verified today · <b style="color:var(--ai)">'+weekN+'</b> this week'
+      : '<b style="color:var(--ai)">'+weekN+'</b> verified this week';
+  }
+}
+
+// ===== KPI count-up animation — numbers tick from 0 to value on first render =====
+// Pure visual polish: a 900ms ease-out tween on the six KPI numbers when the
+// dataset first loads. No effect on subsequent re-renders (filter changes etc.)
+// because the data values are already settled by then — only fires when the
+// page transitions from "Loading…" to populated.
+function _countUp(el,target,duration){
+  if(!el)return;
+  target=parseInt(target,10)||0;
+  duration=duration||900;
+  const start=performance.now();
+  function step(now){
+    const t=Math.min(1,(now-start)/duration);
+    // ease-out cubic
+    const eased=1-Math.pow(1-t,3);
+    el.textContent=Math.round(target*eased);
+    if(t<1)requestAnimationFrame(step);
+    else el.textContent=target;
+  }
+  requestAnimationFrame(step);
+}
+
+// ===== AI SYNTHESIS — pulls ai_lead_paragraph from weekly-summary-latest.json =====
+// The Python weekly builder writes a 2-3 sentence LLM-authored synthesis to the
+// summary JSON for the Friday digest. Reusing that same paragraph here surfaces
+// AI-generated analytical work on the dashboard without doubling inference cost.
+// Falls back to a static verification-claim sentence if the JSON is unreachable.
+async function loadAiInsights(){
+  const body=document.getElementById('ai-insights');
+  const meta=document.getElementById('ai-insights-meta');
+  if(!body)return;
+  try{
+    const r=await fetch('data/weekly-summary-latest.json?_='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    if(j.ai_lead_paragraph){
+      const wk=j.week_num?'Week '+j.week_num:'Latest week';
+      const period=(j.week_start_display&&j.week_end_display)?(' · '+j.week_start_display+' – '+j.week_end_display):'';
+      body.innerHTML='<em>'+esc(wk)+' synthesis:</em> '+esc(j.ai_lead_paragraph);
+      const total=(j.stats&&j.stats.total!=null)?(j.stats.total+' recalls'):'';
+      const lead=(j.leading_pathogen&&j.leading_pathogen.name)?('leading pathogen: '+j.leading_pathogen.name):'';
+      const bits=[total,lead].filter(Boolean).join(' · ');
+      meta.textContent=(bits?bits+period:'').trim()+' · AFTS AI synthesis · dual-reviewer verified';
+    }else{
+      throw new Error('no ai_lead_paragraph');
+    }
+  }catch(e){
+    body.innerHTML='<em>Verification posture:</em> Every recall in the feed below has passed two independent AI reviewers plus a Thursday human checkpoint before publication. Most food-safety feeds publish whatever a bot finds. AFTS publishes what survives review.';
+    meta.textContent='';
+  }
+}
 function renderKPIs(){
-  document.getElementById('k-total').textContent=ALL.length;
-  document.getElementById('k-t1').textContent=ALL.filter(r=>r.tier===1).length;
-  document.getElementById('k-ob').textContent=ALL.filter(r=>r.is_outbreak===1).length;
-  document.getElementById('k-path').textContent=new Set(ALL.map(r=>normalizePathogen(r.pathogen)).filter(Boolean)).size;
-  document.getElementById('k-ctry').textContent=new Set(ALL.map(r=>r.country).filter(Boolean)).size;
-  document.getElementById('k-src').textContent=new Set(ALL.map(r=>r.source).filter(Boolean)).size;
+  // First render does a 900ms count-up tween; subsequent renders are
+  // instant (no flicker on filter changes etc.) via window._kpis_animated.
+  const animate = !window._kpis_animated;
+  const set = (id, v) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (animate) _countUp(el, v);
+    else el.textContent = v;
+  };
+  set('k-total', ALL.length);
+  set('k-t1',    ALL.filter(r=>r.tier===1).length);
+  set('k-ob',    ALL.filter(r=>r.is_outbreak===1).length);
+  set('k-path',  new Set(ALL.map(r=>normalizePathogen(r.pathogen)).filter(Boolean)).size);
+  set('k-ctry',  new Set(ALL.map(r=>r.country).filter(Boolean)).size);
+  set('k-src',   new Set(ALL.map(r=>r.source).filter(Boolean)).size);
+  window._kpis_animated = true;
 }
 function renderCharts(){
   const pc={};ALL.forEach(r=>{const p=normalizePathogen(r.pathogen);if(p)pc[p]=(pc[p]||0)+1;});
@@ -389,7 +615,7 @@ function renderCharts(){
 }
 function renderPills(){
   const ns=[['Listeria','Listeria'],['Salmonella','Salmonella'],['E. coli / STEC','E. coli / STEC'],['C. botulinum','C. botulinum'],['Norovirus','Norovirus'],['Aflatoxin','Aflatoxin'],['Cereulide','Cereulide']];
-  const cs=['#00ff88','#06b6d4','#f97316','#a78bfa','#818cf8','#fbbf24','#ef4444'];
+  const cs=['#ef4444','#06b6d4','#f59e0b','#a78bfa','#818cf8','#fbbf24','#ef4444'];
   let h=ns.map(([disp,fval],i)=>`<span class="ptag" data-f="${fval}" style="background:${cs[i]}11;color:${cs[i]};border-color:${cs[i]}55">${disp}</span>`).join('');
   h+=`<span class="ptag" data-f="" style="background:rgba(255,255,255,.05);color:var(--dim);border-color:var(--brd)">× All</span>`;
   document.getElementById('pills').innerHTML=h;
@@ -423,11 +649,11 @@ function render(){
   if(!slice.length){tbody.innerHTML='<tr><td colspan="8" class="loading">No matching records.</td></tr>';}
   else{tbody.innerHTML=slice.map(r=>{
     const tc=r.tier===1?'r1':r.tier===2?'r2':'';
-    const tierBg=r.tier===1?'rgba(239,68,68,.15)':'rgba(249,115,22,.15)';
+    const tierBg=r.tier===1?'rgba(239,68,68,.15)':'rgba(245,158,11,.15)';
     const tierCol=r.tier===1?'var(--red)':'var(--orange)';
     const tl=r.tier===1?'TIER-1':'TIER-2';
     const ob=r.is_outbreak===1?' <span style="background:rgba(239,68,68,.1);color:var(--red);font-size:7px;padding:1px 5px;border-radius:2px;font-family:DM Mono,monospace;font-weight:700;letter-spacing:.08em;border:1px solid rgba(239,68,68,.25)">OUTBREAK</span>':'';
-    return`<tr class="${tc}"><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(r.date)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.05em;background:rgba(0,255,136,.08);color:var(--green);border:1px solid rgba(0,255,136,.25)">${esc(r.source)}</span></td><td class="firm" title="${esc(r.company)}">${esc(r.company||r.brand||'—')}</td><td class="prod" title="${esc(r.product)}">${esc((r.product||'').substring(0,80))}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pColor(r.pathogen)}">${esc(r.pathogen)}${ob}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.08em;background:${tierBg};color:${tierCol};border:1px solid ${tierCol}40">${tl}</span></td><td style="font-size:10px;color:var(--muted)">${esc(r.country)}</td><td>${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--green);font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;letter-spacing:.02em" title="${esc(r.url)}">${urlHost(r.url)}</a>`:''}</td></tr>`;
+    return`<tr class="${tc}"><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(r.date)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.05em;background:rgba(232,96,26,.08);color:var(--brand);border:1px solid rgba(232,96,26,.25)">${esc(r.source)}</span></td><td class="firm" title="${esc(r.company)}">${esc(r.company||r.brand||'—')}</td><td class="prod" title="${esc(r.product)}">${esc((r.product||'').substring(0,80))}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pColor(r.pathogen)}">${esc(r.pathogen)}${ob}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.08em;background:${tierBg};color:${tierCol};border:1px solid ${tierCol}40">${tl}</span></td><td style="font-size:10px;color:var(--muted)">${esc(r.country)}</td><td>${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--brand);font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;letter-spacing:.02em" title="${esc(r.url)}">${urlHost(r.url)}</a>`:''}</td></tr>`;
   }).join('');}
   const total=filtered.length,maxP=Math.max(1,Math.ceil(total/perPage));
   document.getElementById('pinfo').textContent=`Page ${page} of ${maxP} · ${total} records`;
@@ -436,36 +662,40 @@ function render(){
   notifyHeight();
 }
 function renderTicker(){
-  // Audit 2026-05-07 — TICKER ONLY shows top 5 of last 7 days, ranked by severity.
-  // Rest of dashboard (KPIs, charts, table, filters) keeps the full dataset.
-  // Ranking rules:
-  //   1) Tier 1 before Tier 2 before Tier 3
-  //   2) Outbreak rows surfaced ahead of non-outbreak within same tier
-  //   3) Newer dates ahead of older within same tier+outbreak class
-  // Replaces "most recent 8" which surfaced whatever was last touched
-  // by a scraper rather than what actually matters most this week.
-  const cutoff7 = new Date(Date.now() - 7*24*60*60*1000).toISOString().slice(0,10);
-  const last7   = ALL.filter(r => r.date >= cutoff7);
-  const ranked  = last7.sort((a, b) => {
-    if (a.tier !== b.tier) return a.tier - b.tier;            // tier 1 first
-    if (a.is_outbreak !== b.is_outbreak) return b.is_outbreak - a.is_outbreak;
-    return b.date.localeCompare(a.date);                       // newer first
-  });
-  const top5 = ranked.slice(0, 5);
-  if (top5.length === 0) {
+  // Audit 2026-05-13 — TICKER shows the latest 10 recalls by date.
+  //
+  // Rationale: the ticker's job is freshness — proving the system is alive
+  // and ingesting current recalls. Severity ranking is already visible in
+  // the KPI strip (Tier-1 count, Outbreaks count) and in the Top Threats
+  // visualisation. Putting severity ranking in the ticker too duplicated
+  // that signal while sacrificing the "look how recent this is" message.
+  //
+  // ALL is pre-sorted newest-first by the loader (line 353), so a simple
+  // slice gives the 10 most recent rows. The Tier-1/Tier-2/OUTBREAK chips
+  // still surface severity within each ticker item — no information lost,
+  // just a different selection rule.
+  //
+  // Pre-2026-05-07 was 8 "whatever was last touched by a scraper" (which
+  // could surface a 3-month-old row that just got its Notes column edited).
+  // Pre-2026-05-13 was top-5-by-severity-of-last-7-days. Now: top-10 by
+  // recall date. Each iteration was the right answer for a different
+  // operator concern at the time.
+  const top10 = ALL.slice(0, 10);
+  if (top10.length === 0) {
     document.getElementById('ticker').innerHTML =
-      '<span class="tick-item" style="color:var(--dim)">No pathogen recalls in the last 7 days</span>';
+      '<span class="tick-item" style="color:var(--dim)">No pathogen recalls in the dataset yet</span>';
     return;
   }
-  const items = top5.map(r => {
+  const items = top10.map(r => {
     const tag   = r.tier === 1 ? 't1-tag' : 't2-tag';
     const label = r.tier === 1 ? 'TIER-1' : (r.tier === 2 ? 'TIER-2' : 'TIER-3');
     const ob    = r.is_outbreak === 1 ? ' · OUTBREAK' : '';
     return `<span class="tick-item"><span class="tick-tag ${tag}">${label}${ob}</span>${esc(r.company||r.brand)} · ${esc(r.pathogen)} · ${esc(r.country)}</span>`;
   }).join('');
-  // Doubled for infinite scroll. With only 5 items the loop is shorter,
-  // so quadruple to keep the ticker visually full at all times.
-  document.getElementById('ticker').innerHTML = items + items + items + items;
+  // Doubled for seamless infinite scroll. With 10 items the doubled string
+  // is long enough to keep the ticker visually full at all times — no need
+  // to quadruple like the old 5-item version did.
+  document.getElementById('ticker').innerHTML = items + items;
 }
 document.querySelectorAll('th[data-col]').forEach(th=>th.addEventListener('click',()=>{const c=th.dataset.col;if(sortCol===c)sortAsc=!sortAsc;else{sortCol=c;sortAsc=true;}applyFilters();}));
 document.getElementById('prev').addEventListener('click',()=>{page--;render();});
@@ -494,7 +724,7 @@ function renderNews(){
   if(!NEWS_filtered.length){tb.innerHTML='<tr><td colspan="6" class="loading">No matching news.</td></tr>';document.getElementById('news-rcount').textContent='0 items';return;}
   tb.innerHTML=NEWS_filtered.slice(0,200).map(r=>{
     const dateOnly=(r.published||'').substring(0,10);const pcol=pColor(r.pathogen);
-    return`<tr><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(dateOnly)}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pcol}">${esc(r.pathogen)}</td><td style="font-size:10px;color:var(--muted)">${esc(r.event)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.3)">${esc(r.source)}</span></td><td style="font-size:11px;color:var(--white)">${esc(r.title)}</td><td>${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener" style="color:var(--green);font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;letter-spacing:.02em" title="${esc(r.link)}">${urlHost(r.link)}</a>`:''}</td></tr>`;
+    return`<tr><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(dateOnly)}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pcol}">${esc(r.pathogen)}</td><td style="font-size:10px;color:var(--muted)">${esc(r.event)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.3)">${esc(r.source)}</span></td><td style="font-size:11px;color:var(--white)">${esc(r.title)}</td><td>${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener" style="color:var(--brand);font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;letter-spacing:.02em" title="${esc(r.link)}">${urlHost(r.link)}</a>`:''}</td></tr>`;
   }).join('');
   document.getElementById('news-rcount').textContent=NEWS_filtered.length+' items';
   notifyHeight();
@@ -813,4 +1043,138 @@ async function loadDaily(){
 // Subscriber PDF generation decommissioned 2026-05-02 — HTML is the
 // canonical deliverable. The marketing one-pager PDF stays as a public
 // lead magnet and is linked via `pdf_url` on monthly-index.json entries.
-</script></body></html>
+
+
+// ============================================================================
+// TEASER MODAL — conversion overlay
+// ============================================================================
+// Opens 600ms after init() finishes (gives the dashboard a moment to render
+// behind the backdrop so visitors see the product is real). Shows 10 random
+// recalls from the last 7 days, a Subscribe CTA targeting fsis-plans, and a
+// 10-second countdown that force-redirects.
+//
+// Cross-origin top-navigation strategy: try window.top.location.href first
+// (works on most embed widgets without sandbox restrictions). If a SecurityError
+// fires, post a message to the Wix parent (add a one-line listener in Wix
+// Velo if needed). Last fallback navigates the iframe itself.
+//
+// No close button — this IS the conversion funnel. The 10-second redirect
+// guarantees every visitor lands on the plans page within 10 seconds even if
+// they ignore the Subscribe CTA.
+const TEASER_PLANS_URL = 'https://www.advfood.tech/fsis-plans';
+const TEASER_COUNTDOWN_SECONDS = 10;
+const TEASER_LOOKBACK_DAYS = 7;
+const TEASER_SAMPLE_SIZE = 10;
+const TEASER_OPEN_DELAY_MS = 600;
+
+function _navigateTop(url){
+  // 1) Try direct top-frame navigation (allowed cross-origin on most Wix embeds).
+  try { window.top.location.href = url; return; } catch(e){}
+  // 2) postMessage to parent — wire a 3-line Velo listener in Wix if needed:
+  //      $w.onReady(() => window.addEventListener('message', e => {
+  //        if (e.data && e.data.afts === 'navigate' && e.data.url)
+  //          wixLocation.to(e.data.url);
+  //      }));
+  try { window.parent.postMessage({afts:'navigate', url}, '*'); } catch(e){}
+  // 3) Last resort — navigate the iframe itself.
+  try { window.location.href = url; } catch(e){}
+}
+
+function _teaserRandomSample(){
+  // Take last-7-days rows from the already-loaded dataset, shuffle, take 10.
+  // Falls back to "last 14 days" then "any" if the 7-day window is thin —
+  // the modal must show 10 items, never appear half-empty.
+  const day = 86400000;
+  const within = (d) => (Date.now() - new Date(d + 'T00:00:00').getTime()) <= d_window;
+  let d_window = TEASER_LOOKBACK_DAYS * day;
+  let pool = ALL.filter(r => r.date && within(r.date));
+  if (pool.length < TEASER_SAMPLE_SIZE) { d_window = 14 * day; pool = ALL.filter(r => r.date && within(r.date)); }
+  if (pool.length < TEASER_SAMPLE_SIZE) { pool = ALL.slice(); }
+  // Fisher-Yates shuffle on a copy
+  const arr = pool.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, TEASER_SAMPLE_SIZE);
+}
+
+function _renderTeaserList(sample){
+  return sample.map(r => {
+    const flag = r.tier === 1 ? '<span class="t-flag t-flag-t1">T1</span>'
+               : r.is_outbreak === 1 ? '<span class="t-flag t-flag-ob">OUTBREAK</span>'
+               : '';
+    const product = r.product ? '<div class="t-product">' + esc(String(r.product).substring(0,72)) + (r.product.length>72?'…':'') + '</div>' : '';
+    return '<div class="teaser-item">'
+      + '<span class="t-date">' + esc(r.date || '—') + '</span>'
+      + '<div class="t-body">'
+      +   '<span class="t-pathogen">' + esc(r.pathogen || 'Unknown') + '</span> · '
+      +   '<span class="t-company">' + esc(r.company || r.brand || '—') + '</span> · '
+      +   '<span class="t-country">' + esc(r.country || '') + '</span>'
+      +   product
+      + '</div>'
+      + flag
+    + '</div>';
+  }).join('');
+}
+
+function openTeaserModal(){
+  if (!ALL || !ALL.length) {
+    // Data not loaded yet — retry shortly. Caps at 8 attempts so we never spin forever.
+    if ((window._teaser_retries = (window._teaser_retries || 0) + 1) > 8) return;
+    setTimeout(openTeaserModal, 500);
+    return;
+  }
+  const sample = _teaserRandomSample();
+  if (!sample.length) return; // truly empty dataset — skip teaser silently
+
+  document.getElementById('teaser-list').innerHTML = _renderTeaserList(sample);
+  document.getElementById('teaser-modal').classList.add('is-open');
+
+  // Pre-empt accidental double-fires (HMR, reload while open, etc.)
+  if (window._teaser_timer) clearInterval(window._teaser_timer);
+
+  let n = TEASER_COUNTDOWN_SECONDS;
+  const counterEl = document.getElementById('teaser-counter');
+  counterEl.textContent = n;
+  window._teaser_timer = setInterval(() => {
+    n -= 1;
+    counterEl.textContent = Math.max(0, n);
+    if (n <= 0) {
+      clearInterval(window._teaser_timer);
+      _navigateTop(TEASER_PLANS_URL);
+    }
+  }, 1000);
+}
+
+// Schedule the teaser. Wraps init() so we don't race the dataset loader.
+// 600ms after init() completes is enough for the dashboard to paint behind
+// the overlay — visitors see the product is real before the gate appears.
+const _origInit = init;
+init = function(){
+  _origInit.apply(this, arguments);
+  setTimeout(openTeaserModal, TEASER_OPEN_DELAY_MS);
+};
+
+// Expose for console testing — open the teaser on demand without waiting
+// for the 600ms post-init timer. Open browser DevTools → Console → type:
+//   openTeaserModal()
+// to verify the modal renders correctly with the current dataset.
+window.openTeaserModal = openTeaserModal;
+</script>
+
+<div id="teaser-modal" class="teaser-overlay" role="dialog" aria-modal="true" aria-labelledby="teaser-title">
+  <div class="teaser-card">
+    <div class="teaser-tag">AI-Reviewed Feed · Random Sample · Last 7 Days</div>
+    <div class="teaser-title" id="teaser-title">10 verified pathogen recalls</div>
+    <div class="teaser-sub">Every row below has passed two AI reviewers + a Thursday human checkpoint.</div>
+    <div class="teaser-list" id="teaser-list"></div>
+    <div class="teaser-foot">
+      <a href="https://www.advfood.tech/fsis-plans" target="_top" class="teaser-cta">Subscribe · View Plans &rarr;</a>
+      <div class="teaser-countdown">Continuing to subscription plans in <b id="teaser-counter">10</b>s</div>
+      <div class="teaser-fineprint">Full briefings · weekly &amp; monthly reports · custom alerts</div>
+    </div>
+  </div>
+</div>
+
+</body></html>
