@@ -1736,6 +1736,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AFTS Pathogen Intelligence Briefing &middot; Week {wnum}, {year}</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Cloudflare Web Analytics — see docs/index.html for setup instructions. -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+  data-cf-beacon='{{"token": "__CF_BEACON_TOKEN__"}}'></script>
 <style>
 __CSS_PLACEHOLDER__
 </style>

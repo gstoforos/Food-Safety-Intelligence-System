@@ -935,6 +935,9 @@ def build_all_month_html(month_start: date, month_end: date,
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <title>AFTS · All Recalls · {escape(month_name)}</title>
+<!-- Cloudflare Web Analytics — see docs/index.html for setup instructions. -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+  data-cf-beacon='{{"token": "__CF_BEACON_TOKEN__"}}'></script>
 <style>
 body{{font-family:'Inter',sans-serif;background:#f5f5f7;margin:0;padding:32px 20px;color:#1f2937;}}
 .wrap{{max-width:1080px;margin:0 auto;background:#fff;padding:32px 40px;border:1px solid #e5e7eb;}}
@@ -1291,6 +1294,9 @@ def build_monthly_html(month_start: date, month_end: date,
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Cloudflare Web Analytics — see docs/index.html for setup instructions. -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+  data-cf-beacon='{{"token": "__CF_BEACON_TOKEN__"}}'></script>
 <style>
 :root{{
 --bg:#ffffff; --s1:#f9fafb; --s2:#f3f4f6; --brd:#e5e7eb;

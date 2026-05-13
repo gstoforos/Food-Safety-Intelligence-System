@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     Cloudflare Web Analytics — free, cookieless, no GDPR consent banner needed.
+     SETUP (one-time):
+       1. Sign in at https://dash.cloudflare.com (free account)
+       2. Analytics → Web Analytics → Add a site
+       3. Enter: gstoforos.github.io  (or whatever advfood.tech maps to)
+       4. Copy the token from the "JavaScript snippet" box
+       5. Find-replace __CF_BEACON_TOKEN__ across the repo:
+            find . -type f \( -name '*.html' -o -name '*.py' \) \
+              -exec sed -i 's/__CF_BEACON_TOKEN__/your-real-token-here/g' {} +
+       6. Commit + push. Analytics start populating within ~10 min.
+     If the placeholder is left in place, CF returns a 401 silently.
+     No pollution, no errors visible to subscribers. ═════════════════════════ -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+  data-cf-beacon='{"token": "__CF_BEACON_TOKEN__"}'></script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AFTS · Food Safety Alerts · Subscribe</title>
