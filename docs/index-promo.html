@@ -275,7 +275,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .promo-bottom h2{font-family:Georgia,'Times New Roman',serif;font-weight:800;font-size:30px;color:var(--white);letter-spacing:-.01em;line-height:1.25;margin:0 auto 16px;max-width:640px;}
 .promo-bottom h2 em{color:var(--ai);font-style:normal;}
 .promo-bottom p.lead{font-size:14px;color:var(--muted);line-height:1.65;max-width:560px;margin:0 auto 24px;}
-.promo-bottom .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;max-width:880px;margin:0 auto 30px;text-align:left;}
+.promo-bottom .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:920px;margin:0 auto 30px;text-align:left;}
 .promo-bottom .feat-card{background:var(--s2);border:1px solid var(--brd);border-left:3px solid var(--ai);padding:14px 16px;border-radius:2px;}
 .promo-bottom .feat-card .ft{font-family:'DM Mono',monospace;font-size:9px;color:var(--ai);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;}
 .promo-bottom .feat-card .fb{font-size:13px;color:var(--text);line-height:1.5;}
@@ -286,6 +286,10 @@ tr:hover td{background:rgba(255,255,255,.02);}
 /* Disable filter bar visually (still in DOM for layout/JS reasons; just inert) */
 .promo-disable{pointer-events:none;opacity:.4;filter:saturate(.5);}
 
+/* Tablet — drop from 3 cols to 2 cols for the bottom cards */
+@media(max-width:768px){
+  .promo-bottom .feat-grid{grid-template-columns:repeat(2,1fr);max-width:560px;}
+}
 /* Mobile promo refinements */
 @media(max-width:600px){
   .promo-sample-banner{grid-template-columns:1fr;text-align:center;padding:12px 14px;margin:10px 14px 0;}
@@ -293,14 +297,19 @@ tr:hover td{background:rgba(255,255,255,.02);}
   .promo-bottom{padding:36px 16px;}
   .promo-bottom h2{font-size:22px;}
   .promo-bottom p.lead{font-size:13px;}
-  .promo-bottom .promo-bottom-cta{padding:15px 28px;font-size:11px;}
-  .promo-bottom .feat-grid{grid-template-columns:1fr;gap:10px;}
+  /* Block-level CTA — full-width with a sensible cap, proper thumb target,
+     tighter letter-spacing so "VIEW SUBSCRIPTION PLANS →" never feels cramped. */
+  .promo-bottom .promo-bottom-cta{display:block;width:100%;max-width:360px;margin:0 auto;padding:18px 22px;font-size:12px;letter-spacing:.10em;box-sizing:border-box;}
+  .promo-bottom .feat-grid{grid-template-columns:repeat(2,1fr);gap:12px;max-width:440px;}
 }
 @media(max-width:480px){
   .promo-subscribe{padding:10px 14px;font-size:10px;letter-spacing:.1em;min-height:44px;display:inline-flex;align-items:center;justify-content:center;margin-right:0;}
   .promo-tag{display:none;}
   .promo-sample-banner .pb-text{font-size:12px;}
   .promo-bottom h2{font-size:20px;}
+  .promo-bottom .promo-bottom-cta{padding:16px 18px;font-size:11px;letter-spacing:.08em;}
+  .promo-bottom .feat-card{padding:12px 14px;}
+  .promo-bottom .feat-card .fb{font-size:12px;}
 }
 /* Sticky top countdown bar — 15-second auto-redirect to plans page.
    Promo-only. Vibrant ORANGE chrome (not AI green) to catch the eye against
@@ -313,7 +322,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 @media(max-width:600px){.promo-topbar{font-size:10px;padding:8px 12px;gap:8px;flex-wrap:wrap;text-align:center;}.promo-topbar b{font-size:13px;}}
 
 </style></head><body class="promo-mode">
-<div class="promo-topbar" id="promo-topbar" role="banner" aria-live="polite">→ Continuing to subscription plans in <b id="promo-counter">15</b>s · <a href="https://www.advfood.tech/fsis-plans" target="_top">Subscribe now →</a></div>
+<div class="promo-topbar" id="promo-topbar" role="banner" aria-live="polite">→ Continuing to subscription plans in <b id="promo-counter">30</b>s · <a href="https://www.advfood.tech/fsis-plans" target="_top">Subscribe now →</a></div>
 
 <div class="hdr"><div class="brand"><a href="https://www.advfood.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</a><span class="promo-tag">Preview</span><small>// AI-Reviewed · AI-Analyzed Food Recall Intelligence · under AFTS process authority · 66 sources · 60+ countries</small><small style="margin-top:3px;color:var(--muted);font-weight:500;letter-spacing:.10em">✓ Verified by 2 independent AI reviewers + Thursday human checkpoint</small></div><div class="hdr-right"><span class="live-pill">LIVE MONITORING</span><a href="https://www.advfood.tech/fsis-plans" target="_top" class="promo-subscribe">Subscribe →</a><div class="hdr-meta" id="meta">Loading…</div></div></div>
 
@@ -401,7 +410,6 @@ tr:hover td{background:rgba(255,255,255,.02);}
     <div class="feat-card"><div class="ft">Two AI Reviewers</div><div class="fb">Plus Thursday human checkpoint — no other feed offers this verification gate.</div></div>
   </div>
   <a href="https://www.advfood.tech/fsis-plans" target="_top" class="promo-bottom-cta">View Subscription Plans →</a>
-  <div class="fineprint">Free preview · No card required to view plans</div>
 </div>
 
 <div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/fsis-home" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="downloadRecallsXlsx();return false;">↓ XLSX</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:var(--ai);font-family:'DM Mono',monospace;font-size:9px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
@@ -1247,10 +1255,10 @@ function _promoApplyAll(){
   _promoStartCountdown();
 }
 
-// 15-second auto-redirect — fires once the dashboard data is on screen so
+// 30-second auto-redirect — fires once the dashboard data is on screen so
 // visitors have actually seen the product before being routed to the plans
 // page. Cross-origin top-navigation strategy reuses _promoNavigatePlans.
-const PROMO_AUTOREDIRECT_SECONDS = 15;
+const PROMO_AUTOREDIRECT_SECONDS = 30;
 function _promoStartCountdown(){
   const counterEl = document.getElementById('promo-counter');
   if (!counterEl) return;
