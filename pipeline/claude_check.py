@@ -60,8 +60,9 @@ from pipeline.merge_master import (  # noqa: E402
     save_xlsx_with_pending, mirror_json_from_xlsx,
     rebuild_daily_briefs_for_promoted,
     STATUS_REJECTED, STATUS_PENDING,
-    STATUS_PENDING_GAP_V2,
+    STATUS_PENDING_GAP, STATUS_PENDING_GAP_V1, STATUS_PENDING_GAP_V2,
     STATUS_PENDING_ENRICHMENT,
+    mark_rejected_with_counter,
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
 from review.claude_client import (  # noqa: E402
@@ -1192,7 +1193,35 @@ def main() -> int:
         else:  # skip
             log.info("  → SKIP: %s (left untouched, retry next run)", reason)
             skipped_idx.add(idx)   # ← AUDIT 2026-05-08: track for parking lot
-            skip_count += 1
+            # ── 2026-05-13 — 2nd-reviewer-confirms-rejection fix ──────────
+            # Per operator design (2 reviewers, both reject → archive): if
+            # the row already has Status='rejected' (set by a prior url_gate
+            # pass) AND this SKIP is a URL-fetch failure (HTTP 404,
+            # connection reset, timeout, etc.), that's the second reviewer
+            # also confirming the URL is dead. Promote the SKIP into
+            # rejected_flags so promote_approved's mark_rejected_with_counter
+            # increments RejectedBy to {url_gate, claude-check} (len=2) and
+            # archives the row to Weekly_Rejected. Before this fix these
+            # rows sat in Pending forever as Status='rejected' /
+            # RejectedBy='unknown' or similar single-reviewer state — never
+            # archived because SKIP didn't count as a verdict.
+            cur_status = (row.get("Status") or "").strip().lower()
+            url_fetch_fail = any(s in (reason or "").lower() for s in (
+                "http 4", "http 5", "fetch failed", "fetch error",
+                "connection", "timeout", "http_error", "network",
+            ))
+            if cur_status == STATUS_REJECTED and url_fetch_fail:
+                rejected_flags[idx] = (
+                    f"Claude check: url-fetch-fail confirms prior rejection "
+                    f"({reason[:200]})"
+                )
+                skipped_idx.discard(idx)
+                fail_count += 1
+                skip_count -= 1
+                log.info("  → reclassified SKIP as FAIL (URL dead per "
+                         "both reviewers — archiving via 2-reviewer counter)")
+            else:
+                skip_count += 1
 
         time.sleep(SLEEP_BETWEEN_ROWS_S)
 
@@ -1219,12 +1248,19 @@ def main() -> int:
         log.info("Parked %d skipped row(s) in pending_gap_v2 to prevent "
                  "auto-promotion (will retry next reviewer run)", parked)
 
-    # ── Gap-finder gating state machine advance (audit 2026-04-29) ──────
-    # Any pending_gap_v2 row that just passed Claude verification gets
-    # promoted out of the gap-gating ladder by flipping its Status to
-    # plain "pending". The next merge_master run will then promote it to
-    # Recalls under normal rules. Failures are already in rejected_flags
-    # and will be marked STATUS_REJECTED by promote_approved.
+    # ── Gap-finder gating state machine advance (audit 2026-04-29, fixed 2026-05-13) ──
+    # Operator's design: 2 reviewers (url_gate_gemini + claude_check). Both
+    # pass → promote. Pre-2026-05-13 this block only advanced pending_gap_v2,
+    # which required TWO url_gate passes before claude could flip the row —
+    # a third de-facto reviewer that contradicted the documented 2-reviewer
+    # model. Result: rows that passed url_gate once AND passed claude_check
+    # (e.g. the 2026-05-13 04:15 batch — Manor Farm / AESAN / FSA Nestlé)
+    # sat at pending_gap_v1 forever even though both their reviewers had
+    # said OK.
+    #
+    # Fixed: claude verification advances EITHER pending_gap_v1 OR
+    # pending_gap_v2 to plain "pending". Failures are already in
+    # rejected_flags and will be marked STATUS_REJECTED by promote_approved.
     gap_promoted_to_pending = 0
     today_iso2 = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     for idx in rows_to_check_idx:
@@ -1233,14 +1269,16 @@ def main() -> int:
         if idx in skipped_idx:
             continue  # SKIP — leave in parking lot (audit 2026-05-08)
         row = pending[idx]
-        if (row.get("Status") or "").strip() == STATUS_PENDING_GAP_V2:
+        cur = (row.get("Status") or "").strip()
+        if cur in (STATUS_PENDING_GAP_V1, STATUS_PENDING_GAP_V2):
             row["Status"] = STATUS_PENDING
             notes = (row.get("Notes") or "").strip()
-            tag = f"[gap-gate {today_iso2}: pending_gap_v2 → pending (Claude verified)]"
+            tag = (f"[gap-gate {today_iso2}: "
+                   f"{cur} → pending (Claude verified, 2nd reviewer pass)]")
             row["Notes"] = (notes + " " + tag).strip()[:1000]
             gap_promoted_to_pending += 1
     if gap_promoted_to_pending:
-        log.info("Gap-gating advanced: %d rows pending_gap_v2 → pending "
+        log.info("Gap-gating advanced: %d rows pending_gap_v1/v2 → pending "
                  "(eligible for next merge_master)", gap_promoted_to_pending)
 
     # ── pending_enrichment unlock (audit 2026-05-11) ─────────────────────
