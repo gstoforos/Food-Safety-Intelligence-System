@@ -1,0 +1,105 @@
+name: AFTS Synthesis Writer — Monthly
+
+# ==========================================================================
+# Day-1 09:30 ATHENS — runs ~30 min after the monthly builder commits at 09:00.
+# By 09:30 the new monthly-summary-latest.json is on Pages with
+# ai_lead_paragraph="" ready to be filled.
+#
+# Timeline each Day-1 (all Athens time):
+#   09:00  AFTS Monthly Report builds + commits monthly-summary-latest.json
+#          (ai_lead_paragraph="")
+#   09:30  THIS WORKFLOW → reads the JSON, generates monthly synthesis,
+#          writes back, commits.
+#   10:00  Mailer monthly review preview fires (Apps Script).
+#   12:30  Mailer monthly mass send.
+#
+# Dispatched by FsisScheduler.gs — add halfHourly slot "09:30": ["synthesis-writer-monthly.yml"]
+# guarded to DOM==1 only.
+# ==========================================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Overwrite existing ai_lead_paragraph if already populated"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  synthesize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Athens-time guard
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          MIN=$(TZ=Europe/Athens date +%M)
+          DOM=$(TZ=Europe/Athens date +%d)
+          echo "athens=${HOUR}:${MIN} dom=${DOM}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "manual=1 (skipping guard)"
+            echo "run=1" >> "$GITHUB_OUTPUT"
+          else
+            # Must be Day-1 between 09:00 and 11:59 Athens
+            if [ "$DOM" = "01" ] && [ "$HOUR" -ge "09" ] && [ "$HOUR" -lt "12" ]; then
+              echo "run=1" >> "$GITHUB_OUTPUT"
+            else
+              echo "run=0" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == '1'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        if: steps.guard.outputs.run == '1'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        if: steps.guard.outputs.run == '1'
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests google-genai openpyxl
+
+      - name: Git identity (for commit)
+        if: steps.guard.outputs.run == '1'
+        run: |
+          git config user.name  "afts-bot"
+          git config user.email "afts-bot@users.noreply.github.com"
+
+      - name: Run synthesis writer
+        if: steps.guard.outputs.run == '1'
+        env:
+          CLAUDE_API_KEY:       ${{ secrets.CLAUDE_API_KEY }}
+          ANTHROPIC_API_KEY:    ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY_FREE:  ${{ secrets.GEMINI_API_KEY_FREE }}
+          GEMINI_API_KEY_1:     ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2:     ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3:     ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4:     ${{ secrets.GEMINI_API_KEY_4 }}
+          GEMINI_API_KEY_5:     ${{ secrets.GEMINI_API_KEY_5 }}
+        run: |
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            python -m pipeline.synthesis_writer --cadence monthly --force
+          else
+            python -m pipeline.synthesis_writer --cadence monthly
+          fi
+
+      - name: Skip note
+        if: steps.guard.outputs.run != '1'
+        run: |
+          echo "Outside the Day-1 09:00-11:59 Athens window — skipping."

@@ -1,0 +1,113 @@
+name: AFTS Synthesis Writer — Weekly
+
+# ==========================================================================
+# Friday 08:30 ATHENS — runs ~30 min after the weekly builder commits at 08:00.
+# That window covers: builder build (~5 min) + commit (~30s) + Pages deploy
+# (~10 min) + buffer. By 08:30 the new weekly-summary-latest.json is on
+# Pages with ai_lead_paragraph="" ready to be filled.
+#
+# Timeline each Friday (all Athens time):
+#   08:00  AFTS Weekly Report builds + commits weekly-summary-latest.json
+#          (ai_lead_paragraph="")
+#   08:30  THIS WORKFLOW → reads the JSON, generates synthesis via LLM,
+#          writes ai_lead_paragraph back, commits.
+#   09:00  Mailer review preview fires (Apps Script) → George sees the
+#          synthesis in the [REVIEW] email body.
+#   12:30  Mailer mass send → subscribers see the Intelligence Summary
+#          section populated.
+#
+# Dispatched by FsisScheduler.gs — add halfHourly slot "08:30": ["synthesis-writer-weekly.yml"]
+# guarded to Friday only.
+#
+# Failure posture: if synthesis fails (LLM down, rate-limited, deterministic
+# fallback also crashes), the field stays "" and the mailer cleanly skips
+# the Intelligence Summary block — subscribers get the email anyway.
+# ==========================================================================
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Overwrite existing ai_lead_paragraph if already populated"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  synthesize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Athens-time guard
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          MIN=$(TZ=Europe/Athens date +%M)
+          DOW=$(TZ=Europe/Athens date +%u)   # 1=Mon .. 7=Sun
+          echo "athens=${HOUR}:${MIN} dow=${DOW}"
+          # Manual dispatch is always allowed; scheduled dispatch is gated.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "manual=1 (skipping guard)"
+            echo "run=1" >> "$GITHUB_OUTPUT"
+          else
+            # Must be Friday between 08:00 and 11:59 Athens
+            if [ "$DOW" = "5" ] && [ "$HOUR" -ge "08" ] && [ "$HOUR" -lt "12" ]; then
+              echo "run=1" >> "$GITHUB_OUTPUT"
+            else
+              echo "run=0" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == '1'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        if: steps.guard.outputs.run == '1'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        if: steps.guard.outputs.run == '1'
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests google-genai openpyxl
+
+      - name: Git identity (for commit)
+        if: steps.guard.outputs.run == '1'
+        run: |
+          git config user.name  "afts-bot"
+          git config user.email "afts-bot@users.noreply.github.com"
+
+      - name: Run synthesis writer
+        if: steps.guard.outputs.run == '1'
+        env:
+          CLAUDE_API_KEY:       ${{ secrets.CLAUDE_API_KEY }}
+          ANTHROPIC_API_KEY:    ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY_FREE:  ${{ secrets.GEMINI_API_KEY_FREE }}
+          GEMINI_API_KEY_1:     ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2:     ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3:     ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4:     ${{ secrets.GEMINI_API_KEY_4 }}
+          GEMINI_API_KEY_5:     ${{ secrets.GEMINI_API_KEY_5 }}
+        run: |
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            python -m pipeline.synthesis_writer --cadence weekly --force
+          else
+            python -m pipeline.synthesis_writer --cadence weekly
+          fi
+
+      - name: Skip note
+        if: steps.guard.outputs.run != '1'
+        run: |
+          echo "Outside the Friday 08:00-11:59 Athens window — skipping."
