@@ -1,0 +1,412 @@
+name: Training Corpus Audit
+
+# Manual diagnostic: measures the gap between the current training-data
+# extraction (Weekly_Review + Weekly_Rejected only) and what's available
+# if we also harvest the Recalls master sheet + use a broader Notes parser.
+#
+# READ-ONLY against recalls.xlsx — only writes a Markdown report to
+# docs/audits/ and commits it back. Never modifies recalls.xlsx itself.
+#
+# Trigger: manually from the Actions tab → "Training Corpus Audit" → Run workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      xlsx_path:
+        description: "Path to recalls.xlsx (default: docs/data/recalls.xlsx)"
+        required: false
+        default: "docs/data/recalls.xlsx"
+      commit_report:
+        description: "Commit the audit report back to docs/audits/ ?"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+permissions:
+  contents: write  # needed to commit the audit report back to the repo
+
+concurrency:
+  group: training-corpus-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install --quiet openpyxl
+
+      - name: Write audit script to tools/
+        run: |
+          mkdir -p tools
+          cat > tools/audit_training_corpus.py <<'PYEOF_AUDIT'
+          #!/usr/bin/env python3
+          """
+          audit_training_corpus.py
+          ========================
+
+          Diagnostic: measures the gap between the training corpus the current
+          export_training_data.py produces and the corpus that's available if we
+          also harvest the Recalls master sheet + broaden the Notes parser.
+
+          READ-ONLY. Does not write or modify anything.
+
+          Usage:
+              python audit_training_corpus.py --xlsx docs/data/recalls.xlsx
+
+          Outputs a Markdown report to stdout — pipe to a file or paste into a chat:
+              python audit_training_corpus.py --xlsx docs/data/recalls.xlsx > audit.md
+          """
+          from __future__ import annotations
+
+          import argparse
+          import json
+          import re
+          import sys
+          from collections import Counter
+          from pathlib import Path
+
+          import openpyxl
+
+
+          # ─── Notes parsing — current (strict) vs proposed (broad) ────────────────
+
+          _CURRENT_RX = re.compile(
+              r'''(Date|Company|Brand|Product|Pathogen)\s*'''
+              r'''(?:''\s*→|""\s*→|→)\s*'''
+              r'''['"]?(?P<value>[^,;'\]]+?)['"]?'''
+              r'''(?=\s*[,;\]]|$)''',
+          )
+
+          # Proposed v2 parser: tag-based, two-step.
+          #  1. Find every [tag-name ...: body] annotation block
+          #  2. Inside each block, scan for "Field 'old'→'new'" or "Field→'new'" patterns
+          _TAG_BLOCK_RX = re.compile(
+              r'\[(?P<tag>[a-z][a-z0-9_-]+)'              # tag name e.g. claude-check
+              r'(?:\s+\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2})?)?'   # optional date(time)
+              r':\s+(?P<body>[^\[\]]*)\]',
+              re.IGNORECASE,
+          )
+
+          # Inside a tag body, match: Pathogen 'old'→'new'   |   Pathogen→'new'   |   Pathogen ''→'new'
+          _CORR_BROAD_RX = re.compile(
+              r"(?P<field>Date|Company|Brand|Product|Pathogen|Class)\b"
+              r"\s*"
+              r"(?:['\"\u2018\u2019\u201C\u201D]?[^'\"\u2018\u2019\u201C\u201D\u2192\u2192\n]{0,80}?['\"\u2018\u2019\u201C\u201D]?\s*)?"
+              r"(?:\u2192|->|→)"                          # arrow (unicode + ascii)
+              r"\s*"
+              r"['\"\u2018\u2019\u201C\u201D]?"
+              r"(?P<value>[^,;\]\n\u2192]{1,200}?)"
+              r"['\"\u2018\u2019\u201C\u201D]?"
+              r"(?=\s*[,;\]]|$)",
+          )
+
+          # Verdict pattern inside a claude-check/gemini-check block
+          _VERDICT_RX = re.compile(
+              r'\b(?P<verdict>pass|fix|fail|skip|promote|reject)\b',
+              re.IGNORECASE,
+          )
+
+          INTEREST_TAGS = {
+              "claude-check", "claude-gap", "claude_check",
+              "gemini-check", "gemini-enrich", "gemini-gap", "gemini_check",
+              "openai-check", "openrouter-check",
+              "url-gate", "url_gate", "url-guardian",
+              "outbreak", "tier-bump",
+          }
+
+
+          def parse_notes_current(notes: str) -> dict:
+              """Apply the CURRENT export script regex."""
+              out = {}
+              for m in _CURRENT_RX.finditer(notes):
+                  field = m.group(1)
+                  value = m.group("value").strip()
+                  if value and value not in ("''", "—", "-", "(empty)"):
+                      out[field] = value
+              return out
+
+
+          def parse_notes_v2(notes: str) -> tuple[dict, list]:
+              """Proposed v2 parser: tag-aware, broader Unicode handling.
+
+              Returns (corrections, tag_inventory) where:
+                corrections: {field: corrected_value}
+                tag_inventory: list of (tag_name, verdict_or_None) for every annotation block
+              """
+              corrections = {}
+              tags = []
+              for tm in _TAG_BLOCK_RX.finditer(notes):
+                  tag = tm.group("tag").lower()
+                  body = tm.group("body")
+                  vm = _VERDICT_RX.search(body)
+                  verdict = vm.group("verdict").lower() if vm else None
+                  tags.append((tag, verdict))
+                  if tag not in INTEREST_TAGS:
+                      continue
+                  for cm in _CORR_BROAD_RX.finditer(body):
+                      field = cm.group("field")
+                      value = cm.group("value").strip().strip("'\"\u2018\u2019\u201C\u201D")
+                      if value and value not in ("''", "—", "-", "(empty)", "\u2014"):
+                          corrections[field] = value
+              return corrections, tags
+
+
+          # ─── Sheet I/O ────────────────────────────────────────────────────────────
+
+          def load_sheet(xlsx: Path, sheet: str) -> list[dict]:
+              if not xlsx.exists():
+                  return []
+              wb = openpyxl.load_workbook(xlsx, read_only=True, data_only=True)
+              if sheet not in wb.sheetnames:
+                  return []
+              ws = wb[sheet]
+              headers = [c.value for c in ws[1]]
+              rows = []
+              for r in ws.iter_rows(min_row=2, values_only=True):
+                  row = {h: (v if v is not None else "") for h, v in zip(headers, r) if h}
+                  if any(str(v).strip() for v in row.values()):
+                      rows.append(row)
+              return rows
+
+
+          # ─── Main audit ───────────────────────────────────────────────────────────
+
+          def audit(xlsx: Path) -> str:
+              out = []
+              p = out.append
+
+              p(f"# Training Corpus Audit — {xlsx.name}")
+              p("")
+              p(f"Source: `{xlsx}`")
+              p("")
+
+              recalls = load_sheet(xlsx, "Recalls")
+              weekly_review = load_sheet(xlsx, "Weekly_Review")
+              weekly_rejected = load_sheet(xlsx, "Weekly_Rejected")
+              pending = load_sheet(xlsx, "Pending")
+
+              p("## Sheet inventory")
+              p("")
+              p("| Sheet | Rows | Role in training corpus |")
+              p("|---|---:|---|")
+              p(f"| Recalls | {len(recalls)} | **NOT YET USED** — vetted promote examples |")
+              p(f"| Weekly_Review | {len(weekly_review)} | currently used → promote examples |")
+              p(f"| Weekly_Rejected | {len(weekly_rejected)} | currently used → reject examples |")
+              p(f"| Pending | {len(pending)} | not used (un-reviewed) |")
+              p("")
+
+              # ── Tier distribution comparison ───
+              p("## Tier distribution: current vs proposed corpus")
+              p("")
+              tier_curr = Counter(r.get("Tier") for r in weekly_review
+                                  if r.get("Tier") in (1, 2, 3))
+              tier_proposed = Counter()
+              for r in recalls + weekly_review:
+                  t = r.get("Tier")
+                  if t in (1, 2, 3):
+                      tier_proposed[t] += 1
+
+              p("| Tier | Current (Weekly_Review only) | Proposed (+Recalls) | Multiplier |")
+              p("|---|---:|---:|---:|")
+              for t in (1, 2, 3):
+                  c = tier_curr.get(t, 0)
+                  n = tier_proposed.get(t, 0)
+                  mult = f"{n/c:.1f}×" if c else "∞ (was 0)"
+                  p(f"| Tier {t} | {c} | {n} | {mult} |")
+              p(f"| **Total** | **{sum(tier_curr.values())}** | **{sum(tier_proposed.values())}** | "
+                f"**{sum(tier_proposed.values())/max(1,sum(tier_curr.values())):.1f}×** |")
+              p("")
+
+              # ── Pathogen diversity ─────────────
+              p("## Pathogen diversity (Recalls sheet only)")
+              p("")
+              paths = Counter(str(r.get("Pathogen", "")).strip()
+                              for r in recalls if r.get("Pathogen"))
+              p("Top 15 pathogens in Recalls (will appear in tier-assignment training):")
+              p("")
+              p("| Pathogen | Count |")
+              p("|---|---:|")
+              for path, n in paths.most_common(15):
+                  p(f"| {path[:60]} | {n} |")
+              p("")
+
+              # ── Field-correction recovery ──────
+              p("## Field-correction recovery — current parser vs v2 parser")
+              p("")
+              curr_total = 0
+              v2_total = 0
+              v2_field_dist = Counter()
+              curr_field_dist = Counter()
+              tag_dist = Counter()
+              for r in recalls + weekly_review + weekly_rejected:
+                  notes = str(r.get("Notes", ""))
+                  if not notes:
+                      continue
+                  curr_corr = parse_notes_current(notes)
+                  v2_corr, tags = parse_notes_v2(notes)
+                  if curr_corr:
+                      curr_total += 1
+                      for f in curr_corr:
+                          curr_field_dist[f] += 1
+                  if v2_corr:
+                      v2_total += 1
+                      for f in v2_corr:
+                          v2_field_dist[f] += 1
+                  for t, _v in tags:
+                      tag_dist[t] += 1
+
+              p(f"- Rows with parseable corrections (**current** parser): **{curr_total}**")
+              p(f"- Rows with parseable corrections (**v2** parser):      **{v2_total}**")
+              p(f"- Gain: **{v2_total - curr_total} additional examples** ({v2_total/max(1,curr_total):.1f}× over current)")
+              p("")
+              p("Field-correction distribution comparison:")
+              p("")
+              p("| Field | Current | v2 |")
+              p("|---|---:|---:|")
+              all_fields = sorted(set(curr_field_dist) | set(v2_field_dist))
+              for f in all_fields:
+                  p(f"| {f} | {curr_field_dist.get(f, 0)} | {v2_field_dist.get(f, 0)} |")
+              p("")
+
+              # ── Tag inventory (audit-trail richness) ──
+              p("## Notes annotation inventory (all sheets)")
+              p("")
+              p("How many reviewer/enrichment annotations exist in Notes columns:")
+              p("")
+              p("| Tag | Occurrences |")
+              p("|---|---:|")
+              for tag, n in tag_dist.most_common(20):
+                  p(f"| `{tag}` | {n} |")
+              p("")
+
+              # ── Promote/reject balance ────────
+              p("## Promote/reject training balance")
+              p("")
+              n_promote_current = len(weekly_review)
+              n_reject_current = len(weekly_rejected)
+              n_promote_proposed = len(recalls) + len(weekly_review)
+              p(f"- Current PROMOTE examples (Weekly_Review): **{n_promote_current}**")
+              p(f"- Current REJECT examples (Weekly_Rejected): **{n_reject_current}**")
+              p(f"- Proposed PROMOTE examples (Recalls + Weekly_Review): **{n_promote_proposed}**")
+              p(f"- Reject pool unchanged — **bottleneck shifts to needing more rejects**")
+              p(f"  - Rejects are gone weekly (sheet gets wiped); historical rejects must come from git history of recalls.xlsx OR GH Actions logs")
+              p("")
+
+              # ── Recommendation ────────────────
+              p("## Recommendation")
+              p("")
+              if n_promote_proposed > 5 * n_promote_current:
+                  p(f"✅ **Proceed with v2 export.** Adding the Recalls sheet gives "
+                    f"{n_promote_proposed/max(1,n_promote_current):.0f}× more PROMOTE examples "
+                    f"and balances the tier distribution.")
+                  p("")
+                  p("**Imbalance after v2 export:**")
+                  p(f"- PROMOTE: ~{n_promote_proposed}")
+                  p(f"- REJECT:  ~{n_reject_current}")
+                  p(f"- Ratio:   {n_promote_proposed/max(1,n_reject_current):.0f}:1 — needs class weighting at training time, OR rescue more rejects from git history.")
+              else:
+                  p("⚠ Gap is smaller than expected — investigate why before proceeding.")
+              p("")
+              p("---")
+              p(f"_Run: `python audit_training_corpus.py --xlsx {xlsx}`_")
+
+              return "\n".join(out)
+
+
+          def main():
+              ap = argparse.ArgumentParser()
+              ap.add_argument("--xlsx", type=Path,
+                              default=Path("docs/data/recalls.xlsx"))
+              ap.add_argument("--json", action="store_true",
+                              help="Output as JSON instead of Markdown")
+              args = ap.parse_args()
+
+              if not args.xlsx.exists():
+                  print(f"ERROR: {args.xlsx} not found", file=sys.stderr)
+                  sys.exit(1)
+
+              report = audit(args.xlsx)
+              print(report)
+
+
+          if __name__ == "__main__":
+              main()
+          PYEOF_AUDIT
+          chmod +x tools/audit_training_corpus.py
+          echo "Wrote $(wc -l < tools/audit_training_corpus.py) lines to tools/audit_training_corpus.py"
+
+      - name: Run audit
+        id: audit
+        env:
+          XLSX_PATH: ${{ inputs.xlsx_path }}
+        run: |
+          if [ ! -f "$XLSX_PATH" ]; then
+            echo "::error::XLSX file not found at $XLSX_PATH"
+            exit 1
+          fi
+
+          mkdir -p docs/audits
+          REPORT_DATE=$(TZ=Europe/Athens date +%Y-%m-%d)
+          REPORT_FILE="docs/audits/training_corpus_audit_${REPORT_DATE}.md"
+
+          echo "Running audit on $XLSX_PATH ..."
+          python tools/audit_training_corpus.py --xlsx "$XLSX_PATH" > "$REPORT_FILE"
+
+          echo "report_file=$REPORT_FILE" >> "$GITHUB_OUTPUT"
+          echo "report_date=$REPORT_DATE" >> "$GITHUB_OUTPUT"
+
+          # Echo to the job log
+          echo "═══════════════════════════════════════════════════════════"
+          cat "$REPORT_FILE"
+          echo "═══════════════════════════════════════════════════════════"
+
+          # Also write to the workflow run summary so it shows in the GH UI
+          {
+            echo "## Training Corpus Audit — ${REPORT_DATE} (Athens)"
+            echo ""
+            cat "$REPORT_FILE"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: training-corpus-audit-${{ steps.audit.outputs.report_date }}
+          path: docs/audits/training_corpus_audit_*.md
+          retention-days: 90
+
+      - name: Commit audit report to repo
+        if: inputs.commit_report == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/audits/
+          if git diff --cached --quiet; then
+            echo "No changes to commit (audit report identical to existing)."
+            exit 0
+          fi
+          git commit -m "audit: training corpus snapshot ${{ steps.audit.outputs.report_date }}"
+          # Retry-with-rebase in case of concurrent commits to main
+          for i in 1 2 3; do
+            if git push; then
+              echo "Push succeeded on attempt $i"
+              exit 0
+            fi
+            echo "Push failed on attempt $i, rebasing and retrying..."
+            git pull --rebase
+            sleep 3
+          done
+          echo "::error::Failed to push audit report after 3 attempts"
+          exit 1
