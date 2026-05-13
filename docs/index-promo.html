@@ -241,11 +241,11 @@ tr:hover td{background:rgba(255,255,255,.02);}
 ========================================================================== */
 
 /* Right-corner Subscribe CTA — sits next to LIVE MONITORING pill.
-   Uses AI green (--ai) instead of brand orange so the conversion surface
-   reads as part of the AI engine, not as a generic SaaS CTA. Dark text
-   on green for proper WCAG contrast (white-on-green fails). */
-.promo-subscribe{display:inline-block;background:var(--ai);color:var(--bg);font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:8px 16px;border-radius:2px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border:1px solid var(--ai);transition:transform .15s,filter .15s,box-shadow .15s;vertical-align:middle;margin-bottom:8px;box-shadow:0 0 16px rgba(52,211,153,.4);}
-.promo-subscribe:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 0 26px rgba(52,211,153,.65);}
+   VIBRANT ORANGE (not AI green) so the primary conversion action pops
+   against the green dashboard chrome. Subtle pulse glow draws the eye. */
+.promo-subscribe{display:inline-block;background:#ff7a1a;color:#fff;font-family:'DM Mono',monospace;font-size:11px;font-weight:800;padding:10px 20px;border-radius:3px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border:1px solid #ff7a1a;transition:transform .15s,filter .15s,box-shadow .15s;vertical-align:middle;margin-bottom:8px;box-shadow:0 0 20px rgba(255,122,26,.55);animation:ctaPulse 2.4s ease-in-out infinite;}
+.promo-subscribe:hover{filter:brightness(1.12);transform:translateY(-2px);box-shadow:0 0 32px rgba(255,122,26,.85);animation:none;}
+@keyframes ctaPulse{0%,100%{box-shadow:0 0 18px rgba(255,122,26,.45);}50%{box-shadow:0 0 30px rgba(255,122,26,.85);}}
 
 /* Small "preview" tag in masthead — AI green to match the engine palette */
 .promo-tag{display:inline-block;background:rgba(52,211,153,.08);color:var(--ai);font-family:'DM Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;border-radius:2px;letter-spacing:.14em;text-transform:uppercase;border:1px solid rgba(52,211,153,.3);margin-left:8px;vertical-align:1px;}
@@ -303,14 +303,14 @@ tr:hover td{background:rgba(255,255,255,.02);}
   .promo-bottom h2{font-size:20px;}
 }
 /* Sticky top countdown bar — 15-second auto-redirect to plans page.
-   Promo-only. Lives at the very top of the page so visitors immediately
-   see the time-limited preview state. Clickable Subscribe link inside
-   for early conversion. */
-.promo-topbar{position:sticky;top:0;left:0;right:0;z-index:9000;background:linear-gradient(90deg,rgba(52,211,153,.18) 0%,rgba(52,211,153,.06) 100%);border-bottom:1px solid rgba(52,211,153,.4);padding:9px 18px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--ai);letter-spacing:.08em;text-transform:uppercase;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
-.promo-topbar b{color:var(--ai);font-size:13px;font-weight:700;padding:0 4px;text-shadow:0 0 8px rgba(52,211,153,.5);}
-.promo-topbar a{color:var(--ai);font-weight:700;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:1px;transition:filter .15s;}
-.promo-topbar a:hover{filter:brightness(1.25);}
-@media(max-width:600px){.promo-topbar{font-size:9px;padding:7px 12px;gap:8px;flex-wrap:wrap;text-align:center;}.promo-topbar b{font-size:12px;}}
+   Promo-only. Vibrant ORANGE chrome (not AI green) to catch the eye against
+   the green-themed dashboard below. White text on bright orange = strong
+   visual urgency for the conversion deadline. */
+.promo-topbar{position:sticky;top:0;left:0;right:0;z-index:9000;background:linear-gradient(90deg,#ff7a1a 0%,#ff6300 100%);border-bottom:1px solid #ff6300;padding:10px 18px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:'DM Mono',monospace;font-size:11px;color:#fff;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 2px 14px rgba(255,99,0,.4);}
+.promo-topbar b{color:#fff;font-size:15px;font-weight:800;padding:0 4px;text-shadow:0 0 10px rgba(255,255,255,.6);}
+.promo-topbar a{color:#fff;font-weight:800;text-decoration:none;border-bottom:2px solid #fff;padding-bottom:1px;transition:filter .15s,letter-spacing .15s;}
+.promo-topbar a:hover{filter:brightness(1.15);letter-spacing:.12em;}
+@media(max-width:600px){.promo-topbar{font-size:10px;padding:8px 12px;gap:8px;flex-wrap:wrap;text-align:center;}.promo-topbar b{font-size:13px;}}
 
 </style></head><body class="promo-mode">
 <div class="promo-topbar" id="promo-topbar" role="banner" aria-live="polite">→ Continuing to subscription plans in <b id="promo-counter">15</b>s · <a href="https://www.advfood.tech/fsis-plans" target="_top">Subscribe now →</a></div>
@@ -409,7 +409,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <script>
 let ALL=[],filtered=[],page=1,perPage=50,sortCol='date',sortAsc=false,pillFilter='';
 let NEWS=[],NEWS_filtered=[];
-const PC={'Listeria':'#ef4444','Salmonella':'#06b6d4','E. coli':'#f59e0b','Cereulide':'#ef4444','Clostridium':'#a78bfa','Aflatoxin':'#fbbf24','Hepatitis':'#f472b6','Norovirus':'#818cf8','Campylobacter':'#34d399','Vibrio':'#fb923c','Cronobacter':'#c084fc','Bacillus':'#ef4444','STEC':'#f59e0b'};
+const PC={'Listeria':'#ef4444','Salmonella':'#06b6d4','STEC':'#f97316','E. coli':'#f97316','Escherichia':'#f97316','Aflatoxin':'#fbbf24','Ochratoxin':'#facc15','Mycotoxin':'#facc15','Cereulide':'#ec4899','Bacillus':'#f87171','Clostridium':'#a78bfa','Hepatitis':'#f472b6','Norovirus':'#818cf8','Campylobacter':'#34d399','Vibrio':'#14b8a6','Cronobacter':'#c084fc','Histamine':'#fb923c','Scombrotoxin':'#fb923c','Marine biotoxin':'#2dd4bf'};
 function pColor(p){if(!p)return'#9aa3b5';for(const[k,v]of Object.entries(PC))if(p.indexOf(k)>=0)return v;return'#9aa3b5';}
 function esc(s){return(s==null?'':String(s)).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);}
 function urlHost(u){try{return new URL(u).hostname.replace(/^www\./,'');}catch(e){return '↗';}}

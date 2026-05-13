@@ -311,7 +311,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <script>
 let ALL=[],filtered=[],page=1,perPage=50,sortCol='date',sortAsc=false,pillFilter='';
 let NEWS=[],NEWS_filtered=[];
-const PC={'Listeria':'#ef4444','Salmonella':'#06b6d4','E. coli':'#f59e0b','Cereulide':'#ef4444','Clostridium':'#a78bfa','Aflatoxin':'#fbbf24','Hepatitis':'#f472b6','Norovirus':'#818cf8','Campylobacter':'#34d399','Vibrio':'#fb923c','Cronobacter':'#c084fc','Bacillus':'#ef4444','STEC':'#f59e0b'};
+const PC={'Listeria':'#ef4444','Salmonella':'#06b6d4','STEC':'#f97316','E. coli':'#f97316','Escherichia':'#f97316','Aflatoxin':'#fbbf24','Ochratoxin':'#facc15','Mycotoxin':'#facc15','Cereulide':'#ec4899','Bacillus':'#f87171','Clostridium':'#a78bfa','Hepatitis':'#f472b6','Norovirus':'#818cf8','Campylobacter':'#34d399','Vibrio':'#14b8a6','Cronobacter':'#c084fc','Histamine':'#fb923c','Scombrotoxin':'#fb923c','Marine biotoxin':'#2dd4bf'};
 function pColor(p){if(!p)return'#9aa3b5';for(const[k,v]of Object.entries(PC))if(p.indexOf(k)>=0)return v;return'#9aa3b5';}
 function esc(s){return(s==null?'':String(s)).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);}
 function urlHost(u){try{return new URL(u).hostname.replace(/^www\./,'');}catch(e){return '↗';}}
