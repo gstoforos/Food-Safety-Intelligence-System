@@ -1,9 +1,0 @@
-# Test dependencies — install with: pip install -r requirements-dev.txt
-#
-# Kept separate from requirements.txt so the production pipeline never
-# pulls pytest. CI workflows that only need to run the pipeline import
-# requirements.txt; the tests workflow adds this on top.
-
-pytest>=8.0.0
-pytest-mock>=3.12.0      # for monkeypatching datetime in cutoff tests
-freezegun>=1.4.0         # for freezing time in Thursday-cutoff tests
