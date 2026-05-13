@@ -26,12 +26,10 @@ name: AFTS Monthly Report
 # ==========================================================================
 
 on:
-  schedule:
-    # 1st of every month, 09:00 ATHENS local — duplicated for DST.
-    # The Athens-time-guard step below ensures only the right cron
-    # actually runs (the wrong one exits cleanly).
-    - cron: "0 6 1 * *"   # EET  (winter, UTC+2 → 09:00 Athens = 06:00 UTC + 1h)
-    - cron: "0 5 1 * *"   # EEST (summer, UTC+3 → 09:00 Athens = 06:00 UTC)
+  # Scheduling is centralized in Apps Script (FsisScheduler.gs) which
+  # dispatches this workflow on the 1st of each month at 09:00 Athens.
+  # No internal cron block here — Apps Script is the single source of
+  # truth so we never get DST-cron-skip noise in the run history.
   workflow_dispatch:
     inputs:
       force_month_end:

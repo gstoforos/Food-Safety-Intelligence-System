@@ -8,12 +8,11 @@ name: Scraper health monthly email
 on:
   workflow_dispatch:
     inputs: {}
-  schedule:
-    # 1st of month, 06:00 Athens (UTC summer 03:00, UTC winter 04:00).
-    # Runs BEFORE the Apps Script monthly dispatch (which fires at 09:00
-    # Athens), so the HTML/TXT files are committed and ready to read.
-    - cron: "0 3 1 * *"   # winter
-    - cron: "0 4 1 * *"   # summer
+  # Scheduling is centralized in Apps Script (FsisScheduler.gs) which
+  # dispatches this workflow on Day-1 at 06:00 Athens — BEFORE the
+  # afts-monthly-report.yml fires at 09:00 — so HTML/TXT files are
+  # committed and ready to read by the monthly report builder.
+  # No internal cron block — Apps Script is the single source of truth.
 
 concurrency:
   group: scraper-health-monthly

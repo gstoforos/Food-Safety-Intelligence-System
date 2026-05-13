@@ -32,10 +32,10 @@ name: AFTS Weekly_Review + Weekly_Rejected Wipe
 # ==========================================================================
 
 on:
-  schedule:
-    - cron: '30 14 * * 4'   # Thursday 14:30 UTC = 17:30 EEST (Athens summer)
-    - cron: '30 15 * * 4'   # Thursday 15:30 UTC = 17:30 EET  (Athens winter)
-  workflow_dispatch:        # allow manual run / catch-up
+  # Scheduling is centralized in Apps Script (FsisScheduler.gs) which
+  # dispatches this workflow every Thursday at 17:30 Athens.
+  # No internal cron block — Apps Script is the single source of truth.
+  workflow_dispatch:        # manual run / catch-up + Apps Script dispatch
 
 permissions:
   contents: write
