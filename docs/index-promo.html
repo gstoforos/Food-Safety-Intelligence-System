@@ -52,6 +52,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 @keyframes vtravel{0%{left:0;opacity:0;}5%{opacity:1;}88%{opacity:1;}100%{left:100%;opacity:0;}}
 .verif-meta{color:var(--dim);font-size:10px;text-align:right;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
 .verif-meta b{color:var(--ai);font-weight:700;font-family:'DM Mono',monospace;font-size:11px;}
+.verif-tagline{grid-column:1/-1;width:100%;text-align:center;margin-top:6px;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:12px;color:var(--muted);letter-spacing:.01em;font-weight:400;}
 
 /* AI Synthesis panel — pulls ai_lead_paragraph from weekly-summary-latest.json.
    The LLM writes this paragraph for the Friday digest anyway; surfacing it at
@@ -301,14 +302,25 @@ tr:hover td{background:rgba(255,255,255,.02);}
   .promo-sample-banner .pb-text{font-size:12px;}
   .promo-bottom h2{font-size:20px;}
 }
+/* Sticky top countdown bar — 15-second auto-redirect to plans page.
+   Promo-only. Lives at the very top of the page so visitors immediately
+   see the time-limited preview state. Clickable Subscribe link inside
+   for early conversion. */
+.promo-topbar{position:sticky;top:0;left:0;right:0;z-index:9000;background:linear-gradient(90deg,rgba(52,211,153,.18) 0%,rgba(52,211,153,.06) 100%);border-bottom:1px solid rgba(52,211,153,.4);padding:9px 18px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--ai);letter-spacing:.08em;text-transform:uppercase;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+.promo-topbar b{color:var(--ai);font-size:13px;font-weight:700;padding:0 4px;text-shadow:0 0 8px rgba(52,211,153,.5);}
+.promo-topbar a{color:var(--ai);font-weight:700;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:1px;transition:filter .15s;}
+.promo-topbar a:hover{filter:brightness(1.25);}
+@media(max-width:600px){.promo-topbar{font-size:9px;padding:7px 12px;gap:8px;flex-wrap:wrap;text-align:center;}.promo-topbar b{font-size:12px;}}
+
 </style></head><body class="promo-mode">
+<div class="promo-topbar" id="promo-topbar" role="banner" aria-live="polite">→ Continuing to subscription plans in <b id="promo-counter">15</b>s · <a href="https://www.advfood.tech/fsis-plans" target="_top">Subscribe now →</a></div>
 
 <div class="hdr"><div class="brand"><a href="https://www.advfood.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</a><span class="promo-tag">Preview</span><small>// AI-Reviewed · AI-Analyzed Food Recall Intelligence · under AFTS process authority · 66 sources · 60+ countries</small><small style="margin-top:3px;color:var(--muted);font-weight:500;letter-spacing:.10em">✓ Verified by 2 independent AI reviewers + Thursday human checkpoint</small></div><div class="hdr-right"><span class="live-pill">LIVE MONITORING</span><a href="https://www.advfood.tech/fsis-plans" target="_top" class="promo-subscribe">Subscribe →</a><div class="hdr-meta" id="meta">Loading…</div></div></div>
 
 <div class="verif-strip">
   <div class="verif-status"><span class="verif-pulse"></span><span class="verif-label">AI Verification Engine · Active</span></div>
-  <div class="verif-chain"><b>Surveillance · 66 sources</b> <span class="arrow">→</span> <b>AI Reviewer · Primary</b> <span class="arrow">→</span> <b>AI Reviewer · Cross-check</b> <span class="arrow">→</span> <b>Human Checkpoint</b> <span class="arrow">→</span> <b>Publish</b></div>
-  <div class="verif-meta"><span id="verif-today">— today</span> · Last <b id="verif-last">—</b></div>
+  <div class="verif-chain"><b>Surveillance · 66+ sources</b> <span class="arrow">→</span> <b>AI Powered</b> <span class="arrow">→</span> <b>AI Enhanced</b> <span class="arrow">→</span> <b>AI Reviewed</b> <span class="arrow">→</span> <b>Publish</b><div class="verif-tagline">AFTS oversees and monitors the Food Recalls Intelligence Pipeline</div></div>
+  <div class="verif-meta" id="verif-meta-line"></div>
 </div>
 
 <div class="ticker"><div class="ticker-inner" id="ticker">Loading latest alerts…</div></div>
@@ -527,25 +539,26 @@ function init(){
 // Also computes a "today" counter from the in-memory dataset so the engine
 // strip shows live throughput without any backend wiring.
 function renderLastVerified(){
-  const el=document.getElementById('verif-last');
-  const todayEl=document.getElementById('verif-today');
-  if(!ALL.length){if(el)el.textContent='—';if(todayEl)todayEl.textContent='— today';return;}
+  // Writes a single populated line ("N verified this week · Last May 12")
+  // into #verif-meta-line. If ALL is empty (data still loading or failed
+  // to load), the line stays empty — NEVER shows placeholder em-dashes.
+  const el=document.getElementById('verif-meta-line');
+  if(!el || !ALL.length) return;
   const latest=ALL[0].date;
-  if(latest && el){
+  let dateStr='';
+  if(latest){
     const d=new Date(latest+'T00:00:00');
-    const h=Math.max(0,Math.round((Date.now()-d.getTime())/3600000));
-    el.textContent = h<1 ? '<1h ago' : h<48 ? h+'h ago' : Math.floor(h/24)+'d ago';
+    const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    dateStr = mn[d.getMonth()]+' '+d.getDate();
   }
-  // Today / 7-day counters from the dataset itself.
-  if(todayEl){
-    const today=new Date().toISOString().slice(0,10);
-    const cutoff=new Date(Date.now()-7*86400000).toISOString().slice(0,10);
-    const todayN=ALL.filter(r=>r.date===today).length;
-    const weekN=ALL.filter(r=>r.date>=cutoff).length;
-    todayEl.innerHTML = todayN>0
-      ? '<b style="color:var(--ai)">'+todayN+'</b> verified today · <b style="color:var(--ai)">'+weekN+'</b> this week'
-      : '<b style="color:var(--ai)">'+weekN+'</b> verified this week';
-  }
+  const today=new Date().toISOString().slice(0,10);
+  const cutoff=new Date(Date.now()-7*86400000).toISOString().slice(0,10);
+  const todayN=ALL.filter(r=>r.date===today).length;
+  const weekN=ALL.filter(r=>r.date>=cutoff).length;
+  const countPart = todayN>0
+    ? '<b style="color:var(--ai)">'+todayN+'</b> verified today · <b style="color:var(--ai)">'+weekN+'</b> this week'
+    : '<b style="color:var(--ai)">'+weekN+'</b> verified this week';
+  el.innerHTML = dateStr ? countPart+' · Last <b>'+dateStr+'</b>' : countPart;
 }
 
 // ===== KPI count-up animation — numbers tick from 0 to value on first render =====
@@ -570,10 +583,73 @@ function _countUp(el,target,duration){
 }
 
 // ===== AI SYNTHESIS — pulls ai_lead_paragraph from weekly-summary-latest.json =====
-// The Python weekly builder writes a 2-3 sentence LLM-authored synthesis to the
-// summary JSON for the Friday digest. Reusing that same paragraph here surfaces
-// AI-generated analytical work on the dashboard without doubling inference cost.
-// Falls back to a static verification-claim sentence if the JSON is unreachable.
+// Three-tier output:
+//   1. If the Python synthesis_writer has populated ai_lead_paragraph → use it
+//      (LLM-authored prose; the ideal case)
+//   2. If ai_lead_paragraph is empty but stats are present → derive analytical
+//      synthesis client-side from the stats/leading_pathogen fields, with
+//      pathogen-specific operator recommendations (sanitation, GMPs, kill-step
+//      validation). Same style as the Python deterministic fallback so the
+//      panel always shows usable analytical content even before the GitHub
+//      Actions workflow has populated the JSON.
+//   3. JSON unreachable → fall back to the static verification-posture sentence.
+
+function _clientSideSynthesis(j){
+  const s = j.stats || {};
+  const lp = j.leading_pathogen || {};
+  const total = s.total || 0;
+  const delta = s.delta || 0;
+  const dpc = s.delta_pct || 0;
+  const t1 = s.tier1 || 0;
+  const ob = s.outbreaks || 0;
+  const lname = lp.name || 'Mixed pathogens';
+  const lpct = lp.pct || 0;
+  const lcases = lp.cases || 0;
+
+  // Sentence 1 — counts + delta + severity breakdown
+  let s1 = 'This week closed with ' + total + ' pathogen recalls';
+  if (delta > 0)      s1 += ', up ' + delta + ' versus the prior week (+' + dpc + '%)';
+  else if (delta < 0) s1 += ', down ' + Math.abs(delta) + ' versus the prior week (' + dpc + '%)';
+  else                s1 += ', flat versus the prior week';
+  if (t1 > 1) s1 += ', including ' + t1 + ' Tier-1 critical incidents';
+  else if (t1 === 1) s1 += ', including one Tier-1 critical incident';
+  if (ob === 1) s1 += ' and one confirmed outbreak';
+  else if (ob > 1) s1 += ' and ' + ob + ' confirmed outbreaks';
+  s1 += '.';
+
+  // Sentence 2 — leading pathogen + share verb keyed to severity of share
+  const verb = lpct >= 30 ? 'dominated' : lpct >= 15 ? 'led' : 'accounted for';
+  const s2 = lname + ' ' + verb + ' the pathogen mix at ' + lpct + '% of total recalls (' + lcases + ' cases).';
+
+  // Sentence 3 — pathogen-specific operator implication. Generic fallback
+  // covers anything not matched by the keyword index below.
+  let s3 = 'Operators should re-verify sanitation programs, GMPs, and kill-step validation across the affected product categories.';
+  const low = lname.toLowerCase();
+  if (low.indexOf('listeria') >= 0) {
+    s3 = 'Processors of ready-to-eat dairy, deli, cured products, and smoked seafood should re-verify environmental monitoring frequency, sanitation SOPs, GMPs, and post-lethality kill-step validation against L. monocytogenes.';
+  } else if (low.indexOf('salmonella') >= 0) {
+    s3 = 'Suppliers across poultry, eggs, low-moisture ingredients, and produce should re-confirm sanitation programs, GMPs, and validated kill-step interventions where applicable.';
+  } else if (low.indexOf('e. coli') >= 0 || low.indexOf('stec') >= 0 || low.indexOf('escherichia') >= 0) {
+    s3 = 'Beef, leafy-greens, and unpasteurized juice suppliers should re-examine pre-harvest controls, process-water sanitation, GMPs, and STEC kill-step validation.';
+  } else if (low.indexOf('cronobacter') >= 0) {
+    s3 = 'Powdered-formula manufacturers should re-confirm dry-process environmental monitoring, between-run sanitation, and GMPs against the FDA heightened watch on Cronobacter.';
+  } else if (low.indexOf('bacillus') >= 0 || low.indexOf('cereulide') >= 0) {
+    s3 = 'Cooked-rice and refrigerated ready-meal processors should re-verify hot-holding, cooling-curve compliance, sanitation, and Bacillus kill-step controls where applicable.';
+  } else if (low.indexOf('botulin') >= 0 || low.indexOf('clostridium') >= 0) {
+    s3 = 'Low-acid canned food and refrigerated long-shelf-life processors should re-confirm thermal validation records, GMPs, and C. botulinum kill-step interventions.';
+  } else if (low.indexOf('aflatoxin') >= 0 || low.indexOf('mycotoxin') >= 0 || low.indexOf('ochratoxin') >= 0) {
+    s3 = 'Nut, spice, and cereal-grain importers should reinforce moisture/temperature controls in storage, incoming-lot mycotoxin testing, and supplier GMP verification.';
+  } else if (low.indexOf('norovirus') >= 0) {
+    s3 = 'RTE producers and seafood handlers should reinforce worker hygiene, exclusion policies for symptomatic staff, sanitation between shifts, and GMP audits.';
+  } else if (low.indexOf('histamine') >= 0 || low.indexOf('scombro') >= 0) {
+    s3 = 'Fish and seafood processors should verify cold-chain integrity from harvest, time-temperature controls, GMPs, and histamine sampling protocols.';
+  } else if (low.indexOf('vibrio') >= 0) {
+    s3 = 'Raw-shellfish processors should re-verify post-harvest cooling, time-temperature controls, GMPs, and Vibrio-specific intervention validation.';
+  }
+
+  return s1 + ' ' + s2 + ' ' + s3;
+}
+
 async function loadAiInsights(){
   const body=document.getElementById('ai-insights');
   const meta=document.getElementById('ai-insights-meta');
@@ -582,17 +658,21 @@ async function loadAiInsights(){
     const r=await fetch('data/weekly-summary-latest.json?_='+Date.now(),{cache:'no-store'});
     if(!r.ok)throw new Error('HTTP '+r.status);
     const j=await r.json();
+    const wk=j.week_num?'Week '+j.week_num:'Latest week';
+    const period=(j.week_start_display&&j.week_end_display)?(' · '+j.week_start_display+' – '+j.week_end_display):'';
+    const total=(j.stats&&j.stats.total!=null)?(j.stats.total+' recalls'):'';
+    const lead=(j.leading_pathogen&&j.leading_pathogen.name)?('leading pathogen: '+j.leading_pathogen.name):'';
+    const bits=[total,lead].filter(Boolean).join(' · ');
+    let paragraph;
     if(j.ai_lead_paragraph){
-      const wk=j.week_num?'Week '+j.week_num:'Latest week';
-      const period=(j.week_start_display&&j.week_end_display)?(' · '+j.week_start_display+' – '+j.week_end_display):'';
-      body.innerHTML='<em>'+esc(wk)+' synthesis:</em> '+esc(j.ai_lead_paragraph);
-      const total=(j.stats&&j.stats.total!=null)?(j.stats.total+' recalls'):'';
-      const lead=(j.leading_pathogen&&j.leading_pathogen.name)?('leading pathogen: '+j.leading_pathogen.name):'';
-      const bits=[total,lead].filter(Boolean).join(' · ');
-      meta.textContent=(bits?bits+period:'').trim()+' · AFTS AI synthesis · dual-reviewer verified';
-    }else{
-      throw new Error('no ai_lead_paragraph');
+      paragraph = j.ai_lead_paragraph;
+    } else if (j.stats && j.leading_pathogen) {
+      paragraph = _clientSideSynthesis(j);
+    } else {
+      throw new Error('no usable summary data');
     }
+    body.innerHTML='<em>'+esc(wk)+' synthesis:</em> '+esc(paragraph);
+    meta.textContent=(bits?bits+period:'').trim()+' · AFTS AI synthesis · dual-reviewer verified';
   }catch(e){
     body.innerHTML='<em>Verification posture:</em> Every recall in the feed below has passed two independent AI reviewers plus a Thursday human checkpoint before publication. Most food-safety feeds publish whatever a bot finds. AFTS publishes what survives review.';
     meta.textContent='';
@@ -1164,6 +1244,27 @@ function _promoApplyAll(){
   // Trim news to 5 items so the news section stays a teaser too.
   const newsRows = document.querySelectorAll('#news-tbody tr');
   newsRows.forEach((row, i) => { if (i >= 5) row.style.display = 'none'; });
+  _promoStartCountdown();
+}
+
+// 15-second auto-redirect — fires once the dashboard data is on screen so
+// visitors have actually seen the product before being routed to the plans
+// page. Cross-origin top-navigation strategy reuses _promoNavigatePlans.
+const PROMO_AUTOREDIRECT_SECONDS = 15;
+function _promoStartCountdown(){
+  const counterEl = document.getElementById('promo-counter');
+  if (!counterEl) return;
+  if (window._promo_timer) clearInterval(window._promo_timer);
+  let n = PROMO_AUTOREDIRECT_SECONDS;
+  counterEl.textContent = n;
+  window._promo_timer = setInterval(() => {
+    n -= 1;
+    counterEl.textContent = Math.max(0, n);
+    if (n <= 0) {
+      clearInterval(window._promo_timer);
+      _promoNavigatePlans();
+    }
+  }, 1000);
 }
 
 const _origInit_promo = init;
