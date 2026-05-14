@@ -12,11 +12,58 @@ Gemini first and falling through to Claude only when Gemini fails or returns zer
 gaps for a few cents a day.
 
 Enable by setting ANTHROPIC_API_KEY. If absent, both modes no-op.
+
+==========================================================================
+AUDIT 2026-05-14 — Rate-limit hardening (shared with gap_finder_claude.py)
+==========================================================================
+
+The org-tier-1 Anthropic cap is 50,000 input tokens per minute. Web search
+(used by gap_finder_claude) AND large prompts with cached system blocks
+(used by claude_check.py — CLAUDE_CHECK_PROMPT is ~6K chars of instructions
+on top of an 8K-char page_text payload) BOTH push per-call input-token
+consumption to 8-15K tokens, exhausting the bucket after 3-6 consecutive
+calls.
+
+Production log 2026-05-14 04:02 showed claude_check.py hitting the cap on
+rows 24-27, 29-30, 36, 39-40, 45 — fifteen of 48 rows skipped, including
+foodstandards.gov.au cereulide-toxin-infant-formula-products (a likely
+Tier-1 candidate left in Pending for 24 hours).
+
+This module is the choke point: every caller of `_call_claude` benefits
+from the fix automatically. The pattern (mirrors gap_finder_claude.py):
+
+  1. Module-level rate-limit state populated from Anthropic's response
+     headers after every call (success OR 429).
+  2. Proactive pacing: before each call, if remaining input-token budget
+     is below threshold, sleep until reset (capped at MAX_PACE_SLEEP_SEC
+     and never longer than necessary).
+  3. On HTTP 429, parse `retry-after` and retry ONCE.
+  4. Error introspection: callers can inspect `last_call_error()` to
+     distinguish rate-limit / timeout / HTTP-error / network-exception
+     from the generic "Claude returned None" failure mode.
+
+Env vars (all optional, sensible defaults):
+  CLAUDE_PACE_THRESHOLD       (default 12000)  — sleep before next call if
+                                                 remaining input tokens < this
+  CLAUDE_MAX_PACE_SLEEP       (default 30)     — cap any single sleep at this
+                                                 many seconds (proactive or 429)
+  CLAUDE_CLIENT_HTTP_TIMEOUT  (default 60)     — per-request HTTP timeout
+
+The retry+pacing layer is transparent to callers — `_call_claude` keeps
+its existing signature and return type (`Optional[str]`). The only new
+public surface is `last_call_error()` which returns one of:
+  None         (call succeeded or has not been attempted yet)
+  "rate_limit" (HTTP 429 after retry)
+  "http_error" (non-200 non-429 HTTP response)
+  "timeout"    (request exceeded HTTP timeout)
+  "exception"  (network exception or other unexpected error)
 """
 from __future__ import annotations
 import os
 import json
 import logging
+import time
+from datetime import datetime
 from typing import List, Dict, Any, Optional
 import requests
 
@@ -24,11 +71,101 @@ log = logging.getLogger(__name__)
 
 API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip()
 MODEL = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
-TIMEOUT = 60
+TIMEOUT = int(os.getenv("CLAUDE_CLIENT_HTTP_TIMEOUT", "60"))
 ENABLED = bool(API_KEY)
+
+# Rate-limit hardening config (audit 2026-05-14). See module docstring.
+PACE_THRESHOLD_TOKENS = int(os.getenv("CLAUDE_PACE_THRESHOLD", "12000"))
+MAX_PACE_SLEEP_SEC = float(os.getenv("CLAUDE_MAX_PACE_SLEEP", "30"))
 
 if not ENABLED:
     log.info("ANTHROPIC_API_KEY not set. Claude review + scraper fallback will be skipped.")
+
+
+# ===========================================================================
+# Rate-limit state (module-level, shared across all _call_claude invocations)
+# ===========================================================================
+
+# Populated from Anthropic response headers after every call. None until
+# the first call completes. Reset is a unix timestamp; remaining is the
+# integer count of input tokens remaining in the current per-minute bucket.
+_LAST_INPUT_REMAINING: Optional[int] = None
+_LAST_INPUT_RESET_AT: Optional[float] = None
+
+# Populated by _call_claude on every call so callers can introspect failure
+# kind. None on success (or before first call). One of: "rate_limit",
+# "http_error", "timeout", "exception" on failure.
+_LAST_CALL_ERROR: Optional[str] = None
+
+
+def last_call_error() -> Optional[str]:
+    """Return the failure kind for the most recent _call_claude invocation.
+
+    None means the call succeeded (or no call has been made yet). Otherwise
+    one of: "rate_limit", "http_error", "timeout", "exception".
+
+    Callers should inspect this immediately after a None return from
+    `_call_claude` to produce a more specific error message. Module-level
+    state is single-threaded — only safe to read between calls, not from
+    parallel threads.
+    """
+    return _LAST_CALL_ERROR
+
+
+def _update_ratelimit_state(headers) -> None:
+    """Parse Anthropic rate-limit headers and stash the input-token
+    remaining/reset values in module state for the next call's pacing
+    decision.
+
+    Anthropic returns several rate-limit headers per response. We track
+    only the INPUT-TOKEN trio because that is the constraint that bit
+    production on 2026-05-14 (50K/min cap, large prompts inflate input
+    tokens beyond what Anthropic's standard tier allows).
+
+    Silently no-ops if headers are missing (older Anthropic responses,
+    or some error paths where Anthropic doesn't populate them).
+    """
+    global _LAST_INPUT_REMAINING, _LAST_INPUT_RESET_AT
+    try:
+        remaining_raw = headers.get("anthropic-ratelimit-input-tokens-remaining")
+        reset_raw = headers.get("anthropic-ratelimit-input-tokens-reset")
+        if remaining_raw is not None:
+            _LAST_INPUT_REMAINING = int(remaining_raw)
+        if reset_raw:
+            # ISO-8601 with trailing Z; replace for Python's fromisoformat
+            iso = reset_raw.replace("Z", "+00:00")
+            dt = datetime.fromisoformat(iso)
+            _LAST_INPUT_RESET_AT = dt.timestamp()
+    except Exception as e:
+        log.debug("Could not parse Anthropic rate-limit headers: %s", e)
+
+
+def _maybe_pace_before_call() -> None:
+    """Proactive sleep before the next call if budget is low.
+
+    If we know the bucket has < PACE_THRESHOLD_TOKENS remaining and a
+    reset is in the future, sleep until reset (capped by
+    MAX_PACE_SLEEP_SEC). No-op if rate-limit state is not yet populated
+    (first call of the run).
+
+    This prevents the 429 from firing in the first place, which is
+    strictly faster than firing-and-retrying.
+    """
+    if _LAST_INPUT_REMAINING is None or _LAST_INPUT_RESET_AT is None:
+        return
+    if _LAST_INPUT_REMAINING >= PACE_THRESHOLD_TOKENS:
+        return
+
+    now = time.time()
+    seconds_until_reset = max(0.0, _LAST_INPUT_RESET_AT - now)
+    sleep_sec = min(seconds_until_reset + 0.5, MAX_PACE_SLEEP_SEC)
+    if sleep_sec <= 0.1:
+        return
+    log.info("Claude pacing: input-tokens-remaining=%d < %d, sleeping %.1fs "
+             "(reset in %.1fs)",
+             _LAST_INPUT_REMAINING, PACE_THRESHOLD_TOKENS,
+             sleep_sec, seconds_until_reset)
+    time.sleep(sleep_sec)
 
 
 # ===========================================================================
@@ -52,7 +189,21 @@ def _call_claude(prompt: str, max_tokens: int = 4000,
 
     Set CLAUDE_NO_CACHE=1 to disable (for debugging or if you suspect
     cache poisoning is causing weird verdicts).
+
+    Audit 2026-05-14: 429 retry + proactive pacing added. The call
+    behavior is now:
+      1. Read module rate-limit state. If remaining < threshold, sleep
+         until reset (capped).
+      2. POST to Anthropic.
+      3. On HTTP 429: parse retry-after, sleep (capped), retry ONCE.
+      4. On any response (success or error): parse rate-limit headers
+         to update module state for the next call's pacing.
+      5. On final failure: set _LAST_CALL_ERROR so the caller can
+         distinguish rate-limit vs timeout vs HTTP-error vs exception.
     """
+    global _LAST_CALL_ERROR
+    _LAST_CALL_ERROR = None
+
     if not ENABLED:
         return None
     no_cache = os.getenv("CLAUDE_NO_CACHE", "").strip() in ("1", "true", "yes")
@@ -78,20 +229,62 @@ def _call_claude(prompt: str, max_tokens: int = 4000,
             ]
         else:
             body["system"] = system
-    try:
-        r = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            json=body,
-            timeout=TIMEOUT,
-        )
+
+    headers = {
+        "x-api-key": API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+    }
+
+    # Proactive pacing — sleep if Anthropic's last response said budget is low.
+    _maybe_pace_before_call()
+
+    for attempt in (1, 2):  # initial + up to one 429 retry
+        try:
+            r = requests.post(
+                "https://api.anthropic.com/v1/messages",
+                headers=headers,
+                json=body,
+                timeout=TIMEOUT,
+            )
+        except requests.exceptions.Timeout:
+            log.warning("Claude HTTP timeout after %ds (attempt %d)",
+                        TIMEOUT, attempt)
+            _LAST_CALL_ERROR = "timeout"
+            return None
+        except Exception as e:
+            log.warning("Claude call failed (attempt %d): %s", attempt, e)
+            _LAST_CALL_ERROR = "exception"
+            return None
+
+        # Always update rate-limit state — Anthropic populates the headers
+        # on 200, 429, and most error responses. This is what the NEXT
+        # call's pacing decision reads.
+        _update_ratelimit_state(r.headers)
+
+        if r.status_code == 429:
+            if attempt >= 2:
+                log.warning("Claude 429 on retry — giving up: %s", r.text[:200])
+                _LAST_CALL_ERROR = "rate_limit"
+                return None
+            retry_after_raw = (r.headers.get("retry-after")
+                               or r.headers.get("Retry-After")
+                               or "")
+            try:
+                retry_after = float(retry_after_raw)
+            except (TypeError, ValueError):
+                retry_after = MAX_PACE_SLEEP_SEC
+            sleep_sec = min(max(retry_after, 1.0), MAX_PACE_SLEEP_SEC)
+            log.warning("Claude 429: sleeping %.1fs then retrying "
+                        "(retry-after=%r)", sleep_sec, retry_after_raw)
+            time.sleep(sleep_sec)
+            continue
+
         if r.status_code != 200:
             log.warning("Claude %d: %s", r.status_code, r.text[:200])
+            _LAST_CALL_ERROR = "http_error"
             return None
+
         resp_json = r.json()
         # Audit 2026-05-08: log cache hits when present so operators can
         # verify caching is working and saving money.
@@ -110,9 +303,10 @@ def _call_claude(prompt: str, max_tokens: int = 4000,
         # Collect all text blocks (Messages API can return multiple)
         texts = [blk.get("text", "") for blk in content if blk.get("type") == "text"]
         return "\n".join(t for t in texts if t) or None
-    except Exception as e:
-        log.warning("Claude call failed: %s", e)
-        return None
+
+    # Unreachable in practice — the loop returns on every code path. Defensive.
+    _LAST_CALL_ERROR = "exception"
+    return None
 
 
 def _strip_fences(txt: str) -> str:
