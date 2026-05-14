@@ -171,12 +171,30 @@ def git_commit_and_push(repo_dir: Path, files: list[str], message: str) -> bool:
                              counts.get("recalls_ours", -1),
                              counts.get("recalls_merged", -1))
                     saved = [(rel, dst) for rel, dst in saved if rel != xlsx_rel]
+                    # CRITICAL FIX 2026-05-14 evening: explicitly stage the
+                    # merged xlsx. Removing it from `saved` is correct so
+                    # step 4b's "copy ours over working tree" loop doesn't
+                    # clobber the merged file with our raw saved version.
+                    # BUT step 5's `git add` loop only iterates `saved` —
+                    # so without an explicit add here the merged xlsx
+                    # sits modified-but-unstaged on disk, and the retry
+                    # commit silently drops it. This caused the 17:03
+                    # Athens claude-check on 2026-05-14 to push a commit
+                    # with the daily-brief deletions and rebuilds but
+                    # WITHOUT the xlsx update — 7 promotions to Recalls,
+                    # 7 rows to Weekly_Review, and 33 rows to
+                    # Weekly_Rejected all silently lost, while daily
+                    # briefs (separate .html files, in `saved`) committed
+                    # fine. Dashboard stayed at 603 while logs said 610.
+                    _run(["git", "-C", cwd, "add", "--", xlsx_rel])
                     if json_rel in saved_map:
                         try:
                             mirror_json_from_xlsx(remote_xlsx,
                                                    Path(cwd) / json_rel)
                             saved = [(rel, dst) for rel, dst in saved
                                      if rel != json_rel]
+                            # Same explicit-stage fix for the mirrored json.
+                            _run(["git", "-C", cwd, "add", "--", json_rel])
                         except Exception as je:
                             log.warning("json mirror regenerate failed: %s", je)
                 except Exception as me:
