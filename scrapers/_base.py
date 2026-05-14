@@ -252,6 +252,198 @@ def _call_gemini(prompt: str, html: str, language: str = "en") -> str:
     return ""
 
 
+# ---------------------------------------------------------------------------
+# OpenAI fallback (audit 2026-05-14)
+# ---------------------------------------------------------------------------
+# Context: 2026-04 onwards, Gemini's monthly spending cap on the AI Studio
+# project started exhausting roughly mid-month, leaving ~40 scrapers
+# returning 0 rows for ~half the month with the symptom
+# `429 RESOURCE_EXHAUSTED: monthly spending cap`. Lifting the cap conflicts
+# with operator's preference (AI Studio is shared with their own model
+# training experiments). Solution: when Gemini fails — especially on
+# quota/rate errors — fall back to OpenAI gpt-4o-mini, which has identical
+# HTML→structured-extraction capability at similar token cost
+# ($0.15/M input + $0.60/M output ≈ €0.005-€0.010 per scraper page).
+#
+# Activation: zero-config. If OPENAI_API_KEY (or OPENAI_API_KEY_1..5) is
+# set in the runner environment, fallback engages automatically when
+# Gemini fails. If not set, behavior is unchanged from before
+# (Gemini failure → empty row list, scraper logs warning).
+#
+# Cost ceiling on a worst-case day where every Gemini call fails:
+#   ~40 scrapers × ~$0.008/call × ~4 daily-orchestrator runs ≈ $1.3/day.
+# At ~$40/month sustained worst-case. Realistic average will be a
+# fraction of that since Gemini's cap doesn't exhaust the entire month.
+OPENAI_MODEL          = os.getenv("OPENAI_FALLBACK_MODEL",   "gpt-4o-mini")
+OPENAI_URL            = "https://api.openai.com/v1/chat/completions"
+OPENAI_TIMEOUT        = int(os.getenv("OPENAI_FALLBACK_TIMEOUT",     "60"))
+OPENAI_MAX_OUT_TOKENS = int(os.getenv("OPENAI_FALLBACK_MAX_TOKENS", "16000"))
+
+
+def _openai_api_keys() -> List[str]:
+    """Mirror the Gemini key-rotation pattern for OpenAI."""
+    keys: List[str] = []
+    legacy = os.getenv("OPENAI_API_KEY")
+    if legacy:
+        keys.append(legacy.strip())
+    for i in range(1, 6):
+        k = os.getenv(f"OPENAI_API_KEY_{i}")
+        if k:
+            keys.append(k.strip())
+    # Dedup preserving order
+    return list(dict.fromkeys(k for k in keys if k))
+
+
+def _call_openai(prompt: str, html: str, language: str = "en") -> str:
+    """OpenAI fallback for HTML extraction. Mirrors _call_gemini's
+    signature and return contract so it's a drop-in replacement.
+
+    Returns the raw text response (expected to be JSON-as-text, same as
+    Gemini). The caller (_extract_with_gemini) parses + validates.
+
+    Multi-key rotation matches Gemini's behavior — on failure with one
+    key (auth, rate, network), tries the next. Raises RuntimeError if
+    every key fails, with the last error message preserved.
+    """
+    keys = _openai_api_keys()
+    if not keys:
+        raise RuntimeError(
+            "No OPENAI_API_KEY(_1..5) env var set. Configure in GitHub "
+            "Actions secrets to enable Gemini-failure fallback."
+        )
+
+    # Same HTML truncation cap as Gemini for consistency. Avoids one
+    # backend processing 4× more page content than the other.
+    if len(html) > GEMINI_MAX_HTML_CHARS:
+        html = html[:GEMINI_MAX_HTML_CHARS] + "\n<!-- truncated -->"
+
+    full_prompt = f"{prompt}\n\nLANGUAGE OF PAGE: {language}\n\nHTML:\n{html}"
+
+    payload = {
+        "model":       OPENAI_MODEL,
+        "messages":    [{"role": "user", "content": full_prompt}],
+        "temperature": 0.1,
+        "max_tokens":  OPENAI_MAX_OUT_TOKENS,
+    }
+
+    last_error: Optional[Exception] = None
+    for api_key in random.sample(keys, k=len(keys)):
+        try:
+            r = requests.post(
+                OPENAI_URL,
+                headers={"Authorization": f"Bearer {api_key}",
+                         "Content-Type":  "application/json"},
+                json=payload,
+                timeout=OPENAI_TIMEOUT,
+            )
+            if r.status_code == 429:
+                # OpenAI rate-limit / quota — try next key (may have own budget)
+                last_error = RuntimeError(
+                    f"OpenAI 429 rate-limit: {r.text[:200]}")
+                log.warning("OpenAI 429 on one key — trying next.")
+                continue
+            if r.status_code in (401, 403):
+                last_error = RuntimeError(
+                    f"OpenAI {r.status_code} auth failure: {r.text[:200]}")
+                log.warning("OpenAI %d auth on one key — trying next.",
+                            r.status_code)
+                continue
+            if r.status_code != 200:
+                last_error = RuntimeError(
+                    f"OpenAI HTTP {r.status_code}: {r.text[:200]}")
+                continue
+            data = r.json()
+            text = (data.get("choices", [{}])[0]
+                        .get("message", {})
+                        .get("content") or "").strip()
+            if text:
+                return text
+            # Empty response — try next key
+            last_error = RuntimeError("OpenAI returned empty content")
+        except Exception as exc:  # noqa: BLE001 - try next key
+            last_error = exc
+            log.warning(
+                "OpenAI fallback call failed on one key (%s); trying next.",
+                type(exc).__name__,
+            )
+            continue
+
+    if last_error:
+        raise RuntimeError(
+            f"All OpenAI keys failed: {last_error}") from last_error
+    return ""
+
+
+def _is_quota_or_rate_error(exc: BaseException) -> bool:
+    """Return True if the exception looks like a quota / rate-limit issue.
+
+    Matches Gemini's `429 RESOURCE_EXHAUSTED`, generic "quota", and the
+    specific "monthly spending cap" message AI Studio surfaces when the
+    paid spending cap on the linked GCP project trips.
+    """
+    msg = str(exc).lower()
+    return (
+        "resource_exhausted"   in msg
+        or "monthly spending cap" in msg
+        or "spend cap"            in msg
+        or "rate limit"           in msg
+        or "rate_limit"           in msg
+        or " 429"                 in msg
+        or msg.startswith("429")
+        or "quota"                in msg
+    )
+
+
+def _call_llm(prompt: str, html: str, language: str = "en") -> str:
+    """Call Gemini first; on failure, fall back to OpenAI if configured.
+
+    Behavior matrix:
+      - Gemini succeeds                       → return Gemini's text
+      - Gemini quota/rate error + OpenAI set  → try OpenAI; if it succeeds,
+                                                return its text
+      - Gemini other error      + OpenAI set  → try OpenAI; on any failure
+                                                there, raise combined error
+      - Gemini fails + OpenAI not configured  → re-raise original Gemini
+                                                error (pre-fix behavior)
+
+    The two-backend strategy is deliberately invisible to callers — they
+    see a single text return as before. Logs make the choice explicit so
+    operators can spot when fallback engages without parsing JSON.
+    """
+    try:
+        text = _call_gemini(prompt, html, language)
+        return text
+    except Exception as gemini_exc:  # noqa: BLE001
+        openai_keys = _openai_api_keys()
+        if not openai_keys:
+            # No fallback configured — surface original error (pre-fix path)
+            raise
+
+        is_quota = _is_quota_or_rate_error(gemini_exc)
+        if is_quota:
+            log.info("Gemini quota exhausted (%s) — switching to OpenAI "
+                     "fallback for this call.", type(gemini_exc).__name__)
+        else:
+            log.info("Gemini failed (%s: %s) — trying OpenAI fallback.",
+                     type(gemini_exc).__name__,
+                     str(gemini_exc)[:120])
+
+        try:
+            text = _call_openai(prompt, html, language)
+            log.info("OpenAI fallback succeeded (model=%s, %d chars out)",
+                     OPENAI_MODEL, len(text))
+            return text
+        except Exception as openai_exc:  # noqa: BLE001
+            # Both backends failed — raise a combined error so the
+            # _extract_with_gemini layer's single except sees one
+            # exception with full context.
+            raise RuntimeError(
+                f"Both Gemini and OpenAI failed. "
+                f"Gemini: {type(gemini_exc).__name__}: {str(gemini_exc)[:200]}. "
+                f"OpenAI: {type(openai_exc).__name__}: {str(openai_exc)[:200]}."
+            ) from openai_exc
+
+
 def _strip_code_fences(s: str) -> str:
     """Strip ```json ... ``` or ``` ... ``` fences a model may wrap JSON in."""
     s = s.strip()
@@ -506,9 +698,14 @@ class GenericGeminiScraper(BaseScraper):
         )
 
         try:
-            raw = _call_gemini(prompt=prompt, html=html, language=self.LANGUAGE)
+            # Audit 2026-05-14: use _call_llm wrapper which tries Gemini
+            # first and falls back to OpenAI on quota/rate errors. If no
+            # OPENAI_API_KEY is set, behavior is unchanged from pre-fix
+            # (Gemini-only). Activation is automatic when OPENAI_API_KEY
+            # appears in env — no per-scraper opt-in needed.
+            raw = _call_llm(prompt=prompt, html=html, language=self.LANGUAGE)
         except Exception as exc:  # noqa: BLE001 - review layer can try Claude fallback
-            self.logger.warning("Gemini call failed: %s", exc)
+            self.logger.warning("LLM call failed (Gemini+OpenAI both): %s", exc)
             return []
 
         if not raw:
