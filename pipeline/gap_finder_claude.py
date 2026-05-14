@@ -21,6 +21,65 @@ worth keeping as a fourth independent backstop.
 
 ==========================================================================
 
+AUDIT 2026-05-14 — Rate-limit hardening
+==========================================================================
+
+PROBLEM observed in production logs 2026-05-14 00:04:
+  • Region 1 (AsiaPacific): 15.6s, success
+  • Region 2 (Europe):      10.9s, success
+  • Region 3 (NorthAmerica): HTTP 429 ("50,000 input tokens per minute" cap)
+  • Region 4 (LATAM_ME_Africa): HTTP 429 (same cap, same minute)
+  → Half of regions returned ZERO results due to org-tier rate limit.
+    Cascade reported success at +1 row but coverage was degraded silently.
+
+ROOT CAUSE: Each Claude call uses web_search_20250305 with max_uses=3.
+Anthropic's web_search injects the FULL text of search-result snippets
+into the same request as additional input tokens, so a single region
+call consumes 15-30K input tokens. With Anthropic's tier-1 default cap
+of 50K input tokens/minute, two consecutive calls exhaust the bucket
+before the third can fire.
+
+CONSTRAINT: pipeline/gap_finder_cascade.py hard-kills the Claude step
+at GAP_STEP_TIMEOUT=90s via SIGALRM. So we cannot just sleep 60s+
+between regions — that would exceed the budget and get SIGKILLed
+mid-region, losing the entire step's output.
+
+FIX — four layers:
+
+  1. Lower max_uses default 3 → 2 (configurable via
+     GAP_FINDER_CLAUDE_WEB_MAX_USES). Saves ~33% per-call input tokens
+     and alone often fits all 4 regions in the per-minute budget.
+
+  2. Track Anthropic's rate-limit headers across calls (module-level
+     state). Before each call, if remaining input-token budget is
+     below threshold, sleep until reset — capped so we never exceed
+     the cascade's wall-clock budget.
+
+  3. On HTTP 429, read 'retry-after' and retry ONCE (capped sleep) —
+     handles the residual case where layers 1+2 weren't enough.
+
+  4. Wall-clock budget tracker in query_claude_for_gaps — if we're
+     approaching the cascade timeout, skip remaining regions and
+     return what we have. Partial coverage beats no coverage
+     (which is what SIGKILL gives us).
+
+Env vars introduced by this fix (all optional, all with sensible defaults):
+  GAP_FINDER_CLAUDE_WEB_MAX_USES   (default 2)   — web_search max_uses
+  GAP_FINDER_CLAUDE_BUDGET_SEC     (default 80)  — wall-clock cap for the
+                                                   region sweep (cascade
+                                                   timeout is 90s, leaving
+                                                   10s margin for the
+                                                   commit step)
+  GAP_FINDER_CLAUDE_PACE_THRESHOLD (default 15000) — sleep before next call
+                                                     if remaining input
+                                                     token budget < this
+  GAP_FINDER_CLAUDE_MAX_PACE_SLEEP (default 25)  — cap on any one sleep
+                                                   (proactive or 429 retry)
+  GAP_FINDER_CLAUDE_HTTP_TIMEOUT   (default 60)  — per-region HTTP timeout
+                                                   (was hardcoded 300s)
+
+==========================================================================
+
 Original docstring:
 
 Claude gap-finder — a scheduled job that asks Claude's knowledge base for all
@@ -48,7 +107,7 @@ import logging
 import time
 from pathlib import Path
 from datetime import datetime, timezone
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -72,8 +131,28 @@ DATA_DIR = ROOT / "docs" / "data"
 XLSX_PATH = DATA_DIR / "recalls.xlsx"
 JSON_PATH = DATA_DIR / "recalls.json"
 
-SINCE_DAYS = int(os.getenv("GAP_SINCE_DAYS", "7"))
+# Lookback window in days. Audit 2026-05-05 — unified env var name
+# GAP_LOOKBACK_DAYS (default 3). Falls back to GAP_SINCE_DAYS (legacy name)
+# if set, then to the default. This applies to all gap-finders so the
+# operator only needs to set one env var to change the window everywhere.
+SINCE_DAYS = int(os.getenv("GAP_LOOKBACK_DAYS", os.getenv("GAP_SINCE_DAYS", "3")))
 SKIP_COMMIT = os.getenv("SKIP_COMMIT", "").lower() in ("1", "true", "yes")
+
+# Rate-limit hardening config (audit 2026-05-14). See module docstring.
+WEB_SEARCH_MAX_USES   = int(os.getenv("GAP_FINDER_CLAUDE_WEB_MAX_USES", "2"))
+CLAUDE_BUDGET_SEC     = float(os.getenv("GAP_FINDER_CLAUDE_BUDGET_SEC", "80"))
+PACE_THRESHOLD_TOKENS = int(os.getenv("GAP_FINDER_CLAUDE_PACE_THRESHOLD", "15000"))
+MAX_PACE_SLEEP_SEC    = float(os.getenv("GAP_FINDER_CLAUDE_MAX_PACE_SLEEP", "25"))
+HTTP_TIMEOUT_SEC      = float(os.getenv("GAP_FINDER_CLAUDE_HTTP_TIMEOUT", "60"))
+
+# Module-level rate-limit state, populated from Anthropic response headers
+# after every successful call. Used by _maybe_pace_before_call() to decide
+# whether to sleep before the next call (and for how long).
+#   _LAST_INPUT_REMAINING: int  — remaining input tokens in the current minute bucket
+#   _LAST_INPUT_RESET_AT:  float — unix timestamp when the bucket fully resets
+# Both are reset to None when the module loads (i.e. at process start).
+_LAST_INPUT_REMAINING: Optional[int]   = None
+_LAST_INPUT_RESET_AT:  Optional[float] = None
 
 
 GAP_FINDER_SYSTEM = (
@@ -216,45 +295,195 @@ def _ordered_specs(primary: str) -> List[Dict[str, Any]]:
     return [primary_spec] + others
 
 
-def _call_claude_web(prompt: str, system: str, max_tokens: int = 4096) -> str:
-    """Claude Haiku 4.5 with web search — requests.post (proven approach)."""
+# ─────────────────────────────────────────────────────────────────────────────
+# Rate-limit pacing helpers (audit 2026-05-14)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _update_ratelimit_state(headers) -> None:
+    """Parse Anthropic rate-limit headers from a response and stash the
+    input-token remaining/reset values in module state for the next call's
+    pacing decision.
+
+    Anthropic returns several rate-limit headers per response:
+      anthropic-ratelimit-input-tokens-limit
+      anthropic-ratelimit-input-tokens-remaining
+      anthropic-ratelimit-input-tokens-reset (ISO-8601 datetime)
+      ... and the same trio for output-tokens, requests
+    We track the INPUT-TOKEN trio because that's the constraint that bit us
+    on 2026-05-14 (50K/min cap, web_search inflates input tokens via the
+    injected search-result context).
+
+    Silently no-ops if headers are missing (older Anthropic responses, or
+    error responses without the headers populated).
+    """
+    global _LAST_INPUT_REMAINING, _LAST_INPUT_RESET_AT
+    try:
+        remaining_raw = headers.get("anthropic-ratelimit-input-tokens-remaining")
+        reset_raw     = headers.get("anthropic-ratelimit-input-tokens-reset")
+        if remaining_raw is not None:
+            _LAST_INPUT_REMAINING = int(remaining_raw)
+        if reset_raw:
+            # ISO-8601 with trailing Z; replace for Python's fromisoformat
+            iso = reset_raw.replace("Z", "+00:00")
+            dt = datetime.fromisoformat(iso)
+            _LAST_INPUT_RESET_AT = dt.timestamp()
+    except Exception as e:
+        log.debug("Could not parse Anthropic rate-limit headers: %s", e)
+
+
+def _maybe_pace_before_call(deadline_ts: Optional[float] = None) -> None:
+    """Proactive sleep before issuing the next Claude call if the
+    rate-limit budget is low.
+
+    If we know the bucket has < PACE_THRESHOLD_TOKENS remaining and a
+    reset is in the future, sleep until reset (capped by
+    MAX_PACE_SLEEP_SEC and by `deadline_ts` if provided).
+
+    No-op if rate-limit state is not yet populated (first call of the run).
+    """
+    if _LAST_INPUT_REMAINING is None or _LAST_INPUT_RESET_AT is None:
+        return
+    if _LAST_INPUT_REMAINING >= PACE_THRESHOLD_TOKENS:
+        return
+
+    now = time.time()
+    seconds_until_reset = max(0.0, _LAST_INPUT_RESET_AT - now)
+    sleep_sec = min(seconds_until_reset + 0.5, MAX_PACE_SLEEP_SEC)
+    if deadline_ts is not None:
+        remaining_budget = max(0.0, deadline_ts - now - 5.0)  # 5s safety margin
+        sleep_sec = min(sleep_sec, remaining_budget)
+    if sleep_sec <= 0.1:
+        return
+    log.info("Pacing: input-tokens-remaining=%d < %d, sleeping %.1fs "
+             "(reset in %.1fs)",
+             _LAST_INPUT_REMAINING, PACE_THRESHOLD_TOKENS,
+             sleep_sec, seconds_until_reset)
+    time.sleep(sleep_sec)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Claude HTTP call (with 429 retry and rate-limit-aware pacing)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _call_claude_web(prompt: str, system: str, max_tokens: int = 4096,
+                    deadline_ts: Optional[float] = None) -> str:
+    """Claude Haiku 4.5 with web search — requests.post (proven approach).
+
+    Rate-limit handling (audit 2026-05-14):
+      • Before issuing the request, _maybe_pace_before_call() may sleep
+        if Anthropic's prior response indicated the input-token bucket
+        is low.
+      • web_search max_uses is read from GAP_FINDER_CLAUDE_WEB_MAX_USES
+        env var (default 2). Lowering from 3→2 cuts per-call input
+        tokens by ~33% because web_search injects search-result text
+        into the request as additional input tokens.
+      • On HTTP 429, parses 'retry-after' header and retries ONCE
+        (capped at MAX_PACE_SLEEP_SEC seconds, and never sleeping past
+        deadline_ts).
+      • HTTP timeout: 60s default (was 300s) — one hung region cannot
+        consume the entire cascade step budget.
+    """
     import requests as _req
     api_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
     if not api_key:
         return ""
-    try:
-        r = _req.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            json={
-                "model": os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001"),
-                "max_tokens": max_tokens,
-                "system": system,
-                "tools": [{"type": "web_search_20250305", "name": "web_search", "max_uses": 3}],
-                "messages": [{"role": "user", "content": prompt}],
-            },
-            timeout=300,
-        )
+
+    # Proactive pacing based on Anthropic's headers from the prior call.
+    _maybe_pace_before_call(deadline_ts=deadline_ts)
+
+    body = {
+        "model": os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001"),
+        "max_tokens": max_tokens,
+        "system": system,
+        "tools": [{
+            "type": "web_search_20250305",
+            "name": "web_search",
+            "max_uses": WEB_SEARCH_MAX_USES,
+        }],
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    headers = {
+        "x-api-key": api_key,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+    }
+
+    for attempt in (1, 2):  # initial + up to 1 retry
+        # Check we still have wall-clock budget before issuing the call.
+        if deadline_ts is not None and time.time() > deadline_ts:
+            log.warning("Wall-clock budget exhausted before HTTP call — abort")
+            return ""
+        try:
+            r = _req.post(
+                "https://api.anthropic.com/v1/messages",
+                headers=headers,
+                json=body,
+                timeout=HTTP_TIMEOUT_SEC,
+            )
+        except _req.exceptions.Timeout:
+            log.error("Claude HTTP timeout after %.0fs (attempt %d)",
+                      HTTP_TIMEOUT_SEC, attempt)
+            return ""
+        except Exception as e:
+            log.error("Claude web call failed (attempt %d): %s", attempt, e)
+            return ""
+
+        # Always parse rate-limit headers so the NEXT call can pace itself
+        # — Anthropic populates them on 200, 429, and most error responses.
+        _update_ratelimit_state(r.headers)
+
+        if r.status_code == 429:
+            if attempt >= 2:
+                log.error("Claude HTTP 429 on retry — giving up: %s",
+                          r.text[:300])
+                return ""
+            # Honour the server's retry-after header when present;
+            # otherwise fall back to the cap.
+            retry_after_raw = (r.headers.get("retry-after")
+                               or r.headers.get("Retry-After")
+                               or "")
+            try:
+                retry_after = float(retry_after_raw)
+            except (TypeError, ValueError):
+                retry_after = MAX_PACE_SLEEP_SEC
+            sleep_sec = min(max(retry_after, 1.0), MAX_PACE_SLEEP_SEC)
+            if deadline_ts is not None:
+                remaining_budget = max(0.0, deadline_ts - time.time() - 5.0)
+                sleep_sec = min(sleep_sec, remaining_budget)
+            if sleep_sec <= 0.5:
+                log.warning("Claude 429 but no budget left for retry — abort")
+                return ""
+            log.warning("Claude 429: sleeping %.1fs then retrying "
+                        "(retry-after=%r)", sleep_sec, retry_after_raw)
+            time.sleep(sleep_sec)
+            continue
+
         if r.status_code != 200:
             log.error("Claude HTTP %d: %s", r.status_code, r.text[:500])
             return ""
+
         resp = r.json()
-        log.info("  stop=%s blocks=%s", resp.get("stop_reason"),
-                 [b.get("type") for b in resp.get("content", [])])
+        log.info("  stop=%s blocks=%s remaining=%s",
+                 resp.get("stop_reason"),
+                 [b.get("type") for b in resp.get("content", [])],
+                 _LAST_INPUT_REMAINING)
         texts = [b.get("text", "") for b in resp.get("content", [])
                  if b.get("type") == "text" and b.get("text", "").strip()]
         return texts[-1].strip() if texts else ""
-    except Exception as e:
-        log.error("Claude web call failed: %s", e)
-        return ""
+
+    return ""
 
 
 def query_claude_for_gaps(since_days: int, region_filter: str = None) -> List[Dict[str, Any]]:
-    """Web search sweep. If region_filter set, runs only that region."""
+    """Web search sweep. If region_filter set, runs only that region.
+
+    Wall-clock budget (audit 2026-05-14):
+      Tracks elapsed time since the sweep started. If we're within 10s of
+      CLAUDE_BUDGET_SEC, stop iterating and return whatever we have. The
+      cascade's SIGALRM kicks in at GAP_STEP_TIMEOUT=90s and kills the
+      whole process — partial coverage with a clean exit is strictly
+      better than no coverage with a SIGKILL.
+    """
     if not CLAUDE_ENABLED:
         log.warning("ANTHROPIC_API_KEY not set — gap-finder cannot run")
         return []
@@ -264,6 +493,14 @@ def query_claude_for_gaps(since_days: int, region_filter: str = None) -> List[Di
     primary = PRIMARY_REGION
     specs = _ordered_specs(primary)
 
+    start_ts = time.time()
+    deadline_ts = start_ts + CLAUDE_BUDGET_SEC
+    log.info("Wall-clock budget: %.0fs (deadline at +%.0fs)",
+             CLAUDE_BUDGET_SEC, CLAUDE_BUDGET_SEC)
+
+    regions_completed = 0
+    regions_skipped_budget: List[str] = []
+
     for i, spec in enumerate(specs):
         region = spec["region"]
         agencies = spec["agencies"]
@@ -272,8 +509,23 @@ def query_claude_for_gaps(since_days: int, region_filter: str = None) -> List[Di
         if region_filter and region != region_filter:
             continue
 
+        # Budget check — if we're within the 10s safety margin of the
+        # deadline, don't start another region. The cascade's SIGALRM at
+        # 90s would kill us mid-call and we'd lose this region's output
+        # AND any commit/cleanup the caller is going to do.
+        time_left = deadline_ts - time.time()
+        if time_left <= 10.0:
+            log.warning("Wall-clock budget low (%.1fs left) — skipping "
+                        "remaining region(s): %s",
+                        time_left,
+                        ", ".join(s["region"] for s in specs[i:]
+                                  if not region_filter or s["region"] == region_filter))
+            regions_skipped_budget = [s["region"] for s in specs[i:]]
+            break
+
         is_primary = (region == primary and not region_filter)
-        log.info("→ Region %s%s", region, "  [PRIMARY]" if is_primary else "")
+        log.info("→ Region %s%s  (budget left: %.0fs)",
+                 region, "  [PRIMARY]" if is_primary else "", time_left)
 
         prompt = GAP_FINDER_PROMPT.format(
             since_days=since_days, today=today,
@@ -282,13 +534,14 @@ def query_claude_for_gaps(since_days: int, region_filter: str = None) -> List[Di
         if is_primary:
             prompt = _primary_banner(primary) + prompt
 
-        txt = _call_claude_web(prompt, system=GAP_FINDER_SYSTEM)
+        txt = _call_claude_web(prompt, system=GAP_FINDER_SYSTEM,
+                               deadline_ts=deadline_ts)
         if not txt:
             log.warning("  [%s] empty response", region)
             continue
 
         txt = _strip_fences(txt)
-        
+
         # Extract JSON from mixed prose+JSON response
         json_match = re.search(r'\{[^{}]*"recalls"\s*:\s*\[.*\]\s*\}', txt, re.DOTALL)
         if not json_match:
@@ -296,7 +549,7 @@ def query_claude_for_gaps(since_days: int, region_filter: str = None) -> List[Di
         if not json_match:
             log.warning("  [%s] no JSON found in response: %s", region, txt[:300])
             continue
-        
+
         try:
             data = json.loads(json_match.group(0))
         except json.JSONDecodeError as e:
@@ -306,9 +559,17 @@ def query_claude_for_gaps(since_days: int, region_filter: str = None) -> List[Di
         rows = data.get("recalls", []) or []
         log.info("  [%s] found %d recalls", region, len(rows))
         all_recalls.extend(rows)
+        regions_completed += 1
 
-    log.info("Claude gap-finder total: %d recalls across %d regions",
-             len(all_recalls), len(REGION_SPECS))
+    elapsed = time.time() - start_ts
+    if regions_skipped_budget:
+        log.warning("Claude gap-finder total: %d recalls across %d/%d regions "
+                    "(SKIPPED for budget: %s) — %.1fs elapsed",
+                    len(all_recalls), regions_completed, len(REGION_SPECS),
+                    ", ".join(regions_skipped_budget), elapsed)
+    else:
+        log.info("Claude gap-finder total: %d recalls across %d/%d regions — %.1fs elapsed",
+                 len(all_recalls), regions_completed, len(REGION_SPECS), elapsed)
     return all_recalls
 
 
@@ -334,7 +595,12 @@ def to_recall_objects(raw: List[Dict[str, Any]]) -> List[Recall]:
                 Tier=assign_tier(pathogen, outbreak),
                 Outbreak=outbreak,
                 URL=(row.get("URL") or "").strip(),
-                Notes=row.get("Notes", "") or "",
+                # Audit 2026-05-05 — stamp Notes with the canonical
+                # gap-finder marker so merge_master.validate_pending_row
+                # can apply the 3-day gap-finder lookback gate (vs the
+                # 7-day regulator-scraper lookback).
+                Notes=((row.get("Notes", "") or "")
+                       + "  [via Claude gap-finder, deterministic extract]"),
             )
             rec = rec.normalize()
             # Hard filter: we require both Pathogen and URL. Rows without either
@@ -371,6 +637,10 @@ def main() -> int:
     log.info("=" * 60)
     log.info("Claude gap-finder run: %s (region=%s)", scraped_at, args.region or "ALL")
     log.info("Data dir: %s", DATA_DIR)
+    log.info("Rate-limit config: web_search.max_uses=%d, budget=%.0fs, "
+             "pace_threshold=%d, max_pace_sleep=%.0fs, http_timeout=%.0fs",
+             WEB_SEARCH_MAX_USES, CLAUDE_BUDGET_SEC,
+             PACE_THRESHOLD_TOKENS, MAX_PACE_SLEEP_SEC, HTTP_TIMEOUT_SEC)
 
     if not CLAUDE_ENABLED:
         log.error("ANTHROPIC_API_KEY missing — aborting")

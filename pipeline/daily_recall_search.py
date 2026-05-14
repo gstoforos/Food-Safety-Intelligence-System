@@ -46,6 +46,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, date, timedelta, timezone
@@ -1105,9 +1106,85 @@ def _now_athens_str() -> str:
 
 
 # ---------------------------------------------------------------------------
+# Daily-brief disk-hygiene helper (audit 2026-05-14)
+# ---------------------------------------------------------------------------
+# Pre-2026-05-14: update_daily_index() purged stale daily-brief HTMLs from
+# docs/daily/ via Path.unlink() but never told git about the deletion. The
+# caller's git_commit_and_push() call only stages the paths in its `files`
+# list (newly-rendered briefs + index.json), so the deleted paths were
+# silently dropped on the floor. Next CI run pulled the file back from the
+# remote, the purge ran again, logged "Removed out-of-window brief: …",
+# unlinked it again, and the cycle repeated. Result: 18 orphan HTMLs
+# accumulated in docs/daily/ over the past three weeks, including the
+# historical 2026-02-03.html row that's been "Removed" daily since
+# yesterday's claude-check 04:02 run.
+#
+# Fix: after f.unlink(), explicitly `git add` the deleted path so the
+# deletion is staged in git's index. By the time any caller in this
+# workflow run executes git_commit_and_push(), the staged deletion is
+# detected by the `git diff --cached --quiet` check and gets included in
+# the commit alongside whatever files the caller did pass.
+#
+# Best-effort by design: if we're not in a git repo (local dev), git isn't
+# installed, or any other error happens, _stage_deletion_in_git silently
+# no-ops. The local unlink still happened; the worst case is that next
+# run's purge will hit the same path again — which is exactly what was
+# already happening, so no regression.
+def _stage_deletion_in_git(deleted_path: Path) -> bool:
+    """Stage the removal of `deleted_path` in git so a subsequent commit
+    picks it up. Returns True on success, False on failure (logged).
+
+    Uses `git add --` (not `git rm`) because the file is already gone from
+    disk by the time we call this — `git add` on a missing tracked path
+    stages the deletion (verified empirically on git 2.30+, see audit
+    notes). The `--` separator guards against pathnames that start with
+    a hyphen.
+
+    Audit 2026-05-14 (v2): bumped subprocess timeout 5s→30s for slow CI
+    runners; logs warnings on non-zero exit instead of silently passing
+    so deployment issues surface in workflow logs. The function is still
+    best-effort — callers should ALSO include the deleted path in the
+    `files` list they pass to git_commit_and_push() as a belt-and-
+    suspenders measure (git_commit_and_push does its own git-add per
+    file in the list, which also stages deletions for missing paths).
+    """
+    try:
+        # Express the path relative to ROOT so git output is readable and
+        # we don't depend on absolute filesystem layout.
+        try:
+            rel = deleted_path.relative_to(ROOT)
+        except ValueError:
+            rel = deleted_path
+        result = subprocess.run(
+            ["git", "-C", str(ROOT), "add", "--", str(rel)],
+            check=False, capture_output=True, text=True, timeout=30,
+        )
+        if result.returncode != 0:
+            log.warning("git add of deleted path '%s' returned exit %d: %s",
+                        rel, result.returncode,
+                        (result.stderr or result.stdout or "").strip()[:200])
+            return False
+        return True
+    except subprocess.TimeoutExpired:
+        log.warning("git add of deleted path timed out after 30s: %s", deleted_path)
+        return False
+    except FileNotFoundError:
+        # git binary not installed — local dev or unusual CI image
+        log.debug("git binary not found — skipping deletion staging")
+        return False
+    except Exception as e:
+        # Best-effort: we don't want any git-related failure (not a repo,
+        # permission error, etc.) to crash the purge that has otherwise
+        # succeeded on the filesystem.
+        log.warning("git add of deleted path '%s' raised %s: %s",
+                    deleted_path, type(e).__name__, str(e)[:200])
+        return False
+
+
+# ---------------------------------------------------------------------------
 # daily-index.json — dashboard reads this to show the latest-day card
 # ---------------------------------------------------------------------------
-def update_daily_index(target_date: date, recalls: List[Recall]) -> None:
+def update_daily_index(target_date: date, recalls: List[Recall]) -> List[Path]:
     """
     Maintain docs/daily-index.json as a small rolling window, not a
     one-day snapshot.
@@ -1126,6 +1203,17 @@ def update_daily_index(target_date: date, recalls: List[Recall]) -> None:
 
     KEEP_DAYS is intentionally small (7) — this is still a "recent daily
     briefs" feed, not an archive. Weekly/monthly reports handle history.
+
+    Returns:
+      List[Path] — the absolute paths of any daily-brief HTML files that
+      were unlinked from disk by the rolling-window purge. The caller
+      MUST include these paths in the `files` list passed to
+      git_commit_and_push() so the deletions actually land in git. This
+      is belt-and-suspenders alongside _stage_deletion_in_git() — even
+      if the immediate git-add staging fails (network glitch, slow CI,
+      git binary missing) the caller's commit step will re-stage them
+      via its own per-path `git add`, which stages deletions for missing
+      tracked files (verified empirically).
     """
     KEEP_DAYS = 7
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
@@ -1168,20 +1256,53 @@ def update_daily_index(target_date: date, recalls: List[Recall]) -> None:
     # Delete HTML files for dates no longer in the index. This is the
     # safety net for disk hygiene — index.json is the source of truth,
     # any HTML whose date isn't in the index is garbage-collected.
+    #
+    # Audit 2026-05-14: each unlink is paired with a git-add of the
+    # now-missing path so the deletion is staged in git's index. Without
+    # the staging step, callers' git_commit_and_push() only stages the
+    # paths they explicitly pass (newly-rendered briefs + index.json),
+    # not the ones removed here — and deletions silently get dropped on
+    # the floor. See _stage_deletion_in_git docstring above for full
+    # incident notes.
+    #
+    # Audit 2026-05-14 (v2): TWO file naming patterns coexist in
+    # docs/daily/ from earlier era when the filename prefix changed:
+    #   - canonical:   YYYY-MM-DD.html       (current convention)
+    #   - legacy:      daily-YYYY-MM-DD.html (pre-rename, never cleaned)
+    # The v1 filter only matched len(stem)==10, leaving 6 legacy-named
+    # files orphaned forever. Both patterns now caught. Also collecting
+    # deleted Path objects into a list to return so the caller can
+    # belt-and-suspenders pass them to git_commit_and_push().
     keep_dates = {e["date"] for e in existing}
+    deleted_paths: List[Path] = []
     if DAILY_DIR.exists():
-        deleted = 0
         for f in DAILY_DIR.glob("*.html"):
             stem = f.stem
-            if len(stem) == 10 and stem[4] == "-" and stem[7] == "-" and stem not in keep_dates:
-                try:
-                    f.unlink()
-                    deleted += 1
-                    log.info("  Removed out-of-window brief: %s", f.name)
-                except Exception as e:
-                    log.warning("  Could not remove %s: %s", f, e)
-        if deleted:
-            log.info("Removed %d out-of-window daily brief(s).", deleted)
+            # Try canonical YYYY-MM-DD.html first
+            date_token: Optional[str] = None
+            if len(stem) == 10 and stem[4] == "-" and stem[7] == "-":
+                date_token = stem
+            # Then legacy daily-YYYY-MM-DD.html
+            elif (len(stem) == 16 and stem.startswith("daily-")
+                  and stem[10] == "-" and stem[13] == "-"):
+                date_token = stem[6:]  # drop "daily-" prefix
+            else:
+                # Doesn't match either pattern — leave it alone (custom
+                # filename, manually placed file, etc.)
+                continue
+            if date_token in keep_dates:
+                continue
+            try:
+                f.unlink()
+                log.info("  Removed out-of-window brief: %s", f.name)
+                _stage_deletion_in_git(f)
+                deleted_paths.append(f)
+            except Exception as e:
+                log.warning("  Could not remove %s: %s", f, e)
+        if deleted_paths:
+            log.info("Removed %d out-of-window daily brief(s).",
+                     len(deleted_paths))
+    return deleted_paths
 
 
 # ---------------------------------------------------------------------------
@@ -1405,6 +1526,7 @@ def main() -> int:
              len(sorted_dates),
              ", ".join(d.isoformat() for d in sorted_dates))
 
+    deleted_brief_paths: List[Path] = []
     for d in sorted_dates:
         day_recalls = load_recalls_for_date(XLSX_PATH, d)
         log.info("Rendering brief for %s from Recalls sheet: %d row(s) match",
@@ -1417,7 +1539,15 @@ def main() -> int:
         if not args.dry_run:
             day_html_path.write_text(html, encoding="utf-8")
             log.info("Wrote %s", day_html_path)
-            update_daily_index(d, day_recalls)
+            # Audit 2026-05-14: capture deleted paths returned by the
+            # rolling-window purge inside update_daily_index. Including
+            # them in the commit `paths` list is belt-and-suspenders
+            # alongside the inline _stage_deletion_in_git() call — even
+            # if that inline staging fails silently in CI, the explicit
+            # `git add` inside git_commit_and_push() will pick them up.
+            day_deleted = update_daily_index(d, day_recalls)
+            if day_deleted:
+                deleted_brief_paths.extend(day_deleted)
             brief_paths.append(str(day_html_path))
 
     # Primary brief (today's target) — used in commit message stats
@@ -1427,11 +1557,22 @@ def main() -> int:
     if not args.dry_run and not SKIP_COMMIT:
         paths = [str(XLSX_PATH), str(DAILY_INDEX), str(SPEND_LEDGER)]
         paths.extend(brief_paths)
+        # Audit 2026-05-14: explicitly pass paths of files DELETED by
+        # the rolling-window purge so git_commit_and_push() includes
+        # the deletions in the commit. Without this, orphan HTMLs
+        # accumulate in docs/daily/ forever (incident: 18 stale files
+        # observed on 2026-05-14, including 2026-02-03.html — fully
+        # symptomatic of deletions never landing in git).
+        if deleted_brief_paths:
+            paths.extend(str(p) for p in deleted_brief_paths)
+            log.info("Including %d deleted daily-brief path(s) in commit",
+                     len(deleted_brief_paths))
         msg = (f"Daily recall search {target.isoformat()}: "
                f"+{len(new_recalls)} → Pending, "
                f"{len(brief_recalls)} in brief from Recalls, "
                f"€{new_week_spent-week_spent:.3f} spent "
                f"(rebuilt {len(brief_paths)} daily briefs, "
+               f"purged {len(deleted_brief_paths)} stale, "
                f"window: {target.isoformat()} → "
                f"{(target - timedelta(days=BRIEF_LOOKBACK_DAYS)).isoformat()})")
         git_commit_and_push(ROOT, paths, msg)
