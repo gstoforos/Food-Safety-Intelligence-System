@@ -67,6 +67,7 @@ from pipeline.merge_master import (  # noqa: E402
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
 from review.claude_client import (  # noqa: E402
     _call_claude, _strip_fences, ENABLED as CLAUDE_ENABLED,
+    last_call_error,
 )
 from pipeline._url_year import is_year_mismatch  # noqa: E402
 from pipeline._pathogen_scope import is_in_scope as is_tier1_pathogen  # noqa: E402
@@ -137,6 +138,35 @@ _FETCH_HEADERS = {
 # Rows older than this many days are not re-verified (we trust the prior
 # Claude check). 0 means verify every row every run.
 SKIP_IF_VERIFIED_DAYS = int(os.getenv("CLAUDE_CHECK_SKIP_DAYS", "0"))
+
+
+# ── Failure-kind tracking for SKIP reasons (audit 2026-05-14) ─────────
+# When _verify_with_claude returns None, callers (currently check_row)
+# need to know WHY so the operator log distinguishes "Claude rate-limited
+# (retry next run)" from "Claude returned invalid JSON" etc.
+#
+# review/claude_client.py exposes last_call_error() for HTTP-level
+# failures (rate_limit / http_error / timeout / exception); we add our
+# own state for parser-level failures that happen AFTER a successful
+# call. The state is read once immediately after _verify_with_claude
+# returns None — safe for the single-threaded per-row loop in main().
+#
+# Possible values:
+#   None              — call succeeded (or has not been attempted yet)
+#   "rate_limit"      — Claude 429 after the client's automatic retry
+#   "http_error"      — non-200 non-429 from Anthropic
+#   "timeout"         — request exceeded the HTTP timeout
+#   "exception"       — network exception or unexpected error
+#   "claude_disabled" — ANTHROPIC_API_KEY missing
+#   "no_response"     — Claude returned an empty body (no text blocks)
+#   "json_parse"      — Claude returned text but it wasn't valid JSON
+_LAST_VERIFY_ERROR: Optional[str] = None
+
+
+def last_verify_error() -> Optional[str]:
+    """Return the failure kind for the most recent _verify_with_claude
+    invocation. None means success (or not yet attempted)."""
+    return _LAST_VERIFY_ERROR
 
 
 # ---------------------------------------------------------------------------
@@ -786,8 +816,22 @@ def _verify_with_claude(row: Dict[str, Any],
     """
     Call Claude Haiku 4.5 with the row + page text. Returns the parsed
     JSON dict, or None on failure (Claude error / parse error / etc.).
+
+    Audit 2026-05-14: sets module-level _LAST_VERIFY_ERROR on every
+    failure path so the caller (check_row) can produce a specific SKIP
+    message. See _LAST_VERIFY_ERROR docstring above for value semantics.
+
+    The HTTP-level retry + rate-limit pacing happens inside the shared
+    review.claude_client._call_claude — by the time we get a None back,
+    it has already retried 429 once. So a "rate_limit" verdict here
+    means the bucket was empty AND retry didn't recover. Wait for the
+    next reviewer pass.
     """
+    global _LAST_VERIFY_ERROR
+    _LAST_VERIFY_ERROR = None
+
     if not CLAUDE_ENABLED:
+        _LAST_VERIFY_ERROR = "claude_disabled"
         return None
 
     prompt = CLAUDE_CHECK_PROMPT.format(
@@ -810,13 +854,19 @@ def _verify_with_claude(row: Dict[str, Any],
     except Exception as exc:
         log.warning("Claude call failed: %s: %s",
                     type(exc).__name__, str(exc)[:120])
+        _LAST_VERIFY_ERROR = "exception"
         return None
     if not raw:
+        # Client already populated last_call_error(); inherit it so the
+        # operator log shows the specific cause (rate_limit / timeout /
+        # http_error / exception) instead of generic "unreachable".
+        _LAST_VERIFY_ERROR = last_call_error() or "no_response"
         return None
     try:
         return json.loads(_strip_fences(raw))
     except json.JSONDecodeError as exc:
         log.warning("Claude JSON parse failed: %s | %s", exc, raw[:200])
+        _LAST_VERIFY_ERROR = "json_parse"
         return None
 
 
@@ -981,7 +1031,28 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Dict[str, str], Optional[str]]:
 
     result = _verify_with_claude(row, text)
     if result is None:
-        return "skip", {}, "claude unreachable / parse failed"
+        # Distinguish the failure kind so the operator can tell from the
+        # log whether to expect this row to clear on the next reviewer
+        # pass (rate_limit, timeout, no_response, json_parse — all
+        # transient) vs needing human intervention (claude_disabled,
+        # http_error, exception). Each message is worded to NOT match
+        # the url_fetch_fail trigger ("fetch", "http 4", "http 5") in
+        # main()'s 2-reviewer-confirms-rejection escalation, so Claude-
+        # internal failures cannot accidentally promote a row into the
+        # archived-rejected pile.
+        err = _LAST_VERIFY_ERROR or "unknown"
+        skip_msg = {
+            "rate_limit":      ("claude rate-limited (50K input-tokens/min cap, "
+                                "retry exhausted) — will recheck next run"),
+            "http_error":      "claude API returned non-OK status — will recheck next run",
+            "timeout":         ("claude API slow-response (over budget) — "
+                                "will recheck next run"),
+            "exception":       "claude call raised exception — will recheck next run",
+            "no_response":     "claude returned empty body — will recheck next run",
+            "json_parse":      "claude returned invalid JSON — will recheck next run",
+            "claude_disabled": "claude disabled (no ANTHROPIC_API_KEY)",
+        }.get(err, f"claude unreachable / parse failed ({err})")
+        return "skip", {}, skip_msg
 
     verdict = str(result.get("verdict") or "").lower()
     if verdict not in ("pass", "fix", "fail"):
