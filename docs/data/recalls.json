@@ -54,14 +54,15 @@
   "Brand": "Dulci",
   "Product": "pâte à tartiner dulci dubaï style 40 % pistache¤lot pt08",
   "Pathogen": "Ochratoxin",
-  "Reason": "présence d'ochratoxine a au dessus du seuil réglementaire",
+  "Reason": "Presence of Ochratoxin A above the regulatory threshold",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22253/Interne",
-  "Notes": "sas patrelle¤csf cholet (pa / 01)\tcsf  epaux bezu (pa / 01)\tcsf nimes 2 (pa / 01) [url-gate 2026-05-13: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-13: Pathogen ''→'Ochratoxin'] [claude-check 2026-05-14: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-05-14: pending_enrichment → pending (Claude verified)]"
+  "Notes": "sas patrelle¤csf cholet (pa / 01)\tcsf  epaux bezu (pa / 01)\tcsf nimes 2 (pa / 01) [url-gate 2026-05-13: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-13: Pathogen ''→'Ochratoxin'] [claude-check 2026-05-14: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-05-14: pending_enrichment → pending (Claude verified)] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-12",
@@ -70,14 +71,15 @@
   "Brand": "Les Créations de Pierre",
   "Product": "poitrine fumée 350g pierre schmidt",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "mise en évidence de la présence de listeria monocytogenes",
+  "Reason": "Microbiological testing detected the presence of Listeria monocytogenes",
   "Class": "volontaire (sans arrêté préfectoral)",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22238/Interne",
-  "Notes": "carrefour¤système u [url-gate 2026-05-12: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-12: fix; corrections: Company→CHARCUTERIE PIERRE SCHMIDT Pierre Schmid; fix; company mismatch | Company name in the row does not match the recalling firm ('Origine de la fiche') on the page.]"
+  "Notes": "carrefour¤système u [url-gate 2026-05-12: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-12: fix; corrections: Company→CHARCUTERIE PIERRE SCHMIDT Pierre Schmid; fix; company mismatch | Company name in the row does not match the recalling firm ('Origine de la fiche') on the page.] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-12",
@@ -86,14 +88,15 @@
   "Brand": "Aro",
   "Product": "saumon fume atlantique pre tranche 600g / 900g aro",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "présence de listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
   "Class": "volontaire (sans arrêté préfectoral)",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22252/Interne",
-  "Notes": "metro france [url-gate 2026-05-12: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-12: fix; corrections: Company→METRO FRANCE; fix; company mismatch | Company in row is the brand, but the recalling firm (Origine de la fiche) is METRO FRANCE.]"
+  "Notes": "metro france [url-gate 2026-05-12: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-12: fix; corrections: Company→METRO FRANCE; fix; company mismatch | Company in row is the brand, but the recalling firm (Origine de la fiche) is METRO FRANCE.] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-12",
@@ -231,14 +234,15 @@
   "Brand": "GRAND FRAIS / FRESH / mon-marché.fr",
   "Product": "Brisures de saumon fumé 150g",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "détection listeria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22234/Interne",
-  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-05-13: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14: fix; corrections: Company→WORLDMARECHAL, Brand→GRAND FRAIS / FRESH / mon-marché.fr, Product→Brisures de saumon fumé 150g, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains distributor names (Grand Frais / Fresh / Mon-Marché.Fr) instead of the ac]"
+  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-05-13: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14: fix; corrections: Company→WORLDMARECHAL, Brand→GRAND FRAIS / FRESH / mon-marché.fr, Product→Brisures de saumon fumé 150g, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains distributor names (Grand Frais / Fresh / Mon-Marché.Fr) instead of the ac] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-11",
@@ -247,14 +251,15 @@
   "Brand": "Les Brebis du Noutari",
   "Product": "fromages lactiques très frais",
   "Pathogen": "Salmonella",
-  "Reason": "présence de bactérie pathogène",
+  "Reason": "Presence of pathogenic bacteria",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22224/Interne",
-  "Notes": "les brebis du noutari [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...]"
+  "Notes": "les brebis du noutari [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-11",
@@ -263,14 +268,15 @@
   "Brand": "Grand Frais",
   "Product": "crevettes entières cuites 30/40 400g",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "taux de listeria à dlc supérieur à la réglementation",
+  "Reason": "Listeria count at end of shelf life above regulatory limit",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22223/Interne",
-  "Notes": "grand frais, fresh, monmarche.fr [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...]"
+  "Notes": "grand frais, fresh, monmarche.fr [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-11",
@@ -311,14 +317,15 @@
   "Brand": "Unbranded",
   "Product": "gorgonzola dop à la cuillère",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "présence de listeria monocytogenes.",
+  "Reason": "Presence of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22229/Interne",
-  "Notes": "produit distribué dans les enseignes grand frais. [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'RappelConso']"
+  "Notes": "produit distribué dans les enseignes grand frais. [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'RappelConso'] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-11",
@@ -616,14 +623,15 @@
   "Brand": "Pierre Sajous",
   "Product": "Viandes (charcuterie)",
   "Pathogen": "Salmonella",
-  "Reason": "Contamination par Salmonella",
+  "Reason": "Contamination with Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22196/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check (RappelConso sans-marque path)]"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check (RappelConso sans-marque path)] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-07",
@@ -632,14 +640,15 @@
   "Brand": "Pierre Sajous",
   "Product": "Viandes (charcuterie)",
   "Pathogen": "Salmonella",
-  "Reason": "Contamination par Salmonella",
+  "Reason": "Contamination with Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22197/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check]"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-07",
@@ -648,14 +657,15 @@
   "Brand": "Les Ateliers",
   "Product": "Viandes",
   "Pathogen": "Salmonella",
-  "Reason": "Contamination par Salmonella",
+  "Reason": "Contamination with Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22211/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check]"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-07",
@@ -664,14 +674,15 @@
   "Brand": "Pierre Sajous",
   "Product": "Viandes (charcuterie)",
   "Pathogen": "Salmonella",
-  "Reason": "Contamination par Salmonella",
+  "Reason": "Contamination with Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22199/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check]"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-07",
@@ -680,14 +691,15 @@
   "Brand": "Pierre Sajous",
   "Product": "Viandes (charcuterie)",
   "Pathogen": "Salmonella",
-  "Reason": "Contamination par Salmonella",
+  "Reason": "Contamination with Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22198/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check]"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-07",
@@ -728,14 +740,15 @@
   "Brand": "Unbranded",
   "Product": "brochette de poulet mariné thym et citron",
   "Pathogen": "Salmonella",
-  "Reason": "un contrôle microbiologique a mis en évidence dans un lot de ce produit la présence de salmonelle",
+  "Reason": "Microbiological testing detected the presence of Salmonella in a batch of the product",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22215/Interne",
-  "Notes": "intermarché gex [url-gate 2026-05-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-08: Company ''→'FRANKAVIR INTERMARCHE'] [claude-check 2026-05-09: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "intermarché gex [url-gate 2026-05-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-08: Company ''→'FRANKAVIR INTERMARCHE'] [claude-check 2026-05-09: pass; clean-row shortcut (gemini-enriched + all fields valid)] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-07",
@@ -792,14 +805,15 @@
   "Brand": "Sans Marque - Rayon Boucherie Traditionnelle",
   "Product": "sans marque- rayon boucherie traditionnelle",
   "Pathogen": "Salmonella",
-  "Reason": "présence de salmonelle",
+  "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21981/Interne",
-  "Notes": "intermarché greasque [url-gate 2026-05-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-09: Pathogen ''→'Salmonella'] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "intermarché greasque [url-gate 2026-05-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-09: Pathogen ''→'Salmonella'] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-07",
@@ -824,14 +838,15 @@
   "Brand": "Unbranded",
   "Product": "tomme",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "présence de listéria",
+  "Reason": "Presence of Listeria",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22219/Interne",
-  "Notes": "aucun [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'BORDON DENIS']"
+  "Notes": "aucun [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'BORDON DENIS'] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-07",
@@ -1016,14 +1031,15 @@
   "Brand": "Huîtres de la Zone  Pointe de Saire  50-07",
   "Product": "l'ensemble des références et marques commerciales.",
   "Pathogen": "Escherichia coli (generic)",
-  "Reason": "présence e. coli dans l'environnement supérieure aux seuils réglementaires.",
+  "Reason": "Detection of E. coli in the production environment above regulatory thresholds",
   "Class": "Mandatory",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22200/Interne",
-  "Notes": "distributeurs, détaillants (marchés et poissonniers) et grandes et moyennes surfaces (gms) [url-gate 2026-05-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-09: Pathogen ''→'E. coli'] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "distributeurs, détaillants (marchés et poissonniers) et grandes et moyennes surfaces (gms) [url-gate 2026-05-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-09: Pathogen ''→'E. coli'] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-06",
@@ -1256,14 +1272,15 @@
   "Brand": "Mont Charvin",
   "Product": "viandes",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Contamination par Listeria monocytogenes",
+  "Reason": "Contamination with Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22190/Interne",
-  "Notes": "magasin produits régionaux, marchés [scraper-flag: no Company/Brand from API — claude-check please extract from page] [scraper-flag: Product is subcategory fallback] [url-gate 2026-05-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-08: pass; pass | All fields verified: date 2026-05-05 matches page; company MONT CHARVIN SALAISONS identified; product 'saucisson ] [manual-fix 2026-05-08: Company/Brand/Reason filled]"
+  "Notes": "magasin produits régionaux, marchés [scraper-flag: no Company/Brand from API — claude-check please extract from page] [scraper-flag: Product is subcategory fallback] [url-gate 2026-05-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-08: pass; pass | All fields verified: date 2026-05-05 matches page; company MONT CHARVIN SALAISONS identified; product 'saucisson ] [manual-fix 2026-05-08: Company/Brand/Reason filled] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-05",
@@ -1288,14 +1305,15 @@
   "Brand": "Vracbio",
   "Product": "fruits et légumes",
   "Pathogen": "Aflatoxin",
-  "Reason": "Détection d'Aflatoxin",
+  "Reason": "Detection of Aflatoxin",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22178/Interne",
-  "Notes": "vracbio [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Vracbio; Brand→Vracbio; Tier verified=2 FDA framework]"
+  "Notes": "vracbio [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Vracbio; Brand→Vracbio; Tier verified=2 FDA framework] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-04",
@@ -1304,14 +1322,15 @@
   "Brand": "Boucherie Aux Enfants",
   "Product": "viandes",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Détection de Listeria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22177/Interne",
-  "Notes": "boucherie aux enfants [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Boucherie Aux Enfants; Brand→Boucherie Aux Enfants; Tier verified=1 H4 Listeria]"
+  "Notes": "boucherie aux enfants [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Boucherie Aux Enfants; Brand→Boucherie Aux Enfants; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-04",
@@ -1320,14 +1339,15 @@
   "Brand": "Leclerc Lesparre",
   "Product": "viandes",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Détection de Listeria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22173/Interne",
-  "Notes": "leclerc lesparre 33340 [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Leclerc Lesparre; Brand→Leclerc Lesparre; Tier verified=1 H4 Listeria]"
+  "Notes": "leclerc lesparre 33340 [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Leclerc Lesparre; Brand→Leclerc Lesparre; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-05-04",
@@ -8248,14 +8268,15 @@
   "Brand": "Unbranded",
   "Product": "MUSEAU DE PORC",
   "Pathogen": "Salmonella spp.",
-  "Reason": "Présence de Salmonelles",
+  "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21622/Interne",
-  "Notes": ""
+  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-03-12",
@@ -8280,14 +8301,15 @@
   "Brand": "Unbranded",
   "Product": "CREVETTES CUITES 30/50",
   "Pathogen": "Salmonella spp.",
-  "Reason": "Présence de Salmonelles",
+  "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21591/Interne",
-  "Notes": ""
+  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-03-11",
@@ -8296,14 +8318,15 @@
   "Brand": "Unbranded",
   "Product": "TOMME",
   "Pathogen": "Salmonella spp.",
-  "Reason": "Contamination Salmonelle - en cours d'identification",
+  "Reason": "Salmonella contamination (serotype identification in progress)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21578/Interne",
-  "Notes": ""
+  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-03-11",
@@ -8440,14 +8463,15 @@
   "Brand": "Unbranded",
   "Product": "Steak haché",
   "Pathogen": "Salmonella spp.",
-  "Reason": "Présence de Salmonelle",
+  "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21539/Interne",
-  "Notes": ""
+  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-03-09",
@@ -8504,14 +8528,15 @@
   "Brand": "AOSTE",
   "Product": "Jambon cuit supérieur cuisiné à l'os 4 tranches 260g AOSTE",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Présence de Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21548/Interne",
-  "Notes": "Fiche réf. 2026-03-0108"
+  "Notes": "Fiche réf. 2026-03-0108 [manual fix 2026-05-14: Reason FR→EN per audit rule]",
+  "LastUpdated": "2026-05-14"
  },
  {
   "Date": "2026-03-05",
