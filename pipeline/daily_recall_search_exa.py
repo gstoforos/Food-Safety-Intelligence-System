@@ -114,7 +114,26 @@ def should_run() -> tuple[bool, str]:
 # Exa search (per-region)
 # ---------------------------------------------------------------------------
 def _exa_search_one(query: str) -> List[Dict[str, Any]]:
-    """Single Exa query → Tavily-shaped result list. [] on any failure."""
+    """Single Exa query → Tavily-shaped result list. [] on any failure.
+
+    Audit 2026-05-14: switched from `{"text": {"maxCharacters": 2000}}`
+    to `{"text": True}` so Exa returns the full extracted page text
+    rather than a 2K-char snippet. The earlier 2K cap caused the
+    deterministic hazard filter (results_to_recalls → finds
+    pathogen/biotoxin/mycotoxin/etc keywords in the text) to drop
+    items whose hazard mention happened to fall outside the first
+    2K characters — typical for press releases that lead with brand
+    boilerplate and bury the actual recall reason 3K-8K chars in.
+    Symptom: the 2026-05-14 07:32 UTC fallback returned 31 whitelisted
+    items → 0 valid recalls, with all 31 dropped on "no detectable
+    hazard". With full page text, the filter has the entire body to
+    scan instead of just the lead paragraphs.
+
+    Exa's `text` field is the post-HTML extracted body, not raw HTML —
+    no parsing on our side needed. Cost is unchanged: Exa charges per
+    query, not per content character. Network bytes increase modestly
+    (~5-30 KB per result), well within the per-run timeout budget.
+    """
     if not EXA_API_KEY:
         return []
 
@@ -126,11 +145,12 @@ def _exa_search_one(query: str) -> List[Dict[str, Any]]:
         "category":           "news",
         "numResults":         EXA_MAX_RESULTS,
         "startPublishedDate": f"{start_date}T00:00:00.000Z",
-        "contents": {"text": {"maxCharacters": 2000}},
+        # Full page text — see audit note above. Was {"maxCharacters": 2000}.
+        "contents":           {"text": True},
     }
     try:
         r = requests.post(
-            EXA_ENDPOINT, json=body, timeout=30,
+            EXA_ENDPOINT, json=body, timeout=60,
             headers={"x-api-key": EXA_API_KEY,
                      "Content-Type": "application/json"},
         )

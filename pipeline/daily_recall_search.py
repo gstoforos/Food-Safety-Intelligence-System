@@ -1,15 +1,21 @@
 """
-Daily Recall Search — OpenAI-powered global recall finder (Pending-first).
+Daily Recall Search — Exa-powered global recall finder (Pending-first).
 
-REPLACES pipeline/gap_finder_openai.py.
+REPLACES pipeline/gap_finder_openai.py (and the earlier short-lived
+OpenAI-search-preview primary). Migrated to Exa 2026-04: same per-region
+query templates, same Pending-append flow, zero per-query cost on Exa's
+free 1,000/month tier (vs ~€0.002/run on gpt-4o-mini-search-preview).
+The night fallback in pipeline/daily_recall_search_exa.py (10:30 Athens)
+reuses STATUS_FILE to decide whether a second pass is needed.
 
 Correct pipeline flow — EXCEL IS THE SOURCE OF TRUTH:
 
   1. Read existing Recalls + Pending from docs/data/recalls.xlsx
-  2. Run 5 region sweeps via gpt-4o-mini-search-preview, looking for
-     pathogen/biotoxin/mycotoxin/foreign-material/pest/chemical recalls
-     from any regulator worldwide in a 3-day window (yesterday ±1).
-     Allergen-only recalls are rejected by a strict in-code filter.
+  2. Run 5 region sweeps via Exa /search with date+category filters,
+     looking for pathogen/biotoxin/mycotoxin/foreign-material/pest/
+     chemical recalls from any regulator worldwide in a 3-day window
+     (yesterday ±1). Allergen-only recalls are rejected by a strict
+     in-code filter.
   3. Dedup returned rows vs Recalls AND Pending by URL + fingerprint.
      Survivors are appended to the **Pending** sheet — not Recalls.
   4. The URL guardian (separate workflow, already deployed) later
@@ -17,14 +23,14 @@ Correct pipeline flow — EXCEL IS THE SOURCE OF TRUTH:
   5. Writes docs/daily/YYYY-MM-DD.html by RE-READING the Recalls sheet
      for the target date. The brief ALWAYS matches what's in the xlsx.
   6. Updates docs/daily-index.json so the dashboard card reflects the
-     Recalls-sheet counts, not the OpenAI-raw counts.
+     Recalls-sheet counts, not the Exa-raw counts.
 
 Why Pending-first:
-  Before this version, OpenAI results went straight into Recalls and the
+  Before this version, search results went straight into Recalls and the
   brief rendered from the raw API response. That created two problems:
     (a) unverified URLs polluted the Recalls sheet
     (b) the brief didn't match the xlsx — dashboard and Recalls diverged
-  Now OpenAI is a *proposer* (writes Pending), not a publisher. The URL
+  Now Exa is a *proposer* (writes Pending), not a publisher. The URL
   guardian remains the sole promoter to Recalls. The brief renders from
   Recalls only, so by construction it always matches.
 
@@ -32,8 +38,9 @@ Budget controls:
   - Hard cap per run: €1.00 (config HARD_CAP_EUR_PER_RUN)
   - Hard cap per week: €7.00 (HARD_CAP_EUR_PER_WEEK) — persisted in
     docs/data/.spend_ledger.json so a bad run can't blow the budget.
-  - Current per-run expected cost ≈ €0.002 (gpt-4o-mini-search-preview only,
-    token costs at $0.15/M in and $0.60/M out, no separate search fee).
+  - Exa is on free tier (1,000 queries/month); per-run cost is €0.00
+    so the budget caps are effectively dormant guardrails for the
+    case of falling back to a paid backend.
 
 Invocation:
   python -m pipeline.daily_recall_search
@@ -1555,7 +1562,16 @@ def main() -> int:
 
     # --- Commit + push ---
     if not args.dry_run and not SKIP_COMMIT:
-        paths = [str(XLSX_PATH), str(DAILY_INDEX), str(SPEND_LEDGER)]
+        # Audit 2026-05-14: STATUS_FILE must be in `paths` so it lands
+        # in git. The Exa fallback (daily_recall_search_exa.py, 10:30
+        # Athens) reads STATUS_FILE on a fresh CI clone to decide
+        # whether to run. Pre-fix, STATUS_FILE was written to local CI
+        # working tree but never committed, so every fallback run saw
+        # "Status file missing" and ran defensively — burning ~25
+        # Exa queries/day for no reason, turning the conditional
+        # fallback into an unconditional second pass.
+        paths = [str(XLSX_PATH), str(DAILY_INDEX),
+                 str(SPEND_LEDGER), str(STATUS_FILE)]
         paths.extend(brief_paths)
         # Audit 2026-05-14: explicitly pass paths of files DELETED by
         # the rolling-window purge so git_commit_and_push() includes
