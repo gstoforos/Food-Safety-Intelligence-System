@@ -71,30 +71,70 @@ def git_commit_and_push(repo_dir: Path, files: list[str], message: str) -> bool:
 
             # ── Binary-safe retry ──────────────────────────────────────
             # git rebase can't handle binary xlsx, so instead we:
-            #   1. Identify which files we changed
-            #   2. Save physical copies
+            #   1. Identify which files we changed AND classify them
+            #      as modifications/additions vs deletions
+            #   2. Save physical copies of modifications/additions
             #   3. Hard-reset to pre-commit state + pull remote
-            #   4. Restore our files on top of the updated remote
-            #   5. Re-stage + commit
+            #      (this restores deleted files from HEAD~1)
+            #   4. Restore our modifications on top of the updated remote;
+            #      re-apply our deletions by unlinking from working tree
+            #   5. Re-stage everything (modifications AND deletions) and commit
+            #
+            # Audit 2026-05-14: pre-fix, this block used `--name-only` and
+            # filtered out non-existent paths with `if src.exists()`, which
+            # silently dropped every deletion. After reset --hard HEAD~1 +
+            # pull, the deleted files reappeared from HEAD~1 and were
+            # never re-staged for the retry commit. Net effect: when push
+            # failed due to a concurrent-workflow conflict (common in
+            # this pipeline), the retry commit included our modifications
+            # but NOT our deletions. Orphan HTMLs accumulated in
+            # docs/daily/ for weeks until disk hygiene was investigated.
 
-            # 1. Collect our changed file paths
+            # 1. Collect our changed file paths + status (M/A/D/R/C)
             changed = _run(["git", "-C", cwd, "diff",
-                            "HEAD~1", "--name-only"])
-            our_files = [
-                ln.strip() for ln in changed.stdout.splitlines()
-                if ln.strip()
-            ]
+                            "HEAD~1", "--name-status"])
+            modifications: list[str] = []  # M or A — file exists post-commit
+            deletions: list[str] = []       # D — file removed post-commit
+            for ln in changed.stdout.splitlines():
+                parts = ln.split("\t")
+                if len(parts) < 2:
+                    continue
+                status = parts[0].strip()
+                if not status:
+                    continue
+                if status.startswith("D"):
+                    deletions.append(parts[1].strip())
+                elif status.startswith("R") or status.startswith("C"):
+                    # Rename / copy: parts = [status, old_path, new_path].
+                    # Old path is gone (treat as deletion); new path is
+                    # present (treat as modification/addition).
+                    if len(parts) >= 3:
+                        deletions.append(parts[1].strip())
+                        modifications.append(parts[2].strip())
+                    else:
+                        # Malformed line — best-effort fall-through
+                        modifications.append(parts[1].strip())
+                else:
+                    # M, A, T (typechange), U (unmerged) — file should
+                    # exist in working tree
+                    modifications.append(parts[1].strip())
 
-            # 2. Save copies to a temp dir
+            # 2. Save copies of modifications/additions to a temp dir.
+            #    Deletions don't need saving (file is already gone).
             tmp = Path(cwd) / ".push-retry-tmp"
             tmp.mkdir(exist_ok=True)
             saved: list[tuple[str, Path]] = []
-            for rel in our_files:
+            for rel in modifications:
                 src = Path(cwd) / rel
                 if src.exists():
                     dst = tmp / rel.replace("/", "__")
                     shutil.copy2(src, dst)
                     saved.append((rel, dst))
+                else:
+                    # Modification claimed by `git diff` but file is gone
+                    # from working tree — odd state, log it and skip.
+                    log.warning("Push retry: expected modification at %s "
+                                "but file is missing — skipping save", rel)
 
             # 3. Undo our commit, pull remote
             branch = _run(["git", "-C", cwd, "branch",
@@ -152,9 +192,36 @@ def git_commit_and_push(repo_dir: Path, files: list[str], message: str) -> bool:
                 shutil.copy2(dst, dest)
             shutil.rmtree(tmp, ignore_errors=True)
 
-            # 5. Re-stage and commit
+            # Re-apply our deletions. After `git reset --hard HEAD~1` +
+            # `git pull`, any files we deleted in our original commit
+            # are back in the working tree (either restored from HEAD~1
+            # or pulled from remote). To preserve our intent, we unlink
+            # them again. If a deletion path is not in the working tree
+            # post-pull, it means remote also deleted it (or never had
+            # it) — either way, nothing to do.
+            redeleted = 0
+            for rel in deletions:
+                dest = Path(cwd) / rel
+                try:
+                    if dest.exists():
+                        dest.unlink()
+                        redeleted += 1
+                except Exception as e:
+                    log.warning("Push retry: could not re-delete %s: %s",
+                                rel, e)
+            if deletions:
+                log.info("Push retry: re-applied %d/%d deletions",
+                         redeleted, len(deletions))
+
+            # 5. Re-stage and commit. For modifications: file is on
+            # disk, `git add` stages the modification. For deletions:
+            # file is missing from working tree, `git add` stages the
+            # deletion (verified empirically — `git add -- <missing>`
+            # on a tracked path stages the deletion, exit 0).
             for rel, _ in saved:
-                _run(["git", "-C", cwd, "add", rel])
+                _run(["git", "-C", cwd, "add", "--", rel])
+            for rel in deletions:
+                _run(["git", "-C", cwd, "add", "--", rel])
             check = _run(["git", "-C", cwd, "diff",
                           "--cached", "--quiet"])
             if check.returncode != 0:
