@@ -61,8 +61,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22253/Interne",
-  "Notes": "sas patrelle¤csf cholet (pa / 01)\tcsf  epaux bezu (pa / 01)\tcsf nimes 2 (pa / 01) [url-gate 2026-05-13: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-13: Pathogen ''→'Ochratoxin'] [claude-check 2026-05-14: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-05-14: pending_enrichment → pending (Claude verified)] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "sas patrelle¤csf cholet (pa / 01)\tcsf  epaux bezu (pa / 01)\tcsf nimes 2 (pa / 01) [url-gate 2026-05-13: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-13: Pathogen ''→'Ochratoxin'] [claude-check 2026-05-14: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-05-14: pending_enrichment → pending (Claude verified)] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-12",
@@ -78,8 +77,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22238/Interne",
-  "Notes": "carrefour¤système u [url-gate 2026-05-12: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-12: fix; corrections: Company→CHARCUTERIE PIERRE SCHMIDT Pierre Schmid; fix; company mismatch | Company name in the row does not match the recalling firm ('Origine de la fiche') on the page.] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "carrefour¤système u [url-gate 2026-05-12: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-12: fix; corrections: Company→CHARCUTERIE PIERRE SCHMIDT Pierre Schmid; fix; company mismatch | Company name in the row does not match the recalling firm ('Origine de la fiche') on the page.] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-12",
@@ -95,8 +93,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22252/Interne",
-  "Notes": "metro france [url-gate 2026-05-12: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-12: fix; corrections: Company→METRO FRANCE; fix; company mismatch | Company in row is the brand, but the recalling firm (Origine de la fiche) is METRO FRANCE.] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "metro france [url-gate 2026-05-12: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-12: fix; corrections: Company→METRO FRANCE; fix; company mismatch | Company in row is the brand, but the recalling firm (Origine de la fiche) is METRO FRANCE.] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-12",
@@ -112,8 +109,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-free-range-100-irish-chicken",
-  "Notes": "FSAI HTML listing fallback [gemini-check 2026-05-12: fix; corrections: Company→Lidl, Pathogen→Salmonella; fix; company mismatch; pathogen mismatch | Company and Pathogen are incorrect; corrected from page. Tier also corrected.] [enrich-gate 2026-05-12: pending_enrichment → pending (Claude verified)] [manual fix 2026-05-14: FSAI 2026.21 verified against source page. Product/Reason were image alt-text junk ('Picture of ...'); Brand was empty; Tier 3→1 (Salmonella always Tier 1, same audit rule applied to Western Brand FSAI 2026.22 + Sage&Onion 2026.20). NOT a duplicate of 2026.22 — different FSAI alert, different processor (IE 803 EC vs IE 818 EC).]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "FSAI HTML listing fallback [gemini-check 2026-05-12: fix; corrections: Company→Lidl, Pathogen→Salmonella; fix; company mismatch; pathogen mismatch | Company and Pathogen are incorrect; corrected from page. Tier also corrected.] [enrich-gate 2026-05-12: pending_enrichment → pending (Claude verified)] [manual fix 2026-05-14: FSAI 2026.21 verified against source page. Product/Reason were image alt-text junk ('Picture of ...'); Brand was empty; Tier 3→1 (Salmonella always Tier 1, same audit rule applied to Western Brand FSAI 2026.22 + Sage&Onion 2026.20). NOT a duplicate of 2026.22 — different FSAI alert, different processor (IE 803 EC vs IE 818 EC).]"
  },
  {
   "Date": "2026-05-12",
@@ -241,8 +237,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22234/Interne",
-  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-05-13: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14: fix; corrections: Company→WORLDMARECHAL, Brand→GRAND FRAIS / FRESH / mon-marché.fr, Product→Brisures de saumon fumé 150g, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains distributor names (Grand Frais / Fresh / Mon-Marché.Fr) instead of the ac] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-05-13: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14: fix; corrections: Company→WORLDMARECHAL, Brand→GRAND FRAIS / FRESH / mon-marché.fr, Product→Brisures de saumon fumé 150g, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains distributor names (Grand Frais / Fresh / Mon-Marché.Fr) instead of the ac] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-11",
@@ -258,8 +253,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22224/Interne",
-  "Notes": "les brebis du noutari [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "les brebis du noutari [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-11",
@@ -275,8 +269,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22223/Interne",
-  "Notes": "grand frais, fresh, monmarche.fr [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "grand frais, fresh, monmarche.fr [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-11",
@@ -324,8 +317,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22229/Interne",
-  "Notes": "produit distribué dans les enseignes grand frais. [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'RappelConso'] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "produit distribué dans les enseignes grand frais. [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'RappelConso'] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-11",
@@ -485,8 +477,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-western-brand-sage-o",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [claude-check 2026-05-14: fix; corrections: Date→2026-05-11, Company→Western Brand, Brand→Western Brand, Product→Sage & Onion Cook in Bag Whole Chicken (, Pathogen→Salmonella; fix; company mismatch; product mismatch; pathogen mismatch; date on page=2026-05-11 | Date is 2026-05-11 (not 2026-05-13] [enrich-gate 2026-05-14: pending_enrichment → pending (Claude verified)] [manual fix 2026-05-14: FSAI 2026.20 verified against RTE + Irish Examiner + Irish Times. Brand 'Western Brand' was the processor (= Company), not a retail brand chip; products are sold as Aldi Butchers Selection and Tesco Roast in Bag. Tier 3→1 (Salmonella always Tier 1 per audit rule, same as FSAI 2026.21 + 2026.22 fixes). Reason text was junk brand data; replaced with actual hazard description.]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [claude-check 2026-05-14: fix; corrections: Date→2026-05-11, Company→Western Brand, Brand→Western Brand, Product→Sage & Onion Cook in Bag Whole Chicken (, Pathogen→Salmonella; fix; company mismatch; product mismatch; pathogen mismatch; date on page=2026-05-11 | Date is 2026-05-11 (not 2026-05-13] [enrich-gate 2026-05-14: pending_enrichment → pending (Claude verified)] [manual fix 2026-05-14: FSAI 2026.20 verified against RTE + Irish Examiner + Irish Times. Brand 'Western Brand' was the processor (= Company), not a retail brand chip; products are sold as Aldi Butchers Selection and Tesco Roast in Bag. Tier 3→1 (Salmonella always Tier 1 per audit rule, same as FSAI 2026.21 + 2026.22 fixes). Reason text was junk brand data; replaced with actual hazard description.]"
  },
  {
   "Date": "2026-05-09",
@@ -630,8 +621,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22196/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check (RappelConso sans-marque path)] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check (RappelConso sans-marque path)] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-07",
@@ -647,8 +637,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22197/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-07",
@@ -664,8 +653,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22211/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-07",
@@ -681,8 +669,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22199/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-07",
@@ -698,8 +685,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22198/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-07",
@@ -747,8 +733,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22215/Interne",
-  "Notes": "intermarché gex [url-gate 2026-05-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-08: Company ''→'FRANKAVIR INTERMARCHE'] [claude-check 2026-05-09: pass; clean-row shortcut (gemini-enriched + all fields valid)] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "intermarché gex [url-gate 2026-05-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-08: Company ''→'FRANKAVIR INTERMARCHE'] [claude-check 2026-05-09: pass; clean-row shortcut (gemini-enriched + all fields valid)] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-07",
@@ -812,8 +797,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21981/Interne",
-  "Notes": "intermarché greasque [url-gate 2026-05-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-09: Pathogen ''→'Salmonella'] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "intermarché greasque [url-gate 2026-05-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-09: Pathogen ''→'Salmonella'] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-07",
@@ -845,8 +829,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22219/Interne",
-  "Notes": "aucun [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'BORDON DENIS'] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "aucun [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'BORDON DENIS'] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-07",
@@ -1038,8 +1021,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22200/Interne",
-  "Notes": "distributeurs, détaillants (marchés et poissonniers) et grandes et moyennes surfaces (gms) [url-gate 2026-05-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-09: Pathogen ''→'E. coli'] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "distributeurs, détaillants (marchés et poissonniers) et grandes et moyennes surfaces (gms) [url-gate 2026-05-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-09: Pathogen ''→'E. coli'] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-06",
@@ -1279,8 +1261,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22190/Interne",
-  "Notes": "magasin produits régionaux, marchés [scraper-flag: no Company/Brand from API — claude-check please extract from page] [scraper-flag: Product is subcategory fallback] [url-gate 2026-05-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-08: pass; pass | All fields verified: date 2026-05-05 matches page; company MONT CHARVIN SALAISONS identified; product 'saucisson ] [manual-fix 2026-05-08: Company/Brand/Reason filled] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "magasin produits régionaux, marchés [scraper-flag: no Company/Brand from API — claude-check please extract from page] [scraper-flag: Product is subcategory fallback] [url-gate 2026-05-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-08: pass; pass | All fields verified: date 2026-05-05 matches page; company MONT CHARVIN SALAISONS identified; product 'saucisson ] [manual-fix 2026-05-08: Company/Brand/Reason filled] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-05",
@@ -1312,8 +1293,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22178/Interne",
-  "Notes": "vracbio [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Vracbio; Brand→Vracbio; Tier verified=2 FDA framework] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "vracbio [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Vracbio; Brand→Vracbio; Tier verified=2 FDA framework] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-04",
@@ -1329,8 +1309,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22177/Interne",
-  "Notes": "boucherie aux enfants [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Boucherie Aux Enfants; Brand→Boucherie Aux Enfants; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "boucherie aux enfants [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Boucherie Aux Enfants; Brand→Boucherie Aux Enfants; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-04",
@@ -1346,8 +1325,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22173/Interne",
-  "Notes": "leclerc lesparre 33340 [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Leclerc Lesparre; Brand→Leclerc Lesparre; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "leclerc lesparre 33340 [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Leclerc Lesparre; Brand→Leclerc Lesparre; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-05-04",
@@ -8275,8 +8253,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21622/Interne",
-  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-03-12",
@@ -8308,8 +8285,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21591/Interne",
-  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-03-11",
@@ -8325,8 +8301,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21578/Interne",
-  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-03-11",
@@ -8470,8 +8445,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21539/Interne",
-  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-03-09",
@@ -8535,8 +8509,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21548/Interne",
-  "Notes": "Fiche réf. 2026-03-0108 [manual fix 2026-05-14: Reason FR→EN per audit rule]",
-  "LastUpdated": "2026-05-14"
+  "Notes": "Fiche réf. 2026-03-0108 [manual fix 2026-05-14: Reason FR→EN per audit rule]"
  },
  {
   "Date": "2026-03-05",
