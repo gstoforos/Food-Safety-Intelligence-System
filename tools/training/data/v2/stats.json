@@ -1,52 +1,53 @@
 {
-  "exported_at_utc": "2026-05-13T10:51:34.647230+00:00",
-  "git_sha": "2107cea44c566cf0df39679d09344bb2fd2bd008",
+  "exported_at_utc": "2026-05-14T19:12:38.532736+00:00",
+  "git_sha": "98efa3a0d081796f17dfde0002992d49df77ba50",
   "xlsx_path": "docs/data/recalls.xlsx",
   "totals": {
-    "recalls_rows": 588,
-    "weekly_review_rows": 44,
-    "weekly_rejected_rows": 36,
-    "approved_after_filter": 588,
-    "rejected_after_filter": 36
+    "recalls_rows": 612,
+    "weekly_review_rows": 7,
+    "weekly_rejected_rows": 38,
+    "approved_after_filter": 612,
+    "rejected_after_filter": 38
   },
   "promote_classifier": {
-    "total": 624,
-    "train": 563,
-    "val": 61,
+    "total": 650,
+    "train": 586,
+    "val": 64,
     "labels": {
-      "promote": 588,
-      "reject": 36
+      "promote": 612,
+      "reject": 38
     },
     "rejection_categories": {
-      "other": 29,
-      "date_pre_2026": 7
+      "other": 36,
+      "http_error": 1,
+      "network": 1
     },
     "by_source_sheet": {
-      "Recalls": 588,
-      "Weekly_Rejected": 36
+      "Recalls": 612,
+      "Weekly_Rejected": 38
     },
     "by_weight_bucket": {
-      "1.0 (default)": 594,
+      "1.0 (default)": 620,
       "1.5+ (audit)": 7,
       "2.0+ (manual)": 22,
       "3.0+ (tier-fix)": 1
     }
   },
   "tier_assignment": {
-    "total": 584,
-    "train": 527,
-    "val": 57,
+    "total": 608,
+    "train": 549,
+    "val": 59,
     "tier_distribution": {
-      "1": 406,
-      "2": 153,
+      "1": 428,
+      "2": 155,
       "3": 25
     },
     "top_pathogens": {
-      "Listeria monocytogenes": 209,
-      "Salmonella": 147,
+      "Listeria monocytogenes": 216,
+      "Salmonella": 155,
       "Aflatoxin": 49,
-      "Ochratoxin": 25,
-      "Shiga toxin-producing E. coli (STEC)": 22,
+      "Ochratoxin": 27,
+      "Shiga toxin-producing E. coli (STEC)": 24,
       "Cereulide (Bacillus cereus toxin)": 11,
       "Norovirus": 10,
       "Cereulide (B. cereus toxin)": 10,
@@ -59,32 +60,32 @@
       "Bacillus cereus": 3
     },
     "by_source_sheet": {
-      "Recalls": 584
+      "Recalls": 608
     },
     "by_weight_bucket": {
-      "1.0 (default)": 554,
+      "1.0 (default)": 578,
       "1.5+ (audit)": 7,
       "2.0+ (manual)": 22,
       "3.0+ (tier-fix)": 1
     }
   },
   "field_corrections": {
-    "total": 35,
-    "train": 33,
-    "val": 2,
+    "total": 47,
+    "train": 44,
+    "val": 3,
     "field_distribution": {
-      "Company": 16,
-      "Pathogen": 10,
-      "Brand": 21,
+      "Pathogen": 11,
+      "Brand": 30,
+      "Company": 15,
       "Product": 5,
-      "Date": 5
+      "Date": 6
     },
     "by_source_sheet": {
-      "Recalls": 31,
+      "Recalls": 43,
       "Weekly_Rejected": 4
     },
     "by_weight_bucket": {
-      "1.0 (default)": 34,
+      "1.0 (default)": 46,
       "1.5+ (audit)": 1
     }
   }
