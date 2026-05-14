@@ -1,0 +1,1142 @@
+name: Export Training Data v2.2
+
+# Day 5 of the FSIS-LM project: the final training-data exporter.
+# Reads BOTH the live recalls.xlsx (Recalls + Weekly_Review +
+# Weekly_Rejected sheets) AND the historical_rejects.xlsx produced by
+# the rescue-historical-rejects workflow, merges them with deduplication,
+# applies the v2.1 parser, and writes the training corpus.
+#
+# Supersedes v2 and v2.1 — only run this workflow going forward.
+#
+# Expected output on 2026-05-14 data:
+#   - promote_classifier: 685 examples (603 promote / 82 reject, 7.4:1)
+#     - 8 rejection categories used (was 3 in v2)
+#     - only 9 of 82 rejects land in 'other' (was 36 of 38 in v2)
+#   - tier_assignment: 599 examples, all 3 tiers (1: 419, 2: 155, 3: 25)
+#   - field_corrections: 57 examples (rescue added 11 new ones)
+#   - ALL three tasks pass the trainability adequacy gate
+#
+# Trigger: manually from the Actions tab → "Export Training Data v2.2".
+
+on:
+  workflow_dispatch:
+    inputs:
+      xlsx_path:
+        description: "Path to recalls.xlsx"
+        required: false
+        default: "docs/data/recalls.xlsx"
+      historical_rejects_path:
+        description: "Path to historical_rejects.xlsx (from rescue workflow)"
+        required: false
+        default: "tools/training/data/historical_rejects.xlsx"
+      out_dir:
+        description: "Output directory"
+        required: false
+        default: "tools/training/data/v2_2"
+      val_frac:
+        description: "Validation set fraction"
+        required: false
+        default: "0.1"
+      seed:
+        description: "Random seed"
+        required: false
+        default: "42"
+      keep_meta:
+        description: "Keep _meta fields in JSONL?"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      commit_output:
+        description: "Commit training data back to repo?"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: export-training-data-v2-2
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install --quiet openpyxl
+
+      - name: Write export script
+        run: |
+          mkdir -p tools
+          cat > tools/export_training_data_v2_2.py <<'PYEOF_EXPORT'
+          #!/usr/bin/env python3
+          """
+          FSIS reviewer training-data exporter v2.2
+          ==========================================
+
+          Changes vs v2.1:
+
+          * New ``--historical-rejects`` flag pointing to the xlsx output of the
+            rescue-historical-rejects workflow. v2.2 reads this file as an
+            additional source of REJECT examples, then deduplicates against the
+            live ``Weekly_Rejected`` sheet (live wins on conflict).
+          * Historical rejects WITHOUT a usable ``RejectionReason`` are filtered
+            out — we can't train a "reject-with-reason" model on rows where the
+            reason was lost. On the 2026-05-14 rescue this filters 36 of 95 rows,
+            keeping the 59 with rich rejection text. Of those, 39 are net-new
+            (not in live Weekly_Rejected), adding to the trainable reject pool.
+
+          v2.1 fixes (retained):
+
+          * Rejection-category parser handles every phrasing in production reviewer
+            output: ``not a recall page``, ``out of scope for FSIS Tier-1
+            pathogens``, ``company mismatch``, ``pathogen mismatch``,
+            ``multi_field_mismatch`` (when 2+ fields disagree).
+          * New categories in PROMOTE_SYSTEM_PROMPT.
+          * Duplicate category prefix stripped from reason text.
+          * ``date_pre_2026`` regex captures digits correctly.
+
+          v2 features (retained):
+
+          * Reads Recalls sheet as primary PROMOTE source.
+          * Tag-aware Notes parser.
+          * Per-example weighting.
+          * Provenance file.
+          * Source-breakdown stats.
+
+          Output files (in --out directory):
+              promote_classifier.train.jsonl
+              promote_classifier.val.jsonl
+              tier_assignment.train.jsonl
+              tier_assignment.val.jsonl
+              field_corrections.train.jsonl
+              field_corrections.val.jsonl
+              stats.json
+              provenance.json
+
+          Usage:
+              python export_training_data_v2_2.py \\
+                  --xlsx docs/data/recalls.xlsx \\
+                  --historical-rejects tools/training/data/historical_rejects.xlsx \\
+                  --out tools/training/data/v2_2 \\
+                  [--val-frac 0.1] [--seed 42] [--keep-meta]
+          """
+          from __future__ import annotations
+
+          import argparse
+          import datetime as dt
+          import json
+          import os
+          import random
+          import re
+          import sys
+          from collections import Counter
+          from pathlib import Path
+          from typing import Any, Dict, Iterable, List, Optional, Tuple
+
+          import openpyxl
+
+
+          # ─────────────────────────────────────────────────────────────────────────
+          # System prompts — match production reviewer prompts so training data is
+          # in-distribution with how the fine-tuned model will be called at inference
+          # ─────────────────────────────────────────────────────────────────────────
+
+          PROMOTE_SYSTEM_PROMPT = """You are the AFTS FSIS final-gate reviewer. Given a candidate food-recall row, decide whether to PROMOTE it to the Recalls master sheet or REJECT it.
+
+          PROMOTE if ALL of:
+            • Pathogen is in FSIS Tier-1 scope (Listeria, Salmonella, E. coli/STEC, Botulinum, Cereulide, Hepatitis A, Norovirus, marine biotoxins, Cronobacter, Campylobacter, Staphylococcus enterotoxin, mycotoxins above action level)
+            • Date is within scope (2026-01-01 or later; pre-2026 dates are out of scope)
+            • URL is a specific recall page (not a landing page, news article, or download)
+            • Row is not a duplicate of an existing Recalls row
+            • Company/Brand/Product fields contain real recall data (not page-title extraction garbage)
+
+          REJECT and state the category if ANY of:
+            • pathogen_out_of_scope        — hazard isn't a foodborne pathogen (e.g. Cadmium, Asbestos, Mechanical hazard, Electric shock, Choking hazard, Foreign body in adult food)
+            • date_pre_2026                — recall predates 2026
+            • not_a_recall_page            — URL is a listing/landing page, FAQ, news article, XLS/PDF index
+            • duplicate_of_existing_recall — same recall already in master sheet
+            • pathogen_mismatch            — Pathogen field doesn't match what the recall page actually describes
+            • company_mismatch             — Company field doesn't match the recalling firm on the page
+            • product_mismatch             — Product field doesn't match the recalled product on the page
+            • multi_field_mismatch         — two or more of (pathogen, company, product) mismatch
+            • other                        — anything not covered above (use sparingly)
+
+          Output exactly: PROMOTE
+                      or: REJECT: <category>: <one-line reason>"""
+
+          TIER_SYSTEM_PROMPT = """You are the AFTS FSIS Tier classifier. Apply the HYBRID framework to assign Tier 1, 2, or 3.
+
+          Step 1 — Regulator class:
+            TIER 1: "Class I", "Class 1", "Mandatory", "Public Health Alert", "Administrative action", "Outbreak", anything containing "Mandatory"/"Impératif"/"Imperative"
+            TIER 2: "Class II", "Class 2", "Voluntary", "Recall", "Alert", "Food Alert", "Conseillé"
+            TIER 3: "Class III", "Class 3", "Information", "Border Rejection", "Notification", "Advisory"
+
+          Step 2 — If no class match, apply FDA framework:
+            TIER 1: Listeria mono / STEC / Botulinum / Cereulide / Marine biotoxin / Salmonella in RTE food / heavy metals / foreign body in baby food
+            TIER 2: Salmonella in cooking-required food / Campylobacter / Cronobacter / generic E. coli / mycotoxins / Hep A or Norovirus
+            TIER 3: labeling violations / environmental swab only / unknown pathogen / foreign body in adult food
+
+          Step 3 — Outbreak bump: if Outbreak=1, return max(1, base_tier - 1).
+
+          HARD RULES (override everything else):
+            H1  Cereulide → Tier 1
+            H2  Botulinum → Tier 1
+            H3  STEC / E. coli O157 / VTEC / EHEC → Tier 1
+            H4  Listeria monocytogenes (any food) → Tier 1
+            H5  Marine biotoxins → Tier 1
+            H6  Salmonella in RTE food → Tier 1
+            H7  Salmonella in cooking-required food → Tier 2
+            H8  Generic "E. coli" without STEC indicator → Tier 3
+            H9  Bacillus cereus alone (no cereulide) → Tier 3
+            H13 Foreign body in baby food / vulnerable-population food → Tier 1
+            H14 Foreign body in adult food, no injuries → Tier 3
+
+          Output exactly one digit: 1, 2, or 3"""
+
+          FIX_SYSTEM_PROMPT = """You are the AFTS FSIS field-correction extractor. The scraped row contains errors. Identify which fields need correction and propose the correct values.
+
+          Fields you may correct: Date (YYYY-MM-DD), Company, Brand, Product, Pathogen.
+
+          Rules:
+            • Company and Brand may stay in source language (proper names).
+            • Every other field must be in English (US).
+            • If Brand is unknown or generic, use "Unbranded".
+            • If extraction garbage (page title fragments, navigation breadcrumbs, "Home"/"Index"/"Recall" placeholders), correct to the real value or mark "—".
+            • Pathogen must be a canonical name from the FSIS vocabulary (e.g. "Listeria monocytogenes", "Salmonella", "Escherichia coli (generic)", "Shiga toxin-producing E. coli (STEC)", "Cereulide (B. cereus toxin)").
+
+          Output strict JSON only, no markdown, no commentary:
+          {"corrections": {"<field>": "<corrected_value>", ...}}
+
+          If no correction is needed, return: {"corrections": {}}"""
+
+
+          # ─────────────────────────────────────────────────────────────────────────
+          # Tag-aware Notes parser (v2)
+          # ─────────────────────────────────────────────────────────────────────────
+
+          # Match any [tag-name [date [time]]: body] annotation block in Notes.
+          _TAG_BLOCK_RX = re.compile(
+              r"\[(?P<tag>[a-z][a-z0-9_-]+)"
+              r"(?:\s+\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2})?)?"
+              r":\s+(?P<body>[^\[\]]*)\]",
+              re.IGNORECASE,
+          )
+
+          # Inside a tag body, match a field correction. Handles:
+          #   Pathogen→E. coli
+          #   Pathogen→'E. coli'
+          #   Pathogen ''→'E. coli'
+          #   Pathogen ""→"E. coli"
+          #   Brand '—'→'France'
+          #   Pathogen \u2018old\u2019\u2192\u2018new\u2019  (Unicode arrows + curly quotes)
+          # Matches anything between the field name and the arrow, then captures the
+          # corrected value after the arrow. Doesn't attempt to capture the
+          # before-value — reconstructing it from placeholder text in the training
+          # input is cleaner than guessing whether unquoted text is the before-value.
+          _CORR_BROAD_RX = re.compile(
+              r"(?P<field>Date|Company|Brand|Product|Pathogen|Class|Region)\b"
+              r"[^\u2192\n\]]{0,80}?"
+              r"(?:\u2192|->|→)"
+              r"\s*"
+              r"[\"'\u2018\u2019\u201C\u201D]?"
+              r"(?P<value>[^,;\]\n\u2192]{1,200}?)"
+              r"[\"'\u2018\u2019\u201C\u201D]?"
+              r"(?=\s*[,;\]]|$)",
+          )
+
+          # Verdict tokens that may appear inside a claude-check / gemini-check body
+          _VERDICT_RX = re.compile(
+              r"\b(?P<verdict>pass|fix|fail|skip|promote|reject)\b",
+              re.IGNORECASE,
+          )
+
+          # Rejection-category regex (used to extract reject reasons from rows in
+          # Weekly_Rejected or anywhere a REJECTED:cat:reason / REJECT:cat:reason
+          # string appears). The category may contain digits (e.g. ``date_pre_2026``).
+          _REJECTION_REASON_RX = re.compile(
+              r"REJECT(?:ED)?:\s*(?P<cat>[a-z_0-9]+)\s*[:|]\s*(?P<reason>.+?)(?:\s*\||$)",
+              re.IGNORECASE,
+          )
+
+          # Known categories — used by _clean_reason to strip ANY of them as a
+          # duplicate prefix, not just the currently-selected one. This handles
+          # the reclassification case where the source text starts with
+          # ``pathogen_out_of_scope:`` but the heuristic reclassifies to
+          # ``not_a_recall_page``.
+          _KNOWN_CATEGORIES = {
+              "not_a_recall_page",
+              "pathogen_out_of_scope",
+              "date_pre_2026",
+              "duplicate_of_existing_recall",
+              "company_mismatch",
+              "product_mismatch",
+              "pathogen_mismatch",
+              "multi_field_mismatch",
+              "other",
+          }
+
+
+          def _clean_reason(text: str, category: str) -> str:
+              """Strip duplicate category prefixes from reason text.
+
+              Iteratively removes:
+                - ``<known_category>:`` prefix (handles same- AND reclassified-cat)
+                - ``REJECT[ED]: <any_cat>:`` outer prefix
+                - leading ``''`` empty-string marker followed by ``|`` or space
+                - leading ``fail;`` marker
+
+              Loops up to 3 times since multiple prefixes can stack
+              (e.g. ``REJECT: other: pathogen_out_of_scope: '' | fail;``).
+              """
+              s = text.strip()
+              for _ in range(3):
+                  prev = s
+                  # Strip any known-category prefix
+                  for cat in _KNOWN_CATEGORIES:
+                      s = re.sub(rf"^{re.escape(cat)}\s*:\s*",
+                                 "", s, flags=re.IGNORECASE)
+                  # Strip outer REJECT[ED]: <cat>: prefix
+                  s = re.sub(r"^REJECT(?:ED)?:\s*[a-z_0-9]+\s*:\s*",
+                             "", s, flags=re.IGNORECASE)
+                  # Strip leading '' | marker
+                  s = re.sub(r"^['\"]{2,}\s*\|\s*", "", s)
+                  # Strip leading 'fail;' marker
+                  s = re.sub(r"^fail\s*[;:]\s*", "", s, flags=re.IGNORECASE)
+                  s = s.strip()
+                  if s == prev:
+                      break
+              return s[:200]
+
+          # Tags that carry human-authored decisions or corrections — used to weight
+          # examples upward during training. Tags not in this set get weight 1.0.
+          WEIGHT_BY_TAG: Dict[str, float] = {
+              "manual-promote":         2.0,
+              "manual-fix":             2.0,
+              "manual-add":             2.0,
+              "tier-fix":               3.0,
+              "region-fix":             1.5,
+              "audit-2026-04-28":       2.0,
+              "strict-outbreak-audit":  1.5,
+          }
+
+          # Tags that signal automated reviewer activity — used for source tracking
+          # but not weighting.
+          INTEREST_TAGS = {
+              "claude-check", "claude-gap", "claude-flag",
+              "gemini-check", "gemini-enrich", "gemini-gap",
+              "openai-check", "openrouter-check",
+              "url-gate", "url-guardian",
+              "outbreak", "dedupe-fix", "gap-gate", "enrich-gate",
+              "date-unknown",
+          } | set(WEIGHT_BY_TAG.keys())
+
+
+          def parse_notes_tags(notes: str) -> List[Tuple[str, str, Optional[str]]]:
+              """Return every [tag DATE: body] annotation as (tag_name, body, verdict).
+
+              `verdict` is one of pass/fix/fail/skip/promote/reject or None.
+              """
+              out: List[Tuple[str, str, Optional[str]]] = []
+              for tm in _TAG_BLOCK_RX.finditer(notes):
+                  tag = tm.group("tag").lower()
+                  body = tm.group("body")
+                  vm = _VERDICT_RX.search(body)
+                  verdict = vm.group("verdict").lower() if vm else None
+                  out.append((tag, body, verdict))
+              return out
+
+
+          def parse_notes_corrections(notes: str) -> Dict[str, Dict[str, str]]:
+              """Extract per-field corrections from Notes annotations.
+
+              Returns a dict mapping field name to {"after": str, "source_tag": str}.
+              The "before" value is not extracted — the training pipeline replaces
+              the pre-correction field with a placeholder string instead.
+              """
+              out: Dict[str, Dict[str, str]] = {}
+              for tag, body, _verdict in parse_notes_tags(notes):
+                  if tag not in INTEREST_TAGS:
+                      continue
+                  for cm in _CORR_BROAD_RX.finditer(body):
+                      field = cm.group("field")
+                      value = cm.group("value").strip().strip("'\"\u2018\u2019\u201C\u201D")
+                      if not value or value in ("''", "—", "-", "(empty)", "\u2014"):
+                          continue
+                      # First write wins (earliest annotation reflects oldest fix)
+                      if field not in out:
+                          out[field] = {
+                              "after": value,
+                              "source_tag": tag,
+                          }
+              return out
+
+
+          def example_weight(notes: str, default: float = 1.0) -> Tuple[float, List[str]]:
+              """Compute training weight from tags present. Returns (weight, source_tags)."""
+              weight = default
+              tags_seen: List[str] = []
+              for tag, _body, _verdict in parse_notes_tags(notes):
+                  if tag in WEIGHT_BY_TAG:
+                      weight = max(weight, WEIGHT_BY_TAG[tag])
+                  tags_seen.append(tag)
+              return weight, tags_seen
+
+
+          # ─────────────────────────────────────────────────────────────────────────
+          # Rejection-category extraction
+          # ─────────────────────────────────────────────────────────────────────────
+
+          def parse_rejection_reason(rejection_field: str,
+                                     notes: str) -> Tuple[str, str]:
+              """Extract (category, one-line reason) from RejectionReason or Notes.
+
+              Priority order (most-specific / most-informative wins):
+                1. structured 'REJECT[ED]: <cat>: <reason>' regex match
+                2. not_a_recall_page (URL-level issue, takes precedence)
+                3. pathogen_out_of_scope
+                4. date_pre_2026
+                5. duplicate_of_existing_recall
+                6. multi_field_mismatch (2+ of company/product/pathogen mismatch)
+                7. single field mismatch (pathogen/company/product)
+                8. other (fallback)
+
+              Returns (category, cleaned_reason).
+              """
+              src = (rejection_field or notes or "").strip()
+              if not src:
+                  return "other", ""
+
+              # ── Try structured regex first ──
+              m = _REJECTION_REASON_RX.search(src)
+              if m:
+                  cat = m.group("cat").strip().lower()
+                  reason = _clean_reason(m.group("reason"), cat)
+                  # If the structured-parse category was 'other', recurse into the
+                  # heuristic. Use the FULL source text rather than the parsed
+                  # reason, because production reject messages often have the form
+                  # ``REJECT: other: '' | <rich detail after pipe>`` — the regex
+                  # captures only the trivial '' before the pipe, but the
+                  # categorizable text lives after.
+                  if cat == "other":
+                      trivial_reason = (not reason or
+                                        reason.strip("'\"\u2014- ") == "")
+                      heur_src = src if trivial_reason else reason
+                      heur_cat, heur_reason = _classify_heuristic(heur_src)
+                      if heur_cat != "other":
+                          return heur_cat, heur_reason
+                  return cat, reason
+
+              # ── Heuristic fallback ──
+              return _classify_heuristic(src)
+
+
+          def _classify_heuristic(text: str) -> Tuple[str, str]:
+              """Apply priority-ordered keyword rules. Returns (category, reason)."""
+              s = text.lower()
+
+              # 1. not_a_recall_page — URL-level issue, highest priority
+              not_recall_patterns = [
+                  "not a recall page", "not_a_recall_page",
+                  "listing page", "listing index",
+                  "landing page", "faq/information", "faq page",
+                  "news article", "is a fqa", "is a faq",
+                  "generic faq", "navigation/menu",
+                  "menu boilerplate", "boilerplate",
+              ]
+              if any(p in s for p in not_recall_patterns):
+                  return "not_a_recall_page", _clean_reason(text, "not_a_recall_page")
+
+              # 2. pathogen_out_of_scope
+              pathogen_oos_patterns = [
+                  "out of scope", "out_of_scope",
+                  "pathogen_out_of_scope",
+                  "not a food safety pathogen",
+                  "not a foodborne pathogen",
+                  "not a pathogen",
+                  "not a food item",
+                  "clean-row shortcut: out of",
+                  "out of tier-1 scope",
+                  "out of tier 1 scope",
+                  "in fsis scope",
+                  "fsis tier-1 pathogens",
+                  "fsis tier 1 pathogens",
+                  "heavy metals",
+              ]
+              if any(p in s for p in pathogen_oos_patterns):
+                  return "pathogen_out_of_scope", _clean_reason(text, "pathogen_out_of_scope")
+
+              # 3. date_pre_2026
+              if "date_pre_2026" in s or "pre-2026" in s or "pre_2026" in s:
+                  return "date_pre_2026", _clean_reason(text, "date_pre_2026")
+
+              # 4. duplicate
+              if "duplicate" in s and ("recall" in s or "existing" in s or "master" in s):
+                  return ("duplicate_of_existing_recall",
+                          _clean_reason(text, "duplicate_of_existing_recall"))
+
+              # 5. Mismatch classes
+              has_company = "company mismatch" in s
+              has_product = "product mismatch" in s
+              has_pathogen = "pathogen mismatch" in s
+              n_mismatches = sum([has_company, has_product, has_pathogen])
+              if n_mismatches >= 2:
+                  return ("multi_field_mismatch",
+                          _clean_reason(text, "multi_field_mismatch"))
+              if has_pathogen:
+                  return "pathogen_mismatch", _clean_reason(text, "pathogen_mismatch")
+              if has_company:
+                  return "company_mismatch", _clean_reason(text, "company_mismatch")
+              if has_product:
+                  return "product_mismatch", _clean_reason(text, "product_mismatch")
+
+              return "other", text[:200]
+
+
+          # ─────────────────────────────────────────────────────────────────────────
+          # Sheet I/O + row normalization
+          # ─────────────────────────────────────────────────────────────────────────
+
+          def _load_sheet_rows(xlsx: Path, sheet_name: str) -> List[Dict[str, Any]]:
+              if not xlsx.exists():
+                  return []
+              wb = openpyxl.load_workbook(xlsx, data_only=True, read_only=True)
+              if sheet_name not in wb.sheetnames:
+                  return []
+              ws = wb[sheet_name]
+              headers = [c.value for c in ws[1]]
+              rows: List[Dict[str, Any]] = []
+              for row_idx, r in enumerate(
+                      ws.iter_rows(min_row=2, values_only=True), start=2):
+                  row: Dict[str, Any] = {}
+                  for h, v in zip(headers, r):
+                      if h is None:
+                          continue
+                      row[h] = "" if v is None else v
+                  if not any(str(v).strip() for v in row.values()):
+                      continue
+                  row["_sheet_row_idx"] = row_idx
+                  row["_sheet_name"] = sheet_name
+                  rows.append(row)
+              return rows
+
+
+          def _normalize_row(row: Dict[str, Any]) -> Dict[str, Any]:
+              out: Dict[str, Any] = {}
+              for k in ("Date", "Source", "Company", "Brand", "Product",
+                        "Pathogen", "Reason", "Class", "Country", "Region",
+                        "URL", "Notes"):
+                  v = row.get(k, "")
+                  out[k] = str(v).strip() if v is not None else ""
+              for k in ("Tier", "Outbreak"):
+                  try:
+                      out[k] = int(row.get(k) or 0)
+                  except (TypeError, ValueError):
+                      out[k] = 0
+              # Pass through provenance fields
+              out["_sheet_row_idx"] = row.get("_sheet_row_idx", -1)
+              out["_sheet_name"] = row.get("_sheet_name", "")
+              return out
+
+
+          def _render_row_as_markdown(row: Dict[str, Any],
+                                      fields: Optional[List[str]] = None,
+                                      notes_chars: int = 600) -> str:
+              if fields is None:
+                  fields = ["Date", "Source", "Company", "Brand", "Product",
+                            "Pathogen", "Class", "Country", "Tier", "Outbreak", "URL"]
+              lines = []
+              for f in fields:
+                  v = row.get(f, "")
+                  if v == "" or v is None:
+                      v = "(empty)"
+                  lines.append(f"- **{f}**: {v}")
+              notes = str(row.get("Notes", ""))[:notes_chars]
+              if notes:
+                  lines.append(f"- **Notes excerpt**: {notes}")
+              return "\n".join(lines)
+
+
+          # ─────────────────────────────────────────────────────────────────────────
+          # Task builders
+          # ─────────────────────────────────────────────────────────────────────────
+
+          def build_promote_classifier_examples(
+              approved_rows: Iterable[Dict[str, Any]],
+              rejected_rows: Iterable[Dict[str, Any]],
+          ) -> List[Dict[str, Any]]:
+              """Task 1: binary promote/reject classifier with reasoned rejection."""
+              examples: List[Dict[str, Any]] = []
+
+              for r in approved_rows:
+                  row = _normalize_row(r)
+                  if not row["URL"] and not row["Company"]:
+                      continue
+                  weight, tags = example_weight(row["Notes"])
+                  examples.append({
+                      "messages": [
+                          {"role": "system",    "content": PROMOTE_SYSTEM_PROMPT},
+                          {"role": "user",      "content": _render_row_as_markdown(row)},
+                          {"role": "assistant", "content": "PROMOTE"},
+                      ],
+                      "_meta": {
+                          "task": "promote_classifier",
+                          "label": "promote",
+                          "weight": weight,
+                          "source_sheet": row["_sheet_name"],
+                          "source_row": row["_sheet_row_idx"],
+                          "source_tags": tags,
+                          "url": row["URL"],
+                      },
+                  })
+
+              for r in rejected_rows:
+                  row = _normalize_row(r)
+                  if not row["URL"] and not row["Company"]:
+                      continue
+                  cat, reason = parse_rejection_reason(
+                      str(r.get("RejectionReason", "")), row["Notes"])
+                  weight, tags = example_weight(row["Notes"])
+                  examples.append({
+                      "messages": [
+                          {"role": "system",    "content": PROMOTE_SYSTEM_PROMPT},
+                          {"role": "user",      "content": _render_row_as_markdown(row)},
+                          {"role": "assistant", "content": f"REJECT: {cat}: {reason}"},
+                      ],
+                      "_meta": {
+                          "task": "promote_classifier",
+                          "label": "reject",
+                          "category": cat,
+                          "weight": weight,
+                          "source_sheet": row["_sheet_name"],
+                          "source_row": row["_sheet_row_idx"],
+                          "source_tags": tags,
+                          "url": row["URL"],
+                      },
+                  })
+
+              return examples
+
+
+          def build_tier_assignment_examples(
+              approved_rows: Iterable[Dict[str, Any]],
+          ) -> List[Dict[str, Any]]:
+              """Task 2: Tier prediction from Pathogen + Outbreak + Class + Product.
+
+              Uses Recalls + Weekly_Review since both have vetted Tier labels.
+              """
+              examples: List[Dict[str, Any]] = []
+              for r in approved_rows:
+                  row = _normalize_row(r)
+                  tier = row.get("Tier", 0)
+                  if tier not in (1, 2, 3):
+                      continue
+                  if not row["Pathogen"]:
+                      continue
+                  weight, tags = example_weight(row["Notes"])
+                  examples.append({
+                      "messages": [
+                          {"role": "system",    "content": TIER_SYSTEM_PROMPT},
+                          {"role": "user",      "content": _render_row_as_markdown(
+                              row,
+                              fields=["Pathogen", "Outbreak", "Class", "Product"],
+                              notes_chars=0,
+                          )},
+                          {"role": "assistant", "content": str(tier)},
+                      ],
+                      "_meta": {
+                          "task": "tier_assignment",
+                          "tier": tier,
+                          "pathogen": row["Pathogen"],
+                          "weight": weight,
+                          "source_sheet": row["_sheet_name"],
+                          "source_row": row["_sheet_row_idx"],
+                          "source_tags": tags,
+                          "url": row["URL"],
+                      },
+                  })
+              return examples
+
+
+          def build_field_correction_examples(
+              all_rows: Iterable[Dict[str, Any]],
+          ) -> List[Dict[str, Any]]:
+              """Task 3: extract reviewer FIX corrections from Notes tags."""
+              examples: List[Dict[str, Any]] = []
+              for r in all_rows:
+                  row = _normalize_row(r)
+                  corrections = parse_notes_corrections(row["Notes"])
+                  if not corrections:
+                      continue
+                  # Reconstruct pre-correction row state by replacing the corrected
+                  # fields with a placeholder so the model learns "this field was
+                  # bad, here's the fix".
+                  pre_row = dict(row)
+                  corr_map = {}
+                  for field, info in corrections.items():
+                      pre_row[field] = "(empty or garbage in original scrape)"
+                      corr_map[field] = info["after"]
+                  user_msg = _render_row_as_markdown(pre_row)
+                  assistant_msg = json.dumps(
+                      {"corrections": corr_map}, ensure_ascii=False)
+                  weight, tags = example_weight(row["Notes"])
+                  examples.append({
+                      "messages": [
+                          {"role": "system",    "content": FIX_SYSTEM_PROMPT},
+                          {"role": "user",      "content": user_msg},
+                          {"role": "assistant", "content": assistant_msg},
+                      ],
+                      "_meta": {
+                          "task": "field_corrections",
+                          "n_corrections": len(corr_map),
+                          "fields": list(corr_map.keys()),
+                          "weight": weight,
+                          "source_sheet": row["_sheet_name"],
+                          "source_row": row["_sheet_row_idx"],
+                          "source_tags": tags,
+                          "url": row["URL"],
+                      },
+                  })
+              return examples
+
+
+          # ─────────────────────────────────────────────────────────────────────────
+          # Train/val split + JSONL write
+          # ─────────────────────────────────────────────────────────────────────────
+
+          def _stratified_split(
+              examples: List[Dict[str, Any]],
+              val_frac: float,
+              seed: int,
+              strata_fn,
+          ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+              rng = random.Random(seed)
+              by_stratum: Dict[str, List[Dict[str, Any]]] = {}
+              for ex in examples:
+                  by_stratum.setdefault(strata_fn(ex), []).append(ex)
+              train, val = [], []
+              for stratum, items in by_stratum.items():
+                  rng.shuffle(items)
+                  n_val = max(1, int(len(items) * val_frac)) if len(items) >= 5 else 0
+                  val.extend(items[:n_val])
+                  train.extend(items[n_val:])
+              rng.shuffle(train)
+              rng.shuffle(val)
+              return train, val
+
+
+          def _write_jsonl(path: Path, examples: List[Dict[str, Any]],
+                           drop_meta: bool = True) -> None:
+              path.parent.mkdir(parents=True, exist_ok=True)
+              with path.open("w", encoding="utf-8") as f:
+                  for ex in examples:
+                      obj = {"messages": ex["messages"]}
+                      if not drop_meta and "_meta" in ex:
+                          obj["_meta"] = ex["_meta"]
+                      f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+
+
+          # ─────────────────────────────────────────────────────────────────────────
+          # Main
+          # ─────────────────────────────────────────────────────────────────────────
+
+          def main():
+              ap = argparse.ArgumentParser(
+                  description="Export FSIS reviewer training data v2 as chat-template JSONL.")
+              ap.add_argument("--xlsx", type=Path,
+                              default=Path("docs/data/recalls.xlsx"))
+              ap.add_argument("--historical-rejects", type=Path, default=None,
+                              help="Optional xlsx of rescued historical rejects to merge "
+                                   "into the REJECT training pool. Rows without a usable "
+                                   "RejectionReason are filtered out.")
+              ap.add_argument("--out", type=Path,
+                              default=Path("tools/training/data"))
+              ap.add_argument("--val-frac", type=float, default=0.1)
+              ap.add_argument("--seed", type=int, default=42)
+              ap.add_argument("--keep-meta", action="store_true",
+                              help="Keep _meta fields in output JSONL")
+              ap.add_argument("--git-sha", type=str, default="",
+                              help="Git SHA of recalls.xlsx at export time (for provenance)")
+              args = ap.parse_args()
+
+              args.out.mkdir(parents=True, exist_ok=True)
+
+              if not args.xlsx.exists():
+                  print(f"ERROR: xlsx not found at {args.xlsx}", file=sys.stderr)
+                  sys.exit(1)
+
+              # ── Load all sheets ──
+              recalls = _load_sheet_rows(args.xlsx, "Recalls")
+              weekly_review = _load_sheet_rows(args.xlsx, "Weekly_Review")
+              weekly_rejected = _load_sheet_rows(args.xlsx, "Weekly_Rejected")
+
+              print(f"Loaded:")
+              print(f"  Recalls:         {len(recalls)} rows")
+              print(f"  Weekly_Review:   {len(weekly_review)} rows")
+              print(f"  Weekly_Rejected: {len(weekly_rejected)} rows")
+
+              # ── Load historical rejects (if provided) ──
+              historical_rejected: List[Dict[str, Any]] = []
+              n_hist_total = 0
+              n_hist_no_reason = 0
+              n_hist_dup_live = 0
+              n_hist_added = 0
+              if args.historical_rejects and args.historical_rejects.exists():
+                  historical_raw = _load_sheet_rows(
+                      args.historical_rejects, "Historical_Rejected")
+                  n_hist_total = len(historical_raw)
+                  live_urls = {str(r.get("URL", "")).strip()
+                               for r in weekly_rejected
+                               if str(r.get("URL", "")).strip()}
+                  for r in historical_raw:
+                      # Filter 1: must have a usable RejectionReason (not empty, not '')
+                      rr = str(r.get("RejectionReason", "") or "").strip()
+                      if not rr or rr in ("''", "—", "(empty)", "\u2014"):
+                          n_hist_no_reason += 1
+                          continue
+                      # Filter 2: deduplicate against live Weekly_Rejected by URL
+                      url = str(r.get("URL", "")).strip()
+                      if url and url in live_urls:
+                          n_hist_dup_live += 1
+                          continue
+                      # Mark provenance: rewrite _sheet_name so source_sheet
+                      # reflects rescue origin
+                      r["_sheet_name"] = "Historical_Rejected"
+                      historical_rejected.append(r)
+                      n_hist_added += 1
+                  print(f"  Historical_Rejected (rescued): {n_hist_total} rows")
+                  print(f"    filtered: {n_hist_no_reason} no reason, "
+                        f"{n_hist_dup_live} already in live")
+                  print(f"    NET NEW for training: {n_hist_added}")
+              elif args.historical_rejects:
+                  print(f"  WARNING: --historical-rejects given but file not found: "
+                        f"{args.historical_rejects}")
+
+              # ── Quality filter ──
+              def _ok(r):
+                  if not str(r.get("Source", "")).strip():
+                      return False
+                  return True
+
+              approved = [r for r in (recalls + weekly_review) if _ok(r)]
+              rejected = [r for r in (weekly_rejected + historical_rejected) if _ok(r)]
+
+              # De-dup approved by URL (same recall may appear in both Recalls and
+              # Weekly_Review during the in-flight window — prefer Recalls)
+              seen_urls = set()
+              approved_dedup: List[Dict[str, Any]] = []
+              for r in approved:
+                  url = str(r.get("URL", "")).strip()
+                  key = (url, "approved") if url else (id(r), "approved")
+                  if key in seen_urls:
+                      continue
+                  seen_urls.add(key)
+                  approved_dedup.append(r)
+              approved = approved_dedup
+
+              print(f"After filter+dedup:")
+              print(f"  approved: {len(approved)}")
+              print(f"  rejected: {len(rejected)}")
+
+              # ── Task 1: promote classifier ──
+              promote_ex = build_promote_classifier_examples(approved, rejected)
+              train1, val1 = _stratified_split(
+                  promote_ex, args.val_frac, args.seed,
+                  strata_fn=lambda ex: ex["_meta"]["label"],
+              )
+              _write_jsonl(args.out / "promote_classifier.train.jsonl", train1,
+                           drop_meta=not args.keep_meta)
+              _write_jsonl(args.out / "promote_classifier.val.jsonl", val1,
+                           drop_meta=not args.keep_meta)
+
+              # ── Task 2: tier assignment ──
+              tier_ex = build_tier_assignment_examples(approved)
+              train2, val2 = _stratified_split(
+                  tier_ex, args.val_frac, args.seed,
+                  strata_fn=lambda ex: str(ex["_meta"]["tier"]),
+              )
+              _write_jsonl(args.out / "tier_assignment.train.jsonl", train2,
+                           drop_meta=not args.keep_meta)
+              _write_jsonl(args.out / "tier_assignment.val.jsonl", val2,
+                           drop_meta=not args.keep_meta)
+
+              # ── Task 3: field corrections ──
+              fix_ex = build_field_correction_examples(
+                  list(approved) + list(rejected))
+              train3, val3 = _stratified_split(
+                  fix_ex, args.val_frac, args.seed,
+                  strata_fn=lambda ex: ",".join(sorted(ex["_meta"]["fields"])),
+              )
+              _write_jsonl(args.out / "field_corrections.train.jsonl", train3,
+                           drop_meta=not args.keep_meta)
+              _write_jsonl(args.out / "field_corrections.val.jsonl", val3,
+                           drop_meta=not args.keep_meta)
+
+              # ── Stats ──
+              def _by_source_sheet(exs):
+                  return dict(Counter(e["_meta"]["source_sheet"] for e in exs))
+
+              def _by_weight_bucket(exs):
+                  b = Counter()
+                  for e in exs:
+                      w = e["_meta"].get("weight", 1.0)
+                      if w >= 3.0:
+                          b["3.0+ (tier-fix)"] += 1
+                      elif w >= 2.0:
+                          b["2.0+ (manual)"] += 1
+                      elif w >= 1.5:
+                          b["1.5+ (audit)"] += 1
+                      else:
+                          b["1.0 (default)"] += 1
+                  return dict(b)
+
+              promote_labels = Counter(ex["_meta"]["label"] for ex in promote_ex)
+              reject_cats = Counter(ex["_meta"].get("category", "?")
+                                    for ex in promote_ex if ex["_meta"]["label"] == "reject")
+              tier_dist = Counter(ex["_meta"]["tier"] for ex in tier_ex)
+              pathogen_dist = Counter(ex["_meta"]["pathogen"] for ex in tier_ex)
+              fix_field_dist: Counter = Counter()
+              for ex in fix_ex:
+                  for f in ex["_meta"]["fields"]:
+                      fix_field_dist[f] += 1
+
+              stats = {
+                  "exported_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+                  "git_sha": args.git_sha or os.environ.get("GITHUB_SHA", ""),
+                  "xlsx_path": str(args.xlsx),
+                  "historical_rejects_path": (str(args.historical_rejects)
+                                               if args.historical_rejects else None),
+                  "totals": {
+                      "recalls_rows": len(recalls),
+                      "weekly_review_rows": len(weekly_review),
+                      "weekly_rejected_rows": len(weekly_rejected),
+                      "historical_rejects_loaded": n_hist_total,
+                      "historical_rejects_filtered_no_reason": n_hist_no_reason,
+                      "historical_rejects_filtered_dup_live": n_hist_dup_live,
+                      "historical_rejects_added_to_corpus": n_hist_added,
+                      "approved_after_filter": len(approved),
+                      "rejected_after_filter": len(rejected),
+                  },
+                  "promote_classifier": {
+                      "total": len(promote_ex),
+                      "train": len(train1),
+                      "val": len(val1),
+                      "labels": dict(promote_labels),
+                      "rejection_categories": dict(reject_cats),
+                      "by_source_sheet": _by_source_sheet(promote_ex),
+                      "by_weight_bucket": _by_weight_bucket(promote_ex),
+                  },
+                  "tier_assignment": {
+                      "total": len(tier_ex),
+                      "train": len(train2),
+                      "val": len(val2),
+                      "tier_distribution": {str(k): v for k, v in sorted(tier_dist.items())},
+                      "top_pathogens": dict(pathogen_dist.most_common(15)),
+                      "by_source_sheet": _by_source_sheet(tier_ex),
+                      "by_weight_bucket": _by_weight_bucket(tier_ex),
+                  },
+                  "field_corrections": {
+                      "total": len(fix_ex),
+                      "train": len(train3),
+                      "val": len(val3),
+                      "field_distribution": dict(fix_field_dist),
+                      "by_source_sheet": _by_source_sheet(fix_ex),
+                      "by_weight_bucket": _by_weight_bucket(fix_ex),
+                  },
+              }
+              (args.out / "stats.json").write_text(
+                  json.dumps(stats, indent=2, ensure_ascii=False), encoding="utf-8")
+
+              # ── Provenance: per-example trace back to source ──
+              provenance = {
+                  "exported_at_utc": stats["exported_at_utc"],
+                  "git_sha": stats["git_sha"],
+                  "examples": [],
+              }
+              for task_name, exs in [
+                  ("promote_classifier", promote_ex),
+                  ("tier_assignment", tier_ex),
+                  ("field_corrections", fix_ex),
+              ]:
+                  for i, ex in enumerate(exs):
+                      provenance["examples"].append({
+                          "task": task_name,
+                          "index": i,
+                          "source_sheet": ex["_meta"]["source_sheet"],
+                          "source_row": ex["_meta"]["source_row"],
+                          "url": ex["_meta"].get("url", ""),
+                          "weight": ex["_meta"].get("weight", 1.0),
+                          "source_tags": ex["_meta"].get("source_tags", []),
+                      })
+              (args.out / "provenance.json").write_text(
+                  json.dumps(provenance, indent=2, ensure_ascii=False), encoding="utf-8")
+
+              # ── Summary to stdout (will be captured into $GITHUB_STEP_SUMMARY) ──
+              print()
+              print("═══════════════════════ EXPORT v2 COMPLETE ═══════════════════════")
+              print()
+              print(f"Output: {args.out}/")
+              print(f"Git SHA: {stats['git_sha'] or '(unset)'}")
+              print()
+              print("## Task 1 — Promote classifier")
+              print(f"  total={len(promote_ex)}  train={len(train1)}  val={len(val1)}")
+              print(f"  labels: {dict(promote_labels)}")
+              print(f"  by source sheet: {_by_source_sheet(promote_ex)}")
+              print(f"  by weight bucket: {_by_weight_bucket(promote_ex)}")
+              if reject_cats:
+                  print(f"  rejection categories:")
+                  for cat, n in reject_cats.most_common():
+                      print(f"    {cat:35} {n}")
+              print()
+              print("## Task 2 — Tier assignment")
+              print(f"  total={len(tier_ex)}  train={len(train2)}  val={len(val2)}")
+              print(f"  tier distribution: {dict(sorted(tier_dist.items()))}")
+              print(f"  by source sheet: {_by_source_sheet(tier_ex)}")
+              print(f"  by weight bucket: {_by_weight_bucket(tier_ex)}")
+              print(f"  top pathogens:")
+              for p, n in pathogen_dist.most_common(10):
+                  print(f"    {p[:50]:50} {n}")
+              print()
+              print("## Task 3 — Field corrections")
+              print(f"  total={len(fix_ex)}  train={len(train3)}  val={len(val3)}")
+              print(f"  field distribution: {dict(fix_field_dist)}")
+              print(f"  by source sheet: {_by_source_sheet(fix_ex)}")
+              print(f"  by weight bucket: {_by_weight_bucket(fix_ex)}")
+              print()
+
+              # ── Training adequacy gate ──
+              print("## Training-data adequacy")
+              if len(promote_ex) < 500:
+                  print(f"  ⚠ promote classifier: {len(promote_ex)} examples — borderline.")
+              else:
+                  print(f"  ✓ promote classifier: {len(promote_ex)} examples — sufficient.")
+
+              if reject_cats and sum(reject_cats.values()) < 30:
+                  print(f"  ⚠ reject pool: only {sum(reject_cats.values())} — "
+                        f"39:1 class imbalance, need class weighting at training time.")
+
+              if len(tier_ex) < 100:
+                  print(f"  ⚠ tier assignment: {len(tier_ex)} examples — too few.")
+              else:
+                  print(f"  ✓ tier assignment: {len(tier_ex)} examples with "
+                        f"all 3 tiers represented.")
+
+              if len(fix_ex) < 50:
+                  print(f"  ⚠ field corrections: {len(fix_ex)} — collect more before training.")
+              else:
+                  print(f"  ✓ field corrections: {len(fix_ex)} examples — viable.")
+
+
+          if __name__ == "__main__":
+              main()
+          PYEOF_EXPORT
+          chmod +x tools/export_training_data_v2_2.py
+          echo "Wrote $(wc -l < tools/export_training_data_v2_2.py) lines"
+
+      - name: Run export
+        id: export
+        env:
+          XLSX_PATH: ${{ inputs.xlsx_path }}
+          HIST_PATH: ${{ inputs.historical_rejects_path }}
+          OUT_DIR: ${{ inputs.out_dir }}
+          VAL_FRAC: ${{ inputs.val_frac }}
+          SEED: ${{ inputs.seed }}
+          KEEP_META: ${{ inputs.keep_meta }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          if [ ! -f "$XLSX_PATH" ]; then
+            echo "::error::XLSX file not found at $XLSX_PATH"
+            exit 1
+          fi
+
+          HIST_FLAG=""
+          if [ -f "$HIST_PATH" ]; then
+            HIST_FLAG="--historical-rejects $HIST_PATH"
+            echo "Using historical rejects from: $HIST_PATH"
+          else
+            echo "::warning::No historical rejects file at $HIST_PATH — exporting from live xlsx only"
+          fi
+
+          KEEP_META_FLAG=""
+          if [ "$KEEP_META" = "true" ]; then
+            KEEP_META_FLAG="--keep-meta"
+          fi
+
+          EXPORT_DATE=$(TZ=Europe/Athens date +%Y-%m-%d)
+          echo "export_date=$EXPORT_DATE" >> "$GITHUB_OUTPUT"
+
+          LOG_FILE=$(mktemp)
+          python tools/export_training_data_v2_2.py \
+            --xlsx "$XLSX_PATH" \
+            $HIST_FLAG \
+            --out "$OUT_DIR" \
+            --val-frac "$VAL_FRAC" \
+            --seed "$SEED" \
+            --git-sha "$GITHUB_SHA" \
+            $KEEP_META_FLAG \
+            2>&1 | tee "$LOG_FILE"
+
+          {
+            echo "## Training Data Export v2.2 — ${EXPORT_DATE} (Athens)"
+            echo ""
+            echo "**Git SHA:** \`${GITHUB_SHA:0:8}\`"
+            echo "**Output:** \`${OUT_DIR}/\`"
+            echo ""
+            echo '```'
+            cat "$LOG_FILE"
+            echo '```'
+            echo ""
+            echo "### Files produced"
+            echo ""
+            echo '```'
+            ls -lh "$OUT_DIR/"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload training data as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: training-data-v2-2-${{ steps.export.outputs.export_date }}
+          path: ${{ inputs.out_dir }}/
+          retention-days: 90
+
+      - name: Commit training data to repo
+        if: inputs.commit_output == 'true'
+        env:
+          OUT_DIR: ${{ inputs.out_dir }}
+          EXPORT_DATE: ${{ steps.export.outputs.export_date }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/export_training_data_v2_2.py "$OUT_DIR/"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "training-data: v2.2 export ${EXPORT_DATE} (sha ${GITHUB_SHA::8})"
+          for i in 1 2 3; do
+            if git push; then
+              echo "Push succeeded on attempt $i"
+              exit 0
+            fi
+            git pull --rebase
+            sleep 3
+          done
+          echo "::error::Push failed after 3 attempts"
+          exit 1
