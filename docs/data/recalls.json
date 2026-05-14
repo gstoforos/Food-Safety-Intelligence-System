@@ -1,5 +1,25 @@
 [
  {
+  "Date": "2026-05-14",
+  "Source": "FDA",
+  "Company": "HH Fresh Trading",
+  "Brand": "HH Fresh Trading",
+  "Product": "TW Enoki Mushrooms 150g (120 cases, code 4711498860002)",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Product tested positive for Listeria monocytogenes. Florida Health Department lab-tested the enoki on 2026-04-20, results returned 2026-04-28; FDA notified company 2026-05-11. Batch was sold to Texas 2026-02-23 and redistributed to Florida.",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/hh-fresh-trading-recalls-tw-enoki-mushrooms-150g-because-possible-health-risk",
+  "Notes": "FDA company announcement 2026-05-14, recall announced 2026-05-13. Distributed to Texas and Florida (local wholesalers). 120 cases of 150g Enoki Mushrooms, plastic bags, brand HH Fresh Trading, code 4711498860002. [manual add 2026-05-14 evening: operator caught omission. FDA HTML-fallback scraper captured the URL on 2026-05-14 15:02 UTC orchestrator run (in the 16 candidate URLs needing enrichment) but Gemini was 429 RESOURCE_EXHAUSTED for the entire run, so the Pathogen could not be extracted and the pending gate rejected the row. The Gemini→OpenAI fallback in scrapers/_base.py delivered 2026-05-14 evening would have prevented this when deployed with OPENAI_API_KEY set.]",
+  "DateAdded": "2026-05-14",
+  "LastUpdated": "2026-05-14",
+  "LastChecked": "2026-05-14",
+  "report_week": "W20"
+ },
+ {
   "Date": "2026-05-13",
   "Source": "RappelConso (FR)",
   "Company": "SARL Sarda",
@@ -97,7 +117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W20"
  },
  {
   "Date": "2026-05-13",
@@ -117,7 +137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W20"
  },
  {
   "Date": "2026-05-13",
@@ -137,7 +157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W20"
  },
  {
   "Date": "2026-05-13",
@@ -157,7 +177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W20"
  },
  {
   "Date": "2026-05-13",
@@ -177,27 +197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
- },
- {
-  "Date": "2026-05-13",
-  "Source": "FSANZ",
-  "Company": "Sanulac Nutritionals Australia Pty Ltd",
-  "Brand": "Alula Gold",
-  "Product": "Alula Gold Reflux infant formula 900g (0-12 months) and Alula Gold Premium infant formula 900g",
-  "Pathogen": "Cereulide",
-  "Reason": "Cereulide — outbreak",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://www.foodstandards.gov.au/news/cereulide-toxin-infant-formula-products",
-  "Notes": "No cases of illness linked to these products have been reported in Australia.\n\n## Food recalls\n\nSanulac Nutritionals Australia Pty Ltd - Alula Gold Reflux infant formula 900g (0-12 months) & Alula Colic & Constipation infant formula 850g (0-12 months) | Food Standards Australia New Zealand\n\nNestlé -  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [outbreak 2026-05-13: 1→0 — No cases of illness linked to these products have been reported in Australi [claude-check 2026-05-14: skip; claude unreachable / parse failed] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening]",
-  "DateAdded": "",
-  "LastUpdated": "",
-  "LastChecked": "",
-  "report_week": ""
+  "report_week": "W20"
  },
  {
   "Date": "2026-05-12",
@@ -437,7 +437,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W20"
  },
  {
   "Date": "2026-05-11",
@@ -1977,7 +1977,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-05-01",
@@ -1997,7 +1997,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-05-01",
@@ -2017,7 +2017,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-05-01",
@@ -2037,7 +2037,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-05-01",
@@ -2057,7 +2057,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-05-01",
@@ -2077,7 +2077,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2097,7 +2097,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2117,7 +2117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2137,7 +2137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2157,7 +2157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2177,7 +2177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2197,7 +2197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2217,7 +2217,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2237,7 +2237,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2257,7 +2257,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2277,7 +2277,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2297,7 +2297,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2317,7 +2317,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2337,7 +2337,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2357,7 +2357,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2377,7 +2377,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-30",
@@ -2397,7 +2397,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-29",
@@ -2417,7 +2417,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-29",
@@ -2437,7 +2437,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-29",
@@ -2457,7 +2457,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-29",
@@ -2477,7 +2477,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-29",
@@ -2497,7 +2497,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-29",
@@ -2517,7 +2517,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-29",
@@ -2537,7 +2537,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-29",
@@ -2557,7 +2557,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-29",
@@ -2577,7 +2577,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-29",
@@ -2597,7 +2597,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-28",
@@ -2617,7 +2617,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-28",
@@ -2637,7 +2637,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-28",
@@ -2657,7 +2657,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-28",
@@ -2677,7 +2677,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-28",
@@ -2697,7 +2697,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-28",
@@ -2717,7 +2717,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-28",
@@ -2737,7 +2737,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-28",
@@ -2757,7 +2757,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-28",
@@ -2777,7 +2777,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-28",
@@ -2797,7 +2797,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-28",
@@ -2817,7 +2817,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-27",
@@ -2837,7 +2837,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-27",
@@ -2857,7 +2857,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-27",
@@ -2877,7 +2877,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-27",
@@ -2897,7 +2897,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-27",
@@ -2917,7 +2917,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-27",
@@ -2937,7 +2937,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-27",
@@ -2957,7 +2957,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-27",
@@ -2977,7 +2977,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-27",
@@ -2997,7 +2997,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-27",
@@ -3017,7 +3017,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-27",
@@ -3037,7 +3037,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W18"
  },
  {
   "Date": "2026-04-24",
@@ -3057,7 +3057,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-24",
@@ -3077,7 +3077,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-24",
@@ -3097,7 +3097,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-24",
@@ -3117,7 +3117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-24",
@@ -3137,7 +3137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-24",
@@ -3157,7 +3157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-24",
@@ -3177,7 +3177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-24",
@@ -3197,7 +3197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-24",
@@ -3217,7 +3217,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3237,7 +3237,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3257,7 +3257,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3277,7 +3277,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3297,7 +3297,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3317,7 +3317,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3337,7 +3337,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3357,7 +3357,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3377,7 +3377,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3397,7 +3397,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3417,7 +3417,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3437,7 +3437,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3457,7 +3457,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3477,7 +3477,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3497,7 +3497,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3517,7 +3517,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3537,7 +3537,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3557,7 +3557,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3577,7 +3577,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3597,7 +3597,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3617,7 +3617,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3637,7 +3637,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-23",
@@ -3657,7 +3657,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3677,7 +3677,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3697,7 +3697,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3717,7 +3717,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3737,7 +3737,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3757,7 +3757,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3777,7 +3777,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3797,7 +3797,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3817,7 +3817,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3837,7 +3837,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3857,7 +3857,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3877,7 +3877,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-22",
@@ -3897,7 +3897,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -3917,7 +3917,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -3937,7 +3937,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -3957,7 +3957,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -3977,7 +3977,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -3997,7 +3997,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4017,7 +4017,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4037,7 +4037,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4057,7 +4057,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4077,7 +4077,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4097,7 +4097,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4117,7 +4117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4137,7 +4137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4157,7 +4157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4177,7 +4177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4197,7 +4197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4217,7 +4217,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4237,7 +4237,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4257,7 +4257,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4277,7 +4277,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4297,7 +4297,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-21",
@@ -4317,7 +4317,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-20",
@@ -4337,7 +4337,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-20",
@@ -4357,7 +4357,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-20",
@@ -4377,7 +4377,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-20",
@@ -4397,7 +4397,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-20",
@@ -4417,7 +4417,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-20",
@@ -4437,7 +4437,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-20",
@@ -4457,7 +4457,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-20",
@@ -4477,7 +4477,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-20",
@@ -4497,7 +4497,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-20",
@@ -4517,7 +4517,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-20",
@@ -4537,7 +4537,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W17"
  },
  {
   "Date": "2026-04-19",
@@ -4557,7 +4557,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-19",
@@ -4577,7 +4577,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-18",
@@ -4597,7 +4597,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-18",
@@ -4617,7 +4617,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4637,7 +4637,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4657,7 +4657,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4677,7 +4677,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4697,7 +4697,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4717,7 +4717,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4737,7 +4737,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4757,7 +4757,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4777,7 +4777,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4797,7 +4797,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4817,7 +4817,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4837,7 +4837,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4857,7 +4857,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4877,7 +4877,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4897,7 +4897,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4917,7 +4917,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4937,7 +4937,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4957,7 +4957,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-17",
@@ -4977,7 +4977,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -4997,7 +4997,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5017,7 +5017,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5037,7 +5037,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5057,7 +5057,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5077,7 +5077,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5097,7 +5097,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5117,7 +5117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5137,7 +5137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5157,7 +5157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5177,7 +5177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5197,7 +5197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5217,7 +5217,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5237,7 +5237,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5257,7 +5257,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-16",
@@ -5277,7 +5277,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5297,7 +5297,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5317,7 +5317,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5337,7 +5337,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5357,7 +5357,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5377,7 +5377,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5397,7 +5397,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5417,7 +5417,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5437,7 +5437,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5457,7 +5457,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5477,7 +5477,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5497,7 +5497,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5517,7 +5517,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5537,7 +5537,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5557,7 +5557,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5577,7 +5577,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-15",
@@ -5597,7 +5597,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5617,7 +5617,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5637,7 +5637,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5657,7 +5657,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5677,7 +5677,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5697,7 +5697,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5717,7 +5717,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5737,7 +5737,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5757,7 +5757,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5777,7 +5777,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5797,7 +5797,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5817,7 +5817,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-14",
@@ -5837,7 +5837,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-13",
@@ -5857,7 +5857,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-13",
@@ -5877,7 +5877,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-13",
@@ -5897,7 +5897,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-13",
@@ -5917,7 +5917,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-13",
@@ -5937,7 +5937,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-13",
@@ -5957,7 +5957,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-13",
@@ -5977,7 +5977,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W16"
  },
  {
   "Date": "2026-04-11",
@@ -5997,7 +5997,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6017,7 +6017,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6037,7 +6037,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6057,7 +6057,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6077,7 +6077,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6097,7 +6097,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6117,7 +6117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6137,7 +6137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6157,7 +6157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6177,7 +6177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6197,7 +6197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6217,7 +6217,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6237,7 +6237,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6257,7 +6257,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6277,7 +6277,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6297,7 +6297,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6317,7 +6317,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6337,7 +6337,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6357,7 +6357,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6377,7 +6377,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6397,7 +6397,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6417,7 +6417,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-10",
@@ -6437,7 +6437,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6457,7 +6457,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6477,7 +6477,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6497,7 +6497,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6517,7 +6517,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6537,7 +6537,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6557,7 +6557,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6577,7 +6577,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6597,7 +6597,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6617,7 +6617,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6637,7 +6637,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6657,7 +6657,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6677,7 +6677,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6697,7 +6697,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6717,7 +6717,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6737,7 +6737,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6757,7 +6757,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-09",
@@ -6777,7 +6777,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -6797,7 +6797,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -6817,7 +6817,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -6837,7 +6837,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -6857,7 +6857,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -6877,7 +6877,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -6897,7 +6897,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -6917,7 +6917,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -6937,7 +6937,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -6957,7 +6957,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -6977,7 +6977,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -6997,7 +6997,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-08",
@@ -7017,7 +7017,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7037,7 +7037,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7057,7 +7057,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7077,7 +7077,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7097,7 +7097,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7117,7 +7117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7137,7 +7137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7157,7 +7157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7177,7 +7177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7197,7 +7197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7217,7 +7217,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7237,7 +7237,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7257,7 +7257,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7277,7 +7277,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7297,7 +7297,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7317,7 +7317,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7337,7 +7337,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7357,7 +7357,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7377,7 +7377,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7397,7 +7397,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7417,7 +7417,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7437,7 +7437,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7457,7 +7457,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7477,7 +7477,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7497,7 +7497,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7517,7 +7517,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7537,7 +7537,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7557,7 +7557,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7577,7 +7577,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-07",
@@ -7597,7 +7597,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7617,7 +7617,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7637,7 +7637,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7657,7 +7657,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7677,7 +7677,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7697,7 +7697,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7717,7 +7717,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7737,7 +7737,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7757,7 +7757,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7777,7 +7777,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7797,7 +7797,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7817,7 +7817,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7837,7 +7837,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7857,7 +7857,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7877,7 +7877,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7897,7 +7897,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7917,7 +7917,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7937,7 +7937,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7957,7 +7957,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7977,7 +7977,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -7997,7 +7997,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8017,7 +8017,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8037,7 +8037,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8057,7 +8057,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8077,7 +8077,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8097,7 +8097,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8117,7 +8117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8137,7 +8137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8157,7 +8157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8177,7 +8177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8197,7 +8197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8217,7 +8217,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8237,7 +8237,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8257,7 +8257,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8277,7 +8277,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8297,7 +8297,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8317,7 +8317,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8337,7 +8337,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8357,7 +8357,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-06",
@@ -8377,7 +8377,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W15"
  },
  {
   "Date": "2026-04-04",
@@ -8397,7 +8397,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-04",
@@ -8417,7 +8417,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-04",
@@ -8437,7 +8437,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-04",
@@ -8457,7 +8457,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-04",
@@ -8477,7 +8477,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-04",
@@ -8497,7 +8497,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-04",
@@ -8517,7 +8517,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-04",
@@ -8537,7 +8537,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8557,7 +8557,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8577,7 +8577,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8597,7 +8597,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8617,7 +8617,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8637,7 +8637,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8657,7 +8657,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8677,7 +8677,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8697,7 +8697,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8717,7 +8717,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8737,7 +8737,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8757,7 +8757,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8777,7 +8777,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8797,7 +8797,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8817,7 +8817,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8837,7 +8837,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8857,7 +8857,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8877,7 +8877,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8897,7 +8897,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8917,7 +8917,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8937,7 +8937,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8957,7 +8957,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8977,7 +8977,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -8997,7 +8997,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-03",
@@ -9017,7 +9017,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-02",
@@ -9037,7 +9037,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-02",
@@ -9057,7 +9057,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-02",
@@ -9077,7 +9077,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-02",
@@ -9097,7 +9097,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-02",
@@ -9117,7 +9117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-02",
@@ -9137,7 +9137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-02",
@@ -9157,7 +9157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-02",
@@ -9177,7 +9177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-02",
@@ -9197,7 +9197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-01",
@@ -9217,7 +9217,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-01",
@@ -9237,7 +9237,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-01",
@@ -9257,7 +9257,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-01",
@@ -9277,7 +9277,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-01",
@@ -9297,7 +9297,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-01",
@@ -9317,7 +9317,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-04-01",
@@ -9337,7 +9337,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-31",
@@ -9357,7 +9357,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-31",
@@ -9377,7 +9377,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-31",
@@ -9397,7 +9397,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-30",
@@ -9417,7 +9417,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-30",
@@ -9437,7 +9437,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-30",
@@ -9457,7 +9457,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-30",
@@ -9477,7 +9477,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-30",
@@ -9497,7 +9497,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-30",
@@ -9517,7 +9517,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-30",
@@ -9537,7 +9537,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-30",
@@ -9557,7 +9557,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W14"
  },
  {
   "Date": "2026-03-29",
@@ -9577,7 +9577,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-27",
@@ -9597,7 +9597,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-27",
@@ -9617,7 +9617,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-27",
@@ -9637,7 +9637,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-27",
@@ -9657,7 +9657,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-26",
@@ -9677,7 +9677,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-26",
@@ -9697,7 +9697,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-26",
@@ -9717,7 +9717,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-26",
@@ -9737,7 +9737,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-25",
@@ -9757,7 +9757,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-25",
@@ -9777,7 +9777,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-25",
@@ -9797,7 +9797,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-25",
@@ -9817,7 +9817,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-25",
@@ -9837,7 +9837,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-25",
@@ -9857,7 +9857,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-25",
@@ -9877,7 +9877,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-25",
@@ -9897,7 +9897,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-24",
@@ -9917,7 +9917,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-24",
@@ -9937,7 +9937,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-23",
@@ -9957,7 +9957,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-23",
@@ -9977,7 +9977,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-23",
@@ -9997,7 +9997,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W13"
  },
  {
   "Date": "2026-03-20",
@@ -10017,7 +10017,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-20",
@@ -10037,7 +10037,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-19",
@@ -10057,7 +10057,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-19",
@@ -10077,7 +10077,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-18",
@@ -10097,7 +10097,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-18",
@@ -10117,7 +10117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-17",
@@ -10137,7 +10137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-17",
@@ -10157,7 +10157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-17",
@@ -10177,7 +10177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-17",
@@ -10197,7 +10197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-17",
@@ -10217,7 +10217,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-17",
@@ -10237,7 +10237,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-17",
@@ -10257,7 +10257,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-16",
@@ -10277,7 +10277,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-16",
@@ -10297,7 +10297,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-16",
@@ -10317,7 +10317,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-16",
@@ -10337,7 +10337,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-16",
@@ -10357,7 +10357,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-16",
@@ -10377,7 +10377,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W12"
  },
  {
   "Date": "2026-03-15",
@@ -10397,7 +10397,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-13",
@@ -10417,7 +10417,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-13",
@@ -10437,7 +10437,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-13",
@@ -10457,7 +10457,7 @@
   "DateAdded": "",
   "LastUpdated": "2026-05-14",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-12",
@@ -10477,7 +10477,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-11",
@@ -10497,7 +10497,7 @@
   "DateAdded": "",
   "LastUpdated": "2026-05-14",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-11",
@@ -10517,7 +10517,7 @@
   "DateAdded": "",
   "LastUpdated": "2026-05-14",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-11",
@@ -10537,7 +10537,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-10",
@@ -10557,7 +10557,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-10",
@@ -10577,7 +10577,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-10",
@@ -10597,7 +10597,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-10",
@@ -10617,7 +10617,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-09",
@@ -10637,7 +10637,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-09",
@@ -10657,7 +10657,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-09",
@@ -10677,7 +10677,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-09",
@@ -10697,7 +10697,7 @@
   "DateAdded": "",
   "LastUpdated": "2026-05-14",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-09",
@@ -10717,7 +10717,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W11"
  },
  {
   "Date": "2026-03-08",
@@ -10737,7 +10737,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W10"
  },
  {
   "Date": "2026-03-06",
@@ -10757,7 +10757,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W10"
  },
  {
   "Date": "2026-03-06",
@@ -10777,7 +10777,7 @@
   "DateAdded": "",
   "LastUpdated": "2026-05-14",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W10"
  },
  {
   "Date": "2026-03-05",
@@ -10797,7 +10797,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W10"
  },
  {
   "Date": "2026-03-05",
@@ -10817,7 +10817,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W10"
  },
  {
   "Date": "2026-03-03",
@@ -10837,7 +10837,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W10"
  },
  {
   "Date": "2026-03-03",
@@ -10857,7 +10857,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W10"
  },
  {
   "Date": "2026-03-02",
@@ -10877,7 +10877,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W10"
  },
  {
   "Date": "2026-03-02",
@@ -10897,7 +10897,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W10"
  },
  {
   "Date": "2026-02-27",
@@ -10917,7 +10917,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-27",
@@ -10937,7 +10937,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-26",
@@ -10957,7 +10957,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-26",
@@ -10977,7 +10977,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-26",
@@ -10997,7 +10997,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-26",
@@ -11017,7 +11017,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-25",
@@ -11037,7 +11037,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-24",
@@ -11057,7 +11057,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-24",
@@ -11077,7 +11077,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-24",
@@ -11097,7 +11097,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-24",
@@ -11117,7 +11117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-23",
@@ -11137,7 +11137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-23",
@@ -11157,7 +11157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W09"
  },
  {
   "Date": "2026-02-20",
@@ -11177,7 +11177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W08"
  },
  {
   "Date": "2026-02-19",
@@ -11197,7 +11197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W08"
  },
  {
   "Date": "2026-02-18",
@@ -11217,7 +11217,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W08"
  },
  {
   "Date": "2026-02-16",
@@ -11237,7 +11237,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W08"
  },
  {
   "Date": "2026-02-13",
@@ -11257,7 +11257,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W07"
  },
  {
   "Date": "2026-02-13",
@@ -11277,7 +11277,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W07"
  },
  {
   "Date": "2026-02-12",
@@ -11297,7 +11297,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W07"
  },
  {
   "Date": "2026-02-12",
@@ -11317,7 +11317,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W07"
  },
  {
   "Date": "2026-02-11",
@@ -11337,7 +11337,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W07"
  },
  {
   "Date": "2026-02-11",
@@ -11357,7 +11357,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W07"
  },
  {
   "Date": "2026-02-07",
@@ -11377,7 +11377,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W06"
  },
  {
   "Date": "2026-02-06",
@@ -11397,7 +11397,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W06"
  },
  {
   "Date": "2026-02-06",
@@ -11417,7 +11417,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W06"
  },
  {
   "Date": "2026-02-05",
@@ -11437,7 +11437,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W06"
  },
  {
   "Date": "2026-02-05",
@@ -11457,7 +11457,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W06"
  },
  {
   "Date": "2026-02-04",
@@ -11477,7 +11477,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W06"
  },
  {
   "Date": "2026-02-03",
@@ -11497,7 +11497,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W06"
  },
  {
   "Date": "2026-02-03",
@@ -11517,7 +11517,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W06"
  },
  {
   "Date": "2026-02-03",
@@ -11557,7 +11557,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W06"
  },
  {
   "Date": "2026-01-28",
@@ -11577,7 +11577,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W05"
  },
  {
   "Date": "2026-01-28",
@@ -11597,7 +11597,27 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W05"
+ },
+ {
+  "Date": "2026-01-23",
+  "Source": "FSANZ",
+  "Company": "Sanulac Nutritionals Australia Pty Ltd",
+  "Brand": "Alula Gold",
+  "Product": "Alula Gold Reflux infant formula 900g (0-12 months) and Alula Gold Premium infant formula 900g",
+  "Pathogen": "Cereulide",
+  "Reason": "Cereulide — outbreak",
+  "Class": "Recall",
+  "Country": "Australia",
+  "Region": "Oceania",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.foodstandards.gov.au/news/cereulide-toxin-infant-formula-products",
+  "Notes": "No cases of illness linked to these products have been reported in Australia.\n\n## Food recalls\n\nSanulac Nutritionals Australia Pty Ltd - Alula Gold Reflux infant formula 900g (0-12 months) & Alula Colic & Constipation infant formula 850g (0-12 months) | Food Standards Australia New Zealand\n\nNestlé -  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [outbreak 2026-05-13: 1→0 — No cases of illness linked to these products have been reported in Australi [claude-check 2026-05-14: skip; claude unreachable / parse failed] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [date correction 2026-05-14 evening: operator caught date error. FSANZ page 'Cereulide toxin in infant formula products' is published 2026-01-23 (per the 'Page last updated' field), not 2026-05-13 as previously recorded. This announcement covers TWO recalls: (1) Sanulac/Alula Gold (captured here) and (2) Nestlé Alfamino Infant Formula 400g — second recall added as separate row.]",
+  "DateAdded": "",
+  "LastUpdated": "2026-05-14",
+  "LastChecked": "",
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-23",
@@ -11617,7 +11637,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-23",
@@ -11637,7 +11657,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-23",
@@ -11657,7 +11677,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-23",
@@ -11677,7 +11697,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-23",
@@ -11697,7 +11717,27 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
+ },
+ {
+  "Date": "2026-01-23",
+  "Source": "FSANZ",
+  "Company": "Nestlé Australia",
+  "Brand": "Alfamino",
+  "Product": "Alfamino Infant Formula (0-12 months) 400g (5 batches)",
+  "Pathogen": "Cereulide",
+  "Reason": "Potential presence of cereulide toxin (produced by Bacillus cereus). Linked to a contaminated ingredient identified through international recalls. No cases of illness reported in Australia.",
+  "Class": "Recall",
+  "Country": "Australia",
+  "Region": "Oceania",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/nestle-alfamino-infant-formula-0-12-months-400g",
+  "Notes": "FSANZ joint announcement 'Cereulide toxin in infant formula products' published 2026-01-23. Two-recall announcement: Nestlé Alfamino (this row) + Sanulac/Alula Gold (separate row). [manual add 2026-05-14 evening: operator caught omission — the FSANZ announcement page covers two recalls but only Sanulac was captured by claude-check enrichment.]",
+  "DateAdded": "2026-05-14",
+  "LastUpdated": "2026-05-14",
+  "LastChecked": "2026-05-14",
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-22",
@@ -11717,7 +11757,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-20",
@@ -11737,7 +11777,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-20",
@@ -11757,7 +11797,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-20",
@@ -11777,7 +11817,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-20",
@@ -11797,7 +11837,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-19",
@@ -11817,7 +11857,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-19",
@@ -11837,7 +11877,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W04"
  },
  {
   "Date": "2026-01-17",
@@ -11857,7 +11897,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W03"
  },
  {
   "Date": "2026-01-16",
@@ -11877,7 +11917,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W03"
  },
  {
   "Date": "2026-01-16",
@@ -11897,7 +11937,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W03"
  },
  {
   "Date": "2026-01-15",
@@ -11917,7 +11957,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W03"
  },
  {
   "Date": "2026-01-15",
@@ -11937,7 +11977,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W03"
  },
  {
   "Date": "2026-01-15",
@@ -11957,7 +11997,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W03"
  },
  {
   "Date": "2026-01-14",
@@ -11977,7 +12017,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W03"
  },
  {
   "Date": "2026-01-12",
@@ -11997,7 +12037,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W03"
  },
  {
   "Date": "2026-01-12",
@@ -12017,7 +12057,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W03"
  },
  {
   "Date": "2026-01-07",
@@ -12037,7 +12077,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W02"
  },
  {
   "Date": "2026-01-07",
@@ -12057,7 +12097,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W02"
  },
  {
   "Date": "2026-01-07",
@@ -12077,7 +12117,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W02"
  },
  {
   "Date": "2026-01-06",
@@ -12097,7 +12137,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W02"
  },
  {
   "Date": "2026-01-05",
@@ -12117,7 +12157,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W02"
  },
  {
   "Date": "2026-01-05",
@@ -12137,7 +12177,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W02"
  },
  {
   "Date": "2026-01-05",
@@ -12157,7 +12197,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W02"
  },
  {
   "Date": "2026-01-03",
@@ -12177,7 +12217,7 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W01"
  },
  {
   "Date": "2026-01-02",
@@ -12197,6 +12237,6 @@
   "DateAdded": "",
   "LastUpdated": "",
   "LastChecked": "",
-  "report_week": ""
+  "report_week": "W01"
  }
 ]
