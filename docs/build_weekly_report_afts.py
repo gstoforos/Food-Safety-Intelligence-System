@@ -73,13 +73,40 @@ _PATHOGEN_SYNONYMS = {
     "Bacillus cereus (cereulide)":                         "Bacillus cereus / Cereulide",
     "Cereulide (B. cereus toxin)":                         "Bacillus cereus / Cereulide",
     "Cereulide":                                           "Bacillus cereus / Cereulide",
-    # E. coli / STEC variants → single bucket
+    # E. coli / STEC variants → single bucket.
+    # Audit 2026-05-15 (fid 22275 W20): the source feed emits both
+    # "Shiga toxin-producing E. coli (STEC)" and "Escherichia coli STEC"
+    # for the same pathogen on the same producer, the same day. The dict
+    # previously only covered the first; the second fell through and
+    # rendered as a separate row in the distribution table. Now every
+    # known surface form is mapped. The regex-based catch-all in
+    # _consolidate_pathogen_label() backstops any future variant.
     "STEC (Shiga toxin-producing E. coli)":                "E. coli STEC",
     "Shiga toxin-producing E. coli (STEC)":                "E. coli STEC",
+    "Shiga toxin-producing E. coli":                       "E. coli STEC",
     "E. coli STEC (Shiga toxin-producing)":                "E. coli STEC",
+    "Shigatoxin producing Escherichia coli (STEC)":        "E. coli STEC",
+    "Shigatoxin producing Escherichia coli":               "E. coli STEC",
+    "Shigatoxin-producing Escherichia coli (STEC)":        "E. coli STEC",
+    "Escherichia coli STEC":                               "E. coli STEC",
+    "Escherichia coli shiga toxinogène (STEC)":            "E. coli STEC",
+    "Escherichia coli shiga toxinogène":                   "E. coli STEC",
     "STEC / E. coli O157:H7":                              "E. coli STEC",
     "E. coli O157:H7":                                     "E. coli STEC",
-    "E. coli":                                             "E. coli STEC",
+    "E. coli O157":                                        "E. coli STEC",
+    "E. coli O26 (STEC)":                                  "E. coli STEC",
+    "E. coli O26":                                         "E. coli STEC",
+    "E. coli O145 (STEC)":                                 "E. coli STEC",
+    "E. coli O145":                                        "E. coli STEC",
+    "E. coli O103 (STEC)":                                 "E. coli STEC",
+    "E. coli O111 (STEC)":                                 "E. coli STEC",
+    "E. coli O121 (STEC)":                                 "E. coli STEC",
+    # Bare "E. coli" / "Escherichia coli" / "Escherichia coli (generic)"
+    # are DELIBERATELY left out of this mapping — those forms can refer
+    # to hygiene-indicator counts (non-pathogenic), and lumping them into
+    # the STEC bucket would inflate STEC counts. Keep them as their own
+    # bare labels; the consolidator's regex pass only triggers on
+    # explicit STEC / shiga-toxin / VTEC tokens, so bare-E.coli is safe.
     # Marine biotoxins
     "Lipophilic biotoxins (DSP)":                          "Marine biotoxins",
     "Lipophilic biotoxins":                                "Marine biotoxins",
@@ -97,11 +124,42 @@ _PATHOGEN_SYNONYMS = {
 
 
 def _consolidate_pathogen_label(label):
-    """Map raw pathogen label to canonical bucket. Idempotent."""
+    """Map raw pathogen label to canonical bucket. Idempotent.
+
+    Resolution order (audit 2026-05-15):
+      1. Direct exact-string match against _PATHOGEN_SYNONYMS.
+      2. Strip any trailing parenthesised qualifier and re-match.
+         Catches "Listeria monocytogenes (note)" → "Listeria monocytogenes".
+      3. STEC catch-all regex — any string mentioning STEC, shiga-toxin,
+         shigatoxin, or VTEC collapses to canonical "E. coli STEC".
+         Backstops future surface-form variants the dict hasn't seen.
+      4. Salmonella catch-all — bare "Salmonella" or "Salmonella spp"
+         folds to "Salmonella spp." (named serovars are preserved).
+      5. Fall back to the paren-stripped base form (best-effort cleanup).
+
+    Idempotency: a canonical output fed back in must return itself
+    unchanged. The synonym keys never appear as values of OTHER keys,
+    so direct match in step 1 is a fixed point.
+    """
     if not label:
         return label
     s = str(label).strip()
-    return _PATHOGEN_SYNONYMS.get(s, s)
+    # 1) Direct exact match
+    if s in _PATHOGEN_SYNONYMS:
+        return _PATHOGEN_SYNONYMS[s]
+    # 2) Paren-stripped match — catches "X (note)" forms
+    base = s.split("(")[0].strip()
+    if base != s and base in _PATHOGEN_SYNONYMS:
+        return _PATHOGEN_SYNONYMS[base]
+    # 3) STEC catch-all — any STEC / shiga-toxin / VTEC mention
+    if re.search(r"\b(stec|shiga[\s\-]?toxin|shigatoxin|shigatoxinogène|vtec)\b",
+                 s, re.I):
+        return "E. coli STEC"
+    # 4) Bare Salmonella collapse (preserves serovars like "Salmonella Stanley")
+    if re.fullmatch(r"salmonella(\s+spp\.?)?", s, re.I):
+        return "Salmonella spp."
+    # 5) Best-effort: bare base form
+    return base if base else s
 
 
 def _consolidate_counter(c):
@@ -555,7 +613,16 @@ def compute_stats(wr, pr):
     pc = Counter(); cc = Counter()
     for r in wr:
         p = (r.get("Pathogen") or "").strip()
-        if p: pc[p.split("(")[0].strip()] += 1
+        # Audit 2026-05-15: previously this site did
+        #   pc[p.split("(")[0].strip()] += 1
+        # which stripped the "(STEC)" suffix BEFORE the synonym lookup
+        # in _consolidate_counter — defeating it for every synonym key
+        # that contains parens. Result: "Shiga toxin-producing E. coli
+        # (STEC)" and "Escherichia coli STEC" rendered as TWO separate
+        # rows in §03 Pathogen Profile. Now the consolidator owns all
+        # paren-stripping logic and runs once, here.
+        if p:
+            pc[_consolidate_pathogen_label(p)] += 1
         cc[_country_display(r.get("Country","") or "Unknown")] += 1
     pt = len(pr); delta = total - pt
     # Apply synonym consolidation BEFORE deriving top_pathogen so the KPI
