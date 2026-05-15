@@ -1167,6 +1167,57 @@ def main() -> int:
                     "recall", "welcome", "main", "press release", "food",
                     "food incident post", "aesan", "fsai",
                 }
+                # ── Source-authority guard (audit 2026-05-15) ──────────
+                # Gemini sometimes returns the regulator/portal name as
+                # the Company when it can't find the recalling firm on
+                # the page header (e.g. for RappelConso fid 22229 it
+                # returned company_name="RappelConso" — the agency name
+                # baked into the page chrome, not the firm). The agency
+                # name is NEVER a valid Company/Brand value, so we
+                # reject any new_val that matches the row's Source or
+                # one of the known source-authority names below.
+                _SOURCE_AUTHORITIES = {
+                    # Open-data / regulator portal names
+                    "rappelconso", "rappel conso", "rappel.conso",
+                    "fda", "u.s. food and drug administration",
+                    "food and drug administration",
+                    "usda", "usda fsis", "fsis", "food safety and inspection service",
+                    "rasff", "rasff window", "rasff portal",
+                    "fsai", "food safety authority of ireland",
+                    "fsa", "fsa uk", "food standards agency",
+                    "fss", "food standards scotland",
+                    "fsanz", "food standards australia new zealand",
+                    "cfia", "canadian food inspection agency",
+                    "aesan", "agencia española de seguridad alimentaria",
+                    "efet", "efsa", "ages", "afsca", "favv",
+                    "bvl", "bfr", "mfds", "mhlw",
+                    "anses", "dgccrf", "dgal",
+                    "salute", "ministero della salute",
+                    "nvwa", "voedsel waren autoriteit",
+                    "mattilsynet", "livsmedelsverket", "ruokavirasto",
+                    "fodevarestyrelsen", "moph", "moccae",
+                    "signalconso", "signal conso",
+                    "european commission", "commission européenne",
+                }
+
+                def _matches_source(v: str, row: dict) -> bool:
+                    """True iff v matches the row's Source value or any
+                    known regulator/portal name. Strips country codes
+                    like '(FR)' or '/ DGCCRF' so 'RappelConso' matches
+                    Source='RappelConso (FR)'."""
+                    if not v:
+                        return False
+                    needle = (v or "").strip().lower()
+                    if not needle:
+                        return False
+                    if needle in _SOURCE_AUTHORITIES:
+                        return True
+                    src = str(row.get("Source") or "").lower()
+                    # strip "(FR)" / "(EU)" / " / DGCCRF" style decorations
+                    src_clean = re.sub(r"\s*[\(/].*$", "", src).strip()
+                    if src_clean and (needle == src_clean or src_clean in needle):
+                        return True
+                    return False
 
                 def _is_empty_or_garbage(v: str) -> bool:
                     s = (v or "").strip().lower()
@@ -1183,6 +1234,22 @@ def main() -> int:
                     new_val = str(extracted.get(ex_key, "") or "").strip()
                     if not new_val or len(new_val) < 2:
                         continue
+                    # Source-authority guard: only for Company / Brand —
+                    # Product and Pathogen are not at risk of confusion
+                    # with regulator names.
+                    if row_field in ("Company", "Brand"):
+                        if _matches_source(new_val, alive_rows[j]):
+                            log.warning(
+                                "gemini-enrich rejected agency-as-%s "
+                                "for URL=%s: Gemini returned %r which "
+                                "matches Source=%r — leaving field empty "
+                                "for downstream review",
+                                row_field,
+                                str(alive_rows[j].get("URL", ""))[:60],
+                                new_val,
+                                alive_rows[j].get("Source"),
+                            )
+                            continue
                     cur_val = str(alive_rows[j].get(row_field, "") or "")
                     if _is_empty_or_garbage(cur_val) and not _is_empty_or_garbage(new_val):
                         alive_rows[j][row_field] = new_val
