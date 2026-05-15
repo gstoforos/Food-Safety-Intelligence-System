@@ -1,12 +1,12 @@
 {
   "week_end": "2026-05-21",
-  "generated_utc": "2026-05-15T07:09:56+00:00",
-  "row_count": 45,
-  "tier1_count": 19,
+  "generated_utc": "2026-05-15T07:46:28+00:00",
+  "row_count": 46,
+  "tier1_count": 20,
   "outbreak_count": 5,
   "by_reviewer": {
-    "claude-check": 42,
-    "operator": 3
+    "claude-check": 44,
+    "operator": 2
   },
   "rows": [
     {
@@ -99,6 +99,29 @@
       "Week_Added": "2026-05-21",
       "RejectedBy": "claude-check",
       "RejectionReason": "claude-check: claude-check: failed verification (see workflow log)",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-05-12",
+      "Source": "FSAI",
+      "Company": "Manor Farm",
+      "Brand": "Manor Farm",
+      "Product": "various Manor Farm chicken products (multiple retailers: Aldi, Dunnes Stores, Lidl, Centra, SuperValu, Tesco)",
+      "Pathogen": "Salmonella",
+      "Reason": "Salmonella",
+      "Class": "Recall",
+      "Country": "Ireland",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-manor-farm-chicken-products",
+      "Notes": "Food Safety Authority of Ireland\n\n# Food Alerts\n\n## Recall of various Manor Farm chicken products due to possible presence of Salmonella\n\nTuesday, 12 May 2026\n\n| Alert Summary | |\n --- |\n| Category 1: | For Action |\n| Alert Notification: | 2026.23 |\n| Product Identification: | Please see table below  [via Tavily gap-finder, deterministic extract] [gap-gate 2026-05-13: pending_gap → pending_gap_v1] [claude-check 2026-05-13: fix; corrections: Company→Manor Farm, Brand→Manor Farm, Product→various M [claude-check 2026-05-14: pass; pass | Date matches (2026-05-12), Company (Manor Farm) and Product (various chicken products) confirmed on page Food Ale] [gap-gate 2026-05-14: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]",
+      "DateAdded": "2026-05-14",
+      "LastUpdated": "2026-05-14",
+      "LastChecked": "",
+      "Week_Added": "2026-05-21",
+      "RejectedBy": "operator",
+      "RejectionReason": "operator-rejected (2026-05-15): duplicate URL — FSAI alert page at /news-and-alerts/food-alerts/recall-of-various-manor-farm-chicken-products does not exist (URL redirects to fsai.ie/news index when fetched). FSAI's official alerts listing shows only ONE Manor Farm alert on 12 May, served at /recall-of-specific-batches-of-manor-farm-chicken-p (which is the row preserved in Recalls). Same failure mode as the FSAI Western Brand title-case phantom URL rejected 2026-05-15 — gap-finder picked up a search-engine-display variant that doesn't exist on FSAI's actual Drupal backend. URL guardian should fetch + validate FSAI URLs (200 + alert-page schema match) before promoting to Recalls.",
       "Reviewed": "N"
     },
     {
@@ -419,8 +442,8 @@
       "LastUpdated": "",
       "LastChecked": "",
       "Week_Added": "2026-05-21",
-      "RejectedBy": "operator",
-      "RejectionReason": "operator-rejected (2026-05-15): not a recall — NVWA news update dated 2026-02-25 reporting infant-formula samples tested NEGATIVE for cereulide (Dutch headline: 'eerste resultaten: monsters zuigelingenvoeding bevatten geen meetbare hoeveelheid cereulide' = 'first results: samples contain no measurable amount of cereulide'). URL path /actueel/nieuws/ is a news article, not a recall record. Same failure pattern as news-mirror blocklist.",
+      "RejectedBy": "claude-check",
+      "RejectionReason": "2026-05-15T06:32:00Z",
       "Reviewed": "N"
     },
     {
@@ -442,8 +465,8 @@
       "LastUpdated": "",
       "LastChecked": "",
       "Week_Added": "2026-05-21",
-      "RejectedBy": "operator",
-      "RejectionReason": "operator-rejected (2026-05-15): search-snippet contamination — Product field began with '5 hours ago · ' (Google/search-engine display fragment), URL had title-case path not matching FSAI's lowercase URL convention (likely misextracted from a Tavily/Exa gap-finder search result), Date+Company corrupted. NOTE: the underlying recall IS real (canonical URL captured separately at FSAI Western Brand May 14, Recalls row 3) — this row was a duplicate from a malformed gap-finder result, not a fictitious recall.",
+      "RejectedBy": "claude-check",
+      "RejectionReason": "2026-05-15T06:32:00Z",
       "Reviewed": "N"
     },
     {
