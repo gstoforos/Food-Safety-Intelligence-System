@@ -1975,19 +1975,33 @@ def build_html(week_end, recalls, prev_week, original_published=None):
 
     wsd = _fmt_date_short(ws); wed = _fmt_date(display_end_date)
     period = "{} &ndash; {}".format(wsd, wed)
-    # Header label flips between two states (audit 2026-05-09):
+    # Header label flips between two states (audit 2026-05-09, revised
+    # 2026-05-14 evening):
     #   First publish (original_published is None) →
-    #     "PUBLISHED · {week_end + 1}" — the formulaic Saturday-after-week-close.
+    #     "PUBLISHED · {today}" — the actual build date.
     #   Rebuild (original_published is set) →
     #     "UPDATED · {today}" — the actual rebuild date.
     # The label change is the visible signal that the user is looking at
     # a revised version of a previously-published weekly briefing.
+    #
+    # PRIOR BEHAVIOR (fixed 2026-05-14 evening):
+    # The PUBLISHED branch used `(week_end + timedelta(days=1))` — the
+    # "Saturday-after-week-close" the author called "formulaic" in the
+    # original comment. That was correct ONLY when the build ran on that
+    # specific Saturday. When the build was triggered any other day
+    # (manual rebuild, cron drift, ad-hoc regeneration), the header
+    # displayed a FUTURE date, which was confusing and factually wrong:
+    # a viewer reading the page on Thursday 14 May saw "PUBLISHED 16
+    # May 2026" for a file that obviously could not have been published
+    # in the future. Both branches now use today's date — the visible
+    # difference is the label (PUBLISHED vs UPDATED), not a synthetic
+    # future date.
+    today_str = datetime.now(timezone.utc).strftime("%-d %b %Y")
     if original_published:
         published_label = "UPDATED"
-        pub = datetime.now(timezone.utc).strftime("%-d %b %Y")
     else:
         published_label = "PUBLISHED"
-        pub = (week_end + timedelta(days=1)).strftime("%-d %b %Y")
+    pub = today_str
     nf = _fmt_date(week_end + timedelta(days=7))
 
     html = HTML_TEMPLATE.format(
