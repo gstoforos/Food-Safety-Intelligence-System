@@ -252,9 +252,13 @@ jobs:
                       labels = inputs.pop("labels")
                       outputs = model(**inputs)
                       logits = outputs.logits
-                      loss_fct = torch.nn.CrossEntropyLoss(
-                          weight=class_weights.to(logits.device))
-                      loss = loss_fct(logits, labels)
+                      # Upcast logits to float32 for the loss computation. transformers
+                      # 5.x may return Half-precision logits even on CPU, which mismatches
+                      # our float32 class_weights and CPU fp16 is slow/quirky anyway.
+                      logits_fp32 = logits.float()
+                      weight = class_weights.to(device=logits.device, dtype=torch.float32)
+                      loss_fct = torch.nn.CrossEntropyLoss(weight=weight)
+                      loss = loss_fct(logits_fp32, labels)
                       return (loss, outputs) if return_outputs else loss
 
               # ── Metrics ──
@@ -389,8 +393,12 @@ jobs:
 
               # ── Save val predictions ──
               with (args.out_dir / "val_predictions.jsonl").open("w", encoding="utf-8") as f:
-                  probs = (np.exp(predictions.predictions) /
-                           np.exp(predictions.predictions).sum(axis=-1, keepdims=True))
+                  # Cast to float32 + subtract max for numerically stable softmax
+                  # (predictions may come back as Half from a fp16-leaning model).
+                  raw = predictions.predictions.astype(np.float32)
+                  raw -= raw.max(axis=-1, keepdims=True)
+                  exp = np.exp(raw)
+                  probs = exp / exp.sum(axis=-1, keepdims=True)
                   for i, ((text, gold), pred, p) in enumerate(zip(val_pairs, preds, probs)):
                       f.write(json.dumps({
                           "i": i,
