@@ -8,7 +8,7 @@
   "week_end": "2026-05-14",
   "week_start_display": "8 May",
   "week_end_display": "14 May 2026",
-  "generated_utc": "2026-05-15T06:57:47.212941+00:00",
+  "generated_utc": "2026-05-15T09:40:09.117432+00:00",
   "stats": {
     "total": 48,
     "tier1": 41,
@@ -94,5 +94,5 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22249/Interne"
     }
   ],
-  "country_count": 16
+  "country_count": 17
 }

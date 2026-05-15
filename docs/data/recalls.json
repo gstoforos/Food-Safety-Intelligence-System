@@ -40,6 +40,26 @@
   "report_week": "W20"
  },
  {
+  "Date": "2026-05-14",
+  "Source": "CFIA",
+  "Company": "United Utensils Inc.",
+  "Brand": "Ghirardelli",
+  "Product": "Powdered beverage mixes — Premium Hot Cocoa Mix 907g (UPC 7 47599 62012 6, code S449250A04 BBD 063027); Perfectly Premium Frappé Mix Vanilla 1.36kg (UPC 7 47599 62105 5, code S594262 BBD 073127); Premium Frappé Mix Mocha 1.42kg (UPC 7 47599 66211 9, code S295262 BBD 063027); Premium Frappé Mix Frozen Hot Cocoa 1.42kg (UPC 7 47599 66213 3, code S393260 BBD 073127).",
+  "Pathogen": "Salmonella",
+  "Reason": "CFIA Food Recall Warning RA-82079 (CFIA ID 17375). United Utensils Inc. is recalling Ghirardelli brand powdered beverage mixes (four SKUs) due to possible Salmonella contamination. Recall triggered by a recall in another country (likely downstream of the California Dairies Inc. powdered milk Salmonella recall — non-fat dried milk powder is a typical ingredient in dairy-based powdered beverage mixes). Distribution: Online, Ontario, possibly other provinces and territories. No illnesses reported. CFIA food-safety investigation ongoing; further product recalls possible.",
+  "Class": "Class 2",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/ghirardelli-brand-powdered-beverage-mixes-recalled-due-salmonella",
+  "Notes": "[manual add 2026-05-15 — CFIA recall published 2026-05-14, RA-82079. Recalling firm: United Utensils Inc. Probable downstream of California Dairies Inc. powdered milk Salmonella recall (FDA, 2026-04-20) — already in Recalls. CFIA classifies as Class 2; Tier 1 retained per locked Salmonella rule. Original page date: 2026-05-14.]",
+  "DateAdded": "2026-05-15",
+  "LastUpdated": "2026-05-15",
+  "LastChecked": "2026-05-15",
+  "report_week": "W20"
+ },
+ {
   "Date": "2026-05-13",
   "Source": "RappelConso (FR)",
   "Company": "SARL Sarda",
