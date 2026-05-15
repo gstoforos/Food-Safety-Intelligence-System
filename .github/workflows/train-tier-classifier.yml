@@ -1,0 +1,563 @@
+name: Train Tier Classifier
+
+# Day 6 of the FSIS-LM project: first trained model.
+#
+# Fine-tunes DeBERTa-v3-base (184M params) as a 3-class FSIS Tier classifier
+# on tier_assignment.train.jsonl (549 examples). Runs entirely on the
+# GitHub Actions Ubuntu CPU runner — no GPU, no Modal, no API costs.
+#
+# Expected wall time: 20-35 minutes for 4 epochs.
+# Expected peak memory: ~3 GB (well within the 7 GB available).
+# Expected accuracy: ≥90% on val (Tier 1+2 should be near-perfect; Tier 3
+# is harder with only 23 train examples).
+#
+# Outputs:
+#   tools/fsis-lm/tier-classifier-v1/
+#     metrics.json           — train+val metrics, committed to repo
+#     confusion_matrix.txt   — committed to repo
+#     val_predictions.jsonl  — committed to repo (per-example predictions)
+#   Model weights are uploaded as a 90-day artifact (too large for git).
+#
+# Trigger: manually from the Actions tab → "Train Tier Classifier".
+
+on:
+  workflow_dispatch:
+    inputs:
+      train_jsonl:
+        description: "Training JSONL path"
+        required: false
+        default: "tools/training/data/v2_2/tier_assignment.train.jsonl"
+      val_jsonl:
+        description: "Validation JSONL path"
+        required: false
+        default: "tools/training/data/v2_2/tier_assignment.val.jsonl"
+      out_dir:
+        description: "Output directory for model + metrics"
+        required: false
+        default: "tools/fsis-lm/tier-classifier-v1"
+      base_model:
+        description: "Base model from HuggingFace Hub"
+        required: false
+        default: "microsoft/deberta-v3-base"
+      epochs:
+        description: "Training epochs"
+        required: false
+        default: "4"
+      batch_size:
+        description: "Per-device batch size"
+        required: false
+        default: "8"
+      learning_rate:
+        description: "Peak learning rate"
+        required: false
+        default: "2e-5"
+      max_length:
+        description: "Max input token length"
+        required: false
+        default: "512"
+      seed:
+        description: "Random seed"
+        required: false
+        default: "42"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: train-tier-classifier
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          # CPU-only torch is smaller + faster to install
+          pip install --quiet --upgrade pip
+          pip install --quiet --extra-index-url https://download.pytorch.org/whl/cpu \
+            torch
+          pip install --quiet transformers datasets scikit-learn accelerate \
+            sentencepiece protobuf
+          python -c "import transformers, torch; print(f'transformers={transformers.__version__} torch={torch.__version__}')"
+
+      - name: Write training script
+        run: |
+          mkdir -p tools/fsis-lm
+          cat > tools/fsis-lm/train_tier_classifier.py <<'PYEOF_TRAIN'
+          #!/usr/bin/env python3
+          """
+          train_tier_classifier.py
+          ========================
+
+          Fine-tunes DeBERTa-v3-base as a 3-class FSIS Tier classifier (Tier 1 / 2 / 3)
+          on the v2.2 tier_assignment.train.jsonl dataset.
+
+          Designed to run inside a GitHub Actions Ubuntu runner — no GPU required.
+          Training a 184M-param encoder on ~550 examples takes 15-25 min on the
+          2-vCPU runner. Memory peak is ~3 GB (fits in the 7 GB available).
+
+          Inputs:
+              --train-jsonl   path to tier_assignment.train.jsonl
+              --val-jsonl     path to tier_assignment.val.jsonl
+              --out-dir       output directory for model + tokenizer + metrics
+
+          Output structure:
+              out-dir/
+                  model.safetensors          fine-tuned weights
+                  config.json                model config
+                  tokenizer.json + vocab     tokenizer files
+                  metrics.json               train/val loss + accuracy + F1
+                  confusion_matrix.txt       3x3 confusion matrix on val set
+                  val_predictions.jsonl      per-example predictions on val
+                  training_args.json         reproducibility info
+
+          Usage:
+              python train_tier_classifier.py \\
+                  --train-jsonl tools/training/data/v2_2/tier_assignment.train.jsonl \\
+                  --val-jsonl tools/training/data/v2_2/tier_assignment.val.jsonl \\
+                  --out-dir tools/fsis-lm/tier-classifier-v1/
+          """
+          from __future__ import annotations
+
+          import argparse
+          import dataclasses
+          import datetime as dt
+          import json
+          import os
+          import random
+          import sys
+          from pathlib import Path
+          from typing import Any, Dict, List, Tuple
+
+          import numpy as np
+
+
+          # ─── Data loading ─────────────────────────────────────────────────────────
+
+          def load_chat_jsonl(path: Path) -> List[Tuple[str, int]]:
+              """Load a chat-template JSONL and extract (input_text, tier_label) pairs.
+
+              The chat-format JSONL has messages: system / user / assistant. We use
+              the user message as input and the assistant message as the gold label
+              (a single character: "1", "2", or "3").
+              """
+              pairs = []
+              with path.open(encoding="utf-8") as f:
+                  for line in f:
+                      line = line.strip()
+                      if not line:
+                          continue
+                      obj = json.loads(line)
+                      msgs = obj["messages"]
+                      user_text = next(m["content"] for m in msgs if m["role"] == "user")
+                      asst_text = next(m["content"] for m in msgs if m["role"] == "assistant")
+                      label_char = asst_text.strip()[0]
+                      if label_char not in "123":
+                          continue
+                      label = int(label_char) - 1  # 0-indexed (Tier 1 → 0, Tier 2 → 1, Tier 3 → 2)
+                      pairs.append((user_text, label))
+              return pairs
+
+
+          # ─── Training ─────────────────────────────────────────────────────────────
+
+          def train_and_evaluate(args):
+              # Heavy imports deferred so --help works without HF stack installed
+              import torch
+              from transformers import (
+                  AutoTokenizer, AutoModelForSequenceClassification,
+                  DataCollatorWithPadding, Trainer, TrainingArguments,
+                  set_seed,
+              )
+              from datasets import Dataset
+              from sklearn.metrics import (
+                  accuracy_score, f1_score, precision_recall_fscore_support,
+                  confusion_matrix, classification_report,
+              )
+
+              set_seed(args.seed)
+              random.seed(args.seed)
+              np.random.seed(args.seed)
+              torch.manual_seed(args.seed)
+
+              print(f"Loading training data: {args.train_jsonl}")
+              train_pairs = load_chat_jsonl(args.train_jsonl)
+              print(f"  {len(train_pairs)} training examples")
+              if not train_pairs:
+                  print("ERROR: no training examples found", file=sys.stderr)
+                  sys.exit(1)
+
+              print(f"Loading validation data: {args.val_jsonl}")
+              val_pairs = load_chat_jsonl(args.val_jsonl)
+              print(f"  {len(val_pairs)} validation examples")
+
+              # ── Class distribution ──
+              from collections import Counter
+              train_dist = Counter(p[1] for p in train_pairs)
+              val_dist = Counter(p[1] for p in val_pairs)
+              print(f"  train tier dist: { {f'Tier {k+1}': v for k, v in sorted(train_dist.items())} }")
+              print(f"  val tier dist:   { {f'Tier {k+1}': v for k, v in sorted(val_dist.items())} }")
+
+              # ── Tokenizer + model ──
+              print(f"\nLoading tokenizer + model: {args.base_model}")
+              tokenizer = AutoTokenizer.from_pretrained(args.base_model)
+              model = AutoModelForSequenceClassification.from_pretrained(
+                  args.base_model,
+                  num_labels=3,
+                  id2label={0: "Tier 1", 1: "Tier 2", 2: "Tier 3"},
+                  label2id={"Tier 1": 0, "Tier 2": 1, "Tier 3": 2},
+              )
+
+              # ── Tokenize ──
+              def tokenize(examples):
+                  return tokenizer(
+                      examples["text"],
+                      truncation=True,
+                      max_length=args.max_length,
+                  )
+
+              train_ds = Dataset.from_dict({
+                  "text": [p[0] for p in train_pairs],
+                  "label": [p[1] for p in train_pairs],
+              }).map(tokenize, batched=True, remove_columns=["text"])
+              val_ds = Dataset.from_dict({
+                  "text": [p[0] for p in val_pairs],
+                  "label": [p[1] for p in val_pairs],
+              }).map(tokenize, batched=True, remove_columns=["text"])
+
+              collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+              # ── Class weights (handle Tier 3 imbalance) ──
+              n_total = sum(train_dist.values())
+              class_weights = torch.tensor([
+                  n_total / (3 * train_dist.get(i, 1)) for i in range(3)
+              ], dtype=torch.float32)
+              print(f"  class weights: {class_weights.tolist()}")
+
+              # Custom trainer that applies class weights
+              class WeightedTrainer(Trainer):
+                  def compute_loss(self, model, inputs, return_outputs=False,
+                                   num_items_in_batch=None):
+                      labels = inputs.pop("labels")
+                      outputs = model(**inputs)
+                      logits = outputs.logits
+                      loss_fct = torch.nn.CrossEntropyLoss(
+                          weight=class_weights.to(logits.device))
+                      loss = loss_fct(logits, labels)
+                      return (loss, outputs) if return_outputs else loss
+
+              # ── Metrics ──
+              def compute_metrics(eval_pred):
+                  logits, labels = eval_pred
+                  preds = np.argmax(logits, axis=-1)
+                  acc = accuracy_score(labels, preds)
+                  f1_macro = f1_score(labels, preds, average="macro", zero_division=0)
+                  f1_weighted = f1_score(labels, preds, average="weighted", zero_division=0)
+                  return {
+                      "accuracy": acc,
+                      "f1_macro": f1_macro,
+                      "f1_weighted": f1_weighted,
+                  }
+
+              # ── Training args ──
+              args.out_dir.mkdir(parents=True, exist_ok=True)
+              training_args = TrainingArguments(
+                  output_dir=str(args.out_dir / "_checkpoints"),
+                  num_train_epochs=args.epochs,
+                  per_device_train_batch_size=args.batch_size,
+                  per_device_eval_batch_size=args.batch_size,
+                  learning_rate=args.lr,
+                  warmup_ratio=0.1,
+                  weight_decay=0.01,
+                  logging_steps=20,
+                  eval_strategy="epoch",
+                  save_strategy="no",  # we save manually at end
+                  report_to="none",
+                  seed=args.seed,
+                  fp16=False,    # CPU-only run
+                  dataloader_num_workers=0,
+                  disable_tqdm=False,
+                  load_best_model_at_end=False,
+              )
+
+              trainer = WeightedTrainer(
+                  model=model,
+                  args=training_args,
+                  train_dataset=train_ds,
+                  eval_dataset=val_ds,
+                  data_collator=collator,
+                  compute_metrics=compute_metrics,
+                  tokenizer=tokenizer,
+              )
+
+              print(f"\n══════════ TRAINING ══════════")
+              train_result = trainer.train()
+              print(f"\nTraining complete.")
+              print(f"  final train loss: {train_result.training_loss:.4f}")
+              print(f"  total steps:      {train_result.global_step}")
+
+              # ── Final eval ──
+              print(f"\n══════════ FINAL EVAL ══════════")
+              eval_results = trainer.evaluate()
+              for k, v in eval_results.items():
+                  if isinstance(v, float):
+                      print(f"  {k}: {v:.4f}")
+                  else:
+                      print(f"  {k}: {v}")
+
+              # ── Predictions + confusion matrix ──
+              print(f"\n══════════ PREDICTIONS ══════════")
+              predictions = trainer.predict(val_ds)
+              preds = np.argmax(predictions.predictions, axis=-1)
+              labels = predictions.label_ids
+              cm = confusion_matrix(labels, preds, labels=[0, 1, 2])
+              report = classification_report(
+                  labels, preds,
+                  labels=[0, 1, 2],
+                  target_names=["Tier 1", "Tier 2", "Tier 3"],
+                  digits=4, zero_division=0,
+              )
+              print("\nConfusion matrix (rows=true, cols=pred):")
+              print(f"          Tier1  Tier2  Tier3")
+              for i, name in enumerate(["Tier 1", "Tier 2", "Tier 3"]):
+                  print(f"  {name}  {cm[i][0]:5d}  {cm[i][1]:5d}  {cm[i][2]:5d}")
+              print(f"\nClassification report:")
+              print(report)
+
+              # ── Save model + tokenizer ──
+              print(f"\n══════════ SAVING ══════════")
+              model.save_pretrained(args.out_dir)
+              tokenizer.save_pretrained(args.out_dir)
+              print(f"  model + tokenizer → {args.out_dir}")
+
+              # ── Save metrics ──
+              metrics = {
+                  "trained_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+                  "base_model": args.base_model,
+                  "n_train": len(train_pairs),
+                  "n_val": len(val_pairs),
+                  "train_class_dist": {f"Tier {k+1}": v
+                                       for k, v in sorted(train_dist.items())},
+                  "val_class_dist": {f"Tier {k+1}": v
+                                     for k, v in sorted(val_dist.items())},
+                  "class_weights": class_weights.tolist(),
+                  "epochs": args.epochs,
+                  "lr": args.lr,
+                  "batch_size": args.batch_size,
+                  "max_length": args.max_length,
+                  "seed": args.seed,
+                  "final_train_loss": float(train_result.training_loss),
+                  "eval": {k: (float(v) if isinstance(v, (int, float)) else v)
+                           for k, v in eval_results.items()},
+                  "confusion_matrix": cm.tolist(),
+              }
+              (args.out_dir / "metrics.json").write_text(
+                  json.dumps(metrics, indent=2), encoding="utf-8")
+              print(f"  metrics → {args.out_dir / 'metrics.json'}")
+
+              # ── Save confusion matrix as text ──
+              (args.out_dir / "confusion_matrix.txt").write_text(
+                  f"Confusion matrix (rows=true, cols=pred):\n\n"
+                  f"          Tier1  Tier2  Tier3\n" +
+                  "\n".join(
+                      f"  Tier {i+1}  {cm[i][0]:5d}  {cm[i][1]:5d}  {cm[i][2]:5d}"
+                      for i in range(3)
+                  ) + "\n\n" + report,
+                  encoding="utf-8",
+              )
+
+              # ── Save val predictions ──
+              with (args.out_dir / "val_predictions.jsonl").open("w", encoding="utf-8") as f:
+                  probs = (np.exp(predictions.predictions) /
+                           np.exp(predictions.predictions).sum(axis=-1, keepdims=True))
+                  for i, ((text, gold), pred, p) in enumerate(zip(val_pairs, preds, probs)):
+                      f.write(json.dumps({
+                          "i": i,
+                          "input": text[:500],
+                          "gold_tier": int(gold) + 1,
+                          "pred_tier": int(pred) + 1,
+                          "correct": bool(int(gold) == int(pred)),
+                          "probs": {f"Tier {k+1}": float(p[k]) for k in range(3)},
+                      }, ensure_ascii=False) + "\n")
+
+              # ── Clean up checkpoint dir ──
+              import shutil
+              ckpt_dir = args.out_dir / "_checkpoints"
+              if ckpt_dir.exists():
+                  shutil.rmtree(ckpt_dir)
+
+              # ── Final adequacy gate ──
+              print(f"\n══════════ TRAINING GATE ══════════")
+              target_acc = 0.85
+              target_f1 = 0.75  # macro F1, harder to game with imbalance
+              acc = eval_results.get("eval_accuracy", 0)
+              f1m = eval_results.get("eval_f1_macro", 0)
+              if acc >= target_acc and f1m >= target_f1:
+                  print(f"✓ PASS: accuracy={acc:.3f} (≥{target_acc}) and "
+                        f"macro-F1={f1m:.3f} (≥{target_f1})")
+                  print(f"  Model is ready for shadow-mode evaluation.")
+              else:
+                  print(f"⚠ BELOW THRESHOLD: accuracy={acc:.3f} (target ≥{target_acc}), "
+                        f"macro-F1={f1m:.3f} (target ≥{target_f1})")
+                  print(f"  Inspect val_predictions.jsonl for failure cases.")
+
+
+          def main():
+              ap = argparse.ArgumentParser()
+              ap.add_argument("--train-jsonl", type=Path, required=True)
+              ap.add_argument("--val-jsonl", type=Path, required=True)
+              ap.add_argument("--out-dir", type=Path, required=True)
+              ap.add_argument("--base-model", default="microsoft/deberta-v3-base")
+              ap.add_argument("--epochs", type=int, default=4)
+              ap.add_argument("--batch-size", type=int, default=8)
+              ap.add_argument("--lr", type=float, default=2e-5)
+              ap.add_argument("--max-length", type=int, default=512)
+              ap.add_argument("--seed", type=int, default=42)
+              args = ap.parse_args()
+
+              if not args.train_jsonl.exists():
+                  print(f"ERROR: training file not found: {args.train_jsonl}",
+                        file=sys.stderr)
+                  sys.exit(1)
+              if not args.val_jsonl.exists():
+                  print(f"ERROR: validation file not found: {args.val_jsonl}",
+                        file=sys.stderr)
+                  sys.exit(1)
+
+              train_and_evaluate(args)
+
+
+          if __name__ == "__main__":
+              main()
+          PYEOF_TRAIN
+          chmod +x tools/fsis-lm/train_tier_classifier.py
+          echo "Wrote $(wc -l < tools/fsis-lm/train_tier_classifier.py) lines"
+
+      - name: Verify training data exists
+        env:
+          TRAIN_JSONL: ${{ inputs.train_jsonl }}
+          VAL_JSONL: ${{ inputs.val_jsonl }}
+        run: |
+          for f in "$TRAIN_JSONL" "$VAL_JSONL"; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Training data not found at $f"
+              echo "::error::Run the 'Export Training Data v2.2' workflow first."
+              exit 1
+            fi
+          done
+          echo "Train JSONL: $(wc -l < "$TRAIN_JSONL") lines"
+          echo "Val JSONL:   $(wc -l < "$VAL_JSONL") lines"
+
+      - name: Train
+        id: train
+        env:
+          TRAIN_JSONL: ${{ inputs.train_jsonl }}
+          VAL_JSONL: ${{ inputs.val_jsonl }}
+          OUT_DIR: ${{ inputs.out_dir }}
+          BASE_MODEL: ${{ inputs.base_model }}
+          EPOCHS: ${{ inputs.epochs }}
+          BATCH_SIZE: ${{ inputs.batch_size }}
+          LR: ${{ inputs.learning_rate }}
+          MAX_LENGTH: ${{ inputs.max_length }}
+          SEED: ${{ inputs.seed }}
+          TRAIN_DATE: $(TZ=Europe/Athens date +%Y-%m-%d)
+          HF_HUB_DISABLE_PROGRESS_BARS: "1"
+          TRANSFORMERS_NO_ADVISORY_WARNINGS: "1"
+          TOKENIZERS_PARALLELISM: "false"
+        run: |
+          TRAIN_DATE=$(TZ=Europe/Athens date +%Y-%m-%d)
+          echo "train_date=$TRAIN_DATE" >> "$GITHUB_OUTPUT"
+
+          LOG_FILE=$(mktemp)
+          set -o pipefail
+          python tools/fsis-lm/train_tier_classifier.py \
+            --train-jsonl "$TRAIN_JSONL" \
+            --val-jsonl "$VAL_JSONL" \
+            --out-dir "$OUT_DIR" \
+            --base-model "$BASE_MODEL" \
+            --epochs "$EPOCHS" \
+            --batch-size "$BATCH_SIZE" \
+            --lr "$LR" \
+            --max-length "$MAX_LENGTH" \
+            --seed "$SEED" \
+            2>&1 | tee "$LOG_FILE"
+
+          # Capture final accuracy for the summary
+          ACC=$(python -c "import json; m=json.load(open('$OUT_DIR/metrics.json')); print(f\"{m['eval']['eval_accuracy']*100:.1f}%\")")
+          F1=$(python -c "import json; m=json.load(open('$OUT_DIR/metrics.json')); print(f\"{m['eval']['eval_f1_macro']*100:.1f}%\")")
+          echo "accuracy=$ACC" >> "$GITHUB_OUTPUT"
+          echo "f1_macro=$F1" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Tier Classifier Training — ${TRAIN_DATE} (Athens)"
+            echo ""
+            echo "**Base model:** \`${BASE_MODEL}\`"
+            echo "**Output:** \`${OUT_DIR}/\`"
+            echo "**Final accuracy:** ${ACC}"
+            echo "**Final macro-F1:** ${F1}"
+            echo ""
+            echo "### Confusion matrix"
+            echo ""
+            echo '```'
+            cat "$OUT_DIR/confusion_matrix.txt"
+            echo '```'
+            echo ""
+            echo "### Training log (last 50 lines)"
+            echo ""
+            echo '```'
+            tail -50 "$LOG_FILE"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload model + tokenizer as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tier-classifier-${{ steps.train.outputs.train_date }}
+          path: |
+            ${{ inputs.out_dir }}/
+            !${{ inputs.out_dir }}/_checkpoints
+          retention-days: 90
+
+      - name: Commit metrics + predictions to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Commit ONLY the small metric files, not the model weights
+          # (weights go to artifact; too large for git)
+          OUT_DIR="${{ inputs.out_dir }}"
+          TRAIN_DATE="${{ steps.train.outputs.train_date }}"
+          mkdir -p "$OUT_DIR"
+          git add tools/fsis-lm/train_tier_classifier.py
+          for f in metrics.json confusion_matrix.txt val_predictions.jsonl; do
+            if [ -f "$OUT_DIR/$f" ]; then
+              git add "$OUT_DIR/$f"
+            fi
+          done
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "tier-classifier: training run ${TRAIN_DATE} (acc=${{ steps.train.outputs.accuracy }}, F1=${{ steps.train.outputs.f1_macro }})"
+          for i in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            git pull --rebase
+            sleep 3
+          done
+          echo "::error::Failed to push after 3 attempts"
+          exit 1
