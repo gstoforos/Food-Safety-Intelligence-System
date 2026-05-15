@@ -160,6 +160,38 @@
   "Notes": "point de vente de la coopérative à thônes¤fromtome à poligny [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening]"
  },
  {
+  "Date": "2026-05-13",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Belgium | Notifying: France",
+  "Brand": "France",
+  "Product": "Detection of Listeria monocytogenes in smoked salmon trimmings",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes in smoked salmon trimmings; risk: serious; category: fish and fish products",
+  "Class": "Alert",
+  "Country": "Belgium",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/844095",
+  "Notes": "[RASFF #2026.4237; classification: alert notification; category: fish and fish products; notifId=844095] [gemini-enrich 2026-05-15: Brand '—'→'France'] [claude-check 2026-05-15: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-05-13",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Netherlands | Notifying: Belgium",
+  "Brand": "Belgium",
+  "Product": "Listeria monocytogenes in cold-smoked salmon from the Netherlands",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes in cold-smoked salmon from the Netherlands; risk: serious; category: fish and fish products",
+  "Class": "Alert",
+  "Country": "Netherlands",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843926",
+  "Notes": "[RASFF #2026.4233; classification: alert notification; category: fish and fish products; notifId=843926] [gemini-enrich 2026-05-15: Brand '—'→'Belgium'] [claude-check 2026-05-15: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
   "Date": "2026-05-12",
   "Source": "RappelConso (FR)",
   "Company": "CHARCUTERIE PIERRE SCHMIDT Pierre Schmidt",
@@ -9790,5 +9822,37 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent]"
+ },
+ {
+  "Date": "",
+  "Source": "NVWA",
+  "Company": "Nestlé, Danone",
+  "Brand": "Eerste resultaten: monsters zuigelingenvoeding bevatten geen meetbare hoeveelheid cereulide | NVWA",
+  "Product": "Infant formula / zuigelingenvoeding",
+  "Pathogen": "Cereulide",
+  "Reason": "Cereulide",
+  "Class": "Recall",
+  "Country": "Netherlands",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.nvwa.nl/actueel/nieuws/2026/02/25/eerste-resultaten-monsters-zuigelingenvoeding-bevatten-geen-meetbare-hoeveelheid-cereulide",
+  "Notes": "Ga direct naar inhoud Naar de homepage van NVWALogo Rijksoverheid\n\nNederlandse Voedsel- en Warenautoriteit\n\nMinisterie van Landbouw, Visserij, Voedselzekerheid en Natuur\n\n# Eerste resultaten: monsters zuigelingenvoeding bevatten geen meetbare hoeveelheid cereulide\n\nNieuwsbericht25-02-2026 | 12:55\n\nD  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-15: pending_gap → pending_gap_v1] [claude-check 2026-05-15: fix; corrections: Company→Nestlé, Danone, Product→Infant formula / zuigelingenvoeding, Pathogen→Cereulide; fix; company mismatch; product mismatch | Company field contains extraction garbage (page title/navigation text); should] [gap-gate 2026-05-15: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
+  "Date": "",
+  "Source": "FSAI",
+  "Company": "Western Brand chicken products",
+  "Brand": "Western Brand chicken products",
+  "Product": "5 hours ago · Recall of Western Brand chicken products due to the presence of Salmonella ; Alert Notification: 2026.24 ; Product Identification: Please see 'List of products ...",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/News-and-Alerts/Food-Alerts/Recall-of-Western-Brand-chicken-products",
+  "Notes": "5 hours ago · Recall of Western Brand chicken products due to the presence of Salmonella ; Alert Notification: 2026.24 ; Product Identification: Please see 'List of products ...  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-15: pending_gap → pending_gap_v1] [claude-check 2026-05-15: pass; pass | All fields verified: date 2026-05-14 matches page header; Western Brand chicken products confirmed as recalling f] [gap-gate 2026-05-15: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  }
 ]
