@@ -38,7 +38,7 @@ on:
       base_model:
         description: "Base model from HuggingFace Hub"
         required: false
-        default: "microsoft/deberta-v3-base"
+        default: "microsoft/MiniLM-L12-H384-uncased"
       epochs:
         description: "Training epochs"
         required: false
@@ -46,7 +46,7 @@ on:
       batch_size:
         description: "Per-device batch size"
         required: false
-        default: "8"
+        default: "16"
       learning_rate:
         description: "Peak learning rate"
         required: false
@@ -54,7 +54,7 @@ on:
       max_length:
         description: "Max input token length"
         required: false
-        default: "512"
+        default: "128"
       seed:
         description: "Random seed"
         required: false
@@ -70,7 +70,7 @@ concurrency:
 jobs:
   train:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -436,11 +436,11 @@ jobs:
               ap.add_argument("--train-jsonl", type=Path, required=True)
               ap.add_argument("--val-jsonl", type=Path, required=True)
               ap.add_argument("--out-dir", type=Path, required=True)
-              ap.add_argument("--base-model", default="microsoft/deberta-v3-base")
+              ap.add_argument("--base-model", default="microsoft/MiniLM-L12-H384-uncased")
               ap.add_argument("--epochs", type=int, default=4)
-              ap.add_argument("--batch-size", type=int, default=8)
+              ap.add_argument("--batch-size", type=int, default=16)
               ap.add_argument("--lr", type=float, default=2e-5)
-              ap.add_argument("--max-length", type=int, default=512)
+              ap.add_argument("--max-length", type=int, default=128)
               ap.add_argument("--seed", type=int, default=42)
               args = ap.parse_args()
 
