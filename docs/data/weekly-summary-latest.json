@@ -8,13 +8,13 @@
   "week_end": "2026-05-14",
   "week_start_display": "8 May",
   "week_end_display": "14 May 2026",
-  "generated_utc": "2026-05-15T05:02:42.824138+00:00",
+  "generated_utc": "2026-05-15T06:57:47.212941+00:00",
   "stats": {
-    "total": 47,
-    "tier1": 40,
+    "total": 48,
+    "tier1": 41,
     "outbreaks": 2,
-    "delta": -6,
-    "delta_pct": -11
+    "delta": -5,
+    "delta_pct": -9
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
