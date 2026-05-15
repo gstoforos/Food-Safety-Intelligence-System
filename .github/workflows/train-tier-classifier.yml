@@ -291,15 +291,25 @@ jobs:
                   load_best_model_at_end=False,
               )
 
-              trainer = WeightedTrainer(
+              # transformers >= 4.46 renamed `tokenizer=` to `processing_class=`.
+              # transformers 5.x removed `tokenizer=` entirely. Detect at runtime.
+              import inspect
+              trainer_kwargs = dict(
                   model=model,
                   args=training_args,
                   train_dataset=train_ds,
                   eval_dataset=val_ds,
                   data_collator=collator,
                   compute_metrics=compute_metrics,
-                  tokenizer=tokenizer,
               )
+              sig = inspect.signature(Trainer.__init__)
+              if "processing_class" in sig.parameters:
+                  trainer_kwargs["processing_class"] = tokenizer
+              elif "tokenizer" in sig.parameters:
+                  trainer_kwargs["tokenizer"] = tokenizer
+              # else: omit — DataCollatorWithPadding already holds the tokenizer
+
+              trainer = WeightedTrainer(**trainer_kwargs)
 
               print(f"\n══════════ TRAINING ══════════")
               train_result = trainer.train()
