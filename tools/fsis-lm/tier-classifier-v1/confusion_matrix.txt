@@ -1,0 +1,16 @@
+Confusion matrix (rows=true, cols=pred):
+
+          Tier1  Tier2  Tier3
+  Tier 1     39      3      0
+  Tier 2      0     15      0
+  Tier 3      2      0      0
+
+              precision    recall  f1-score   support
+
+      Tier 1     0.9512    0.9286    0.9398        42
+      Tier 2     0.8333    1.0000    0.9091        15
+      Tier 3     0.0000    0.0000    0.0000         2
+
+    accuracy                         0.9153        59
+   macro avg     0.5949    0.6429    0.6163        59
+weighted avg     0.8890    0.9153    0.9001        59
