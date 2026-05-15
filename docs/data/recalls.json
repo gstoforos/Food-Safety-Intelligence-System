@@ -141,7 +141,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22274/Interne",
-  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste team ouest [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening]"
+  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste team ouest [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [patch 2026-05-15 W20#4: linked-lot 015526100 also recalled under fiche 22275 — Le farto de Thones brand, Jura+Haute-Savoie retail channel]"
  },
  {
   "Date": "2026-05-13",
@@ -165,7 +165,7 @@
   "Company": "Société Coopérative Agricole des Producteurs de Reblochons des Vallées de Thônes",
   "Brand": "Le farto de Thônes",
   "Product": "Reblochon de Savoie fermier AOP 450g",
-  "Pathogen": "Escherichia coli STEC",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "présence de escherichia coli stec",
   "Class": "Voluntary",
   "Country": "France",
@@ -173,7 +173,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22275/Interne",
-  "Notes": "point de vente de la coopérative à thônes¤fromtome à poligny [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening]"
+  "Notes": "point de vente de la coopérative à thônes¤fromtome à poligny [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [patch 2026-05-15 W20#3: pathogen label canonicalised from 'Escherichia coli STEC'] [patch 2026-05-15 W20#4: linked-lot 015526100 also recalled under fiche 22274 — Sans marque, wholesale distribution to Bretagne via team ouest]"
  },
  {
   "Date": "2026-05-13",
@@ -210,7 +210,7 @@
  {
   "Date": "2026-05-12",
   "Source": "RappelConso (FR)",
-  "Company": "CHARCUTERIE PIERRE SCHMIDT Pierre Schmidt",
+  "Company": "Charcuterie Pierre Schmidt",
   "Brand": "Les Créations de Pierre",
   "Product": "poitrine fumée 350g pierre schmidt",
   "Pathogen": "Listeria monocytogenes",
@@ -466,7 +466,7 @@
  {
   "Date": "2026-05-11",
   "Source": "RappelConso (FR)",
-  "Company": "RappelConso",
+  "Company": "Le Fromager des Halles Grand-Frais",
   "Brand": "Unbranded",
   "Product": "gorgonzola dop à la cuillère",
   "Pathogen": "Listeria monocytogenes",
@@ -477,7 +477,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22229/Interne",
-  "Notes": "produit distribué dans les enseignes grand frais. [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'RappelConso'] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
+  "Notes": "produit distribué dans les enseignes grand frais. [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'RappelConso'] [manual fix 2026-05-14: Reason FR→EN per audit rule] [patch 2026-05-15 W20#6: Company re-populated from RappelConso 'Origine de la fiche' field after scraper fallback wrote 'RappelConso']"
  },
  {
   "Date": "2026-05-11",
