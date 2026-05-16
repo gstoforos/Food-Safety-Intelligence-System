@@ -54,6 +54,33 @@ running — only when all of (every LLM AND the deterministic fallback)
 crash, which would itself be a code bug not a runtime condition.
 
 ============================================================================
+PROSE STABILITY — AUDIT 2026-05-16
+============================================================================
+The synthesis prose was historically structured around numerical citations
+("Week 20 closed with 48 pathogen recalls, down 5 versus prior week
+(-9%), of which 41 were Tier-1 critical incidents...Listeria
+monocytogenes dominated the pathogen mix at 38% of total recalls
+(18 cases)..."). That worked when the summary JSON was static, but the
+Wednesday weekly-updates-check workflow re-writes the summary JSON
+whenever upstream recall counts shift — which means the AI Synthesis
+panel on the dashboard, which reads this field live, would silently go
+stale relative to the KPI tiles every time that happened.
+
+Result of the audit: the prose was rewritten to be QUALITATIVE only —
+referencing the leading-pathogen NAME, Tier-1 STATUS, outbreak STATUS,
+dominant product CATEGORIES, and jurisdictional PATTERNS, but never
+numerical totals, deltas, percentages, or case counts. Those numerical
+values are still shown on the dashboard, in the KPI tiles and the
+distribution tables, where they live in fields that update together
+with the prose. The synthesis prose now stays accurate across re-runs
+even as W20 count drifts from 48 to 49 to 50.
+
+The DATA section of the LLM prompt still contains the numerical context
+because the LLM needs that to reason about what's notable — but the
+PROMPT_RULES section now explicitly bans citing the numbers in the
+output prose.
+
+============================================================================
 CADENCE (run from .github/workflows/synthesis-writer-*.yml)
 ============================================================================
 Weekly:  Friday 08:30 Athens — after the 08:00 weekly builder commits at ~08:15
@@ -102,19 +129,38 @@ Write a 2-3 sentence analytical synthesis of the recall data below.
 Total length: 100-220 words.
 
 Required structure:
-  Sentence 1 (the lead): the most newsworthy finding — typically the total
-  count with its delta versus the prior period, the dominant pathogen with
-  its share, OR the highest-severity outbreak. Cite specific numbers.
+  Sentence 1 (the lead): the most newsworthy QUALITATIVE finding — the
+  dominant pathogen by name, the presence of confirmed outbreaks, or the
+  concentration of Tier-1 critical incidents. Describe the pattern, not
+  the count.
 
-  Sentence 2 (the comparison): one comparative observation — vs prior
-  period, geographic concentration, severity escalation, pathogen mix
-  shift, or jurisdictional pattern.
+  Sentence 2 (the comparison): one comparative observation — geographic
+  concentration, severity escalation, pathogen-mix shift, jurisdictional
+  pattern, or product-category concentration (RTE dairy, deli, cured
+  products, smoked seafood, fresh produce, low-moisture ingredients, etc.).
+  Describe the pattern, not the count.
 
   Sentence 3 (optional, the implication): one specific takeaway for food
-  processors or QA officers — what to watch, which control to re-verify,
-  which regulator's pipeline to monitor.
+  processors or QA officers — which control to re-verify, which
+  regulator's pipeline to monitor, what corrective action to consider.
+
+CRITICAL — STABILITY RULE:
+  Do NOT cite any numerical value from the DATA section in your prose.
+  The dashboard re-runs this prompt whenever upstream recall counts
+  shift; numbers in prose would silently go stale relative to the live
+  KPI tiles. Specifically banned in the output:
+    - The total recall count
+    - The delta versus the prior period (up/down N, +/-N%)
+    - The leading-pathogen share-of-mix percentage
+    - The leading-pathogen case count
+    - The country / jurisdiction count
+    - Any other numerical figure
+  Use qualitative descriptors instead: "dominated", "led", "concentrated
+  in", "continued to drive", "with confirmed outbreaks declared",
+  "Tier-1 critical incidents recorded", "multi-jurisdictional pressure".
 
 Banned in the output:
+  - Numerical counts / percentages / deltas (see CRITICAL above)
   - Marketing adjectives ("powerful", "robust", "innovative",
     "comprehensive", "unprecedented", "cutting-edge")
   - First-person plural ("we", "our")
@@ -124,8 +170,8 @@ Banned in the output:
   - Bullet points, headers, emojis
   - Self-reference ("this report", "this analysis", "as shown above")
 
-Cite the pathogens, counts, percentages, and country names from the DATA
-section verbatim. Plain prose. Direct sentences.
+Cite the pathogen NAMES, country / jurisdiction NAMES, and product-category
+NAMES from the DATA section verbatim. Plain prose. Direct sentences.
 
 Output only the synthesis paragraph. No preamble, no headers, no closing
 remarks. The first character of your response must be the first letter of
@@ -149,7 +195,13 @@ def _format_top_threats(threats: list, max_items: int = 5) -> str:
 
 
 def _build_weekly_prompt(summary: dict) -> str:
-    """Build the weekly analytical prompt from the summary JSON."""
+    """Build the weekly analytical prompt from the summary JSON.
+
+    The DATA section still includes numerical fields because the LLM needs
+    that context to reason about what's notable (a 38% leading pathogen is
+    "dominant"; a 12% leading pathogen is "fragmented"). The _PROMPT_RULES
+    forbid the LLM from CITING those numbers in the output prose.
+    """
     stats = summary.get("stats") or {}
     leading = summary.get("leading_pathogen") or {}
     delta = stats.get("delta", 0)
@@ -173,14 +225,20 @@ def _build_weekly_prompt(summary: dict) -> str:
         f"  Countries with recalls: {summary.get('country_count', 0)}\n\n"
         "Top critical incidents this week:\n"
         + _format_top_threats(summary.get("top_threats"))
-        + "\n\nWrite the synthesis paragraph now."
+        + "\n\nWrite the synthesis paragraph now. "
+          "Remember: NO numerical values in the prose."
     )
 
 
 def _build_monthly_prompt(summary: dict) -> str:
     """Build the monthly analytical prompt from the summary JSON.
     Monthly JSON has richer fields (hotspots, clusters, emerging) so the
-    prompt can ask for slightly deeper analytical patterns."""
+    prompt can ask for slightly deeper analytical patterns.
+
+    Same stability rule as weekly: DATA section retains numerical fields
+    so the LLM has context for "dominant" vs "fragmented" judgments, but
+    the _PROMPT_RULES forbid citing those numbers in the output prose.
+    """
     stats = summary.get("stats") or {}
     leading = summary.get("leading_pathogen") or {}
     delta = stats.get("delta", 0)
@@ -225,7 +283,8 @@ def _build_monthly_prompt(summary: dict) -> str:
         f"  Emerging pathogen patterns: {emerging}\n\n"
         "Top critical incidents this month:\n"
         + _format_top_threats(summary.get("top_threats"))
-        + "\n\nWrite the synthesis paragraph now."
+        + "\n\nWrite the synthesis paragraph now. "
+          "Remember: NO numerical values in the prose."
     )
 
 
@@ -343,11 +402,34 @@ _BANNED_PHRASES = (
     "in conclusion", "to summarize",
 )
 
+# Patterns the LLM was instructed NOT to emit (numerical citations).
+# These are caught at validation time as a hard backstop: if the model
+# disobeys the stability rule, we reject and fall through to the next
+# backend rather than ship stale-able prose. The patterns intentionally
+# err on the side of false positives — better to fall through to the
+# deterministic template than emit numbers.
+_NUMERICAL_LEAK_PATTERNS = (
+    re.compile(r"\b\d+\s*(?:pathogen\s+)?recalls?\b", re.I),           # "48 recalls"
+    re.compile(r"\b\d+\s*%\s*(?:of\s+total|share|of\s+the\s+mix)\b", re.I),  # "38% of total"
+    re.compile(r"\b\d+\s*cases?\b", re.I),                              # "18 cases"
+    re.compile(r"\b(?:up|down)\s+\d+\s+(?:versus|vs\.?)\b", re.I),      # "down 5 versus"
+    re.compile(r"\bdelta[:\s]+[+\-]?\d+", re.I),                        # "delta: -5"
+    re.compile(r"\b[+\-]\d+\s*%", re.I),                                # "+9%" / "-9%"
+    re.compile(r"\b\d+\s+(?:Tier-?1|tier\s*1)\b", re.I),                # "41 Tier-1"
+    re.compile(r"\b\d+\s+(?:jurisdictions?|countries?|outbreaks?)\b", re.I),  # "5 jurisdictions"
+)
+
 
 def _validate_synthesis(text: str) -> bool:
     """Reject obviously-bad LLM output. Catches the common AI failure modes
     (preamble, refusal, role-playing) without being so strict it rejects
-    valid prose."""
+    valid prose.
+
+    AUDIT 2026-05-16: the prior digit-required check was removed because
+    the stability rule now forbids the LLM from citing numbers. A new
+    numerical-leak gate replaces it — if the model disobeys, we reject so
+    the cascade falls through to the next backend (or to the deterministic
+    fallback) rather than emitting stale-able prose."""
     if not text or not isinstance(text, str):
         return False
     s = text.strip()
@@ -362,19 +444,29 @@ def _validate_synthesis(text: str) -> bool:
         if ph in low:
             log.warning("synthesis contains banned phrase '%s'", ph)
             return False
-    # Must contain at least one digit (we asked the model to cite numbers).
-    if not re.search(r"\d", s):
-        log.warning("synthesis contains no numbers — likely hallucinated")
-        return False
+    # Stability gate — reject any output that leaked numerical counts the
+    # model was instructed not to cite.
+    for pat in _NUMERICAL_LEAK_PATTERNS:
+        m = pat.search(s)
+        if m:
+            log.warning("synthesis violated stability rule (numerical leak): %r",
+                        m.group(0))
+            return False
     return True
 
 
 # ============================================================================
-# DETERMINISTIC FALLBACK — template prose from real stats
+# DETERMINISTIC FALLBACK — qualitative prose from real stats
 # ============================================================================
 # If every LLM backend fails, this generates a data-grounded synthesis from
 # the JSON fields directly. Less analytical than LLM output, but ALWAYS
 # truthful (it can only state what the data shows) and ALWAYS non-empty.
+#
+# AUDIT 2026-05-16: rewritten to produce STABLE prose — no numerical
+# counts, deltas, or percentages. Stats fields are still read so the
+# template can pick the right qualitative descriptor ("dominated" vs
+# "led" vs "fragmented"), but the values themselves never appear in the
+# output text. See module docstring for the rationale.
 
 _PATHOGEN_IMPLICATIONS = {
     "listeria": "Processors of ready-to-eat dairy, deli, and cured products "
@@ -406,63 +498,64 @@ _PATHOGEN_IMPLICATIONS = {
 
 def _deterministic_synthesis(summary: dict, cadence: str) -> str:
     """Template-driven synthesis when all LLM backends fail. Always returns
-    a non-empty, data-grounded paragraph."""
+    a non-empty, data-grounded paragraph.
+
+    AUDIT 2026-05-16: rewritten to produce STABLE prose — no numerical
+    counts, deltas, or percentages. Stats fields are still read so the
+    template can pick the right qualitative descriptor, but the values
+    themselves never appear in the output text. See module docstring."""
     stats = summary.get("stats") or {}
     leading = summary.get("leading_pathogen") or {}
     total = stats.get("total", 0)
-    delta = stats.get("delta", 0)
-    delta_pct = stats.get("delta_pct", 0)
     tier1 = stats.get("tier1", 0)
     outbreaks = stats.get("outbreaks", 0)
     leading_name = leading.get("name") or "Mixed pathogens"
     leading_pct = leading.get("pct", 0)
-    leading_cases = leading.get("cases", 0)
 
     if cadence == "weekly":
         period = f"Week {summary.get('week_num', '?')}"
-        prior = "the prior week"
     else:
         period = f"{summary.get('month_name', 'This month')}"
-        prior = "the prior month"
 
-    # Sentence 1 — counts + delta.
-    if delta > 0:
-        delta_phrase = f"up {delta} versus {prior} ({delta_pct:+}%)"
-    elif delta < 0:
-        delta_phrase = f"down {abs(delta)} versus {prior} ({delta_pct:+}%)"
+    # Sentence 1 — qualitative posture: Tier-1 prominence + outbreak status.
+    # Uses ratio of tier1/total to pick the right descriptor, but never
+    # cites the underlying counts.
+    tier1_ratio = (tier1 / total) if total > 0 else 0.0
+    if tier1 > 0 and tier1_ratio >= 0.7:
+        tier_clause = "Tier-1 critical incidents dominated the recall picture"
+    elif tier1 > 0 and tier1_ratio >= 0.4:
+        tier_clause = "Tier-1 critical incidents drove the bulk of the week's recall activity"
+    elif tier1 > 0:
+        tier_clause = (
+            "Tier-1 critical incidents were recorded across multiple "
+            "jurisdictions"
+        )
     else:
-        delta_phrase = f"flat versus {prior}"
+        tier_clause = "no Tier-1 critical incidents were recorded"
 
-    # Tier-1 clause — grammar-aware singular/plural/zero.
-    if tier1 > 1:
-        tier_clause = f", of which {tier1} were Tier-1 critical incidents"
-    elif tier1 == 1:
-        tier_clause = ", of which 1 was a Tier-1 critical incident"
-    else:
-        tier_clause = ", with no Tier-1 critical incidents recorded"
-
-    s1 = (
-        f"{period} closed with {total} pathogen recalls across "
-        f"{summary.get('country_count', 'multiple')} jurisdictions, "
-        f"{delta_phrase}{tier_clause}"
-    )
     if outbreaks > 1:
-        s1 += f"; {outbreaks} confirmed outbreaks were declared in the same window"
+        outbreak_clause = (
+            ", with multiple confirmed outbreaks declared in the same window"
+        )
     elif outbreaks == 1:
-        s1 += "; one confirmed outbreak was declared in the same window"
-    s1 += "."
-
-    # Sentence 2 — leading pathogen.
-    if leading_pct >= 30:
-        share_phrase = f"dominated the pathogen mix at {leading_pct}% of total recalls"
-    elif leading_pct >= 15:
-        share_phrase = f"led the pathogen mix at {leading_pct}% of total recalls"
+        outbreak_clause = (
+            ", with one confirmed outbreak declared in the same window"
+        )
     else:
-        share_phrase = f"accounted for {leading_pct}% of total recalls in a fragmented week"
+        outbreak_clause = ""
+
+    s1 = f"{period} closed: {tier_clause}{outbreak_clause}."
+
+    # Sentence 2 — leading-pathogen pattern (qualitative descriptor only).
+    if leading_pct >= 30:
+        share_phrase = "dominated the pathogen mix"
+    elif leading_pct >= 15:
+        share_phrase = "led the pathogen mix"
+    else:
+        share_phrase = "led a fragmented pathogen mix"
     s2 = (
-        f"{leading_name} {share_phrase} ({leading_cases} cases), "
-        f"sustaining the pattern of multi-jurisdictional regulatory pressure "
-        f"on this pathogen class."
+        f"{leading_name} {share_phrase}, sustaining the pattern of "
+        f"multi-jurisdictional regulatory pressure on this pathogen class."
     )
 
     # Sentence 3 — actionable implication tuned to dominant pathogen.
