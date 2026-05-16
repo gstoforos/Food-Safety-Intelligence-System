@@ -12,17 +12,37 @@ or merge tick.
 
 THE FIX
 =======
-On push-retry, instead of overwriting, do a row-level union of:
-  - Recalls : remote ∪ ours; never shrinks. Remote wins on collision.
-  - Pending : remote ∪ ours, minus any row whose dedup_key already
-              appears in the merged Recalls.
-  - NEWS    : remote ∪ ours by NEWS dedup key.
+On push-retry (and now on pre-emptive sync), instead of overwriting, do a
+row-level union of:
+  - Recalls         : remote ∪ ours; never shrinks. Remote wins on collision.
+  - Pending         : remote ∪ ours, minus any row whose dedup_key already
+                      appears in the merged Recalls.
+  - Weekly_Review   : remote ∪ ours by URL+Date.
+  - Weekly_Rejected : remote ∪ ours by URL+Date.
+  - NEWS            : remote ∪ ours by NEWS dedup key.
 
 Identity = the same _dedup_key used by merge_master:
 URL primary, fallback to Date+Company+Pathogen.
 
+THE CANARY (audit 2026-05-16)
+=============================
+Every sheet merge now asserts:
+
+    len(merged) >= max(len(remote), len(ours))
+
+If a merge would EVER shrink a sheet relative to either input, that's
+mathematically impossible for a true union and indicates a logic bug
+(or corrupted data). The assertion raises and the push aborts rather
+than silently shipping a smaller file. commit_github.py catches the
+assertion and refuses to fall back to ours-wins overwrite.
+
+This is the structural guarantee that 2026-05-16's 6-row stomp class
+of bug CANNOT happen again undetected — even if every other safety
+layer fails (workflow concurrency, pre-emptive sync), a merge that
+would lose rows now fails LOUD instead of silent.
+
 Used by:
-  pipeline/commit_github.py  (when called from url_gate_gemini etc.)
+  pipeline/commit_github.py  (called from layer 1 pre-sync AND layer 2 retry)
   .github/workflows/news-feed.yml      (via inline Python in retry block)
   .github/workflows/merge-master.yml   (same pattern)
 """
@@ -122,12 +142,44 @@ def _merge_unique(
     return out
 
 
+def _assert_no_shrink(
+    sheet_name: str,
+    remote_rows: List[Dict[str, Any]],
+    ours_rows: List[Dict[str, Any]],
+    merged_rows: List[Dict[str, Any]],
+) -> None:
+    """CANARY (audit 2026-05-16) — a true union cannot shrink either input.
+    If the merged sheet has fewer rows than the larger input, raise so
+    commit_github.py refuses the push.
+
+    NOTE: Pending is special-cased by the caller (we filter merged Pending
+    against Recalls keys, which can legitimately shrink Pending). For all
+    other sheets this canary is unconditional.
+    """
+    n_remote = len(remote_rows)
+    n_ours = len(ours_rows)
+    n_merged = len(merged_rows)
+    n_max = max(n_remote, n_ours)
+    if n_merged < n_max:
+        msg = (
+            f"xlsx_merge CANARY: {sheet_name} merge would shrink "
+            f"({n_merged} < max(remote={n_remote}, ours={n_ours})). "
+            f"This is impossible for a true union — refusing to write."
+        )
+        log.error(msg)
+        raise AssertionError(msg)
+
+
 def merge_xlsx_with_remote(
     remote_path: Path,
     ours_path: Path,
     out_path: Path,
 ) -> Dict[str, int]:
     """Merge our local xlsx with the just-pulled remote, write to out_path.
+    Every sheet merge is checked against the no-shrink canary; the
+    function raises AssertionError if any merged sheet is smaller than
+    either input.
+
     Returns counts dict for logging.
     """
     rec_headers, rec_remote = _read_sheet(remote_path, "Recalls")
@@ -139,6 +191,7 @@ def merge_xlsx_with_remote(
              "URL", "Notes"]
         )
     rec_merged = _merge_unique(rec_remote, rec_ours, _dedup_key)
+    _assert_no_shrink("Recalls", rec_remote, rec_ours, rec_merged)
     rec_keys = {_dedup_key(r) for r in rec_merged}
 
     pen_headers, pen_remote = _read_sheet(remote_path, "Pending")
@@ -150,6 +203,12 @@ def merge_xlsx_with_remote(
         # delete logic in merge_master.cleanup_orphan_rejected.
         pen_headers = rec_headers + ["ScrapedAt", "Status", "RejectedBy"]
     pen_merged_raw = _merge_unique(pen_remote, pen_ours, _dedup_key)
+    # SPECIAL CASE: Pending is filtered against the merged Recalls keys,
+    # so it CAN legitimately shrink (a row promoted to Recalls by the
+    # remote-winner is correctly dropped from our Pending). The no-shrink
+    # canary therefore checks the RAW union, not the post-filter result.
+    _assert_no_shrink("Pending (pre-filter)", pen_remote, pen_ours,
+                      pen_merged_raw)
     pen_merged = [r for r in pen_merged_raw if _dedup_key(r) not in rec_keys]
 
     news_headers, news_remote = _read_sheet(remote_path, "NEWS")
@@ -160,6 +219,7 @@ def merge_xlsx_with_remote(
              "Title", "Link", "Retrieved (UTC)"]
         )
     news_merged = _merge_unique(news_remote, news_ours, _news_dedup_key)
+    _assert_no_shrink("NEWS", news_remote, news_ours, news_merged)
 
     # ── Weekly_Review (audit 2026-05-06) ──────────────────────────────
     # Pre-2026-05-06 this module silently dropped the Weekly_Review sheet
@@ -175,7 +235,6 @@ def merge_xlsx_with_remote(
     wr_headers, wr_remote = _read_sheet(remote_path, "Weekly_Review")
     _, wr_ours = _read_sheet(ours_path, "Weekly_Review")
     if not wr_headers:
-        _, wr_ours_headers_attempt = wr_ours, None
         # fall back to ours' headers if available
         wr_headers_local, _ = _read_sheet(ours_path, "Weekly_Review")
         if wr_headers_local:
@@ -187,6 +246,7 @@ def merge_xlsx_with_remote(
                 "Week_Added", "Reviewed",
             ]
     wr_merged = _merge_unique(wr_remote, wr_ours, _wr_dedup_key)
+    _assert_no_shrink("Weekly_Review", wr_remote, wr_ours, wr_merged)
 
     # ── Weekly_Rejected (audit 2026-05-12) ────────────────────────────
     # Pre-2026-05-12 this module silently dropped the Weekly_Rejected
@@ -215,6 +275,7 @@ def merge_xlsx_with_remote(
                 "Week_Added", "RejectedBy", "RejectionReason", "Reviewed",
             ]
     wj_merged = _merge_unique(wj_remote, wj_ours, _wr_dedup_key)
+    _assert_no_shrink("Weekly_Rejected", wj_remote, wj_ours, wj_merged)
 
     wb = Workbook()
     rec_ws = wb.active
@@ -271,9 +332,16 @@ def _cli() -> int:
         print("usage: python -m pipeline.xlsx_merge <remote> <ours> <out>",
               file=sys.stderr)
         return 2
-    counts = merge_xlsx_with_remote(
-        Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]),
-    )
+    try:
+        counts = merge_xlsx_with_remote(
+            Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]),
+        )
+    except AssertionError as ae:
+        # Canary tripped — exit with a distinctive code so the caller
+        # (YAML retry block) can distinguish "no-shrink violation" from
+        # other failures.
+        print(f"CANARY: {ae}", file=sys.stderr)
+        return 3
     print(f"merged: Recalls={counts['recalls_merged']} "
           f"Pending={counts['pending_merged']} NEWS={counts['news_merged']}")
     return 0
