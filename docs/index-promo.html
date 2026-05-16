@@ -576,9 +576,19 @@ function init(){
 // Also computes a "today" counter from the in-memory dataset so the engine
 // strip shows live throughput without any backend wiring.
 function renderLastVerified(){
-  // Writes a single populated line ("N verified this week · Last May 12")
-  // into #verif-meta-line. If ALL is empty (data still loading or failed
-  // to load), the line stays empty — NEVER shows placeholder em-dashes.
+  // Writes a single populated line into #verif-meta-line, labelled with an
+  // explicit rolling-window phrase so it cannot be confused with the
+  // AFTS Week-N synthesis below (which uses Friday-Thursday calendar weeks).
+  // Output shapes:
+  //   default:           "45 verified · last 7 days · latest May 15"
+  //   today has activity: "3 verified today · 45 last 7 days · latest May 15"
+  // If ALL is empty (data still loading or failed to load), the line stays
+  // empty — NEVER shows placeholder em-dashes.
+  // AUDIT 2026-05-16: the prior "this week" wording was ambiguous against
+  // the AI Synthesis panel below, which references AFTS Week N
+  // (Fri→Thu), producing a confusing count mismatch (e.g. 45 banner vs 48
+  // synthesis). Replaced with the explicit "last 7 days" rolling-window
+  // label so the two coexist without collision.
   const el=document.getElementById('verif-meta-line');
   if(!el || !ALL.length) return;
   const latest=ALL[0].date;
@@ -593,9 +603,9 @@ function renderLastVerified(){
   const todayN=ALL.filter(r=>r.date===today).length;
   const weekN=ALL.filter(r=>r.date>=cutoff).length;
   const countPart = todayN>0
-    ? '<b style="color:var(--ai)">'+todayN+'</b> verified today · <b style="color:var(--ai)">'+weekN+'</b> this week'
-    : '<b style="color:var(--ai)">'+weekN+'</b> verified this week';
-  el.innerHTML = dateStr ? countPart+' · Last <b>'+dateStr+'</b>' : countPart;
+    ? '<b style="color:var(--ai)">'+todayN+'</b> verified today · <b style="color:var(--ai)">'+weekN+'</b> last 7 days'
+    : '<b style="color:var(--ai)">'+weekN+'</b> verified · last 7 days';
+  el.innerHTML = dateStr ? countPart+' · latest <b>'+dateStr+'</b>' : countPart;
 }
 
 // ===== KPI count-up animation — numbers tick from 0 to value on first render =====
