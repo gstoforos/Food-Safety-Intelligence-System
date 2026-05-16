@@ -22,6 +22,7 @@ March prototype). All other styling matches March.
 
 from __future__ import annotations
 import os
+import re
 from typing import List, Dict, Optional, TypedDict
 
 from reportlab.pdfgen import canvas
@@ -163,29 +164,85 @@ else:
 # Genera that should be displayed by genus only (per March style)
 _GENUS_ONLY = {"Listeria", "Salmonella", "Campylobacter", "Cronobacter", "Vibrio", "Yersinia"}
 
-# Explicit overrides
+# Explicit overrides.
+# Audit 2026-05-15: STEC variants previously had only three entries
+# ("E. coli O157:H7", "Shigatoxin-producing E. coli", "Escherichia coli")
+# and the source feed emits at least nine distinct surface forms (FR/EN,
+# with and without parens, with and without serogroup). Variants that
+# slipped through showed in the marketing PDF as separate rows
+# ("Shiga toxin-producing E. coli (STEC)" alongside "E. coli / STEC")
+# instead of folding to one tile. Every known surface form is now mapped;
+# the regex catch-all in abbreviate_pathogen() backstops future variants.
 _PATHOGEN_OVERRIDES = {
     "Listeria monocytogenes":   "Listeria",
     "Salmonella enterica":      "Salmonella",
     "Salmonella spp.":          "Salmonella",
     "Clostridium botulinum":    "C. botulinum",
     "Clostridium perfringens":  "C. perfringens",
-    "Escherichia coli":         "E. coli",
-    "E. coli O157:H7":          "E. coli / STEC",
-    "Shigatoxin-producing E. coli": "E. coli / STEC",
+    # E. coli / STEC family — every known surface form folds to one label.
+    # Bare "Escherichia coli" / "E. coli" map to plain "E. coli" because
+    # those forms can refer to non-pathogenic hygiene-indicator counts.
+    "Escherichia coli":              "E. coli",
+    "Escherichia coli (generic)":    "E. coli",
+    "E. coli":                       "E. coli",
+    "E. coli (generic)":             "E. coli",
+    # STEC variants → "E. coli / STEC"
+    "E. coli O157:H7":                                  "E. coli / STEC",
+    "E. coli O157":                                     "E. coli / STEC",
+    "E. coli O26 (STEC)":                               "E. coli / STEC",
+    "E. coli O26":                                      "E. coli / STEC",
+    "E. coli O145 (STEC)":                              "E. coli / STEC",
+    "E. coli O145":                                     "E. coli / STEC",
+    "E. coli O103 (STEC)":                              "E. coli / STEC",
+    "E. coli O111 (STEC)":                              "E. coli / STEC",
+    "E. coli O121 (STEC)":                              "E. coli / STEC",
+    "E. coli STEC":                                     "E. coli / STEC",
+    "E. coli STEC (Shiga toxin-producing)":             "E. coli / STEC",
+    "STEC":                                             "E. coli / STEC",
+    "STEC (Shiga toxin-producing E. coli)":             "E. coli / STEC",
+    "Shiga toxin-producing E. coli":                    "E. coli / STEC",
+    "Shiga toxin-producing E. coli (STEC)":             "E. coli / STEC",
+    "Shigatoxin producing Escherichia coli":            "E. coli / STEC",
+    "Shigatoxin producing Escherichia coli (STEC)":     "E. coli / STEC",
+    "Shigatoxin-producing E. coli":                     "E. coli / STEC",
+    "Shigatoxin-producing Escherichia coli":            "E. coli / STEC",
+    "Shigatoxin-producing Escherichia coli (STEC)":     "E. coli / STEC",
+    "Escherichia coli STEC":                            "E. coli / STEC",
+    "Escherichia coli shiga toxinogène":                "E. coli / STEC",
+    "Escherichia coli shiga toxinogène (STEC)":         "E. coli / STEC",
     "Bacillus cereus":          "B. cereus",
     "Bacillus cereus / cereulide": "B. cereus",
+    "Bacillus cereus / Cereulide": "B. cereus",
     "Staphylococcus aureus":    "S. aureus",
 }
 
+# Regex catch-all for STEC surface forms NOT in the override dict.
+# Any string containing 'stec' / 'shiga[ -]?toxin' / 'shigatoxin' /
+# 'shigatoxinogène' / 'vtec' (case-insensitive) maps to "E. coli / STEC"
+# without us having to enumerate every possible phrasing.
+_STEC_REGEX = re.compile(
+    r"\b(stec|shiga[\s\-]?toxin|shigatoxin|shigatoxinogène|vtec)\b",
+    re.I,
+)
+
 
 def abbreviate_pathogen(name: str) -> str:
-    """Apply March-style abbreviation: genus-only or first-initial.species."""
+    """Apply March-style abbreviation: genus-only or first-initial.species.
+
+    Audit 2026-05-15: added regex backstop for unmapped STEC variants
+    so the marketing PDF never shows two rows for the same hazard.
+    """
     if not name:
         return ""
     name = name.strip()
     if name in _PATHOGEN_OVERRIDES:
         return _PATHOGEN_OVERRIDES[name]
+    # STEC catch-all — fold anything mentioning STEC / shiga-toxin / VTEC
+    # to the canonical "E. coli / STEC" label. Excludes bare "Escherichia
+    # coli" / "E. coli" (those are non-pathogenic hygiene indicators and
+    # don't match this regex anyway).
+    if _STEC_REGEX.search(name):
+        return "E. coli / STEC"
     parts = name.split()
     # Single-word genus already
     if len(parts) == 1:
