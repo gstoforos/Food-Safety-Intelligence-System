@@ -1069,6 +1069,59 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Dict[str, str], Optional[str]]:
     if date_corr and re.match(r"^\d{4}-\d{2}-\d{2}$", date_corr):
         corrections["Date"] = date_corr
 
+    # ── Source-authority guard (audit 2026-05-15) ─────────────────────
+    # Claude (and Gemini before it via url_gate_gemini.py) sometimes
+    # returns the regulator/portal name as Company / Brand when the
+    # page chrome is more prominent than the recalling firm — the
+    # canonical example was RappelConso fid 22229 where the gemini-
+    # enrich path wrote Company="RappelConso". The agency name is
+    # NEVER a valid Company/Brand value. Reject any *_corrected value
+    # that matches the row's Source column or a known source-authority
+    # name, and degrade to verdict=fail so a human can intervene
+    # instead of writing garbage downstream.
+    _SOURCE_AUTHORITIES = {
+        # Open-data / regulator portal names
+        "rappelconso", "rappel conso", "rappel.conso",
+        "fda", "u.s. food and drug administration",
+        "food and drug administration",
+        "usda", "usda fsis", "fsis",
+        "food safety and inspection service",
+        "rasff", "rasff window", "rasff portal",
+        "fsai", "food safety authority of ireland",
+        "fsa", "fsa uk", "food standards agency",
+        "fss", "food standards scotland",
+        "fsanz", "food standards australia new zealand",
+        "cfia", "canadian food inspection agency",
+        "aesan", "agencia española de seguridad alimentaria",
+        "efet", "efsa", "ages", "afsca", "favv",
+        "bvl", "bfr", "mfds", "mhlw",
+        "anses", "dgccrf", "dgal",
+        "salute", "ministero della salute",
+        "nvwa", "voedsel waren autoriteit",
+        "mattilsynet", "livsmedelsverket", "ruokavirasto",
+        "fodevarestyrelsen", "moph", "moccae",
+        "signalconso", "signal conso",
+        "european commission", "commission européenne",
+    }
+
+    def _matches_source_authority(v: str) -> bool:
+        """True iff v matches the row's Source value or any known
+        regulator/portal name. Strips country codes like '(FR)' or
+        '/ DGCCRF' decorations so 'RappelConso' matches
+        Source='RappelConso (FR)'."""
+        if not v:
+            return False
+        needle = v.strip().lower()
+        if not needle:
+            return False
+        if needle in _SOURCE_AUTHORITIES:
+            return True
+        src = str(row.get("Source") or "").lower()
+        src_clean = re.sub(r"\s*[\(/].*$", "", src).strip()
+        if src_clean and (needle == src_clean or src_clean in needle):
+            return True
+        return False
+
     for src_key, dst_field, min_len in (
         ("company_corrected",  "Company",  2),
         ("brand_corrected",    "Brand",    2),
@@ -1076,8 +1129,23 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Dict[str, str], Optional[str]]:
         ("pathogen_corrected", "Pathogen", 3),
     ):
         v = str(result.get(src_key) or "").strip()
-        if len(v) >= min_len:
-            corrections[dst_field] = v
+        if len(v) < min_len:
+            continue
+        # Source-authority guard — only for Company/Brand; Product and
+        # Pathogen are not at risk of confusion with regulator names.
+        if dst_field in ("Company", "Brand"):
+            if _matches_source_authority(v):
+                log.warning(
+                    "claude-check rejected agency-as-%s for URL=%s: "
+                    "Claude returned %r which matches Source=%r — "
+                    "leaving field empty for human review",
+                    dst_field,
+                    str(row.get("URL") or "")[:60],
+                    v,
+                    row.get("Source"),
+                )
+                continue
+        corrections[dst_field] = v
 
     reason_parts = [verdict]
     if not result.get("is_recall_page", True):
