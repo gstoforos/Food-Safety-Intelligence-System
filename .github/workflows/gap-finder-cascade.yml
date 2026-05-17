@@ -24,7 +24,7 @@ on:
 # run is still in flight, GitHub will queue this one rather than running
 # both in parallel (which would fight over the recalls.xlsx commit).
 concurrency:
-  group: gap-finder-cascade
+  group: fsis-data-writers
   cancel-in-progress: false
 
 permissions:

@@ -29,7 +29,7 @@ permissions:
   contents: write  # needed to commit the audit report back to the repo
 
 concurrency:
-  group: training-corpus-audit
+  group: fsis-data-writers
   cancel-in-progress: false
 
 jobs:

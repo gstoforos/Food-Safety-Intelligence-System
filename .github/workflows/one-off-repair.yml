@@ -16,6 +16,10 @@ name: One-off repo repair
 #      repair files to keep the repo clean.
 # ============================================================================
 
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
 

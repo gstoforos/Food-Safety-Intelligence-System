@@ -63,7 +63,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: rescue-historical-rejects
+  group: fsis-data-writers
   cancel-in-progress: false
 
 jobs:

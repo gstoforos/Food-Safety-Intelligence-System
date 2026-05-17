@@ -56,7 +56,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: export-training-data-v2
+  group: fsis-data-writers
   cancel-in-progress: false
 
 jobs:

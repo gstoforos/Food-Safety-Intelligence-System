@@ -64,7 +64,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: train-tier-classifier
+  group: fsis-data-writers
   cancel-in-progress: false
 
 jobs:

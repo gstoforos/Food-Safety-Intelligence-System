@@ -9,6 +9,10 @@ name: Cleanup dataset
 # If you want this to run automatically, uncomment the `schedule` block below.
 # Recommended cadence: weekly, Monday 03:00 UTC (after the daily pipeline run).
 
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
     inputs:

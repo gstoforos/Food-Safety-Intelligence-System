@@ -10,7 +10,7 @@ on:
 # Don't fan out — only one rebuild at a time. If a previous run is still
 # in flight, GitHub will queue this one rather than racing the commit.
 concurrency:
-  group: build-public-xlsx
+  group: fsis-data-writers
   cancel-in-progress: false
 
 permissions:

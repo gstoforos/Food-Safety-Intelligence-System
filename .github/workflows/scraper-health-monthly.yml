@@ -15,7 +15,7 @@ on:
   # No internal cron block — Apps Script is the single source of truth.
 
 concurrency:
-  group: scraper-health-monthly
+  group: fsis-data-writers
   cancel-in-progress: false
 
 permissions:

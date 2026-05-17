@@ -48,7 +48,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: quality-sample
+  group: fsis-data-writers
   cancel-in-progress: false
 
 jobs:

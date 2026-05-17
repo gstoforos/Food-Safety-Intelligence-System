@@ -32,7 +32,7 @@ on:
 
 # Single-run lane: skip overlapping runs rather than queueing them up.
 concurrency:
-  group: public-xlsx-build
+  group: fsis-data-writers
   cancel-in-progress: false
 
 # Need write access to push the rebuilt xlsx back to main.

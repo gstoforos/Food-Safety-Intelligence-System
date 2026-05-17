@@ -10,6 +10,10 @@ name: FSIS Gap Auditor
 #
 # Runs weekly (Monday 11:00 Athens) and on manual dispatch.
 
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
     inputs:
