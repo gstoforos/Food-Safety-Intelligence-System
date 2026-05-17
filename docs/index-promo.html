@@ -33,7 +33,7 @@
 <style>
 :root{--bg:#0a0e1a;--s1:#0f1420;--s2:#141a2a;--brd:#1d2436;--text:#e8edf5;--white:#fff;--muted:#9aa3b5;--dim:#5d6679;--brand:#E8601A;--ai:#34d399;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--purple:#a78bfa;}
 *{box-sizing:border-box;}
-html,body{margin:0;padding:0;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;}
+html,body{margin:0;padding:0;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior-y:auto;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;}
 .hdr{padding:18px 24px;background:var(--s1);border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:flex-start;position:relative;}
 .hdr::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--ai) 0%,transparent 35%);}
@@ -280,6 +280,54 @@ tr:hover td{background:rgba(255,255,255,.02);}
    because hovering it shouldn't suggest you can enter the tab. */
 .promo-locked.tab:hover{border-bottom-color:var(--ai)!important;}
 
+/* ────────────────────────────────────────────────────────────────────
+ * CSS-LEVEL LOCKS — apply IMMEDIATELY at parse time, no JS required.
+ * Pre-fix, lock styling was applied by _promoLockTabs() only after the
+ * xlsx fetch completed — between parse and data arrival (1-3s, or never
+ * on fetch failure), gated tabs rendered fully unlocked and a fast user
+ * could click through to Daily / Weekly / Monthly / XLSX / Alerts.
+ *
+ * These selectors target the same tabs the JS would lock, by element ID
+ * for the panel tabs and by onclick-attribute substring for the action
+ * buttons (XLSX download, Alerts popup). Body class `.promo-mode` gates
+ * the whole rule set so it has zero effect on index.html.
+ *
+ * NOTE: pointer-events stays `auto` — the JS still attaches a click
+ * handler that redirects to the plans page. We want the user to be
+ * able to CLICK the locked tab (which then redirects), not have the
+ * click silently swallowed.
+ * ──────────────────────────────────────────────────────────────────── */
+body.promo-mode #tab-daily,
+body.promo-mode #tab-reports,
+body.promo-mode #tab-monthly,
+body.promo-mode .tab[onclick*="downloadRecallsXlsx"],
+body.promo-mode .tab[onclick*="alerts.html"]{
+  opacity:.48;filter:saturate(.45);cursor:pointer;
+  transition:opacity .15s,color .15s,background .15s,border-color .15s,filter .15s;
+}
+body.promo-mode #tab-daily::after,
+body.promo-mode #tab-reports::after,
+body.promo-mode #tab-monthly::after,
+body.promo-mode .tab[onclick*="downloadRecallsXlsx"]::after,
+body.promo-mode .tab[onclick*="alerts.html"]::after{
+  content:' \01F512';font-size:11px;margin-left:5px;opacity:.85;display:inline-block;vertical-align:1px;
+}
+body.promo-mode #tab-daily:hover,
+body.promo-mode #tab-reports:hover,
+body.promo-mode #tab-monthly:hover,
+body.promo-mode .tab[onclick*="downloadRecallsXlsx"]:hover,
+body.promo-mode .tab[onclick*="alerts.html"]:hover{
+  opacity:1;filter:saturate(1);color:var(--ai)!important;border-color:var(--ai)!important;
+}
+body.promo-mode #tab-daily:hover::after,
+body.promo-mode #tab-reports:hover::after,
+body.promo-mode #tab-monthly:hover::after,
+body.promo-mode .tab[onclick*="downloadRecallsXlsx"]:hover::after,
+body.promo-mode .tab[onclick*="alerts.html"]:hover::after{
+  content:' \01F512 Subscribe';font-family:'DM Mono',monospace;font-size:9px;font-weight:700;
+  color:var(--ai);letter-spacing:.08em;text-transform:uppercase;
+}
+
 /* Sample-mode banner above the table */
 .promo-sample-banner{background:linear-gradient(135deg,rgba(52,211,153,.08) 0%,rgba(52,211,153,.04) 100%);border:1px solid rgba(52,211,153,.25);border-radius:3px;padding:14px 18px;margin:12px 24px 0;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;}
 .promo-sample-banner .pb-text{font-size:13px;color:var(--text);line-height:1.5;}
@@ -334,7 +382,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
    Promo-only. Vibrant ORANGE chrome (not AI green) to catch the eye against
    the green-themed dashboard below. White text on bright orange = strong
    visual urgency for the conversion deadline. */
-.promo-topbar{position:sticky;top:0;left:0;right:0;z-index:9000;background:linear-gradient(90deg,#ff7a1a 0%,#ff6300 100%);border-bottom:1px solid #ff6300;padding:10px 18px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:'DM Mono',monospace;font-size:11px;color:#fff;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 2px 14px rgba(255,99,0,.4);touch-action:pan-y;}
+.promo-topbar{position:sticky;top:0;left:0;right:0;z-index:9000;background:linear-gradient(90deg,#ff7a1a 0%,#ff6300 100%);border-bottom:1px solid #ff6300;padding:10px 18px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:'DM Mono',monospace;font-size:11px;color:#fff;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 2px 14px rgba(255,99,0,.4);}
 .promo-topbar b{color:#fff;font-size:15px;font-weight:800;padding:0 4px;text-shadow:0 0 10px rgba(255,255,255,.6);}
 .promo-topbar a{color:#fff;font-weight:800;text-decoration:none;border-bottom:2px solid #fff;padding-bottom:1px;transition:filter .15s,letter-spacing .15s;}
 .promo-topbar a:hover{filter:brightness(1.15);letter-spacing:.12em;}
@@ -539,7 +587,14 @@ function downloadRecallsJson(){
 }
 
 // ===== LOAD RECALLS + NEWS FROM SAME XLSX =====
-fetch('data/recalls.xlsx').then(r=>r.arrayBuffer()).then(buf=>{
+fetch('data/recalls.xlsx').then(r=>{
+  // Audit 2026-05-17: capture HTTP Last-Modified before consuming
+  // r.arrayBuffer(). This timestamp = when the pipeline last
+  // committed recalls.xlsx (= last orchestrator/scraper/checker run),
+  // independent of the dates of the individual recalls inside it.
+  try { window._fsisDataLastModified = r.headers.get('Last-Modified'); } catch(_){}
+  return r.arrayBuffer();
+}).then(buf=>{
   const wb=XLSX.read(buf,{type:'array'});
   const ws=wb.Sheets['Recalls']||wb.Sheets[wb.SheetNames[0]];
   const raw=XLSX.utils.sheet_to_json(ws,{defval:''});
@@ -563,7 +618,23 @@ function loadNewsFromBuffer(wb){
 function init(){
   renderKPIs();renderCharts();renderPills();populateFilters();renderTicker();render();
   renderLastVerified();loadAiInsights();
-  document.getElementById('meta').innerHTML='Updated: '+(ALL[0]?ALL[0].date:'—')+' · '+ALL.length+' records<br>Source: data/recalls.xlsx';
+  // 'Updated:' now reflects the last pipeline run (when the xlsx was
+  // last committed by orchestrator/scraper/claude-check), NOT the date
+  // of the most recent recall in the dataset. Source: HTTP Last-Modified
+  // header captured during the xlsx fetch. Falls back to most-recent
+  // recall date if the header is unavailable (e.g. local file open).
+  let _fsisUpdated = '\u2014';
+  if (window._fsisDataLastModified) {
+    try {
+      const _d = new Date(window._fsisDataLastModified);
+      const _p = n => String(n).padStart(2,'0');
+      _fsisUpdated = _d.getUTCFullYear() + '-' + _p(_d.getUTCMonth()+1) + '-' + _p(_d.getUTCDate())
+                   + ' ' + _p(_d.getUTCHours()) + ':' + _p(_d.getUTCMinutes()) + ' UTC';
+    } catch(_) { _fsisUpdated = ALL[0] ? ALL[0].date : '\u2014'; }
+  } else if (ALL[0]) {
+    _fsisUpdated = ALL[0].date;
+  }
+  document.getElementById('meta').innerHTML='Updated: '+_fsisUpdated+' · '+ALL.length+' records<br>Source: data/recalls.xlsx';
   notifyHeight();
   if(window.parent!==window){new ResizeObserver(()=>{notifyHeight();}).observe(document.body);}
 }
@@ -642,34 +713,47 @@ function _countUp(el,target,duration){
 //   3. JSON unreachable → fall back to the static verification-posture sentence.
 
 function _clientSideSynthesis(j){
+  // QUALITATIVE-ONLY synthesis (audit 2026-05-17). Matches the stability
+  // rule applied to pipeline/synthesis_writer.py::_deterministic_synthesis.
+  // The dashboard re-runs this fallback every time weekly-summary-latest.json
+  // is empty/stale; pre-fix the prose cited the recall count, prior-week
+  // delta, share-of-mix percent, and case count — which would silently go
+  // stale against the live KPI tiles whenever upstream recall counts shifted
+  // between Friday cron runs. New prose references qualitative patterns only
+  // (Tier-1 status, outbreak status, leading-pathogen descriptor) so the
+  // synthesis stays accurate across re-runs; the numerical truth lives in
+  // the KPI tiles and the at-publication caption row.
   const s = j.stats || {};
   const lp = j.leading_pathogen || {};
   const total = s.total || 0;
-  const delta = s.delta || 0;
-  const dpc = s.delta_pct || 0;
   const t1 = s.tier1 || 0;
   const ob = s.outbreaks || 0;
   const lname = lp.name || 'Mixed pathogens';
   const lpct = lp.pct || 0;
-  const lcases = lp.cases || 0;
 
-  // Sentence 1 — counts + delta + severity breakdown
-  let s1 = 'This week closed with ' + total + ' pathogen recalls';
-  if (delta > 0)      s1 += ', up ' + delta + ' versus the prior week (+' + dpc + '%)';
-  else if (delta < 0) s1 += ', down ' + Math.abs(delta) + ' versus the prior week (' + dpc + '%)';
-  else                s1 += ', flat versus the prior week';
-  if (t1 > 1) s1 += ', including ' + t1 + ' Tier-1 critical incidents';
-  else if (t1 === 1) s1 += ', including one Tier-1 critical incident';
-  if (ob === 1) s1 += ' and one confirmed outbreak';
-  else if (ob > 1) s1 += ' and ' + ob + ' confirmed outbreaks';
-  s1 += '.';
+  // Sentence 1 — qualitative posture (Tier-1 ratio drives the descriptor;
+  // the underlying count never appears in the output text).
+  const ratio = total > 0 ? (t1 / total) : 0;
+  let tier_clause;
+  if (t1 > 0 && ratio >= 0.7)      tier_clause = 'Tier-1 critical incidents dominated the recall picture';
+  else if (t1 > 0 && ratio >= 0.4) tier_clause = "Tier-1 critical incidents drove the bulk of the week's recall activity";
+  else if (t1 > 0)                 tier_clause = 'Tier-1 critical incidents were recorded across multiple jurisdictions';
+  else                             tier_clause = 'no Tier-1 critical incidents were recorded';
 
-  // Sentence 2 — leading pathogen + share verb keyed to severity of share
-  const verb = lpct >= 30 ? 'dominated' : lpct >= 15 ? 'led' : 'accounted for';
-  const s2 = lname + ' ' + verb + ' the pathogen mix at ' + lpct + '% of total recalls (' + lcases + ' cases).';
+  let outbreak_clause = '';
+  if (ob > 1)       outbreak_clause = ', with multiple confirmed outbreaks declared in the same window';
+  else if (ob === 1) outbreak_clause = ', with one confirmed outbreak declared in the same window';
 
-  // Sentence 3 — pathogen-specific operator implication. Generic fallback
-  // covers anything not matched by the keyword index below.
+  const s1 = 'This week closed: ' + tier_clause + outbreak_clause + '.';
+
+  // Sentence 2 — leading-pathogen descriptor (share-of-mix selects the verb,
+  // but the percentage itself never appears in the output text).
+  const verb = lpct >= 30 ? 'dominated the pathogen mix'
+             : lpct >= 15 ? 'led the pathogen mix'
+             :              'led a fragmented pathogen mix';
+  const s2 = lname + ' ' + verb + ', sustaining the pattern of multi-jurisdictional regulatory pressure on this pathogen class.';
+
+  // Sentence 3 — operator implication keyed to dominant pathogen.
   let s3 = 'Operators should re-verify sanitation programs, GMPs, and kill-step validation across the affected product categories.';
   const low = lname.toLowerCase();
   if (low.indexOf('listeria') >= 0) {
@@ -1323,19 +1407,34 @@ function _promoApplyTableSample(){
 }
 
 function _promoApplyAll(){
+  // ─── UI LOCKS — fire IMMEDIATELY, no wait for xlsx data ────────────
+  // Audit 2026-05-17: pre-fix, this entire function waited on ALL.length
+  // before locking anything. Between page parse and data arrival (1-3s,
+  // or never on fetch failure), gated tabs were fully clickable. A fast
+  // user could click Daily/Weekly/Monthly/XLSX/Alerts before the lock
+  // fired. Tab gating is the user-visible promotion boundary and MUST
+  // be in place before the user can interact with the page — independent
+  // of whether xlsx loaded successfully.
+  // _promoLockTabs and friends are idempotent (re-running has no effect
+  // beyond reasserting class+listener), so safe to call from multiple
+  // entry points (DOMContentLoaded + post-init).
+  _promoLockTabs();
+  _promoLockDownloads();
+  _promoDisableFilters();
+  _promoStartCountdown();
+
+  // ─── DATA LOCKS — wait for ALL.length before sampling ──────────────
+  // These DO need the xlsx loaded. If data isn't ready yet, retry; cap
+  // at 8 retries (~4s) so a broken fetch doesn't loop forever.
   if (!ALL || !ALL.length) {
     if ((window._promo_retries = (window._promo_retries||0) + 1) > 8) return;
     setTimeout(_promoApplyAll, 500);
     return;
   }
-  _promoLockTabs();
-  _promoLockDownloads();
-  _promoDisableFilters();
   _promoInsertSampleBanner();
   _promoApplyTableSample();
   // Live News tab is fully functional in preview mode — show every row
   // exactly as the index page does. (Recall feed is still sampled to 15.)
-  _promoStartCountdown();
 }
 
 // 30-second auto-redirect — fires once the dashboard data is on screen so
@@ -1375,6 +1474,19 @@ init = function(){
   _origInit_promo.apply(this, arguments);
   setTimeout(_promoApplyAll, 250);
 };
+
+// ─── EARLY TRIGGER ────────────────────────────────────────────────────
+// Audit 2026-05-17: also call _promoApplyAll on DOMContentLoaded, so UI
+// locks (tabs/downloads/filters/countdown) fire immediately when the DOM
+// is ready — long before the xlsx fetch completes. The data-dependent
+// portion (sample table + banner) still waits for ALL.length via the
+// retry loop inside _promoApplyAll. Both call sites are idempotent.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _promoApplyAll);
+} else {
+  // Already parsed (rare — only on hot-reload / cached parse). Run now.
+  _promoApplyAll();
+}
 
 window._promoApplyAll = _promoApplyAll;
 
