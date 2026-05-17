@@ -160,6 +160,38 @@
   "Notes": "[RASFF #2026.4261; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=844176] [gemini-enrich 2026-05-16: Brand '—'→'LTU'] [operator recovery 2026-05-16 — promoted from Pending after race-condition stomp wiped claude-check's 17:06 UTC commit. URLs and data verified intact in Pending sheet; FIX verdict on Metro Chef applied (Company → METRO FRANCE per RappelConso 'Origine de la fiche' field). All other rows verified PASS by claude-check at 17:02-17:03 UTC; promotion at 17:06 UTC; stomp between 17:06 and 19:02 UTC.]"
  },
  {
+  "Date": "2026-05-15",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: China | Notifying: Netherlands",
+  "Brand": "DEU, NLD",
+  "Product": "Ochratoxine A on Fermented Maca powder from China",
+  "Pathogen": "Ochratoxin",
+  "Reason": "Ochratoxine A on Fermented Maca powder from China; risk: serious; category: dietetic foods, food supplements and fortified foods",
+  "Class": "Alert",
+  "Country": "China",
+  "Region": "Asia",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/844595",
+  "Notes": "[RASFF #2026.4299; classification: alert notification; category: dietetic foods, food supplements and fortified foods; notifId=844595] [gemini-enrich 2026-05-16: Brand '—'→'DEU, NLD'] [claude-check 2026-05-17: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-05-15",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Germany, Poland | Notifying: Germany",
+  "Brand": "DEU, ITA, POL",
+  "Product": "Salmonella spp. in chilled, seasoned chicken meat for rotisserie skewers from Germany",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella spp. in chilled, seasoned chicken meat for rotisserie skewers from Germany; risk: serious; category: poultry meat and poultry meat products",
+  "Class": "Alert",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843576",
+  "Notes": "[RASFF #2026.4297; classification: alert notification; category: poultry meat and poultry meat products; notifId=843576] [gemini-enrich 2026-05-16: Brand '—'→'DEU, ITA, POL'] [claude-check 2026-05-17: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
   "Date": "2026-05-14",
   "Source": "FDA",
   "Company": "HH Fresh Trading",
