@@ -1446,6 +1446,10 @@ function _promoDisableFilters(){
 }
 
 function _promoInsertSampleBanner(){
+  // Idempotent: _promoApplyAll runs from two entry points (DOMContentLoaded
+  // early-trigger + wrapped init), and prior to this guard the banner was
+  // inserted twice. Bail if it already exists.
+  if (document.querySelector('.promo-sample-banner')) return;
   const tblWrap = document.querySelector('.tbl-wrap');
   if (!tblWrap) return;
   const banner = document.createElement('div');
