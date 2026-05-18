@@ -39,6 +39,34 @@ This rewrite:
     were empty so the reviewer can decide whether to fail or pass.
   • Three-layer fallback (V2 filtered → V2 unfiltered → bulk JSON)
     preserved unchanged.
+
+LANGUAGE NORMALIZATION (audit 2026-05-18)
+==========================================
+Two gaps were causing French text to leak into English-required fields
+in the Recalls sheet:
+
+  1. **Reason field.** Five rows in production had values like
+     "présence de salmonelles", "présence de listeria monocytogenes",
+     "présence possible de salmonella". These should be English per
+     the operator rule (only Product / Company / Brand may stay in
+     source language; every other field is English). Class is already
+     normalised by ``scrapers/_models._normalize_class_language``; an
+     equivalent helper for Reason did not exist. This file now applies
+     ``_translate_reason_fr_to_en()`` at emit time. The translator is
+     local to RappelConso (not factored to ``_models.py``) because the
+     phrase patterns it handles are characteristic of motif_rappel /
+     risques_encourus boilerplate — generalising prematurely would
+     either over-translate AESAN/BVL/RASFF text or leave RappelConso
+     under-covered. When two other scrapers need the same pattern, lift
+     it to ``_models.py``.
+
+  2. **"Sans Marque" prefix.** The ``_is_no_brand`` helper used an
+     exact-string match on a fixed token list, so values like
+     "Sans Marque - Rayon Boucherie Traditionnelle" slipped through
+     unrecognised. The recall therefore landed in Recalls with the
+     French phrase in both Company and Brand. The helper now also
+     accepts prefix matches followed by a separator (-, /, comma, |),
+     so "Sans Marque - <anything>" reduces to "Unbranded".
 """
 from __future__ import annotations
 from datetime import datetime, timedelta
@@ -65,9 +93,169 @@ _NO_BRAND_TOKENS = (
 
 
 def _is_no_brand(s: str) -> bool:
+    """Return True if ``s`` is a "no brand" marker.
+
+    Accepts three shapes:
+      1. Empty / whitespace-only.
+      2. Exact token match (case-insensitive) — e.g. "sans marque".
+      3. Token PREFIX followed by a separator (audit 2026-05-18) —
+         e.g. "Sans Marque - Rayon Boucherie Traditionnelle". Before
+         the prefix rule was added, "Sans Marque - Rayon Boucherie
+         Traditionnelle" passed _is_no_brand=False and was emitted
+         verbatim into Brand and (via the company-fallback) Company.
+         Separators recognised: ` - `, `-`, `/`, `|`, `,`, `:`,
+         multiple spaces.
+    """
     if not s or not s.strip():
         return True
-    return s.strip().lower() in _NO_BRAND_TOKENS
+    norm = s.strip().lower()
+    if norm in _NO_BRAND_TOKENS:
+        return True
+    # Prefix-followed-by-separator. We only honour the multi-word
+    # tokens here ("sans marque", "no brand", "marque inconnue",
+    # "aucune marque", "non commercialisé", "non communiqué",
+    # "non concerné"); single-character tokens like "—" or "-" make
+    # bad prefixes (every dash-separated brand would match).
+    _PREFIX_TOKENS = (
+        "sans marque", "no brand", "marque inconnue",
+        "aucune marque", "non commercialisé", "non communiqué",
+        "non concerné",
+    )
+    for tok in _PREFIX_TOKENS:
+        if norm.startswith(tok):
+            rest = norm[len(tok):].lstrip()
+            if not rest:
+                return True  # exact match safety net
+            # Must be followed by a recognised separator, else it's
+            # a longer real brand that happens to start with the same
+            # letters (defensive — current data has no such case).
+            if rest[0] in "-/|,:" or rest.startswith("  "):
+                return True
+    return False
+
+
+# ── Audit 2026-05-18: Reason language normalization ────────────────────
+# RappelConso's motif_rappel field is free French text. The most common
+# shapes seen in production:
+#
+#   "présence de <pathogen>"
+#   "présence possible de <pathogen>"
+#   "présence éventuelle de <pathogen>"
+#   "présence avérée de <pathogen>"
+#   "risque de présence de <pathogen>"
+#   "contamination par <pathogen>"
+#   "contamination possible par <pathogen>"
+#   "soupçon de contamination par <pathogen>"
+#   "suspicion de contamination par <pathogen>"
+#   "détection de <pathogen>"
+#   "découverte de <pathogen>"
+#
+# These are templated phrases — Mistral wrote about half of them, the
+# DGCCRF copy desk wrote the rest, so the grammar is highly stable. A
+# regex translator handles them deterministically and cheaply (no LLM
+# round-trip). After template translation, a separate pass capitalises
+# bare pathogen names that the French data leaves lower-case
+# ("salmonelles" → "Salmonella", "listeria monocytogenes" → "Listeria
+# monocytogenes").
+#
+# Patterns are tried in order; first match wins. Each pattern uses
+# (?i) for case-insensitive matching and a single capture group for the
+# pathogen text, so the replacement can preserve it.
+#
+# The fragment ``(?:de\s+|d['\u2019]\s*)`` matches both "de salmonelles"
+# (space-separated) and "d'escherichia" (apostrophe-elided form before
+# a vowel). Both ASCII apostrophe (U+0027) and curly apostrophe
+# (U+2019) are accepted because RappelConso emits a mix.
+_DE_OR_DELIDED = r"(?:de\s+|d['\u2019]\s*)"
+_PAR_OR_PARELIDED = r"(?:par\s+|p['\u2019]\s*)"
+
+_REASON_FR_TEMPLATES: Tuple[Tuple[str, str], ...] = (
+    # Order matters: more specific patterns ("présence possible de",
+    # "présence éventuelle de", "présence avérée de") must come BEFORE
+    # the generic "présence de" — first match wins.
+    (r"(?i)^\s*pr[ée]sence\s+possible\s+" + _DE_OR_DELIDED + r"(.+?)\s*\.?\s*$",
+        r"Possible presence of \1"),
+    (r"(?i)^\s*pr[ée]sence\s+[ée]ventuelle\s+" + _DE_OR_DELIDED + r"(.+?)\s*\.?\s*$",
+        r"Possible presence of \1"),
+    (r"(?i)^\s*pr[ée]sence\s+av[ée]r[ée]e?\s+" + _DE_OR_DELIDED + r"(.+?)\s*\.?\s*$",
+        r"Confirmed presence of \1"),
+    (r"(?i)^\s*risque\s+de\s+pr[ée]sence\s+" + _DE_OR_DELIDED + r"(.+?)\s*\.?\s*$",
+        r"Risk of \1 presence"),
+    (r"(?i)^\s*pr[ée]sence\s+" + _DE_OR_DELIDED + r"(.+?)\s*\.?\s*$",
+        r"Presence of \1"),
+    (r"(?i)^\s*contamination\s+possible\s+" + _PAR_OR_PARELIDED + r"(.+?)\s*\.?\s*$",
+        r"Possible contamination with \1"),
+    (r"(?i)^\s*soup[çc]on\s+de\s+contamination\s+" + _PAR_OR_PARELIDED + r"(.+?)\s*\.?\s*$",
+        r"Suspected contamination with \1"),
+    (r"(?i)^\s*suspicion\s+de\s+contamination\s+" + _PAR_OR_PARELIDED + r"(.+?)\s*\.?\s*$",
+        r"Suspected contamination with \1"),
+    (r"(?i)^\s*contamination\s+" + _PAR_OR_PARELIDED + r"(.+?)\s*\.?\s*$",
+        r"Contamination with \1"),
+    (r"(?i)^\s*d[ée]tection\s+" + _DE_OR_DELIDED + r"(.+?)\s*\.?\s*$",
+        r"Detection of \1"),
+    (r"(?i)^\s*d[ée]couverte\s+" + _DE_OR_DELIDED + r"(.+?)\s*\.?\s*$",
+        r"Detection of \1"),
+)
+
+# Bare pathogen names that the French data leaves lower-case and/or in
+# French-specific spelling. Applied AFTER the template translations so
+# they normalise the captured pathogen group as well as any pathogen
+# reference that the templates didn't wrap. Order matters — more
+# specific must come first (escherichia coli STEC before plain
+# escherichia coli; listeria monocytogenes before bare listeria).
+_REASON_PATHOGEN_FIXUPS: Tuple[Tuple[str, str], ...] = (
+    (r"(?i)\bescherichia\s+coli\s+stec\b",          "E. coli STEC"),
+    (r"(?i)\bescherichia\s+coli\s+(o\d+)(:h\d+)?\b", r"E. coli \1\2"),
+    (r"(?i)\bescherichia\s+coli\b",                  "E. coli"),
+    (r"(?i)\blisteria\s+monocytogenes\b",            "Listeria monocytogenes"),
+    (r"(?i)\bbacillus\s+cereus\b",                   "Bacillus cereus"),
+    (r"(?i)\bclostridium\s+botulinum\b",             "Clostridium botulinum"),
+    (r"(?i)\bsalmonelles\b",                         "Salmonella"),
+    (r"(?i)\bsalmonella\s+spp\.?\b",                 "Salmonella spp."),
+    (r"(?i)\bsalmonella\b",                          "Salmonella"),
+    (r"(?i)\blisteria\b",                            "Listeria"),
+    (r"(?i)\bcamp[yi]lobacter\b",                    "Campylobacter"),
+)
+
+
+def _translate_reason_fr_to_en(reason: str) -> str:
+    """Translate French motif_rappel boilerplate to English.
+
+    Two-pass:
+      1. Match a templated phrase ("présence de X", "contamination
+         possible par X", …) and rewrite to the English equivalent,
+         preserving the pathogen group.
+      2. Run pathogen-name fixups so "salmonelles" → "Salmonella" and
+         "listeria monocytogenes" → "Listeria monocytogenes".
+
+    If no template matches AND the input contains no French-only token
+    we'd be confident about, the input is returned unchanged — the
+    function is intentionally narrow. It must never invent meaning.
+    Downstream claude-check still gets a verification pass on every
+    promoted row and will correct anything this misses.
+    """
+    if not reason or not reason.strip():
+        return reason
+    text = reason.strip()
+    # Pass 1: template translation. First match wins.
+    for pattern, replacement in _REASON_FR_TEMPLATES:
+        new = re.sub(pattern, replacement, text)
+        if new != text:
+            text = new
+            break
+    # Pass 2: pathogen-name fixups (always applied).
+    for pattern, replacement in _REASON_PATHOGEN_FIXUPS:
+        text = re.sub(pattern, replacement, text)
+    # Capitalise first letter — pathogen-fixups may have inserted a
+    # lowercase pathogen at sentence start (Pass 1's "Presence of \1"
+    # placed an unfixed pathogen group right after a capital letter,
+    # so the capitalisation should already be fine — but a leading
+    # bare-pathogen input like "salmonelles" goes through Pass 2 only
+    # and ends up "Salmonella", which is still capitalised correctly).
+    # Belt and braces:
+    if text and text[0].islower():
+        text = text[0].upper() + text[1:]
+    return text
 
 
 # Audit 2026-05-08: capitalized-name heuristic for recovering the recalling
@@ -614,6 +802,13 @@ class RappelConsoScraper(BaseScraper):
                 distrib, _ = self._first(rec, self.DISTRIB_FIELDS)
                 klass, _ = self._first(rec, self.CLASS_FIELDS)
 
+                # Audit 2026-05-18: translate French motif_rappel
+                # boilerplate to English before emit. Class is already
+                # handled downstream in scrapers/_models.py
+                # (_normalize_class_language), so no scraper-side work
+                # for Class. See _translate_reason_fr_to_en() docstring.
+                reason_en = _translate_reason_fr_to_en(reason)
+
                 # Notes — encode field provenance for claude-check
                 notes_parts = [distrib[:120]] if distrib else []
                 if not company_raw and not brand_raw:
@@ -636,7 +831,7 @@ class RappelConsoScraper(BaseScraper):
                     Brand=br,
                     Product=product_for_emit[:300],
                     Pathogen=risks[:200],
-                    Reason=reason[:300],
+                    Reason=reason_en[:300],
                     Class=klass or "Voluntary",
                     URL=url,
                     Outbreak=0,
