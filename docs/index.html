@@ -385,6 +385,43 @@ function notifyHeight(){
   }
 }
 
+// ─── _fsisGuaranteeIframeScroll() ─────────────────────────────────────
+// Hard guarantee: when this page is embedded in an iframe and the parent
+// doesn't size the iframe to fit content (e.g. Wix HTML embed without a
+// Velo onMessage handler responding to fsis-height postMessage), force
+// the html element to be a scrollable container sized to the iframe's
+// viewport. User can then scroll the dashboard content INSIDE the
+// iframe even if the iframe itself has no scrollbar and never resizes.
+//
+// Adapts automatically:
+//   - If Velo IS set up: iframe grows to 5000px+, vh = full iframe
+//     height, html grows to match, no internal scrollbar shown
+//   - If Velo is NOT set up: iframe stays at Wix's default (~600px),
+//     vh = 600px, html is 600px with overflow:auto, internal scrollbar
+//     appears and the user scrolls inside the iframe
+//
+// Does NOT apply when the page is opened directly (not in an iframe) —
+// in that case scroll is natural and we don't need to do anything.
+function _fsisGuaranteeIframeScroll(){
+  if(window.parent===window) return;       // not in an iframe — noop
+  try {
+    const h = document.documentElement;
+    h.style.height = '100vh';
+    h.style.overflowY = 'auto';
+    h.style.overflowX = 'hidden';
+    h.style.webkitOverflowScrolling = 'touch';
+    // Belt-and-suspenders: prevent body from clipping its own overflow
+    document.body.style.minHeight = 'auto';
+    document.body.style.overflowY = 'visible';
+  } catch(_){}
+}
+// Run immediately if DOM is ready, else on DOMContentLoaded.
+if (document.readyState !== 'loading') {
+  _fsisGuaranteeIframeScroll();
+} else {
+  document.addEventListener('DOMContentLoaded', _fsisGuaranteeIframeScroll);
+}
+
 // ─── _fsisUpgradeLastRunFromGitHub() ──────────────────────────────────
 // Authoritative source for the "Updated:" timestamp. Reads the most-recent
 // commit timestamp for docs/data/recalls.xlsx from the GitHub Commits API.
