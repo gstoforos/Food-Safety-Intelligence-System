@@ -33,7 +33,7 @@
 <style>
 :root{--bg:#0a0e1a;--s1:#0f1420;--s2:#141a2a;--brd:#1d2436;--text:#e8edf5;--white:#fff;--muted:#9aa3b5;--dim:#5d6679;--brand:#E8601A;--ai:#34d399;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--purple:#a78bfa;}
 *{box-sizing:border-box;}
-html,body{margin:0;padding:0;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior-y:auto;}
+html,body{margin:0;padding:0;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;}
 .hdr{padding:18px 24px;background:var(--s1);border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:flex-start;position:relative;}
 .hdr::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--ai) 0%,transparent 35%);}
@@ -385,6 +385,44 @@ function notifyHeight(){
   }
 }
 
+// ─── _fsisUpgradeLastRunFromGitHub() ──────────────────────────────────
+// Authoritative source for the "Updated:" timestamp. Reads the most-recent
+// commit timestamp for docs/data/recalls.xlsx from the GitHub Commits API.
+// Async; updates #meta silently if it resolves. Falls back to whatever
+// _fsisUpdated produced synchronously on its first render.
+//
+// Why this exists: HTTP Last-Modified is fragile — browser cache, Wix
+// proxy, GitHub Pages CDN can each independently serve a stale value.
+// The Commits API returns the canonical commit timestamp regardless.
+//
+// Rate limit: 60 req/hour per IP for unauthenticated requests. For
+// normal dashboard traffic this is plenty. If hit, the function silently
+// returns and the synchronous Last-Modified value (or recall-date
+// fallback) remains visible.
+async function _fsisUpgradeLastRunFromGitHub() {
+  try {
+    const url = 'https://api.github.com/repos/gstoforos/Food-Safety-Intelligence-System/commits'
+              + '?path=docs/data/recalls.xlsx&per_page=1';
+    const r = await fetch(url, {cache: 'no-store'});
+    if (!r.ok) return;
+    const j = await r.json();
+    if (!Array.isArray(j) || !j[0]) return;
+    const c = j[0].commit || {};
+    const iso = (c.committer && c.committer.date) || (c.author && c.author.date);
+    if (!iso) return;
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return;
+    const p = n => String(n).padStart(2, '0');
+    const formatted = d.getUTCFullYear() + '-' + p(d.getUTCMonth()+1) + '-' + p(d.getUTCDate())
+                    + ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ' UTC';
+    const el = document.getElementById('meta');
+    if (el && typeof ALL !== 'undefined' && ALL) {
+      el.innerHTML = 'Updated: ' + formatted + ' · ' + ALL.length
+                   + ' records<br>Source: data/recalls.xlsx';
+    }
+  } catch (_) { /* silent — meta line keeps its synchronous value */ }
+}
+
 // ===== DOWNLOADS — Recalls only (strip Pending + NEWS + Notes) =====
 // Rebuild a clean workbook from in-memory ALL so subscribers never receive
 // the Pending worktable or the NEWS ingestion sheet in their download.
@@ -420,8 +458,12 @@ function downloadRecallsJson(){
 }
 
 // ===== LOAD RECALLS + NEWS FROM SAME XLSX =====
-fetch('data/recalls.xlsx').then(r=>{
-  // Audit 2026-05-17: capture HTTP Last-Modified before consuming
+fetch('data/recalls.xlsx?_=' + Date.now(), {cache:'no-store'}).then(r=>{
+  // Audit 2026-05-17 (rev 2): cache-buster added — without `?_=<ts>` +
+  // cache:no-store, the browser/CDN serves a stale cached response from
+  // first page load, including a stale Last-Modified header. Subsequent
+  // pipeline commits don't reach the dashboard until the user hard-
+  // reloads. Capturing Last-Modified before consuming
   // r.arrayBuffer(). This timestamp = when the pipeline last
   // committed recalls.xlsx (= last orchestrator/scraper/checker run),
   // independent of the dates of the individual recalls inside it.
@@ -468,6 +510,12 @@ function init(){
     _fsisUpdated = ALL[0].date;
   }
   document.getElementById('meta').innerHTML='Updated: '+_fsisUpdated+' · '+ALL.length+' records<br>Source: data/recalls.xlsx';
+  // FIX Y — async upgrade to authoritative commit timestamp from
+  // GitHub Commits API. Last-Modified can be stripped or cached;
+  // the Commits API returns the exact UTC commit time for the most
+  // recent change to docs/data/recalls.xlsx. Runs in background;
+  // updates the meta line silently when (if) it resolves.
+  _fsisUpgradeLastRunFromGitHub();
   notifyHeight();
   if(window.parent!==window){new ResizeObserver(()=>{notifyHeight();}).observe(document.body);}
 }
