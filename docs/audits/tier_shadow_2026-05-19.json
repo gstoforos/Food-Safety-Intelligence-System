@@ -1,45 +1,45 @@
 {
-  "generated_at_utc": "2026-05-19T18:25:23.457726+00:00",
+  "generated_at_utc": "2026-05-19T20:32:40.110210+00:00",
   "sample_size": 200,
-  "confidence_threshold": 0.85,
-  "overall_agreement": 0.905,
-  "high_confidence_agreement": 0.0,
-  "pct_above_threshold": 0.0,
-  "pct_below_threshold": 1.0,
+  "confidence_threshold": 0.5,
+  "overall_agreement": 0.92,
+  "high_confidence_agreement": 0.8333333333333334,
+  "pct_above_threshold": 0.27,
+  "pct_below_threshold": 0.73,
   "per_tier": {
     "Tier 1": {
-      "n": 148,
-      "agreement": 0.9797297297297297,
-      "avg_confidence": 0.483773349910169
+      "n": 149,
+      "agreement": 0.9328859060402684,
+      "avg_confidence": 0.4883501751710905
     },
     "Tier 2": {
-      "n": 43,
-      "agreement": 0.8372093023255814,
-      "avg_confidence": 0.6018305732760318
+      "n": 47,
+      "agreement": 0.9574468085106383,
+      "avg_confidence": 0.6285508902783089
     },
     "Tier 3": {
-      "n": 9,
+      "n": 4,
       "agreement": 0.0,
-      "avg_confidence": 0.4795852104822795
+      "avg_confidence": 0.48168085515499115
     }
   },
   "confusion_matrix": [
     [
-      145,
-      3,
+      139,
+      10,
       0
     ],
     [
-      7,
-      36,
+      2,
+      45,
       0
     ],
     [
-      9,
+      4,
       0,
       0
     ]
   ],
-  "n_high_conf_disagreements": 0,
-  "n_low_conf_cases": 200
+  "n_high_conf_disagreements": 9,
+  "n_low_conf_cases": 146
 }
