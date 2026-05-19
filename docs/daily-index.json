@@ -1,13 +1,24 @@
 {
   "entries": [
     {
+      "date": "2026-05-18",
+      "url": "daily/2026-05-18.html",
+      "total": 5,
+      "tier1": 4,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 5
+      },
+      "generated": "2026-05-19T07:04:23Z"
+    },
+    {
       "date": "2026-05-17",
       "url": "daily/2026-05-17.html",
       "total": 0,
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-05-18T07:04:14Z"
+      "generated": "2026-05-19T07:04:23Z"
     },
     {
       "date": "2026-05-16",
@@ -18,7 +29,7 @@
       "by_region": {
         "Europe": 1
       },
-      "generated": "2026-05-18T07:04:15Z"
+      "generated": "2026-05-19T07:04:24Z"
     },
     {
       "date": "2026-05-15",
@@ -32,7 +43,7 @@
         "Middle East": 1,
         "Asia": 1
       },
-      "generated": "2026-05-18T07:04:15Z"
+      "generated": "2026-05-19T07:04:24Z"
     },
     {
       "date": "2026-05-14",
@@ -44,7 +55,7 @@
         "North America": 2,
         "Europe": 1
       },
-      "generated": "2026-05-18T07:04:15Z"
+      "generated": "2026-05-19T07:04:24Z"
     },
     {
       "date": "2026-05-13",
@@ -56,7 +67,7 @@
         "Europe": 11,
         "Oceania": 1
       },
-      "generated": "2026-05-18T07:04:15Z"
+      "generated": "2026-05-19T07:04:24Z"
     },
     {
       "date": "2026-05-12",
@@ -68,35 +79,7 @@
         "Europe": 10,
         "Unknown": 1
       },
-      "generated": "2026-05-18T07:04:15Z"
-    },
-    {
-      "date": "2026-05-11",
-      "url": "daily/2026-05-11.html",
-      "total": 15,
-      "tier1": 11,
-      "outbreak": 1,
-      "by_region": {
-        "Europe": 12,
-        "Asia": 2,
-        "Africa": 1
-      },
-      "generated": "2026-05-18T07:04:16Z"
-    },
-    {
-      "date": "2026-04-21",
-      "url": "daily/2026-04-21.html",
-      "total": 22,
-      "tier1": 12,
-      "outbreak": 2,
-      "by_region": {
-        "Europe": 14,
-        "Oceania": 1,
-        "North America": 4,
-        "Unknown": 1,
-        "Middle East": 2
-      },
-      "generated": "2026-05-19T04:07:02Z"
+      "generated": "2026-05-19T07:04:24Z"
     }
   ]
 }
