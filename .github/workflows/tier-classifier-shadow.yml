@@ -1,0 +1,611 @@
+name: Tier Classifier Shadow Mode
+
+# Day 7 of the FSIS-LM project: shadow-mode inference.
+#
+# Pulls the trained tier classifier from the latest successful training
+# workflow's artifact, runs it against a random sample of Recalls rows
+# (where Claude's stored Tier is the ground truth), and produces a
+# Markdown comparison report.
+#
+# PRODUCTION SAFE: read-only on recalls.xlsx, only writes a report to
+# docs/audits/. Nothing in your pipeline changes.
+#
+# After running this, you'll see:
+#   - Overall agreement rate with Claude
+#   - High-confidence agreement rate (production-relevant)
+#   - % of calls that would skip the API at your confidence threshold
+#   - List of high-confidence disagreements (interesting edge cases)
+#   - List of low-confidence cases (would fall back to API)
+#   - Cost projection per year
+#
+# Trigger: manually from the Actions tab → "Tier Classifier Shadow Mode".
+
+on:
+  workflow_dispatch:
+    inputs:
+      sample_size:
+        description: "Random sample of Recalls rows to evaluate"
+        required: false
+        default: "200"
+      confidence_threshold:
+        description: "Confidence ≥ this → trust model; < this → fall back to API"
+        required: false
+        default: "0.85"
+      training_workflow:
+        description: "Filename of training workflow whose artifact to pull"
+        required: false
+        default: "train-tier-classifier.yml"
+      max_length:
+        description: "Max input token length (must match training)"
+        required: false
+        default: "128"
+      seed:
+        description: "Random seed for sampling"
+        required: false
+        default: "42"
+
+permissions:
+  contents: write
+  actions: read   # required to download artifacts from other workflows
+
+concurrency:
+  group: tier-classifier-shadow
+  cancel-in-progress: false
+
+jobs:
+  shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet --upgrade pip
+          pip install --quiet --extra-index-url https://download.pytorch.org/whl/cpu \
+            torch
+          pip install --quiet transformers openpyxl numpy \
+            sentencepiece protobuf
+
+      - name: Download latest tier-classifier model artifact
+        uses: dawidd6/action-download-artifact@v9
+        with:
+          workflow: ${{ inputs.training_workflow }}
+          workflow_conclusion: success
+          name_is_regexp: true
+          name: tier-classifier-\d{4}-\d{2}-\d{2}
+          path: tools/fsis-lm/tier-classifier-v1
+          if_no_artifact_found: fail
+
+      - name: Verify model files present
+        run: |
+          MODEL_DIR="tools/fsis-lm/tier-classifier-v1"
+          # The artifact may unpack into a nested directory; flatten if so
+          if [ ! -f "$MODEL_DIR/config.json" ]; then
+            INNER=$(find "$MODEL_DIR" -name "config.json" -type f | head -1)
+            if [ -n "$INNER" ]; then
+              INNER_DIR=$(dirname "$INNER")
+              echo "Flattening: moving $INNER_DIR/* to $MODEL_DIR/"
+              mv "$INNER_DIR"/* "$MODEL_DIR/" 2>/dev/null || true
+            fi
+          fi
+          ls -la "$MODEL_DIR/"
+          for f in config.json tokenizer_config.json; do
+            if [ ! -f "$MODEL_DIR/$f" ]; then
+              echo "::error::Required model file missing: $MODEL_DIR/$f"
+              exit 1
+            fi
+          done
+
+      - name: Write shadow-mode script
+        run: |
+          mkdir -p tools/fsis-lm
+          cat > tools/fsis-lm/tier_classifier_shadow.py <<'PYEOF_SHADOW'
+          #!/usr/bin/env python3
+          """
+          tier_classifier_shadow.py
+          =========================
+
+          Shadow-mode inference: runs the trained tier classifier against recent
+          Recalls rows (where Claude's past tier decision is the stored ground truth)
+          and produces a comparison report.
+
+          NEVER modifies recalls.xlsx or any production data. Read-only on the xlsx,
+          only writes a Markdown report.
+
+          Outputs (in --out-dir):
+              tier_shadow_<date>.md       — human-readable comparison report
+              tier_shadow_<date>.json     — machine-readable metrics
+
+          Usage:
+              python tier_classifier_shadow.py \\
+                  --model-dir tools/fsis-lm/tier-classifier-v1 \\
+                  --xlsx docs/data/recalls.xlsx \\
+                  --out-dir docs/audits \\
+                  --sample-size 200 \\
+                  --confidence-threshold 0.85
+          """
+          from __future__ import annotations
+
+          import argparse
+          import datetime as dt
+          import json
+          import random
+          import sys
+          from collections import Counter, defaultdict
+          from pathlib import Path
+          from typing import Any, Dict, List, Optional, Tuple
+
+          import numpy as np
+
+
+          # ─── Input formatting — MUST MATCH TRAINING ──────────────────────────────
+
+          def format_input(row: Dict[str, Any]) -> str:
+              """Format a row exactly as the v2.2 exporter did for tier_assignment.
+              See _render_row_as_markdown(row, fields=['Pathogen','Outbreak','Class','Product'], notes_chars=0).
+              """
+              lines = []
+              for field in ("Pathogen", "Outbreak", "Class", "Product"):
+                  v = row.get(field, "")
+                  if v == "" or v is None:
+                      v = "(empty)"
+                  lines.append(f"- **{field}**: {v}")
+              return "\n".join(lines)
+
+
+          # ─── Sheet I/O ────────────────────────────────────────────────────────────
+
+          def load_recalls_with_tier(xlsx_path: Path,
+                                     sheet: str = "Recalls",
+                                     require_pathogen: bool = True
+                                     ) -> List[Dict[str, Any]]:
+              """Load rows from a sheet, keeping only those with a valid Tier label."""
+              import openpyxl
+              wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+              if sheet not in wb.sheetnames:
+                  return []
+              ws = wb[sheet]
+              headers = [c.value for c in ws[1]]
+              rows = []
+              for r in ws.iter_rows(min_row=2, values_only=True):
+                  row = {h: ("" if v is None else v) for h, v in zip(headers, r) if h}
+                  tier = row.get("Tier")
+                  try:
+                      tier_int = int(tier)
+                      if tier_int not in (1, 2, 3):
+                          continue
+                      row["Tier"] = tier_int
+                  except (TypeError, ValueError):
+                      continue
+                  if require_pathogen and not str(row.get("Pathogen", "")).strip():
+                      continue
+                  rows.append(row)
+              return rows
+
+
+          # ─── Inference ───────────────────────────────────────────────────────────
+
+          def run_inference(model_dir: Path,
+                            rows: List[Dict[str, Any]],
+                            max_length: int = 128,
+                            ) -> List[Tuple[int, float, List[float]]]:
+              """Run the trained tier classifier on each row.
+
+              Returns list of (predicted_tier_1based, max_confidence, [p_tier1, p_tier2, p_tier3]).
+              """
+              import torch
+              from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+              print(f"Loading model from {model_dir}...")
+              tokenizer = AutoTokenizer.from_pretrained(model_dir)
+              model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+              model.eval()
+              print(f"  loaded {model.config.architectures[0]}")
+
+              results = []
+              batch_size = 16
+              texts = [format_input(row) for row in rows]
+
+              print(f"Running inference on {len(texts)} rows...")
+              for i in range(0, len(texts), batch_size):
+                  batch = texts[i:i + batch_size]
+                  inputs = tokenizer(
+                      batch,
+                      return_tensors="pt",
+                      truncation=True,
+                      max_length=max_length,
+                      padding=True,
+                  )
+                  with torch.no_grad():
+                      logits = model(**inputs).logits
+                  # Cast to float32 for stable softmax
+                  probs = torch.softmax(logits.float(), dim=-1).cpu().numpy()
+                  for p in probs:
+                      pred = int(np.argmax(p)) + 1   # 1-based tier
+                      conf = float(np.max(p))
+                      results.append((pred, conf, [float(x) for x in p]))
+                  if (i // batch_size) % 5 == 0:
+                      print(f"  [{min(i + batch_size, len(texts))}/{len(texts)}]")
+              return results
+
+
+          # ─── Reporting ───────────────────────────────────────────────────────────
+
+          def build_report(rows: List[Dict[str, Any]],
+                           predictions: List[Tuple[int, float, List[float]]],
+                           confidence_threshold: float,
+                           ) -> Tuple[str, Dict[str, Any]]:
+              """Generate Markdown report + metrics JSON dict."""
+
+              n = len(rows)
+              if n == 0:
+                  return "# Shadow Mode — no rows to evaluate\n", {"n": 0}
+
+              # Per-row outcomes
+              agreement = []
+              confidence = []
+              high_conf_disagreements = []
+              low_conf_cases = []
+              confusion = np.zeros((3, 3), dtype=int)
+              per_tier_agree: Dict[int, List[bool]] = defaultdict(list)
+              conf_by_tier: Dict[int, List[float]] = defaultdict(list)
+
+              for row, (pred, conf, probs) in zip(rows, predictions):
+                  gold = int(row["Tier"])
+                  agree = (pred == gold)
+                  agreement.append(agree)
+                  confidence.append(conf)
+                  confusion[gold - 1][pred - 1] += 1
+                  per_tier_agree[gold].append(agree)
+                  conf_by_tier[gold].append(conf)
+
+                  if not agree and conf >= confidence_threshold:
+                      high_conf_disagreements.append({
+                          "url": str(row.get("URL", ""))[:120],
+                          "pathogen": str(row.get("Pathogen", ""))[:80],
+                          "product": str(row.get("Product", ""))[:80],
+                          "class": str(row.get("Class", "")),
+                          "outbreak": row.get("Outbreak", 0),
+                          "stored_tier": gold,
+                          "predicted_tier": pred,
+                          "confidence": conf,
+                          "probs": probs,
+                      })
+                  if conf < confidence_threshold:
+                      low_conf_cases.append({
+                          "url": str(row.get("URL", ""))[:120],
+                          "pathogen": str(row.get("Pathogen", ""))[:80],
+                          "stored_tier": gold,
+                          "predicted_tier": pred,
+                          "confidence": conf,
+                      })
+
+              overall_acc = sum(agreement) / n
+              n_high_conf = sum(1 for c in confidence if c >= confidence_threshold)
+              n_high_conf_agree = sum(
+                  1 for a, c in zip(agreement, confidence) if c >= confidence_threshold and a)
+              high_conf_acc = (n_high_conf_agree / n_high_conf) if n_high_conf else 0.0
+              pct_above_threshold = n_high_conf / n
+              pct_below_threshold = 1.0 - pct_above_threshold
+
+              # Build Markdown
+              today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+              md = []
+              md.append(f"# Tier Classifier — Shadow Mode Comparison — {today}")
+              md.append("")
+              md.append(f"Compared the trained MiniLM tier classifier against Claude's "
+                        f"stored Tier decisions on **{n} recent Recalls rows**. "
+                        f"Production data unchanged — read-only analysis.")
+              md.append("")
+
+              # ── Headline numbers ──
+              md.append("## Headline")
+              md.append("")
+              md.append(f"- **Overall agreement with Claude**: {overall_acc:.1%} ({sum(agreement)}/{n})")
+              md.append(f"- **High-confidence agreement** (≥{confidence_threshold:.2f}): "
+                        f"**{high_conf_acc:.1%}** ({n_high_conf_agree}/{n_high_conf})")
+              md.append(f"- **Calls that would skip API** (high-conf): "
+                        f"**{pct_above_threshold:.1%}** of total")
+              md.append(f"- **Calls that fall back to API** (low-conf): "
+                        f"{pct_below_threshold:.1%} of total")
+              md.append("")
+
+              # ── Cost projection ──
+              md.append("## Cost projection (assuming this sample is representative)")
+              md.append("")
+              md.append(f"If your pipeline processes ~30 tier-check calls/day:")
+              md.append("")
+              md.append(f"| | Without model | With model |")
+              md.append(f"|---|---:|---:|")
+              md.append(f"| API calls / day | 30 | {30 * pct_below_threshold:.0f} "
+                        f"({pct_below_threshold:.0%}) |")
+              md.append(f"| API calls / year | 10,950 | {10950 * pct_below_threshold:.0f} |")
+              md.append(f"| Reduction | — | **{pct_above_threshold:.0%}** |")
+              md.append("")
+
+              # ── Per-tier breakdown ──
+              md.append("## Per-tier breakdown")
+              md.append("")
+              md.append("| Tier | Sample | Agreement | Avg confidence |")
+              md.append("|---|---:|---:|---:|")
+              for t in (1, 2, 3):
+                  sample_n = len(per_tier_agree[t])
+                  if sample_n == 0:
+                      md.append(f"| Tier {t} | 0 | — | — |")
+                      continue
+                  agree_pct = sum(per_tier_agree[t]) / sample_n
+                  avg_conf = sum(conf_by_tier[t]) / sample_n
+                  md.append(f"| Tier {t} | {sample_n} | {agree_pct:.1%} | {avg_conf:.3f} |")
+              md.append("")
+
+              # ── Confusion matrix ──
+              md.append("## Confusion matrix")
+              md.append("")
+              md.append("Rows = Claude's stored Tier, columns = model's prediction:")
+              md.append("")
+              md.append("```")
+              md.append("              Pred T1   Pred T2   Pred T3")
+              for t in range(3):
+                  md.append(f"  True T{t+1}    {confusion[t][0]:6d}    "
+                            f"{confusion[t][1]:6d}    {confusion[t][2]:6d}")
+              md.append("```")
+              md.append("")
+
+              # ── Confidence histogram ──
+              md.append("## Confidence distribution")
+              md.append("")
+              bins = [(0.0, 0.5), (0.5, 0.7), (0.7, 0.85), (0.85, 0.95), (0.95, 1.01)]
+              md.append("| Confidence | Count | % |")
+              md.append("|---|---:|---:|")
+              for lo, hi in bins:
+                  cnt = sum(1 for c in confidence if lo <= c < hi)
+                  md.append(f"| {lo:.2f}–{hi:.2f} | {cnt} | {cnt/n:.1%} |")
+              md.append("")
+
+              # ── High-confidence disagreements (interesting cases) ──
+              md.append(f"## High-confidence disagreements ({len(high_conf_disagreements)})")
+              md.append("")
+              md.append(f"Cases where model is ≥{confidence_threshold:.2f} confident "
+                        f"but disagrees with Claude. These are the most interesting — "
+                        f"either the model is wrong (training data shortcoming) or "
+                        f"Claude was wrong (silent labeling error in Recalls).")
+              md.append("")
+              if not high_conf_disagreements:
+                  md.append("_None — model never disagreed at high confidence._ ✓")
+              else:
+                  md.append("| # | Stored | Pred | Conf | Pathogen | Product | URL |")
+                  md.append("|---:|:---:|:---:|---:|---|---|---|")
+                  for i, d in enumerate(high_conf_disagreements[:30], 1):
+                      md.append(f"| {i} | T{d['stored_tier']} | T{d['predicted_tier']} | "
+                                f"{d['confidence']:.3f} | "
+                                f"{d['pathogen'][:40]} | "
+                                f"{d['product'][:40]} | "
+                                f"{d['url'][:70]} |")
+                  if len(high_conf_disagreements) > 30:
+                      md.append(f"\n_...and {len(high_conf_disagreements) - 30} more_")
+              md.append("")
+
+              # ── Low-confidence cases ──
+              md.append(f"## Low-confidence cases ({len(low_conf_cases)})")
+              md.append("")
+              md.append(f"Cases where model's max probability is <{confidence_threshold:.2f}. "
+                        f"These would fall through to Claude/Gemini API in production.")
+              md.append("")
+              if not low_conf_cases:
+                  md.append("_None — model was confident on every row._")
+              else:
+                  # Group by tier
+                  by_tier: Dict[int, int] = Counter(c["stored_tier"] for c in low_conf_cases)
+                  md.append("Breakdown by stored Tier:")
+                  md.append("")
+                  for t in (1, 2, 3):
+                      md.append(f"- Tier {t}: {by_tier.get(t, 0)} low-confidence rows")
+                  md.append("")
+                  md.append("Top 15 lowest-confidence cases:")
+                  md.append("")
+                  md.append("| # | Stored | Pred | Conf | Pathogen | URL |")
+                  md.append("|---:|:---:|:---:|---:|---|---|")
+                  sorted_low = sorted(low_conf_cases, key=lambda c: c["confidence"])
+                  for i, c in enumerate(sorted_low[:15], 1):
+                      md.append(f"| {i} | T{c['stored_tier']} | T{c['predicted_tier']} | "
+                                f"{c['confidence']:.3f} | "
+                                f"{c['pathogen'][:50]} | "
+                                f"{c['url'][:70]} |")
+              md.append("")
+
+              # ── Decision recommendation ──
+              md.append("## Recommendation")
+              md.append("")
+              if high_conf_acc >= 0.95 and pct_above_threshold >= 0.7:
+                  md.append("✅ **Ready for production cutover.** High-confidence accuracy "
+                            f"is ≥95% and the model is confident on ≥70% of rows. "
+                            "Deploy with confidence threshold as the API-fallback gate.")
+              elif high_conf_acc >= 0.90:
+                  md.append("🟡 **Almost ready.** High-confidence accuracy is "
+                            f"{high_conf_acc:.1%} — slightly under 95%. Either (a) raise "
+                            "the threshold to push more borderline cases to fallback, or "
+                            "(b) review the high-confidence disagreements to determine "
+                            "if they're model errors or stale Claude decisions.")
+              else:
+                  md.append("⚠ **Not yet ready.** High-confidence accuracy is "
+                            f"{high_conf_acc:.1%} — below 90%. Inspect the "
+                            "high-confidence disagreements above. Most likely fix: "
+                            "add the disagreement cases to training data and re-train.")
+              md.append("")
+
+              # ── Build metrics dict ──
+              metrics = {
+                  "generated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+                  "sample_size": n,
+                  "confidence_threshold": confidence_threshold,
+                  "overall_agreement": overall_acc,
+                  "high_confidence_agreement": high_conf_acc,
+                  "pct_above_threshold": pct_above_threshold,
+                  "pct_below_threshold": pct_below_threshold,
+                  "per_tier": {
+                      f"Tier {t}": {
+                          "n": len(per_tier_agree[t]),
+                          "agreement": (sum(per_tier_agree[t]) / len(per_tier_agree[t])
+                                        if per_tier_agree[t] else None),
+                          "avg_confidence": (sum(conf_by_tier[t]) / len(conf_by_tier[t])
+                                             if conf_by_tier[t] else None),
+                      }
+                      for t in (1, 2, 3)
+                  },
+                  "confusion_matrix": confusion.tolist(),
+                  "n_high_conf_disagreements": len(high_conf_disagreements),
+                  "n_low_conf_cases": len(low_conf_cases),
+              }
+
+              return "\n".join(md), metrics
+
+
+          # ─── Main ────────────────────────────────────────────────────────────────
+
+          def main():
+              ap = argparse.ArgumentParser()
+              ap.add_argument("--model-dir", type=Path, required=True,
+                              help="Directory containing trained model + tokenizer")
+              ap.add_argument("--xlsx", type=Path,
+                              default=Path("docs/data/recalls.xlsx"))
+              ap.add_argument("--out-dir", type=Path,
+                              default=Path("docs/audits"))
+              ap.add_argument("--sample-size", type=int, default=200,
+                              help="Random sample of Recalls rows to evaluate")
+              ap.add_argument("--confidence-threshold", type=float, default=0.85)
+              ap.add_argument("--max-length", type=int, default=128)
+              ap.add_argument("--seed", type=int, default=42)
+              args = ap.parse_args()
+
+              if not args.model_dir.exists():
+                  print(f"ERROR: model directory not found: {args.model_dir}",
+                        file=sys.stderr)
+                  sys.exit(1)
+              if not args.xlsx.exists():
+                  print(f"ERROR: xlsx not found: {args.xlsx}", file=sys.stderr)
+                  sys.exit(1)
+
+              # ── Load Recalls ──
+              print(f"Loading Recalls rows from {args.xlsx}...")
+              all_rows = load_recalls_with_tier(args.xlsx, "Recalls")
+              print(f"  {len(all_rows)} rows with valid Tier label")
+
+              # ── Sample ──
+              rng = random.Random(args.seed)
+              if args.sample_size >= len(all_rows):
+                  sample = all_rows
+                  print(f"  using all {len(sample)} rows (sample-size >= total)")
+              else:
+                  sample = rng.sample(all_rows, args.sample_size)
+                  print(f"  sampled {len(sample)} rows (seed={args.seed})")
+
+              # ── Inference ──
+              predictions = run_inference(args.model_dir, sample,
+                                           max_length=args.max_length)
+
+              # ── Build report ──
+              print(f"\nBuilding report...")
+              md, metrics = build_report(sample, predictions, args.confidence_threshold)
+
+              # ── Save ──
+              today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+              args.out_dir.mkdir(parents=True, exist_ok=True)
+              md_path = args.out_dir / f"tier_shadow_{today}.md"
+              json_path = args.out_dir / f"tier_shadow_{today}.json"
+              md_path.write_text(md, encoding="utf-8")
+              json_path.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+              print(f"  → {md_path}")
+              print(f"  → {json_path}")
+
+              # ── Echo summary to stdout ──
+              print()
+              print("═" * 60)
+              print(f"Sample size:                  {metrics['sample_size']}")
+              print(f"Overall agreement:            {metrics['overall_agreement']:.1%}")
+              print(f"High-confidence agreement:    {metrics['high_confidence_agreement']:.1%}")
+              print(f"Calls skipping API (≥{args.confidence_threshold}):    "
+                    f"{metrics['pct_above_threshold']:.1%}")
+              print(f"Calls falling back to API:    "
+                    f"{metrics['pct_below_threshold']:.1%}")
+              print(f"High-conf disagreements:      "
+                    f"{metrics['n_high_conf_disagreements']}")
+              print("═" * 60)
+
+
+          if __name__ == "__main__":
+              main()
+          PYEOF_SHADOW
+          chmod +x tools/fsis-lm/tier_classifier_shadow.py
+          echo "Wrote $(wc -l < tools/fsis-lm/tier_classifier_shadow.py) lines"
+
+      - name: Run shadow inference
+        id: shadow
+        env:
+          SAMPLE_SIZE: ${{ inputs.sample_size }}
+          CONF: ${{ inputs.confidence_threshold }}
+          MAX_LENGTH: ${{ inputs.max_length }}
+          SEED: ${{ inputs.seed }}
+          HF_HUB_DISABLE_PROGRESS_BARS: "1"
+          TRANSFORMERS_NO_ADVISORY_WARNINGS: "1"
+          TOKENIZERS_PARALLELISM: "false"
+        run: |
+          SHADOW_DATE=$(TZ=Europe/Athens date +%Y-%m-%d)
+          echo "shadow_date=$SHADOW_DATE" >> "$GITHUB_OUTPUT"
+
+          LOG_FILE=$(mktemp)
+          set -o pipefail
+          python tools/fsis-lm/tier_classifier_shadow.py \
+            --model-dir tools/fsis-lm/tier-classifier-v1 \
+            --xlsx docs/data/recalls.xlsx \
+            --out-dir docs/audits \
+            --sample-size "$SAMPLE_SIZE" \
+            --confidence-threshold "$CONF" \
+            --max-length "$MAX_LENGTH" \
+            --seed "$SEED" \
+            2>&1 | tee "$LOG_FILE"
+
+          {
+            echo "## Tier Classifier Shadow Mode — ${SHADOW_DATE} (Athens)"
+            echo ""
+            echo "Report: \`docs/audits/tier_shadow_${SHADOW_DATE}.md\`"
+            echo ""
+            echo '```'
+            tail -15 "$LOG_FILE"
+            echo '```'
+            echo ""
+            echo "### Full report"
+            echo ""
+            cat "docs/audits/tier_shadow_${SHADOW_DATE}.md"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit report to repo
+        env:
+          SHADOW_DATE: ${{ steps.shadow.outputs.shadow_date }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/fsis-lm/tier_classifier_shadow.py \
+                  docs/audits/tier_shadow_*.md \
+                  docs/audits/tier_shadow_*.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "tier-shadow: comparison report ${SHADOW_DATE}"
+          for i in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            git pull --rebase
+            sleep 3
+          done
+          echo "::error::Failed to push after 3 attempts"
+          exit 1
