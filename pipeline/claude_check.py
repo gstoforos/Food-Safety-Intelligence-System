@@ -964,6 +964,87 @@ def _is_clean_row(row: Dict[str, Any]) -> bool:
     return True
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Locked Tier rules (audit 2026-05-19) — programmatic enforcement of H1-H5
+# from the LLM prompt. The LLM SHOULD apply these per the prompt, but when
+# it forgets (observed 2026-05-19 on an FSAI Listeria mc row that came in
+# Tier=3 and Claude PASSed it without correcting), the post-decision sanity
+# block catches it here.
+#
+# Rules encoded:
+#   H1  Cereulide                                  → ALWAYS Tier 1
+#   H2  Clostridium botulinum / botulism toxin     → ALWAYS Tier 1
+#   H3  STEC / VTEC / EHEC / E. coli O157          → ALWAYS Tier 1
+#   H4  Listeria monocytogenes (any food)          → ALWAYS Tier 1
+#   H5  Marine biotoxins                           → ALWAYS Tier 1
+#
+# NOT encoded (context-dependent — leave to LLM):
+#   H6  Salmonella in RTE food          → Tier 1   (depends on RTE flag)
+#   H7  Salmonella in cooking-required  → Tier 2   (depends on RTE flag)
+#   H8  Generic "E. coli" (no STEC ind) → Tier 3   (negative rule)
+#   H13 Foreign body in baby/vulnerable → Tier 1   (depends on consumer)
+#
+# Note H3 must require a STEC indicator — bare "E. coli" (per H8) is Tier
+# 3. The regex below matches STEC/VTEC/EHEC tokens and the O-serogroup
+# patterns (O157, O104, O26, O121, etc.) that mark Shiga-toxin producers.
+# ─────────────────────────────────────────────────────────────────────────────
+
+_MARINE_BIOTOXINS = (
+    "saxitoxin", "domoic acid", "okadaic acid", "tetrodotoxin",
+    "ciguatoxin", "brevetoxin", "azaspiracid", "palytoxin",
+    "asp toxin", "psp toxin", "dsp toxin", "nsp toxin",
+    "paralytic shellfish", "amnesic shellfish", "diarrhetic shellfish",
+    "neurotoxic shellfish",
+)
+
+_STEC_TOKEN_RE = re.compile(
+    r"\b(stec|vtec|ehec|"
+    r"shiga[\s\-]*toxin|shigatoxigenic|"
+    r"e\.?\s*coli\s*o\s*0*(?:26|45|103|104|111|121|145|157))"
+    r"\b",
+    re.IGNORECASE,
+)
+
+
+def _check_locked_tier_rules(pathogen: str) -> Optional[int]:
+    """Return 1 if the pathogen string falls under a locked Tier-1 rule
+    (H1, H2, H3, H4, or H5), else None.
+
+    Matching is case-insensitive substring with regex for STEC indicators.
+    Returns None for ambiguous/context-dependent cases (H6, H7, H13)."""
+    if not pathogen:
+        return None
+    p = str(pathogen).strip().lower()
+    if not p:
+        return None
+
+    # H4: Listeria monocytogenes — any food
+    if "listeria monocytogenes" in p:
+        return 1
+    # H4 variant: "L. monocytogenes" shorthand
+    if re.search(r"\bl\.?\s*monocytogenes\b", p):
+        return 1
+
+    # H1: cereulide (Bacillus cereus emetic toxin)
+    if "cereulide" in p:
+        return 1
+
+    # H2: botulinum / botulism
+    if "botulinum" in p or "botulism" in p:
+        return 1
+
+    # H3: STEC / VTEC / EHEC / E. coli O157 (and other Shiga-toxin serogroups)
+    if _STEC_TOKEN_RE.search(p):
+        return 1
+
+    # H5: marine biotoxins
+    for toxin in _MARINE_BIOTOXINS:
+        if toxin in p:
+            return 1
+
+    return None
+
+
 def check_row(row: Dict[str, Any]) -> Tuple[str, Dict[str, str], Optional[str]]:
     """
     Verify one Pending row. Returns (verdict, corrections, reason)
@@ -1194,6 +1275,35 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Dict[str, str], Optional[str]]:
 
     if not is_tier1_pathogen(final_pathogen):
         return "fail", {}, f"pathogen_out_of_scope: {final_pathogen!r} | {short_reason}"
+
+    # ── Tier locked-rule enforcement (audit 2026-05-19) ─────────────────
+    # H1-H5 from the LLM prompt encoded programmatically. If Claude
+    # returned verdict="pass" with the row's existing Tier wrong (e.g.
+    # FSAI HTML-fallback row stamped Tier=3 for Listeria monocytogenes
+    # because of low-confidence scraper enrichment), force-correct it.
+    # Escalate "pass" → "fix" so the correction flows through the
+    # standard FIX-apply path and surfaces in the Notes audit trail.
+    forced_tier = _check_locked_tier_rules(final_pathogen)
+    if forced_tier is not None:
+        current_tier_raw = (corrections.get("Tier")
+                            if "Tier" in corrections
+                            else row.get("Tier"))
+        try:
+            current_tier_int = (int(str(current_tier_raw).strip())
+                                if current_tier_raw not in (None, "")
+                                else None)
+        except (ValueError, TypeError):
+            current_tier_int = None
+        if current_tier_int != forced_tier:
+            corrections["Tier"] = forced_tier
+            log.info("Tier locked-rule auto-fix: %r → %d "
+                     "(pathogen=%r matches H1-H5 hard rule)",
+                     current_tier_raw, forced_tier, final_pathogen)
+            if verdict == "pass":
+                verdict = "fix"
+                short_reason = (f"tier_autofix_locked_rule "
+                                f"(Tier={current_tier_raw}→{forced_tier}) "
+                                f"| {short_reason}")
 
     # Extraction garbage check (uses corrected values where available)
     company = (corrections.get("Company") or str(row.get("Company") or "")).strip().lower()
