@@ -721,6 +721,22 @@
   },
   {
     "Date": "2026-05-11",
+    "Source": "FAVV",
+    "Company": "Terugroeping van Laerco BV | Federaal Agentschap voor de ...",
+    "Brand": "Terugroeping van Laerco BV | Federaal Agentschap voor de ...",
+    "Product": "5 days ago · In overleg met het FAVV haalt Laerco BV de eieren (scharreleieren) met stempelcode “2-BE-1073-01”, “2-BE-1073-02”, “2-BE-1073-03” en “2-BE-1073-04” op het ei uit de verkoop en roept het t",
+    "Pathogen": "Salmonella",
+    "Reason": "Salmonella",
+    "Class": "Recall",
+    "Country": "Belgium",
+    "Region": "Europe",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://favv-afsca.be/nl/producten/terugroeping-van-laerco-bv",
+    "Notes": "5 days ago · In overleg met het FAVV haalt Laerco BV de eieren (scharreleieren) met stempelcode “2-BE-1073-01”, “2-BE-1073-02”, “2-BE-1073-03” en “2-BE-1073-04” op het ei uit de verkoop en roept het terug van bij de consumenten wegens mogelijke aanwezigheid van Salmonella.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-17: pending_gap → pending_gap_v1] [claude-check 2026-05-18: pass; pass | Date 2026-05-11 matches page metadata. Company (Laerco BV) confirmed. Product (scharreleieren/free-range eggs wit] [gap-gate 2026-05-18: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+  },
+  {
+    "Date": "2026-05-11",
     "Source": "RappelConso (FR)",
     "Company": "Les Brebis du Noutari",
     "Brand": "Les Brebis du Noutari",
@@ -10174,21 +10190,5 @@
     "Outbreak": 0,
     "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
     "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent]"
-  },
-  {
-    "Date": "2026-05-11",
-    "Source": "FAVV",
-    "Company": "Terugroeping van Laerco BV | Federaal Agentschap voor de ...",
-    "Brand": "Terugroeping van Laerco BV | Federaal Agentschap voor de ...",
-    "Product": "5 days ago · In overleg met het FAVV haalt Laerco BV de eieren (scharreleieren) met stempelcode “2-BE-1073-01”, “2-BE-1073-02”, “2-BE-1073-03” en “2-BE-1073-04” op het ei uit de verkoop en roept het t",
-    "Pathogen": "Salmonella",
-    "Reason": "Salmonella",
-    "Class": "Recall",
-    "Country": "Belgium",
-    "Region": "Europe",
-    "Tier": 1,
-    "Outbreak": 0,
-    "URL": "https://favv-afsca.be/nl/producten/terugroeping-van-laerco-bv",
-    "Notes": "5 days ago · In overleg met het FAVV haalt Laerco BV de eieren (scharreleieren) met stempelcode “2-BE-1073-01”, “2-BE-1073-02”, “2-BE-1073-03” en “2-BE-1073-04” op het ei uit de verkoop en roept het terug van bij de consumenten wegens mogelijke aanwezigheid van Salmonella.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-17: pending_gap → pending_gap_v1] [claude-check 2026-05-18: pass; pass | Date 2026-05-11 matches page metadata. Company (Laerco BV) confirmed. Product (scharreleieren/free-range eggs wit] [gap-gate 2026-05-18: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
   }
 ]
