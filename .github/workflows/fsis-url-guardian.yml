@@ -17,6 +17,26 @@ name: FSIS URL Guardian (every 4h)
 #     claude-check.yml workflow at 07:00 Athens covers Tier-1 verification.
 #
 # Cost: $0/run. URL health is HTTP HEAD/GET only — no LLM calls.
+#
+# CRITICAL FIX 2026-05-20 — STOMP REGRESSION
+# ===========================================
+# At 17:14 Athens on 2026-05-20, this workflow silently overwrote
+# claude-check's 17:12 commit (663 Recalls + 11 promoted + 31 archived)
+# back to 652 Recalls. Root cause: the previous "binary-safe retry" at
+# the bottom of this file did pure binary overwrite (cp /tmp/our.xlsx
+# docs/data/recalls.xlsx) of the freshly-pulled remote xlsx, destroying
+# every row the remote had that we didn't.
+#
+# news-feed.yml and merge-master.yml already use pipeline.xlsx_merge
+# for row-level union merge — they did not stomp. Guardian was the
+# only writer still doing binary overwrite. This file now uses the
+# same xlsx_merge pattern.
+#
+# Layer 3 verify (in pipeline.commit_github) only protects callers of
+# git_commit_and_push (claude-check, merge_master, scrapers). This
+# workflow commits inline from YAML, so it bypasses Layer 3. The fix
+# below makes the inline commit row-safe so a Layer 3 alarm isn't
+# needed to catch a stomp that can never happen.
 
 on:
   workflow_dispatch:
@@ -94,6 +114,16 @@ jobs:
             --json docs/data/recalls.json
 
       - name: Commit updated dataset
+        # ─────────────────────────────────────────────────────────────────────
+        # FIXED 2026-05-20 — was the source of the silent stomp on
+        # 2026-05-20 17:14 UTC. Old block did `cp /tmp/our.xlsx
+        # docs/data/recalls.xlsx` on retry, which destroys every row
+        # the remote has that we don't.
+        #
+        # New block mirrors news-feed.yml and merge-master.yml exactly:
+        # on push failure we row-union our xlsx with the freshly-pulled
+        # remote xlsx via pipeline.xlsx_merge, then re-commit the union.
+        # ─────────────────────────────────────────────────────────────────────
         shell: bash
         run: |
           set -euo pipefail
@@ -104,26 +134,41 @@ jobs:
             echo "No changes this cycle."
             exit 0
           fi
-          COMMIT_MSG="URL guardian + gap-finder @ $(date -u +'%Y-%m-%d %H:%M UTC')"
+          COMMIT_MSG="URL guardian @ $(date -u +'%Y-%m-%d %H:%M UTC')"
           git commit -m "$COMMIT_MSG"
 
-          # Binary-safe push retry: git rebase cannot handle xlsx, so on
-          # failure we save our files, pull remote, restore ours, re-commit.
+          # Safe push retry — row-level union merge instead of binary overwrite.
+          # (Old "binary-safe retry" silently destroyed remote rows that were
+          # added between our checkout and our push, e.g. claude-check's
+          # auto-promotion of Pending → Recalls. See 2026-05-20 stomp regression
+          # at the top of this file.)
           for attempt in 1 2 3; do
             if git push; then
               echo "Push succeeded on attempt $attempt."
               exit 0
             fi
-            echo "Push attempt $attempt failed — binary-safe retry..."
+            echo "Push attempt $attempt failed — safe row-level merge retry..."
             cp docs/data/recalls.xlsx /tmp/our-recalls.xlsx
             cp docs/data/recalls.json /tmp/our-recalls.json 2>/dev/null || true
             git reset --hard HEAD~1
             git pull --ff-only origin main || git pull origin main
-            cp /tmp/our-recalls.xlsx docs/data/recalls.xlsx
-            cp /tmp/our-recalls.json docs/data/recalls.json 2>/dev/null || true
+            # Union our just-validated xlsx with the freshly-pulled remote.
+            # xlsx_merge is row-level union across all sheets — claude-check's
+            # 663-row Recalls + our URL-health updates (blanked 404 URLs,
+            # bot-blocked-403 stamps) merge into a single xlsx where no rows
+            # are lost on either side.
+            python -m pipeline.xlsx_merge \
+              docs/data/recalls.xlsx /tmp/our-recalls.xlsx docs/data/recalls.xlsx
+            # Regenerate the json mirror from the merged xlsx (same as
+            # merge-master.yml does — keeps json in lockstep with xlsx).
+            python -c "from pathlib import Path; \
+                       from pipeline.merge_master import mirror_json_from_xlsx; \
+                       mirror_json_from_xlsx(Path('docs/data/recalls.xlsx'), \
+                                              Path('docs/data/recalls.json'))" \
+              || echo "(json regen warning; continuing)"
             git add docs/data/recalls.xlsx docs/data/recalls.json || true
             if ! git diff --staged --quiet; then
-              git commit -m "$COMMIT_MSG (retry $attempt)"
+              git commit -m "$COMMIT_MSG (retry $attempt, row-merged)"
             fi
             sleep $((attempt * 3))
           done
