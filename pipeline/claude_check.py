@@ -72,6 +72,15 @@ from review.claude_client import (  # noqa: E402
 from pipeline._url_year import is_year_mismatch  # noqa: E402
 from pipeline._pathogen_scope import is_in_scope as is_tier1_pathogen  # noqa: E402
 from pipeline._news_mirror_blocklist import is_news_mirror  # noqa: E402
+# Akamai bypass for URL verification (audit 2026-05-20). The orchestrator
+# scrapers route fda.gov / fsis.usda.gov / fda.gov.ph / gov.il through
+# curl_cffi with chrome131 TLS impersonation. claude-check was using
+# plain `_requests.get` and silently rejecting valid Tier-1 recalls with
+# `REJECTED: http_error` because Akamai returns HTTP 404 (yes, 404) to
+# Python's `requests` TLS fingerprint. Same helper, same fix.
+from scrapers._akamai_fetch import (  # noqa: E402
+    is_akamai_host, fetch_via_curl_cffi,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -481,14 +490,31 @@ def _fetch_page_text(url: str) -> Tuple[Optional[str], Optional[str]]:
     """
     if not url or not url.lower().startswith(("http://", "https://")):
         return None, "no URL"
-    try:
-        resp = _requests.get(
+
+    # ── Akamai bypass (audit 2026-05-20) ───────────────────────────────
+    # Hosts in scrapers._akamai_fetch._AKAMAI_HOSTS (fda.gov,
+    # fsis.usda.gov, fda.gov.ph, gov.il) return HTTP 404 from Python's
+    # requests TLS fingerprint regardless of headers — Akamai inspects
+    # JA3/JA4 + HTTP/2 frame ordering, not just User-Agent. Route those
+    # through curl_cffi with chrome131 impersonation. Non-Akamai hosts
+    # stay on the faster requests path.
+    if is_akamai_host(url):
+        resp = fetch_via_curl_cffi(
             url, timeout=FETCH_TIMEOUT_S,
             headers=_FETCH_HEADERS,
             allow_redirects=True,
         )
-    except Exception as exc:
-        return None, f"fetch error: {type(exc).__name__}: {str(exc)[:120]}"
+        if resp is None:
+            return None, "fetch error: curl_cffi unavailable or transport error"
+    else:
+        try:
+            resp = _requests.get(
+                url, timeout=FETCH_TIMEOUT_S,
+                headers=_FETCH_HEADERS,
+                allow_redirects=True,
+            )
+        except Exception as exc:
+            return None, f"fetch error: {type(exc).__name__}: {str(exc)[:120]}"
 
     if resp.status_code >= 400:
         return None, f"HTTP {resp.status_code}"
