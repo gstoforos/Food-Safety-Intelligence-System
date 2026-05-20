@@ -1,87 +1,116 @@
 """FDA Recalls Listing HTML — Layer 1 canonical source for FDA recalls.
 
-WHY THIS SCRAPER EXISTS (audit 2026-05-10)
-==========================================
-The 2026-05-09 production run had ZERO US FDA coverage. All three layers
-of the existing FDA stack returned empty:
+REWRITE 2026-05-19 — FOR LIVE FDA STRUCTURE
+============================================
+The previous parser (`soup.select_one("table.dataTable")`) intermittently
+failed with "no dataTable found in HTML response" even when the listing
+DID contain a valid table. Triage of a saved snapshot of the live page
+(operator capture 2026-05-19) revealed:
 
-  - fda_press.py RSS (Layer 2)       → 404 from Akamai
-  - fda_press.py HTML fallback       → 404 from Akamai
-  - fda.py openFDA enforcement (L3)  → 0 rows in 35-day window
-                                       (publication lag still in effect)
+  1. The table now carries class `lcds-datatable table table-bordered
+     cols-8 responsive-enabled dataTable no-footer dtr-inline` AND
+     `id="datatable"`. The `id` is the only single-attribute selector
+     that's guaranteed unique on the page.
 
-Triage of what's actually live on fda.gov found:
-  1. The listing page at /safety/recalls-market-withdrawals-safety-alerts
-     IS publicly reachable from a normal browser — Drupal Views renders
-     a DataTables.js table with ~925 entries in the archive.
-  2. The Network tab capture shows the table fetches its data via an
-     XHR to /datatables-data?_format=xlsx (Solr-backed search index).
-     We can hit that endpoint, but the XLSX it returns has NO URLs to
-     individual recall pages — Drupal strips the <a> markup on export.
-  3. The listing-page HTML itself, however, contains the URL slugs
-     directly inside <td.views-field-brand-name> as plain <a href>
-     elements (e.g.
-       href="/safety/recalls-market-withdrawals-safety-alerts/jonco-...")
+  2. Cell semantics are encoded in Drupal views-field-* classes, which
+     are stable across Drupal config edits. Column ORDER is also stable,
+     but cell CLASS NAMES carry the meaning. We use both: class-name as
+     primary, position as fallback.
 
-Per the project's NO-SYNTHESIS rule, we do not synthesise URLs from
-headlines or company names. URLs must come from the source. The HTML
-listing is the only remaining surface that publishes them, so this is
-where we go.
+  3. Drupal view-config quirks add `-1` / `-2` suffixes to some
+     views-field classes (e.g. `views-field-field-change-date-2`,
+     `views-field-field-product-description-1`). We match the PREFIX
+     to insulate against future drift.
 
-Operationally, the listing's "Show 10 entries" default + sorted-newest-
-first behaviour means the first page already covers our SINCE_DAYS=7
-window in typical operation (5–20 fresh entries per week vs 925 in full
-archive). For backfill or anomaly investigation, the operator can
-manually pass a higher since_days; this scraper still parses whatever
-rows are visible in the listing-page HTML.
+  4. Date cells contain `<time datetime="2026-05-14T04:00:00Z">05/14/2026</time>`.
+     The ISO `datetime` attribute is the most reliable parse target;
+     the visible MM/DD/YYYY text is a fallback.
 
-Layered architecture (after this scraper lands)
------------------------------------------------
-    Layer 1 (NEW, this file) → listing HTML       → fresh, structured,
-                                                    URLs guaranteed
+  5. Akamai sometimes serves a different/stripped HTML to non-browser
+     fetches. When parsing fails, we now log RAW HTML STATS (size, count
+     of <table>, count of <tr>) so we can diagnose without re-running.
+
+LIVE HTML STRUCTURE (verified 2026-05-19, operator-captured snapshot)
+=====================================================================
+```
+<table class="lcds-datatable ... dataTable no-footer dtr-inline"
+       id="datatable" role="grid">
+  <thead>
+    <tr>
+      <th>Date</th><th>Brand Name(s)</th><th>Product Description</th>
+      <th>Product Type</th><th>Recall Reason Description</th>
+      <th>Company Name</th><th>Terminated Recall</th><th>Excerpt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="... views-field-field-change-date-2 ...">
+        <time datetime="2026-05-14T04:00:00Z">05/14/2026</time>
+      </td>
+      <td class="... views-field-brand-name ...">
+        <a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/
+                 terra-medi-llc-recalls-..." >Hellas Meze</a>
+      </td>
+      <td class="... views-field-field-product-description-1 ...">
+        Hellas Meze Golden Smoked Whole Herring
+      </td>
+      <td class="... views-field-field-regulated-product-field ...">
+        Food &amp; Beverages, Foodborne Illness
+      </td>
+      <td class="... views-field-field-recall-reason-description-1 ...">
+        Product is an uneviscerated fish with potential for
+        Clostridium botulinum contamination
+      </td>
+      <td class="... views-field-company-name ...">Terra Medi LLC</td>
+      <td class="... views-field-field-terminated-recall ...">[empty]</td>
+      <td class="all priority-low views-field-field-terminated...">[empty]</td>
+    </tr>
+    ...
+  </tbody>
+</table>
+```
+
+Layered architecture
+--------------------
+    Layer 1 (THIS FILE)      → listing HTML       → 10 most-recent recalls
+                                                    with full structured data
     Layer 2 (fda_press.py)   → RSS + HTML fallback → fresh, redundant
-    Layer 3 (fda.py)         → openFDA enforcement → 5–30d lag,
+    Layer 3 (fda.py)         → openFDA enforcement → 5-30d lag, has
                                                     classification field
 
-merge_master URL-dedupes across all three. If L1 ever gets bot-blocked
-again, L2 and L3 still cover (with their respective trade-offs).
+DESIGN DECISIONS (revised)
+==========================
+1. Multi-selector cascade for the table:
+     a) `table#datatable` (most stable — unique ID)
+     b) `table.dataTable` (legacy fallback)
+     c) `table.views-table` (Drupal-views fallback)
+     d) `table.lcds-datatable` (newest class prefix)
+   First match wins.
 
-DESIGN DECISIONS
-================
-1. Column-order parsing, not class-name parsing.
-   The Brand column's CSS class (views-field-brand-name) is verified
-   live, but the other six columns may have Drupal-config suffixes
-   (_1, _2) that drift with content model edits. Walking <td> children
-   in order avoids that fragility. Column order is locked by the
-   visible page header: Date | Brand | Product | Type | Reason |
-   Company | Terminated.
+2. Cell extraction by views-field PREFIX, with positional fallback:
+   For each row we try class-name match first, fall back to column index
+   if the views-field-* class isn't found. Both fail → row skipped with
+   `skipped_unparseable_row` counter incremented.
 
-2. Akamai bypass headers — same set as fda_press.py.
-   sec-ch-ua, sec-ch-ua-platform, sec-fetch-* headers make the request
-   indistinguishable from a Chrome 127 navigation. Without these,
-   Akamai returns HTTP 404 (yes, 404, not 403) with
-   server=AkamaiNetStorage. Verified pattern in fda_press.py docstring.
+3. Date parsing prefers `<time datetime="...">` attribute (ISO 8601),
+   falls back to MM/DD/YYYY text. The `datetime` attribute is timezone-
+   aware (Z suffix); we strip the timezone for our naive cutoff compare.
 
-3. Pathogen + food filter — same vocab as fda_press.py.
+4. Defensive HTML stats logging when table not found, so we don't
+   silently lose a day of FDA coverage.
+
+5. Akamai bypass headers unchanged — Chrome 127 navigation profile.
+   Verified to return HTTP 200 with full content. If FDA ever tightens
+   to require JS execution, fall back to L2/L3 (this scraper logs a
+   warning rather than crashing).
+
+6. Pathogen + food filter — same vocab as fda_press.py.
    for_languages("en") gives the bilingual single-source vocab used
-   by every English-speaking regulator scraper. _FOOD_CONTEXT_TOKENS
-   only used as a fallback when Product Type column is unexpectedly
-   empty; normally we filter on the Product Type cell directly.
+   by every English-speaking regulator scraper.
 
-4. Date format — MM/DD/YYYY (US-format strings).
-   Verified from the XLSX export (same Solr index → same source data),
-   e.g. "05/08/2026" = 2026-05-08. Consistent across the archive
-   (oldest entry 2017-10-19).
-
-5. Terminated recalls are KEPT in scope.
+7. Terminated recalls are KEPT in scope.
    "Terminated" only means FDA is satisfied with corrective action;
-   the recall itself is still a valid historical food safety event.
-   Within a 7-day window, almost no entries will be terminated yet.
-   merge_master + claude-check decide what to surface.
-
-6. URL filter — uses fda_press._ACCEPTABLE_URL_PREFIXES inline copy
-   for parity. If FDA reshuffles URL structure (rare), both scrapers
-   need updating in lockstep.
+   the recall itself is still a valid food safety event.
 """
 from __future__ import annotations
 from datetime import datetime, timedelta
@@ -107,8 +136,8 @@ _OUTBREAK_TOKENS = (
 # Product-Type cell substring → "this row is food".
 # The Solr-indexed Product Type values are comma-separated category
 # tags, e.g. "Food & Beverages, Foodborne Illness, Cheese/Cheese Product".
-# A simple substring check on "Food & Beverages" catches all 30+ subcategory
-# variants without false positives (verified across the 925-row archive).
+# A simple substring check on "food & beverages" catches all 30+
+# subcategory variants without false positives.
 _FOOD_PRODUCT_TYPE_TOKEN = "food & beverages"
 
 # Defensive fallback when Product Type cell is empty (rare): scan the
@@ -117,9 +146,10 @@ _FOOD_CONTEXT_TOKENS = (
     "food", "beverage", "beverages", "drink", "drinks",
     "milk", "dairy", "cheese", "yogurt", "yoghurt", "ice cream",
     "meat", "poultry", "chicken", "beef", "pork", "turkey", "lamb",
-    "fish", "seafood", "shrimp", "oyster", "salmon", "tuna",
+    "fish", "seafood", "shrimp", "oyster", "salmon", "tuna", "herring",
     "produce", "vegetable", "vegetables", "fruit", "fruits",
     "salad", "spinach", "lettuce", "onion", "tomato", "carrot",
+    "mushroom", "mushrooms", "enoki",
     "snack", "snacks", "chips", "crisps", "crackers", "biscuit",
     "cereal", "granola", "oats", "rice", "pasta", "noodle",
     "bakery", "bread", "cake", "pastry", "muffin",
@@ -139,6 +169,24 @@ _ACCEPTABLE_URL_PREFIXES = (
     "https://www.fda.gov/food/alerts-advisories-safety-information/",
 )
 
+# Drupal views-field CSS class PREFIXES (we match by prefix to survive
+# config-suffix drift like `-1`, `-2`). Order = visible column order.
+_FIELD_CLASS_PREFIXES = {
+    "date":      "views-field-field-change-date",
+    "brand":     "views-field-brand-name",
+    "product":   "views-field-field-product-description",
+    "type":      "views-field-field-regulated-product-field",
+    "reason":    "views-field-field-recall-reason-description",
+    "company":   "views-field-company-name",
+    "terminated":"views-field-field-terminated-recall",
+}
+
+# Positional fallback if class-name match fails — verified column order.
+_POSITIONAL_INDEX = {
+    "date": 0, "brand": 1, "product": 2, "type": 3,
+    "reason": 4, "company": 5, "terminated": 6,
+}
+
 
 def _detect_outbreak(text_lower: str) -> int:
     return 1 if any(t in text_lower for t in _OUTBREAK_TOKENS) else 0
@@ -154,20 +202,97 @@ def _matched_pathogen_keyword(
 
 
 def _parse_date(s: str) -> Optional[datetime]:
-    """FDA listing dates are 'MM/DD/YYYY' strings (verified)."""
+    """FDA listing dates: prefer ISO from <time datetime="...">,
+    fall back to MM/DD/YYYY text."""
     if not s:
         return None
+    s = s.strip()
+    # Try ISO 8601 first (strip 'Z' or +00:00 for naive compare)
+    iso = s.replace("Z", "").split("+")[0].split(".")[0]
+    for fmt in ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(iso, fmt)
+        except ValueError:
+            pass
+    # Fall back to US-format
     try:
-        return datetime.strptime(s.strip(), "%m/%d/%Y")
+        return datetime.strptime(s, "%m/%d/%Y")
     except ValueError:
         return None
+
+
+def _cell_by_class_prefix(tr, prefix: str):
+    """Find first <td> in <tr> whose class attribute contains a token
+    starting with the given Drupal views-field prefix. Returns the
+    BeautifulSoup Tag or None."""
+    for td in tr.find_all("td"):
+        classes = td.get("class") or []
+        for c in classes:
+            if c.startswith(prefix):
+                return td
+    return None
+
+
+def _get_cell(tr, field: str, all_cells):
+    """Return the cell for a logical field — by class prefix first,
+    by positional fallback second. `all_cells` is the cached td list."""
+    prefix = _FIELD_CLASS_PREFIXES[field]
+    cell = _cell_by_class_prefix(tr, prefix)
+    if cell is not None:
+        return cell
+    idx = _POSITIONAL_INDEX[field]
+    if 0 <= idx < len(all_cells):
+        return all_cells[idx]
+    return None
+
+
+def _extract_date(cell) -> Optional[datetime]:
+    """Date cell: prefer <time datetime="..."> attribute, fall back to text."""
+    if cell is None:
+        return None
+    time_tag = cell.find("time")
+    if time_tag is not None:
+        iso = (time_tag.get("datetime") or "").strip()
+        if iso:
+            d = _parse_date(iso)
+            if d is not None:
+                return d
+    return _parse_date(cell.get_text(" ", strip=True))
+
+
+def _extract_brand_and_url(cell) -> Tuple[str, str]:
+    """Brand cell: text inside the first <a>, plus href."""
+    if cell is None:
+        return "", ""
+    a = cell.find("a")
+    if a is None:
+        return cell.get_text(" ", strip=True), ""
+    return a.get_text(" ", strip=True), (a.get("href") or "").strip()
+
+
+def _log_html_stats(html: str, marker: str) -> None:
+    """When parsing fails, log enough about the response to diagnose
+    without needing to re-fetch and stare at headers."""
+    size = len(html)
+    n_table = len(re.findall(r"<table\b", html, re.IGNORECASE))
+    n_tr = len(re.findall(r"<tr\b", html, re.IGNORECASE))
+    n_td = len(re.findall(r"<td\b", html, re.IGNORECASE))
+    has_id = 'id="datatable"' in html
+    has_class = "dataTable" in html
+    has_views = "views-field" in html
+    log.warning(
+        "FDA listing: %s — size=%d bytes, <table>=%d, <tr>=%d, <td>=%d, "
+        "id=datatable=%s, class=dataTable=%s, views-field=%s",
+        marker, size, n_table, n_tr, n_td,
+        has_id, has_class, has_views,
+    )
 
 
 class FDAListingScraper(BaseScraper):
     """Layer 1 — parses the FDA listing-page HTML directly.
 
     Single GET to the listing URL. URLs come from <a href> in the
-    Brand column; structured fields from the visible <td> cells.
+    Brand column; structured fields from views-field-* cells.
     No XLSX, no XHR chasing — we work with what the browser gets.
     """
 
@@ -180,11 +305,9 @@ class FDAListingScraper(BaseScraper):
 
     PATHOGEN_KEYWORDS = for_languages("en")
 
-    # Akamai bot-detection bypass — copy of fda_press.py's set, with
-    # sec-fetch-* tuned for an HTML page navigation (document/navigate/none)
-    # rather than an RSS XHR (empty/cors/same-origin). Without these,
-    # Akamai returns HTTP 404 with server=AkamaiNetStorage. With them,
-    # the request is indistinguishable from a real Chrome 127 navigation.
+    # Akamai bot-detection bypass — Chrome 127 navigation profile.
+    # Without these, Akamai returns HTTP 404 with server=AkamaiNetStorage.
+    # With them, indistinguishable from a real Chrome 127 navigation.
     _AKAMAI_BYPASS_HEADERS = {
         "sec-ch-ua": (
             '"Not)A;Brand";v="99", "Google Chrome";v="127", '
@@ -228,17 +351,34 @@ class FDAListingScraper(BaseScraper):
             return []
 
         soup = BeautifulSoup(r.text, "html.parser")
-        # The DataTables widget renders one <table> with class 'dataTable'
-        # plus 'no-footer' once initialised by JS. On server-rendered HTML
-        # the class may just be on the inner table; pick the first match.
+
+        # Multi-selector cascade: try most-stable first.
+        # `id="datatable"` is the only single-attribute selector
+        # guaranteed unique on the page.
         table = (
-            soup.select_one("table.dataTable")
-            or soup.select_one("table.no-footer")
+            soup.select_one("table#datatable")
+            or soup.select_one("table.dataTable")
+            or soup.select_one("table.lcds-datatable")
             or soup.select_one("table.views-table")
+            or soup.select_one("table.no-footer")
         )
         if table is None:
-            log.warning("FDA listing: no dataTable found in HTML response "
-                        "(page structure may have changed)")
+            _log_html_stats(r.text, "no recall table found in HTML")
+            return []
+
+        # tbody might not be present in some Drupal renders — fall back
+        # to selecting <tr>s directly within the table, skipping any
+        # that are inside <thead>.
+        tbody = table.find("tbody")
+        if tbody is not None:
+            trs = tbody.find_all("tr")
+        else:
+            thead = table.find("thead")
+            head_trs = set(id(t) for t in (thead.find_all("tr") if thead else []))
+            trs = [tr for tr in table.find_all("tr") if id(tr) not in head_trs]
+
+        if not trs:
+            _log_html_stats(r.text, "table found but contains no data rows")
             return []
 
         rows_total = 0
@@ -246,6 +386,7 @@ class FDAListingScraper(BaseScraper):
         skipped_bad_url = 0
         skipped_old = 0
         skipped_unparseable_date = 0
+        skipped_unparseable_row = 0
         skipped_non_food = 0
         skipped_non_pathogen = 0
 
@@ -253,51 +394,48 @@ class FDAListingScraper(BaseScraper):
         out: List[Recall] = []
         seen_urls: set = set()
 
-        for tr in table.select("tbody tr"):
+        for tr in trs:
             cells = tr.find_all("td")
             if len(cells) < 6:
-                # Some Drupal renders include a footer pseudo-row; ignore.
+                # Footer pseudo-rows or malformed entries.
+                skipped_unparseable_row += 1
                 continue
             rows_total += 1
 
-            # Column order (verified from screenshot 2026-05-10):
-            #   0: Date           e.g. "05/08/2026"
-            #   1: Brand-Names    contains the <a> with the recall URL
-            #   2: Product-Description
-            #   3: Product-Types  comma-separated tags
-            #   4: Recall-Reason-Description
-            #   5: Company-Name
-            #   6: Terminated-Recall  ("Terminated" or empty)
-            date_str = cells[0].get_text(" ", strip=True)
-            brand_a = cells[1].find("a")
-            product = cells[2].get_text(" ", strip=True)
-            ptype = cells[3].get_text(" ", strip=True)
-            reason = cells[4].get_text(" ", strip=True)
-            company = cells[5].get_text(" ", strip=True)
-            # cells[6] is Terminated — kept in scope per design note 5.
+            date_cell    = _get_cell(tr, "date",    cells)
+            brand_cell   = _get_cell(tr, "brand",   cells)
+            product_cell = _get_cell(tr, "product", cells)
+            type_cell    = _get_cell(tr, "type",    cells)
+            reason_cell  = _get_cell(tr, "reason",  cells)
+            company_cell = _get_cell(tr, "company", cells)
+            # terminated_cell unused — design decision 7 keeps them in scope.
 
-            if brand_a is None:
-                skipped_no_link += 1
-                continue
-            href = (brand_a.get("href") or "").strip()
-            brand_text = brand_a.get_text(" ", strip=True) or "—"
-            if not href:
-                skipped_no_link += 1
-                continue
-            url = href if href.startswith("http") else f"https://www.fda.gov{href}"
-            if not any(url.startswith(p) for p in _ACCEPTABLE_URL_PREFIXES):
-                skipped_bad_url += 1
-                continue
-            if url in seen_urls:
-                continue
-
-            d = _parse_date(date_str)
+            d = _extract_date(date_cell)
             if d is None:
                 skipped_unparseable_date += 1
                 continue
             if d < cutoff:
                 skipped_old += 1
                 continue
+
+            brand_text, href = _extract_brand_and_url(brand_cell)
+            if not href:
+                skipped_no_link += 1
+                continue
+            url = (
+                href if href.startswith("http")
+                else f"https://www.fda.gov{href}"
+            )
+            if not any(url.startswith(p) for p in _ACCEPTABLE_URL_PREFIXES):
+                skipped_bad_url += 1
+                continue
+            if url in seen_urls:
+                continue
+
+            product = product_cell.get_text(" ", strip=True) if product_cell else ""
+            ptype   = type_cell.get_text(" ", strip=True) if type_cell else ""
+            reason  = reason_cell.get_text(" ", strip=True) if reason_cell else ""
+            company = company_cell.get_text(" ", strip=True) if company_cell else ""
 
             # Food filter: prefer Product Type, fall back to keyword scan.
             ptype_lc = ptype.lower()
@@ -337,11 +475,13 @@ class FDAListingScraper(BaseScraper):
             seen_urls.add(url)
 
         log.info(
-            "FDA listing: %d pathogen recalls in %d-day window (rows scanned=%d, "
-            "skipped: no_link=%d bad_url=%d unparseable_date=%d old=%d "
+            "FDA listing: %d pathogen recalls in %d-day window "
+            "(rows scanned=%d, skipped: no_link=%d bad_url=%d "
+            "unparseable_date=%d unparseable_row=%d old=%d "
             "non_food=%d non_pathogen=%d)",
             len(out), since_days, rows_total,
-            skipped_no_link, skipped_bad_url, skipped_unparseable_date,
+            skipped_no_link, skipped_bad_url,
+            skipped_unparseable_date, skipped_unparseable_row,
             skipped_old, skipped_non_food, skipped_non_pathogen,
         )
         return out
