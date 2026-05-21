@@ -1,9 +1,31 @@
 {
   "week_end": "2026-05-28",
-  "generated_utc": "2026-05-21T14:42:46+00:00",
-  "row_count": 0,
-  "tier1_count": 0,
+  "generated_utc": "2026-05-21T17:19:11+00:00",
+  "row_count": 1,
+  "tier1_count": 1,
   "outbreak_count": 0,
   "dissent_count": 0,
-  "rows": []
+  "rows": [
+    {
+      "Date": "2026-05-21",
+      "Source": "RappelConso (FR)",
+      "Company": "Leclerc Langon",
+      "Brand": "Leclerc Langon",
+      "Product": "Langue de porc libre service",
+      "Pathogen": "Salmonella",
+      "Reason": "Presence of salmonelle",
+      "Class": "Voluntary",
+      "Country": "France",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22325/Interne",
+      "Notes": "leclerc langon [url-gate 2026-05-21: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-21: fix; corrections: Product→Langue de porc libre service, Pathogen→Salmonella; fix | Product description corrected to be more specific; tier mismatch identified.]",
+      "DateAdded": "2026-05-21",
+      "LastUpdated": "2026-05-21",
+      "LastChecked": "",
+      "Week_Added": "2026-05-28",
+      "Reviewed": "N"
+    }
+  ]
 }
