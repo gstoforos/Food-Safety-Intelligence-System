@@ -112,6 +112,38 @@
   "Notes": "le bon vieux pots (habsheim), epicerie du vignoble (gueberschwihr), l'épicerie café philo (ungersheim), adrien et joséph [url-gate 2026-05-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-20 17:12: PASS]"
  },
  {
+  "Date": "2026-05-20",
+  "Source": "RappelConso (FR)",
+  "Company": "Ferme la Maison Rouge",
+  "Brand": "Ferme la Maison Rouge",
+  "Product": "fromage blanc sur lit de fruit",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogène",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22309/Interne",
+  "Notes": "vente directe [url-gate 2026-05-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-21: pass; pass | All fields verified: date 2026-05-20 matches page; company EARL PEERS JOSEPH ET FANNY / Ferme La Maison Rouge con]"
+ },
+ {
+  "Date": "2026-05-20",
+  "Source": "RappelConso (FR)",
+  "Company": "Aoste",
+  "Brand": "Aoste",
+  "Product": "les dentelles coppa poivrée 80g",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Présence Listeria monocytogenes dans une barquette",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22322/Interne",
+  "Notes": "amc¤carrefour¤leclerc¤systeme u [url-gate 2026-05-21: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-21: pass; pass | All fields verified: date 2026-05-20 matches page; Company=Aoste (recalling firm per 'Origine de la fiche: AOSTE ]"
+ },
+ {
   "Date": "2026-05-19",
   "Source": "RappelConso (FR)",
   "Company": "TEBA 44",
@@ -238,6 +270,22 @@
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/global-seafood-distributors-australia-pty-ltd-seafood-marinara-mix-500g",
   "Notes": "[gemini-enrich 2026-05-19: Brand '—'→'Global Seafood Distributors (Australia) Pty Ltd'] [claude-check 2026-05-19T17:10Z: PASS] [operator recovery v2 2026-05-19: re-applied after xlsx-staging bug + Tavily-run]"
+ },
+ {
+  "Date": "2026-05-19",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Türkiye | Notifying: Poland",
+  "Brand": "Spain",
+  "Product": "stwierdzenie obecności DNA specyficznego werotoksycznych Escherichia coli (STEC) w morelach suszonych pochodzących z Turcji /// Detection of specific DNA of verotoxigenic Escherichia coli (STEC) in dried apricots from Turkey via Spain",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "stwierdzenie obecności DNA specyficznego werotoksycznych Escherichia coli (STEC) w morelach suszonych pochodzących z Turcji /// Detection of specific DNA of verotoxigenic Escherichia coli (STEC) in dried apricots from Turkey via Spain; risk: potential risk; category: fruits and vegetables",
+  "Class": "Information",
+  "Country": "Turkey",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/844827",
+  "Notes": "[RASFF #2026.4372; classification: information notification for follow-up; category: fruits and vegetables; notifId=844827] [gemini-enrich 2026-05-21: Brand '—'→'Spain'] [claude-check 2026-05-21: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
   "Date": "2026-05-18",
@@ -510,6 +558,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/844322",
   "Notes": "[RASFF #2026.4307; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=844322] [gemini-enrich 2026-05-20: Brand '—'→'IRL'] [claude-check 2026-05-20: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-05-18",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Belgium | Notifying: Belgium",
+  "Brand": "Belgium",
+  "Product": "Salmonella Eggs",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella Eggs; risk: serious; category: eggs and egg products",
+  "Class": "Alert",
+  "Country": "Belgium",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843898",
+  "Notes": "[RASFF #2026.4346; classification: alert notification; category: eggs and egg products; notifId=843898] [gemini-enrich 2026-05-21: Brand '—'→'Belgium'] [claude-check 2026-05-21: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
   "Date": "2026-05-16",
