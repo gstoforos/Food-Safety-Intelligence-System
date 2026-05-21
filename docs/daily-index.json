@@ -1,27 +1,38 @@
 {
   "entries": [
     {
+      "date": "2026-05-21",
+      "url": "daily/2026-05-21.html",
+      "total": 0,
+      "tier1": 0,
+      "outbreak": 0,
+      "by_region": {},
+      "generated": "2026-05-21T14:00:00Z"
+    },
+    {
       "date": "2026-05-20",
       "url": "daily/2026-05-20.html",
-      "total": 9,
-      "tier1": 8,
+      "total": 10,
+      "tier1": 9,
       "outbreak": 0,
       "by_region": {
+        "North America": 1,
         "Europe": 9
       },
-      "generated": "2026-05-21T07:04:16Z"
+      "generated": "2026-05-21T14:00:00Z"
     },
     {
       "date": "2026-05-19",
       "url": "daily/2026-05-19.html",
-      "total": 9,
-      "tier1": 9,
+      "total": 10,
+      "tier1": 10,
       "outbreak": 0,
       "by_region": {
+        "North America": 1,
         "Europe": 8,
         "Oceania": 1
       },
-      "generated": "2026-05-21T07:04:16Z"
+      "generated": "2026-05-21T14:00:00Z"
     },
     {
       "date": "2026-05-18",
@@ -34,7 +45,7 @@
         "North America": 2,
         "Europe": 13
       },
-      "generated": "2026-05-21T07:04:16Z"
+      "generated": "2026-05-21T14:00:00Z"
     },
     {
       "date": "2026-05-17",
@@ -43,7 +54,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-05-21T07:04:16Z"
+      "generated": "2026-05-21T14:00:00Z"
     },
     {
       "date": "2026-05-16",
@@ -54,7 +65,7 @@
       "by_region": {
         "Europe": 1
       },
-      "generated": "2026-05-21T07:04:16Z"
+      "generated": "2026-05-21T14:00:00Z"
     },
     {
       "date": "2026-05-15",
@@ -68,19 +79,7 @@
         "Middle East": 1,
         "Asia": 1
       },
-      "generated": "2026-05-21T07:04:17Z"
-    },
-    {
-      "date": "2026-05-14",
-      "url": "daily/2026-05-14.html",
-      "total": 4,
-      "tier1": 4,
-      "outbreak": 0,
-      "by_region": {
-        "North America": 3,
-        "Europe": 1
-      },
-      "generated": "2026-05-21T07:04:17Z"
+      "generated": "2026-05-21T14:00:00Z"
     }
   ]
 }
