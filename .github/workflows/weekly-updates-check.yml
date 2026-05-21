@@ -116,6 +116,14 @@ jobs:
 
       - name: Check & rebuild last 4 weeks
         if: steps.guard.outputs.run == 'true'
+        env:
+          # Optional AI commentary in the Intelligence Analysis section
+          # of each rebuilt weekly HTML. Without this, build_weekly_report_afts
+          # falls back to deterministic prose — functionally correct but
+          # less natural-sounding. See docs/build_weekly_report_afts.py:20
+          # (CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY")). Missing this
+          # env was the source of the "Claude 401" log noise on 2026-05-20.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python -m pipeline.build_weekly_updates_check
 
