@@ -59,12 +59,21 @@ on:
         description: "Random seed"
         required: false
         default: "42"
+      class_weight_mode:
+        description: "Class weight strategy (none=best calibration, sqrt=mild, balanced=v1 broken default)"
+        required: false
+        default: "none"
+        type: choice
+        options:
+          - "none"
+          - "sqrt"
+          - "balanced"
 
 permissions:
   contents: write
 
 concurrency:
-  group: fsis-data-writers
+  group: train-tier-classifier
   cancel-in-progress: false
 
 jobs:
@@ -238,12 +247,18 @@ jobs:
 
               collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-              # ── Class weights (handle Tier 3 imbalance) ──
+              # ── Class weights (mode-selected) ──
               n_total = sum(train_dist.values())
-              class_weights = torch.tensor([
-                  n_total / (3 * train_dist.get(i, 1)) for i in range(3)
-              ], dtype=torch.float32)
-              print(f"  class weights: {class_weights.tolist()}")
+              inv_freq = [n_total / (3 * train_dist.get(i, 1)) for i in range(3)]
+              if args.class_weight_mode == "balanced":
+                  class_weights = torch.tensor(inv_freq, dtype=torch.float32)
+              elif args.class_weight_mode == "sqrt":
+                  class_weights = torch.tensor([w ** 0.5 for w in inv_freq],
+                                                dtype=torch.float32)
+              else:   # "none"
+                  class_weights = torch.ones(3, dtype=torch.float32)
+              print(f"  class weight mode: {args.class_weight_mode}")
+              print(f"  class weights:     {class_weights.tolist()}")
 
               # Custom trainer that applies class weights
               class WeightedTrainer(Trainer):
@@ -365,6 +380,7 @@ jobs:
                                        for k, v in sorted(train_dist.items())},
                   "val_class_dist": {f"Tier {k+1}": v
                                      for k, v in sorted(val_dist.items())},
+                  "class_weight_mode": args.class_weight_mode,
                   "class_weights": class_weights.tolist(),
                   "epochs": args.epochs,
                   "lr": args.lr,
@@ -442,6 +458,15 @@ jobs:
               ap.add_argument("--lr", type=float, default=2e-5)
               ap.add_argument("--max-length", type=int, default=128)
               ap.add_argument("--seed", type=int, default=42)
+              ap.add_argument("--class-weight-mode",
+                              choices=["none", "sqrt", "balanced"],
+                              default="none",
+                              help="Loss weighting by class frequency. "
+                                   "'none' (default) = no weighting — best calibration, model commits "
+                                   "confidently. "
+                                   "'sqrt' = mild weighting (sqrt of inverse-frequency). "
+                                   "'balanced' = full inverse-frequency — was the v1 default but "
+                                   "destroys calibration when minority class has too few examples.")
               args = ap.parse_args()
 
               if not args.train_jsonl.exists():
@@ -489,6 +514,7 @@ jobs:
           LR: ${{ inputs.learning_rate }}
           MAX_LENGTH: ${{ inputs.max_length }}
           SEED: ${{ inputs.seed }}
+          CLASS_WEIGHT_MODE: ${{ inputs.class_weight_mode }}
           TRAIN_DATE: $(TZ=Europe/Athens date +%Y-%m-%d)
           HF_HUB_DISABLE_PROGRESS_BARS: "1"
           TRANSFORMERS_NO_ADVISORY_WARNINGS: "1"
@@ -509,6 +535,7 @@ jobs:
             --lr "$LR" \
             --max-length "$MAX_LENGTH" \
             --seed "$SEED" \
+            --class-weight-mode "$CLASS_WEIGHT_MODE" \
             2>&1 | tee "$LOG_FILE"
 
           # Capture final accuracy for the summary
