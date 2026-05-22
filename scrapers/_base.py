@@ -531,6 +531,105 @@ GENERAL RULES:
 
 
 # ---------------------------------------------------------------------------
+# Date normalization
+# ---------------------------------------------------------------------------
+# Audit 2026-05-21 — California Dairies recall came in with Date="20260420"
+# (8-digit YYYYMMDD with no separators) from openFDA's recall_initiation_date
+# field. The Pending sheet stored it raw, downstream consumers (sort, JSON
+# mirror, validation gate) all failed silently because datetime.fromisoformat
+# can't parse "20260420". Reviewer had to manually fix 3 SKU rows.
+#
+# Fix is at the construction point: every scraper builds Recalls via
+# _new_recall(); normalize Date there so the malformed shape can never enter
+# the rest of the system. pipeline/merge_master.validate_pending_row has a
+# matching defensive backstop for rows that bypass _new_recall (manual
+# injects, gap-finder rows constructed via Recall(...) direct).
+#
+# Supported input shapes:
+#   "YYYY-MM-DD"        already ISO — pass through
+#   "YYYYMMDD"          8-digit compact — convert to YYYY-MM-DD (openFDA, BfR)
+#   "YYYY/MM/DD"        slash-separated — convert to YYYY-MM-DD
+#   "DD-MM-YYYY"        EU-style — convert to YYYY-MM-DD
+#   "DD/MM/YYYY"        EU-style — convert to YYYY-MM-DD
+#   "M/D/YYYY"          US-style short — convert to YYYY-MM-DD
+#   datetime / date     stringify via strftime
+#   ""                  pass through empty (Pending allows date_unknown)
+#   anything else       pass through unchanged (validation gate will reject)
+# ---------------------------------------------------------------------------
+
+_DATE_YYYYMMDD_RE  = re.compile(r"^(20\d\d)(\d{2})(\d{2})$")
+_DATE_YYYY_X_MD_RE = re.compile(r"^(20\d\d)[/.](\d{1,2})[/.](\d{1,2})$")
+_DATE_DMY_RE       = re.compile(r"^(\d{1,2})[/.\-](\d{1,2})[/.\-](20\d\d)$")
+
+
+def _normalize_date_string(d: Any) -> str:
+    """Coerce a scraper-supplied Date value into ``YYYY-MM-DD`` form.
+
+    Returns "" on unparseable / empty input; the validation gate downstream
+    will reject the row or accept Date="" for enrichment by claude-check.
+    Never raises.
+    """
+    if d is None:
+        return ""
+    # datetime / date objects from API clients
+    if isinstance(d, datetime):
+        try:
+            return d.strftime("%Y-%m-%d")
+        except (TypeError, ValueError):
+            return ""
+    # date-only is a subclass of nothing — duck-type via strftime
+    if hasattr(d, "strftime") and not isinstance(d, str):
+        try:
+            return d.strftime("%Y-%m-%d")
+        except (TypeError, ValueError):
+            return ""
+    s = str(d).strip()
+    if not s:
+        return ""
+
+    # Already ISO YYYY-MM-DD
+    if len(s) >= 10 and s[4] == "-" and s[7] == "-":
+        # Take just the date part if a timestamp leaked in ("2026-05-21T10:00Z")
+        head = s[:10]
+        if head[:4].isdigit() and head[5:7].isdigit() and head[8:10].isdigit():
+            return head
+
+    # YYYYMMDD compact (openFDA recall_initiation_date)
+    m = _DATE_YYYYMMDD_RE.match(s)
+    if m:
+        y, mo, da = m.groups()
+        if 1 <= int(mo) <= 12 and 1 <= int(da) <= 31:
+            return f"{y}-{mo}-{da}"
+
+    # YYYY/MM/DD or YYYY.MM.DD
+    m = _DATE_YYYY_X_MD_RE.match(s)
+    if m:
+        y, mo, da = m.groups()
+        if 1 <= int(mo) <= 12 and 1 <= int(da) <= 31:
+            return f"{y}-{int(mo):02d}-{int(da):02d}"
+
+    # DD-MM-YYYY / DD/MM/YYYY / DD.MM.YYYY (EU)
+    # Ambiguous with M/D/YYYY (US) when first part <= 12 — choose the format
+    # that yields a valid date; prefer EU (DMY) for European-source scrapers
+    # if both work, since this normalizer is rarely needed for US scrapers
+    # (openFDA returns YYYYMMDD compact, handled above).
+    m = _DATE_DMY_RE.match(s)
+    if m:
+        a, b, y = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        # Prefer DMY when day>12 forces interpretation
+        if a > 12 and 1 <= b <= 12:
+            return f"{y:04d}-{b:02d}-{a:02d}"
+        if b > 12 and 1 <= a <= 12:
+            return f"{y:04d}-{a:02d}-{b:02d}"
+        # Ambiguous — default to MDY (US) since openFDA/FSIS/FDA dominate corpus
+        if 1 <= a <= 12 and 1 <= b <= 31:
+            return f"{y:04d}-{a:02d}-{b:02d}"
+
+    # Anything else: return unchanged so the validation gate can log and reject
+    return s
+
+
+# ---------------------------------------------------------------------------
 # BaseScraper
 # ---------------------------------------------------------------------------
 
@@ -601,7 +700,7 @@ class BaseScraper:
             return str(v).strip() or default
 
         return Recall(
-            Date=_s(Date),
+            Date=_normalize_date_string(Date),
             Source=self.AGENCY or "",
             Company=_s(Company),
             Brand=_s(Brand, "—") or "—",
