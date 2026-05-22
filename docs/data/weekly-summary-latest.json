@@ -8,18 +8,18 @@
   "week_end": "2026-05-21",
   "week_start_display": "15 May",
   "week_end_display": "21 May 2026",
-  "generated_utc": "2026-05-22T05:12:59.932246+00:00",
+  "generated_utc": "2026-05-22T16:00:00+00:00",
   "stats": {
-    "total": 58,
-    "tier1": 49,
+    "total": 59,
+    "tier1": 50,
     "outbreaks": 1,
-    "delta": 7,
-    "delta_pct": 14
+    "delta": 8,
+    "delta_pct": 16
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
     "cases": 28,
-    "pct": 48
+    "pct": 47
   },
   "ai_lead_paragraph": "",
   "top_threats": [
