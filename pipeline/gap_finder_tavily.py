@@ -740,6 +740,56 @@ def _hazard_in_title_or_lede(title: str, content: str) -> bool:
 
 
 
+# ─────────────────────────────────────────────────────────────────────────
+# Reliable-direct-scraper hosts (audit 2026-05-21)
+# ─────────────────────────────────────────────────────────────────────────
+# These regulators have direct API/feed scrapers in scrapers/north_america/
+# that catch fresh recalls within hours of publication on the regulator's
+# own infrastructure. The gap-finder's ROLE is to catch what the direct
+# scrapers MISS — typically slow-publishing or syndication-lagged content.
+#
+# Production data 2026-05-21: Tavily surfaced four FSIS recalls (JBS USA
+# 2021, Yu Shang 2024, FSIS PHA pasta 2025, FSIS PHA ham salad 2025) all
+# 1-5 years old, with no parseable date in the snippet. Reviewer drained
+# four Pending slots tracking these down before rejecting all of them as
+# historical.
+#
+# The pattern: when a reliable-direct-scraper-host URL surfaces in the
+# gap-finder AND the snippet has no extractable date, the result is
+# almost always archived content. If it were fresh, the direct scraper
+# would have caught it on its own 30-minute / hourly run.
+#
+# Conservative drop policy: only kicks in when BOTH conditions hold:
+#   1. URL host is in this set (regulator has reliable direct coverage)
+#   2. Tavily/Exa returned no published_date AND no date-in-snippet
+#      (date_is_fallback=True from _parse_date)
+#
+# Rationale for conservatism: if the direct scraper is broken (Akamai
+# block, schema change, feed retired), we want gap-finder to still
+# surface fresh recalls. The fallback-date path is the only one this
+# guard touches. Rows with parseable dates go through the existing
+# 90-day staleness gate unchanged.
+RELIABLE_DIRECT_SCRAPER_HOSTS = frozenset({
+    "www.fsis.usda.gov",
+    "fsis.usda.gov",
+    "www.fda.gov",
+    "fda.gov",
+    "recalls-rappels.canada.ca",
+    "inspection.canada.ca",
+})
+
+
+def _is_reliable_direct_scraper_host(url: str) -> bool:
+    """True if URL host has a direct AFTS scraper that would catch fresh recalls."""
+    if not url:
+        return False
+    try:
+        host = urlparse(url).netloc.lower()
+    except Exception:
+        return False
+    return host in RELIABLE_DIRECT_SCRAPER_HOSTS
+
+
 def _item_to_recall(item: Dict[str, Any],
                     finder_name: str = "Tavily") -> Optional[Recall]:
     """Convert a single search-engine result into a Recall object.
@@ -812,6 +862,22 @@ def _item_to_recall(item: Dict[str, Any],
     # land in Pending with Date="", and claude-check fills it during the
     # next content review pass.
     if not date_is_fallback and date_str < "2026-01-01":
+        return None
+
+    # ── Reliable-direct-scraper-host fallback-date drop (audit 2026-05-21) ──
+    # If Tavily can't establish a fresh date AND the URL belongs to a
+    # regulator with reliable direct coverage (FSIS, FDA, CFIA), the result
+    # is almost certainly archive content the direct scraper already saw
+    # and dropped (or that pre-dates AFTS coverage). Drop to avoid letting
+    # year-old recalls land in Pending with Date="" where they sit until
+    # a reviewer manually rejects them. See module-level constant block
+    # for the full rationale.
+    if date_is_fallback and _is_reliable_direct_scraper_host(url):
+        log.info(
+            "%s: dropping fallback-date row from reliable-direct-scraper host: "
+            "%s | %s",
+            finder_name, urlparse(url).netloc, (title or "(no title)")[:80],
+        )
         return None
 
     # ── Date sanity gate (audit 2026-05-06) ──────────────────────────────

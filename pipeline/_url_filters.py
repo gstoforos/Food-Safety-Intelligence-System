@@ -96,6 +96,10 @@ KNOWN_REGULATOR_LANDINGS = frozenset({
     "https://rappel.conso.gouv.fr/recherche",
     # AESAN (Spain), AGES (Austria), AFSCA (Belgium), NVWA (Netherlands)
     "https://www.aesan.gob.es/aecosan/web/seguridad_alimentaria/subseccion/alertas_alimentarias.htm",
+    # AESAN "otras alertas" directory — Tavily/gap-finder leak (audit 2026-05-21,
+    # surfaced "Alertas alimentarias de interés para toda la población" as a
+    # fake company because the page section heading was extracted as the entity).
+    "https://www.aesan.gob.es/aecosan/web/seguridad_alimentaria/subseccion/otras_alertas_alimentarias.htm",
     "https://www.ages.at/konsument/lebensmittelwarnungen",
     "https://www.afsca.be/professionnels/publications/communications/rappels",
     "https://www.nvwa.nl/onderwerpen/voedselveiligheid/veiligheidswaarschuwingen",
@@ -202,11 +206,20 @@ def is_generic_url(url: str) -> bool:
     if not u.startswith(("http://", "https://")):
         return True
 
-    # 1. Canonical-form whitelist match
+    # 1. Canonical-form whitelist match.
+    # Audit 2026-05-21: lowercase the PATH too. Several regulator sites
+    # (AESAN, AECOSAN, parts of FSIS) serve URLs with mixed-case path
+    # segments — e.g. /AECOSAN/web/... — but operators add blocklist
+    # entries in lowercase. Prior to this fix, those production URLs
+    # never matched the blocklist and slipped through is_generic_url()
+    # to the gap-finder gate. Lowering the path here makes matching
+    # case-insensitive end-to-end while keeping the blocklist entries
+    # human-readable in their canonical (lowercase) form.
     try:
         sp = urlsplit(url)
         canonical = (
-            f"{sp.scheme.lower()}://{sp.netloc.lower()}{sp.path.rstrip('/')}"
+            f"{sp.scheme.lower()}://{sp.netloc.lower()}"
+            f"{sp.path.rstrip('/').lower()}"
         )
     except Exception:
         canonical = u.split("?", 1)[0].split("#", 1)[0].rstrip("/")

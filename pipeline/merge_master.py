@@ -590,7 +590,27 @@ def validate_pending_row(
     """
     url = str(row.get("URL", "") or "").strip()
     company = str(row.get("Company", "") or "").strip()
-    date_str = str(row.get("Date", "") or "")[:10]
+    date_str_raw = str(row.get("Date", "") or "")
+    # ── Defensive Date normalization (audit 2026-05-21) ─────────────────
+    # Backstop for openFDA-style YYYYMMDD compact dates that bypass the
+    # scrapers._base._new_recall normalizer (e.g. rows constructed via
+    # Recall(...) directly, manual injects, or gap-finder rows that
+    # carry a date stamp from the source page). Mutate the row dict
+    # in place so all downstream consumers see the canonical YYYY-MM-DD.
+    # See scrapers/_base._normalize_date_string for the source-level
+    # normalizer that catches this at construction time.
+    if re.fullmatch(r"20\d{6}", date_str_raw):
+        y, mo, da = date_str_raw[:4], date_str_raw[4:6], date_str_raw[6:8]
+        if 1 <= int(mo) <= 12 and 1 <= int(da) <= 31:
+            normalized = f"{y}-{mo}-{da}"
+            row["Date"] = normalized
+            date_str_raw = normalized
+            log.info(
+                "validate_pending_row: normalized YYYYMMDD Date %s → %s "
+                "(url=%s)",
+                date_str_raw, normalized, url[:60],
+            )
+    date_str = date_str_raw[:10]
     source = str(row.get("Source", "") or "").strip()
 
     # ── RASFF (EU) schema awareness (audit 2026-04-29) ──────────────────
