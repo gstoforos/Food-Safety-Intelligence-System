@@ -107,6 +107,152 @@ def _is_generic_url(url: str) -> bool:
 # FSANZ, FSA UK, and every other English-speaking regulator.
 _PATHOGEN_KEYWORDS = for_languages("en")
 
+
+# ─────────────────────────────────────────────────────────────────────────
+# HTML fallback slug filtering (audit 2026-05-21)
+# ─────────────────────────────────────────────────────────────────────────
+# Background. When the FDA RSS feed is down, this scraper falls back to
+# parsing the HTML recalls listing page. The 2026-05-21 audit found the
+# previous regex href="(/safety/recalls-market-withdrawals-safety-alerts/[^"]+)"
+# was matching SIX non-recall page-navigation links:
+#
+#   /safety/recalls-market-withdrawals-safety-alerts/recall-resources
+#   /safety/recalls-market-withdrawals-safety-alerts/enforcement-reports
+#   /safety/recalls-market-withdrawals-safety-alerts/industry-guidance-recalls
+#   /safety/recalls-market-withdrawals-safety-alerts/major-product-recalls
+#   /safety/recalls-market-withdrawals-safety-alerts/additional-information-about-recalls
+#   /safety/recalls-market-withdrawals-safety-alerts/datatables-data?Randparam=…
+#
+# These leaked into Pending as fake recalls with Company="Recall Resources"
+# etc. Plus three real-but-out-of-scope recalls (Doxorubicin = drug,
+# Sensual Enhancement Capsules = supplement, Fly by Jing peanut cross-
+# contact = allergen-only) sailed past because the HTML fallback didn't
+# run the pathogen filter that _parse_item uses for RSS rows.
+#
+# Three filters together:
+#   1. _FDA_NAV_SLUGS_BLOCKLIST — static list of known nav pages.
+#   2. _RECALL_VERBS — slug must contain a recall verb (recalls, recalled,
+#      voluntary-recall, issues-recall, initiates-voluntary, announces-recall).
+#   3. _OUT_OF_SCOPE_SLUG_TOKENS — reject drug/allergen/quality slugs
+#      (in AFTS scope: pathogens + biotoxins + mycotoxins + foreign material
+#      + pest + chemical hazards; out of scope: drugs, allergen-only, quality).
+# ─────────────────────────────────────────────────────────────────────────
+
+_FDA_NAV_SLUGS_BLOCKLIST = frozenset({
+    "recall-resources",
+    "enforcement-reports",
+    "industry-guidance-recalls",
+    "major-product-recalls",
+    "additional-information-about-recalls",
+    "datatables-data",
+    "voluntary-recall",            # share-link wrapper page itself
+    "drug-shortage-product-search",
+    "press-announcements",
+    "outbreaks-and-advisories",
+    "alerts-advisories-safety-information",
+    "ireslibrary",
+})
+
+# Recall verbs that real FDA recall slugs always contain.
+_RECALL_VERBS = (
+    "recalls",
+    "recalled",
+    "recall-of",
+    "voluntary-recall",
+    "voluntarily-recalls",
+    "voluntarily-issues",
+    "issues-recall",
+    "issues-voluntary",
+    "initiates-voluntary",
+    "initiates-recall",
+    "announces-recall",
+    "expands-recall",
+    "expands-voluntary",
+    "updates-recall",
+    "amends-recall",
+    "issues-public-health-alert",
+)
+
+# Tokens that mark out-of-scope items (drugs, allergen-only, quality).
+# AFTS scope (per dashboard footer): pathogens + biotoxins + mycotoxins
+# + foreign material + pest + chemical hazards. Allergen-only and
+# quality/spoilage are excluded — even though the FDA publishes them
+# under the same /safety/recalls-... path.
+_OUT_OF_SCOPE_SLUG_TOKENS = (
+    # Drugs / supplements / pharmaceuticals (not food)
+    "capsule", "capsules",
+    "tablet", "tablets",
+    "doxorubicin", "sildenafil", "tadalafil",
+    "-pharma-", "pharmaceutical",
+    "injectable", "injection", "intravenous",
+    "iv-fluid", "iv-bag",
+    "drug-recall",
+    "sensual-enhancement", "sexual-enhancement",
+    "weight-loss-product", "erectile",
+    # Allergen-only recalls (out of AFTS scope)
+    "undeclared-peanut", "cross-contact-peanut",
+    "undeclared-milk", "undeclared-dairy",
+    "undeclared-egg", "undeclared-eggs",
+    "undeclared-soy", "undeclared-wheat",
+    "undeclared-tree-nut", "undeclared-treenut",
+    "undeclared-sesame",
+    "undeclared-shellfish", "undeclared-fish",
+    "undeclared-sulfite", "undeclared-sulfites",
+    "undeclared-allergen", "undeclared-allergens",
+    "undeclared-color", "undeclared-coloring",
+    "undeclared-fd-c",
+    "mislabeling-undeclared",
+    # Quality / spoilage / packaging (out of scope)
+    "due-to-mould", "due-to-mold",
+    "moldy", "mouldy",
+    "spoilage", "premature-spoilage",
+)
+
+
+def _is_real_fda_recall_slug(slug: str) -> bool:
+    """Return True only if this FDA listing slug is a genuine in-scope recall.
+
+    Tightens the HTML fallback path to reject page-nav links and out-of-scope
+    recall types (drugs / allergen-only / quality). The RSS path uses the
+    structured pathogen + food-context filter in ``_parse_item``; this is the
+    equivalent gate for the listing-HTML degraded mode.
+
+    Accepts either a full path
+    ("/safety/recalls-market-withdrawals-safety-alerts/<slug>?qs") or just
+    the final tail segment ("<slug>"). The check operates on the last path
+    segment after strip + lowercase.
+    """
+    if not slug:
+        return False
+    # Strip any query string / fragment — the listing href can carry filter
+    # params (`?Randparam=...`) that we don't want as part of the slug.
+    s = slug.split("?", 1)[0].split("#", 1)[0]
+    # Extract the final path segment (the slug proper). If `slug` was just
+    # the tail, this is a no-op.
+    tail = s.rstrip("/").rsplit("/", 1)[-1].lower()
+    if not tail:
+        return False
+
+    # 1. Static nav-page blocklist.
+    if tail in _FDA_NAV_SLUGS_BLOCKLIST:
+        return False
+
+    # 2. Real recall slugs are long descriptive sentences. A slug with too
+    #    few hyphens is either a nav stub or a category root.
+    if tail.count("-") < 4:
+        return False
+
+    # 3. Must contain a recall verb. Pure category pages, indices, and
+    #    dashboards don't carry one.
+    if not any(v in tail for v in _RECALL_VERBS):
+        return False
+
+    # 4. Reject out-of-scope categories (drugs, allergen-only, quality).
+    if any(tok in tail for tok in _OUT_OF_SCOPE_SLUG_TOKENS):
+        return False
+
+    return True
+
 # At least one of these tokens must appear in the title+description, else
 # we drop the row as non-food (FDA recalls cover drugs, devices, cosmetics,
 # tobacco — the FOOD recall RSS feed at the URL we use should already be
@@ -351,11 +497,23 @@ class FDAPressReleaseScraper(BaseScraper):
     def _scrape_html_fallback(self, since_days: int) -> List[Recall]:
         """Parse the HTML listing page when RSS is unavailable.
 
-        This is a degraded-mode path — used only when the RSS feed has
-        moved, returns 5xx, or has been temporarily emptied. The HTML
-        listing is harder to parse (no structured pubDate) so we extract
-        only enough to write a row to Pending; the URL gate + claude-check
-        will then fetch each individual recall page for full details.
+        Degraded-mode path — used only when the RSS feed has moved, returns
+        5xx, or has been temporarily emptied. The HTML listing has no
+        structured pubDate so we extract only enough to write a row to
+        Pending; the URL gate + claude-check will fetch each recall page
+        for full details (Date, Pathogen, full Product).
+
+        Filtering (audit 2026-05-21, see _is_real_fda_recall_slug docstring):
+          - Strip query strings from each href before validation
+          - Reject the 6 known FDA nav-page slugs (Recall Resources,
+            Enforcement Reports, Industry Guidance Recalls, Major Product
+            Recalls, Additional Information About Recalls, Datatables Data)
+          - Require a recall-verb in the slug (recalls/recalled/voluntary/etc.)
+          - Reject out-of-scope categories (drugs, allergen-only, quality)
+          - Date left EMPTY (was: today's date) — claude-check fills it
+            from the actual recall page during enrichment. Stamping today
+            on a 3-month-old recall would mark it fresh and bypass the
+            staleness gate in pipeline/gap_finder_tavily._item_to_recall.
         """
         r = fetch(self.session, self.FALLBACK_URL, headers=self._html_headers())
         if not r:
@@ -363,10 +521,7 @@ class FDAPressReleaseScraper(BaseScraper):
             return []
 
         # Recall slugs follow a stable pattern in the HTML:
-        # href="/safety/recalls-market-withdrawals-safety-alerts/<slug>"
-        # We don't parse dates from the listing — we use today as a
-        # placeholder. claude-check will overwrite Date when it fetches
-        # the actual recall page.
+        #   href="/safety/recalls-market-withdrawals-safety-alerts/<slug>[?qs]"
         slugs = re.findall(
             r'href="(/safety/recalls-market-withdrawals-safety-alerts/[^"]+)"',
             r.text,
@@ -375,34 +530,65 @@ class FDAPressReleaseScraper(BaseScraper):
             log.warning("FDA HTML fallback: no recall slugs found")
             return []
 
-        # Dedup & cap to 25 most recent (the listing shows most-recent first)
+        # Dedup + filter. The listing shows most-recent first; cap to 25
+        # to bound the Pending sheet pressure if the listing ever balloons.
         seen: set = set()
-        unique_slugs = []
+        unique_slugs: List[str] = []
+        dropped_nav = 0
+        dropped_short = 0
+        dropped_no_verb = 0
+        dropped_oos = 0
         for s in slugs:
-            if s not in seen:
-                seen.add(s)
-                unique_slugs.append(s)
-                if len(unique_slugs) >= 25:
-                    break
+            # Strip query / fragment for dedup key (different ?Randparam=
+            # query strings on the same nav page shouldn't count separately).
+            key = s.split("?", 1)[0].split("#", 1)[0]
+            if key in seen:
+                continue
+            # Inline classification so we can log per-category drop counts.
+            tail = key.rstrip("/").rsplit("/", 1)[-1].lower()
+            if tail in _FDA_NAV_SLUGS_BLOCKLIST:
+                dropped_nav += 1
+                seen.add(key)
+                continue
+            if tail.count("-") < 4:
+                dropped_short += 1
+                seen.add(key)
+                continue
+            if not any(v in tail for v in _RECALL_VERBS):
+                dropped_no_verb += 1
+                seen.add(key)
+                continue
+            if any(tok in tail for tok in _OUT_OF_SCOPE_SLUG_TOKENS):
+                dropped_oos += 1
+                seen.add(key)
+                continue
+            seen.add(key)
+            unique_slugs.append(key)
+            if len(unique_slugs) >= 25:
+                break
 
-        today = datetime.utcnow().strftime("%Y-%m-%d")
         out: List[Recall] = []
         for slug in unique_slugs:
             url = f"https://www.fda.gov{slug}"
             # Title from the slug — claude-check will fetch the real one
             title = slug.rsplit("/", 1)[-1].replace("-", " ").title()[:300]
             out.append(self._new_recall(
-                Date=today,
+                # Date left EMPTY — claude-check enriches from the page.
+                # Stamping today was causing 3-month-old recalls to look fresh.
+                Date="",
                 Company=title.split(" Recalls ")[0][:100],
                 Brand="—",
                 Product=title,
-                Pathogen="",  # Will be filled by claude-check page review
+                Pathogen="",   # Will be filled by claude-check page review
                 Reason=title,
                 Class="Recall",
                 URL=url,
                 Outbreak=0,
                 Notes="FDA HTML fallback — claude-check needs to enrich Date+Pathogen",
             ))
-        log.info("FDA HTML fallback: %d candidate URLs (need enrichment)",
-                 len(out))
+        log.info(
+            "FDA HTML fallback: %d candidate URLs kept (dropped: %d nav, "
+            "%d short-slug, %d no-recall-verb, %d out-of-scope)",
+            len(out), dropped_nav, dropped_short, dropped_no_verb, dropped_oos,
+        )
         return out
