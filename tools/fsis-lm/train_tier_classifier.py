@@ -141,12 +141,18 @@ def train_and_evaluate(args):
 
     collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-    # ── Class weights (handle Tier 3 imbalance) ──
+    # ── Class weights (mode-selected) ──
     n_total = sum(train_dist.values())
-    class_weights = torch.tensor([
-        n_total / (3 * train_dist.get(i, 1)) for i in range(3)
-    ], dtype=torch.float32)
-    print(f"  class weights: {class_weights.tolist()}")
+    inv_freq = [n_total / (3 * train_dist.get(i, 1)) for i in range(3)]
+    if args.class_weight_mode == "balanced":
+        class_weights = torch.tensor(inv_freq, dtype=torch.float32)
+    elif args.class_weight_mode == "sqrt":
+        class_weights = torch.tensor([w ** 0.5 for w in inv_freq],
+                                      dtype=torch.float32)
+    else:   # "none"
+        class_weights = torch.ones(3, dtype=torch.float32)
+    print(f"  class weight mode: {args.class_weight_mode}")
+    print(f"  class weights:     {class_weights.tolist()}")
 
     # Custom trainer that applies class weights
     class WeightedTrainer(Trainer):
@@ -268,6 +274,7 @@ def train_and_evaluate(args):
                              for k, v in sorted(train_dist.items())},
         "val_class_dist": {f"Tier {k+1}": v
                            for k, v in sorted(val_dist.items())},
+        "class_weight_mode": args.class_weight_mode,
         "class_weights": class_weights.tolist(),
         "epochs": args.epochs,
         "lr": args.lr,
@@ -345,6 +352,15 @@ def main():
     ap.add_argument("--lr", type=float, default=2e-5)
     ap.add_argument("--max-length", type=int, default=128)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--class-weight-mode",
+                    choices=["none", "sqrt", "balanced"],
+                    default="none",
+                    help="Loss weighting by class frequency. "
+                         "'none' (default) = no weighting — best calibration, model commits "
+                         "confidently. "
+                         "'sqrt' = mild weighting (sqrt of inverse-frequency). "
+                         "'balanced' = full inverse-frequency — was the v1 default but "
+                         "destroys calibration when minority class has too few examples.")
     args = ap.parse_args()
 
     if not args.train_jsonl.exists():
