@@ -12,14 +12,14 @@
     {
       "date": "2026-05-21",
       "url": "daily/2026-05-21.html",
-      "total": 3,
-      "tier1": 3,
+      "total": 5,
+      "tier1": 4,
       "outbreak": 0,
       "by_region": {
         "North America": 1,
-        "Europe": 2
+        "Europe": 4
       },
-      "generated": "2026-05-22T07:13:07Z"
+      "generated": "2026-05-22T17:17:56Z"
     },
     {
       "date": "2026-05-20",
