@@ -82,3 +82,73 @@ def is_in_scope(pathogen: str) -> bool:
 def is_tier1(pathogen: str) -> bool:
     """Same as is_in_scope — kept for backward compat with Tier=1 enforcement."""
     return is_in_scope(pathogen)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Pet / animal food scope filter (added 2026-05-23)
+# ──────────────────────────────────────────────────────────────────────
+# AFTS-FSIS monitors HUMAN food recalls only. Pet food, dog/cat treats,
+# animal feed, and livestock feed are out of scope even when contaminated
+# with a Tier-1 pathogen (Listeria, Salmonella, etc.).
+#
+# Historical false-positives this filter would have caught:
+#   • Raaw Energy "Dog Food" — FDA, 2026-05-22, Listeria monocytogenes
+#   • RCL Foods "dry pet food (dog and cat)" — NCC ZA, 2026-03-09, Salmonella
+#   • Elite Treats "Chicken Chips for Dogs ... PET FOOD" — FDA, 2026-02-24,
+#     Salmonella
+#
+# The filter checks Product, Company, Brand, and Reason fields for
+# pet/animal-food vocabulary. Multi-language coverage targets FDA / CFIA /
+# FSAI / FSA UK (EN), RappelConso / FSAI (FR), RASFF / BVL / AGES (DE),
+# AESAN / NCC / others (ES). Vegetative-pathogen-only feed scenarios
+# (e.g. dairy-cow feed contaminated with mycotoxin that reaches the milk
+# supply) remain in scope only if the recalled PRODUCT is the human food
+# downstream — not the feed itself.
+import re as _re
+
+_PET_FOOD_RE = _re.compile(
+    # English compound nouns
+    r"\b(?:"
+    r"pet[\s\-]*food|pet[\s\-]*treats?|pet[\s\-]*chew|"
+    r"dog[\s\-]*food|dog[\s\-]*treats?|dog[\s\-]*biscuit|dog[\s\-]*chew|"
+    r"cat[\s\-]*food|cat[\s\-]*treats?|cat[\s\-]*litter|"
+    r"animal[\s\-]*feed|animal[\s\-]*food|"
+    r"livestock[\s\-]*feed|poultry[\s\-]*feed|cattle[\s\-]*feed|"
+    r"raw[\s\-]*dog|raw[\s\-]*cat|raw[\s\-]*pet|"
+    r"kibble"
+    r")\b"
+    # "for dogs / cats / pets / puppies / kittens"
+    r"|\bfor\s+(?:dogs?|cats?|pets?|puppies|kittens?)\b"
+    # German
+    r"|\b(?:tierfutter|hundefutter|katzenfutter|haustierfutter|heimtierfutter)\b"
+    # French
+    r"|\baliment[s]?\s+pour\s+(?:chien|chat|animaux|animal)"
+    r"|\bnourriture\s+pour\s+(?:chien|chat|animaux|animal)"
+    # Spanish
+    r"|\bcomida\s+para\s+(?:perros?|gatos?|mascotas?|animales?)"
+    r"|\balimento\s+para\s+(?:perros?|gatos?|mascotas?|animales?)"
+    # Italian
+    r"|\bcibo\s+per\s+(?:cani|gatti|animali)"
+    # Trailing label seen in FDA scraped data
+    r"|\bPET\s+FOOD\b",
+    _re.IGNORECASE,
+)
+
+
+def is_pet_food_product(*fields: str) -> bool:
+    """True if any of the given product-context fields indicates pet,
+    veterinary, or animal-feed product. Pass Product, Company, Brand,
+    and Reason — any single hit returns True.
+
+    Examples that should match:
+      "Dog Food", "dry pet food (dog and cat)", "Chicken Chips for Dogs",
+      "Hundefutter mit ...", "aliment pour chien", "PET FOOD"
+
+    Examples that should NOT match:
+      "Chicken thighs", "Cathay Pacific catering", "Catfish fillets"
+      (because the regex requires word boundaries and specific compounds).
+    """
+    for f in fields:
+        if f and _PET_FOOD_RE.search(str(f)):
+            return True
+    return False

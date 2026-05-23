@@ -632,6 +632,7 @@ def validate_pending_row(
         from pipeline._pathogen_scope import (
             is_in_scope as _is_tier1_pathogen,
             is_empty_pathogen as _is_empty_pathogen,
+            is_pet_food_product as _is_pet_food,
         )
         from pipeline._news_mirror_blocklist import is_news_mirror as _is_news_mirror
     except ImportError:
@@ -639,6 +640,7 @@ def validate_pending_row(
         _is_tier1_pathogen = None
         _is_empty_pathogen = None
         _is_news_mirror = None
+        _is_pet_food = None
 
     if _is_news_mirror is not None and _is_news_mirror(url):
         return False, "news_mirror_domain (locked 2026-04-30)"
@@ -664,6 +666,18 @@ def validate_pending_row(
             and not pathogen_empty
             and not _is_tier1_pathogen(pathogen_str)):
         return False, f"pathogen_out_of_scope: {pathogen_str!r}"
+
+    # ── Pet / animal food gate (added 2026-05-23) ──────────────────────
+    # AFTS-FSIS monitors HUMAN food only. Pet food / dog & cat treats /
+    # animal feed / livestock feed are rejected regardless of pathogen.
+    # Checks Product, Company, Brand, Reason in any language.
+    if _is_pet_food is not None and _is_pet_food(
+        row.get("Product", ""),
+        row.get("Company", ""),
+        row.get("Brand", ""),
+        row.get("Reason", ""),
+    ):
+        return False, "pet_food_out_of_scope: pet / animal food not in AFTS-FSIS human-food scope"
 
     if is_year_mismatch is not None:
         try:

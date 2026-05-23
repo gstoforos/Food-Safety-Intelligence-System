@@ -723,9 +723,16 @@ INSTRUCTIONS:
        • Listeria, STEC, Hep A, Norovirus → ANY food
        • Salmonella → READY-TO-EAT food (peanut butter, deli meat, soft
          cheese, ice cream, prepared salads, raw nuts, sprouts, frozen
-         berries, dry pet food)
+         berries) — PET FOOD EXCLUDED, see scope rule below
        • Heavy metals at toxic levels, rodenticide if consumed
        • Foreign body in baby food / vulnerable-population food
+     → OUT OF SCOPE (AFTS-FSIS rule, locked 2026-05-23):
+       • Pet food, dog/cat food, dog/cat treats, animal feed, livestock
+         feed, poultry/cattle feed — even when contaminated with a
+         Tier-1 pathogen (Listeria, Salmonella, etc.). Reject regardless
+         of severity. Matches "Dog Food", "Pet Food", "for Dogs",
+         "kibble", "Tierfutter", "aliment pour chien", etc.
+
      → TIER 2 (FDA Class II — temporary or reversible):
        • Salmonella → COOKING-REQUIRED food (raw poultry, raw beef, raw
          pork, raw eggs in shell, ground meats, fresh poultry)
