@@ -424,7 +424,7 @@ _RTE_KEYWORDS: List[str] = [
     "frozen berries", "frozen berry", "frozen fruit",   # often eaten raw in smoothies
     "sprouts", "alfalfa sprouts", "bean sprouts",  # eaten raw in salads
     "leafy greens", "lettuce", "spinach", "kale", "arugula", "rocket",
-    "dry pet food", "kibble",  # children/elderly handle without washing hands
+    # "dry pet food", "kibble" — REMOVED 2026-05-23 (pet food now OUT of AFTS-FSIS scope)
     # German
     "verzehrfertig", "rohwurst", "räucherlachs",
     # French
