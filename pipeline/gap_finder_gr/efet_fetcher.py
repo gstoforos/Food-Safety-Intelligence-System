@@ -60,8 +60,8 @@ EFET_PAGES_TO_FETCH = 3
 EFET_PAGE_STEP = 20
 
 USER_AGENT = (
-    "Mozilla/5.0 (compatible; AFTS-FSIS-GapFinder/1.0; "
-    "+https://www.advfood.tech)"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 )
 REQUEST_TIMEOUT = 30
 REQUEST_DELAY = 1.0  # seconds between EFET requests — be polite
@@ -275,8 +275,12 @@ def parse_efet_list_page(html: str) -> list[EfetAnnouncement]:
     seen_urls: set[str] = set()
 
     # Strategy: find every <a> that links to a recall article on EFET.
-    # Recall article URLs contain /anakleiseis-cat/ followed by a numeric id.
-    article_links = soup.find_all("a", href=re.compile(r"anakleiseis-cat/\d+"))
+    # EFET (Joomla) article URLs follow the pattern:
+    #   /index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/<NUM>-<slug>
+    # Examples confirmed live:
+    #   .../anakleiseis-cat/item/4991-anaklisi-mi-asfaloys-proiontos
+    #   .../anakleiseis-cat/item/5213-deltio-typou-anaklisi-proionton
+    article_links = soup.find_all("a", href=re.compile(r"anakleiseis-cat/item/\d+"))
 
     for a in article_links:
         href = a.get("href", "").strip()
