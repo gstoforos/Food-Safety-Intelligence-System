@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-05-23",
+  "Source": "RappelConso (FR)",
+  "Company": "BITECONE SAS Bitecone",
+  "Brand": "Dulci",
+  "Product": "pâte à tartiner dulci dubaï style 40 % pistache¤lot pt09",
+  "Pathogen": "Ochratoxin A",
+  "Reason": "Presence of ochratoxine a au dessus du seuil réglementaire",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22345/Interne",
+  "Notes": "sas patrelle¤csf cholet (pa / 01)\tcsf  epaux bezu (pa / 01)\tcsf nimes 2 (pa / 01) [url-gate 2026-05-23: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-23: fix; corrections: Company→BITECONE SAS Bitecone, Pathogen→Ochratoxin A; fix; company mismatch | Company corrected from brand name to recalling firm; Tier corrected based on regulator class and] [enrich-gate 2026-05-23: pending_enrichment → pending (Claude verified)]"
+ },
+ {
   "Date": "2026-05-22",
   "Source": "RappelConso (FR)",
   "Company": "Tradival",
