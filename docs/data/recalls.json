@@ -32,6 +32,22 @@
   "Notes": "uniquement le carrefour aire sur la lys [url-gate 2026-05-22: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-22: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Pathogen→Salmonella; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty but identified on page; Tier mism]"
  },
  {
+  "Date": "2026-05-22",
+  "Source": "FDA",
+  "Company": "Raaw Energy",
+  "Brand": "Raaw Energy",
+  "Product": "Dog Food",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Due to possible Listeria contamination",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/raaw-energy-expands-recall-dog-food-because-listeria-monocytogenes-health-risk",
+  "Notes": "FDA listing HTML (Layer 1) [claude-check 2026-05-23: pass; pass | All fields verified: Date 2026-05-22 matches page metadata; Company Raaw Energy and Brand Raaw Energy confirmed; ]"
+ },
+ {
   "Date": "2026-05-21",
   "Source": "CFIA",
   "Company": "Les Fermes Lufa",
@@ -318,6 +334,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/845523",
   "Notes": "[RASFF #2026.4471; classification: alert notification; category: cereals and bakery products; notifId=845523] [gemini-enrich 2026-05-21: Brand '—'→'DEU'] [claude-check 2026-05-22: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-05-20",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: France | Notifying: Netherlands",
+  "Brand": "NLD",
+  "Product": "Escherichia coli shigatoxin-producing in raw milk cheese from France",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Escherichia coli shigatoxin-producing in raw milk cheese from France; risk: serious; category: milk and milk products",
+  "Class": "Alert",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/845733",
+  "Notes": "[RASFF #2026.4480; classification: alert notification; category: milk and milk products; notifId=845733] [gemini-enrich 2026-05-22: Brand '—'→'NLD'] [claude-check 2026-05-23: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
   "Date": "2026-05-19",
