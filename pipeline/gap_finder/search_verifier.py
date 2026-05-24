@@ -221,33 +221,26 @@ def _ddg_clean_redirect(url: str) -> str:
 
 
 def ddg_search(query: str, cfg: CountryConfig, verbose: bool = False) -> list[dict]:
-    """Run one query against DDG (HTML then Lite), fall back to Mojeek.
-    Filter to cfg.authority_domain hits."""
+    """Run one DDG query (HTML then Lite). Filter to cfg.authority_domain hits.
+
+    Note: we tested Mojeek as a fallback but it 403s from datacenter IPs
+    (Azure/Hetzner). Brave Search has a free 2000/mo API tier — usable as
+    fallback if we register a key later. For now DDG is the only path.
+    """
     locale = f"{cfg.code}-{cfg.language_code}"
-    # DDG endpoints first (POST), then Mojeek (GET)
-    for endpoint, parser, method in [
-        (DDG_HTML_URL,  _parse_ddg_html,    "POST"),
-        (DDG_LITE_URL,  _parse_ddg_lite,    "POST"),
-        (MOJEEK_URL,    _parse_mojeek_html, "GET"),
+    for endpoint, parser in [
+        (DDG_HTML_URL, _parse_ddg_html),
+        (DDG_LITE_URL, _parse_ddg_lite),
     ]:
         try:
             if verbose:
-                eng = "DDG" if "duckduckgo" in endpoint else "Mojeek"
-                print(f"  [{eng}] {method} {endpoint}  q={query!r}", file=sys.stderr)
-            if method == "POST":
-                resp = requests.post(
-                    endpoint,
-                    data={"q": query, "kl": locale},
-                    headers=_ddg_headers(cfg),
-                    timeout=REQUEST_TIMEOUT,
-                )
-            else:
-                resp = requests.get(
-                    endpoint,
-                    params={"q": query},
-                    headers=_ddg_headers(cfg),
-                    timeout=REQUEST_TIMEOUT,
-                )
+                print(f"  [DDG] POST {endpoint}  q={query!r}", file=sys.stderr)
+            resp = requests.post(
+                endpoint,
+                data={"q": query, "kl": locale},
+                headers=_ddg_headers(cfg),
+                timeout=REQUEST_TIMEOUT,
+            )
             resp.raise_for_status()
             hits = parser(resp.text)
             authority_hits = [
@@ -255,15 +248,14 @@ def ddg_search(query: str, cfg: CountryConfig, verbose: bool = False) -> list[di
                 if cfg.authority_domain in (urlparse(h["url"]).netloc or "")
             ]
             if verbose:
-                eng = "DDG" if "duckduckgo" in endpoint else "Mojeek"
-                print(f"  [{eng}] got {len(hits)} results, "
+                print(f"  [DDG] got {len(hits)} results, "
                       f"{len(authority_hits)} on {cfg.authority_domain}",
                       file=sys.stderr)
             if authority_hits:
                 return authority_hits
         except requests.RequestException as e:
             if verbose:
-                print(f"  [search] error on {endpoint}: {e}", file=sys.stderr)
+                print(f"  [DDG] error on {endpoint}: {e}", file=sys.stderr)
             continue
     return []
 
