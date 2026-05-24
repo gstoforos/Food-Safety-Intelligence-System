@@ -48,8 +48,16 @@ PATHOGENS_TIER_2 = {
     "yersinia", "γερσίνια", "γερσινια",
     "shigella", "σιγκέλλα", "σιγκελλα",
     "staphylococcus aureus", "σταφυλόκοκκος",
-    "norovirus", "νοροϊός", "νοροιος",
+    "norovirus", "νοροϊός", "νοροιος", "norwalk virus",
+    # Hepatitis A & E — foodborne viruses
     "hepatitis a", "ηπατίτιδα α", "ηπατιτιδα α",
+    "hepatitis a virus", "hav",
+    "epatite a", "virus dell'epatite a", "virus dell epatite a",
+    "hepatitis e", "ηπατίτιδα ε", "ηπατιτιδα ε",
+    "hepatitis e virus", "hev",
+    "epatite e", "virus dell'epatite e", "virus dell epatite e",
+    # Rotavirus
+    "rotavirus",
     "clostridium perfringens",
     "vibrio", "δονακιοειδή", "δονακιοειδη",
     # Generic E. coli without O157 specification → Tier 2 by default

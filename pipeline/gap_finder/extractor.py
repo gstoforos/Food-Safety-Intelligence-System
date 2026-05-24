@@ -122,17 +122,19 @@ EXTRACTION_SCHEMA: dict[str, Any] = {
 
 def build_system_prompt(cfg: CountryConfig) -> str:
     """Build the language-aware extraction system prompt for a country."""
-    return f"""You are a food-safety analyst extracting structured fields from {cfg.language_name} food recall announcements published by {cfg.authority_full} ({cfg.authority_short}).
+    return f"""You are a food-safety analyst extracting structured fields from {cfg.language_name} news articles about food recall events. These articles typically reference recall notices issued by {cfg.authority_full} ({cfg.authority_short}).
 
 Rules:
 1. Output ONLY a JSON object matching the provided schema. No prose, no markdown fences.
 2. Translate product, pathogen, reason, and region into clear English.
 3. Keep company names in {cfg.language_name} (legal entity names).
 4. For brand names: {cfg.brand_handling_note}
-5. Be literal and faithful to the source. Do NOT invent details. If a field isn't stated, use empty string.
-6. For dates, prefer ISO format YYYY-MM-DD. If only a {cfg.language_name} date is given, convert it.
+5. Be literal and faithful to the source. Do NOT invent details. If a field isn't stated in the article, use empty string.
+6. For dates, prefer ISO format YYYY-MM-DD. Convert {cfg.language_name} dates if needed (e.g. '14 maggio 2026' → '2026-05-14', '14 Μαΐου 2026' → '2026-05-14').
 7. For chemicals exceeding regulatory limits, include 'exceeding limit' in pathogen_en (e.g. 'Coumarin exceeding limit').
-8. For undeclared allergens, format as 'Undeclared <allergen>' (e.g. 'Undeclared wheat')."""
+8. For undeclared allergens, format as 'Undeclared <allergen>' (e.g. 'Undeclared wheat').
+9. Articles may contain background info (e.g. 'Listeriosis is rare but severe...'). Ignore background; extract ONLY the specific recall facts (this brand, this product, this lot, this hazard).
+10. If the article mentions a recall reference number issued by {cfg.authority_short} (e.g. 'allerta 842632', 'numero pratica 12345'), include it in reason_en (e.g. 'Recall ID 842632')."""
 
 
 # Legacy module-level alias for Greek (kept for any importers expecting SYSTEM_PROMPT)

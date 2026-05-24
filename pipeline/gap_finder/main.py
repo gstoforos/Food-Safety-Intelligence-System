@@ -30,11 +30,11 @@ from pathlib import Path
 from typing import Optional
 
 try:
-    from . import news_scraper, search_verifier, extractor
+    from . import news_scraper, article_fetcher, extractor
     from .countries import get as get_country
     from .countries.base import CountryConfig
 except ImportError:
-    from gap_finder import news_scraper, search_verifier, extractor    # type: ignore
+    from gap_finder import news_scraper, article_fetcher, extractor    # type: ignore
     from gap_finder.countries import get as get_country                # type: ignore
     from gap_finder.countries.base import CountryConfig                # type: ignore
 
@@ -222,49 +222,28 @@ def stage_news_scraper(cfg: CountryConfig, verbose: bool = False) -> list[dict]:
     return [c.to_dict() for c in deduped]
 
 
-def stage_verifier(
+def stage_article_fetch(
     candidates: list[dict], cfg: CountryConfig, verbose: bool = False,
 ) -> tuple[list[dict], list[dict]]:
-    print(f"\n=== Stage 2: {cfg.authority_short} Fetcher ===", file=sys.stderr)
+    """Stage 2: fetch news article bodies in parallel. Replaces the old
+    search-engine-based authority verifier (which was DDG-throttle-limited).
+
+    Each candidate gets its article body fetched + cleaned + truncated.
+    Output is schema-compatible with the old verified.jsonl so downstream
+    extractor.py works unchanged.
+    """
+    print(f"\n=== Stage 2: News Article Fetcher ===", file=sys.stderr)
     if not candidates:
         return [], []
 
-    index = search_verifier.build_index(cfg, verbose=verbose)
-    print(f"  {cfg.authority_short} index: {len(index)} announcements",
+    enriched, failed = article_fetcher.enrich_all(candidates, cfg, verbose=verbose)
+    print(f"  enriched: {len(enriched)}, failed/empty: {len(failed)}",
           file=sys.stderr)
 
-    verified: list[dict] = []
-    unmatched: list[dict] = []
-    now = datetime.now(timezone.utc).isoformat()
-
-    for cand in candidates:
-        news_title = cand.get("title", "")
-        news_pub = cand.get("published", "")
-        match, score = search_verifier.match_in_index(news_title, news_pub, index)
-        if not match:
-            unmatched.append({**cand, "best_score": round(score, 4),
-                              "checked_at": now})
-            continue
-
-        record = search_verifier.VerifiedRecord(
-            news_url=cand.get("url", ""),
-            news_title=news_title,
-            news_published=news_pub,
-            news_source_domain=cand.get("source_domain", ""),
-            efet_url=match.url,
-            efet_title=match.title,
-            efet_date_iso=match.date_iso,
-            efet_body=match.body,
-            match_score=round(score, 4),
-            matched_at=now,
-        )
-        verified.append(record.to_dict())
-
-    print(f"  matched: {len(verified)}, unmatched: {len(unmatched)}",
-          file=sys.stderr)
-    search_verifier.write_jsonl(verified, cfg.verified_path)
-    search_verifier.write_jsonl(unmatched, cfg.unmatched_path)
-    return verified, unmatched
+    verified_dicts = [r.to_dict() for r in enriched]
+    article_fetcher.write_jsonl(verified_dicts, cfg.verified_path)
+    article_fetcher.write_jsonl(failed, cfg.unmatched_path)
+    return verified_dicts, failed
 
 
 def stage_extractor(
@@ -355,7 +334,7 @@ def main() -> int:
             candidates = []
     state.candidates_found = len(candidates)
 
-    # ── Stage 2: Verify ─────────────────────────────────────────────────────
+    # ── Stage 2: Article Fetch ──────────────────────────────────────────────
     if args.skip_verify:
         verified = read_jsonl(cfg.verified_path)
         unmatched = read_jsonl(cfg.unmatched_path)
@@ -363,9 +342,10 @@ def main() -> int:
               f"{len(unmatched)} unmatched", file=sys.stderr)
     else:
         try:
-            verified, unmatched = stage_verifier(candidates, cfg, verbose=args.verbose)
+            verified, unmatched = stage_article_fetch(candidates, cfg,
+                                                     verbose=args.verbose)
         except Exception as e:
-            state.add_error("search_verifier", e)
+            state.add_error("article_fetcher", e)
             print(f"  ERROR: {e}", file=sys.stderr)
             verified, unmatched = [], []
     state.verified_count = len(verified)
