@@ -30,11 +30,11 @@ from pathlib import Path
 from typing import Optional
 
 try:
-    from . import news_scraper, article_fetcher, extractor
+    from . import news_scraper, extractor
     from .countries import get as get_country
     from .countries.base import CountryConfig
 except ImportError:
-    from gap_finder import news_scraper, article_fetcher, extractor    # type: ignore
+    from gap_finder import news_scraper, extractor                     # type: ignore
     from gap_finder.countries import get as get_country                # type: ignore
     from gap_finder.countries.base import CountryConfig                # type: ignore
 
@@ -225,25 +225,80 @@ def stage_news_scraper(cfg: CountryConfig, verbose: bool = False) -> list[dict]:
 def stage_article_fetch(
     candidates: list[dict], cfg: CountryConfig, verbose: bool = False,
 ) -> tuple[list[dict], list[dict]]:
-    """Stage 2: fetch news article bodies in parallel. Replaces the old
-    search-engine-based authority verifier (which was DDG-throttle-limited).
+    """Stage 2: turn candidates into 'verified' records.
 
-    Each candidate gets its article body fetched + cleaned + truncated.
-    Output is schema-compatible with the old verified.jsonl so downstream
-    extractor.py works unchanged.
+    Pragmatic v3 design: do NOT fetch article bodies.
+    - Google News URLs are proxy URLs requiring JS to resolve — HTTP follow-redirect
+      hits an interstitial page with body=0.
+    - Direct-RSS feeds (ilfattoalimentare.it, ansa.it) already provide rich
+      <description> snippets in the RSS XML — we captured those in Stage 1.
+
+    So Stage 2 just packages each candidate as a verified record using
+    (title + description) as the body. The rule classifier and LLM extractor
+    work on this combined text. Most major recalls have brand+product+hazard
+    in the title alone (e.g. "Richiamato lime Tropicom per carbofurano").
+
+    Output is schema-compatible with the old verified.jsonl so extractor.py
+    works unchanged.
     """
-    print(f"\n=== Stage 2: News Article Fetcher ===", file=sys.stderr)
+    print(f"\n=== Stage 2: Candidate Enrichment ===", file=sys.stderr)
     if not candidates:
         return [], []
 
-    enriched, failed = article_fetcher.enrich_all(candidates, cfg, verbose=verbose)
-    print(f"  enriched: {len(enriched)}, failed/empty: {len(failed)}",
-          file=sys.stderr)
+    now = datetime.now(timezone.utc).isoformat()
+    verified: list[dict] = []
 
-    verified_dicts = [r.to_dict() for r in enriched]
-    article_fetcher.write_jsonl(verified_dicts, cfg.verified_path)
-    article_fetcher.write_jsonl(failed, cfg.unmatched_path)
-    return verified_dicts, failed
+    for cand in candidates:
+        title = cand.get("title", "")
+        description = cand.get("description", "")
+        # body = title repeated + description (helps rule classifier with short titles)
+        body_parts = [title]
+        if description and description.lower() != title.lower():
+            body_parts.append(description)
+        body = "\n\n".join(body_parts)
+
+        # Parse RSS pubDate → ISO YYYY-MM-DD
+        date_iso = ""
+        for fmt in ["%a, %d %b %Y %H:%M:%S %Z",
+                    "%a, %d %b %Y %H:%M:%S %z",
+                    "%Y-%m-%dT%H:%M:%S%z",
+                    "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d"]:
+            try:
+                date_iso = datetime.strptime(cand.get("published", ""), fmt
+                                             ).strftime("%Y-%m-%d")
+                break
+            except ValueError:
+                continue
+
+        record = {
+            "news_url": cand.get("url", ""),
+            "news_title": title,
+            "news_published": cand.get("published", ""),
+            "news_source_domain": cand.get("source_domain", ""),
+            "efet_url": cand.get("url", ""),         # news URL = primary citation
+            "efet_title": title,
+            "efet_date_iso": date_iso,
+            "efet_body": body,
+            "match_score": 1.0,
+            "matched_at": now,
+            "discovered_via": cand.get("discovered_via", ""),
+        }
+        verified.append(record)
+
+    body_lens = [len(r["efet_body"]) for r in verified]
+    avg_len = sum(body_lens) // len(body_lens) if body_lens else 0
+    rich = sum(1 for l in body_lens if l > 200)
+    print(f"  enriched: {len(verified)} (avg body {avg_len} chars, "
+          f"{rich} with >200 chars of description)", file=sys.stderr)
+
+    # Write outputs for inspection
+    p = Path(cfg.verified_path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("w", encoding="utf-8") as f:
+        for r in verified:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+    return verified, []
 
 
 def stage_extractor(

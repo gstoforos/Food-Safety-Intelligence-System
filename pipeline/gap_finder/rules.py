@@ -260,10 +260,30 @@ _FOREIGN_MATTER_N = _normalize_set(FOREIGN_MATTER)
 
 
 def _contains_any(haystack: str, needles: set[str]) -> Optional[str]:
-    """Return first matching needle, or None."""
+    """Return first matching needle, or None.
+
+    Short terms (≤4 chars, e.g. 'tin', 'don', 'pcb') use word-boundary matching
+    to avoid false positives ('tin' matching 'destino', 'pcb' matching 'pcbs').
+
+    Longer terms (≥5 chars) use substring matching so that stems like
+    'αφλατοξιν' match all Greek inflections (αφλατοξίνη, αφλατοξινών, etc.)
+    and 'aflatossin' matches Italian inflections (aflatossina, aflatossine).
+    """
+    # Pre-compile word-boundary regexes for short terms (cached at module load)
     for needle in needles:
-        if needle and needle in haystack:
-            return needle
+        if not needle:
+            continue
+        if len(needle) <= 4:
+            # Word-boundary match for short terms
+            # \b doesn't work across Unicode word chars consistently, so we use
+            # a manual lookahead/lookbehind for non-letter characters.
+            if re.search(r"(?<![a-zα-ω0-9])" + re.escape(needle)
+                         + r"(?![a-zα-ω0-9])", haystack):
+                return needle
+        else:
+            # Substring match for longer terms (catches inflections)
+            if needle in haystack:
+                return needle
     return None
 
 

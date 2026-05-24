@@ -63,6 +63,8 @@ class Candidate:
     source_domain: str
     discovered_via: str   # "rss" or "google_news"
     discovered_at: str
+    description: str = ""  # RSS <description> — full snippet for direct feeds,
+                           # thin/empty for Google News proxy URLs
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -105,8 +107,25 @@ def _http_get(url: str, verbose: bool = False) -> Optional[str]:
         return None
 
 
+def _clean_html(html_text: str) -> str:
+    """Strip HTML tags and decode entities from an RSS description."""
+    if not html_text:
+        return ""
+    try:
+        from html import unescape
+        # Strip HTML tags
+        text = re.sub(r"<[^>]+>", " ", html_text)
+        # Decode HTML entities (&amp;, &nbsp;, etc.)
+        text = unescape(text)
+        # Collapse whitespace
+        text = re.sub(r"\s+", " ", text).strip()
+        return text
+    except Exception:
+        return html_text
+
+
 def parse_rss(xml_text: str) -> list[dict]:
-    """Parse RSS 2.0 / Atom into list of {title, link, pubDate}."""
+    """Parse RSS 2.0 / Atom into list of {title, link, pubDate, description}."""
     if not xml_text:
         return []
     out: list[dict] = []
@@ -120,21 +139,28 @@ def parse_rss(xml_text: str) -> list[dict]:
         title = (item.findtext("title") or "").strip()
         link = (item.findtext("link") or "").strip()
         pub = (item.findtext("pubDate") or "").strip()
+        desc_raw = (item.findtext("description") or "").strip()
+        desc = _clean_html(desc_raw)
         if title and link:
-            out.append({"title": title, "link": link, "published": pub})
+            out.append({"title": title, "link": link, "published": pub,
+                        "description": desc})
 
-    # Atom (some Greek feeds)
+    # Atom (some feeds use this)
     if not out:
         ns = "{http://www.w3.org/2005/Atom}"
         for entry in root.iter(f"{ns}entry"):
             title_el = entry.find(f"{ns}title")
             link_el = entry.find(f"{ns}link")
             pub_el = entry.find(f"{ns}updated") or entry.find(f"{ns}published")
+            summary_el = entry.find(f"{ns}summary") or entry.find(f"{ns}content")
             title = (title_el.text or "").strip() if title_el is not None else ""
             link = link_el.get("href", "") if link_el is not None else ""
             pub = (pub_el.text or "").strip() if pub_el is not None else ""
+            desc_raw = (summary_el.text or "").strip() if summary_el is not None else ""
+            desc = _clean_html(desc_raw)
             if title and link:
-                out.append({"title": title, "link": link, "published": pub})
+                out.append({"title": title, "link": link, "published": pub,
+                            "description": desc})
     return out
 
 
@@ -160,6 +186,7 @@ def collect_rss(cfg: CountryConfig, verbose: bool = False) -> list[Candidate]:
                     source_domain=src.domain,
                     discovered_via="rss",
                     discovered_at=now,
+                    description=item.get("description", ""),
                 ))
                 domain_count += 1
         if verbose:
@@ -201,6 +228,7 @@ def collect_google_news(cfg: CountryConfig, verbose: bool = False) -> list[Candi
                     source_domain=domain,
                     discovered_via="google_news",
                     discovered_at=now,
+                    description=item.get("description", ""),
                 ))
                 count += 1
             if verbose and count:
