@@ -156,13 +156,24 @@ class EfetAnnouncement:
     """One EFET recall entry, indexed in memory for fast matching."""
     url: str
     title: str
-    snippet: str           # search-engine snippet — used as efet_body
+    snippet: str           # search-engine snippet — also exposed as .body
     date_iso: str = ""
     tokens: set[str] = field(default_factory=set)
+
+    @property
+    def body(self) -> str:
+        """main.py expects `.body` — return title + snippet as the EFET body."""
+        return f"{self.title}\n\n{self.snippet}" if self.snippet else self.title
+
+    @body.setter
+    def body(self, value: str) -> None:
+        """Allow main.py to assign to .body (it does this after a re-fetch)."""
+        self.snippet = value or ""
 
     def to_dict(self) -> dict:
         d = asdict(self)
         d["tokens"] = sorted(self.tokens)
+        d["body"] = self.body
         return d
 
 
