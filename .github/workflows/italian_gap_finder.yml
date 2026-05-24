@@ -1,0 +1,114 @@
+name: Italian Gap Finder (FSIS)
+
+# Cron times in UTC. Rome = CEST (UTC+2) summer / CET (UTC+1) winter.
+# 21:00 Rome local = 19:00 UTC (CEST) or 20:00 UTC (CET).
+# We register BOTH UTC offsets and gate by Europe/Rome local hour inside the job.
+on:
+  schedule:
+    - cron: '0 19 * * *'   # 19:00 UTC → 21:00 Rome during CEST (summer)
+    - cron: '0 20 * * *'   # 20:00 UTC → 21:00 Rome during CET  (winter)
+  workflow_dispatch:
+    inputs:
+      skip_news:
+        description: 'Skip news scraping (use existing candidates.jsonl)'
+        type: boolean
+        default: false
+      skip_verify:
+        description: 'Skip Salute verification (use existing verified.jsonl)'
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Run pipeline but do not write to xlsx'
+        type: boolean
+        default: false
+
+env:
+  TZ: Europe/Rome
+  # Tailscale auth key renewal date — must rotate before this
+  TS_KEY_RENEW_BY: "2026-08-21"
+
+jobs:
+  gap-finder-italy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Gate by Europe/Rome local hour (skip if not 21:00)
+        if: github.event_name == 'schedule'
+        run: |
+          ROME_HOUR=$(TZ=Europe/Rome date +%H)
+          echo "Current Europe/Rome hour: ${ROME_HOUR}"
+          if [ "${ROME_HOUR}" != "21" ]; then
+            echo "Not 21:00 in Rome — exiting (other cron line handles current DST)."
+            exit 78  # neutral exit — skips workflow without marking failure
+          fi
+          echo "It's 21:00 in Rome — proceeding."
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml openpyxl
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          tags: tag:ci
+          version: latest
+
+      - name: Health-check llama-server on VPS
+        env:
+          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
+        run: |
+          echo "Pinging $LLAMA_BASE_URL/models..."
+          for i in 1 2 3 4 5; do
+            if curl -sf --max-time 10 "$LLAMA_BASE_URL/models" > /dev/null; then
+              echo "✓ llama-server is reachable"
+              exit 0
+            fi
+            echo "Attempt $i/5 failed, retrying in 5s..."
+            sleep 5
+          done
+          echo "✗ llama-server unreachable after 5 attempts"
+          exit 1
+
+      - name: Run Italian gap finder pipeline
+        env:
+          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
+        run: |
+          ARGS=""
+          if [ "${{ inputs.skip_news }}" = "true" ]; then ARGS="$ARGS --skip-news"; fi
+          if [ "${{ inputs.skip_verify }}" = "true" ]; then ARGS="$ARGS --skip-verify"; fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          echo "Running: python -m pipeline.gap_finder.main --country it --verbose $ARGS"
+          python -m pipeline.gap_finder.main --country it --verbose $ARGS
+
+      - name: Upload run artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gap-finder-it-run-${{ github.run_id }}
+          path: docs/data/gap_finder_it/
+          retention-days: 14
+
+      - name: Commit xlsx changes
+        if: inputs.dry_run != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/recalls.xlsx docs/data/gap_finder_it/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Italian gap finder: $(date -u +%Y-%m-%d) auto-update"
+            git push
+          fi
