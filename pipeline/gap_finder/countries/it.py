@@ -27,12 +27,11 @@ ITALY = CountryConfig(
     authority_short="Salute",
     authority_full="Ministero della Salute",
     authority_domain="salute.gov.it",
-    # Salute detail pages are p3_2_1_3_1.jsp with ?id=NNNN (numeric ID).
-    # The bare p3_2_1_3_1.jsp without id= is the recall INDEX page — we must
-    # exclude it. Match URLs that contain either:
-    #   - ?id=NNNN or &id=NNNN  (detail JSP with numeric recall ID)
-    #   - avvisiSicurezza/.../NNNN  (newer URL scheme with numeric path)
-    authority_item_url_regex=r"([?&]id=\d{3,}|avvisiSicurezza\/[^?]*\d{3,})",
+    # Permissive URL filter — drops only obvious non-recall paths.
+    # The rule classifier (rules.py) is the real defense: portal/category pages
+    # have generic titles ("Avvisi e richiami...") with no specific pathogen/
+    # product terms, so they classify as 'unknown' and get rejected automatically.
+    authority_item_url_regex=r"(avvisiSicurezza|richiami|p3_2_1_3_1)",
 
     # ── News sources ────────────────────────────────────────────────────────
     # Italian RSS landscape is healthier than Greek — major dailies still publish feeds.
