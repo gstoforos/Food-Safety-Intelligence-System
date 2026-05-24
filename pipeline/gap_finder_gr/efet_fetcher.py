@@ -1,37 +1,42 @@
 """
 AFTS Food Safety Intelligence — Greek Gap Finder
-Module 3 v2: EFET Fetcher (search-engine based, WAF-immune)
+Module 3 v3: EFET Fetcher (search-engine BULK index, fast)
 
-WHY THIS REWRITE:
-  efet.gr's WAF blocks datacenter IPs (Azure, AWS, GCP — including GitHub-hosted
-  runners). Direct HTTP fetch returns 403/409 from cloud environments.
+WHY THIS VERSION:
+  v2 made one DuckDuckGo search per news candidate (211 calls). With polite
+  delays this exceeded GitHub Actions' 30-min workflow timeout.
 
-  Search engines crawl efet.gr just fine — their IPs are whitelisted. We exploit
-  that by querying DuckDuckGo HTML search scoped with site:efet.gr.
+  v3 inverts the architecture: do FEW broad DDG queries (5) to bulk-load
+  the EFET recall index, then match each news candidate against that index
+  in-memory (zero network per candidate).
 
-  The search engine returns:
-    - The EFET URL (we cite this as the authoritative source URL)
-    - A content snippet from the EFET page (we use this as the EFET body)
+  Stage 2 total: ~30 seconds (was 15-25 minutes).
 
-  We never touch efet.gr directly. Zero cost. Works from any IP including
-  Azure cloud runners. Works the same on Mac later (same code path).
+  EFET's WAF still blocks direct datacenter access — we still go through
+  DuckDuckGo as the search-engine proxy. Same WAF-immune principle as v2,
+  just batched the right way.
 
 Flow:
-  1. Load candidates.jsonl from news_scraper.py
-  2. For each candidate:
-       a. Extract product/brand keywords from the news title
-       b. DuckDuckGo HTML search: site:efet.gr <keywords> ανάκληση
-       c. Best matching efet.gr result → use as the EFET URL + snippet as the body
-  3. Output verified.jsonl (matched) + unmatched.jsonl (no EFET result found)
+  1. fetch_efet_index() runs 5 broad DDG queries:
+       site:efet.gr ΕΦΕΤ ανάκληση 2026
+       site:efet.gr ΕΦΕΤ ανάκληση 2025
+       site:efet.gr Δελτίο Τύπου Ανάκληση
+       site:efet.gr ανακαλεί τρόφιμο
+       site:efet.gr ανάκληση προϊόντος
+     → builds in-memory list of ~50–150 unique EFET announcements
+  2. For each news candidate, score Jaccard token overlap against every
+     indexed EFET entry. Best match above MATCH_THRESHOLD wins.
+  3. Write verified.jsonl + unmatched.jsonl as before.
 
-Pure Python — no LLM, no Gemini, no Claude, no paid APIs, no proxy services.
-Dependencies: requests, beautifulsoup4, lxml
+No proxy services, no paid APIs, no LLMs. Pure DDG HTML scraping.
+Same code path will work on Mac later (no architectural change needed).
 
 CLI:
     python -m pipeline.gap_finder_gr.efet_fetcher
     python -m pipeline.gap_finder_gr.efet_fetcher --dry-run
     python -m pipeline.gap_finder_gr.efet_fetcher --verbose
     python -m pipeline.gap_finder_gr.efet_fetcher --probe "παξιμάδια κανέλας"
+    python -m pipeline.gap_finder_gr.efet_fetcher --show-index   # build & print
 """
 
 from __future__ import annotations
@@ -42,7 +47,7 @@ import re
 import sys
 import time
 import unicodedata
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -59,6 +64,16 @@ from bs4 import BeautifulSoup
 DDG_HTML_URL = "https://html.duckduckgo.com/html/"
 DDG_LITE_URL = "https://lite.duckduckgo.com/lite/"
 
+# Broad index-building queries. Each returns 20–30 EFET URLs. After dedup
+# we typically get 50–150 unique recent EFET recall announcements.
+INDEX_QUERIES = [
+    "site:efet.gr ΕΦΕΤ ανάκληση 2026",
+    "site:efet.gr ΕΦΕΤ ανάκληση 2025",
+    "site:efet.gr Δελτίο Τύπου Ανάκληση",
+    "site:efet.gr ανακαλεί τρόφιμο",
+    "site:efet.gr ανάκληση προϊόντος",
+]
+
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -71,15 +86,17 @@ USER_AGENTS = [
 ]
 
 REQUEST_TIMEOUT = 30
-REQUEST_DELAY_MIN = 1.5
-REQUEST_DELAY_MAX = 3.5
-REQUEST_DELAY = REQUEST_DELAY_MIN  # for backwards-compat with main.py
+REQUEST_DELAY_MIN = 2.0   # between bulk index queries (only 5 total, can be polite)
+REQUEST_DELAY_MAX = 4.0
+REQUEST_DELAY = REQUEST_DELAY_MIN  # backwards-compat name for main.py
 
 MATCH_THRESHOLD = 0.10
+DATE_WINDOW_DAYS = 30      # news vs EFET date window (months apart = no match)
 
 DEFAULT_CANDIDATES = "docs/data/gap_finder_gr/candidates.jsonl"
 DEFAULT_VERIFIED = "docs/data/gap_finder_gr/verified.jsonl"
 DEFAULT_UNMATCHED = "docs/data/gap_finder_gr/unmatched.jsonl"
+DEFAULT_INDEX_CACHE = "docs/data/gap_finder_gr/efet_index.jsonl"
 
 STOPWORDS = {
     "ο", "η", "το", "οι", "τα", "τον", "την", "του", "της", "των",
@@ -135,14 +152,18 @@ def jaccard(a: set[str], b: set[str]) -> float:
 # ─────────────────────────────────────────────────────────────────────────────
 
 @dataclass
-class EfetSearchHit:
+class EfetAnnouncement:
+    """One EFET recall entry, indexed in memory for fast matching."""
     url: str
     title: str
-    snippet: str
-    score: float
+    snippet: str           # search-engine snippet — used as efet_body
+    date_iso: str = ""
+    tokens: set[str] = field(default_factory=set)
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        d = asdict(self)
+        d["tokens"] = sorted(self.tokens)
+        return d
 
 
 @dataclass
@@ -163,7 +184,7 @@ class VerifiedRecord:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# DUCKDUCKGO HTML SEARCH
+# DUCKDUCKGO HTML SEARCH (POST endpoint)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _ddg_headers() -> dict:
@@ -180,21 +201,22 @@ def _polite_sleep() -> None:
 
 
 def _ddg_clean_redirect(url: str) -> str:
-    """DuckDuckGo wraps result URLs in /l/?uddg=<encoded-real-url>. Unwrap."""
+    """DuckDuckGo wraps results in /l/?uddg=<encoded>. Unwrap to real URL."""
     if not url:
         return url
+    if url.startswith("//"):
+        url = "https:" + url
     parsed = urlparse(url)
     if "duckduckgo.com" in (parsed.netloc or "") and parsed.path.startswith("/l/"):
         qs = parse_qs(parsed.query)
         real = qs.get("uddg", [None])[0]
         if real:
             return unquote(real)
-    if url.startswith("//"):
-        return "https:" + url
     return url
 
 
-def ddg_search(query: str, verbose: bool = False) -> list[EfetSearchHit]:
+def ddg_search(query: str, verbose: bool = False) -> list[dict]:
+    """Run one DDG query; return raw hits (filtered to efet.gr only)."""
     for endpoint, parser in [
         (DDG_HTML_URL, _parse_ddg_html),
         (DDG_LITE_URL, _parse_ddg_lite),
@@ -210,7 +232,7 @@ def ddg_search(query: str, verbose: bool = False) -> list[EfetSearchHit]:
             )
             resp.raise_for_status()
             hits = parser(resp.text)
-            efet_hits = [h for h in hits if "efet.gr" in (urlparse(h.url).netloc or "")]
+            efet_hits = [h for h in hits if "efet.gr" in (urlparse(h["url"]).netloc or "")]
             if verbose:
                 print(f"  [DDG] got {len(hits)} results, {len(efet_hits)} on efet.gr",
                       file=sys.stderr)
@@ -223,9 +245,9 @@ def ddg_search(query: str, verbose: bool = False) -> list[EfetSearchHit]:
     return []
 
 
-def _parse_ddg_html(html: str) -> list[EfetSearchHit]:
+def _parse_ddg_html(html: str) -> list[dict]:
     soup = BeautifulSoup(html, "lxml")
-    hits: list[EfetSearchHit] = []
+    hits: list[dict] = []
     for result in soup.find_all("div", class_=re.compile(r"\bresult\b")):
         a = result.find("a", class_=re.compile(r"result__a"))
         if not a:
@@ -235,13 +257,13 @@ def _parse_ddg_html(html: str) -> list[EfetSearchHit]:
         sn_el = result.find(class_=re.compile(r"result__snippet"))
         snippet = sn_el.get_text(" ", strip=True) if sn_el else ""
         if url and title:
-            hits.append(EfetSearchHit(url=url, title=title, snippet=snippet, score=0.0))
+            hits.append({"url": url, "title": title, "snippet": snippet})
     return hits
 
 
-def _parse_ddg_lite(html: str) -> list[EfetSearchHit]:
+def _parse_ddg_lite(html: str) -> list[dict]:
     soup = BeautifulSoup(html, "lxml")
-    hits: list[EfetSearchHit] = []
+    hits: list[dict] = []
     rows = soup.find_all("tr")
     pending_link = None
     pending_title = ""
@@ -254,43 +276,56 @@ def _parse_ddg_lite(html: str) -> list[EfetSearchHit]:
         if pending_link and not a:
             snippet = tr.get_text(" ", strip=True)
             if snippet and len(snippet) > 20:
-                hits.append(EfetSearchHit(
-                    url=pending_link, title=pending_title, snippet=snippet, score=0.0
-                ))
+                hits.append({"url": pending_link, "title": pending_title,
+                             "snippet": snippet})
                 pending_link = None
                 pending_title = ""
     return hits
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# QUERY BUILDING & SCORING
+# BULK INDEX BUILD (the new fast architecture)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def build_query(news_title: str) -> str:
-    tokens = tokenize(news_title)
-    sorted_tokens = sorted(tokens, key=len, reverse=True)[:6]
-    keywords = " ".join(sorted_tokens) if sorted_tokens else news_title
-    return f"site:efet.gr {keywords} ανάκληση"
+def build_efet_index(verbose: bool = False) -> list[EfetAnnouncement]:
+    """
+    Run all INDEX_QUERIES against DDG, dedupe by URL, return a list of
+    EfetAnnouncement with tokens pre-computed for fast in-memory matching.
 
+    Total network: 5 DDG calls (~10-20 seconds).
+    Output: ~50-150 EFET recall entries (after dedup).
+    """
+    all_hits: list[dict] = []
+    for i, q in enumerate(INDEX_QUERIES):
+        if verbose:
+            print(f"[index {i + 1}/{len(INDEX_QUERIES)}] {q!r}", file=sys.stderr)
+        hits = ddg_search(q, verbose=verbose)
+        all_hits.extend(hits)
+        if i + 1 < len(INDEX_QUERIES):
+            _polite_sleep()
 
-def best_match(news_title: str, hits: list[EfetSearchHit]) -> Optional[EfetSearchHit]:
-    if not hits:
-        return None
-    news_tokens = tokenize(news_title)
-    if not news_tokens:
-        return None
+    # Dedupe by URL, prefer the entry with the longest snippet
+    by_url: dict[str, dict] = {}
+    for h in all_hits:
+        existing = by_url.get(h["url"])
+        if existing is None or len(h["snippet"]) > len(existing["snippet"]):
+            by_url[h["url"]] = h
 
-    scored: list[EfetSearchHit] = []
-    for h in hits:
-        efet_tokens = tokenize(f"{h.title} {h.snippet}")
-        h.score = jaccard(news_tokens, efet_tokens)
-        scored.append(h)
+    index: list[EfetAnnouncement] = []
+    for h in by_url.values():
+        ann = EfetAnnouncement(
+            url=h["url"],
+            title=h["title"],
+            snippet=h["snippet"],
+            date_iso=extract_date(h["snippet"]),
+        )
+        ann.tokens = tokenize(f"{ann.title} {ann.snippet}")
+        index.append(ann)
 
-    scored.sort(key=lambda h: h.score, reverse=True)
-    top = scored[0]
-    if top.score < MATCH_THRESHOLD:
-        return None
-    return top
+    if verbose:
+        print(f"[index] built {len(index)} unique EFET entries from "
+              f"{len(all_hits)} raw hits", file=sys.stderr)
+    return index
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -334,6 +369,53 @@ def extract_date(text: str) -> str:
     return ""
 
 
+def _days_between(iso_a: str, iso_b: str) -> Optional[int]:
+    if not (iso_a and iso_b):
+        return None
+    try:
+        a = datetime.fromisoformat(iso_a[:10])
+        b = datetime.fromisoformat(iso_b[:10])
+        return abs((a - b).days)
+    except ValueError:
+        return None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MATCHING (in-memory, no network)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def match_in_index(
+    news_title: str,
+    news_published_iso: str,
+    index: list[EfetAnnouncement],
+) -> tuple[Optional[EfetAnnouncement], float]:
+    """
+    Score news_title vs every indexed EFET entry by Jaccard token overlap.
+    Apply date window if both sides have a date.
+    """
+    news_tokens = tokenize(news_title)
+    if not news_tokens or not index:
+        return None, 0.0
+
+    best: Optional[EfetAnnouncement] = None
+    best_score = 0.0
+
+    for ann in index:
+        score = jaccard(news_tokens, ann.tokens)
+        if score <= best_score:
+            continue
+        if news_published_iso and ann.date_iso:
+            delta = _days_between(news_published_iso, ann.date_iso)
+            if delta is not None and delta > DATE_WINDOW_DAYS:
+                continue
+        best = ann
+        best_score = score
+
+    if best_score < MATCH_THRESHOLD:
+        return None, best_score
+    return best, best_score
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # I/O
 # ─────────────────────────────────────────────────────────────────────────────
@@ -342,7 +424,7 @@ def read_candidates(path: str) -> list[dict]:
     p = Path(path)
     if not p.exists():
         return []
-    out = []
+    out: list[dict] = []
     with p.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -355,11 +437,13 @@ def read_candidates(path: str) -> list[dict]:
     return out
 
 
-def write_jsonl(records: list[dict], path: str) -> None:
+def write_jsonl(records, path: str) -> None:
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     with p.open("w", encoding="utf-8") as f:
         for r in records:
+            if hasattr(r, "to_dict"):
+                r = r.to_dict()
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
 
@@ -368,155 +452,136 @@ def _now_utc() -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CORE: per-candidate verification
+# PUBLIC API (called by main.py orchestrator)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def verify_candidate(
-    candidate: dict,
-    verbose: bool = False,
-) -> tuple[Optional[VerifiedRecord], float]:
-    news_title = candidate.get("title", "")
-    if not news_title:
-        return None, 0.0
-
-    query = build_query(news_title)
-    hits = ddg_search(query, verbose=verbose)
-    top = best_match(news_title, hits)
-
-    if not top:
-        best_score = max((h.score for h in hits), default=0.0)
-        return None, best_score
-
-    return VerifiedRecord(
-        news_url=candidate.get("url", ""),
-        news_title=news_title,
-        news_published=candidate.get("published", ""),
-        news_source_domain=candidate.get("source_domain", ""),
-        efet_url=top.url,
-        efet_title=top.title,
-        efet_date_iso=extract_date(top.snippet),
-        efet_body=f"{top.title}\n\n{top.snippet}",
-        match_score=round(top.score, 4),
-        matched_at=_now_utc(),
-    ), top.score
+def fetch_efet_index(pages: int = 0, verbose: bool = False) -> list[EfetAnnouncement]:
+    """Build the EFET recall index via 5 bulk DDG queries. Total ~15-20s."""
+    return build_efet_index(verbose=verbose)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# BACKWARDS-COMPAT SHIMS (main.py orchestrator imports these names)
-# ─────────────────────────────────────────────────────────────────────────────
-
-def fetch_efet_index(pages: int = 0, verbose: bool = False):
-    """No-op in v2 — matching happens per-candidate via ddg_search."""
-    if verbose:
-        print("  [shim] fetch_efet_index is a no-op in v2 (search-based)",
-              file=sys.stderr)
-    return []
-
-
-def match_candidate_to_efet(news_title, news_published, efet_index):
-    """Called by main.py Stage 2. Ignores efet_index; runs DDG search."""
-    candidate = {"title": news_title, "published": news_published}
-    record, score = verify_candidate(candidate, verbose=False)
-    if record is None:
-        return None, score
-
-    class _Ann:
-        def __init__(self, rec):
-            self.url = rec.efet_url
-            self.title = rec.efet_title
-            self.date_iso = rec.efet_date_iso
-            self.body = rec.efet_body
-    return _Ann(record), score
+def match_candidate_to_efet(
+    news_title: str,
+    news_published: str,
+    efet_index: list[EfetAnnouncement],
+):
+    """Match one news candidate against pre-built index. NO network call here."""
+    return match_in_index(news_title, news_published, efet_index)
 
 
 def fetch_announcement_body(url: str, verbose: bool = False) -> str:
-    """No-op shim — body already embedded in match result from snippet."""
+    """No-op shim — body already in the indexed snippet."""
     return ""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PROBE — manual one-off query for debugging
+# PROBE — manual debugging
 # ─────────────────────────────────────────────────────────────────────────────
 
 def run_probe(query_text: str) -> int:
     print("=" * 78)
-    print(f"AFTS EFET Fetcher — PROBE")
-    print(f"  Input title: {query_text!r}")
+    print(f"AFTS EFET Fetcher v3 — PROBE")
+    print(f"  News title: {query_text!r}")
     print("=" * 78)
-    q = build_query(query_text)
-    print(f"  DDG query:   {q!r}\n")
-    hits = ddg_search(q, verbose=True)
-    print(f"\n  Got {len(hits)} efet.gr results:\n")
-    for i, h in enumerate(hits[:10], 1):
-        print(f"  #{i}")
-        print(f"     url:     {h.url}")
-        print(f"     title:   {h.title[:90]}")
-        print(f"     snippet: {h.snippet[:150]}")
-        print()
-    top = best_match(query_text, hits)
+    print("\nBuilding index...")
+    index = build_efet_index(verbose=True)
+    print(f"\nIndex has {len(index)} EFET entries.\n")
+    print("Top 5 entries in index:")
+    for i, ann in enumerate(index[:5], 1):
+        print(f"  #{i} {ann.url}")
+        print(f"      {ann.title[:90]}")
+    print()
+    top, score = match_in_index(query_text, "", index)
     if top:
-        print(f"  BEST MATCH: score={top.score:.3f}")
-        print(f"     url:   {top.url}")
-        print(f"     title: {top.title}")
+        print(f"  BEST MATCH: score={score:.3f}")
+        print(f"     url:     {top.url}")
+        print(f"     title:   {top.title}")
+        print(f"     snippet: {top.snippet[:200]}")
     else:
+        # Show best (sub-threshold) for diagnostics
+        best_score = 0.0
+        best = None
+        nt = tokenize(query_text)
+        for ann in index:
+            s = jaccard(nt, ann.tokens)
+            if s > best_score:
+                best_score = s
+                best = ann
         print(f"  NO MATCH above threshold {MATCH_THRESHOLD}")
+        print(f"  (best sub-threshold: score={best_score:.3f})")
+        if best:
+            print(f"     would-be url:   {best.url}")
+            print(f"     would-be title: {best.title[:90]}")
+    return 0
+
+
+def run_show_index() -> int:
+    print("Building EFET index...")
+    index = build_efet_index(verbose=True)
+    print(f"\n{len(index)} entries:\n")
+    for i, ann in enumerate(index, 1):
+        print(f"#{i:3d} {ann.url}")
+        print(f"     date:    {ann.date_iso!r}")
+        print(f"     title:   {ann.title[:100]}")
+        print(f"     snippet: {ann.snippet[:150]}")
+        print()
     return 0
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# DRY-RUN
+# DRY-RUN (offline)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def run_dry_test() -> int:
     print("=" * 78)
-    print("AFTS EFET Fetcher v2 — Dry-Run Test")
+    print("AFTS EFET Fetcher v3 — Dry-Run Test (offline, synthetic index)")
     print("=" * 78)
 
-    synthetic_hits = [
-        EfetSearchHit(
-            url="https://www.efet.gr/.../anakleiseis-cat/item/15001-strudel",
-            title="ΔΕΛΤΙΟ ΤΥΠΟΥ: Ανάκληση μη ασφαλούς προϊόντος (Στρουντελάκια μήλο-κανέλα)",
-            snippet="Αθήνα, 14 Μαΐου 2026. Strudito strudel μήλο/κανέλα — παρουσία κουμαρίνης.",
-            score=0.0,
-        ),
-        EfetSearchHit(
-            url="https://www.efet.gr/.../anakleiseis-cat/item/15000-paximadia",
-            title="ΔΕΛΤΙΟ ΤΥΠΟΥ: Ανάκληση παξιμαδιών κανέλας",
-            snippet="ΚΑΡΑΓΙΑΝΝΑΚΗΣ ΑΡΤΟΠΟΙΙΑ Λέσβου — μη δηλωμένο αλλεργιογόνο γλουτένη.",
-            score=0.0,
-        ),
-        EfetSearchHit(
-            url="https://www.efet.gr/.../anakleiseis-cat/item/14990-feta",
-            title="ΔΕΛΤΙΟ ΤΥΠΟΥ: Ανάκληση φέτας ΒΥΤΙΝΑΣ — Listeria",
-            snippet="9 Απριλίου 2026. Φέτα ΒΥΤΙΝΑΣ ΠΟΠ — Listeria monocytogenes.",
-            score=0.0,
-        ),
-    ]
+    synthetic_index = []
+    for url, title, snippet, date in [
+        ("https://www.efet.gr/.../item/15001-strudel",
+         "ΔΕΛΤΙΟ ΤΥΠΟΥ: Ανάκληση μη ασφαλούς προϊόντος (Στρουντελάκια μήλο-κανέλα)",
+         "Αθήνα, 14 Μαΐου 2026. Strudito strudel μήλο/κανέλα — παρουσία κουμαρίνης.",
+         "2026-05-14"),
+        ("https://www.efet.gr/.../item/15000-paximadia",
+         "ΔΕΛΤΙΟ ΤΥΠΟΥ: Ανάκληση παξιμαδιών κανέλας",
+         "ΚΑΡΑΓΙΑΝΝΑΚΗΣ ΑΡΤΟΠΟΙΙΑ Λέσβου — μη δηλωμένο αλλεργιογόνο γλουτένη.",
+         "2026-05-14"),
+        ("https://www.efet.gr/.../item/14990-feta",
+         "ΔΕΛΤΙΟ ΤΥΠΟΥ: Ανάκληση φέτας ΒΥΤΙΝΑΣ — Listeria",
+         "9 Απριλίου 2026. Φέτα ΒΥΤΙΝΑΣ ΠΟΠ — Listeria monocytogenes.",
+         "2026-04-09"),
+    ]:
+        ann = EfetAnnouncement(url=url, title=title, snippet=snippet, date_iso=date)
+        ann.tokens = tokenize(f"{title} {snippet}")
+        synthetic_index.append(ann)
 
     tests = [
         {
             "news_title": "ΕΦΕΤ: Ανάκληση Strudito strudel μήλο κανέλα λόγω κουμαρίνης",
+            "news_published": "2026-05-14T20:00:00+03:00",
             "expected": "15001-strudel",
         },
         {
             "news_title": "Ανάκληση παξιμαδιών κανέλας ΚΑΡΑΓΙΑΝΝΑΚΗΣ λόγω γλουτένης",
+            "news_published": "2026-05-14T20:00:00+03:00",
             "expected": "15000-paximadia",
         },
         {
             "news_title": "Ανάκληση φέτας ΒΥΤΙΝΑΣ Listeria",
+            "news_published": "2026-04-09T18:00:00+03:00",
             "expected": "14990-feta",
         },
         {
             "news_title": "Νέα γέφυρα στη Λάρισα",
+            "news_published": "2026-05-14T12:00:00+03:00",
             "expected": None,
         },
     ]
 
     passed = failed = 0
     for t in tests:
-        for h in synthetic_hits:
-            h.score = 0.0
-        top = best_match(t["news_title"], synthetic_hits)
+        top, score = match_in_index(t["news_title"], t["news_published"], synthetic_index)
         got = top.url if top else None
         ok = (t["expected"] is None and got is None) or (
             t["expected"] is not None and got is not None and t["expected"] in got
@@ -528,26 +593,10 @@ def run_dry_test() -> int:
             failed += 1
         print(f"\n{status}  {t['news_title'][:70]}")
         if top:
-            print(f"        match score={top.score:.3f}  url={top.url}")
+            print(f"        match score={score:.3f}  url={top.url}")
         else:
-            print(f"        no match above threshold {MATCH_THRESHOLD}")
+            print(f"        no match (best sub-threshold score={score:.3f})")
         print(f"        expected fragment: {t['expected']}")
-
-    print("\n" + "-" * 78)
-    q = build_query("Ανάκληση Strudito strudel μήλο κανέλα λόγω κουμαρίνης")
-    has_site = "site:efet.gr" in q
-    has_recall = "ανάκληση" in q
-    has_product = "strudito" in q.lower() or "strudel" in q.lower()
-    ok = has_site and has_recall and has_product
-    print(f"Query builder: {q!r}")
-    print(f"  site:efet.gr present:  {has_site}")
-    print(f"  ανάκληση present:      {has_recall}")
-    print(f"  product token present: {has_product}")
-    print(f"  {'✓ PASS' if ok else '✗ FAIL'}")
-    if ok:
-        passed += 1
-    else:
-        failed += 1
 
     print("\n" + "=" * 78)
     print(f"Results: {passed} passed, {failed} failed")
@@ -556,67 +605,64 @@ def run_dry_test() -> int:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# MAIN
+# MAIN (standalone CLI — also processes candidates.jsonl)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="AFTS Greek Gap Finder — EFET Fetcher v2 (search-engine based)"
+        description="AFTS Greek Gap Finder — EFET Fetcher v3 (bulk DDG index)"
     )
     parser.add_argument("--candidates", default=DEFAULT_CANDIDATES)
     parser.add_argument("--verified", default=DEFAULT_VERIFIED)
     parser.add_argument("--unmatched", default=DEFAULT_UNMATCHED)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--probe", metavar="TITLE",
-                        help="Run a single DDG search for diagnostics")
+                        help="Run a single match test for a news title")
+    parser.add_argument("--show-index", action="store_true",
+                        help="Build the EFET index and print all entries")
     parser.add_argument("--verbose", "-v", action="store_true")
-    parser.add_argument("--limit", type=int, default=0,
-                        help="Max candidates to verify (0 = no limit)")
     args = parser.parse_args()
 
     if args.dry_run:
         return run_dry_test()
     if args.probe:
         return run_probe(args.probe)
+    if args.show_index:
+        return run_show_index()
 
     candidates = read_candidates(args.candidates)
     print(f"Loaded {len(candidates)} candidates from {args.candidates}",
           file=sys.stderr)
 
-    if args.limit:
-        candidates = candidates[: args.limit]
-        print(f"Limit applied: processing first {len(candidates)}", file=sys.stderr)
+    print("Building EFET index via bulk DDG queries...", file=sys.stderr)
+    index = build_efet_index(verbose=args.verbose)
+    print(f"EFET index: {len(index)} entries", file=sys.stderr)
 
     verified: list[dict] = []
     unmatched: list[dict] = []
     now = _now_utc()
 
-    for i, cand in enumerate(candidates, 1):
-        if args.verbose:
-            print(f"\n[{i}/{len(candidates)}] {cand.get('title', '')[:70]}",
-                  file=sys.stderr)
-        try:
-            record, score = verify_candidate(cand, verbose=args.verbose)
-        except Exception as e:
-            if args.verbose:
-                print(f"  ERROR: {e}", file=sys.stderr)
-            unmatched.append({**cand, "best_score": 0.0, "checked_at": now,
-                              "error": str(e)})
-            _polite_sleep()
-            continue
-
-        if record is None:
+    for cand in candidates:
+        news_title = cand.get("title", "")
+        news_pub = cand.get("published", "")
+        top, score = match_in_index(news_title, news_pub, index)
+        if not top:
             unmatched.append({**cand, "best_score": round(score, 4),
                               "checked_at": now})
-            if args.verbose:
-                print(f"  [unmatched] best_score={score:.3f}", file=sys.stderr)
-        else:
-            verified.append(record.to_dict())
-            if args.verbose:
-                print(f"  [matched]   score={record.match_score:.3f} → "
-                      f"{record.efet_url}", file=sys.stderr)
-
-        _polite_sleep()
+            continue
+        record = VerifiedRecord(
+            news_url=cand.get("url", ""),
+            news_title=news_title,
+            news_published=news_pub,
+            news_source_domain=cand.get("source_domain", ""),
+            efet_url=top.url,
+            efet_title=top.title,
+            efet_date_iso=top.date_iso,
+            efet_body=f"{top.title}\n\n{top.snippet}",
+            match_score=round(score, 4),
+            matched_at=now,
+        )
+        verified.append(record.to_dict())
 
     write_jsonl(verified, args.verified)
     write_jsonl(unmatched, args.unmatched)
