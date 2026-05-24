@@ -53,6 +53,9 @@ except ImportError:
 
 DDG_HTML_URL = "https://html.duckduckgo.com/html/"
 DDG_LITE_URL = "https://lite.duckduckgo.com/lite/"
+# Independent search engine — used as fallback when DDG throttles us.
+# Mojeek has its own crawler and less aggressive bot detection.
+MOJEEK_URL = "https://www.mojeek.com/search"
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -66,8 +69,10 @@ USER_AGENTS = [
 ]
 
 REQUEST_TIMEOUT = 30
-REQUEST_DELAY_MIN = 2.0
-REQUEST_DELAY_MAX = 4.0
+# DDG aggressively throttles after 2-3 queries from the same session.
+# Bumping delays from 2-4s to 7-11s lets all 5 bulk queries succeed.
+REQUEST_DELAY_MIN = 7.0
+REQUEST_DELAY_MAX = 11.0
 REQUEST_DELAY = REQUEST_DELAY_MIN
 MATCH_THRESHOLD = 0.10
 DATE_WINDOW_DAYS = 30
@@ -216,21 +221,33 @@ def _ddg_clean_redirect(url: str) -> str:
 
 
 def ddg_search(query: str, cfg: CountryConfig, verbose: bool = False) -> list[dict]:
-    """Run one DDG query, return raw hits filtered to cfg.authority_domain."""
+    """Run one query against DDG (HTML then Lite), fall back to Mojeek.
+    Filter to cfg.authority_domain hits."""
     locale = f"{cfg.code}-{cfg.language_code}"
-    for endpoint, parser in [
-        (DDG_HTML_URL, _parse_ddg_html),
-        (DDG_LITE_URL, _parse_ddg_lite),
+    # DDG endpoints first (POST), then Mojeek (GET)
+    for endpoint, parser, method in [
+        (DDG_HTML_URL,  _parse_ddg_html,    "POST"),
+        (DDG_LITE_URL,  _parse_ddg_lite,    "POST"),
+        (MOJEEK_URL,    _parse_mojeek_html, "GET"),
     ]:
         try:
             if verbose:
-                print(f"  [DDG] POST {endpoint}  q={query!r}", file=sys.stderr)
-            resp = requests.post(
-                endpoint,
-                data={"q": query, "kl": locale},
-                headers=_ddg_headers(cfg),
-                timeout=REQUEST_TIMEOUT,
-            )
+                eng = "DDG" if "duckduckgo" in endpoint else "Mojeek"
+                print(f"  [{eng}] {method} {endpoint}  q={query!r}", file=sys.stderr)
+            if method == "POST":
+                resp = requests.post(
+                    endpoint,
+                    data={"q": query, "kl": locale},
+                    headers=_ddg_headers(cfg),
+                    timeout=REQUEST_TIMEOUT,
+                )
+            else:
+                resp = requests.get(
+                    endpoint,
+                    params={"q": query},
+                    headers=_ddg_headers(cfg),
+                    timeout=REQUEST_TIMEOUT,
+                )
             resp.raise_for_status()
             hits = parser(resp.text)
             authority_hits = [
@@ -238,14 +255,15 @@ def ddg_search(query: str, cfg: CountryConfig, verbose: bool = False) -> list[di
                 if cfg.authority_domain in (urlparse(h["url"]).netloc or "")
             ]
             if verbose:
-                print(f"  [DDG] got {len(hits)} results, "
+                eng = "DDG" if "duckduckgo" in endpoint else "Mojeek"
+                print(f"  [{eng}] got {len(hits)} results, "
                       f"{len(authority_hits)} on {cfg.authority_domain}",
                       file=sys.stderr)
             if authority_hits:
                 return authority_hits
         except requests.RequestException as e:
             if verbose:
-                print(f"  [DDG] error on {endpoint}: {e}", file=sys.stderr)
+                print(f"  [search] error on {endpoint}: {e}", file=sys.stderr)
             continue
     return []
 
@@ -288,6 +306,32 @@ def _parse_ddg_lite(html: str) -> list[dict]:
     return hits
 
 
+def _parse_mojeek_html(html: str) -> list[dict]:
+    """Mojeek result rows: <a class="ob"> (link) inside a result <li>."""
+    soup = BeautifulSoup(html, "lxml")
+    hits: list[dict] = []
+    # Mojeek structure: <ul class="results-standard"><li> ... <a class="ob title">title</a>
+    # <p class="s">snippet</p></li></ul>
+    for li in soup.find_all("li"):
+        a = li.find("a", class_=re.compile(r"\bob\b"))
+        if not a:
+            a = li.find("a")
+        if not a or not a.get("href"):
+            continue
+        href = a.get("href", "").strip()
+        if not href.startswith(("http://", "https://")):
+            continue
+        title = a.get_text(" ", strip=True)
+        # Snippet: <p class="s"> or general <p> sibling
+        snippet = ""
+        snippet_el = li.find("p", class_=re.compile(r"\bs\b")) or li.find("p")
+        if snippet_el:
+            snippet = snippet_el.get_text(" ", strip=True)
+        if href and title:
+            hits.append({"url": href, "title": title, "snippet": snippet})
+    return hits
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # BULK INDEX BUILD
 # ─────────────────────────────────────────────────────────────────────────────
@@ -316,9 +360,12 @@ def build_index(cfg: CountryConfig, verbose: bool = False) -> list[AuthorityAnno
     index: list[AuthorityAnnouncement] = []
     portal_dropped = 0
     for h in by_url.values():
-        # Filter to real recall-item URLs (drops portal/category pages)
-        full_path = urlparse(h["url"]).path
-        if not item_pattern.search(full_path):
+        # Match URL regex against the FULL url (path + query string), so countries
+        # whose authorities use query params for the recall ID (e.g. ?id=12345)
+        # can require that pattern. Path-only patterns still work.
+        parsed = urlparse(h["url"])
+        full_url_for_match = f"{parsed.path}?{parsed.query}" if parsed.query else parsed.path
+        if not item_pattern.search(full_url_for_match):
             portal_dropped += 1
             continue
         ann = AuthorityAnnouncement(
