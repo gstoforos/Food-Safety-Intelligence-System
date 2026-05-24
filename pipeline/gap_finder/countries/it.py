@@ -65,7 +65,9 @@ ITALY = CountryConfig(
     google_news_domains=[
         "ansa.it", "repubblica.it", "corriere.it",
         "ilfattoquotidiano.it", "ilsole24ore.com", "ilmessaggero.it",
-        "ilfattoalimentare.it", "fanpage.it",
+        "ilfattoalimentare.it",
+        # NOTE: fanpage.it removed — produces ~250 generic-news false positives
+        # per run. Add back if recall coverage proves insufficient.
     ],
     google_news_keywords=[
         "richiamo alimentare Ministero Salute",
@@ -92,14 +94,17 @@ ITALY = CountryConfig(
     ),
 
     # ── Title prefilter ─────────────────────────────────────────────────────
+    # Be strict: require actual recall/withdrawal vocabulary, NOT generic
+    # alarm words. "allarme" alone matched climate news, MSF press releases,
+    # health-study warnings — all noise. Real recall articles use "richiamo"
+    # or "ritiro" or mention the Ministry directly.
     recall_signal_terms=[
-        "richiamo", "richiamato", "richiamati",
-        "ritiro", "ritirato", "ritirati",
-        "allerta", "allarme",
-        "ministero salute", "salute.gov",
+        "richiamo", "richiamato", "richiamati", "richiamata",
+        "ritiro", "ritirato", "ritirati", "ritirata",
+        "allerta alimentare", "allerta sanitaria",
+        "ministero salute", "ministero della salute",
         "avviso sicurezza",
-        "non conformita", "non conformità",
-        "consumare", "non consumare",
+        "non consumare", "non consumate",
     ],
 
     # ── Scheduling ──────────────────────────────────────────────────────────
