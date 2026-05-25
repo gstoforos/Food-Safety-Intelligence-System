@@ -71,138 +71,173 @@ MICROBIAL_TOXINS = {
     # Aflatoxin
     "aflatoxin", "aflatoxins", "αφλατοξιν",
     "aflatossin",          # Italian stem (aflatossina/aflatossine)
+    "aflatoxina", "aflatoxinas",   # Spanish + Portuguese (same form)
     # Ochratoxin
     "ochratoxin", "ωχρατοξιν",
     "ocratossin",          # Italian
+    "ocratoxina", "ocratoxinas",   # Spanish + Portuguese
     # Patulin
     "patulin", "πατουλιν",
-    "patulin",
+    "patulina",
     # Fumonisin
     "fumonisin", "φουμονισιν",
-    "fumonisin",
+    "fumonisina",
     # Deoxynivalenol
-    "deoxynivalenol", "don", "δεοξυνιβαλενολ",
+    "deoxynivalenol", "δεοξυνιβαλενολ",
     "deossinivalenol",     # Italian
+    "deoxinivalenol",      # Spanish + Portuguese
     # Zearalenone
-    "zearalenone", "zen", "ζεαραλενον",
-    "zearalenone",
+    "zearalenone", "ζεαραλενον",
+    "zearalenona",
     # T-2 toxin
     "t-2 toxin", "t2 toxin",
-    "tossina t-2",
+    "tossina t-2", "toxina t-2",
     # Ergot alkaloids
     "ergot alkaloid", "αλκαλοειδη ερυσιβης",
     "alcaloidi della segale cornuta", "alcaloidi ergot",
+    "alcaloides del cornezuelo", "alcaloides do ergot",
+    # Cereulide (Bacillus cereus toxin)
+    "cereulide", "cereulida",
 }
 
 # ACCEPT — natural plant / fungal toxins
 NATURAL_TOXINS = {
     "amanita muscaria", "muscarine", "muscimol", "μουσκαρίνη", "μουσκιμόλη",
-    "muscarina", "muscimolo",            # Italian
+    "muscarina", "muscimolo",
+    "muscarina", "muscimol",              # Spanish + Portuguese
     "solanine", "σολανίνη",
-    "solanina",                          # Italian
+    "solanina",                          # Italian / Spanish / Portuguese
     "cyanogenic glycoside", "κυανογόνο γλυκοζίδιο",
     "glucoside cianogenico", "glicoside cianogenico",
+    "glucósido cianogénico", "glicosídeo cianogênico",
     "tetrodotoxin", "τετροδοτοξίνη",
-    "tetrodotossina",
+    "tetrodotossina", "tetrodotoxina",
     "scombroid", "histamine poisoning",
     "sgombroide", "intossicazione da istamina",
+    "intoxicación por histamina", "intoxicação por histamina",
     "lectin", "ricin", "ρικίνη",
-    "lectina", "ricina",
+    "lectina", "ricina",                 # universal Romance form
     "grayanotoxin", "γκραγιανοτοξίνη",
-    "grayanotossina",
+    "grayanotossina", "grayanotoxina",
 }
 
 # REJECT — allergens (undeclared)
-# Multi-lingual: English / Greek / Italian terms all merged. The classifier
-# doesn't care which language matched, just which hazard category fired.
+# Multi-lingual: English / Greek / Italian / Spanish / Portuguese terms.
+# The classifier doesn't care which language matched, just which hazard fired.
 ALLERGENS = {
+    # ─── Milk/dairy ─────────────────────────────────────────────────────────
     "milk", "γάλα", "γαλα", "γαλακτος", "lactose", "λακτόζη", "λακτοζη",
     "latte", "lattosio", "caseina", "siero",
+    "leche", "lácteos", "lacteos", "lactosa", "caseína", "caseina",
+    "leite", "lacticínios", "lacticinios", "lactose", "caseína",
+    # ─── Cereals/gluten ─────────────────────────────────────────────────────
     "wheat", "σιτάρι", "σιταρι", "άλευρο σίτου", "αλευρο σιτου",
     "grano", "frumento", "farina di frumento", "orzo", "segale", "farro", "avena",
     "gluten", "γλουτένη", "γλουτενη",
     "glutine",
-    "soy", "σόγια", "σογια", "soya",
-    "soia",
+    "trigo", "cebada", "centeno", "espelta", "avena", "harina de trigo",
+    "glúten", "trigo", "cevada", "centeio", "espelta", "aveia",
+    # ─── Soy ────────────────────────────────────────────────────────────────
+    "soy", "σόγια", "σογια", "soya", "soia", "soja",
+    # ─── Peanut ─────────────────────────────────────────────────────────────
     "peanut", "φιστίκι", "φιστικι", "αραχίδα", "αραχιδα",
     "arachide", "arachidi", "noccioline",
+    "cacahuete", "cacahuetes", "maní",
+    "amendoim", "amendoins",
+    # ─── Tree nuts ──────────────────────────────────────────────────────────
     "tree nut", "καρπός με κέλυφος", "καρπος με κελυφος",
-    "frutta a guscio",
+    "frutta a guscio", "frutos secos", "frutos de casca", "frutos secos",
     "almond", "αμύγδαλο", "αμυγδαλο",
-    "mandorla", "mandorle",
+    "mandorla", "mandorle", "almendra", "almendras", "amêndoa", "amêndoas",
     "hazelnut", "φουντούκι", "φουντουκι",
-    "nocciola", "nocciole",
+    "nocciola", "nocciole", "avellana", "avellanas", "avelã", "avelãs",
     "walnut", "καρύδι", "καρυδι",
-    "noce", "noci",
-    "cashew", "κάσιους", "κασιους",
-    "anacardi",
+    "noce", "noci", "nuez", "nueces",
+    "cashew", "κάσιους", "κασιους", "anacardi", "anacardo", "anacardos",
     "pistachio", "φιστίκι αιγίνης", "φιστικι αιγινης",
-    "pistacchi", "pistacchio",
+    "pistacchi", "pistacchio", "pistacho", "pistachos", "pistácio", "pistácios",
+    "chestnut", "castagna", "castagne", "castaña", "castanha",
+    # ─── Eggs ───────────────────────────────────────────────────────────────
     "egg", "αυγό", "αυγο", "αυγού",
-    "uovo", "uova",
-    "fish", "ψάρι", "ψαρι",
-    "pesce",
+    "uovo", "uova", "huevo", "huevos", "ovo", "ovos",
+    # ─── Fish/shellfish ─────────────────────────────────────────────────────
+    "fish", "ψάρι", "ψαρι", "pesce", "pescado", "peixe",
     "shellfish", "οστρακοειδή", "οστρακοειδη",
-    "crostaceo", "crostacei",
+    "crostaceo", "crostacei", "crustáceo", "crustáceos", "crustaceo",
     "crustacean", "καρκινοειδή", "καρκινοειδη",
-    "sesame", "σουσάμι", "σουσαμι",
-    "sesamo",
-    "sulfite", "θειώδη", "θειωδη",
-    "solfiti", "solfito",
-    "mustard", "μουστάρδα", "μουσταρδα",
-    "senape",
-    "celery", "σέλινο", "σελινο",
-    "sedano",
-    "lupin", "λούπινο", "λουπινο",
-    "lupini",
-    "mollusc", "μαλάκια", "μαλακια",
-    "molluschi",
+    "mariscos", "moluscos",
+    "mollusc", "μαλάκια", "μαλακια", "molluschi",
+    # ─── Sesame / mustard / sulfites / celery / lupin ───────────────────────
+    "sesame", "σουσάμι", "σουσαμι", "sesamo", "sésamo", "ajonjolí", "gergelim",
+    "sulfite", "θειώδη", "θειωδη", "solfiti", "solfito",
+    "sulfitos", "sulfito", "sulfuroso",
+    "mustard", "μουστάρδα", "μουσταρδα", "senape", "mostaza", "mostarda",
+    "celery", "σέλινο", "σελινο", "sedano", "apio", "aipo",
+    "lupin", "λούπινο", "λουπινο", "lupini", "altramuz", "tremoço", "tremocos",
+    # ─── Allergen qualifiers ────────────────────────────────────────────────
     "allergen", "αλλεργιογόνο", "αλλεργιογονο", "αλλεργιογόνα",
     "allergene", "allergeni",
+    "alérgeno", "alergeno", "alérgenos", "alergenos",
+    "alergénio", "alergenio", "alergénios", "alergenios",
     "undeclared", "μη δηλωμένο", "μη δηλωμενο", "μη δηλωμένη",
     "non dichiarato", "non dichiarata", "non indicato",
+    "no declarado", "no declarada", "no declarados",
+    "não declarado", "nao declarado", "não declarada", "nao declarada",
 }
 
 # REJECT — synthetic / environmental chemicals & additives
 SYNTHETIC_CHEMICALS = {
     "coumarin", "κουμαρίνη", "κουμαρινη", "cumarina",
     "pesticide", "φυτοφάρμακο", "φυτοφαρμακο", "pesticida", "pesticidi", "fitofarmaco",
+    "plaguicida", "plaguicidas", "fitofarmacêutico", "pesticidas",
     "chlorpyrifos", "χλωροπυριφός", "clorpirifos",
-    "glyphosate", "γλυφοσάτη", "glifosato",
+    "glyphosate", "γλυφοσάτη", "glifosato", "glifosato",
+    "carbofuran", "carbofurano",
     "additive", "πρόσθετο", "προσθετο", "additivo", "additivi",
+    "aditivo", "aditivos",
     "preservative over limit", "συντηρητικό υπέρβαση", "conservante oltre limite",
+    "conservante por encima del límite", "conservante acima do limite",
     "colorant over limit", "χρωστική υπέρβαση", "colorante oltre limite",
+    "colorante por encima del límite",
     "nitrite over limit", "νιτρώδη υπέρβαση", "nitriti oltre limite",
-    "nitrate over limit", "νιτρικά υπέρβαση", "nitrati oltre limite",
+    "nitrato over limit", "νιτρικά υπέρβαση", "nitrati oltre limite",
+    "nitritos por encima", "nitratos por encima",
     "sudan dye", "sudan i", "sudan ii", "sudan iii", "sudan iv",
     "rhodamine", "ροδαμίνη", "rodamina",
     "ethylene oxide", "οξείδιο αιθυλενίου", "ossido di etilene",
+    "óxido de etileno",
     "melamine", "μελαμίνη", "melamina",
-    "acrylamide", "ακρυλαμίδιο", "acrilammide",
+    "acrylamide", "ακρυλαμίδιο", "acrilammide", "acrilamida",
     "pah", "polycyclic aromatic", "πολυκυκλικοί αρωματικοί υδρογονάνθρακες",
     "idrocarburi policiclici aromatici",
-    "dioxin", "διοξίνη", "diossina", "diossine",
-    "pcb", "πολυχλωριωμένα διφαινύλια", "policlorobifenili",
+    "hidrocarburos aromáticos policíclicos", "hidrocarbonetos aromáticos",
+    "dioxin", "διοξίνη", "diossina", "diossine", "dioxina", "dioxinas",
+    "pcb", "πολυχλωριωμένα διφαινύλια", "policlorobifenili", "policlorobifenilos",
 }
 
 # REJECT — heavy metals
 HEAVY_METALS = {
-    "cadmium", "κάδμιο", "καδμιο", "cadmio",
-    "lead", "μόλυβδος", "μολυβδος", "piombo",
-    "mercury", "υδράργυρος", "υδραργυρος", "mercurio",
-    "arsenic", "αρσενικό", "αρσενικο", "arsenico",
-    "chromium", "χρώμιο", "χρωμιο", "cromo",
-    "nickel", "νικέλιο", "νικελιο", "nichel",
-    "tin", "κασσίτερος", "κασσιτερος", "stagno",
+    "cadmium", "κάδμιο", "καδμιο", "cadmio", "cádmio",
+    "lead", "μόλυβδος", "μολυβδος", "piombo", "plomo", "chumbo",
+    "mercury", "υδράργυρος", "υδραργυρος", "mercurio", "mercúrio",
+    "arsenic", "αρσενικό", "αρσενικο", "arsenico", "arsénico", "arsenico", "arsénio",
+    "chromium", "χρώμιο", "χρωμιο", "cromo", "crómio", "cromio",
+    "nickel", "νικέλιο", "νικελιο", "nichel", "níquel", "niquel",
+    "tin", "κασσίτερος", "κασσιτερος", "stagno", "estaño", "estanho",
     "heavy metal", "βαρύ μέταλλο", "βαρυ μεταλλο", "metallo pesante", "metalli pesanti",
+    "metales pesados", "metal pesado", "metais pesados",
 }
 
 # REJECT — foreign matter
 FOREIGN_MATTER = {
     "glass", "γυαλί", "γυαλι", "verre", "vetro", "frammenti di vetro",
+    "cristal", "vidrio", "fragmentos de vidrio",
+    "vidro", "fragmentos de vidro",
     "metal fragment", "θραύσμα μετάλλου", "μέταλλο", "μεταλλο",
     "frammento metallico", "frammenti metallici", "metallo",
+    "fragmentos metálicos", "partículas metálicas", "fragmento metálico",
     "plastic", "πλαστικό", "πλαστικο", "plastica", "frammenti di plastica",
+    "plástico", "fragmentos de plástico", "plastico",
     "foreign body", "foreign matter", "ξένο σώμα", "ξενο σωμα",
     "corps étranger", "stone", "πέτρα", "πετρα",
     "wood fragment", "θραύσμα ξύλου",
