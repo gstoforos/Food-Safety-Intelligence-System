@@ -21,6 +21,7 @@ CLI:
 from __future__ import annotations
 import argparse
 import json
+import re
 import sys
 import time
 import traceback
@@ -224,63 +225,135 @@ def stage_news_scraper(cfg: CountryConfig, verbose: bool = False) -> list[dict]:
 
 def stage_article_fetch(
     candidates: list[dict], cfg: CountryConfig, verbose: bool = False,
+    max_age_days: int = 14,
 ) -> tuple[list[dict], list[dict]]:
-    """Stage 2: turn candidates into 'verified' records.
+    """Stage 2: enrich candidates with body=title+description, filter recent, dedupe.
 
-    Pragmatic v3 design: do NOT fetch article bodies.
-    - Google News URLs are proxy URLs requiring JS to resolve — HTTP follow-redirect
-      hits an interstitial page with body=0.
-    - Direct-RSS feeds (ilfattoalimentare.it, ansa.it) already provide rich
-      <description> snippets in the RSS XML — we captured those in Stage 1.
+    Pragmatic design:
+      - Google News URLs are JS-redirect proxies — can't fetch real article.
+      - Direct-RSS feeds (ilfattoalimentare.it) provide rich <description> in RSS.
+      - So body = title + description. No HTTP fetch needed.
 
-    So Stage 2 just packages each candidate as a verified record using
-    (title + description) as the body. The rule classifier and LLM extractor
-    work on this combined text. Most major recalls have brand+product+hazard
-    in the title alone (e.g. "Richiamato lime Tropicom per carbofurano").
+    Critical filters (else Stage 3 runs 40+ min on historical noise):
+      1. **Date filter**: drop candidates older than max_age_days. Gap finder
+         only cares about NEW recalls — old ones already flowed through FSIS.
+      2. **Title-fingerprint dedupe**: multiple news outlets cover the same
+         recall. Keep ONE representative per story (the first encountered).
 
-    Output is schema-compatible with the old verified.jsonl so extractor.py
-    works unchanged.
+    Schema-compatible with old verified.jsonl so extractor.py works unchanged.
     """
     print(f"\n=== Stage 2: Candidate Enrichment ===", file=sys.stderr)
     if not candidates:
         return [], []
 
-    now = datetime.now(timezone.utc).isoformat()
-    verified: list[dict] = []
+    now_utc = datetime.now(timezone.utc)
+    cutoff = now_utc.timestamp() - (max_age_days * 86400)
 
-    for cand in candidates:
-        title = cand.get("title", "")
-        description = cand.get("description", "")
-        # body = title repeated + description (helps rule classifier with short titles)
-        body_parts = [title]
-        if description and description.lower() != title.lower():
-            body_parts.append(description)
-        body = "\n\n".join(body_parts)
-
-        # Parse RSS pubDate → ISO YYYY-MM-DD
-        date_iso = ""
+    def parse_pub(s: str) -> Optional[float]:
+        """Best-effort RFC822/ISO → UNIX timestamp."""
+        if not s:
+            return None
         for fmt in ["%a, %d %b %Y %H:%M:%S %Z",
                     "%a, %d %b %Y %H:%M:%S %z",
                     "%Y-%m-%dT%H:%M:%S%z",
                     "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d"]:
             try:
-                date_iso = datetime.strptime(cand.get("published", ""), fmt
-                                             ).strftime("%Y-%m-%d")
-                break
+                dt = datetime.strptime(s, fmt)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return dt.timestamp()
             except ValueError:
                 continue
+        return None
+
+    def title_tokens(t: str) -> set[str]:
+        """Distinctive tokens for similarity comparison."""
+        import unicodedata
+        n = unicodedata.normalize("NFD", t.lower())
+        n = "".join(c for c in n if unicodedata.category(c) != "Mn")
+        return set(re.findall(r"[a-z0-9]{4,}", n))
+
+    # Italian stopwords that shouldn't count toward title similarity
+    STOP_IT = {"richiamo", "richiamato", "richiamata", "richiamati", "ritiro",
+               "ritirato", "ritirata", "ritirati", "lotto", "lotti", "mercato",
+               "supermercati", "supermercato", "marca", "marchio", "prodotto",
+               "prodotti", "ministero", "salute", "rischio", "alimentare",
+               "presenza", "possibile"}
+
+    def is_duplicate(tokens: set[str], seen_token_sets: list[set[str]]) -> bool:
+        """Return True if this title shares ≥40% meaningful tokens with any prior."""
+        sig = tokens - STOP_IT
+        if len(sig) < 2:
+            return False
+        for prev in seen_token_sets:
+            prev_sig = prev - STOP_IT
+            if not prev_sig:
+                continue
+            overlap = len(sig & prev_sig) / max(len(sig | prev_sig), 1)
+            if overlap >= 0.4:
+                return True
+        return False
+
+    # Hard cap: even after date + dedup, never process more than this many
+    # records through Stage 3 (LLM extraction). Each LLM call is 5-10s; at 50
+    # records that's 4-8 min Stage 3, comfortably inside workflow timeout.
+    MAX_RECORDS = 50
+
+    too_old = 0
+    too_old_no_date = 0
+    seen_token_sets: list[set[str]] = []
+    dup_skipped = 0
+    capped = 0
+    verified: list[dict] = []
+    now_iso = now_utc.isoformat()
+
+    # Sort candidates by published date desc (newest first) so the cap keeps
+    # the most recent records when there are too many.
+    def sort_key(c):
+        ts = parse_pub(c.get("published", ""))
+        return ts if ts is not None else 0
+    sorted_candidates = sorted(candidates, key=sort_key, reverse=True)
+
+    for cand in sorted_candidates:
+        if len(verified) >= MAX_RECORDS:
+            capped += 1
+            continue
+
+        pub_ts = parse_pub(cand.get("published", ""))
+        if pub_ts is None:
+            too_old_no_date += 1
+        elif pub_ts < cutoff:
+            too_old += 1
+            continue
+
+        title = cand.get("title", "")
+        tokens = title_tokens(title)
+        if is_duplicate(tokens, seen_token_sets):
+            dup_skipped += 1
+            continue
+        seen_token_sets.append(tokens)
+
+        description = cand.get("description", "")
+        body_parts = [title]
+        if description and description.lower() != title.lower():
+            body_parts.append(description)
+        body = "\n\n".join(body_parts)
+
+        date_iso = ""
+        if pub_ts is not None:
+            date_iso = datetime.fromtimestamp(pub_ts, tz=timezone.utc).strftime("%Y-%m-%d")
 
         record = {
             "news_url": cand.get("url", ""),
             "news_title": title,
             "news_published": cand.get("published", ""),
             "news_source_domain": cand.get("source_domain", ""),
-            "efet_url": cand.get("url", ""),         # news URL = primary citation
+            "efet_url": cand.get("url", ""),
             "efet_title": title,
             "efet_date_iso": date_iso,
             "efet_body": body,
             "match_score": 1.0,
-            "matched_at": now,
+            "matched_at": now_iso,
             "discovered_via": cand.get("discovered_via", ""),
         }
         verified.append(record)
@@ -288,10 +361,14 @@ def stage_article_fetch(
     body_lens = [len(r["efet_body"]) for r in verified]
     avg_len = sum(body_lens) // len(body_lens) if body_lens else 0
     rich = sum(1 for l in body_lens if l > 200)
-    print(f"  enriched: {len(verified)} (avg body {avg_len} chars, "
-          f"{rich} with >200 chars of description)", file=sys.stderr)
+    print(f"  candidates in:      {len(candidates)}", file=sys.stderr)
+    print(f"  too old (>{max_age_days}d):     {too_old}", file=sys.stderr)
+    print(f"  no date (kept):     {too_old_no_date}", file=sys.stderr)
+    print(f"  dup-title skipped:  {dup_skipped}", file=sys.stderr)
+    print(f"  capped (>{MAX_RECORDS}):       {capped}", file=sys.stderr)
+    print(f"  enriched out:       {len(verified)} (avg body {avg_len} chars, "
+          f"{rich} with >200 chars)", file=sys.stderr)
 
-    # Write outputs for inspection
     p = Path(cfg.verified_path)
     p.parent.mkdir(parents=True, exist_ok=True)
     with p.open("w", encoding="utf-8") as f:
@@ -359,6 +436,9 @@ def main() -> int:
                         help="Skip Stage 1 — reuse existing candidates.jsonl")
     parser.add_argument("--skip-verify", action="store_true",
                         help="Skip Stage 2 — reuse existing verified.jsonl")
+    parser.add_argument("--max-age-days", type=int, default=14,
+                        help="Drop candidates older than N days (default: 14). "
+                             "Gap finder only cares about NEW recalls.")
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
@@ -397,8 +477,11 @@ def main() -> int:
               f"{len(unmatched)} unmatched", file=sys.stderr)
     else:
         try:
-            verified, unmatched = stage_article_fetch(candidates, cfg,
-                                                     verbose=args.verbose)
+            verified, unmatched = stage_article_fetch(
+                candidates, cfg,
+                verbose=args.verbose,
+                max_age_days=args.max_age_days,
+            )
         except Exception as e:
             state.add_error("article_fetcher", e)
             print(f"  ERROR: {e}", file=sys.stderr)
