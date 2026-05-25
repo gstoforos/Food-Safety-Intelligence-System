@@ -1,0 +1,166 @@
+name: Central EU Gap Finder (FSIS)
+
+# Single consolidated workflow for 8 Central European countries that share
+# the CET/CEST timezone. One Tailscale connection, one VPS warmup, sequential
+# country runs. Runtime budget: ~35 min (timeout 50 min).
+#
+# Countries (in order): Germany, Austria, Switzerland, Belgium, Netherlands,
+# Luxembourg, Poland, Hungary.
+#
+# All 8 countries are in CET (UTC+1) winter / CEST (UTC+2) summer.
+# 21:00 Berlin local → 19:00 UTC (CEST) or 20:00 UTC (CET).
+
+on:
+  schedule:
+    - cron: '0 19 * * *'   # 19:00 UTC → 21:00 Berlin during CEST (summer)
+    - cron: '0 20 * * *'   # 20:00 UTC → 21:00 Berlin during CET  (winter)
+  workflow_dispatch:
+    inputs:
+      countries:
+        description: 'Comma-separated country codes (default = all 8)'
+        type: string
+        default: 'de,at,ch,be,nl,lu,pl,hu'
+      skip_news:
+        description: 'Skip news scraping (use existing candidates.jsonl)'
+        type: boolean
+        default: false
+      skip_verify:
+        description: 'Skip article enrichment'
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Run pipeline but do not write to xlsx'
+        type: boolean
+        default: false
+
+env:
+  TZ: Europe/Berlin
+  TS_KEY_RENEW_BY: "2026-08-21"
+
+jobs:
+  central-eu-gap-finder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    permissions:
+      contents: write
+    steps:
+      - name: Gate by Europe/Berlin local hour (skip if not 21:00)
+        if: github.event_name == 'schedule'
+        run: |
+          BERLIN_HOUR=$(TZ=Europe/Berlin date +%H)
+          echo "Current Europe/Berlin hour: ${BERLIN_HOUR}"
+          if [ "${BERLIN_HOUR}" != "21" ]; then
+            echo "Not 21:00 in Berlin — exiting (other cron line handles current DST)."
+            exit 78  # neutral exit — skips workflow without marking failure
+          fi
+          echo "It's 21:00 in Berlin — proceeding with 8-country sweep."
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml openpyxl
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          tags: tag:ci
+          version: latest
+
+      - name: Health-check llama-server on VPS
+        env:
+          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
+        run: |
+          echo "Pinging $LLAMA_BASE_URL/models..."
+          for i in 1 2 3 4 5; do
+            if curl -sf --max-time 10 "$LLAMA_BASE_URL/models" > /dev/null; then
+              echo "✓ llama-server is reachable"
+              exit 0
+            fi
+            echo "Attempt $i/5 failed, retrying in 5s..."
+            sleep 5
+          done
+          echo "✗ llama-server unreachable after 5 attempts"
+          exit 1
+
+      - name: Run all 8 Central EU country pipelines sequentially
+        env:
+          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
+        run: |
+          # Build common args
+          ARGS=""
+          if [ "${{ inputs.skip_news }}" = "true" ]; then ARGS="$ARGS --skip-news"; fi
+          if [ "${{ inputs.skip_verify }}" = "true" ]; then ARGS="$ARGS --skip-verify"; fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+
+          # Manual-dispatch country list, else default to all 8
+          COUNTRIES="${{ inputs.countries }}"
+          if [ -z "$COUNTRIES" ]; then COUNTRIES="de,at,ch,be,nl,lu,pl,hu"; fi
+          echo "Will run: $COUNTRIES"
+
+          FAILED=""
+          IFS=',' read -ra LIST <<< "$COUNTRIES"
+          for cc in "${LIST[@]}"; do
+            cc=$(echo "$cc" | xargs)  # trim whitespace
+            echo ""
+            echo "======================================================================"
+            echo "  STARTING country: $cc"
+            echo "======================================================================"
+            if python -m pipeline.gap_finder.main --country "$cc" --verbose $ARGS; then
+              echo "✓ $cc completed"
+            else
+              echo "✗ $cc failed (continuing with next country)"
+              FAILED="$FAILED $cc"
+            fi
+          done
+
+          if [ -n "$FAILED" ]; then
+            echo ""
+            echo "WARNING: Some countries failed:$FAILED"
+            echo "(Workflow continues — other countries' results are kept.)"
+          fi
+
+      - name: Upload per-country artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: central-eu-gap-finder-run-${{ github.run_id }}
+          path: |
+            docs/data/gap_finder_de/
+            docs/data/gap_finder_at/
+            docs/data/gap_finder_ch/
+            docs/data/gap_finder_be/
+            docs/data/gap_finder_nl/
+            docs/data/gap_finder_lu/
+            docs/data/gap_finder_pl/
+            docs/data/gap_finder_hu/
+          retention-days: 14
+
+      - name: Commit xlsx changes
+        if: inputs.dry_run != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/recalls.xlsx \
+                  docs/data/gap_finder_de/ \
+                  docs/data/gap_finder_at/ \
+                  docs/data/gap_finder_ch/ \
+                  docs/data/gap_finder_be/ \
+                  docs/data/gap_finder_nl/ \
+                  docs/data/gap_finder_lu/ \
+                  docs/data/gap_finder_pl/ \
+                  docs/data/gap_finder_hu/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Central EU gap finder: $(date -u +%Y-%m-%d) auto-update (8 countries)"
+            git push
+          fi
