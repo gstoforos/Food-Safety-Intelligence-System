@@ -34,19 +34,38 @@ ITALY = CountryConfig(
     authority_item_url_regex=r"(avvisiSicurezza|richiami|p3_2_1_3_1)",
 
     # ── News sources ────────────────────────────────────────────────────────
-    # Italian RSS landscape is healthier than Greek — major dailies still publish feeds.
+    # CRITICAL: use RECALL-SPECIFIC category feeds, not general homepages.
+    # General feeds (e.g. /feed/) are 95% non-recall content — our prefilter
+    # drops most of it. WordPress sites expose per-category feeds at
+    # /argomenti/<category>/feed which give us pure recall content.
     rss_sources=[
+        # PRIMARY — il Fatto Alimentare publishes ~14 recall articles/month
+        # in this category. This single feed gives us nearly all real Italian
+        # recalls with rich descriptions (brand, product, hazard, lot).
+        RssSource("ilfattoalimentare.it", [
+            "https://ilfattoalimentare.it/argomenti/richiami-e-ritiri/feed",
+            "https://ilfattoalimentare.it/argomenti/richiami-e-ritiri/feed/",
+            "https://ilfattoalimentare.it/tag/richiamo/feed",
+            "https://ilfattoalimentare.it/tag/listeria-monocytogenes/feed",
+            "https://ilfattoalimentare.it/tag/salmonella/feed",
+            # Fallback to general feed (we already had this — keep as net)
+            "https://ilfattoalimentare.it/feed",
+        ]),
+        # SECONDARY — quifinanza.it has dedicated /ritiri-alimentari section,
+        # ~3-5 articles/week with rich snippets
+        RssSource("quifinanza.it", [
+            "https://quifinanza.it/info-utili/ritiri-alimentari/feed/",
+            "https://quifinanza.it/feed/",
+        ]),
+        # TERTIARY — major dailies (low signal but catches RASFF-level events)
         RssSource("ansa.it", [
             "https://www.ansa.it/sito/ansait_rss.xml",
-            "https://www.ansa.it/canale_cronaca/notizie/cronaca_rss.xml",
         ]),
         RssSource("repubblica.it", [
             "https://www.repubblica.it/rss/cronaca/rss2.0.xml",
-            "https://www.repubblica.it/rss/homepage/rss2.0.xml",
         ]),
         RssSource("corriere.it", [
             "https://xml2.corriereobjects.it/rss/homepage.xml",
-            "https://xml2.corriereobjects.it/rss/cronache.xml",
         ]),
         RssSource("ilfattoquotidiano.it", [
             "https://www.ilfattoquotidiano.it/feed/",
@@ -54,20 +73,13 @@ ITALY = CountryConfig(
         RssSource("ilsole24ore.com", [
             "https://www.ilsole24ore.com/rss/italia.xml",
         ]),
-        RssSource("ilmessaggero.it", [
-            "https://www.ilmessaggero.it/rss.xml",
-            "https://www.ilmessaggero.it/rss/cronaca.xml",
-        ]),
-        RssSource("ilfattoalimentare.it", [
-            "https://ilfattoalimentare.it/feed",
-        ]),
     ],
     google_news_domains=[
+        "ilfattoalimentare.it",  # primary — backup for direct RSS gaps
+        "quifinanza.it",         # primary — recall-focused
         "ansa.it", "repubblica.it", "corriere.it",
-        "ilfattoquotidiano.it", "ilsole24ore.com", "ilmessaggero.it",
-        "ilfattoalimentare.it",
+        "ilfattoquotidiano.it", "ilmessaggero.it",
         # NOTE: fanpage.it removed — produces ~250 generic-news false positives
-        # per run. Add back if recall coverage proves insufficient.
     ],
     google_news_keywords=[
         "richiamo alimentare Ministero Salute",
