@@ -205,7 +205,11 @@ def collect_google_news(cfg: CountryConfig, verbose: bool = False) -> list[Candi
 
     for domain in cfg.google_news_domains:
         for keyword in cfg.google_news_keywords:
-            q = f"site:{domain} {keyword}"
+            # Add `when:21d` operator → only articles from last 21 days.
+            # Without this, Google News returns historical articles by relevance
+            # (e.g. 2017 Findus, 2022 Kinder) which pollute the candidate pool.
+            # 21 days gives ~1 week buffer beyond our 14-day downstream filter.
+            q = f"site:{domain} {keyword} when:21d"
             url = (
                 f"{GOOGLE_NEWS_BASE}?q={quote_plus(q)}"
                 f"&hl={cfg.language_code}-{cfg.code.upper()}"
