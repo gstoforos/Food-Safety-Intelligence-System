@@ -29,16 +29,30 @@ from typing import Optional
 # ACCEPT — pathogens (Tier assigned per locked rules)
 PATHOGENS_TIER_1 = {
     # Salmonella → always Tier 1 (locked rule)
-    "salmonella", "σαλμονέλα", "σαλμονελα",
+    "salmonella", "salmonellen",                    # English/Italian + German plural
+    "salmonelle", "salmonella",                     # French/Polish (same)
+    "salmonelloza", "salmonelozą",                  # Polish disease form
+    "salmonellózis",                                # Hungarian
+    "σαλμονέλα", "σαλμονελα",
     # Listeria monocytogenes → Tier 1
-    "listeria monocytogenes", "listeria", "λιστέρια", "λιστερια",
+    "listeria monocytogenes", "listeria", "listerien",  # + German plural
+    "listeriose", "listeriosi",                     # Italian/French disease forms
+    "listerioza",                                   # Polish
+    "listeriózis",                                  # Hungarian
+    "λιστέρια", "λιστερια",
     # STEC / E. coli O157 → Tier 1
     "stec", "e. coli o157", "e.coli o157", "escherichia coli o157",
     "shiga toxin-producing", "shiga-toxin", "shigatoxin",
+    "shigatoxinbildende",                           # German (Shiga-toxinbildende E. coli)
     # Bacillus cereus / cereulide → always Tier 1 (locked rule)
-    "bacillus cereus", "cereulide", "κερευλίδη", "κερευλιδη",
+    "bacillus cereus", "cereulide", "cereulida",    # ES/PT
+    "κερευλίδη", "κερευλιδη",
     # Botulism — high severity
-    "clostridium botulinum", "botulinum toxin", "botulism", "αλλαντίαση", "αλλαντιαση",
+    "clostridium botulinum", "botulinum toxin", "botulism",
+    "botulismus",                                   # German / Polish / Hungarian
+    "botulisme",                                    # French / Dutch
+    "botulinumtoxin",                               # German compound
+    "αλλαντίαση", "αλλαντιαση",
     # Other high-severity
     "cronobacter sakazakii", "cronobacter",
 }
@@ -53,11 +67,20 @@ PATHOGENS_TIER_2 = {
     "hepatitis a", "ηπατίτιδα α", "ηπατιτιδα α",
     "hepatitis a virus", "hav",
     "epatite a", "virus dell'epatite a", "virus dell epatite a",
+    "hepatitis a-virus", "hav",                                  # German same
+    "hepatitis a", "hepatitis a-virus",                          # Dutch
+    "hépatite a", "virus de l'hépatite a", "virus de l hepatite a",  # French
+    "wirusowe zapalenie wątroby typu a", "wzw a",                # Polish
+    "hepatitis a", "a típusú hepatitis", "hav vírus",            # Hungarian
     "hepatitis e", "ηπατίτιδα ε", "ηπατιτιδα ε",
     "hepatitis e virus", "hev",
     "epatite e", "virus dell'epatite e", "virus dell epatite e",
+    "hepatitis e-virus",                                         # German same
+    "hépatite e", "virus de l'hépatite e", "virus de l hepatite e",  # French
+    "wirusowe zapalenie wątroby typu e", "wzw e",                # Polish
+    "hepatitis e", "e típusú hepatitis", "hev vírus",            # Hungarian
     # Rotavirus
-    "rotavirus",
+    "rotavirus",                                                 # same in all our languages
     "clostridium perfringens",
     "vibrio", "δονακιοειδή", "δονακιοειδη",
     # Generic E. coli without O157 specification → Tier 2 by default
@@ -72,30 +95,35 @@ MICROBIAL_TOXINS = {
     "aflatoxin", "aflatoxins", "αφλατοξιν",
     "aflatossin",          # Italian stem (aflatossina/aflatossine)
     "aflatoxina", "aflatoxinas",   # Spanish + Portuguese (same form)
+    "aflatoksyn",          # Polish stem (aflatoksyna/aflatoksyny)
+    "aflatoxiny",          # Czech / Slovak
     # Ochratoxin
     "ochratoxin", "ωχρατοξιν",
     "ocratossin",          # Italian
     "ocratoxina", "ocratoxinas",   # Spanish + Portuguese
+    "ochratoksyn",         # Polish
     # Patulin
-    "patulin", "πατουλιν",
-    "patulina",
+    "patulin", "πατουλιν", "patulina",
     # Fumonisin
-    "fumonisin", "φουμονισιν",
-    "fumonisina",
+    "fumonisin", "φουμονισιν", "fumonisina", "fumonizyn",  # +Polish
     # Deoxynivalenol
     "deoxynivalenol", "δεοξυνιβαλενολ",
     "deossinivalenol",     # Italian
     "deoxinivalenol",      # Spanish + Portuguese
+    "deoksyniwalenol",     # Polish
     # Zearalenone
-    "zearalenone", "ζεαραλενον",
-    "zearalenona",
+    "zearalenone", "ζεαραλενον", "zearalenona", "zearalenon",  # +DE/PL
     # T-2 toxin
     "t-2 toxin", "t2 toxin",
-    "tossina t-2", "toxina t-2",
+    "tossina t-2", "toxina t-2", "t-2 toxin",
     # Ergot alkaloids
     "ergot alkaloid", "αλκαλοειδη ερυσιβης",
     "alcaloidi della segale cornuta", "alcaloidi ergot",
     "alcaloides del cornezuelo", "alcaloides do ergot",
+    "mutterkornalkaloid", "mutterkornalkaloide",   # German
+    "alcaloïdes de l'ergot", "alcaloides de ergot",  # French
+    "alkaloidy sporyszu",  # Polish
+    "anyarozs alkaloidok",  # Hungarian
     # Cereulide (Bacillus cereus toxin)
     "cereulide", "cereulida",
 }
@@ -122,7 +150,7 @@ NATURAL_TOXINS = {
 }
 
 # REJECT — allergens (undeclared)
-# Multi-lingual: English / Greek / Italian / Spanish / Portuguese terms.
+# Multi-lingual: EN / EL / IT / ES / PT / DE / NL / FR / PL / HU.
 # The classifier doesn't care which language matched, just which hazard fired.
 ALLERGENS = {
     # ─── Milk/dairy ─────────────────────────────────────────────────────────
@@ -130,6 +158,11 @@ ALLERGENS = {
     "latte", "lattosio", "caseina", "siero",
     "leche", "lácteos", "lacteos", "lactosa", "caseína", "caseina",
     "leite", "lacticínios", "lacticinios", "lactose", "caseína",
+    "milch", "milcheiweiss", "milcheiweiß", "molke", "kasein",   # German
+    "melk", "melkeiwit", "wei",                                    # Dutch
+    "lait", "produits laitiers", "lactose", "caséine",            # French
+    "mleko", "mleczne", "laktoza", "kazeina",                     # Polish
+    "tej", "tejtermék", "laktóz", "tejfehérje", "kazein",         # Hungarian
     # ─── Cereals/gluten ─────────────────────────────────────────────────────
     "wheat", "σιτάρι", "σιταρι", "άλευρο σίτου", "αλευρο σιτου",
     "grano", "frumento", "farina di frumento", "orzo", "segale", "farro", "avena",
@@ -137,95 +170,255 @@ ALLERGENS = {
     "glutine",
     "trigo", "cebada", "centeno", "espelta", "avena", "harina de trigo",
     "glúten", "trigo", "cevada", "centeio", "espelta", "aveia",
+    "weizen", "weizenmehl", "roggen", "gerste", "hafer", "dinkel",  # German
+    "gluten",                                                         # Same in German/Dutch/French
+    "tarwe", "tarwemeel", "rogge", "gerst", "haver", "spelt",       # Dutch
+    "blé", "froment", "farine de blé", "seigle", "orge", "épeautre", "avoine",  # French
+    "pszenica", "mąka pszenna", "żyto", "jęczmień", "owies", "orkisz",  # Polish
+    "búza", "búzaliszt", "rozs", "árpa", "zab", "tönköly",         # Hungarian
     # ─── Soy ────────────────────────────────────────────────────────────────
     "soy", "σόγια", "σογια", "soya", "soia", "soja",
+    # Same word in German/Dutch/French/Polish/Hungarian: "soja" / "szója" (HU)
+    "szója",
     # ─── Peanut ─────────────────────────────────────────────────────────────
     "peanut", "φιστίκι", "φιστικι", "αραχίδα", "αραχιδα",
     "arachide", "arachidi", "noccioline",
     "cacahuete", "cacahuetes", "maní",
     "amendoim", "amendoins",
+    "erdnuss", "erdnüsse",                                       # German
+    "pinda", "pinda's", "aardnoot",                              # Dutch
+    "cacahuète", "cacahuètes", "arachide",                       # French
+    "orzeszki ziemne", "fistaszki",                              # Polish
+    "földimogyoró",                                              # Hungarian
     # ─── Tree nuts ──────────────────────────────────────────────────────────
     "tree nut", "καρπός με κέλυφος", "καρπος με κελυφος",
-    "frutta a guscio", "frutos secos", "frutos de casca", "frutos secos",
+    "frutta a guscio", "frutos secos", "frutos de casca",
+    "schalenfrucht", "schalenfrüchte", "nüsse",
+    "noten", "schaalvruchten",
+    "fruits à coque", "noix diverses",
+    "orzechy",
+    "olajos magvak",
     "almond", "αμύγδαλο", "αμυγδαλο",
     "mandorla", "mandorle", "almendra", "almendras", "amêndoa", "amêndoas",
+    "mandel", "mandeln",                                         # German
+    "amandel", "amandelen",                                      # Dutch
+    "amande", "amandes",                                         # French
+    "migdał", "migdały",                                         # Polish
+    "mandula",                                                   # Hungarian
     "hazelnut", "φουντούκι", "φουντουκι",
     "nocciola", "nocciole", "avellana", "avellanas", "avelã", "avelãs",
+    "haselnuss", "haselnüsse",                                   # German
+    "hazelnoot", "hazelnoten",                                   # Dutch
+    "noisette", "noisettes",                                     # French
+    "orzech laskowy", "orzechy laskowe",                         # Polish
+    "mogyoró",                                                   # Hungarian
     "walnut", "καρύδι", "καρυδι",
     "noce", "noci", "nuez", "nueces",
+    "walnuss", "walnüsse",                                       # German
+    "walnoot", "walnoten",                                       # Dutch
+    "noix",                                                      # French (also "fruits à coque" generic)
+    "orzech włoski", "orzechy włoskie",                          # Polish
+    "dió",                                                       # Hungarian
     "cashew", "κάσιους", "κασιους", "anacardi", "anacardo", "anacardos",
+    "kaschu", "kaschunuss", "cashewkern",                        # German
+    "cashewnoot",                                                # Dutch
+    "noix de cajou",                                             # French
+    "nerkowiec",                                                 # Polish
+    "kesudió",                                                   # Hungarian
     "pistachio", "φιστίκι αιγίνης", "φιστικι αιγινης",
     "pistacchi", "pistacchio", "pistacho", "pistachos", "pistácio", "pistácios",
+    "pistazie", "pistazien",                                     # German
+    "pistache", "pistachenoot",                                  # Dutch
+    "pistache",                                                  # French
+    "pistacja",                                                  # Polish
+    "pisztácia",                                                 # Hungarian
     "chestnut", "castagna", "castagne", "castaña", "castanha",
+    "edelkastanie", "marone", "esskastanie",                     # German
+    "kastanje",                                                  # Dutch
+    "châtaigne", "marron",                                       # French
+    "kasztan",                                                   # Polish
+    "szelídgesztenye",                                           # Hungarian
     # ─── Eggs ───────────────────────────────────────────────────────────────
     "egg", "αυγό", "αυγο", "αυγού",
     "uovo", "uova", "huevo", "huevos", "ovo", "ovos",
+    "ei", "eier", "eiweiss", "eiweiß", "hühnerei",               # German
+    "ei", "eieren",                                              # Dutch
+    "œuf", "œufs", "oeuf", "oeufs",                              # French
+    "jajko", "jajka",                                            # Polish
+    "tojás", "tojások",                                          # Hungarian
     # ─── Fish/shellfish ─────────────────────────────────────────────────────
     "fish", "ψάρι", "ψαρι", "pesce", "pescado", "peixe",
+    "fisch", "fische",                                           # German
+    "vis", "vissen",                                             # Dutch
+    "poisson", "poissons",                                       # French
+    "ryba", "ryby",                                              # Polish
+    "hal",                                                       # Hungarian
     "shellfish", "οστρακοειδή", "οστρακοειδη",
-    "crostaceo", "crostacei", "crustáceo", "crustáceos", "crustaceo",
+    "crostaceo", "crostacei", "crustáceo", "crustáceos",
+    "krebstier", "krebstiere", "schalentier",                    # German
+    "schaaldier", "schaaldieren",                                # Dutch
+    "crustacé", "crustacés", "fruits de mer",                    # French
+    "skorupiaki",                                                # Polish
+    "rákfélék",                                                  # Hungarian
     "crustacean", "καρκινοειδή", "καρκινοειδη",
     "mariscos", "moluscos",
     "mollusc", "μαλάκια", "μαλακια", "molluschi",
+    "weichtier", "weichtiere",                                   # German
+    "weekdier", "weekdieren",                                    # Dutch
+    "mollusque", "mollusques",                                   # French
+    "mięczaki",                                                  # Polish
+    "puhatestűek",                                               # Hungarian
     # ─── Sesame / mustard / sulfites / celery / lupin ───────────────────────
     "sesame", "σουσάμι", "σουσαμι", "sesamo", "sésamo", "ajonjolí", "gergelim",
+    "sesam", "sesamsamen",                                       # German + Dutch
+    "sésame",                                                    # French
+    "sezam",                                                     # Polish
+    "szezám", "szezámmag",                                       # Hungarian
     "sulfite", "θειώδη", "θειωδη", "solfiti", "solfito",
     "sulfitos", "sulfito", "sulfuroso",
+    "sulfit", "sulfite", "schwefeldioxid",                       # German
+    "sulfiet", "sulfieten", "zwaveldioxide",                     # Dutch
+    "sulfite", "anhydride sulfureux",                            # French
+    "siarczyn", "siarczyny", "dwutlenek siarki",                 # Polish
+    "szulfit", "kén-dioxid",                                     # Hungarian
     "mustard", "μουστάρδα", "μουσταρδα", "senape", "mostaza", "mostarda",
+    "senf",                                                      # German
+    "mosterd",                                                   # Dutch
+    "moutarde",                                                  # French
+    "musztarda",                                                 # Polish
+    "mustár",                                                    # Hungarian
     "celery", "σέλινο", "σελινο", "sedano", "apio", "aipo",
+    "sellerie",                                                  # German
+    "selderij",                                                  # Dutch
+    "céleri",                                                    # French
+    "seler",                                                     # Polish
+    "zeller",                                                    # Hungarian
     "lupin", "λούπινο", "λουπινο", "lupini", "altramuz", "tremoço", "tremocos",
+    "lupine", "lupinen",                                         # German + Dutch (same)
+    "lupin",                                                     # French
+    "łubin",                                                     # Polish
+    "csillagfürt",                                               # Hungarian
     # ─── Allergen qualifiers ────────────────────────────────────────────────
     "allergen", "αλλεργιογόνο", "αλλεργιογονο", "αλλεργιογόνα",
     "allergene", "allergeni",
     "alérgeno", "alergeno", "alérgenos", "alergenos",
     "alergénio", "alergenio", "alergénios", "alergenios",
+    "allergen", "allergene",                                     # German (same form)
+    "allergeen", "allergenen",                                   # Dutch
+    "allergène", "allergènes",                                   # French
+    "alergen", "alergeny",                                       # Polish
+    "allergén", "allergének",                                    # Hungarian
     "undeclared", "μη δηλωμένο", "μη δηλωμενο", "μη δηλωμένη",
     "non dichiarato", "non dichiarata", "non indicato",
     "no declarado", "no declarada", "no declarados",
     "não declarado", "nao declarado", "não declarada", "nao declarada",
+    "nicht deklariert", "nicht angegeben", "nicht ausgewiesen",  # German
+    "niet vermeld", "niet aangegeven", "niet gedeclareerd",      # Dutch
+    "non déclaré", "non déclarée", "non déclarés", "non indiqué",  # French
+    "niezadeklarowany", "niezadeklarowana", "nie zadeklarowany",  # Polish
+    "nem jelölt", "nem deklarált", "nincs feltüntetve",          # Hungarian
 }
 
 # REJECT — synthetic / environmental chemicals & additives
 SYNTHETIC_CHEMICALS = {
     "coumarin", "κουμαρίνη", "κουμαρινη", "cumarina",
+    "kumarin",                                                  # German / Polish / Hungarian
+    "coumarine",                                                # French / Dutch
     "pesticide", "φυτοφάρμακο", "φυτοφαρμακο", "pesticida", "pesticidi", "fitofarmaco",
     "plaguicida", "plaguicidas", "fitofarmacêutico", "pesticidas",
-    "chlorpyrifos", "χλωροπυριφός", "clorpirifos",
-    "glyphosate", "γλυφοσάτη", "glifosato", "glifosato",
+    "pestizid", "pestizide", "pflanzenschutzmittel",            # German
+    "pesticide", "bestrijdingsmiddel",                          # Dutch (also "pesticide")
+    "pesticide", "pesticides",                                  # French (same)
+    "pestycyd", "pestycydy",                                    # Polish
+    "peszticid", "növényvédő szer",                             # Hungarian
+    "chlorpyrifos", "χλωροπυριφός", "clorpirifos", "chlorpyriphos",
+    "glyphosate", "γλυφοσάτη", "glifosato", "glyphosat",
     "carbofuran", "carbofurano",
     "additive", "πρόσθετο", "προσθετο", "additivo", "additivi",
     "aditivo", "aditivos",
+    "zusatzstoff", "zusatzstoffe",                              # German
+    "additief", "additieven",                                   # Dutch
+    "additif", "additifs",                                      # French
+    "dodatek", "dodatki",                                       # Polish
+    "adalékanyag",                                              # Hungarian
     "preservative over limit", "συντηρητικό υπέρβαση", "conservante oltre limite",
     "conservante por encima del límite", "conservante acima do limite",
+    "konservierungsmittel über grenzwert",                      # German
+    "conservant au-dessus limite",                              # French
     "colorant over limit", "χρωστική υπέρβαση", "colorante oltre limite",
     "colorante por encima del límite",
     "nitrite over limit", "νιτρώδη υπέρβαση", "nitriti oltre limite",
     "nitrato over limit", "νιτρικά υπέρβαση", "nitrati oltre limite",
     "nitritos por encima", "nitratos por encima",
+    "nitrit über grenzwert", "nitrat über grenzwert",           # German
     "sudan dye", "sudan i", "sudan ii", "sudan iii", "sudan iv",
-    "rhodamine", "ροδαμίνη", "rodamina",
+    "rhodamine", "ροδαμίνη", "rodamina", "rhodamin",
     "ethylene oxide", "οξείδιο αιθυλενίου", "ossido di etilene",
     "óxido de etileno",
-    "melamine", "μελαμίνη", "melamina",
-    "acrylamide", "ακρυλαμίδιο", "acrilammide", "acrilamida",
+    "ethylenoxid",                                              # German
+    "ethyleenoxide",                                            # Dutch
+    "oxyde d'éthylène", "oxyde d ethylene",                     # French
+    "tlenek etylenu",                                           # Polish
+    "etilén-oxid", "etilen-oxid",                               # Hungarian
+    "melamine", "μελαμίνη", "melamina", "melamin",
+    "acrylamide", "ακρυλαμίδιο", "acrilammide", "acrilamida", "acrylamid",
+    "akrylamid",                                                # Polish
+    "akrilamid",                                                # Hungarian
     "pah", "polycyclic aromatic", "πολυκυκλικοί αρωματικοί υδρογονάνθρακες",
     "idrocarburi policiclici aromatici",
     "hidrocarburos aromáticos policíclicos", "hidrocarbonetos aromáticos",
+    "polyzyklische aromatische kohlenwasserstoffe",             # German
+    "hydrocarbures aromatiques polycycliques",                  # French
     "dioxin", "διοξίνη", "diossina", "diossine", "dioxina", "dioxinas",
+    "dioxine", "dioxines",
     "pcb", "πολυχλωριωμένα διφαινύλια", "policlorobifenili", "policlorobifenilos",
+    "polychlorierte biphenyle",                                 # German
+    "polychloorbifenylen",                                      # Dutch
+    "polichlorowane bifenyle",                                  # Polish
 }
 
 # REJECT — heavy metals
 HEAVY_METALS = {
-    "cadmium", "κάδμιο", "καδμιο", "cadmio", "cádmio",
+    "cadmium", "κάδμιο", "καδμιο", "cadmio", "cádmio", "cadmium", "kadmium",
     "lead", "μόλυβδος", "μολυβδος", "piombo", "plomo", "chumbo",
+    "blei",                                                     # German
+    "lood",                                                     # Dutch
+    "plomb",                                                    # French
+    "ołów",                                                     # Polish
+    "ólom",                                                     # Hungarian
     "mercury", "υδράργυρος", "υδραργυρος", "mercurio", "mercúrio",
-    "arsenic", "αρσενικό", "αρσενικο", "arsenico", "arsénico", "arsenico", "arsénio",
+    "quecksilber",                                              # German
+    "kwik",                                                     # Dutch
+    "mercure",                                                  # French
+    "rtęć",                                                     # Polish
+    "higany",                                                   # Hungarian
+    "arsenic", "αρσενικό", "αρσενικο", "arsenico", "arsénico", "arsénio",
+    "arsen",                                                    # German / Polish
+    "arseen",                                                   # Dutch
+    "arsenic",                                                  # French (same)
+    "arzén",                                                    # Hungarian
     "chromium", "χρώμιο", "χρωμιο", "cromo", "crómio", "cromio",
+    "chrom",                                                    # German / Polish
+    "chroom",                                                   # Dutch
+    "chrome",                                                   # French
+    "króm",                                                     # Hungarian
     "nickel", "νικέλιο", "νικελιο", "nichel", "níquel", "niquel",
+    "nickel",                                                   # German / French / Dutch same
+    "nikiel",                                                   # Polish
+    "nikkel",                                                   # Hungarian
     "tin", "κασσίτερος", "κασσιτερος", "stagno", "estaño", "estanho",
+    "zinn",                                                     # German
+    "tin",                                                      # Dutch (same as English)
+    "étain",                                                    # French
+    "cyna",                                                     # Polish
+    "ón",                                                       # Hungarian (note: 2-char, will need word boundary)
     "heavy metal", "βαρύ μέταλλο", "βαρυ μεταλλο", "metallo pesante", "metalli pesanti",
     "metales pesados", "metal pesado", "metais pesados",
+    "schwermetall", "schwermetalle",                            # German
+    "zware metalen",                                            # Dutch
+    "métaux lourds",                                            # French
+    "metale ciężkie",                                           # Polish
+    "nehézfém", "nehézfémek",                                   # Hungarian
 }
 
 # REJECT — foreign matter
@@ -233,11 +426,25 @@ FOREIGN_MATTER = {
     "glass", "γυαλί", "γυαλι", "verre", "vetro", "frammenti di vetro",
     "cristal", "vidrio", "fragmentos de vidrio",
     "vidro", "fragmentos de vidro",
+    "glas", "glasscherben", "glassplitter",                     # German / Dutch (same word)
+    "verre", "fragments de verre",                              # French
+    "szkło", "odłamki szkła",                                   # Polish
+    "üveg", "üvegdarab", "üvegszilánk",                         # Hungarian
     "metal fragment", "θραύσμα μετάλλου", "μέταλλο", "μεταλλο",
     "frammento metallico", "frammenti metallici", "metallo",
     "fragmentos metálicos", "partículas metálicas", "fragmento metálico",
+    "metallfremdkörper", "metallsplitter", "metallteile",       # German
+    "metaaldeeltjes", "metaalsplinter",                         # Dutch
+    "fragments métalliques", "particules métalliques",          # French
+    "fragmenty metalu", "odłamki metalu",                       # Polish
+    "fémdarab", "fémszilánk",                                   # Hungarian
     "plastic", "πλαστικό", "πλαστικο", "plastica", "frammenti di plastica",
     "plástico", "fragmentos de plástico", "plastico",
+    "kunststoff", "plastik", "kunststoffteile",                 # German
+    "plastic", "kunststof",                                     # Dutch
+    "plastique", "fragments de plastique",                      # French
+    "tworzywo sztuczne", "plastik",                             # Polish
+    "műanyag",                                                  # Hungarian
     "foreign body", "foreign matter", "ξένο σώμα", "ξενο σωμα",
     "corps étranger", "stone", "πέτρα", "πετρα",
     "wood fragment", "θραύσμα ξύλου",
