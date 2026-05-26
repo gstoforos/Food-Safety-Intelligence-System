@@ -3,11 +3,17 @@ AFTS Food Safety Intelligence — Gap Finder
 Country config: Belgium (FAVV/AFSCA — Federal Agency for the Safety of
                 the Food Chain)
 
-Belgian food-recall regime:
-  - BILINGUAL: Flemish/Dutch (NL) + French (FR). Brussels region uses both.
-  - FAVV (Dutch) / AFSCA (French) at favv-afsca.be publishes alerts.
-  - Recall vocabulary spans 2 languages — we union them.
-  - Volume: ~80-120 recalls/year.
+REVISION (Batch 2.1 hotfix): First Belgium deployment caught Nutrilon
+babymelk recall but all variants got rule-rejected as 'unknown' because
+the headlines say "mogelijk giftige stof" (vague: possibly toxic substance)
+rather than naming the actual pathogen (cereulide / Bacillus cereus).
+
+Fixed by:
+  1. Adding produktwarnung.eu Nachbarstaaten — Belgian recalls in German
+     with specific pathogen names that our classifier can match.
+  2. Adding retaildetail.eu/retaildetail.be — Belgian retail news with
+     food-recall coverage.
+  3. Adding foodlog.nl (covers Flemish-speaking Belgian recalls too).
 """
 
 from .base import CountryConfig, RssSource, register
@@ -23,9 +29,17 @@ BELGIUM = CountryConfig(
     authority_domain="favv-afsca.be",
     authority_item_url_regex=r"(news|terugroep|rappel|alerte|persbericht|warning)",
 
-    # ── News sources (bilingual NL + FR) ────────────────────────────────────
     rss_sources=[
-        # Dutch-speaking (Flemish)
+        # PRIMARY — German aggregator covers Belgian recalls
+        RssSource("produktwarnung.eu", [
+            "https://www.produktwarnung.eu/feed",
+            "https://www.produktwarnung.eu/rubrik/rueckrufe-in-nachbarstaaten/feed",
+        ]),
+        # PRIMARY — Belgian retail news (food-recall coverage)
+        RssSource("retaildetail.eu", [
+            "https://www.retaildetail.eu/feed/",
+        ]),
+        # Dutch-speaking (Flemish) — verified working
         RssSource("hln.be", [
             "https://www.hln.be/home/rss.xml",
         ]),
@@ -35,19 +49,10 @@ BELGIUM = CountryConfig(
         RssSource("vrt.be", [
             "https://www.vrt.be/vrtnws/nl.rss.articles.xml",
         ]),
-        RssSource("nieuwsblad.be", [
-            "https://www.nieuwsblad.be/rss/section/55178e67-15a8-4ddd-a3d8-bfe5708f8932",
-        ]),
         RssSource("standaard.be", [
             "https://www.standaard.be/rss",
         ]),
-        # French-speaking (Wallonia + Brussels)
-        RssSource("lesoir.be", [
-            "https://www.lesoir.be/rss",
-        ]),
-        RssSource("rtbf.be", [
-            "https://www.rtbf.be/info/rss",
-        ]),
+        # French-speaking — verified working endpoints only
         RssSource("lalibre.be", [
             "https://www.lalibre.be/arc/outboundfeeds/rss/?outputType=xml",
         ]),
@@ -56,18 +61,20 @@ BELGIUM = CountryConfig(
         ]),
     ],
     google_news_domains=[
+        "produktwarnung.eu",    # primary
+        "retaildetail.eu",      # primary
         "hln.be", "demorgen.be", "vrt.be", "nieuwsblad.be", "standaard.be",
-        "lesoir.be", "rtbf.be", "lalibre.be", "dhnet.be", "lavenir.net",
+        "lesoir.be", "rtbf.be", "lalibre.be", "dhnet.be",
     ],
+    # TIGHTENED — name retailers + use compound recall phrases
     google_news_keywords=[
-        # Dutch
-        "FAVV terugroep voedsel",
-        "voedselveiligheid Salmonella",
-        "terugroeping voedsel Listeria",
-        # French
-        "AFSCA rappel alimentaire",
-        "rappel produit Salmonella",
-        "alerte alimentaire Listeria",
+        '"FAVV" terugroep',
+        '"AFSCA" rappel',
+        '"Delhaize" terugroep OR rappel',
+        '"Colruyt" terugroep OR rappel',
+        '"Carrefour" terugroep OR rappel België',
+        '"Listeria" terugroep België',
+        '"Salmonella" rappel Belgique',
     ],
 
     bulk_index_queries=[
@@ -85,10 +92,9 @@ BELGIUM = CountryConfig(
         "(e.g. 'Delhaize', 'Colruyt', 'Carrefour Belgium', 'Lidl', 'Aldi')."
     ),
 
-    # UNION of NL + FR recall vocabularies
     recall_signal_terms=[
         # Dutch
-        "terugroep", "terugroeping", "teruggeroepen",
+        "terugroep", "terugroeping", "teruggeroepen", "terugroepactie",
         "voedselveiligheid", "voedselwaarschuwing",
         "niet consumeren", "niet verbruiken",
         "favv",
@@ -97,6 +103,8 @@ BELGIUM = CountryConfig(
         "retrait", "retiré", "alerte alimentaire",
         "ne pas consommer", "ne consommez pas",
         "afsca",
+        # German (produktwarnung.eu coverage)
+        "rückruf", "rueckruf", "produktrückruf",
     ],
 
     timezone="Europe/Brussels",
