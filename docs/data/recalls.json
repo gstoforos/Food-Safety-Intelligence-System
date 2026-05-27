@@ -11,9 +11,9 @@
     "Country": "USA",
     "Region": "North America",
     "Tier": 1,
-    "Outbreak": 1,
+    "Outbreak": 0,
     "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood",
-    "Notes": "Manual add 2026-05-27 by operator — FDA announcement published 2026-05-26 16:24 UTC. Total Nutrition Inc. of Deer Park, NY voluntarily recalling TNVitamins Ultra Potent Complete Green Superfood and Doctor's Pride Complete Green Superfood Ultra Potent Moringa Capsules (120 count). Part of ongoing CDC multi-state Salmonella outbreak (Typhimurium + Newport strains) linked to moringa-containing dietary supplement products — 65+ illnesses across 28 states with 14 hospitalizations (CDC, late January 2026). Related recalls already in scope: Live It Up Super Greens (Superfoods Inc., 2026-01-15), Why Not Natural Moringa (2026-01-28). Scraper gap: fda_listing.py title-only pathogen detection silently dropped this URL — slug contains no pathogen keyword (same gap as SKS Copack 2026-05-23 and historical pattern)."
+    "Notes": "Manual add 2026-05-27 by operator — FDA announcement published 2026-05-26 16:24 UTC. Total Nutrition Inc. of Deer Park, NY voluntarily recalling TNVitamins Ultra Potent Complete Green Superfood and Doctor's Pride Complete Green Superfood Ultra Potent Moringa Capsules (120 count). PRECAUTIONARY recall — no illnesses reported from Total Nutrition's specific products. FDA/CDC notified company that products may be implicated in ongoing CDC moringa-supplement Salmonella outbreak investigation (Typhimurium + Newport strains; 65+ illnesses across 28 states with 14 hospitalizations linked to related products: Live It Up Super Greens by Superfoods Inc. recalled 2026-01-15, Why Not Natural Moringa recalled 2026-01-28). Distribution and sale halted. Scraper gap: fda_listing.py title-only pathogen detection silently dropped this URL — slug contains no pathogen keyword (same gap as SKS Copack 2026-05-23)."
   },
   {
     "Date": "2026-05-26",
