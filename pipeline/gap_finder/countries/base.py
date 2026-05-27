@@ -113,10 +113,12 @@ def get(code: str) -> CountryConfig:
     """Look up a country config by ISO2 code. Raises KeyError if not registered."""
     code = code.lower()
     if code not in _REGISTRY:
-        # Lazy-import all countries to populate registry
+        # Lazy-import all countries to populate registry.
+        # Note: Iceland's ISO2 code is 'is' but Python 'is' is reserved,
+        # so the module file is named iceland.py (still registers with code='is').
         from . import (gr, it, es, pt,
                        de, at, ch, be, nl, lu, pl, hu,
-                       se, no, dk)  # noqa: F401
+                       se, no, dk, fi, iceland)  # noqa: F401
     if code not in _REGISTRY:
         raise KeyError(
             f"Unknown country code {code!r}. "
