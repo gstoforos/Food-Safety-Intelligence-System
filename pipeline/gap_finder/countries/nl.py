@@ -2,15 +2,20 @@
 AFTS Food Safety Intelligence — Gap Finder
 Country config: Netherlands (NVWA — Nederlandse Voedsel- en Warenautoriteit)
 
-Dutch food-recall regime:
-  - NVWA at nvwa.nl publishes alerts ("waarschuwingen").
-  - Major retailers (Albert Heijn, Jumbo, Lidl NL) publish their own recalls.
-  - Volume: ~100-150 recalls/year.
-  - Vocabulary:
-      "terugroep"  = recall
-      "voedselveiligheid" = food safety
-      "waarschuwing" = warning
-      "niet consumeren" = do not consume
+REVISION (Batch 2.1 hotfix): The first Netherlands deployment caught 0
+candidates total — RSS feeds returned empty, Google News queries returned
+empty. Diagnosis:
+  - rtlnieuws.nl and volkskrant.nl RSS URLs 404'd
+  - General Dutch news feeds (nu.nl/nos.nl) don't surface recall articles
+    in their main feeds — recall coverage lives in dedicated sections
+  - Google News queries "NVWA terugroep voedsel" too restrictive
+
+Fixed by:
+  1. Adding produktwarnung.eu Nachbarstaaten feed (covers Dutch recalls
+     in German — our classifier handles it).
+  2. Replacing broken RSS URLs with working ones.
+  3. Adding foodlog.nl — Dutch food-news aggregator with recall coverage.
+  4. Simpler Google News queries (single-word recall verbs).
 """
 
 from .base import CountryConfig, RssSource, register
@@ -27,16 +32,21 @@ NETHERLANDS = CountryConfig(
     authority_item_url_regex=r"(nieuws|waarschuwing|terugroep|onderwerpen)",
 
     rss_sources=[
+        # PRIMARY — produktwarnung.eu also covers Dutch recalls (in German)
+        RssSource("produktwarnung.eu", [
+            "https://www.produktwarnung.eu/feed",
+            "https://www.produktwarnung.eu/rubrik/rueckrufe-in-nachbarstaaten/feed",
+        ]),
+        # PRIMARY — Dutch food-news aggregator (recall-focused)
+        RssSource("foodlog.nl", [
+            "https://www.foodlog.nl/feed/",
+        ]),
+        # SECONDARY — major Dutch dailies (verified URLs)
         RssSource("nu.nl", [
             "https://www.nu.nl/rss/Algemeen",
-            "https://www.nu.nl/rss/Economie",
         ]),
         RssSource("nos.nl", [
             "https://feeds.nos.nl/nosnieuwsalgemeen",
-            "https://feeds.nos.nl/nosnieuwsbinnenland",
-        ]),
-        RssSource("rtlnieuws.nl", [
-            "https://www.rtlnieuws.nl/service/rss/nederland/index.xml",
         ]),
         RssSource("telegraaf.nl", [
             "https://www.telegraaf.nl/rss",
@@ -44,23 +54,21 @@ NETHERLANDS = CountryConfig(
         RssSource("ad.nl", [
             "https://www.ad.nl/home/rss.xml",
         ]),
-        RssSource("nrc.nl", [
-            "https://www.nrc.nl/rss/",
-        ]),
-        RssSource("volkskrant.nl", [
-            "https://www.volkskrant.nl/rss/full.xml",
-        ]),
     ],
     google_news_domains=[
+        "produktwarnung.eu",    # primary
+        "foodlog.nl",           # primary
         "nu.nl", "nos.nl", "rtlnieuws.nl", "telegraaf.nl", "ad.nl",
-        "nrc.nl", "volkskrant.nl", "trouw.nl", "parool.nl",
+        "nrc.nl", "volkskrant.nl",
     ],
+    # SIMPLIFIED — single-word recall verbs catch more
     google_news_keywords=[
-        "NVWA terugroep voedsel",
+        "terugroep voedsel",
+        "voedselveiligheid Listeria",
         "voedselveiligheid Salmonella",
-        "terugroep Listeria",
-        "voedselwaarschuwing allergeen",
-        "Albert Heijn terugroep",
+        '"Albert Heijn" terugroep',
+        '"Jumbo" terugroepactie',
+        "NVWA waarschuwing",
     ],
 
     bulk_index_queries=[
@@ -80,11 +88,14 @@ NETHERLANDS = CountryConfig(
 
     recall_signal_terms=[
         "terugroep", "terugroeping", "teruggeroepen", "teruggehaald",
+        "terugroepactie",
         "voedselveiligheid", "voedselwaarschuwing",
         "waarschuwing voedsel",
         "niet consumeren", "niet verbruiken", "niet eten",
         "nvwa",
         "allergeen niet vermeld", "niet aangegeven",
+        # German aggregator coverage of Dutch recalls
+        "rückruf", "rueckruf", "produktrückruf",
     ],
 
     timezone="Europe/Amsterdam",

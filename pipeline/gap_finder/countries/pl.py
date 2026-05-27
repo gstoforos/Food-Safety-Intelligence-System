@@ -1,20 +1,18 @@
 """
 AFTS Food Safety Intelligence — Gap Finder
-Country config: Poland (GIS — Główny Inspektorat Sanitarny / Chief
-                Sanitary Inspectorate)
+Country config: Poland (GIS — Główny Inspektorat Sanitarny)
 
-Polish food-recall regime:
-  - GIS at gis.gov.pl publishes "Ostrzeżenia" (warnings/alerts).
-  - Also see gov.pl/web/gis for the official portal.
-  - Major retailers (Biedronka, Lidl PL, Auchan PL) publish their own.
-  - Volume: ~100-150 recalls/year.
-  - Vocabulary:
-      "wycofanie"  = withdrawal/recall
-      "wycofuje"   = recalls (verb)
-      "ostrzeżenie" = warning
-      "alert żywnościowy" = food alert
-      "nie spożywać" = do not consume
-      "alergen" = allergen
+REVISION (Batch 2.2): First Poland deployment caught 10 candidates but
+all titles were vague ("Groźne bakterie w produkcie rybnym", "Skażona
+herbatka") — Polish general media doesn't name pathogens in headlines.
+
+Fixed by adding Polish FOOD-INDUSTRY portals as PRIMARY sources:
+  - portalspozywczy.pl — food-industry portal, publishes recalls with
+    specific pathogen names ("Salmonella w produkcie ziołowym",
+    "Listeria monocytogenes w metce cebulowej")
+  - natemat.pl — consumer-facing news with named pathogens
+  - motywatordietetyczny.pl/gis — dedicated GIS alert aggregator page
+  - Regional press groups (pomorska, gloswielkopolski) — monthly recall lists
 """
 
 from .base import CountryConfig, RssSource, register
@@ -31,43 +29,58 @@ POLAND = CountryConfig(
     authority_item_url_regex=r"(ostrzezenie|wycofanie|aktualnosci|news|zywnosc)",
 
     rss_sources=[
-        RssSource("tvn24.pl", [
-            "https://tvn24.pl/najnowsze.xml",
-            "https://tvn24.pl/biznes/najnowsze.xml",
+        # PRIMARY — Polish food-industry portal (names pathogens in titles)
+        RssSource("portalspozywczy.pl", [
+            "https://www.portalspozywczy.pl/rss/wiadomosci",
+            "https://www.portalspozywczy.pl/rss/wszystko",
+            "https://www.portalspozywczy.pl/rss/technologie/wiadomosci",
         ]),
-        RssSource("wp.pl", [
-            "https://wiadomosci.wp.pl/rss.xml",
+        # PRIMARY — Polish recall aggregators with full pathogen-named titles
+        RssSource("natemat.pl", [
+            "https://natemat.pl/rss",
         ]),
-        RssSource("onet.pl", [
-            "https://wiadomosci.onet.pl/rss",
+        # SECONDARY — Polonia Press / regional papers (monthly recall lists)
+        RssSource("pomorska.pl", [
+            "https://pomorska.pl/rss",
         ]),
-        RssSource("gazeta.pl", [
-            "https://wiadomosci.gazeta.pl/pub/rss/wiadomosci.xml",
-        ]),
+        # GENERAL — major dailies (low signal, occasional big story)
         RssSource("rmf24.pl", [
             "https://www.rmf24.pl/fakty/feed",
         ]),
         RssSource("interia.pl", [
             "https://fakty.interia.pl/feed",
         ]),
+        RssSource("gazeta.pl", [
+            "https://wiadomosci.gazeta.pl/pub/rss/wiadomosci.xml",
+        ]),
     ],
     google_news_domains=[
+        # PRIMARY food/recall portals
+        "portalspozywczy.pl",
+        "natemat.pl",
+        "motywatordietetyczny.pl",
+        # Regional press
+        "pomorska.pl", "gloswielkopolski.pl",
+        # General
         "tvn24.pl", "wp.pl", "onet.pl", "gazeta.pl", "rmf24.pl",
-        "interia.pl", "rp.pl", "wyborcza.pl", "money.pl", "polsatnews.pl",
+        "interia.pl", "polsatnews.pl",
     ],
+    # TIGHTENED — directly target pathogen-named headlines
     google_news_keywords=[
-        "GIS wycofanie żywności",
-        "ostrzeżenie żywnościowe Salmonella",
-        "wycofanie produktu Listeria",
-        "alert żywnościowy aflatoksyna",
-        "wycofanie alergen niezadeklarowany",
+        '"Salmonella" GIS wycofanie',
+        '"Listeria" GIS ostrzeżenie',
+        '"Listeria monocytogenes" wycofanie',
+        '"aflatoksyny" wycofanie produktu',
+        '"tlenek etylenu" GIS',
+        '"E. coli" wycofanie żywności',
+        "GIS ostrzeżenie publiczne żywność",
     ],
 
     bulk_index_queries=[
         "site:gis.gov.pl ostrzeżenie 2026",
-        "site:gis.gov.pl wycofanie 2026",
-        "site:gis.gov.pl Salmonella OR Listeria",
-        "site:gis.gov.pl alergen żywność",
+        "site:gis.gov.pl Salmonella 2026",
+        "site:gis.gov.pl Listeria 2026",
+        "site:gis.gov.pl aflatoksyny",
         "site:gov.pl/web/gis ostrzeżenie żywność",
     ],
 
@@ -86,6 +99,12 @@ POLAND = CountryConfig(
         "gis",
         "nie spożywać", "nie spozywac",
         "alergen niezadeklarowany", "alergen nie zadeklarowany",
+        # Names-as-signals: when a Polish title contains these, it's almost
+        # always a recall context (boost catch rate for pathogen-named items)
+        "salmonella", "salmonelli", "salmonellą",
+        "listeria", "listerii", "listerią", "listeria monocytogenes",
+        "aflatoksyny", "aflatoksyna",
+        "tlenek etylenu",
     ],
 
     timezone="Europe/Warsaw",
