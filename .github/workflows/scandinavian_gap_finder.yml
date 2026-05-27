@@ -1,0 +1,150 @@
+name: Scandinavian Gap Finder (FSIS)
+
+# Consolidated workflow for 3 Scandinavian countries (Sweden, Norway, Denmark).
+# All 3 share Central European Time (CET/CEST) — same cron schedule as
+# Central EU workflow, but separate workflow for cleaner regional reporting.
+#
+# Cron times in UTC. Stockholm/Oslo/Copenhagen all = CET (UTC+1) winter,
+# CEST (UTC+2) summer. 21:00 local = 19:00 UTC (CEST) / 20:00 UTC (CET).
+
+on:
+  schedule:
+    - cron: '0 19 * * *'   # 19:00 UTC → 21:00 Stockholm during CEST (summer)
+    - cron: '0 20 * * *'   # 20:00 UTC → 21:00 Stockholm during CET  (winter)
+  workflow_dispatch:
+    inputs:
+      countries:
+        description: 'Comma-separated country codes (default = all 3)'
+        type: string
+        default: 'se,no,dk'
+      skip_news:
+        description: 'Skip news scraping'
+        type: boolean
+        default: false
+      skip_verify:
+        description: 'Skip article enrichment'
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Run pipeline but do not write to xlsx'
+        type: boolean
+        default: false
+
+env:
+  TZ: Europe/Stockholm
+  TS_KEY_RENEW_BY: "2026-08-21"
+
+jobs:
+  scandinavian-gap-finder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Gate by Europe/Stockholm local hour (skip if not 21:00)
+        if: github.event_name == 'schedule'
+        run: |
+          STOCKHOLM_HOUR=$(TZ=Europe/Stockholm date +%H)
+          echo "Current Europe/Stockholm hour: ${STOCKHOLM_HOUR}"
+          if [ "${STOCKHOLM_HOUR}" != "21" ]; then
+            echo "Not 21:00 in Stockholm — exiting."
+            exit 78
+          fi
+          echo "It's 21:00 in Stockholm — proceeding with 3-country sweep."
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml openpyxl
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          tags: tag:ci
+          version: latest
+
+      - name: Health-check llama-server on VPS
+        env:
+          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
+        run: |
+          echo "Pinging $LLAMA_BASE_URL/models..."
+          for i in 1 2 3 4 5; do
+            if curl -sf --max-time 10 "$LLAMA_BASE_URL/models" > /dev/null; then
+              echo "✓ llama-server is reachable"
+              exit 0
+            fi
+            echo "Attempt $i/5 failed, retrying in 5s..."
+            sleep 5
+          done
+          echo "✗ llama-server unreachable after 5 attempts"
+          exit 1
+
+      - name: Run all 3 Scandinavian country pipelines sequentially
+        env:
+          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
+        run: |
+          ARGS=""
+          if [ "${{ inputs.skip_news }}" = "true" ]; then ARGS="$ARGS --skip-news"; fi
+          if [ "${{ inputs.skip_verify }}" = "true" ]; then ARGS="$ARGS --skip-verify"; fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+
+          COUNTRIES="${{ inputs.countries }}"
+          if [ -z "$COUNTRIES" ]; then COUNTRIES="se,no,dk"; fi
+          echo "Will run: $COUNTRIES"
+
+          FAILED=""
+          IFS=',' read -ra LIST <<< "$COUNTRIES"
+          for cc in "${LIST[@]}"; do
+            cc=$(echo "$cc" | xargs)
+            echo ""
+            echo "======================================================================"
+            echo "  STARTING country: $cc"
+            echo "======================================================================"
+            if python -m pipeline.gap_finder.main --country "$cc" --verbose $ARGS; then
+              echo "✓ $cc completed"
+            else
+              echo "✗ $cc failed (continuing)"
+              FAILED="$FAILED $cc"
+            fi
+          done
+
+          if [ -n "$FAILED" ]; then
+            echo ""
+            echo "WARNING: Some countries failed:$FAILED"
+          fi
+
+      - name: Upload per-country artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scandinavian-gap-finder-run-${{ github.run_id }}
+          path: |
+            docs/data/gap_finder_se/
+            docs/data/gap_finder_no/
+            docs/data/gap_finder_dk/
+          retention-days: 14
+
+      - name: Commit xlsx changes
+        if: inputs.dry_run != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/recalls.xlsx \
+                  docs/data/gap_finder_se/ \
+                  docs/data/gap_finder_no/ \
+                  docs/data/gap_finder_dk/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Scandinavian gap finder: $(date -u +%Y-%m-%d) auto-update (SE+NO+DK)"
+            git push
+          fi
