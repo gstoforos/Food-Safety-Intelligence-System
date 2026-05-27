@@ -163,6 +163,9 @@ ALLERGENS = {
     "lait", "produits laitiers", "lactose", "caséine",            # French
     "mleko", "mleczne", "laktoza", "kazeina",                     # Polish
     "tej", "tejtermék", "laktóz", "tejfehérje", "kazein",         # Hungarian
+    "mjölk", "mjolk", "mjölkprotein", "laktos", "kasein",         # Swedish
+    "melk", "melkeprotein", "laktose", "kasein",                  # Norwegian
+    "mælk", "maelk", "mælkeprotein", "laktose", "kasein",         # Danish
     # ─── Cereals/gluten ─────────────────────────────────────────────────────
     "wheat", "σιτάρι", "σιταρι", "άλευρο σίτου", "αλευρο σιτου",
     "grano", "frumento", "farina di frumento", "orzo", "segale", "farro", "avena",
@@ -176,10 +179,15 @@ ALLERGENS = {
     "blé", "froment", "farine de blé", "seigle", "orge", "épeautre", "avoine",  # French
     "pszenica", "mąka pszenna", "żyto", "jęczmień", "owies", "orkisz",  # Polish
     "búza", "búzaliszt", "rozs", "árpa", "zab", "tönköly",         # Hungarian
+    "vete", "vetemjöl", "rågmjöl", "korn", "havre", "spelt",       # Swedish
+    "hvete", "hvetemel", "rug", "bygg", "havre", "spelt",          # Norwegian
+    "hvede", "hvedemel", "rug", "byg", "havre", "spelt",           # Danish
     # ─── Soy ────────────────────────────────────────────────────────────────
     "soy", "σόγια", "σογια", "soya", "soia", "soja",
     # Same word in German/Dutch/French/Polish/Hungarian: "soja" / "szója" (HU)
     "szója",
+    "soja",  # Swedish, Norwegian, Danish use "soya" or "soja"
+    "soya",  # NO/DK
     # ─── Peanut ─────────────────────────────────────────────────────────────
     "peanut", "φιστίκι", "φιστικι", "αραχίδα", "αραχιδα",
     "arachide", "arachidi", "noccioline",
@@ -190,6 +198,9 @@ ALLERGENS = {
     "cacahuète", "cacahuètes", "arachide",                       # French
     "orzeszki ziemne", "fistaszki",                              # Polish
     "földimogyoró",                                              # Hungarian
+    "jordnöt", "jordnötter",                                     # Swedish
+    "peanøtt", "peanøtter", "jordnøtt", "jordnøtter",            # Norwegian
+    "jordnød", "jordnødder",                                     # Danish
     # ─── Tree nuts ──────────────────────────────────────────────────────────
     "tree nut", "καρπός με κέλυφος", "καρπος με κελυφος",
     "frutta a guscio", "frutos secos", "frutos de casca",
@@ -246,6 +257,9 @@ ALLERGENS = {
     "œuf", "œufs", "oeuf", "oeufs",                              # French
     "jajko", "jajka",                                            # Polish
     "tojás", "tojások",                                          # Hungarian
+    "ägg",                                                       # Swedish
+    "egg",                                                       # Norwegian (same English-like)
+    "æg",                                                        # Danish
     # ─── Fish/shellfish ─────────────────────────────────────────────────────
     "fish", "ψάρι", "ψαρι", "pesce", "pescado", "peixe",
     "fisch", "fische",                                           # German
@@ -253,6 +267,7 @@ ALLERGENS = {
     "poisson", "poissons",                                       # French
     "ryba", "ryby",                                              # Polish
     "hal",                                                       # Hungarian
+    "fisk",                                                      # Swedish/Norwegian/Danish (same)
     "shellfish", "οστρακοειδή", "οστρακοειδη",
     "crostaceo", "crostacei", "crustáceo", "crustáceos",
     "krebstier", "krebstiere", "schalentier",                    # German
@@ -317,6 +332,9 @@ ALLERGENS = {
     "non déclaré", "non déclarée", "non déclarés", "non indiqué",  # French
     "niezadeklarowany", "niezadeklarowana", "nie zadeklarowany",  # Polish
     "nem jelölt", "nem deklarált", "nincs feltüntetve",          # Hungarian
+    "ej deklarerad", "odeklarerad", "ej angiven",                # Swedish
+    "ikke deklarert", "ikke oppgitt", "ikke merket",             # Norwegian
+    "ikke deklareret", "ikke angivet", "ikke oplyst",            # Danish
 }
 
 # REJECT — synthetic / environmental chemicals & additives
@@ -430,6 +448,9 @@ FOREIGN_MATTER = {
     "verre", "fragments de verre",                              # French
     "szkło", "odłamki szkła",                                   # Polish
     "üveg", "üvegdarab", "üvegszilánk",                         # Hungarian
+    "glas", "glasbitar", "glasskärva",                          # Swedish
+    "glass", "glassbiter", "glassplint",                        # Norwegian
+    "glas", "glasstykker", "glasskår",                          # Danish (same form)
     "metal fragment", "θραύσμα μετάλλου", "μέταλλο", "μεταλλο",
     "frammento metallico", "frammenti metallici", "metallo",
     "fragmentos metálicos", "partículas metálicas", "fragmento metálico",
@@ -438,6 +459,9 @@ FOREIGN_MATTER = {
     "fragments métalliques", "particules métalliques",          # French
     "fragmenty metalu", "odłamki metalu",                       # Polish
     "fémdarab", "fémszilánk",                                   # Hungarian
+    "metallbitar", "metalldelar", "metallflisor",               # Swedish
+    "metallbiter", "metalldeler",                               # Norwegian
+    "metalstykker", "metalspåner",                              # Danish
     "plastic", "πλαστικό", "πλαστικο", "plastica", "frammenti di plastica",
     "plástico", "fragmentos de plástico", "plastico",
     "kunststoff", "plastik", "kunststoffteile",                 # German
@@ -445,6 +469,9 @@ FOREIGN_MATTER = {
     "plastique", "fragments de plastique",                      # French
     "tworzywo sztuczne", "plastik",                             # Polish
     "műanyag",                                                  # Hungarian
+    "plast", "plastbitar", "plastflisor",                       # Swedish
+    "plast", "plastbiter",                                      # Norwegian
+    "plast", "plaststykker",                                    # Danish
     "foreign body", "foreign matter", "ξένο σώμα", "ξενο σωμα",
     "corps étranger", "stone", "πέτρα", "πετρα",
     "wood fragment", "θραύσμα ξύλου",
