@@ -9,7 +9,7 @@
       "by_region": {
         "Europe": 14
       },
-      "generated": "2026-05-27T04:17:31Z"
+      "generated": "2026-05-27T07:12:58Z"
     },
     {
       "date": "2026-05-25",
@@ -18,7 +18,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-05-26T07:12:54Z"
+      "generated": "2026-05-27T07:12:58Z"
     },
     {
       "date": "2026-05-24",
@@ -29,7 +29,7 @@
       "by_region": {
         "North America": 1
       },
-      "generated": "2026-05-26T07:12:55Z"
+      "generated": "2026-05-27T07:12:59Z"
     },
     {
       "date": "2026-05-23",
@@ -41,7 +41,7 @@
         "North America": 1,
         "Europe": 1
       },
-      "generated": "2026-05-26T07:12:55Z"
+      "generated": "2026-05-27T07:12:59Z"
     },
     {
       "date": "2026-05-22",
@@ -55,7 +55,7 @@
         "North America": 1,
         "Latin America": 1
       },
-      "generated": "2026-05-26T07:12:55Z"
+      "generated": "2026-05-27T07:12:59Z"
     },
     {
       "date": "2026-05-21",
@@ -67,7 +67,7 @@
         "North America": 1,
         "Europe": 7
       },
-      "generated": "2026-05-26T07:12:55Z"
+      "generated": "2026-05-27T07:12:59Z"
     },
     {
       "date": "2026-05-20",
@@ -80,7 +80,7 @@
         "Europe": 13,
         "Middle East": 1
       },
-      "generated": "2026-05-26T07:12:55Z"
+      "generated": "2026-05-27T07:13:00Z"
     }
   ]
 }
