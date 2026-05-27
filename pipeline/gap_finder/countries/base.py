@@ -115,7 +115,8 @@ def get(code: str) -> CountryConfig:
     if code not in _REGISTRY:
         # Lazy-import all countries to populate registry
         from . import (gr, it, es, pt,
-                       de, at, ch, be, nl, lu, pl, hu)  # noqa: F401
+                       de, at, ch, be, nl, lu, pl, hu,
+                       se, no, dk)  # noqa: F401
     if code not in _REGISTRY:
         raise KeyError(
             f"Unknown country code {code!r}. "
