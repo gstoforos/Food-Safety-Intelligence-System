@@ -33,6 +33,8 @@ PATHOGENS_TIER_1 = {
     "salmonelle", "salmonella",                     # French/Polish (same)
     "salmonelloza", "salmonelozą",                  # Polish disease form
     "salmonellózis",                                # Hungarian
+    "salmonellu",                                   # Icelandic genitive ("vegna salmonellu")
+    "salmonellaa", "salmonellan",                   # Finnish partitive/genitive
     "σαλμονέλα", "σαλμονελα",
     # Listeria monocytogenes → Tier 1
     "listeria monocytogenes", "listeria", "listerien",  # + German plural
@@ -166,6 +168,8 @@ ALLERGENS = {
     "mjölk", "mjolk", "mjölkprotein", "laktos", "kasein",         # Swedish
     "melk", "melkeprotein", "laktose", "kasein",                  # Norwegian
     "mælk", "maelk", "mælkeprotein", "laktose", "kasein",         # Danish
+    "maito", "maitotuotteet", "laktoosi", "kaseiini",             # Finnish
+    "mjólk", "mjolk", "mjólkurprótein", "laktósi", "kaseín",      # Icelandic
     # ─── Cereals/gluten ─────────────────────────────────────────────────────
     "wheat", "σιτάρι", "σιταρι", "άλευρο σίτου", "αλευρο σιτου",
     "grano", "frumento", "farina di frumento", "orzo", "segale", "farro", "avena",
@@ -182,6 +186,10 @@ ALLERGENS = {
     "vete", "vetemjöl", "rågmjöl", "korn", "havre", "spelt",       # Swedish
     "hvete", "hvetemel", "rug", "bygg", "havre", "spelt",          # Norwegian
     "hvede", "hvedemel", "rug", "byg", "havre", "spelt",           # Danish
+    "vehnä", "vehnäjauho", "ruis", "ohra", "kaura", "speltti",     # Finnish
+    "gluteeni",                                                    # Finnish gluten
+    "hveiti", "hveitimjöl", "rúgur", "bygg", "hafrar", "spelt",    # Icelandic
+    "glúten",                                                      # Icelandic gluten
     # ─── Soy ────────────────────────────────────────────────────────────────
     "soy", "σόγια", "σογια", "soya", "soia", "soja",
     # Same word in German/Dutch/French/Polish/Hungarian: "soja" / "szója" (HU)
@@ -201,6 +209,8 @@ ALLERGENS = {
     "jordnöt", "jordnötter",                                     # Swedish
     "peanøtt", "peanøtter", "jordnøtt", "jordnøtter",            # Norwegian
     "jordnød", "jordnødder",                                     # Danish
+    "maapähkinä", "maapähkinät",                                # Finnish
+    "jarðhneta", "jarðhnetur",                                  # Icelandic
     # ─── Tree nuts ──────────────────────────────────────────────────────────
     "tree nut", "καρπός με κέλυφος", "καρπος με κελυφος",
     "frutta a guscio", "frutos secos", "frutos de casca",
@@ -260,6 +270,8 @@ ALLERGENS = {
     "ägg",                                                       # Swedish
     "egg",                                                       # Norwegian (same English-like)
     "æg",                                                        # Danish
+    "kananmuna", "kananmunat", "muna",                           # Finnish
+    "egg",                                                       # Icelandic (same)
     # ─── Fish/shellfish ─────────────────────────────────────────────────────
     "fish", "ψάρι", "ψαρι", "pesce", "pescado", "peixe",
     "fisch", "fische",                                           # German
@@ -268,6 +280,8 @@ ALLERGENS = {
     "ryba", "ryby",                                              # Polish
     "hal",                                                       # Hungarian
     "fisk",                                                      # Swedish/Norwegian/Danish (same)
+    "kala", "kalat", "kalatuotteet",                             # Finnish
+    "fiskur",                                                    # Icelandic
     "shellfish", "οστρακοειδή", "οστρακοειδη",
     "crostaceo", "crostacei", "crustáceo", "crustáceos",
     "krebstier", "krebstiere", "schalentier",                    # German
@@ -335,6 +349,8 @@ ALLERGENS = {
     "ej deklarerad", "odeklarerad", "ej angiven",                # Swedish
     "ikke deklarert", "ikke oppgitt", "ikke merket",             # Norwegian
     "ikke deklareret", "ikke angivet", "ikke oplyst",            # Danish
+    "ei ilmoitettu", "ilmoittamaton", "ei merkitty",             # Finnish
+    "ekki tilkynnt", "ekki gefið upp", "ógreint",                # Icelandic
 }
 
 # REJECT — synthetic / environmental chemicals & additives
@@ -451,6 +467,9 @@ FOREIGN_MATTER = {
     "glas", "glasbitar", "glasskärva",                          # Swedish
     "glass", "glassbiter", "glassplint",                        # Norwegian
     "glas", "glasstykker", "glasskår",                          # Danish (same form)
+    "lasi", "lasinsiruja", "lasinpalat",                        # Finnish
+    "lasinpaloja", "lasinsirpaleet", "lasipala",                # Finnish declensions
+    "gler", "glerbrot",                                         # Icelandic
     "metal fragment", "θραύσμα μετάλλου", "μέταλλο", "μεταλλο",
     "frammento metallico", "frammenti metallici", "metallo",
     "fragmentos metálicos", "partículas metálicas", "fragmento metálico",
@@ -462,6 +481,8 @@ FOREIGN_MATTER = {
     "metallbitar", "metalldelar", "metallflisor",               # Swedish
     "metallbiter", "metalldeler",                               # Norwegian
     "metalstykker", "metalspåner",                              # Danish
+    "metallinpaloja", "metallisirpaleet",                       # Finnish
+    "málmbrot", "málmflísar",                                   # Icelandic
     "plastic", "πλαστικό", "πλαστικο", "plastica", "frammenti di plastica",
     "plástico", "fragmentos de plástico", "plastico",
     "kunststoff", "plastik", "kunststoffteile",                 # German
@@ -472,6 +493,8 @@ FOREIGN_MATTER = {
     "plast", "plastbitar", "plastflisor",                       # Swedish
     "plast", "plastbiter",                                      # Norwegian
     "plast", "plaststykker",                                    # Danish
+    "muovi", "muovinpaloja",                                    # Finnish
+    "plast", "plastbrot",                                       # Icelandic
     "foreign body", "foreign matter", "ξένο σώμα", "ξενο σωμα",
     "corps étranger", "stone", "πέτρα", "πετρα",
     "wood fragment", "θραύσμα ξύλου",
