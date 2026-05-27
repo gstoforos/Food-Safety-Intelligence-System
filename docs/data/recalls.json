@@ -208,6 +208,22 @@
   "Notes": "fromagers et commerces de proximité de la région fourni par grossiste gratiot [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: pass; corrections: Date→2026-05-26, Company→Le Suzerain, Brand→Le Suzerain, Product→Reblochon de Savoie fermier AOP 450g, Pathogen→Escherichia coli STEC; pass; date on page=2026-05-26]"
  },
  {
+  "Date": "2026-05-26",
+  "Source": "RappelConso (FR)",
+  "Company": "E.LECLERC",
+  "Brand": "Unbranded",
+  "Product": "Joue de porc",
+  "Pathogen": "Salmonella",
+  "Reason": "Presence of salmonelle",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22371/Interne",
+  "Notes": "e.leclerc [url-gate 2026-05-27: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-27: fix; corrections: Company→E.LECLERC, Brand→Unbranded, Product→Joue de porc, Pathogen→Salmonella; placeholder_company_filled_from_page | fix; company mismatch | Company field contains distributor (E.LECLERC) instead of]"
+ },
+ {
   "Date": "2026-05-24",
   "Source": "USDA FSIS",
   "Company": "The Kebab Shop",
@@ -11454,5 +11470,21 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent]"
+ },
+ {
+  "Date": "",
+  "Source": "BVL",
+  "Company": "Dirk Rossmann GmbH",
+  "Brand": "enerBiO",
+  "Product": "enerBiO Dinkel Waffeln 115 Gramm",
+  "Pathogen": "Ochratoxin A",
+  "Reason": "Ochratoxin",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/05_Mai/260520_17_NI_Dinkel_Waffeln/260520_NI_Dinkel_Waffeln.html",
+  "Notes": "7 days ago · Mögliche Folgen: Ochratoxin A ist ein Schimmelpilzgift, welches bei regelmäßigem Verzehr krebserregend sein könnte. Wo war das Produkt auf dem Markt ...Missing: Rückruf | Show results with:Rückruf  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-27: pending_gap → pending_gap_v1] [claude-check 2026-05-27: fix; corrections: Company→Dirk Rossmann GmbH, Brand→enerBiO, Product→enerBiO Dinkel Waffeln 115 Gramm, Pathogen→Ochratoxin A; fix; company mismatch | Company field contains product name instead of recalling firm (Dirk Rossmann GmbH); Brand should] [gap-gate 2026-05-27: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  }
 ]
