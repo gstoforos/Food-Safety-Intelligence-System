@@ -99,25 +99,42 @@ MICROBIAL_TOXINS = {
     "aflatoxina", "aflatoxinas",   # Spanish + Portuguese (same form)
     "aflatoksyn",          # Polish stem (aflatoksyna/aflatoksyny)
     "aflatoxiny",          # Czech / Slovak
+    "aflatoksiini",        # Finnish
+    "aflatoxín",           # Icelandic
     # Ochratoxin
     "ochratoxin", "ωχρατοξιν",
     "ocratossin",          # Italian
     "ocratoxina", "ocratoxinas",   # Spanish + Portuguese
     "ochratoksyn",         # Polish
+    "okratoksiini", "okratoksiinit",   # Finnish (full + plural)
+    "okratoxín",           # Icelandic
+    # Mycotoxin (general — Finnish/Nordic often use generic term)
+    "mycotoxin", "mycotoxins", "μυκοτοξιν",
+    "micotossin",          # Italian
+    "micotoxina",          # Spanish/Portuguese
+    "mykotoksyn",          # Polish
+    "hometoksiini", "hometoksiinit",   # Finnish ("home" = mold)
+    "mykotoksiini",        # Finnish (formal)
+    "myglutoxín",          # Icelandic
     # Patulin
     "patulin", "πατουλιν", "patulina",
+    "patuliini",           # Finnish
     # Fumonisin
     "fumonisin", "φουμονισιν", "fumonisina", "fumonizyn",  # +Polish
+    "fumonisiini",         # Finnish
     # Deoxynivalenol
     "deoxynivalenol", "δεοξυνιβαλενολ",
     "deossinivalenol",     # Italian
     "deoxinivalenol",      # Spanish + Portuguese
     "deoksyniwalenol",     # Polish
+    "deoksinivalenoli",    # Finnish
     # Zearalenone
     "zearalenone", "ζεαραλενον", "zearalenona", "zearalenon",  # +DE/PL
+    "tsearalenoni",        # Finnish
     # T-2 toxin
     "t-2 toxin", "t2 toxin",
     "tossina t-2", "toxina t-2", "t-2 toxin",
+    "t-2-toksiini",        # Finnish
     # Ergot alkaloids
     "ergot alkaloid", "αλκαλοειδη ερυσιβης",
     "alcaloidi della segale cornuta", "alcaloidi ergot",
@@ -126,6 +143,7 @@ MICROBIAL_TOXINS = {
     "alcaloïdes de l'ergot", "alcaloides de ergot",  # French
     "alkaloidy sporyszu",  # Polish
     "anyarozs alkaloidok",  # Hungarian
+    "torajyväalkaloidit",  # Finnish
     # Cereulide (Bacillus cereus toxin)
     "cereulide", "cereulida",
 }
