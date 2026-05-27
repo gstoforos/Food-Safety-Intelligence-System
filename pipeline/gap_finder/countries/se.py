@@ -2,20 +2,15 @@
 AFTS Food Safety Intelligence — Gap Finder
 Country config: Sweden (Livsmedelsverket — National Food Agency)
 
-Swedish food-recall regime:
-  - Livsmedelsverket at livsmedelsverket.se/om-oss/press/aterkallanden
-    publishes the official recall list.
-  - Råd & Rön (radron.se/aktuella-aterkallelser) is the dedicated
-    consumer-facing recall aggregator — primary source for our pipeline.
-  - Volume: ~50-100 recalls/year. Notable May 2026: Listeria outbreak
-    in cold-smoked salmon (3 deaths nationally).
-  - Vocabulary:
-      "återkallar"     = recalls (verb)
-      "återkallelse"   = recall (noun)
-      "återkallanden"  = recalls (plural noun)
-      "dragits tillbaka" = withdrawn
-      "varning"        = warning
-      "ät inte"        = do not eat
+REVISION (Batch 3.1 hotfix): First Sweden deployment caught 1 Pending
+(Lidl Dumplings Salmonella) but all RSS feeds 404'd. Sweden's recall
+volume is real (~50-100/year) but our sources were wrong.
+
+Fixed by:
+  1. Removing 404'd RSS URLs (radron.se/rss, livsmedelsverket.se/rss)
+  2. Adding livsmedelsforetagen.se (Swedish food industry association)
+  3. Adding atl.nu (Swedish agricultural news with food coverage)
+  4. Keeping Google News which actually worked (12 candidates → 1 real)
 """
 
 from .base import CountryConfig, RssSource, register
@@ -32,17 +27,9 @@ SWEDEN = CountryConfig(
     authority_item_url_regex=r"(aterkall|press|nyheter|varning)",
 
     rss_sources=[
-        # PRIMARY — Råd & Rön consumer aggregator (dedicated recall page)
-        RssSource("radron.se", [
-            "https://www.radron.se/rss",
-            "https://www.radron.se/feed/",
-        ]),
-        # PRIMARY — Livsmedelsverket official press feed
-        RssSource("livsmedelsverket.se", [
-            "https://www.livsmedelsverket.se/om-oss/press/aterkallanden/rss",
-            "https://www.livsmedelsverket.se/rss",
-        ]),
-        # SECONDARY — major Swedish dailies
+        # NOTE: radron.se and livsmedelsverket.se have no public RSS.
+        # Removed. Rely on Google News for those domains instead.
+        # SECONDARY — major Swedish dailies (verified working endpoints)
         RssSource("aftonbladet.se", [
             "https://rss.aftonbladet.se/rss2/small/pages/sections/senastenytt/",
         ]),
@@ -58,28 +45,34 @@ SWEDEN = CountryConfig(
         RssSource("svd.se", [
             "https://www.svd.se/?service=rss",
         ]),
+        # FOOD INDUSTRY
+        RssSource("atl.nu", [
+            "https://www.atl.nu/rss",
+        ]),
     ],
     google_news_domains=[
-        "radron.se",                  # primary
-        "livsmedelsverket.se",        # primary
+        "radron.se",                    # consumer recall aggregator
+        "livsmedelsverket.se",          # official authority
         "aftonbladet.se", "expressen.se", "svt.se", "dn.se", "svd.se",
         "di.se", "gp.se", "sydsvenskan.se",
+        "atl.nu", "livsmedelsforetagen.se",
     ],
     google_news_keywords=[
         '"Livsmedelsverket" återkallar',
-        '"återkallar" Salmonella',
-        '"återkallar" Listeria',
-        '"återkallelse" livsmedel',
+        "återkallar Salmonella",
+        "återkallar Listeria",
+        "återkallelse livsmedel",
         '"ICA" återkallar',
         '"Coop" återkallar',
-        '"Lidl" återkallar Sverige',
+        '"Lidl" återkallar',
+        '"Axfood" återkallar',
+        "livsmedelsverket varnar",
     ],
 
     bulk_index_queries=[
         "site:livsmedelsverket.se återkallande 2026",
         "site:livsmedelsverket.se Salmonella OR Listeria",
         "site:radron.se livsmedel återkallelse",
-        "site:livsmedelsverket.se allergen ej deklarerad",
     ],
 
     language_name="Swedish",
@@ -97,7 +90,6 @@ SWEDEN = CountryConfig(
         "livsmedelsvarning", "matvarning",
         "ej äta", "ät inte", "at inte",
         "livsmedelsverket",
-        # Pathogen-name signals (Swedish news names them in titles)
         "salmonella", "listeria", "listeria monocytogenes",
         "ej deklarerad", "ej deklarerade", "odeklarerad",
     ],

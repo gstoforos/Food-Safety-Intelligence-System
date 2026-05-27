@@ -1,21 +1,20 @@
 """
 AFTS Food Safety Intelligence — Gap Finder
-Country config: Denmark (Fødevarestyrelsen — Danish Veterinary and Food
-                Administration)
+Country config: Denmark (Fødevarestyrelsen)
 
-Danish food-recall regime:
-  - Fødevarestyrelsen at foedevarestyrelsen.dk publishes alerts and
-    recalls ("tilbagekaldelser").
-  - FødevareWatch (foedevarewatch.dk) is the Danish food-industry
-    publication with strong recall coverage.
-  - Volume: ~40-80 recalls/year.
-  - Vocabulary:
-      "tilbagekalder"  = recalls (verb)
-      "tilbagekaldelse" = recall (noun)
-      "trækker tilbage" = withdraws
-      "spis ikke"      = do not eat
-      "advarsel"       = warning
-      "fødevarestyrelsen" = food authority
+REVISION (Batch 3.1 hotfix): First Denmark deployment returned 0 candidates
+TOTAL. Diagnosis:
+  - foedevarestyrelsen.dk has no public RSS feed (verified)
+  - Quoted Google News queries too restrictive — all returned 0
+  - Wrong/missing aggregator sources
+
+Fixed by:
+  1. Adding netavisengrindsted.dk/tag/tilbagekaldte-foedevarer (Danish
+     news aggregator with dedicated recall tag page)
+  2. Adding via.ritzau.dk pressemeddelelse (Danish press release wire,
+     equivalent of NTB for Norway)
+  3. Simpler unquoted Google News queries
+  4. Adding meandmet.dk and tvsyd.dk (regional + health sites covering recalls)
 """
 
 from .base import CountryConfig, RssSource, register
@@ -32,22 +31,18 @@ DENMARK = CountryConfig(
     authority_item_url_regex=r"(tilbagekald|advarsel|nyheder|press)",
 
     rss_sources=[
-        # PRIMARY — Fødevarestyrelsen official RSS
-        RssSource("foedevarestyrelsen.dk", [
-            "https://www.foedevarestyrelsen.dk/nyheder.rss",
-            "https://www.foedevarestyrelsen.dk/rss",
+        # PRIMARY — Danish news aggregator with dedicated recall tag
+        RssSource("netavisengrindsted.dk", [
+            "https://www.netavisengrindsted.dk/feed/",
+            "https://www.netavisengrindsted.dk/tag/tilbagekaldte-foedevarer/feed/",
         ]),
-        # PRIMARY — FødevareWatch (Danish food-industry publication)
-        RssSource("foedevarewatch.dk", [
-            "https://foedevarewatch.dk/rss",
-            "https://foedevarewatch.dk/feed",
+        # PRIMARY — Danish press release wire
+        RssSource("via.ritzau.dk", [
+            "https://via.ritzau.dk/rss/",
         ]),
         # SECONDARY — major Danish news
         RssSource("dr.dk", [
             "https://www.dr.dk/nyheder/service/feeds/allenyheder",
-        ]),
-        RssSource("ekstrabladet.dk", [
-            "https://ekstrabladet.dk/rss/nyheder",
         ]),
         RssSource("bt.dk", [
             "https://www.bt.dk/bt/seneste/rss",
@@ -55,31 +50,34 @@ DENMARK = CountryConfig(
         RssSource("jyllands-posten.dk", [
             "https://jyllands-posten.dk/?service=rssfeed",
         ]),
-        RssSource("berlingske.dk", [
-            "https://www.berlingske.dk/content/news.rss",
-        ]),
     ],
     google_news_domains=[
-        "foedevarestyrelsen.dk",        # primary
-        "foedevarewatch.dk",            # primary
+        "foedevarestyrelsen.dk",
+        "netavisengrindsted.dk",        # primary
+        "via.ritzau.dk",                # primary
+        "foedevarewatch.dk", "fodevarewatch.dk",
         "dr.dk", "ekstrabladet.dk", "bt.dk", "jyllands-posten.dk",
-        "berlingske.dk", "politiken.dk", "tv2.dk", "borsen.dk",
+        "berlingske.dk", "politiken.dk", "tv2.dk", "tvsyd.dk", "borsen.dk",
+        "meandmet.dk",
     ],
+    # SIMPLIFIED — no quotes; let Google News do partial matching
     google_news_keywords=[
-        '"Fødevarestyrelsen" tilbagekalder',
-        '"tilbagekalder" Salmonella',
-        '"tilbagekalder" Listeria',
-        '"tilbagekaldelse" fødevare',
-        '"Coop" tilbagekalder',
-        '"Salling" tilbagekalder',
-        '"Netto" tilbagekalder',
+        "tilbagekalder fødevare Salmonella",
+        "tilbagekaldelse Listeria Danmark",
+        "Fødevarestyrelsen advarsel",
+        "Coop tilbagekalder",
+        "Lidl Danmark tilbagekalder",
+        "Salling Group tilbagekalder",
+        "listeria tilbagekaldelse",
+        "salmonella tilbagekaldelse",
     ],
 
     bulk_index_queries=[
         "site:foedevarestyrelsen.dk tilbagekaldelse 2026",
         "site:foedevarestyrelsen.dk Salmonella OR Listeria",
         "site:foedevarestyrelsen.dk advarsel fødevare",
-        "site:foedevarestyrelsen.dk allergen ikke deklareret",
+        "site:via.ritzau.dk tilbagekalder fødevare",
+        "site:netavisengrindsted.dk tilbagekaldte foedevarer",
     ],
 
     language_name="Danish",
@@ -87,12 +85,15 @@ DENMARK = CountryConfig(
     brand_handling_note=(
         "Danish brands often use diacritics (æ, ø, å). Preserve original "
         "casing. Examples: 'Coop Danmark', 'Salling Group', 'Netto', "
-        "'Fakta', 'Føtex', 'Bilka', 'Lidl Danmark', 'Aldi Danmark'."
+        "'Fakta', 'Føtex', 'Bilka', 'Lidl Danmark', 'Aldi Danmark', "
+        "'Danish Crown', 'Scanfish Danmark', 'Hilton Foods'."
     ),
 
     recall_signal_terms=[
         "tilbagekalder", "tilbagekaldelse", "tilbagekaldt", "tilbagekald",
+        "tilbagekalde", "tilbagekaldte",
         "trækker tilbage", "trækkes tilbage", "tilbagetrækning",
+        "trækker fra hylderne",
         "fødevareadvarsel", "fødevareadvarsler",
         "spis ikke", "spis ikke produktet",
         "fødevarestyrelsen",

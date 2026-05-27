@@ -2,19 +2,17 @@
 AFTS Food Safety Intelligence — Gap Finder
 Country config: Norway (Mattilsynet — Norwegian Food Safety Authority)
 
-Norwegian food-recall regime:
-  - Mattilsynet at mattilsynet.no/tilbakekallinger publishes recalls with
-    full pathogen names in titles (verified ground truth — high quality).
-  - NTB pressemelding (kommunikasjon.ntb.no) distributes Mattilsynet press
-    releases via standard newswire.
-  - Volume: ~80-120 recalls/year. Norwegian outlets like Sjømathuset,
-    Coop, Norfersk, UNIL frequently appear.
-  - Vocabulary:
-      "tilbakekaller"  = recalls (verb)
-      "tilbakekall"    = recall (noun, also "tilbakekalling")
-      "tilbaketrekking" = withdrawal
-      "ikke spise"     = do not eat
-      "advarsel"       = warning
+REVISION (Batch 3.1 hotfix): First Norway run found 59 candidates → 1 Pending
+(Valmsnes Gårdsysteri Listeria). Working, but RSS feeds 404'd. The big
+"Coop sandwich-is metallbiter" multi-product recall correctly rejected as
+foreign matter (out of Rule B scope).
+
+Fixed by:
+  1. Removing 404'd RSS URLs (mattilsynet.no/tilbakekallinger/rss,
+     ntb.no/rss with publisher filter)
+  2. Adding intrafish.no and ilaks.no (Norwegian fish industry — high
+     signal for seafood recalls which are common in Norway)
+  3. Keeping the working Google News strategy (yielded 107 candidates)
 """
 
 from .base import CountryConfig, RssSource, register
@@ -31,16 +29,12 @@ NORWAY = CountryConfig(
     authority_item_url_regex=r"(tilbakekall|tilbaketrekk|nyheter|press)",
 
     rss_sources=[
-        # PRIMARY — Mattilsynet official RSS
+        # Mattilsynet RSS exists at /rss but returns empty for recalls.
+        # Removed bad /tilbakekallinger/rss URL.
         RssSource("mattilsynet.no", [
             "https://www.mattilsynet.no/rss",
-            "https://www.mattilsynet.no/tilbakekallinger/rss",
         ]),
-        # PRIMARY — NTB press release wire (distributes Mattilsynet announcements)
-        RssSource("ntb.no", [
-            "https://kommunikasjon.ntb.no/rss/?publisherId=10773547",
-        ]),
-        # SECONDARY — major Norwegian dailies
+        # Major Norwegian news (verified working from production run)
         RssSource("vg.no", [
             "https://www.vg.no/rss/feed/",
         ]),
@@ -57,28 +51,33 @@ NORWAY = CountryConfig(
         RssSource("nettavisen.no", [
             "https://www.nettavisen.no/service/rich-rss",
         ]),
+        # Fish industry — high signal for Norwegian seafood recalls
+        RssSource("intrafish.no", [
+            "https://www.intrafish.no/rss/",
+        ]),
     ],
     google_news_domains=[
-        "mattilsynet.no",       # primary
-        "ntb.no",               # primary
+        "mattilsynet.no",
+        "ntb.no", "kommunikasjon.ntb.no",
         "vg.no", "nrk.no", "dagbladet.no", "aftenposten.no",
         "nettavisen.no", "bt.no", "tv2.no", "abcnyheter.no",
+        "intrafish.no", "ilaks.no",
     ],
     google_news_keywords=[
         '"Mattilsynet" tilbakekaller',
-        '"tilbakekaller" Salmonella',
-        '"tilbakekaller" Listeria',
-        '"tilbaketrekking" mat',
+        "tilbakekaller Salmonella",
+        "tilbakekaller Listeria",
+        "tilbaketrekking mat",
         '"Coop" tilbakekaller',
         '"REMA 1000" tilbakekaller',
         '"Kiwi" tilbakekaller',
+        '"Meny" tilbakekaller',
     ],
 
     bulk_index_queries=[
         "site:mattilsynet.no tilbakekalling 2026",
         "site:mattilsynet.no Salmonella OR Listeria",
         "site:mattilsynet.no advarsel mat",
-        "site:mattilsynet.no allergen ikke deklarert",
     ],
 
     language_name="Norwegian (Bokmål)",
@@ -96,7 +95,6 @@ NORWAY = CountryConfig(
         "ikke spise", "ikke konsumere",
         "mattilsynet",
         "advarsel mat",
-        # Pathogen-name signals
         "salmonella", "listeria", "listeria monocytogenes",
         "ikke deklarert", "ikke merket",
     ],
