@@ -1,11 +1,18 @@
 name: Scandinavian Gap Finder (FSIS)
 
-# Consolidated workflow for 3 Scandinavian countries (Sweden, Norway, Denmark).
-# All 3 share Central European Time (CET/CEST) — same cron schedule as
-# Central EU workflow, but separate workflow for cleaner regional reporting.
+# Consolidated workflow for 5 Nordic countries (Sweden, Norway, Denmark,
+# Finland, Iceland). One Tailscale connection, one VPS warmup, sequential
+# country runs. Runtime budget: ~25 min (timeout 40 min).
 #
-# Cron times in UTC. Stockholm/Oslo/Copenhagen all = CET (UTC+1) winter,
-# CEST (UTC+2) summer. 21:00 local = 19:00 UTC (CEST) / 20:00 UTC (CET).
+# Timezone note:
+#   - Sweden/Norway/Denmark: CET/CEST (UTC+1/+2) → 21:00 local = trigger time
+#   - Finland: EET/EEST (UTC+2/+3) → Finnish 21:00 fires 1h earlier; we use
+#     the same Stockholm trigger so Finland's run is at 22:00 Helsinki local
+#     (acceptable for daily aggregation)
+#   - Iceland: GMT year-round (no DST) → 19:00 Reykjavík local (CEST summer)
+#     or 20:00 Reykjavík (CET winter), all acceptable evening hours
+#
+# All 5 trigger together on Stockholm's 21:00.
 
 on:
   schedule:
@@ -14,9 +21,9 @@ on:
   workflow_dispatch:
     inputs:
       countries:
-        description: 'Comma-separated country codes (default = all 3)'
+        description: 'Comma-separated country codes (default = all 5)'
         type: string
-        default: 'se,no,dk'
+        default: 'se,no,dk,fi,is'
       skip_news:
         description: 'Skip news scraping'
         type: boolean
@@ -37,7 +44,7 @@ env:
 jobs:
   scandinavian-gap-finder:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     permissions:
       contents: write
     steps:
@@ -47,10 +54,10 @@ jobs:
           STOCKHOLM_HOUR=$(TZ=Europe/Stockholm date +%H)
           echo "Current Europe/Stockholm hour: ${STOCKHOLM_HOUR}"
           if [ "${STOCKHOLM_HOUR}" != "21" ]; then
-            echo "Not 21:00 in Stockholm — exiting."
+            echo "Not 21:00 in Stockholm — exiting (other cron line handles current DST)."
             exit 78
           fi
-          echo "It's 21:00 in Stockholm — proceeding with 3-country sweep."
+          echo "It's 21:00 in Stockholm — proceeding with 5-country Nordic sweep."
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -88,7 +95,7 @@ jobs:
           echo "✗ llama-server unreachable after 5 attempts"
           exit 1
 
-      - name: Run all 3 Scandinavian country pipelines sequentially
+      - name: Run all 5 Nordic country pipelines sequentially
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
         run: |
@@ -98,7 +105,7 @@ jobs:
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
 
           COUNTRIES="${{ inputs.countries }}"
-          if [ -z "$COUNTRIES" ]; then COUNTRIES="se,no,dk"; fi
+          if [ -z "$COUNTRIES" ]; then COUNTRIES="se,no,dk,fi,is"; fi
           echo "Will run: $COUNTRIES"
 
           FAILED=""
@@ -131,6 +138,8 @@ jobs:
             docs/data/gap_finder_se/
             docs/data/gap_finder_no/
             docs/data/gap_finder_dk/
+            docs/data/gap_finder_fi/
+            docs/data/gap_finder_is/
           retention-days: 14
 
       - name: Commit xlsx changes
@@ -141,10 +150,12 @@ jobs:
           git add docs/data/recalls.xlsx \
                   docs/data/gap_finder_se/ \
                   docs/data/gap_finder_no/ \
-                  docs/data/gap_finder_dk/
+                  docs/data/gap_finder_dk/ \
+                  docs/data/gap_finder_fi/ \
+                  docs/data/gap_finder_is/
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "Scandinavian gap finder: $(date -u +%Y-%m-%d) auto-update (SE+NO+DK)"
+            git commit -m "Nordic gap finder: $(date -u +%Y-%m-%d) auto-update (5 countries)"
             git push
           fi
