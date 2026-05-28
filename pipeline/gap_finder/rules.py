@@ -463,7 +463,11 @@ HEAVY_METALS = {
     "tin",                                                      # Dutch (same as English)
     "étain",                                                    # French
     "cyna",                                                     # Polish
-    "ón",                                                       # Hungarian (note: 2-char, will need word boundary)
+    # NOTE: Hungarian "ón" (tin) removed — normalizes to "on", which
+    # substring/word-matches the ubiquitous English word "on" and caused
+    # false heavy-metal rejects on English titles. Use "ónmérgezés"
+    # (tin poisoning) if Hungarian tin coverage is needed later.
+    "ónmérgezés", "ón szennyeződés",                            # Hungarian tin (safe forms)
     "heavy metal", "βαρύ μέταλλο", "βαρυ μεταλλο", "metallo pesante", "metalli pesanti",
     "metales pesados", "metal pesado", "metais pesados",
     "schwermetall", "schwermetalle",                            # German
