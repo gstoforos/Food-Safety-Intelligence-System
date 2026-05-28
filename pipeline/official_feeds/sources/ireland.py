@@ -54,7 +54,18 @@ def _parse_date(text: str):
 
 
 def _clean_title(t: str) -> str:
-    return _ALT_PREFIX.sub("", t or "").strip()
+    return _ALT_PREFIX.sub("", _strip_chrome(t or "")).strip()
+
+
+def _strip_chrome(s: str) -> str:
+    """Remove FSAI nav/breadcrumb chrome that leaks into titles and bodies."""
+    if not s:
+        return s
+    s = re.sub(r"^\s*Home\s+News and Alerts\s+Food Alerts\s+Current:\s*",
+               "", s, flags=re.IGNORECASE)
+    s = re.sub(r"^\s*FSAI food alert\.?\s*", "", s, flags=re.IGNORECASE)
+    s = re.sub(r"^\s*Food Alerts\s*", "", s, flags=re.IGNORECASE)
+    return s.strip()
 
 
 def _fetch_detail(url: str):
@@ -69,23 +80,32 @@ def _fetch_detail(url: str):
     soup = BeautifulSoup(r.content, "html.parser")
     # Title from <h1>, fallback <title>
     h1 = soup.find("h1")
-    title = _clean_title(h1.get_text(strip=True) if h1 else
-                         (soup.title.get_text(strip=True) if soup.title else ""))
+    title = _clean_title(_strip_chrome(
+        h1.get_text(strip=True) if h1 else
+        (soup.title.get_text(strip=True) if soup.title else "")))
 
     # Main content text (Message + Nature Of Danger live here)
     main = soup.find("main") or soup.find("article") or soup.body or soup
-    text = main.get_text(" ", strip=True) if main else ""
-    # Trim to the part that carries the hazard (first ~800 chars is plenty)
+    text = _strip_chrome(main.get_text(" ", strip=True) if main else "")
     hazard = text[:800]
 
     published = _parse_date(text)
 
+    # Company: capture 1-5 capitalised words immediately before "is recalling"
+    # (avoids grabbing breadcrumb text the way a greedy .+? would).
     company = ""
-    m = re.search(r"\b(.+?)\s+is recalling\b", text, re.IGNORECASE)
+    m = re.search(
+        r"([A-Z][\w&.''\-]*(?:\s+[A-Z0-9][\w&.''\-]*){0,4})\s+is recalling",
+        text)
     if not m:
-        m = re.search(r"^(.+?)\s+recalls\b", title, re.IGNORECASE)
+        m = re.search(r"^([\w&.''\- ]{2,40}?)\s+recalls\b", title)
     if m:
         company = m.group(1).strip()[:80]
+        # Drop a leading date that sometimes sits before "is recalling"
+        company = re.sub(
+            r"^\s*(?:\d{1,2}\s+)?(?:January|February|March|April|May|June|"
+            r"July|August|September|October|November|December)\s+\d{4}\s+",
+            "", company).strip()
     return title, hazard, published, company
 
 
