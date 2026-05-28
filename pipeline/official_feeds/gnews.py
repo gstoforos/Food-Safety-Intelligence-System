@@ -23,6 +23,24 @@ from .fetch import get_rss
 
 GN_RSS = "https://news.google.com/rss/search"
 
+# A Google News headline must contain one of these recall signals to be kept.
+# Without this gate, news *about* pathogens ("Salmonella cases reach 17-year
+# high") gets misclassified as a recall. Authority API records skip this gate
+# (they are definitionally recalls).
+_RECALL_SIGNALS = (
+    "recall", "recalled", "recalls", "recalling",
+    "withdraw", "withdrawn", "withdrawal",
+    "do not eat", "do not consume", "don't eat",
+    "pulled from", "pulls", "pull from", "taken off",
+    "removed from sale", "off the shelves", "urgent warning",
+    "safety alert", "alert issued",
+)
+
+
+def _has_recall_signal(title: str) -> bool:
+    t = (title or "").lower()
+    return any(sig in t for sig in _RECALL_SIGNALS)
+
 
 def _date_phrases(days_back: int) -> list[str]:
     """['May 28', 'May 27', 'May 26'] for days_back=3 (no leading zero)."""
@@ -76,6 +94,8 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
             title = it.get("title", "")
             if not title or link in seen_links:
                 continue
+            if not _has_recall_signal(title):
+                continue          # news about a pathogen, not a recall — skip
             seen_links.add(link)
             sid = "GN-" + hashlib.sha1(
                 (link or title).encode("utf-8", "ignore")).hexdigest()[:12]
