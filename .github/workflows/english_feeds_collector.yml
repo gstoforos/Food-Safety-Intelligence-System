@@ -21,7 +21,7 @@ on:
       max_age_days:
         description: 'Max age in days for kept records'
         type: string
-        default: '14'
+        default: '30'
       dry_run:
         description: 'Run but do not write to xlsx'
         type: boolean
@@ -79,7 +79,7 @@ jobs:
           ARGS=""
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="--dry-run"; fi
           AGE="${{ inputs.max_age_days }}"
-          if [ -z "$AGE" ]; then AGE="14"; fi
+          if [ -z "$AGE" ]; then AGE="30"; fi
 
           SOURCES="${{ inputs.sources }}"
           if [ -z "$SOURCES" ]; then SOURCES="uk,scotland,ireland"; fi
