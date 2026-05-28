@@ -126,6 +126,17 @@ def fetch(limit: int = 50) -> list[Record]:
             fetched += 1
 
         title = d_title or list_title
+        # The detail <h1> is often a generic section banner ("Food Alerts").
+        # The listing anchor text is the real alert title, so prefer it.
+        def _generic(t):
+            return (not t) or t.strip().lower() in (
+                "food alerts", "news and alerts", "alerts", "news")
+        if _generic(d_title) and not _generic(list_title):
+            title = list_title
+        elif _generic(list_title) and not _generic(d_title):
+            title = d_title
+        else:
+            title = list_title or d_title
         # hazard: prefer detail body (names the pathogen); fall back to title
         hazard = d_hazard or title
 
