@@ -1,43 +1,22 @@
-# =============================================================================
-# AFTS Greek Gap Finder — Daily Workflow
-#
-# Runs once per day at 21:00 Athens local time (1 hour after EFET / Greek news
-# typically publishes recall announcements).
-#
-# Pipeline:
-#   news_scraper → efet_fetcher → extractor (via Qwen 2.5 7B on your VPS)
-#   → append to docs/data/recalls.xlsx Pending / Weekly_Rejected sheets
-#   → commit and push the updated xlsx + jsonl artifacts
-#
-# Athens time handling (per AFTS standing rule — NEVER UTC):
-#   - Two cron lines (one for EEST summer offset, one for EET winter offset)
-#   - TZ=Europe/Athens hour-guard step gates everything downstream
-#   - Both crons fire daily; the wrong one is skipped by the guard
-#
-# Required GitHub Secrets:
-#   TAILSCALE_AUTHKEY  - ephemeral auth key from login.tailscale.com/admin/settings/keys
-#                        Renew before: see TS_KEY_RENEW_BY in env block below
-#   LLAMA_BASE_URL     - http://<vps-tailscale-ip>:8080/v1
-#                        (e.g. http://100.112.199.20:8080/v1)
-#
-# =============================================================================
-
 name: Greek Gap Finder (FSIS)
+
+# Cron times in UTC. Athens = EEST (summer) / EET (winter).
+# 21:00 Athens local = 18:00 UTC (EEST) or 19:00 UTC (EET).
+# Gate job ensures only the matching DST cron triggers the main job
+# (other cron line shows as "Skipped" cleanly, not "Failed").
 
 on:
   schedule:
-    # 18:00 UTC = 21:00 Athens during EEST (summer, late March–late October)
-    - cron: '0 18 * * *'
-    # 19:00 UTC = 21:00 Athens during EET  (winter, late October–late March)
-    - cron: '0 19 * * *'
+    - cron: '0 18 * * *'   # 18:00 UTC → 21:00 Athens during EEST (summer)
+    - cron: '0 19 * * *'   # 19:00 UTC → 21:00 Athens during EET (winter)
   workflow_dispatch:
     inputs:
       skip_news:
         description: 'Skip news scraping (use existing candidates.jsonl)'
         type: boolean
         default: false
-      skip_efet:
-        description: 'Skip EFET fetch (use existing verified.jsonl)'
+      skip_verify:
+        description: 'Skip article enrichment'
         type: boolean
         default: false
       dry_run:
@@ -45,88 +24,68 @@ on:
         type: boolean
         default: false
 
-concurrency:
-  group: greek-gap-finder
-  cancel-in-progress: false
-
-permissions:
-  contents: write   # required to commit recalls.xlsx + jsonl back to repo
-
 env:
-  # ⚠️ Tailscale ephemeral keys expire in 90 days max on the free plan.
-  # Renew at: https://login.tailscale.com/admin/settings/keys
-  TS_KEY_RENEW_BY: "2026-08-21"   # ← update this when you rotate TAILSCALE_AUTHKEY
+  TZ: Europe/Athens
+  TS_KEY_RENEW_BY: "2026-08-21"
 
 jobs:
-  run:
+  gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
     steps:
-      # ── 1. Athens TZ hour-guard ─────────────────────────────────────────
-      # Both cron lines fire daily; only one is actually 21:00 in Athens
-      # depending on DST. This step decides which one continues.
-      - name: Athens 21:00 hour-guard
-        id: tz_guard
+      - id: check
         run: |
-          export TZ=Europe/Athens
-          NOW=$(date '+%Y-%m-%d %H:%M:%S %Z')
-          HOUR=$(date +%H)
-          echo "Athens time: $NOW"
-          echo "Hour:        $HOUR"
-          # Manual dispatch always runs; otherwise only at 21:00 Athens
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "Manual dispatch — proceeding."
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" = "21" ]; then
-            echo "21:00 Athens — proceeding."
-            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          LOCAL_HOUR=$(TZ=Europe/Athens date +%H)
+          echo "Current Europe/Athens hour: ${LOCAL_HOUR}"
+          if [ "${LOCAL_HOUR}" = "21" ]; then
+            echo "It's 21:00 Athens — proceeding."
+            echo "should_run=true" >> $GITHUB_OUTPUT
           else
-            echo "Not 21:00 Athens (got $HOUR) — skipping rest of workflow."
-            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Not 21:00 Athens (other cron line handles current DST)."
+            echo "should_run=false" >> $GITHUB_OUTPUT
           fi
 
-      # ── 2. Checkout ─────────────────────────────────────────────────────
-      - name: Checkout repository
-        if: steps.tz_guard.outputs.run == 'true'
+  gap-finder-gr:
+    needs: gate
+    if: needs.gate.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0   # full history so we can pull/push cleanly
 
-      # ── 3. Python ───────────────────────────────────────────────────────
-      - name: Setup Python
-        if: steps.tz_guard.outputs.run == 'true'
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: pip
 
       - name: Install dependencies
-        if: steps.tz_guard.outputs.run == 'true'
         run: |
           python -m pip install --upgrade pip
-          pip install requests feedparser beautifulsoup4 lxml openpyxl
+          pip install requests beautifulsoup4 lxml openpyxl
 
-      # ── 4. Tailscale ────────────────────────────────────────────────────
-      # Joins the GitHub runner to your tailnet so it can reach the VPS
-      # at LLAMA_BASE_URL (private 100.x.y.z address, no public exposure).
-      - name: Tailscale connect
-        if: steps.tz_guard.outputs.run == 'true'
+      - name: Connect to Tailscale
         uses: tailscale/github-action@v3
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           tags: tag:ci
           version: latest
 
-      # ── 5. Verify VPS reachable ─────────────────────────────────────────
       - name: Health-check llama-server on VPS
-        if: steps.tz_guard.outputs.run == 'true'
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
         run: |
           echo "Pinging $LLAMA_BASE_URL/models..."
-          # 5 retries, 5 sec between, fail fast if still unreachable
           for i in 1 2 3 4 5; do
-            if curl -fsS --max-time 10 "$LLAMA_BASE_URL/models" >/dev/null; then
+            if curl -sf --max-time 10 "$LLAMA_BASE_URL/models" > /dev/null; then
               echo "✓ llama-server is reachable"
               exit 0
             fi
@@ -136,63 +95,34 @@ jobs:
           echo "✗ llama-server unreachable after 5 attempts"
           exit 1
 
-      # ── 6. Run the gap finder ───────────────────────────────────────────
       - name: Run Greek gap finder pipeline
-        if: steps.tz_guard.outputs.run == 'true'
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
-          LLAMA_MODEL: qwen2.5-7b-instruct
-          LLAMA_TIMEOUT: '180'
-          PYTHONUNBUFFERED: '1'
         run: |
           ARGS=""
-          if [ "${{ inputs.skip_news }}" = "true" ];   then ARGS="$ARGS --skip-news"; fi
-          if [ "${{ inputs.skip_efet }}" = "true" ];   then ARGS="$ARGS --skip-efet"; fi
-          if [ "${{ inputs.dry_run }}" = "true" ];     then ARGS="$ARGS --dry-run"; fi
-          echo "Running: python -m pipeline.gap_finder_gr.main --verbose $ARGS"
-          python -m pipeline.gap_finder_gr.main --verbose $ARGS
+          if [ "${{ inputs.skip_news }}" = "true" ]; then ARGS="$ARGS --skip-news"; fi
+          if [ "${{ inputs.skip_verify }}" = "true" ]; then ARGS="$ARGS --skip-verify"; fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          echo "Running: python -m pipeline.gap_finder.main --country gr --verbose $ARGS"
+          python -m pipeline.gap_finder.main --country gr --verbose $ARGS
 
-      # ── 7. Commit results back to repo ──────────────────────────────────
-      - name: Commit updated xlsx + jsonl
-        if: steps.tz_guard.outputs.run == 'true' && inputs.dry_run != true
-        run: |
-          git config user.name  "afts-gap-finder-gr[bot]"
-          git config user.email "afts-gap-finder-gr@users.noreply.github.com"
-
-          # Only stage files that actually changed
-          git add docs/data/recalls.xlsx \
-                  docs/data/gap_finder_gr/candidates.jsonl \
-                  docs/data/gap_finder_gr/verified.jsonl \
-                  docs/data/gap_finder_gr/unmatched.jsonl \
-                  docs/data/gap_finder_gr/pending_candidates.jsonl \
-                  docs/data/gap_finder_gr/rejected_records.jsonl \
-                  docs/data/gap_finder_gr/run_log.jsonl 2>/dev/null || true
-
-          if git diff --staged --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-
-          STAMP=$(TZ=Europe/Athens date '+%Y-%m-%d %H:%M %Z')
-          git commit -m "gap_finder_gr: daily run $STAMP" \
-                     -m "Automated by .github/workflows/greek_gap_finder.yml"
-
-          # Pull rebase before push in case other workflows committed concurrently
-          git pull --rebase origin "${GITHUB_REF_NAME}" || true
-          git push origin "HEAD:${GITHUB_REF_NAME}"
-
-      # ── 8. Upload run log as artifact (always, for audit) ───────────────
-      - name: Upload run log artifact
-        if: steps.tz_guard.outputs.run == 'true' && always()
+      - name: Upload run artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: gap-finder-gr-run-${{ github.run_id }}
-          path: |
-            docs/data/gap_finder_gr/run_log.jsonl
-            docs/data/gap_finder_gr/candidates.jsonl
-            docs/data/gap_finder_gr/verified.jsonl
-            docs/data/gap_finder_gr/unmatched.jsonl
-            docs/data/gap_finder_gr/pending_candidates.jsonl
-            docs/data/gap_finder_gr/rejected_records.jsonl
-          retention-days: 30
-          if-no-files-found: ignore
+          path: docs/data/gap_finder_gr/
+          retention-days: 14
+
+      - name: Commit xlsx changes
+        if: inputs.dry_run != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/recalls.xlsx docs/data/gap_finder_gr/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Greek gap finder: $(date -u +%Y-%m-%d) auto-update"
+            git push
+          fi

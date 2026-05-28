@@ -1,18 +1,9 @@
 name: Scandinavian Gap Finder (FSIS)
 
 # Consolidated workflow for 5 Nordic countries (Sweden, Norway, Denmark,
-# Finland, Iceland). One Tailscale connection, one VPS warmup, sequential
-# country runs. Runtime budget: ~25 min (timeout 40 min).
-#
-# Timezone note:
-#   - Sweden/Norway/Denmark: CET/CEST (UTC+1/+2) → 21:00 local = trigger time
-#   - Finland: EET/EEST (UTC+2/+3) → Finnish 21:00 fires 1h earlier; we use
-#     the same Stockholm trigger so Finland's run is at 22:00 Helsinki local
-#     (acceptable for daily aggregation)
-#   - Iceland: GMT year-round (no DST) → 19:00 Reykjavík local (CEST summer)
-#     or 20:00 Reykjavík (CET winter), all acceptable evening hours
-#
-# All 5 trigger together on Stockholm's 21:00.
+# Finland, Iceland). Two cron lines for DST. The 'gate' job runs first;
+# only the matching DST cron triggers the main job (the other shows as
+# "Skipped" cleanly, NOT failed).
 
 on:
   schedule:
@@ -42,23 +33,39 @@ env:
   TS_KEY_RENEW_BY: "2026-08-21"
 
 jobs:
+  # Lightweight gate job — checks if the current cron line matches the
+  # target local hour. workflow_dispatch always passes. The other cron
+  # line shows as "Skipped" in GitHub UI (clean), not "Failed".
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch — proceeding."
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          STOCKHOLM_HOUR=$(TZ=Europe/Stockholm date +%H)
+          echo "Current Europe/Stockholm hour: ${STOCKHOLM_HOUR}"
+          if [ "${STOCKHOLM_HOUR}" = "21" ]; then
+            echo "It's 21:00 Stockholm — proceeding with Nordic sweep."
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "Not 21:00 Stockholm (other cron line handles current DST)."
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
   scandinavian-gap-finder:
+    needs: gate
+    if: needs.gate.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     permissions:
       contents: write
     steps:
-      - name: Gate by Europe/Stockholm local hour (skip if not 21:00)
-        if: github.event_name == 'schedule'
-        run: |
-          STOCKHOLM_HOUR=$(TZ=Europe/Stockholm date +%H)
-          echo "Current Europe/Stockholm hour: ${STOCKHOLM_HOUR}"
-          if [ "${STOCKHOLM_HOUR}" != "21" ]; then
-            echo "Not 21:00 in Stockholm — exiting (other cron line handles current DST)."
-            exit 78
-          fi
-          echo "It's 21:00 in Stockholm — proceeding with 5-country Nordic sweep."
-
       - name: Checkout
         uses: actions/checkout@v4
 

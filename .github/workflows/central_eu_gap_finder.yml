@@ -1,14 +1,8 @@
 name: Central EU Gap Finder (FSIS)
 
-# Single consolidated workflow for 8 Central European countries that share
-# the CET/CEST timezone. One Tailscale connection, one VPS warmup, sequential
-# country runs. Runtime budget: ~35 min (timeout 50 min).
-#
-# Countries (in order): Germany, Austria, Switzerland, Belgium, Netherlands,
-# Luxembourg, Poland, Hungary.
-#
-# All 8 countries are in CET (UTC+1) winter / CEST (UTC+2) summer.
-# 21:00 Berlin local → 19:00 UTC (CEST) or 20:00 UTC (CET).
+# Consolidated workflow for 8 Central EU countries (DE, AT, CH, BE, NL, LU,
+# PL, HU). All share CET/CEST. Two cron lines for DST; gate job ensures
+# only the matching DST cron triggers the main job (other shows "Skipped").
 
 on:
   schedule:
@@ -21,7 +15,7 @@ on:
         type: string
         default: 'de,at,ch,be,nl,lu,pl,hu'
       skip_news:
-        description: 'Skip news scraping (use existing candidates.jsonl)'
+        description: 'Skip news scraping'
         type: boolean
         default: false
       skip_verify:
@@ -38,23 +32,36 @@ env:
   TS_KEY_RENEW_BY: "2026-08-21"
 
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch — proceeding."
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          BERLIN_HOUR=$(TZ=Europe/Berlin date +%H)
+          echo "Current Europe/Berlin hour: ${BERLIN_HOUR}"
+          if [ "${BERLIN_HOUR}" = "21" ]; then
+            echo "It's 21:00 Berlin — proceeding with Central EU sweep."
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "Not 21:00 Berlin (other cron line handles current DST)."
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
   central-eu-gap-finder:
+    needs: gate
+    if: needs.gate.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 50
     permissions:
       contents: write
     steps:
-      - name: Gate by Europe/Berlin local hour (skip if not 21:00)
-        if: github.event_name == 'schedule'
-        run: |
-          BERLIN_HOUR=$(TZ=Europe/Berlin date +%H)
-          echo "Current Europe/Berlin hour: ${BERLIN_HOUR}"
-          if [ "${BERLIN_HOUR}" != "21" ]; then
-            echo "Not 21:00 in Berlin — exiting (other cron line handles current DST)."
-            exit 78  # neutral exit — skips workflow without marking failure
-          fi
-          echo "It's 21:00 in Berlin — proceeding with 8-country sweep."
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -95,13 +102,11 @@ jobs:
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
         run: |
-          # Build common args
           ARGS=""
           if [ "${{ inputs.skip_news }}" = "true" ]; then ARGS="$ARGS --skip-news"; fi
           if [ "${{ inputs.skip_verify }}" = "true" ]; then ARGS="$ARGS --skip-verify"; fi
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
 
-          # Manual-dispatch country list, else default to all 8
           COUNTRIES="${{ inputs.countries }}"
           if [ -z "$COUNTRIES" ]; then COUNTRIES="de,at,ch,be,nl,lu,pl,hu"; fi
           echo "Will run: $COUNTRIES"
@@ -109,7 +114,7 @@ jobs:
           FAILED=""
           IFS=',' read -ra LIST <<< "$COUNTRIES"
           for cc in "${LIST[@]}"; do
-            cc=$(echo "$cc" | xargs)  # trim whitespace
+            cc=$(echo "$cc" | xargs)
             echo ""
             echo "======================================================================"
             echo "  STARTING country: $cc"
@@ -117,7 +122,7 @@ jobs:
             if python -m pipeline.gap_finder.main --country "$cc" --verbose $ARGS; then
               echo "✓ $cc completed"
             else
-              echo "✗ $cc failed (continuing with next country)"
+              echo "✗ $cc failed (continuing)"
               FAILED="$FAILED $cc"
             fi
           done
@@ -125,7 +130,6 @@ jobs:
           if [ -n "$FAILED" ]; then
             echo ""
             echo "WARNING: Some countries failed:$FAILED"
-            echo "(Workflow continues — other countries' results are kept.)"
           fi
 
       - name: Upload per-country artifacts

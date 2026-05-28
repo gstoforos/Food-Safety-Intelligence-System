@@ -1,12 +1,14 @@
 name: Italian Gap Finder (FSIS)
 
-# Cron times in UTC. Rome = CEST (UTC+2) summer / CET (UTC+1) winter.
+# Cron times in UTC. Rome = CEST (summer) / CET (winter).
 # 21:00 Rome local = 19:00 UTC (CEST) or 20:00 UTC (CET).
-# We register BOTH UTC offsets and gate by Europe/Rome local hour inside the job.
+# Gate job ensures only the matching DST cron triggers the main job
+# (other cron line shows as "Skipped" cleanly, not "Failed").
+
 on:
   schedule:
     - cron: '0 19 * * *'   # 19:00 UTC → 21:00 Rome during CEST (summer)
-    - cron: '0 20 * * *'   # 20:00 UTC → 21:00 Rome during CET  (winter)
+    - cron: '0 20 * * *'   # 20:00 UTC → 21:00 Rome during CET (winter)
   workflow_dispatch:
     inputs:
       skip_news:
@@ -14,7 +16,7 @@ on:
         type: boolean
         default: false
       skip_verify:
-        description: 'Skip Salute verification (use existing verified.jsonl)'
+        description: 'Skip article enrichment'
         type: boolean
         default: false
       dry_run:
@@ -24,27 +26,39 @@ on:
 
 env:
   TZ: Europe/Rome
-  # Tailscale auth key renewal date — must rotate before this
   TS_KEY_RENEW_BY: "2026-08-21"
 
 jobs:
-  gap-finder-italy:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch — proceeding."
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          LOCAL_HOUR=$(TZ=Europe/Rome date +%H)
+          echo "Current Europe/Rome hour: ${LOCAL_HOUR}"
+          if [ "${LOCAL_HOUR}" = "21" ]; then
+            echo "It's 21:00 Rome — proceeding."
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "Not 21:00 Rome (other cron line handles current DST)."
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+  gap-finder-it:
+    needs: gate
+    if: needs.gate.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: write
     steps:
-      - name: Gate by Europe/Rome local hour (skip if not 21:00)
-        if: github.event_name == 'schedule'
-        run: |
-          ROME_HOUR=$(TZ=Europe/Rome date +%H)
-          echo "Current Europe/Rome hour: ${ROME_HOUR}"
-          if [ "${ROME_HOUR}" != "21" ]; then
-            echo "Not 21:00 in Rome — exiting (other cron line handles current DST)."
-            exit 78  # neutral exit — skips workflow without marking failure
-          fi
-          echo "It's 21:00 in Rome — proceeding."
-
       - name: Checkout
         uses: actions/checkout@v4
 

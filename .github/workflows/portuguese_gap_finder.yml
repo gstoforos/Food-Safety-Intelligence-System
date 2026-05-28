@@ -1,11 +1,14 @@
 name: Portuguese Gap Finder (FSIS)
 
-# Cron times in UTC. Lisbon = WEST (UTC+1) summer / WET (UTC+0) winter.
+# Cron times in UTC. Lisbon = WEST (summer) / WET (winter).
 # 21:00 Lisbon local = 20:00 UTC (WEST) or 21:00 UTC (WET).
+# Gate job ensures only the matching DST cron triggers the main job
+# (other cron line shows as "Skipped" cleanly, not "Failed").
+
 on:
   schedule:
     - cron: '0 20 * * *'   # 20:00 UTC → 21:00 Lisbon during WEST (summer)
-    - cron: '0 21 * * *'   # 21:00 UTC → 21:00 Lisbon during WET  (winter)
+    - cron: '0 21 * * *'   # 21:00 UTC → 21:00 Lisbon during WET (winter)
   workflow_dispatch:
     inputs:
       skip_news:
@@ -13,7 +16,7 @@ on:
         type: boolean
         default: false
       skip_verify:
-        description: 'Skip article enrichment (use existing verified.jsonl)'
+        description: 'Skip article enrichment'
         type: boolean
         default: false
       dry_run:
@@ -26,23 +29,36 @@ env:
   TS_KEY_RENEW_BY: "2026-08-21"
 
 jobs:
-  gap-finder-portugal:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch — proceeding."
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          LOCAL_HOUR=$(TZ=Europe/Lisbon date +%H)
+          echo "Current Europe/Lisbon hour: ${LOCAL_HOUR}"
+          if [ "${LOCAL_HOUR}" = "21" ]; then
+            echo "It's 21:00 Lisbon — proceeding."
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "Not 21:00 Lisbon (other cron line handles current DST)."
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+  gap-finder-pt:
+    needs: gate
+    if: needs.gate.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: write
     steps:
-      - name: Gate by Europe/Lisbon local hour (skip if not 21:00)
-        if: github.event_name == 'schedule'
-        run: |
-          LISBON_HOUR=$(TZ=Europe/Lisbon date +%H)
-          echo "Current Europe/Lisbon hour: ${LISBON_HOUR}"
-          if [ "${LISBON_HOUR}" != "21" ]; then
-            echo "Not 21:00 in Lisbon — exiting (other cron line handles current DST)."
-            exit 78
-          fi
-          echo "It's 21:00 in Lisbon — proceeding."
-
       - name: Checkout
         uses: actions/checkout@v4
 
