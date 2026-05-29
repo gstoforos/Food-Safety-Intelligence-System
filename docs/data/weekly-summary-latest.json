@@ -1,98 +1,98 @@
 {
-  "filename": "2026-W21.html",
-  "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W21.html",
+  "filename": "2026-W22.html",
+  "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W22.html",
   "dashboard_url": "https://www.advfood.tech/fsis-recalls",
-  "week_num": 21,
+  "week_num": 22,
   "year": 2026,
-  "week_start": "2026-05-15",
-  "week_end": "2026-05-21",
-  "week_start_display": "15 May",
-  "week_end_display": "21 May 2026",
-  "generated_utc": "2026-05-22T16:00:00+00:00",
+  "week_start": "2026-05-22",
+  "week_end": "2026-05-28",
+  "week_start_display": "22 May",
+  "week_end_display": "28 May 2026",
+  "generated_utc": "2026-05-29T05:12:49.521131+00:00",
   "stats": {
-    "total": 59,
-    "tier1": 50,
-    "outbreaks": 1,
-    "delta": 8,
-    "delta_pct": 16
+    "total": 57,
+    "tier1": 45,
+    "outbreaks": 5,
+    "delta": -9,
+    "delta_pct": -14
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 28,
-    "pct": 47
+    "cases": 18,
+    "pct": 32
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
-      "date": "2026-05-15",
-      "pathogen": "Clostridium botulinum",
-      "pathogen_raw": "Clostridium botulinum",
+      "date": "2026-05-28",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
-      "outbreak": true,
-      "company": "Origin: Italy | Notifying: Italy",
-      "brand": "ITA, FRA, DEU, ESP, GRC, NLD, POL, PRT, SVK, SWE",
-      "product": "Two cases of botulism following consumption of Olive and Almond Cream //Due casi di botulismo conseguenti a consumo domestico di Crema di Olive e Mandorle",
-      "country": "Italy",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/844066"
+      "outbreak": false,
+      "company": "The Proper Dairy Company",
+      "brand": "The Proper Dairy Company",
+      "product": "The Proper Dairy Company Irish Farm Authentic Cypriot Style Grilling Cheese; pack size: 200g",
+      "country": "Ireland",
+      "source": "FSAI (IE)",
+      "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-specific-batch-of-halloumi-cheese"
     },
     {
       "rank": 2,
-      "date": "2026-05-20",
+      "date": "2026-05-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Aoste  Professionnel",
-      "brand": "Aoste  Professionnel",
-      "product": "COPPA",
+      "company": "DES PERCE NEIGES GAEC DES PERCE NEIGES",
+      "brand": "Batusson de Chevre",
+      "product": "batusson de chevre",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22317/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22389/Interne"
     },
     {
       "rank": 3,
-      "date": "2026-05-20",
+      "date": "2026-05-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "OLIBE SA LECLERC",
+      "company": "CARREFOUR FRANCE",
       "brand": "Unbranded",
-      "product": "merguez en vrac au rayon traditionnel et en barquettes au rayon libre service",
+      "product": "Portion d’Abbaye de Tamié",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22307/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22374/Interne"
     },
     {
       "rank": 4,
-      "date": "2026-05-20",
+      "date": "2026-05-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "La Chevre A Dorey",
-      "brand": "La Chevre A Dorey",
-      "product": "la chevre a dorey",
+      "company": "DES PERCE NEIGES GAEC DES PERCE NEIGES",
+      "brand": "Chevres Aromatises",
+      "product": "aromatises ail et fines herbes¤echalote¤bruschetta",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22314/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22387/Interne"
     },
     {
       "rank": 5,
-      "date": "2026-05-20",
+      "date": "2026-05-28",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Green Box Limited",
-      "brand": "Green Box Limited",
-      "product": "lot g22014¤code barre 6936489101348",
+      "company": "DES PERCE NEIGES GAEC DES PERCE NEIGES",
+      "brand": "Fromage Blanc de Chevre",
+      "product": "fromages blancs de chevre en barquette de 4",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22320/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22390/Interne"
     }
   ],
-  "country_count": 21
+  "country_count": 14
 }
