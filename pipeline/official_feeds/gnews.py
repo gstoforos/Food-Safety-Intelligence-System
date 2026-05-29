@@ -27,13 +27,29 @@ GN_RSS = "https://news.google.com/rss/search"
 # Without this gate, news *about* pathogens ("Salmonella cases reach 17-year
 # high") gets misclassified as a recall. Authority API records skip this gate
 # (they are definitionally recalls).
+#
+# CRITICAL: FSIS/FDA frequently issue "Public Health Alert" / "Safety Alert"
+# / "Health Advisory" instead of "recall" when the product is no longer
+# commercially available. Those phrasings MUST pass the gate — the Kebab Shop
+# STEC outbreak (May 24, 2026) was missed because earlier versions of this
+# list lacked "public health alert".
 _RECALL_SIGNALS = (
     "recall", "recalled", "recalls", "recalling",
     "withdraw", "withdrawn", "withdrawal",
     "do not eat", "do not consume", "don't eat",
     "pulled from", "pulls", "pull from", "taken off",
     "removed from sale", "off the shelves", "urgent warning",
-    "safety alert", "alert issued",
+    # Authority-issued alerts (FSIS/FDA/CFIA phrasing)
+    "safety alert", "alert issued", "alert issues",
+    "public health alert", "health alert",
+    "fsis alert", "fda alert", "usda alert", "cfia alert",
+    "issues alert", "issues advisory", "issues warning",
+    "food alert", "food advisory", "health advisory",
+    "outbreak alert", "outbreak investigation",
+    # Authority verbs ("FSIS warns of...", "FDA warns consumers...")
+    "warns of", "warns consumers", "warns shoppers", "warns the public",
+    "warning about", "warning issued", "warning over", "warning for",
+    "warning to consumers", "warns against",
 )
 
 
@@ -57,10 +73,14 @@ def build_queries(authority: str, pathogen_terms: list[str],
                   days_back: int = 3) -> list[str]:
     """
     Build the Google News query set:
-      - date-named queries: "<authority> food recall <Month Day>" for each
-        of the last `days_back` days (George's explicit-date approach)
-      - evergreen pathogen queries: "<authority> recall <pathogen>" with
-        recency handled by when:7d
+      - date-named queries: <authority> food recall|safety alert|public health
+        alert <Month Day> for each of the last `days_back` days (George's
+        explicit-date approach)
+      - evergreen pathogen queries: <authority> recall|alert|public health
+        alert|outbreak <pathogen> with recency handled by when:7d. The alert
+        and PHA variants are required to catch FSIS Public Health Alerts and
+        FDA Safety Alerts that do not use the word "recall" (e.g. the May 24
+        2026 Kebab Shop kofta STEC PHA, which was missed in earlier runs).
     """
     queries: list[str] = []
 
@@ -68,10 +88,14 @@ def build_queries(authority: str, pathogen_terms: list[str],
     for phrase in _date_phrases(days_back):
         queries.append(f'{authority} food recall {phrase}')
         queries.append(f'{authority} food safety alert {phrase}')
+        queries.append(f'{authority} public health alert {phrase}')
 
     # Evergreen pathogen/hazard queries (recency via when:7d appended later)
     for term in pathogen_terms:
         queries.append(f'{authority} recall {term}')
+        queries.append(f'{authority} alert {term}')
+        queries.append(f'{authority} public health alert {term}')
+        queries.append(f'{authority} outbreak {term}')
 
     return queries
 
