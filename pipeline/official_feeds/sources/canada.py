@@ -57,7 +57,7 @@ def _is_food(category: str, title: str) -> bool:
     return False
 
 
-def fetch(limit: int = 300) -> list[Record]:
+def fetch(limit: int = 200) -> list[Record]:
     records: list[Record] = []
     try:
         data = get_json(API)
@@ -83,7 +83,9 @@ def fetch(limit: int = 300) -> list[Record]:
         print("  [WARN] CFIA: could not locate record list in JSON")
         return records
 
-    count = 0
+    # IMPORTANT: the open-data file is ordered oldest-first. We must parse the
+    # WHOLE list and sort by date desc, otherwise slicing the first N hits the
+    # historical archive (which is why 298/300 were "too old" in v1).
     for it in rows:
         if not isinstance(it, dict):
             continue
@@ -103,7 +105,7 @@ def fetch(limit: int = 300) -> list[Record]:
         published = parse_iso(date_s)
         nid = _val(it, "recallId", "NID", "nid", "id", "recallNumber")
 
-        rec = Record(
+        records.append(Record(
             source_id=f"CFIA-{nid}" if nid else f"CFIA-{abs(hash(url or title))%10**10}",
             country_code="ca",
             country_name="Canada",
@@ -119,12 +121,13 @@ def fetch(limit: int = 300) -> list[Record]:
             published=published,
             url=url,
             raw=it,
-        )
-        records.append(rec)
-        count += 1
-        if count >= limit:
-            break
-    return records
+        ))
+
+    # Sort newest first; records without a date go to the end
+    from datetime import datetime, timezone
+    sentinel = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    records.sort(key=lambda r: r.published or sentinel, reverse=True)
+    return records[:limit]
 
 
 CANADA = FeedSource(
