@@ -26,6 +26,8 @@ class Record:
     hazard: str = ""         # hazard/reason text (fed to classifier)
     alert_type: str = ""     # 'recall' | 'allergy' | 'action' | ''
     region: str = ""         # 'Europe', 'North America', ...
+    recall_class: str = ""   # authority class verbatim, e.g. 'Class I' (US/CA)
+    outbreak: int = 0        # 1 if authority flags outbreak-linked
     published: Optional[datetime] = None  # publication date (UTC)
     url: str = ""            # canonical alert URL
     raw: dict = field(default_factory=dict)  # original payload (debug)
@@ -75,7 +77,8 @@ def register(src: FeedSource) -> None:
 def get(code: str) -> FeedSource:
     code = code.lower()
     if code not in _REGISTRY:
-        from .sources import uk, scotland, ireland  # noqa: F401
+        from .sources import (uk, scotland, ireland,  # noqa: F401
+                              us_fda, us_fsis, canada)
     if code not in _REGISTRY:
         raise KeyError(f"Unknown feed source {code!r}. Registered: {sorted(_REGISTRY)}")
     return _REGISTRY[code]
@@ -83,5 +86,6 @@ def get(code: str) -> FeedSource:
 
 def all_codes() -> list:
     if not _REGISTRY:
-        from .sources import uk, scotland, ireland  # noqa: F401
+        from .sources import (uk, scotland, ireland,  # noqa: F401
+                              us_fda, us_fsis, canada)
     return sorted(_REGISTRY.keys())
