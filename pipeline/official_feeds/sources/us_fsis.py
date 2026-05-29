@@ -251,7 +251,12 @@ US_FSIS = FeedSource(
     run_local_hour=9,
     cron_utc_offsets=(13, 14),
     gnews_authority="USDA FSIS meat poultry",
-    gnews_terms=("salmonella", "listeria", "E. coli O157", "undeclared allergen"),
+    gnews_terms=(
+        "salmonella", "listeria", "listeria monocytogenes",
+        "E. coli O157", "E. coli O157:H7", "STEC",
+        "shiga toxin", "ground beef",
+        "undeclared allergen", "outbreak",
+    ),
     gnews_hl="en-US", gnews_gl="US", gnews_ceid="US:en",
     gnews_days_back=3,
 )
