@@ -5,12 +5,12 @@
     "year": 2026,
     "week_start": "2026-05-22",
     "week_end": "2026-05-28",
-    "generated": "2026-05-29T05:12:49.511653+00:00",
-    "total": 57,
-    "tier1": 45,
-    "outbreaks": 5,
-    "top_pathogen": "Salmonella spp.",
-    "summary": "Week 22 saw 57 pathogen recalls with Salmonella spp. as primary concern."
+    "generated": "2026-05-29T11:35:00+00:00",
+    "total": 53,
+    "tier1": 41,
+    "outbreaks": 1,
+    "top_pathogen": "Listeria monocytogenes",
+    "summary": "Week 22 saw 53 pathogen recalls with Listeria monocytogenes as primary concern."
   },
   {
     "filename": "2026-W21.html",
