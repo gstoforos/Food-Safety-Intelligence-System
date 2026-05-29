@@ -572,8 +572,17 @@ _SYNTHETIC_CHEMICALS_N = _normalize_set(SYNTHETIC_CHEMICALS)
 _HEAVY_METALS_N = _normalize_set(HEAVY_METALS)
 _FOREIGN_MATTER_N = _normalize_set(FOREIGN_MATTER)
 
+# Short English foreign-matter nouns that need word-boundary matching even
+# though they are ≥5 chars — otherwise they substring-match brand names and
+# unrelated words (e.g. 'stone' in 'Blackstone' / 'milestone' / 'limestone'
+# / 'Yellowstone'; 'glass' in 'fiberglass' / 'eyeglasses'). Multilingual
+# variants for these concepts are separate entries in the lexicon (πέτρα,
+# verre, vidrio, etc.) and aren't affected.
+_FM_BOUND = {"stone", "glass", "insect", "rubber"}
 
-def _contains_any(haystack: str, needles: set[str]) -> Optional[str]:
+
+def _contains_any(haystack: str, needles: set[str],
+                  bound_extra: Optional[set[str]] = None) -> Optional[str]:
     """Return first matching needle, or None.
 
     Short terms (≤4 chars, e.g. 'tin', 'don', 'pcb') use word-boundary matching
@@ -582,12 +591,26 @@ def _contains_any(haystack: str, needles: set[str]) -> Optional[str]:
     Longer terms (≥5 chars) use substring matching so that stems like
     'αφλατοξιν' match all Greek inflections (αφλατοξίνη, αφλατοξινών, etc.)
     and 'aflatossin' matches Italian inflections (aflatossina, aflatossine).
+
+    `bound_extra` is a set of specific English-noun terms that need
+    word-boundary matching even though they are ≥5 chars — e.g. 'stone' must
+    not substring-match the brand 'Blackstone'. Pass these per-category at
+    the call site (foreign_matter, heavy_metal).
     """
+    bound_extra = bound_extra or set()
     # Pre-compile word-boundary regexes for short terms (cached at module load)
     for needle in needles:
         if not needle:
             continue
-        if len(needle) <= 4:
+        if needle in bound_extra:
+            # English-noun word-boundary match with optional plural suffix
+            # (-s OR -es: 'stone' matches 'stone'/'stones'; 'glass' matches
+            # 'glass'/'glasses') but not embedded in other words (Blackstone,
+            # milestone, eyeglasses, fiberglass).
+            if re.search(r"(?<![a-zα-ω0-9])" + re.escape(needle)
+                         + r"(?:es|s)?(?![a-zα-ω0-9])", haystack):
+                return needle
+        elif len(needle) <= 4:
             # Word-boundary match for short terms
             # \b doesn't work across Unicode word chars consistently, so we use
             # a manual lookahead/lookbehind for non-letter characters.
@@ -668,7 +691,7 @@ def classify(
     blob = _normalize(f"{pathogen} {reason} {product}")
 
     # ── UNAMBIGUOUS REJECT path (glass, heavy metals, synthetic chemicals) ─
-    m = _contains_any(blob, _FOREIGN_MATTER_N)
+    m = _contains_any(blob, _FOREIGN_MATTER_N, bound_extra=_FM_BOUND)
     if m:
         return Classification(
             verdict="reject", category="foreign_matter", tier=None,
