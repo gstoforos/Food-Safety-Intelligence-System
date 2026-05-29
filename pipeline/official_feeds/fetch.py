@@ -13,9 +13,13 @@ import xml.etree.ElementTree as ET
 
 import requests
 
-UA = ("Mozilla/5.0 (compatible; AFTS-FSIS-Collector/1.0; "
-      "+https://advfood.tech)")
-DEFAULT_HEADERS = {"User-Agent": UA, "Accept": "*/*"}
+UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+DEFAULT_HEADERS = {
+    "User-Agent": UA,
+    "Accept": "application/json, text/html;q=0.9, */*;q=0.5",
+    "Accept-Language": "en-US,en;q=0.9",
+}
 TIMEOUT = 30
 
 
