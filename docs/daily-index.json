@@ -3,13 +3,15 @@
     {
       "date": "2026-05-29",
       "url": "daily/2026-05-29.html",
-      "total": 9,
-      "tier1": 9,
+      "total": 16,
+      "tier1": 15,
       "outbreak": 0,
       "by_region": {
-        "Europe": 9
+        "Europe": 14,
+        "Unknown": 1,
+        "North America": 1
       },
-      "generated": "2026-05-30T07:13:02Z"
+      "generated": "2026-05-30T17:15:45Z"
     },
     {
       "date": "2026-05-28",
