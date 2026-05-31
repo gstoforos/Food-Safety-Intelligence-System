@@ -103,9 +103,29 @@ def build_queries(authority: str, pathogen_terms: list[str],
 def fetch_gnews(authority: str, country_code: str, country_name: str,
                 authority_short: str, pathogen_terms: list[str],
                 hl: str = "en-US", gl: str = "US", ceid: str = "US:en",
-                days_back: int = 3, per_query_cap: int = 10) -> list[Record]:
+                days_back: int = 3, per_query_cap: int = 10,
+                country_keywords: tuple = (),
+                country_domains: tuple = ()) -> list[Record]:
+    """
+    Fetch Google News articles matching the source's recall queries.
+
+    country_keywords / country_domains: optional country-scope filter.
+        Many recall headlines are cross-border (a US FDA recall article
+        surfaces in an Australian Google News locale search). To keep the
+        AU/NZ collectors from labelling US recalls as AU/NZ recalls, pass
+        a tuple of geographic title keywords (e.g. ('Australia',
+        'Aussie', 'Sydney', ...)) and URL domain suffixes (e.g.
+        ('.com.au', '.gov.au', ...)). An article is kept only if its
+        title contains one of the keywords OR its URL contains one of
+        the domain suffixes. Empty tuples disable the filter (legacy
+        US/UK/Canada/Ireland behaviour unchanged).
+    """
     records: list[Record] = []
     seen_links = set()
+    kw_lower = tuple(k.lower() for k in country_keywords)
+    dom_lower = tuple(d.lower() for d in country_domains)
+    scope_active = bool(kw_lower or dom_lower)
+    skipped_scope = 0
 
     for q in build_queries(authority, pathogen_terms, days_back):
         full_q = f"{q} when:7d"
@@ -120,6 +140,17 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
                 continue
             if not _has_recall_signal(title):
                 continue          # news about a pathogen, not a recall — skip
+
+            # Country-scope filter (drops cross-border bleed)
+            if scope_active:
+                t_l = title.lower()
+                u_l = (link or "").lower()
+                in_kw = any(k in t_l for k in kw_lower)
+                in_dom = any(d in u_l for d in dom_lower)
+                if not (in_kw or in_dom):
+                    skipped_scope += 1
+                    continue
+
             seen_links.add(link)
             sid = "GN-" + hashlib.sha1(
                 (link or title).encode("utf-8", "ignore")).hexdigest()[:12]
@@ -141,6 +172,9 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
             kept += 1
             if kept >= per_query_cap:
                 break
+    total_queries = len(build_queries(authority, pathogen_terms, days_back))
+    scope_note = (f", dropped {skipped_scope} out-of-scope"
+                  if scope_active else "")
     print(f"  [GNews] {authority}: {len(records)} candidate articles "
-          f"across {len(build_queries(authority, pathogen_terms, days_back))} queries")
+          f"across {total_queries} queries{scope_note}")
     return records

@@ -50,6 +50,8 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
             pathogen_terms=list(src.gnews_terms),
             hl=src.gnews_hl, gl=src.gnews_gl, ceid=src.gnews_ceid,
             days_back=src.gnews_days_back,
+            country_keywords=src.gnews_country_keywords,
+            country_domains=src.gnews_country_domains,
         )
         records = _merge_dedup(records, gn)
         for rec in records:

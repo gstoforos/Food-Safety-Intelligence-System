@@ -65,6 +65,13 @@ class FeedSource:
     gnews_gl: str = "US"
     gnews_ceid: str = "US:en"
     gnews_days_back: int = 3
+    # Country-scope filter for GNews results — prevents cross-border bleed
+    # (e.g. US recalls surfacing in the AU collector's output). If non-empty,
+    # an article is kept only if its title contains one of the keywords OR
+    # its URL contains one of the domain suffixes. Empty = no filter (legacy
+    # sources keep their permissive behaviour).
+    gnews_country_keywords: tuple = ()
+    gnews_country_domains: tuple = ()
 
 
 _REGISTRY: dict[str, FeedSource] = {}
