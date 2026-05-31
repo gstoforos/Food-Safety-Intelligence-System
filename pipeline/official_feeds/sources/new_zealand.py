@@ -204,6 +204,22 @@ NEW_ZEALAND = FeedSource(
     ),
     gnews_hl="en-NZ", gnews_gl="NZ", gnews_ceid="NZ:en",
     gnews_days_back=3,
+    # Country-scope filter — drops US/UK/AU recall headlines that the
+    # en-NZ locale surfaces. An article must mention NZ in its title
+    # OR live on an NZ domain to pass.
+    gnews_country_keywords=(
+        "new zealand", "zealand", " nz ", " nz,", " nz.",
+        "kiwi", "aotearoa",
+        "auckland", "wellington", "christchurch", "hamilton",
+        "dunedin", "tauranga", "north island", "south island",
+        "new world", "pak'n save", "pak n save", "countdown",
+        "foodstuffs", "woolworths nz",
+        "mpi", "nzfs", "ministry for primary industries",
+        "new zealand food safety",
+    ),
+    gnews_country_domains=(
+        ".co.nz", ".org.nz", ".govt.nz", ".net.nz", ".ac.nz",
+    ),
 )
 
 register(NEW_ZEALAND)

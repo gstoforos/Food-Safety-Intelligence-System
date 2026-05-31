@@ -217,6 +217,25 @@ AUSTRALIA = FeedSource(
     ),
     gnews_hl="en-AU", gnews_gl="AU", gnews_ceid="AU:en",
     gnews_days_back=3,
+    # Country-scope filter — drops US/UK/CA recall headlines that the
+    # en-AU locale surfaces but aren't actually Australian recalls. An
+    # article must mention Australia (or a state/major city) in its
+    # title OR live on an Australian domain to pass.
+    gnews_country_keywords=(
+        "australia", "australian", "aussie",
+        "nsw", "new south wales", "sydney",
+        "victoria", "melbourne", "vic ",
+        "queensland", "brisbane", "qld",
+        "western australia", "perth", " wa ",
+        "south australia", "adelaide", " sa ",
+        "tasmania", "hobart", "tas ",
+        "act", "canberra", "northern territory", "darwin",
+        "coles", "woolworths", "aldi australia",
+        "fsanz",
+    ),
+    gnews_country_domains=(
+        ".com.au", ".org.au", ".gov.au", ".net.au", ".edu.au",
+    ),
 )
 
 register(AUSTRALIA)
