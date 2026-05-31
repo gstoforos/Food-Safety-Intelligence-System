@@ -85,16 +85,23 @@ jobs:
           SOURCES: ${{ github.event.inputs.sources || 'australia' }}
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
         run: |
-          # If manual dispatch supplied a sources list, filter to AU entries only
+          # Filter to Australian sources only (NZ is handled by its own job)
           AU_SOURCES=$(echo "$SOURCES" | tr ',' '\n' | grep -E '^australia$' | paste -sd, -)
           if [ -z "$AU_SOURCES" ]; then
             echo "No Australian sources requested for this job — exiting cleanly."
             exit 0
           fi
-          ARGS="--sources $AU_SOURCES"
-          if [ "$DRY_RUN" = "true" ]; then ARGS="$ARGS --dry-run"; fi
-          echo "Running: python -m pipeline.official_feeds.main $ARGS"
-          python -m pipeline.official_feeds.main $ARGS
+          DRY_FLAG=""
+          if [ "$DRY_RUN" = "true" ]; then DRY_FLAG="--dry-run"; fi
+          # main.py takes --source (singular), one per invocation — loop
+          echo "$AU_SOURCES" | tr ',' '\n' | while read -r SRC; do
+            [ -z "$SRC" ] && continue
+            echo "── Running source: $SRC ──"
+            python -m pipeline.official_feeds.main \
+              --source "$SRC" \
+              --max-age-days 30 \
+              $DRY_FLAG
+          done
 
       - name: Commit + push xlsx changes
         if: steps.gate.outputs.skip != '1' && github.event.inputs.dry_run != 'true'
@@ -160,10 +167,17 @@ jobs:
             echo "No New Zealand sources requested for this job — exiting cleanly."
             exit 0
           fi
-          ARGS="--sources $NZ_SOURCES"
-          if [ "$DRY_RUN" = "true" ]; then ARGS="$ARGS --dry-run"; fi
-          echo "Running: python -m pipeline.official_feeds.main $ARGS"
-          python -m pipeline.official_feeds.main $ARGS
+          DRY_FLAG=""
+          if [ "$DRY_RUN" = "true" ]; then DRY_FLAG="--dry-run"; fi
+          # main.py takes --source (singular), one per invocation — loop
+          echo "$NZ_SOURCES" | tr ',' '\n' | while read -r SRC; do
+            [ -z "$SRC" ] && continue
+            echo "── Running source: $SRC ──"
+            python -m pipeline.official_feeds.main \
+              --source "$SRC" \
+              --max-age-days 30 \
+              $DRY_FLAG
+          done
 
       - name: Commit + push xlsx changes
         if: steps.gate.outputs.skip != '1' && github.event.inputs.dry_run != 'true'
