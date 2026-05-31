@@ -78,7 +78,8 @@ def get(code: str) -> FeedSource:
     code = code.lower()
     if code not in _REGISTRY:
         from .sources import (uk, scotland, ireland,  # noqa: F401
-                              us_fda, us_fsis, canada)
+                              us_fda, us_fsis, canada,
+                              australia, new_zealand)
     if code not in _REGISTRY:
         raise KeyError(f"Unknown feed source {code!r}. Registered: {sorted(_REGISTRY)}")
     return _REGISTRY[code]
@@ -87,5 +88,6 @@ def get(code: str) -> FeedSource:
 def all_codes() -> list:
     if not _REGISTRY:
         from .sources import (uk, scotland, ireland,  # noqa: F401
-                              us_fda, us_fsis, canada)
+                              us_fda, us_fsis, canada,
+                              australia, new_zealand)
     return sorted(_REGISTRY.keys())
