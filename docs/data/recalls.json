@@ -720,6 +720,22 @@
   "Notes": "—  [via Gemini gap-finder + Google Search] [gemini-enrich 2026-05-30: Company '—'→'Bio Company GmbH'] [gap-gate 2026-05-30: pending_gap → pending_gap_v1] [claude-check 2026-05-30: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-05-30: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
+  "Date": "2026-05-27",
+  "Source": "BVL",
+  "Company": "BLG Kardesler Lebensmittel-Handelsgesellschaft mbH",
+  "Brand": "Suntat",
+  "Product": "Paprika Seasoning",
+  "Pathogen": "Aflatoxin exceeding limit",
+  "Reason": "Recall ID 842632",
+  "Class": "",
+  "Country": "Germany",
+  "Region": "not specified in article",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.produktwarnung.eu/2026/05/27/rueckruf-aflatoxin-in-suntat-paprika-gewuerzzubereitung/38102",
+  "Notes": "Discovered via news: produktwarnung.eu [claude-check 2026-05-31: pass; pass | All fields verified: date 2026-05-27 matches page publication date; company BLG Kardesler Lebensmittel-Handelsges]"
+ },
+ {
   "Date": "2026-05-26",
   "Source": "FDA",
   "Company": "Total Nutrition Inc.",
