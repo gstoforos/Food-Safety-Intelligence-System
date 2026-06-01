@@ -23,7 +23,6 @@ v7 fixes (post-2026-06-01 dry-run):
 from __future__ import annotations
 
 import re
-import time
 from datetime import datetime, timezone
 from urllib.parse import urljoin
 
@@ -31,7 +30,7 @@ from bs4 import BeautifulSoup
 import requests
 
 from ..base import Record, FeedSource, register
-from ..fetch import DEFAULT_HEADERS, TIMEOUT
+from ..fetch import DEFAULT_HEADERS, TIMEOUT  # noqa: F401  (kept for compat)
 
 LISTING_URL = (
     "https://www.mpi.govt.nz/food-safety-home/"
@@ -41,7 +40,13 @@ BASE = "https://www.mpi.govt.nz"
 
 _RECALL_PATH_PREFIX = "/food-recalls-and-complaints/recalled-food-products/"
 
-_DETAIL_CAP = 40
+# Detail-page enrichment cap. Bumping this is expensive — MPI detail
+# pages can be slow from GitHub Actions runner IPs. Worst-case
+# budget = _DETAIL_CAP × _DETAIL_TIMEOUT seconds. The MPI listing is
+# sorted newest-first, so 12 records covers ~6 weeks of activity,
+# which is well past the 30-day age filter.
+_DETAIL_CAP = 12
+_DETAIL_TIMEOUT = 8                    # seconds per detail page (NOT TIMEOUT=30)
 
 _DATE_RE = re.compile(
     r"(\d{1,2})\s+"
@@ -98,26 +103,47 @@ def _is_recall_url(href: str) -> bool:
 
 
 def _fetch_detail(url: str, debug: bool = False):
-    """Return (hazard_text, published, company) from an MPI detail page."""
+    """Return (hazard_text, published, company) from an MPI detail page.
+
+    The hazard comes from the page <title>, NOT the full body. MPI's
+    detail-page titles are unambiguous recall-reason strings of the form
+    "<Product> recalled because <reason> | NZ Government" — exactly the
+    sentence the classifier needs. The body text by contrast is full of
+    product / packaging descriptions ("sold in a plastic bag", "in a
+    400g tin", "glass jar") that match the foreign-matter and heavy-
+    metal lexicons even when they have nothing to do with the recall
+    reason (false positives observed in the 2026-06-01 dry-run: Alfamino
+    infant formula → reject/heavy_metal 'tin', Akaroa King Salmon →
+    reject/foreign_matter 'plast', plus a dozen others).
+
+    Body text is used only for date extraction (small, generic regex).
+    """
     try:
-        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=TIMEOUT)
+        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=_DETAIL_TIMEOUT)
         status = r.status_code
         r.raise_for_status()
     except Exception as e:  # noqa: BLE001
-        print(f"  [WARN] MPI detail fetch failed: {url} — {e}")
+        print(f"  [WARN] MPI detail fetch failed/timeout: {url} — {e}")
         return "", None, ""
 
     soup = BeautifulSoup(r.content, "html.parser")
 
-    # Drop nav / footer / script / style noise before extracting text.
+    # --- Hazard: from <title>, with MPI nav chrome stripped ---
+    page_title = (soup.title.get_text(strip=True)
+                  if soup.title else "")
+    # MPI ends every page <title> with " | NZ Government" or similar.
+    # Strip everything after the first " | ".
+    hazard_title = re.split(r"\s*\|\s*", page_title, maxsplit=1)[0].strip()
+    # Some MPI titles are just the product name (e.g. "Emborg Emmentaler
+    # Cheese"). The recall-reason variant is much longer. If the title is
+    # short (< 40 chars) we leave it as is — the classifier will pick up
+    # what's there (often the brand + product).
+    hazard = hazard_title
+
+    # --- Body: used ONLY for date extraction; do NOT classify from here ---
     for tag in soup(["script", "style", "nav", "header", "footer",
                      "noscript", "aside"]):
         tag.decompose()
-
-    # Try a sequence of common Drupal/MPI content selectors. If none of
-    # the named ones match, fall through to the whole body. We've seen
-    # this fail silently in v6 because soup.find("main") returned an
-    # element that was a sidebar/nav wrapper instead of the article body.
     main = (soup.find("article")
             or soup.find(class_=re.compile(r"^(field--name-body|main-content|"
                                            r"region-content|node__content|"
@@ -125,40 +151,35 @@ def _fetch_detail(url: str, debug: bool = False):
             or soup.find("main")
             or soup.body
             or soup)
-    text = main.get_text(" ", strip=True) if main else ""
-    text = re.sub(r"\s+", " ", text)
-    hazard = text[:1200]
+    body_text = main.get_text(" ", strip=True) if main else ""
+    body_text = re.sub(r"\s+", " ", body_text)
+    published = _parse_date(body_text)
 
     if debug:
-        page_title = (soup.title.get_text(strip=True)
-                      if soup.title else "(no <title>)")
         print(f"  [DEBUG] MPI detail fetch:")
         print(f"          url={url}")
         print(f"          status={status}  bytes={len(r.content)}")
-        print(f"          page <title>: {page_title[:100]}")
-        print(f"          extracted text len={len(text)}")
-        print(f"          snippet: {text[:300]!r}")
+        print(f"          page <title>: {page_title[:120]}")
+        print(f"          hazard (cleaned title): {hazard[:200]!r}")
 
-    published = _parse_date(text)
-
-    # Company extraction
+    # Company extraction — search body for "supporting <X>" or "<X> is recalling"
     company = ""
     m = re.search(
         r"(?:supporting|supports)\s+([A-Z][\w &.''\-]*"
         r"(?:\s+[A-Z0-9][\w &.''\-]*){0,5}?)\s+(?:in|with)\b",
-        text)
+        body_text)
     if not m:
         m = re.search(
             r"([A-Z][\w &.''\-]*(?:\s+[A-Z0-9][\w &.''\-]*){0,5})"
             r"\s+is\s+recalling",
-            text)
+            body_text)
     if m:
         company = m.group(1).strip()[:80]
 
     return hazard, published, company
 
 
-def fetch(limit: int = 60) -> list[Record]:
+def fetch(limit: int = 25) -> list[Record]:
     records: list[Record] = []
     seen: set[str] = set()
     links: list[tuple] = []
@@ -184,26 +205,25 @@ def fetch(limit: int = 60) -> list[Record]:
             continue
         seen.add(slug)
         # urljoin handles both domain-absolute (/path) and page-relative
-        # (path) hrefs correctly. The earlier naive BASE+href was
-        # silently producing wrong URLs for hrefs that didn't start
-        # with /, leading to detail-page fetches that succeeded against
-        # a junk URL and returned a landing page with no recall info.
+        # (path) hrefs correctly.
         url_full = urljoin(LISTING_URL, href)
         links.append((slug, title, url_full))
         if len(links) >= limit:
             break
 
     fetched = 0
-    print(f"  enriching up to {min(len(links), _DETAIL_CAP)} MPI detail pages…")
+    print(f"  enriching up to {min(len(links), _DETAIL_CAP)} MPI detail pages "
+          f"({_DETAIL_TIMEOUT}s timeout each)…")
     for slug, list_title, url_full in links:
         d_hazard = ""
         d_date = None
         d_company = ""
         if fetched < _DETAIL_CAP:
             d_hazard, d_date, d_company = _fetch_detail(
-                url_full, debug=(fetched < 3))
+                url_full, debug=(fetched < 2))
             fetched += 1
-            time.sleep(0.3)         # be polite
+            # No sleep — _DETAIL_TIMEOUT × _DETAIL_CAP is already the
+            # hard upper bound on this stage.
 
         hazard = d_hazard or list_title
 

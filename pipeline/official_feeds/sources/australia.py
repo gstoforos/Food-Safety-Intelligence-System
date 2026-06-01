@@ -39,9 +39,12 @@ BASE = "https://www.foodstandards.gov.au"
 # (templates, statistics, how-to, faqs, contacts) is navigation.
 _RECALL_PATH_PREFIX = "/food-recalls/recall-alert/"
 
-# Cap detail-page fetches per run. The FSANZ listing typically shows
-# 20-30 recalls; cap covers them all without flooding the server.
-_DETAIL_CAP = 30
+# Detail-page enrichment cap. Same budget reasoning as MPI: worst case
+# = _DETAIL_CAP × _DETAIL_TIMEOUT. FSANZ has ~20-30 active recalls on
+# the listing at any time; 15 covers anything that would still pass
+# the 30-day age filter.
+_DETAIL_CAP = 15
+_DETAIL_TIMEOUT = 8                    # seconds per detail page (NOT TIMEOUT=30)
 
 _NAV_TITLE_RE = re.compile(
     r"^(?:food recall|food incidents|how to recall|about food|"
@@ -104,41 +107,55 @@ def _is_recall_url(href: str) -> bool:
 
 
 def _fetch_detail(url: str):
-    """Return (hazard_text, published, company) from a FSANZ detail page."""
+    """Return (hazard_text, published, company) from a FSANZ detail page.
+
+    Hazard comes from the page <title>, NOT body text — body contains
+    packaging descriptions ("sold in plastic bag", "glass jar", "tin")
+    that trigger foreign-matter / heavy-metal false positives even when
+    they're unrelated to the recall reason. The page <title> on FSANZ
+    detail pages is the clean recall sentence.
+    """
     try:
-        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=TIMEOUT)
+        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=_DETAIL_TIMEOUT)
         r.raise_for_status()
     except Exception as e:  # noqa: BLE001
-        print(f"  [WARN] FSANZ detail fetch failed: {url} — {e}")
+        print(f"  [WARN] FSANZ detail fetch failed/timeout: {url} — {e}")
         return "", None, ""
 
     soup = BeautifulSoup(r.content, "html.parser")
-    main = (soup.find("main")
-            or soup.find("article")
+
+    # Hazard from <title>, strip nav chrome after " | ", " - ".
+    page_title = soup.title.get_text(strip=True) if soup.title else ""
+    hazard = re.split(r"\s*\|\s*", page_title, maxsplit=1)[0].strip()
+    # FSANZ pages sometimes use " - Food Standards Australia New Zealand"
+    hazard = re.sub(
+        r"\s*[-–—]\s*Food Standards Australia New Zealand\s*$",
+        "", hazard).strip()
+
+    # Body used only for date + company extraction
+    for tag in soup(["script", "style", "nav", "header", "footer",
+                     "noscript", "aside"]):
+        tag.decompose()
+    main = (soup.find("article")
+            or soup.find("main")
             or soup.find(class_=re.compile(r"(content|main|body)", re.I))
             or soup.body
             or soup)
-    text = main.get_text(" ", strip=True) if main else ""
-    text = re.sub(r"\s+", " ", text)
-    # The hazard text on FSANZ pages tends to be in the first ~1000 chars
-    # — past that we're into footers and "what to do" boilerplate that
-    # might contain stray allergen words.
-    hazard = text[:1000]
+    body_text = main.get_text(" ", strip=True) if main else ""
+    body_text = re.sub(r"\s+", " ", body_text)
+    published = _parse_date(body_text)
 
-    published = _parse_date(text)
-
-    # Company extraction — pattern: "<Company> is recalling" or title prefix
     company = ""
     m = re.search(
         r"([A-Z][\w&.''\-]*(?:\s+[A-Z0-9][\w&.''\-]*){0,5})\s+is\s+(?:recalling|conducting)",
-        text)
+        body_text)
     if m:
         company = m.group(1).strip()[:80]
 
     return hazard, published, company
 
 
-def fetch(limit: int = 40) -> list[Record]:
+def fetch(limit: int = 15) -> list[Record]:
     records: list[Record] = []
 
     html = None
@@ -176,7 +193,8 @@ def fetch(limit: int = 40) -> list[Record]:
             break
 
     fetched = 0
-    print(f"  enriching up to {min(len(links), _DETAIL_CAP)} FSANZ detail pages…")
+    print(f"  enriching up to {min(len(links), _DETAIL_CAP)} FSANZ detail "
+          f"pages ({_DETAIL_TIMEOUT}s timeout each)…")
     for slug, list_title, url_full in links:
         d_hazard = ""
         d_date = None
