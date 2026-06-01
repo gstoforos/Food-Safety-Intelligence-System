@@ -2,25 +2,30 @@
 New Zealand source — Ministry for Primary Industries / New Zealand Food
 Safety (MPI/NZFS).
 
-POLICY (v5+): Pending entries for NZ must only come from mpi.govt.nz,
-same as the EFET / AESAN country collectors in the EU pipeline.
+POLICY (v5+): regulator-only. Pending entries must come from mpi.govt.nz.
 
-POLICY (v6+): Detail-page enrichment. The MPI listing shows product
-names only ("Emborg Emmentaler Cheese", "Nestlé Alfamino Infant
-Formula") with no hazard wording, so listing-only classification
-returns reject/unknown for real in-scope Listeria / cereulide recalls.
-We fetch each detail page (up to _DETAIL_CAP) and use its body text as
-the hazard field so the classifier can find the regulator's own
-pathogen wording (e.g. "due to the possible presence of Listeria
-monocytogenes").
+POLICY (v6+): detail-page enrichment. Listing titles are product-only;
+hazard wording lives on the detail page.
 
-Recalled food list: https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/
+v7 fixes (post-2026-06-01 dry-run):
+ - Switch to urllib.parse.urljoin() for proper URL construction (the
+   naive BASE + href concatenation can produce malformed URLs if hrefs
+   are page-relative rather than domain-absolute).
+ - More tolerant text extraction (skip the strict main/article find;
+   grab the whole body so we don't miss recall pages that wrap content
+   differently).
+ - Diagnostic prints on first 3 detail fetches so we can SEE what MPI
+   is returning — status code, page size, extracted text length, and a
+   short text snippet. If something's wrong, this will show it.
+ - Small inter-fetch sleep to avoid tripping any rate limit.
 """
 
 from __future__ import annotations
 
 import re
+import time
 from datetime import datetime, timezone
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 import requests
@@ -92,29 +97,51 @@ def _is_recall_url(href: str) -> bool:
     return True
 
 
-def _fetch_detail(url: str):
+def _fetch_detail(url: str, debug: bool = False):
     """Return (hazard_text, published, company) from an MPI detail page."""
     try:
         r = requests.get(url, headers=DEFAULT_HEADERS, timeout=TIMEOUT)
+        status = r.status_code
         r.raise_for_status()
     except Exception as e:  # noqa: BLE001
         print(f"  [WARN] MPI detail fetch failed: {url} — {e}")
         return "", None, ""
 
     soup = BeautifulSoup(r.content, "html.parser")
-    main = (soup.find("main")
-            or soup.find("article")
-            or soup.find(class_=re.compile(r"(content|main|body)", re.I))
+
+    # Drop nav / footer / script / style noise before extracting text.
+    for tag in soup(["script", "style", "nav", "header", "footer",
+                     "noscript", "aside"]):
+        tag.decompose()
+
+    # Try a sequence of common Drupal/MPI content selectors. If none of
+    # the named ones match, fall through to the whole body. We've seen
+    # this fail silently in v6 because soup.find("main") returned an
+    # element that was a sidebar/nav wrapper instead of the article body.
+    main = (soup.find("article")
+            or soup.find(class_=re.compile(r"^(field--name-body|main-content|"
+                                           r"region-content|node__content|"
+                                           r"content-main)", re.I))
+            or soup.find("main")
             or soup.body
             or soup)
     text = main.get_text(" ", strip=True) if main else ""
     text = re.sub(r"\s+", " ", text)
-    hazard = text[:1000]
+    hazard = text[:1200]
+
+    if debug:
+        page_title = (soup.title.get_text(strip=True)
+                      if soup.title else "(no <title>)")
+        print(f"  [DEBUG] MPI detail fetch:")
+        print(f"          url={url}")
+        print(f"          status={status}  bytes={len(r.content)}")
+        print(f"          page <title>: {page_title[:100]}")
+        print(f"          extracted text len={len(text)}")
+        print(f"          snippet: {text[:300]!r}")
 
     published = _parse_date(text)
 
-    # MPI detail pages typically open with "New Zealand Food Safety is
-    # supporting <Company> in its recall of …" — extract company.
+    # Company extraction
     company = ""
     m = re.search(
         r"(?:supporting|supports)\s+([A-Z][\w &.''\-]*"
@@ -156,7 +183,12 @@ def fetch(limit: int = 60) -> list[Record]:
                              "next", "previous", "recalled food products"}:
             continue
         seen.add(slug)
-        url_full = href if href.startswith("http") else BASE + href
+        # urljoin handles both domain-absolute (/path) and page-relative
+        # (path) hrefs correctly. The earlier naive BASE+href was
+        # silently producing wrong URLs for hrefs that didn't start
+        # with /, leading to detail-page fetches that succeeded against
+        # a junk URL and returned a landing page with no recall info.
+        url_full = urljoin(LISTING_URL, href)
         links.append((slug, title, url_full))
         if len(links) >= limit:
             break
@@ -168,12 +200,13 @@ def fetch(limit: int = 60) -> list[Record]:
         d_date = None
         d_company = ""
         if fetched < _DETAIL_CAP:
-            d_hazard, d_date, d_company = _fetch_detail(url_full)
+            d_hazard, d_date, d_company = _fetch_detail(
+                url_full, debug=(fetched < 3))
             fetched += 1
+            time.sleep(0.3)         # be polite
 
         hazard = d_hazard or list_title
 
-        # Company: prefer detail-page; fall back to title prefix
         company = d_company
         if not company:
             m = re.match(r"^([A-Z][\w &.''\-]{1,40}?)\s+brand\b", list_title)
@@ -210,8 +243,6 @@ NEW_ZEALAND = FeedSource(
     region="Oceania",
     timezone="Pacific/Auckland",
     run_local_hour=9,
-    # 09:00 Auckland = 21:00 UTC prev day (NZST/winter, UTC+12)
-    #                  20:00 UTC prev day (NZDT/summer, UTC+13)
     cron_utc_offsets=(20, 21),
     gnews_authority="New Zealand",
     gnews_terms=(
@@ -222,11 +253,8 @@ NEW_ZEALAND = FeedSource(
     ),
     gnews_hl="en-NZ", gnews_gl="NZ", gnews_ceid="NZ:en",
     gnews_days_back=3,
-    # POLICY: regulator-only. Pending entries must come from MPI.
     gnews_country_keywords=(),
-    gnews_country_domains=(
-        "mpi.govt.nz",
-    ),
+    gnews_country_domains=("mpi.govt.nz",),
     gnews_block_title_keywords=(
         "fda", "usda", "fsis",
         "walmart", "kroger", "sam's club", "sams club",

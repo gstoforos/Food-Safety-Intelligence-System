@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime, timezone
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 import requests
@@ -167,7 +168,9 @@ def fetch(limit: int = 40) -> list[Record]:
         if _NAV_TITLE_RE.match(title):
             continue
         seen.add(slug)
-        url_full = href if href.startswith("http") else BASE + href
+        # urljoin handles both domain-absolute (/path) and page-relative
+        # (path) hrefs correctly.
+        url_full = urljoin(listing_url or LISTING_URLS[0], href)
         links.append((slug, title, url_full))
         if len(links) >= limit:
             break
