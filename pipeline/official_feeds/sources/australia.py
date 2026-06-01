@@ -1,29 +1,20 @@
 """
 Australia source — Food Standards Australia New Zealand (FSANZ).
 
-FSANZ has no public JSON/RSS recall feed. The federal listing page lists
-recall items under /food-recalls/recall-alert/<slug>. We do a best-effort
-scrape of that listing — title-only, no DOM-parent text — and rely on the
-Google News supplement to carry the bulk of detections. If the HTML
-structure changes or the page returns an error, the official-feed half
-quietly returns 0 records and the GNews half still runs (FSIS pattern).
+POLICY (v5+): Pending entries for AU must only come from the regulator's
+own website (foodstandards.gov.au), same as the EFET / AESAN / ASAE
+country collectors in the EU pipeline. GNews supplement still runs as
+backup but its country-scope filter only accepts the regulator domain.
+
+POLICY (v6+): Detail-page enrichment. The listing page shows each
+recall as "Company - Product - Size" without hazard wording, so a
+listing-only classifier returns reject/unknown for every record — even
+real in-scope Listeria / Salmonella recalls. We fetch each detail page
+(up to _DETAIL_CAP) and use its body text as the hazard field so the
+classifier can find the pathogen wording the regulator actually
+published.
 
 Federal recall-alert listing: https://www.foodstandards.gov.au/food-recalls/recall-alert
-Federal recall index:          https://www.foodstandards.gov.au/food-recalls
-
-DESIGN NOTES (v2, post-2026-05-31 dry-run):
- - We do NOT pull the surrounding container text for the hazard field —
-   the FSANZ listing page is flat with sibling recall items, so any
-   widening of the DOM scope causes neighbour-pathogen bleed (e.g.
-   "pistachio" from one recall contaminating the hazard text of every
-   nearby unrelated recall, producing reject/allergen false positives
-   across the entire batch). Title-only is safe but loses hazard context;
-   GNews fills that gap by re-finding the same recalls in news articles
-   that DO name the pathogen in the headline.
- - We require a recall-alert URL fragment so nav links like
-   "/food-recalls/templates", "/food-recalls/how-to-recall-food",
-   "/food-recalls/statecontacts" are filtered out before they reach the
-   classifier.
 """
 
 from __future__ import annotations
@@ -43,12 +34,14 @@ LISTING_URLS = (
 )
 BASE = "https://www.foodstandards.gov.au"
 
-# Only real recall items live under this exact path prefix; everything
-# else (templates, statistics, how-to, faqs, contacts) is navigation.
+# Real recall items live under this path prefix; everything else
+# (templates, statistics, how-to, faqs, contacts) is navigation.
 _RECALL_PATH_PREFIX = "/food-recalls/recall-alert/"
 
-# Belt-and-braces text-level blocklist for navigation anchors that
-# sometimes link out to recall-shaped URLs.
+# Cap detail-page fetches per run. The FSANZ listing typically shows
+# 20-30 recalls; cap covers them all without flooding the server.
+_DETAIL_CAP = 30
+
 _NAV_TITLE_RE = re.compile(
     r"^(?:food recall|food incidents|how to recall|about food|"
     r"state and territory|faqs|food industry recall|recall protocol|"
@@ -96,7 +89,6 @@ def _try_fetch(url: str) -> str | None:
 
 
 def _is_recall_url(href: str) -> bool:
-    """Only accept URLs that look like real recall items."""
     if not href:
         return False
     path = href.split("?", 1)[0].split("#", 1)[0]
@@ -108,6 +100,41 @@ def _is_recall_url(href: str) -> bool:
     if tail.startswith("page-") or tail.isdigit():
         return False
     return True
+
+
+def _fetch_detail(url: str):
+    """Return (hazard_text, published, company) from a FSANZ detail page."""
+    try:
+        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=TIMEOUT)
+        r.raise_for_status()
+    except Exception as e:  # noqa: BLE001
+        print(f"  [WARN] FSANZ detail fetch failed: {url} — {e}")
+        return "", None, ""
+
+    soup = BeautifulSoup(r.content, "html.parser")
+    main = (soup.find("main")
+            or soup.find("article")
+            or soup.find(class_=re.compile(r"(content|main|body)", re.I))
+            or soup.body
+            or soup)
+    text = main.get_text(" ", strip=True) if main else ""
+    text = re.sub(r"\s+", " ", text)
+    # The hazard text on FSANZ pages tends to be in the first ~1000 chars
+    # — past that we're into footers and "what to do" boilerplate that
+    # might contain stray allergen words.
+    hazard = text[:1000]
+
+    published = _parse_date(text)
+
+    # Company extraction — pattern: "<Company> is recalling" or title prefix
+    company = ""
+    m = re.search(
+        r"([A-Z][\w&.''\-]*(?:\s+[A-Z0-9][\w&.''\-]*){0,5})\s+is\s+(?:recalling|conducting)",
+        text)
+    if m:
+        company = m.group(1).strip()[:80]
+
+    return hazard, published, company
 
 
 def fetch(limit: int = 40) -> list[Record]:
@@ -125,70 +152,62 @@ def fetch(limit: int = 40) -> list[Record]:
 
     soup = BeautifulSoup(html, "html.parser")
     seen: set[str] = set()
+    links: list[tuple] = []
 
     for a in soup.find_all("a", href=True):
         href = a["href"]
         if not _is_recall_url(href):
             continue
-
         slug = href.split("?", 1)[0].split("#", 1)[0].rstrip("/").split("/")[-1]
         if not slug or slug in seen:
             continue
-
         title = _clean_title(a.get_text(" ", strip=True))
         if not title or len(title) < 8:
             continue
         if _NAV_TITLE_RE.match(title):
             continue
         seen.add(slug)
-
         url_full = href if href.startswith("http") else BASE + href
+        links.append((slug, title, url_full))
+        if len(links) >= limit:
+            break
 
-        # Date: try a nearby <time datetime="..."> element; if not found,
-        # leave None — age filter keeps no-date records.
-        published = None
-        parent = a.parent
-        for _ in range(3):
-            if not parent or parent.name in {"body", "html"}:
-                break
-            t = parent.find("time")
-            if t and t.get("datetime"):
-                try:
-                    raw = t["datetime"].replace("Z", "+00:00")
-                    published = datetime.fromisoformat(raw)
-                    if published.tzinfo is None:
-                        published = published.replace(tzinfo=timezone.utc)
-                    break
-                except (ValueError, KeyError):
-                    pass
-            parent = parent.parent
-        if published is None:
-            published = _parse_date(title)
+    fetched = 0
+    print(f"  enriching up to {min(len(links), _DETAIL_CAP)} FSANZ detail pages…")
+    for slug, list_title, url_full in links:
+        d_hazard = ""
+        d_date = None
+        d_company = ""
+        if fetched < _DETAIL_CAP:
+            d_hazard, d_date, d_company = _fetch_detail(url_full)
+            fetched += 1
 
-        # Company from title: text before " - " if present
-        company = ""
-        m = re.match(r"^([A-Z][\w &.''\-]{1,80}?)\s*[-–—]", title)
-        if m:
-            company = m.group(1).strip()
+        # Title from listing; hazard from detail page (or title fallback)
+        hazard = d_hazard or list_title
+
+        # Company: prefer detail-page extraction, fall back to title prefix
+        company = d_company
+        if not company:
+            m = re.match(r"^([A-Z][\w &.''\-]{1,80}?)\s*[-–—]", list_title)
+            if m:
+                company = m.group(1).strip()
 
         rec = Record(
             source_id=f"FSANZ-{slug}",
             country_code="au",
             country_name="Australia",
             authority="FSANZ",
-            title=title,
+            title=list_title,
             company=company,
             product="",
-            hazard=title,            # title-only — NO parent DOM bleed
+            hazard=hazard,
             alert_type="recall",
             region="Oceania",
-            published=published,
+            published=d_date,
             url=url_full,
             raw={"slug": slug, "listing": listing_url},
         )
         records.append(rec)
-        if len(records) >= limit:
-            break
 
     return records
 
@@ -204,10 +223,6 @@ AUSTRALIA = FeedSource(
     # 09:00 Sydney = 23:00 UTC prev day (AEST/winter, UTC+10)
     #                22:00 UTC prev day (AEDT/summer, UTC+11)
     cron_utc_offsets=(22, 23),
-    # SHORT authority — "FSANZ Australia food" returned 0 across 49 queries
-    # in dry-run because no AU news headline contains all those words. Just
-    # "Australia" + the en-AU/AU Google News locale params is enough to
-    # narrow results to Australian food-recall news.
     gnews_authority="Australia",
     gnews_terms=(
         "salmonella", "listeria", "listeria monocytogenes",
@@ -217,20 +232,14 @@ AUSTRALIA = FeedSource(
     ),
     gnews_hl="en-AU", gnews_gl="AU", gnews_ceid="AU:en",
     gnews_days_back=3,
-    # Country-scope filter — POLICY: Pending entries for AU must only come
-    # from the regulator's own website (foodstandards.gov.au), same as the
-    # EFET / AESAN / ASAE / etc. country collectors in the EU pipeline.
-    # GNews still runs as backup but any catch is dropped unless its URL
-    # is on the FSANZ domain. Title-keyword matching is OFF — domestic
-    # news outlets routinely cover US recalls on .com.au URLs, and we
-    # can't tell domestic-vs-syndicated from a headline alone.
+    # POLICY: regulator-only. Pending entries must come from FSANZ. The
+    # country-scope filter requires the URL to be on foodstandards.gov.au
+    # — domestic news outlets that syndicate US recalls on .com.au URLs
+    # get filtered out at the GNews stage.
     gnews_country_keywords=(),
     gnews_country_domains=(
         "foodstandards.gov.au",
     ),
-    # Title denylist — defence in depth (block fires after scope filter,
-    # so this only matters for the rare case where a foodstandards.gov.au
-    # article references a US story; we still want it dropped).
     gnews_block_title_keywords=(
         "fda", "usda", "fsis",
         "walmart", "kroger", "sam's club", "sams club",
