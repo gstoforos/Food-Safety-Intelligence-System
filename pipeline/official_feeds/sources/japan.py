@@ -161,7 +161,14 @@ JAPAN = FeedSource(
     gnews_hl="en", gnews_gl="JP", gnews_ceid="JP:en",
     gnews_days_back=3,
     gnews_country_keywords=(),
-    gnews_country_domains=("caa.go.jp", "mhlw.go.jp", "recall.caa.go.jp"),
+    gnews_country_domains=(
+        "caa.go.jp",
+        "mhlw.go.jp",
+        "recall.caa.go.jp",
+        "japantimes.co.jp",          # Japan Times
+        "mainichi.jp",               # Mainichi English
+        "japannews.yomiuri.co.jp",   # Yomiuri English
+    ),
     gnews_block_title_keywords=(
         "fda announces", "us fda", "u.s. fda", "fda warns shoppers",
         "usda", "fsis",

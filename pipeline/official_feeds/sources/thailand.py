@@ -157,7 +157,13 @@ THAILAND = FeedSource(
     gnews_hl="en", gnews_gl="TH", gnews_ceid="TH:en",
     gnews_days_back=3,
     gnews_country_keywords=(),
-    gnews_country_domains=("fda.moph.go.th", "moph.go.th"),
+    gnews_country_domains=(
+        "fda.moph.go.th",
+        "moph.go.th",
+        "bangkokpost.com",           # Bangkok Post
+        "nationthailand.com",        # The Nation Thailand
+        "thaipbsworld.com",          # Thai PBS World
+    ),
     gnews_block_title_keywords=(
         "fda announces", "us fda", "u.s. fda", "fda warns shoppers",
         "usda", "fsis",

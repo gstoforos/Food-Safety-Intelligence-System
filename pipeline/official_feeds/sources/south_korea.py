@@ -155,7 +155,13 @@ SOUTH_KOREA = FeedSource(
     gnews_hl="en", gnews_gl="KR", gnews_ceid="KR:en",
     gnews_days_back=3,
     gnews_country_keywords=(),
-    gnews_country_domains=("mfds.go.kr", "foodsafetykorea.go.kr"),
+    gnews_country_domains=(
+        "mfds.go.kr",
+        "foodsafetykorea.go.kr",
+        "koreaherald.com",           # Korea Herald
+        "koreatimes.co.kr",          # Korea Times
+        "koreajoongangdaily.joins.com",  # JoongAng Daily English
+    ),
     gnews_block_title_keywords=(
         "fda announces", "us fda", "u.s. fda", "fda warns shoppers",
         "usda", "fsis",

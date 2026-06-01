@@ -159,7 +159,12 @@ VIETNAM = FeedSource(
     gnews_hl="en", gnews_gl="VN", gnews_ceid="VN:en",
     gnews_days_back=3,
     gnews_country_keywords=(),
-    gnews_country_domains=("vfa.gov.vn",),
+    gnews_country_domains=(
+        "vfa.gov.vn",
+        "vietnamnews.vn",            # Vietnam News (state-owned, English)
+        "vir.com.vn",                # Vietnam Investment Review
+        "tuoitrenews.vn",            # Tuoi Tre News (English)
+    ),
     gnews_block_title_keywords=(
         "fda announces", "us fda", "u.s. fda", "fda warns shoppers",
         "usda", "fsis",

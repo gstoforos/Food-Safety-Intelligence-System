@@ -157,7 +157,12 @@ TAIWAN = FeedSource(
     gnews_hl="en", gnews_gl="TW", gnews_ceid="TW:en",
     gnews_days_back=3,
     gnews_country_keywords=(),
-    gnews_country_domains=("fda.gov.tw",),
+    gnews_country_domains=(
+        "fda.gov.tw",
+        "focustaiwan.tw",            # CNA Taiwan English service
+        "taipeitimes.com",           # Taipei Times
+        "taiwannews.com.tw",         # Taiwan News
+    ),
     gnews_block_title_keywords=(
         "fda announces", "us fda", "u.s. fda", "fda warns shoppers",
         "usda", "fsis",

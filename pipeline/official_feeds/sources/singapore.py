@@ -167,7 +167,12 @@ SINGAPORE = FeedSource(
     gnews_hl="en-SG", gnews_gl="SG", gnews_ceid="SG:en",
     gnews_days_back=3,
     gnews_country_keywords=(),
-    gnews_country_domains=("sfa.gov.sg",),
+    gnews_country_domains=(
+        "sfa.gov.sg",
+        "channelnewsasia.com",       # CNA — primary SG English news
+        "straitstimes.com",          # Straits Times — SG paper of record
+        "todayonline.com",           # Today — SG news
+    ),
     gnews_block_title_keywords=(
         "fda announces", "us fda", "u.s. fda", "fda warns shoppers", "usda", "fsis",
         "walmart", "kroger", "sam's club", "sams club",

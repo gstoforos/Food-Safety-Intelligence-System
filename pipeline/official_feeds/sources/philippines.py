@@ -165,7 +165,13 @@ PHILIPPINES = FeedSource(
     gnews_hl="en-PH", gnews_gl="PH", gnews_ceid="PH:en",
     gnews_days_back=3,
     gnews_country_keywords=(),
-    gnews_country_domains=("fda.gov.ph",),
+    gnews_country_domains=(
+        "fda.gov.ph",
+        "inquirer.net",              # Philippine Daily Inquirer
+        "philstar.com",              # The Philippine Star
+        "rappler.com",               # Rappler
+        "gmanetwork.com",            # GMA News
+    ),
     gnews_block_title_keywords=(
         "fda announces", "us fda", "u.s. fda", "fda warns shoppers",
         "usda", "fsis",

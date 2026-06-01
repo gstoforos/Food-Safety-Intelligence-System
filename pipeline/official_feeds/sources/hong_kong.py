@@ -172,7 +172,12 @@ HONG_KONG = FeedSource(
     gnews_hl="en-HK", gnews_gl="HK", gnews_ceid="HK:en",
     gnews_days_back=3,
     gnews_country_keywords=(),
-    gnews_country_domains=("cfs.gov.hk",),
+    gnews_country_domains=(
+        "cfs.gov.hk",
+        "scmp.com",                  # South China Morning Post — HK English
+        "hongkongfp.com",            # HK Free Press
+        "thestandard.com.hk",        # The Standard — HK English daily
+    ),
     gnews_block_title_keywords=(
         "fda announces", "us fda", "u.s. fda", "fda warns shoppers", "usda", "fsis",
         "walmart", "kroger", "sam's club", "sams club",

@@ -174,7 +174,13 @@ INDONESIA = FeedSource(
     gnews_hl="en-ID", gnews_gl="ID", gnews_ceid="ID:en",
     gnews_days_back=3,
     gnews_country_keywords=(),
-    gnews_country_domains=("pom.go.id", "bpom.go.id"),
+    gnews_country_domains=(
+        "pom.go.id",
+        "bpom.go.id",
+        "thejakartapost.com",        # Jakarta Post
+        "jakartaglobe.id",           # Jakarta Globe
+        "antaranews.com",            # Antara News (state agency, has /en)
+    ),
     gnews_block_title_keywords=(
         "fda announces", "us fda", "u.s. fda", "fda warns shoppers",
         "usda", "fsis",
