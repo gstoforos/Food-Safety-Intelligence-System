@@ -5,21 +5,21 @@
   "week_num": 22,
   "year": 2026,
   "week_start": "2026-05-22",
-  "week_end": "2026-05-28",
+  "week_end": "2026-05-27",
   "week_start_display": "22 May",
-  "week_end_display": "28 May 2026",
-  "generated_utc": "2026-05-29T11:35:00+00:00",
+  "week_end_display": "27 May 2026",
+  "generated_utc": "2026-06-01T07:36:19.453243+00:00",
   "stats": {
-    "total": 53,
-    "tier1": 41,
-    "outbreaks": 1,
-    "delta": -13,
-    "delta_pct": -20
+    "total": 63,
+    "tier1": 48,
+    "outbreaks": 4,
+    "delta": -3,
+    "delta_pct": -5
   },
   "leading_pathogen": {
-    "name": "Listeria monocytogenes",
-    "cases": 16,
-    "pct": 30
+    "name": "Salmonella spp.",
+    "cases": 21,
+    "pct": 33
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -94,5 +94,5 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22390/Interne"
     }
   ],
-  "country_count": 14
+  "country_count": 19
 }
