@@ -94,7 +94,9 @@ def get(code: str) -> FeedSource:
                               us_fda, us_fsis, canada,
                               australia, new_zealand,
                               singapore, hong_kong, taiwan,
-                              south_korea, japan)
+                              south_korea, japan,
+                              philippines, indonesia,
+                              thailand, vietnam)
     if code not in _REGISTRY:
         raise KeyError(f"Unknown feed source {code!r}. Registered: {sorted(_REGISTRY)}")
     return _REGISTRY[code]
@@ -106,5 +108,7 @@ def all_codes() -> list:
                               us_fda, us_fsis, canada,
                               australia, new_zealand,
                               singapore, hong_kong, taiwan,
-                              south_korea, japan)
+                              south_korea, japan,
+                              philippines, indonesia,
+                              thailand, vietnam)
     return sorted(_REGISTRY.keys())
