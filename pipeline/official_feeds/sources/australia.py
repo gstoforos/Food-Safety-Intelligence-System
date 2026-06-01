@@ -39,12 +39,47 @@ BASE = "https://www.foodstandards.gov.au"
 # (templates, statistics, how-to, faqs, contacts) is navigation.
 _RECALL_PATH_PREFIX = "/food-recalls/recall-alert/"
 
-# Detail-page enrichment cap. Same budget reasoning as MPI: worst case
-# = _DETAIL_CAP × _DETAIL_TIMEOUT. FSANZ has ~20-30 active recalls on
-# the listing at any time; 15 covers anything that would still pass
-# the 30-day age filter.
-_DETAIL_CAP = 15
+# Detail-page enrichment cap. FSANZ listing usually has ~25-40 entries.
+# We need to enrich enough to cover anything that passes the 30-day
+# age filter. Worst case = _DETAIL_CAP × _DETAIL_TIMEOUT.
+_DETAIL_CAP = 25
 _DETAIL_TIMEOUT = 8                    # seconds per detail page (NOT TIMEOUT=30)
+
+# Patterns that introduce the recall reason on a FSANZ detail page.
+# We pull only sentences matching these patterns — that way packaging
+# descriptions ("sold in plastic bag", "400g tin", "glass jar") don't
+# leak into the classifier. Each pattern stops at the next period
+# (sentence boundary) by using [^.] so the recall-reason sentence is
+# captured cleanly and the following packaging sentence is excluded.
+_REASON_PATTERNS = [
+    re.compile(r"due to [^.]{1,200}", re.I),
+    re.compile(r"because of [^.]{1,200}", re.I),
+    re.compile(r"may contain [^.]{1,200}", re.I),
+    re.compile(r"contaminated with [^.]{1,200}", re.I),
+    re.compile(r"presence of [^.]{1,200}", re.I),
+    re.compile(r"reason for (?:the )?recall[:\s][^.]{1,200}", re.I),
+    re.compile(r"hazard[:\s][^.]{1,200}", re.I),
+]
+
+
+def _extract_reason_phrases(body: str) -> str:
+    """Return only the recall-reason phrases from a body of text.
+
+    This filters out product descriptions, packaging info, and
+    distribution details — keeping just the sentences that name the
+    hazard. Result is concatenated with spaces, capped at ~600 chars.
+    """
+    found: list[str] = []
+    for pat in _REASON_PATTERNS:
+        for m in pat.finditer(body):
+            phrase = re.sub(r"\s+", " ", m.group(0)).strip()
+            if phrase and phrase not in found:
+                found.append(phrase)
+            if len(found) >= 6:
+                break
+        if len(found) >= 6:
+            break
+    return " | ".join(found)[:600]
 
 _NAV_TITLE_RE = re.compile(
     r"^(?:food recall|food incidents|how to recall|about food|"
@@ -109,11 +144,16 @@ def _is_recall_url(href: str) -> bool:
 def _fetch_detail(url: str):
     """Return (hazard_text, published, company) from a FSANZ detail page.
 
-    Hazard comes from the page <title>, NOT body text — body contains
-    packaging descriptions ("sold in plastic bag", "glass jar", "tin")
-    that trigger foreign-matter / heavy-metal false positives even when
-    they're unrelated to the recall reason. The page <title> on FSANZ
-    detail pages is the clean recall sentence.
+    Hazard is a hybrid of:
+      (a) the page <title> (chrome stripped), AND
+      (b) recall-reason phrases extracted from body text via _REASON_PATTERNS
+          (sentences after "due to", "may contain", "because of", etc.)
+
+    This avoids the body-text false positives that bit v8 (packaging
+    descriptions matching foreign_matter / heavy_metal lexicons) while
+    still letting the classifier see the regulator's hazard wording —
+    FSANZ page <title> alone is usually just the product name without
+    the recall reason, unlike MPI which puts the full reason in <title>.
     """
     try:
         r = requests.get(url, headers=DEFAULT_HEADERS, timeout=_DETAIL_TIMEOUT)
@@ -124,15 +164,14 @@ def _fetch_detail(url: str):
 
     soup = BeautifulSoup(r.content, "html.parser")
 
-    # Hazard from <title>, strip nav chrome after " | ", " - ".
+    # <title> portion
     page_title = soup.title.get_text(strip=True) if soup.title else ""
-    hazard = re.split(r"\s*\|\s*", page_title, maxsplit=1)[0].strip()
-    # FSANZ pages sometimes use " - Food Standards Australia New Zealand"
-    hazard = re.sub(
+    title_clean = re.split(r"\s*\|\s*", page_title, maxsplit=1)[0].strip()
+    title_clean = re.sub(
         r"\s*[-–—]\s*Food Standards Australia New Zealand\s*$",
-        "", hazard).strip()
+        "", title_clean).strip()
 
-    # Body used only for date + company extraction
+    # Body — used for reason-phrase extraction + date + company
     for tag in soup(["script", "style", "nav", "header", "footer",
                      "noscript", "aside"]):
         tag.decompose()
@@ -143,6 +182,12 @@ def _fetch_detail(url: str):
             or soup)
     body_text = main.get_text(" ", strip=True) if main else ""
     body_text = re.sub(r"\s+", " ", body_text)
+
+    reasons = _extract_reason_phrases(body_text)
+    # hazard = title + reason phrases (newline separator preserves boundaries
+    # so the classifier doesn't accidentally match across them)
+    hazard = (title_clean + "\n" + reasons).strip()
+
     published = _parse_date(body_text)
 
     company = ""
@@ -155,7 +200,7 @@ def _fetch_detail(url: str):
     return hazard, published, company
 
 
-def fetch(limit: int = 15) -> list[Record]:
+def fetch(limit: int = 25) -> list[Record]:
     records: list[Record] = []
 
     html = None

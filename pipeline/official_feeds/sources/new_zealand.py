@@ -40,12 +40,12 @@ BASE = "https://www.mpi.govt.nz"
 
 _RECALL_PATH_PREFIX = "/food-recalls-and-complaints/recalled-food-products/"
 
-# Detail-page enrichment cap. Bumping this is expensive — MPI detail
-# pages can be slow from GitHub Actions runner IPs. Worst-case
-# budget = _DETAIL_CAP × _DETAIL_TIMEOUT seconds. The MPI listing is
-# sorted newest-first, so 12 records covers ~6 weeks of activity,
-# which is well past the 30-day age filter.
-_DETAIL_CAP = 12
+# Detail-page enrichment cap. The MPI listing typically shows 40-60
+# recalls. Title-only hazard is only useful AFTER detail enrichment
+# (the listing anchor text is the product name, not the recall reason),
+# so we must enrich enough of the list to cover anything that could
+# still pass the 30-day age filter. Worst case = _DETAIL_CAP × _DETAIL_TIMEOUT.
+_DETAIL_CAP = 45
 _DETAIL_TIMEOUT = 8                    # seconds per detail page (NOT TIMEOUT=30)
 
 _DATE_RE = re.compile(
@@ -179,7 +179,7 @@ def _fetch_detail(url: str, debug: bool = False):
     return hazard, published, company
 
 
-def fetch(limit: int = 25) -> list[Record]:
+def fetch(limit: int = 45) -> list[Record]:
     records: list[Record] = []
     seen: set[str] = set()
     links: list[tuple] = []
