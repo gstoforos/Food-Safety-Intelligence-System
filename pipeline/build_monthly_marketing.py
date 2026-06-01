@@ -304,6 +304,35 @@ def _text_w(text, font, size):
     return pdfmetrics.stringWidth(text, font, size)
 
 
+def _truncate_product(text: str, max_chars: int = 160) -> str:
+    """Cap a Product field at `max_chars` to keep the single-page marketing PDF
+    layout from overflowing into the footer band when a subscriber-grade row
+    description (e.g. USDA FSIS public health alerts with full distribution
+    paragraphs, FDA recall press releases) is far longer than the column can
+    fit in 3-4 lines at PRODUCT_FONT_SIZE=7.5/PRODUCT_LEADING=9.0.
+
+    Subscriber HTML still gets the full untruncated text — this affects only
+    the marketing lead-magnet PDF Top-N table rendered by render_marketing_pdf.
+
+    Truncates on the nearest word boundary at or before `max_chars`, then
+    appends a single ellipsis (…) so the reader sees the row is summarised.
+    No-op if the text is already short enough.
+
+    Added 2026-06-01 after M05 marketing PDF audit flagged that Daisy Brand
+    HEADCHEESE and Kebab Shop kofta rows (both ~300+ char Product fields)
+    pushed rows 7-10 of the Top 10 table below the navy footer band.
+    """
+    if not text:
+        return ""
+    text = str(text).strip()
+    if len(text) <= max_chars:
+        return text
+    cut = text.rfind(" ", 0, max_chars)
+    if cut < int(max_chars * 0.5):  # if no good word break in upper half, hard-cut
+        cut = max_chars
+    return text[:cut].rstrip(" ,;:.—–-") + "…"
+
+
 def _wrap(text, font, size, max_w):
     out = []
     for paragraph in text.split("\n"):
@@ -460,7 +489,10 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
         flag     = "OUTBREAK" if row.get("outbreak") else None
         company  = row["company"]
         country  = row.get("country", "")
-        product  = row.get("product", "")
+        # Cap at 160 chars to keep the single-page layout from overflowing the
+        # navy footer band when a Product field is much longer than the column
+        # can render in 3-4 wrapped lines. Subscriber HTML still shows full text.
+        product  = _truncate_product(row.get("product", ""), max_chars=160)
         source   = row["source"]
 
         prod_lines = _wrap(product, H_REG, PRODUCT_FONT_SIZE, col_widths[4])
