@@ -208,6 +208,7 @@ SINGAPORE = FeedSource(
         "trader joe", "whole foods", "kirkland",
         "u.s.", "united states",
     ),
+    gnews_use_description=True,
 )
 
 register(SINGAPORE)
