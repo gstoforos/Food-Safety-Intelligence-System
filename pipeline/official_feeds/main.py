@@ -52,6 +52,7 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
             days_back=src.gnews_days_back,
             country_keywords=src.gnews_country_keywords,
             country_domains=src.gnews_country_domains,
+            block_title_keywords=src.gnews_block_title_keywords,
         )
         records = _merge_dedup(records, gn)
         for rec in records:

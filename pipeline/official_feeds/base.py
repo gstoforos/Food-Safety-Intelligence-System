@@ -72,6 +72,12 @@ class FeedSource:
     # sources keep their permissive behaviour).
     gnews_country_keywords: tuple = ()
     gnews_country_domains: tuple = ()
+    # Title-keyword denylist — articles whose title contains any of these
+    # are dropped unconditionally, even if they passed the country-scope
+    # filter. Use for unambiguous foreign-country signals (e.g. "FDA",
+    # "Walmart" on an AU collector — that's a US recall syndicated by an
+    # AU news outlet, not an AU recall).
+    gnews_block_title_keywords: tuple = ()
 
 
 _REGISTRY: dict[str, FeedSource] = {}
