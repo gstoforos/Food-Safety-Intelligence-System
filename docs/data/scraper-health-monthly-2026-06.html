@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>FSIS Scraper Health — June 2026</title>
+<style>
+body{font-family:'Inter',-apple-system,system-ui,sans-serif;
+     font-size:14px;line-height:1.55;color:#1a1a1a;
+     max-width:760px;margin:0 auto;padding:24px}
+h1{color:#0a3d2e;font-size:22px;margin:0 0 6px;letter-spacing:-0.01em}
+h2{color:#0a3d2e;font-size:16px;margin:24px 0 8px;
+   border-bottom:1px solid #ddd;padding-bottom:4px}
+.lead{font-size:13px;color:#555;margin:0 0 18px}
+.kpi{display:flex;gap:14px;margin:12px 0 16px;flex-wrap:wrap}
+.kpi .b{flex:1 1 130px;border:1px solid #d4d4d4;border-radius:6px;padding:10px 12px}
+.kpi .b .n{font-size:24px;font-weight:700;color:#0a3d2e;line-height:1.1}
+.kpi .b .l{font-size:11px;color:#666;text-transform:uppercase;
+            letter-spacing:0.05em;margin-top:2px}
+.kpi .b.ok .n{color:#0a7d3e}
+.kpi .b.warn .n{color:#c45a08}
+.kpi .b.bad .n{color:#a51c2c}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12.5px}
+th{background:#f4f7f5;text-align:left;padding:6px 9px;
+   border:1px solid #d4d4d4;font-weight:700;color:#0a3d2e}
+td{padding:5px 9px;border:1px solid #e0e0e0;vertical-align:top}
+.tag{display:inline-block;padding:1px 7px;border-radius:3px;
+     font-size:10.5px;font-weight:600;letter-spacing:0.03em}
+.tag.f404{background:#fee2e2;color:#a51c2c}
+.tag.f403{background:#fed7aa;color:#7c2d12}
+.tag.fdns{background:#fef3c7;color:#92400e}
+.tag.fssl{background:#fce7f3;color:#9d174d}
+.tag.ftime{background:#e0e7ff;color:#3730a3}
+.tag.fother{background:#e5e7eb;color:#374151}
+.action{background:#f4f7f5;border-left:3px solid #0a3d2e;
+        padding:8px 12px;margin:6px 0;font-size:12.5px}
+.foot{margin-top:32px;padding-top:14px;border-top:1px solid #ddd;
+      font-size:11px;color:#888}
+</style>
+</head><body>
+
+<h1>FSIS Scraper Health Report</h1>
+<p class="lead">June 2026 · 30-day rollup of regulator scraper status</p>
+
+<div class="kpi">
+  <div class="b ok"><div class="n">4</div><div class="l">scrapers OK</div></div>
+  <div class="b warn"><div class="n">42</div><div class="l">OK but empty window</div></div>
+  <div class="b bad"><div class="n">9</div><div class="l">failing</div></div>
+  <div class="b"><div class="n">16.4%</div><div class="l">fail rate</div></div>
+</div>
+
+<h2>Failure breakdown</h2>
+<table><tr><th>Type</th><th>Count</th><th>What it means</th></tr><tr><td><span class="tag f403">403</span></td><td>3</td><td>Regulator is blocking us — add a normal browser User-Agent header in scrapers/_base.py, or rotate IP via proxy.</td></tr><tr><td><span class="tag fdns">Dns</span></td><td>1</td><td>Site DNS unreachable from GitHub runner — verify the agency site is up via curl from another network. Often transient; if persistent, the agency may have decommissioned the site.</td></tr><tr><td><span class="tag ftime">Timeout</span></td><td>5</td><td>Connection or read timeout — increase scraper timeout, or the agency rate-limited us. Try a slower polling schedule.</td></tr></table>
+
+<h2>Failing scrapers — action list</h2>
+<table><tr><th>Scraper</th><th>State</th></tr><tr><td>FDA (PH)/Philippines</td><td><span class="tag f403">403</span></td></tr><tr><td>MoH (IL)/Israel</td><td><span class="tag f403">403</span></td></tr><tr><td>VMVT (LT)/Lithuania</td><td><span class="tag f403">403</span></td></tr><tr><td>BFSA (BG)/Bulgaria</td><td><span class="tag fdns">DNS</span></td></tr><tr><td>ANSVSA (RO)/Romania</td><td><span class="tag ftime">TIMEOUT</span></td></tr><tr><td>INVIMA (CO)/Colombia</td><td><span class="tag ftime">TIMEOUT</span></td></tr><tr><td>NFSA (EG)/Egypt</td><td><span class="tag ftime">TIMEOUT</span></td></tr><tr><td>ONSSA (MA)/Morocco</td><td><span class="tag ftime">TIMEOUT</span></td></tr><tr><td>VFA (VN)/Vietnam</td><td><span class="tag ftime">TIMEOUT</span></td></tr></table>
+
+<h2>Recommendations</h2><div class="action"><strong>Priority 2:</strong> 3 scrapers blocked (HTTP 403) — add a browser User-Agent header in scrapers/_base.py. One change covers all of them.</div>
+
+<div class="foot">
+Generated 2026-06-01T03:16:23+00:00 · Source: docs/data/scraper-health.json<br>
+AFTS Food Safety Intelligence System · advfood.tech
+</div>
+</body></html>
