@@ -1,0 +1,413 @@
+name: Asia official-feed collector
+
+# Runs nine Asian food-safety regulators at 09:00 local time in each
+# country. All countries are no-DST → three cron lines total:
+#   00:00 UTC = 09:00 UTC+9 (Korea, Japan)
+#   01:00 UTC = 09:00 UTC+8 (Singapore, Hong Kong, Taiwan, Philippines)
+#   02:00 UTC = 09:00 UTC+7 (Indonesia, Thailand, Vietnam)
+#
+# Each job is TZ-guarded — runs only when its country's local hour is 09.
+# Manual workflow_dispatch bypasses the gate.
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # 09:00 UTC+9 — Korea, Japan
+    - cron: '0 1 * * *'   # 09:00 UTC+8 — Singapore, Hong Kong, Taiwan, Philippines
+    - cron: '0 2 * * *'   # 09:00 UTC+7 — Indonesia, Thailand, Vietnam
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: 'Comma-separated sources'
+        default: 'singapore,hong_kong,taiwan,south_korea,japan,philippines,indonesia,thailand,vietnam'
+        required: false
+      dry_run:
+        description: 'Dry run (no xlsx write)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: asia-feeds-collector
+  cancel-in-progress: false
+
+jobs:
+  singapore:
+    name: SFA Singapore (09:00 Asia/Singapore)
+    runs-on: ubuntu-latest
+    env: { TZ: Asia/Singapore }
+    steps:
+      - name: Hour gate
+        id: gate
+        run: |
+          HOUR=$(TZ=Asia/Singapore date +%H)
+          echo "Singapore local hour: $HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "manual=1" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" = "09" ]; then
+            echo "manual=0" >> $GITHUB_OUTPUT
+          else
+            echo "skip=1" >> $GITHUB_OUTPUT; exit 0
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != '1'
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip != '1'
+        with: { python-version: '3.11' }
+      - name: Install deps
+        if: steps.gate.outputs.skip != '1'
+        run: pip install requests beautifulsoup4 openpyxl python-dateutil
+      - name: Run
+        if: steps.gate.outputs.skip != '1'
+        env:
+          SOURCES: ${{ github.event.inputs.sources || 'singapore' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          SRCS=$(echo "$SOURCES" | tr ',' '\n' | grep -E '^singapore$' | paste -sd, -)
+          [ -z "$SRCS" ] && exit 0
+          DRY=""; [ "$DRY_RUN" = "true" ] && DRY="--dry-run"
+          echo "$SRCS" | tr ',' '\n' | while read -r SRC; do
+            [ -z "$SRC" ] && continue
+            echo "── Running source: $SRC ──"
+            python -m pipeline.official_feeds.main --source "$SRC" --max-age-days 30 $DRY
+          done
+      - name: Commit + push
+        if: steps.gate.outputs.skip != '1' && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "afts-bot"
+          git config user.email "afts-bot@users.noreply.github.com"
+          git diff --quiet docs/data/recalls.xlsx && exit 0
+          git add docs/data/recalls.xlsx
+          git commit -m "SFA Singapore — $(TZ=Asia/Singapore date +'%Y-%m-%d %H:%M %Z')"
+          git push
+
+  hong_kong:
+    name: CFS Hong Kong (09:00 Asia/Hong_Kong)
+    runs-on: ubuntu-latest
+    env: { TZ: Asia/Hong_Kong }
+    steps:
+      - name: Hour gate
+        id: gate
+        run: |
+          HOUR=$(TZ=Asia/Hong_Kong date +%H)
+          echo "HK hour: $HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "manual=1" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" = "09" ]; then echo "manual=0" >> $GITHUB_OUTPUT
+          else echo "skip=1" >> $GITHUB_OUTPUT; exit 0; fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != '1'
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip != '1'
+        with: { python-version: '3.11' }
+      - if: steps.gate.outputs.skip != '1'
+        run: pip install requests beautifulsoup4 openpyxl python-dateutil
+      - if: steps.gate.outputs.skip != '1'
+        env:
+          SOURCES: ${{ github.event.inputs.sources || 'hong_kong' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          SRCS=$(echo "$SOURCES" | tr ',' '\n' | grep -E '^hong_kong$' | paste -sd, -)
+          [ -z "$SRCS" ] && exit 0
+          DRY=""; [ "$DRY_RUN" = "true" ] && DRY="--dry-run"
+          echo "$SRCS" | tr ',' '\n' | while read -r SRC; do
+            [ -z "$SRC" ] && continue
+            echo "── Running source: $SRC ──"
+            python -m pipeline.official_feeds.main --source "$SRC" --max-age-days 30 $DRY
+          done
+      - if: steps.gate.outputs.skip != '1' && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "afts-bot"; git config user.email "afts-bot@users.noreply.github.com"
+          git diff --quiet docs/data/recalls.xlsx && exit 0
+          git add docs/data/recalls.xlsx
+          git commit -m "CFS Hong Kong — $(TZ=Asia/Hong_Kong date +'%Y-%m-%d %H:%M %Z')"
+          git push
+
+  taiwan:
+    name: TFDA Taiwan (09:00 Asia/Taipei)
+    runs-on: ubuntu-latest
+    env: { TZ: Asia/Taipei }
+    steps:
+      - name: Hour gate
+        id: gate
+        run: |
+          HOUR=$(TZ=Asia/Taipei date +%H); echo "Taipei: $HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "manual=1" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" = "09" ]; then echo "manual=0" >> $GITHUB_OUTPUT
+          else echo "skip=1" >> $GITHUB_OUTPUT; exit 0; fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != '1'
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip != '1'
+        with: { python-version: '3.11' }
+      - if: steps.gate.outputs.skip != '1'
+        run: pip install requests beautifulsoup4 openpyxl python-dateutil
+      - if: steps.gate.outputs.skip != '1'
+        env:
+          SOURCES: ${{ github.event.inputs.sources || 'taiwan' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          SRCS=$(echo "$SOURCES" | tr ',' '\n' | grep -E '^taiwan$' | paste -sd, -)
+          [ -z "$SRCS" ] && exit 0
+          DRY=""; [ "$DRY_RUN" = "true" ] && DRY="--dry-run"
+          echo "$SRCS" | tr ',' '\n' | while read -r SRC; do
+            [ -z "$SRC" ] && continue
+            echo "── Running source: $SRC ──"
+            python -m pipeline.official_feeds.main --source "$SRC" --max-age-days 30 $DRY
+          done
+      - if: steps.gate.outputs.skip != '1' && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "afts-bot"; git config user.email "afts-bot@users.noreply.github.com"
+          git diff --quiet docs/data/recalls.xlsx && exit 0
+          git add docs/data/recalls.xlsx
+          git commit -m "TFDA Taiwan — $(TZ=Asia/Taipei date +'%Y-%m-%d %H:%M %Z')"
+          git push
+
+  south_korea:
+    name: MFDS South Korea (09:00 Asia/Seoul)
+    runs-on: ubuntu-latest
+    env: { TZ: Asia/Seoul }
+    steps:
+      - name: Hour gate
+        id: gate
+        run: |
+          HOUR=$(TZ=Asia/Seoul date +%H); echo "Seoul: $HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "manual=1" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" = "09" ]; then echo "manual=0" >> $GITHUB_OUTPUT
+          else echo "skip=1" >> $GITHUB_OUTPUT; exit 0; fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != '1'
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip != '1'
+        with: { python-version: '3.11' }
+      - if: steps.gate.outputs.skip != '1'
+        run: pip install requests beautifulsoup4 openpyxl python-dateutil
+      - if: steps.gate.outputs.skip != '1'
+        env:
+          SOURCES: ${{ github.event.inputs.sources || 'south_korea' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          SRCS=$(echo "$SOURCES" | tr ',' '\n' | grep -E '^south_korea$' | paste -sd, -)
+          [ -z "$SRCS" ] && exit 0
+          DRY=""; [ "$DRY_RUN" = "true" ] && DRY="--dry-run"
+          echo "$SRCS" | tr ',' '\n' | while read -r SRC; do
+            [ -z "$SRC" ] && continue
+            echo "── Running source: $SRC ──"
+            python -m pipeline.official_feeds.main --source "$SRC" --max-age-days 30 $DRY
+          done
+      - if: steps.gate.outputs.skip != '1' && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "afts-bot"; git config user.email "afts-bot@users.noreply.github.com"
+          git diff --quiet docs/data/recalls.xlsx && exit 0
+          git add docs/data/recalls.xlsx
+          git commit -m "MFDS Korea — $(TZ=Asia/Seoul date +'%Y-%m-%d %H:%M %Z')"
+          git push
+
+  japan:
+    name: CAA Japan (09:00 Asia/Tokyo)
+    runs-on: ubuntu-latest
+    env: { TZ: Asia/Tokyo }
+    steps:
+      - name: Hour gate
+        id: gate
+        run: |
+          HOUR=$(TZ=Asia/Tokyo date +%H); echo "Tokyo: $HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "manual=1" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" = "09" ]; then echo "manual=0" >> $GITHUB_OUTPUT
+          else echo "skip=1" >> $GITHUB_OUTPUT; exit 0; fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != '1'
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip != '1'
+        with: { python-version: '3.11' }
+      - if: steps.gate.outputs.skip != '1'
+        run: pip install requests beautifulsoup4 openpyxl python-dateutil
+      - if: steps.gate.outputs.skip != '1'
+        env:
+          SOURCES: ${{ github.event.inputs.sources || 'japan' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          SRCS=$(echo "$SOURCES" | tr ',' '\n' | grep -E '^japan$' | paste -sd, -)
+          [ -z "$SRCS" ] && exit 0
+          DRY=""; [ "$DRY_RUN" = "true" ] && DRY="--dry-run"
+          echo "$SRCS" | tr ',' '\n' | while read -r SRC; do
+            [ -z "$SRC" ] && continue
+            echo "── Running source: $SRC ──"
+            python -m pipeline.official_feeds.main --source "$SRC" --max-age-days 30 $DRY
+          done
+      - if: steps.gate.outputs.skip != '1' && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "afts-bot"; git config user.email "afts-bot@users.noreply.github.com"
+          git diff --quiet docs/data/recalls.xlsx && exit 0
+          git add docs/data/recalls.xlsx
+          git commit -m "CAA Japan — $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M %Z')"
+          git push
+
+  philippines:
+    name: FDA Philippines (09:00 Asia/Manila)
+    runs-on: ubuntu-latest
+    env: { TZ: Asia/Manila }
+    steps:
+      - name: Hour gate
+        id: gate
+        run: |
+          HOUR=$(TZ=Asia/Manila date +%H); echo "Manila: $HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "manual=1" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" = "09" ]; then echo "manual=0" >> $GITHUB_OUTPUT
+          else echo "skip=1" >> $GITHUB_OUTPUT; exit 0; fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != '1'
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip != '1'
+        with: { python-version: '3.11' }
+      - if: steps.gate.outputs.skip != '1'
+        run: pip install requests beautifulsoup4 openpyxl python-dateutil
+      - if: steps.gate.outputs.skip != '1'
+        env:
+          SOURCES: ${{ github.event.inputs.sources || 'philippines' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          SRCS=$(echo "$SOURCES" | tr ',' '\n' | grep -E '^philippines$' | paste -sd, -)
+          [ -z "$SRCS" ] && exit 0
+          DRY=""; [ "$DRY_RUN" = "true" ] && DRY="--dry-run"
+          echo "$SRCS" | tr ',' '\n' | while read -r SRC; do
+            [ -z "$SRC" ] && continue
+            echo "── Running source: $SRC ──"
+            python -m pipeline.official_feeds.main --source "$SRC" --max-age-days 30 $DRY
+          done
+      - if: steps.gate.outputs.skip != '1' && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "afts-bot"; git config user.email "afts-bot@users.noreply.github.com"
+          git diff --quiet docs/data/recalls.xlsx && exit 0
+          git add docs/data/recalls.xlsx
+          git commit -m "FDA Philippines — $(TZ=Asia/Manila date +'%Y-%m-%d %H:%M %Z')"
+          git push
+
+  indonesia:
+    name: BPOM Indonesia (09:00 Asia/Jakarta)
+    runs-on: ubuntu-latest
+    env: { TZ: Asia/Jakarta }
+    steps:
+      - name: Hour gate
+        id: gate
+        run: |
+          HOUR=$(TZ=Asia/Jakarta date +%H); echo "Jakarta: $HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "manual=1" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" = "09" ]; then echo "manual=0" >> $GITHUB_OUTPUT
+          else echo "skip=1" >> $GITHUB_OUTPUT; exit 0; fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != '1'
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip != '1'
+        with: { python-version: '3.11' }
+      - if: steps.gate.outputs.skip != '1'
+        run: pip install requests beautifulsoup4 openpyxl python-dateutil
+      - if: steps.gate.outputs.skip != '1'
+        env:
+          SOURCES: ${{ github.event.inputs.sources || 'indonesia' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          SRCS=$(echo "$SOURCES" | tr ',' '\n' | grep -E '^indonesia$' | paste -sd, -)
+          [ -z "$SRCS" ] && exit 0
+          DRY=""; [ "$DRY_RUN" = "true" ] && DRY="--dry-run"
+          echo "$SRCS" | tr ',' '\n' | while read -r SRC; do
+            [ -z "$SRC" ] && continue
+            echo "── Running source: $SRC ──"
+            python -m pipeline.official_feeds.main --source "$SRC" --max-age-days 30 $DRY
+          done
+      - if: steps.gate.outputs.skip != '1' && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "afts-bot"; git config user.email "afts-bot@users.noreply.github.com"
+          git diff --quiet docs/data/recalls.xlsx && exit 0
+          git add docs/data/recalls.xlsx
+          git commit -m "BPOM Indonesia — $(TZ=Asia/Jakarta date +'%Y-%m-%d %H:%M %Z')"
+          git push
+
+  thailand:
+    name: Thai FDA (09:00 Asia/Bangkok)
+    runs-on: ubuntu-latest
+    env: { TZ: Asia/Bangkok }
+    steps:
+      - name: Hour gate
+        id: gate
+        run: |
+          HOUR=$(TZ=Asia/Bangkok date +%H); echo "Bangkok: $HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "manual=1" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" = "09" ]; then echo "manual=0" >> $GITHUB_OUTPUT
+          else echo "skip=1" >> $GITHUB_OUTPUT; exit 0; fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != '1'
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip != '1'
+        with: { python-version: '3.11' }
+      - if: steps.gate.outputs.skip != '1'
+        run: pip install requests beautifulsoup4 openpyxl python-dateutil
+      - if: steps.gate.outputs.skip != '1'
+        env:
+          SOURCES: ${{ github.event.inputs.sources || 'thailand' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          SRCS=$(echo "$SOURCES" | tr ',' '\n' | grep -E '^thailand$' | paste -sd, -)
+          [ -z "$SRCS" ] && exit 0
+          DRY=""; [ "$DRY_RUN" = "true" ] && DRY="--dry-run"
+          echo "$SRCS" | tr ',' '\n' | while read -r SRC; do
+            [ -z "$SRC" ] && continue
+            echo "── Running source: $SRC ──"
+            python -m pipeline.official_feeds.main --source "$SRC" --max-age-days 30 $DRY
+          done
+      - if: steps.gate.outputs.skip != '1' && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "afts-bot"; git config user.email "afts-bot@users.noreply.github.com"
+          git diff --quiet docs/data/recalls.xlsx && exit 0
+          git add docs/data/recalls.xlsx
+          git commit -m "Thai FDA — $(TZ=Asia/Bangkok date +'%Y-%m-%d %H:%M %Z')"
+          git push
+
+  vietnam:
+    name: VFA Vietnam (09:00 Asia/Ho_Chi_Minh)
+    runs-on: ubuntu-latest
+    env: { TZ: Asia/Ho_Chi_Minh }
+    steps:
+      - name: Hour gate
+        id: gate
+        run: |
+          HOUR=$(TZ=Asia/Ho_Chi_Minh date +%H); echo "Ho Chi Minh: $HOUR"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "manual=1" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" = "09" ]; then echo "manual=0" >> $GITHUB_OUTPUT
+          else echo "skip=1" >> $GITHUB_OUTPUT; exit 0; fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != '1'
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip != '1'
+        with: { python-version: '3.11' }
+      - if: steps.gate.outputs.skip != '1'
+        run: pip install requests beautifulsoup4 openpyxl python-dateutil
+      - if: steps.gate.outputs.skip != '1'
+        env:
+          SOURCES: ${{ github.event.inputs.sources || 'vietnam' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          SRCS=$(echo "$SOURCES" | tr ',' '\n' | grep -E '^vietnam$' | paste -sd, -)
+          [ -z "$SRCS" ] && exit 0
+          DRY=""; [ "$DRY_RUN" = "true" ] && DRY="--dry-run"
+          echo "$SRCS" | tr ',' '\n' | while read -r SRC; do
+            [ -z "$SRC" ] && continue
+            echo "── Running source: $SRC ──"
+            python -m pipeline.official_feeds.main --source "$SRC" --max-age-days 30 $DRY
+          done
+      - if: steps.gate.outputs.skip != '1' && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "afts-bot"; git config user.email "afts-bot@users.noreply.github.com"
+          git diff --quiet docs/data/recalls.xlsx && exit 0
+          git add docs/data/recalls.xlsx
+          git commit -m "VFA Vietnam — $(TZ=Asia/Ho_Chi_Minh date +'%Y-%m-%d %H:%M %Z')"
+          git push
