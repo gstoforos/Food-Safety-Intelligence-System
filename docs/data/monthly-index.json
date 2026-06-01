@@ -1,5 +1,19 @@
 [
   {
+    "filename": "2026-M05.html",
+    "year": 2026,
+    "month_num": 5,
+    "month_name": "May 2026",
+    "month_start": "2026-05-01",
+    "month_end": "2026-05-31",
+    "total": 257,
+    "tier1": 202,
+    "outbreaks": 10,
+    "top_pathogen": "Salmonella spp.",
+    "summary": "May 2026: 257 recalls, 202 Tier-1, 10 outbreak(s). Leading pathogen: Salmonella spp..",
+    "pdf_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/marketing/2026-M05-marketing.pdf"
+  },
+  {
     "filename": "2026-M04.html",
     "year": 2026,
     "month_num": 4,
