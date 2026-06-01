@@ -138,6 +138,7 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
     block_active = bool(block_lower)
     skipped_scope = 0
     skipped_block = 0
+    sample_scope_drops: list = []   # diagnostic: first few URLs dropped at scope
 
     for q in build_queries(authority, pathogen_terms, days_back):
         full_q = f"{q} when:7d"
@@ -163,6 +164,8 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
                 in_dom = any(d in u_l for d in dom_lower)
                 if not (in_kw or in_dom):
                     skipped_scope += 1
+                    if len(sample_scope_drops) < 5:
+                        sample_scope_drops.append((title[:60], link[:120]))
                     continue
 
             # Title denylist (drops AU/NZ news outlets that are merely
@@ -199,6 +202,12 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
         notes.append(f"dropped {skipped_scope} out-of-scope")
     if block_active:
         notes.append(f"dropped {skipped_block} title-blocked")
+    # Print sample of dropped URLs so we can see what Google actually returns
+    if sample_scope_drops:
+        print(f"  [GNews-debug] First {len(sample_scope_drops)} URLs dropped at scope:")
+        for t, u in sample_scope_drops:
+            print(f"     • {t!r}")
+            print(f"       URL: {u}")
     note = (", " + ", ".join(notes)) if notes else ""
     print(f"  [GNews] {authority}: {len(records)} candidate articles "
           f"across {total_queries} queries{note}")
