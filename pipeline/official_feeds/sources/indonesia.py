@@ -20,6 +20,12 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 import requests
+# pom.go.id presents a cert chain that GitHub Actions runners can't
+# validate (Indonesian government CA not in their bundle). We disable
+# verification on this specific host only — we're scraping public
+# bulletins, not auth'd content.
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from ..base import Record, FeedSource, register
 from ..fetch import DEFAULT_HEADERS
@@ -70,7 +76,7 @@ def _clean_title(t: str) -> str:
 
 def _try_fetch(url: str) -> str | None:
     try:
-        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=15)
+        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=15, verify=False)
         r.raise_for_status()
         return r.text
     except Exception as e:  # noqa: BLE001
@@ -80,7 +86,7 @@ def _try_fetch(url: str) -> str | None:
 
 def _fetch_detail(url: str):
     try:
-        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=_DETAIL_TIMEOUT)
+        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=_DETAIL_TIMEOUT, verify=False)
         r.raise_for_status()
     except Exception as e:  # noqa: BLE001
         print(f"  [WARN] BPOM detail fetch failed: {url} — {e}")

@@ -22,8 +22,8 @@ from ..base import Record, FeedSource, register
 from ..fetch import DEFAULT_HEADERS
 
 LISTING_URLS = (
-    "https://www.sfa.gov.sg/food-information/food-recalls",
-    "https://www.sfa.gov.sg/food-information/recall-alerts",
+    "https://www.sfa.gov.sg/news-publications/newsroom",
+    "https://www.sfa.gov.sg/news-publications/newsroom?topic=Food%20Recalls%20and%20Alerts",
 )
 BASE = "https://www.sfa.gov.sg"
 
@@ -107,16 +107,27 @@ def fetch(limit: int = 25) -> list[Record]:
     soup = BeautifulSoup(html, "html.parser")
     for a in soup.find_all("a", href=True):
         href = a["href"]
-        if "/food-recalls/" not in href and "/recall-alerts/" not in href \
-                and "/news-publications/articles/" not in href:
+        if "/newsroom/" not in href and "/news-publications/" not in href \
+                and "/articles/" not in href:
             continue
         slug = href.split("?", 1)[0].split("#", 1)[0].rstrip("/").split("/")[-1]
-        if not slug or slug in {"food-recalls", "recall-alerts"} or slug in seen:
+        if not slug or slug in {"food-recalls", "recall-alerts",
+                                "newsroom", "news-publications"} or slug in seen:
             continue
         title = _clean_title(a.get_text(" ", strip=True))
-        if not title or len(title) < 8:
+        if not title or len(title) < 12:
             continue
         if title.lower() in {"read more", "view", "see all", "more", "next"}:
+            continue
+        # Require a recall/alert signal in the link text so we don't grab
+        # generic SFA press releases that aren't recalls
+        tl = title.lower()
+        if not any(k in tl for k in (
+                "recall", "withdraw", "alert", "advisory", "warning",
+                "do not consume", "do not eat", "contamination", "presence of",
+                "salmonella", "listeria", "e. coli", "e.coli", "stec",
+                "hepatitis", "bacillus", "cereulide", "undeclared",
+                "allergen", "outbreak")):
             continue
         seen.add(slug)
         url_full = urljoin(listing_used, href)

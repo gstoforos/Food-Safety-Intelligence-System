@@ -99,12 +99,23 @@ def fetch(limit: int = 25) -> list[Record]:
                     ("news" in href.lower() or "recall" in href.lower()
                      or "lawcontent" in href.lower())):
                 continue
+            title = _clean_title(a.get_text(" ", strip=True))
+            if not title or len(title) < 12:
+                continue
+            # Require recall/alert keyword in link text — drops generic
+            # nav links like "News & Events" and tip articles
+            tl = title.lower()
+            if not any(k in tl for k in (
+                    "recall", "withdraw", "alert", "advisory", "warning",
+                    "violat", "contamination", "presence of",
+                    "salmonella", "listeria", "e. coli", "e.coli", "stec",
+                    "hepatitis", "bacillus", "cereulide", "undeclared",
+                    "allergen", "outbreak", "non-compliant", "pesticide",
+                    "ractopamine", "aflatoxin")):
+                continue
             slug = href.split("?", 1)[-1] or href.split("/")[-1]
             slug = re.sub(r"[^A-Za-z0-9_-]+", "-", slug)[:120]
             if not slug or slug in seen:
-                continue
-            title = _clean_title(a.get_text(" ", strip=True))
-            if not title or len(title) < 10:
                 continue
             seen.add(slug)
             url_full = urljoin(listing_url, href)
