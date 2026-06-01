@@ -171,7 +171,13 @@ HONG_KONG = FeedSource(
     ),
     gnews_hl="en-HK", gnews_gl="HK", gnews_ceid="HK:en",
     gnews_days_back=3,
-    gnews_country_keywords=(),
+    gnews_country_keywords=(
+        "hong kong",
+        "hongkong",
+        "cfs",
+        "centre for food safety",
+        "hk ",
+    ),
     gnews_country_domains=(
         "cfs.gov.hk",
         "scmp.com",                  # South China Morning Post — HK English

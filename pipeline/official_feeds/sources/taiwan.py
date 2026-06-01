@@ -167,7 +167,12 @@ TAIWAN = FeedSource(
     ),
     gnews_hl="en", gnews_gl="TW", gnews_ceid="TW:en",
     gnews_days_back=3,
-    gnews_country_keywords=(),
+    gnews_country_keywords=(
+        "taiwan",
+        "taiwanese",
+        "tfda",
+        "taipei",
+    ),
     gnews_country_domains=(
         "fda.gov.tw",
         "focustaiwan.tw",            # CNA Taiwan English service

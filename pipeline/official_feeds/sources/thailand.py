@@ -156,7 +156,12 @@ THAILAND = FeedSource(
     ),
     gnews_hl="en", gnews_gl="TH", gnews_ceid="TH:en",
     gnews_days_back=3,
-    gnews_country_keywords=(),
+    gnews_country_keywords=(
+        "thailand",
+        "thai",
+        "bangkok",
+        "ministry of public health",
+    ),
     gnews_country_domains=(
         "fda.moph.go.th",
         "moph.go.th",

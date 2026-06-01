@@ -164,7 +164,14 @@ PHILIPPINES = FeedSource(
     ),
     gnews_hl="en-PH", gnews_gl="PH", gnews_ceid="PH:en",
     gnews_days_back=3,
-    gnews_country_keywords=(),
+    gnews_country_keywords=(
+        "philippines",
+        "philippine",
+        "filipino",
+        "fda philippines",
+        "manila",
+        "pinoy",
+    ),
     gnews_country_domains=(
         "fda.gov.ph",
         "inquirer.net",              # Philippine Daily Inquirer

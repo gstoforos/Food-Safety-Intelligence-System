@@ -160,7 +160,14 @@ JAPAN = FeedSource(
     ),
     gnews_hl="en", gnews_gl="JP", gnews_ceid="JP:en",
     gnews_days_back=3,
-    gnews_country_keywords=(),
+    gnews_country_keywords=(
+        "japan",
+        "japanese",
+        "tokyo",
+        "mhlw",
+        "caa",
+        "consumer affairs",
+    ),
     gnews_country_domains=(
         "caa.go.jp",
         "mhlw.go.jp",

@@ -154,7 +154,13 @@ SOUTH_KOREA = FeedSource(
     ),
     gnews_hl="en", gnews_gl="KR", gnews_ceid="KR:en",
     gnews_days_back=3,
-    gnews_country_keywords=(),
+    gnews_country_keywords=(
+        "korea",
+        "korean",
+        "mfds",
+        "seoul",
+        "south korea",
+    ),
     gnews_country_domains=(
         "mfds.go.kr",
         "foodsafetykorea.go.kr",

@@ -158,7 +158,14 @@ VIETNAM = FeedSource(
     ),
     gnews_hl="en", gnews_gl="VN", gnews_ceid="VN:en",
     gnews_days_back=3,
-    gnews_country_keywords=(),
+    gnews_country_keywords=(
+        "vietnam",
+        "vietnamese",
+        "hanoi",
+        "ho chi minh",
+        "saigon",
+        "vfa",
+    ),
     gnews_country_domains=(
         "vfa.gov.vn",
         "vietnamnews.vn",            # Vietnam News (state-owned, English)

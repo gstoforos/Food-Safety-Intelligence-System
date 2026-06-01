@@ -179,7 +179,13 @@ INDONESIA = FeedSource(
     ),
     gnews_hl="en-ID", gnews_gl="ID", gnews_ceid="ID:en",
     gnews_days_back=3,
-    gnews_country_keywords=(),
+    gnews_country_keywords=(
+        "indonesia",
+        "indonesian",
+        "bpom",
+        "jakarta",
+        "badan pom",
+    ),
     gnews_country_domains=(
         "pom.go.id",
         "bpom.go.id",

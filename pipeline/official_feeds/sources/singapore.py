@@ -190,7 +190,12 @@ SINGAPORE = FeedSource(
     ),
     gnews_hl="en-SG", gnews_gl="SG", gnews_ceid="SG:en",
     gnews_days_back=3,
-    gnews_country_keywords=(),
+    gnews_country_keywords=(
+        "singapore",
+        "singaporean",
+        "sfa",
+        "singapore food agency",
+    ),
     gnews_country_domains=(
         "sfa.gov.sg",
         "channelnewsasia.com",       # CNA — primary SG English news
