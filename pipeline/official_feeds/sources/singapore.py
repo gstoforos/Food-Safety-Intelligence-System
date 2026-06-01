@@ -111,13 +111,26 @@ def fetch(limit: int = 25) -> list[Record]:
                 and "/articles/" not in href:
             continue
         slug = href.split("?", 1)[0].split("#", 1)[0].rstrip("/").split("/")[-1]
-        if not slug or slug in {"food-recalls", "recall-alerts",
-                                "newsroom", "news-publications"} or slug in seen:
+        # Drop category / nav pages that share the recall keyword set
+        # ("Food Alerts & Recalls" link text matches our filter but it's
+        # the listing page, not an actual recall)
+        if not slug or slug in {
+            "food-recalls", "recall-alerts",
+            "newsroom", "news-publications",
+            "food-alerts-and-recalls", "food-alerts-recalls",
+            "alerts-and-recalls", "alerts-recalls",
+        } or slug in seen:
             continue
         title = _clean_title(a.get_text(" ", strip=True))
         if not title or len(title) < 12:
             continue
-        if title.lower() in {"read more", "view", "see all", "more", "next"}:
+        # Drop generic category/nav titles
+        if title.lower() in {
+            "read more", "view", "see all", "more", "next",
+            "food alerts & recalls", "food alerts and recalls",
+            "alerts & recalls", "alerts and recalls",
+            "food recalls", "recall alerts", "newsroom",
+        }:
             continue
         # Require a recall/alert signal in the link text so we don't grab
         # generic SFA press releases that aren't recalls
