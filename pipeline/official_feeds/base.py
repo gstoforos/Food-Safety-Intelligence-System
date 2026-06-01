@@ -78,6 +78,13 @@ class FeedSource:
     # "Walmart" on an AU collector — that's a US recall syndicated by an
     # AU news outlet, not an AU recall).
     gnews_block_title_keywords: tuple = ()
+    # If True, the GNews hazard text is "<title> || <description>" instead of
+    # title alone. Useful for sources whose headlines often omit the pathogen
+    # name but whose article snippets contain it ("X chocolates recalled" in
+    # headline, "due to possible Salmonella" in description). Default False —
+    # legacy sources (UK, IE, US FDA/FSIS, CA, AU, NZ) keep title-only
+    # behaviour unchanged.
+    gnews_use_description: bool = False
 
 
 _REGISTRY: dict[str, FeedSource] = {}

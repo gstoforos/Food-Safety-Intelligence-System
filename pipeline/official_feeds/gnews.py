@@ -106,7 +106,8 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
                 days_back: int = 3, per_query_cap: int = 10,
                 country_keywords: tuple = (),
                 country_domains: tuple = (),
-                block_title_keywords: tuple = ()) -> list[Record]:
+                block_title_keywords: tuple = (),
+                use_description: bool = False) -> list[Record]:
     """
     Fetch Google News articles matching the source's recall queries.
 
@@ -139,6 +140,7 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
     skipped_scope = 0
     skipped_block = 0
     sample_scope_drops: list = []   # diagnostic: first few URLs dropped at scope
+    sample_kept: list = []          # diagnostic: first few KEPT articles
 
     for q in build_queries(authority, pathogen_terms, days_back):
         full_q = f"{q} when:7d"
@@ -178,6 +180,20 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
             seen_links.add(link)
             sid = "GN-" + hashlib.sha1(
                 (link or title).encode("utf-8", "ignore")).hexdigest()[:12]
+            description = it.get("description", "") or ""
+
+            # Hazard text: title-only by default (legacy behaviour for
+            # UK/IE/US/CA/AU/NZ — unchanged). Opt-in title+description
+            # for sources whose headlines often omit the pathogen name
+            # (e.g. Asia GNews via redirector URLs + brief headlines).
+            if use_description:
+                import re as _re
+                desc_text = _re.sub(r"<[^>]+>", " ", description)
+                desc_text = _re.sub(r"\s+", " ", desc_text).strip()
+                hazard_text = (title + " || " + desc_text).strip()
+            else:
+                hazard_text = title
+
             rec = Record(
                 source_id=sid,
                 country_code=country_code,
@@ -186,13 +202,15 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
                 title=title,
                 company="",
                 product="",
-                hazard=title,                 # classify from headline
+                hazard=hazard_text,
                 alert_type="recall",
                 published=it.get("published"),
                 url=link,
-                raw={"gnews_query": q, "description": it.get("description", "")},
+                raw={"gnews_query": q, "description": description},
             )
             records.append(rec)
+            if use_description and len(sample_kept) < 3:
+                sample_kept.append((title[:70], description[:120]))
             kept += 1
             if kept >= per_query_cap:
                 break
@@ -208,6 +226,11 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
         for t, u in sample_scope_drops:
             print(f"     • {t!r}")
             print(f"       URL: {u}")
+    if sample_kept:
+        print(f"  [GNews-debug] First {len(sample_kept)} KEPT articles:")
+        for t, d in sample_kept:
+            print(f"     ✓ {t!r}")
+            print(f"       desc: {d!r}")
     note = (", " + ", ".join(notes)) if notes else ""
     print(f"  [GNews] {authority}: {len(records)} candidate articles "
           f"across {total_queries} queries{note}")
