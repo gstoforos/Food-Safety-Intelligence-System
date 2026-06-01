@@ -220,6 +220,15 @@ NEW_ZEALAND = FeedSource(
     gnews_country_domains=(
         ".co.nz", ".org.nz", ".govt.nz", ".net.nz", ".ac.nz",
     ),
+    # Title denylist — drops articles where a US-only retailer or
+    # agency appears in the headline. NZ news outlets sometimes
+    # syndicate US recall stories on .co.nz domains.
+    gnews_block_title_keywords=(
+        "fda", "usda", "fsis",
+        "walmart", "kroger", "sam's club", "sams club",
+        "trader joe", "whole foods", "kirkland",
+        "u.s.", "united states",
+    ),
 )
 
 register(NEW_ZEALAND)

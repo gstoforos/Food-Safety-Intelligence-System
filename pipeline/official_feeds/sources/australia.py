@@ -229,12 +229,23 @@ AUSTRALIA = FeedSource(
         "western australia", "perth", " wa ",
         "south australia", "adelaide", " sa ",
         "tasmania", "hobart", "tas ",
-        "act", "canberra", "northern territory", "darwin",
+        "canberra", "northern territory", "darwin",
         "coles", "woolworths", "aldi australia",
         "fsanz",
+        # NB: NOT "act" — too short, substring-matches react/action/fact/etc.
     ),
     gnews_country_domains=(
         ".com.au", ".org.au", ".gov.au", ".net.au", ".edu.au",
+    ),
+    # Title denylist — drops articles where a US-only retailer or
+    # agency appears in the headline. These are AU news outlets
+    # syndicating US recall stories (URL is .com.au, but content is
+    # really a US/FDA/USDA recall already captured by us_fda/us_fsis).
+    gnews_block_title_keywords=(
+        "fda", "usda", "fsis",
+        "walmart", "kroger", "sam's club", "sams club",
+        "trader joe", "whole foods", "kirkland",
+        "u.s.", "united states",
     ),
 )
 
