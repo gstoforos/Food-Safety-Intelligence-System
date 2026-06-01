@@ -56,6 +56,13 @@ ddgs>=9.14
 jinja2>=3.1.3
 weasyprint>=62.0
 Pillow>=10.2.0
+# reportlab — pure-Python PDF generation used by pipeline.build_monthly_marketing
+# for the single-page public marketing-edition PDF (docs/marketing/2026-MXX.pdf).
+# Distinct from weasyprint (HTML->PDF for the gated subscriber edition); reportlab
+# is direct canvas drawing for the lead-magnet layout. Added 2026-06-01 after
+# monthly workflow crashed on M05 with ModuleNotFoundError because
+# build_monthly_marketing.py was added post-2026-05-01 but its dep was missed.
+reportlab>=4.0.0
 
 # --- Config + env ---
 PyYAML>=6.0.1
