@@ -105,7 +105,8 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
                 hl: str = "en-US", gl: str = "US", ceid: str = "US:en",
                 days_back: int = 3, per_query_cap: int = 10,
                 country_keywords: tuple = (),
-                country_domains: tuple = ()) -> list[Record]:
+                country_domains: tuple = (),
+                block_title_keywords: tuple = ()) -> list[Record]:
     """
     Fetch Google News articles matching the source's recall queries.
 
@@ -119,13 +120,24 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
         title contains one of the keywords OR its URL contains one of
         the domain suffixes. Empty tuples disable the filter (legacy
         US/UK/Canada/Ireland behaviour unchanged).
+
+    block_title_keywords: optional title denylist. An article is dropped
+        if its title contains any of these keywords, even if it passed
+        the country-scope filter. Used to suppress cross-border bleed
+        where an AU/NZ news outlet (on a .com.au / .co.nz domain) is
+        merely syndicating a US recall story — the title typically
+        mentions a US-only retailer (Walmart, Kroger, Sam's Club) or
+        agency (FDA, USDA, FSIS).
     """
     records: list[Record] = []
     seen_links = set()
     kw_lower = tuple(k.lower() for k in country_keywords)
     dom_lower = tuple(d.lower() for d in country_domains)
+    block_lower = tuple(b.lower() for b in block_title_keywords)
     scope_active = bool(kw_lower or dom_lower)
+    block_active = bool(block_lower)
     skipped_scope = 0
+    skipped_block = 0
 
     for q in build_queries(authority, pathogen_terms, days_back):
         full_q = f"{q} when:7d"
@@ -141,15 +153,24 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
             if not _has_recall_signal(title):
                 continue          # news about a pathogen, not a recall — skip
 
-            # Country-scope filter (drops cross-border bleed)
+            t_l = title.lower()
+            u_l = (link or "").lower()
+
+            # Country-scope filter (drops cross-border bleed at the
+            # geography level — article isn't even about AU/NZ)
             if scope_active:
-                t_l = title.lower()
-                u_l = (link or "").lower()
                 in_kw = any(k in t_l for k in kw_lower)
                 in_dom = any(d in u_l for d in dom_lower)
                 if not (in_kw or in_dom):
                     skipped_scope += 1
                     continue
+
+            # Title denylist (drops AU/NZ news outlets that are merely
+            # syndicating a foreign recall — the title names a US
+            # retailer or agency that doesn't operate in AU/NZ)
+            if block_active and any(b in t_l for b in block_lower):
+                skipped_block += 1
+                continue
 
             seen_links.add(link)
             sid = "GN-" + hashlib.sha1(
@@ -173,8 +194,12 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
             if kept >= per_query_cap:
                 break
     total_queries = len(build_queries(authority, pathogen_terms, days_back))
-    scope_note = (f", dropped {skipped_scope} out-of-scope"
-                  if scope_active else "")
+    notes = []
+    if scope_active:
+        notes.append(f"dropped {skipped_scope} out-of-scope")
+    if block_active:
+        notes.append(f"dropped {skipped_block} title-blocked")
+    note = (", " + ", ".join(notes)) if notes else ""
     print(f"  [GNews] {authority}: {len(records)} candidate articles "
-          f"across {total_queries} queries{scope_note}")
+          f"across {total_queries} queries{note}")
     return records
