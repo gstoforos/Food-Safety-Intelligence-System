@@ -15,6 +15,32 @@ Usage (called from .github/workflows/afts-monthly-report.yml):
         --xlsx docs/data/recalls.xlsx \\
         --index docs/data/monthly-index.json \\
         --builder docs/build_monthly_report_afts.py
+
+ROBUSTNESS (added 2026-06-01 after a workflow silently no-op'd on
+build_missing for M05 — gap-fill returned rc=0 yet produced zero files,
+and the downstream commit step exited 0 with "No monthly-report changes
+to commit." This left subscribers with no May report on June 1):
+
+  1. subprocess.run now CAPTURES stdout+stderr from the builder, mirrors
+     to our log line-by-line, and surfaces stderr at ERROR level on a
+     non-zero rc. Previously capture_output=False meant any builder
+     traceback could vanish into the runner's stdio buffer with no
+     trace in the workflow log.
+
+  2. After each builder invocation, we VERIFY the three expected output
+     artefacts exist on disk:
+         <docs>/<YYYY>-M<MM>.html              (subscriber report)
+         <docs>/<YYYY>-M<MM>-all.html          (all-month companion)
+         <docs>/data/monthly-summary-latest.json   (mailer payload)
+     If rc=0 but any of these is missing/empty, we treat that month as
+     a FAILURE and accumulate it into the final returncode. This catches
+     the "silent crash mid-write" failure mode.
+
+  3. On the 1st of any month (UTC), the previous month's report MUST
+     exist after the run. If it doesn't — even because gap-fill thought
+     it was already covered — we fail loudly with rc=2 so the workflow
+     turns red and the operator is notified. This guards against the
+     index file being mutated externally between runs.
 """
 from __future__ import annotations
 
@@ -24,7 +50,7 @@ import json
 import logging
 import subprocess
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -47,8 +73,14 @@ def _last_day_of_month(year: int, month: int) -> date:
 def _today_utc() -> date:
     # Use UTC to decide "closed" months — avoids DST flips changing
     # which month is considered closed near the 1st-of-month boundary.
-    from datetime import datetime, timezone
     return datetime.now(timezone.utc).date()
+
+
+def _previous_month_ym(today: date) -> Tuple[int, int]:
+    """Return (year, month) for the month immediately before `today`."""
+    if today.month == 1:
+        return (today.year - 1, 12)
+    return (today.year, today.month - 1)
 
 
 def iter_months(start: Tuple[int, int], end_exclusive: Tuple[int, int]):
@@ -112,15 +144,60 @@ def month_is_covered(year: int, month: int, index: List[dict]) -> bool:
     return False
 
 
-def run_builder(builder: Path, month_end: date, xlsx: Path) -> int:
+def expected_outputs(builder: Path, year: int, month: int) -> List[Path]:
+    """Files the builder is contractually required to produce for a
+    given month. The builder writes its outputs relative to its own
+    directory (docs/), so we derive the docs-root from the builder path.
+    """
+    docs_root = builder.parent
+    return [
+        docs_root / f"{year}-M{month:02d}.html",
+        docs_root / f"{year}-M{month:02d}-all.html",
+        docs_root / "data" / "monthly-summary-latest.json",
+    ]
+
+
+def verify_outputs(builder: Path, year: int, month: int) -> List[Path]:
+    """Return the list of expected output files that are MISSING or empty.
+    Empty list means all outputs are present and non-zero-sized."""
+    missing: List[Path] = []
+    for p in expected_outputs(builder, year, month):
+        if not p.exists() or p.stat().st_size == 0:
+            missing.append(p)
+    return missing
+
+
+def run_builder(builder: Path, month_end: date, xlsx: Path) -> Tuple[int, str]:
+    """Invoke the monthly builder as a subprocess. Captures stdout AND
+    stderr (previously capture_output=False let tracebacks vanish) and
+    mirrors them into our own log so the workflow run page shows what
+    actually happened. Returns (returncode, stderr_text)."""
     cmd = [
         sys.executable, str(builder),
         "--month-end", month_end.isoformat(),
         "--xlsx", str(xlsx),
     ]
     log.info("Building: %s", " ".join(cmd))
-    completed = subprocess.run(cmd, capture_output=False)
-    return completed.returncode
+    completed = subprocess.run(cmd, capture_output=True, text=True)
+
+    # Always mirror stdout (useful even on success — shows row counts,
+    # leading pathogen, output paths).
+    for line in (completed.stdout or "").splitlines():
+        log.info("[builder] %s", line)
+
+    # On non-zero, surface stderr at ERROR level so the workflow page
+    # shows the traceback. On success, downgrade stderr to WARNING (it
+    # may contain warnings from openpyxl or jinja2 we still want visible).
+    stderr_text = completed.stderr or ""
+    if completed.returncode != 0:
+        log.error("Builder exited with rc=%d. Stderr follows:", completed.returncode)
+        for line in stderr_text.splitlines():
+            log.error("[builder-err] %s", line)
+    else:
+        for line in stderr_text.splitlines():
+            log.warning("[builder-err] %s", line)
+
+    return completed.returncode, stderr_text
 
 
 def main() -> int:
@@ -160,28 +237,64 @@ def main() -> int:
     ]
 
     if not missing:
-        log.info("No missing months. Nothing to build.")
-        return 0
-
-    log.info("Building %d missing month(s): %s",
-             len(missing),
-             ", ".join(f"{y}-{m:02d}" for y, m in missing))
+        log.info("No missing months according to monthly-index.json.")
+    else:
+        log.info("Building %d missing month(s): %s",
+                 len(missing),
+                 ", ".join(f"{y}-{m:02d}" for y, m in missing))
 
     failures = 0
     for (y, m) in missing:
         month_end = _last_day_of_month(y, m)
-        rc = run_builder(builder, month_end, xlsx)
+        rc, stderr_text = run_builder(builder, month_end, xlsx)
+
         if rc != 0:
             failures += 1
-            log.error("Builder failed for %d-%02d (rc=%d). Continuing.", y, m, rc)
-        else:
-            log.info("Built %d-M%02d OK.", y, m)
+            log.error("Builder FAILED for %d-%02d (rc=%d). See [builder-err] lines above. "
+                      "Continuing with next month (if any).", y, m, rc)
+            continue
+
+        # Builder said OK — but verify it actually wrote the expected files.
+        # Previously a silent mid-write crash could leave rc=0 with no files;
+        # downstream `git diff --staged --quiet` would then exit-0 the
+        # workflow with no subscriber report produced.
+        absent = verify_outputs(builder, y, m)
+        if absent:
+            failures += 1
+            log.error("Builder returned rc=0 but expected outputs are MISSING for %d-%02d:",
+                      y, m)
+            for p in absent:
+                log.error("    missing: %s", p)
+            log.error("Treating as failure — the workflow run page will turn red.")
+            continue
+
+        log.info("Built %d-M%02d OK — all expected outputs verified on disk.", y, m)
+
+    # END-OF-RUN SAFETY NET. On the 1st of any month (UTC), the previous
+    # month's report MUST exist on disk by the time we exit. If it doesn't
+    # — even because index claimed it was already covered, or because we
+    # had failures above — escalate. This is the floor that prevents the
+    # 2026-06-01 incident from recurring: a green workflow with no May
+    # report committed.
+    if today.day == 1:
+        prev_y, prev_m = _previous_month_ym(today)
+        required = expected_outputs(builder, prev_y, prev_m)
+        absent = [p for p in required if not p.exists() or p.stat().st_size == 0]
+        if absent:
+            log.error("END-OF-RUN GUARD: today is the 1st of the month but the previous "
+                      "month's outputs are missing/empty:")
+            for p in absent:
+                log.error("    missing: %s", p)
+            log.error("This means the workflow ran but no subscriber report was "
+                      "produced for %d-M%02d. Failing loudly so the operator notices.",
+                      prev_y, prev_m)
+            return 2
 
     if failures:
-        log.error("%d month(s) failed to build.", failures)
+        log.error("%d month(s) failed to build. Exiting non-zero.", failures)
         return 1
 
-    log.info("All missing months built successfully.")
+    log.info("All requested months built and verified successfully.")
     return 0
 
 
