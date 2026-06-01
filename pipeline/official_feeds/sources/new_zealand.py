@@ -204,25 +204,19 @@ NEW_ZEALAND = FeedSource(
     ),
     gnews_hl="en-NZ", gnews_gl="NZ", gnews_ceid="NZ:en",
     gnews_days_back=3,
-    # Country-scope filter — drops US/UK/AU recall headlines that the
-    # en-NZ locale surfaces. An article must mention NZ in its title
-    # OR live on an NZ domain to pass.
-    gnews_country_keywords=(
-        "new zealand", "zealand", " nz ", " nz,", " nz.",
-        "kiwi", "aotearoa",
-        "auckland", "wellington", "christchurch", "hamilton",
-        "dunedin", "tauranga", "north island", "south island",
-        "new world", "pak'n save", "pak n save", "countdown",
-        "foodstuffs", "woolworths nz",
-        "mpi", "nzfs", "ministry for primary industries",
-        "new zealand food safety",
-    ),
+    # Country-scope filter — POLICY: Pending entries for NZ must only come
+    # from the regulator's own website (mpi.govt.nz), same as the EFET /
+    # AESAN / ASAE / etc. country collectors in the EU pipeline. GNews
+    # still runs as backup but any catch is dropped unless its URL is on
+    # the MPI domain. Title-keyword matching is OFF — NZ news outlets
+    # routinely syndicate US recall stories on .co.nz URLs (e.g. NZ
+    # Herald covering a Kroger croutons recall) and we can't tell
+    # domestic-vs-syndicated from a generic headline alone.
+    gnews_country_keywords=(),
     gnews_country_domains=(
-        ".co.nz", ".org.nz", ".govt.nz", ".net.nz", ".ac.nz",
+        "mpi.govt.nz",
     ),
-    # Title denylist — drops articles where a US-only retailer or
-    # agency appears in the headline. NZ news outlets sometimes
-    # syndicate US recall stories on .co.nz domains.
+    # Title denylist — defence in depth.
     gnews_block_title_keywords=(
         "fda", "usda", "fsis",
         "walmart", "kroger", "sam's club", "sams club",

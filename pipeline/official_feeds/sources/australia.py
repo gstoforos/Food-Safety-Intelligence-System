@@ -217,30 +217,20 @@ AUSTRALIA = FeedSource(
     ),
     gnews_hl="en-AU", gnews_gl="AU", gnews_ceid="AU:en",
     gnews_days_back=3,
-    # Country-scope filter — drops US/UK/CA recall headlines that the
-    # en-AU locale surfaces but aren't actually Australian recalls. An
-    # article must mention Australia (or a state/major city) in its
-    # title OR live on an Australian domain to pass.
-    gnews_country_keywords=(
-        "australia", "australian", "aussie",
-        "nsw", "new south wales", "sydney",
-        "victoria", "melbourne", "vic ",
-        "queensland", "brisbane", "qld",
-        "western australia", "perth", " wa ",
-        "south australia", "adelaide", " sa ",
-        "tasmania", "hobart", "tas ",
-        "canberra", "northern territory", "darwin",
-        "coles", "woolworths", "aldi australia",
-        "fsanz",
-        # NB: NOT "act" — too short, substring-matches react/action/fact/etc.
-    ),
+    # Country-scope filter — POLICY: Pending entries for AU must only come
+    # from the regulator's own website (foodstandards.gov.au), same as the
+    # EFET / AESAN / ASAE / etc. country collectors in the EU pipeline.
+    # GNews still runs as backup but any catch is dropped unless its URL
+    # is on the FSANZ domain. Title-keyword matching is OFF — domestic
+    # news outlets routinely cover US recalls on .com.au URLs, and we
+    # can't tell domestic-vs-syndicated from a headline alone.
+    gnews_country_keywords=(),
     gnews_country_domains=(
-        ".com.au", ".org.au", ".gov.au", ".net.au", ".edu.au",
+        "foodstandards.gov.au",
     ),
-    # Title denylist — drops articles where a US-only retailer or
-    # agency appears in the headline. These are AU news outlets
-    # syndicating US recall stories (URL is .com.au, but content is
-    # really a US/FDA/USDA recall already captured by us_fda/us_fsis).
+    # Title denylist — defence in depth (block fires after scope filter,
+    # so this only matters for the rare case where a foodstandards.gov.au
+    # article references a US story; we still want it dropped).
     gnews_block_title_keywords=(
         "fda", "usda", "fsis",
         "walmart", "kroger", "sam's club", "sams club",
