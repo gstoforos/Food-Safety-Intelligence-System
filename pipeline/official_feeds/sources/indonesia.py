@@ -31,9 +31,9 @@ from ..base import Record, FeedSource, register
 from ..fetch import DEFAULT_HEADERS
 
 LISTING_URLS = (
-    "https://www.pom.go.id/page/peringatan-publik",
-    "https://www.pom.go.id/siaran-pers",
-    "https://www.pom.go.id/",
+    "https://www.pom.go.id/penjelasan-publik",    # Public Clarifications (recall-equivalent)
+    "https://www.pom.go.id/siaran-pers",          # Press Releases
+    "https://www.pom.go.id/",                     # Homepage fallback
 )
 BASE = "https://www.pom.go.id"
 
@@ -200,6 +200,7 @@ INDONESIA = FeedSource(
         "trader joe", "whole foods", "kirkland",
         "u.s.", "united states",
     ),
+    gnews_use_description=True,
 )
 
 register(INDONESIA)
