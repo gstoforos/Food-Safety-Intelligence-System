@@ -107,7 +107,8 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
                 country_keywords: tuple = (),
                 country_domains: tuple = (),
                 block_title_keywords: tuple = (),
-                use_description: bool = False) -> list[Record]:
+                use_description: bool = False,
+                authority_aliases: tuple = ()) -> list[Record]:
     """
     Fetch Google News articles matching the source's recall queries.
 
@@ -142,7 +143,18 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
     sample_scope_drops: list = []   # diagnostic: first few URLs dropped at scope
     sample_kept: list = []          # diagnostic: first few KEPT articles
 
-    for q in build_queries(authority, pathogen_terms, days_back):
+    # Build the full query set: primary authority + every alias.
+    # The aliases let EFET-style sources (PH/KR/VN/JP — regulators that
+    # block GitHub Actions IPs) reach articles that explicitly name the
+    # regulator. Each alias generates its own date-and-pathogen query
+    # block, so "Philippines" → 49 queries, alias "FDA Philippines" →
+    # another 49, etc.
+    all_authorities = [authority] + [a for a in authority_aliases if a]
+    full_query_set: list[str] = []
+    for auth in all_authorities:
+        full_query_set.extend(build_queries(auth, pathogen_terms, days_back))
+
+    for q in full_query_set:
         full_q = f"{q} when:7d"
         url = (f"{GN_RSS}?q={urllib.parse.quote(full_q)}"
                f"&hl={hl}&gl={gl}&ceid={ceid}")
@@ -231,7 +243,7 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
             kept += 1
             if kept >= per_query_cap:
                 break
-    total_queries = len(build_queries(authority, pathogen_terms, days_back))
+    total_queries = len(full_query_set)
     notes = []
     if scope_active:
         notes.append(f"dropped {skipped_scope} out-of-scope")
