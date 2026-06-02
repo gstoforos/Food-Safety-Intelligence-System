@@ -3,23 +3,27 @@
     {
       "date": "2026-06-01",
       "url": "daily/2026-06-01.html",
-      "total": 4,
-      "tier1": 4,
+      "total": 10,
+      "tier1": 9,
       "outbreak": 0,
       "by_region": {
         "North America": 1,
-        "Europe": 3
+        "Europe": 6,
+        "Asia": 1,
+        "Latin America": 2
       },
-      "generated": "2026-06-02T09:20:04Z"
+      "generated": "2026-06-02T17:19:11Z"
     },
     {
       "date": "2026-05-31",
       "url": "daily/2026-05-31.html",
-      "total": 0,
-      "tier1": 0,
+      "total": 1,
+      "tier1": 1,
       "outbreak": 0,
-      "by_region": {},
-      "generated": "2026-06-02T07:12:58Z"
+      "by_region": {
+        "Asia": 1
+      },
+      "generated": "2026-06-02T17:19:11Z"
     },
     {
       "date": "2026-05-30",
