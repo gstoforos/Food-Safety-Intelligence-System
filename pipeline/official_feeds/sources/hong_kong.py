@@ -25,7 +25,6 @@ from ..fetch import DEFAULT_HEADERS
 
 LISTING_URLS = (
     "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/whatsnew_fa.html",
-    "https://www.cfs.gov.hk/english/whatsnew/whatsnew_rc/whatsnew_rc.html",
 )
 BASE = "https://www.cfs.gov.hk"
 
@@ -190,6 +189,7 @@ HONG_KONG = FeedSource(
         "trader joe", "whole foods", "kirkland",
         "u.s.", "united states",
     ),
+    gnews_use_description=True,
 )
 
 register(HONG_KONG)

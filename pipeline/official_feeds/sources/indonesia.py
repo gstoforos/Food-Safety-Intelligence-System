@@ -180,11 +180,12 @@ INDONESIA = FeedSource(
     gnews_hl="en-ID", gnews_gl="ID", gnews_ceid="ID:en",
     gnews_days_back=3,
     gnews_country_keywords=(
-        "indonesia",
+        "indonesia",          # strict: must be the full word, not "indo"
         "indonesian",
         "bpom",
-        "jakarta",
         "badan pom",
+        "jakarta,",           # comma-suffixed to avoid matching "jakartans"
+        " jakarta ",
     ),
     gnews_country_domains=(
         "pom.go.id",
