@@ -95,6 +95,37 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
             rejected += 1
     print(f"  accepted: {len(accepted)}, rejected: {rejected}")
 
+    # ── Stage 3b: Resolve authority URLs for GNews-surfaced accepts ──
+    # For every accepted record whose source_id starts with "GN-" (came
+    # from Google News, not the official feed), follow the news article
+    # and try to extract the regulator's own URL from the article body.
+    # If found, rec.url is REPLACED with the authority URL — that's the
+    # one stored in Pending. If not found, rec.url keeps the news URL
+    # but is flagged so the operator can resolve manually.
+    if accepted and src.authority_domain:
+        print("\n=== Stage 3b: Resolve authority URLs ===")
+        import re as _re
+        from .url_resolver import resolve_authority_url
+        pat = _re.compile(src.authority_url_pattern) if src.authority_url_pattern else None
+        resolved = unresolved = 0
+        for rec in accepted:
+            if not rec.source_id.startswith("GN-"):
+                continue   # official-feed records already have authority URL
+            news_url = rec.url
+            auth_url = resolve_authority_url(news_url, src.authority_domain, pat)
+            if auth_url:
+                rec.raw["_news_url"] = news_url   # keep original for audit
+                rec.url = auth_url
+                resolved += 1
+                print(f"  ✓ {auth_url[:90]}")
+            else:
+                rec.raw["_news_url"] = news_url
+                rec.raw["_pending_no_auth_url"] = True
+                unresolved += 1
+                print(f"  ✗ no {src.authority_domain} link in article body — "
+                      f"{news_url[:60]}")
+        print(f"  resolved: {resolved}, unresolved (kept news URL + flag): {unresolved}")
+
     print("\n=== Stage 4: Write to xlsx ===")
     appended = skipped = 0
     if dry_run:
@@ -238,7 +269,19 @@ def _row_for(rec, header):
         prov.append(f"[via Google News: {rec.raw['gnews_query']}]")
     else:
         prov.append("[via official-feed collector]")
+    # Audit trail: when URL resolution rewrote the URL from news →
+    # authority, keep the original news URL in Notes so the operator can
+    # cross-check during review.
+    if rec.raw.get("_news_url") and rec.raw["_news_url"] != rec.url:
+        prov.append(f"[news_src={rec.raw['_news_url']}]")
     notes = " ".join(prov)
+
+    # Status flag: if URL resolution found no authority URL for a GNews
+    # accept, mark the row so the operator can manually find the regulator
+    # link before promotion. Pipeline correctly identified the recall but
+    # couldn't resolve the authoritative URL — needs human assist.
+    status = ("pending_no_auth_url" if rec.raw.get("_pending_no_auth_url")
+              else "pending_gap")
 
     mapping = {
         "Date": rec.published.strftime("%Y-%m-%d") if rec.published else "",
@@ -256,7 +299,7 @@ def _row_for(rec, header):
         "URL": rec.url,
         "Notes": notes,
         "ScrapedAt": now_iso,
-        "Status": "pending_gap",
+        "Status": status,
         "RejectedBy": None,
     }
     return [mapping.get(col, "") for col in header]

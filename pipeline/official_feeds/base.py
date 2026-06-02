@@ -94,6 +94,20 @@ class FeedSource:
     # explicitly (which we treat as government-verified per EFET pattern).
     # Default empty — no change for existing sources.
     gnews_authority_aliases: tuple = ()
+    # EFET URL-resolution config — port of the gap_finder pattern. When set,
+    # any GNews-surfaced record gets a post-classification step: fetch the
+    # news article, scan for hrefs to authority_domain, return the first
+    # matching authority URL as rec.url. This puts the REGULATOR'S OWN
+    # PAGE in Pending — not a news outlet URL.
+    # authority_domain: substring to find in news article hrefs (e.g.
+    # "fda.gov", "cfs.gov.hk", "anvisa.gov.br"). Empty = no resolution
+    # (legacy behaviour — news URL stored as-is).
+    authority_domain: str = ""
+    # authority_url_pattern: regex applied to path+query of authority-domain
+    # URLs. Drops nav/portal pages, keeps individual recall pages. Example
+    # for FDA: r"safety/recalls-market-withdrawals-safety-alerts/[^/]+"
+    # Empty = no filter (any URL on authority_domain passes).
+    authority_url_pattern: str = ""
 
 
 _REGISTRY: dict[str, FeedSource] = {}
