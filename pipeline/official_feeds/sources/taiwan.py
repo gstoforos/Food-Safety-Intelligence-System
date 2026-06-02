@@ -186,6 +186,9 @@ TAIWAN = FeedSource(
         "trader joe", "whole foods", "kirkland",
         "u.s.", "united states",
     ),
+    gnews_use_description=True,
+    authority_domain="fda.gov.tw",
+    authority_url_pattern=r"(News|Tc|Eng)Content\.aspx",
 )
 
 register(TAIWAN)

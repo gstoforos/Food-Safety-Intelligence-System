@@ -312,6 +312,8 @@ AUSTRALIA = FeedSource(
         "trader joe", "whole foods", "kirkland",
         "u.s.", "united states",
     ),
+    authority_domain="foodstandards.gov.au",
+    authority_url_pattern=r"(recalls|consumer/recalls)/.+",
 )
 
 register(AUSTRALIA)

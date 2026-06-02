@@ -202,6 +202,8 @@ INDONESIA = FeedSource(
         "u.s.", "united states",
     ),
     gnews_use_description=True,
+    authority_domain="pom.go.id",
+    authority_url_pattern=r"(siaran-pers|penjelasan-publik|peringatan)",
 )
 
 register(INDONESIA)

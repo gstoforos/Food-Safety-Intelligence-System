@@ -79,7 +79,47 @@ def _fetch_detail(url: str):
     return (title_clean + " " + body[:600]).strip(), _parse_date(body)
 
 
-_ANCHOR_KEYWORDS = ("alerta", "retiro", "recall", "alimento", "contamina", "riesgo")
+_ANCHOR_KEYWORDS = (
+    "aciona",
+    "ordena",
+    "emite",
+    "determina",
+    "informa",
+    "retira",
+    "retiro",
+    "recolhimento",
+    "prohibe",
+    "prohibe",
+    "recoge",
+    "alerta sanitaria",
+    "alerta de",
+    "alerta sobre",
+    "recall",
+    "ação",
+    "recoge",
+)
+
+_NAV_BLOCK = (
+    "ver todas",
+    "consulta los",
+    "consulta las",
+    "consultá",
+    "preguntas frecuentes",
+    "registro sanitario",
+    "buscador",
+    "panel ",
+    "controle de",
+    "controle dos",
+    "rotulagem",
+    "programa de",
+    "todas las alertas",
+    "exportação",
+    "importação",
+    "exportaciÃ³n",
+    "importaciÃ³n",
+    "verifica la",
+    "ingrese aquí",
+)
 
 
 def fetch(limit: int = 25) -> list[Record]:
@@ -99,6 +139,14 @@ def fetch(limit: int = 25) -> list[Record]:
                 continue
             tl = text.lower()
             if not any(k in tl for k in _ANCHOR_KEYWORDS):
+                continue
+            # Drop category/nav titles ("Ver todas las alertas", "Programa de…",
+            # "Controle de Alimentos") — these match recall keywords but aren't
+            # actual recall events
+            if any(b in tl for b in _NAV_BLOCK):
+                continue
+            # Drop very short titles (likely a breadcrumb/header)
+            if len(text) < 40:
                 continue
             slug = re.sub(r"[^A-Za-z0-9_-]+", "-",
                           href.split("?", 1)[0].split("#", 1)[0].rstrip("/")
@@ -183,6 +231,8 @@ MEXICO = FeedSource(
         "COFEPRIS",
         "Cofepris Mexico",
     ),
+    authority_domain="gob.mx/cofepris",
+    authority_url_pattern=r"(prensa|articulos|acciones-y-programas)/[^/]+",
 )
 
 register(MEXICO)

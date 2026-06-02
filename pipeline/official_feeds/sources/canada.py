@@ -144,6 +144,8 @@ CANADA = FeedSource(
                  "undeclared allergen"),
     gnews_hl="en-CA", gnews_gl="CA", gnews_ceid="CA:en",
     gnews_days_back=3,
+    authority_domain="inspection.canada.ca",
+    authority_url_pattern=r"food-recall-warnings",
 )
 
 register(CANADA)

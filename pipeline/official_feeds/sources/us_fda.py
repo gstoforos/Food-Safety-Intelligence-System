@@ -83,6 +83,8 @@ US_FDA = FeedSource(
                  "cyclospora", "undeclared allergen"),
     gnews_hl="en-US", gnews_gl="US", gnews_ceid="US:en",
     gnews_days_back=3,
+    authority_domain="fda.gov",
+    authority_url_pattern=r"safety/recalls-market-withdrawals-safety-alerts/[a-z0-9][^/]+",
 )
 
 register(US_FDA)

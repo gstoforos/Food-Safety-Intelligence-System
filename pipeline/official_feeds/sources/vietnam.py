@@ -183,6 +183,8 @@ VIETNAM = FeedSource(
         "VFA Vietnam",
         "Vietnam Food Administration",
     ),
+    authority_domain="vfa.gov.vn",
+    authority_url_pattern=r"(canh-bao|thu-hoi|tin-tuc)",
     gnews_use_description=True,
 )
 

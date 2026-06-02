@@ -190,6 +190,8 @@ PHILIPPINES = FeedSource(
         "FDA Philippines",
         "Philippine FDA",
     ),
+    authority_domain="fda.gov.ph",
+    authority_url_pattern=r"(advisor|fda-advisory|advisories|food)",
     gnews_use_description=True,
 )
 

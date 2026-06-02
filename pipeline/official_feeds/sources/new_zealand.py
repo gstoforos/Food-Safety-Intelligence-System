@@ -281,6 +281,8 @@ NEW_ZEALAND = FeedSource(
         "trader joe", "whole foods", "kirkland",
         "u.s.", "united states",
     ),
+    authority_domain="mpi.govt.nz",
+    authority_url_pattern=r"news/.+recall",
 )
 
 register(NEW_ZEALAND)

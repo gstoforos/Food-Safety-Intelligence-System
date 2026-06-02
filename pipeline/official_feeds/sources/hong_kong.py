@@ -190,6 +190,8 @@ HONG_KONG = FeedSource(
         "u.s.", "united states",
     ),
     gnews_use_description=True,
+    authority_domain="cfs.gov.hk",
+    authority_url_pattern=r"(whatsnew_fa|whatsnew_rc|programme/programme_rafs)/[^/]+",
 )
 
 register(HONG_KONG)

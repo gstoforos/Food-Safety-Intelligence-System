@@ -194,6 +194,8 @@ JAPAN = FeedSource(
         "MHLW Japan",
         "Consumer Affairs Agency Japan",
     ),
+    authority_domain=".go.jp",
+    authority_url_pattern=r"(recall|food|alert|notice|attention|consumer_safety)",
     gnews_use_description=True,
 )
 

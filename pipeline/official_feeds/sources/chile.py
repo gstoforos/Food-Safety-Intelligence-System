@@ -16,6 +16,8 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from ..base import Record, FeedSource, register
 from ..fetch import DEFAULT_HEADERS
@@ -53,7 +55,7 @@ def _clean_title(t: str) -> str:
 
 def _try_fetch(url: str) -> str | None:
     try:
-        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=15)
+        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=15, verify=False)
         r.raise_for_status()
         return r.text
     except Exception as e:  # noqa: BLE001
@@ -63,7 +65,7 @@ def _try_fetch(url: str) -> str | None:
 
 def _fetch_detail(url: str):
     try:
-        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=_DETAIL_TIMEOUT)
+        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=_DETAIL_TIMEOUT, verify=False)
         r.raise_for_status()
     except Exception as e:  # noqa: BLE001
         print(f"  [WARN] ISP/ACHIPIA detail fetch failed: {url} — {e}")
@@ -80,7 +82,47 @@ def _fetch_detail(url: str):
     return (title_clean + " " + body[:600]).strip(), _parse_date(body)
 
 
-_ANCHOR_KEYWORDS = ("alerta", "retiro", "recall", "alimento", "contamina")
+_ANCHOR_KEYWORDS = (
+    "aciona",
+    "ordena",
+    "emite",
+    "determina",
+    "informa",
+    "retira",
+    "retiro",
+    "recolhimento",
+    "prohibe",
+    "prohibe",
+    "recoge",
+    "alerta sanitaria",
+    "alerta de",
+    "alerta sobre",
+    "recall",
+    "ação",
+    "recoge",
+)
+
+_NAV_BLOCK = (
+    "ver todas",
+    "consulta los",
+    "consulta las",
+    "consultá",
+    "preguntas frecuentes",
+    "registro sanitario",
+    "buscador",
+    "panel ",
+    "controle de",
+    "controle dos",
+    "rotulagem",
+    "programa de",
+    "todas las alertas",
+    "exportação",
+    "importação",
+    "exportaciÃ³n",
+    "importaciÃ³n",
+    "verifica la",
+    "ingrese aquí",
+)
 
 
 def fetch(limit: int = 25) -> list[Record]:
@@ -100,6 +142,14 @@ def fetch(limit: int = 25) -> list[Record]:
                 continue
             tl = text.lower()
             if not any(k in tl for k in _ANCHOR_KEYWORDS):
+                continue
+            # Drop category/nav titles ("Ver todas las alertas", "Programa de…",
+            # "Controle de Alimentos") — these match recall keywords but aren't
+            # actual recall events
+            if any(b in tl for b in _NAV_BLOCK):
+                continue
+            # Drop very short titles (likely a breadcrumb/header)
+            if len(text) < 40:
                 continue
             slug = re.sub(r"[^A-Za-z0-9_-]+", "-",
                           href.split("?", 1)[0].split("#", 1)[0].rstrip("/")
@@ -186,6 +236,8 @@ CHILE = FeedSource(
         "ACHIPIA",
         "Instituto de Salud Publica Chile",
     ),
+    authority_domain="ispch.gob.cl",
+    authority_url_pattern=r"(alertas-alimentarias|noticias)/[^/]+",
 )
 
 register(CHILE)

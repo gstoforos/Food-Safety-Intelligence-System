@@ -176,6 +176,9 @@ THAILAND = FeedSource(
         "trader joe", "whole foods", "kirkland",
         "u.s.", "united states",
     ),
+    gnews_use_description=True,
+    authority_domain="fda.moph.go.th",
+    authority_url_pattern=r"(news|alert|recall|food)",
 )
 
 register(THAILAND)

@@ -179,6 +179,8 @@ SOUTH_KOREA = FeedSource(
         "MFDS",
         "Korean FDA",
     ),
+    authority_domain="mfds.go.kr",
+    authority_url_pattern=r"(brd|board|nw)[a-z_]*/[^/]+",
     gnews_use_description=True,
 )
 
