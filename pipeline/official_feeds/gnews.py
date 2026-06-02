@@ -181,6 +181,7 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
             sid = "GN-" + hashlib.sha1(
                 (link or title).encode("utf-8", "ignore")).hexdigest()[:12]
             description = it.get("description", "") or ""
+            desc_text = ""    # cleaned description, populated below if use_description
 
             # Hazard text: title-only by default (legacy behaviour for
             # UK/IE/US/CA/AU/NZ — unchanged). Opt-in title+description
@@ -188,9 +189,25 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
             # (e.g. Asia GNews via redirector URLs + brief headlines).
             if use_description:
                 import re as _re
-                desc_text = _re.sub(r"<[^>]+>", " ", description)
+                import html as _html
+                # Decode HTML entities (&amp; &quot; &nbsp; &#39; etc.)
+                desc_text = _html.unescape(description)
+                # Strip all HTML tags including their attribute content
+                desc_text = _re.sub(r"<[^>]*>", " ", desc_text)
+                # Drop Google News redirect URLs that survived as plain
+                # text (a common case where the RSS desc is just an
+                # anchor whose href is a `news.google.com/rss/articles/`
+                # token — stripping the tag leaves the URL inline)
+                desc_text = _re.sub(r"https?://news\.google\.com/\S+", " ", desc_text)
                 desc_text = _re.sub(r"\s+", " ", desc_text).strip()
-                hazard_text = (title + " || " + desc_text).strip()
+                # If after cleanup the description has no meaningful
+                # text (only short pubname like "Yahoo News" remains),
+                # fall back to title-only so we don't dilute the hazard
+                # signal with publisher noise.
+                if len(desc_text) < 25:
+                    hazard_text = title
+                else:
+                    hazard_text = (title + " || " + desc_text).strip()
             else:
                 hazard_text = title
 
@@ -210,7 +227,7 @@ def fetch_gnews(authority: str, country_code: str, country_name: str,
             )
             records.append(rec)
             if use_description and len(sample_kept) < 3:
-                sample_kept.append((title[:70], description[:120]))
+                sample_kept.append((title[:70], desc_text[:160]))
             kept += 1
             if kept >= per_query_cap:
                 break
