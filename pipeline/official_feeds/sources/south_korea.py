@@ -153,7 +153,7 @@ SOUTH_KOREA = FeedSource(
         "undeclared allergen", "outbreak",
     ),
     gnews_hl="en", gnews_gl="KR", gnews_ceid="KR:en",
-    gnews_days_back=3,
+    gnews_days_back=7,
     gnews_country_keywords=(
         "korea",
         "korean",
@@ -175,6 +175,11 @@ SOUTH_KOREA = FeedSource(
         "trader joe", "whole foods", "kirkland",
         "u.s.", "united states",
     ),
+    gnews_authority_aliases=(
+        "MFDS",
+        "Korean FDA",
+    ),
+    gnews_use_description=True,
 )
 
 register(SOUTH_KOREA)

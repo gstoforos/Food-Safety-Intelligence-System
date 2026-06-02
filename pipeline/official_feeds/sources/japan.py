@@ -159,7 +159,7 @@ JAPAN = FeedSource(
         "undeclared allergen", "outbreak",
     ),
     gnews_hl="en", gnews_gl="JP", gnews_ceid="JP:en",
-    gnews_days_back=3,
+    gnews_days_back=7,
     gnews_country_keywords=(
         "japan",
         "japanese",
@@ -183,6 +183,11 @@ JAPAN = FeedSource(
         "trader joe", "whole foods", "kirkland",
         "u.s.", "united states",
     ),
+    gnews_authority_aliases=(
+        "MHLW Japan",
+        "Consumer Affairs Agency Japan",
+    ),
+    gnews_use_description=True,
 )
 
 register(JAPAN)
