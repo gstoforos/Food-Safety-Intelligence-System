@@ -85,6 +85,15 @@ class FeedSource:
     # legacy sources (UK, IE, US FDA/FSIS, CA, AU, NZ) keep title-only
     # behaviour unchanged.
     gnews_use_description: bool = False
+    # EFET-style approach for regulators whose own websites block GitHub
+    # Actions IPs (Philippines FDA, Korea MFDS, Vietnam VFA, Japan CAA).
+    # Each alias is fed into the query builder as if it were an additional
+    # authority — so a single source can search for "Philippines recall
+    # salmonella" AND "FDA Philippines recall salmonella" AND "Philippine
+    # FDA recall salmonella", surfacing articles that name the regulator
+    # explicitly (which we treat as government-verified per EFET pattern).
+    # Default empty — no change for existing sources.
+    gnews_authority_aliases: tuple = ()
 
 
 _REGISTRY: dict[str, FeedSource] = {}
