@@ -146,9 +146,12 @@ CANADA = FeedSource(
     gnews_days_back=3,
     authority_domain="inspection.canada.ca",
     authority_url_pattern=r"(recall-alert|food-recall)/[a-z0-9-]{10,}",
-    authority_index_urls=(
-        "https://recalls-rappels.canada.ca/en/search/site?f%5B0%5D=type%3Arecall_food",
-        "https://inspection.canada.ca/food-safety-for-industry/food-recalls-and-allergy-alerts/eng/1351519587174/1351519588221",
+    bulk_index_queries=(
+        "site:inspection.canada.ca recall food 2026 salmonella",
+        "site:inspection.canada.ca recall food 2026 listeria",
+        "site:recalls-rappels.canada.ca food 2026",
+        "site:inspection.canada.ca food recall warning 2026",
+        "site:recalls-rappels.canada.ca recall food",
     ),
 )
 

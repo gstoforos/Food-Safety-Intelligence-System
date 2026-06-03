@@ -283,8 +283,12 @@ NEW_ZEALAND = FeedSource(
     ),
     authority_domain="mpi.govt.nz",
     authority_url_pattern=r"news/[a-z0-9-]+recall",
-    authority_index_urls=(
-        "https://www.mpi.govt.nz/food-safety-home/food-recalls/",
+    bulk_index_queries=(
+        "site:mpi.govt.nz food recall 2026 listeria",
+        "site:mpi.govt.nz food recall 2026 salmonella",
+        "site:mpi.govt.nz food recall 2026",
+        "site:mpi.govt.nz recall news 2026",
+        "site:mpi.govt.nz food safety recall",
     ),
 )
 

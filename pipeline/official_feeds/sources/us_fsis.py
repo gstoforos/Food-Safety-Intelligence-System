@@ -261,8 +261,12 @@ US_FSIS = FeedSource(
     gnews_days_back=3,
     authority_domain="fsis.usda.gov",
     authority_url_pattern=r"recalls/[a-z0-9-]{20,}",
-    authority_index_urls=(
-        "https://www.fsis.usda.gov/recalls",
+    bulk_index_queries=(
+        "site:fsis.usda.gov recalls 2026 salmonella",
+        "site:fsis.usda.gov recalls 2026 listeria",
+        "site:fsis.usda.gov recalls 2026 e. coli",
+        "site:fsis.usda.gov public health alert 2026",
+        "site:fsis.usda.gov recall poultry meat 2026",
     ),
 )
 

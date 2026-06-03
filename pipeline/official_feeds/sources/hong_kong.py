@@ -192,9 +192,12 @@ HONG_KONG = FeedSource(
     gnews_use_description=True,
     authority_domain="cfs.gov.hk",
     authority_url_pattern=r"whatsnew/(whatsnew_fa|whatsnew_rc)/[^/]+\.html",
-    authority_index_urls=(
-        "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/index.html",
-        "https://www.cfs.gov.hk/english/whatsnew/whatsnew_rc.html",
+    bulk_index_queries=(
+        "site:cfs.gov.hk food alert 2026",
+        "site:cfs.gov.hk recall 2026",
+        "site:cfs.gov.hk whatsnew_fa 2026",
+        "site:cfs.gov.hk salmonella listeria 2026",
+        "site:cfs.gov.hk programme_rafs 2026",
     ),
 )
 

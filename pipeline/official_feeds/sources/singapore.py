@@ -211,8 +211,12 @@ SINGAPORE = FeedSource(
     gnews_use_description=True,
     authority_domain="sfa.gov.sg",
     authority_url_pattern=r"food-information/recalls/[a-z0-9-]+",
-    authority_index_urls=(
-        "https://www.sfa.gov.sg/food-information/recalls",
+    bulk_index_queries=(
+        "site:sfa.gov.sg recall 2026",
+        "site:sfa.gov.sg food information recall 2026",
+        "site:sfa.gov.sg news publications recall 2026",
+        "site:sfa.gov.sg listeria salmonella 2026",
+        "site:sfa.gov.sg consumer alert 2026",
     ),
 )
 

@@ -204,9 +204,12 @@ INDONESIA = FeedSource(
     gnews_use_description=True,
     authority_domain="pom.go.id",
     authority_url_pattern=r"(penjelasan-publik|siaran-pers)/[a-z0-9-]+",
-    authority_index_urls=(
-        "https://www.pom.go.id/penjelasan-publik",
-        "https://www.pom.go.id/siaran-pers",
+    bulk_index_queries=(
+        "site:pom.go.id penjelasan publik 2026",
+        "site:pom.go.id siaran pers 2026",
+        "site:pom.go.id peringatan publik 2026",
+        "site:pom.go.id penarikan produk 2026",
+        "site:pom.go.id keamanan pangan 2026",
     ),
 )
 

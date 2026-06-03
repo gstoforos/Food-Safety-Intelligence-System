@@ -314,8 +314,12 @@ AUSTRALIA = FeedSource(
     ),
     authority_domain="foodstandards.gov.au",
     authority_url_pattern=r"consumer/safety/recalls/[a-z0-9-]{10,}",
-    authority_index_urls=(
-        "https://www.foodstandards.gov.au/consumer/safety/recalls/",
+    bulk_index_queries=(
+        "site:foodstandards.gov.au recall 2026 listeria",
+        "site:foodstandards.gov.au recall 2026 salmonella",
+        "site:foodstandards.gov.au consumer safety recalls 2026",
+        "site:foodstandards.gov.au food recall",
+        "site:foodstandards.gov.au consumer safety recalls",
     ),
 )
 

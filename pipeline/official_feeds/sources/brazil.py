@@ -234,8 +234,12 @@ BRAZIL = FeedSource(
     ),
     authority_domain="gov.br/anvisa",
     authority_url_pattern=r"noticias-anvisa/[a-z0-9-]+",
-    authority_index_urls=(
-        "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa",
+    bulk_index_queries=(
+        "site:gov.br/anvisa noticias recall 2026",
+        "site:gov.br/anvisa recolhimento 2026",
+        "site:gov.br/anvisa alerta sanitario 2026",
+        "site:gov.br/anvisa anvisa 2026 listeria",
+        "site:gov.br/anvisa anvisa 2026 salmonella",
     ),
 )
 

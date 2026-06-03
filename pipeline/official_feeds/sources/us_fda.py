@@ -85,8 +85,12 @@ US_FDA = FeedSource(
     gnews_days_back=3,
     authority_domain="fda.gov",
     authority_url_pattern=r"safety/recalls-market-withdrawals-safety-alerts/[a-z0-9-]{30,}",
-    authority_index_urls=(
-        "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts",
+    bulk_index_queries=(
+        "site:fda.gov recalls 2026 salmonella",
+        "site:fda.gov recalls 2026 listeria",
+        "site:fda.gov recalls market withdrawals 2026",
+        "site:fda.gov recalls 2026 cheese pizza",
+        "site:fda.gov press release recall 2026",
     ),
 )
 
