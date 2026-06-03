@@ -1,304 +1,135 @@
 """
-URL resolver — the EFET method, done properly.
+URL resolver — reuses the proven gap_finder.search_verifier (EFET-style).
 
-What this does (zero search engines, zero JS, zero guessing):
+How it works (the SAME way EFET, ASAE, Italian, German etc. have worked
+in production for months):
 
-  1. ONCE per source-run: fetch the regulator's own recall listing page
-     (e.g. https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts).
-     Parse every <a href> on it that matches the recall-page pattern.
-     Build a local index:  [(anchor_text, full_url), ...]
+  1. ONCE per source run, fire 5 broad DDG queries like:
+        site:fda.gov recalls 2026 salmonella
+        site:fda.gov recalls market withdrawals 2026
+        ...
+     7-11s delays between queries (DDG-tolerant), Mojeek fallback.
 
-  2. PER ACCEPT: the GNews title gives us company/product keywords. Match
-     the keywords against the local index by content-word overlap.
-     Return the FDA URL with the highest match.
+  2. Build in-memory index of authority URLs from results, filtered by
+     authority_item_url_regex.
 
-  3. If no match in the regulator's listing, the recall hasn't been posted
-     to that page yet (FDA can lag a day or two), OR the regulator blocks
-     GitHub IPs. Try a second fallback: decode the Google News URL → fetch
-     publisher article → scan for authority hrefs in article body. This
-     works for some Google News URL formats but not all.
+  3. For each accepted GNews record, match its title against the index
+     by Jaccard token overlap + date-window constraint.
 
-  4. If both fail, return None — caller writes news URL + flags
-     pending_no_auth_url for manual review.
+  4. Best match above MATCH_THRESHOLD (10%) → return authority URL.
+     Otherwise None → caller keeps news URL + sets pending_no_auth_url.
 
-This is the EFET pattern. The regulator is the source of truth.
+Network budget per source run: 5 DDG calls (~45-55 seconds with delays).
+Cost: $0 — no API keys, no signups. Same code path as gap_finder.
+
+NOTE: This wraps the existing pipeline.gap_finder.search_verifier so we
+don't duplicate the DDG/Mojeek logic, polite-sleep tuning, Jaccard
+matching, or stopword tables. ALL the hard work lives there already.
 """
 
 from __future__ import annotations
 
-import base64
-import random
 import re
+from dataclasses import dataclass
 from typing import Optional
-from urllib.parse import urljoin, urlparse
 
-import requests
-from bs4 import BeautifulSoup
-
-
-_TIMEOUT = 20
-
-_USER_AGENTS = (
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 "
-    "(KHTML, like Gecko) Version/17.0 Safari/605.1.15",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-)
+# Import the proven gap_finder primitives directly. The shape we need:
+#   - CountryConfig-like object with bulk_index_queries + authority_domain +
+#     authority_item_url_regex
+#   - build_index(cfg) returns list[AuthorityAnnouncement]
+#   - match_in_index(news_title, news_published_iso, index) returns (ann, score)
+try:
+    from ..gap_finder.search_verifier import (
+        build_index, match_in_index, AuthorityAnnouncement)
+except ImportError:
+    # Fallback when run as a module from a different layout
+    from pipeline.gap_finder.search_verifier import (   # type: ignore
+        build_index, match_in_index, AuthorityAnnouncement)
 
 
-def _headers() -> dict:
-    return {
-        "User-Agent": random.choice(_USER_AGENTS),
-        "Accept": ("text/html,application/xhtml+xml,application/xml;"
-                   "q=0.9,*/*;q=0.8"),
-        "Accept-Language": "en-US,en;q=0.9",
-    }
+# Process-level cache so multiple records in one run share one index build.
+# Key: tuple(bulk_index_queries). Value: list[AuthorityAnnouncement].
+_INDEX_CACHE: dict = {}
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Stage A: build authority's own recall index (the reliable path)
-# ─────────────────────────────────────────────────────────────────────────────
-
-# Process-level cache so multiple records in one run share one fetch.
-# Key: tuple(index_urls). Value: list of (anchor_text, full_url).
-_AUTH_INDEX: dict = {}
-
-
-def _fetch_authority_index(index_urls: tuple,
-                            authority_domain: str,
-                            authority_url_pattern: Optional[re.Pattern],
-                            ) -> list[tuple]:
-    """Fetch the regulator's recall listing pages once and parse all the
-    individual recall URLs into a local index.
-
-    Returns: [(anchor_text, full_url), ...]. Empty list if all fetches fail.
-    """
-    key = (tuple(index_urls), authority_domain)
-    if key in _AUTH_INDEX:
-        return _AUTH_INDEX[key]
-
-    entries: list[tuple] = []
-    for listing_url in index_urls:
-        try:
-            resp = requests.get(listing_url, headers=_headers(),
-                                 timeout=_TIMEOUT, allow_redirects=True)
-            if resp.status_code != 200:
-                print(f"  [WARN] authority index fetch {listing_url} → "
-                      f"HTTP {resp.status_code}")
-                continue
-        except Exception as e:   # noqa: BLE001
-            print(f"  [WARN] authority index fetch {listing_url} → {e}")
-            continue
-
-        soup = BeautifulSoup(resp.content, "html.parser")
-        for a in soup.find_all("a", href=True):
-            href = a["href"].strip()
-            if not href:
-                continue
-            full = urljoin(listing_url, href)
-            if authority_domain not in full:
-                continue
-            # Drop URL fragment, query for pattern-matching purposes
-            p = urlparse(full)
-            path_q = f"{p.path}?{p.query}" if p.query else p.path
-            if authority_url_pattern and not authority_url_pattern.search(path_q):
-                continue
-            text = a.get_text(" ", strip=True)
-            if not text or len(text) < 15:
-                # Anchor text too short to be a real recall headline
-                continue
-            entries.append((text, full))
-
-    # Dedup by URL, preserve order
-    seen: set[str] = set()
-    deduped: list[tuple] = []
-    for t, u in entries:
-        if u not in seen:
-            seen.add(u)
-            deduped.append((t, u))
-
-    _AUTH_INDEX[key] = deduped
-    print(f"  [authority index] {authority_domain}: "
-          f"{len(deduped)} recall pages indexed from "
-          f"{len(index_urls)} listing URL(s)")
-    return deduped
+@dataclass
+class _ResolverCfg:
+    """Minimal duck-typed shim that quacks like CountryConfig for the
+    gap_finder search_verifier. Only the fields it actually uses."""
+    authority_short: str
+    authority_domain: str
+    authority_item_url_regex: str
+    bulk_index_queries: list
 
 
-# Words to drop from titles when scoring keyword overlap
-_STOPWORDS = frozenset((
-    "the","a","an","of","in","on","at","to","for","with","and","or","but",
-    "due","after","over","as","by","from","is","are","was","were","be",
-    "recall","recalled","recalls","recalling","alert","alerts",
-    "warning","warns","warned",
-    "fda","usda","fsis","cfia","anvisa","cofepris","anmat","invima",
-    "digesa","bpom","sfa","cfs","tfda","mfds","sfanz","mpi",
-    "announces","announcement","announced",
-    "nationwide","national","states","state",
-    "popular","more","new","some","all","this","that",
-    "food","foods","product","products",
-    "msn","yahoo","aol","cnn","fox","bbc","newsweek",
-    "because","over","because","may","could","might",
-))
+def _get_index(authority_short: str,
+               authority_domain: str,
+               item_url_regex: str,
+               bulk_index_queries: tuple,
+               verbose: bool = True) -> list:
+    """Lazily build (and cache) the authority's URL index via gap_finder.
+    The build is shared across all records in one source run."""
+    key = tuple(bulk_index_queries)
+    if key in _INDEX_CACHE:
+        return _INDEX_CACHE[key]
 
-
-def _title_keywords(title: str) -> set:
-    """Extract distinctive content-word set from a title for matching."""
-    if not title:
-        return set()
-    # Strip the trailing "- Publisher" attribution Google News appends
-    cleaned = re.split(r"\s+[-–—]\s+[A-Z][\w. &]+$", title)[0]
-    cleaned = re.sub(r"[^\w\s'-]", " ", cleaned)
-    words = re.findall(r"[A-Za-z][A-Za-z0-9'-]{2,}", cleaned)
-    return {w.lower() for w in words if w.lower() not in _STOPWORDS
-            and len(w) >= 3}
-
-
-def _match_against_index(title: str,
-                          index: list,
-                          min_overlap: int = 2) -> Optional[str]:
-    """Return the index URL whose anchor text best matches `title`.
-
-    Score = number of overlapping content words. Requires at least
-    `min_overlap` matches to return a result (avoids false positives
-    from very short titles).
-    """
-    title_kw = _title_keywords(title)
-    if not title_kw or not index:
-        return None
-
-    best_score = 0
-    best_url = None
-    for anchor_text, url in index:
-        anchor_kw = _title_keywords(anchor_text)
-        if not anchor_kw:
-            continue
-        overlap = len(title_kw & anchor_kw)
-        if overlap > best_score:
-            best_score = overlap
-            best_url = url
-
-    if best_score >= min_overlap:
-        return best_url
-    return None
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Stage B (fallback): decode Google News URL → fetch publisher → scan
-# ─────────────────────────────────────────────────────────────────────────────
-
-_GN_URL_RE = re.compile(
-    r"^https?://news\.google\.com/(?:rss/)?articles/([A-Za-z0-9_-]+)")
-
-
-def decode_gnews_url(url: str) -> Optional[str]:
-    """Best-effort extraction of the publisher URL from a Google News
-    redirector URL. Works for older URL formats; newer formats are
-    server-side tokens and will return None.
-    """
-    if not url:
-        return None
-    if "news.google.com" not in url:
-        return url
-    m = _GN_URL_RE.match(url)
-    if not m:
-        return None
-    token = m.group(1)
-    padded = token + "=" * (-len(token) % 4)
+    cfg = _ResolverCfg(
+        authority_short=authority_short,
+        authority_domain=authority_domain,
+        authority_item_url_regex=item_url_regex,
+        bulk_index_queries=list(bulk_index_queries),
+    )
     try:
-        decoded = base64.urlsafe_b64decode(padded)
-    except Exception:   # noqa: BLE001
-        return None
-    candidates = re.findall(
-        rb"https?://[A-Za-z0-9\-\._~:/\?\#\[\]@!\$&'\(\)\*\+,;=%]+",
-        decoded)
-    for c in candidates:
-        u = c.decode("utf-8", errors="ignore")
-        host = (urlparse(u).hostname or "").lower()
-        if any(s in host for s in ("google.", "gstatic.", "youtube.")):
-            continue
-        return u
-    return None
+        index = build_index(cfg, verbose=verbose)
+    except Exception as e:   # noqa: BLE001
+        print(f"  [WARN] search_verifier.build_index failed: {e}")
+        index = []
+    _INDEX_CACHE[key] = index
+    print(f"  [authority index] {authority_short}: {len(index)} URLs indexed")
+    return index
 
-
-def _fetch_article(url: str) -> Optional[BeautifulSoup]:
-    try:
-        resp = requests.get(url, headers=_headers(),
-                            timeout=_TIMEOUT, allow_redirects=True)
-        if resp.status_code != 200:
-            return None
-        return BeautifulSoup(resp.content, "html.parser")
-    except Exception:   # noqa: BLE001
-        return None
-
-
-def _scan_article_for_authority(soup: BeautifulSoup,
-                                 authority_domain: str,
-                                 pattern: Optional[re.Pattern],
-                                 base: str) -> Optional[str]:
-    if not soup:
-        return None
-    for a in soup.find_all("a", href=True):
-        href = urljoin(base, a["href"].strip())
-        if authority_domain not in href:
-            continue
-        p = urlparse(href)
-        path_q = f"{p.path}?{p.query}" if p.query else p.path
-        if pattern and not pattern.search(path_q):
-            continue
-        return href
-    return None
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Public entry point
-# ─────────────────────────────────────────────────────────────────────────────
 
 def resolve_authority_url(news_url: str,
                           title: str,
                           authority_domain: str,
                           authority_url_pattern: Optional[re.Pattern] = None,
-                          index_urls: tuple = (),
-                          _cache: dict = {},
+                          bulk_index_queries: tuple = (),
+                          authority_short: str = "",
+                          published_iso: str = "",
                           ) -> Optional[str]:
     """
-    Find the regulator's own URL for a recall.
+    Find the regulator's URL for a recall via the EFET-style index match.
 
-    PRIMARY: match `title` keywords against the regulator's recall listing
-    (if `index_urls` is set and the listing is fetchable).
+    Args:
+        news_url:               GNews redirector (unused in this method)
+        title:                  GNews article title — drives the match
+        authority_domain:       e.g. "fda.gov", "cfs.gov.hk"
+        authority_url_pattern:  compiled regex (used as item_url_regex for
+                                 the index filter)
+        bulk_index_queries:     5 broad DDG queries to build the index. If
+                                 empty, returns None (no fallback — we want
+                                 deterministic behaviour).
+        authority_short:        for log readability, e.g. "FDA", "CFS"
+        published_iso:          ISO-8601 date string for the article — used
+                                 for the 30-day date-window constraint in
+                                 the match function
 
-    FALLBACK: decode the Google News URL to the publisher article, fetch
-    it, scan for authority hrefs in its body.
-
-    Returns the authority URL, or None.
+    Returns:
+        Authority URL string, or None.
     """
-    if not authority_domain or not title:
+    if not title or not authority_domain or not bulk_index_queries:
         return None
 
-    cache_key = (title, authority_domain)
-    if cache_key in _cache:
-        return _cache[cache_key]
+    item_url_regex = (authority_url_pattern.pattern
+                       if authority_url_pattern else r".+")
+    auth_short = authority_short or authority_domain.split(".")[0].upper()
 
-    # ─── Stage A: regulator's own listing (preferred path) ───────────────
-    if index_urls:
-        index = _fetch_authority_index(index_urls, authority_domain,
-                                        authority_url_pattern)
-        if index:
-            match = _match_against_index(title, index, min_overlap=2)
-            if match:
-                _cache[cache_key] = match
-                return match
+    index = _get_index(auth_short, authority_domain, item_url_regex,
+                        bulk_index_queries)
+    if not index:
+        return None
 
-    # ─── Stage B: GNews decode + publisher article scan (fallback) ───────
-    publisher = decode_gnews_url(news_url) if news_url else None
-    if publisher and "google.com" not in (urlparse(publisher).hostname or ""):
-        soup = _fetch_article(publisher)
-        match = _scan_article_for_authority(soup, authority_domain,
-                                             authority_url_pattern, publisher)
-        if match:
-            _cache[cache_key] = match
-            return match
-
-    _cache[cache_key] = None
-    return None
+    ann, score = match_in_index(title, published_iso or "", index)
+    if not ann:
+        return None
+    return ann.url

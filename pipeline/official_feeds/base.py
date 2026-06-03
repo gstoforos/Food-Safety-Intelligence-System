@@ -108,14 +108,21 @@ class FeedSource:
     # for FDA: r"safety/recalls-market-withdrawals-safety-alerts/[^/]+"
     # Empty = no filter (any URL on authority_domain passes).
     authority_url_pattern: str = ""
-    # PRIMARY URL-resolution mode (the reliable one): the regulator's own
-    # recall listing page(s). The resolver fetches these once per run,
-    # parses every <a href> matching authority_url_pattern, and matches
-    # GNews titles by content-word overlap. No search engine, no JS, no
-    # base64 decoding — the regulator IS the source of truth.
-    # Empty = falls back to Stage B (decode GNews URL + scan publisher
-    # article body for authority hrefs).
-    authority_index_urls: tuple = ()
+    # EFET-style URL resolution — same architecture as the gap_finder
+    # pipeline that has worked for EFET, ASAE, IT, ES, DE etc. for months.
+    # 5 broad DDG queries built ONCE per source run (not per record),
+    # results indexed in memory, news titles matched against the index by
+    # Jaccard token overlap. WAF-immune: we never touch the regulator's
+    # own site, only the search engine's snapshot.
+    # Example:
+    #   bulk_index_queries=(
+    #       "site:fda.gov recalls 2026 salmonella",
+    #       "site:fda.gov recalls 2026 listeria",
+    #       "site:fda.gov recalls market withdrawals 2026",
+    #       "site:fda.gov press release recall 2026",
+    #       "site:fda.gov recalls market withdrawals safety alerts",
+    #   )
+    bulk_index_queries: tuple = ()
 
 
 _REGISTRY: dict[str, FeedSource] = {}
