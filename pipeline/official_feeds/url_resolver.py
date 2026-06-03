@@ -55,11 +55,23 @@ _INDEX_CACHE: dict = {}
 @dataclass
 class _ResolverCfg:
     """Minimal duck-typed shim that quacks like CountryConfig for the
-    gap_finder search_verifier. Only the fields it actually uses."""
+    gap_finder search_verifier. Includes every cfg attribute that
+    search_verifier.py touches (verified via grep on the upstream module)."""
+    # Used by build_index() + ddg_search()
     authority_short: str
     authority_domain: str
     authority_item_url_regex: str
     bulk_index_queries: list
+    # Used by _ddg_headers() for Accept-Language and logging
+    code: str = "us"
+    name_en: str = ""
+    language_code: str = "en"
+    # I/O paths — only used by search_verifier's CLI mode (not from our
+    # in-process call) but referenced via getattr in some places, so we
+    # provide empty strings rather than risk AttributeError.
+    candidates_path: str = ""
+    unmatched_path: str = ""
+    verified_path: str = ""
 
 
 def _get_index(authority_short: str,
@@ -78,6 +90,11 @@ def _get_index(authority_short: str,
         authority_domain=authority_domain,
         authority_item_url_regex=item_url_regex,
         bulk_index_queries=list(bulk_index_queries),
+        # Defaults for the optional fields are fine — we're not using the
+        # candidates/unmatched/verified file I/O paths from our in-process call.
+        code=authority_short.lower()[:2] or "us",
+        name_en=authority_short,
+        language_code="en",
     )
     try:
         index = build_index(cfg, verbose=verbose)
