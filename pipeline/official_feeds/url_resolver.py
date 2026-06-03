@@ -1,58 +1,42 @@
 """
-URL resolver — proper EFET pattern via DuckDuckGo site:authority search.
+URL resolver — the EFET method, done properly.
 
-The problem this solves:
-    GNews surfaces news articles ABOUT recalls (e.g. "Champion Foods Recalls
-    Cheese Bread Over Salmonella Fears" from a publisher via Google News).
-    The Pending sheet needs the REGULATOR'S OWN URL — not a news article URL.
+What this does (zero search engines, zero JS, zero guessing):
 
-Why simple article-link extraction doesn't work:
-    Google News RSS gives links like
-    https://news.google.com/rss/articles/CBMi<base64-encoded-payload>
-    These are JS-resolved redirects. requests.get() fetches the Google
-    interstitial page, which has no publisher article HTML in it. So
-    scanning that response for fda.gov links finds nothing.
+  1. ONCE per source-run: fetch the regulator's own recall listing page
+     (e.g. https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts).
+     Parse every <a href> on it that matches the recall-page pattern.
+     Build a local index:  [(anchor_text, full_url), ...]
 
-Why DDG site: search works:
-    1. Take the accepted article's title (we know the company/product name
-       and the regulator did issue this recall — that's why classifier
-       accepted it).
-    2. Extract distinctive keywords (company name, product name).
-    3. Query DuckDuckGo with site:authority_domain restriction.
-    4. Filter to URLs matching authority_url_pattern.
-    5. Return the first match.
+  2. PER ACCEPT: the GNews title gives us company/product keywords. Match
+     the keywords against the local index by content-word overlap.
+     Return the FDA URL with the highest match.
 
-    This is the EXACT pattern used by pipeline.gap_finder.search_verifier
-    for EFET (Greek), ASAE (Portuguese), etc. — proven to work.
+  3. If no match in the regulator's listing, the recall hasn't been posted
+     to that page yet (FDA can lag a day or two), OR the regulator blocks
+     GitHub IPs. Try a second fallback: decode the Google News URL → fetch
+     publisher article → scan for authority hrefs in article body. This
+     works for some Google News URL formats but not all.
 
-    For Champion Foods:
-       title = "Champion Foods Recalls Cheese Bread Over Salmonella Fears"
-       keywords = "Champion Foods Cheese Bread Salmonella Fears"
-       query = 'site:fda.gov Champion Foods Cheese Bread Salmonella Fears'
-       DDG returns: https://www.fda.gov/safety/recalls-market-withdrawals-
-                    safety-alerts/champion-foods-recalls-some-batches-...
-       That URL goes into Pending. ✓
+  4. If both fail, return None — caller writes news URL + flags
+     pending_no_auth_url for manual review.
 
-If DDG returns nothing on authority domain, fall back to news URL with
-Status='pending_no_auth_url' flag — operator finds it manually.
+This is the EFET pattern. The regulator is the source of truth.
 """
 
 from __future__ import annotations
 
+import base64
 import random
 import re
-import time
 from typing import Optional
-from urllib.parse import urlparse, parse_qs, unquote
+from urllib.parse import urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
 
 
-DDG_HTML_URL = "https://html.duckduckgo.com/html/"
-DDG_LITE_URL = "https://lite.duckduckgo.com/lite/"
 _TIMEOUT = 20
-_DELAY_MIN, _DELAY_MAX = 1.5, 3.0   # polite delay between DDG queries
 
 _USER_AGENTS = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 "
@@ -64,206 +48,257 @@ _USER_AGENTS = (
 )
 
 
-# Stopwords to drop from titles when building DDG keyword query.
-_STOPWORDS = {
-    "the", "a", "an", "of", "in", "on", "at", "to", "for", "with",
-    "and", "or", "but", "due", "after", "over", "as", "by", "from",
-    "is", "are", "was", "were", "be", "been", "being",
-    "recall", "recalled", "recalls", "recalling",
-    "alert", "alerts", "warning", "warns", "warned",
-    "fda", "usda", "fsis", "cfia", "anvisa", "cofepris", "anmat",
-    "invima", "digesa", "bpom", "sfa", "cfs", "tfda", "mfds",
-    "announces", "announcement", "announced",
-    "nationwide", "national", "states", "state",
-    "popular", "more", "new", "some", "all",
-    "consumer", "consumers", "customers",
-    "msn", "yahoo", "aol", "cnn", "fox", "bbc",
-}
-
-
-def _extract_keywords(title: str, max_words: int = 6) -> str:
-    """Pick distinctive words from a title for a DDG query.
-
-    Keeps proper nouns, brand-like CamelCase, longer content nouns. Drops
-    stopwords and authority names. Returns a space-joined string suitable
-    for use after `site:authority_domain `.
-    """
-    if not title:
-        return ""
-    # Strip leading "FDA Announces" / "USDA warns" prefixes
-    cleaned = re.sub(r"^(FDA|USDA|FSIS|CFIA|ANVISA|COFEPRIS|ANMAT|INVIMA|"
-                     r"DIGESA|BPOM|SFA|CFS|TFDA|MFDS)[\s:]+",
-                     "", title, flags=re.IGNORECASE)
-    cleaned = re.sub(r"[^\w\s'-]", " ", cleaned)
-    cleaned = re.sub(r"\s+", " ", cleaned).strip()
-    words = cleaned.split()
-    distinctive: list[str] = []
-    for w in words:
-        wl = w.lower().strip("'-")
-        if wl in _STOPWORDS:
-            continue
-        if len(wl) < 3:
-            continue
-        distinctive.append(w)
-        if len(distinctive) >= max_words:
-            break
-    return " ".join(distinctive)
-
-
-def _ddg_headers() -> dict:
+def _headers() -> dict:
     return {
         "User-Agent": random.choice(_USER_AGENTS),
-        "Accept": "text/html,application/xhtml+xml",
+        "Accept": ("text/html,application/xhtml+xml,application/xml;"
+                   "q=0.9,*/*;q=0.8"),
         "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://duckduckgo.com/",
     }
 
 
-def _clean_ddg_redirect(url: str) -> str:
-    """DDG wraps result URLs as //duckduckgo.com/l/?uddg=<encoded-url>."""
-    if not url:
-        return url
-    if url.startswith("//"):
-        url = "https:" + url
-    parsed = urlparse(url)
-    if "duckduckgo.com" in (parsed.netloc or "") and parsed.path.startswith("/l/"):
-        qs = parse_qs(parsed.query)
-        real = qs.get("uddg", [None])[0]
-        if real:
-            return unquote(real)
-    return url
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage A: build authority's own recall index (the reliable path)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Process-level cache so multiple records in one run share one fetch.
+# Key: tuple(index_urls). Value: list of (anchor_text, full_url).
+_AUTH_INDEX: dict = {}
 
 
-def _parse_ddg_html(html: str) -> list[str]:
-    soup = BeautifulSoup(html, "html.parser")
-    out: list[str] = []
-    for result in soup.find_all("div", class_=re.compile(r"\bresult\b")):
-        a = result.find("a", class_=re.compile(r"result__a"))
-        if not a:
-            continue
-        url = _clean_ddg_redirect(a.get("href", "").strip())
-        if url:
-            out.append(url)
-    # Fallback: scan all anchors
-    if not out:
-        for a in soup.find_all("a", href=True):
-            href = _clean_ddg_redirect(a["href"])
-            if href.startswith("http") and "duckduckgo.com" not in href:
-                out.append(href)
-    return out
+def _fetch_authority_index(index_urls: tuple,
+                            authority_domain: str,
+                            authority_url_pattern: Optional[re.Pattern],
+                            ) -> list[tuple]:
+    """Fetch the regulator's recall listing pages once and parse all the
+    individual recall URLs into a local index.
 
-
-def _parse_ddg_lite(html: str) -> list[str]:
-    """lite.duckduckgo.com uses a <table> layout."""
-    soup = BeautifulSoup(html, "html.parser")
-    out: list[str] = []
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if not href.startswith(("http://", "https://")):
-            continue
-        href = _clean_ddg_redirect(href)
-        if "duckduckgo.com" not in href:
-            out.append(href)
-    return out
-
-
-def _ddg_search(query: str, max_results: int = 20,
-                _state: dict = {"consecutive_failures": 0,
-                                 "circuit_open": False}) -> list[str]:
-    """Run a DDG query, return result URLs in order. Tries HTML then Lite.
-
-    Includes a per-process circuit breaker: after 2 consecutive failures
-    (rate-limit, 5xx, network error), short-circuit subsequent calls in
-    this run. Avoids hammering DDG when they're throttling us.
+    Returns: [(anchor_text, full_url), ...]. Empty list if all fetches fail.
     """
-    if _state["circuit_open"]:
-        return []
-    for endpoint, parser in ((DDG_HTML_URL, _parse_ddg_html),
-                              (DDG_LITE_URL, _parse_ddg_lite)):
-        try:
-            resp = requests.post(endpoint, data={"q": query},
-                                  headers=_ddg_headers(), timeout=_TIMEOUT)
-            resp.raise_for_status()
-            urls = parser(resp.text)
-            if urls:
-                _state["consecutive_failures"] = 0
-                return urls[:max_results]
-        except Exception:   # noqa: BLE001
-            continue
-    # Reaching here = both endpoints failed or returned no results
-    _state["consecutive_failures"] += 1
-    if _state["consecutive_failures"] >= 2:
-        _state["circuit_open"] = True
-        print("  [WARN] DDG circuit-breaker tripped after 2 consecutive "
-              "failures — URL resolution disabled for rest of run")
-    return []
+    key = (tuple(index_urls), authority_domain)
+    if key in _AUTH_INDEX:
+        return _AUTH_INDEX[key]
 
+    entries: list[tuple] = []
+    for listing_url in index_urls:
+        try:
+            resp = requests.get(listing_url, headers=_headers(),
+                                 timeout=_TIMEOUT, allow_redirects=True)
+            if resp.status_code != 200:
+                print(f"  [WARN] authority index fetch {listing_url} → "
+                      f"HTTP {resp.status_code}")
+                continue
+        except Exception as e:   # noqa: BLE001
+            print(f"  [WARN] authority index fetch {listing_url} → {e}")
+            continue
+
+        soup = BeautifulSoup(resp.content, "html.parser")
+        for a in soup.find_all("a", href=True):
+            href = a["href"].strip()
+            if not href:
+                continue
+            full = urljoin(listing_url, href)
+            if authority_domain not in full:
+                continue
+            # Drop URL fragment, query for pattern-matching purposes
+            p = urlparse(full)
+            path_q = f"{p.path}?{p.query}" if p.query else p.path
+            if authority_url_pattern and not authority_url_pattern.search(path_q):
+                continue
+            text = a.get_text(" ", strip=True)
+            if not text or len(text) < 15:
+                # Anchor text too short to be a real recall headline
+                continue
+            entries.append((text, full))
+
+    # Dedup by URL, preserve order
+    seen: set[str] = set()
+    deduped: list[tuple] = []
+    for t, u in entries:
+        if u not in seen:
+            seen.add(u)
+            deduped.append((t, u))
+
+    _AUTH_INDEX[key] = deduped
+    print(f"  [authority index] {authority_domain}: "
+          f"{len(deduped)} recall pages indexed from "
+          f"{len(index_urls)} listing URL(s)")
+    return deduped
+
+
+# Words to drop from titles when scoring keyword overlap
+_STOPWORDS = frozenset((
+    "the","a","an","of","in","on","at","to","for","with","and","or","but",
+    "due","after","over","as","by","from","is","are","was","were","be",
+    "recall","recalled","recalls","recalling","alert","alerts",
+    "warning","warns","warned",
+    "fda","usda","fsis","cfia","anvisa","cofepris","anmat","invima",
+    "digesa","bpom","sfa","cfs","tfda","mfds","sfanz","mpi",
+    "announces","announcement","announced",
+    "nationwide","national","states","state",
+    "popular","more","new","some","all","this","that",
+    "food","foods","product","products",
+    "msn","yahoo","aol","cnn","fox","bbc","newsweek",
+    "because","over","because","may","could","might",
+))
+
+
+def _title_keywords(title: str) -> set:
+    """Extract distinctive content-word set from a title for matching."""
+    if not title:
+        return set()
+    # Strip the trailing "- Publisher" attribution Google News appends
+    cleaned = re.split(r"\s+[-–—]\s+[A-Z][\w. &]+$", title)[0]
+    cleaned = re.sub(r"[^\w\s'-]", " ", cleaned)
+    words = re.findall(r"[A-Za-z][A-Za-z0-9'-]{2,}", cleaned)
+    return {w.lower() for w in words if w.lower() not in _STOPWORDS
+            and len(w) >= 3}
+
+
+def _match_against_index(title: str,
+                          index: list,
+                          min_overlap: int = 2) -> Optional[str]:
+    """Return the index URL whose anchor text best matches `title`.
+
+    Score = number of overlapping content words. Requires at least
+    `min_overlap` matches to return a result (avoids false positives
+    from very short titles).
+    """
+    title_kw = _title_keywords(title)
+    if not title_kw or not index:
+        return None
+
+    best_score = 0
+    best_url = None
+    for anchor_text, url in index:
+        anchor_kw = _title_keywords(anchor_text)
+        if not anchor_kw:
+            continue
+        overlap = len(title_kw & anchor_kw)
+        if overlap > best_score:
+            best_score = overlap
+            best_url = url
+
+    if best_score >= min_overlap:
+        return best_url
+    return None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage B (fallback): decode Google News URL → fetch publisher → scan
+# ─────────────────────────────────────────────────────────────────────────────
+
+_GN_URL_RE = re.compile(
+    r"^https?://news\.google\.com/(?:rss/)?articles/([A-Za-z0-9_-]+)")
+
+
+def decode_gnews_url(url: str) -> Optional[str]:
+    """Best-effort extraction of the publisher URL from a Google News
+    redirector URL. Works for older URL formats; newer formats are
+    server-side tokens and will return None.
+    """
+    if not url:
+        return None
+    if "news.google.com" not in url:
+        return url
+    m = _GN_URL_RE.match(url)
+    if not m:
+        return None
+    token = m.group(1)
+    padded = token + "=" * (-len(token) % 4)
+    try:
+        decoded = base64.urlsafe_b64decode(padded)
+    except Exception:   # noqa: BLE001
+        return None
+    candidates = re.findall(
+        rb"https?://[A-Za-z0-9\-\._~:/\?\#\[\]@!\$&'\(\)\*\+,;=%]+",
+        decoded)
+    for c in candidates:
+        u = c.decode("utf-8", errors="ignore")
+        host = (urlparse(u).hostname or "").lower()
+        if any(s in host for s in ("google.", "gstatic.", "youtube.")):
+            continue
+        return u
+    return None
+
+
+def _fetch_article(url: str) -> Optional[BeautifulSoup]:
+    try:
+        resp = requests.get(url, headers=_headers(),
+                            timeout=_TIMEOUT, allow_redirects=True)
+        if resp.status_code != 200:
+            return None
+        return BeautifulSoup(resp.content, "html.parser")
+    except Exception:   # noqa: BLE001
+        return None
+
+
+def _scan_article_for_authority(soup: BeautifulSoup,
+                                 authority_domain: str,
+                                 pattern: Optional[re.Pattern],
+                                 base: str) -> Optional[str]:
+    if not soup:
+        return None
+    for a in soup.find_all("a", href=True):
+        href = urljoin(base, a["href"].strip())
+        if authority_domain not in href:
+            continue
+        p = urlparse(href)
+        path_q = f"{p.path}?{p.query}" if p.query else p.path
+        if pattern and not pattern.search(path_q):
+            continue
+        return href
+    return None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Public entry point
+# ─────────────────────────────────────────────────────────────────────────────
 
 def resolve_authority_url(news_url: str,
                           title: str,
                           authority_domain: str,
                           authority_url_pattern: Optional[re.Pattern] = None,
+                          index_urls: tuple = (),
                           _cache: dict = {},
                           ) -> Optional[str]:
     """
-    Find the regulator's own URL for a recall surfaced via GNews.
+    Find the regulator's own URL for a recall.
 
-    Args:
-        news_url:           Google News redirector URL (kept for fallback)
-        title:              article title — used to build DDG keywords
-        authority_domain:   e.g. "fda.gov", "cfs.gov.hk", "gov.br/anvisa"
-        authority_url_pattern: compiled regex applied to URL path+query
-        _cache:             per-process memo (default-arg trick); avoids
-                            duplicate DDG queries when many news articles
-                            cover the same recall — all 29 cheese-bread
-                            articles resolve via ONE DDG hit.
+    PRIMARY: match `title` keywords against the regulator's recall listing
+    (if `index_urls` is set and the listing is fetchable).
 
-    Returns:
-        Authority URL string, or None if no match found.
+    FALLBACK: decode the Google News URL to the publisher article, fetch
+    it, scan for authority hrefs in its body.
+
+    Returns the authority URL, or None.
     """
-    if not title or not authority_domain:
+    if not authority_domain or not title:
         return None
 
-    keywords = _extract_keywords(title)
-    if not keywords:
-        return None
-
-    # Cache key: keywords + authority_domain. Records covering the same
-    # recall produce similar keyword strings, but not identical — so we
-    # also cache by (authority_domain, exact_query) below.
-    cache_key = (authority_domain, keywords)
+    cache_key = (title, authority_domain)
     if cache_key in _cache:
         return _cache[cache_key]
 
-    # Build DDG query
-    if "/" in authority_domain:
-        bare_domain, sub_path = authority_domain.split("/", 1)
-        query = f"site:{bare_domain} {sub_path} {keywords}"
-    else:
-        query = f"site:{authority_domain} {keywords}"
+    # ─── Stage A: regulator's own listing (preferred path) ───────────────
+    if index_urls:
+        index = _fetch_authority_index(index_urls, authority_domain,
+                                        authority_url_pattern)
+        if index:
+            match = _match_against_index(title, index, min_overlap=2)
+            if match:
+                _cache[cache_key] = match
+                return match
 
-    urls = _ddg_search(query, max_results=20)
-    time.sleep(random.uniform(_DELAY_MIN, _DELAY_MAX))
+    # ─── Stage B: GNews decode + publisher article scan (fallback) ───────
+    publisher = decode_gnews_url(news_url) if news_url else None
+    if publisher and "google.com" not in (urlparse(publisher).hostname or ""):
+        soup = _fetch_article(publisher)
+        match = _scan_article_for_authority(soup, authority_domain,
+                                             authority_url_pattern, publisher)
+        if match:
+            _cache[cache_key] = match
+            return match
 
-    result: Optional[str] = None
-    if urls:
-        on_authority = [u for u in urls if authority_domain in u]
-        if on_authority:
-            if authority_url_pattern is None:
-                result = on_authority[0]
-            else:
-                for url in on_authority:
-                    parsed = urlparse(url)
-                    path_q = f"{parsed.path}?{parsed.query}" if parsed.query else parsed.path
-                    if authority_url_pattern.search(path_q):
-                        result = url
-                        break
-
-    _cache[cache_key] = result
-    return result
-
-
-def clear_cache() -> None:
-    """Clear the per-process resolver cache. Call at start of each source run
-    if you want the cache scoped per source rather than per process."""
-    resolve_authority_url.__defaults__[0].clear()
+    _cache[cache_key] = None
+    return None

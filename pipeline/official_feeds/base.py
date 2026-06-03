@@ -108,6 +108,14 @@ class FeedSource:
     # for FDA: r"safety/recalls-market-withdrawals-safety-alerts/[^/]+"
     # Empty = no filter (any URL on authority_domain passes).
     authority_url_pattern: str = ""
+    # PRIMARY URL-resolution mode (the reliable one): the regulator's own
+    # recall listing page(s). The resolver fetches these once per run,
+    # parses every <a href> matching authority_url_pattern, and matches
+    # GNews titles by content-word overlap. No search engine, no JS, no
+    # base64 decoding — the regulator IS the source of truth.
+    # Empty = falls back to Stage B (decode GNews URL + scan publisher
+    # article body for authority hrefs).
+    authority_index_urls: tuple = ()
 
 
 _REGISTRY: dict[str, FeedSource] = {}

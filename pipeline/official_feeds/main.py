@@ -113,7 +113,8 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
                 continue   # official-feed records already have authority URL
             news_url = rec.url
             auth_url = resolve_authority_url(
-                news_url, rec.title, src.authority_domain, pat)
+                news_url, rec.title, src.authority_domain, pat,
+                index_urls=src.authority_index_urls)
             if auth_url:
                 rec.raw["_news_url"] = news_url   # keep original for audit
                 rec.url = auth_url
