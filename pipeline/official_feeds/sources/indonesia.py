@@ -203,7 +203,11 @@ INDONESIA = FeedSource(
     ),
     gnews_use_description=True,
     authority_domain="pom.go.id",
-    authority_url_pattern=r"(siaran-pers|penjelasan-publik|peringatan)",
+    authority_url_pattern=r"(penjelasan-publik|siaran-pers)/[a-z0-9-]+",
+    authority_index_urls=(
+        "https://www.pom.go.id/penjelasan-publik",
+        "https://www.pom.go.id/siaran-pers",
+    ),
 )
 
 register(INDONESIA)

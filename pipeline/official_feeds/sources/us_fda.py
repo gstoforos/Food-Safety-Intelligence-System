@@ -84,7 +84,10 @@ US_FDA = FeedSource(
     gnews_hl="en-US", gnews_gl="US", gnews_ceid="US:en",
     gnews_days_back=3,
     authority_domain="fda.gov",
-    authority_url_pattern=r"safety/recalls-market-withdrawals-safety-alerts/[a-z0-9][^/]+",
+    authority_url_pattern=r"safety/recalls-market-withdrawals-safety-alerts/[a-z0-9-]{30,}",
+    authority_index_urls=(
+        "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts",
+    ),
 )
 
 register(US_FDA)

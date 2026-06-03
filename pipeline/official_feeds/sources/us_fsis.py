@@ -260,7 +260,10 @@ US_FSIS = FeedSource(
     gnews_hl="en-US", gnews_gl="US", gnews_ceid="US:en",
     gnews_days_back=3,
     authority_domain="fsis.usda.gov",
-    authority_url_pattern=r"recalls-alerts/[a-z0-9][^/]+",
+    authority_url_pattern=r"recalls/[a-z0-9-]{20,}",
+    authority_index_urls=(
+        "https://www.fsis.usda.gov/recalls",
+    ),
 )
 
 register(US_FSIS)

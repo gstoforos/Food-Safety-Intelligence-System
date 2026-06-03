@@ -282,7 +282,10 @@ NEW_ZEALAND = FeedSource(
         "u.s.", "united states",
     ),
     authority_domain="mpi.govt.nz",
-    authority_url_pattern=r"news/.+recall",
+    authority_url_pattern=r"news/[a-z0-9-]+recall",
+    authority_index_urls=(
+        "https://www.mpi.govt.nz/food-safety-home/food-recalls/",
+    ),
 )
 
 register(NEW_ZEALAND)

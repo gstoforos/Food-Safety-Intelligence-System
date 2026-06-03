@@ -210,7 +210,10 @@ SINGAPORE = FeedSource(
     ),
     gnews_use_description=True,
     authority_domain="sfa.gov.sg",
-    authority_url_pattern=r"(food-information/recalls|news-publications/recalls)/.+",
+    authority_url_pattern=r"food-information/recalls/[a-z0-9-]+",
+    authority_index_urls=(
+        "https://www.sfa.gov.sg/food-information/recalls",
+    ),
 )
 
 register(SINGAPORE)

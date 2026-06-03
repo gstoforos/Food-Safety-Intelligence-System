@@ -313,7 +313,10 @@ AUSTRALIA = FeedSource(
         "u.s.", "united states",
     ),
     authority_domain="foodstandards.gov.au",
-    authority_url_pattern=r"(recalls|consumer/recalls)/.+",
+    authority_url_pattern=r"consumer/safety/recalls/[a-z0-9-]{10,}",
+    authority_index_urls=(
+        "https://www.foodstandards.gov.au/consumer/safety/recalls/",
+    ),
 )
 
 register(AUSTRALIA)

@@ -191,7 +191,11 @@ HONG_KONG = FeedSource(
     ),
     gnews_use_description=True,
     authority_domain="cfs.gov.hk",
-    authority_url_pattern=r"(whatsnew_fa|whatsnew_rc|programme/programme_rafs)/[^/]+",
+    authority_url_pattern=r"whatsnew/(whatsnew_fa|whatsnew_rc)/[^/]+\.html",
+    authority_index_urls=(
+        "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/index.html",
+        "https://www.cfs.gov.hk/english/whatsnew/whatsnew_rc.html",
+    ),
 )
 
 register(HONG_KONG)

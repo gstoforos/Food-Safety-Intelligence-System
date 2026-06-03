@@ -233,7 +233,10 @@ BRAZIL = FeedSource(
         "ANVISA Brazil",
     ),
     authority_domain="gov.br/anvisa",
-    authority_url_pattern=r"noticias-anvisa/[^/]+",
+    authority_url_pattern=r"noticias-anvisa/[a-z0-9-]+",
+    authority_index_urls=(
+        "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa",
+    ),
 )
 
 register(BRAZIL)
