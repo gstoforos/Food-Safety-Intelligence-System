@@ -160,6 +160,38 @@
   "Notes": "Linked to a localized outbreak of E. coli O157:H7 with nine sick people in California.  [via Gemini gap-finder + Google Search] [gemini-enrich 2026-06-03: Brand '—'→'The Kebab Shop'] [gap-gate 2026-06-03: pending_gap → pending_gap_v1] [gemini-check 2026-06-03: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-06-03: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
+  "Date": "2026-06-02",
+  "Source": "Hawai'i DOH",
+  "Company": "Champion Foods LLC",
+  "Brand": "Motor City Pizza Co.",
+  "Product": "5 Cheese Bread",
+  "Pathogen": "Salmonella",
+  "Reason": "Possible Salmonella contamination from milk powder ingredient",
+  "Class": "Alert",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://health.hawaii.gov/news/news-releases/doh-alerts-public-about-champion-foods-motor-city-pizza-co-5-cheese-bread-due-to-possible-salmonella-contamination/",
+  "Notes": "Alert for products distributed in Hawaii. No reports of illness or adverse events attributed to the recalled product.  [via Gemini gap-finder + Google Search] [gap-gate 2026-06-04: pending_gap → pending_gap_v1] [claude-check 2026-06-04: fix; corrections: Date→2026-06-02; fix; date on page=2026-06-02 | Publication date is 2026-06-02 (posted Jun 2, 2026), not 2026-06-03 as claimed; Outbreak ] [gap-gate 2026-06-04: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
+  "Date": "2026-06-02",
+  "Source": "FSIS",
+  "Company": "Crawford Sausage Co.",
+  "Brand": "DAISY BRAND Meat Products",
+  "Product": "Fully cooked pork headcheese products",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Potential Listeria monocytogenes contamination",
+  "Class": "Public Health Alert",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-fully-cooked-pork-headcheese-products-due-listeria",
+  "Notes": "Linked to a localized outbreak of Listeria monocytogenes with three sick people in Illinois.  [via Gemini gap-finder + Google Search] [gap-gate 2026-06-03: pending_gap → pending_gap_v1] [gemini-check 2026-06-03: skip; fetch failed (HTTP 404)] [gemini-enrich 2026-06-03: Company '—'→'Crawford Sausage Co.'] [gemini-enrich 2026-06-03: Brand '—'→'DAISY BRAND Meat Products'] [gap-gate 2026-06-04: pending_gap_v1 → pending_gap_v2] [claude-check 2026-06-04: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-06-04: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-06-01",
   "Source": "FDA",
   "Company": "Champion Foods LLC",
