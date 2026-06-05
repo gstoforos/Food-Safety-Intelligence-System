@@ -105,8 +105,24 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
     if accepted and src.authority_domain:
         print("\n=== Stage 3b: Resolve authority URLs ===")
         import re as _re
-        from .url_resolver import resolve_authority_url
         pat = _re.compile(src.authority_url_pattern) if src.authority_url_pattern else None
+
+        # Route to the market-specific AI agent if this source is wired to one
+        use_agent = bool(src.market_agent and src.regulator_code)
+        if use_agent:
+            if src.market_agent == "north_america":
+                from .agents.north_america import find_url as agent_find_url
+                print(f"  [Agent] AFTS North America Recall Agent "
+                      f"(regulator: {src.regulator_code})")
+            else:
+                # Unknown market agent — fall back to legacy path
+                use_agent = False
+                print(f"  [WARN] unknown market_agent {src.market_agent!r}, "
+                      f"falling back to legacy resolver")
+
+        if not use_agent:
+            from .url_resolver import resolve_authority_url
+
         resolved = unresolved = 0
         for rec in accepted:
             if not rec.source_id.startswith("GN-"):
@@ -114,11 +130,16 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
             news_url = rec.url
             pub_iso = (rec.published.strftime("%Y-%m-%d")
                        if rec.published else "")
-            auth_url = resolve_authority_url(
-                news_url, rec.title, src.authority_domain, pat,
-                bulk_index_queries=src.bulk_index_queries,
-                authority_short=src.authority_short,
-                published_iso=pub_iso)
+
+            if use_agent:
+                auth_url = agent_find_url(rec.title, src.regulator_code)
+            else:
+                auth_url = resolve_authority_url(
+                    news_url, rec.title, src.authority_domain, pat,
+                    bulk_index_queries=src.bulk_index_queries,
+                    authority_short=src.authority_short,
+                    published_iso=pub_iso)
+
             if auth_url:
                 rec.raw["_news_url"] = news_url   # keep original for audit
                 rec.url = auth_url
@@ -128,8 +149,8 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
                 rec.raw["_news_url"] = news_url
                 rec.raw["_pending_no_auth_url"] = True
                 unresolved += 1
-                print(f"  ✗ no {src.authority_domain} link in article body — "
-                      f"{news_url[:60]}")
+                print(f"  ✗ no {src.authority_domain} URL — "
+                      f"{rec.title[:60]}")
         print(f"  resolved: {resolved}, unresolved (kept news URL + flag): {unresolved}")
 
     print("\n=== Stage 4: Write to xlsx ===")

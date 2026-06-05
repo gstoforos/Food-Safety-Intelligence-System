@@ -124,6 +124,17 @@ class FeedSource:
     #   )
     bulk_index_queries: tuple = ()
 
+    # ─── Market-specific AI agent (Phase 1: FDA only) ───────────────────
+    # When set, Stage 3b routes URL resolution to a dedicated market agent
+    # instead of the generic resolver. Built like the FSIS reviewer: one
+    # focused agent per market, knowing every regulator in that market.
+    #   market_agent="north_america", regulator_code="FDA"
+    #   market_agent="north_america", regulator_code="USDA_FSIS"  (planned)
+    #   market_agent="north_america", regulator_code="CFIA"       (planned)
+    # Leave empty to use the legacy resolver path (other markets, for now).
+    market_agent:    str = ""
+    regulator_code:  str = ""
+
 
 _REGISTRY: dict[str, FeedSource] = {}
 
