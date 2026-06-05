@@ -1103,9 +1103,11 @@ def _process_authority_note(recalls, bot):
                 "resolved without qualified process authority review, a container "
                 "or seal-integrity lapse, or a formulation change (pH, a_w, salt, "
                 "preservative) introduced without re-evaluation. Tier-1 / Class-I "
-                "classification on a low-acid product reliably triggers a "
-                "regulatory process-filing audit by {regulators} with formal "
-                "inspection-findings issuance on the subsequent visit."
+                "classification on a low-acid product may trigger targeted "
+                "regulatory follow-up by {regulators}, including review of "
+                "scheduled-process documentation, deviation handling, container "
+                "integrity, and process-authority records on the subsequent "
+                "inspection."
                 ).format(ip=_count_phrase(len(bot), "incident"), co=_names(bot),
                          path=bot[0].get("Pathogen","Clostridium botulinum"),
                          primary=regs["primary"], parallels=regs["parallels"],
@@ -1801,7 +1803,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AFTS Pathogen Intelligence Briefing &middot; Week {wnum}, {year}</title>
+<title>AFTS Food Safety Hazard &amp; Pathogen Intelligence Briefing &middot; Week {wnum}, {year}</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <!-- Cloudflare Web Analytics — see docs/index.html for setup instructions. -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
@@ -1828,7 +1830,7 @@ __CSS_PLACEHOLDER__
 </header>
 
 <div class="r-kicker">AFTS <span class="r-kicker-dot">&middot;</span> Food Safety Validation Intelligence</div>
-<h1 class="r-title">Pathogen Surveillance <span class="accent">&middot;</span> Week {wnum}</h1>
+<h1 class="r-title">Food Safety Hazard &amp; Pathogen Surveillance <span class="accent">&middot;</span> Week {wnum}</h1>
 <p class="r-sub">
   AI-powered analysis of <strong>{total}</strong> regulatory recall actions across
   <strong>{n_jurisdictions}</strong> jurisdictions, aggregated from 66 primary sources
@@ -2081,6 +2083,24 @@ def build_html(week_end, recalls, prev_week, original_published=None):
         country_rows=crows, all_rows=allrows, next_issue=nf,
     )
     html = html.replace("__CSS_PLACEHOLDER__", W16_CSS)
+    # Cloudflare Web Analytics — substitute __CF_BEACON_TOKEN__ from env var
+    # if set, otherwise strip the script tag so the deployed page does NOT
+    # ship with a literal placeholder string (audit 2026-06-05: published W23
+    # report still had unresolved __CF_BEACON_TOKEN__ in the HTML source).
+    import os as _os, re as _re
+    _cf_token = (_os.environ.get("CF_BEACON_TOKEN") or "").strip()
+    if _cf_token:
+        html = html.replace("__CF_BEACON_TOKEN__", _cf_token)
+    else:
+        # Drop the entire CF Web Analytics block — comment line + script tag
+        # (script tag's data-cf-beacon attribute spans two lines, so use
+        # DOTALL and lazy quantifier to match the whole element).
+        html = _re.sub(
+            r"\n?<!-- Cloudflare Web Analytics.*?</script>",
+            "",
+            html,
+            flags=_re.DOTALL,
+        )
     return html, stats
 
 def update_dashboard_data(week_end, stats, all_recalls=None):
