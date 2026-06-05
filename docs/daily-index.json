@@ -15,14 +15,14 @@
     {
       "date": "2026-06-02",
       "url": "daily/2026-06-02.html",
-      "total": 6,
-      "tier1": 5,
+      "total": 8,
+      "tier1": 6,
       "outbreak": 0,
       "by_region": {
-        "Europe": 5,
+        "Europe": 7,
         "Oceania": 1
       },
-      "generated": "2026-06-04T07:16:03Z"
+      "generated": "2026-06-05T04:15:46Z"
     },
     {
       "date": "2026-06-01",

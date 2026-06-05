@@ -272,6 +272,38 @@
   "Notes": "[gemini-enrich 2026-06-02: Brand '—'→\"Allen's\"] [gemini-check 2026-06-02: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
+  "Date": "2026-06-02",
+  "Source": "AESAN",
+  "Company": "Various manufacturers",
+  "Brand": "Al pie de la vaca, Cabrera, Haciendita de Liri, De la vaca, La Buona Mucca",
+  "Product": "Fresh cow cheese (queso fresco de vaca)",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Spain",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.aesan.gob.es/AECOSAN/web/seguridad_alimentaria/alertas_alimentarias/2026_44.htm",
+  "Notes": "1 day ago · Se recomienda a las personas que tengan en su domicilio los productos incluidos en esta alerta se abstengan de consumirlos. La Agencia Española de Seguridad ...  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [claude-check 2026-06-05: pass; pass | All fields verified: date 2026-06-02 matches page header; Company 'Various manufacturers' is appropriate for mult] [gap-gate 2026-06-05: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
+  "Date": "2026-06-02",
+  "Source": "RappelConso (FR)",
+  "Company": "Francine",
+  "Brand": "Francine",
+  "Product": "ma farine de blé complète 1kg",
+  "Pathogen": "Mycotoxins",
+  "Reason": "Taux d'alcaloïdes d'ergot supérieur au seuil réglementaire.",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22446/Interne",
+  "Notes": "auchan, carrefour, franprix, itm, leclerc, système u [url-gate 2026-06-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-04: Pathogen ''→'Mycotoxins'] [claude-check 2026-06-05: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-05: pending_enrichment → pending (Claude verified)]"
+ },
+ {
   "Date": "2026-06-01",
   "Source": "FDA",
   "Company": "Champion Foods LLC",
