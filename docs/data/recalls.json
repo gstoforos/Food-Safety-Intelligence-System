@@ -1,6 +1,6 @@
 [
   {
-    "Date": "2026-06-02",
+    "Date": "2026-06-04",
     "Source": "FDA",
     "Company": "Prime Food Processing LLC",
     "Brand": "Unbranded",
@@ -13,7 +13,7 @@
     "Tier": 1,
     "Outbreak": 0,
     "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish",
-    "Notes": "Company Announcement 2026-06-02; FDA Publish 2026-06-04. Origin Vietnam (imported product). Sister recall to R761 Prime Food Processing Dried Croaker Fish (2026-02-05) — same firm, recurring uneviscerated-fish issue. Manual operator add 2026-06-04 — fda_listing.py title-only filter would have missed this URL (slug contains \"safety-warning\" not pathogen keyword; same failure pattern as Champion Foods, Mogo, Total Nutrition, SKS Copack)."
+    "Notes": "Company Announcement 2026-06-02; FDA Publish 2026-06-04. Origin Vietnam (imported product). Sister recall to R761 Prime Food Processing Dried Croaker Fish (2026-02-05) — same firm, recurring uneviscerated-fish issue. Manual operator add 2026-06-04 — fda_listing.py title-only filter would have missed this URL (slug contains \"safety-warning\" not pathogen keyword; same failure pattern as Champion Foods, Mogo, Total Nutrition, SKS Copack). [date-fix 2026-06-05: Date 2026-06-02 (Company Announcement Date) → 2026-06-04 (FDA Publish Date) — per AFTS convention for FDA-sourced rows, use FDA Publish Date as the official record date (matches Champion Foods R14 precedent).]"
   },
   {
     "Date": "2026-06-04",

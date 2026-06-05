@@ -8,7 +8,7 @@
   "week_end": "2026-06-04",
   "week_start_display": "29 May",
   "week_end_display": "4 Jun 2026",
-  "generated_utc": "2026-06-05T06:15:56.323769+00:00",
+  "generated_utc": "2026-06-05T06:52:05.078456+00:00",
   "stats": {
     "total": 48,
     "tier1": 43,
@@ -30,6 +30,20 @@
       "pathogen_raw": "Clostridium botulinum",
       "tier": 1,
       "outbreak": false,
+      "company": "Prime Food Processing LLC",
+      "brand": "Unbranded",
+      "product": "Dried Herring Fish — Item #AF4110, Lot Code 26020, expiration 2028-12-06, 7 oz (198 g) clear plastic packaging with blue trim. 69 cases recalled. Manufactured in Vietnam; imported. Distributed to Asian grocery stores in AZ, CA, FL, HI, IL, KS, LA, MD, MO, NC, NH, NV, NY, OK, PA, TX, UT (17 states).",
+      "country": "United States",
+      "source": "FDA",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish"
+    },
+    {
+      "rank": 2,
+      "date": "2026-06-04",
+      "pathogen": "Clostridium botulinum",
+      "pathogen_raw": "Clostridium botulinum",
+      "tier": 1,
+      "outbreak": false,
       "company": "Boucherie Courthieu",
       "brand": "Boucherie Courthieu",
       "product": "conserves pâté de foie pur porc¤120g / 200g / 280g / 1580g",
@@ -38,7 +52,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22452/Interne"
     },
     {
-      "rank": 2,
+      "rank": 3,
       "date": "2026-06-04",
       "pathogen": "Clostridium botulinum",
       "pathogen_raw": "Clostridium botulinum",
@@ -52,7 +66,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22453/Interne"
     },
     {
-      "rank": 3,
+      "rank": 4,
       "date": "2026-06-04",
       "pathogen": "Clostridium botulinum",
       "pathogen_raw": "Clostridium botulinum",
@@ -66,7 +80,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22454/Interne"
     },
     {
-      "rank": 4,
+      "rank": 5,
       "date": "2026-06-04",
       "pathogen": "Clostridium botulinum",
       "pathogen_raw": "Clostridium botulinum",
@@ -78,20 +92,6 @@
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22451/Interne"
-    },
-    {
-      "rank": 5,
-      "date": "2026-06-02",
-      "pathogen": "Clostridium botulinum",
-      "pathogen_raw": "Clostridium botulinum",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Prime Food Processing LLC",
-      "brand": "Unbranded",
-      "product": "Dried Herring Fish — Item #AF4110, Lot Code 26020, expiration 2028-12-06, 7 oz (198 g) clear plastic packaging with blue trim. 69 cases recalled. Manufactured in Vietnam; imported. Distributed to Asian grocery stores in AZ, CA, FL, HI, IL, KS, LA, MD, MO, NC, NH, NV, NY, OK, PA, TX, UT (17 states).",
-      "country": "United States",
-      "source": "FDA",
-      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish"
     }
   ],
   "country_count": 14
