@@ -8,13 +8,13 @@
   "week_end": "2026-06-04",
   "week_start_display": "29 May",
   "week_end_display": "4 Jun 2026",
-  "generated_utc": "2026-06-05T05:12:57.977464+00:00",
+  "generated_utc": "2026-06-05T06:15:56.323769+00:00",
   "stats": {
-    "total": 47,
-    "tier1": 42,
+    "total": 48,
+    "tier1": 43,
     "outbreaks": 0,
-    "delta": -16,
-    "delta_pct": -25
+    "delta": -15,
+    "delta_pct": -24
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
@@ -86,12 +86,12 @@
       "pathogen_raw": "Clostridium botulinum",
       "tier": 1,
       "outbreak": false,
-      "company": "La Ferme des Colibris",
-      "brand": "La Ferme des Colibris",
-      "product": "rillettes de porc bio la ferme des colibris",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22439/Interne"
+      "company": "Prime Food Processing LLC",
+      "brand": "Unbranded",
+      "product": "Dried Herring Fish — Item #AF4110, Lot Code 26020, expiration 2028-12-06, 7 oz (198 g) clear plastic packaging with blue trim. 69 cases recalled. Manufactured in Vietnam; imported. Distributed to Asian grocery stores in AZ, CA, FL, HI, IL, KS, LA, MD, MO, NC, NH, NV, NY, OK, PA, TX, UT (17 states).",
+      "country": "United States",
+      "source": "FDA",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish"
     }
   ],
   "country_count": 14
