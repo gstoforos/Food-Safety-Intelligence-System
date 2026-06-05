@@ -85,6 +85,11 @@ US_FDA = FeedSource(
     gnews_days_back=3,
     authority_domain="fda.gov",
     authority_url_pattern=r"safety/recalls-market-withdrawals-safety-alerts/[a-z0-9-]{30,}",
+    # ─── AFTS North America Recall Agent (Phase 1: FDA) ────────────────
+    # Stage 3b routes through pipeline/official_feeds/agents/north_america.py
+    # instead of the legacy DDG resolver. Same key as gap_finder_claude.py.
+    market_agent="north_america",
+    regulator_code="FDA",
     bulk_index_queries=(
         "site:fda.gov recalls 2026 salmonella",
         "site:fda.gov recalls 2026 listeria",
