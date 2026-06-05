@@ -8,7 +8,7 @@
   "week_end": "2026-06-04",
   "week_start_display": "29 May",
   "week_end_display": "4 Jun 2026",
-  "generated_utc": "2026-06-05T06:52:05.078456+00:00",
+  "generated_utc": "2026-06-05T07:24:28.314784+00:00",
   "stats": {
     "total": 48,
     "tier1": 43,
@@ -18,8 +18,8 @@
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 19,
-    "pct": 40
+    "cases": 18,
+    "pct": 38
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -46,7 +46,7 @@
       "outbreak": false,
       "company": "Boucherie Courthieu",
       "brand": "Boucherie Courthieu",
-      "product": "conserves pâté de foie pur porc¤120g / 200g / 280g / 1580g",
+      "product": "conserves pâté de foie pur porc; 120g / 200g / 280g / 1580g",
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22452/Interne"
@@ -60,7 +60,7 @@
       "outbreak": false,
       "company": "Boucherie Courthieu",
       "brand": "Boucherie Courthieu",
-      "product": "conserves jambonneau¤280g",
+      "product": "conserves jambonneau; 280g",
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22453/Interne"
@@ -74,7 +74,7 @@
       "outbreak": false,
       "company": "Boucherie Courthieu",
       "brand": "Boucherie Courthieu",
-      "product": "conserves dindonneau¤280g",
+      "product": "conserves dindonneau; 280g",
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22454/Interne"
@@ -88,7 +88,7 @@
       "outbreak": false,
       "company": "Boucherie Courthieu",
       "brand": "Boucherie Courthieu",
-      "product": "conserves pâté de foie de volaille¤120g / 200g / 280g / 1580g",
+      "product": "conserves pâté de foie de volaille; 120g / 200g / 280g / 1580g",
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22451/Interne"
