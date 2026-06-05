@@ -1,110 +1,125 @@
-name: North America Feeds Collector (FSIS)
+# AFTS Food Safety Intelligence — North America Feeds Collector
+#
+# Runs us_fda, us_fsis, canada through the official_feeds pipeline.
+# Stage 3b calls the AFTS North America Recall Agent (Llama on Hetzner via
+# Tailscale, using Tavily for web search).
+#
+# Schedule: 08:00 + 17:00 Athens (EET/EEST), no UTC.
 
-# Official-feed collector for US + Canada authorities (Batch 6).
-# Pulls structured recall data directly from authority APIs (no scraping):
-#   us_fda   — openFDA food enforcement (seafood/produce/dairy/packaged)
-#   us_fsis  — USDA FSIS recall API (meat/poultry/egg; URL-dedup vs core platform)
-#   canada   — CFIA / Health Canada open data (filtered to food)
-# Each also runs a Google News pass (date-named + when:7d + recall-signal gate).
-# Gate-job pattern; runs 09:00 America/New_York.
+name: "FSIS NA — feeds collector (us_fda, us_fsis, canada)"
 
 on:
-  schedule:
-    - cron: '0 13 * * *'   # 13:00 UTC → 09:00 New York during EDT (summer)
-    - cron: '0 14 * * *'   # 14:00 UTC → 09:00 New York during EST (winter)
   workflow_dispatch:
     inputs:
       sources:
-        description: 'Comma-separated source codes (default = all 3)'
-        type: string
-        default: 'us_fda,us_fsis,canada'
-      max_age_days:
-        description: 'Max age in days for kept records'
-        type: string
-        default: '30'
+        description: "Comma-separated source IDs (default: all NA)"
+        required: false
+        default: "us_fda,us_fsis,canada"
       dry_run:
-        description: 'Run but do not write to xlsx'
-        type: boolean
-        default: false
+        description: "Dry run? (true|false)"
+        required: false
+        default: "false"
+  schedule:
+    # 08:00 Athens — winter (EET, UTC+2)  → 06:00 UTC
+    - cron: '0 6 * 1,2,3,11,12 *'
+    # 08:00 Athens — summer (EEST, UTC+3) → 05:00 UTC
+    - cron: '0 5 * 4,5,6,7,8,9,10 *'
+    # 17:00 Athens — winter             → 15:00 UTC
+    - cron: '0 15 * 1,2,3,11,12 *'
+    # 17:00 Athens — summer             → 14:00 UTC
+    - cron: '0 14 * 4,5,6,7,8,9,10 *'
 
-env:
-  TZ: America/New_York
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
 
 jobs:
-  gate:
+  collect:
     runs-on: ubuntu-latest
-    outputs:
-      should_run: ${{ steps.check.outputs.should_run }}
+    timeout-minutes: 25
+
     steps:
-      - id: check
+      - name: Athens-time gate (skip wrong-DST cron)
+        id: gate
+        env:
+          TZ: Europe/Athens
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "Manual dispatch — proceeding."
-            echo "should_run=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          NY_HOUR=$(TZ=America/New_York date +%H)
-          echo "Current America/New_York hour: ${NY_HOUR}"
-          if [ "${NY_HOUR}" = "09" ]; then
-            echo "It's 09:00 New York — proceeding with North America sweep."
-            echo "should_run=true" >> $GITHUB_OUTPUT
+          H=$(TZ=Europe/Athens date +%H)
+          echo "Athens hour: $H"
+          if [ "$H" = "08" ] || [ "$H" = "17" ]; then
+            echo "go=true" >> $GITHUB_OUTPUT
           else
-            echo "Not 09:00 New York (other cron line handles current DST)."
-            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "go=false" >> $GITHUB_OUTPUT
           fi
 
-  north-america-feeds:
-    needs: gate
-    if: needs.gate.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: write
-    steps:
       - name: Checkout
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install deps
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          python -m pip install --upgrade pip
-          pip install requests beautifulsoup4 lxml openpyxl
+          pip install --quiet \
+            requests beautifulsoup4 lxml openpyxl python-dateutil feedparser
 
-      - name: Run North America official feeds
+      # ═══════════════════════════════════════════════════════════════════
+      #  Join the AFTS tailnet so the runner can reach afts-llama-vps.
+      #  The auth key is an ephemeral key from your Tailscale ACL.
+      # ═══════════════════════════════════════════════════════════════════
+      - name: Tailscale up
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
+        uses: tailscale/github-action@v3
+        with:
+          authkey:  ${{ secrets.TAILSCALE_AUTHKEY }}
+          hostname: github-actions-${{ github.run_id }}
+          tags:    "tag:ci"
+
+      - name: Verify Llama VPS reachable
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
         run: |
-          ARGS=""
-          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="--dry-run"; fi
-          AGE="${{ inputs.max_age_days }}"
-          if [ -z "$AGE" ]; then AGE="30"; fi
+          echo "Pinging $LLAMA_BASE_URL …"
+          # Strip trailing /v1 if present, hit /health or root
+          BASE="${LLAMA_BASE_URL%/v1}"
+          curl -fsS --max-time 10 "$BASE/health" || \
+            curl -fsS --max-time 10 "$BASE/v1/models" | head -c 500 || \
+            (echo "VPS not reachable — abort"; exit 1)
 
-          SOURCES="${{ inputs.sources }}"
-          if [ -z "$SOURCES" ]; then SOURCES="us_fda,us_fsis,canada"; fi
-          echo "Will run: $SOURCES"
-
-          IFS=',' read -ra LIST <<< "$SOURCES"
-          for s in "${LIST[@]}"; do
-            s=$(echo "$s" | xargs)
-            echo ""
-            echo "======================================================================"
-            echo "  STARTING source: $s"
-            echo "======================================================================"
-            python -m pipeline.official_feeds.main --source "$s" --max-age-days "$AGE" $ARGS \
-              || echo "✗ $s failed (continuing)"
-          done
+      # ═══════════════════════════════════════════════════════════════════
+      #  Run the pipeline. Stage 3b will call the NA agent for each
+      #  accepted record. The agent calls Llama, which calls Tavily.
+      # ═══════════════════════════════════════════════════════════════════
+      - name: Run NA collector
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
+          LLAMA_MODEL:    qwen2.5-7b-instruct   # change if you serve a different model
+          SEARX_URL: ${{ secrets.SEARX_URL }}
+        run: |
+          SOURCES="${{ github.event.inputs.sources || 'us_fda,us_fsis,canada' }}"
+          DRY="${{ github.event.inputs.dry_run || 'false' }}"
+          ARGS="--sources $SOURCES"
+          if [ "$DRY" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          python -m pipeline.official_feeds.main $ARGS
 
       - name: Commit xlsx changes
-        if: inputs.dry_run != 'true'
+        if: |
+          (steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch')
+          && (github.event.inputs.dry_run != 'true')
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/recalls.xlsx
+          git config user.name  "afts-bot"
+          git config user.email "[email protected]"
+          git add docs/data/recalls.xlsx || true
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo "no changes"
           else
-            git commit -m "North America feeds collector: $(date -u +%Y-%m-%d) (FDA+FSIS+CFIA)"
+            git commit -m "NA collector: $(date -u +%Y-%m-%dT%H:%MZ)"
             git push
           fi
