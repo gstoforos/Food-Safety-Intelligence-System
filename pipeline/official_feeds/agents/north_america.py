@@ -47,12 +47,14 @@ REGULATORS: dict = {
         "name":     "U.S. Food and Drug Administration",
         "domain":   "fda.gov",
         "path_re":  re.compile(
-            r"/safety/recalls-market-withdrawals-safety-alerts/[a-z0-9-]{30,}"),
+            r"/safety/recalls-market-withdrawals-safety-alerts/[a-z0-9-]{30,}"
+            r"|/food/outbreaks-foodborne-illness/[a-z0-9-]{20,}"),
         "site_q":   "site:fda.gov",
         "page_hint":
-            "Each FDA recall page lives under "
+            "FDA pages live under either "
             "fda.gov/safety/recalls-market-withdrawals-safety-alerts/<slug> "
-            "where <slug> is built from the company + product + reason.",
+            "(individual recalls) OR fda.gov/food/outbreaks-foodborne-illness/<slug> "
+            "(outbreak investigations). Both are valid.",
         "status":   "active",
     },
 
@@ -276,7 +278,7 @@ def find_url(title: str, regulator: str) -> Optional[str]:
         _CACHE[cache_key] = None
         return None
 
-    print(f"  ✓ {url[:100]}")
+    print(f"  ✓ {url}")
     _CACHE[cache_key] = url
     return url
 

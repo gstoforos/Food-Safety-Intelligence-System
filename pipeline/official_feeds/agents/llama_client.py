@@ -21,8 +21,8 @@ import requests
 
 LLAMA_BASE_URL    = os.environ.get("LLAMA_BASE_URL", "").rstrip("/")
 LLAMA_MODEL       = os.environ.get("LLAMA_MODEL", "qwen2.5-7b-instruct")
-LLAMA_TIMEOUT     = int(os.environ.get("LLAMA_TIMEOUT_SEC", "120"))
-LLAMA_MAX_LOOPS   = 4    # cap tool-calling loop depth
+LLAMA_TIMEOUT     = int(os.environ.get("LLAMA_TIMEOUT_SEC", "45"))
+LLAMA_MAX_LOOPS   = 2    # cap tool-calling loop depth
 
 # Circuit breaker — after 3 failures, stop calling for this run.
 _STATE = {"failures": 0, "open": False}
