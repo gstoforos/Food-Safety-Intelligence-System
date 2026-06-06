@@ -2,7 +2,7 @@
 #
 # Runs us_fda, us_fsis, canada through the official_feeds pipeline.
 # Stage 3b calls the AFTS North America Recall Agent (Llama on Hetzner via
-# Tailscale, using Tavily for web search).
+# Tailscale, using self-hosted Searx for web search).
 #
 # Schedule: 08:00 + 17:00 Athens (EET/EEST), no UTC.
 
@@ -70,7 +70,6 @@ jobs:
 
       # ═══════════════════════════════════════════════════════════════════
       #  Join the AFTS tailnet so the runner can reach afts-llama-vps.
-      #  The auth key is an ephemeral key from your Tailscale ACL.
       # ═══════════════════════════════════════════════════════════════════
       - name: Tailscale up
         if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
@@ -84,30 +83,39 @@ jobs:
         if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
+          SEARX_URL:      ${{ secrets.SEARX_URL }}
         run: |
-          echo "Pinging $LLAMA_BASE_URL …"
-          # Strip trailing /v1 if present, hit /health or root
+          echo "▶ Llama health:"
           BASE="${LLAMA_BASE_URL%/v1}"
-          curl -fsS --max-time 10 "$BASE/health" || \
-            curl -fsS --max-time 10 "$BASE/v1/models" | head -c 500 || \
-            (echo "VPS not reachable — abort"; exit 1)
+          curl -fsS --max-time 10 "$BASE/v1/models" | head -c 300 || \
+            (echo "Llama not reachable"; exit 1)
+          echo ""
+          echo "▶ Searx health:"
+          curl -fsS --max-time 10 "$SEARX_URL?q=test&format=json" | head -c 200 || \
+            (echo "Searx not reachable"; exit 1)
+          echo ""
 
       # ═══════════════════════════════════════════════════════════════════
-      #  Run the pipeline. Stage 3b will call the NA agent for each
-      #  accepted record. The agent calls Llama, which calls Tavily.
+      #  Run the collector ONCE PER SOURCE (main.py takes --source singular).
       # ═══════════════════════════════════════════════════════════════════
       - name: Run NA collector
         if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
-          LLAMA_MODEL:    qwen2.5-7b-instruct   # change if you serve a different model
-          SEARX_URL: ${{ secrets.SEARX_URL }}
+          LLAMA_MODEL:    qwen2.5-7b-instruct
+          SEARX_URL:      ${{ secrets.SEARX_URL }}
         run: |
           SOURCES="${{ github.event.inputs.sources || 'us_fda,us_fsis,canada' }}"
           DRY="${{ github.event.inputs.dry_run || 'false' }}"
-          ARGS="--sources $SOURCES"
-          if [ "$DRY" = "true" ]; then ARGS="$ARGS --dry-run"; fi
-          python -m pipeline.official_feeds.main $ARGS
+          EXTRA=""
+          if [ "$DRY" = "true" ]; then EXTRA="--dry-run"; fi
+          for SRC in $(echo "$SOURCES" | tr ',' ' '); do
+            echo ""
+            echo "════════════════════════════════════════════════════════"
+            echo "  Source: $SRC"
+            echo "════════════════════════════════════════════════════════"
+            python -m pipeline.official_feeds.main --source "$SRC" $EXTRA
+          done
 
       - name: Commit xlsx changes
         if: |
