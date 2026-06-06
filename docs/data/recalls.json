@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-06-06",
+  "Source": "RappelConso (FR)",
+  "Company": "Laetitia Gaborit Mof",
+  "Brand": "Laetitia Gaborit Mof",
+  "Product": "galet bleute 4x60g",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Présence présumée de e.coli stec o26:h11",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22475/Interne",
+  "Notes": "metro [url-gate 2026-06-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-06: pass; corrections: Date→2026-06-06, Company→Laetitia Gaborit MOF, Brand→Laetitia Gaborit MOF, Product→GALET BLEUTE 4x60g, Pathogen→Escherichia coli STEC; pass; date on page=2026-06-06]"
+ },
+ {
   "Date": "2026-06-05",
   "Source": "RappelConso (FR)",
   "Company": "Fromagerie de la Drôme",
@@ -110,6 +126,38 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22473/Interne",
   "Notes": "e. leclerc [url-gate 2026-06-05: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-06-06: pass; pass | All fields verified: date 2026-06-05 matches page header; Company 'Côté Snack' is the brand/recalling firm; Produ]"
+ },
+ {
+  "Date": "2026-06-05",
+  "Source": "CDC",
+  "Company": "Clover Hill Dairy",
+  "Brand": "Unbranded",
+  "Product": "requesón/soft ricotta cheese",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes — outbreak",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.cdc.gov/media/releases/2026/cdc-warns-of-listeria-outbreak-linked-to-requeson-soft-ricotta-cheese.html",
+  "Notes": "# CDC warns of Listeria outbreak linked to requesón/soft ricotta cheese | CDC Newsroom\n\nPublished: 2026-06-05T22:02:14+00:00\nSource: cdc.gov (cdc.gov)\nLanguage: en\n\n## Story\n\nCDC warns of Listeria outbreak linked to requesón/soft ricotta cheese | CDC Newsroom\n\n# CDC warns of Listeria outbreak linked  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-06-06: pending_gap → pending_gap_v1] [gemini-check 2026-06-06: fix; corrections: Company→Clover Hill Dairy, Brand→Unbranded, Product→requesón/soft ricotta cheese; fix; company mismatch; product mismatch | Company, Brand, and Product fields were incorrect and contained extraction gar] [gap-gate 2026-06-06: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
+  "Date": "2026-06-05",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Egypt | Notifying: Italy",
+  "Brand": "ITA",
+  "Product": "Aflatoxins B1 and Total in peanuts in shell from Egypt",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Aflatoxins B1 and Total in peanuts in shell from Egypt; risk: serious; category: nuts, nut products and seeds",
+  "Class": "Border Rejection",
+  "Country": "Egypt",
+  "Region": "Africa",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/849462",
+  "Notes": "[RASFF #2026.4979; classification: border rejection notification; category: nuts, nut products and seeds; notifId=849462] [gemini-enrich 2026-06-06: Brand '—'→'ITA'] [gemini-check 2026-06-06: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
   "Date": "2026-06-04",
