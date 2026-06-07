@@ -864,6 +864,22 @@
   "Notes": "Company announcement 2026-05-29; FDA publish 2026-06-01. Nationwide US distribution via Costco, Walmart, Kroger, Target, Publix, Meijer, Giant, Schnucks, Grocery Outlet, C&S, Bozzuto's, Brookshire Grocery, Food City, KeHe, Lipari, Merchants Dis Hickory, PDI/Hy-Vee, River Valley, SpartanNash, Supervalu, UNFI, Jewel. No illnesses reported. Manual operator add 2026-06-01 — fda_listing.py title-only filter missed this URL because slug ends in \"possible-health-risk\" with no pathogen keyword (same failure as Mogo, Total Nutrition, SKS Copack)."
  },
  {
+  "Date": "2026-06-01",
+  "Source": "USDA FSIS",
+  "Company": "Olympia Food Industries",
+  "Brand": "Olympia Food Industries",
+  "Product": "Beef kofta",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "E. coli O157:H7 contamination confirmed via whole genome sequencing matching outbreak strain",
+  "Class": "Public Health Alert",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.fsis.usda.gov/recalls-alerts/public-health-alert-e-coli-o157h7-kofta",
+  "Notes": "Outbreak investigation ongoing; whole genome sequencing results confirmed on June 1, 2026; California production facility  [via Claude gap-finder, deterministic extract] [claude-check 2026-06-07: skip; fetch failed (HTTP 404)] [gemini-enrich 2026-06-07: Brand '—'→'Olympia Food Industries'] [gap-gate 2026-06-07: pending_gap → pending_gap_v1] [gemini-check 2026-06-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-06-07: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-05-31",
   "Source": "CFS (HK)",
   "Company": "Hong Kong Golden Nutrition Trading Co., Limited",
