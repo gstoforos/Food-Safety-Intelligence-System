@@ -1,0 +1,40 @@
+{
+  "generated_utc": "2026-06-08T06:13:17.017841+00:00",
+  "checked_back_months": 3,
+  "anchor_month_end": "2026-05-31",
+  "updated_months": [
+    {
+      "year_m": "2026-M04",
+      "year": 2026,
+      "month_num": 4,
+      "month_name": "April 2026",
+      "month_start": "2026-04-01",
+      "month_end": "2026-04-30",
+      "filename": "2026-M04.html",
+      "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M04.html",
+      "old_total": 359,
+      "new_total": 367,
+      "delta": 8,
+      "first_publish": false
+    },
+    {
+      "year_m": "2026-M03",
+      "year": 2026,
+      "month_num": 3,
+      "month_name": "March 2026",
+      "month_start": "2026-03-01",
+      "month_end": "2026-03-31",
+      "filename": "2026-M03.html",
+      "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M03.html",
+      "old_total": 74,
+      "new_total": 78,
+      "delta": 4,
+      "first_publish": false
+    }
+  ],
+  "label_flips": [],
+  "primary_cta": {
+    "label": "VIEW MONTHLY DASHBOARD",
+    "url": "https://www.advfood.tech/#monthly"
+  }
+}
