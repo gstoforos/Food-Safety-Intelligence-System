@@ -41,14 +41,14 @@
     {
       "date": "2026-06-03",
       "url": "daily/2026-06-03.html",
-      "total": 7,
+      "total": 8,
       "tier1": 7,
       "outbreak": 0,
       "by_region": {
-        "Europe": 4,
+        "Europe": 5,
         "Africa": 3
       },
-      "generated": "2026-06-07T07:12:56Z"
+      "generated": "2026-06-08T04:14:28Z"
     },
     {
       "date": "2026-06-02",

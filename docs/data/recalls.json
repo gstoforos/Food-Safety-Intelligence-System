@@ -560,6 +560,22 @@
   "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-03: fix; corrections: Company→WORLDMARECHAL GRAND-FRAIS, FRESH, Mon-ma; fix; company mismatch | Company name on row does not exactly match 'Origine de la fiche' on the page.]"
  },
  {
+  "Date": "2026-06-03",
+  "Source": "BVL (DE)",
+  "Company": "TSI Consumer Goods Gesellschaft",
+  "Brand": "LE GUSTO",
+  "Product": "Basilikum gerebelt, 15 Gramm",
+  "Pathogen": "Salmonella",
+  "Reason": "TSI Consumer Goods Gesellschaft recalls Basilikum gerebelt, 15 Gramm due to Microbiological pathogen.",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/06_Juni/260603_03_NI_Basilikum/260603_03_NI_Basilikum_Meldung.html",
+  "Notes": "Gemini/de from https://www.lebensmittelwarnung.de/ [gemini-enrich 2026-06-08: Pathogen ''→'Microbiological pathogen'] [claude-check 2026-06-08: fix; corrections: Brand→LE GUSTO, Pathogen→Salmonella; fix; pathogen mismatch | Pathogen field says 'Microbiological pathogen' but page specifies 'Salmonella' (Tier 1 RTE herb] [enrich-gate 2026-06-08: pending_enrichment → pending (Claude verified)]"
+ },
+ {
   "Date": "2026-06-02",
   "Source": "EFET (GR)",
   "Company": "ΜΠΑΡΜΠΑ ΣΤΑΘΗΣ Μ.Α.Β.Ε.Ε. (Barba Stathis M.A.B.E.E.)",
