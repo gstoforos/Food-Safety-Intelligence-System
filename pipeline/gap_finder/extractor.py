@@ -253,9 +253,17 @@ def extract_one(
     efet_body = verified.get("efet_body", "") or ""
     efet_title = verified.get("efet_title", "") or ""
 
+    # Pull the EFET URL slug into the classifier text. The slug carries the
+    # regulator-blessed hazard term (e.g. "...-listeria-monocytogenes" or
+    # "...-logo-udrargyrou"). News headlines often abbreviate, so the URL
+    # slug is the authoritative hazard signal. Replace hyphens with spaces
+    # so multi-word terms ("listeria monocytogenes") match the lexicon.
+    efet_url = verified.get("efet_url", "") or ""
+    slug = efet_url.rsplit("/", 1)[-1].replace("-", " ").lower() if efet_url else ""
+
     classification = classify(
         pathogen="",
-        reason=f"{efet_title} {efet_body}",
+        reason=f"{efet_title} {efet_body} {slug}",
         product=efet_title,
     )
 

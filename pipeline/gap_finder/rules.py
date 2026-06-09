@@ -432,19 +432,23 @@ SYNTHETIC_CHEMICALS = {
 # REJECT — heavy metals
 HEAVY_METALS = {
     "cadmium", "κάδμιο", "καδμιο", "cadmio", "cádmio", "cadmium", "kadmium",
+    "kadmio", "kadmiou",   # Greek romanized — appears in EFET URL slugs
     "lead", "μόλυβδος", "μολυβδος", "piombo", "plomo", "chumbo",
+    "molyvdos", "molyvdou", "molybdos", "molybdou",   # Greek romanized — appears in EFET URL slugs
     "blei",                                                     # German
     "lood",                                                     # Dutch
     "plomb",                                                    # French
     "ołów",                                                     # Polish
     "ólom",                                                     # Hungarian
     "mercury", "υδράργυρος", "υδραργυρος", "mercurio", "mercúrio",
+    "udrargyros", "udrargyrou", "ydrargyros", "ydrargyrou",   # Greek romanized (ELOT 743), nom + gen — appears in EFET URL slugs
     "quecksilber",                                              # German
     "kwik",                                                     # Dutch
     "mercure",                                                  # French
     "rtęć",                                                     # Polish
     "higany",                                                   # Hungarian
     "arsenic", "αρσενικό", "αρσενικο", "arsenico", "arsénico", "arsénio",
+    "arseniko", "arsenikou", "arsenikos",   # Greek romanized — appears in EFET URL slugs
     "arsen",                                                    # German / Polish
     "arseen",                                                   # Dutch
     "arsenic",                                                  # French (same)
