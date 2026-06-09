@@ -1,3 +1,11 @@
+# ═══════════════════════════════════════════════════════════════════════
+#  MANUAL-DISPATCH ONLY.
+#  This workflow is triggered EXCLUSIVELY by Apps Script
+#  (FsisScheduler.gs → dispatchScheduled).
+#  Do NOT add a 'schedule:' block here — schedules live in Apps Script
+#  so the entire AFTS AI pipeline shares one source of truth.
+# ═══════════════════════════════════════════════════════════════════════
+
 name: Latin America official-feed collector
 
 # ONE job that handles both scheduled (TZ-aware) and manual (all-at-once) runs.
@@ -8,11 +16,6 @@ name: Latin America official-feed collector
 #   15:00 UTC = 09:00 UTC-6   (Mexico)
 
 on:
-  schedule:
-    - cron: '0 12 * * *'   # 09:00 UTC-3 — Brazil, Argentina
-    - cron: '0 13 * * *'   # 09:00 UTC-4 — Chile (winter)
-    - cron: '0 14 * * *'   # 09:00 UTC-5 — Colombia, Peru
-    - cron: '0 15 * * *'   # 09:00 UTC-6 — Mexico
   workflow_dispatch:
     inputs:
       sources:

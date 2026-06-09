@@ -1,3 +1,11 @@
+# ═══════════════════════════════════════════════════════════════════════
+#  MANUAL-DISPATCH ONLY.
+#  This workflow is triggered EXCLUSIVELY by Apps Script
+#  (FsisScheduler.gs → dispatchScheduled).
+#  Do NOT add a 'schedule:' block here — schedules live in Apps Script
+#  so the entire AFTS AI pipeline shares one source of truth.
+# ═══════════════════════════════════════════════════════════════════════
+
 name: Central EU Gap Finder (FSIS)
 
 # Consolidated workflow for 8 Central EU countries (DE, AT, CH, BE, NL, LU,
@@ -5,9 +13,6 @@ name: Central EU Gap Finder (FSIS)
 # only the matching DST cron triggers the main job (other shows "Skipped").
 
 on:
-  schedule:
-    - cron: '0 19 * * *'   # 19:00 UTC → 21:00 Berlin during CEST (summer)
-    - cron: '0 20 * * *'   # 20:00 UTC → 21:00 Berlin during CET  (winter)
   workflow_dispatch:
     inputs:
       countries:

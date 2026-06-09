@@ -1,28 +1,32 @@
+# ═══════════════════════════════════════════════════════════════════════
+#  MANUAL-DISPATCH ONLY.
+#  This workflow is triggered EXCLUSIVELY by Apps Script
+#  (FsisScheduler.gs → dispatchScheduled).
+#  Do NOT add a 'schedule:' block here — schedules live in Apps Script
+#  so the entire AFTS AI pipeline shares one source of truth.
+# ═══════════════════════════════════════════════════════════════════════
+
 # AFTS Food Safety Intelligence — North America Feeds Collector
 #
-# Manual-only. Triggered exclusively via:
-#   - GitHub UI "Run workflow" button
-#   - GitHub workflow_dispatch REST API (called from AFTS Apps Script)
+# Runs us_fda, us_fsis, canada through the official_feeds pipeline.
+# Stage 3b calls the AFTS North America Recall Agent (Llama on Hetzner via
+# Tailscale, using self-hosted Searx for web search).
 #
-# No cron schedule. Does NOT auto-fire. Will not interfere with the
-# existing scrape pipelines (morning-critical, daily-scrape,
-# north-america-daily, etc.).
+# Schedule: 08:00 + 17:00 Athens (EET/EEST), no UTC.
 
-name: "FSIS NA — feeds collector (us_fda, us_fsis, canada) [manual]"
+name: "FSIS NA — feeds collector (us_fda, us_fsis, canada)"
 
 on:
   workflow_dispatch:
     inputs:
       sources:
-        description: "Comma-separated source IDs"
+        description: "Comma-separated source IDs (default: all NA)"
         required: false
         default: "us_fda,us_fsis,canada"
       dry_run:
         description: "Dry run? (true|false)"
         required: false
         default: "false"
-
-# Serialize with other xlsx-writers so we never race the main pipeline.
 concurrency:
   group: fsis-data-writers
   cancel-in-progress: false
@@ -33,27 +37,48 @@ jobs:
     timeout-minutes: 25
 
     steps:
+      - name: Athens-time gate (skip wrong-DST cron)
+        id: gate
+        env:
+          TZ: Europe/Athens
+        run: |
+          H=$(TZ=Europe/Athens date +%H)
+          echo "Athens hour: $H"
+          if [ "$H" = "08" ] || [ "$H" = "17" ]; then
+            echo "go=true" >> $GITHUB_OUTPUT
+          else
+            echo "go=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v4
 
       - name: Setup Python
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install deps
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           pip install --quiet \
             requests beautifulsoup4 lxml openpyxl python-dateutil feedparser
 
+      # ═══════════════════════════════════════════════════════════════════
+      #  Join the AFTS tailnet so the runner can reach afts-llama-vps.
+      # ═══════════════════════════════════════════════════════════════════
       - name: Tailscale up
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         uses: tailscale/github-action@v3
         with:
           authkey:  ${{ secrets.TAILSCALE_AUTHKEY }}
           hostname: github-actions-${{ github.run_id }}
           tags:    "tag:ci"
 
-      - name: Verify Llama VPS + Searx reachable
+      - name: Verify Llama VPS reachable
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
           SEARX_URL:      ${{ secrets.SEARX_URL }}
@@ -68,7 +93,11 @@ jobs:
             (echo "Searx not reachable"; exit 1)
           echo ""
 
-      - name: Run NA collector (one source at a time)
+      # ═══════════════════════════════════════════════════════════════════
+      #  Run the collector ONCE PER SOURCE (main.py takes --source singular).
+      # ═══════════════════════════════════════════════════════════════════
+      - name: Run NA collector
+        if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
           LLAMA_MODEL:    qwen2.5-7b-instruct
@@ -87,7 +116,9 @@ jobs:
           done
 
       - name: Commit xlsx changes
-        if: github.event.inputs.dry_run != 'true'
+        if: |
+          (steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch')
+          && (github.event.inputs.dry_run != 'true')
         run: |
           git config user.name  "afts-bot"
           git config user.email "[email protected]"
@@ -95,6 +126,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "no changes"
           else
-            git commit -m "NA collector (manual): $(date -u +%Y-%m-%dT%H:%MZ)"
+            git commit -m "NA collector: $(date -u +%Y-%m-%dT%H:%MZ)"
             git push
           fi

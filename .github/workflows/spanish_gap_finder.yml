@@ -1,3 +1,11 @@
+# ═══════════════════════════════════════════════════════════════════════
+#  MANUAL-DISPATCH ONLY.
+#  This workflow is triggered EXCLUSIVELY by Apps Script
+#  (FsisScheduler.gs → dispatchScheduled).
+#  Do NOT add a 'schedule:' block here — schedules live in Apps Script
+#  so the entire AFTS AI pipeline shares one source of truth.
+# ═══════════════════════════════════════════════════════════════════════
+
 name: Spanish Gap Finder (FSIS)
 
 # Cron times in UTC. Madrid = CEST (summer) / CET (winter).
@@ -6,9 +14,6 @@ name: Spanish Gap Finder (FSIS)
 # (other cron line shows as "Skipped" cleanly, not "Failed").
 
 on:
-  schedule:
-    - cron: '0 19 * * *'   # 19:00 UTC → 21:00 Madrid during CEST (summer)
-    - cron: '0 20 * * *'   # 20:00 UTC → 21:00 Madrid during CET (winter)
   workflow_dispatch:
     inputs:
       skip_news:

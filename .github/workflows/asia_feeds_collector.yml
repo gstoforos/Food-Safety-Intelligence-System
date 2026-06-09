@@ -1,3 +1,11 @@
+# ═══════════════════════════════════════════════════════════════════════
+#  MANUAL-DISPATCH ONLY.
+#  This workflow is triggered EXCLUSIVELY by Apps Script
+#  (FsisScheduler.gs → dispatchScheduled).
+#  Do NOT add a 'schedule:' block here — schedules live in Apps Script
+#  so the entire AFTS AI pipeline shares one source of truth.
+# ═══════════════════════════════════════════════════════════════════════
+
 name: Asia official-feed collector
 
 # ONE job that handles both scheduled (TZ-aware) and manual (all-at-once) runs.
@@ -12,10 +20,6 @@ name: Asia official-feed collector
 # (defaults to ALL 9 at once).
 
 on:
-  schedule:
-    - cron: '0 0 * * *'   # 09:00 UTC+9 — Korea, Japan
-    - cron: '0 1 * * *'   # 09:00 UTC+8 — Singapore, Hong Kong, Taiwan, Philippines
-    - cron: '0 2 * * *'   # 09:00 UTC+7 — Indonesia, Thailand, Vietnam
   workflow_dispatch:
     inputs:
       sources:

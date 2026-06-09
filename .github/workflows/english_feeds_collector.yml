@@ -1,3 +1,11 @@
+# ═══════════════════════════════════════════════════════════════════════
+#  MANUAL-DISPATCH ONLY.
+#  This workflow is triggered EXCLUSIVELY by Apps Script
+#  (FsisScheduler.gs → dispatchScheduled).
+#  Do NOT add a 'schedule:' block here — schedules live in Apps Script
+#  so the entire AFTS AI pipeline shares one source of truth.
+# ═══════════════════════════════════════════════════════════════════════
+
 name: English Feeds Collector (FSIS)
 
 # Official-feed collector for English-speaking authorities. Pulls STRUCTURED
@@ -9,9 +17,6 @@ name: English Feeds Collector (FSIS)
 # Gate job pattern (same clean skip as the EU workflows).
 
 on:
-  schedule:
-    - cron: '0 8 * * *'    # 08:00 UTC → 09:00 London/Dublin during BST/IST (summer)
-    - cron: '0 9 * * *'    # 09:00 UTC → 09:00 London/Dublin during GMT (winter)
   workflow_dispatch:
     inputs:
       sources:

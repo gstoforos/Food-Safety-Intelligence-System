@@ -1,3 +1,11 @@
+# ═══════════════════════════════════════════════════════════════════════
+#  MANUAL-DISPATCH ONLY.
+#  This workflow is triggered EXCLUSIVELY by Apps Script
+#  (FsisScheduler.gs → dispatchScheduled).
+#  Do NOT add a 'schedule:' block here — schedules live in Apps Script
+#  so the entire AFTS AI pipeline shares one source of truth.
+# ═══════════════════════════════════════════════════════════════════════
+
 name: Portuguese Gap Finder (FSIS)
 
 # Cron times in UTC. Lisbon = WEST (summer) / WET (winter).
@@ -6,9 +14,6 @@ name: Portuguese Gap Finder (FSIS)
 # (other cron line shows as "Skipped" cleanly, not "Failed").
 
 on:
-  schedule:
-    - cron: '0 20 * * *'   # 20:00 UTC → 21:00 Lisbon during WEST (summer)
-    - cron: '0 21 * * *'   # 21:00 UTC → 21:00 Lisbon during WET (winter)
   workflow_dispatch:
     inputs:
       skip_news:
