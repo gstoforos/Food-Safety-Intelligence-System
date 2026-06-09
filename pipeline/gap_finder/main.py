@@ -314,8 +314,10 @@ def stage_article_fetch(
         return ts if ts is not None else 0
     sorted_candidates = sorted(candidates, key=sort_key, reverse=True)
 
+    # ── A. Cheap pre-filter: date + dedupe BEFORE we spend HTTP fetches ─────
+    pre_filtered: list[dict] = []
     for cand in sorted_candidates:
-        if len(verified) >= MAX_RECORDS:
+        if len(pre_filtered) >= MAX_RECORDS:
             capped += 1
             continue
 
@@ -332,17 +334,43 @@ def stage_article_fetch(
             dup_skipped += 1
             continue
         seen_token_sets.append(tokens)
+        pre_filtered.append(cand)
 
+    # ── B. Parallel HTTP fetch via article_fetcher (the REAL enrichment) ────
+    # Google News redirector URLs get followed; real publisher HTML gets
+    # extracted via BeautifulSoup heuristics. Bodies typically 2000-5000
+    # chars — long enough to contain the hazard term that titles abbreviate.
+    print(f"  fetching {len(pre_filtered)} article bodies in parallel…",
+          file=sys.stderr)
+    try:
+        from . import article_fetcher
+    except ImportError:
+        import pipeline.gap_finder.article_fetcher as article_fetcher  # type: ignore
+    enriched_recs, failed_recs = article_fetcher.enrich_all(
+        pre_filtered, cfg, verbose=verbose)
+    fetched_ok = len(enriched_recs)
+    fetched_fail = len(failed_recs)
+
+    # ── C. Convert enriched records to dict (efet_body is real article text)
+    for rec in enriched_recs:
+        d = rec.to_dict()
+        d["discovered_via"] = "article_fetch"
+        verified.append(d)
+
+    # ── D. Fallback: keep failed-fetch candidates with RSS-description body
+    # so we don't lose visibility on them. Title+description is better than
+    # nothing — the classifier still has a shot at catching the hazard.
+    for cand in failed_recs:
+        title = cand.get("title", "")
         description = cand.get("description", "")
         body_parts = [title]
         if description and description.lower() != title.lower():
             body_parts.append(description)
         body = "\n\n".join(body_parts)
-
+        pub_ts = parse_pub(cand.get("published", ""))
         date_iso = ""
         if pub_ts is not None:
             date_iso = datetime.fromtimestamp(pub_ts, tz=timezone.utc).strftime("%Y-%m-%d")
-
         record = {
             "news_url": cand.get("url", ""),
             "news_title": title,
@@ -354,7 +382,8 @@ def stage_article_fetch(
             "efet_body": body,
             "match_score": 1.0,
             "matched_at": now_iso,
-            "discovered_via": cand.get("discovered_via", ""),
+            "discovered_via": "rss_fallback",
+            "fetch_status": cand.get("fetch_status", "failed"),
         }
         verified.append(record)
 
@@ -366,6 +395,9 @@ def stage_article_fetch(
     print(f"  no date (kept):     {too_old_no_date}", file=sys.stderr)
     print(f"  dup-title skipped:  {dup_skipped}", file=sys.stderr)
     print(f"  capped (>{MAX_RECORDS}):       {capped}", file=sys.stderr)
+    print(f"  HTTP fetched ok:    {fetched_ok}", file=sys.stderr)
+    print(f"  HTTP fetched fail:  {fetched_fail} (fallback to RSS desc)",
+          file=sys.stderr)
     print(f"  enriched out:       {len(verified)} (avg body {avg_len} chars, "
           f"{rich} with >200 chars)", file=sys.stderr)
 
