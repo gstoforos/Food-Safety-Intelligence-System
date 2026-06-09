@@ -21,7 +21,7 @@ import requests
 
 LLAMA_BASE_URL    = os.environ.get("LLAMA_BASE_URL", "").rstrip("/")
 LLAMA_MODEL       = os.environ.get("LLAMA_MODEL", "qwen2.5-7b-instruct")
-LLAMA_TIMEOUT     = int(os.environ.get("LLAMA_TIMEOUT_SEC", "45"))
+LLAMA_TIMEOUT     = int(os.environ.get("LLAMA_TIMEOUT_SEC", "90"))
 LLAMA_MAX_LOOPS   = 2    # cap tool-calling loop depth
 
 # Circuit breaker — after 3 failures, stop calling for this run.
@@ -40,7 +40,7 @@ def chat(messages: list[dict],
           tools: Optional[list[dict]] = None,
           tool_executor: Optional[Callable[[str, dict], str]] = None,
           temperature: float = 0.0,
-          max_tokens: int = 1024) -> Optional[str]:
+          max_tokens: int = 256) -> Optional[str]:
     """
     Run a tool-calling conversation with the Llama. Returns the model's
     final text response, or None on failure.

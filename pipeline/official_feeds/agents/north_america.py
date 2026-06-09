@@ -90,26 +90,34 @@ SYSTEM_PROMPT = """\
 You are the AFTS North America Recall Agent.
 
 Your only job: given a news headline about a North American food recall, find
-the OFFICIAL regulator URL for that exact recall.
+the OFFICIAL regulator URL for that exact recall, using the web_search tool.
 
-You have one tool: web_search. Use it.
+═══ HARD RULES — DO NOT VIOLATE ═══
+  1. NEVER invent, fabricate, guess, construct, or extrapolate URLs.
+  2. The URL you return MUST appear verbatim in a web_search tool result.
+  3. If you cannot find a matching URL in tool results, you MUST output: NONE
+  4. Do NOT pattern-match a slug from the headline and append it to fda.gov.
+     The slug must come from a real search result.
 
-Procedure:
-  1. Read the headline. Identify company, product, hazard.
-  2. Call web_search with a tight query that includes a site: filter for the
-     regulator's domain (passed to you in the user message).
-  3. Read the results. Pick the URL that:
-       - is on the regulator's domain,
-       - matches the URL path pattern given,
-       - and whose title clearly refers to the same recall as the headline.
-  4. If no result fits, call web_search ONE more time with a different query.
-  5. If still nothing fits, output exactly: NONE
+═══ PROCEDURE ═══
+  1. Read the headline. Extract company name, product, hazard (and date if
+     mentioned).
+  2. Call web_search with a tight query: include the company name + hazard
+     and a site: filter for the regulator's domain (given in user message).
+  3. Read the tool results. Find the result whose URL is on the regulator's
+     domain AND whose title refers to the same company + hazard + product
+     as the headline.
+  4. If no result matches confidently, call web_search ONE more time with
+     different terms (e.g. swap company name for product name).
+  5. If STILL no matching result, output: NONE
 
-Output format (STRICT):
-  - When found: the URL only, on a single line, no quotes, no prose.
+═══ OUTPUT (STRICT) ═══
+  - When found: the URL only, exactly as it appeared in the tool result.
+    One line, no quotes, no prose.
   - When not found: the single word NONE.
 
-Never explain. Never apologize. Never wrap in markdown."""
+Never explain. Never apologize. Never wrap in markdown.
+Never write a URL you did not see in a tool result."""
 
 
 # ╔══════════════════════════════════════════════════════════════════════════
@@ -140,8 +148,13 @@ def _tool_schema(reg: dict) -> list[dict]:
     }]
 
 
-def _make_tool_executor(reg: dict):
-    """Return a callable that the llama_client invokes for each tool_call."""
+def _make_tool_executor(reg: dict, seen_urls: set):
+    """Return a callable that the llama_client invokes for each tool_call.
+
+    Every URL returned by Searx is recorded into the `seen_urls` set so the
+    caller can verify the model's final answer corresponds to a real result
+    (no fabricated slugs).
+    """
     domain = reg["domain"]
 
     def execute(name: str, args: dict) -> str:
@@ -157,6 +170,12 @@ def _make_tool_executor(reg: dict):
             max_results=8,
             include_domains=[domain],
         )
+        # Record every URL we surfaced so the post-hoc validator can confirm
+        # the model didn't invent a slug.
+        for r in results:
+            url = r.get("url", "")
+            if url:
+                seen_urls.add(url.rstrip("/"))
         # Compact form so the model can read it quickly
         compact = [{"url": r["url"], "title": r["title"],
                      "content": r["content"]} for r in results]
@@ -169,7 +188,139 @@ def _make_tool_executor(reg: dict):
 # ║  STATE — per-run cache
 # ╚══════════════════════════════════════════════════════════════════════════
 
-_CACHE: dict = {}
+# (legacy _CACHE removed — replaced by _RESOLVED Jaccard cache above)
+
+
+# ╔══════════════════════════════════════════════════════════════════════════
+# ║  JACCARD FUZZY DEDUP — collapse multi-outlet coverage to 1 agent call
+# ╚══════════════════════════════════════════════════════════════════════════
+#
+# Multiple news outlets cover the same recall with very different wording:
+#   "Champion Foods Recall: Champion Foods Cheese Bread Recalled..."
+#   "Frozen cheese bread recalled nationwide over salmonella risk - MSN"
+#   "Motor City Pizza Co. 5 Cheese Bread recalled over Salmonella risk"
+# All three are the SAME FDA recall. Sharing one agent call across them
+# cuts ~49 LLM calls → ~12 unique recalls.
+#
+# After the agent resolves URL X for headline A, we store (tokens_A, X)
+# in _RESOLVED. New headline B's tokens are compared against every entry;
+# if Jaccard ≥ JACCARD_THRESHOLD AND the hazard token matches, B reuses X
+# without invoking the agent.
+#
+# Threshold tuned conservatively (0.30) — prefers under-grouping (extra
+# agent calls) over wrong-URL collisions.
+
+JACCARD_THRESHOLD = 0.30
+
+_HAZARD_TOKENS = (
+    "salmonella", "listeria", "e.coli", "e coli", "ecoli", "stec",
+    "botulism", "clostridium", "campylobacter", "norovirus", "shigella",
+    "hepatitis", "vibrio",
+    "aflatoxin", "ochratoxin", "cereulide", "mycotoxin",
+    "mercury", "lead", "cadmium", "arsenic",
+    "metal", "plastic", "glass", "foreign matter",
+    "undeclared", "allergen",
+)
+
+_STOPWORDS = {
+    "the", "a", "an", "of", "for", "in", "at", "on", "to", "and", "or",
+    "with", "from", "by", "as", "is", "are", "was", "be", "this", "that",
+    "these", "those", "fda", "usda", "cfia", "recall", "recalls", "recalled",
+    "recalling", "alert", "alerts", "alerted", "outbreak", "investigation",
+    "warning", "risk", "risks", "concern", "concerns", "due", "over",
+    "amid", "sold", "selling", "issue", "issued", "issues", "company",
+    "co", "llc", "inc", "corp", "news", "yahoo", "msn", "aol", "newsweek",
+    "patch", "kron4", "today", "yesterday", "report", "reports", "reported",
+    "more", "some", "all", "may", "could", "after", "before", "linked",
+    "nationwide", "national", "popular", "growing", "new", "deadly",
+    "urgent", "urgently", "potential", "potentially", "possible",
+    "products", "product", "national", "stores", "store", "online",
+    "expansion", "expanded", "expands", "warns", "warning",
+}
+
+
+def _hazard_of(title: str) -> str:
+    """First hazard token found in title (most specific first)."""
+    t = (title or "").lower()
+    for h in _HAZARD_TOKENS:
+        if h in t:
+            return h.replace(".", "").replace(" ", "")
+    return ""
+
+
+def _content_tokens(title: str) -> frozenset:
+    """Distinctive content tokens for Jaccard comparison.
+
+    Strips publisher suffix and stopwords, keeps tokens ≥3 chars.
+    Hazard tokens are kept (they're highly discriminative).
+    """
+    t = (title or "").lower()
+    if " - " in t:
+        t = t.rsplit(" - ", 1)[0]
+    words = re.findall(r"[a-z]{3,}", t)
+    return frozenset(w for w in words if w not in _STOPWORDS)
+
+
+def _jaccard(a: frozenset, b: frozenset) -> float:
+    if not a or not b:
+        return 0.0
+    return len(a & b) / len(a | b)
+
+
+# Per-run cache of resolved recalls. Each entry: (tokens, hazard, url).
+# Reset by callers if they want a fresh cache per workflow run.
+_RESOLVED: list = []
+
+
+def reset_dedup_cache() -> None:
+    """Clear the fuzzy dedup cache. Call between independent runs."""
+    _RESOLVED.clear()
+
+
+def _lookup_fuzzy(title: str) -> Optional[str]:
+    """Return a previously-resolved URL if this headline's tokens match
+    a prior one closely enough, else None.
+
+    Match = same hazard AND Jaccard(tokens) >= threshold.
+    """
+    haz = _hazard_of(title)
+    if not haz:
+        return None
+    tokens = _content_tokens(title)
+    if len(tokens) < 3:
+        return None
+    best_score = 0.0
+    best_url: Optional[str] = None
+    for prev_tokens, prev_haz, prev_url in _RESOLVED:
+        if prev_haz != haz:
+            continue
+        score = _jaccard(tokens, prev_tokens)
+        if score >= JACCARD_THRESHOLD and score > best_score:
+            best_score = score
+            best_url = prev_url
+    return best_url
+
+
+def _record_resolved(title: str, url: str) -> None:
+    """Add a resolved (title, URL) to the fuzzy cache."""
+    haz = _hazard_of(title)
+    tokens = _content_tokens(title)
+    if tokens and haz:
+        _RESOLVED.append((tokens, haz, url))
+
+
+def _url_was_seen(url: str, seen: set) -> bool:
+    """Anti-fabrication guard. URL must have appeared in a real Searx
+    result this call. Comparison is path-exact (trailing slash ignored)."""
+    norm = url.rstrip("/")
+    if norm in seen:
+        return True
+    # Also accept if a seen URL contains our URL or vice versa (Searx
+    # sometimes truncates very long URLs in display).
+    for s in seen:
+        if norm in s or s in norm:
+            return True
+    return False
 
 
 # ╔══════════════════════════════════════════════════════════════════════════
@@ -227,10 +378,13 @@ def find_url(title: str, regulator: str) -> Optional[str]:
         print(f"  [NA-agent] SEARX_URL not set — agent disabled")
         return None
 
-    norm = " ".join(title.lower().split())
-    cache_key = (regulator, norm)
-    if cache_key in _CACHE:
-        return _CACHE[cache_key]
+    # Fuzzy cache: if a prior headline about the same recall already
+    # resolved to a URL, reuse it. Catches multi-outlet coverage where
+    # the brand name varies wildly across articles.
+    fuzzy = _lookup_fuzzy(title)
+    if fuzzy:
+        print(f"  [NA-agent {regulator}] ↩ fuzzy cache hit → {fuzzy[:90]}")
+        return fuzzy
 
     print(f"  [NA-agent {regulator}] {title[:80]}")
 
@@ -244,42 +398,49 @@ def find_url(title: str, regulator: str) -> Optional[str]:
         f"News headline: {title!r}\n"
         f"\n"
         f"Find the official regulator URL for this exact recall. "
-        f"Use web_search."
+        f"Use web_search. Return ONLY a URL that actually appeared in a "
+        f"web_search result — never invent or construct one."
     )
+
+    # Per-call set of URLs that Searx actually returned. The validator below
+    # confirms the model's final answer came from this set (anti-fabrication).
+    seen_urls: set = set()
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user",   "content": user_msg},
     ]
     tools    = _tool_schema(reg)
-    executor = _make_tool_executor(reg)
+    executor = _make_tool_executor(reg, seen_urls)
 
     text = llama_client.chat(
         messages=messages,
         tools=tools,
         tool_executor=executor,
         temperature=0.0,
-        max_tokens=512,
+        max_tokens=256,
     )
 
     if not text:
         print(f"  [NA-agent {regulator}] agent returned no answer")
-        _CACHE[cache_key] = None
         return None
 
     url = _extract_url(text)
     if not url:
         print(f"  [NA-agent {regulator}] no URL in answer: {text[:120]!r}")
-        _CACHE[cache_key] = None
         return None
 
     if not _validate(url, reg):
-        print(f"  [NA-agent {regulator}] validation failed for: {url}")
-        _CACHE[cache_key] = None
+        print(f"  [NA-agent {regulator}] validation failed (domain/path): {url}")
+        return None
+
+    # Anti-fabrication: URL must have appeared in a real Searx result.
+    if not _url_was_seen(url, seen_urls):
+        print(f"  [NA-agent {regulator}] ✗ FABRICATED — not in Searx results: {url}")
         return None
 
     print(f"  ✓ {url}")
-    _CACHE[cache_key] = url
+    _record_resolved(title, url)
     return url
 
 
