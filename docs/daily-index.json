@@ -3,13 +3,14 @@
     {
       "date": "2026-06-09",
       "url": "daily/2026-06-09.html",
-      "total": 6,
-      "tier1": 6,
+      "total": 8,
+      "tier1": 8,
       "outbreak": 0,
       "by_region": {
-        "Europe": 6
+        "Europe": 7,
+        "North America": 1
       },
-      "generated": "2026-06-10T07:12:58Z"
+      "generated": "2026-06-10T17:18:06Z"
     },
     {
       "date": "2026-06-08",
