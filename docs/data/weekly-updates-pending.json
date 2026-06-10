@@ -1,44 +1,22 @@
 {
-  "generated_utc": "2026-05-20T18:32:52.787835+00:00",
+  "generated_utc": "2026-06-10T06:14:26.456833+00:00",
   "checked_back_weeks": 4,
-  "anchor_friday": "2026-05-15",
+  "anchor_friday": "2026-06-05",
   "updated_weeks": [
     {
       "year": 2026,
-      "week_num": 17,
-      "filename": "2026-W17.html",
-      "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W17.html",
-      "week_start": "2026-04-18",
-      "week_end": "2026-04-24",
-      "old_total": 75,
-      "new_total": 76,
-      "delta": 1
-    },
-    {
-      "year": 2026,
-      "week_num": 19,
-      "filename": "2026-W19.html",
-      "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W19.html",
-      "week_start": "2026-05-02",
-      "week_end": "2026-05-08",
-      "old_total": 53,
-      "new_total": 54,
-      "delta": 1
-    },
-    {
-      "year": 2026,
-      "week_num": 20,
-      "filename": "2026-W20.html",
-      "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W20.html",
-      "week_start": "2026-05-09",
-      "week_end": "2026-05-15",
+      "week_num": 23,
+      "filename": "2026-W23.html",
+      "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W23.html",
+      "week_start": "2026-05-30",
+      "week_end": "2026-06-05",
       "old_total": 48,
-      "new_total": 50,
-      "delta": 2
+      "new_total": 60,
+      "delta": 12
     }
   ],
   "primary_cta": {
-    "label": "VIEW WEEKLY DASHBOARD",
-    "url": "https://www.advfood.tech/#weekly"
+    "label": "VIEW REFRESHED REPORT",
+    "url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W23.html"
   }
 }
