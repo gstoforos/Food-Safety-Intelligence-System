@@ -48,6 +48,22 @@
   "Notes": "point de vente à la ferme aquacole des eaux du vourzac et marché de saugues. [url-gate 2026-06-10: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-10: fix; corrections: Date→2026-06-10, Company→Ferme Aquacole des eaux du Vourzac, Brand→Sans marque, Product→Terrine de truite fumée aux lentilles ve, Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch; date on page=2026-06-10 | Company name was missing from th]"
  },
  {
+  "Date": "2026-06-10",
+  "Source": "RappelConso (FR)",
+  "Company": "GUERANDIS E.Leclerc",
+  "Brand": "Unbranded",
+  "Product": "crevettes grises cuites",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22517/Interne",
+  "Notes": "e.leclerc de guérande [url-gate 2026-06-10: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-10: Company ''→'GUERANDIS E.Leclerc'] [claude-check 2026-06-11: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
   "Date": "2026-06-09",
   "Source": "RappelConso (FR)",
   "Company": "SAS COOPERATIVE U.E.A.B.",
