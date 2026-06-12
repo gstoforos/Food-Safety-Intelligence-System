@@ -29,6 +29,8 @@ from pathlib import Path
 from typing import Optional
 from urllib.parse import quote_plus, urlparse
 
+import logging
+
 import requests
 
 try:
@@ -37,6 +39,41 @@ try:
 except ImportError:
     from gap_finder.countries import get as get_country           # type: ignore
     from gap_finder.countries.base import CountryConfig           # type: ignore
+
+# ── curl_cffi: Chrome 131 TLS impersonation (Stage 1 fetch) ────────────────
+# Greek/EU news sites + Google News reject the stdlib `requests` TLS
+# fingerprint (JA3/JA4) with 403/410 from datacenter IPs. curl_cffi performs
+# the handshake byte-for-byte identical to real Chrome, clearing the
+# TLS-fingerprint layer. Same approach as scrapers/_akamai_fetch.py and
+# pipeline/gap_finder/article_fetcher.py (Stage 2). Lazy-imported, cached,
+# graceful fallback to stdlib `requests` if the package is unavailable.
+_log = logging.getLogger(__name__)
+_cf_mod = None
+_cf_state = "unloaded"          # unloaded | ok | failed
+_cf_logged_hosts: set = set()
+_IMPERSONATE_PROFILE = "chrome131"
+
+
+def _load_curl_cffi():
+    """Lazy-import curl_cffi.requests. Cache success/failure. Return module|None."""
+    global _cf_mod, _cf_state
+    if _cf_state == "ok":
+        return _cf_mod
+    if _cf_state == "failed":
+        return None
+    try:
+        from curl_cffi import requests as cf  # type: ignore
+        _cf_mod = cf
+        _cf_state = "ok"
+        _log.info("curl_cffi loaded — Stage 1 fetches use Chrome 131 TLS "
+                  "impersonation (profile=%s)", _IMPERSONATE_PROFILE)
+        return cf
+    except ImportError:
+        _cf_state = "failed"
+        _log.warning("curl_cffi NOT installed — Stage 1 falls back to stdlib "
+                     "requests; bot-protected feeds will likely 403. "
+                     "Install: pip install 'curl-cffi>=0.7.0'")
+        return None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -93,6 +130,52 @@ def has_recall_signal(title: str, terms: list[str]) -> bool:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _http_get(url: str, verbose: bool = False) -> Optional[str]:
+    """Fetch a URL's text body. Tries curl_cffi (Chrome 131 TLS) first, so
+    feeds that reject the stdlib `requests` fingerprint still come through;
+    falls back to plain `requests` only if curl_cffi is unavailable.
+
+    Returns the response text, or None on any failure (caller tolerates
+    None — a single broken feed never blocks the run)."""
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Accept": "text/html,application/xhtml+xml,application/xml;"
+                  "q=0.9,*/*;q=0.8",
+        "Accept-Language": "el-GR,el;q=0.9,en;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+    }
+
+    # Primary: curl_cffi with Chrome 131 TLS impersonation.
+    cf = _load_curl_cffi()
+    if cf is not None:
+        host = urlparse(url).netloc.lower().split(":", 1)[0]
+        if host and host not in _cf_logged_hosts:
+            _cf_logged_hosts.add(host)
+            _log.info("curl_cffi routing engaged: host=%s impersonate=%s",
+                      host, _IMPERSONATE_PROFILE)
+        try:
+            r = cf.get(
+                url,
+                headers=headers,
+                timeout=REQUEST_TIMEOUT,
+                impersonate=_IMPERSONATE_PROFILE,
+                allow_redirects=True,
+            )
+            if getattr(r, "status_code", 0) == 200:
+                return getattr(r, "text", "") or ""
+            if verbose:
+                print(f"  [WARN] fetch failed: {url} — "
+                      f"HTTP {getattr(r, 'status_code', '?')}", file=sys.stderr)
+            # Fall through to requests as a last resort on non-200.
+        except Exception as e:
+            if verbose:
+                print(f"  [WARN] curl_cffi fetch error: {url} — {e}",
+                      file=sys.stderr)
+            # Fall through to requests.
+
+    # Fallback: stdlib requests (used when curl_cffi missing or errored).
     try:
         r = requests.get(
             url,
