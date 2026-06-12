@@ -1,6 +1,6 @@
 """
 AFTS Food Safety Intelligence — Gap Finder
-News article fetcher (parametric, parallel).
+News article fetcher (parametric, parallel, TLS-impersonated).
 
 Replaces the search-engine-based authority verifier. Instead of trying to
 cross-reference each news candidate against a thinly-populated DDG index
@@ -28,6 +28,40 @@ Architecture:
 Schema-compatible with the old verified.jsonl format so extractor.py and
 main.py downstream stages work unchanged.
 
+╔════════════════════════════════════════════════════════════════════════════╗
+║  2026-06-12 — TLS impersonation upgrade (proper fix for Greek 0-fetch)    ║
+╠════════════════════════════════════════════════════════════════════════════╣
+║ The 2026-06-12 Greek gap_finder run showed HTTP fetched fail: 11/11 ─     ║
+║ every single news article fetch failed. Cause: most modern news sites     ║
+║ (kathimerini, protothema, news247, skai, in.gr ...) sit behind Akamai,    ║
+║ Cloudflare, or DataDome bot-detect that inspect the TLS handshake JA3/    ║
+║ JA4 fingerprint. Python `requests` uses urllib3+OpenSSL with a TLS        ║
+║ fingerprint that's instantly recognisable as non-browser — 403/410/      ║
+║ Forbidden across the board.                                                ║
+║                                                                            ║
+║ Fix: route every news fetch through curl_cffi with Chrome 131 TLS        ║
+║ impersonation. curl_cffi.requests is a drop-in `requests`-compatible API ║
+║ that performs the handshake byte-for-byte identical to real Chrome.       ║
+║ Same pattern scrapers/_akamai_fetch.py already uses successfully against ║
+║ www.fda.gov + www.fsis.usda.gov.                                          ║
+║                                                                            ║
+║ Behaviour change vs prior version:                                        ║
+║   - fetch_html() now uses curl_cffi.requests by default (with             ║
+║     impersonate="chrome131").                                              ║
+║   - First-call-per-host log line lets us verify routing engaged in        ║
+║     production (matches _akamai_fetch.py pattern).                        ║
+║   - Falls back to stdlib `requests` if curl_cffi is not installed         ║
+║     (graceful degradation; warning emitted).                              ║
+║                                                                            ║
+║ Dependencies: curl-cffi>=0.7.0 already in requirements.txt (used by       ║
+║ scrapers/ folder). No new dep, no version bump.                           ║
+║                                                                            ║
+║ Verified post-fix: paste a known-bot-protected URL via                    ║
+║   python -m pipeline.gap_finder.article_fetcher --country gr \            ║
+║       --probe "https://www.kathimerini.gr/society/.../recall-article"    ║
+║ — should now return status="ok" and body > 500 chars.                    ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
 CLI:
     python -m pipeline.gap_finder.article_fetcher --country it
     python -m pipeline.gap_finder.article_fetcher --country gr --probe URL
@@ -36,6 +70,7 @@ CLI:
 from __future__ import annotations
 import argparse
 import json
+import logging
 import random
 import re
 import sys
@@ -52,6 +87,15 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 
+# ── curl_cffi: TLS impersonation primary path ──────────────────────────────
+# Lazy-imported in fetch_html() to keep startup fast and to allow graceful
+# fallback to stdlib `requests` if the package isn't installed (e.g. local
+# dev environments without the prod requirements pinned).
+_curl_cffi_imported: bool = False
+_curl_cffi_module = None        # cf.requests once imported
+_curl_cffi_import_failed: bool = False
+_curl_cffi_logged_hosts: set[str] = set()  # first-call-per-host logging
+
 try:
     from .countries import get as get_country
     from .countries.base import CountryConfig
@@ -66,17 +110,25 @@ except ImportError:
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15 "
     "(KHTML, like Gecko) Version/17.4 Safari/605.1.15",
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
 ]
 
 REQUEST_TIMEOUT = 15
 MAX_WORKERS = 5                # concurrent HTTP fetches
 PER_DOMAIN_DELAY = 0.8         # seconds between fetches to the same domain
 MAX_BODY_CHARS = 5000          # truncate article body for LLM context
+
+# curl_cffi browser-profile selection. chrome131 is current-generation and
+# well-tested in curl_cffi 0.7+. Matches scrapers/_akamai_fetch.py choice
+# so we don't have two different profiles to maintain.
+_IMPERSONATE_PROFILE: str = "chrome131"
+
+log = logging.getLogger(__name__)
+
 
 # Tags/selectors to strip before extracting main content
 STRIP_TAGS = ["script", "style", "noscript", "iframe", "svg", "form",
@@ -145,31 +197,115 @@ def _throttle_domain(url: str) -> None:
     domain = urlparse(url).netloc.lower().lstrip("www.")
     with _DOMAIN_LOCK:
         last = _DOMAIN_LAST_FETCH.get(domain, 0)
-        elapsed = time.monotonic() - last
-        if elapsed < PER_DOMAIN_DELAY:
-            time.sleep(PER_DOMAIN_DELAY - elapsed)
+        wait = (last + PER_DOMAIN_DELAY) - time.monotonic()
+        if wait > 0:
+            time.sleep(wait + random.uniform(0, 0.15))
         _DOMAIN_LAST_FETCH[domain] = time.monotonic()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# HTTP FETCH
+# HTTP FETCH — curl_cffi primary (Chrome 131 TLS), requests fallback
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _fetch_headers(cfg: CountryConfig) -> dict:
+    """Browser-like request headers. UA is rotated; TLS handshake is the
+    real bot-detect signal, handled below via curl_cffi impersonation."""
     return {
         "User-Agent": random.choice(USER_AGENTS),
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,"
+                  "image/avif,image/webp,*/*;q=0.8",
         "Accept-Language": f"{cfg.language_code}-{cfg.code.upper()},"
                            f"{cfg.language_code};q=0.9,en;q=0.7",
-        "Accept-Encoding": "gzip, deflate",
+        "Accept-Encoding": "gzip, deflate, br",
         "DNT": "1",
         "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
     }
 
 
-def fetch_html(url: str, cfg: CountryConfig) -> tuple[str, str, str]:
-    """Fetch URL, follow redirects. Returns (resolved_url, html, status)."""
-    _throttle_domain(url)
+def _load_curl_cffi():
+    """Lazy-import curl_cffi.requests. Returns the module or None on failure.
+
+    Idempotent: caches both success and failure so we only pay the import
+    cost (and emit any warning) once per process.
+    """
+    global _curl_cffi_imported, _curl_cffi_module, _curl_cffi_import_failed
+    if _curl_cffi_imported:
+        return _curl_cffi_module
+    if _curl_cffi_import_failed:
+        return None
+    try:
+        from curl_cffi import requests as cf  # type: ignore
+        _curl_cffi_module = cf
+        _curl_cffi_imported = True
+        log.info("curl_cffi loaded — news fetches will use Chrome 131 TLS "
+                 "impersonation (profile=%s)", _IMPERSONATE_PROFILE)
+        return cf
+    except ImportError:
+        _curl_cffi_import_failed = True
+        log.warning(
+            "curl_cffi NOT installed — falling back to stdlib `requests`. "
+            "Bot-protected sites (Akamai/Cloudflare/DataDome) will likely "
+            "403. Install with: pip install 'curl-cffi>=0.7.0'"
+        )
+        return None
+
+
+def _log_first_host(host: str) -> None:
+    """Emit one log line the first time we route a given host via curl_cffi.
+    Production sanity check that routing is engaging."""
+    if host and host not in _curl_cffi_logged_hosts:
+        _curl_cffi_logged_hosts.add(host)
+        log.info("curl_cffi routing engaged: host=%s impersonate=%s",
+                 host, _IMPERSONATE_PROFILE)
+
+
+def _fetch_via_curl_cffi(
+    url: str, cfg: CountryConfig
+) -> tuple[str, str, str]:
+    """Primary fetch path: curl_cffi Chrome 131 TLS impersonation.
+
+    Returns (resolved_url, html, status). status in {ok, http_NNN,
+    timeout, error_<class>, curl_cffi_unavailable}.
+    """
+    cf = _load_curl_cffi()
+    if cf is None:
+        return url, "", "curl_cffi_unavailable"
+
+    host = urlparse(url).netloc.lower().split(":", 1)[0]
+    _log_first_host(host)
+
+    try:
+        resp = cf.get(
+            url,
+            headers=_fetch_headers(cfg),
+            timeout=REQUEST_TIMEOUT,
+            allow_redirects=True,
+            impersonate=_IMPERSONATE_PROFILE,
+        )
+    except Exception as e:
+        # curl_cffi.requests.RequestsError, ConnectionError, Timeout, etc.
+        # Catch broadly so the caller sees a uniform string status.
+        return url, "", f"error_{type(e).__name__}"
+
+    status_code = getattr(resp, "status_code", 0)
+    if status_code != 200:
+        return url, "", f"http_{status_code}"
+
+    return (getattr(resp, "url", url) or url,
+            getattr(resp, "text", "") or "",
+            "ok")
+
+
+def _fetch_via_requests(
+    url: str, cfg: CountryConfig
+) -> tuple[str, str, str]:
+    """Fallback fetch path: stdlib `requests`. Used only when curl_cffi
+    isn't installed. Bot-protected sites will likely 403/410 here — this
+    path exists to keep local-dev usable, not as a production strategy."""
     try:
         resp = requests.get(
             url,
@@ -180,12 +316,36 @@ def fetch_html(url: str, cfg: CountryConfig) -> tuple[str, str, str]:
         resp.raise_for_status()
         return resp.url, resp.text, "ok"
     except requests.HTTPError as e:
-        code = e.response.status_code if e.response else "?"
+        code = e.response.status_code if e.response is not None else "?"
         return url, "", f"http_{code}"
     except requests.Timeout:
         return url, "", "timeout"
     except requests.RequestException as e:
         return url, "", f"error_{type(e).__name__}"
+
+
+def fetch_html(url: str, cfg: CountryConfig) -> tuple[str, str, str]:
+    """Fetch URL, follow redirects. Returns (resolved_url, html, status).
+
+    Tries curl_cffi (Chrome 131 TLS) first; falls back to stdlib `requests`
+    only when curl_cffi is unavailable. The latter rarely succeeds against
+    modern news sites — it's there for graceful degradation, not parity.
+    """
+    _throttle_domain(url)
+
+    resolved_url, html, status = _fetch_via_curl_cffi(url, cfg)
+    if status == "ok":
+        return resolved_url, html, status
+
+    # curl_cffi unavailable → use stdlib requests as best-effort fallback.
+    if status == "curl_cffi_unavailable":
+        return _fetch_via_requests(url, cfg)
+
+    # curl_cffi installed but THIS host blocked us. Returning the error
+    # as-is. We deliberately do NOT try stdlib `requests` afterwards:
+    # if Chrome 131 TLS got blocked, plain `requests` will be blocked
+    # harder (different TLS fingerprint, no impersonation, faster ID).
+    return resolved_url, html, status
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -407,6 +567,13 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=0,
                         help="Cap candidate count (for testing)")
     args = parser.parse_args()
+
+    # Basic logging so first-call-per-host curl_cffi messages reach stderr.
+    if not logging.getLogger().handlers:
+        logging.basicConfig(
+            level=logging.INFO if args.verbose else logging.WARNING,
+            format="%(asctime)s %(levelname)s %(name)s — %(message)s",
+        )
 
     cfg = get_country(args.country)
 
