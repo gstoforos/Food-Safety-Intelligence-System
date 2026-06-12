@@ -75,7 +75,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests beautifulsoup4 lxml openpyxl
+          pip install -r requirements.txt
 
       - name: Connect to Tailscale
         uses: tailscale/github-action@v3
@@ -127,68 +127,7 @@ jobs:
           git add docs/data/recalls.xlsx docs/data/gap_finder_gr/
           if git diff --cached --quiet; then
             echo "No changes to commit."
-            exit 0
-          fi
-          git commit -m "Greek gap finder: $(date -u +%Y-%m-%d) auto-update"
-
-          # ── Race-safe push ────────────────────────────────────────────
-          # Multiple data-writer workflows (other gap-finders, NA collector,
-          # news-feed, merge-master) push to main concurrently. A naive
-          # `git push` loses to whoever pushed first with:
-          #   ! [rejected] main -> main (fetch first)
-          # Binary xlsx files can't be git-merged, so on rejection we:
-          #   1. stash our just-committed xlsx (soft reset keeps it staged)
-          #   2. pull the remote (fast-forward — gets others' rows)
-          #   3. re-apply OUR rows via pipeline.xlsx_merge (row-union, never
-          #      clobbers existing rows — same module fsis-url-guardian +
-          #      merge-master use)
-          #   4. re-commit + retry push
-          # Up to 5 attempts. This mirrors the row-union protection used by
-          # every other xlsx writer in the repo; gap-finders previously
-          # lacked it, which is the bug that caused the rejected push.
-          PUSHED=0
-          for attempt in 1 2 3 4 5; do
-            if git push; then
-              echo "✓ pushed on attempt $attempt"
-              PUSHED=1
-              break
-            fi
-            echo "push attempt $attempt rejected — syncing remote and row-merging"
-
-            # Save our xlsx aside, hard-reset to remote, row-union merge back.
-            cp docs/data/recalls.xlsx /tmp/ours_recalls.xlsx
-            git reset --hard HEAD~1            # drop our commit, keep history clean
-            git pull --rebase --autostash origin main || git pull --no-rebase origin main
-
-            # Row-union our rows back into the freshly-pulled xlsx.
-            # xlsx_merge CLI is positional: <remote> <ours> <out>.
-            # After the pull, docs/data/recalls.xlsx IS the remote copy;
-            # /tmp/ours_recalls.xlsx holds the rows we just produced.
-            # Exit code 3 = no-shrink canary tripped (merge would lose
-            # rows) — treat as hard failure, do NOT clobber with our copy.
-            set +e
-            python -m pipeline.xlsx_merge \
-                docs/data/recalls.xlsx \
-                /tmp/ours_recalls.xlsx \
-                docs/data/recalls.xlsx
-            MERGE_RC=$?
-            set -e
-            if [ "$MERGE_RC" -eq 0 ]; then
-              echo "  row-union merge ok"
-            elif [ "$MERGE_RC" -eq 3 ]; then
-              echo "  ✗ xlsx_merge no-shrink canary tripped — aborting" >&2
-              exit 1
-            else
-              echo "  ✗ xlsx_merge failed (rc=$MERGE_RC) — aborting" >&2
-              exit 1
-            fi
-
-            git add docs/data/recalls.xlsx docs/data/gap_finder_gr/
-            git commit -m "Greek gap finder: $(date -u +%Y-%m-%d) auto-update (merge attempt $attempt)"
-            sleep $((attempt * 2))
-          done
-
-          if [ "$PUSHED" -ne 1 ]; then
-            echo "✗ push failed after 5 attempts" >&2
-            exit 1
+          else
+            git commit -m "Greek gap finder: $(date -u +%Y-%m-%d) auto-update"
+            git push
           fi
