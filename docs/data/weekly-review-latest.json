@@ -1,8 +1,8 @@
 {
   "week_end": "2026-06-18",
-  "generated_utc": "2026-06-11T19:35:57+00:00",
-  "row_count": 7,
-  "tier1_count": 6,
+  "generated_utc": "2026-06-12T02:19:35+00:00",
+  "row_count": 8,
+  "tier1_count": 7,
   "outbreak_count": 1,
   "dissent_count": 0,
   "rows": [
@@ -65,7 +65,7 @@
       "Notes": "carrefour market vannes-tohannic uniquement [url-gate 2026-06-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-11: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Brand→Unbranded; placeholder_company_filled_from_page | fix; company mismatch | Company was empty in the row but found on the page; Brand]",
       "DateAdded": "2026-06-11",
       "LastUpdated": "2026-06-11",
-      "LastChecked": "",
+      "LastChecked": "2026-06-10",
       "Week_Added": "2026-06-18",
       "Reviewed": "N"
     },
@@ -87,6 +87,27 @@
       "DateAdded": "2026-06-11",
       "LastUpdated": "2026-06-11",
       "LastChecked": "",
+      "Week_Added": "2026-06-18",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-06-10",
+      "Source": "EFET (GR)",
+      "Company": "Γ. ΠΑΝΑΓΙΩΤΟΠΟΥΛΟΣ - Ι. ΜΠΑΚΑΤΣΙΑΣ Ο.Ε. ΙΧΘΥΟΚΑΛΛΙΕΡΓΕΙΑ (G. Panagiotopoulos - I. Bakatsias General Partnership / Aquaculture)",
+      "Brand": "FRÉSKOS",
+      "Product": "Φιλέτο καπνιστής μαριναρισμένης πέστροφας (Smoked marinated trout fillet) — commercial name \"FRÉSKOS, με λάδι, λεμόνι και πολύχρωμο πιπέρι, με φυσικό κάπνισμα ξύλου οξιάς, πλούσιο σε Ω3\" (with oil, lemon, multi-coloured pepper, naturally smoked with beech wood, rich in Ω3). Production date 2026-02-03; use-by date 2026-09-01. Manufactured and packaged in Greece at 13ο χλμ. Καρπενησίου-Προυσού, Καρπενήσι 36100 (13th km Karpenisi-Prousos road, Karpenisi).",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "EFET Regional Directorate of Thessaly conducted sampling under the 2026 Official Microbiological Criteria for Food Safety Monitoring Programme. Sample analyzed at the Thessaloniki Food Testing & Research Laboratory (Δ/νση Εργαστηριακών Δομών του ΕΦΕΤ). Listeria monocytogenes detected. EFET ordered immediate recall of the entire batch from market.",
+      "Class": "Class I",
+      "Country": "Greece",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5396-deltio-typou-anaklisi-marinarismenis-kapnistis-pestrofas-logo-parousias-tou-pathogonou-mikroorganismoy-listeria-monocytogenes",
+      "Notes": "EFET press release item 5396. RTE smoked/marinated fish — high-severity matrix for Listeria monocytogenes (no kill step before consumption; risk to pregnant women, immunocompromised, elderly). Manual operator add 2026-06-12 — EFET site returns HTTP 409 to automated fetches (recurring scraper gap). Recall verified via multiple Greek news outlets (lifo.gr, iatropedia.gr, enikos.gr, alfavita.gr, pronews.gr, therapeftis.eu, emakedonia.gr, news.gr, thetoc.gr) all reporting around 2026-06-10. Second EFET item this month (previous: item 5393 Barba Stathis Maroulenia salad / Listeria, 2026-06-02). Aquaculture-origin trout (Καρπενήσι, Thessaly region).",
+      "DateAdded": "2026-06-12",
+      "LastUpdated": "2026-06-12",
+      "LastChecked": "2026-06-12",
       "Week_Added": "2026-06-18",
       "Reviewed": "N"
     },
