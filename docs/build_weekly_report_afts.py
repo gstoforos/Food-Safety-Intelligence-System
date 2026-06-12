@@ -68,6 +68,15 @@ _PATHOGEN_SYNONYMS = {
     "Mouse contamination":                                 "Rodent contamination",
     # Aflatoxin
     "Aflatoxins":                                          "Aflatoxin",
+    # Ochratoxin — merge bare "Ochratoxin" (rare untyped mention) and
+    # "Ochratoxin A" (the specific congener that drives almost every recall)
+    # into a single bucket per audit 2026-06-12. Splitting them across two
+    # rows in the pathogen-distribution table fragments what is operationally
+    # one hazard class.
+    "Ochratoxin":                                          "Ochratoxin / Ochratoxin A",
+    "Ochratoxin A":                                        "Ochratoxin / Ochratoxin A",
+    "Ochratoxine A":                                       "Ochratoxin / Ochratoxin A",
+    "OTA":                                                 "Ochratoxin / Ochratoxin A",
     # Bacillus cereus / cereulide
     "Bacillus cereus / cereulide":                         "Bacillus cereus / Cereulide",
     "Bacillus cereus (cereulide)":                         "Bacillus cereus / Cereulide",
@@ -611,6 +620,11 @@ def compute_stats(wr, pr):
     tier1 = sum(1 for r in wr if _safe_int(r.get("Tier")) == 1)
     outbreaks = sum(1 for r in wr if _safe_int(r.get("Outbreak")) == 1)
     pc = Counter(); cc = Counter()
+    cs = {}  # country → set of Source labels — used by geographic-table
+             # builder to choose the right "Authority" label per row. Audit
+             # 2026-06-12: countries like Türkiye, India, Uganda, Egypt
+             # appear only because RASFF (EU) notified about imports from
+             # them — they should NOT be labeled "National Authority".
     for r in wr:
         p = (r.get("Pathogen") or "").strip()
         # Audit 2026-05-15: previously this site did
@@ -623,7 +637,14 @@ def compute_stats(wr, pr):
         # paren-stripping logic and runs once, here.
         if p:
             pc[_consolidate_pathogen_label(p)] += 1
-        cc[_country_display(r.get("Country","") or "Unknown")] += 1
+        country = _country_display(r.get("Country","") or "Unknown")
+        cc[country] += 1
+        # Track every source label that reported this country in the window —
+        # used by the geographic-table builder to disambiguate "issued by
+        # national authority" from "RASFF EU origin country", etc.
+        src = str(r.get("Source") or "").strip()
+        if src:
+            cs.setdefault(country, set()).add(src)
     pt = len(pr); delta = total - pt
     # Apply synonym consolidation BEFORE deriving top_pathogen so the KPI
     # banner and the distribution table never disagree.
@@ -631,6 +652,7 @@ def compute_stats(wr, pr):
     return {"total":total,"tier1":tier1,"outbreaks":outbreaks,
             "top_pathogen":pc_consolidated.most_common(1)[0] if pc_consolidated else ("\u2014",0),
             "pathogen_counts":pc_consolidated.most_common(20),"country_counts":cc.most_common(20),
+            "country_sources":cs,
             "prev_total":pt,"delta":delta,
             "delta_pct":round(delta/max(pt,1)*100) if pt else 0}
 
@@ -761,13 +783,18 @@ def _pathogen_narrative(pathogen, pct):
                 "authority oversight.").format(intensity=intensity)
 
     if "salmonella" in p:
-        return ("Salmonella {intensity} is most consistent with raw-ingredient cross-"
-                "contamination or a breakdown in low-moisture-food controls (peanut butter, "
-                "flour, spices, herbs, infant formula). The likely failure modes are "
-                "raw-ingredient sourcing gaps, cross-contamination at wet-dry transitions, "
-                "and insufficient time-temperature control. The relevant frameworks are "
-                "21 CFR 117 Preventive Controls, HACCP critical limits on any validated "
-                "kill step, and supplier-verification programmes.").format(intensity=intensity)
+        return ("Salmonella {intensity} is consistent with raw-ingredient "
+                "contamination spanning multiple commodity classes \u2014 produce, "
+                "meat and poultry, dairy and soft cheese, nuts and seeds, spices "
+                "and dried herbs, and low-moisture foods (peanut butter, flour, "
+                "infant formula). The common-cause pattern points to gaps in "
+                "supplier-verification, post-process recontamination control, "
+                "validated kill-step parameters, and produce/meat handling "
+                "hygiene rather than a single-commodity failure. The relevant "
+                "frameworks are 21 CFR 117 Preventive Controls, HACCP critical "
+                "limits on any validated kill step, supplier-verification "
+                "programmes, and the FDA Produce Safety Rule (21 CFR 112) where "
+                "applicable.").format(intensity=intensity)
 
     if "stec" in p or "e. coli" in p or "escherichia" in p:
         return ("E. coli / STEC {intensity} is most consistent with raw beef, leafy greens, "
@@ -1135,8 +1162,10 @@ def _process_authority_note(recalls, bot):
                 "against worst-case soil load, equipment hollows harbouring "
                 "persistent strains, and post-lethality recontamination pathways "
                 "not mapped. Tier-1 classification with RTE product categories "
-                "routinely triggers an EMP audit and formal inspection-findings "
-                "issuance by {regulators}."
+                "may trigger targeted regulatory follow-up by {regulators}, "
+                "including environmental monitoring (EMP) audits, Zone 1\u20134 "
+                "sampling verification, and review of post-lethality control "
+                "programmes on the subsequent inspection."
                 ).format(ip=_count_phrase(len(lst), "Listeria monocytogenes incident"),
                          co=_names(lst),
                          primary=regs["primary"], parallels=regs["parallels"],
@@ -1166,8 +1195,9 @@ def _process_authority_note(recalls, bot):
                 "sanitary design at post-kill-step transitions, and the absence "
                 "of a documented environmental-monitoring programme for the "
                 "dry side. Tier-1 classification in this product class "
-                "routinely triggers a kill-step revalidation and formal "
-                "inspection-findings issuance by {regulators}."
+                "may trigger targeted regulatory follow-up by {regulators}, "
+                "including kill-step revalidation requests and review of "
+                "supplier-verification programmes on the subsequent inspection."
                 ).format(ip=_count_phrase(len(sal_lm), "Salmonella incident"),
                          co=_names(sal_lm),
                          primary=regs["primary"], parallels=regs["parallels"],
@@ -1217,8 +1247,10 @@ def _process_authority_note(recalls, bot):
                 "time-temperature CCPs on hot-hold and cook-chill programmes "
                 "insufficiently monitored, and sprout-seed treatment "
                 "protocols unvalidated. Tier-1 STEC classification in these "
-                "product categories routinely triggers formal enforcement "
-                "action by {regulators}."
+                "product categories may trigger targeted regulatory follow-up "
+                "by {regulators}, including verification of cook-chill "
+                "temperature controls, post-harvest wash-water chemistry, and "
+                "sprout-seed treatment protocols on the subsequent inspection."
                 ).format(ip=_count_phrase(len(stec), "E. coli (STEC / shiga-toxin-producing) incident"),
                          co=_names(stec),
                          primary=regs["primary"], parallels=regs["parallels"],
@@ -1991,6 +2023,30 @@ def build_html(week_end, recalls, prev_week, original_published=None):
     final = review_with_claude(raw)
 
     paras = [p.strip() for p in final.strip().split("\n\n") if p.strip()]
+
+    # Sanitize light markdown that Claude sometimes returns despite system
+    # instructions for clean HTML output (audit 2026-06-12):
+    #   - strip leading "# ..." H1 lines (e.g. "# Food Safety Analysis – Weekly Report"
+    #     leaked into W24 page 1)
+    #   - convert *italic* runs (e.g. "*Listeria monocytogenes*", "*Listeria*")
+    #     to <em>...</em>
+    # The sanitizer runs BEFORE the PA-note classifier so heading lines don't
+    # accidentally land in the regulatory paragraph; the <em> conversion runs
+    # AFTER esc() so the angle brackets pass through HTML-escape untouched.
+    def _strip_md_heading(p):
+        # Remove a leading "# ..." H1 line; keep the rest of the paragraph.
+        return re.sub(r"^\s*#{1,6}\s+[^\n]*\n?", "", p, count=1)
+
+    def _md_em(s):
+        # *text* → <em>text</em>. Only single asterisks; ignore ** (bold).
+        # Negative lookarounds reject literal asterisks inside words and
+        # leading/trailing whitespace inside the run.
+        return re.sub(r"(?<!\*)\*([^\s*][^*\n]*?[^\s*]|[^\s*])\*(?!\*)",
+                      r"<em>\1</em>", s)
+
+    paras = [_strip_md_heading(p) for p in paras]
+    paras = [p.strip() for p in paras if p.strip()]   # re-filter empties
+
     pa_html = ""; reg = []
     for p in paras:
         pl = p.lower()
@@ -2007,10 +2063,10 @@ def build_html(week_end, recalls, prev_week, original_published=None):
             ("multi-jurisdiction" in pl and ("escalate" in pl or "import-alert" in pl))
         )
         if is_pa:
-            pa_html = '<p class="pa-note"><span class="pa-label">Process Authority Note:</span> ' + esc(p) + '</p>'
+            pa_html = '<p class="pa-note"><span class="pa-label">Process Authority Note:</span> ' + _md_em(esc(p)) + '</p>'
         else:
             reg.append(p)
-    analysis = "\n".join("  <p>{}</p>".format(esc(p)) for p in reg)
+    analysis = "\n".join("  <p>{}</p>".format(_md_em(esc(p))) for p in reg)
     if pa_html: analysis += "\n" + pa_html
 
     t5rows = "\n".join(_recall_row(i+1, r, 5) for i,r in enumerate(sr[:5]))
@@ -2036,9 +2092,35 @@ def build_html(week_end, recalls, prev_week, original_published=None):
     if not prows: prows = '        <tr><td class="empty" colspan="4">No pathogen data</td></tr>\n'
 
     crows = ""
+    country_sources = stats.get("country_sources") or {}
     for country, cnt in stats["country_counts"]:
         pct = round(cnt/max(total,1)*100)
-        auth = GEO_AUTHORITY.get(country, "National Authority")
+        # Authority-column logic (audit 2026-06-12 — auditor flagged that
+        # third-country origins like Türkiye, India, Uganda, Egypt were
+        # mislabeled "National Authority" when the actual notifier was
+        # RASFF (EU) reporting on imports from those countries):
+        #
+        #   1. Country IS in GEO_AUTHORITY → use that label (the named
+        #      national/regional authority is the one that issued the
+        #      recall or notice for this country's product).
+        #   2. Country is NOT in GEO_AUTHORITY → look up which Source(s)
+        #      reported this country in the window:
+        #        - If ANY source mentions "rasff" → "RASFF (EU) — origin"
+        #          (the EU's Rapid Alert System for Food and Feed notified
+        #          about an import from this third country)
+        #        - Else if a single recognisable source dominates → use it
+        #          (e.g. CDC for a multi-state outbreak attributed to a
+        #          single origin country)
+        #        - Else "—" (em-dash; honest "no single notifying authority")
+        srcs = country_sources.get(country, set())
+        if country in GEO_AUTHORITY:
+            auth = GEO_AUTHORITY[country]
+        elif any("rasff" in s.lower() for s in srcs):
+            auth = "RASFF (EU) \u2014 origin"
+        elif len(srcs) == 1:
+            auth = next(iter(srcs))
+        else:
+            auth = "\u2014"
         crows += '        <tr>\n          <td>{}</td>\n          <td>{}</td>\n          <td class="num">{}</td>\n          <td class="num">{}%</td>\n        </tr>\n'.format(esc(country), esc(auth), cnt, pct)
     if not crows: crows = '        <tr><td class="empty" colspan="4">No geographic data</td></tr>\n'
 
