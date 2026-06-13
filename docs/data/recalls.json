@@ -128,6 +128,38 @@
   "Notes": "[RASFF #2026.5192; classification: information notification for attention; category: nuts, nut products and seeds; notifId=850740] [gemini-enrich 2026-06-12: Brand '—'→'NLD'] [gemini-check 2026-06-12: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
+  "Date": "2026-06-11",
+  "Source": "RappelConso (FR)",
+  "Company": "SAS L'ARQUEBUSE",
+  "Brand": "Unbranded",
+  "Product": "araignees de porc provencale",
+  "Pathogen": "Salmonella",
+  "Reason": "Presence of Salmonella",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22532/Interne",
+  "Notes": "super u [url-gate 2026-06-13: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-13: Company ''→\"SAS L'ARQUEBUSE\"] [claude-check 2026-06-13: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-06-11",
+  "Source": "FDA",
+  "Company": "Total Nutrition Inc.",
+  "Brand": "TNVitamins and Doctor’s Pride",
+  "Product": "TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor’s Pride Complete Green Superfood capsules",
+  "Pathogen": "Salmonella",
+  "Reason": "Possible Salmonella Contamination",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0",
+  "Notes": "FDA listing HTML (Layer 1) [claude-check 2026-06-13: pass; pass | All fields match page content. Salmonella in dietary supplement (non-RTE food category, but pathogen is Tier-1 sc]"
+ },
+ {
   "Date": "2026-06-10",
   "Source": "EFET (GR)",
   "Company": "Γ. ΠΑΝΑΓΙΩΤΟΠΟΥΛΟΣ - Ι. ΜΠΑΚΑΤΣΙΑΣ Ο.Ε. ΙΧΘΥΟΚΑΛΛΙΕΡΓΕΙΑ (G. Panagiotopoulos - I. Bakatsias General Partnership / Aquaculture)",
@@ -270,6 +302,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850370",
   "Notes": "[RASFF #2026.5122; classification: alert notification; category: herbs and spices; notifId=850370] [gemini-enrich 2026-06-12: Brand '—'→'DEU'] [gemini-check 2026-06-12: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-06-10",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Belgium | Notifying: Netherlands",
+  "Brand": "NLD",
+  "Product": "Listeria monocytogenes on Soft sausage from Belgium",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes on Soft sausage from Belgium; risk: serious; category: meat and meat products (other than poultry)",
+  "Class": "Alert",
+  "Country": "Belgium",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850327",
+  "Notes": "[RASFF #2026.5108; classification: alert notification; category: meat and meat products (other than poultry); notifId=850327] [gemini-enrich 2026-06-12: Brand '—'→'NLD'] [claude-check 2026-06-13: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
   "Date": "2026-06-09",
