@@ -35,36 +35,47 @@ PATHOGENS_TIER_1 = {
     "salmonellózis",                                # Hungarian
     "salmonellu",                                   # Icelandic genitive ("vegna salmonellu")
     "salmonellaa", "salmonellan",                   # Finnish partitive/genitive
-    "σαλμονέλα", "σαλμονελα",
+    # Greek Salmonella — stem "σαλμονελ" matches σαλμονέλα/σαλμονέλας/
+    # σαλμονέλες/σαλμονέλλα (double-λ variant) after accent-strip
+    "σαλμονελ", "σαλμονελλ", "σαλμονέλα", "σαλμονελα", "σαλμονέλλα",
     # Listeria monocytogenes → Tier 1
     "listeria monocytogenes", "listeria", "listerien",  # + German plural
     "listeriose", "listeriosi",                     # Italian/French disease forms
     "listerioza",                                   # Polish
     "listeriózis",                                  # Hungarian
-    "λιστέρια", "λιστερια",
+    # Greek Listeria — stem "λιστερι" matches λιστέρια/λιστέριας/
+    # λιστέριες; "λιστεριωσ" matches λιστερίωση/λιστερίωσης (the disease)
+    "λιστερι", "λιστεριωσ", "λιστέρια", "λιστερια", "λιστερίωση",
     # STEC / E. coli O157 → Tier 1
     "stec", "e. coli o157", "e.coli o157", "escherichia coli o157",
+    # Greek STEC / E. coli O157
+    "ε. coli o157", "ο157", "εντεροαιμορραγικ",   # εντεροαιμορραγικό E. coli
+    "σιγκα τοξιν", "σιγκατοξιν",                    # Shiga-toxin transliterations
     "shiga toxin-producing", "shiga-toxin", "shigatoxin",
     "shigatoxinbildende",                           # German (Shiga-toxinbildende E. coli)
     # Bacillus cereus / cereulide → always Tier 1 (locked rule)
     "bacillus cereus", "cereulide", "cereulida",    # ES/PT
-    "κερευλίδη", "κερευλιδη",
+    "κερευλιδ", "κερευλίδη", "κερευλιδη",          # cereulide stem
+    "βακιλλος κερεους", "βάκιλλος κέρεους",        # Bacillus cereus GR
     # Botulism — high severity
     "clostridium botulinum", "botulinum toxin", "botulism",
     "botulismus",                                   # German / Polish / Hungarian
     "botulisme",                                    # French / Dutch
     "botulinumtoxin",                               # German compound
-    "αλλαντίαση", "αλλαντιαση",
+    # Greek botulism — "αλλαντιασ" matches αλλαντίαση/αλλαντίασης;
+    # "κλωστηριδιο" matches κλωστηρίδιο (Clostridium) inflections
+    "αλλαντιασ", "αλλαντίαση", "αλλαντιαση", "κλωστηριδιο βοτουλιν",
     # Other high-severity
     "cronobacter sakazakii", "cronobacter",
+    "κρονοβακτηρ", "κρονομπακτερ",                 # Cronobacter GR transliterations
 }
 
 PATHOGENS_TIER_2 = {
-    "campylobacter", "καμπυλοβακτηρίδιο", "καμπυλοβακτηριδιο",
-    "yersinia", "γερσίνια", "γερσινια",
-    "shigella", "σιγκέλλα", "σιγκελλα",
-    "staphylococcus aureus", "σταφυλόκοκκος",
-    "norovirus", "νοροϊός", "νοροιος", "norwalk virus",
+    "campylobacter", "καμπυλοβακτηρι",   # stem → καμπυλοβακτηρίδιο/-ίου
+    "yersinia", "γερσινι", "ιερσινι",   # stem (both γ/ι transliterations)
+    "shigella", "σιγκελλ", "σιγκέλλα", "σιγκελλα", "σιγελλ",   # stems
+    "staphylococcus aureus", "σταφυλοκοκκ",   # stem → σταφυλόκοκκος/-ου
+    "norovirus", "νοροι", "νοροϊ", "νοροϊός", "νοροιος", "norwalk virus",   # stems
     # Hepatitis A & E — foodborne viruses
     "hepatitis a", "ηπατίτιδα α", "ηπατιτιδα α",
     "hepatitis a virus", "hav",
@@ -84,9 +95,9 @@ PATHOGENS_TIER_2 = {
     # Rotavirus
     "rotavirus",                                                 # same in all our languages
     "clostridium perfringens",
-    "vibrio", "δονακιοειδή", "δονακιοειδη",
+    "vibrio", "βιβρι", "δονακιοειδ", "δονακιοειδή", "δονακιοειδη",   # stems
     # Generic E. coli without O157 specification → Tier 2 by default
-    "e. coli", "e.coli", "escherichia coli", "κολοβακτηρίδιο", "κολοβακτηριδιο",
+    "e. coli", "e.coli", "escherichia coli", "κολοβακτηρι",   # stem → κολοβακτηρίδιο/-ίου/-ίδια
 }
 
 # ACCEPT — microbial-origin toxins (mycotoxins)
