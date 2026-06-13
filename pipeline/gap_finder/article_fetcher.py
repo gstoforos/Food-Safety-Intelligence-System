@@ -1,4 +1,4 @@
-"""
+r"""
 AFTS Food Safety Intelligence — Gap Finder
 News article fetcher (parametric, parallel, TLS-impersonated).
 
@@ -102,6 +102,15 @@ try:
 except ImportError:
     from gap_finder.countries import get as get_country           # type: ignore
     from gap_finder.countries.base import CountryConfig           # type: ignore
+
+# Google News URL resolver — converts news.google.com/rss/articles/<token>
+# links into the real publisher URL BEFORE we fetch the body. Without this,
+# every Google-News-sourced candidate fetches the GN JS-redirect shell
+# (~150 chars, no article text) and Stage 2 reports `HTTP fetched ok: 0`.
+try:
+    from . import gnews_resolver
+except ImportError:
+    import pipeline.gap_finder.gnews_resolver as gnews_resolver    # type: ignore
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -327,10 +336,21 @@ def _fetch_via_requests(
 def fetch_html(url: str, cfg: CountryConfig) -> tuple[str, str, str]:
     """Fetch URL, follow redirects. Returns (resolved_url, html, status).
 
-    Tries curl_cffi (Chrome 131 TLS) first; falls back to stdlib `requests`
-    only when curl_cffi is unavailable. The latter rarely succeeds against
-    modern news sites — it's there for graceful degradation, not parity.
+    Step 0: if this is a Google News redirector link, resolve it to the real
+    publisher URL first (GN links serve a JS shell, not the article, when
+    fetched server-side). If resolution fails we fall back to the GN URL
+    itself (no worse than before).
+
+    Then: try curl_cffi (Chrome 131 TLS); fall back to stdlib `requests`
+    only when curl_cffi is unavailable.
     """
+    # Step 0 — resolve Google News redirector → real article URL.
+    if gnews_resolver.is_google_news_url(url):
+        real = gnews_resolver.resolve(url)
+        if real:
+            url = real
+        # if real == "" we keep the GN url and let the fetch try anyway
+
     _throttle_domain(url)
 
     resolved_url, html, status = _fetch_via_curl_cffi(url, cfg)
@@ -435,11 +455,28 @@ def parse_published_to_iso(published: str) -> str:
 # PER-CANDIDATE PROCESSING
 # ─────────────────────────────────────────────────────────────────────────────
 
-def enrich_candidate(cand: dict, cfg: CountryConfig) -> EnrichedCandidate:
+def enrich_candidate(cand: dict, cfg: CountryConfig,
+                     verbose: bool = False) -> EnrichedCandidate:
     """Fetch article body for one candidate, return enriched record."""
     url = cand.get("url", "")
+
+    # Diagnostic: show the GN→real resolution explicitly so Stage 2 failures
+    # are visible per-URL instead of hidden behind an aggregate counter.
+    if verbose:
+        is_gn = gnews_resolver.is_google_news_url(url)
+        if is_gn:
+            real = gnews_resolver.resolve(url)
+            tag = f"GN→{real[:70]}" if real else "GN→UNRESOLVED"
+            print(f"    [fetch] {tag}", file=sys.stderr)
+        else:
+            print(f"    [fetch] direct→{url[:70]}", file=sys.stderr)
+
     resolved_url, html, status = fetch_html(url, cfg)
     body = extract_body(html) if html else ""
+
+    if verbose:
+        print(f"    [fetch]   status={status} body={len(body)} chars "
+              f"final={resolved_url[:60]}", file=sys.stderr)
 
     return EnrichedCandidate(
         news_url=url,
@@ -476,7 +513,8 @@ def enrich_all(
     completed = 0
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-        futures = {ex.submit(enrich_candidate, c, cfg): c for c in candidates}
+        futures = {ex.submit(enrich_candidate, c, cfg, verbose): c
+                   for c in candidates}
         for fut in as_completed(futures):
             cand = futures[fut]
             try:
