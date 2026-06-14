@@ -994,7 +994,92 @@ def _is_clean_row(row: Dict[str, Any]) -> bool:
     notes = str(row.get("Notes") or "")
     if "[gemini-enrich " not in notes and "[gemini-gate-passed " not in notes:
         return False
+    # FINAL GATE — Pathogen/Reason hazard-class cross-check (audit 2026-06-14)
+    # Caught 3 FSANZ rows where Gemini default-tagged Pathogen as "Listeria
+    # monocytogenes" but Reason contradicted (Allen's foreign matter, Mama
+    # Nayture unintended fermentation, ASO United Nitrofurazone chemical).
+    # All three passed the gemini-check shortcut without verification.
+    reason = str(row.get("Reason") or "").strip()
+    if _pathogen_reason_class_mismatch(pathogen, reason):
+        return False
     return True
+
+
+# ─── Hazard-class classifier for the cross-check guard above ─────────────────
+_HAZARD_CLASS_KEYWORDS = {
+    "biological": (
+        "listeria", "salmonella", "shiga toxin", "shigatoxi", "stec", "vtec",
+        "e. coli", "ecoli", "escherichia", "botulinum", "botulism",
+        "campylobacter", "shigella", "bacillus cereus", "cereulide",
+        "staphylococcus", "staphyloc", "enterotoxin",
+        "norovirus", "norwalk", "hepatitis a", "hav",
+        "yersinia", "vibrio", "clostridium perfringens",
+        "cronobacter", "enterobacter", "enterohaem",
+    ),
+    "physical": (
+        "foreign matter", "foreign material", "foreign body",
+        "physical contamination", "physical hazard",
+        "pieces of glass", "pieces of metal", "pieces of plastic",
+        "metal fragment", "plastic fragment", "glass fragment",
+        "rubber fragment", "wood fragment", "stone fragment",
+        "shard", "splinter",
+    ),
+    "chemical": (
+        "chemical contaminant", "chemical residue", "pesticide", "fungicide",
+        "herbicide", "rodenticide", "antibiotic", "veterinary",
+        "nitrofurazone", "chloramphenicol", "sulphonamide", "sulfonamide",
+        "semicarbazide", " sem ", " sem)", " sem,",
+        "histamine",
+        "heavy metal", " lead ", " mercury ", " cadmium ", " arsenic ",
+        "dioxin", "pcb", "acrylamide", "perchlorate", "melamine",
+        "ethylene oxide", "chlorate",
+    ),
+    "mycotoxin": (
+        "aflatoxin", "ochratoxin", "patulin", "fumonisin",
+        "deoxynivalenol", " don ", "zearalenone", "mycotoxin", "alternaria",
+    ),
+    "fermentation": (
+        "unintended fermentation", "yeast contamination", "wild yeast",
+        "spoilage", "alcohol formation", "co2 formation", "fermenting",
+    ),
+    "biotoxin": (
+        "saxitoxin", "tetrodotoxin", "marine biotoxin", "ciguatoxin",
+        "domoic acid", "okadaic acid", "azaspiracid", "palytoxin",
+        "paralytic shellfish", "amnesic shellfish", "diarrhetic shellfish",
+        "psp toxin", "asp toxin", "dsp toxin",
+    ),
+}
+
+
+def _classify_hazard(text: str) -> set:
+    """Return set of hazard classes whose keywords appear in `text`."""
+    if not text:
+        return set()
+    s = " " + text.lower() + " "
+    classes = set()
+    for cls, kws in _HAZARD_CLASS_KEYWORDS.items():
+        for kw in kws:
+            if kw in s:
+                classes.add(cls)
+                break
+    return classes
+
+
+def _pathogen_reason_class_mismatch(pathogen: str, reason: str) -> bool:
+    """True if Pathogen and Reason describe DIFFERENT hazard classes.
+
+    Conservative: returns False whenever EITHER field is unclassifiable,
+    OR whenever the classes overlap. Only flags clear mismatches where
+    one field is biological and the other is physical/chemical/
+    mycotoxin/fermentation/biotoxin without any shared class.
+
+    Returning True forces Claude verification (clean-row shortcut bypassed).
+    """
+    p_cls = _classify_hazard(pathogen)
+    r_cls = _classify_hazard(reason)
+    if not p_cls or not r_cls:
+        return False
+    return len(p_cls & r_cls) == 0
 
 
 # ─────────────────────────────────────────────────────────────────────────────
