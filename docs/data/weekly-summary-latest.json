@@ -8,17 +8,17 @@
   "week_end": "2026-06-11",
   "week_start_display": "5 Jun",
   "week_end_display": "11 Jun 2026",
-  "generated_utc": "2026-06-12T06:35:02.713723+00:00",
+  "generated_utc": "2026-06-14T18:18:38.507437+00:00",
   "stats": {
-    "total": 45,
-    "tier1": 34,
+    "total": 54,
+    "tier1": 39,
     "outbreaks": 1,
-    "delta": -15,
-    "delta_pct": -25
+    "delta": -9,
+    "delta_pct": -14
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 14,
+    "cases": 17,
     "pct": 31
   },
   "ai_lead_paragraph": "",
@@ -44,6 +44,20 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
+      "company": "Origin: Brazil | Notifying: Netherlands",
+      "brand": "IRL",
+      "product": "Listeria monocytogenes in steam cooked chicken breast from Brazil via Ireland",
+      "country": "Brazil",
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850292"
+    },
+    {
+      "rank": 3,
+      "date": "2026-06-11",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
       "company": "CARREFOUR FRANCE CARREFOUR",
       "brand": "Unbranded",
       "product": "tomme de brebis fichous emballé en magasin",
@@ -52,7 +66,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22519/Interne"
     },
     {
-      "rank": 3,
+      "rank": 4,
       "date": "2026-06-11",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -66,33 +80,19 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22526/Interne"
     },
     {
-      "rank": 4,
-      "date": "2026-06-11",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Mama Nayture Pty Ltd",
-      "brand": "Drink Purple",
-      "product": "Drink Purple 60ml and 350ml",
-      "country": "Australia",
-      "source": "FSANZ (AU)",
-      "url": "https://www.foodstandards.gov.au/food-recalls/recall-alert/mama-nayture-pty-ltd-drink-purple-60ml-and-350ml"
-    },
-    {
       "rank": 5,
       "date": "2026-06-10",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Γ. ΠΑΝΑΓΙΩΤΟΠΟΥΛΟΣ - Ι. ΜΠΑΚΑΤΣΙΑΣ Ο.Ε. ΙΧΘΥΟΚΑΛΛΙΕΡΓΕΙΑ (G. Panagiotopoulos - I. Bakatsias General Partnership / Aquaculture)",
-      "brand": "FRÉSKOS",
-      "product": "Φιλέτο καπνιστής μαριναρισμένης πέστροφας (Smoked marinated trout fillet) — commercial name \"FRÉSKOS, με λάδι, λεμόνι και πολύχρωμο πιπέρι, με φυσικό κάπνισμα ξύλου οξιάς, πλούσιο σε Ω3\" (with oil, lemon, multi-coloured pepper, naturally smoked with beech wood, rich in Ω3). Production date 2026-02-03; use-by date 2026-09-01. Manufactured and packaged in Greece at 13ο χλμ. Καρπενησίου-Προυσού, Καρπενήσι 36100 (13th km Karpenisi-Prousos road, Karpenisi).",
-      "country": "Greece",
-      "source": "EFET (GR)",
-      "url": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5396-deltio-typou-anaklisi-marinarismenis-kapnistis-pestrofas-logo-parousias-tou-pathogonou-mikroorganismoy-listeria-monocytogenes"
+      "company": "Origin: Belgium | Notifying: Netherlands",
+      "brand": "NLD",
+      "product": "Listeria monocytogenes on Soft sausage from Belgium",
+      "country": "Belgium",
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850327"
     }
   ],
-  "country_count": 16
+  "country_count": 19
 }
