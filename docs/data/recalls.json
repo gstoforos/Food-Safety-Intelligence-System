@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-06-14",
+  "Source": "CDC",
+  "Company": "Nara Organics",
+  "Brand": "Nara Organics",
+  "Product": "Nara Organics Whole Milk Organic Infant Formula",
+  "Pathogen": "Clostridium botulinum",
+  "Reason": "Clostridium botulinum — outbreak",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.cdc.gov/botulism/outbreaks-investigations/infant-formula-june-2026/index.html",
+  "Notes": "Infant Botulism Outbreak Linked to Powdered Infant Formula, June 2026 | Botulism | CDC\n\n# Infant Botulism Outbreak Linked to Powdered Infant Formula, June 2026\n\nFor Everyone\n\nJune 13, 2026\n\n## Key points\n\nInvestigation status: Open\n\nRecall issued: Yes\n\n- CDC, FDA, the Infant Botulism Treatment and P  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-06-14: pending_gap → pending_gap_v1] [gemini-check 2026-06-14: fix; corrections: Company→Nara Organics, Brand→Nara Organics, Product→Nara Organics Whole Milk Organic Infant ; fix; company mismatch; product mismatch | Company, Brand, and Product fields contained page title text and were correcte] [gap-gate 2026-06-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-06-13",
   "Source": "FSANZ (AU)",
   "Company": "ASO United Pty Ltd",
@@ -14,6 +30,38 @@
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/aso-united-pty-ltd-cooked-scampi-shrimp-head-shell-1kg",
   "Notes": "[gemini-enrich 2026-06-13: Brand '—'→'ASO United'] [gemini-check 2026-06-13: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-06-13",
+  "Source": "CDC",
+  "Company": "Nara Organics",
+  "Brand": "Nara Organics",
+  "Product": "Nara Organics Whole Milk Organic Infant Formula",
+  "Pathogen": "Clostridium botulinum",
+  "Reason": "Clostridium botulinum — outbreak",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.cdc.gov/botulism/outbreaks-investigations/infant-formula-june-2026/investigation.html",
+  "Notes": "# Investigation Update on Infant Botulism Outbreak, June 2026 | Botulism | CDC\n\nPublished: 2026-06-14T03:14:03+00:00\nSource: cdc.gov (cdc.gov)\nLanguage: en\n\n## Story\n\nInvestigation Update on Infant Botulism Outbreak, June 2026 | Botulism | CDC\n\n# Investigation Update on Infant Botulism Outbreak, Jun  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-06-14: pending_gap → pending_gap_v1] [gemini-check 2026-06-14: fix; corrections: Date→2026-06-13, Company→Nara Organics, Brand→Nara Organics, Product→Nara Organics Whole Milk Organic Infant ; fix; company mismatch; product mismatch; date on page=2026-06-13 | Date, Company, Brand, and Product corrected based on ] [gap-gate 2026-06-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
+  "Date": "2026-06-13",
+  "Source": "CDC",
+  "Company": "Nara Organics",
+  "Brand": "Nara Organics",
+  "Product": "Whole Milk Organic Infant Formula",
+  "Pathogen": "Clostridium botulinum",
+  "Reason": "Clostridium botulinum — outbreak",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.cdc.gov/media/releases/2026/infant-botulism-outbreak-linked-to-powdered-infant-formula-june-2026.html",
+  "Notes": "# CDC Outbreak Update: Infant Botulism Linked to Powdered Infant Formula | CDC Newsroom\n\nPublished: 2026-06-14T01:41:15+00:00\nSource: cdc.gov (cdc.gov)\nLanguage: en\n\n## Story\n\nCDC Outbreak Update: Infant Botulism Linked to Powdered Infant Formula | CDC Newsroom\n\n# CDC Outbreak Update: Infant Botulis  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-06-14: pending_gap → pending_gap_v1] [gemini-check 2026-06-14: fix; corrections: Date→2026-06-13, Company→Nara Organics, Brand→Nara Organics, Product→Whole Milk Organic Infant Formula, Pathogen→Clostridium botulinum; fix; company mismatch; product mismatch; date on page=2026-06-13 | Date, Company, Brand, and Product fields contain page] [gap-gate 2026-06-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-06-12",
