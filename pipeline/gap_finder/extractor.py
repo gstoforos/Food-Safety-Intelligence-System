@@ -51,7 +51,13 @@ DEFAULT_REJECTED_OUT = "docs/data/gap_finder_gr/rejected_records.jsonl"
 # Hard cap on EFET body length sent to the LLM (prevents context overflow on
 # unusually long announcements). Qwen 2.5 7B context is 32K but llama-server
 # is configured for 8K. Leave ~2K for prompt + response.
-MAX_BODY_CHARS = 6000
+MAX_BODY_CHARS = 1200   # was 6000 — overflowed the Llama server's
+# --ctx-size 4096 when Greek bodies (≈1.5 tok/char) ran long, causing
+# intermittent `LlamaError 400` on /chat/completions. The company, brand,
+# pathogen, product and recall-ID always appear in an EFET notice's lead
+# paragraph, so 1200 chars is sufficient and keeps total tokens (~3800)
+# safely under 4096. See run 27459015513 where 5012-char protothema
+# bodies 400'd while short bodies succeeded.
 
 # Pending sheet columns (locked schema from recalls.xlsx)
 PENDING_COLUMNS = [
@@ -286,7 +292,7 @@ def extract_one(
             messages=messages,
             json_schema=EXTRACTION_SCHEMA,
             temperature=0.0,
-            max_tokens=800,
+            max_tokens=500,   # extraction JSON is small; was 800 — trimmed for 4096-ctx headroom
         )
     except LlamaError as e:
         if verbose:

@@ -25,6 +25,7 @@ import re
 import sys
 import time
 import traceback
+import unicodedata
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -158,9 +159,92 @@ def _append_rows(
     return appended, skipped
 
 
+def _recall_identity(row: dict) -> str:
+    """Content fingerprint for one accepted recall, independent of which news
+    outlet surfaced it. Multiple outlets cover the same EFET recall with
+    different URLs/titles; without this they each become a separate Pending
+    row a reviewer must merge by hand (run 27459015513 produced 7 rows for
+    2 real recalls).
+
+    Priority key: the authority recall ID embedded in Reason
+    (e.g. 'Recall ID 842632') — that's the regulator's own unique handle.
+    Fallback: normalized company + pathogen + first 3 product words.
+    """
+    import re as _re
+
+    def _norm(x: str) -> str:
+        x = (x or "").lower().strip()
+        x = unicodedata.normalize("NFD", x)
+        x = "".join(c for c in x if unicodedata.category(c) != "Mn")
+        return _re.sub(r"\s+", " ", x)
+
+    def _squash(x: str) -> str:
+        # Aggressive: strip ALL non-alphanumeric so company legal-form
+        # variants collapse — "ΜΑΒΕΕ" == "Μ.Α.Β.Ε.Ε." == "Μ.Α.Β.Ε.Ε" — and
+        # outlet-to-outlet spelling/punctuation noise disappears.
+        return _re.sub(r"[^a-z0-9α-ω]", "", _norm(x))
+
+    company_sq = _squash(row.get("Company", ""))
+    pathogen = _norm(row.get("Pathogen", ""))
+
+    # The EFET recall ID is the regulator's own unique handle. When present
+    # AND we have a company, combine them: same company + same bulletin ID =
+    # same recall, regardless of how each outlet worded the product. This
+    # collapses the multi-outlet duplicates that vary company punctuation and
+    # product wording, WITHOUT over-merging two different firms that happen to
+    # appear in one combined bulletin (company is part of the key).
+    reason = row.get("Reason", "") or ""
+    m = _re.search(r"(?:recall\s*id|id|allerta|pratica|αρ\.?\s*παρτιδας)"
+                   r"\s*[:#]?\s*([0-9]{3,})", reason, _re.IGNORECASE)
+    recall_id = m.group(1) if m else ""
+
+    if company_sq and recall_id:
+        return f"cid:{company_sq}|{recall_id}"
+    if company_sq:
+        # No ID — fall back to company + first 2 product words.
+        product = " ".join(_norm(row.get("Product", "")).split()[:2])
+        return f"cp:{company_sq}|{product}"
+    # Empty extraction (LLM-failed rows): keep distinct by URL so a reviewer
+    # sees each one for manual fixing rather than silently merging them.
+    return f"url:{(row.get('URL') or '').strip()}"
+
+
+def _richness(row: dict) -> int:
+    """Score how complete an extraction is, so when collapsing duplicates we
+    keep the best one. LLM-extraction-failed rows (empty company/brand) score
+    lowest and get dropped in favour of a fully-extracted sibling."""
+    score = 0
+    for field in ("Company", "Brand", "Product", "Pathogen", "Region"):
+        v = (row.get(field) or "").strip()
+        if v and "extraction failed" not in v.lower():
+            score += len(v)
+    return score
+
+
+def dedupe_by_recall_identity(rows: list[dict]) -> tuple[list[dict], int]:
+    """Collapse rows that describe the same recall, keeping the richest.
+    Returns (deduped_rows, n_collapsed)."""
+    best: dict[str, dict] = {}
+    order: list[str] = []
+    for row in rows:
+        key = _recall_identity(row)
+        if key not in best:
+            best[key] = row
+            order.append(key)
+        elif _richness(row) > _richness(best[key]):
+            best[key] = row
+    deduped = [best[k] for k in order]
+    return deduped, len(rows) - len(deduped)
+
+
 def write_pending_rows(rows: list[dict], xlsx_path: str) -> tuple[int, int, int]:
     """Write to Pending sheet. Skip URLs already in Pending OR Recalls.
     Returns (appended, skipped_pending_dupe, skipped_recalls_dupe)."""
+    # Collapse same-recall duplicates from multiple news outlets first.
+    rows, collapsed = dedupe_by_recall_identity(rows)
+    if collapsed:
+        print(f"  [dedup] collapsed {collapsed} duplicate-recall row(s) "
+              f"→ {len(rows)} unique", file=sys.stderr)
     pending_urls = _load_existing_urls(xlsx_path, PENDING_SHEET)
     recalls_urls = _load_existing_urls(xlsx_path, RECALLS_SHEET)
 
