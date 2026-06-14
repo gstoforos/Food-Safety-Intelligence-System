@@ -65,7 +65,8 @@ jobs:
       - name: Install deps
         if: steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          pip install -r requirements.txt
+          pip install --quiet \
+            requests beautifulsoup4 lxml openpyxl python-dateutil feedparser
 
       # ═══════════════════════════════════════════════════════════════════
       #  Join the AFTS tailnet so the runner can reach afts-llama-vps.
@@ -117,17 +118,7 @@ jobs:
             python -m pipeline.official_feeds.main --source "$SRC" $EXTRA
           done
 
-      - name: Commit xlsx changes
-        if: |
-          (steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch')
-          && (github.event.inputs.dry_run != 'true')
+      - name: Commit xlsx changes (race-safe)
+        if: inputs.dry_run != 'true'
         run: |
-          git config user.name  "afts-bot"
-          git config user.email "[email protected]"
-          git add docs/data/recalls.xlsx || true
-          if git diff --cached --quiet; then
-            echo "no changes"
-          else
-            git commit -m "NA collector: $(date -u +%Y-%m-%dT%H:%MZ)"
-            git push
-          fi
+          bash scripts/safe_push.sh "NA collector: $(date -u +%Y-%m-%dT%H:%MZ)" docs/data/recalls.xlsx

@@ -77,7 +77,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install requests beautifulsoup4 lxml openpyxl
 
       - name: Run English-speaking official feeds
         run: |
@@ -101,15 +101,7 @@ jobs:
               || echo "✗ $s failed (continuing)"
           done
 
-      - name: Commit xlsx changes
+      - name: Commit xlsx changes (race-safe)
         if: inputs.dry_run != 'true'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/recalls.xlsx
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "English feeds collector: $(date -u +%Y-%m-%d) (UK+Scotland+Ireland)"
-            git push
-          fi
+          bash scripts/safe_push.sh "English feeds collector: $(date -u +%Y-%m-%d) (UK+Scotland+Ireland)" docs/data/recalls.xlsx
