@@ -36,6 +36,9 @@ env:
   TZ: Europe/Berlin
   TS_KEY_RENEW_BY: "2026-08-21"
 
+permissions:
+  contents: write
+
 jobs:
   gate:
     runs-on: ubuntu-latest
