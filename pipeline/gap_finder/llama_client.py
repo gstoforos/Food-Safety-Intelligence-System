@@ -54,7 +54,7 @@ import requests
 
 DEFAULT_BASE_URL = "http://localhost:8080/v1"
 DEFAULT_MODEL = "qwen2.5-7b-instruct"
-DEFAULT_TIMEOUT = 120
+DEFAULT_TIMEOUT = 45   # was 120 — a healthy Qwen-7B call finishes <30s; 120 just prolongs hangs on a dead box
 
 
 def _env(key: str, default: str) -> str:
@@ -85,10 +85,45 @@ class LlamaClient:
     api_key: Optional[str] = field(default_factory=lambda: os.environ.get("LLAMA_API_KEY"))
     model: str = field(default_factory=lambda: _env("LLAMA_MODEL", DEFAULT_MODEL))
     timeout: int = field(default_factory=lambda: int(_env("LLAMA_TIMEOUT", str(DEFAULT_TIMEOUT))))
-    max_retries: int = 3
+    max_retries: int = 2   # was 3
     backoff_base: float = 2.0
 
+    # ── Circuit breaker ─────────────────────────────────────────────────────
+    # Class-level (shared across all instances in a run). After
+    # _BREAKER_THRESHOLD consecutive total failures, the breaker OPENS and all
+    # subsequent calls fail instantly (no socket wait), so a dead Llama box
+    # costs ~1 min instead of timeout×retries×records (was up to 48 min for a
+    # Greek run). Classification still works without the LLM, so records fall
+    # back to title-only immediately. The breaker resets on any success.
+
     # ── Request plumbing ────────────────────────────────────────────────────
+
+    # Shared breaker state (class attributes, not per-instance).
+    _breaker_failures: int = 0
+    _breaker_open: bool = False
+    _BREAKER_THRESHOLD: int = 2
+
+    @classmethod
+    def _breaker_record_failure(cls) -> None:
+        cls._breaker_failures += 1
+        if cls._breaker_failures >= cls._BREAKER_THRESHOLD:
+            if not cls._breaker_open:
+                print(f"  [llama] CIRCUIT OPEN — {cls._breaker_failures} consecutive "
+                      f"failures; remaining records skip the LLM and use "
+                      f"title-only fallback", flush=True)
+            cls._breaker_open = True
+
+    @classmethod
+    def _breaker_record_success(cls) -> None:
+        if cls._breaker_failures or cls._breaker_open:
+            cls._breaker_failures = 0
+            cls._breaker_open = False
+
+    @classmethod
+    def reset_breaker(cls) -> None:
+        """Reset breaker between independent runs (call at pipeline start)."""
+        cls._breaker_failures = 0
+        cls._breaker_open = False
 
     def _headers(self) -> dict[str, str]:
         h = {"Content-Type": "application/json", "Accept": "application/json"}
@@ -97,6 +132,11 @@ class LlamaClient:
         return h
 
     def _post(self, path: str, payload: dict) -> dict:
+        # Circuit breaker: if already tripped this run, fail instantly so we
+        # don't burn timeout×retries on a known-dead box.
+        if type(self)._breaker_open:
+            raise LlamaError("circuit open — Llama box unresponsive this run")
+
         url = f"{self.base_url.rstrip('/')}{path}"
         last_exc: Optional[Exception] = None
         for attempt in range(1, self.max_retries + 1):
@@ -120,6 +160,7 @@ class LlamaClient:
                         status_code=resp.status_code,
                         body=resp.text[:500],
                     )
+                type(self)._breaker_record_success()
                 return resp.json()
             except (requests.Timeout, requests.ConnectionError, LlamaError) as e:
                 last_exc = e
@@ -129,6 +170,7 @@ class LlamaClient:
                     sleep_s = self.backoff_base ** (attempt - 1)
                     time.sleep(sleep_s)
                     continue
+                type(self)._breaker_record_failure()
                 raise LlamaError(f"all {self.max_retries} attempts failed: {e}") from e
         # Unreachable but appeases type-checker
         raise LlamaError(f"unexpected loop exit: {last_exc}")

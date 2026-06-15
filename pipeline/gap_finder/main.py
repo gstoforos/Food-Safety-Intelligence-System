@@ -502,6 +502,10 @@ def stage_extractor(
         return [], []
 
     client = extractor.LlamaClient()
+    # Reset the circuit breaker so each run starts fresh. If the Llama box is
+    # down, the breaker trips after 2 failures and the rest of Stage 3 falls
+    # back to title-only instantly instead of hanging on per-record timeouts.
+    extractor.LlamaClient.reset_breaker()
     print(f"  LlamaClient: {client.base_url}  model={client.model}",
           file=sys.stderr)
     if not client.health():
