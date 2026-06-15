@@ -112,6 +112,14 @@ try:
 except ImportError:
     import pipeline.gap_finder.gnews_resolver as gnews_resolver    # type: ignore
 
+# Authority-URL finder: extracts the OFFICIAL regulator press-release link
+# (e.g. efet.gr/...item/5396) from a news article's HTML, so the recall record
+# points at the authority — never the news outlet that reported it.
+try:
+    from .authority_url_finder import find_authority_url
+except ImportError:
+    from pipeline.gap_finder.authority_url_finder import find_authority_url  # type: ignore
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIGURATION
@@ -474,16 +482,28 @@ def enrich_candidate(cand: dict, cfg: CountryConfig,
     resolved_url, html, status = fetch_html(url, cfg)
     body = extract_body(html) if html else ""
 
-    if verbose:
-        print(f"    [fetch]   status={status} body={len(body)} chars "
-              f"final={resolved_url[:60]}", file=sys.stderr)
+    # Find the OFFICIAL authority URL the article references (efet.gr/...).
+    # The recall record must point at the regulator press release, NOT the
+    # news outlet. If the article links to no authority page, authority_url
+    # stays "" and the candidate is flagged no_authority_url so Stage 3 can
+    # reject it instead of writing a news URL into Recalls.
+    authority_url = find_authority_url(html, cfg) if html else ""
 
+    if verbose:
+        au_tag = (f"authority={authority_url[:55]}" if authority_url
+                  else "authority=NONE(will-reject)")
+        print(f"    [fetch]   status={status} body={len(body)} chars "
+              f"{au_tag}", file=sys.stderr)
+
+    # efet_url carries the AUTHORITY url when found; otherwise empty (never the
+    # news url). efet_title/date still come from the article (the discovery
+    # signal), but the canonical link is the authority's.
     return EnrichedCandidate(
         news_url=url,
         news_title=cand.get("title", ""),
         news_published=cand.get("published", ""),
         news_source_domain=cand.get("source_domain", ""),
-        efet_url=resolved_url or url,
+        efet_url=authority_url,                       # "" if no official link
         efet_title=cand.get("title", ""),
         efet_date_iso=parse_published_to_iso(cand.get("published", "")),
         efet_body=body,

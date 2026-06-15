@@ -265,6 +265,39 @@ def extract_one(
     # slug is the authoritative hazard signal. Replace hyphens with spaces
     # so multi-word terms ("listeria monocytogenes") match the lexicon.
     efet_url = verified.get("efet_url", "") or ""
+
+    # ── Authority-URL gate ───────────────────────────────────────────────
+    # A recall record MUST point at the official regulator press release
+    # (e.g. efet.gr/...). The news article is only the discovery signal. If
+    # the article linked to no authority page, efet_url is empty — reject the
+    # candidate rather than write a news URL (news247.gr/kathimerini.gr) into
+    # Recalls. This is what stops the multi-outlet duplicate rows: only the
+    # single authority URL is allowed through, so two outlets reporting one
+    # EFET notice collapse to the one official link.
+    authority_domain = (getattr(cfg, "authority_domain", "") or "").lower().lstrip("www.")
+    url_host = ""
+    if efet_url:
+        from urllib.parse import urlparse as _urlparse
+        url_host = _urlparse(efet_url).netloc.lower().lstrip("www.")
+    is_authority_url = bool(efet_url) and authority_domain and (
+        url_host == authority_domain or url_host.endswith("." + authority_domain)
+    )
+    if not is_authority_url:
+        if verbose:
+            print(f"  [gate] no official {authority_domain or 'authority'} URL "
+                  f"found in article — rejecting (news URL not allowed in Recalls)",
+                  file=sys.stderr)
+        gate_reject = classify(
+            pathogen="", reason="__no_authority_url__", product=efet_title,
+        )
+        # Force a reject verdict regardless of classify() result.
+        rejected = build_rejected_row(verified, gate_reject, cfg)
+        rejected["Reason"] = (
+            f"No official {cfg.authority_short} press-release URL found in the "
+            f"source article — discovery via news only; not promoted to Recalls."
+        )
+        return None, rejected
+
     slug = efet_url.rsplit("/", 1)[-1].replace("-", " ").lower() if efet_url else ""
 
     classification = classify(
