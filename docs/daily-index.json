@@ -7,10 +7,10 @@
       "tier1": 3,
       "outbreak": 2,
       "by_region": {
-        "Oceania": 1,
-        "North America": 2
+        "North America": 2,
+        "Oceania": 1
       },
-      "generated": "2026-06-14T17:18:14Z"
+      "generated": "2026-06-15T04:14:39Z"
     },
     {
       "date": "2026-06-12",
