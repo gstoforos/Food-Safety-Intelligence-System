@@ -89,9 +89,32 @@ def _wr_dedup_key(row: Dict[str, Any]) -> str:
     collapse to one row in the merge — preserving the earlier-written
     one's Week_Added, Reviewed, and audit-trail fields.
     """
-    url = (str(row.get("URL", "")) or "").strip().lower()
-    d = str(row.get("Date", ""))[:10]
-    return f"{url}|{d}" if url else f"||{d}|{row.get('Pathogen','')}"
+    _u = row.get("URL")
+    url = (str(_u).strip().lower() if _u not in (None, "") else "")
+    _d = row.get("Date")
+    d = (str(_d)[:10] if _d not in (None, "") else "")
+    if url:
+        return f"{url}|{d}"
+    # No URL: do NOT collapse all URL-less rows on the same date into one key
+    # (that shrinks the union and trips the no-shrink canary). Build a richer
+    # key from the row's distinguishing fields; if those are also empty, fall
+    # back to the row's identity (id()) so each URL-less row stays distinct.
+    def _f(field, n=None):
+        v = row.get(field)
+        if v in (None, ""):
+            return ""
+        v = str(v).strip().lower()
+        return v[:n] if n else v
+    parts = [
+        _f("Pathogen"), _f("Company"), _f("Product", 40),
+        _f("Brand"), _f("Reason", 40),
+    ]
+    sig = "|".join(parts)
+    if sig.strip("|"):
+        return f"||{d}|{sig}"
+    # Completely empty row content — keep distinct by object identity so the
+    # union never silently drops it.
+    return f"||{d}|__rowid_{id(row)}__"
 
 
 def _read_sheet(xlsx_path: Path, sheet: str) -> Tuple[List[str], List[Dict[str, Any]]]:
