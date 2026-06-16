@@ -283,7 +283,7 @@ def _log_first_host(host: str) -> None:
 
 
 def _fetch_via_curl_cffi(
-    url: str, cfg: CountryConfig
+    url: str, cfg: CountryConfig, timeout: int | None = None
 ) -> tuple[str, str, str]:
     """Primary fetch path: curl_cffi Chrome 131 TLS impersonation.
 
@@ -301,7 +301,7 @@ def _fetch_via_curl_cffi(
         resp = cf.get(
             url,
             headers=_fetch_headers(cfg),
-            timeout=REQUEST_TIMEOUT,
+            timeout=(timeout or REQUEST_TIMEOUT),
             allow_redirects=True,
             impersonate=_IMPERSONATE_PROFILE,
         )
@@ -320,7 +320,7 @@ def _fetch_via_curl_cffi(
 
 
 def _fetch_via_requests(
-    url: str, cfg: CountryConfig
+    url: str, cfg: CountryConfig, timeout: int | None = None
 ) -> tuple[str, str, str]:
     """Fallback fetch path: stdlib `requests`. Used only when curl_cffi
     isn't installed. Bot-protected sites will likely 403/410 here — this
@@ -329,7 +329,7 @@ def _fetch_via_requests(
         resp = requests.get(
             url,
             headers=_fetch_headers(cfg),
-            timeout=REQUEST_TIMEOUT,
+            timeout=(timeout or REQUEST_TIMEOUT),
             allow_redirects=True,
         )
         resp.raise_for_status()
@@ -343,7 +343,7 @@ def _fetch_via_requests(
         return url, "", f"error_{type(e).__name__}"
 
 
-def fetch_html(url: str, cfg: CountryConfig) -> tuple[str, str, str]:
+def fetch_html(url: str, cfg: CountryConfig, timeout: int | None = None) -> tuple[str, str, str]:
     """Fetch URL, follow redirects. Returns (resolved_url, html, status).
 
     Step 0: if this is a Google News redirector link, resolve it to the real
@@ -363,13 +363,13 @@ def fetch_html(url: str, cfg: CountryConfig) -> tuple[str, str, str]:
 
     _throttle_domain(url)
 
-    resolved_url, html, status = _fetch_via_curl_cffi(url, cfg)
+    resolved_url, html, status = _fetch_via_curl_cffi(url, cfg, timeout=timeout)
     if status == "ok":
         return resolved_url, html, status
 
     # curl_cffi unavailable → use stdlib requests as best-effort fallback.
     if status == "curl_cffi_unavailable":
-        return _fetch_via_requests(url, cfg)
+        return _fetch_via_requests(url, cfg, timeout=timeout)
 
     # curl_cffi installed but THIS host blocked us. Returning the error
     # as-is. We deliberately do NOT try stdlib `requests` afterwards:

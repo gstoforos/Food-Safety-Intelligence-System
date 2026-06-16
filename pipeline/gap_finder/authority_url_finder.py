@@ -226,7 +226,9 @@ def resolve_authority_url_via_search(news_title: str, cfg: CountryConfig,
 
     # Fetch the index page (curl_cffi clears the Joomla 409).
     try:
-        _resolved, html, status = _fetch_html(index_url, cfg)
+        # Authority index pages (FAVV, AGES) can be large/slow; give the
+        # single per-run index fetch a longer timeout than article fetches.
+        _resolved, html, status = _fetch_html(index_url, cfg, timeout=30)
     except Exception as e:
         if verbose:
             print(f"    [authority-index] fetch error: {e}", file=_sys.stderr)
@@ -261,25 +263,36 @@ def resolve_authority_url_via_search(news_title: str, cfg: CountryConfig,
         return ""
 
     # Match: score each item slug by keyword overlap with the news title.
+    # 5-char prefixes absorb inflection across languages (Greek translit
+    # salata/salatas; German Rueckruf/Rueckrufe; French rappel/rappels)
+    # while staying long enough to avoid spurious short-word collisions.
     def _stems(words: set[str]) -> set[str]:
-        # 6-char prefixes absorb Greek inflection endings after translit
-        # (salata/salatas, stathi/stathis, pestrofa/pestrofas).
-        return {w[:6] for w in words if len(w) >= 4}
+        return {w[:5] for w in words if len(w) >= 4}
 
-    want = _stems(_keywords(news_title))
+    want_kw = _keywords(news_title)
+    want = _stems(want_kw)
     if not want:
         return ""
-    best_url, best_score = "", 0
+    # Distinctive long keywords (>=6 chars, usually a brand/company/product)
+    # — a single one of these overlapping is strong enough to accept.
+    want_strong = {w[:5] for w in want_kw if len(w) >= 7}
+
+    best_url, best_score, best_strong = "", 0, False
     for u in items:
         slug = u.rsplit("/", 1)[-1]
-        have = _stems(_keywords(slug.replace("-", " ")))
-        score = len(want & have)
-        if score > best_score:
-            best_score, best_url = score, u
+        have_kw = _keywords(slug.replace("-", " "))
+        have = _stems(have_kw)
+        overlap = want & have
+        score = len(overlap)
+        strong = bool(overlap & want_strong)
+        # prefer higher score; break ties toward a strong-keyword hit
+        if score > best_score or (score == best_score and strong and not best_strong):
+            best_score, best_url, best_strong = score, u, strong
 
-    # Require at least 2 overlapping distinctive keywords to accept a match,
-    # so we don't grab an unrelated recall on a single common word.
-    if best_score >= 2:
+    # Accept if >=2 keywords overlap (original rule), OR exactly 1 overlaps
+    # but it is a long distinctive keyword (brand/company) — this rescues
+    # German/French authorities whose news titles are terse.
+    if best_score >= 2 or (best_score >= 1 and best_strong):
         if verbose:
             print(f"    [authority-index] matched (score={best_score}) "
                   f"{best_url[:75]}", file=_sys.stderr)
