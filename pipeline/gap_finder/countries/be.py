@@ -27,7 +27,11 @@ BELGIUM = CountryConfig(
     authority_short="FAVV-AFSCA",
     authority_full="Federaal Agentschap voor de Veiligheid van de Voedselketen",
     authority_domain="favv-afsca.be",
-    authority_item_url_regex=r"(news|terugroep|rappel|alerte|persbericht|warning)",
+    authority_item_url_regex=r"/(produits|producten)/(rappel|terugroep)",
+    # FAVV-AFSCA recall index (verified 2026-06): lists every recall; each has
+    # its own page /fr/produits/rappel-de-<company>. Tier-2 fetches this,
+    # parses the rappel-de-* links, matches the recall by company keyword.
+    authority_index_url="https://favv-afsca.be/fr/produits",
 
     rss_sources=[
         # PRIMARY — German aggregator covers Belgian recalls

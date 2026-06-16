@@ -22,7 +22,10 @@ AUSTRIA = CountryConfig(
     authority_short="AGES",
     authority_full="Agentur für Gesundheit und Ernährungssicherheit",
     authority_domain="ages.at",
-    authority_item_url_regex=r"(warnung|rueckruf|news|aktuelles|themen)",
+    authority_item_url_regex=r"produktwarnungen|produktrueckrufe|rueckruf",
+    # AGES recall list (verified 2026-06): lists food product warnings/recalls
+    # with per-item Details pages. Tier-2 fetches this and matches by keyword.
+    authority_index_url="https://www.ages.at/mensch/produktwarnungen-produktrueckrufe",
 
     # ── News sources ────────────────────────────────────────────────────────
     rss_sources=[
