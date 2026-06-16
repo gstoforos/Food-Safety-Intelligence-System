@@ -31,7 +31,7 @@ BELGIUM = CountryConfig(
     # FAVV-AFSCA recall index (verified 2026-06): lists every recall; each has
     # its own page /fr/produits/rappel-de-<company>. Tier-2 fetches this,
     # parses the rappel-de-* links, matches the recall by company keyword.
-    authority_index_url="https://favv-afsca.be/fr/produits",
+    authority_index_url="https://favv-afsca.be/nl/producten",  # FR path /fr/produits times out from our IP; try NL path
 
     rss_sources=[
         # PRIMARY — German aggregator covers Belgian recalls
