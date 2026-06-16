@@ -18,6 +18,10 @@ GREECE = CountryConfig(
     authority_domain="efet.gr",
     # EFET (Joomla): /index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/<NUM>-<slug>
     authority_item_url_regex=r"anakleiseis-cat/item/\d+",
+    # EFET recall-index page (lists recent press releases). Tier-2 resolver
+    # fetches this via curl_cffi (clears the Joomla 409) and matches the
+    # recall to its official item/<num>-<slug> URL.
+    authority_index_url="https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat",
 
     # ── News sources ────────────────────────────────────────────────────────
     rss_sources=[

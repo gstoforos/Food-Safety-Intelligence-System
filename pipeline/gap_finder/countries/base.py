@@ -65,6 +65,13 @@ class CountryConfig:
     # Provided here so the workflow YAML can reference them by name.
     cron_utc_offsets: tuple[int, int]   # e.g. (18, 19) for Athens (EEST, EET)
 
+    # ── Authority recall-index URL (optional) ───────────────────────────────
+    # The authority's own page that LISTS recent recall press releases. Used
+    # as the Tier-2 resolver: fetch this index (curl_cffi clears the Joomla
+    # 409), parse the item/<num>-<slug> links, and match the recall by its
+    # product keywords. Empty string disables Tier-2 for that country.
+    authority_index_url: str = ""
+
     # ── Output paths (per-country to avoid collisions) ──────────────────────
     @property
     def data_dir(self) -> str:
