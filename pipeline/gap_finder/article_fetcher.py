@@ -116,9 +116,11 @@ except ImportError:
 # (e.g. efet.gr/...item/5396) from a news article's HTML, so the recall record
 # points at the authority — never the news outlet that reported it.
 try:
-    from .authority_url_finder import find_authority_url
+    from .authority_url_finder import find_authority_url, resolve_authority_url_via_search
 except ImportError:
-    from pipeline.gap_finder.authority_url_finder import find_authority_url  # type: ignore
+    from pipeline.gap_finder.authority_url_finder import (        # type: ignore
+        find_authority_url, resolve_authority_url_via_search,
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -416,6 +418,43 @@ def _normalize_text(text: str) -> str:
     return "\n".join(paragraphs)
 
 
+def extract_title(html: str) -> str:
+    """Extract the press-release title from authority-page HTML.
+
+    Tries, in order: <h1>, og:title meta, <title>. Returns "" if none.
+    Used to title the record from the EFET press release rather than the
+    news headline.
+    """
+    if not html:
+        return ""
+    import re as _re
+    # <h1>...</h1>
+    m = _re.search(r"<h1[^>]*>(.*?)</h1>", html, _re.IGNORECASE | _re.DOTALL)
+    if m:
+        t = _re.sub(r"<[^>]+>", "", m.group(1))
+        t = _unescape_ws(t)
+        if len(t) >= 8:
+            return t
+    # og:title
+    m = _re.search(r'<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)',
+                   html, _re.IGNORECASE)
+    if m:
+        t = _unescape_ws(m.group(1))
+        if len(t) >= 8:
+            return t
+    # <title>
+    m = _re.search(r"<title[^>]*>(.*?)</title>", html, _re.IGNORECASE | _re.DOTALL)
+    if m:
+        return _unescape_ws(_re.sub(r"<[^>]+>", "", m.group(1)))
+    return ""
+
+
+def _unescape_ws(t: str) -> str:
+    from html import unescape as _u
+    import re as _re
+    return _re.sub(r"\s+", " ", _u(t)).strip()
+
+
 def extract_body(html: str) -> str:
     """Extract main article text body from HTML."""
     if not html:
@@ -489,28 +528,76 @@ def enrich_candidate(cand: dict, cfg: CountryConfig,
     # reject it instead of writing a news URL into Recalls.
     authority_url = find_authority_url(html, cfg) if html else ""
 
+    # Tier 2: Greek news outlets cite EFET by name but rarely hyperlink the
+    # press release, so the HTML scan usually finds nothing. Fall back to
+    # searching the authority site directly (site:efet.gr <recall terms>) for
+    # the canonical press-release URL.
+    if not authority_url:
+        try:
+            authority_url = resolve_authority_url_via_search(
+                cand.get("title", ""), cfg, verbose=verbose
+            )
+        except Exception as e:
+            if verbose:
+                print(f"    [authority-search] error: {e}", file=sys.stderr)
+
+    # ── Fetch the OFFICIAL authority page and extract data FROM IT ──────────
+    # The news article is only the SIGNAL that a recall happened. The record's
+    # data (brand, product, pathogen, batch, region…) must come from the
+    # authority's own press release, never the news outlet. So once we have
+    # the authority URL, fetch THAT page (curl_cffi clears the Joomla 409) and
+    # use its body + title for extraction. If the authority page can't be
+    # fetched, we keep the authority URL but fall back to the news body so the
+    # reviewer still gets a record to check (flagged via fetch_status).
+    efet_title = cand.get("title", "")          # default: news title (signal)
+    efet_body = body                            # default: news body
+    efet_status = status
+    if authority_url:
+        try:
+            au_resolved, au_html, au_status = fetch_html(authority_url, cfg)
+            au_body = extract_body(au_html) if au_html else ""
+            if au_body and len(au_body) >= 200:
+                efet_body = au_body                       # EFET press-release text
+                efet_title = extract_title(au_html) or efet_title
+                efet_status = f"authority_ok:{au_status}"
+                if verbose:
+                    print(f"    [authority] fetched EFET page: "
+                          f"{len(au_body)} chars from {authority_url[:55]}",
+                          file=sys.stderr)
+            else:
+                efet_status = f"authority_thin:{au_status}"
+                if verbose:
+                    print(f"    [authority] EFET page thin/blocked "
+                          f"({len(au_body)} chars) — using news body as fallback",
+                          file=sys.stderr)
+        except Exception as e:
+            efet_status = "authority_fetch_error"
+            if verbose:
+                print(f"    [authority] EFET fetch error: {e} — news fallback",
+                      file=sys.stderr)
+
     if verbose:
         au_tag = (f"authority={authority_url[:55]}" if authority_url
                   else "authority=NONE(will-reject)")
-        print(f"    [fetch]   status={status} body={len(body)} chars "
+        print(f"    [fetch]   status={status} efet_body={len(efet_body)} chars "
               f"{au_tag}", file=sys.stderr)
 
-    # efet_url carries the AUTHORITY url when found; otherwise empty (never the
-    # news url). efet_title/date still come from the article (the discovery
-    # signal), but the canonical link is the authority's.
+    # efet_url + efet_body + efet_title now come from the AUTHORITY press
+    # release (when fetchable). The news article supplied only the discovery
+    # signal and the publish date.
     return EnrichedCandidate(
         news_url=url,
         news_title=cand.get("title", ""),
         news_published=cand.get("published", ""),
         news_source_domain=cand.get("source_domain", ""),
         efet_url=authority_url,                       # "" if no official link
-        efet_title=cand.get("title", ""),
+        efet_title=efet_title,
         efet_date_iso=parse_published_to_iso(cand.get("published", "")),
-        efet_body=body,
+        efet_body=efet_body,
         match_score=1.0,
         matched_at=datetime.now(timezone.utc).isoformat(),
         resolved_url=resolved_url,
-        fetch_status=status,
+        fetch_status=efet_status,
     )
 
 
