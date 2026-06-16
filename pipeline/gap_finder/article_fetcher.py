@@ -632,8 +632,17 @@ def enrich_all(
                 continue
 
             completed += 1
-            if rec.fetch_status != "ok" or len(rec.efet_body) < 100:
-                # Too short to extract anything useful — mark as failed
+            # A record is USABLE when it carries an authority (efet.gr) URL
+            # AND a body long enough to extract from. The body now comes from
+            # the EFET press release (fetch_status starts "authority_ok"), so
+            # we key on efet_url presence + body length — NOT on the literal
+            # string "ok" (which the new authority-fetch statuses don't equal).
+            # Records WITHOUT an authority URL are passed through as enriched
+            # too, so Stage 3's gate can reject them with the proper reason
+            # (rather than being silently rebuilt here with the news URL).
+            has_body = len(rec.efet_body) >= 100
+            if not has_body and not rec.efet_url:
+                # Nothing usable at all — genuine fetch failure.
                 failed.append({**cand, "fetch_status": rec.fetch_status,
                                "body_len": len(rec.efet_body)})
                 if verbose and completed % 25 == 0:
