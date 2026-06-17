@@ -26,14 +26,14 @@
     {
       "date": "2026-06-13",
       "url": "daily/2026-06-13.html",
-      "total": 3,
-      "tier1": 3,
-      "outbreak": 2,
+      "total": 4,
+      "tier1": 4,
+      "outbreak": 3,
       "by_region": {
-        "North America": 2,
+        "North America": 3,
         "Oceania": 1
       },
-      "generated": "2026-06-16T07:13:08Z"
+      "generated": "2026-06-17T04:16:19Z"
     },
     {
       "date": "2026-06-12",
@@ -87,6 +87,20 @@
         "Europe": 7
       },
       "generated": "2026-06-16T07:13:09Z"
+    },
+    {
+      "date": "2026-06-03",
+      "url": "daily/2026-06-03.html",
+      "total": 10,
+      "tier1": 10,
+      "outbreak": 0,
+      "by_region": {
+        "Not specified in the article": 1,
+        "Europe": 5,
+        "Africa": 3,
+        "Aragon, Castilla and Le\u00f3n, Catalonia, Madrid, Murcia, Community of Valencia": 1
+      },
+      "generated": "2026-06-17T04:16:19Z"
     }
   ]
 }

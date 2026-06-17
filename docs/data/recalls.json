@@ -240,6 +240,22 @@
   "Notes": "[gemini-enrich 2026-06-13: Brand '—'→'ASO United'] [gemini-check 2026-06-13: pass; clean-row shortcut (gemini-enriched + all fields valid)] [aso-fix 2026-06-14: Pathogen \"Listeria monocytogenes\" → \"Nitrofurazone (SEM)\" — caught Gemini default-tag. FSANZ source confirms chemical contaminant, not Listeria.]"
  },
  {
+  "Date": "2026-06-13",
+  "Source": "CDC",
+  "Company": "Nara Organics",
+  "Brand": "Nara Organics",
+  "Product": "Nara Organics Whole Milk Organic Infant Formula",
+  "Pathogen": "Clostridium botulinum",
+  "Reason": "Clostridium botulinum — outbreak",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.cdc.gov/media/releases/2026/infant-botulism-outbreak-linked-to-powdered-infant-formula-june-2026.html",
+  "Notes": "# CDC Outbreak Update: Infant Botulism Linked to Powdered Infant Formula | CDC Newsroom\n\nPublished: 2026-06-14T01:41:15+00:00\nSource: cdc.gov (cdc.gov)\nLanguage: en\n\n## Story\n\nCDC Outbreak Update: Infant Botulism Linked to Powdered Infant Formula | CDC Newsroom\n\n# CDC Outbreak Update: Infant Botulis  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-06-16: pending_gap → pending_gap_v1] [gap-gate 2026-06-16: pending_gap_v1 → pending_gap_v2] [claude-check 2026-06-17: fix; corrections: Date→2026-06-13, Company→Nara Organics, Brand→Nara Organics, Product→Nara Organics Whole Milk Organic Infant , Pathogen→Clostridium botulinum; fix; company mismatch; product mismatch; date on page=2026-06-13 | Row contains extraction garbage in Company/Brand/Prod] [gap-gate 2026-06-17: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-06-12",
   "Source": "RASFF (EU)",
   "Company": "Origin: Vietnam | Notifying: Netherlands",
@@ -1614,6 +1630,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22435/Interne",
   "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-03: fix; corrections: Company→WORLDMARECHAL GRAND-FRAIS, FRESH, Mon-ma; fix; company mismatch | Company name on row does not exactly match 'Origine de la fiche' on the page.]"
+ },
+ {
+  "Date": "2026-06-03",
+  "Source": "AESAN",
+  "Company": "Al pie de la vaca",
+  "Brand": "Al pie de la vaca, Cabrera, Haciendita de Liri, De la vaca, La Buona Mucca",
+  "Product": "Feta cheese",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Recall ID 65 and more",
+  "Class": "",
+  "Country": "Spain",
+  "Region": "Aragon, Castilla and León, Catalonia, Madrid, Murcia, Community of Valencia",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.aesan.gob.es/AECOSAN/web/seguridad_alimentaria/subseccion/SCIRI.htm",
+  "Notes": "Discovered via news: 65ymas.com [gemini-enrich 2026-06-16: Company 'AESAN'→'Al pie de la vaca'] [gemini-enrich 2026-06-16: Brand ''→'Al pie de la vaca, Cabrera, Haciendita de Liri, De la vaca, '] [claude-check 2026-06-17: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
   "Date": "2026-06-02",
