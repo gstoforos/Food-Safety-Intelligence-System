@@ -140,7 +140,8 @@ def get(code: str) -> CountryConfig:
         # so the module file is named iceland.py (still registers with code='is').
         from . import (gr, it, es, pt,
                        de, at, ch, be, nl, lu, pl, hu,
-                       se, no, dk, fi, iceland)  # noqa: F401
+                       se, no, dk, fi, iceland,
+                       cz, hr, ee)  # noqa: F401
     if code not in _REGISTRY:
         raise KeyError(
             f"Unknown country code {code!r}. "
