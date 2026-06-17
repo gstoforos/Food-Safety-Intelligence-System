@@ -29,9 +29,24 @@ POLAND = CountryConfig(
     # GIS publishes each recall as its own page on the gov.pl portal, e.g.
     #   /web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-...
     #   /web/gis/aktualizacja-ostrzezenia-publicznego-dotyczacego-zywnosci-...
+    # This regex is the Stage-3 GATE: the Pending URL must be a gov.pl GIS page.
     authority_item_url_regex=r"/web/gis/(ostrzezenie|aktualizacja-ostrzezenia)",
-    # Index page listing every public food warning (verified 2026-06).
-    authority_index_url="https://www.gov.pl/web/gis/ostrzezenia",
+
+    # ── Aggregator front-end: oalert.pl ─────────────────────────────────────
+    # gov.pl's own index/recall pages return mostly navigation chrome to a
+    # scraper (tiny bodies) and rate-limit rapid sequential fetches (403). The
+    # oalert.pl aggregator mirrors GIS/GIF/UOKiK/RASFF as clean, English,
+    # per-item pages, and EACH item links to the official gov.pl GIS report
+    # ("Source: GIS — view the official alert"). We therefore MATCH on oalert.pl
+    # (rich rows: product + source + severity + date + shop + hazard), then
+    # FOLLOW THROUGH to the gov.pl link so the stored Pending URL stays the
+    # official authority page (authority-pure) and the gate above still applies.
+    #
+    # English list:  https://oalert.pl/wycofane-produkty?lang=en
+    # Item pages:    https://oalert.pl/wycofane-produkty/<slug>/en
+    index_domain="oalert.pl",
+    index_item_url_regex=r"/wycofane-produkty/[a-z0-9][a-z0-9\-]+",
+    authority_index_url="https://oalert.pl/wycofane-produkty?lang=en",
 
     rss_sources=[
         # PRIMARY — Polish food-industry portal (names pathogens in titles)

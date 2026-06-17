@@ -72,6 +72,21 @@ class CountryConfig:
     # product keywords. Empty string disables Tier-2 for that country.
     authority_index_url: str = ""
 
+    # ── Aggregator front-end (optional) ─────────────────────────────────────
+    # Some countries have no clean authority index, but a reliable third-party
+    # aggregator mirrors the authority with per-item pages that each LINK to the
+    # official authority report (e.g. Poland: oalert.pl → gov.pl/web/gis/...).
+    # When set, the Tier-2 resolver fetches authority_index_url on this
+    # index_domain, matches the recall there, then opens the matched item and
+    # extracts the link back to authority_domain — so the Pending record still
+    # points at the official authority URL (authority-pure), while matching
+    # benefits from the aggregator's clean, structured rows.
+    #   index_domain         : host of the aggregator index/items (e.g. "oalert.pl")
+    #   index_item_url_regex : path pattern of the aggregator's per-item pages
+    # Leave empty to disable (normal direct-authority Tier-2).
+    index_domain: str = ""
+    index_item_url_regex: str = ""
+
     # ── Output paths (per-country to avoid collisions) ──────────────────────
     @property
     def data_dir(self) -> str:
