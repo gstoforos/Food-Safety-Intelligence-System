@@ -283,12 +283,16 @@ def resolve_authority_url_via_search(news_title: str, cfg: CountryConfig,
     # text — matching against that is far more reliable than the slug alone.
     items: list[tuple[str, str]] = []
     seen: set[str] = set()
+    # Resolve relative hrefs against the URL we actually fetched (_resolved),
+    # not a hardcoded www. prefix — some hosts (e.g. oalert.pl) serve without
+    # www and "www." + host fails to fetch, breaking the follow-through.
+    base_url = _resolved or index_url
     for href, atext in _all_links_with_text(html):
         u = href
-        if u.startswith("/"):
-            u = f"https://www.{domain}{u}"
-        elif u.startswith("//"):
+        if u.startswith("//"):
             u = "https:" + u
+        elif u.startswith("/"):
+            u = urljoin(base_url, u)
         # must be an authority item URL
         try:
             host = urlparse(u).netloc.lower().lstrip("www.")
