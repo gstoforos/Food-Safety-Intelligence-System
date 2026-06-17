@@ -48,6 +48,36 @@ def _all_links(html: str) -> list[str]:
     return [unescape(h) for h in hrefs]
 
 
+def _all_links_with_text(html: str) -> list[tuple[str, str]]:
+    """Every (href, anchor_text) pair in the HTML.
+
+    Authority index rows (e.g. FAVV /nl/producten) put the full recall
+    description inside the <a> element — company, brand, product, hazard,
+    date — not just in the URL slug. Matching against this visible text is
+    far more reliable than matching against the slug alone. The anchor's
+    title="" attribute is folded in too (FAVV repeats the company there).
+    Tags inside the anchor are stripped so we keep only readable text.
+    """
+    if not html:
+        return []
+    out: list[tuple[str, str]] = []
+    for m in re.finditer(
+        r'<a\b([^>]*?)>(.*?)</a>', html, flags=re.IGNORECASE | re.DOTALL
+    ):
+        attrs, inner = m.group(1), m.group(2)
+        hm = re.search(r'href\s*=\s*["\']([^"\']+)["\']', attrs, re.IGNORECASE)
+        if not hm:
+            continue
+        href = unescape(hm.group(1))
+        tm = re.search(r'title\s*=\s*["\']([^"\']+)["\']', attrs, re.IGNORECASE)
+        title_attr = unescape(tm.group(1)) if tm else ""
+        text = re.sub(r"<[^>]+>", " ", inner)          # strip nested tags
+        text = unescape(re.sub(r"\s+", " ", text)).strip()
+        combined = (text + " " + title_attr).strip()
+        out.append((href, combined))
+    return out
+
+
 def find_authority_url(html: str, cfg: CountryConfig) -> str:
     """Find the official authority recall URL referenced in a news article.
 
@@ -239,9 +269,12 @@ def resolve_authority_url_via_search(news_title: str, cfg: CountryConfig,
                   file=_sys.stderr)
         return ""
 
-    # Collect candidate item URLs (absolute) from the index.
-    items: list[str] = []
-    for href in _all_links(html):
+    # Collect candidate items as (url, anchor_text). Authority index rows carry
+    # the full recall description (company/brand/product/hazard) in the link
+    # text — matching against that is far more reliable than the slug alone.
+    items: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for href, atext in _all_links_with_text(html):
         u = href
         if u.startswith("/"):
             u = f"https://www.{domain}{u}"
@@ -254,7 +287,11 @@ def resolve_authority_url_via_search(news_title: str, cfg: CountryConfig,
             continue
         if (host == domain or host.endswith("." + domain)) and \
            (item_re is None or item_re.search(u)):
-            items.append(_clean(u))
+            cu = _clean(u)
+            if cu in seen:
+                continue
+            seen.add(cu)
+            items.append((cu, atext))
 
     if not items:
         if verbose:
@@ -278,9 +315,13 @@ def resolve_authority_url_via_search(news_title: str, cfg: CountryConfig,
     want_strong = {w[:5] for w in want_kw if len(w) >= 7}
 
     best_url, best_score, best_strong = "", 0, False
-    for u in items:
+    for u, atext in items:
         slug = u.rsplit("/", 1)[-1]
-        have_kw = _keywords(slug.replace("-", " "))
+        # Score against slug AND the row's anchor text (company/brand/product/
+        # hazard). The anchor text is the authority's own published row, so a
+        # terse news title like "Jumbo ... worsten" still matches the row that
+        # says "Waarschuwing van Jumbo BBQ Pittige Worsten ... Soja".
+        have_kw = _keywords(slug.replace("-", " ")) | _keywords(atext)
         have = _stems(have_kw)
         overlap = want & have
         score = len(overlap)
