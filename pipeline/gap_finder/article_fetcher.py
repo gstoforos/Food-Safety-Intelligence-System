@@ -161,6 +161,11 @@ STRIP_SELECTORS = [
 
 # Candidate selectors for "main article content" in order of preference
 CONTENT_SELECTORS = [
+    # gov.pl / Polish & other gov portals: article lives in #main-content;
+    # must come BEFORE generic "main" because <main> also wraps the portal
+    # nav <h1>gov.pl Urzędy centralne</h1> chrome.
+    "#main-content",
+    ".editor-content",
     "article[itemtype*='Article']",
     "article",
     "main article",
@@ -428,12 +433,13 @@ def extract_title(html: str) -> str:
     if not html:
         return ""
     import re as _re
-    # <h1>...</h1>
-    m = _re.search(r"<h1[^>]*>(.*?)</h1>", html, _re.IGNORECASE | _re.DOTALL)
-    if m:
-        t = _re.sub(r"<[^>]+>", "", m.group(1))
+    # Portal-chrome <h1> values that are NToT the press-release title.
+    _CHROME_H1 = ("gov.pl", "urzędy centralne", "urzedy centralne")
+    # <h1>...</h1> — iterate ALL h1s, skip portal chrome, take first real one.
+    for _m in _re.finditer(r"<h1[^>]*>(.*?)</h1>", html, _re.IGNORECASE | _re.DOTALL):
+        t = _re.sub(r"<[^>]+>", "", _m.group(1))
         t = _unescape_ws(t)
-        if len(t) >= 8:
+        if len(t) >= 8 and not any(c in t.lower() for c in _CHROME_H1):
             return t
     # og:title
     m = _re.search(r'<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)',
