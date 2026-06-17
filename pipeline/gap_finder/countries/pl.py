@@ -25,8 +25,13 @@ POLAND = CountryConfig(
 
     authority_short="GIS",
     authority_full="Główny Inspektorat Sanitarny",
-    authority_domain="gis.gov.pl",
-    authority_item_url_regex=r"(ostrzezenie|wycofanie|aktualnosci|news|zywnosc)",
+    authority_domain="gov.pl",
+    # GIS publishes each recall as its own page on the gov.pl portal, e.g.
+    #   /web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-...
+    #   /web/gis/aktualizacja-ostrzezenia-publicznego-dotyczacego-zywnosci-...
+    authority_item_url_regex=r"/web/gis/(ostrzezenie|aktualizacja-ostrzezenia)",
+    # Index page listing every public food warning (verified 2026-06).
+    authority_index_url="https://www.gov.pl/web/gis/ostrzezenia",
 
     rss_sources=[
         # PRIMARY — Polish food-industry portal (names pathogens in titles)

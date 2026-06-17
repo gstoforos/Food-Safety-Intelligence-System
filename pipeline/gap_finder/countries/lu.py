@@ -23,7 +23,11 @@ LUXEMBOURG = CountryConfig(
     authority_short="SECLU",
     authority_full="Direction de la Sécurité alimentaire",
     authority_domain="securite-alimentaire.public.lu",
-    authority_item_url_regex=r"(rappel|warnung|alerte|news|actualite|aktualiteit)",
+    # ALVA publishes each alert as its own HTML page, e.g.
+    #   /fr/actualites/alertes/2026/01/rappel-plusieurs-produits-...html
+    authority_item_url_regex=r"/actualites/alertes/.*rappel",
+    # Index page listing all Luxembourg food alerts (verified 2026-06).
+    authority_index_url="https://securite-alimentaire.public.lu/fr/actualites/alertes.html",
 
     rss_sources=[
         # French-language Luxembourg news

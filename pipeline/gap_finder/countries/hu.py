@@ -29,7 +29,12 @@ HUNGARY = CountryConfig(
     authority_short="NÉBIH",
     authority_full="Nemzeti Élelmiszerlánc-biztonsági Hivatal",
     authority_domain="nebih.gov.hu",
-    authority_item_url_regex=r"(riasztas|visszahivas|hirek|aktualis|elelmiszer)",
+    # NÉBIH recalls live on portal.nebih.gov.hu (host ends with .nebih.gov.hu,
+    # so the authority_domain gate matches). Each press release is its own HTML
+    # page: portal.nebih.gov.hu/-/<slug> (e.g. /-/gyorsfagyasztott-zoldsegeket-
+    # hiv-vissza-a-nebih). The index is the searchable termékvisszahívás page.
+    authority_item_url_regex=r"nebih\.gov\.hu/-/",
+    authority_index_url="https://portal.nebih.gov.hu/termekvisszahivas",
 
     rss_sources=[
         RssSource("index.hu", [
