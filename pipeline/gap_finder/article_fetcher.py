@@ -398,7 +398,13 @@ def _strip_noise(soup: BeautifulSoup) -> None:
 
 
 def _find_main_content(soup: BeautifulSoup) -> Optional[BeautifulSoup]:
-    """Try common selectors; fall back to whichever non-empty container is found."""
+    """Try common selectors; otherwise pick the densest text block.
+
+    Selector pass first (fast, precise for EFET/AGES/news). If nothing matches,
+    fall back to the container with the most text-but-fewest-links (readability-
+    style). This rescues portals like gov.pl whose article sits in an unlabelled
+    <div> alongside heavy nav chrome — picking <body> there returns mostly menu.
+    """
     for sel in CONTENT_SELECTORS:
         try:
             el = soup.select_one(sel)
@@ -406,6 +412,25 @@ def _find_main_content(soup: BeautifulSoup) -> Optional[BeautifulSoup]:
             continue
         if el and len(el.get_text(strip=True)) > 200:
             return el
+
+    # Density fallback: among div/section/article nodes, choose the one with the
+    # most non-link text. Link-heavy nav blocks score low even if long.
+    best = None
+    best_score = 0.0
+    for node in soup.find_all(["div", "section", "article", "main"]):
+        txt = node.get_text(" ", strip=True)
+        n = len(txt)
+        if n < 300:
+            continue
+        link_txt = sum(len(a.get_text(" ", strip=True)) for a in node.find_all("a"))
+        # Fraction of text that is NOT inside links; nav blocks → near 0.
+        non_link = (n - link_txt) / n if n else 0.0
+        score = n * non_link
+        if score > best_score:
+            best_score = score
+            best = node
+    if best is not None and best_score > 200:
+        return best
     return soup.find("body")
 
 
@@ -433,8 +458,13 @@ def extract_title(html: str) -> str:
     if not html:
         return ""
     import re as _re
-    # Portal-chrome <h1> values that are NToT the press-release title.
-    _CHROME_H1 = ("gov.pl", "urzędy centralne", "urzedy centralne")
+    # Portal-chrome <h1> values that are NOT the press-release title
+    # (gov.pl renders TWO chrome h1s: "gov.pl Urzędy centralne" and the
+    # department name "Główny Inspektorat Sanitarny" before the article).
+    _CHROME_H1 = (
+        "gov.pl", "urzędy centralne", "urzedy centralne",
+        "inspektorat sanitarny", "inspektoratsanitarny",
+    )
     # <h1>...</h1> — iterate ALL h1s, skip portal chrome, take first real one.
     for _m in _re.finditer(r"<h1[^>]*>(.*?)</h1>", html, _re.IGNORECASE | _re.DOTALL):
         t = _re.sub(r"<[^>]+>", "", _m.group(1))
@@ -448,10 +478,14 @@ def extract_title(html: str) -> str:
         t = _unescape_ws(m.group(1))
         if len(t) >= 8:
             return t
-    # <title>
+    # <title> — strip portal suffixes like " - <dept> - Portal Gov.pl".
     m = _re.search(r"<title[^>]*>(.*?)</title>", html, _re.IGNORECASE | _re.DOTALL)
     if m:
-        return _unescape_ws(_re.sub(r"<[^>]+>", "", m.group(1)))
+        t = _unescape_ws(_re.sub(r"<[^>]+>", "", m.group(1)))
+        # gov.pl: "<real title> - <dept> - Portal Gov.pl" → keep first segment.
+        if " - " in t and ("portal gov.pl" in t.lower() or "gov.pl" in t.lower()):
+            t = t.split(" - ")[0].strip()
+        return t
     return ""
 
 
