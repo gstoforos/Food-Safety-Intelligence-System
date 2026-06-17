@@ -246,11 +246,20 @@ def resolve_authority_url_via_search(news_title: str, cfg: CountryConfig,
     except ImportError:                                          # pragma: no cover
         from gap_finder.article_fetcher import fetch_html as _fetch_html  # type: ignore
 
-    domain = (cfg.authority_domain or "").lower().lstrip("www.")
+    authority_domain = (cfg.authority_domain or "").lower().lstrip("www.")
+    # If an aggregator front-end is configured (e.g. PL: oalert.pl → gov.pl),
+    # items live on index_domain and we follow through to authority_domain
+    # afterwards. Otherwise index IS the authority site.
+    index_domain = (getattr(cfg, "index_domain", "") or "").lower().lstrip("www.")
+    match_domain = index_domain or authority_domain
+    domain = match_domain  # used by item-collection host filter below
+
     item_re = None
-    if getattr(cfg, "authority_item_url_regex", ""):
+    _item_pat = (getattr(cfg, "index_item_url_regex", "") if index_domain
+                 else getattr(cfg, "authority_item_url_regex", ""))
+    if _item_pat:
         try:
-            item_re = _re2.compile(cfg.authority_item_url_regex, _re2.IGNORECASE)
+            item_re = _re2.compile(_item_pat, _re2.IGNORECASE)
         except _re2.error:
             item_re = None
 
@@ -337,6 +346,43 @@ def resolve_authority_url_via_search(news_title: str, cfg: CountryConfig,
         if verbose:
             print(f"    [authority-index] matched (score={best_score}) "
                   f"{best_url[:75]}", file=_sys.stderr)
+        # Aggregator follow-through: when the match is on an aggregator index
+        # (index_domain set, e.g. oalert.pl), the matched page itself links to
+        # the official authority report (e.g. gov.pl/web/gis/...). Fetch the
+        # matched item and return THAT authority URL so the Pending record
+        # stays authority-pure and the Stage-3 gate (host==authority_domain)
+        # passes. If no authority link is found, reject rather than store an
+        # aggregator URL the gate would refuse anyway.
+        if index_domain and authority_domain and authority_domain != index_domain:
+            try:
+                _r2, item_html, _st2 = _fetch_html(best_url, cfg, timeout=30)
+            except Exception as e:
+                item_html = ""
+                if verbose:
+                    print(f"    [authority-index] item fetch error: {e}",
+                          file=_sys.stderr)
+            auth_url = ""
+            if item_html:
+                for u in _all_links(item_html):
+                    cu = u
+                    if cu.startswith("//"):
+                        cu = "https:" + cu
+                    try:
+                        host = urlparse(cu).netloc.lower().lstrip("www.")
+                    except Exception:
+                        continue
+                    if host == authority_domain or host.endswith("." + authority_domain):
+                        auth_url = _clean(cu)
+                        break
+            if auth_url:
+                if verbose:
+                    print(f"    [authority-index] followed → {auth_url[:75]}",
+                          file=_sys.stderr)
+                return auth_url
+            if verbose:
+                print(f"    [authority-index] no {authority_domain} link on "
+                      f"aggregator item — rejecting", file=_sys.stderr)
+            return ""
         return best_url
 
     if verbose:
