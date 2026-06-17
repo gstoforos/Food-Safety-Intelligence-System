@@ -1,6 +1,17 @@
 {
   "entries": [
     {
+      "date": "2026-06-16",
+      "url": "daily/2026-06-16.html",
+      "total": 3,
+      "tier1": 2,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 3
+      },
+      "generated": "2026-06-17T07:13:03Z"
+    },
+    {
       "date": "2026-06-15",
       "url": "daily/2026-06-15.html",
       "total": 6,
@@ -9,7 +20,7 @@
       "by_region": {
         "Europe": 6
       },
-      "generated": "2026-06-16T17:16:45Z"
+      "generated": "2026-06-17T07:13:03Z"
     },
     {
       "date": "2026-06-14",
@@ -21,7 +32,7 @@
         "North America": 2,
         "Europe": 1
       },
-      "generated": "2026-06-16T07:13:08Z"
+      "generated": "2026-06-17T07:13:03Z"
     },
     {
       "date": "2026-06-13",
@@ -33,7 +44,7 @@
         "North America": 3,
         "Oceania": 1
       },
-      "generated": "2026-06-17T04:16:19Z"
+      "generated": "2026-06-17T07:13:04Z"
     },
     {
       "date": "2026-06-12",
@@ -46,7 +57,7 @@
         "Europe": 5,
         "Latin America": 2
       },
-      "generated": "2026-06-16T07:13:08Z"
+      "generated": "2026-06-17T07:13:04Z"
     },
     {
       "date": "2026-06-11",
@@ -62,7 +73,7 @@
         "Latin America": 1,
         "Oceania": 1
       },
-      "generated": "2026-06-16T07:13:08Z"
+      "generated": "2026-06-17T07:13:04Z"
     },
     {
       "date": "2026-06-10",
@@ -74,33 +85,7 @@
         "Europe": 9,
         "North America": 1
       },
-      "generated": "2026-06-16T07:13:09Z"
-    },
-    {
-      "date": "2026-06-09",
-      "url": "daily/2026-06-09.html",
-      "total": 10,
-      "tier1": 10,
-      "outbreak": 1,
-      "by_region": {
-        "North America": 3,
-        "Europe": 7
-      },
-      "generated": "2026-06-16T07:13:09Z"
-    },
-    {
-      "date": "2026-06-03",
-      "url": "daily/2026-06-03.html",
-      "total": 10,
-      "tier1": 10,
-      "outbreak": 0,
-      "by_region": {
-        "Not specified in the article": 1,
-        "Europe": 5,
-        "Africa": 3,
-        "Aragon, Castilla and Le\u00f3n, Catalonia, Madrid, Murcia, Community of Valencia": 1
-      },
-      "generated": "2026-06-17T04:16:19Z"
+      "generated": "2026-06-17T07:13:05Z"
     }
   ]
 }
