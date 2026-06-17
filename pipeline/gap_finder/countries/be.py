@@ -27,11 +27,16 @@ BELGIUM = CountryConfig(
     authority_short="FAVV-AFSCA",
     authority_full="Federaal Agentschap voor de Veiligheid van de Voedselketen",
     authority_domain="favv-afsca.be",
-    authority_item_url_regex=r"/(produits|producten)/(rappel|terugroep)",
-    # FAVV-AFSCA recall index (verified 2026-06): lists every recall; each has
-    # its own page /fr/produits/rappel-de-<company>. Tier-2 fetches this,
-    # parses the rappel-de-* links, matches the recall by company keyword.
-    authority_index_url="https://favv-afsca.be/nl/producten",  # FR path /fr/produits times out from our IP; try NL path
+    # FAVV item pages: /nl/producten/terugroeping-van-<company>,
+    #                  /nl/producten/waarschuwing-van-<company>,
+    #                  /fr/produits/rappel-de-<company> (FR mirror).
+    authority_item_url_regex=r"/(produits|producten)/(rappel|terugroep|waarschuwing)",
+    # FAVV-AFSCA recall index (verified live 2026-06): the Dutch /nl/producten
+    # page lists every recall as plain HTML with per-item links
+    # (/nl/producten/terugroeping-van-<company>). The French /fr/produits path
+    # times out from the CI runner; the Dutch path loads reliably and the
+    # item slugs carry the company name for keyword matching.
+    authority_index_url="https://favv-afsca.be/nl/producten",
 
     rss_sources=[
         # PRIMARY — German aggregator covers Belgian recalls
