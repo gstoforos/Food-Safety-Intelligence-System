@@ -18,6 +18,9 @@ name: East EU Gap Finder (FSIS)
 #   cz  Czechia (SZPI — potravinynapranyri.cz, /Detail.aspx?id=)
 #   hr  Croatia (HAPIH — hapih.hr, /opoziv-<slug>/)
 #   ee  Estonia (PTA — pta.agri.ee, /<slug>-tagasikutsumine)
+#   mk  North Macedonia (FVA — fva.gov.mk, /<id>-povlekuvanje|otpovikuvanje-<slug>)
+#   md  Moldova (ANSA — ansa.gov.md, /media/rechemare-retragere/<slug>.html)
+#   ba  Bosnia (FSA BiH — fsa.gov.ba, /obavijest-o-povlacenju...<slug>/)
 #
 # (Additional East EU countries are added here only after their authority is
 #  verified to publish per-recall HTML pages — same discipline as Greece.)
@@ -28,7 +31,7 @@ on:
       countries:
         description: 'Comma-separated country codes (default = all verified)'
         type: string
-        default: 'cz,hr,ee'
+        default: 'cz,hr,ee,mk,md,ba'
       skip_news:
         description: 'Skip news scraping'
         type: boolean
@@ -126,7 +129,7 @@ jobs:
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
 
           COUNTRIES="${{ inputs.countries }}"
-          if [ -z "$COUNTRIES" ]; then COUNTRIES="cz,hr,ee"; fi
+          if [ -z "$COUNTRIES" ]; then COUNTRIES="cz,hr,ee,mk,md,ba"; fi
           echo "Will run: $COUNTRIES"
 
           FAILED=""
@@ -159,6 +162,9 @@ jobs:
             docs/data/gap_finder_cz/
             docs/data/gap_finder_hr/
             docs/data/gap_finder_ee/
+            docs/data/gap_finder_mk/
+            docs/data/gap_finder_md/
+            docs/data/gap_finder_ba/
           retention-days: 14
 
       - name: Commit xlsx changes (race-safe)
