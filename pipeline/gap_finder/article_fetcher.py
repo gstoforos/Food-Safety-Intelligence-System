@@ -116,10 +116,14 @@ except ImportError:
 # (e.g. efet.gr/...item/5396) from a news article's HTML, so the recall record
 # points at the authority — never the news outlet that reported it.
 try:
-    from .authority_url_finder import find_authority_url, resolve_authority_url_via_search
+    from .authority_url_finder import (
+        find_authority_url, resolve_authority_url_via_search,
+        url_is_authority_item,
+    )
 except ImportError:
     from pipeline.gap_finder.authority_url_finder import (        # type: ignore
         find_authority_url, resolve_authority_url_via_search,
+        url_is_authority_item,
     )
 
 
@@ -561,12 +565,26 @@ def enrich_candidate(cand: dict, cfg: CountryConfig,
     resolved_url, html, status = fetch_html(url, cfg)
     body = extract_body(html) if html else ""
 
+    # ── Tier 0: the candidate URL may ALREADY be an authority per-recall page ──
+    # Some authorities (e.g. SZPI / potravinynapranyri.cz) publish each recall as
+    # its own page that Google News indexes directly, so the discovered candidate
+    # URL is itself the canonical authority URL. Check both the resolved URL
+    # (after GN unwrap) and the raw URL; if either is an authority item page,
+    # use it directly and skip the HTML scan / index search (which would fail
+    # for such sites and wrongly reject a valid authority recall).
+    authority_url = (url_is_authority_item(resolved_url, cfg)
+                     or url_is_authority_item(url, cfg))
+    if authority_url and verbose:
+        print(f"    [authority-direct] candidate URL is itself an authority "
+              f"page → {authority_url[:70]}", file=sys.stderr)
+
     # Find the OFFICIAL authority URL the article references (efet.gr/...).
     # The recall record must point at the regulator press release, NOT the
     # news outlet. If the article links to no authority page, authority_url
     # stays "" and the candidate is flagged no_authority_url so Stage 3 can
     # reject it instead of writing a news URL into Recalls.
-    authority_url = find_authority_url(html, cfg) if html else ""
+    if not authority_url:
+        authority_url = find_authority_url(html, cfg) if html else ""
 
     # Tier 2: Greek news outlets cite EFET by name but rarely hyperlink the
     # press release, so the HTML scan usually finds nothing. Fall back to

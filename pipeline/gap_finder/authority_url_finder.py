@@ -145,6 +145,40 @@ def _clean(u: str) -> str:
     return u
 
 
+def url_is_authority_item(url: str, cfg: CountryConfig) -> str:
+    """If `url` is ITSELF an authority per-recall page, return it cleaned; else "".
+
+    Some authorities (e.g. SZPI's potravinynapranyri.cz) publish each recall as
+    its own page that Google News indexes directly — so the discovered candidate
+    URL is already the canonical authority URL. In that case there is no separate
+    "authority link in the article" to find and no index to search: the candidate
+    URL is the answer. This check short-circuits both Tier-1 (HTML scan) and
+    Tier-2 (index resolve), which would otherwise fail for such sites and reject
+    a perfectly valid authority recall page.
+
+    Matches when the host is the authority domain (with/without www / subdomain)
+    AND the path+query matches the configured authority_item_url_regex.
+    """
+    domain = (cfg.authority_domain or "").lower().lstrip("www.")
+    if not domain or not url:
+        return ""
+    try:
+        host = urlparse(url).netloc.lower().lstrip("www.")
+    except Exception:
+        return ""
+    if not (host == domain or host.endswith("." + domain)):
+        return ""
+    item_rx = getattr(cfg, "authority_item_url_regex", "")
+    if not item_rx:
+        return ""
+    try:
+        if re.compile(item_rx, re.IGNORECASE).search(url):
+            return _clean(url)
+    except re.error:
+        return ""
+    return ""
+
+
 
 # ──────────────────────────────────────────────────────────────────────────
 # Tier 2 — resolve the authority URL from the authority's OWN recall index
@@ -205,6 +239,28 @@ def _translit_gr(w: str) -> str:
     return "".join(_GR2LAT.get(c, c) for c in w)
 
 
+# Cyrillic → Latin transliteration map. FVA (North Macedonia) and similar
+# authorities romanize Cyrillic titles into their URL slugs
+# (БИО КАКАО → bio-kakao, отповикување → otpovikuvanje, афлатоксин →
+# aflatoksin). News titles and anchor rows are in Cyrillic, so to match
+# title keywords against slug keywords we transliterate Cyrillic to the same
+# Latin scheme. Covers Macedonian + Bulgarian/Serbian Cyrillic letters.
+_CYR2LAT = {
+    "а":"a","б":"b","в":"v","г":"g","д":"d","ѓ":"gj","е":"e","ж":"z",
+    "з":"z","ѕ":"dz","и":"i","ј":"j","к":"k","л":"l","љ":"lj","м":"m",
+    "н":"n","њ":"nj","о":"o","п":"p","р":"r","с":"s","т":"t","ќ":"kj",
+    "у":"u","ф":"f","х":"h","ц":"c","ч":"c","џ":"dz","ш":"s",
+    # Bulgarian / Serbian extras
+    "й":"i","ъ":"a","ь":"","э":"e","ю":"ju","я":"ja","ы":"y","щ":"st",
+    "ё":"e","ћ":"c","ђ":"dj",
+}
+
+
+def _translit_cyr(w: str) -> str:
+    """Transliterate a Cyrillic-script word to authority-slug Latin."""
+    return "".join(_CYR2LAT.get(c, c) for c in w)
+
+
 def _fold(w: str) -> str:
     import unicodedata as _ud
     w = w.lower()
@@ -214,13 +270,16 @@ def _fold(w: str) -> str:
     # if it contains Greek letters, transliterate to Latin to match slugs
     if any("\u0370" <= c <= "\u03ff" for c in w):
         w = _translit_gr(w)
+    # if it contains Cyrillic letters, transliterate to Latin to match slugs
+    if any("\u0400" <= c <= "\u04ff" for c in w):
+        w = _translit_cyr(w)
     return w
 
 
 def _keywords(text: str) -> set[str]:
     """Distinctive accent-folded words (>=4 chars, non-stopword) from text."""
     out = set()
-    for w in _re2.findall(r"[0-9A-Za-zΑ-Ωα-ωΆ-Ώά-ώ]+", text or ""):
+    for w in _re2.findall(r"[0-9A-Za-zΑ-Ωα-ωΆ-Ώά-ώ\u0400-\u04ff]+", text or ""):
         f = _fold(w)
         if len(f) >= 4 and f not in _TITLE_NOISE:
             out.add(f)
