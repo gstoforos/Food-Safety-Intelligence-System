@@ -128,6 +128,22 @@
   "Notes": "[RASFF #2026.5318; classification: alert notification; category: other food product / mixed; notifId=851916] [gemini-enrich 2026-06-17: Brand '—'→'NLD'] [gemini-check 2026-06-17: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
+  "Date": "2026-06-16",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Poland | Notifying: Lithuania",
+  "Brand": "LTU",
+  "Product": "Salmonella Enteritidis in fresh chicken drumettes from Poland",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella Enteritidis in fresh chicken drumettes from Poland; risk: serious; category: poultry meat and poultry meat products",
+  "Class": "Information",
+  "Country": "Poland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851868",
+  "Notes": "[RASFF #2026.5322; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=851868] [gemini-enrich 2026-06-18: Brand '—'→'LTU'] [claude-check 2026-06-18: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
   "Date": "2026-06-15",
   "Source": "RappelConso (FR)",
   "Company": "TRELIDIS E.LECLERC",
@@ -462,6 +478,22 @@
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-surasang-frozen-oysters",
   "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-12: Brand '—'→'Surasang'] [gemini-check 2026-06-12: fix; corrections: Company→Surasang, Pathogen→Norovirus; fix; company mismatch; pathogen mismatch | Company and Pathogen fields require correction based on page content.] [enrich-gate 2026-06-12: pending_enrichment → pending (Claude verified)]"
+ },
+ {
+  "Date": "2026-06-12",
+  "Source": "Salute",
+  "Company": "Semi di lino, Formaggio di pecora",
+  "Brand": "Tuma San Giorz",
+  "Product": "Flax seeds, Sheep cheese",
+  "Pathogen": "Acid cyanide in excess, Listeria",
+  "Reason": "Recall ID 842632",
+  "Class": "",
+  "Country": "Italy",
+  "Region": "Not specified in the article",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/cartello%20richiamo_1781203550.pdf",
+  "Notes": "Discovered via news: ilfattoalimentare.it [gemini-check 2026-06-17: skip; fetch failed (PDF text extraction unavailable — install pypdf (pip install pypdf) to enable PDF reviewing)] [gemini-enrich 2026-06-17: Brand ''→'Tuma San Giorz'] [claude-check 2026-06-18: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-06-18: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-06-11",
