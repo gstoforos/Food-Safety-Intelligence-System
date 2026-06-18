@@ -87,6 +87,17 @@ class CountryConfig:
     index_domain: str = ""
     index_item_url_regex: str = ""
 
+    # ── Additional accepted authority domains (optional) ────────────────────
+    # Most countries have a single authority host. A few legitimately publish
+    # recalls across more than one official domain — e.g. Czechia: the SZPI
+    # regulator site (szpi.gov.cz, per-recall /clanek/ and /en/article/ pages)
+    # AND its public "food pillory" database (potravinynapranyri.cz,
+    # /Detail.aspx?id=N). A recall URL on ANY of these is authority-valid.
+    # authority_domain stays the PRIMARY; these are accepted in addition for the
+    # gate, the article-HTML scan, and the "candidate URL is itself authority"
+    # Tier-0 check. Each entry is a bare host ("potravinynapranyri.cz").
+    authority_domains_extra: list[str] = field(default_factory=list)
+
     # ── Output paths (per-country to avoid collisions) ──────────────────────
     @property
     def data_dir(self) -> str:
