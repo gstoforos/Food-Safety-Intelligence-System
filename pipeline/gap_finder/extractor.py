@@ -275,13 +275,11 @@ def extract_one(
     # single authority URL is allowed through, so two outlets reporting one
     # EFET notice collapse to the one official link.
     authority_domain = (getattr(cfg, "authority_domain", "") or "").lower().lstrip("www.")
-    url_host = ""
-    if efet_url:
-        from urllib.parse import urlparse as _urlparse
-        url_host = _urlparse(efet_url).netloc.lower().lstrip("www.")
-    is_authority_url = bool(efet_url) and authority_domain and (
-        url_host == authority_domain or url_host.endswith("." + authority_domain)
-    )
+    try:
+        from .authority_url_finder import host_is_authority as _host_is_authority
+    except ImportError:
+        from pipeline.gap_finder.authority_url_finder import host_is_authority as _host_is_authority  # type: ignore
+    is_authority_url = bool(efet_url) and _host_is_authority(efet_url, cfg)
     if not is_authority_url:
         if verbose:
             print(f"  [gate] no official {authority_domain or 'authority'} URL "
