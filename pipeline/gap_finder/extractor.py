@@ -280,7 +280,31 @@ def extract_one(
     except ImportError:
         from pipeline.gap_finder.authority_url_finder import host_is_authority as _host_is_authority  # type: ignore
     is_authority_url = bool(efet_url) and _host_is_authority(efet_url, cfg)
-    if not is_authority_url:
+
+    # ── News-authority mode (portal-less countries only) ─────────────────
+    # For countries with NO per-recall authority portal (cfg.news_authority_mode
+    # = True, e.g. Egypt NFSA, Kenya KEBS), accept the NEWS article URL as the
+    # record URL instead of force-rejecting — but strictly: the outlet must be
+    # on this country's curated google_news_domains whitelist. Classification
+    # (below) must still pass at tier 1/2, and cross-outlet duplicates collapse
+    # via dedupe_by_recall_identity downstream. For every normal country
+    # (news_authority_mode False) this block is inert and the gate is absolute.
+    news_url = (verified.get("news_url", "") or "").strip()
+    news_mode_url = ""
+    if (not is_authority_url) and bool(getattr(cfg, "news_authority_mode", False)) and news_url:
+        nd = (verified.get("news_source_domain", "") or "").lower()
+        if nd.startswith("www."):
+            nd = nd[4:]
+        trusted = []
+        for d in (getattr(cfg, "google_news_domains", []) or []):
+            d = d.lower()
+            if d.startswith("www."):
+                d = d[4:]
+            trusted.append(d)
+        if nd and any(nd == t or nd.endswith("." + t) for t in trusted):
+            news_mode_url = news_url
+
+    if (not is_authority_url) and (not news_mode_url):
         if verbose:
             print(f"  [gate] no official {authority_domain or 'authority'} URL "
                   f"found in article — rejecting (news URL not allowed in Recalls)",
@@ -295,6 +319,10 @@ def extract_one(
             f"source article — discovery via news only; not promoted to Recalls."
         )
         return None, rejected
+
+    if news_mode_url and verbose:
+        print(f"  [gate] news-authority mode — accepting whitelisted outlet "
+              f"{verified.get('news_source_domain','')} as record URL", file=sys.stderr)
 
     slug = efet_url.rsplit("/", 1)[-1].replace("-", " ").lower() if efet_url else ""
 
@@ -312,6 +340,17 @@ def extract_one(
     if classification.verdict == "reject":
         rejected = build_rejected_row(verified, classification, cfg)
         return None, rejected
+
+    # News-authority mode is lower-trust than an official portal: only promote
+    # high-confidence hazards (tier 1/2). Anything weaker → reject rather than
+    # write a news-sourced row of uncertain severity into Recalls.
+    if news_mode_url and classification.tier not in (1, 2):
+        rej = build_rejected_row(verified, classification, cfg)
+        rej["Reason"] = (
+            f"News-authority mode ({cfg.authority_short}): classification below "
+            f"tier-2 confidence — not promoted to Recalls."
+        )
+        return None, rej
 
     # Phase 2: LLM extraction with language-aware prompt
     messages = [
@@ -342,6 +381,14 @@ def extract_one(
         print(f"  [extract]  {extracted}", file=sys.stderr)
 
     pending = build_pending_row(verified, classification, extracted, cfg)
+    if news_mode_url:
+        # No authority URL exists for this country — the whitelisted news
+        # article IS the record source. Mark it so reviewers see the provenance.
+        pending["URL"] = news_mode_url
+        pending["Notes"] = (
+            f"News-authority source: {verified.get('news_source_domain','')} "
+            f"(no official {cfg.authority_short} per-recall portal)"
+        )
     return pending, None
 
 
