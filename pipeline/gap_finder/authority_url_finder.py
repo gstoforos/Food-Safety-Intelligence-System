@@ -78,6 +78,33 @@ def _all_links_with_text(html: str) -> list[tuple[str, str]]:
     return out
 
 
+def _authority_domains(cfg: CountryConfig) -> list[str]:
+    """All accepted authority hosts: primary + any authority_domains_extra."""
+    out = []
+    primary = (getattr(cfg, "authority_domain", "") or "").lower().lstrip("www.")
+    if primary:
+        out.append(primary)
+    for d in (getattr(cfg, "authority_domains_extra", None) or []):
+        d = (d or "").lower().lstrip("www.")
+        if d and d not in out:
+            out.append(d)
+    return out
+
+
+def host_is_authority(url: str, cfg: CountryConfig) -> bool:
+    """True if url's host equals or is a subdomain of ANY accepted authority host."""
+    try:
+        host = urlparse(url).netloc.lower().lstrip("www.")
+    except Exception:
+        return False
+    if not host:
+        return False
+    for d in _authority_domains(cfg):
+        if host == d or host.endswith("." + d):
+            return True
+    return False
+
+
 def find_authority_url(html: str, cfg: CountryConfig) -> str:
     """Find the official authority recall URL referenced in a news article.
 
@@ -103,11 +130,7 @@ def find_authority_url(html: str, cfg: CountryConfig) -> str:
     links = _all_links(html)
 
     def _host_matches(u: str) -> bool:
-        try:
-            host = urlparse(u).netloc.lower().lstrip("www.")
-        except Exception:
-            return False
-        return host == domain or host.endswith("." + domain)
+        return host_is_authority(u, cfg)
 
     # Pass 1: authority-domain link matching the precise item-URL regex.
     if item_re is not None:
@@ -162,11 +185,7 @@ def url_is_authority_item(url: str, cfg: CountryConfig) -> str:
     domain = (cfg.authority_domain or "").lower().lstrip("www.")
     if not domain or not url:
         return ""
-    try:
-        host = urlparse(url).netloc.lower().lstrip("www.")
-    except Exception:
-        return ""
-    if not (host == domain or host.endswith("." + domain)):
+    if not host_is_authority(url, cfg):
         return ""
     item_rx = getattr(cfg, "authority_item_url_regex", "")
     if not item_rx:
