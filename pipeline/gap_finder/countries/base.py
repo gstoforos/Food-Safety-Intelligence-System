@@ -98,6 +98,25 @@ class CountryConfig:
     # Tier-0 check. Each entry is a bare host ("potravinynapranyri.cz").
     authority_domains_extra: list[str] = field(default_factory=list)
 
+    # ── News-authority mode (portal-less countries) ─────────────────────────
+    # DEFAULT FALSE — every country with a real per-recall authority portal
+    # (GR, ZA, NG, GH, all EU) MUST keep this False so the authority-URL gate
+    # stays absolute (no news URLs ever enter Recalls; multi-outlet duplicates
+    # are blocked at the gate).
+    #
+    # A few countries have NO per-recall authority portal at all: the regulator
+    # issues recalls only as press statements / letters / Arabic SharePoint
+    # pages with no linkable per-recall slug (e.g. Egypt NFSA, Kenya KEBS,
+    # Zambia ZNPHI). For those — and ONLY those — set this True. The gate then
+    # accepts the NEWS article URL as the record URL when no authority URL
+    # exists, but STRICTLY: (a) the outlet must be on this country's curated
+    # google_news_domains whitelist, and (b) the record must still classify at
+    # tier 1 or 2. Cross-outlet duplicates collapse downstream via
+    # dedupe_by_recall_identity (company + pathogen), so two outlets covering
+    # one recall fold into a single row. This is a deliberate, scoped
+    # relaxation of the authority-pure guarantee for portal-less countries.
+    news_authority_mode: bool = False
+
     # ── Output paths (per-country to avoid collisions) ──────────────────────
     @property
     def data_dir(self) -> str:
@@ -152,7 +171,7 @@ def get(code: str) -> CountryConfig:
         from . import (gr, it, es, pt,
                        de, at, ch, be, nl, lu, pl, hu,
                        se, no, dk, fi, iceland,
-                       cz, hr, ee, mk, md, ba, za, ng)  # noqa: F401
+                       cz, hr, ee, mk, md, ba, za, ng, gh, eg, ke)  # noqa: F401
     if code not in _REGISTRY:
         raise KeyError(
             f"Unknown country code {code!r}. "
