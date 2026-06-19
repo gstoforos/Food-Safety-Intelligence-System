@@ -170,23 +170,48 @@ def _assert_no_shrink(
     remote_rows: List[Dict[str, Any]],
     ours_rows: List[Dict[str, Any]],
     merged_rows: List[Dict[str, Any]],
+    key_fn=None,
 ) -> None:
     """CANARY (audit 2026-05-16) — a true union cannot shrink either input.
     If the merged sheet has fewer rows than the larger input, raise so
     commit_github.py refuses the push.
 
+    The invariant is about the deduped key-SETS, not raw row counts:
+    _merge_unique collapses rows that share a dedup key WITHIN each input as
+    well as across them, so an input that itself contains an internal
+    duplicate (e.g. the same URL+Date written twice to Weekly_Rejected)
+    legitimately produces fewer rows than its raw length. Comparing the merged
+    size against raw len() therefore FALSE-FIRES on internal dups
+    (audit 2026-06-19: Weekly_Rejected 79 < max(70, 80) where ours had one
+    URL+Date dup, true set size 79). The correct reference is the larger of the
+    two deduped key-set sizes — a true union can never be smaller than that,
+    yet this still trips on real data loss such as a whole sheet being dropped
+    (merged 0 < max set size N).
+
+    When key_fn is None we fall back to raw counts (unchanged behaviour).
+
     NOTE: Pending is special-cased by the caller (we filter merged Pending
     against Recalls keys, which can legitimately shrink Pending). For all
     other sheets this canary is unconditional.
     """
-    n_remote = len(remote_rows)
-    n_ours = len(ours_rows)
+    def _distinct(rows: List[Dict[str, Any]]) -> int:
+        if key_fn is None:
+            return len(rows)
+        keys = set()
+        for r in rows:
+            k = key_fn(r)
+            if k:  # _merge_unique skips falsy keys, so they don't count
+                keys.add(k)
+        return len(keys)
+
+    n_remote = _distinct(remote_rows)
+    n_ours = _distinct(ours_rows)
     n_merged = len(merged_rows)
     n_max = max(n_remote, n_ours)
     if n_merged < n_max:
         msg = (
             f"xlsx_merge CANARY: {sheet_name} merge would shrink "
-            f"({n_merged} < max(remote={n_remote}, ours={n_ours})). "
+            f"({n_merged} < max(remote={n_remote}, ours={n_ours}) distinct keys). "
             f"This is impossible for a true union — refusing to write."
         )
         log.error(msg)
@@ -214,7 +239,7 @@ def merge_xlsx_with_remote(
              "URL", "Notes"]
         )
     rec_merged = _merge_unique(rec_remote, rec_ours, _dedup_key)
-    _assert_no_shrink("Recalls", rec_remote, rec_ours, rec_merged)
+    _assert_no_shrink("Recalls", rec_remote, rec_ours, rec_merged, _dedup_key)
     rec_keys = {_dedup_key(r) for r in rec_merged}
 
     pen_headers, pen_remote = _read_sheet(remote_path, "Pending")
@@ -231,7 +256,7 @@ def merge_xlsx_with_remote(
     # remote-winner is correctly dropped from our Pending). The no-shrink
     # canary therefore checks the RAW union, not the post-filter result.
     _assert_no_shrink("Pending (pre-filter)", pen_remote, pen_ours,
-                      pen_merged_raw)
+                      pen_merged_raw, _dedup_key)
     pen_merged = [r for r in pen_merged_raw if _dedup_key(r) not in rec_keys]
 
     news_headers, news_remote = _read_sheet(remote_path, "NEWS")
@@ -242,7 +267,7 @@ def merge_xlsx_with_remote(
              "Title", "Link", "Retrieved (UTC)"]
         )
     news_merged = _merge_unique(news_remote, news_ours, _news_dedup_key)
-    _assert_no_shrink("NEWS", news_remote, news_ours, news_merged)
+    _assert_no_shrink("NEWS", news_remote, news_ours, news_merged, _news_dedup_key)
 
     # ── Weekly_Review (audit 2026-05-06) ──────────────────────────────
     # Pre-2026-05-06 this module silently dropped the Weekly_Review sheet
@@ -269,7 +294,7 @@ def merge_xlsx_with_remote(
                 "Week_Added", "Reviewed",
             ]
     wr_merged = _merge_unique(wr_remote, wr_ours, _wr_dedup_key)
-    _assert_no_shrink("Weekly_Review", wr_remote, wr_ours, wr_merged)
+    _assert_no_shrink("Weekly_Review", wr_remote, wr_ours, wr_merged, _wr_dedup_key)
 
     # ── Weekly_Rejected (audit 2026-05-12) ────────────────────────────
     # Pre-2026-05-12 this module silently dropped the Weekly_Rejected
@@ -298,7 +323,7 @@ def merge_xlsx_with_remote(
                 "Week_Added", "RejectedBy", "RejectionReason", "Reviewed",
             ]
     wj_merged = _merge_unique(wj_remote, wj_ours, _wr_dedup_key)
-    _assert_no_shrink("Weekly_Rejected", wj_remote, wj_ours, wj_merged)
+    _assert_no_shrink("Weekly_Rejected", wj_remote, wj_ours, wj_merged, _wr_dedup_key)
 
     wb = Workbook()
     rec_ws = wb.active
