@@ -5,12 +5,12 @@
       "url": "daily/2026-06-18.html",
       "total": 6,
       "tier1": 5,
-      "outbreak": 1,
+      "outbreak": 0,
       "by_region": {
-        "North America": 1,
-        "Europe": 5
+        "Europe": 5,
+        "North America": 1
       },
-      "generated": "2026-06-19T07:13:02Z"
+      "generated": "2026-06-19T08:28:05Z"
     },
     {
       "date": "2026-06-17",
