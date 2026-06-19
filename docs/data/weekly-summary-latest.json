@@ -8,18 +8,18 @@
   "week_end": "2026-06-18",
   "week_start_display": "12 Jun",
   "week_end_display": "18 Jun 2026",
-  "generated_utc": "2026-06-19T07:24:56.360012+00:00",
+  "generated_utc": "2026-06-19T07:56:26.605418+00:00",
   "stats": {
-    "total": 41,
+    "total": 42,
     "tier1": 31,
     "outbreaks": 1,
-    "delta": -13,
-    "delta_pct": -24
+    "delta": -12,
+    "delta_pct": -22
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 16,
-    "pct": 39
+    "cases": 17,
+    "pct": 40
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -44,20 +44,6 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Clover Hill Dairy, LLC.",
-      "brand": "Clover Hill Dairy (relabeled as KESSO, QUESOS LA RICURA, IZALCO, DE MI PUEBLO, RIO LINDO)",
-      "product": "EXPANDED RECALL — all Clover Hill Dairy brand cheese (hard and soft). Includes: Soft Cuajada in Brine (5-gal bucket 30-lb, 2-gal bucket 14-lb); Soft Cuajada vacuum sealed (5-lb bags, 2.5-lb clamshell, 0.90-lb / 14-oz clamshell); Cuajada vacuum sealed (30-lb boxes); Ricotta (5-gal bucket 40-lb, 2-gal bucket 18-lb, 2.5-lb tubs, 1-lb clamshell); Soft Cuajada Crumbs; Mild Cheese Varieties — Yummy Cheddar, White Cheddar, White Colby, Monterey Jack, Marble Jack (½-lb, 1-lb, 2.5-lb, 5-lb, 40-lb); Sharp Cheese Varieties — Cheddar, Yummy Cheddar, White Cheddar, Monterey Jack; Flavored — Horseradish, Old Bay Cheddar; Pepper Jack Varieties — Jalapeño Cheddar, Pepper Jack, Sizzlin Colby with Habanero Peppers; Smoked Cheddar (Cheddar, White Cheddar); Smoked Pepper — Jalapeño Cheddar; plus Fresh Cheddar Curd and assorted Snack Pack / 3-in-a-Pack stix formats. Plant permit number 24-128 printed on clamshell containers.",
-      "country": "United States",
-      "source": "FDA",
-      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/clover-hill-dairy-expands-recall-include-all-clover-hill-dairy-brand-cheese-due-possible-health-risk"
-    },
-    {
-      "rank": 3,
-      "date": "2026-06-18",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
       "company": "Gallissot",
       "brand": "Gallissot",
       "product": "terrine forestière",
@@ -66,7 +52,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22594/Interne"
     },
     {
-      "rank": 4,
+      "rank": 3,
       "date": "2026-06-18",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -80,7 +66,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22608/Interne"
     },
     {
-      "rank": 5,
+      "rank": 4,
       "date": "2026-06-18",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -92,6 +78,20 @@
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22599/Interne"
+    },
+    {
+      "rank": 5,
+      "date": "2026-06-18",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "SAS BOURGOGNE VIANDES",
+      "brand": "Unbranded",
+      "product": "salade strasbourgeoise",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22596/Interne"
     }
   ],
   "country_count": 20
