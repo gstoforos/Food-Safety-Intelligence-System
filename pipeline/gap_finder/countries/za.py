@@ -36,9 +36,17 @@ SOUTH_AFRICA = CountryConfig(
     # Per-recall WordPress posts are SINGLE root-level descriptive slugs, e.g.
     # /media-statement-deli-hummus-range-product-safety-recall/ . Anchor to the
     # path root (one segment only) so multi-segment taxonomy/nav paths like
-    # /category/product-recalls/ or /tag/... never match. Works for both
-    # absolute URLs and root-relative hrefs.
-    authority_item_url_regex=r"^(?:https?://[^/]+)?/(?!category/|tag/|author/|page/|wp-)[a-z][a-z0-9-]{14,}/?$",
+    # /category/product-recalls/ never match. Also exclude the single-segment
+    # SECTION-INDEX slugs whose names happen to look like item slugs — the
+    # recall listing /product-recalls/ (plural, standalone) and the statements
+    # hub /media-statements-ncc/ — so they aren't mistaken for a recall page.
+    # Real items are "product-recall-<...>" / "product-safety-recall-<...>" /
+    # "media-statement-<...>" (singular), which remain accepted.
+    authority_item_url_regex=(
+        r"^(?:https?://[^/]+)?/"
+        r"(?!category/|tag/|author/|page/|wp-|product-recalls/?$|media-statements-ncc/?$)"
+        r"[a-z][a-z0-9-]{14,}/?$"
+    ),
     # Recall category index (verified live 2026-06).
     authority_index_url="https://thencc.org.za/category/product-recalls/",
     # Some NCC notices may appear on the .gov.za host.
