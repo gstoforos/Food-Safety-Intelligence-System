@@ -276,10 +276,29 @@ def extract_one(
     # EFET notice collapse to the one official link.
     authority_domain = (getattr(cfg, "authority_domain", "") or "").lower().lstrip("www.")
     try:
-        from .authority_url_finder import host_is_authority as _host_is_authority
+        from .authority_url_finder import (
+            host_is_authority as _host_is_authority,
+            url_is_authority_item as _url_is_authority_item,
+        )
     except ImportError:
-        from pipeline.gap_finder.authority_url_finder import host_is_authority as _host_is_authority  # type: ignore
-    is_authority_url = bool(efet_url) and _host_is_authority(efet_url, cfg)
+        from pipeline.gap_finder.authority_url_finder import (  # type: ignore
+            host_is_authority as _host_is_authority,
+            url_is_authority_item as _url_is_authority_item,
+        )
+    # The record URL must be on the authority domain AND be an actual per-recall
+    # ITEM page — never the index/category page. Without the item check, an index
+    # such as nafdac.gov.ng/category/recalls-and-alerts/ or thencc.org.za/
+    # product-recalls/ (which LIST many recalls) passes the domain test, and then
+    # classify() matches a hazard term lifted from the aggregate listing → false
+    # accept. url_is_authority_item enforces this country's per-recall item regex.
+    # Countries with NO item regex keep the domain-only behaviour (their
+    # url_is_authority_item matches any path), so nothing about them changes.
+    _on_domain = bool(efet_url) and _host_is_authority(efet_url, cfg)
+    _item_rx = (getattr(cfg, "authority_item_url_regex", "") or "").strip()
+    if _item_rx:
+        is_authority_url = _on_domain and bool(_url_is_authority_item(efet_url, cfg))
+    else:
+        is_authority_url = _on_domain
 
     # ── News-authority mode (portal-less countries only) ─────────────────
     # For countries with NO per-recall authority portal (cfg.news_authority_mode
