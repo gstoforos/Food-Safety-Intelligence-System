@@ -1,16 +1,29 @@
 {
   "entries": [
     {
-      "date": "2026-06-18",
-      "url": "daily/2026-06-18.html",
-      "total": 6,
-      "tier1": 5,
+      "date": "2026-06-19",
+      "url": "daily/2026-06-19.html",
+      "total": 16,
+      "tier1": 12,
       "outbreak": 0,
       "by_region": {
-        "Europe": 5,
-        "North America": 1
+        "Europe": 16
       },
-      "generated": "2026-06-19T08:28:05Z"
+      "generated": "2026-06-20T04:15:24Z"
+    },
+    {
+      "date": "2026-06-18",
+      "url": "daily/2026-06-18.html",
+      "total": 15,
+      "tier1": 12,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 12,
+        "North America": 1,
+        "Africa": 1,
+        "Latin America": 1
+      },
+      "generated": "2026-06-20T04:15:24Z"
     },
     {
       "date": "2026-06-17",
@@ -68,20 +81,6 @@
       "by_region": {
         "North America": 2,
         "Oceania": 1
-      },
-      "generated": "2026-06-19T07:13:03Z"
-    },
-    {
-      "date": "2026-06-12",
-      "url": "daily/2026-06-12.html",
-      "total": 9,
-      "tier1": 6,
-      "outbreak": 0,
-      "by_region": {
-        "Not specified in the article": 1,
-        "Asia": 1,
-        "Europe": 5,
-        "Latin America": 2
       },
       "generated": "2026-06-19T07:13:03Z"
     }
