@@ -8,18 +8,18 @@
   "week_end": "2026-06-18",
   "week_start_display": "12 Jun",
   "week_end_display": "18 Jun 2026",
-  "generated_utc": "2026-06-19T07:56:26.605418+00:00",
+  "generated_utc": "2026-06-21T19:11:20.376662+00:00",
   "stats": {
-    "total": 42,
-    "tier1": 31,
+    "total": 55,
+    "tier1": 41,
     "outbreaks": 1,
-    "delta": -12,
-    "delta_pct": -22
+    "delta": 1,
+    "delta_pct": 2
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 17,
-    "pct": 40
+    "cases": 20,
+    "pct": 36
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -44,6 +44,20 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
+      "company": "Origin: Italy | Notifying: Ireland",
+      "brand": "IRL",
+      "product": "Listeria monocytogenes in cheese from Italy",
+      "country": "Italy",
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851927"
+    },
+    {
+      "rank": 3,
+      "date": "2026-06-18",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
       "company": "Gallissot",
       "brand": "Gallissot",
       "product": "terrine forestière",
@@ -52,7 +66,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22594/Interne"
     },
     {
-      "rank": 3,
+      "rank": 4,
       "date": "2026-06-18",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -66,7 +80,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22608/Interne"
     },
     {
-      "rank": 4,
+      "rank": 5,
       "date": "2026-06-18",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -78,21 +92,7 @@
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22599/Interne"
-    },
-    {
-      "rank": 5,
-      "date": "2026-06-18",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "SAS BOURGOGNE VIANDES",
-      "brand": "Unbranded",
-      "product": "salade strasbourgeoise",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22596/Interne"
     }
   ],
-  "country_count": 20
+  "country_count": 22
 }
