@@ -118,6 +118,15 @@ jobs:
           done
 
       - name: Commit xlsx changes (race-safe)
-        if: inputs.dry_run != 'true'
+        # MUST share the same gate as Checkout/Run: on a scheduled run where the
+        # Athens-time gate sets go=false (the wrong-DST cron lines, or an off-hour
+        # dispatch), Checkout is skipped and the repo is never on disk. The old
+        # condition (`inputs.dry_run != 'true'`) still fired on those runs because
+        # a scheduled event has no inputs → '' != 'true' is true → it tried
+        # `scripts/safe_push.sh` against an empty workspace → exit 127
+        # "No such file or directory". Gate on the run condition AND exclude dry-run.
+        if: >-
+          (steps.gate.outputs.go == 'true' || github.event_name == 'workflow_dispatch')
+          && github.event.inputs.dry_run != 'true'
         run: |
           bash scripts/safe_push.sh "NA collector: $(date -u +%Y-%m-%dT%H:%MZ)" docs/data/recalls.xlsx
