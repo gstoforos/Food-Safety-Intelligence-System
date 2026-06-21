@@ -21,6 +21,25 @@ NEWS_MIRROR_DOMAINS = (
     "washingtonpost.com",
     "beaconbio.org",
     "ilfattoalimentare.it",
+    # Greek news mirrors (audit 2026-06-21) — EFET recalls were being
+    # double-promoted: once from the efet.gr authority page and again from a
+    # Greek news site that re-reported it. The news copy must be rejected so
+    # only the authority row survives. Full distinctive hosts only (no short
+    # ambiguous substrings like "in.gr").
+    "kathimerini.gr",
+    "protothema.gr",
+    "naftemporiki.gr",
+    "news247.gr",
+    "newsit.gr",
+    "iefimerida.gr",
+    "tovima.gr",
+    "ert.gr",
+    "skai.gr",
+    "newsbeast.gr",
+    "zougla.gr",
+    "lifo.gr",
+    "newpost.gr",
+    "cnn.gr",
 )
 
 
