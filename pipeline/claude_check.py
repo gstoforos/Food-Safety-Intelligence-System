@@ -72,6 +72,21 @@ from review.claude_client import (  # noqa: E402
 from pipeline._url_year import is_year_mismatch  # noqa: E402
 from pipeline._pathogen_scope import is_in_scope as is_tier1_pathogen  # noqa: E402
 from pipeline._news_mirror_blocklist import is_news_mirror  # noqa: E402
+
+# ISO-3166-1 alpha-3 codes that appear as RASFF origin/notifying countries.
+# Used to detect a country code leaking into the Company field of a NON-RASFF
+# row (audit 2026-06-21: an EFET recall was promoted with Company="GRC").
+# Focused on the codes RASFF actually emits so a genuine 3-letter acronym firm
+# isn't false-flagged.
+_ISO3_COUNTRY_CODES = frozenset({
+    "GRC", "DEU", "FRA", "ITA", "ESP", "NLD", "POL", "SVN", "AUT", "BEL",
+    "DNK", "EST", "FIN", "HUN", "LVA", "LTU", "LUX", "MLT", "PRT", "SVK",
+    "SWE", "CZE", "HRV", "ROU", "BGR", "IRL", "CYP", "GBR", "NOR", "ISL",
+    "CHE", "LIE", "USA", "CAN", "CHN", "IND", "TUR", "BRA", "ARG", "MEX",
+    "JPN", "KOR", "THA", "VNM", "IDN", "MYS", "PHL", "SGP", "AUS", "NZL",
+    "EGY", "NGA", "GHA", "KEN", "ZAF", "MAR", "TUN", "UKR", "RUS", "SRB",
+    "UNK",
+})
 # Akamai bypass for URL verification (audit 2026-05-20). The orchestrator
 # scrapers route fda.gov / fsis.usda.gov / fda.gov.ph / gov.il through
 # curl_cffi with chrome131 TLS impersonation. claude-check was using
@@ -1466,6 +1481,56 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Dict[str, str], Optional[str]]:
                     f"Company={row.get('Company')!r} but Claude says page "
                     f"DOES name a company → no correction proposed | "
                     f"{short_reason}")
+
+    # ── Failed-extraction placeholder must never be promoted (audit 2026-06-21) ──
+    # When the LLM extractor times out (e.g. Llama VPS unreachable), the row is
+    # written with Reason="LLM extraction failed — manual review required" and
+    # placeholder Company/Product. Such a row reached Recalls in the 2026-06-21
+    # EFET trout case. Any row still carrying that placeholder Reason must be
+    # held in Pending, never promoted — fail deterministically regardless of the
+    # LLM gate's verdict.
+    reason_val = str(
+        (corrections.get("Reason") if "Reason" in corrections else row.get("Reason"))
+        or ""
+    ).strip().lower()
+    if "llm extraction failed" in reason_val or "manual review required" in reason_val:
+        return ("fail", {},
+                f"extraction_failed_placeholder: row carries a failed-extraction "
+                f"Reason and must stay in Pending for re-extraction | {short_reason}")
+
+    # ── Country-code Company on a non-RASFF row (audit 2026-06-21) ──────
+    # The RASFF-only convention "Company = 3-letter ISO origin code" (GRC,
+    # DEU, …) leaked onto an EFET row and a "Firm: GRC" recall was promoted.
+    # For any NON-RASFF source, a Company that is a bare ISO-3166 alpha-3
+    # code is never a real recalling firm — fail so the row stays in Pending
+    # for re-extraction rather than being promoted with a country code as the
+    # firm name.
+    if not is_rasff:
+        comp_corr = (corrections.get("Company") if "Company" in corrections
+                     else row.get("Company"))
+        comp_val = str(comp_corr or "").strip()
+        if comp_val.upper() in _ISO3_COUNTRY_CODES:
+            return ("fail", {},
+                    f"company_is_country_code: non-RASFF Company={comp_val!r} "
+                    f"is an ISO country code, not a firm | {short_reason}")
+
+    # ── Product is a raw press-release headline (audit 2026-06-21) ──────
+    # When LLM extraction fails, Product can fall back to the raw agency
+    # headline ("ΔΕΛΤΙΟ ΤΥΠΟΥ: …", "PRESS RELEASE: …", "COMMUNIQUÉ …").
+    # That is not a product name — fail so the row stays in Pending for
+    # re-extraction instead of being promoted with a headline as the product.
+    prod_corr = (corrections.get("Product") if "Product" in corrections
+                 else row.get("Product"))
+    prod_val = str(prod_corr or "").strip().lower()
+    _HEADLINE_PREFIXES = (
+        "δελτίο τύπου", "δελτιο τυπου", "ανακοίνωση τύπου", "ανακοινωση τυπου",
+        "press release", "press statement", "media statement",
+        "communiqué de presse", "communique de presse",
+    )
+    if any(prod_val.startswith(p) for p in _HEADLINE_PREFIXES):
+        return ("fail", {},
+                f"product_is_press_release_headline: Product is a raw agency "
+                f"headline, not a product name | {short_reason}")
 
     return verdict, corrections, short_reason
 
