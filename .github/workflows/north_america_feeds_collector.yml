@@ -8,6 +8,13 @@
 
 name: "FSIS NA — feeds collector (us_fda, us_fsis, canada)"
 
+# Required so github-actions[bot] can push the recalls.xlsx commit. Without
+# this the default GITHUB_TOKEN is read-only and safe_push.sh fails with
+# "Permission ... denied to github-actions[bot] ... 403" (audit 2026-06-21).
+# Every other pushing workflow in this repo already declares it.
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
