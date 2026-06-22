@@ -62,6 +62,28 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
                 rec.region = src.region
         print(f"  combined after merge+dedup: {len(records)}")
 
+    # Stage 1c: Dated web search (numeric-date queries via Searx). Catches
+    # zero-day recalls the official API hasn't batched yet, and pulls authority
+    # URLs straight from results. Self-gates: no-op unless Searx is configured.
+    from .agents import searx_search as _sx
+    if src.authority_domain and _sx.is_configured():
+        print("\n=== Stage 1c: Dated web search ===")
+        from .dated_search import fetch_dated_search
+        ds = fetch_dated_search(
+            authority_short=src.authority_short,
+            authority_domain=src.authority_domain,
+            country_code=records[0].country_code if records else src.code[:2],
+            country_name=src.name_en,
+            region=src.region,
+            days_back=max(src.gnews_days_back, 3),
+        )
+        if ds:
+            records = _merge_dedup(records, ds)
+            for rec in records:
+                if not rec.region:
+                    rec.region = src.region
+            print(f"  combined after dated-search merge: {len(records)}")
+
     print("\n=== Stage 2: Age filter ===")
     now = datetime.now(timezone.utc)
     kept = []
@@ -182,30 +204,85 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
 
 def _merge_dedup(official: list, gnews: list) -> list:
     """
-    Merge official + Google News records. Official records win. Drop a
-    Google News record if its title is near-duplicate (Jaccard >= 0.6 on
-    word sets) of any official record — the authority record is cleaner.
+    Merge official + Google-News (and dated-search) records. Official records
+    win. A non-official record is dropped if it duplicates an official record by
+    EITHER:
+      (1) near-duplicate title (Jaccard >= 0.5 on word sets), OR
+      (2) same pathogen AND >= 2 shared distinctive tokens (audit 2026-06-22).
+
+    Path (2) folds news rows into the matching openFDA enforcement record even
+    when the headline wording differs — e.g. the "Alfredo sauce / Salmonella"
+    headlines collapse into the openFDA "Coffee Connexion / Alfredo Sauce" row
+    (FDA issued NO press release for that recall, so openFDA is its only home).
+    The >=2-token requirement prevents false merges of distinct same-pathogen
+    recalls that share only a generic food word (Clover Hill vs Ambriola both
+    being "cheese / Listeria").
     """
     def words(s: str) -> set:
         return {w for w in "".join(
             c.lower() if c.isalnum() else " " for c in (s or "")
         ).split() if len(w) > 2}
 
+    _PATHO = ("salmonella", "listeria", "botulism", "botulinum", "cronobacter",
+              "hepatitis", "norovirus", "cyclospora", "campylobacter",
+              "shigella", "vibrio", "cereulide", "cereus")
+
+    def pathogen(s: str) -> str:
+        t = (s or "").lower()
+        if "coli" in t or "e. coli" in t or "escherichia" in t:
+            return "ecoli"
+        for p in _PATHO:
+            if p in t:
+                return "botulism" if p in ("botulism", "botulinum") else p
+        return ""
+
+    # Words too generic to distinguish one recall from another.
+    _STOP = {
+        "recall", "recalls", "recalled", "recalling", "fda", "usda", "fsis",
+        "cfia", "due", "over", "sold", "states", "state", "class", "highest",
+        "risk", "level", "food", "foods", "products", "product", "brand",
+        "company", "inc", "llc", "due", "because", "potential", "possible",
+        "contamination", "contaminated", "alert", "alerts", "warning", "warns",
+        "outbreak", "issues", "announces", "expands", "expand", "upgrades",
+        "upgrade", "linked", "health", "public", "consumers", "nationwide",
+        "voluntary", "voluntarily", "market", "withdrawal", "safety", "risk",
+        "after", "amid", "more", "than", "this", "that", "with", "from",
+        "may", "due", "the", "and", "for", "are", "new",
+    } | set(_PATHO) | {"ecoli", "coli"}
+
+    def distinctive(*parts) -> set:
+        toks = set()
+        for s in parts:
+            toks |= words(s)
+        return {w for w in toks if w not in _STOP and len(w) >= 4}
+
     official_word_sets = [words(r.title) for r in official]
+    official_sig = [
+        (pathogen(f"{r.title} {r.hazard} {r.product}"),
+         distinctive(r.title, r.product, r.company, r.hazard))
+        for r in official
+    ]
+
     merged = list(official)
     for g in gnews:
         gw = words(g.title)
         if not gw:
             continue
         dup = False
+        # (1) title near-duplicate
         for ow in official_word_sets:
-            if not ow:
-                continue
-            inter = len(gw & ow)
-            union = len(gw | ow)
-            if union and inter / union >= 0.5:
+            if ow and len(gw & ow) / len(gw | ow) >= 0.5:
                 dup = True
                 break
+        # (2) same pathogen + >= 2 shared distinctive tokens
+        if not dup:
+            gp = pathogen(f"{g.title} {g.hazard}")
+            gt = distinctive(g.title, g.hazard)
+            if gp and len(gt) >= 2:
+                for op, ot in official_sig:
+                    if op == gp and len(gt & ot) >= 2:
+                        dup = True
+                        break
         if not dup:
             merged.append(g)
     return merged
