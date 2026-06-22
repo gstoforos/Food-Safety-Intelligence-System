@@ -22,7 +22,9 @@ import requests
 LLAMA_BASE_URL    = os.environ.get("LLAMA_BASE_URL", "").rstrip("/")
 LLAMA_MODEL       = os.environ.get("LLAMA_MODEL", "qwen2.5-7b-instruct")
 LLAMA_TIMEOUT     = int(os.environ.get("LLAMA_TIMEOUT_SEC", "90"))
-LLAMA_MAX_LOOPS   = 2    # cap tool-calling loop depth
+LLAMA_MAX_LOOPS   = 4    # cap tool-calling loop depth (raised from 2 so the
+                         # agent can do staged discovery: site-scoped search →
+                         # broad search to find the recalling firm → site search)
 
 # Circuit breaker — after 3 failures, stop calling for this run.
 _STATE = {"failures": 0, "open": False}

@@ -108,9 +108,18 @@ the OFFICIAL regulator URL for that exact recall, using the web_search tool.
   3. Read the tool results. Find the result whose URL is on the regulator's
      domain AND whose title refers to the same company + hazard + product
      as the headline.
-  4. If no result matches confidently, call web_search ONE more time with
-     different terms (e.g. swap company name for product name).
-  5. If STILL no matching result, output: NONE
+  4. If no site-scoped result matches, the recall's official page is often
+     filed under the MANUFACTURER or INGREDIENT SUPPLIER, not the retail
+     product in the headline (e.g. an "Alfredo sauce" recall may be filed
+     under the powdered-milk supplier). To find it:
+       a. Call web_search WITHOUT the site: filter, using the product + hazard,
+          to learn the actual recalling firm / supplier / brand from the news.
+       b. Then call web_search again WITH the site: filter, using that firm
+          name + hazard.
+  5. The hazard must match: do NOT return a URL whose pathogen differs from the
+     headline (a Salmonella recall must not resolve to a Listeria page), and do
+     NOT return a URL whose year differs from the recall.
+  6. If STILL no matching result on the regulator's domain, output: NONE
 
 ═══ OUTPUT (STRICT) ═══
   - When found: the URL only, exactly as it appeared in the tool result.
