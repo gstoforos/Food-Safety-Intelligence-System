@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import datetime, timezone
 from typing import Optional
 from urllib.parse import urlparse
 
@@ -309,6 +310,75 @@ def _record_resolved(title: str, url: str) -> None:
         _RESOLVED.append((tokens, haz, url))
 
 
+# ── URL ↔ headline consistency guard (audit 2026-06-21) ────────────────────
+# A 2026 "Alfredo sauce / Salmonella" headline was resolved to a 2025 Listeria
+# pasta page, then the fuzzy cache (which keys hazard off the *title*, not the
+# URL) propagated that wrong URL to ~15 rows. This guard rejects any candidate
+# URL whose slug names a DIFFERENT pathogen family than the headline, or whose
+# explicit year conflicts with the headline / is clearly stale. Applied both to
+# freshly-resolved URLs (before caching) and to fuzzy-cache hits (before reuse).
+_PATH_FAMILY_SLUGS = {
+    "salmonella":    ("salmonella",),
+    "listeria":      ("listeria", "monocytogenes"),
+    "botulism":      ("botulism", "botulinum", "clostridium"),
+    "ecoli":         ("ecoli", "e-coli", "escherichia", "stec", "o157"),
+    "campylobacter": ("campylobacter",),
+    "norovirus":     ("norovirus",),
+    "hepatitis":     ("hepatitis",),
+    "shigella":      ("shigella",),
+    "vibrio":        ("vibrio",),
+    "cereulide":     ("cereulide", "cereus"),
+    "cronobacter":   ("cronobacter", "sakazakii"),
+}
+# Map the token returned by _hazard_of() (dots/spaces stripped) → family key.
+_HAZ_TO_FAMILY = {
+    "salmonella": "salmonella",
+    "listeria": "listeria",
+    "ecoli": "ecoli", "stec": "ecoli",
+    "botulism": "botulism", "clostridium": "botulism",
+    "campylobacter": "campylobacter",
+    "norovirus": "norovirus",
+    "hepatitis": "hepatitis",
+    "shigella": "shigella",
+    "vibrio": "vibrio",
+    "cereulide": "cereulide",
+}
+_YEAR_RE = re.compile(r"\b(20\d{2})\b")
+
+
+def _url_conflicts_headline(title: str, url: str) -> str:
+    """Return a short reason string if `url` is inconsistent with `title`'s
+    pathogen or year, else "" (consistent / not checkable)."""
+    u = (url or "").lower()
+    if not u:
+        return ""
+
+    # Pathogen guard: if the headline names a pathogen family and the URL slug
+    # names a DIFFERENT family (and not the headline's own), reject.
+    fam = _HAZ_TO_FAMILY.get(_hazard_of(title))
+    if fam:
+        own = _PATH_FAMILY_SLUGS[fam]
+        if not any(tok in u for tok in own):
+            for other_fam, slugs in _PATH_FAMILY_SLUGS.items():
+                if other_fam == fam:
+                    continue
+                if any(tok in u for tok in slugs):
+                    return f"pathogen_mismatch(headline={fam},url={other_fam})"
+
+    # Year guard: explicit years in the URL slug vs the headline.
+    url_years = {int(y) for y in _YEAR_RE.findall(u)}
+    if url_years:
+        title_years = {int(y) for y in _YEAR_RE.findall((title or "").lower())}
+        if title_years and url_years.isdisjoint(title_years):
+            return (f"year_mismatch(headline={sorted(title_years)},"
+                    f"url={sorted(url_years)})")
+        if not title_years:
+            cur = datetime.now(timezone.utc).year
+            if max(url_years) < cur - 1:   # ≥2 yrs stale for a latest-recall feed
+                return f"year_stale(url={sorted(url_years)},current={cur})"
+    return ""
+
+
 def _url_was_seen(url: str, seen: set) -> bool:
     """Anti-fabrication guard. URL must have appeared in a real Searx
     result this call. Comparison is path-exact (trailing slash ignored)."""
@@ -383,8 +453,13 @@ def find_url(title: str, regulator: str) -> Optional[str]:
     # the brand name varies wildly across articles.
     fuzzy = _lookup_fuzzy(title)
     if fuzzy:
-        print(f"  [NA-agent {regulator}] ↩ fuzzy cache hit → {fuzzy[:90]}")
-        return fuzzy
+        conflict = _url_conflicts_headline(title, fuzzy)
+        if conflict:
+            print(f"  [NA-agent {regulator}] ✗ cache hit rejected ({conflict}) "
+                  f"→ resolving fresh")
+        else:
+            print(f"  [NA-agent {regulator}] ↩ fuzzy cache hit → {fuzzy[:90]}")
+            return fuzzy
 
     print(f"  [NA-agent {regulator}] {title[:80]}")
 
@@ -437,6 +512,14 @@ def find_url(title: str, regulator: str) -> Optional[str]:
     # Anti-fabrication: URL must have appeared in a real Searx result.
     if not _url_was_seen(url, seen_urls):
         print(f"  [NA-agent {regulator}] ✗ FABRICATED — not in Searx results: {url}")
+        return None
+
+    # Consistency: reject a URL whose pathogen/year contradicts the headline
+    # (this is what put a 2025 Listeria-pasta URL on a 2026 Alfredo-Salmonella
+    # recall). Reject WITHOUT caching so the wrong URL can't propagate.
+    conflict = _url_conflicts_headline(title, url)
+    if conflict:
+        print(f"  [NA-agent {regulator}] ✗ URL contradicts headline ({conflict}): {url}")
         return None
 
     print(f"  ✓ {url}")
