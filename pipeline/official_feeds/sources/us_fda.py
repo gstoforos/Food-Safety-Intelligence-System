@@ -86,9 +86,21 @@ def _fetch_openfda(limit: int) -> list[Record]:
 
 
 def _fetch_rss() -> list[Record]:
-    """Real-time FDA food-safety recalls. Each item already has its fda.gov URL."""
+    """Real-time FDA food-safety recalls. Each item already has its fda.gov URL.
+
+    NOTE (audit 2026-06-22): www.fda.gov sits behind Akamai bot defense that
+    redirects automated requests to /apology_objects/abuse-detection-apology.html
+    even with Chrome-TLS impersonation, so this feed is often unavailable from
+    cloud runners (api.fda.gov is NOT blocked, so openFDA still works). We try
+    ONCE and degrade quietly — openFDA + Google News + the resolver agent carry
+    FDA coverage when the RSS is blocked.
+    """
     records: list[Record] = []
-    items = get_rss(RSS_URL)
+    items = get_rss(RSS_URL, retries=1)
+    if not items:
+        print("  [INFO] FDA food-safety RSS unavailable (WAF) — "
+              "using openFDA + Google News")
+        return records
     for it in items:
         title = (it.get("title") or "").strip()
         link = (it.get("link") or "").strip()

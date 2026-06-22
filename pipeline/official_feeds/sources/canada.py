@@ -1,23 +1,22 @@
 """
-Canada source — CFIA / Health Canada Recalls & Safety Alerts open data.
+Canada source — CFIA / Health Canada Recalls & Safety Alerts.
 
-Endpoint (English open data, ALL recall categories, updated daily):
-  https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json
+PRIMARY (audit 2026-06-22): scrape the LIVE listing at
+  https://recalls-rappels.canada.ca/en?page=,N
+This page is current (the bulk open-data JSON lagged — its food records were all
+>14 days old) and canada.ca does not bot-block like FDA. Every row carries a
+category icon (icon-food.svg / icon-product.svg / icon-health.svg), a link to
+its own /alert-recall/<slug> page, and a date. We keep ONLY food rows — the
+page lists every category (food, consumer product, health product, vehicle) and
+we want food only. The /alert-recall/<slug> link is the authority URL, so food
+rows arrive WITH their CFIA URL (no resolver needed).
 
-The file contains every recall category (food, consumer product, health
-product, vehicle, ...). We filter to FOOD recalls only. CFIA food titles name
-the hazard directly ("X brand Y recalled due to Listeria monocytogenes"), so
-title-based classification works well. Google News (hl=en-CA) is the hybrid
-backstop.
+FALLBACK: the open-data bulk JSON (HCRSAMOpenData.json), used only if the live
+listing yields nothing (e.g. markup change).
 
-DATE HANDLING (audit 2026-06-21): the open-data schema uses bilingual /
-suffixed / renamed date keys that have drifted over time. The previous version
-read the FIRST matching key, which on the current schema resolved to a stale
-field — so sorting put old records on top and the genuinely-recent food recalls
-(e.g. 2026-06-19) got sliced out of the top-N before the age filter ever saw
-them (symptom: "200 official records, all too old"). We now compute the MOST
-RECENT parseable date across every date-like field of each record, so sorting
-and the downstream age filter use the recall's real publication/update date.
+CFIA food titles name the hazard directly ("X recalled due to Listeria
+monocytogenes"), so title-based classification works. Google News (hl=en-CA)
+remains the hybrid backstop in main.py.
 """
 
 from __future__ import annotations
@@ -25,19 +24,104 @@ from __future__ import annotations
 import re
 from datetime import datetime, timezone
 
-from ..base import Record, FeedSource, register
-from ..fetch import get_json, parse_iso
+from bs4 import BeautifulSoup
 
+from ..base import Record, FeedSource, register
+from ..fetch import get_json, get_text, parse_iso
+
+LISTING = "https://recalls-rappels.canada.ca/en"
 API = ("https://recalls-rappels.canada.ca/sites/default/files/"
        "opendata-donneesouvertes/HCRSAMOpenData.json")
 
 _DATE_KEY_HINT = ("date", "published", "publish", "updated", "issued",
                   "posted", "modified")
 _ISO_RE = re.compile(r"\b20\d{2}[-/]\d{1,2}[-/]\d{1,2}\b")
+_DATE_IN_TEXT = re.compile(r"(20\d{2}-\d{2}-\d{2})")
 
 
+# ── PRIMARY: live listing scrape ───────────────────────────────────────────
+def _is_food_row(icon_src: str, cat_text: str) -> bool:
+    """A row is food if its icon is the food icon, or the category text names a
+    food category. CFIA food rows use icon-food.svg; categories include
+    'Food recall warning', 'Food safety', and food 'Notification'."""
+    if "icon-food" in (icon_src or "").lower():
+        return True
+    c = (cat_text or "").lower()
+    return "food recall" in c or "food safety" in c
+
+
+def _scrape_listing(pages: int = 6) -> list[Record]:
+    records: list[Record] = []
+    seen: set[str] = set()
+    for p in range(pages):
+        url = f"{LISTING}?page=%2C{p}" if p else LISTING
+        html = get_text(url)
+        if not html:
+            break
+        soup = BeautifulSoup(html, "html.parser")
+        found_here = 0
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            if "/alert-recall/" not in href:
+                continue
+            title = a.get_text(" ", strip=True)
+            if not title:
+                continue
+            if href.startswith("/"):
+                href = "https://recalls-rappels.canada.ca" + href
+            if href in seen:
+                continue
+
+            # Walk up to the row container holding the icon + category + date.
+            container = a
+            cat_text = ""
+            for _ in range(5):
+                container = container.parent
+                if container is None:
+                    break
+                txt = container.get_text(" ", strip=True)
+                if container.find("img") and _DATE_IN_TEXT.search(txt):
+                    cat_text = txt
+                    break
+            icon_src = ""
+            if container is not None:
+                img = container.find("img")
+                if img:
+                    icon_src = img.get("src", "")
+
+            if not _is_food_row(icon_src, cat_text):
+                continue
+
+            m = _DATE_IN_TEXT.search(cat_text)
+            published = parse_iso(m.group(1)) if m else None
+
+            seen.add(href)
+            found_here += 1
+            records.append(Record(
+                source_id=href,
+                country_code="ca",
+                country_name="Canada",
+                authority="CFIA",
+                title=title,
+                company="",
+                product="",
+                hazard=title,            # CFIA titles name the hazard
+                alert_type="recall",
+                region="North America",
+                recall_class="",
+                outbreak=0,
+                published=published,
+                url=href,                # OFFICIAL CFIA /alert-recall page
+                raw={"icon": icon_src, "cat": cat_text},
+            ))
+        # Stop paginating once a page yields no food rows (older pages only).
+        if found_here == 0 and p >= 1:
+            break
+    return records
+
+
+# ── FALLBACK: open-data bulk JSON ──────────────────────────────────────────
 def _val(rec: dict, *keys):
-    """Resolve a field by trying multiple key variants; unwrap en/fr dicts."""
     low = {str(k).lower(): v for k, v in rec.items()}
     for k in keys:
         v = low.get(k.lower())
@@ -60,39 +144,30 @@ def _val(rec: dict, *keys):
 
 
 def _best_date(rec: dict):
-    """Most recent parseable date across all date-like fields of the record.
-
-    Recalls carry several dates (published / last-updated / created); the recall
-    becomes public at the latest of them, and 'is this recent?' is best answered
-    by the max. Robust to whichever key the current schema uses.
-    """
     best = None
 
     def consider(s):
         nonlocal best
         dt = parse_iso(str(s))
+        if dt is None:
+            m = _ISO_RE.search(str(s))
+            if m:
+                dt = parse_iso(m.group(0))
         if dt is not None and (best is None or dt > best):
             best = dt
 
     for k, v in rec.items():
-        if not any(h in str(k).lower() for h in _DATE_KEY_HINT):
-            continue
+        hinted = any(h in str(k).lower() for h in _DATE_KEY_HINT)
         if isinstance(v, dict):
             for vv in v.values():
-                consider(vv)
+                if hinted or (isinstance(vv, str) and _ISO_RE.search(vv)):
+                    consider(vv)
         elif isinstance(v, list):
             for vv in v:
-                consider(vv)
-        else:
+                if hinted or (isinstance(vv, str) and _ISO_RE.search(vv)):
+                    consider(vv)
+        elif hinted or (isinstance(v, str) and _ISO_RE.search(v)):
             consider(v)
-
-    # Fallback: scan all string values for an ISO-ish date substring.
-    if best is None:
-        for v in rec.values():
-            if isinstance(v, str):
-                m = _ISO_RE.search(v)
-                if m:
-                    consider(m.group(0))
     return best
 
 
@@ -101,7 +176,7 @@ def _is_food(category: str, title: str) -> bool:
     return "aliment" in blob or "food" in blob
 
 
-def fetch(limit: int = 200) -> list[Record]:
+def _fetch_bulk_json(limit: int) -> list[Record]:
     records: list[Record] = []
     try:
         data = get_json(API)
@@ -109,8 +184,6 @@ def fetch(limit: int = 200) -> list[Record]:
         print(f"  [WARN] CFIA open-data fetch failed: {e}")
         return records
 
-    # Locate the record list (schema varies: list, or dict with
-    # results/records, possibly nested under results.ALL / EN).
     rows = None
     if isinstance(data, list):
         rows = data
@@ -143,38 +216,34 @@ def fetch(limit: int = 200) -> list[Record]:
                         "recallCategory", "category_en", "Type - En", "type")
         title = _val(it, "title", "Title - En", "Title", "title_en",
                      "recallTitle", "Product - En")
-        if not title:
+        if not title or not _is_food(category, title):
             continue
-        if not _is_food(category, title):
-            continue
-
         url = _val(it, "url", "Url - En", "URL", "link", "url_en",
                    "Web link - En")
-        published = _best_date(it)
         nid = _val(it, "recallId", "NID", "nid", "id", "recallNumber")
-
         records.append(Record(
             source_id=f"CFIA-{nid}" if nid else f"CFIA-{abs(hash(url or title))%10**10}",
-            country_code="ca",
-            country_name="Canada",
-            authority="CFIA",
-            title=title,
-            company="",
-            product="",
-            hazard=title,                 # CFIA titles name the hazard
-            alert_type="recall",
-            region="North America",
+            country_code="ca", country_name="Canada", authority="CFIA",
+            title=title, company="", product="", hazard=title,
+            alert_type="recall", region="North America",
             recall_class=_val(it, "recallClass", "Recall class - En", "class"),
-            outbreak=0,
-            published=published,
-            url=url,
-            raw=it,
+            outbreak=0, published=_best_date(it), url=url, raw=it,
         ))
-
-    # Sort newest first; records without a date go to the end.
     sentinel = datetime(1970, 1, 1, tzinfo=timezone.utc)
     records.sort(key=lambda r: r.published or sentinel, reverse=True)
     return records[:limit]
+
+
+def fetch(limit: int = 200) -> list[Record]:
+    records = _scrape_listing()
+    if records:
+        sentinel = datetime(1970, 1, 1, tzinfo=timezone.utc)
+        records.sort(key=lambda r: r.published or sentinel, reverse=True)
+        print(f"  [CFIA] live listing: {len(records)} food rows")
+        return records[:limit]
+    print("  [WARN] CFIA live listing yielded no food rows — "
+          "falling back to open-data JSON")
+    return _fetch_bulk_json(limit)
 
 
 CANADA = FeedSource(
@@ -191,8 +260,8 @@ CANADA = FeedSource(
                  "undeclared allergen"),
     gnews_hl="en-CA", gnews_gl="CA", gnews_ceid="CA:en",
     gnews_days_back=3,
-    authority_domain="inspection.canada.ca",
-    authority_url_pattern=r"(recall-alert|food-recall)/[a-z0-9-]{10,}",
+    authority_domain="recalls-rappels.canada.ca",
+    authority_url_pattern=r"/alert-recall/[a-z0-9-]{10,}",
     bulk_index_queries=(
         "site:inspection.canada.ca recall food 2026 salmonella",
         "site:inspection.canada.ca recall food 2026 listeria",
