@@ -12,15 +12,15 @@
     {
       "date": "2026-06-19",
       "url": "daily/2026-06-19.html",
-      "total": 26,
-      "tier1": 14,
+      "total": 29,
+      "tier1": 17,
       "outbreak": 0,
       "by_region": {
         "Latin America": 1,
-        "Europe": 24,
+        "Europe": 27,
         "Asia": 1
       },
-      "generated": "2026-06-21T19:10:48Z"
+      "generated": "2026-06-22T04:15:10Z"
     },
     {
       "date": "2026-06-18",
