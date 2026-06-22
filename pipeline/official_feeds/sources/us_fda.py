@@ -1,30 +1,48 @@
 """
-US source — FDA openFDA Food Enforcement API.
+US source — FDA food recalls, from TWO complementary official feeds:
 
-Endpoint: https://api.fda.gov/food/enforcement.json
-Covers all FDA-regulated food (seafood, produce, dairy, packaged, supplements)
-— i.e. everything USDA FSIS does NOT cover (FSIS = meat/poultry/egg only).
-This is the real US value-add. No API key needed. Updated weekly.
+1. openFDA Food Enforcement API (structured, authoritative, but LAGS by weeks):
+     https://api.fda.gov/food/enforcement.json
+   Gives classification ("Class I/II/III"), recalling firm, reason. No API key.
 
-Result fields: recalling_firm, product_description, reason_for_recall,
-classification ("Class I"/"Class II"/"Class III"), recall_initiation_date
-(YYYYMMDD), report_date (YYYYMMDD), status, distribution_pattern, city, state,
-country, recall_number, voluntary_mandated.
+2. FDA Food-Safety Recalls RSS (REAL-TIME press releases, audit 2026-06-21):
+     https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/food-safety/rss.xml
+   This is what the live "Recalls, Market Withdrawals & Safety Alerts" page
+   publishes. Each item already carries the official fda.gov press-release URL,
+   so RSS-sourced rows arrive WITH their authority URL and skip the Stage-3b
+   resolver entirely (no agent fuzzy-cache mis-resolution — that's what put a
+   2025 Listeria-pasta URL on a 2026 Alfredo-Salmonella recall).
+
+openFDA covers everything FSIS does NOT (FSIS = meat/poultry/egg only). The two
+feeds are merged and de-duplicated; Google News (hl=en-US) remains the hybrid
+backstop in main.py.
 """
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 
 from ..base import Record, FeedSource, register
-from ..fetch import get_json
+from ..fetch import get_json, get_rss
 
 API = "https://api.fda.gov/food/enforcement.json"
+RSS_URL = ("https://www.fda.gov/about-fda/contact-fda/stay-informed/"
+           "rss-feeds/food-safety/rss.xml")
+
+# Hazard cues to lift a Tier-relevant hazard out of an RSS title/description.
+_HAZARD_RE = re.compile(
+    r"(listeria(?:\s+monocytogenes)?|salmonella|botulism|clostridium\s+botulinum|"
+    r"botulinum|e\.?\s*coli|escherichia\s+coli|cronobacter|hepatitis\s*a|"
+    r"norovirus|cyclospora|staphylococc\w*|bacillus\s+cereus|cereulide|"
+    r"aflatoxin|undeclared\s+\w+|foreign\s+(?:material|matter)|"
+    r"lead|cesium|metal)",
+    re.IGNORECASE)
 
 
 def _parse_fda_date(s: str):
     s = (s or "").strip()
-    if len(s) == 8 and s.isdigit():            # YYYYMMDD
+    if len(s) == 8 and s.isdigit():            # YYYYMMDD (openFDA)
         try:
             return datetime(int(s[:4]), int(s[4:6]), int(s[6:8]),
                             tzinfo=timezone.utc)
@@ -33,21 +51,19 @@ def _parse_fda_date(s: str):
     return None
 
 
-def fetch(limit: int = 100) -> list[Record]:
+def _fetch_openfda(limit: int) -> list[Record]:
     records: list[Record] = []
     try:
-        data = get_json(API, params={"sort": "report_date:desc",
-                                     "limit": limit})
+        data = get_json(API, params={"sort": "report_date:desc", "limit": limit})
     except Exception as e:  # noqa: BLE001
         print(f"  [WARN] openFDA fetch failed: {e}")
         return records
-
     for it in data.get("results", []):
         rn = it.get("recall_number", "")
         published = (_parse_fda_date(it.get("recall_initiation_date", ""))
                      or _parse_fda_date(it.get("report_date", "")))
         product = (it.get("product_description", "") or "")[:300]
-        rec = Record(
+        records.append(Record(
             source_id=rn or it.get("event_id", ""),
             country_code="us",
             country_name="United States",
@@ -61,12 +77,75 @@ def fetch(limit: int = 100) -> list[Record]:
             recall_class=it.get("classification", ""),   # "Class I" etc.
             outbreak=0,
             published=published,
+            # openFDA rows have no public page; Stage-3b resolves the fda.gov URL.
             url=(f"https://api.fda.gov/food/enforcement.json?search="
                  f"recall_number.exact:%22{rn}%22") if rn else "",
             raw=it,
-        )
-        records.append(rec)
+        ))
     return records
+
+
+def _fetch_rss() -> list[Record]:
+    """Real-time FDA food-safety recalls. Each item already has its fda.gov URL."""
+    records: list[Record] = []
+    items = get_rss(RSS_URL)
+    for it in items:
+        title = (it.get("title") or "").strip()
+        link = (it.get("link") or "").strip()
+        if not title or "fda.gov" not in link:
+            continue
+        desc = (it.get("description") or "").strip()
+        m = _HAZARD_RE.search(f"{title} {desc}")
+        hazard = m.group(0) if m else title
+        records.append(Record(
+            source_id=link,                      # URL is the stable identity
+            country_code="us",
+            country_name="United States",
+            authority="FDA",
+            title=title[:160],
+            company="",
+            product=title[:300],
+            hazard=hazard,
+            alert_type="recall",
+            region="North America",
+            recall_class="",
+            outbreak=0,
+            published=it.get("published"),
+            url=link,                            # OFFICIAL fda.gov press release
+            raw={"rss_title": title, "rss_desc": desc, "rss_link": link},
+        ))
+    return records
+
+
+def fetch(limit: int = 100) -> list[Record]:
+    """Merge real-time RSS + structured openFDA, de-duplicated.
+
+    RSS rows win on duplicates because they carry the official fda.gov URL.
+    Dedup key = normalized title (first 60 chars) and, when present, the
+    openFDA recall number.
+    """
+    rss = _fetch_rss()
+    api = _fetch_openfda(limit)
+
+    out: list[Record] = []
+    seen: set[str] = set()
+
+    def norm(t: str) -> str:
+        return re.sub(r"[^a-z0-9]+", "", (t or "").lower())[:60]
+
+    for rec in rss + api:          # RSS first → preferred on collision
+        keys = {norm(rec.title)}
+        if rec.source_id:
+            keys.add(f"id:{rec.source_id.lower()}")
+        if any(k in seen for k in keys):
+            continue
+        seen |= keys
+        out.append(rec)
+
+    # Newest first; undated to the end.
+    sentinel = datetime(1970, 1, 1, tzinfo=timezone.utc)
+    out.sort(key=lambda r: r.published or sentinel, reverse=True)
+    return out
 
 
 US_FDA = FeedSource(

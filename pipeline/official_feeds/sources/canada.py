@@ -1,7 +1,7 @@
 """
 Canada source — CFIA / Health Canada Recalls & Safety Alerts open data.
 
-Endpoint (English open data, ALL recall categories):
+Endpoint (English open data, ALL recall categories, updated daily):
   https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json
 
 The file contains every recall category (food, consumer product, health
@@ -10,13 +10,19 @@ the hazard directly ("X brand Y recalled due to Listeria monocytogenes"), so
 title-based classification works well. Google News (hl=en-CA) is the hybrid
 backstop.
 
-The open-data schema uses bilingual / suffixed keys that have changed over
-time, so parsing is intentionally defensive: every field is resolved by trying
-several key variants and unwrapping {en/fr} dicts.
+DATE HANDLING (audit 2026-06-21): the open-data schema uses bilingual /
+suffixed / renamed date keys that have drifted over time. The previous version
+read the FIRST matching key, which on the current schema resolved to a stale
+field — so sorting put old records on top and the genuinely-recent food recalls
+(e.g. 2026-06-19) got sliced out of the top-N before the age filter ever saw
+them (symptom: "200 official records, all too old"). We now compute the MOST
+RECENT parseable date across every date-like field of each record, so sorting
+and the downstream age filter use the recall's real publication/update date.
 """
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 
 from ..base import Record, FeedSource, register
@@ -24,6 +30,10 @@ from ..fetch import get_json, parse_iso
 
 API = ("https://recalls-rappels.canada.ca/sites/default/files/"
        "opendata-donneesouvertes/HCRSAMOpenData.json")
+
+_DATE_KEY_HINT = ("date", "published", "publish", "updated", "issued",
+                  "posted", "modified")
+_ISO_RE = re.compile(r"\b20\d{2}[-/]\d{1,2}[-/]\d{1,2}\b")
 
 
 def _val(rec: dict, *keys):
@@ -37,7 +47,6 @@ def _val(rec: dict, *keys):
             for lang in ("en", "english", "En", "EN"):
                 if v.get(lang):
                     return str(v[lang])
-            # first non-empty value
             for vv in v.values():
                 if vv:
                     return str(vv)
@@ -50,11 +59,46 @@ def _val(rec: dict, *keys):
     return ""
 
 
+def _best_date(rec: dict):
+    """Most recent parseable date across all date-like fields of the record.
+
+    Recalls carry several dates (published / last-updated / created); the recall
+    becomes public at the latest of them, and 'is this recent?' is best answered
+    by the max. Robust to whichever key the current schema uses.
+    """
+    best = None
+
+    def consider(s):
+        nonlocal best
+        dt = parse_iso(str(s))
+        if dt is not None and (best is None or dt > best):
+            best = dt
+
+    for k, v in rec.items():
+        if not any(h in str(k).lower() for h in _DATE_KEY_HINT):
+            continue
+        if isinstance(v, dict):
+            for vv in v.values():
+                consider(vv)
+        elif isinstance(v, list):
+            for vv in v:
+                consider(vv)
+        else:
+            consider(v)
+
+    # Fallback: scan all string values for an ISO-ish date substring.
+    if best is None:
+        for v in rec.values():
+            if isinstance(v, str):
+                m = _ISO_RE.search(v)
+                if m:
+                    consider(m.group(0))
+    return best
+
+
 def _is_food(category: str, title: str) -> bool:
     blob = f"{category} {title}".lower()
-    if "aliment" in blob or "food" in blob:
-        return True
-    return False
+    return "aliment" in blob or "food" in blob
 
 
 def fetch(limit: int = 200) -> list[Record]:
@@ -65,15 +109,24 @@ def fetch(limit: int = 200) -> list[Record]:
         print(f"  [WARN] CFIA open-data fetch failed: {e}")
         return records
 
-    # Find the record list (schema varies: list, or dict with results/records)
+    # Locate the record list (schema varies: list, or dict with
+    # results/records, possibly nested under results.ALL / EN).
     rows = None
     if isinstance(data, list):
         rows = data
     elif isinstance(data, dict):
         for key in ("results", "records", "data", "items"):
-            if isinstance(data.get(key), list):
-                rows = data[key]
+            v = data.get(key)
+            if isinstance(v, list):
+                rows = v
                 break
+            if isinstance(v, dict):
+                for sub in ("ALL", "All", "all", "EN", "En", "en"):
+                    if isinstance(v.get(sub), list):
+                        rows = v[sub]
+                        break
+                if rows is not None:
+                    break
         if rows is None:
             for v in data.values():
                 if isinstance(v, list) and v and isinstance(v[0], dict):
@@ -83,14 +136,11 @@ def fetch(limit: int = 200) -> list[Record]:
         print("  [WARN] CFIA: could not locate record list in JSON")
         return records
 
-    # IMPORTANT: the open-data file is ordered oldest-first. We must parse the
-    # WHOLE list and sort by date desc, otherwise slicing the first N hits the
-    # historical archive (which is why 298/300 were "too old" in v1).
     for it in rows:
         if not isinstance(it, dict):
             continue
-        category = _val(it, "category", "Category - En", "Category", "recallCategory",
-                        "category_en", "Type - En", "type")
+        category = _val(it, "category", "Category - En", "Category",
+                        "recallCategory", "category_en", "Type - En", "type")
         title = _val(it, "title", "Title - En", "Title", "title_en",
                      "recallTitle", "Product - En")
         if not title:
@@ -100,9 +150,7 @@ def fetch(limit: int = 200) -> list[Record]:
 
         url = _val(it, "url", "Url - En", "URL", "link", "url_en",
                    "Web link - En")
-        date_s = _val(it, "datePublished", "Date published", "date_published",
-                      "Last updated", "publishedDate", "date")
-        published = parse_iso(date_s)
+        published = _best_date(it)
         nid = _val(it, "recallId", "NID", "nid", "id", "recallNumber")
 
         records.append(Record(
@@ -123,8 +171,7 @@ def fetch(limit: int = 200) -> list[Record]:
             raw=it,
         ))
 
-    # Sort newest first; records without a date go to the end
-    from datetime import datetime, timezone
+    # Sort newest first; records without a date go to the end.
     sentinel = datetime(1970, 1, 1, tzinfo=timezone.utc)
     records.sort(key=lambda r: r.published or sentinel, reverse=True)
     return records[:limit]

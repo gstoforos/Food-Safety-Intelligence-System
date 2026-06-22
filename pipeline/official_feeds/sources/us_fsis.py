@@ -20,11 +20,10 @@ from __future__ import annotations
 import re
 from datetime import datetime, timezone
 
-import requests
 from bs4 import BeautifulSoup
 
 from ..base import Record, FeedSource, register
-from ..fetch import get_json, DEFAULT_HEADERS, TIMEOUT
+from ..fetch import get_json, get_text, DEFAULT_HEADERS, TIMEOUT
 
 API = "https://www.fsis.usda.gov/fsis/api/recall/v/1"
 SCRAPE_URL = "https://www.fsis.usda.gov/recalls"
@@ -130,14 +129,14 @@ def _scrape_fsis_recalls(limit: int = 50) -> list[Record]:
     Used only when the API 403s. Parses the recall listing into Records.
     """
     print(f"  [INFO] Falling back to HTML scrape of {SCRAPE_URL}")
-    try:
-        r = requests.get(SCRAPE_URL, headers=DEFAULT_HEADERS, timeout=TIMEOUT)
-        r.raise_for_status()
-    except Exception as e:  # noqa: BLE001
-        print(f"  [WARN] FSIS HTML scrape failed: {e}")
+    # Use the Chrome-TLS impersonated fetch (audit 2026-06-21): plain requests
+    # 403s against FSIS's Akamai WAF from cloud IPs, same as the API.
+    html = get_text(SCRAPE_URL)
+    if not html:
+        print("  [WARN] FSIS HTML scrape failed (empty/blocked)")
         return []
 
-    soup = BeautifulSoup(r.content, "html.parser")
+    soup = BeautifulSoup(html, "html.parser")
     records: list[Record] = []
     seen = set()
 
