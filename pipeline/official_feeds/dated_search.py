@@ -41,6 +41,47 @@ def _numeric_dates(days_back: int):
         yield f"{dt.month}/{dt.day}/{str(dt.year)[2:]}", dt
 
 
+# FDA / regulator pages that are NOT a specific food recall — index listings,
+# guidance, drug/device sections, system/status pages, FOIA logs, search forms.
+# These match a recall-signal word ("recall") but carry no actual recall, so we
+# drop them before they bloat the candidate set and waste agent resolution.
+# (audit 2026-06-22)
+_JUNK_TITLE = (
+    "guidance", "foia", "system status", "status history", "planned maintenance",
+    "maintenance", "outage", "disruption", "master protocol", "early alert",
+    "medical device", "device recall", "drug recall", "drug recalls",
+    "shippers list", "guidance document", "recall database", "product recall database",
+    "emdr", "running list", "updated running list", "what's clicking",
+    "blog —", "blog -", "linkedin", "search -", "search for fda",
+)
+_JUNK_URL = (
+    "/medical-devices/", "/drugs/", "/vaccines-blood-biologics/",
+    "accessdata.fda.gov", "/guidance", "guidance-documents", "/search",
+    "/foia", "hfpappexternal", "/emdr", "/about-fda/", "recalls.gov",
+    "/inspections-compliance", "/regulatory-information",
+)
+# Bare index pages (the listing itself, not a specific recall slug).
+_INDEX_TAILS = (
+    "recalls-market-withdrawals-safety-alerts",
+    "recalls-market-withdrawals-safety-alerts/",
+    "drug-recalls", "medical-device-recalls-early-alerts",
+)
+
+
+def _is_junk_page(title: str, url: str) -> bool:
+    t = (title or "").lower()
+    u = (url or "").lower().rstrip("/")
+    if any(j in t for j in _JUNK_TITLE):
+        return True
+    if any(j in u for j in _JUNK_URL):
+        return True
+    # index/listing page (path ends at the listing, no per-recall slug)
+    tail = u.rsplit("/", 1)[-1]
+    if tail in _INDEX_TAILS:
+        return True
+    return False
+
+
 def fetch_dated_search(authority_short: str, authority_domain: str,
                        country_code: str, country_name: str,
                        region: str = "North America",
@@ -55,13 +96,16 @@ def fetch_dated_search(authority_short: str, authority_domain: str,
 
     queries: list[tuple[str, datetime]] = []
     for ds, dt in _numeric_dates(days_back):
-        for tmpl in (f"{authority_short} recalls {ds}",
-                     f"{authority_short} food recall {ds}"):
+        # Food-specific so the search doesn't drag in drug / device / system
+        # pages (the bare "<AUTH> recalls <date>" query pulled those in).
+        for tmpl in (f"{authority_short} food recall {ds}",
+                     f"{authority_short} food safety recall {ds}"):
             queries.append((tmpl, dt))
 
     print(f"  [dated-search] {len(queries)} numeric-date queries "
           f"(last {days_back}d)")
     on_auth = 0
+    dropped_junk = 0
     for q, dt in queries:
         pub = datetime(dt.year, dt.month, dt.day, tzinfo=timezone.utc)
         # one open web pass + one authority-scoped pass
@@ -77,6 +121,11 @@ def fetch_dated_search(authority_short: str, authority_domain: str,
             # recall/alert, not generic coverage.
             if not (_has_recall_signal(title)
                     or _has_recall_signal(r.get("content", ""))):
+                continue
+            # Drop FDA index / guidance / drug / device / system pages.
+            if _is_junk_page(title, url):
+                dropped_junk += 1
+                seen.add(url)
                 continue
             seen.add(url)
             host = urlparse(url).netloc.lower()
@@ -106,5 +155,5 @@ def fetch_dated_search(authority_short: str, authority_domain: str,
                      "_on_authority": is_auth},
             ))
     print(f"  [dated-search] {len(records)} candidate rows "
-          f"({on_auth} already on {authority_domain})")
+          f"({on_auth} already on {authority_domain}; {dropped_junk} junk dropped)")
     return records
