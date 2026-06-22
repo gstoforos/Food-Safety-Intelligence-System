@@ -1,105 +1,103 @@
 {
-  "exported_at_utc": "2026-05-14T19:46:51.131550+00:00",
-  "git_sha": "d490c9135d747d8733eb023a4b6860a6508987e1",
+  "exported_at_utc": "2026-06-22T20:52:02.295182+00:00",
+  "git_sha": "210fdb5abef4cd215fa46a2f5b067317787d199a",
   "xlsx_path": "docs/data/recalls.xlsx",
   "historical_rejects_path": "tools/training/data/historical_rejects.xlsx",
   "totals": {
-    "recalls_rows": 612,
-    "weekly_review_rows": 7,
-    "weekly_rejected_rows": 38,
+    "recalls_rows": 960,
+    "weekly_review_rows": 56,
+    "weekly_rejected_rows": 170,
     "historical_rejects_loaded": 95,
     "historical_rejects_filtered_no_reason": 36,
-    "historical_rejects_filtered_dup_live": 0,
-    "historical_rejects_added_to_corpus": 59,
-    "approved_after_filter": 612,
-    "rejected_after_filter": 97
+    "historical_rejects_filtered_dup_live": 6,
+    "historical_rejects_added_to_corpus": 53,
+    "approved_after_filter": 960,
+    "rejected_after_filter": 223
   },
   "promote_classifier": {
-    "total": 709,
-    "train": 639,
-    "val": 70,
+    "total": 1139,
+    "train": 1026,
+    "val": 113,
     "labels": {
-      "promote": 612,
-      "reject": 97
+      "promote": 960,
+      "reject": 179
     },
     "rejection_categories": {
-      "other": 44,
-      "http_error": 1,
-      "network": 1,
-      "multi_field_mismatch": 6,
-      "company_mismatch": 1,
-      "not_a_recall_page": 27,
-      "pathogen_out_of_scope": 6,
-      "date_pre_2026": 5,
-      "duplicate_of_existing_recall": 1,
-      "pathogen_mismatch": 5
+      "pathogen_out_of_scope": 49,
+      "not_a_recall_page": 59,
+      "multi_field_mismatch": 10,
+      "pathogen_mismatch": 6,
+      "company_mismatch": 5,
+      "date_pre_2026": 7,
+      "other": 42,
+      "duplicate_of_existing_recall": 1
     },
     "by_source_sheet": {
-      "Recalls": 612,
-      "Weekly_Rejected": 38,
-      "Historical_Rejected": 59
+      "Recalls": 960,
+      "Weekly_Rejected": 126,
+      "Historical_Rejected": 53
     },
     "by_weight_bucket": {
-      "1.0 (default)": 679,
+      "1.0 (default)": 1101,
+      "2.0+ (manual)": 30,
       "1.5+ (audit)": 7,
-      "2.0+ (manual)": 22,
       "3.0+ (tier-fix)": 1
     }
   },
   "tier_assignment": {
-    "total": 608,
-    "train": 549,
-    "val": 59,
+    "total": 960,
+    "train": 866,
+    "val": 94,
     "tier_distribution": {
-      "1": 428,
-      "2": 155,
-      "3": 25
+      "1": 699,
+      "2": 212,
+      "3": 49
     },
     "top_pathogens": {
-      "Listeria monocytogenes": 216,
-      "Salmonella": 155,
-      "Aflatoxin": 49,
-      "Ochratoxin": 27,
-      "Shiga toxin-producing E. coli (STEC)": 24,
+      "Listeria monocytogenes": 330,
+      "Salmonella": 275,
+      "Aflatoxin": 77,
+      "Shiga toxin-producing E. coli (STEC)": 51,
+      "Ochratoxin": 46,
+      "Clostridium botulinum": 19,
+      "Norovirus": 12,
+      "Salmonella spp.": 12,
+      "Cereulide (B. cereus toxin)": 11,
       "Cereulide (Bacillus cereus toxin)": 11,
-      "Norovirus": 10,
-      "Cereulide (B. cereus toxin)": 10,
-      "Salmonella spp.": 8,
-      "Clostridium botulinum": 7,
+      "Ochratoxin A": 7,
       "Bacillus cereus / cereulide": 7,
+      "Escherichia coli (generic)": 6,
       "Histamine / scombrotoxin": 6,
-      "Escherichia coli (generic)": 4,
-      "Aflatoxins": 4,
-      "Bacillus cereus": 3
+      "Aflatoxins": 5
     },
     "by_source_sheet": {
-      "Recalls": 608
+      "Recalls": 960
     },
     "by_weight_bucket": {
-      "1.0 (default)": 578,
+      "1.0 (default)": 922,
+      "2.0+ (manual)": 30,
       "1.5+ (audit)": 7,
-      "2.0+ (manual)": 22,
       "3.0+ (tier-fix)": 1
     }
   },
   "field_corrections": {
-    "total": 60,
-    "train": 55,
-    "val": 5,
+    "total": 345,
+    "train": 314,
+    "val": 31,
     "field_distribution": {
-      "Pathogen": 20,
-      "Brand": 34,
-      "Company": 19,
-      "Product": 13,
-      "Date": 11
+      "Product": 68,
+      "Pathogen": 100,
+      "Brand": 240,
+      "Date": 41,
+      "Company": 131
     },
     "by_source_sheet": {
-      "Recalls": 43,
-      "Weekly_Rejected": 4,
+      "Recalls": 299,
+      "Weekly_Rejected": 33,
       "Historical_Rejected": 13
     },
     "by_weight_bucket": {
-      "1.0 (default)": 59,
+      "1.0 (default)": 344,
       "1.5+ (audit)": 1
     }
   }
