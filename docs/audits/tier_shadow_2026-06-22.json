@@ -1,0 +1,45 @@
+{
+  "generated_at_utc": "2026-06-22T20:46:24.682252+00:00",
+  "sample_size": 200,
+  "confidence_threshold": 0.85,
+  "overall_agreement": 0.855,
+  "high_confidence_agreement": 0.0,
+  "pct_above_threshold": 0.0,
+  "pct_below_threshold": 1.0,
+  "per_tier": {
+    "Tier 1": {
+      "n": 154,
+      "agreement": 0.9090909090909091,
+      "avg_confidence": 0.7298470160790852
+    },
+    "Tier 2": {
+      "n": 40,
+      "agreement": 0.775,
+      "avg_confidence": 0.5662861548364162
+    },
+    "Tier 3": {
+      "n": 6,
+      "agreement": 0.0,
+      "avg_confidence": 0.750567098458608
+    }
+  },
+  "confusion_matrix": [
+    [
+      140,
+      14,
+      0
+    ],
+    [
+      9,
+      31,
+      0
+    ],
+    [
+      6,
+      0,
+      0
+    ]
+  ],
+  "n_high_conf_disagreements": 0,
+  "n_low_conf_cases": 200
+}
