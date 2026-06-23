@@ -1,0 +1,433 @@
+#!/usr/bin/env python3
+"""
+promote_classifier_shadow.py
+============================
+
+Shadow-mode inference: runs the trained promote classifier against recent
+Recalls rows (which are by definition PROMOTE) plus Weekly_Rejected rows
+(which are REJECT) and produces a comparison report.
+
+NEVER modifies recalls.xlsx or any production data. Read-only, writes
+only a Markdown report to docs/audits/.
+
+Why both sheets:
+  - Recalls (PROMOTE ground truth): hundreds of rows
+  - Weekly_Rejected (REJECT ground truth): typically <50 rows
+  Sampling only from Recalls would give us 100% PROMOTE ground truth,
+  which can't validate the reject-detection ability of the model — the
+  most important measure for production.
+
+Usage:
+    python promote_classifier_shadow.py \\
+        --model-dir tools/fsis-lm/promote-classifier-v1 \\
+        --xlsx docs/data/recalls.xlsx \\
+        --out-dir docs/audits \\
+        --sample-size 200 \\
+        --confidence-threshold 0.85
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import random
+import sys
+from collections import Counter, defaultdict
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+
+
+# ─── Input formatting — MUST MATCH TRAINING ──────────────────────────────
+
+def format_input(row: Dict[str, Any]) -> str:
+    """Format a row exactly as v2.2 exporter did for promote_classifier.
+
+    Uses the default field list from _render_row_as_markdown (Date, Source,
+    Company, Brand, Product, Pathogen, Class, Country, Tier, Outbreak, URL)
+    + Notes excerpt up to 600 chars.
+    """
+    fields = ["Date", "Source", "Company", "Brand", "Product",
+              "Pathogen", "Class", "Country", "Tier", "Outbreak", "URL"]
+    lines = []
+    for f in fields:
+        v = row.get(f, "")
+        if v == "" or v is None:
+            v = "(empty)"
+        lines.append(f"- **{f}**: {v}")
+    notes = str(row.get("Notes", ""))[:600]
+    if notes:
+        lines.append(f"- **Notes excerpt**: {notes}")
+    return "\n".join(lines)
+
+
+# ─── Sheet I/O ────────────────────────────────────────────────────────────
+
+def load_sheet_rows(xlsx_path: Path, sheet: str) -> List[Dict[str, Any]]:
+    import openpyxl
+    wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+    if sheet not in wb.sheetnames:
+        return []
+    ws = wb[sheet]
+    headers = [c.value for c in ws[1]]
+    rows = []
+    for r in ws.iter_rows(min_row=2, values_only=True):
+        row = {h: ("" if v is None else v) for h, v in zip(headers, r) if h}
+        if any(str(v).strip() for v in row.values()):
+            rows.append(row)
+    return rows
+
+
+# ─── Inference ───────────────────────────────────────────────────────────
+
+def run_inference(model_dir: Path,
+                  rows: List[Dict[str, Any]],
+                  max_length: int = 256,
+                  ) -> List[Tuple[str, float, List[float]]]:
+    """Run promote classifier on each row.
+
+    Returns list of (predicted_label, max_confidence, [p_promote, p_reject]).
+    predicted_label is 'PROMOTE' or 'REJECT'.
+    """
+    import torch
+    from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+    print(f"Loading model from {model_dir}...")
+    tokenizer = AutoTokenizer.from_pretrained(model_dir)
+    model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+    model.eval()
+
+    results = []
+    batch_size = 16
+    texts = [format_input(row) for row in rows]
+    label_map = {0: "PROMOTE", 1: "REJECT"}
+
+    print(f"Running inference on {len(texts)} rows...")
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i + batch_size]
+        inputs = tokenizer(batch, return_tensors="pt", truncation=True,
+                            max_length=max_length, padding=True)
+        with torch.no_grad():
+            logits = model(**inputs).logits
+        probs = torch.softmax(logits.float(), dim=-1).cpu().numpy()
+        for p in probs:
+            pred_idx = int(np.argmax(p))
+            results.append((label_map[pred_idx], float(np.max(p)),
+                            [float(x) for x in p]))
+        if (i // batch_size) % 5 == 0:
+            print(f"  [{min(i + batch_size, len(texts))}/{len(texts)}]")
+    return results
+
+
+# ─── Reporting ───────────────────────────────────────────────────────────
+
+def build_report(rows: List[Dict[str, Any]],
+                 gold_labels: List[str],
+                 predictions: List[Tuple[str, float, List[float]]],
+                 confidence_threshold: float,
+                 today_date: str,
+                 ) -> Tuple[str, Dict[str, Any]]:
+
+    n = len(rows)
+    if n == 0:
+        return "# Promote Shadow Mode — no rows\n", {"n": 0}
+
+    agreement = []
+    confidence = []
+    high_conf_disagreements = []
+    low_conf_cases = []
+    # 2x2 confusion: rows = gold, cols = pred (PROMOTE=0, REJECT=1)
+    confusion = np.zeros((2, 2), dtype=int)
+    per_label_agree: Dict[str, List[bool]] = defaultdict(list)
+    conf_by_label: Dict[str, List[float]] = defaultdict(list)
+    label_to_idx = {"PROMOTE": 0, "REJECT": 1}
+
+    for row, gold, (pred, conf, probs) in zip(rows, gold_labels, predictions):
+        agree = (pred == gold)
+        agreement.append(agree)
+        confidence.append(conf)
+        confusion[label_to_idx[gold]][label_to_idx[pred]] += 1
+        per_label_agree[gold].append(agree)
+        conf_by_label[gold].append(conf)
+
+        if not agree and conf >= confidence_threshold:
+            high_conf_disagreements.append({
+                "url": str(row.get("URL", ""))[:120],
+                "source": str(row.get("Source", "")),
+                "pathogen": str(row.get("Pathogen", ""))[:60],
+                "product": str(row.get("Product", ""))[:60],
+                "tier": row.get("Tier", ""),
+                "gold": gold,
+                "pred": pred,
+                "confidence": conf,
+                "probs": probs,
+            })
+        if conf < confidence_threshold:
+            low_conf_cases.append({
+                "url": str(row.get("URL", ""))[:120],
+                "pathogen": str(row.get("Pathogen", ""))[:60],
+                "gold": gold,
+                "pred": pred,
+                "confidence": conf,
+            })
+
+    overall_acc = sum(agreement) / n
+    n_high_conf = sum(1 for c in confidence if c >= confidence_threshold)
+    n_high_conf_agree = sum(
+        1 for a, c in zip(agreement, confidence)
+        if c >= confidence_threshold and a)
+    high_conf_acc = (n_high_conf_agree / n_high_conf) if n_high_conf else 0.0
+    pct_above = n_high_conf / n
+
+    # Per-class metrics critical for promote: precision/recall on REJECT
+    n_gold_reject = sum(1 for g in gold_labels if g == "REJECT")
+    n_pred_reject = sum(1 for p, _, _ in predictions if p == "REJECT")
+    n_true_reject = confusion[1][1]
+    reject_recall = (n_true_reject / n_gold_reject) if n_gold_reject else 0.0
+    reject_precision = (n_true_reject / n_pred_reject) if n_pred_reject else 0.0
+
+    md = []
+    md.append(f"# Promote Classifier — Shadow Mode Comparison — {today_date}")
+    md.append("")
+    md.append(f"Compared the trained promote classifier against Claude's "
+              f"stored PROMOTE/REJECT decisions on **{n} sample rows** "
+              f"(Recalls ∪ Weekly_Rejected). Production data unchanged.")
+    md.append("")
+    md.append("## Headline")
+    md.append("")
+    md.append(f"- **Overall agreement with Claude**: {overall_acc:.1%} "
+              f"({sum(agreement)}/{n})")
+    md.append(f"- **High-confidence agreement** (≥{confidence_threshold:.2f}): "
+              f"**{high_conf_acc:.1%}** ({n_high_conf_agree}/{n_high_conf})")
+    md.append(f"- **Calls that would skip API**: **{pct_above:.1%}** of total")
+    md.append(f"- **REJECT recall** (catches rejects): "
+              f"**{reject_recall:.1%}** ({n_true_reject}/{n_gold_reject})")
+    md.append(f"- **REJECT precision**: **{reject_precision:.1%}** "
+              f"({n_true_reject}/{n_pred_reject})")
+    md.append("")
+    md.append("> **Why REJECT recall matters most:** in production, "
+              "missing a reject (false promote) lets a bad row into Recalls. "
+              "Missing a promote (false reject) just sends a good row to "
+              "manual review. The first is worse.")
+    md.append("")
+
+    md.append("## Cost projection")
+    md.append("")
+    md.append("Assuming ~30 promote-check calls/day in production:")
+    md.append("")
+    md.append("| | Without model | With model |")
+    md.append("|---|---:|---:|")
+    md.append(f"| API calls / day | 30 | {30 * (1 - pct_above):.0f} "
+              f"({1 - pct_above:.0%}) |")
+    md.append(f"| API calls / year | 10,950 | {10950 * (1 - pct_above):.0f} |")
+    md.append(f"| Reduction | — | **{pct_above:.0%}** |")
+    md.append("")
+
+    md.append("## Per-class breakdown")
+    md.append("")
+    md.append("| Class | Sample | Agreement | Avg confidence |")
+    md.append("|---|---:|---:|---:|")
+    for cls in ("PROMOTE", "REJECT"):
+        sample_n = len(per_label_agree[cls])
+        if sample_n == 0:
+            md.append(f"| {cls} | 0 | — | — |")
+            continue
+        a = sum(per_label_agree[cls]) / sample_n
+        c = sum(conf_by_label[cls]) / sample_n
+        md.append(f"| {cls} | {sample_n} | {a:.1%} | {c:.3f} |")
+    md.append("")
+
+    md.append("## Confusion matrix")
+    md.append("")
+    md.append("Rows = Claude's stored decision, columns = model's prediction:")
+    md.append("")
+    md.append("```")
+    md.append("                  Pred PROMOTE   Pred REJECT")
+    md.append(f"  True PROMOTE    {confusion[0][0]:8d}      {confusion[0][1]:8d}")
+    md.append(f"  True REJECT     {confusion[1][0]:8d}      {confusion[1][1]:8d}")
+    md.append("```")
+    md.append("")
+
+    md.append("## Confidence distribution")
+    md.append("")
+    bins = [(0.0, 0.5), (0.5, 0.7), (0.7, 0.85), (0.85, 0.95), (0.95, 1.01)]
+    md.append("| Confidence | Count | % |")
+    md.append("|---|---:|---:|")
+    for lo, hi in bins:
+        cnt = sum(1 for c in confidence if lo <= c < hi)
+        md.append(f"| {lo:.2f}–{hi:.2f} | {cnt} | {cnt/n:.1%} |")
+    md.append("")
+
+    md.append(f"## High-confidence disagreements ({len(high_conf_disagreements)})")
+    md.append("")
+    md.append(f"Cases where model is ≥{confidence_threshold:.2f} confident "
+              f"but disagrees with Claude. These are the most diagnostic — "
+              f"either the model is wrong (training shortcoming) or Claude/the "
+              f"reviewer was wrong (silent labeling error).")
+    md.append("")
+    if not high_conf_disagreements:
+        md.append("_None — model never disagreed at high confidence._ ✓")
+    else:
+        md.append("| # | Gold | Pred | Conf | Source | Pathogen | Product | URL |")
+        md.append("|---:|:---:|:---:|---:|---|---|---|---|")
+        for i, d in enumerate(high_conf_disagreements[:30], 1):
+            md.append(f"| {i} | {d['gold']} | {d['pred']} | "
+                      f"{d['confidence']:.3f} | {d['source']} | "
+                      f"{d['pathogen']} | {d['product']} | {d['url']} |")
+        if len(high_conf_disagreements) > 30:
+            md.append(f"\n_…and {len(high_conf_disagreements) - 30} more_")
+    md.append("")
+
+    md.append(f"## Low-confidence cases ({len(low_conf_cases)})")
+    md.append("")
+    md.append(f"Cases where model max-prob is <{confidence_threshold:.2f} — "
+              f"would fall back to Claude API in production.")
+    md.append("")
+    if not low_conf_cases:
+        md.append("_None._")
+    else:
+        by_label = Counter(c["gold"] for c in low_conf_cases)
+        md.append("Breakdown:")
+        md.append(f"- PROMOTE (gold): {by_label.get('PROMOTE', 0)}")
+        md.append(f"- REJECT (gold): {by_label.get('REJECT', 0)}")
+        md.append("")
+        md.append("Lowest-confidence 15:")
+        md.append("")
+        md.append("| # | Gold | Pred | Conf | Pathogen | URL |")
+        md.append("|---:|:---:|:---:|---:|---|---|")
+        for i, c in enumerate(sorted(low_conf_cases,
+                                      key=lambda x: x["confidence"])[:15], 1):
+            md.append(f"| {i} | {c['gold']} | {c['pred']} | "
+                      f"{c['confidence']:.3f} | {c['pathogen']} | {c['url']} |")
+    md.append("")
+
+    md.append("## Recommendation")
+    md.append("")
+    if high_conf_acc >= 0.95 and pct_above >= 0.70 and reject_recall >= 0.80:
+        md.append("✅ **Ready for production cutover.** High-confidence "
+                  f"accuracy {high_conf_acc:.1%}, API skip rate "
+                  f"{pct_above:.1%}, reject-recall {reject_recall:.1%} — "
+                  "all production thresholds met. Deploy with confidence "
+                  "gate as the API fallback trigger.")
+    elif high_conf_acc >= 0.90 and reject_recall >= 0.75:
+        md.append("🟡 **Almost ready.** Review the high-confidence "
+                  "disagreements. Most likely production deploy works with "
+                  "manual review of disagreement cases for first month.")
+    else:
+        md.append("⚠ **Not yet ready.** Either accuracy is too low or reject "
+                  "recall is below safe threshold. Add disagreement cases to "
+                  "training corpus and re-train.")
+    md.append("")
+
+    metrics = {
+        "generated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "sample_size": n,
+        "confidence_threshold": confidence_threshold,
+        "overall_agreement": overall_acc,
+        "high_confidence_agreement": high_conf_acc,
+        "pct_above_threshold": pct_above,
+        "reject_recall": reject_recall,
+        "reject_precision": reject_precision,
+        "per_class": {
+            cls: {
+                "n": len(per_label_agree[cls]),
+                "agreement": (sum(per_label_agree[cls]) / len(per_label_agree[cls])
+                              if per_label_agree[cls] else None),
+                "avg_confidence": (sum(conf_by_label[cls]) / len(conf_by_label[cls])
+                                   if conf_by_label[cls] else None),
+            }
+            for cls in ("PROMOTE", "REJECT")
+        },
+        "confusion_matrix": confusion.tolist(),
+        "n_high_conf_disagreements": len(high_conf_disagreements),
+        "n_low_conf_cases": len(low_conf_cases),
+    }
+
+    return "\n".join(md), metrics
+
+
+# ─── Main ────────────────────────────────────────────────────────────────
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--model-dir", type=Path, required=True)
+    ap.add_argument("--xlsx", type=Path,
+                    default=Path("docs/data/recalls.xlsx"))
+    ap.add_argument("--out-dir", type=Path, default=Path("docs/audits"))
+    ap.add_argument("--sample-size", type=int, default=200,
+                    help="Total sample size, weighted toward including all rejects")
+    ap.add_argument("--confidence-threshold", type=float, default=0.85)
+    ap.add_argument("--max-length", type=int, default=256)
+    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--date", type=str, default=None,
+                    help="Date stamp for output filename. Default: Athens today.")
+    args = ap.parse_args()
+
+    if not args.model_dir.exists():
+        print(f"ERROR: model dir not found: {args.model_dir}", file=sys.stderr)
+        sys.exit(1)
+    if not args.xlsx.exists():
+        print(f"ERROR: xlsx not found: {args.xlsx}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Loading Recalls (PROMOTE gold) from {args.xlsx}...")
+    recalls = load_sheet_rows(args.xlsx, "Recalls")
+    print(f"  {len(recalls)} rows")
+
+    print(f"Loading Weekly_Rejected (REJECT gold) from {args.xlsx}...")
+    rejected = load_sheet_rows(args.xlsx, "Weekly_Rejected")
+    print(f"  {len(rejected)} rows")
+
+    # Build sample: include ALL rejects (limited dataset), then sample
+    # remaining slots from Recalls. This ensures we always have enough
+    # REJECT examples to measure reject_recall meaningfully.
+    rng = random.Random(args.seed)
+    n_reject_to_include = min(len(rejected), args.sample_size // 2)
+    n_promote_to_include = args.sample_size - n_reject_to_include
+
+    if n_reject_to_include < len(rejected):
+        sampled_rejects = rng.sample(rejected, n_reject_to_include)
+    else:
+        sampled_rejects = list(rejected)
+    if n_promote_to_include < len(recalls):
+        sampled_promotes = rng.sample(recalls, n_promote_to_include)
+    else:
+        sampled_promotes = list(recalls)
+
+    rows = sampled_promotes + sampled_rejects
+    gold_labels = (["PROMOTE"] * len(sampled_promotes) +
+                   ["REJECT"] * len(sampled_rejects))
+    print(f"  → sampled {len(sampled_promotes)} PROMOTE + "
+          f"{len(sampled_rejects)} REJECT = {len(rows)} total")
+
+    predictions = run_inference(args.model_dir, rows,
+                                 max_length=args.max_length)
+
+    today = args.date or dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+    print(f"\nBuilding report (date stamp: {today})...")
+    md, metrics = build_report(rows, gold_labels, predictions,
+                                args.confidence_threshold, today)
+
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    md_path = args.out_dir / f"promote_shadow_{today}.md"
+    json_path = args.out_dir / f"promote_shadow_{today}.json"
+    md_path.write_text(md, encoding="utf-8")
+    json_path.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+    print(f"  → {md_path}")
+    print(f"  → {json_path}")
+
+    print()
+    print("═" * 60)
+    print(f"Sample size:               {metrics['sample_size']}")
+    print(f"Overall agreement:         {metrics['overall_agreement']:.1%}")
+    print(f"High-confidence agreement: {metrics['high_confidence_agreement']:.1%}")
+    print(f"Calls skipping API:        {metrics['pct_above_threshold']:.1%}")
+    print(f"REJECT recall:             {metrics['reject_recall']:.1%}")
+    print(f"REJECT precision:          {metrics['reject_precision']:.1%}")
+    print(f"High-conf disagreements:   {metrics['n_high_conf_disagreements']}")
+    print("═" * 60)
+
+
+if __name__ == "__main__":
+    main()
