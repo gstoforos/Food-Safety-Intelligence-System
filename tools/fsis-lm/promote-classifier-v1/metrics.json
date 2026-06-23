@@ -1,0 +1,50 @@
+{
+  "trained_at_utc": "2026-06-23T07:29:37.681689+00:00",
+  "task": "promote_classifier_binary",
+  "base_model": "microsoft/MiniLM-L12-H384-uncased",
+  "n_train": 1026,
+  "n_val": 113,
+  "train_class_dist": {
+    "PROMOTE": 864,
+    "REJECT": 162
+  },
+  "val_class_dist": {
+    "PROMOTE": 96,
+    "REJECT": 17
+  },
+  "imbalance_ratio": 5.333333333333333,
+  "class_weight_mode": "none",
+  "class_weights": [
+    1.0,
+    1.0
+  ],
+  "epochs": 8,
+  "lr": 2e-05,
+  "batch_size": 16,
+  "max_length": 256,
+  "seed": 42,
+  "final_train_loss": 0.2239846612398441,
+  "eval": {
+    "eval_loss": 0.11489372700452805,
+    "eval_accuracy": 0.9734513274336283,
+    "eval_f1_macro": 0.9492894540014959,
+    "eval_f1_weighted": 0.9737610950417327,
+    "eval_promote_recall": 0.9791666666666666,
+    "eval_reject_recall": 0.9411764705882353,
+    "eval_reject_precision": 0.8888888888888888,
+    "eval_runtime": 9.8752,
+    "eval_samples_per_second": 11.443,
+    "eval_steps_per_second": 0.81,
+    "epoch": 8.0
+  },
+  "confusion_matrix": [
+    [
+      94,
+      2
+    ],
+    [
+      1,
+      16
+    ]
+  ]
+}

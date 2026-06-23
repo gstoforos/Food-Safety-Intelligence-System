@@ -1,0 +1,366 @@
+#!/usr/bin/env python3
+"""
+train_promote_classifier.py
+===========================
+
+Fine-tunes MiniLM-L12-H384-uncased as a BINARY PROMOTE/REJECT classifier
+on the v2.2 promote_classifier.train.jsonl dataset.
+
+Why binary, not 9-way: of the 9 rejection categories in the corpus, four
+have ≤1 training example (network, http_error, company_mismatch,
+duplicate_of_existing_recall) — un-learnable. Day 8 ships binary
+PROMOTE/REJECT, which is what the pipeline actually decides on. A second-
+stage category classifier can come later when there's enough volume.
+
+Same architecture, hyperparameters, and infrastructure as
+train_tier_classifier.py:
+  - microsoft/MiniLM-L12-H384-uncased base (33M params)
+  - Runs on GitHub Actions Ubuntu CPU runner, no GPU needed
+  - class_weight_mode default 'none' (per tier-classifier learning —
+    class weights destroy confidence calibration when minority class
+    has very few examples)
+  - All the float32 / processing_class / dtype fixes from tier training
+  - 8 epochs default (per tier-classifier learning — 4 wasn't enough to
+    sharpen confidence)
+
+Inputs:
+    --train-jsonl   path to promote_classifier.train.jsonl
+    --val-jsonl     path to promote_classifier.val.jsonl
+    --out-dir       output directory for model + tokenizer + metrics
+
+Output structure:
+    out-dir/
+        model.safetensors          fine-tuned weights
+        config.json                model config
+        tokenizer.json + vocab     tokenizer files
+        metrics.json               train/val loss + accuracy + F1
+        confusion_matrix.txt       2x2 confusion matrix on val set
+        val_predictions.jsonl      per-example predictions on val
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+import random
+import sys
+from pathlib import Path
+from typing import List, Tuple
+
+import numpy as np
+
+
+# ─── Data loading ─────────────────────────────────────────────────────────
+
+def load_chat_jsonl(path: Path) -> List[Tuple[str, int]]:
+    """Load chat-template JSONL and extract (input_text, binary_label).
+
+    Label: 0 = PROMOTE, 1 = REJECT (regardless of reject category).
+    The assistant message starts with either "PROMOTE" or "REJECT: ..."
+    """
+    pairs = []
+    with path.open(encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            obj = json.loads(line)
+            msgs = obj["messages"]
+            user_text = next(m["content"] for m in msgs if m["role"] == "user")
+            asst_text = next(m["content"] for m in msgs if m["role"] == "assistant")
+            asst_upper = asst_text.strip().upper()
+            if asst_upper.startswith("PROMOTE"):
+                label = 0
+            elif asst_upper.startswith("REJECT"):
+                label = 1
+            else:
+                # Skip rows we can't classify
+                continue
+            pairs.append((user_text, label))
+    return pairs
+
+
+# ─── Training + evaluation ────────────────────────────────────────────────
+
+def train_and_evaluate(args):
+    import torch
+    from transformers import (
+        AutoTokenizer, AutoModelForSequenceClassification,
+        DataCollatorWithPadding, Trainer, TrainingArguments,
+        set_seed,
+    )
+    from datasets import Dataset
+    from sklearn.metrics import (
+        accuracy_score, f1_score, precision_recall_fscore_support,
+        confusion_matrix, classification_report,
+    )
+
+    set_seed(args.seed)
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+
+    print(f"Loading training data: {args.train_jsonl}")
+    train_pairs = load_chat_jsonl(args.train_jsonl)
+    print(f"  {len(train_pairs)} training examples")
+    if not train_pairs:
+        print("ERROR: no training examples found", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Loading validation data: {args.val_jsonl}")
+    val_pairs = load_chat_jsonl(args.val_jsonl)
+    print(f"  {len(val_pairs)} validation examples")
+
+    from collections import Counter
+    train_dist = Counter(p[1] for p in train_pairs)
+    val_dist = Counter(p[1] for p in val_pairs)
+    print(f"  train dist: {{'PROMOTE': {train_dist[0]}, 'REJECT': {train_dist[1]}}}")
+    print(f"  val dist:   {{'PROMOTE': {val_dist[0]}, 'REJECT': {val_dist[1]}}}")
+    imbalance = train_dist[0] / max(1, train_dist[1])
+    print(f"  imbalance ratio: {imbalance:.1f}:1")
+
+    # ── Tokenizer + model ──
+    print(f"\nLoading tokenizer + model: {args.base_model}")
+    tokenizer = AutoTokenizer.from_pretrained(args.base_model)
+    model = AutoModelForSequenceClassification.from_pretrained(
+        args.base_model,
+        num_labels=2,
+        id2label={0: "PROMOTE", 1: "REJECT"},
+        label2id={"PROMOTE": 0, "REJECT": 1},
+    )
+
+    def tokenize(examples):
+        return tokenizer(
+            examples["text"], truncation=True, max_length=args.max_length,
+        )
+
+    train_ds = Dataset.from_dict({
+        "text": [p[0] for p in train_pairs],
+        "label": [p[1] for p in train_pairs],
+    }).map(tokenize, batched=True, remove_columns=["text"])
+    val_ds = Dataset.from_dict({
+        "text": [p[0] for p in val_pairs],
+        "label": [p[1] for p in val_pairs],
+    }).map(tokenize, batched=True, remove_columns=["text"])
+
+    collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+    # ── Class weights (mode-selected) ──
+    n_total = sum(train_dist.values())
+    inv_freq = [n_total / (2 * train_dist.get(i, 1)) for i in range(2)]
+    if args.class_weight_mode == "balanced":
+        class_weights = torch.tensor(inv_freq, dtype=torch.float32)
+    elif args.class_weight_mode == "sqrt":
+        class_weights = torch.tensor([w ** 0.5 for w in inv_freq],
+                                      dtype=torch.float32)
+    else:   # "none"
+        class_weights = torch.ones(2, dtype=torch.float32)
+    print(f"  class weight mode: {args.class_weight_mode}")
+    print(f"  class weights:     {class_weights.tolist()}")
+
+    # Custom trainer with weighted CE loss + float32 cast (per tier lessons)
+    class WeightedTrainer(Trainer):
+        def compute_loss(self, model, inputs, return_outputs=False,
+                         num_items_in_batch=None):
+            labels = inputs.pop("labels")
+            outputs = model(**inputs)
+            logits = outputs.logits.float()
+            weight = class_weights.to(device=logits.device, dtype=torch.float32)
+            loss_fct = torch.nn.CrossEntropyLoss(weight=weight)
+            loss = loss_fct(logits, labels)
+            return (loss, outputs) if return_outputs else loss
+
+    def compute_metrics(eval_pred):
+        logits, labels = eval_pred
+        preds = np.argmax(logits, axis=-1)
+        acc = accuracy_score(labels, preds)
+        # Macro-F1 weights PROMOTE and REJECT equally — relevant given imbalance
+        f1_macro = f1_score(labels, preds, average="macro", zero_division=0)
+        f1_weighted = f1_score(labels, preds, average="weighted", zero_division=0)
+        # Per-class recall (important: catching all rejects matters)
+        prec, rec, f1, _ = precision_recall_fscore_support(
+            labels, preds, labels=[0, 1], zero_division=0)
+        return {
+            "accuracy": acc,
+            "f1_macro": f1_macro,
+            "f1_weighted": f1_weighted,
+            "promote_recall": rec[0],
+            "reject_recall": rec[1],
+            "reject_precision": prec[1],
+        }
+
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    training_args = TrainingArguments(
+        output_dir=str(args.out_dir / "_checkpoints"),
+        num_train_epochs=args.epochs,
+        per_device_train_batch_size=args.batch_size,
+        per_device_eval_batch_size=args.batch_size,
+        learning_rate=args.lr,
+        warmup_ratio=0.1,
+        weight_decay=0.01,
+        logging_steps=20,
+        eval_strategy="epoch",
+        save_strategy="no",
+        report_to="none",
+        seed=args.seed,
+        fp16=False,
+        dataloader_num_workers=0,
+        disable_tqdm=False,
+        load_best_model_at_end=False,
+    )
+
+    import inspect
+    trainer_kwargs = dict(
+        model=model, args=training_args,
+        train_dataset=train_ds, eval_dataset=val_ds,
+        data_collator=collator, compute_metrics=compute_metrics,
+    )
+    sig = inspect.signature(Trainer.__init__)
+    if "processing_class" in sig.parameters:
+        trainer_kwargs["processing_class"] = tokenizer
+    elif "tokenizer" in sig.parameters:
+        trainer_kwargs["tokenizer"] = tokenizer
+
+    trainer = WeightedTrainer(**trainer_kwargs)
+
+    print(f"\n══════════ TRAINING ══════════")
+    train_result = trainer.train()
+    print(f"\nTraining complete.")
+    print(f"  final train loss: {train_result.training_loss:.4f}")
+    print(f"  total steps:      {train_result.global_step}")
+
+    print(f"\n══════════ FINAL EVAL ══════════")
+    eval_results = trainer.evaluate()
+    for k, v in eval_results.items():
+        if isinstance(v, float):
+            print(f"  {k}: {v:.4f}")
+        else:
+            print(f"  {k}: {v}")
+
+    # ── Predictions + confusion matrix ──
+    print(f"\n══════════ PREDICTIONS ══════════")
+    predictions = trainer.predict(val_ds)
+    preds = np.argmax(predictions.predictions, axis=-1)
+    labels = predictions.label_ids
+    cm = confusion_matrix(labels, preds, labels=[0, 1])
+    report = classification_report(
+        labels, preds, labels=[0, 1],
+        target_names=["PROMOTE", "REJECT"],
+        digits=4, zero_division=0,
+    )
+    print("\nConfusion matrix (rows=true, cols=pred):")
+    print(f"            Pred PROMOTE   Pred REJECT")
+    for i, name in enumerate(["PROMOTE", "REJECT "]):
+        print(f"  {name}   {cm[i][0]:8d}      {cm[i][1]:8d}")
+    print(f"\nClassification report:")
+    print(report)
+
+    # ── Save model ──
+    print(f"\n══════════ SAVING ══════════")
+    model.save_pretrained(args.out_dir)
+    tokenizer.save_pretrained(args.out_dir)
+    print(f"  model + tokenizer → {args.out_dir}")
+
+    # ── Save metrics ──
+    metrics = {
+        "trained_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "task": "promote_classifier_binary",
+        "base_model": args.base_model,
+        "n_train": len(train_pairs),
+        "n_val": len(val_pairs),
+        "train_class_dist": {"PROMOTE": train_dist[0], "REJECT": train_dist[1]},
+        "val_class_dist": {"PROMOTE": val_dist[0], "REJECT": val_dist[1]},
+        "imbalance_ratio": imbalance,
+        "class_weight_mode": args.class_weight_mode,
+        "class_weights": class_weights.tolist(),
+        "epochs": args.epochs,
+        "lr": args.lr,
+        "batch_size": args.batch_size,
+        "max_length": args.max_length,
+        "seed": args.seed,
+        "final_train_loss": float(train_result.training_loss),
+        "eval": {k: (float(v) if isinstance(v, (int, float)) else v)
+                 for k, v in eval_results.items()},
+        "confusion_matrix": cm.tolist(),
+    }
+    (args.out_dir / "metrics.json").write_text(
+        json.dumps(metrics, indent=2), encoding="utf-8")
+    print(f"  metrics → {args.out_dir / 'metrics.json'}")
+
+    (args.out_dir / "confusion_matrix.txt").write_text(
+        f"Confusion matrix (rows=true, cols=pred):\n\n"
+        f"            Pred PROMOTE   Pred REJECT\n"
+        f"  PROMOTE   {cm[0][0]:8d}      {cm[0][1]:8d}\n"
+        f"  REJECT    {cm[1][0]:8d}      {cm[1][1]:8d}\n\n" + report,
+        encoding="utf-8",
+    )
+
+    # ── Save val predictions ──
+    with (args.out_dir / "val_predictions.jsonl").open("w", encoding="utf-8") as f:
+        raw = predictions.predictions.astype(np.float32)
+        raw -= raw.max(axis=-1, keepdims=True)
+        exp = np.exp(raw)
+        probs = exp / exp.sum(axis=-1, keepdims=True)
+        for i, ((text, gold), pred, p) in enumerate(zip(val_pairs, preds, probs)):
+            f.write(json.dumps({
+                "i": i,
+                "input": text[:500],
+                "gold": "PROMOTE" if gold == 0 else "REJECT",
+                "pred": "PROMOTE" if pred == 0 else "REJECT",
+                "correct": bool(int(gold) == int(pred)),
+                "probs": {"PROMOTE": float(p[0]), "REJECT": float(p[1])},
+            }, ensure_ascii=False) + "\n")
+
+    import shutil
+    ckpt_dir = args.out_dir / "_checkpoints"
+    if ckpt_dir.exists():
+        shutil.rmtree(ckpt_dir)
+
+    # ── Adequacy gate ──
+    print(f"\n══════════ TRAINING GATE ══════════")
+    target_acc = 0.92          # binary task should beat tier
+    target_reject_recall = 0.70  # catching rejects matters
+    acc = eval_results.get("eval_accuracy", 0)
+    reject_recall = eval_results.get("eval_reject_recall", 0)
+    if acc >= target_acc and reject_recall >= target_reject_recall:
+        print(f"✓ PASS: accuracy={acc:.3f} (≥{target_acc}) and "
+              f"reject_recall={reject_recall:.3f} (≥{target_reject_recall})")
+        print(f"  Ready for shadow-mode evaluation.")
+    else:
+        print(f"⚠ BELOW THRESHOLD: accuracy={acc:.3f} "
+              f"(target ≥{target_acc}), reject_recall={reject_recall:.3f} "
+              f"(target ≥{target_reject_recall})")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--train-jsonl", type=Path, required=True)
+    ap.add_argument("--val-jsonl", type=Path, required=True)
+    ap.add_argument("--out-dir", type=Path, required=True)
+    ap.add_argument("--base-model", default="microsoft/MiniLM-L12-H384-uncased")
+    ap.add_argument("--epochs", type=int, default=8)
+    ap.add_argument("--batch-size", type=int, default=16)
+    ap.add_argument("--lr", type=float, default=2e-5)
+    ap.add_argument("--max-length", type=int, default=256)
+    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--class-weight-mode",
+                    choices=["none", "sqrt", "balanced"],
+                    default="none",
+                    help="Loss weighting by class frequency.")
+    args = ap.parse_args()
+
+    if not args.train_jsonl.exists():
+        print(f"ERROR: training file not found: {args.train_jsonl}",
+              file=sys.stderr)
+        sys.exit(1)
+    if not args.val_jsonl.exists():
+        print(f"ERROR: validation file not found: {args.val_jsonl}",
+              file=sys.stderr)
+        sys.exit(1)
+
+    train_and_evaluate(args)
+
+
+if __name__ == "__main__":
+    main()

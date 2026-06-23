@@ -1,0 +1,14 @@
+Confusion matrix (rows=true, cols=pred):
+
+            Pred PROMOTE   Pred REJECT
+  PROMOTE         94             2
+  REJECT           1            16
+
+              precision    recall  f1-score   support
+
+     PROMOTE     0.9895    0.9792    0.9843        96
+      REJECT     0.8889    0.9412    0.9143        17
+
+    accuracy                         0.9735       113
+   macro avg     0.9392    0.9602    0.9493       113
+weighted avg     0.9743    0.9735    0.9738       113
