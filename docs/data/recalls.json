@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-06-23",
+  "Source": "RappelConso (FR)",
+  "Company": "Grand Frais / Fresh / Mon-Marché.Fr",
+  "Brand": "Grand Frais / Fresh / Mon-Marché.Fr",
+  "Product": "brisures de saumon fumé 150g",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Détection Listeria monocytogenes",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22623/Interne",
+  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-23: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-23: pass; pass]"
+ },
+ {
   "Date": "2026-06-22",
   "Source": "RappelConso (FR)",
   "Company": "Monoprix Gourmet",
