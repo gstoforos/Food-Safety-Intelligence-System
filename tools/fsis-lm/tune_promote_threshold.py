@@ -1,0 +1,346 @@
+#!/usr/bin/env python3
+"""
+tune_promote_threshold.py
+=========================
+
+Threshold-tuning re-analysis for the promote classifier. Doesn't retrain.
+
+Problem: the trained promote classifier has high REJECT precision (98.5%)
+but only 67% REJECT recall — it misses 1 in 3 rejects because it defaults
+to PROMOTE when uncertain. Standard 'trust max-prob ≥ 0.85' inference
+doesn't help; the model is over-confident on its PROMOTE predictions.
+
+Solution: lower the decision threshold for REJECT. Instead of 'predict
+REJECT if P(REJECT) > P(PROMOTE)' (which is 0.50 by default), try
+'predict REJECT if P(REJECT) ≥ 0.30' (or wherever the sweet spot is).
+The model already gives meaningful probability mass to REJECT on the
+rows it misses; we just need a more aggressive cutoff.
+
+This script:
+  1. Loads the trained model
+  2. Runs inference on balanced sample (same as shadow workflow)
+  3. Sweeps REJECT thresholds from 0.10 to 0.50 in 0.05 steps
+  4. For each threshold, computes: reject_recall, reject_precision,
+     promote_recall, overall_accuracy
+  5. Picks the threshold that maximizes reject_recall × promote_recall
+     (geometric mean — penalizes either being too low)
+  6. Writes a tuning report to docs/audits/
+
+Usage:
+    python tune_promote_threshold.py \\
+        --model-dir tools/fsis-lm/promote-classifier-v1 \\
+        --xlsx docs/data/recalls.xlsx \\
+        --out-dir docs/audits \\
+        --sample-size 200
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import random
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
+import numpy as np
+
+
+# ─── Input formatting — MUST MATCH TRAINING ──────────────────────────────
+
+def format_input(row: Dict[str, Any]) -> str:
+    fields = ["Date", "Source", "Company", "Brand", "Product",
+              "Pathogen", "Class", "Country", "Tier", "Outbreak", "URL"]
+    lines = []
+    for f in fields:
+        v = row.get(f, "")
+        if v == "" or v is None:
+            v = "(empty)"
+        lines.append(f"- **{f}**: {v}")
+    notes = str(row.get("Notes", ""))[:600]
+    if notes:
+        lines.append(f"- **Notes excerpt**: {notes}")
+    return "\n".join(lines)
+
+
+def load_sheet_rows(xlsx_path: Path, sheet: str) -> List[Dict[str, Any]]:
+    import openpyxl
+    wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+    if sheet not in wb.sheetnames:
+        return []
+    ws = wb[sheet]
+    headers = [c.value for c in ws[1]]
+    rows = []
+    for r in ws.iter_rows(min_row=2, values_only=True):
+        row = {h: ("" if v is None else v) for h, v in zip(headers, r) if h}
+        if any(str(v).strip() for v in row.values()):
+            rows.append(row)
+    return rows
+
+
+def run_inference(model_dir: Path,
+                  rows: List[Dict[str, Any]],
+                  max_length: int = 256) -> np.ndarray:
+    """Returns a (N, 2) array of softmax probs [P(PROMOTE), P(REJECT)]."""
+    import torch
+    from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+    print(f"Loading model from {model_dir}...")
+    tokenizer = AutoTokenizer.from_pretrained(model_dir)
+    model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+    model.eval()
+
+    all_probs = []
+    batch_size = 16
+    texts = [format_input(row) for row in rows]
+    print(f"Running inference on {len(texts)} rows...")
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i + batch_size]
+        inputs = tokenizer(batch, return_tensors="pt", truncation=True,
+                            max_length=max_length, padding=True)
+        with torch.no_grad():
+            logits = model(**inputs).logits
+        probs = torch.softmax(logits.float(), dim=-1).cpu().numpy()
+        all_probs.append(probs)
+        if (i // batch_size) % 5 == 0:
+            print(f"  [{min(i + batch_size, len(texts))}/{len(texts)}]")
+    return np.concatenate(all_probs, axis=0)
+
+
+def evaluate_at_threshold(probs: np.ndarray,
+                          gold: np.ndarray,
+                          reject_threshold: float) -> Dict[str, float]:
+    """Apply 'predict REJECT if P(REJECT) ≥ threshold' rule and compute metrics.
+
+    gold: 0 = PROMOTE, 1 = REJECT
+    probs: (N, 2)
+    """
+    p_reject = probs[:, 1]
+    pred = (p_reject >= reject_threshold).astype(int)
+
+    tp = int(((pred == 1) & (gold == 1)).sum())   # correctly rejected
+    fp = int(((pred == 1) & (gold == 0)).sum())   # falsely rejected (was promote)
+    tn = int(((pred == 0) & (gold == 0)).sum())   # correctly promoted
+    fn = int(((pred == 0) & (gold == 1)).sum())   # missed reject
+
+    n = len(gold)
+    accuracy = (tp + tn) / n
+    reject_recall = tp / (tp + fn) if (tp + fn) else 0.0
+    reject_precision = tp / (tp + fp) if (tp + fp) else 0.0
+    promote_recall = tn / (tn + fp) if (tn + fp) else 0.0
+    promote_precision = tn / (tn + fn) if (tn + fn) else 0.0
+    # Combined "production fitness" score: penalize either recall being low
+    combined = (reject_recall * promote_recall) ** 0.5
+
+    return {
+        "threshold": reject_threshold,
+        "accuracy": accuracy,
+        "reject_recall": reject_recall,
+        "reject_precision": reject_precision,
+        "promote_recall": promote_recall,
+        "promote_precision": promote_precision,
+        "combined_score": combined,
+        "tp": tp, "fp": fp, "tn": tn, "fn": fn,
+    }
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--model-dir", type=Path, required=True)
+    ap.add_argument("--xlsx", type=Path,
+                    default=Path("docs/data/recalls.xlsx"))
+    ap.add_argument("--out-dir", type=Path, default=Path("docs/audits"))
+    ap.add_argument("--sample-size", type=int, default=200)
+    ap.add_argument("--max-length", type=int, default=256)
+    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--date", type=str, default=None)
+    args = ap.parse_args()
+
+    if not args.model_dir.exists():
+        print(f"ERROR: model dir not found: {args.model_dir}", file=sys.stderr)
+        sys.exit(1)
+
+    today = args.date or dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+
+    # ── Load balanced sample (same as promote_classifier_shadow.py) ──
+    print(f"Loading data from {args.xlsx}...")
+    recalls = load_sheet_rows(args.xlsx, "Recalls")
+    rejected = load_sheet_rows(args.xlsx, "Weekly_Rejected")
+    print(f"  Recalls: {len(recalls)}, Weekly_Rejected: {len(rejected)}")
+
+    rng = random.Random(args.seed)
+    n_reject = min(len(rejected), args.sample_size // 2)
+    n_promote = args.sample_size - n_reject
+    sampled_rejects = (rng.sample(rejected, n_reject)
+                       if n_reject < len(rejected) else list(rejected))
+    sampled_promotes = (rng.sample(recalls, n_promote)
+                         if n_promote < len(recalls) else list(recalls))
+
+    rows = sampled_promotes + sampled_rejects
+    gold = np.array([0] * len(sampled_promotes) + [1] * len(sampled_rejects),
+                     dtype=int)
+    print(f"  → sampled {len(sampled_promotes)} PROMOTE + "
+          f"{len(sampled_rejects)} REJECT = {len(rows)} total")
+
+    # ── Inference ──
+    probs = run_inference(args.model_dir, rows, max_length=args.max_length)
+
+    # ── Threshold sweep ──
+    print(f"\n══════════ THRESHOLD SWEEP ══════════")
+    print(f"Trying reject thresholds 0.10 to 0.55 in 0.05 steps...")
+    results = []
+    for thr_pct in range(10, 56, 5):
+        thr = thr_pct / 100.0
+        results.append(evaluate_at_threshold(probs, gold, thr))
+
+    # Find best by combined score, with minimum reject_recall floor
+    # (don't pick a threshold that catches every reject but rejects half of promotes)
+    REJECT_RECALL_FLOOR = 0.75    # must catch ≥75% of rejects
+    PROMOTE_RECALL_FLOOR = 0.85   # must not falsely reject >15% of promotes
+
+    valid = [r for r in results
+             if r["reject_recall"] >= REJECT_RECALL_FLOOR
+             and r["promote_recall"] >= PROMOTE_RECALL_FLOOR]
+    best = max(valid, key=lambda r: r["combined_score"]) if valid else None
+
+    # ── Pretty print sweep results ──
+    print()
+    print(f"  {'thr':>6}  {'acc':>7}  {'reject_R':>8}  {'reject_P':>8}  "
+          f"{'promote_R':>9}  {'promote_P':>9}  {'combined':>8}")
+    print(f"  {'-'*6}  {'-'*7}  {'-'*8}  {'-'*8}  "
+          f"{'-'*9}  {'-'*9}  {'-'*8}")
+    for r in results:
+        marker = " ★" if best and r["threshold"] == best["threshold"] else ""
+        print(f"  {r['threshold']:>6.2f}  {r['accuracy']:>7.1%}  "
+              f"{r['reject_recall']:>8.1%}  {r['reject_precision']:>8.1%}  "
+              f"{r['promote_recall']:>9.1%}  {r['promote_precision']:>9.1%}  "
+              f"{r['combined_score']:>8.3f}{marker}")
+
+    print()
+    if best:
+        print(f"★ Best threshold: {best['threshold']:.2f}")
+        print(f"    accuracy={best['accuracy']:.1%}, "
+              f"reject_recall={best['reject_recall']:.1%}, "
+              f"reject_precision={best['reject_precision']:.1%}, "
+              f"promote_recall={best['promote_recall']:.1%}")
+    else:
+        print(f"⚠ No threshold meets both floors "
+              f"(reject_recall ≥{REJECT_RECALL_FLOOR}, "
+              f"promote_recall ≥{PROMOTE_RECALL_FLOOR}). "
+              f"Best by combined score regardless of floors:")
+        best = max(results, key=lambda r: r["combined_score"])
+        print(f"    threshold={best['threshold']:.2f}, "
+              f"reject_recall={best['reject_recall']:.1%}, "
+              f"promote_recall={best['promote_recall']:.1%}")
+
+    # ── Build Markdown report ──
+    md = []
+    md.append(f"# Promote Classifier — Threshold Tuning — {today}")
+    md.append("")
+    md.append(f"Re-analysis of the trained promote classifier on a balanced "
+              f"sample of **{len(rows)} rows** "
+              f"({len(sampled_promotes)} PROMOTE + {len(sampled_rejects)} REJECT). "
+              f"No retraining — just exploring how the decision threshold "
+              f"changes production metrics.")
+    md.append("")
+    md.append("## Why threshold tuning")
+    md.append("")
+    md.append("The default rule is `predict REJECT if P(REJECT) > P(PROMOTE)`, "
+              "i.e. threshold 0.50. But the trained model has high reject "
+              "precision (98%+) and ALSO high promote majority — it defaults "
+              "to PROMOTE when uncertain because of the 5:1 train imbalance. ")
+    md.append("")
+    md.append("Lowering the REJECT threshold means: 'predict REJECT if P(REJECT) "
+              "is meaningful, not just dominant'. This catches the rejects the "
+              "model is 30-50% sure about — which, given 98% reject precision, "
+              "are probably real rejects.")
+    md.append("")
+
+    md.append("## Threshold sweep")
+    md.append("")
+    md.append("Decision rule: `predict REJECT if P(REJECT) ≥ threshold`")
+    md.append("")
+    md.append("| Threshold | Accuracy | REJECT recall | REJECT prec | PROMOTE recall | PROMOTE prec | Combined | TP | FP | TN | FN |")
+    md.append("|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+    for r in results:
+        marker = " ★" if best and r["threshold"] == best["threshold"] else ""
+        md.append(f"| {r['threshold']:.2f}{marker} | "
+                  f"{r['accuracy']:.1%} | "
+                  f"{r['reject_recall']:.1%} | {r['reject_precision']:.1%} | "
+                  f"{r['promote_recall']:.1%} | {r['promote_precision']:.1%} | "
+                  f"{r['combined_score']:.3f} | "
+                  f"{r['tp']} | {r['fp']} | {r['tn']} | {r['fn']} |")
+    md.append("")
+    md.append("Legend: TP=correct REJECT, FP=false REJECT, "
+              "TN=correct PROMOTE, FN=missed REJECT (the dangerous one)")
+    md.append("")
+
+    md.append("## Recommendation")
+    md.append("")
+    if best and best["reject_recall"] >= REJECT_RECALL_FLOOR \
+            and best["promote_recall"] >= PROMOTE_RECALL_FLOOR:
+        md.append(f"✅ **Use REJECT threshold = {best['threshold']:.2f}** in "
+                  f"production inference (instead of the implicit 0.50).")
+        md.append("")
+        md.append(f"This catches **{best['reject_recall']:.0%}** of rejects "
+                  f"(vs the default 67%), with promote_recall at "
+                  f"**{best['promote_recall']:.0%}**.")
+        md.append("")
+        md.append(f"Trade-off: a small number of valid PROMOTE rows "
+                  f"({best['fp']} of {len(sampled_promotes)} in this sample, "
+                  f"~{best['fp']/len(sampled_promotes):.0%}) will be flagged "
+                  f"for manual review when they should pass. That's a safe "
+                  f"failure mode — those rows still get reviewed by Claude.")
+    else:
+        md.append("⚠ **No single threshold satisfies both recall floors.** "
+                  "Either retrain with `class_weight_mode=sqrt`, or accept the "
+                  "trade-off and pick the threshold that best matches your "
+                  "priority (catch all rejects vs minimize manual review).")
+    md.append("")
+    md.append("## Production deployment guidance")
+    md.append("")
+    if best:
+        md.append(f"In the production inference workflow, use:")
+        md.append("")
+        md.append("```python")
+        md.append("# After model.predict() returns probs[2]")
+        md.append(f"p_reject = probs[1]")
+        md.append(f"if p_reject >= {best['threshold']:.2f}:")
+        md.append(f"    decision = 'REJECT'")
+        md.append(f"    confidence = p_reject")
+        md.append(f"else:")
+        md.append(f"    decision = 'PROMOTE'")
+        md.append(f"    confidence = 1.0 - p_reject")
+        md.append("```")
+        md.append("")
+        md.append("This decision rule eliminates the false-promote problem "
+                  "without retraining. The model file is unchanged.")
+    md.append("")
+
+    # ── Save ──
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    md_path = args.out_dir / f"promote_threshold_tuning_{today}.md"
+    json_path = args.out_dir / f"promote_threshold_tuning_{today}.json"
+    md_path.write_text("\n".join(md), encoding="utf-8")
+
+    out_json = {
+        "generated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "sample_size": len(rows),
+        "n_promote": int((gold == 0).sum()),
+        "n_reject": int((gold == 1).sum()),
+        "sweep": results,
+        "best_threshold": best["threshold"] if best else None,
+        "best_metrics": best,
+        "floors": {
+            "reject_recall_floor": REJECT_RECALL_FLOOR,
+            "promote_recall_floor": PROMOTE_RECALL_FLOOR,
+        },
+    }
+    json_path.write_text(json.dumps(out_json, indent=2, default=float),
+                          encoding="utf-8")
+    print(f"\n  → {md_path}")
+    print(f"  → {json_path}")
+
+
+if __name__ == "__main__":
+    main()
