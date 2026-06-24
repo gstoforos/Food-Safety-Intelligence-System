@@ -1,0 +1,106 @@
+{
+  "exported_at_utc": "2026-06-24T15:40:30.589984+00:00",
+  "git_sha": "62c9480715b711db98e0ad1727c75d2449de4142",
+  "xlsx_path": "docs/data/recalls.xlsx",
+  "historical_rejects_path": "tools/training/data/historical_rejects.xlsx",
+  "totals": {
+    "recalls_rows": 962,
+    "weekly_review_rows": 58,
+    "weekly_rejected_rows": 194,
+    "historical_rejects_loaded": 95,
+    "historical_rejects_filtered_no_reason": 36,
+    "historical_rejects_filtered_dup_live": 6,
+    "historical_rejects_added_to_corpus": 53,
+    "approved_after_filter": 962,
+    "rejected_after_filter": 247
+  },
+  "promote_classifier": {
+    "total": 1159,
+    "train": 1044,
+    "val": 115,
+    "labels": {
+      "promote": 962,
+      "reject": 197
+    },
+    "rejection_categories": {
+      "pathogen_out_of_scope": 51,
+      "not_a_recall_page": 63,
+      "multi_field_mismatch": 11,
+      "pathogen_mismatch": 6,
+      "company_mismatch": 6,
+      "date_pre_2026": 10,
+      "other": 36,
+      "salute_unparsed": 8,
+      "aesan_unparsed": 5,
+      "duplicate_of_existing_recall": 1
+    },
+    "by_source_sheet": {
+      "Recalls": 962,
+      "Weekly_Rejected": 144,
+      "Historical_Rejected": 53
+    },
+    "by_weight_bucket": {
+      "1.0 (default)": 1121,
+      "2.0+ (manual)": 30,
+      "1.5+ (audit)": 7,
+      "3.0+ (tier-fix)": 1
+    }
+  },
+  "tier_assignment": {
+    "total": 962,
+    "train": 867,
+    "val": 95,
+    "tier_distribution": {
+      "1": 701,
+      "2": 212,
+      "3": 49
+    },
+    "top_pathogens": {
+      "Listeria monocytogenes": 332,
+      "Salmonella": 275,
+      "Aflatoxin": 77,
+      "Shiga toxin-producing E. coli (STEC)": 51,
+      "Ochratoxin": 46,
+      "Clostridium botulinum": 19,
+      "Norovirus": 12,
+      "Salmonella spp.": 12,
+      "Cereulide (B. cereus toxin)": 11,
+      "Cereulide (Bacillus cereus toxin)": 11,
+      "Ochratoxin A": 7,
+      "Bacillus cereus / cereulide": 7,
+      "Escherichia coli (generic)": 6,
+      "Histamine / scombrotoxin": 6,
+      "Aflatoxins": 5
+    },
+    "by_source_sheet": {
+      "Recalls": 962
+    },
+    "by_weight_bucket": {
+      "1.0 (default)": 924,
+      "2.0+ (manual)": 30,
+      "1.5+ (audit)": 7,
+      "3.0+ (tier-fix)": 1
+    }
+  },
+  "field_corrections": {
+    "total": 350,
+    "train": 319,
+    "val": 31,
+    "field_distribution": {
+      "Date": 44,
+      "Company": 135,
+      "Brand": 242,
+      "Product": 70,
+      "Pathogen": 102
+    },
+    "by_source_sheet": {
+      "Recalls": 300,
+      "Weekly_Rejected": 37,
+      "Historical_Rejected": 13
+    },
+    "by_weight_bucket": {
+      "1.0 (default)": 349,
+      "1.5+ (audit)": 1
+    }
+  }
+}
