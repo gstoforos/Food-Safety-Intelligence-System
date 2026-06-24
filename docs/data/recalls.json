@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-06-24",
+  "Source": "FSAI (IE)",
+  "Company": "various Marks and Spencer Pink Lady apple products",
+  "Brand": "—",
+  "Product": "various Marks and Spencer Pink Lady apple products",
+  "Pathogen": "Salmonella",
+  "Reason": "various Marks and Spencer Pink Lady apple products",
+  "Class": "Alert",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-marks-and-sp",
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-check 2026-06-24: fix; corrections: Pathogen→Salmonella; fix; pathogen mismatch | Pathogen was missing in the row but clearly stated on the page.] [enrich-gate 2026-06-24: pending_enrichment → pending (Claude verified)]"
+ },
+ {
   "Date": "2026-06-23",
   "Source": "RappelConso (FR)",
   "Company": "Grand Frais / Fresh / Mon-Marché.Fr",
