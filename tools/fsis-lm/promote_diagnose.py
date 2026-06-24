@@ -1,0 +1,323 @@
+#!/usr/bin/env python3
+"""
+promote_diagnose.py
+===================
+
+Diagnoses WHY the promote classifier has 67% production reject recall
+despite 94% val reject recall. Hypothesis: a subset of live rejects are
+out-of-distribution vs. the training data.
+
+Runs the trained model on ALL live Weekly_Rejected rows (not a sample),
+groups failures by:
+  - Source (RASFF, RappelConso, FSAI, etc.)
+  - Reject category (per parsed RejectionReason)
+  - Date bucket (week of)
+  - Whether the URL exists in the training data
+
+Then writes a Markdown report identifying the failure pattern.
+
+Usage:
+    python promote_diagnose.py \\
+        --model-dir tools/fsis-lm/promote-classifier-v1 \\
+        --xlsx docs/data/recalls.xlsx \\
+        --train-jsonl tools/training/data/v2_2/promote_classifier.train.jsonl \\
+        --val-jsonl tools/training/data/v2_2/promote_classifier.val.jsonl \\
+        --out-dir docs/audits
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import re
+import sys
+from collections import Counter, defaultdict
+from pathlib import Path
+from typing import Any, Dict, List, Set
+
+import numpy as np
+
+
+def format_input(row: Dict[str, Any]) -> str:
+    fields = ["Date", "Source", "Company", "Brand", "Product",
+              "Pathogen", "Class", "Country", "Tier", "Outbreak", "URL"]
+    lines = []
+    for f in fields:
+        v = row.get(f, "")
+        if v == "" or v is None:
+            v = "(empty)"
+        lines.append(f"- **{f}**: {v}")
+    notes = str(row.get("Notes", ""))[:600]
+    if notes:
+        lines.append(f"- **Notes excerpt**: {notes}")
+    return "\n".join(lines)
+
+
+def load_sheet_rows(xlsx_path: Path, sheet: str) -> List[Dict[str, Any]]:
+    import openpyxl
+    wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+    if sheet not in wb.sheetnames:
+        return []
+    ws = wb[sheet]
+    headers = [c.value for c in ws[1]]
+    rows = []
+    for r in ws.iter_rows(min_row=2, values_only=True):
+        row = {h: ("" if v is None else v) for h, v in zip(headers, r) if h}
+        if any(str(v).strip() for v in row.values()):
+            rows.append(row)
+    return rows
+
+
+def extract_training_urls(jsonl_path: Path) -> Set[str]:
+    """Extract URLs from training-set user messages."""
+    urls = set()
+    url_rx = re.compile(r"\*\*URL\*\*:\s*(\S+)")
+    if not jsonl_path.exists():
+        return urls
+    with jsonl_path.open() as f:
+        for line in f:
+            try:
+                obj = json.loads(line)
+                user = next(m["content"] for m in obj["messages"]
+                             if m["role"] == "user")
+                m = url_rx.search(user)
+                if m:
+                    urls.add(m.group(1).strip())
+            except Exception:
+                continue
+    return urls
+
+
+def parse_rejection_category(text: str) -> str:
+    """Extract a category from RejectionReason or Notes."""
+    s = (text or "").lower()
+    if "not a recall page" in s or "listing" in s:
+        return "not_a_recall_page"
+    if "out of scope" in s or "not a food" in s or "not a pathogen" in s:
+        return "pathogen_out_of_scope"
+    if "date_pre" in s or "pre-2026" in s:
+        return "date_pre_2026"
+    if "duplicate" in s:
+        return "duplicate"
+    n_mm = sum([
+        "pathogen mismatch" in s,
+        "company mismatch" in s,
+        "product mismatch" in s,
+    ])
+    if n_mm >= 2:
+        return "multi_field_mismatch"
+    if n_mm == 1:
+        return "single_field_mismatch"
+    return "other"
+
+
+def run_inference(model_dir: Path, rows: List[Dict[str, Any]],
+                  max_length: int = 256) -> np.ndarray:
+    import torch
+    from transformers import AutoTokenizer, AutoModelForSequenceClassification
+    print(f"Loading model from {model_dir}...")
+    tokenizer = AutoTokenizer.from_pretrained(model_dir)
+    model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+    model.eval()
+    all_probs = []
+    batch_size = 16
+    texts = [format_input(row) for row in rows]
+    print(f"Running inference on {len(texts)} rejects...")
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i + batch_size]
+        inputs = tokenizer(batch, return_tensors="pt", truncation=True,
+                            max_length=max_length, padding=True)
+        with torch.no_grad():
+            logits = model(**inputs).logits
+        probs = torch.softmax(logits.float(), dim=-1).cpu().numpy()
+        all_probs.append(probs)
+        if (i // batch_size) % 5 == 0:
+            print(f"  [{min(i + batch_size, len(texts))}/{len(texts)}]")
+    return np.concatenate(all_probs, axis=0)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--model-dir", type=Path, required=True)
+    ap.add_argument("--xlsx", type=Path, default=Path("docs/data/recalls.xlsx"))
+    ap.add_argument("--train-jsonl", type=Path,
+                    default=Path("tools/training/data/v2_2/promote_classifier.train.jsonl"))
+    ap.add_argument("--val-jsonl", type=Path,
+                    default=Path("tools/training/data/v2_2/promote_classifier.val.jsonl"))
+    ap.add_argument("--out-dir", type=Path, default=Path("docs/audits"))
+    ap.add_argument("--max-length", type=int, default=256)
+    ap.add_argument("--date", type=str, default=None)
+    args = ap.parse_args()
+
+    today = args.date or dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+
+    # ── Load training URLs (in-distribution proxy) ──
+    print(f"Loading training URLs from {args.train_jsonl}...")
+    train_urls = extract_training_urls(args.train_jsonl)
+    val_urls = extract_training_urls(args.val_jsonl)
+    in_corpus = train_urls | val_urls
+    print(f"  {len(train_urls)} train URLs, {len(val_urls)} val URLs, "
+          f"{len(in_corpus)} total in corpus")
+
+    # ── Load all live rejects ──
+    print(f"Loading Weekly_Rejected from {args.xlsx}...")
+    rejects = load_sheet_rows(args.xlsx, "Weekly_Rejected")
+    print(f"  {len(rejects)} live reject rows")
+
+    # ── Inference on every reject ──
+    probs = run_inference(args.model_dir, rejects, max_length=args.max_length)
+
+    # ── Per-row results: did model predict REJECT? ──
+    # Default rule: argmax. (We saw bimodal so threshold doesn't matter.)
+    pred_reject = np.argmax(probs, axis=-1) == 1
+
+    correct = []
+    failed = []
+    for row, p, was_correct in zip(rejects, probs, pred_reject):
+        rec = {
+            "url": str(row.get("URL", "")).strip(),
+            "source": str(row.get("Source", "")).strip(),
+            "date": str(row.get("Date", "")).strip()[:10],
+            "pathogen": str(row.get("Pathogen", "")).strip()[:60],
+            "rejection_reason": str(row.get("RejectionReason", "")).strip()[:200],
+            "p_reject": float(p[1]),
+            "p_promote": float(p[0]),
+            "category": parse_rejection_category(
+                str(row.get("RejectionReason", "")) + " " + str(row.get("Notes", ""))),
+        }
+        rec["in_training_corpus"] = rec["url"] in in_corpus
+        if was_correct:
+            correct.append(rec)
+        else:
+            failed.append(rec)
+
+    n = len(rejects)
+    n_correct = len(correct)
+    n_failed = len(failed)
+    print(f"\nLive reject recall: {n_correct/n:.1%} ({n_correct}/{n})")
+    print(f"  failures: {n_failed}")
+
+    # ── Failure analysis ──
+    fail_by_source = Counter(r["source"] for r in failed)
+    correct_by_source = Counter(r["source"] for r in correct)
+    fail_by_cat = Counter(r["category"] for r in failed)
+    correct_by_cat = Counter(r["category"] for r in correct)
+    fail_by_pathogen = Counter(r["pathogen"][:40] for r in failed)
+    fail_in_corpus = sum(1 for r in failed if r["in_training_corpus"])
+    correct_in_corpus = sum(1 for r in correct if r["in_training_corpus"])
+
+    # ── Build report ──
+    md = []
+    md.append(f"# Promote Classifier — Failure Diagnosis — {today}")
+    md.append("")
+    md.append(f"Ran the trained promote classifier against **all "
+              f"{n} live Weekly_Rejected rows** to identify the population "
+              f"of rejects the model fails on.")
+    md.append("")
+    md.append("## Headline")
+    md.append("")
+    md.append(f"- Live reject recall: **{n_correct/n:.1%}** ({n_correct}/{n})")
+    md.append(f"- Failures: **{n_failed}** rows")
+    md.append(f"- Of failures, in training corpus: {fail_in_corpus} "
+              f"({fail_in_corpus/max(1,n_failed):.0%})")
+    md.append(f"- Of failures, OUT of training corpus: "
+              f"**{n_failed - fail_in_corpus}** "
+              f"({(n_failed-fail_in_corpus)/max(1,n_failed):.0%})")
+    md.append("")
+    md.append("> If most failures are OUT of training corpus, the fix is to "
+              "re-export v2.3 with the new rejects and retrain. If most are IN "
+              "training corpus, the model needs architectural changes.")
+    md.append("")
+
+    # ── By source ──
+    md.append("## Failures by Source")
+    md.append("")
+    md.append("| Source | Failed | Correct | Recall |")
+    md.append("|---|---:|---:|---:|")
+    all_sources = sorted(set(fail_by_source) | set(correct_by_source))
+    for src in all_sources:
+        f = fail_by_source.get(src, 0)
+        c = correct_by_source.get(src, 0)
+        total = f + c
+        recall = c / total if total else 0
+        md.append(f"| {src or '(empty)'} | {f} | {c} | {recall:.1%} |")
+    md.append("")
+
+    # ── By category ──
+    md.append("## Failures by reject category")
+    md.append("")
+    md.append("| Category | Failed | Correct | Recall |")
+    md.append("|---|---:|---:|---:|")
+    for cat in sorted(set(fail_by_cat) | set(correct_by_cat)):
+        f = fail_by_cat.get(cat, 0)
+        c = correct_by_cat.get(cat, 0)
+        total = f + c
+        recall = c / total if total else 0
+        md.append(f"| {cat} | {f} | {c} | {recall:.1%} |")
+    md.append("")
+
+    # ── Top failed pathogens ──
+    md.append("## Top failed pathogens")
+    md.append("")
+    md.append("| Pathogen | Failures |")
+    md.append("|---|---:|")
+    for path, n_fail in fail_by_pathogen.most_common(15):
+        md.append(f"| {path or '(empty)'} | {n_fail} |")
+    md.append("")
+
+    # ── Sample failures with confidence ──
+    md.append(f"## Sample failure rows (top 20 by P(PROMOTE))")
+    md.append("")
+    md.append("These are the rejects the model was MOST confident were promotes — the cleanest mismatches.")
+    md.append("")
+    md.append("| # | Source | Category | P(promote) | In corpus | Pathogen | RejectionReason |")
+    md.append("|---:|---|---|---:|:---:|---|---|")
+    for i, r in enumerate(
+            sorted(failed, key=lambda x: -x["p_promote"])[:20], 1):
+        in_c = "Y" if r["in_training_corpus"] else "N"
+        rr = r["rejection_reason"][:80].replace("|", "\\|")
+        md.append(f"| {i} | {r['source']} | {r['category']} | "
+                  f"{r['p_promote']:.3f} | {in_c} | {r['pathogen']} | {rr} |")
+    md.append("")
+
+    # ── Recommendation ──
+    md.append("## Recommendation")
+    md.append("")
+    pct_out_corpus = (n_failed - fail_in_corpus) / max(1, n_failed)
+    if pct_out_corpus > 0.6:
+        md.append("✅ **Drift issue.** Most failures are rejects added to "
+                  "Weekly_Rejected after the training corpus snapshot. Fix: "
+                  "re-export v2.3 (or rerun export-training-data-v2-2.yml), "
+                  "retrain, and recall should jump significantly.")
+    else:
+        md.append("⚠ **Model issue.** Most failures are rejects that WERE in "
+                  "the training corpus. This suggests the v2.2 exporter "
+                  "applied a filter or transformation that's stripping these "
+                  "from training. Check the export script logic.")
+    md.append("")
+
+    args.out_dir.mkdir(parents=True, exist_ok=True)
+    md_path = args.out_dir / f"promote_diagnose_{today}.md"
+    json_path = args.out_dir / f"promote_diagnose_{today}.json"
+    md_path.write_text("\n".join(md), encoding="utf-8")
+    out_json = {
+        "generated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "n_rejects": n,
+        "n_correct": n_correct,
+        "n_failed": n_failed,
+        "recall": n_correct / n if n else 0,
+        "fail_in_training_corpus": fail_in_corpus,
+        "fail_out_training_corpus": n_failed - fail_in_corpus,
+        "fail_by_source": dict(fail_by_source),
+        "fail_by_category": dict(fail_by_cat),
+        "fail_by_pathogen": dict(fail_by_pathogen.most_common(20)),
+        "failed_rows": failed,
+    }
+    json_path.write_text(json.dumps(out_json, indent=2, default=float),
+                          encoding="utf-8")
+    print(f"\n  → {md_path}")
+    print(f"  → {json_path}")
+
+
+if __name__ == "__main__":
+    main()
