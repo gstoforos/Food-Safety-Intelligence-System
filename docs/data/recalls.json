@@ -16,6 +16,22 @@
   "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-23: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-23: pass; pass]"
  },
  {
+  "Date": "2026-06-23",
+  "Source": "FSAI (IE)",
+  "Company": "Traditional Cheese Company",
+  "Brand": "Traditional Cheese Company",
+  "Product": "Traditional Cheese Company French Brie, 160g",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Update to recall of specific batches of various French brie products (Update 1)",
+  "Class": "Alert",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/update-to-recall-of-specific-batches-of-various-fr",
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [claude-check 2026-06-24: fix; corrections: Date→2026-06-23, Company→Traditional Cheese Company, Brand→Traditional Cheese Company, Product→Traditional Cheese Company French Brie, , Pathogen→Listeria monocytogenes, Tier→1; fix; company mismatch; product mismatch; pathogen mismatch; date on page=2026-06-23 | Date is 2026-06-23 (not 2026-06-24] [enrich-gate 2026-06-24: pending_enrichment → pending (Claude verified)]"
+ },
+ {
   "Date": "2026-06-22",
   "Source": "RappelConso (FR)",
   "Company": "Monoprix Gourmet",

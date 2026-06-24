@@ -1,6 +1,17 @@
 {
   "entries": [
     {
+      "date": "2026-06-23",
+      "url": "daily/2026-06-23.html",
+      "total": 2,
+      "tier1": 2,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 2
+      },
+      "generated": "2026-06-24T04:16:48Z"
+    },
+    {
       "date": "2026-06-22",
       "url": "daily/2026-06-22.html",
       "total": 3,
@@ -68,17 +79,6 @@
         "Africa": 1
       },
       "generated": "2026-06-23T07:13:18Z"
-    },
-    {
-      "date": "2026-06-16",
-      "url": "daily/2026-06-16.html",
-      "total": 7,
-      "tier1": 5,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 7
-      },
-      "generated": "2026-06-23T07:13:19Z"
     }
   ]
 }
