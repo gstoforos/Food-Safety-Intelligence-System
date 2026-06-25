@@ -670,6 +670,7 @@ def main() -> int:
         approved=approved,
         new_recalls=recalls,
         scraped_at=scraped_at,
+        gap_finder=True,  # audit 2026-06-25: enable recency+authority+product guards
     )
     net_new = len(pending) - before
     # ── Gap-finder gating (audit 2026-04-29): see gap_finder_tavily.py

@@ -561,6 +561,7 @@ def _host_is_news_outlet(url: str) -> bool:
 def validate_pending_row(
     row: Dict[str, Any],
     existing_urls: set,
+    gap_finder: bool = False,
 ) -> Tuple[bool, str]:
     """
     Return (is_valid, rejection_reason). Reject garbage before it enters
@@ -644,6 +645,24 @@ def validate_pending_row(
 
     if _is_news_mirror is not None and _is_news_mirror(url):
         return False, "news_mirror_domain (locked 2026-04-30)"
+
+    # ── Gap-finder-only guards (audit 2026-06-25) ───────────────────────
+    # Recency (reject months-old / mis-dated rows), authority-allowlist
+    # (reject news + non-government URLs the LLM returned), and product
+    # hygiene (reject raw lot/date-code Products, de-dupe doubled Company).
+    # SCOPED to gap-finder rows via the flag — scraper rows and manual
+    # injects (gap_finder=False, the default) are never affected.
+    if gap_finder:
+        try:
+            from pipeline._gap_finder_guards import check_gap_finder_row
+        except ImportError:
+            check_gap_finder_row = None
+        if check_gap_finder_row is not None:
+            gf_ok, gf_reason, gf_note = check_gap_finder_row(row)
+            if gf_note:
+                log.info("gap-finder guard note: %s (url=%s)", gf_note, url[:70])
+            if not gf_ok:
+                return False, f"gap_finder_guard: {gf_reason}"
 
     # ── Pathogen scope check (audit 2026-05-08) ─────────────────────────
     # This check runs AFTER all URL/garbage/dedup checks (further below)
@@ -830,6 +849,7 @@ def append_to_pending(
     approved: List[Dict[str, Any]],
     new_recalls: List[Recall],
     scraped_at: str,
+    gap_finder: bool = False,
 ) -> List[Dict[str, Any]]:
     """
     Take new scraped+enriched Recall objects and append them to the pending list.
@@ -909,7 +929,7 @@ def append_to_pending(
 
         # ── HARD GATE: validate before any other logic. Blocks garbage from
         # ── ALL sources (scrapers, gap-finders, manual injects).
-        ok, why = validate_pending_row(d, existing_urls)
+        ok, why = validate_pending_row(d, existing_urls, gap_finder=gap_finder)
         if not ok:
             log.warning(
                 "Pending gate REJECT: %s | url=%s | company=%s",
