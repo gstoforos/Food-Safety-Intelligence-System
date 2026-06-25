@@ -9,7 +9,7 @@
       "by_region": {
         "Europe": 2
       },
-      "generated": "2026-06-25T04:16:06Z"
+      "generated": "2026-06-25T07:13:02Z"
     },
     {
       "date": "2026-06-23",
@@ -20,7 +20,7 @@
       "by_region": {
         "Europe": 9
       },
-      "generated": "2026-06-25T04:16:07Z"
+      "generated": "2026-06-25T07:13:02Z"
     },
     {
       "date": "2026-06-22",
@@ -31,7 +31,7 @@
       "by_region": {
         "Europe": 5
       },
-      "generated": "2026-06-25T04:16:07Z"
+      "generated": "2026-06-25T07:13:03Z"
     },
     {
       "date": "2026-06-21",
@@ -40,7 +40,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-06-24T07:13:00Z"
+      "generated": "2026-06-25T07:13:03Z"
     },
     {
       "date": "2026-06-20",
@@ -49,7 +49,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-06-24T07:13:00Z"
+      "generated": "2026-06-25T07:13:03Z"
     },
     {
       "date": "2026-06-19",
@@ -62,7 +62,7 @@
         "Europe": 27,
         "Asia": 1
       },
-      "generated": "2026-06-24T07:13:01Z"
+      "generated": "2026-06-25T07:13:04Z"
     },
     {
       "date": "2026-06-18",
@@ -76,7 +76,7 @@
         "Latin America": 1,
         "North America": 1
       },
-      "generated": "2026-06-24T07:13:01Z"
+      "generated": "2026-06-25T07:13:04Z"
     }
   ]
 }
