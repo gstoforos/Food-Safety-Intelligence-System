@@ -701,8 +701,19 @@ def classify(
     """
     blob = _normalize(f"{pathogen} {reason} {product}")
 
+    # Out-of-scope REJECT checks (foreign matter / heavy metals / synthetic
+    # chemicals) run on the HAZARD text only — NOT the product/packaging
+    # description — so packaging materials ("clear plastic wrapped packages",
+    # "glass jar", "plastic tray") can't false-trigger a reject on a real
+    # pathogen recall. A genuine foreign-matter recall names the contaminant in
+    # its reason/title ("...due to possible plastic contamination"), so it is
+    # still caught here. (audit 2026-06-26 — an FSIS Listeria chicken-Caesar-
+    # wrap PHA was wrongly rejected as foreign_matter on its "clear plastic
+    # wrapped packages" product text.)
+    reject_blob = _normalize(f"{pathogen} {reason}")
+
     # ── UNAMBIGUOUS REJECT path (glass, heavy metals, synthetic chemicals) ─
-    m = _contains_any(blob, _FOREIGN_MATTER_N, bound_extra=_FM_BOUND)
+    m = _contains_any(reject_blob, _FOREIGN_MATTER_N, bound_extra=_FM_BOUND)
     if m:
         return Classification(
             verdict="reject", category="foreign_matter", tier=None,
@@ -710,7 +721,7 @@ def classify(
             outbreak_qualifies=False,
         )
 
-    m = _contains_any(blob, _HEAVY_METALS_N)
+    m = _contains_any(reject_blob, _HEAVY_METALS_N)
     if m:
         return Classification(
             verdict="reject", category="heavy_metal", tier=None,
@@ -718,7 +729,7 @@ def classify(
             outbreak_qualifies=False,
         )
 
-    m = _contains_any(blob, _SYNTHETIC_CHEMICALS_N)
+    m = _contains_any(reject_blob, _SYNTHETIC_CHEMICALS_N)
     if m:
         return Classification(
             verdict="reject", category="synthetic_chemical", tier=None,
