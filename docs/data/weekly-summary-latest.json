@@ -8,7 +8,7 @@
   "week_end": "2026-06-25",
   "week_start_display": "19 Jun",
   "week_end_display": "25 Jun 2026",
-  "generated_utc": "2026-06-26T05:09:51.854767+00:00",
+  "generated_utc": "2026-06-26T07:02:19.283692+00:00",
   "stats": {
     "total": 44,
     "tier1": 29,
@@ -53,6 +53,20 @@
     },
     {
       "rank": 3,
+      "date": "2026-06-19",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Traditional Cheese Company",
+      "brand": "Malta",
+      "product": "French Brie, 160g",
+      "country": "United Kingdom",
+      "source": "FSA (UK)",
+      "url": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-28-2026"
+    },
+    {
+      "rank": 4,
       "date": "2026-06-23",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -66,32 +80,18 @@
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853516"
     },
     {
-      "rank": 4,
-      "date": "2026-06-23",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Grand Frais / Fresh / Mon-Marché.Fr",
-      "brand": "Grand Frais / Fresh / Mon-Marché.Fr",
-      "product": "brisures de saumon fumé 150g",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22623/Interne"
-    },
-    {
       "rank": 5,
-      "date": "2026-06-22",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
+      "date": "2026-06-23",
+      "pathogen": "Salmonella",
+      "pathogen_raw": "Salmonella",
       "tier": 1,
       "outbreak": false,
-      "company": "Monoprix Gourmet",
-      "brand": "Monoprix Gourmet",
-      "product": "saumon atlantique fumé élevé en ecosse 4 tranches 140g monoprix gourmet",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22620/Interne"
+      "company": "Prepworld",
+      "brand": "Prepworld",
+      "product": "fruit products",
+      "country": "United Kingdom",
+      "source": "FSA (UK)",
+      "url": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-29-2026"
     }
   ],
   "country_count": 13
