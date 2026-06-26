@@ -58,7 +58,14 @@ def classify_record(rec) -> dict:
     if _is_pet_food(blob):
         return {"verdict": "reject", "category": "pet_food",
                 "tier": None, "matched": "pet_food"}
-    r = _gf_classify(pathogen="", reason=blob, product=rec.product or "")
+    # The out-of-scope REJECT checks (foreign matter / heavy metal / synthetic)
+    # must see only the HAZARD text (title + hazard), never the product /
+    # packaging description — otherwise packaging materials ("clear plastic
+    # wrapped packages", "glass jar") false-trigger a foreign-matter reject on a
+    # real pathogen recall. The product is still passed separately so the
+    # pathogen/allergen ACCEPT checks consider it. (audit 2026-06-26)
+    hazard_text = " ".join(p for p in (rec.title, rec.hazard) if p)
+    r = _gf_classify(pathogen="", reason=hazard_text, product=rec.product or "")
     return {
         "verdict": r.verdict,
         "category": r.category,
