@@ -110,7 +110,14 @@ def _record_from_api(it: dict) -> Record:
         title=title,
         company=company,
         product=product,
-        hazard=" ".join(p for p in (title, reason, summary) if p),
+        # Hazard scan text = title + reason ONLY (NOT the summary). The summary
+        # is descriptive and routinely names PACKAGING material ("8.7-oz. clear
+        # plastic wrapped packages"), which false-triggered the foreign-matter
+        # reject on a real Listeria PHA. The FSIS title always states the actual
+        # cause ("...Contaminated With Listeria" / "...Due to Possible Plastic"),
+        # so both pathogen ACCEPT and genuine foreign-matter REJECT still work.
+        # (audit 2026-06-26)
+        hazard=" ".join(p for p in (title, reason) if p),
         alert_type=alert,
         region="North America",
         recall_class=cls,
