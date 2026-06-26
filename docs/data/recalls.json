@@ -1,5 +1,21 @@
 [
   {
+    "Date": "2026-06-26",
+    "Source": "EFET (GR)",
+    "Company": "Fude+Serrahm Milchprodukte GmbH & Co KG (distributed by Lidl Hellas)",
+    "Brand": "MILBONA",
+    "Product": "HIGH PROTEIN Pudding — Chocolate Flavour, 200 g milk dessert, batch 152, best-before 17/07/2026",
+    "Pathogen": "None (organoleptic spoilage)",
+    "Reason": "EFET recall: macroscopic inspection confirmed alteration of organoleptic characteristics (colour, texture, odour) rendering the product unsafe. Manufacturer: Fude+Serrahm Milchprodukte (Hamburg, Germany); distributed by Lidl Hellas. EFET Central Macedonia regional directorate, following consumer reports.",
+    "Class": "Recall",
+    "Country": "Greece",
+    "Region": "Europe",
+    "Tier": 3,
+    "Outbreak": 0,
+    "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou",
+    "Notes": "Added 2026-06-26 as a one-off operator exception. NOTE: organoleptic spoilage (quality defect) is normally OUT OF SCOPE per AFTS scope rules (spoilage/quality excluded); admitted by operator decision. Tier 3. Verified via multiple Greek outlets (protothema, efsyn, news247, EFET deltia-typou index 2026-06-26)."
+  },
+  {
     "Date": "2026-06-25",
     "Source": "ECDC (EU)",
     "Company": "(multiple producers — see ECDC investigation)",
@@ -9121,6 +9137,22 @@
   },
   {
     "Date": "2026-04-21",
+    "Source": "RASFF (EU)",
+    "Company": "Origin: United Arab Emirates | Notifying: Italy",
+    "Brand": "—",
+    "Product": "Aflatoxins above legal limits in shelled pistachios from United Arab Emirates",
+    "Pathogen": "Aflatoxin",
+    "Reason": "Aflatoxins above legal limits in shelled pistachios from United Arab Emirates; risk: serious; category: nuts, nut products and seeds",
+    "Class": "Border Rejection",
+    "Country": "United Arab Emirates",
+    "Region": "Middle East",
+    "Tier": 2,
+    "Outbreak": 0,
+    "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838984",
+    "Notes": "[RASFF #2026.3400; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838984]"
+  },
+  {
+    "Date": "2026-04-21",
     "Source": "BVL (DE)",
     "Company": "Akar GmbH",
     "Brand": "—",
@@ -9182,22 +9214,6 @@
     "Outbreak": 0,
     "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839010",
     "Notes": "[RASFF #2026.3404; classification: border rejection notification; category: fruits and vegetables; notifId=839010]"
-  },
-  {
-    "Date": "2026-04-21",
-    "Source": "RASFF (EU)",
-    "Company": "Origin: United Arab Emirates | Notifying: Italy",
-    "Brand": "—",
-    "Product": "Aflatoxins above legal limits in shelled pistachios from United Arab Emirates",
-    "Pathogen": "Aflatoxin",
-    "Reason": "Aflatoxins above legal limits in shelled pistachios from United Arab Emirates; risk: serious; category: nuts, nut products and seeds",
-    "Class": "Border Rejection",
-    "Country": "United Arab Emirates",
-    "Region": "Middle East",
-    "Tier": 2,
-    "Outbreak": 0,
-    "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838984",
-    "Notes": "[RASFF #2026.3400; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838984]"
   },
   {
     "Date": "2026-04-20",
@@ -10065,6 +10081,22 @@
   },
   {
     "Date": "2026-04-15",
+    "Source": "RappelConso (FR)",
+    "Company": "Origin: Brazil | Notifying: Netherlands",
+    "Brand": "—",
+    "Product": "fruits et légumes",
+    "Pathogen": "Salmonella",
+    "Reason": "Salmonella spp. in poultry meat preparation from Brazil.; risk: serious; category: poultry meat and poultry meat products",
+    "Class": "Voluntary",
+    "Country": "France",
+    "Region": "Europe",
+    "Tier": 3,
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22039/Interne",
+    "Notes": "[RASFF #2026.3211; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837004]"
+  },
+  {
+    "Date": "2026-04-15",
     "Source": "SFA (SG)",
     "Company": "Nature One Dairy",
     "Brand": "Nature One Dairy",
@@ -10253,22 +10285,6 @@
     "Tier": 2,
     "Outbreak": 0,
     "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/837004",
-    "Notes": "[RASFF #2026.3211; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837004]"
-  },
-  {
-    "Date": "2026-04-15",
-    "Source": "RappelConso (FR)",
-    "Company": "Origin: Brazil | Notifying: Netherlands",
-    "Brand": "—",
-    "Product": "fruits et légumes",
-    "Pathogen": "Salmonella",
-    "Reason": "Salmonella spp. in poultry meat preparation from Brazil.; risk: serious; category: poultry meat and poultry meat products",
-    "Class": "Voluntary",
-    "Country": "France",
-    "Region": "Europe",
-    "Tier": 3,
-    "Outbreak": 0,
-    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22039/Interne",
     "Notes": "[RASFF #2026.3211; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837004]"
   },
   {
@@ -12529,6 +12545,22 @@
   },
   {
     "Date": "2026-04-04",
+    "Source": "RappelConso (FR)",
+    "Company": "FROMAGERIE CONDUTIER Fromagerie condutier",
+    "Brand": "Fromagerie Condutier",
+    "Product": "Cantal cru — multi-SKU: Cantal entre deux, Cantal jeune, tome fraiche, tome broyée salée, beurre",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "Listeria contamination",
+    "Class": "Voluntary",
+    "Country": "France",
+    "Region": "Europe",
+    "Tier": 1,
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21865/Interne",
+    "Notes": "[fiche 21865 / ref. 2026-04-0037 / 2026-04-04; REPAIRED from broken row — Notes had \"leclerc, inter\" leak; URL slug normalised /Interne; SEPARATE cluster (NOT LUNA FOOD) — raw-milk Cantal cheese maker, multi-SKU recall]"
+  },
+  {
+    "Date": "2026-04-04",
     "Source": "CFIA",
     "Company": "Federated Co-operatives Ltd.",
     "Brand": "CO-OP",
@@ -12638,22 +12670,6 @@
     "Outbreak": 0,
     "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21883/Interne",
     "Notes": "[fiche 21883 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row]"
-  },
-  {
-    "Date": "2026-04-04",
-    "Source": "RappelConso (FR)",
-    "Company": "FROMAGERIE CONDUTIER Fromagerie condutier",
-    "Brand": "Fromagerie Condutier",
-    "Product": "Cantal cru — multi-SKU: Cantal entre deux, Cantal jeune, tome fraiche, tome broyée salée, beurre",
-    "Pathogen": "Listeria monocytogenes",
-    "Reason": "Listeria contamination",
-    "Class": "Voluntary",
-    "Country": "France",
-    "Region": "Europe",
-    "Tier": 1,
-    "Outbreak": 0,
-    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21865/Interne",
-    "Notes": "[fiche 21865 / ref. 2026-04-0037 / 2026-04-04; REPAIRED from broken row — Notes had \"leclerc, inter\" leak; URL slug normalised /Interne; SEPARATE cluster (NOT LUNA FOOD) — raw-milk Cantal cheese maker, multi-SKU recall]"
   },
   {
     "Date": "2026-04-03",
