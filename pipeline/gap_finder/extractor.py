@@ -384,17 +384,39 @@ def extract_one(
             max_tokens=500,   # extraction JSON is small; was 800 — trimmed for 4096-ctx headroom
         )
     except LlamaError as e:
+        # ── LLM extraction failed (timeout / circuit-open / API error) ──────
+        # The title-only fallback cannot produce a clean row: Company is empty,
+        # the Product is the raw article/press-release headline (e.g.
+        # "ΔΕΛΤΙΟ ΤΥΠΟΥ: ..."), and there is no usable Reason. Historically this
+        # fallback returned a *pending* row, which then flowed into the Pending
+        # sheet and could be promoted to Recalls as if it were clean — the exact
+        # EFET garbage (empty company / lowercase pathogen / "ΔΕΛΤΙΟ ΤΥΠΟΥ"
+        # product) we have repeatedly had to remove by hand.
+        #
+        # Instead, route the row to the REJECTED sheet for manual review. A
+        # genuine recall is preserved (a human can re-extract it from the EFET
+        # page), but a half-parsed row is never auto-promoted. Do NOT silently
+        # drop it — losing a real recall is worse than queuing it for review.
         if verbose:
-            print(f"  [LLM ERROR] {e} — falling back to title-only", file=sys.stderr)
-        extracted = {
-            "company": "",
-            "brand": "",
-            "product_en": efet_title,
-            "pathogen_en": classification.matched_term or "",
-            "reason_en": "LLM extraction failed — manual review required",
-            "date_iso": verified.get("efet_date_iso", ""),
-            "region_en": "",
-        }
+            print(f"  [LLM ERROR] {e} — routing to Rejected for manual review "
+                  f"(no clean fields without the LLM)", file=sys.stderr)
+        llm_fail_reject = classify(
+            pathogen="", reason="__llm_extraction_failed__", product=efet_title,
+        )
+        rejected = build_rejected_row(verified, llm_fail_reject, cfg)
+        rejected["Company"] = ""
+        rejected["Product"] = efet_title
+        rejected["Pathogen"] = classification.matched_term or ""
+        rejected["Reason"] = (
+            "LLM extraction failed (Llama box timeout/circuit-open) — title-only "
+            "fallback cannot produce clean Company/Product/Reason fields. Routed "
+            "to Rejected for manual review rather than promoted to Pending. "
+            "Re-extract from the official "
+            f"{cfg.authority_short} press release when the LLM is available."
+        )
+        if news_mode_url:
+            rejected["URL"] = news_mode_url
+        return None, rejected
 
     if verbose:
         print(f"  [extract]  {extracted}", file=sys.stderr)
