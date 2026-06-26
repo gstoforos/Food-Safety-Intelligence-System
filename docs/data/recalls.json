@@ -48,6 +48,22 @@
   "Notes": "Manual fix 2026-06-25: product field had gap-finder garbage (\"tommette achetée au magasin de la ferme le 10-12-13-17/06¤...\" — a purchase-location/date string with ¤ encoding artifact). Company was duplicated \"MOLET EARL MOLET\"."
  },
  {
+  "Date": "2026-06-25",
+  "Source": "RappelConso (FR)",
+  "Company": "Astara",
+  "Brand": "Astara",
+  "Product": "3045 - saumon écossais tranché main 1,5/1,8",
+  "Pathogen": "Salmonella",
+  "Reason": "Presence of salmonelle",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22643/Interne",
+  "Notes": "angelina rivoli¤sir winston¤l'alsace [url-gate 2026-06-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-06-26: pass; pass | All fields verified: date 2026-06-25 matches page; Company=Astara, Brand=Astara, Product='3045 - saumon écossais ]"
+ },
+ {
   "Date": "2026-06-24",
   "Source": "FSAI (IE)",
   "Company": "Marks and Spencer",
@@ -12528,6 +12544,22 @@
   "Notes": "[fiche 21865 / ref. 2026-04-0037 / 2026-04-04; REPAIRED from broken row — Notes had \"leclerc, inter\" leak; URL slug normalised /Interne; SEPARATE cluster (NOT LUNA FOOD) — raw-milk Cantal cheese maker, multi-SKU recall]"
  },
  {
+  "Date": "2026-04-04",
+  "Source": "CFIA",
+  "Company": "",
+  "Brand": "Co-Op, Bothwell, Goldstream, Paradise Island, Hello Fresh",
+  "Product": "Co-Op brand creamy garlic and spinach salad, Bothwell shredded three-cheese nacho blend, Goldstream cheddar style shredded processed cheese, Paradise Island brand Asiago shredded cheese, Hello Fresh brand meal kits",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "CFIA announces recalls for salads, cheeses and meal kits over listeria ...",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.castanet.net/news/Canada/607087/CFIA-announces-recalls-for-salads-cheeses-and-meal-kits-over-listeria-concerns",
+  "Notes": "source_id=GN-DS-3abc96d924 [via official-feed collector] [claude-check 2026-06-26: fix; corrections: Date→2026-04-04, Brand→Co-Op, Bothwell, Goldstream, Paradise Is, Product→Co-Op brand creamy garlic and spinach sa, Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fail; company mismatch; date on page=2026-04-04 | News-mirror domain (castanet.ne]"
+ },
+ {
   "Date": "2026-04-03",
   "Source": "RASFF (EU)",
   "Company": "Origin: Turkey | Notifying: unknown | Distributed: Border rejection (not entered EU)",
@@ -14352,6 +14384,22 @@
   "Notes": "[fiche 21467 / 2026-03-05]"
  },
  {
+  "Date": "2026-03-04",
+  "Source": "CFIA",
+  "Company": "",
+  "Brand": "Super Mac Mix, Super Mac's Mix",
+  "Product": "Macadamia nut products (raw macadamias, macadamia nut mixes)",
+  "Pathogen": "Salmonella",
+  "Reason": "Canada recalls macadamia nut products over Salmonella risk",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.freshplaza.com/north-america/article/9816333/canada-recalls-macadamia-nut-products-over-salmonella-risk/",
+  "Notes": "source_id=GN-DS-9d2962bd19 [via official-feed collector] [claude-check 2026-06-26: fix; corrections: Date→2026-03-04, Brand→Super Mac Mix, Super Mac's Mix, Product→Macadamia nut products (raw macadamias, , Pathogen→Salmonella; placeholder_company_filled_from_page | fail; company mismatch; date on page=2026-03-04 | URL is on news-mirror domain (f]"
+ },
+ {
   "Date": "2026-03-03",
   "Source": "FSA (UK)",
   "Company": "Sacor (Compleat Food Group)",
@@ -15086,6 +15134,22 @@
   "Outbreak": 0,
   "URL": "https://www.gob.mx/cms/uploads/attachment/file/1051500/Alerta_Sanitaria__Alula_23012026.pdf",
   "Notes": "[COFEPRIS sanitary alert 2026-01-23; FRENCH-imported product — initial alert later reinforced by Feb 19 update; global cereulide infant formula crisis]"
+ },
+ {
+  "Date": "2026-01-23",
+  "Source": "NVWA",
+  "Company": "Nutrilon (Danone)",
+  "Brand": "Nutrilon",
+  "Product": "Infant formula / zuigelingenvoeding",
+  "Pathogen": "Cereulide",
+  "Reason": "Cereulide",
+  "Class": "Recall",
+  "Country": "Netherlands",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.nvwa.nl/actueel/nieuws/2026/01/23/nvwa-monitort-situatie-zuigelingenvoeding-nauwgezet",
+  "Notes": "Cereulide is een toxine dat door een specifieke groep van bacteriën gevormd kan worden. Dit kan onbedoeld in een grondstof terechtkomen.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [claude-check 2026-06-26: pass; pass | All fields verified: date 2026-01-23 matches page metadata; Company Nutrilon (Danone) confirmed in update section] [gap-gate 2026-06-26: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-01-22",
