@@ -8,17 +8,17 @@
   "week_end": "2026-06-25",
   "week_start_display": "19 Jun",
   "week_end_display": "25 Jun 2026",
-  "generated_utc": "2026-06-26T07:02:19.283692+00:00",
+  "generated_utc": "2026-06-26T11:32:31.874763+00:00",
   "stats": {
-    "total": 44,
-    "tier1": 29,
-    "outbreaks": 0,
-    "delta": -11,
-    "delta_pct": -20
+    "total": 49,
+    "tier1": 33,
+    "outbreaks": 1,
+    "delta": -6,
+    "delta_pct": -11
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 17,
+    "cases": 19,
     "pct": 39
   },
   "ai_lead_paragraph": "",
@@ -30,12 +30,12 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Oriental Kitchen",
-      "brand": "Oriental Kitchen",
-      "product": "nem chua et nem chua la tam ruot",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22622/Interne"
+      "company": "Taher, Inc.",
+      "brand": "FRESH SEASONS Kitchen",
+      "product": "Chicken Caesar Wrap — 8.7-oz. clear plastic wrapped packages, \"Sell By: 6/24/2026\", est. P-45091. Produced 2026-06-16.",
+      "country": "United States",
+      "source": "USDA FSIS",
+      "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-ready-eat-chicken-caesar-wrap-products-may-be"
     },
     {
       "rank": 2,
@@ -44,12 +44,12 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "EARL MOLET",
-      "brand": "MOLET",
-      "product": "Tomme / tommette fermière (raw-milk farm tomme)",
+      "company": "Oriental Kitchen",
+      "brand": "Oriental Kitchen",
+      "product": "nem chua et nem chua la tam ruot",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22634/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22622/Interne"
     },
     {
       "rank": 3,
@@ -67,17 +67,17 @@
     },
     {
       "rank": 4,
-      "date": "2026-06-23",
+      "date": "2026-06-25",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Origin: France | Notifying: Ireland",
-      "brand": "Ireland",
-      "product": "Presence of Listeria monocytogenes in Brie",
+      "company": "EARL MOLET",
+      "brand": "MOLET",
+      "product": "Tomme / tommette fermière (raw-milk farm tomme)",
       "country": "France",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853516"
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22634/Interne"
     },
     {
       "rank": 5,
@@ -94,5 +94,5 @@
       "url": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-29-2026"
     }
   ],
-  "country_count": 13
+  "country_count": 16
 }
