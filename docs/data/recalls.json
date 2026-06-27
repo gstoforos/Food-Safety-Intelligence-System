@@ -15838,5 +15838,21 @@
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/05_Mai/260520_17_NI_Dinkel_Waffeln/260520_NI_Dinkel_Waffeln.html",
   "Notes": "7 days ago · Mögliche Folgen: Ochratoxin A ist ein Schimmelpilzgift, welches bei regelmäßigem Verzehr krebserregend sein könnte. Wo war das Produkt auf dem Markt ...Missing: Rückruf | Show results with:Rückruf  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-27: pending_gap → pending_gap_v1] [claude-check 2026-05-27: fix; corrections: Company→Dirk Rossmann GmbH, Brand→enerBiO, Product→enerBiO Dinkel Waffeln 115 Gramm, Pathogen→Ochratoxin A; fix; company mismatch | Company field contains product name instead of recalling firm (Dirk Rossmann GmbH); Brand should] [gap-gate 2026-05-27: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
+  "Date": "",
+  "Source": "FDA",
+  "Company": "Total Nutrition Inc",
+  "Brand": "TNVitamins",
+  "Product": "TNVitamins 100% Organic Moringa Capsules (1,200 mg) and 100% Organic Moringa Powder",
+  "Pathogen": "Salmonella",
+  "Reason": "Total Nutrition Inc Recalls Organic Moringa Products Following Supplier Initiated Recall Due",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due",
+  "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [claude-check 2026-06-27: fix; corrections: Brand→TNVitamins, Product→TNVitamins 100% Organic Moringa Capsules, Pathogen→Salmonella; fix; product mismatch; pathogen mismatch | Product description is truncated (missing brand and specific product names); ] [enrich-gate 2026-06-27: pending_enrichment → pending (Claude verified)]"
  }
 ]
