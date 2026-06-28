@@ -128,6 +128,22 @@
   "Notes": "[RASFF #2026.5682; classification: information notification for follow-up; category: cocoa and cocoa preparations, coffee and tea; notifId=854303] [gemini-enrich 2026-06-27: Brand '—'→'LTU'] [gemini-check 2026-06-27: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
+  "Date": "2026-06-26",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Germany | Notifying: Norway",
+  "Brand": "Norway",
+  "Product": "Salmonella Dublin in bovine meat from Germany",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella Dublin in bovine meat from Germany; risk: potentially serious; category: meat and meat products (other than poultry)",
+  "Class": "Information",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853518",
+  "Notes": "[RASFF #2026.5708; classification: information notification for follow-up; category: meat and meat products (other than poultry); notifId=853518] [gemini-enrich 2026-06-28: Brand '—'→'Norway'] [claude-check 2026-06-28: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
   "Date": "2026-06-25",
   "Source": "ECDC (EU)",
   "Company": "(multiple producers — see ECDC investigation)",
@@ -302,6 +318,22 @@
   "Outbreak": 0,
   "URL": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-28-2026-update-1",
   "Notes": "PRIN-28-2026 [gemini-enrich 2026-06-26: Brand '—'→'Traditional Cheese Company'] [gemini-check 2026-06-26: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-06-24",
+  "Source": "FAVV",
+  "Company": "Splendid Foods SA",
+  "Brand": "El Ángel",
+  "Product": "Fuet Extra",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella",
+  "Class": "Recall",
+  "Country": "Belgium",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://favv-afsca.be/nl/producten/terugroeping-van-splendid-foods-sa",
+  "Notes": "Terugroeping van Splendid Foods SA | Federaal Agentschap voor de veiligheid van de voedselketen\n\n# Terugroeping van Splendid Foods SA\n\nFuet Extra van het merk El Ángel\n\nBij microbiologische controles door de leverancier werd de mogelijke aanwezigheid van salmonella vastgesteld in een staal van het p  [via Exa gap-finder, deterministic extract] [gemini-check 2026-06-27: fix; corrections: Company→Splendid Foods SA, Brand→El Ángel, Product→Fuet Extra; fix; company mismatch; product mismatch | Company, brand, and product fields corrected based on page content.] [gap-gate 2026-06-27: pending_gap → pending_gap_v1] [gap-gate 2026-06-28: pending_gap_v1 → pending_gap_v2] [claude-check 2026-06-28: pass; pass | All fields verified: date 2026-06-24 matches page metadata; Company (Splendid Foods SA), Brand (El Ángel), Produc] [gap-gate 2026-06-28: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-06-23",
@@ -12926,6 +12958,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21883/Interne",
   "Notes": "[fiche 21883 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row]"
+ },
+ {
+  "Date": "2026-04-04",
+  "Source": "CFIA",
+  "Company": "",
+  "Brand": "Co-Op",
+  "Product": "creamy garlic and spinach salad, cheeses, and meal kits",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Canada cheese recall listeria: CFIA announces - CTV News",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.ctvnews.ca/health/article/cfia-announces-recalls-for-salads-cheeses-and-meal-kits-over-listeria-concerns/",
+  "Notes": "source_id=GN-DS-3c14ed5f88 [via official-feed collector] [claude-check 2026-06-28: fix; corrections: Date→2026-04-04, Brand→Co-Op, Product→creamy garlic and spinach salad, cheeses, Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fail; company mismatch; product mismatch; date on page=2026-04-04 | URL is on new]"
  },
  {
   "Date": "2026-04-03",
