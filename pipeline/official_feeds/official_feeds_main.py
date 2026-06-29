@@ -153,6 +153,52 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
                       f"{rec.title[:60]}")
         print(f"  resolved: {resolved}, unresolved (kept news URL + flag): {unresolved}")
 
+    # ── Stage 3c: Authority / news-mirror / recency guard ───────────────
+    # Stage 3b flags GNews rows it could NOT resolve to an official regulator
+    # URL (_pending_no_auth_url=True) but historically did nothing to enforce
+    # that flag — Stage 4 appended them anyway, with the news URL intact. That
+    # is how news-site articles (castanet.net, themalaysianreserve.com,
+    # torontosun.com, meatpoultry.com, freshplaza.com, …) and months-old
+    # recalls reached Pending and then subscriber alerts.
+    #
+    # Run every accepted record through the shared, self-contained
+    # check_gap_finder_row guard (stdlib only — cannot fail to import). It:
+    #   • rejects non-regulator / news hosts via an allowlist (drops news sites
+    #     even when no blocklist names them),
+    #   • applies a recall-DATE age gate against `published` (drops stale
+    #     recalls surfaced months later — the Stage-2 filter only covers rows
+    #     that HAVE a date, and undated GNews rows slip past it),
+    #   • drops regulator homepage / generic-index URLs with no specific alert.
+    # Records that fail are removed from `accepted` and never written.
+    try:
+        from pipeline._gap_finder_guards import check_gap_finder_row
+    except Exception as _e:           # pragma: no cover - guard must never crash the run
+        check_gap_finder_row = None
+        print(f"  [WARN] gap-finder guard unavailable ({_e}); skipping Stage 3c")
+    if check_gap_finder_row is not None and accepted:
+        print("\n=== Stage 3c: Authority / news / recency guard ===")
+        guarded, dropped = [], 0
+        for rec in accepted:
+            guard_row = {
+                "URL": rec.url,
+                "Date": (rec.published.strftime("%Y-%m-%d")
+                         if rec.published else ""),
+                "Company": rec.company,
+                "Product": rec.product or rec.title,
+            }
+            ok, reason, note = check_gap_finder_row(guard_row)
+            if note:
+                print(f"  [note] {note}")
+            if ok:
+                rec.company = guard_row.get("Company", rec.company)
+                guarded.append(rec)
+            else:
+                dropped += 1
+                print(f"  ✗ dropped [{rec.source_id}] {reason} — "
+                      f"{(rec.company or rec.title)[:50]}")
+        print(f"  kept: {len(guarded)}, dropped: {dropped}")
+        accepted = guarded
+
     print("\n=== Stage 4: Write to xlsx ===")
     appended = skipped = 0
     if dry_run:
