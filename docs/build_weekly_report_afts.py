@@ -2148,8 +2148,14 @@ def build_html(week_end, recalls, prev_week, original_published=None):
     # difference is the label (PUBLISHED vs UPDATED), not a synthetic
     # future date.
     today_str = datetime.now(timezone.utc).strftime("%-d %b %Y")
+    # Operator rule (2026-06-29): "PUBLISHED" marks ONLY the genuine first
+    # issuance of a weekly briefing. Any later regeneration, correction, or
+    # back-build is a REVIEW, not a publish — the masthead must read
+    # "REVIEWED · {date}", never re-stamp "PUBLISHED" on a report that was
+    # not actually first issued today. A rebuild is signalled by
+    # original_published being set.
     if original_published:
-        published_label = "UPDATED"
+        published_label = "REVIEWED"
     else:
         published_label = "PUBLISHED"
     pub = today_str
@@ -2323,7 +2329,7 @@ def _extract_published_from_html(path):
     try:
         html = Path(path).read_text(encoding="utf-8")
         m = re.search(
-            r'<strong>(?:PUBLISHED|UPDATED)</strong>\s*&middot;\s*([^<]+?)<',
+            r'<strong>(?:PUBLISHED|UPDATED|REVIEWED)</strong>\s*&middot;\s*([^<]+?)<',
             html,
         )
         if m:
@@ -2349,7 +2355,7 @@ def _extract_label_from_html(path):
     try:
         html = Path(path).read_text(encoding="utf-8")
         m = re.search(
-            r'<strong>(PUBLISHED|UPDATED)</strong>\s*&middot;\s*[^<]+<',
+            r'<strong>(PUBLISHED|UPDATED|REVIEWED)</strong>\s*&middot;\s*[^<]+<',
             html,
         )
         if m:
