@@ -1,9 +1,9 @@
 {
   "week_end": "2026-07-02",
-  "generated_utc": "2026-06-29T17:15:49+00:00",
-  "row_count": 47,
-  "tier1_count": 43,
-  "outbreak_count": 1,
+  "generated_utc": "2026-06-30T04:12:53+00:00",
+  "row_count": 48,
+  "tier1_count": 44,
+  "outbreak_count": 2,
   "dissent_count": 0,
   "rows": [
     {
@@ -527,6 +527,27 @@
       "Notes": "[RASFF #2026.5629; classification: alert notification; category: meat and meat products (other than poultry); notifId=853982] [gemini-enrich 2026-06-26: Brand '—'→'FRANCE'] [gemini-check 2026-06-26: pass; clean-row shortcut (gemini-enriched + all fields valid)]",
       "DateAdded": "2026-06-26",
       "LastUpdated": "2026-06-26",
+      "LastChecked": "",
+      "Week_Added": "2026-07-02",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-06-25",
+      "Source": "ECDC",
+      "Company": "Various producers",
+      "Brand": "Various / Unbranded",
+      "Product": "Alfalfa sprouted seeds (and possibly other sprouted seeds)",
+      "Pathogen": "Salmonella",
+      "Reason": "Contamination from imported seeds, causing outbreak",
+      "Class": "Rapid Outbreak Assessment / Public Health Alert",
+      "Country": "Multiple EU/EEA countries (Austria, Belgium, Czechia, Denmark, Finland, Germany, Ireland, Luxembourg, Spain, Netherlands) and UK",
+      "Region": "Unknown",
+      "Tier": 1,
+      "Outbreak": 1,
+      "URL": "https://www.ecdc.europa.eu/en/publications-data/multi-country-outbreak-salmonella-bovismorbificans-st377-infections-linked",
+      "Notes": "109 confirmed cases, 18 hospitalizations, and 2 deaths reported in Finland. Investigations identified a common seed supplier in India. Control measures include withdrawal of implicated consignments and recalls of related products.  [via Gemini gap-finder + Google Search] [gemini-check 2026-06-29: pass; pass] [gap-gate 2026-06-29: pending_gap → pending_gap_v1] [claude-check 2026-06-30: pass; pass | Date, product (alfalfa sprouted seeds), pathogen (Salmonella), and outbreak status all verified from ECDC page. R] [gap-gate 2026-06-30: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]",
+      "DateAdded": "2026-06-30",
+      "LastUpdated": "2026-06-30",
       "LastChecked": "",
       "Week_Added": "2026-07-02",
       "Reviewed": "N"

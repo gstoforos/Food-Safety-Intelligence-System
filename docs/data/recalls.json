@@ -416,6 +416,22 @@
   "Notes": "Manual fix 2026-06-25: product field had gap-finder garbage (\"tommette achetée au magasin de la ferme le 10-12-13-17/06; ...\" — a purchase-location/date string with ;  encoding artifact). Company was duplicated \"MOLET EARL MOLET\"."
  },
  {
+  "Date": "2026-06-25",
+  "Source": "ECDC",
+  "Company": "Various producers",
+  "Brand": "Various / Unbranded",
+  "Product": "Alfalfa sprouted seeds (and possibly other sprouted seeds)",
+  "Pathogen": "Salmonella",
+  "Reason": "Contamination from imported seeds, causing outbreak",
+  "Class": "Rapid Outbreak Assessment / Public Health Alert",
+  "Country": "Multiple EU/EEA countries (Austria, Belgium, Czechia, Denmark, Finland, Germany, Ireland, Luxembourg, Spain, Netherlands) and UK",
+  "Region": "Unknown",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.ecdc.europa.eu/en/publications-data/multi-country-outbreak-salmonella-bovismorbificans-st377-infections-linked",
+  "Notes": "109 confirmed cases, 18 hospitalizations, and 2 deaths reported in Finland. Investigations identified a common seed supplier in India. Control measures include withdrawal of implicated consignments and recalls of related products.  [via Gemini gap-finder + Google Search] [gemini-check 2026-06-29: pass; pass] [gap-gate 2026-06-29: pending_gap → pending_gap_v1] [claude-check 2026-06-30: pass; pass | Date, product (alfalfa sprouted seeds), pathogen (Salmonella), and outbreak status all verified from ECDC page. R] [gap-gate 2026-06-30: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-06-24",
   "Source": "FAVV",
   "Company": "Splendid Foods SA",
