@@ -8,18 +8,18 @@
   "week_end": "2026-06-25",
   "week_start_display": "19 Jun",
   "week_end_display": "25 Jun 2026",
-  "generated_utc": "2026-06-26T11:32:31.874763+00:00",
+  "generated_utc": "2026-06-29T21:10:52.410605+00:00",
   "stats": {
-    "total": 49,
-    "tier1": 33,
+    "total": 53,
+    "tier1": 37,
     "outbreaks": 1,
-    "delta": -6,
-    "delta_pct": -11
+    "delta": -2,
+    "delta_pct": -4
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 19,
-    "pct": 39
+    "cases": 21,
+    "pct": 40
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -44,12 +44,12 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Oriental Kitchen",
-      "brand": "Oriental Kitchen",
-      "product": "nem chua et nem chua la tam ruot",
+      "company": "Origin: France | Notifying: France",
+      "brand": "FRANCE",
+      "product": "Listeria in ready to eat nem chua from France",
       "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22622/Interne"
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853982"
     },
     {
       "rank": 3,
@@ -72,12 +72,12 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "EARL MOLET",
-      "brand": "MOLET",
-      "product": "Tomme / tommette fermière (raw-milk farm tomme)",
+      "company": "Oriental Kitchen",
+      "brand": "Oriental Kitchen",
+      "product": "nem chua et nem chua la tam ruot",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22634/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22622/Interne"
     },
     {
       "rank": 5,
@@ -94,5 +94,5 @@
       "url": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-29-2026"
     }
   ],
-  "country_count": 16
+  "country_count": 17
 }
