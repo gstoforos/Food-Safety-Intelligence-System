@@ -1062,7 +1062,7 @@ _KPI_TOTAL_RE = re.compile(r'<div class="kpi-value">(\d+)</div>')
 
 # Masthead label line: matches both PUBLISHED and UPDATED variants.
 _MASTHEAD_LABEL_RE = re.compile(
-    r'<strong>(PUBLISHED|UPDATED)</strong>\s*&middot;\s*([^<]+?)<'
+    r'<strong>(PUBLISHED|UPDATED|REVIEWED)</strong>\s*&middot;\s*([^<]+?)<'
 )
 
 
@@ -1167,7 +1167,7 @@ def build_monthly_html(month_start: date, month_end: date,
     # The label change is the visible signal that the user is looking
     # at a revised version of a previously-published monthly briefing.
     if original_published:
-        published_label = "UPDATED"
+        published_label = "REVIEWED"
         pub_date = datetime.now(timezone.utc).strftime("%-d %b %Y")
     else:
         published_label = "PUBLISHED"
