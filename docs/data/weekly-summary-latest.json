@@ -8,18 +8,18 @@
   "week_end": "2026-06-25",
   "week_start_display": "19 Jun",
   "week_end_display": "25 Jun 2026",
-  "generated_utc": "2026-06-29T21:10:52.410605+00:00",
+  "generated_utc": "2026-06-30T18:39:12.223307+00:00",
   "stats": {
-    "total": 53,
-    "tier1": 37,
-    "outbreaks": 1,
-    "delta": -2,
-    "delta_pct": -4
+    "total": 56,
+    "tier1": 38,
+    "outbreaks": 2,
+    "delta": 1,
+    "delta_pct": 2
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
     "cases": 21,
-    "pct": 40
+    "pct": 38
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -94,5 +94,5 @@
       "url": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-29-2026"
     }
   ],
-  "country_count": 17
+  "country_count": 18
 }
