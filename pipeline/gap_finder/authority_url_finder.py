@@ -168,6 +168,34 @@ def _clean(u: str) -> str:
     return u
 
 
+def _norm_for_index_cmp(u: str) -> str:
+    """Lowercase + strip scheme / www. / query / fragment / trailing slash, so
+    two spellings of the same index page compare equal."""
+    u = (u or "").strip().lower()
+    u = u.split("#", 1)[0].split("?", 1)[0]
+    u = re.sub(r"^https?://", "", u)
+    if u.startswith("www."):
+        u = u[4:]
+    return u.rstrip("/")
+
+
+def url_is_index(url: str, cfg: CountryConfig) -> bool:
+    """True if `url` IS the authority's recall INDEX/listing page.
+
+    An index lists many recalls and carries no single-recall data (product,
+    hazard, lot), so it must never be treated as a per-recall authority item.
+    This matters for authorities like ANSA (md) whose item regex
+    ``(rechemare|retragere)…`` also matches the bare index
+    ``/media/rechemare-retragere`` — without this guard the index (≈377 chars of
+    listing teasers) gets fetched as if it were a recall, classifies as
+    unknown, and the real recall page is never reached. (audit 2026-06-30)
+    """
+    idx = getattr(cfg, "authority_index_url", "") or ""
+    if not idx:
+        return False
+    return _norm_for_index_cmp(url) == _norm_for_index_cmp(idx)
+
+
 def url_is_authority_item(url: str, cfg: CountryConfig) -> str:
     """If `url` is ITSELF an authority per-recall page, return it cleaned; else "".
 
@@ -186,6 +214,10 @@ def url_is_authority_item(url: str, cfg: CountryConfig) -> str:
     if not domain or not url:
         return ""
     if not host_is_authority(url, cfg):
+        return ""
+    # The bare recall INDEX is on the authority domain and can match the item
+    # regex, but it is a listing, not a single recall — never accept it here.
+    if url_is_index(url, cfg):
         return ""
     item_rx = getattr(cfg, "authority_item_url_regex", "")
     if not item_rx:
@@ -378,6 +410,12 @@ def resolve_authority_url_via_search(news_title: str, cfg: CountryConfig,
             continue
         if (host == domain or host.endswith("." + domain)) and \
            (item_re is None or item_re.search(u)):
+            # The index links to itself (and to category/listing pages that also
+            # match the item regex) — never collect the index as a recall item,
+            # or the matcher will score it on the news title's recall verbs and
+            # return a contentless listing page. (audit 2026-06-30)
+            if url_is_index(u, cfg):
+                continue
             cu = _clean(u)
             if cu in seen:
                 continue
