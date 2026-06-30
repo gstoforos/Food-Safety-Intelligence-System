@@ -96,6 +96,22 @@
   "Notes": "Manual fix 2026-06-29: Product field had lot-string garbage (\"n° lot ab94859; fr24551002ce\" with ;  artifact); Company was \"Sans Marques\" (=unbranded, not a firm). Official RappelConso URL retained; product name needs confirmation from the official fiche."
  },
  {
+  "Date": "2026-06-28",
+  "Source": "FDA",
+  "Company": "",
+  "Brand": "",
+  "Product": "FDA Raises Cheese Recall To Highest Risk After Listeria Found",
+  "Pathogen": "Listeria",
+  "Reason": "FDA Raises Cheese Recall To Highest Risk After Listeria Found",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.drugs.com/news/fda-raises-cheese-recall-highest-risk-after-listeria-found-128298.html",
+  "Notes": "source_id=GN-DS-76e8fb0962 [via official-feed collector] [gemini-check 2026-06-30: skip; fetch failed (HTTP 403)]"
+ },
+ {
   "Date": "2026-06-27",
   "Source": "FSAI (IE)",
   "Company": "K O'Connell Fishmongers",
