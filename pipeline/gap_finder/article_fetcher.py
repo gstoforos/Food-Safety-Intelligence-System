@@ -141,6 +141,13 @@ USER_AGENTS = [
 ]
 
 REQUEST_TIMEOUT = 15
+# Authority (regulator) pages on slower government sites — e.g. nafdac.gov.ng,
+# thencc.org.za — frequently exceed the 15s news timeout and return
+# status=error_Timeout, dropping us to the news-body fallback. Give the
+# authority press-release fetch more time and one retry so a real recall on a
+# slow-loading page isn't lost to a transient timeout. (audit 2026-06-29)
+AUTHORITY_TIMEOUT = 30
+AUTHORITY_FETCH_ATTEMPTS = 2
 MAX_WORKERS = 5                # concurrent HTTP fetches
 PER_DOMAIN_DELAY = 0.8         # seconds between fetches to the same domain
 MAX_BODY_CHARS = 5000          # truncate article body for LLM context
@@ -611,33 +618,44 @@ def enrich_candidate(cand: dict, cfg: CountryConfig,
     efet_body = body                            # default: news body
     efet_status = status
     if authority_url:
-        try:
-            au_resolved, au_html, au_status = fetch_html(authority_url, cfg)
+        # Authority gov sites are often slow/blocked, so use a longer timeout
+        # and retry once before giving up to the news-body fallback. A genuine
+        # recall on a slow nafdac.gov.ng / thencc.org.za page must not be lost
+        # to a single transient timeout. (audit 2026-06-29)
+        au_html = au_status = au_body = ""
+        for _attempt in range(AUTHORITY_FETCH_ATTEMPTS):
+            try:
+                au_resolved, au_html, au_status = fetch_html(
+                    authority_url, cfg, timeout=AUTHORITY_TIMEOUT)
+            except Exception as e:
+                au_html, au_status = "", "authority_fetch_error"
+                if verbose and _attempt == AUTHORITY_FETCH_ATTEMPTS - 1:
+                    print(f"    [authority] {cfg.authority_short} fetch error: "
+                          f"{e} — news fallback", file=sys.stderr)
             au_body = extract_body(au_html) if au_html else ""
             if au_body and len(au_body) >= 200:
-                efet_body = au_body                       # EFET press-release text
-                efet_title = extract_title(au_html) or efet_title
-                efet_status = f"authority_ok:{au_status}"
-                if verbose:
-                    print(f"    [authority] fetched EFET page: "
-                          f"{len(au_body)} chars from {authority_url[:55]}",
-                          file=sys.stderr)
-            else:
-                efet_status = f"authority_thin:{au_status}"
-                if verbose:
-                    print(f"    [authority] EFET page thin/blocked "
-                          f"({len(au_body)} chars) — using news body as fallback",
-                          file=sys.stderr)
-        except Exception as e:
-            efet_status = "authority_fetch_error"
+                break                            # got the press release; stop
+            # else: timeout / thin / blocked → try once more
+
+        if au_body and len(au_body) >= 200:
+            efet_body = au_body                       # authority press-release text
+            efet_title = extract_title(au_html) or efet_title
+            efet_status = f"authority_ok:{au_status}"
             if verbose:
-                print(f"    [authority] EFET fetch error: {e} — news fallback",
+                print(f"    [authority] fetched {cfg.authority_short} page: "
+                      f"{len(au_body)} chars from {authority_url[:55]}",
+                      file=sys.stderr)
+        else:
+            efet_status = f"authority_thin:{au_status}"
+            if verbose:
+                print(f"    [authority] {cfg.authority_short} page thin/blocked "
+                      f"({len(au_body)} chars) — using news body as fallback",
                       file=sys.stderr)
 
     if verbose:
         au_tag = (f"authority={authority_url[:55]}" if authority_url
                   else "authority=NONE(will-reject)")
-        print(f"    [fetch]   status={status} efet_body={len(efet_body)} chars "
+        print(f"    [fetch]   status={status} authority_body={len(efet_body)} chars "
               f"{au_tag}", file=sys.stderr)
 
     # efet_url + efet_body + efet_title now come from the AUTHORITY press
