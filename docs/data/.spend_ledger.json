@@ -1,76 +1,6 @@
 {
   "entries": [
     {
-      "ts": "2026-04-30T14:56:50Z",
-      "eur": 0.0,
-      "region": "Europe",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-04-30T14:56:55Z",
-      "eur": 0.0,
-      "region": "NorthAmerica",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-04-30T14:56:59Z",
-      "eur": 0.0,
-      "region": "LATAM",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-04-30T14:57:03Z",
-      "eur": 0.0,
-      "region": "AsiaPacific",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-04-30T14:57:07Z",
-      "eur": 0.0,
-      "region": "MiddleEastAfrica",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-05-01T07:04:55Z",
-      "eur": 0.0,
-      "region": "Europe",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-05-01T07:04:59Z",
-      "eur": 0.0,
-      "region": "NorthAmerica",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-05-01T07:05:02Z",
-      "eur": 0.0,
-      "region": "LATAM",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-05-01T07:05:06Z",
-      "eur": 0.0,
-      "region": "AsiaPacific",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-05-01T07:05:10Z",
-      "eur": 0.0,
-      "region": "MiddleEastAfrica",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
       "ts": "2026-05-02T07:13:34Z",
       "eur": 0.0,
       "region": "Europe",
@@ -2200,6 +2130,41 @@
     },
     {
       "ts": "2026-06-29T07:09:59Z",
+      "eur": 0.0,
+      "region": "MiddleEastAfrica",
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    {
+      "ts": "2026-06-30T07:09:34Z",
+      "eur": 0.0,
+      "region": "Europe",
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    {
+      "ts": "2026-06-30T07:09:39Z",
+      "eur": 0.0,
+      "region": "NorthAmerica",
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    {
+      "ts": "2026-06-30T07:09:44Z",
+      "eur": 0.0,
+      "region": "LATAM",
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    {
+      "ts": "2026-06-30T07:09:47Z",
+      "eur": 0.0,
+      "region": "AsiaPacific",
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    {
+      "ts": "2026-06-30T07:09:52Z",
       "eur": 0.0,
       "region": "MiddleEastAfrica",
       "input_tokens": 0,
