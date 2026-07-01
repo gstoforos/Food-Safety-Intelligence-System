@@ -11,6 +11,8 @@ explicitly naming the regulator (government-verified per EFET pattern).
 from __future__ import annotations
 
 import re
+import time
+import unicodedata
 from datetime import datetime, timezone
 from urllib.parse import urljoin
 
@@ -21,27 +23,83 @@ from ..base import Record, FeedSource, register
 from ..fetch import DEFAULT_HEADERS
 
 LISTING_URLS = (
-    "https://www.gob.pe/digesa/noticias",
-    "https://www.gob.pe/digesa",
+    "https://www.digesa.minsa.gob.pe/noticias/comunicados.asp",
 )
 
 _DETAIL_TIMEOUT = 8
 _DETAIL_CAP = 20
 
+# ── Resilient fetch (audit 2026-07-01) ──────────────────────────────────────
+# Route through curl_cffi Chrome-131 TLS impersonation + longer timeout +
+# retries (gov hosts that 403/timeout plain requests from cloud IPs); falls
+# back to plain requests when curl_cffi is unavailable.
+try:
+    from curl_cffi import requests as _cffi  # type: ignore
+    _IMPERSONATE = "chrome131"
+except Exception:  # noqa: BLE001
+    _cffi = None
+    _IMPERSONATE = None
+
+_LISTING_TIMEOUT = 30
+_LISTING_RETRIES = 3
+
+
+def _http_get(url: str, *, timeout: int, retries: int, label: str) -> str | None:
+    """GET `url` with Chrome-131 TLS impersonation + retries; None on failure."""
+    last = None
+    for i in range(retries):
+        try:
+            if _cffi is not None:
+                r = _cffi.get(url, headers=DEFAULT_HEADERS, timeout=timeout,
+                              impersonate=_IMPERSONATE)
+            else:
+                r = requests.get(url, headers=DEFAULT_HEADERS, timeout=timeout)
+            r.raise_for_status()
+            return r.text
+        except Exception as e:  # noqa: BLE001
+            last = e
+            if i + 1 < retries:
+                time.sleep(2 * (i + 1))
+    print(f"  [WARN] {label} fetch failed: {url} — {last}")
+    return None
+
+
+def _strip_accents(s: str) -> str:
+    return "".join(c for c in unicodedata.normalize("NFKD", s)
+                   if not unicodedata.combining(c))
+
+
+_MONTHS_ES = {
+    "enero": 1, "febrero": 2, "marzo": 3, "abril": 4, "mayo": 5, "junio": 6,
+    "julio": 7, "agosto": 8, "septiembre": 9, "setiembre": 9, "octubre": 10,
+    "noviembre": 11, "diciembre": 12,
+}
+# Numeric DD-MM-YYYY / DD.MM.YYYY (LatAm order) + Spanish "DD de MES de YYYY".
 _DATE_RE = re.compile(r"(\d{1,2})[-./](\d{1,2})[-./](\d{4})")
+_DATE_ES_RE = re.compile(
+    r"(\d{1,2})\s+de\s+([A-Za-z\u00c0-\u017f]+)\s+de\s+(\d{4})")
 
 
 def _parse_date(text: str):
     if not text:
         return None
     m = _DATE_RE.search(text)
-    if not m:
-        return None
-    try:
-        return datetime(int(m.group(3)), int(m.group(2)),
-                        int(m.group(1)), tzinfo=timezone.utc)
-    except (KeyError, ValueError):
-        return None
+    if m:
+        try:
+            return datetime(int(m.group(3)), int(m.group(2)),
+                            int(m.group(1)), tzinfo=timezone.utc)
+        except (KeyError, ValueError):
+            pass
+    m = _DATE_ES_RE.search(text)
+    if m:
+        month = _MONTHS_ES.get(_strip_accents(m.group(2)).lower())
+        if month:
+            try:
+                return datetime(int(m.group(3)), month, int(m.group(1)),
+                                tzinfo=timezone.utc)
+            except (KeyError, ValueError):
+                pass
+    return None
 
 
 def _clean_title(t: str) -> str:
@@ -51,23 +109,16 @@ def _clean_title(t: str) -> str:
 
 
 def _try_fetch(url: str) -> str | None:
-    try:
-        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=15)
-        r.raise_for_status()
-        return r.text
-    except Exception as e:  # noqa: BLE001
-        print(f"  [WARN] DIGESA fetch failed: {url} — {e}")
-        return None
+    return _http_get(url, timeout=_LISTING_TIMEOUT,
+                     retries=_LISTING_RETRIES, label="DIGESA")
 
 
 def _fetch_detail(url: str):
-    try:
-        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=_DETAIL_TIMEOUT)
-        r.raise_for_status()
-    except Exception as e:  # noqa: BLE001
-        print(f"  [WARN] DIGESA detail fetch failed: {url} — {e}")
+    html = _http_get(url, timeout=_DETAIL_TIMEOUT, retries=1,
+                     label="DIGESA detail")
+    if not html:
         return "", None
-    soup = BeautifulSoup(r.content, "html.parser")
+    soup = BeautifulSoup(html, "html.parser")
     page_title = soup.title.get_text(strip=True) if soup.title else ""
     title_clean = re.split(r"\s*[\|–—-]\s*", page_title, maxsplit=1)[0].strip()
     for tag in soup(["script", "style", "nav", "header", "footer",
@@ -137,7 +188,7 @@ def fetch(limit: int = 25) -> list[Record]:
             text = _clean_title(a.get_text(" ", strip=True))
             if not text or len(text) < 12:
                 continue
-            tl = text.lower()
+            tl = _strip_accents(text.lower())
             if not any(k in tl for k in _ANCHOR_KEYWORDS):
                 continue
             # Drop category/nav titles ("Ver todas las alertas", "Programa de…",
@@ -167,7 +218,7 @@ def fetch(limit: int = 25) -> list[Record]:
     for slug, list_title, url_full in links:
         d_hazard = ""
         d_date = None
-        if fetched < _DETAIL_CAP:
+        if fetched < _DETAIL_CAP and not url_full.lower().endswith(".pdf"):
             d_hazard, d_date = _fetch_detail(url_full)
             fetched += 1
         hazard = d_hazard or list_title
@@ -178,7 +229,7 @@ def fetch(limit: int = 25) -> list[Record]:
             authority="DIGESA",
             title=list_title, company="", product="",
             hazard=hazard, alert_type="recall",
-            region="Latin America", published=d_date,
+            region="Latin America", published=_parse_date(list_title) or d_date,
             url=url_full, raw={"slug": slug},
         )
         records.append(rec)
