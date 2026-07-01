@@ -10,6 +10,7 @@ to vfa.gov.vn URLs) for the rare English-language regulator publications.
 from __future__ import annotations
 
 import re
+import time
 from datetime import datetime, timezone
 from urllib.parse import urljoin
 
@@ -51,24 +52,56 @@ def _clean_title(t: str) -> str:
     return re.sub(r"\s+", " ", t).strip(" |·-—")
 
 
+# ── Resilient fetch (audit 2026-06-30) ──────────────────────────────────────
+# These authority hosts were fetched with plain `requests` at a 15s timeout —
+# no TLS impersonation, no retry — so they failed from GitHub-Actions IPs:
+# connect-timeouts (mfds.go.kr, vfa.gov.vn) and WAF 403s (caa.go.jp,
+# fda.gov.ph). Route through curl_cffi Chrome-131 TLS (clears many WAF 403s)
+# with a longer timeout + retries, falling back to plain requests if curl_cffi
+# is unavailable. A true geo/IP block may still fail — that needs an in-region
+# proxy, not a header tweak.
+try:
+    from curl_cffi import requests as _cffi  # type: ignore
+    _IMPERSONATE = "chrome131"
+except Exception:  # noqa: BLE001
+    _cffi = None
+    _IMPERSONATE = None
+
+_LISTING_TIMEOUT = 30
+_LISTING_RETRIES = 3
+
+
+def _http_get(url: str, *, timeout: int, retries: int, label: str) -> str | None:
+    """GET `url` with Chrome-131 TLS impersonation + retries; None on failure."""
+    last = None
+    for i in range(retries):
+        try:
+            if _cffi is not None:
+                r = _cffi.get(url, headers=DEFAULT_HEADERS, timeout=timeout,
+                              impersonate=_IMPERSONATE)
+            else:
+                r = requests.get(url, headers=DEFAULT_HEADERS, timeout=timeout)
+            r.raise_for_status()
+            return r.text
+        except Exception as e:  # noqa: BLE001
+            last = e
+            if i + 1 < retries:
+                time.sleep(2 * (i + 1))
+    print(f"  [WARN] {label} fetch failed: {url} — {last}")
+    return None
+
+
 def _try_fetch(url: str) -> str | None:
-    try:
-        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=15)
-        r.raise_for_status()
-        return r.text
-    except Exception as e:  # noqa: BLE001
-        print(f"  [WARN] VFA fetch failed: {url} — {e}")
-        return None
+    return _http_get(url, timeout=_LISTING_TIMEOUT,
+                     retries=_LISTING_RETRIES, label="VFA")
 
 
 def _fetch_detail(url: str):
-    try:
-        r = requests.get(url, headers=DEFAULT_HEADERS, timeout=_DETAIL_TIMEOUT)
-        r.raise_for_status()
-    except Exception as e:  # noqa: BLE001
-        print(f"  [WARN] VFA detail fetch failed: {url} — {e}")
+    html = _http_get(url, timeout=_DETAIL_TIMEOUT, retries=1,
+                     label="VFA detail")
+    if not html:
         return "", None
-    soup = BeautifulSoup(r.content, "html.parser")
+    soup = BeautifulSoup(html, "html.parser")
     page_title = soup.title.get_text(strip=True) if soup.title else ""
     title_clean = re.split(r"\s*[\|–—-]\s*", page_title, maxsplit=1)[0].strip()
     for tag in soup(["script", "style", "nav", "header", "footer",
