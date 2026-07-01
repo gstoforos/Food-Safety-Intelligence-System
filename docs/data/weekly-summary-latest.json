@@ -8,18 +8,18 @@
   "week_end": "2026-06-25",
   "week_start_display": "19 Jun",
   "week_end_display": "25 Jun 2026",
-  "generated_utc": "2026-06-30T20:03:18.022827+00:00",
+  "generated_utc": "2026-07-01T17:40:15.265207+00:00",
   "stats": {
-    "total": 55,
-    "tier1": 37,
+    "total": 57,
+    "tier1": 39,
     "outbreaks": 1,
-    "delta": 0,
-    "delta_pct": 0
+    "delta": 2,
+    "delta_pct": 4
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 21,
-    "pct": 38
+    "cases": 22,
+    "pct": 39
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -53,20 +53,6 @@
     },
     {
       "rank": 3,
-      "date": "2026-06-19",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Traditional Cheese Company",
-      "brand": "Malta",
-      "product": "French Brie, 160g",
-      "country": "United Kingdom",
-      "source": "FSA (UK)",
-      "url": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-28-2026"
-    },
-    {
-      "rank": 4,
       "date": "2026-06-25",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -80,18 +66,32 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22622/Interne"
     },
     {
-      "rank": 5,
-      "date": "2026-06-23",
-      "pathogen": "Salmonella",
-      "pathogen_raw": "Salmonella",
+      "rank": 4,
+      "date": "2026-06-25",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Prepworld",
-      "brand": "Prepworld",
-      "product": "fruit products",
+      "company": "EARL MOLET",
+      "brand": "MOLET",
+      "product": "Tomme / tommette fermière (raw-milk farm tomme)",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22634/Interne"
+    },
+    {
+      "rank": 5,
+      "date": "2026-06-24",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Traditional Cheese Company",
+      "brand": "Dunnes Stores",
+      "product": "Dunnes Stores Velvety & Mild French Brie; Traditional Cheese Company French Brie",
       "country": "United Kingdom",
       "source": "FSA (UK)",
-      "url": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-29-2026"
+      "url": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-28-2026-update-1"
     }
   ],
   "country_count": 17
