@@ -1237,7 +1237,22 @@ def build_monthly_html(month_start: date, month_end: date,
 </tr>"""
 
     # Top 10 table
-    top10 = weekly.rank_top_recalls(month_recalls, n=10)
+    # Operator-specified Top-10 rules (narrow, name-specific):
+    #   - Nara Organics: keep only the FDA recall; drop Nara's CDC rows.
+    #   - Clover Hill Dairy: keep only the FDA recall; drop its CDC rows.
+    # Each of these events exists as one FDA recall plus several CDC outbreak
+    # pages; the FDA row should represent the event in the Top 10. Every other
+    # recall (incl. Boucherie Courthieu's separate fiches) ranks normally.
+    def _drop_named_cdc(r):
+        company = str(r.get("Company") or "").lower()
+        source  = str(r.get("Source") or "").lower()
+        url     = str(r.get("URL") or "").lower()
+        is_named = ("nara organics" in company) or ("clover hill" in company)
+        is_cdc   = "cdc" in source or "cdc.gov" in url
+        return is_named and is_cdc   # True => exclude from Top 10
+
+    _ranked_top = weekly.rank_top_recalls(month_recalls, n=len(month_recalls))
+    top10 = [r for r in _ranked_top if not _drop_named_cdc(r)][:10]
     top_rows_html = "".join(weekly.render_top5_row(i+1, r) for i, r in enumerate(top10))
 
     # Appendix — ALL recalls table (ranked by severity, same as companion page)
@@ -2078,7 +2093,16 @@ def write_monthly_summary_json(month_start: date, month_end: date,
     year_m = f"{year}-M{month_start.month:02d}"
 
     top10_out = []
-    for i, r in enumerate(weekly.rank_top_recalls(month_recalls, 10), 1):
+    def _drop_named_cdc_out(r):
+        company = str(r.get("Company") or "").lower()
+        source  = str(r.get("Source") or "").lower()
+        url     = str(r.get("URL") or "").lower()
+        is_named = ("nara organics" in company) or ("clover hill" in company)
+        is_cdc   = "cdc" in source or "cdc.gov" in url
+        return is_named and is_cdc
+    _ranked_out = weekly.rank_top_recalls(month_recalls, n=len(month_recalls))
+    _top_out = [r for r in _ranked_out if not _drop_named_cdc_out(r)][:10]
+    for i, r in enumerate(_top_out, 1):
         _, canon = weekly.severity_score(r.get("Pathogen") or "")
         url = (r.get("URL") or "").strip()
         top10_out.append({
