@@ -224,6 +224,8 @@ def _mom_trend(
         mean = sum(base_counts) / len(base_counts)
         var = sum((c - mean) ** 2 for c in base_counts) / max(1, len(base_counts) - 1)
         std = math.sqrt(var)
+        out["rolling_mean"] = _round(mean, 0)
+        out["rolling_std"]  = _round(std, 1)
         if std > 1e-9:
             z = (last - mean) / std
             out["z_score"]     = _round(z, 1)

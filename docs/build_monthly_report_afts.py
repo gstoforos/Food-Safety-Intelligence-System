@@ -350,14 +350,19 @@ def compute_month_stats(month_recalls: List[Dict],
             key=lambda kv: (-kv[1], -pathogen_tier1.get(kv[0], 0), kv[0]),
         )
         top_p = ranked[0]
+        # Co-leaders: every pathogen tied with the top on incident count.
+        top_count = top_p[1]
+        co_leaders = [name for name, cnt in ranked if cnt == top_count]
     else:
         top_p = ("-", 0)
+        co_leaders = []
 
     return {
         "total": total,
         "tier1": tier1,
         "outbreaks": outbreaks,
         "top_pathogen": top_p,
+        "co_leaders": co_leaders,
         "pathogen_counts":  pathogen_counts.most_common(15),
         "country_counts":   country_counts.most_common(20),
         "source_counts":    source_counts.most_common(20),
@@ -570,10 +575,11 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
                      "moderate": "moderate source concentration",
                      "concentrated": "a signal driven by one or two agencies"}.get(
         co.get("hhi_bucket"), "mixed signal concentration")
-    gini_phrase = {"even": "geographically even",
-                   "moderate": "moderately uneven geographically",
-                   "very_uneven": "strongly concentrated in a single country"}.get(
-        co.get("gini_bucket"), "")
+    gini_phrase = {"highly diffuse": "geographically even",
+                   "moderately diffuse": "moderately uneven geographically",
+                   "concentrated": "geographically concentrated",
+                   "highly concentrated": "strongly concentrated in a few jurisdictions"}.get(
+        co.get("gini_bucket"), "geographically mixed")
 
     intensity = co.get("tier1_intensity_ratio")
     if intensity is None:
@@ -990,8 +996,7 @@ def build_all_month_html(month_start: date, month_end: date,
 <html lang="en"><head><meta charset="UTF-8">
 <title>AFTS · All Recalls · {escape(month_name)}</title>
 <!-- Cloudflare Web Analytics — see docs/index.html for setup instructions. -->
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
-  data-cf-beacon='{{"token": "__CF_BEACON_TOKEN__"}}'></script>
+
 <style>
 body{{font-family:'Inter',sans-serif;background:#f5f5f7;margin:0;padding:32px 20px;color:#1f2937;}}
 .wrap{{max-width:1080px;margin:0 auto;background:#fff;padding:32px 40px;border:1px solid #e5e7eb;}}
@@ -1313,7 +1318,7 @@ def build_monthly_html(month_start: date, month_end: date,
     ) or '<li class="empty">No pathogens with &gt;2σ month-over-month decline.</li>'
 
     # HHI / Gini reproducibility tables (review-1 audit guidance)
-    src_total = sum(c for _, c in stats["source_counts"]) or 1
+    src_total = total_safe or (sum(c for _, c in stats["source_counts"]) or 1)
     hhi_rows_html = "".join(
         f'<tr><td class="repro-lbl">{escape(name)}</td>'
         f'<td class="repro-num">{cnt}</td>'
@@ -1321,7 +1326,7 @@ def build_monthly_html(month_start: date, month_end: date,
         f'<td class="repro-num">{((cnt/src_total)*100)**2:.1f}</td></tr>'
         for name, cnt in stats["source_counts"][:12]
     )
-    cty_total = sum(c for _, c in stats["country_counts"]) or 1
+    cty_total = total_safe or (sum(c for _, c in stats["country_counts"]) or 1)
     gini_rows_html = "".join(
         f'<tr><td class="repro-lbl">{escape(name)}</td>'
         f'<td class="repro-num">{cnt}</td>'
@@ -1347,7 +1352,11 @@ def build_monthly_html(month_start: date, month_end: date,
     models_panel_html = render_models_panel(models)
 
     # KPI values
-    top_pathogen_name = stats["top_pathogen"][0] or "–"
+    _co = stats.get("co_leaders") or []
+    if len(_co) > 1:
+        top_pathogen_name = " & ".join(_co)
+    else:
+        top_pathogen_name = stats["top_pathogen"][0] or "–"
     top_pathogen_pct  = round(stats["top_pathogen"][1] / total_safe * 100) if total_safe else 0
     mom_delta_label   = (f"{mom.get('delta_pct'):+.0f}%" if mom.get("delta_pct") is not None else "—")
     z_label           = (f"Z = {mom.get('z_score'):+.1f}" if mom.get("z_score") is not None else "Z = n/a")
@@ -1364,8 +1373,7 @@ def build_monthly_html(month_start: date, month_end: date,
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <!-- Cloudflare Web Analytics — see docs/index.html for setup instructions. -->
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
-  data-cf-beacon='{{"token": "__CF_BEACON_TOKEN__"}}'></script>
+
 <style>
 :root{{
 --bg:#ffffff; --s1:#f9fafb; --s2:#f3f4f6; --brd:#e5e7eb;
@@ -1611,7 +1619,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   .kpi-strip {{ grid-template-columns: repeat(3, 1fr); gap: 8px; }}
   .kpi {{ padding: 10px 10px; }}
   .kpi-value {{ font-size: 22pt; }}
-  .kpi-lbl, .kpi-top {{ font-size: 8pt; }}
+  .kpi-label, .kpi-top {{ font-size: 8pt; }}
 
   /* Concentration / growth / models / trend — 1-column flow */
   .conc-grid, .growth-grid, .mdl-grid, .trend-grid {{
@@ -1635,7 +1643,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 
   /* Chart panels — keep each chart panel together as one atomic
      block. Use the ACTUAL class names that exist in the rendered
-     HTML (verified via `grep class= 2026-M04.html`):
+     HTML (verified via `grep class= 2026-M<MM>.html`):
        .trend-panel    — MoM trend, weekly cadence (each one a card)
        .heat-panel     — Country × Pathogen heatmap container
        .timeline-panel — Outbreak timeline container
@@ -1795,7 +1803,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   <div class="kpi">
     <div class="kpi-label">Outbreaks</div>
     <div class="kpi-value vio">{stats['outbreaks']}</div>
-    <div class="kpi-top">{_count_phrase(cl.get('cluster_count',0), 'cluster')} flagged</div>
+    <div class="kpi-top">{_count_phrase(cl.get('cluster_count',0), 'cluster')} across {cl.get('event_count',0)} outbreak-associated events</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">Leading Pathogen</div>
@@ -1931,7 +1939,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   <span class="sec-rule"></span>
   <a class="sec-link" href="{year_m}-all.html" target="_blank">View all {stats['total']} &rarr;</a>
 </div>
-<p class="sec-caption">Ranked by pathogen severity, outbreak status, and tier. The full {stats['total']}-recall list is available in the companion page linked above.</p>
+<p class="sec-caption">Ranked by pathogen severity, outbreak status, and tier. For editorial clarity, where a single event appears both as a primary regulator recall and as a CDC outbreak page (Nara Organics, Clover Hill Dairy), only the FDA recall is shown here; the full severity-ranked list — including every regulator record — is in the companion appendix below.</p>
 <table class="top5"><thead><tr>
 <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th>
 <th>Product</th><th>Jurisdiction &amp; Source</th>
@@ -1944,7 +1952,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 
   <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, hazard classification, and the engineering interpretation of each recall are developed by the AFTS process-authority practice, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP.</p>
 
-  <p><strong>Statistical methods.</strong> Month-over-month <em>Z-scores</em> use the rolling-prior-months mean and sample standard deviation; the score is suppressed (n/a) when the baseline contains fewer than six months. The <em>hotspot matrix</em> uses standardised chi-square residuals against an independence-baseline expected count; cells with σ&gt;2 are flagged as over-represented but are screening signals only (no multiple-comparison correction; small expected counts in many cells). <em>Source concentration</em> uses the Herfindahl-Hirschman Index on agency counts (HHI = Σ s²ᵢ × 10000, where sᵢ is each agency's share; &lt;1500 diverse, 1500–2500 moderate, &gt;2500 concentrated). <em>Geographic distribution</em> uses the Gini coefficient on country counts (0 = perfectly even, 1 = single-country regime; &lt;0.4 even, 0.4–0.6 moderate, &gt;0.6 uneven). <em>Outbreak clusters</em> are detected via a sliding 14-day window over same-pathogen outbreak events (cluster threshold: ≥3 events). The <em>composite severity index</em> (0–100) is a transparent two-component blend: <strong>100 × (0.60 × Tier-1 share + 0.40 × outbreak rate)</strong>, where Tier-1 share = Tier-1 incidents ÷ total incidents and outbreak rate = outbreak-flagged incidents ÷ total incidents (using the same criterion as the headline outbreaks KPI). For April 2026 this evaluates to 100 × (0.60 × 198/236 + 0.40 × 6/236) = 51.4. Buckets: ≥65 critical, ≥45 elevated, ≥25 moderate, &lt;25 low. Predictive models are gated to activate only when data history meets the minimum size required for valid estimation; the linear-trend OLS reports a 95% CI but does not claim slope significance until n ≥ 12 monthly observations (so dof ≥ 10, where the t-critical at α = 0.05 falls below 2.23).</p>
+  <p><strong>Statistical methods.</strong> Month-over-month <em>Z-scores</em> use the rolling-prior-months mean and sample standard deviation; the score is suppressed (n/a) when the baseline contains fewer than six months. The <em>hotspot matrix</em> uses standardised chi-square residuals against an independence-baseline expected count; cells with σ&gt;2 are flagged as over-represented but are screening signals only (no multiple-comparison correction; small expected counts in many cells). <em>Source concentration</em> uses the Herfindahl-Hirschman Index on agency counts (HHI = Σ s²ᵢ × 10000, where sᵢ is each agency's share; &lt;1500 diverse, 1500–2500 moderate, &gt;2500 concentrated). <em>Geographic distribution</em> uses the Gini coefficient on country counts (0 = perfectly even, 1 = single-country regime; &lt;0.4 even, 0.4–0.6 moderate, &gt;0.6 uneven). <em>Outbreak clusters</em> are detected via a sliding 14-day window over same-pathogen outbreak events (cluster threshold: ≥3 events). The <em>composite severity index</em> (0–100) is a transparent two-component blend: <strong>100 × (0.60 × Tier-1 share + 0.40 × outbreak rate)</strong>, where Tier-1 share = Tier-1 incidents ÷ total incidents and outbreak rate = outbreak-flagged incidents ÷ total incidents (using the same criterion as the headline outbreaks KPI). For {escape(month_name)} {month_start.year} this evaluates to 100 × (0.60 × {stats['tier1']}/{stats['total']} + 0.40 × {stats['outbreaks']}/{stats['total']}) = {round(100*(0.60*stats['tier1']/total_safe + 0.40*stats['outbreaks']/total_safe), 1)}. Buckets: ≥65 critical, ≥45 elevated, ≥25 moderate, &lt;25 low. Predictive models are gated to activate only when data history meets the minimum size required for valid estimation; the linear-trend OLS reports a 95% CI but does not claim slope significance until n ≥ 12 monthly observations (so dof ≥ 10, where the t-critical at α = 0.05 falls below 2.23).</p>
 
   <p><strong>Reporting-system caveats.</strong> National recall-publication regimes differ in granularity. France's RappelConso publishes one fiche per identified product/lot configuration, often producing several fiches per single root-cause event; the headline French count therefore reflects a transparent, item-level reporting practice rather than a higher true incidence. EU member-state counts likewise reflect both the actual hazard signal and each authority's publication discipline. Treat country totals as a recall-publication signal, not as a direct food-safety league table.</p>
 
