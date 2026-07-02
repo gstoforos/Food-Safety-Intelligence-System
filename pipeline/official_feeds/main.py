@@ -91,13 +91,18 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
     for rec in records:
         age = rec.age_days(now)
         if age is None:
+            # Undated record: no parseable publication date. Previously kept
+            # on the assumption the listing was recent, but that put blank-date
+            # rows into recalls.xlsx and the alert email. Drop them — a real
+            # recall always has a date, and per-source fetchers now supply a
+            # listing-level fallback before giving up.
             no_date += 1
-            kept.append(rec)          # keep undated; authority listing is recent
+            continue
         elif age <= max_age_days:
             kept.append(rec)
         else:
             too_old += 1
-    print(f"  kept: {len(kept)}  (too old: {too_old}, no date: {no_date})")
+    print(f"  kept: {len(kept)}  (too old: {too_old}, dropped no-date: {no_date})")
 
     print("\n=== Stage 3: Classify ===")
     accepted = []
@@ -174,6 +179,39 @@ def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
                 print(f"  ✗ no {src.authority_domain} URL — "
                       f"{rec.title[:60]}")
         print(f"  resolved: {resolved}, unresolved (kept news URL + flag): {unresolved}")
+
+    # ── Stage 3c: Authority / news-mirror / recency guard ───────────────
+    # Run every accepted record through the shared allowlist guard so
+    # non-regulator URLs (facebook.com and other news mirrors) are dropped
+    # before Stage 4 writes them to xlsx. stdlib-only import; wrapped so a
+    # guard failure can never crash the collector.
+    try:
+        from pipeline._gap_finder_guards import check_gap_finder_row
+    except Exception as _e:      # pragma: no cover
+        check_gap_finder_row = None
+        print(f"  [WARN] gap-finder guard unavailable ({_e}); skipping Stage 3c")
+    if check_gap_finder_row is not None and accepted:
+        print("\n=== Stage 3c: Authority / news / recency guard ===")
+        guarded, dropped = [], 0
+        for rec in accepted:
+            guard_row = {
+                "URL": rec.url,
+                "Date": (rec.published.strftime("%Y-%m-%d")
+                         if rec.published else ""),
+                "Company": rec.company,
+                "Product": rec.product or rec.title,
+            }
+            ok, reason, note = check_gap_finder_row(guard_row)
+            if note:
+                print(f"  [note] {note}")
+            if ok:
+                guarded.append(rec)
+            else:
+                dropped += 1
+                print(f"  ✗ dropped [{rec.source_id}] {reason} — "
+                      f"{(rec.company or rec.title)[:50]}")
+        print(f"  kept: {len(guarded)}, dropped: {dropped}")
+        accepted = guarded
 
     print("\n=== Stage 4: Write to xlsx ===")
     appended = skipped = 0
