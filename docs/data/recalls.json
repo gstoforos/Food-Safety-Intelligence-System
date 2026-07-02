@@ -64,6 +64,38 @@
   "Notes": "cf liste jointe [url-gate 2026-07-01: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-01: fix; corrections: Company→TERRES DE MOULIN MADAME, Pathogen→Mycotoxins (T-2 toxin, HT-2 toxin); fix; company mismatch; pathogen mismatch | Company and Pathogen corrected based on page content.] [enrich-gate 2026-07-01: pending_enrichment → pending (Claude verified)]"
  },
  {
+  "Date": "2026-07-01",
+  "Source": "RappelConso (FR)",
+  "Company": "Axel et Paul",
+  "Brand": "Axel et Paul",
+  "Product": "lot n° 312",
+  "Pathogen": "Zearalenone, T-2 toxin, HT-2 toxin",
+  "Reason": "La teneur en zéaralénone et la somme de t-2 toxine et de ht-2 toxine",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22705/Interne",
+  "Notes": "naturalia [url-gate 2026-07-01: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-01: Pathogen ''→'Zearalenone, T-2 toxin, HT-2 toxin'] [claude-check 2026-07-02: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-02: pending_enrichment → pending (Claude verified)]"
+ },
+ {
+  "Date": "2026-07-01",
+  "Source": "RappelConso (FR)",
+  "Company": "Fabriqué sur Place",
+  "Brand": "Fabriqué sur Place",
+  "Product": "croissant au jambon x2 pour le libre-service ou à l'unité pour le rayon traditionnel.",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Mise en évidence de la présence de Listeria monocytogenes",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22706/Interne",
+  "Notes": "centre e. leclerc fontenay-le-comte [url-gate 2026-07-02: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-02: pass; pass | All fields verified: date 2026-07-01 matches page header; Company 'Fabriqué sur Place' is the brand/manufacturer ]"
+ },
+ {
   "Date": "2026-06-30",
   "Source": "FSAI (IE)",
   "Company": "Dunnes Stores (Butchers Selection)",
@@ -768,6 +800,22 @@
   "Notes": "Manual fix 2026-06-25: product was a placeholder (\"various Marks and Spencer Pink Lady apple products\"); Tier corrected 3→1 (Salmonella always Tier 1 per locked rule)."
  },
  {
+  "Date": "2026-06-24",
+  "Source": "FSA",
+  "Company": "Dunnes Stores",
+  "Brand": "Dunnes Stores",
+  "Product": "Dunnes Stores Velvety & Mild French Brie; Traditional Cheese Company French Brie",
+  "Pathogen": "Listeria",
+  "Reason": "['Contamination of product with Listeria monocytogenes', 'Contamination of product with Listeria monocytogenes']",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-28-2026-update-1",
+  "Notes": "source_id=FSA-PRIN-28-2026-update-1 [via official-feed collector] [gemini-enrich 2026-07-02: Company ''→'Dunnes Stores'] [gemini-enrich 2026-07-02: Brand ''→'Dunnes Stores'] [gap-gate 2026-07-02: pending_gap → pending_gap_v1] [claude-check 2026-07-02: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-02: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-06-23",
   "Source": "FSAI (IE)",
   "Company": "Traditional Cheese Company",
@@ -894,6 +942,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22623/Interne",
   "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-23: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-23: pass; pass]"
+ },
+ {
+  "Date": "2026-06-23",
+  "Source": "FSA",
+  "Company": "ASDA",
+  "Brand": "ASDA",
+  "Product": "ASDA Pink Lady Apple, Mango, Strawberry & Blueberry; Morrisons Kiwi, Melon & Strawberries; Tesco Melon, Kiwi & Strawberry; Tesco Kiwi Fruit Pot; Waitrose Pink Lady Apple and Grapes; M&S Café Pink Lady Apple; M&S (FTG) Pink Lady Apple; M&S Pink Lady Apple Slices; Sainsbury’s Melon, Kiwi & Strawberry; Sainsbury’s Orange & Kiwi; Sainsbury’s Pink Lady Apple & Grape; Tesco Fruit Kebabs; Tesco Melon, Kiwi & Strawberry",
+  "Pathogen": "Salmonella",
+  "Reason": "['Possible contamination of product with salmonella', 'Possible contamination of product with salmonella']",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-29-2026",
+  "Notes": "source_id=FSA-PRIN-29-2026 [via official-feed collector] [gemini-enrich 2026-07-02: Company ''→'ASDA'] [gemini-enrich 2026-07-02: Brand ''→'ASDA'] [gap-gate 2026-07-02: pending_gap → pending_gap_v1] [claude-check 2026-07-02: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-02: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-06-22",
@@ -1438,6 +1502,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22600/Interne",
   "Notes": "leclerc - systeme u - intermarche - gemma [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→STOEFFLER Stoeffler; fix; company mismatch | Company mismatch, corrected to recalling firm from page.]"
+ },
+ {
+  "Date": "2026-06-19",
+  "Source": "FSA",
+  "Company": "Dunnes Stores",
+  "Brand": "Dunnes Stores",
+  "Product": "Dunnes Stores Velvety & Mild French Brie; Traditional Cheese Company French Brie",
+  "Pathogen": "Listeria",
+  "Reason": "['Contamination of product with Listeria monocytogenes', 'Contamination of product with Listeria monocytogenes']",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-28-2026",
+  "Notes": "source_id=FSA-PRIN-28-2026 [via official-feed collector] [gemini-enrich 2026-07-02: Company ''→'Dunnes Stores'] [gemini-enrich 2026-07-02: Brand ''→'Dunnes Stores'] [gap-gate 2026-07-02: pending_gap → pending_gap_v1] [claude-check 2026-07-02: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-02: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-06-18",
@@ -16270,5 +16350,21 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent]"
+ },
+ {
+  "Date": "",
+  "Source": "FSAI",
+  "Company": "Brady Family; Deluxe; Tesco",
+  "Brand": "Brady Family; Deluxe; Tesco Finest",
+  "Product": "Brady Family Wood Smoked Real Irish Ham 6 Slices (80g); Brady Family Hand Crumbed Real Irish Ham 6 Slices (80g); Deluxe Triple Oak Smoked Carved Irish Ham 5 Slices (130g); Deluxe Honey Roast Carved Irish Ham 5 Slices (130g); Tesco Finest Crumbed Shaved Ham 16 Slices (120g)",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-cooked-ham-p",
+  "Notes": "6 hours ago · The below batches of cooked ham products are being recalled due to the possible presence of Listeria monocytogenes. Recall notices will be displayed at point-of ...  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-01: pending_gap → pending_gap_v1] [gemini-check 2026-07-01: skip; claude unreachable / parse failed (unknown)] [claude-check 2026-07-02: pass; pass | All fields verified: date 2026-06-30 matches page; companies (Brady Family, Deluxe, Tesco) and brands named; all ] [gap-gate 2026-07-02: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  }
 ]
