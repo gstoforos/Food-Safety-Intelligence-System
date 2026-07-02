@@ -1,5 +1,5 @@
 {
-  "trained_at_utc": "2026-06-25T14:47:27.797451+00:00",
+  "trained_at_utc": "2026-07-02T14:24:13.517901+00:00",
   "task": "promote_classifier_binary",
   "base_model": "microsoft/MiniLM-L12-H384-uncased",
   "n_train": 1026,
@@ -32,8 +32,8 @@
     "eval_promote_recall": 0.9791666666666666,
     "eval_reject_recall": 0.9411764705882353,
     "eval_reject_precision": 0.8888888888888888,
-    "eval_runtime": 8.449,
-    "eval_samples_per_second": 13.374,
+    "eval_runtime": 8.4512,
+    "eval_samples_per_second": 13.371,
     "eval_steps_per_second": 0.947,
     "epoch": 8.0
   },
