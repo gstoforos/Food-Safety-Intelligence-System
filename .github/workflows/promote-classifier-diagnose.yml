@@ -20,6 +20,14 @@ on:
         description: "Workflow filename whose artifact to pull"
         required: false
         default: "train-promote-classifier.yml"
+      train_jsonl:
+        description: "Path to promote training JSONL (for in/out corpus check)"
+        required: false
+        default: "tools/training/data/v2_3/promote_classifier.train.jsonl"
+      val_jsonl:
+        description: "Path to promote validation JSONL"
+        required: false
+        default: "tools/training/data/v2_3/promote_classifier.val.jsonl"
       max_length:
         description: "Max input length (must match training)"
         required: false
@@ -141,18 +149,29 @@ jobs:
               return "\n".join(lines)
 
 
-          def load_sheet_rows(xlsx_path: Path, sheet: str) -> List[Dict[str, Any]]:
+          def load_sheet_rows(xlsx_path: Path, sheet: str,
+                              verbose: bool = False) -> List[Dict[str, Any]]:
               import openpyxl
               wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+              if verbose:
+                  print(f"  Available sheets: {wb.sheetnames}")
               if sheet not in wb.sheetnames:
+                  if verbose:
+                      print(f"  ⚠ Sheet '{sheet}' NOT in workbook. Available: {wb.sheetnames}")
                   return []
               ws = wb[sheet]
               headers = [c.value for c in ws[1]]
+              if verbose:
+                  n_valid_headers = sum(1 for h in headers if h)
+                  print(f"  Headers ({n_valid_headers} valid): {[h for h in headers if h][:10]}")
+                  print(f"  Sheet dimensions: {ws.max_row} rows × {ws.max_column} cols")
               rows = []
               for r in ws.iter_rows(min_row=2, values_only=True):
                   row = {h: ("" if v is None else v) for h, v in zip(headers, r) if h}
                   if any(str(v).strip() for v in row.values()):
                       rows.append(row)
+              if verbose:
+                  print(f"  Loaded {len(rows)} rows after filtering")
               return rows
 
 
@@ -229,9 +248,9 @@ jobs:
               ap.add_argument("--model-dir", type=Path, required=True)
               ap.add_argument("--xlsx", type=Path, default=Path("docs/data/recalls.xlsx"))
               ap.add_argument("--train-jsonl", type=Path,
-                              default=Path("tools/training/data/v2_2/promote_classifier.train.jsonl"))
+                              default=Path("tools/training/data/v2_3/promote_classifier.train.jsonl"))
               ap.add_argument("--val-jsonl", type=Path,
-                              default=Path("tools/training/data/v2_2/promote_classifier.val.jsonl"))
+                              default=Path("tools/training/data/v2_3/promote_classifier.val.jsonl"))
               ap.add_argument("--out-dir", type=Path, default=Path("docs/audits"))
               ap.add_argument("--max-length", type=int, default=256)
               ap.add_argument("--date", type=str, default=None)
@@ -249,8 +268,20 @@ jobs:
 
               # ── Load all live rejects ──
               print(f"Loading Weekly_Rejected from {args.xlsx}...")
-              rejects = load_sheet_rows(args.xlsx, "Weekly_Rejected")
+              rejects = load_sheet_rows(args.xlsx, "Weekly_Rejected", verbose=True)
               print(f"  {len(rejects)} live reject rows")
+              if not rejects:
+                  print(f"\nERROR: no rejects found. Cannot run diagnosis on empty data.",
+                        file=sys.stderr)
+                  print(f"Possible causes:", file=sys.stderr)
+                  print(f"  1. Sheet 'Weekly_Rejected' has been renamed", file=sys.stderr)
+                  print(f"  2. FSIS pipeline was mid-write when this ran (race condition)",
+                        file=sys.stderr)
+                  print(f"  3. xlsx file was not properly checked out", file=sys.stderr)
+                  print(f"Retry the workflow; if the issue persists, check the sheet",
+                        file=sys.stderr)
+                  print(f"names listed above and share them.", file=sys.stderr)
+                  sys.exit(2)
 
               # ── Inference on every reject ──
               probs = run_inference(args.model_dir, rejects, max_length=args.max_length)
@@ -414,6 +445,8 @@ jobs:
 
       - name: Run diagnosis
         env:
+          TRAIN_JSONL: ${{ inputs.train_jsonl }}
+          VAL_JSONL: ${{ inputs.val_jsonl }}
           MAX_LENGTH: ${{ inputs.max_length }}
           DIAG_DATE: ${{ steps.athens_date.outputs.diag_date }}
           HF_HUB_DISABLE_PROGRESS_BARS: "1"
@@ -424,8 +457,8 @@ jobs:
           python tools/fsis-lm/promote_diagnose.py \
             --model-dir tools/fsis-lm/promote-classifier-v1 \
             --xlsx docs/data/recalls.xlsx \
-            --train-jsonl tools/training/data/v2_2/promote_classifier.train.jsonl \
-            --val-jsonl tools/training/data/v2_2/promote_classifier.val.jsonl \
+            --train-jsonl "$TRAIN_JSONL" \
+            --val-jsonl "$VAL_JSONL" \
             --out-dir docs/audits \
             --max-length "$MAX_LENGTH" \
             --date "$DIAG_DATE" \
