@@ -30,9 +30,14 @@ BASE = "https://www.fsai.ie"
 _DETAIL_CAP = 25
 
 _DATE_RE = re.compile(
-    r"(\d{1,2})\s+"
+    r"(\d{1,2})(?:st|nd|rd|th)?\s+"
     r"(January|February|March|April|May|June|July|August|September|"
     r"October|November|December)\s+(\d{4})"
+)
+# Secondary: "Month DD, YYYY" (US order) as a fallback.
+_DATE_RE_US = re.compile(
+    r"(January|February|March|April|May|June|July|August|September|"
+    r"October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})"
 )
 _MONTHS = {m: i for i, m in enumerate(
     ["January", "February", "March", "April", "May", "June", "July",
@@ -47,10 +52,14 @@ _ALT_PREFIX = re.compile(
 
 def _parse_date(text: str):
     m = _DATE_RE.search(text or "")
-    if not m:
-        return None
-    return datetime(int(m.group(3)), _MONTHS[m.group(2)], int(m.group(1)),
-                    tzinfo=timezone.utc)
+    if m:
+        return datetime(int(m.group(3)), _MONTHS[m.group(2)], int(m.group(1)),
+                        tzinfo=timezone.utc)
+    m = _DATE_RE_US.search(text or "")
+    if m:
+        return datetime(int(m.group(3)), _MONTHS[m.group(1)], int(m.group(2)),
+                        tzinfo=timezone.utc)
+    return None
 
 
 def _clean_title(t: str) -> str:
@@ -134,16 +143,31 @@ def fetch(limit: int = 50) -> list[Record]:
             continue
         seen.add(slug)
         url = href if href.startswith("http") else BASE + href
-        links.append((slug, title, url))
+        # Listing-level date fallback: FSAI prints the alert date near the
+        # anchor. Parse it from the surrounding container so we still have a
+        # date if the detail fetch fails or is beyond the detail cap.
+        list_date = None
+        node = a
+        for _ in range(4):          # walk up a few parents looking for a date
+            node = getattr(node, "parent", None)
+            if node is None:
+                break
+            list_date = _parse_date(node.get_text(" ", strip=True))
+            if list_date:
+                break
+        links.append((slug, title, url, list_date))
 
     fetched = 0
-    for slug, list_title, url in links[:limit]:
+    for slug, list_title, url, list_date in links[:limit]:
         d_title = d_hazard = ""
         d_date = None
         d_company = ""
         if fetched < _DETAIL_CAP:
             d_title, d_hazard, d_date, d_company = _fetch_detail(url)
             fetched += 1
+
+        # Date: prefer the detail page, fall back to the listing-level date.
+        pub_date = d_date or list_date
 
         title = d_title or list_title
         # The detail <h1> is often a generic section banner ("Food Alerts").
@@ -160,6 +184,13 @@ def fetch(limit: int = 50) -> list[Record]:
         # hazard: prefer detail body (names the pathogen); fall back to title
         hazard = d_hazard or title
 
+        # Date-presence guard: never emit a dateless record. A missing date
+        # means both the detail fetch and the listing fallback failed; writing
+        # it would put a blank-date row into recalls.xlsx and the alert email.
+        if pub_date is None:
+            print(f"  [SKIP] FSAI record has no parseable date: {slug}")
+            continue
+
         rec = Record(
             source_id=f"FSAI-{slug}",
             country_code="ie",
@@ -170,7 +201,7 @@ def fetch(limit: int = 50) -> list[Record]:
             product="",
             hazard=hazard,
             alert_type="recall" if "recall" in title.lower() else "allergy",
-            published=d_date,
+            published=pub_date,
             url=url,
             raw={"slug": slug, "list_title": list_title},
         )
