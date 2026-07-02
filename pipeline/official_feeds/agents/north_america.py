@@ -429,6 +429,47 @@ def _validate(url: str, reg: dict) -> bool:
 # ║  PUBLIC API — called from Stage 3b of the pipeline
 # ╚══════════════════════════════════════════════════════════════════════════
 
+def _stem(w: str) -> str:
+    """Cheap singular/plural fold so 'zapps'~'zapp', 'chips'~'chip'."""
+    return w[:-1] if len(w) > 3 and w.endswith("s") else w
+
+
+def _best_seen_url(title: str, reg: dict, seen: set) -> Optional[str]:
+    """Fallback when the agent gives up (hit the tool-loop cap or answered
+    'NONE'): recover the best regulator URL that Searx ACTUALLY returned this
+    call, instead of discarding the whole recall.
+
+    Safety bar — the chosen URL must:
+      • pass domain/path validation (a real recall/alert page, not a portal),
+      • not conflict with the headline's pathogen/year, and
+      • share ≥2 DISTINCTIVE tokens with the headline, counting tokens OTHER
+        than the pathogen family (so a generic 'cheese'+'listeria' overlap can
+        never attach the Ambriola page to a La Colonia headline — the brand
+        tokens must actually match).
+    Anti-fabrication is automatic: every candidate is a real Searx result.
+    Returns None if nothing clears the bar. (audit 2026-07-02)
+    """
+    if not seen:
+        return None
+    fam = _HAZ_TO_FAMILY.get(_hazard_of(title))
+    drop = set(_PATH_FAMILY_SLUGS.get(fam, ())) if fam else set()
+    htoks = {_stem(w) for w in _content_tokens(title)} - drop
+    if len(htoks) < 2:
+        return None
+    best_url, best_overlap = None, 1          # require strictly >1 (i.e. ≥2)
+    for u in seen:
+        if not _validate(u, reg):
+            continue
+        if _url_conflicts_headline(title, u):
+            continue
+        slug = urlparse(u).path.rstrip("/").split("/")[-1]
+        stoks = {_stem(w) for w in _content_tokens(slug.replace("-", " "))} - drop
+        overlap = len(htoks & stoks)
+        if overlap > best_overlap:
+            best_overlap, best_url = overlap, u
+    return best_url
+
+
 def find_url(title: str, regulator: str) -> Optional[str]:
     """
     Resolve a North American regulator URL via the Llama agent.
@@ -505,13 +546,25 @@ def find_url(title: str, regulator: str) -> Optional[str]:
         max_tokens=256,
     )
 
-    if not text:
-        print(f"  [NA-agent {regulator}] agent returned no answer")
-        return None
+    url = _extract_url(text) if text else None
 
-    url = _extract_url(text)
+    # Fallback: the model gave up — it hit the tool-loop cap (text is None) or
+    # answered "NONE"/no URL — but Searx may already have surfaced the correct
+    # regulator page during the loop. Recover the best real, non-conflicting,
+    # token-matched URL from what Searx returned rather than dropping the whole
+    # recall. The candidate is already validated + anti-fabrication-safe inside
+    # _best_seen_url, so return it directly. (audit 2026-07-02)
     if not url:
-        print(f"  [NA-agent {regulator}] no URL in answer: {text[:120]!r}")
+        fb = _best_seen_url(title, reg, seen_urls)
+        if fb:
+            print(f"  [NA-agent {regulator}] ↳ fallback to best Searx hit → "
+                  f"{fb[:90]}")
+            _record_resolved(title, fb)
+            return fb
+        if not text:
+            print(f"  [NA-agent {regulator}] agent returned no answer")
+        else:
+            print(f"  [NA-agent {regulator}] no URL in answer: {text[:120]!r}")
         return None
 
     if not _validate(url, reg):
