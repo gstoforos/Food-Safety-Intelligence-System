@@ -279,6 +279,7 @@ class IncidentRow(TypedDict, total=False):
 class MonthData(TypedDict, total=False):
     month_tag:        str    # "APRIL 2026"
     period_line:      str    # "01 APR – 30 APR 2026"
+    updated_stamp:    str    # "UPDATED · July 3rd, 2026"
     total_recalls:    int    # 236
     tier1:            int    # 198
     outbreaks:        int    # 6
@@ -380,6 +381,11 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
     y -= 38
     c.setFont(H_BOLD, 32); c.setFillColor(NAVY)
     c.drawString(MARGIN_L, y, m["month_tag"])
+    # Right-aligned UPDATED stamp on the title baseline
+    _stamp = m.get("updated_stamp") or ""
+    if _stamp:
+        c.setFont(H_BOLD, 8); c.setFillColor(ORANGE)
+        c.drawRightString(PAGE_W - MARGIN_R, y + 2, _stamp)
 
     y -= 16
     c.setStrokeColor(ORANGE); c.setLineWidth(2.2)
@@ -654,9 +660,20 @@ def _load_summary_json(summary_path: str):
             "url":      it.get("url") or "",
         })
 
+    def _ordinal(n: int) -> str:
+        if 10 <= n % 100 <= 20:
+            suf = "th"
+        else:
+            suf = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+        return f"{n}{suf}"
+    _today = date.today()
+    updated_stamp = (f"UPDATED · {_today.strftime('%B')} "
+                     f"{_ordinal(_today.day)}, {_today.year}")
+
     md: MonthData = {
         "month_tag":        pretty_tag,
         "period_line":      period_line,
+        "updated_stamp":    updated_stamp,
         "total_recalls":    int((s.get("stats") or {}).get("total",     s.get("total", 0))),
         "tier1":            int((s.get("stats") or {}).get("tier1",     s.get("tier1", 0))),
         "outbreaks":        int((s.get("stats") or {}).get("outbreaks", s.get("outbreaks", 0))),
