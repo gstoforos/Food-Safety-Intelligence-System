@@ -8,18 +8,18 @@
   "week_end": "2026-07-02",
   "week_start_display": "26 Jun",
   "week_end_display": "2 Jul 2026",
-  "generated_utc": "2026-07-03T07:20:18.531551+00:00",
+  "generated_utc": "2026-07-03T07:33:49.573969+00:00",
   "stats": {
-    "total": 52,
-    "tier1": 36,
+    "total": 50,
+    "tier1": 34,
     "outbreaks": 1,
-    "delta": -3,
-    "delta_pct": -5
+    "delta": -5,
+    "delta_pct": -9
   },
   "leading_pathogen": {
-    "name": "Listeria monocytogenes",
-    "cases": 18,
-    "pct": 35
+    "name": "Salmonella spp.",
+    "cases": 17,
+    "pct": 34
   },
   "ai_lead_paragraph": "",
   "top_threats": [
