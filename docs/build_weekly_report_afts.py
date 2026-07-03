@@ -649,8 +649,30 @@ def compute_stats(wr, pr):
     # Apply synonym consolidation BEFORE deriving top_pathogen so the KPI
     # banner and the distribution table never disagree.
     pc_consolidated = _consolidate_counter(pc)
+    # Genus-level co-dominance check (reviewer note 2026-07-03): the KPI shows
+    # the single top consolidated label, but a named serovar (e.g. "Salmonella
+    # Stanley") is kept separate from "Salmonella spp." on purpose. Roll every
+    # label up to its genus to see whether the leader is actually tied.
+    def _genus(label):
+        l = str(label).lower()
+        if "listeria" in l: return "Listeria"
+        if "salmonella" in l: return "Salmonella"
+        if "coli" in l or "stec" in l: return "E. coli"
+        return str(label)
+    genus_counts = Counter()
+    for k, v in pc_consolidated.items():
+        genus_counts[_genus(k)] += v
+    co_dominant = None
+    if genus_counts:
+        top_genus, top_gn = genus_counts.most_common(1)[0]
+        tied = [g for g, n in genus_counts.items() if n == top_gn and g != top_genus]
+        if tied:
+            co_dominant = {"leader": top_genus, "count": top_gn,
+                           "also": tied}
+    top_pair = pc_consolidated.most_common(1)[0] if pc_consolidated else ("\u2014", 0)
     return {"total":total,"tier1":tier1,"outbreaks":outbreaks,
-            "top_pathogen":pc_consolidated.most_common(1)[0] if pc_consolidated else ("\u2014",0),
+            "top_pathogen":top_pair,
+            "co_dominant":co_dominant,
             "pathogen_counts":pc_consolidated.most_common(20),"country_counts":cc.most_common(20),
             "country_sources":cs,
             "prev_total":pt,"delta":delta,
@@ -759,13 +781,35 @@ def _fallback_p1_to_p3(stats, recalls):
     p1 = ("This week produced {} food-safety hazard recall incidents across the AFTS "
           "monitoring network, with {} classified as Tier-1 and {}. {} dominated the "
           "surveillance window, accounting for {} of {} "
-          "incidents ({}%). The elevated Tier-1 ratio indicates sustained regulatory "
-          "pressure and should be read by food manufacturers as a signal of tightening "
-          "enforcement.").format(t, stats["tier1"],
+          "incidents ({}%). Although total activity may vary week to week, the high "
+          "Tier-1 share indicates that serious microbiological and chemical hazards "
+          "continue to drive regulatory action.").format(t, stats["tier1"],
                                  _count_phrase(stats["outbreaks"], "confirmed outbreak event",
                                                zero="no confirmed outbreak events"),
                                  tp, tc, t, pct)
     p2 = _pathogen_narrative(tp, pct)
+    # Outbreak Watch: if any outbreak-flagged recall exists, surface it by name
+    # so the outbreak KPI is reflected in the narrative even when the Top-5
+    # headline threats are a different pathogen (reviewer note 2026-07-03).
+    OUTBREAK_TRUTHY = {True, 1, "1", "TRUE", "True", "true", "Y", "Yes"}
+    ob_recalls = [r for r in (recalls or [])
+                  if r.get("Outbreak") in OUTBREAK_TRUTHY]
+    p_outbreak = None
+    if ob_recalls:
+        descs = []
+        for r in ob_recalls[:3]:
+            path = str(r.get("Pathogen") or "").strip()
+            prod = str(r.get("Product") or r.get("Company") or "").strip()
+            prod_short = prod.split("(")[0].strip()[:60]
+            descs.append(f"{path} linked to {prod_short}" if prod_short else path)
+        joined = "; ".join(descs)
+        n_ob = len(ob_recalls)
+        p_outbreak = (
+            f"Outbreak watch: {_count_phrase(n_ob, 'confirmed cluster event')} "
+            f"tracked this week \u2014 {joined}. Although {tp} remained the leading "
+            f"incident driver, {'this outbreak' if n_ob == 1 else 'these outbreaks'} "
+            f"should remain under active monitoring given cross-border exposure "
+            f"potential.")
     auths = _jurisdictions_from_recalls(recalls or [])
     if auths:
         auth_clause = ("Regulatory activity this week spanned multiple jurisdictions "
@@ -779,7 +823,11 @@ def _fallback_p1_to_p3(stats, recalls):
           "AFTS recommends that food manufacturers use this briefing as a prompt to "
           "re-verify the single highest-leverage control for their commodity this week "
           "and to confirm documentation packages are ready for rapid regulatory response.")
-    return "\n\n".join([p1, p2, p3])
+    parts = [p1]
+    if p_outbreak:
+        parts.append(p_outbreak)
+    parts += [p2, p3]
+    return "\n\n".join(parts)
 
 # ---------------------------------------------------------------------------
 # Pathogen-specific process-engineering narratives (P2 dispatcher).
@@ -1036,7 +1084,7 @@ def _process_authority_note(recalls, bot):
         FRAMEWORKS = {
             "botulinum": {
                 "US": "FDA 21 CFR 113 (LACF) / 21 CFR 114 (acidified foods) with scheduled-process filing under 21 CFR 108 (Form 2541 / 2541e)",
-                "EU": "EU Reg. 852/2004 (food hygiene) and Reg. 2073/2005 (microbiological criteria), with national competent-authority oversight of low-acid / shelf-stable production",
+                "EU": "Regulation (EC) No 852/2004 (food hygiene) and Regulation (EC) No 2073/2005 (microbiological criteria), with national competent-authority oversight of low-acid / shelf-stable production",
                 "UK": "UK Food Safety Act 1990, Food Hygiene (England) Regulations 2013 / retained Reg. 852/2004 + 2073/2005, and FSA Food Standards Agency oversight",
                 "CA": "CFIA Safe Food for Canadians Regulations (SFCR) with Preventive Control Plan (PCP) requirements for low-acid foods",
                 "AU_NZ": "FSANZ Food Standards Code Chapter 3 (Standard 3.2.1 Food Safety Programs, 3.2.2 Practices and General Requirements)",
@@ -1045,7 +1093,7 @@ def _process_authority_note(recalls, bot):
             },
             "listeria": {
                 "US": "FDA 21 CFR 117 Subparts B and G (Preventive Controls), FDA CPG 555.320 (L. monocytogenes zero-tolerance in RTE), and USDA FSIS Directive 10,240.4 where meat/poultry is implicated",
-                "EU": "EU Reg. 2073/2005 microbiological criteria (absence in 25 g for RTE infant / medical food; ≤100 CFU/g for other RTE at end of shelf-life), Reg. 852/2004 HACCP, and national RASFF notification obligations",
+                "EU": "Regulation (EC) No 2073/2005 as amended by Reg. (EU) 2024/2895 (applicable from 1 July 2026): for RTE foods able to support growth of Listeria monocytogenes, operators must demonstrate compliance throughout shelf life; where a business cannot demonstrate to the competent authority that levels remain ≤100 CFU/g, the applicable criterion is not detected in 25 g. Reg. 852/2004 HACCP and national RASFF notification obligations apply.",
                 "UK": "retained EU Reg. 2073/2005, UK Food Hygiene Regulations, and FSA listeria-in-RTE control guidance",
                 "CA": "CFIA Policy on Control of Listeria monocytogenes in Ready-to-Eat Foods and the SFCR Preventive Control Plan",
                 "AU_NZ": "FSANZ Food Standards Code Standard 1.6.1 (microbiological limits) and industry Listeria management guidelines",
@@ -1907,7 +1955,7 @@ __CSS_PLACEHOLDER__
   <div class="kpi">
     <div class="kpi-label">Leading Pathogen</div>
     <div class="kpi-value orange">{top_pathogen_name}</div>
-    <div class="kpi-top">{top_cnt} recall incidents &middot; {top_pct}% of total</div>
+    <div class="kpi-top">{top_cnt} recall incidents &middot; {top_pct}% of total{co_dom_note}</div>
   </div>
 </div>
 
@@ -1965,7 +2013,7 @@ __CSS_PLACEHOLDER__
 <div class="cta-box">
   <div class="cta-text">
     <h3>Live Dashboard &middot; Full Dataset Access</h3>
-    <p>Filter by pathogen, country, tier, and source. Download the accumulative XLSX dataset. Set custom alerts.</p>
+    <p>Filter by pathogen, country, tier, and source. Access the cumulative XLSX dataset. Set custom alerts.</p>
   </div>
   <a class="cta-btn" href="https://www.advfood.tech/fsis-recalls" target="_blank" rel="noopener">Access Portal &rarr;</a>
 </div>
@@ -2000,7 +2048,7 @@ __CSS_PLACEHOLDER__
 <footer class="footer">
   <div>
     <div class="foot-brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
-    <div class="foot-meta">Food Safety Validation Intelligence<br>advfood.tech &middot; info@advfood.tech &middot; Athens, Greece<br>&copy; {year} Advanced Food Tech Solutions</div>
+    <div class="foot-meta">Food Safety Validation Intelligence<br>advfood.tech &middot; info@advfood.tech &middot; Athens, Greece<br>&copy; {year} Advanced Food-Tech Solutions</div>
   </div>
   <div class="foot-legal">This briefing is provided for informational purposes only and does not constitute regulatory, legal, or medical advice. Subscribers should verify recall status with the originating regulatory authority before taking action. Next issue: Friday, {next_issue}.</div>
 </footer>
@@ -2104,6 +2152,12 @@ def build_html(week_end, recalls, prev_week, original_published=None):
 
     tp, tc = stats["top_pathogen"]
     tpct = round(tc/max(total,1)*100) if total else 0
+    _co = stats.get("co_dominant")
+    if _co and _co.get("also"):
+        co_dom_note = (f' &middot; {_co["leader"]} group also {_co["count"]} '
+                       f'when {"/".join(_co["also"])} serovar-specific counts are included')
+    else:
+        co_dom_note = ""
 
     prows = ""
     for path, cnt in stats["pathogen_counts"]:
@@ -2186,7 +2240,7 @@ def build_html(week_end, recalls, prev_week, original_published=None):
         published=pub, published_label=published_label, total=total,
         n_jurisdictions=len(stats["country_counts"]), delta_html=dh,
         tier1=stats["tier1"], outbreaks=stats["outbreaks"],
-        top_pathogen_name=esc(tp), top_cnt=tc, top_pct=tpct,
+        top_pathogen_name=esc(tp), top_cnt=tc, top_pct=tpct, co_dom_note=co_dom_note,
         analysis_html=analysis, top5_rows=t5rows, pathogen_rows=prows,
         country_rows=crows, all_rows=allrows, next_issue=nf,
     )
