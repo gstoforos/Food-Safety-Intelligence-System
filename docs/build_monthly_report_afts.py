@@ -1171,9 +1171,17 @@ def build_monthly_html(month_start: date, month_end: date,
     #     "UPDATED · {today}" — the actual rebuild date.
     # The label change is the visible signal that the user is looking
     # at a revised version of a previously-published monthly briefing.
+    def _ordinal(n: int) -> str:
+        if 10 <= n % 100 <= 20:
+            suf = "th"
+        else:
+            suf = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+        return f"{n}{suf}"
+
     if original_published:
-        published_label = "REVIEWED"
-        pub_date = datetime.now(timezone.utc).strftime("%-d %b %Y")
+        published_label = "UPDATED"
+        _now = datetime.now(timezone.utc)
+        pub_date = f"{_now.strftime('%B')} {_ordinal(_now.day)}, {_now.year}"
     else:
         published_label = "PUBLISHED"
         pub_date = (month_end + timedelta(days=1)).strftime("%-d %b %Y")
