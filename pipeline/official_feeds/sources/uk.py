@@ -111,6 +111,26 @@ def _country_codes(item: dict) -> list[str]:
     return out
 
 
+def _derive_country(codes: list[str], include_scotland: bool):
+    """Map FSA country[] codes → (country_code, country_name, authority).
+
+    The FSA API tags each alert with GB-ENG / GB-WLS / GB-NIR / GB-SCT.
+    Previously the record hardcoded GB / United Kingdom / FSA for every
+    non-Scotland alert, which mislabelled cross-border notices (e.g. an
+    FSAI Irish recall the FSA cross-notifies for Northern Ireland was
+    written as 'United Kingdom / FSA' with an fsa-prin URL, duplicating
+    the FSAI primary). Derive the jurisdiction from the actual codes.
+    """
+    up = {c.upper() for c in (codes or [])}
+    if include_scotland or up == {"GB-SCT"}:
+        return "sct", "Scotland", "FSS"
+    # Any England/Wales/Northern-Ireland tag (alone or mixed) → UK/FSA.
+    if up & {"GB-ENG", "GB-WLS", "GB-NIR", "GB"}:
+        return "gb", "United Kingdom", "FSA"
+    # Untagged alerts default to UK/FSA (the API's own scope).
+    return "gb", "United Kingdom", "FSA"
+
+
 def fetch(limit: int = 50, include_scotland: bool = False) -> list[Record]:
     """
     Fetch recent FSA alerts. By default EXCLUDES Scotland-only alerts
@@ -135,18 +155,23 @@ def fetch(limit: int = 50, include_scotland: bool = False) -> list[Record]:
         if isinstance(company, dict):
             company = company.get("label", "") or company.get("name", "")
 
+        cc, cname, auth = _derive_country(countries, include_scotland)
+
+        # Prefer the public news-alerts URL over the data.food.gov.uk JSON @id.
+        pub_url = item.get("url") or item.get("@id", "")
+
         rec = Record(
             source_id=notation,
-            country_code="sct" if include_scotland else "gb",
-            country_name="Scotland" if include_scotland else "United Kingdom",
-            authority="FSS" if include_scotland else "FSA",
+            country_code=cc,
+            country_name=cname,
+            authority=auth,
             title=item.get("title", ""),
             company=str(company),
             product=_product(item),
             hazard=_hazard_text(item),
             alert_type=_extract_type(item),
             published=parse_iso(item.get("created", "")),
-            url=item.get("url") or item.get("@id", ""),
+            url=pub_url,
             raw=item,
         )
         records.append(rec)
