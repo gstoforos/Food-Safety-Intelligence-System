@@ -8,23 +8,37 @@
   "week_end": "2026-07-02",
   "week_start_display": "26 Jun",
   "week_end_display": "2 Jul 2026",
-  "generated_utc": "2026-07-03T01:10:39.212356+00:00",
+  "generated_utc": "2026-07-03T07:20:18.531551+00:00",
   "stats": {
-    "total": 49,
-    "tier1": 34,
-    "outbreaks": 0,
-    "delta": -6,
-    "delta_pct": -11
+    "total": 52,
+    "tier1": 36,
+    "outbreaks": 1,
+    "delta": -3,
+    "delta_pct": -5
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 17,
+    "cases": 18,
     "pct": 35
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
+      "date": "2026-07-02",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "WORLDMARECHAL",
+      "brand": "GRAND FRAIS / FRESH",
+      "product": "Eminces de truite aneth 100g",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22688/Interne"
+    },
+    {
+      "rank": 2,
       "date": "2026-07-02",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -38,49 +52,21 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22699/Interne"
     },
     {
-      "rank": 2,
-      "date": "2026-07-02",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "SNV",
-      "brand": "Volaille Francaise",
-      "product": "aile de poulet jaune volaille française",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22718/Interne"
-    },
-    {
       "rank": 3,
-      "date": "2026-07-02",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "SAS LES DEUX CHEMINS",
-      "brand": "Unbranded",
-      "product": "bulots cuits vendus au rayon traditionnel",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22704/Interne"
-    },
-    {
-      "rank": 4,
       "date": "2026-07-01",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Fabriqué sur Place",
-      "brand": "Fabriqué sur Place",
-      "product": "croissant au jambon x2 pour le libre-service ou à l'unité pour le rayon traditionnel.",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22706/Interne"
+      "company": "O’Brien Fine Foods (Brady Family / Tesco Finest / Deluxe)",
+      "brand": "Brady Family; Tesco Finest; Deluxe (Lidl)",
+      "product": "Sliced/cooked ham products (Brady Family Wood Smoked & Hand Crumbed Real Irish Ham; Deluxe Triple Oak & Honey Roast Carved Ham) — best-before 16/07/2026",
+      "country": "United Kingdom",
+      "source": "FSA (UK)",
+      "url": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-32-2026"
     },
     {
-      "rank": 5,
+      "rank": 4,
       "date": "2026-07-01",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -92,7 +78,21 @@
       "country": "Ireland",
       "source": "FSAI (IE)",
       "url": "https://www.fsai.ie/news-and-alerts/food-alerts/update-to-recall-of-k-o-connell-fishmongers-smoked"
+    },
+    {
+      "rank": 5,
+      "date": "2026-06-30",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Brady Family / Deluxe / Tesco (FSAI recall)",
+      "brand": "Brady Family; Deluxe; Tesco Finest",
+      "product": "Various cooked ham products (Brady Family Wood Smoked / Hand Crumbed Real Irish Ham; Deluxe Triple Oak & Honey Roast Carved Irish Ham; Tesco Finest Crumbed Shaved Ham) — multiple batches",
+      "country": "Ireland",
+      "source": "FSAI (IE)",
+      "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-cooked-ham-p"
     }
   ],
-  "country_count": 19
+  "country_count": 21
 }
