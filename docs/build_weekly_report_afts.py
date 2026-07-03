@@ -656,6 +656,25 @@ def compute_stats(wr, pr):
             "prev_total":pt,"delta":delta,
             "delta_pct":round(delta/max(pt,1)*100) if pt else 0}
 
+def _diversify_by_country(sorted_recalls, cap=2, window=5):
+    """Reorder a severity-sorted list so no single country dominates the
+    top `window` slots. Defers a country's (cap+1)th entry past the window
+    when other countries are still waiting. Severity order is otherwise kept.
+    """
+    if not sorted_recalls:
+        return sorted_recalls
+    picked, deferred = [], []
+    counts = {}
+    for r in sorted_recalls:
+        country = str(r.get("Country") or "").strip().lower()
+        if len(picked) < window and counts.get(country, 0) >= cap:
+            deferred.append(r)
+        else:
+            picked.append(r)
+            counts[country] = counts.get(country, 0) + 1
+    return picked + deferred
+
+
 def sort_by_severity(recalls):
     def key(r):
         return (_severity_score(r.get("Pathogen","")),
@@ -2069,7 +2088,8 @@ def build_html(week_end, recalls, prev_week, original_published=None):
     analysis = "\n".join("  <p>{}</p>".format(_md_em(esc(p))) for p in reg)
     if pa_html: analysis += "\n" + pa_html
 
-    t5rows = "\n".join(_recall_row(i+1, r, 5) for i,r in enumerate(sr[:5]))
+    sr_top = _diversify_by_country(sr, cap=2, window=5)
+    t5rows = "\n".join(_recall_row(i+1, r, 5) for i,r in enumerate(sr_top[:5]))
     allrows = "\n".join(_recall_row(i+1, r, 5) for i,r in enumerate(sr))
     if not t5rows: t5rows = '<tr><td class="empty" colspan="6">No recalls this week</td></tr>'
     if not allrows: allrows = t5rows
@@ -2274,6 +2294,7 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir):
     tp = stats.get("top_pathogen")
     leading = {"name":tp[0],"cases":tp[1],"pct":round(tp[1]/max(stats["total"],1)*100)} if tp and len(tp)>=2 else {"name":"Mixed","cases":0,"pct":0}
     sr = sort_by_severity(recalls); threats = []
+    sr = _diversify_by_country(sr, cap=2, window=5)
     for i,r in enumerate(sr[:5],1):
         threats.append({"rank":i,"date":str(r.get("Date",""))[:10],
             "pathogen":str(r.get("Pathogen","")),"pathogen_raw":str(r.get("Pathogen","")),
