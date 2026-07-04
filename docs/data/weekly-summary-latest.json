@@ -8,18 +8,18 @@
   "week_end": "2026-07-02",
   "week_start_display": "26 Jun",
   "week_end_display": "2 Jul 2026",
-  "generated_utc": "2026-07-03T07:33:49.573969+00:00",
+  "generated_utc": "2026-07-04T15:39:11.181590+00:00",
   "stats": {
-    "total": 50,
-    "tier1": 34,
+    "total": 55,
+    "tier1": 35,
     "outbreaks": 1,
-    "delta": -5,
-    "delta_pct": -9
+    "delta": -2,
+    "delta_pct": -4
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 17,
-    "pct": 34
+    "cases": 18,
+    "pct": 33
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -58,9 +58,9 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "O’Brien Fine Foods (Brady Family / Tesco Finest / Deluxe)",
-      "brand": "Brady Family; Tesco Finest; Deluxe (Lidl)",
-      "product": "Sliced/cooked ham products (Brady Family Wood Smoked & Hand Crumbed Real Irish Ham; Deluxe Triple Oak & Honey Roast Carved Ham) — best-before 16/07/2026",
+      "company": "O’Brien Fine Foods (Brady Family / Deluxe)",
+      "brand": "Brady Family; Deluxe (Lidl)",
+      "product": "Sliced ham products sold in Northern Ireland (Brady Family Hand Crumbed Real Irish Ham 80g; Deluxe Honey Roast & Triple Oak Smoked Carved Ham 130g) — best-before 16/07/2026",
       "country": "United Kingdom",
       "source": "FSA (UK)",
       "url": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-32-2026"
@@ -91,8 +91,8 @@
       "product": "Various cooked ham products (Brady Family Wood Smoked / Hand Crumbed Real Irish Ham; Deluxe Triple Oak & Honey Roast Carved Irish Ham; Tesco Finest Crumbed Shaved Ham) — multiple batches",
       "country": "Ireland",
       "source": "FSAI (IE)",
-      "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-cooked-ham-p"
+      "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-cooked-ham-products"
     }
   ],
-  "country_count": 21
+  "country_count": 22
 }
