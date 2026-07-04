@@ -3,40 +3,41 @@
     {
       "date": "2026-07-02",
       "url": "daily/2026-07-02.html",
-      "total": 5,
+      "total": 6,
       "tier1": 4,
       "outbreak": 0,
       "by_region": {
-        "Europe": 5
+        "Europe": 5,
+        "Unknown": 1
       },
-      "generated": "2026-07-03T07:10:51Z"
+      "generated": "2026-07-04T04:15:49Z"
     },
     {
       "date": "2026-07-01",
       "url": "daily/2026-07-01.html",
-      "total": 16,
-      "tier1": 7,
+      "total": 17,
+      "tier1": 8,
       "outbreak": 0,
       "by_region": {
-        "Europe": 15,
+        "Europe": 16,
         "Unknown": 1
       },
-      "generated": "2026-07-03T17:19:23Z"
+      "generated": "2026-07-04T04:15:49Z"
     },
     {
       "date": "2026-06-30",
       "url": "daily/2026-06-30.html",
-      "total": 12,
-      "tier1": 7,
+      "total": 13,
+      "tier1": 8,
       "outbreak": 1,
       "by_region": {
-        "Europe": 8,
+        "Europe": 9,
+        "Latin America": 1,
         "North America": 1,
         "Asia": 1,
-        "Africa": 1,
-        "Latin America": 1
+        "Africa": 1
       },
-      "generated": "2026-07-03T07:10:52Z"
+      "generated": "2026-07-04T04:15:49Z"
     },
     {
       "date": "2026-06-29",
@@ -82,42 +83,6 @@
         "Europe": 12
       },
       "generated": "2026-07-03T07:10:53Z"
-    },
-    {
-      "date": "2026-06-24",
-      "url": "daily/2026-06-24.html",
-      "total": 6,
-      "tier1": 4,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 5,
-        "Asia": 1
-      },
-      "generated": "2026-07-03T17:19:23Z"
-    },
-    {
-      "date": "2026-06-23",
-      "url": "daily/2026-06-23.html",
-      "total": 9,
-      "tier1": 8,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 9
-      },
-      "generated": "2026-07-03T17:19:23Z"
-    },
-    {
-      "date": "2026-06-19",
-      "url": "daily/2026-06-19.html",
-      "total": 29,
-      "tier1": 17,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 27,
-        "Latin America": 1,
-        "Asia": 1
-      },
-      "generated": "2026-07-03T17:19:23Z"
     }
   ]
 }

@@ -240,6 +240,22 @@
   "Notes": "carrefour hyper  lesparre medoc uniquement [url-gate 2026-07-02: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-02: Company ''→'SAS LES DEUX CHEMINS'] [gemini-check 2026-07-02: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
+  "Date": "2026-07-02",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Afghanistan | Notifying: Lithuania",
+  "Brand": "LITHUANIA",
+  "Product": "Excessive levels of Ochratoxin A in raisins from Afghanistan",
+  "Pathogen": "Ochratoxin",
+  "Reason": "Excessive levels of Ochratoxin A in raisins from Afghanistan; risk: not serious; category: fruits and vegetables",
+  "Class": "Information",
+  "Country": "Afghanistan",
+  "Region": "Unknown",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/855884",
+  "Notes": "[RASFF #2026.5880; classification: information notification for attention; category: fruits and vegetables; notifId=855884] [gemini-enrich 2026-07-04: Brand '—'→'LITHUANIA'] [claude-check 2026-07-04: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
   "Date": "2026-07-01",
   "Source": "FSA (UK)",
   "Company": "O’Brien Fine Foods (Brady Family / Deluxe)",
@@ -496,6 +512,22 @@
   "Notes": "cf liste jointe [url-gate 2026-07-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-03: fix; corrections: Pathogen→Mycotoxins (T-2/HT-2 toxin); fix; pathogen mismatch | Pathogen field was empty but identified on page; tier mismatch.] [enrich-gate 2026-07-03: pending_enrichment → pending (Claude verified)]"
  },
  {
+  "Date": "2026-07-01",
+  "Source": "FSA (UK)",
+  "Company": "O’Brien Fine Foods recalls ham products because of possible contamination with L",
+  "Brand": "O’Brien Fine Foods",
+  "Product": "O’Brien Fine Foods recalls ham products because of possible contamination with Listeria monocytogenes",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "",
+  "Class": "Alert",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-32-2026",
+  "Notes": "PRIN-32-2026 [gemini-check 2026-07-03: skip; fetch failed (non-text content-type: application/json)] [gemini-enrich 2026-07-04: Brand '—'→'O’Brien Fine Foods'] [claude-check 2026-07-04: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-04: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-06-30",
   "Source": "EFSA",
   "Company": "Unknown producer in Ukraine",
@@ -686,6 +718,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22683/Interne",
   "Notes": "Promoted 2026-06-30 from Pending. In scope: foreign material. [retailer: Paris Store]"
+ },
+ {
+  "Date": "2026-06-30",
+  "Source": "FSAI",
+  "Company": "Butchers Selection",
+  "Brand": "Butchers Selection",
+  "Product": "Irish Turkey Burgers Mediterranean Style (400g)",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella contamination",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-specific-batch-of-butchers-selection-irish-turkey-burgers-mediterranean-style-due-to-the-presence-of-salmonella",
+  "Notes": "Use by date of July 5, 2026. No reported illnesses.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-03: pending_gap → pending_gap_v1] [gap-gate 2026-07-03: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-04: pass; pass | All fields verified: date 2026-06-30 matches page listing; Butchers Selection company and product Irish Turkey Bu] [gap-gate 2026-07-04: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-06-29",
