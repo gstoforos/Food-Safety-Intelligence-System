@@ -1,6 +1,15 @@
 {
   "entries": [
     {
+      "date": "2026-07-04",
+      "url": "daily/2026-07-04.html",
+      "total": 0,
+      "tier1": 0,
+      "outbreak": 0,
+      "by_region": {},
+      "generated": "2026-07-05T07:10:41Z"
+    },
+    {
       "date": "2026-07-03",
       "url": "daily/2026-07-03.html",
       "total": 14,
@@ -10,7 +19,7 @@
         "Europe": 12,
         "Latin America": 2
       },
-      "generated": "2026-07-05T04:14:59Z"
+      "generated": "2026-07-05T07:10:41Z"
     },
     {
       "date": "2026-07-02",
@@ -19,10 +28,10 @@
       "tier1": 4,
       "outbreak": 0,
       "by_region": {
-        "Europe": 5,
-        "Unknown": 1
+        "Unknown": 1,
+        "Europe": 5
       },
-      "generated": "2026-07-04T07:10:54Z"
+      "generated": "2026-07-05T07:10:41Z"
     },
     {
       "date": "2026-07-01",
@@ -34,7 +43,7 @@
         "Europe": 16,
         "Unknown": 1
       },
-      "generated": "2026-07-05T04:14:59Z"
+      "generated": "2026-07-05T07:10:42Z"
     },
     {
       "date": "2026-06-30",
@@ -49,7 +58,7 @@
         "Asia": 1,
         "Africa": 1
       },
-      "generated": "2026-07-04T07:10:55Z"
+      "generated": "2026-07-05T07:10:42Z"
     },
     {
       "date": "2026-06-29",
@@ -60,7 +69,7 @@
       "by_region": {
         "Europe": 6
       },
-      "generated": "2026-07-04T07:10:55Z"
+      "generated": "2026-07-05T07:10:42Z"
     },
     {
       "date": "2026-06-28",
@@ -71,32 +80,7 @@
       "by_region": {
         "Europe": 1
       },
-      "generated": "2026-07-04T07:10:55Z"
-    },
-    {
-      "date": "2026-06-27",
-      "url": "daily/2026-06-27.html",
-      "total": 3,
-      "tier1": 3,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 2,
-        "North America": 1
-      },
-      "generated": "2026-07-04T07:10:55Z"
-    },
-    {
-      "date": "2026-06-19",
-      "url": "daily/2026-06-19.html",
-      "total": 29,
-      "tier1": 17,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 27,
-        "Latin America": 1,
-        "Asia": 1
-      },
-      "generated": "2026-07-05T04:14:59Z"
+      "generated": "2026-07-05T07:10:42Z"
     }
   ]
 }
