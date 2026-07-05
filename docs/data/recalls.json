@@ -240,6 +240,22 @@
   "Notes": "[RASFF #2026.5917; classification: information notification for attention; category: fish and fish products; notifId=854801] [gemini-enrich 2026-07-05: Brand '—'→'ESP'] [claude-check 2026-07-05: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
+  "Date": "2026-07-03",
+  "Source": "AESAN",
+  "Company": "Alerta por presencia de Listeria monocytogenes en bacalao ...",
+  "Brand": "Alerta por presencia de Listeria monocytogenes en bacalao ...",
+  "Product": "Bacalao Natura en aceite de girasol",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Spain",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.aesan.gob.es/AECOSAN/web/seguridad_alimentaria/alertas_alimentarias/2026_53.htm",
+  "Notes": "Aesan - Agencia Española de Seguridad Alimentaria y Nutrición\n\nSeguridad Alimentaria/ Red de Alerta Alimentaria/ Alertas alimentarias de alérgenos y otras sustancias no declaradas/ Listado Alertas Alimentarias de Alérgenos/Alerta por presencia de Listeria monocytogenes en bacalao en aceite de giraso  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gemini-enrich 2026-07-05: Product 'Aesan'→'Bacalao Natura en aceite de girasol'] [gap-gate 2026-07-05: pending_gap → pending_gap_v1] [gap-gate 2026-07-05: pending_gap_v1 → pending_gap_v2] [gemini-check 2026-07-05: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-05: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-07-02",
   "Source": "RASFF (EU)",
   "Company": "Origin: Afghanistan | Notifying: Lithuania",
@@ -608,6 +624,22 @@
   "Notes": "PRIN-32-2026 [gemini-enrich 2026-07-05: Brand '—'→'O’Brien Fine Foods'] [claude-check 2026-07-05: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
+  "Date": "2026-07-01",
+  "Source": "RappelConso (FR)",
+  "Company": "TERRES DE MOULIN MADAME",
+  "Brand": "Les Moulinettes",
+  "Product": "les moulinettes - coquillettes lentilles vertes",
+  "Pathogen": "Mycotoxins (T-2 and HT-2 toxin)",
+  "Reason": "Taux de t-2 toxine et ht-2 toxine supérieures à la valeur réglementaire",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22693/Interne",
+  "Notes": "cf ci-joint [url-gate 2026-07-05: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-05: fix; corrections: Company→TERRES DE MOULIN MADAME, Pathogen→Mycotoxins (T-2 and HT-2 toxin); fix; company mismatch; pathogen mismatch | Company and Pathogen fields require correction based on page content.] [enrich-gate 2026-07-05: pending_enrichment → pending (Claude verified)]"
+ },
+ {
   "Date": "2026-06-30",
   "Source": "FSAI",
   "Company": "Butchers Selection",
@@ -974,6 +1006,22 @@
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due",
   "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [fix 2026-06-30: Date was empty (FDA HTML fallback) → 2026-06-27; Salmonella Tier 3→1 per locked rule.]"
+ },
+ {
+  "Date": "2026-06-27",
+  "Source": "FSAI (IE)",
+  "Company": "K O'Connell Fishmongers",
+  "Brand": "K O'Connell Fishmongers",
+  "Product": "K O'Connell Fishmongers Smoked Salmon Slices",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "K O'Connell Fishmongers Smoked Salmon Slices",
+  "Class": "Alert",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-k-o-connell-fishmongers-smoke",
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-07-05: Brand '—'→\"K O'Connell Fishmongers\"] [gemini-check 2026-07-05: fix; corrections: Date→2026-06-27, Company→K O'Connell Fishmongers, Pathogen→Listeria monocytogenes, Tier→1; fix; company mismatch; pathogen mismatch; date on page=2026-06-27 | Date, company, and pathogen fields require correctio] [enrich-gate 2026-07-05: pending_enrichment → pending (Claude verified)]"
  },
  {
   "Date": "2026-06-26",
