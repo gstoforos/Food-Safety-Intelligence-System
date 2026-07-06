@@ -48,17 +48,17 @@
     {
       "date": "2026-06-30",
       "url": "daily/2026-06-30.html",
-      "total": 13,
-      "tier1": 8,
+      "total": 14,
+      "tier1": 9,
       "outbreak": 1,
       "by_region": {
-        "Europe": 9,
+        "Europe": 10,
         "Latin America": 1,
         "North America": 1,
         "Asia": 1,
         "Africa": 1
       },
-      "generated": "2026-07-05T07:10:42Z"
+      "generated": "2026-07-06T04:14:43Z"
     },
     {
       "date": "2026-06-29",
