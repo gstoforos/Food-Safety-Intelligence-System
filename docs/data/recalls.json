@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-07-06",
+  "Source": "RappelConso (FR)",
+  "Company": "GIBAUD PHILIPPE",
+  "Brand": "Unbranded",
+  "Product": "fromage de chèvre fermier au lait cru  les flocons du mézenc",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of listéria",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22730/Interne",
+  "Notes": "super u - tinel - carrefour express [url-gate 2026-07-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-06: fix; corrections: Company→GIBAUD PHILIPPE; placeholder_company_filled_from_page | fix; company mismatch | Company was empty in the row but identified on the page a]"
+ },
+ {
   "Date": "2026-07-05",
   "Source": "FSAI (IE)",
   "Company": "Tesco Finest Scottish Cherrywood Smoked Salmon",
@@ -254,6 +270,22 @@
   "Outbreak": 0,
   "URL": "https://www.aesan.gob.es/AECOSAN/web/seguridad_alimentaria/alertas_alimentarias/2026_53.htm",
   "Notes": "Aesan - Agencia Española de Seguridad Alimentaria y Nutrición\n\nSeguridad Alimentaria/ Red de Alerta Alimentaria/ Alertas alimentarias de alérgenos y otras sustancias no declaradas/ Listado Alertas Alimentarias de Alérgenos/Alerta por presencia de Listeria monocytogenes en bacalao en aceite de giraso  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gemini-enrich 2026-07-05: Product 'Aesan'→'Bacalao Natura en aceite de girasol'] [gap-gate 2026-07-05: pending_gap → pending_gap_v1] [gap-gate 2026-07-05: pending_gap_v1 → pending_gap_v2] [gemini-check 2026-07-05: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-05: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
+  "Date": "2026-07-03",
+  "Source": "FSAI (IE)",
+  "Company": "Deluxe Spanish Castellano Sheeps’ Cheese",
+  "Brand": "Deluxe",
+  "Product": "Deluxe Spanish Castellano Sheeps’ Cheese; pack size: 150g",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Deluxe Spanish Castellano Sheeps’ Cheese",
+  "Class": "Alert",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-deluxe-spanish-castellano-she",
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-check 2026-07-06: fix; corrections: Date→2026-07-03, Brand→Deluxe, Product→Deluxe Spanish Castellano Sheeps’ Cheese, Pathogen→Listeria monocytogenes, Tier→1; fix; pathogen mismatch; date on page=2026-07-03 | Date, Brand, Pathogen, and Product corrected.] [enrich-gate 2026-07-06: pending_enrichment → pending (Claude verified)]"
  },
  {
   "Date": "2026-07-02",
