@@ -11,7 +11,7 @@
         "Oceania": 1,
         "North America": 1
       },
-      "generated": "2026-07-07T04:14:01Z"
+      "generated": "2026-07-07T06:50:17Z"
     },
     {
       "date": "2026-07-05",
@@ -36,14 +36,14 @@
     {
       "date": "2026-07-03",
       "url": "daily/2026-07-03.html",
-      "total": 17,
-      "tier1": 12,
+      "total": 16,
+      "tier1": 11,
       "outbreak": 0,
       "by_region": {
-        "Europe": 15,
+        "Europe": 14,
         "Latin America": 2
       },
-      "generated": "2026-07-07T04:14:01Z"
+      "generated": "2026-07-07T06:50:17Z"
     },
     {
       "date": "2026-07-02",
