@@ -3,15 +3,16 @@
     {
       "date": "2026-07-06",
       "url": "daily/2026-07-06.html",
-      "total": 5,
-      "tier1": 3,
-      "outbreak": 0,
+      "total": 10,
+      "tier1": 6,
+      "outbreak": 3,
       "by_region": {
-        "Europe": 3,
-        "Oceania": 1,
-        "North America": 1
+        "Europe": 5,
+        "Oceania": 2,
+        "North America": 2,
+        "Africa": 1
       },
-      "generated": "2026-07-07T07:10:23Z"
+      "generated": "2026-07-07T17:16:24Z"
     },
     {
       "date": "2026-07-05",
@@ -60,14 +61,14 @@
     {
       "date": "2026-07-01",
       "url": "daily/2026-07-01.html",
-      "total": 18,
+      "total": 19,
       "tier1": 8,
       "outbreak": 0,
       "by_region": {
-        "Europe": 17,
+        "Europe": 18,
         "Unknown": 1
       },
-      "generated": "2026-07-07T07:10:25Z"
+      "generated": "2026-07-07T17:16:24Z"
     },
     {
       "date": "2026-06-30",
