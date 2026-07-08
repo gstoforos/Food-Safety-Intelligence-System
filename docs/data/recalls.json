@@ -96,6 +96,22 @@
   "Notes": "vente directe [url-gate 2026-07-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-07: pass; corrections: Pathogen→Listeria monocytogenes; pass]"
  },
  {
+  "Date": "2026-07-07",
+  "Source": "RappelConso (FR)",
+  "Company": "BOULANGERIE PATISSERIE LA PARISIENNE",
+  "Brand": "Sans marque",
+  "Product": "Salade de taboulé poulet; Salade de taboulé poulet mariné",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Possible contamination du taboulé par la listéria",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22762/Interne",
+  "Notes": "dream cake beauséjour¤dream cake la providence¤dream cake saint-denis¤la parisienne [url-gate 2026-07-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-08: fix; corrections: Company→BOULANGERIE PATISSERIE LA PARISIENNE, Brand→Sans marque, Product→Salade de taboulé poulet; Salade de tabo, Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page clearly names 'BOULANGERI]"
+ },
+ {
   "Date": "2026-07-06",
   "Source": "RappelConso (FR)",
   "Company": "La Ferme de Camille",
