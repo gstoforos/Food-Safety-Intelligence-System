@@ -6,11 +6,11 @@
     "month_name": "June 2026",
     "month_start": "2026-06-01",
     "month_end": "2026-06-30",
-    "total": 243,
-    "tier1": 184,
+    "total": 248,
+    "tier1": 189,
     "outbreaks": 4,
-    "top_pathogen": "Salmonella spp.",
-    "summary": "June 2026: 243 recalls, 184 Tier-1, 4 outbreak(s). Leading pathogen: Salmonella spp..",
+    "top_pathogen": "Listeria monocytogenes",
+    "summary": "June 2026: 248 recalls, 189 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
     "pdf_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/marketing/2026-M06-marketing.pdf"
   },
   {
@@ -20,11 +20,11 @@
     "month_name": "May 2026",
     "month_start": "2026-05-01",
     "month_end": "2026-05-31",
-    "total": 261,
+    "total": 262,
     "tier1": 205,
     "outbreaks": 10,
     "top_pathogen": "Salmonella spp.",
-    "summary": "May 2026: 261 recalls, 205 Tier-1, 10 outbreak(s). Leading pathogen: Salmonella spp..",
+    "summary": "May 2026: 262 recalls, 205 Tier-1, 10 outbreak(s). Leading pathogen: Salmonella spp..",
     "pdf_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/marketing/2026-M05-marketing.pdf"
   },
   {
@@ -75,10 +75,10 @@
     "month_name": "January 2026",
     "month_start": "2026-01-01",
     "month_end": "2026-01-31",
-    "total": 34,
-    "tier1": 33,
-    "outbreaks": 4,
+    "total": 36,
+    "tier1": 35,
+    "outbreaks": 5,
     "top_pathogen": "Bacillus cereus / Cereulide",
-    "summary": "January 2026: 34 recalls, 33 Tier-1, 4 outbreak(s). Leading pathogen: Bacillus cereus / Cereulide."
+    "summary": "January 2026: 36 recalls, 35 Tier-1, 5 outbreak(s). Leading pathogen: Bacillus cereus / Cereulide."
   }
 ]
