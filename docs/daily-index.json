@@ -1,6 +1,18 @@
 {
   "entries": [
     {
+      "date": "2026-07-08",
+      "url": "daily/2026-07-08.html",
+      "total": 4,
+      "tier1": 3,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 3,
+        "Athens": 1
+      },
+      "generated": "2026-07-09T07:10:20Z"
+    },
+    {
       "date": "2026-07-07",
       "url": "daily/2026-07-07.html",
       "total": 15,
@@ -10,21 +22,21 @@
         "North America": 1,
         "Europe": 14
       },
-      "generated": "2026-07-09T04:12:42Z"
+      "generated": "2026-07-09T07:10:20Z"
     },
     {
       "date": "2026-07-06",
       "url": "daily/2026-07-06.html",
-      "total": 11,
-      "tier1": 8,
+      "total": 13,
+      "tier1": 10,
       "outbreak": 3,
       "by_region": {
-        "Europe": 6,
+        "Europe": 8,
         "Oceania": 2,
         "North America": 2,
         "Africa": 1
       },
-      "generated": "2026-07-09T06:34:55Z"
+      "generated": "2026-07-09T07:10:20Z"
     },
     {
       "date": "2026-07-05",
@@ -35,7 +47,7 @@
       "by_region": {
         "Europe": 1
       },
-      "generated": "2026-07-08T07:10:20Z"
+      "generated": "2026-07-09T07:10:21Z"
     },
     {
       "date": "2026-07-04",
@@ -44,7 +56,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-07-08T07:10:20Z"
+      "generated": "2026-07-09T07:10:21Z"
     },
     {
       "date": "2026-07-03",
@@ -56,7 +68,7 @@
         "Europe": 14,
         "Latin America": 2
       },
-      "generated": "2026-07-08T07:10:21Z"
+      "generated": "2026-07-09T07:10:21Z"
     },
     {
       "date": "2026-07-02",
@@ -68,19 +80,7 @@
         "Unknown": 1,
         "Europe": 5
       },
-      "generated": "2026-07-08T07:10:21Z"
-    },
-    {
-      "date": "2026-07-01",
-      "url": "daily/2026-07-01.html",
-      "total": 19,
-      "tier1": 8,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 18,
-        "Unknown": 1
-      },
-      "generated": "2026-07-08T07:10:21Z"
+      "generated": "2026-07-09T07:10:22Z"
     }
   ]
 }
