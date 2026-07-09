@@ -465,22 +465,6 @@
  },
  {
   "Date": "2026-07-06",
-  "Source": "FSAI",
-  "Company": "Horgans, M&S Food",
-  "Brand": "Horgans, M&S Food",
-  "Product": "Horgans Truffle Gouda (150g; Best before 02/10/2026, 09/10/2026, 24/10/2026); M&S Food Truffle Gouda (150g; Best before 09/10/2026)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of Listeria monocytogenes",
-  "Class": "Food Alert",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news_centre/food_alerts/recall_horgans_mands_gouda_cheese.html",
-  "Notes": "Product of Netherlands. Recall notices displayed at point-of-sale in Tesco and Marks & Spencer stores in Ireland. No reported illnesses.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-08: pending_gap → pending_gap_v1] [gap-gate 2026-07-09: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-09: pass; pass | Date matches (6 Jul 2026), companies and product confirmed on page, Listeria monocytogenes identified as pathogen] [gap-gate 2026-07-09: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
- },
- {
-  "Date": "2026-07-06",
   "Source": "RASFF (EU)",
   "Company": "Origin: Poland | Notifying: France",
   "Brand": "FRA",
@@ -494,22 +478,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856904",
   "Notes": "[RASFF #2026.5994; classification: alert notification; category: poultry meat and poultry meat products; notifId=856904] [gemini-enrich 2026-07-09: Brand '—'→'FRA'] [claude-check 2026-07-09: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
- },
- {
-  "Date": "2026-07-06",
-  "Source": "FSAI",
-  "Company": "Horgans / M&S",
-  "Brand": "Horgans, M&S Food",
-  "Product": "Truffle Gouda cheese (various pack sizes and best-before dates including 02/10/2026, 09/10/2026, 24/10/2026)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news_centre/food_alerts/recall_horgans_ms_truffle_gouda.html",
-  "Notes": "Distributed to Tesco and Marks & Spencer stores in Ireland.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-09: pending_gap → pending_gap_v1] [claude-check 2026-07-09: pass; pass | All fields verified: date 2026-07-06 matches page listing; Horgans and M&S Food companies and Truffle Gouda produ] [gap-gate 2026-07-09: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-07-05",
@@ -1118,22 +1086,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/855212",
   "Notes": "[RASFF #2026.5798; classification: alert notification; category: cocoa and cocoa preparations, coffee and tea; notifId=855212] [gemini-enrich 2026-07-02: Brand '—'→'Belgium'] [gemini-check 2026-07-02: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
- },
- {
-  "Date": "2026-07-01",
-  "Source": "FSAI (IE)",
-  "Company": "K O'Connell Fishmongers",
-  "Brand": "K O'Connell Fishmongers",
-  "Product": "Smoked Salmon Slices (100g, 150g & 320g, Batch SS16726, Use by 17/07/2026)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Update to recall of K O'Connell Fishmongers Smoked Salmon Slices (Update 1)",
-  "Class": "Alert",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/update-to-recall-of-k-o-connell-fishmongers-smoked",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-check 2026-07-01: fix; corrections: Company→K O'Connell Fishmongers, Brand→K O'Connell Fishmongers, Product→Smoked Salmon Slices (100g, 150g & 320g,, Pathogen→Listeria monocytogenes, Tier→1; fix; company mismatch; pathogen mismatch | Company, Brand, Product, and Pathogen fields were incomplete or incorrect and] [enrich-gate 2026-07-01: pending_enrichment → pending (Claude verified)]"
  },
  {
   "Date": "2026-07-01",
@@ -9214,22 +9166,6 @@
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-green-box-limited-enoki-mushrooms",
   "Notes": "[manual-promote 2026-05-08: Company corrected from FSAI HTML-fallback garbage]"
- },
- {
-  "Date": "2026-05-02",
-  "Source": "FSAI (IE)",
-  "Company": "Green Box Limited",
-  "Brand": "Green Box Limited",
-  "Product": "Green Box Limited Enoki Mushroom (Cendawan Enoki), pack size 100g, batch codes G22029 and G22030",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-green-box-limited-en",
-  "Notes": "Food Safety Authority of Ireland\n\n# Food Alerts\n\n## Recall of specific batches of Green Box Limited Enoki Mushrooms due to the presence of Listeria monocytogenes\n\nSaturday, 02 May 2026\n\n| Alert Summary | |\n --- |\n| Category 1: | For Action |\n| Alert Notification: | 2026.19 |\n| Product Identification  [via Tavily gap-finder, deterministic extract] [gap-gate 2026-05-08: pending_gap → pending_gap_v1] [gap-gate 2026-05-09: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-09: fix; corrections: Company→Green Box Limited, Brand→Green Box Limited, Product→Green Box Limited Enoki Mushroom (Cendaw, Pathogen→Listeria monocytogenes; fix; company mismatch; product mismatch | Row's Company, Brand, and Product fields contain extraction garbage (page titl] [gap-gate 2026-05-09: pending_gap_v2 → pending (Claude verified)]"
  },
  {
   "Date": "2026-05-02",
