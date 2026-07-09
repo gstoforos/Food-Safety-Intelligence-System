@@ -59,9 +59,25 @@ from openpyxl import Workbook, load_workbook
 log = logging.getLogger(__name__)
 
 
+try:  # pragma: no cover
+    from pipeline._url_identity import (
+        has_stable_id as _identity_has_stable_id,
+        content_key as _identity_content_key,
+    )
+except Exception:  # pragma: no cover
+    def _identity_has_stable_id(url: str) -> bool:
+        return True
+
+    def _identity_content_key(row: Dict[str, Any]) -> str:
+        return ""
+
+
 def _dedup_key(row: Dict[str, Any]) -> str:
     """Same logic as pipeline.merge_master._dedup_key."""
-    url = (row.get("URL") or "").strip().lower()
+    raw_url = str(row.get("URL") or "").strip()
+    if raw_url and not _identity_has_stable_id(raw_url):
+        return _identity_content_key(row)
+    url = raw_url.lower()
     if url:
         return url
     co = unicodedata.normalize("NFD", str(row.get("Company") or "")) \

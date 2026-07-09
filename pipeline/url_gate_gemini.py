@@ -69,6 +69,7 @@ from pipeline.merge_master import (  # noqa: E402
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
 from review.url_validator import check_url, should_blank_url  # noqa: E402
+from pipeline._url_identity import fsai_url_problem as _fsai_url_problem  # noqa: E402
 from pipeline._url_year import is_year_mismatch  # noqa: E402
 from pipeline._pathogen_scope import is_in_scope as is_tier1_pathogen  # noqa: E402
 from pipeline._news_mirror_blocklist import is_news_mirror  # noqa: E402
@@ -246,6 +247,14 @@ def validate_urls(pending: List[Dict[str, Any]]) -> Tuple[List[int], List[int]]:
 
     def _check(i: int) -> Tuple[int, Dict[str, Any], Optional[str]]:
         url = (pending[i].get("URL") or "").strip()
+        # fsai.ie is truncation-protected (its real slugs end mid-word) but it
+        # is NOT exempt from every structural rule: the retired /news_centre/
+        # tree and any slug longer than the CMS's 50-char cap are provably
+        # reconstructed URLs. They 302 to a live listing, so the HTTP probe
+        # below can never catch them. Reject them here. (audit 2026-07-09)
+        fsai_bad = _fsai_url_problem(url)
+        if fsai_bad:
+            return i, {"reason": "structural", "detail": fsai_bad}, fsai_bad
         # Truncation-protected: skip structural check entirely (FDA URLs ending
         # mid-word like ...recall-because-possible-health-risk are the real,
         # working links published by the agency CMS).
@@ -253,7 +262,8 @@ def validate_urls(pending: List[Dict[str, Any]]) -> Tuple[List[int], List[int]]:
             struct_bad = _is_structurally_bad(url)
             if struct_bad:
                 return i, {"reason": "structural", "detail": struct_bad}, struct_bad
-        # Live HTTP probe
+        # Live HTTP probe (now also returns reason="soft_404" when a 200 lands
+        # on a listing page instead of the alert page).
         return i, check_url(url), None
 
     with ThreadPoolExecutor(max_workers=10) as ex:

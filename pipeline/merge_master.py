@@ -208,6 +208,21 @@ def compute_report_week(date_str: str) -> str:
 # ---------------------------------------------------------------------------
 # Dedup
 # ---------------------------------------------------------------------------
+# Content-identity dedup for agencies with no stable alert id in the URL
+# (audit 2026-07-09). Host-scoped: every other regulator is unaffected.
+try:  # pragma: no cover
+    from pipeline._url_identity import (
+        has_stable_id as _identity_has_stable_id,
+        content_key as _identity_content_key,
+    )
+except Exception:  # pragma: no cover
+    def _identity_has_stable_id(url: str) -> bool:
+        return True
+
+    def _identity_content_key(row: Dict[str, Any]) -> str:
+        return ""
+
+
 def _normalize_url_for_dedup(url: str) -> str:
     """Normalize a URL for dedup comparison.
 
@@ -248,8 +263,19 @@ def _normalize_url_for_dedup(url: str) -> str:
 
 
 def _dedup_key(row: Dict[str, Any]) -> str:
-    """URL primary (normalized), fallback to date+company+pathogen."""
-    url = _normalize_url_for_dedup(row.get("URL") or "")
+    """
+    URL primary (normalized), fallback to date+company+pathogen.
+
+    Exception (audit 2026-07-09): hosts that carry NO stable alert identifier
+    in their URLs are keyed on row CONTENT instead. For those agencies the same
+    alert is reachable at several distinct URLs, so a URL key mints a fresh row
+    on every rediscovery. fsai.ie is the only such host today; every other
+    regulator keeps the exact URL-keyed behaviour it had before.
+    """
+    raw_url = str(row.get("URL") or "").strip()
+    if raw_url and not _identity_has_stable_id(raw_url):
+        return _identity_content_key(row)
+    url = _normalize_url_for_dedup(raw_url)
     if url:
         return url
     co = unicodedata.normalize("NFD", row.get("Company") or "").encode("ascii", "ignore").decode().lower()

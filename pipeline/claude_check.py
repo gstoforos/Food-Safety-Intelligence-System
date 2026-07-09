@@ -491,6 +491,13 @@ def _extract_pdf_text(pdf_bytes: bytes) -> Optional[str]:
     return None
 
 
+try:  # pragma: no cover
+    from pipeline._url_identity import is_soft_404 as _is_soft_404
+except Exception:  # pragma: no cover
+    def _is_soft_404(requested_url: str, final_url: str) -> bool:
+        return False
+
+
 def _fetch_page_text(url: str) -> Tuple[Optional[str], Optional[str]]:
     """
     Return (text, error). Text is the page content stripped of HTML and
@@ -533,6 +540,18 @@ def _fetch_page_text(url: str) -> Tuple[Optional[str], Optional[str]]:
 
     if resp.status_code >= 400:
         return None, f"HTTP {resp.status_code}"
+
+    # Soft-404 guard (audit 2026-07-09). Some agency CMSs answer an unknown or
+    # retired alert URL with HTTP 200 and a LISTING page. Because every listing
+    # page shows recent alert titles and dates, a reviewer reading that page
+    # will "confirm" the row it was asked to check and pass a wrong URL. Refuse
+    # to review anything that did not land on a real detail page.
+    _final_url = str(getattr(resp, "url", "") or url)
+    if _is_soft_404(url, _final_url):
+        return None, (
+            "soft 404: request redirected to a listing page "
+            f"({_final_url[:120]}) — URL does not address this recall"
+        )
 
     ctype = (resp.headers.get("Content-Type") or "").lower()
 
