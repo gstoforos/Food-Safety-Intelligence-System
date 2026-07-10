@@ -1,0 +1,98 @@
+{
+  "filename": "2026-W28.html",
+  "report_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-W28.html",
+  "dashboard_url": "https://www.advfood.tech/fsis-recalls",
+  "week_num": 28,
+  "year": 2026,
+  "week_start": "2026-07-03",
+  "week_end": "2026-07-09",
+  "week_start_display": "3 Jul",
+  "week_end_display": "9 Jul 2026",
+  "generated_utc": "2026-07-10T06:31:20.298288+00:00",
+  "stats": {
+    "total": 54,
+    "tier1": 37,
+    "outbreaks": 1,
+    "delta": -9,
+    "delta_pct": -14
+  },
+  "leading_pathogen": {
+    "name": "Listeria monocytogenes",
+    "cases": 23,
+    "pct": 43
+  },
+  "ai_lead_paragraph": "",
+  "top_threats": [
+    {
+      "rank": 1,
+      "date": "2026-07-07",
+      "pathogen": "E. coli O26",
+      "pathogen_raw": "E. coli O26",
+      "tier": 2,
+      "outbreak": true,
+      "company": "General Mills Canada",
+      "brand": "Pillsbury",
+      "product": "Pillsbury brand Pizza Pops Pepperoni + Bacon",
+      "country": "Canada",
+      "source": "CFIA",
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-pillsbury-brand-pizza-pops-pepperoni-bacon-recalled-due-e-coli-o26"
+    },
+    {
+      "rank": 2,
+      "date": "2026-07-08",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Origin: France | Notifying: Italy",
+      "brand": "ITA",
+      "product": "Presence of Listeria monocytogenes in Brie from France",
+      "country": "France",
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/857407"
+    },
+    {
+      "rank": 3,
+      "date": "2026-07-08",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Origin: Spain | Notifying: Ireland",
+      "brand": "Ireland",
+      "product": "Listeria monocytogenes in sheeps cheese from Spain",
+      "country": "Spain",
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/857565"
+    },
+    {
+      "rank": 4,
+      "date": "2026-07-08",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "M&S recalls M&S Food Truffle Gouda due to the presence of Listeria Monocytogenes",
+      "brand": "M&S",
+      "product": "M&S recalls M&S Food Truffle Gouda due to the presence of Listeria Monocytogenes",
+      "country": "United Kingdom",
+      "source": "FSA (UK)",
+      "url": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-33-2026"
+    },
+    {
+      "rank": 5,
+      "date": "2026-07-07",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "BOULANGERIE PATISSERIE LA PARISIENNE",
+      "brand": "Sans marque",
+      "product": "Salade de taboulé poulet; Salade de taboulé poulet mariné",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22762/Interne"
+    }
+  ],
+  "country_count": 17
+}
