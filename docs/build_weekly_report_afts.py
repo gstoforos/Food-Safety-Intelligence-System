@@ -797,7 +797,10 @@ def _fallback_p1_to_p3(stats, recalls):
     p_outbreak = None
     if ob_recalls:
         descs = []
-        for r in ob_recalls[:3]:
+        # Was ob_recalls[:3] while n_ob counted ALL of them, so a 4-outbreak
+        # week rendered "four confirmed cluster events ... " followed by only
+        # three named events (reviewer note 2026-07-10). Name every event.
+        for r in ob_recalls:
             path = str(r.get("Pathogen") or "").strip()
             prod = str(r.get("Product") or r.get("Company") or "").strip()
             prod_short = prod.split("(")[0].strip()[:60]
@@ -1974,7 +1977,8 @@ __CSS_PLACEHOLDER__
   <span class="sec-rule"></span>
 </div>
 <p class="sec-caption">
-  Ranked by pathogen severity (<em>C. botulinum</em> &rarr; <em>Listeria</em> &rarr; STEC &rarr; <em>Salmonella</em>), outbreak status, and tier classification.
+  Ranked by outbreak status first &mdash; confirmed human-illness clusters are escalated above every
+  non-outbreak recall &mdash; then by pathogen severity (<em>C. botulinum</em> &rarr; <em>Listeria</em> &rarr; STEC &rarr; <em>Salmonella</em>) and tier classification.
   Each row links to the originating regulatory notice.
 </p>
 <table class="data top5">
@@ -2136,7 +2140,13 @@ def build_html(week_end, recalls, prev_week, original_published=None):
     analysis = "\n".join("  <p>{}</p>".format(_md_em(esc(p))) for p in reg)
     if pa_html: analysis += "\n" + pa_html
 
-    sr_top = _diversify_by_country(sr, cap=2, window=5)
+    # Top 5 uses the PHASE-BASED ranker (outbreaks escalated above every
+    # non-outbreak recall), identical to the monthly/marketing one-pager.
+    # sort_by_severity() ranks pathogen severity FIRST and treats Outbreak as
+    # a tiebreak only within the same pathogen, so a 23-row Listeria week
+    # buried every confirmed outbreak below the fold (reviewer note 2026-07-10).
+    sr_top = _diversify_by_country(rank_top_recalls(recalls, n=len(recalls)),
+                                   cap=2, window=5)
     t5rows = "\n".join(_recall_row(i+1, r, 5) for i,r in enumerate(sr_top[:5]))
     allrows = "\n".join(_recall_row(i+1, r, 5) for i,r in enumerate(sr))
     if not t5rows: t5rows = '<tr><td class="empty" colspan="6">No recalls this week</td></tr>'
@@ -2347,8 +2357,11 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir):
     ws, we_display = _display_window(week_end, recalls)
     tp = stats.get("top_pathogen")
     leading = {"name":tp[0],"cases":tp[1],"pct":round(tp[1]/max(stats["total"],1)*100)} if tp and len(tp)>=2 else {"name":"Mixed","cases":0,"pct":0}
-    sr = sort_by_severity(recalls); threats = []
-    sr = _diversify_by_country(sr, cap=2, window=5)
+    # Same phase-based ranking as the report's Top 5 so the email, the
+    # summary JSON and the HTML never disagree about the headline threats.
+    threats = []
+    sr = _diversify_by_country(rank_top_recalls(recalls, n=len(recalls)),
+                               cap=2, window=5)
     for i,r in enumerate(sr[:5],1):
         threats.append({"rank":i,"date":str(r.get("Date",""))[:10],
             "pathogen":str(r.get("Pathogen","")),"pathogen_raw":str(r.get("Pathogen","")),
