@@ -83,6 +83,22 @@
         "Europe": 5
       },
       "generated": "2026-07-09T07:10:22Z"
+    },
+    {
+      "date": "2026-06-30",
+      "url": "daily/2026-06-30.html",
+      "total": 16,
+      "tier1": 11,
+      "outbreak": 1,
+      "by_region": {
+        "Oceania": 1,
+        "Europe": 11,
+        "Latin America": 1,
+        "North America": 1,
+        "Asia": 1,
+        "Africa": 1
+      },
+      "generated": "2026-07-10T04:11:07Z"
     }
   ]
 }
