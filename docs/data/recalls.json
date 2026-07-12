@@ -224,6 +224,38 @@
   "Notes": "le marche de l'oise [url-gate 2026-07-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-11: fix; corrections: Company→H MEAT H MEAT Saint Ouen L'Aumône, Pathogen→Salmonella; fix; company mismatch | Company name corrected to match recalling firm on page.]"
  },
  {
+  "Date": "2026-07-10",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Madagascar | Notifying: France",
+  "Brand": "FRA",
+  "Product": "Presence of listeria monocytognes in cooked prawns",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of listeria monocytognes in cooked prawns; risk: serious; category: crustaceans and products thereof",
+  "Class": "Information",
+  "Country": "Madagascar",
+  "Region": "Unknown",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856612",
+  "Notes": "[RASFF #2026.6149; classification: information notification for attention; category: crustaceans and products thereof; notifId=856612] [gemini-enrich 2026-07-11: Brand '—'→'FRA'] [claude-check 2026-07-12: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-07-10",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Uzbekistan | Notifying: Czechia",
+  "Brand": "CZE",
+  "Product": "Ochratoxin A in raisins from Uzbekistan, via Latvia",
+  "Pathogen": "Ochratoxin",
+  "Reason": "Ochratoxin A in raisins from Uzbekistan, via Latvia; risk: serious; category: fruits and vegetables",
+  "Class": "Alert",
+  "Country": "Uzbekistan",
+  "Region": "Unknown",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/858288",
+  "Notes": "[RASFF #2026.6195; classification: alert notification; category: fruits and vegetables; notifId=858288] [gemini-enrich 2026-07-12: Brand '—'→'CZE'] [claude-check 2026-07-12: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
   "Date": "2026-07-09",
   "Source": "FSANZ (AU)",
   "Company": "La Vera Group Pty Ltd- La Vera Cheddar Pepper R/W approx 300g",
