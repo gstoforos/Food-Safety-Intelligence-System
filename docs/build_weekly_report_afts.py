@@ -2238,8 +2238,11 @@ def build_html(week_end, recalls, prev_week, original_published=None):
     # "REVIEWED · {date}", never re-stamp "PUBLISHED" on a report that was
     # not actually first issued today. A rebuild is signalled by
     # original_published being set.
+    # Operator rule (restated 2026-07-13): a report already published before
+    # and now rebuilt MUST read "UPDATED · {today}" — never "PUBLISHED",
+    # never "REVIEWED". First issuance reads "PUBLISHED".
     if original_published:
-        published_label = "REVIEWED"
+        published_label = "UPDATED"
     else:
         published_label = "PUBLISHED"
     pub = today_str
@@ -2524,9 +2527,13 @@ def main():
     wr = filter_week(all_r, week_end)
     pr = filter_week(all_r, week_end - timedelta(days=7))
     log.info("This week: %d  Prev: %d", len(wr), len(pr))
-    html, stats = build_html(week_end, wr, pr)
     wnum = week_end.isocalendar()[1]
     out = Path(args.output) if args.output else ROOT/"docs"/"{}-W{:02d}.html".format(week_end.year, wnum)
+    # Existing report on disk => REBUILD: preserve original publish date and
+    # flip masthead to "UPDATED · {today}". Without this, manual/CLI rebuilds
+    # silently re-stamped "PUBLISHED" (operator bug report 2026-07-13).
+    orig_pub = _extract_published_from_html(out)
+    html, stats = build_html(week_end, wr, pr, original_published=orig_pub)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
     log.info("Report -> %s (%d bytes)", out, len(html))
