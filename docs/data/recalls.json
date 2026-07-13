@@ -580,7 +580,7 @@
   "Source": "RappelConso (FR)",
   "Company": "BOULANGERIE PATISSERIE LA PARISIENNE",
   "Brand": "Sans marque",
-  "Product": "Salade de taboulé poulet; Salade de taboulé poulet mariné",
+  "Product": "Salade de taboulé poulet; Salade de taboulé poulet mariné (RappelConso fiche 22762)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Possible contamination du taboulé par la listéria",
   "Class": "Voluntary",
@@ -589,7 +589,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22762/Interne",
-  "Notes": "dream cake beauséjour¤dream cake la providence¤dream cake saint-denis¤la parisienne [url-gate 2026-07-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-08: fix; corrections: Company→BOULANGERIE PATISSERIE LA PARISIENNE, Brand→Sans marque, Product→Salade de taboulé poulet; Salade de tabo, Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page clearly names 'BOULANGERI]"
+  "Notes": "dream cake beauséjour¤dream cake la providence¤dream cake saint-denis¤la parisienne [url-gate 2026-07-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-08: fix; corrections: Company→BOULANGERIE PATISSERIE LA PARISIENNE, Brand→Sans marque, Product→Salade de taboulé poulet; Salade de tabo, Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page clearly names 'BOULANGERI] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-07-07",
@@ -724,7 +724,7 @@
   "Source": "RappelConso (FR)",
   "Company": "BOULANGERIE PATISSERIE LA PARISIENNE",
   "Brand": "Unbranded",
-  "Product": "salade de taboulé poulet; salade de taboulé poulet mariné",
+  "Product": "salade de taboulé poulet; salade de taboulé poulet mariné (RappelConso fiche 22757)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Possible contamination du taboulé par la listéria",
   "Class": "Voluntary",
@@ -733,7 +733,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22757/Interne",
-  "Notes": "dream cake beauséjour¤dream cake la providence¤dream cake saint-denis¤la parisienne [url-gate 2026-07-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-07: fix; corrections: Company→BOULANGERIE PATISSERIE LA PARISIENNE; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty but found on page; corrected.]"
+  "Notes": "dream cake beauséjour¤dream cake la providence¤dream cake saint-denis¤la parisienne [url-gate 2026-07-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-07: fix; corrections: Company→BOULANGERIE PATISSERIE LA PARISIENNE; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty but found on page; corrected.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-07-07",
@@ -1268,7 +1268,7 @@
   "Source": "RappelConso (FR)",
   "Company": "RAEDERSHEIM",
   "Brand": "Unbranded",
-  "Product": "salade strasbourgeoise",
+  "Product": "salade strasbourgeoise (RappelConso fiche 22699)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -1277,7 +1277,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22699/Interne",
-  "Notes": "société de distribution nœuxoise [url-gate 2026-07-02: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-02: Company ''→'RAEDERSHEIM'] [gemini-check 2026-07-02: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "société de distribution nœuxoise [url-gate 2026-07-02: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-02: Company ''→'RAEDERSHEIM'] [gemini-check 2026-07-02: pass; clean-row shortcut (gemini-enriched + all fields valid)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-07-02",
@@ -2564,7 +2564,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Grand Frais / Fresh / Mon-Marché.Fr",
   "Brand": "Grand Frais / Fresh / Mon-Marché.Fr",
-  "Product": "brisures de saumon fumé 150g",
+  "Product": "brisures de saumon fumé 150g (RappelConso fiche 22623)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Détection Listeria monocytogenes",
   "Class": "Voluntary",
@@ -2573,7 +2573,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22623/Interne",
-  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-23: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-23: pass; pass]"
+  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-23: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-23: pass; pass] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-22",
@@ -2884,7 +2884,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Les Créations de Pierre",
   "Brand": "Les Créations de Pierre",
-  "Product": "format 180g",
+  "Product": "format 180g (RappelConso fiche 22598)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Suspected contamination with Listeria monocytogenes, associée à des instructions de cuisson jugées insuffisamment explicites pour garantir la maîtrise du risque sanitaire éventuel",
   "Class": "Voluntary",
@@ -2893,7 +2893,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22598/Interne",
-  "Notes": "leclerc - systeme u - intermarche - gemma [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-06-20: pass; pass | All fields match page content. Date 2026-06-19 confirmed. Company 'Les Créations de Pierre' and Brand match. Prod]"
+  "Notes": "leclerc - systeme u - intermarche - gemma [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-06-20: pass; pass | All fields match page content. Date 2026-06-19 confirmed. Company 'Les Créations de Pierre' and Brand match. Prod] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-19",
@@ -3092,7 +3092,7 @@
   "Source": "RappelConso (FR)",
   "Company": "CARREFOUR FRANCE CARREFOUR",
   "Brand": "Sans marque",
-  "Product": "Steak haché vendu au rayon traditionnel à la demande du client",
+  "Product": "Steak haché vendu au rayon traditionnel à la demande du client (RappelConso fiche 22607)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria",
   "Class": "Voluntary",
@@ -3101,7 +3101,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22607/Interne",
-  "Notes": "carrefour contact cirey sur vezouze uniquement [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Brand→Sans marque, Product→Steak haché vendu au rayon traditionnel , Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company is listed as CARREFOUR FRANCE CARREFOUR on page, ]"
+  "Notes": "carrefour contact cirey sur vezouze uniquement [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Brand→Sans marque, Product→Steak haché vendu au rayon traditionnel , Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company is listed as CARREFOUR FRANCE CARREFOUR on page, ] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-19",
@@ -3124,7 +3124,7 @@
   "Source": "RappelConso (FR)",
   "Company": "STOEFFLER Stoeffler",
   "Brand": "Les Créations de Pierre",
-  "Product": "format 180g",
+  "Product": "format 180g (RappelConso fiche 22600)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Suspected contamination with Listeria monocytogenes, associée à des instructions de cuisson jugées insuffisamment explicites pour garantir la maîtrise du risque sanitaire éventuel",
   "Class": "Voluntary",
@@ -3133,7 +3133,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22600/Interne",
-  "Notes": "leclerc - systeme u - intermarche - gemma [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→STOEFFLER Stoeffler; fix; company mismatch | Company mismatch, corrected to recalling firm from page.]"
+  "Notes": "leclerc - systeme u - intermarche - gemma [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→STOEFFLER Stoeffler; fix; company mismatch | Company mismatch, corrected to recalling firm from page.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-18",
@@ -3316,7 +3316,7 @@
   "Source": "RappelConso (FR)",
   "Company": "SAS BOURGOGNE VIANDES",
   "Brand": "Unbranded",
-  "Product": "steak haché vendu au rayon traditionnel à la demande du client",
+  "Product": "steak haché vendu au rayon traditionnel à la demande du client (RappelConso fiche 22608)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria",
   "Class": "Voluntary",
@@ -3325,7 +3325,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22608/Interne",
-  "Notes": "carrefour draguignan uniquement [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-19: Company ''→'SAS BOURGOGNE VIANDES'] [claude-check 2026-06-19: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "carrefour draguignan uniquement [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-19: Company ''→'SAS BOURGOGNE VIANDES'] [claude-check 2026-06-19: pass; clean-row shortcut (gemini-enriched + all fields valid)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-18",
@@ -3364,7 +3364,7 @@
   "Source": "RappelConso (FR)",
   "Company": "SAS BOURGOGNE VIANDES",
   "Brand": "Unbranded",
-  "Product": "salade strasbourgeoise",
+  "Product": "salade strasbourgeoise (RappelConso fiche 22596)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -3373,7 +3373,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22596/Interne",
-  "Notes": "société de distribution nœuxoise [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-19: Company ''→'SAS BOURGOGNE VIANDES'] [claude-check 2026-06-19: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "société de distribution nœuxoise [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-19: Company ''→'SAS BOURGOGNE VIANDES'] [claude-check 2026-06-19: pass; clean-row shortcut (gemini-enriched + all fields valid)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-18",
@@ -4228,7 +4228,7 @@
   "Source": "RappelConso (FR)",
   "Company": "GUERANDIS E.Leclerc",
   "Brand": "Unbranded",
-  "Product": "crevettes grises cuites",
+  "Product": "crevettes grises cuites (RappelConso fiche 22517)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -4237,7 +4237,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22517/Interne",
-  "Notes": "e.leclerc de guérande [url-gate 2026-06-10: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-10: Company ''→'GUERANDIS E.Leclerc'] [claude-check 2026-06-11: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "e.leclerc de guérande [url-gate 2026-06-10: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-10: Company ''→'GUERANDIS E.Leclerc'] [claude-check 2026-06-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-10",
@@ -4564,7 +4564,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Non communiqué",
   "Brand": "Non communiqué",
-  "Product": "crevettes grises cuites",
+  "Product": "crevettes grises cuites (RappelConso fiche 22491)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -4573,7 +4573,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22491/Interne",
-  "Notes": "e.leclerc de guérande [url-gate 2026-06-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-08: Company ''→'Non communiqué'] [gemini-enrich 2026-06-08: Brand 'Unbranded'→'Non communiqué'] [gemini-check 2026-06-08: pass; clean-row shortcut (gemini-enriched + all fields valid)] [r4-annotate 2026-06-09: Company=\"Non communiqué\" is the literal RappelConso Origine field (manufacturer/distributor undisclosed). Not a scraper bug — this is the official RappelConso response when the recalling entity declines disclosure (typically small producers). Web-search verified fiche 22491 shows Brand=\"Sans marque\" (unbranded), category \"Céréales et produits de boulangerie\", Listeria monocytogenes detection.]"
+  "Notes": "e.leclerc de guérande [url-gate 2026-06-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-08: Company ''→'Non communiqué'] [gemini-enrich 2026-06-08: Brand 'Unbranded'→'Non communiqué'] [gemini-check 2026-06-08: pass; clean-row shortcut (gemini-enriched + all fields valid)] [r4-annotate 2026-06-09: Company=\"Non communiqué\" is the literal RappelConso Origine field (manufacturer/distributor undisclosed). Not a scraper bug — this is the official RappelConso response when the recalling entity declines disclosure (typically small producers). Web-search verified fiche 22491 shows Brand=\"Sans marque\" (unbranded), category \"Céréales et produits de boulangerie\", Listeria monocytogenes detection.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-06",
@@ -4612,7 +4612,7 @@
   "Source": "RappelConso (FR)",
   "Company": "ELANI INTERMARCHE",
   "Brand": "SANS MARQUE",
-  "Product": "SURPRISE DE PORC MARINE A L'ANDALOUSE",
+  "Product": "SURPRISE DE PORC MARINE A L'ANDALOUSE (RappelConso fiche 22529)",
   "Pathogen": "Salmonella",
   "Reason": "Salmonella contamination",
   "Class": "Recall",
@@ -4621,7 +4621,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22529/Interne",
-  "Notes": "This specific URL is not in the search results, but the search snippet indicates a recall on 2026-06-05 for Salmonella in 'SURPRISE DE PORC MARINE A L'ANDALOUSE'. I cannot provide the exact integer fiche number, so I will omit this specific recall as per instructions. However, I am leaving this note to indicate the information was found but could not be perfectly matched to the strict URL requirement.  [via Gemini gap-finder + Google Search] [gemini-enrich 2026-06-08: Company 'SANS MARQUE'→'ELAN [gap-gate 2026-06-08: pending_gap → pending_gap_v1] [gap-gate 2026-06-09: pending_gap_v1 → pending_gap_v2] [claude-check 2026-06-09: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-06-09: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "This specific URL is not in the search results, but the search snippet indicates a recall on 2026-06-05 for Salmonella in 'SURPRISE DE PORC MARINE A L'ANDALOUSE'. I cannot provide the exact integer fiche number, so I will omit this specific recall as per instructions. However, I am leaving this note to indicate the information was found but could not be perfectly matched to the strict URL requirement.  [via Gemini gap-finder + Google Search] [gemini-enrich 2026-06-08: Company 'SANS MARQUE'→'ELAN [gap-gate 2026-06-08: pending_gap → pending_gap_v1] [gap-gate 2026-06-09: pending_gap_v1 → pending_gap_v2] [claude-check 2026-06-09: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-06-09: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-05",
@@ -4772,7 +4772,7 @@
   "Source": "RappelConso (FR)",
   "Company": "SAS U.C.P.A.C",
   "Brand": "Unbranded",
-  "Product": "surprise de porc marine a l'andalouse",
+  "Product": "surprise de porc marine a l'andalouse (RappelConso fiche 22472)",
   "Pathogen": "Salmonella",
   "Reason": "Salmonella",
   "Class": "Voluntary",
@@ -4781,7 +4781,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22472/Interne",
-  "Notes": "intermarche orgeres [url-gate 2026-06-05: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-05: Pathogen ''→'Salmonella'] [gemini-enrich 2026-06-06: Company ''→'SAS U.C.P.A.C'] [claude-check 2026-06-06: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-06: pending_enrichment → pending (Claude verified)] [fix 2026-06-30: Tier→1 per locked Salmonella=Tier1 rule (monthly prep).]"
+  "Notes": "intermarche orgeres [url-gate 2026-06-05: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-05: Pathogen ''→'Salmonella'] [gemini-enrich 2026-06-06: Company ''→'SAS U.C.P.A.C'] [claude-check 2026-06-06: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-06: pending_enrichment → pending (Claude verified)] [fix 2026-06-30: Tier→1 per locked Salmonella=Tier1 rule (monthly prep).] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-05",
@@ -5204,7 +5204,7 @@
   "Source": "RappelConso (FR)",
   "Company": "LE FROMAGER DES HALLES GRAND-FRAIS",
   "Brand": "Unbranded",
-  "Product": "ti guémené",
+  "Product": "ti guémené (RappelConso fiche 22444)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -5213,14 +5213,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22444/Interne",
-  "Notes": "produit distribué dans les enseignes grand frais et fresh [url-gate 2026-06-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-03: fix; corrections: Company→LE FROMAGER DES HALLES GRAND-FRAIS; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty in the row but identified on the ]"
+  "Notes": "produit distribué dans les enseignes grand frais et fresh [url-gate 2026-06-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-03: fix; corrections: Company→LE FROMAGER DES HALLES GRAND-FRAIS; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty in the row but identified on the ] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-03",
   "Source": "RappelConso (FR)",
   "Company": "WORLDMARECHAL GRAND-FRAIS, FRESH, Mon-marché",
   "Brand": "Grand Frais / Fresh / Mon-Marché.Fr",
-  "Product": "brisures de saumon fumé 150g",
+  "Product": "brisures de saumon fumé 150g (RappelConso fiche 22435)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Détection Listeria monocytogenes",
   "Class": "Voluntary",
@@ -5229,7 +5229,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22435/Interne",
-  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-03: fix; corrections: Company→WORLDMARECHAL GRAND-FRAIS, FRESH, Mon-ma; fix; company mismatch | Company name on row does not exactly match 'Origine de la fiche' on the page.]"
+  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-03: fix; corrections: Company→WORLDMARECHAL GRAND-FRAIS, FRESH, Mon-ma; fix; company mismatch | Company name on row does not exactly match 'Origine de la fiche' on the page.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-02",
@@ -5316,7 +5316,7 @@
   "Source": "RappelConso (FR)",
   "Company": "La Ferme de Lintan",
   "Brand": "La Ferme de Lintan",
-  "Product": "ti guémené",
+  "Product": "ti guémené (RappelConso fiche 22443)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listéria",
   "Class": "Voluntary",
@@ -5325,7 +5325,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22443/Interne",
-  "Notes": "grand frais, traditions terroirs, intermarché de pontivy, maison le bris [url-gate 2026-06-02: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-02: pass; pass]"
+  "Notes": "grand frais, traditions terroirs, intermarché de pontivy, maison le bris [url-gate 2026-06-02: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-02: pass; pass] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-06-02",
@@ -6532,7 +6532,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Le Farto de Thones",
   "Brand": "Le Farto de Thones",
-  "Product": "reblochon de savoie fermier aop 450g",
+  "Product": "reblochon de savoie fermier aop 450g (RappelConso fiche 22353)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Presence of E. coli STEC",
   "Class": "Voluntary",
@@ -6541,14 +6541,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22353/Interne",
-  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste odeon [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-26: Company ''→'Le Farto de Thones'] [gemini-enrich 2026-05-26: Brand 'Unbranded'→'Le Farto de Thones'] [gemini-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste odeon [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-26: Company ''→'Le Farto de Thones'] [gemini-enrich 2026-05-26: Brand 'Unbranded'→'Le Farto de Thones'] [gemini-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-26",
   "Source": "RappelConso (FR)",
   "Company": "Le Chalet des Neiges",
   "Brand": "Le Chalet des Neiges",
-  "Product": "reblochon de savoie fermier aop 450g",
+  "Product": "reblochon de savoie fermier aop 450g (RappelConso fiche 22352)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Presence of E. coli STEC",
   "Class": "Voluntary",
@@ -6557,14 +6557,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22352/Interne",
-  "Notes": "metro passy (74) ; metro cran gevrier (74); spar le grand bornand (74); fromagers et commerces de proximité de la région fo [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: pass; corrections: Date→2026-05-26, Company→Le chalet des neiges, Brand→Le chalet des neiges, Product→Reblochon de Savoie fermier AOP 450g, Pathogen→Escherichia coli STEC; pass; date on page=2026-05-26]"
+  "Notes": "metro passy (74) ; metro cran gevrier (74); spar le grand bornand (74); fromagers et commerces de proximité de la région fo [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: pass; corrections: Date→2026-05-26, Company→Le chalet des neiges, Brand→Le chalet des neiges, Product→Reblochon de Savoie fermier AOP 450g, Pathogen→Escherichia coli STEC; pass; date on page=2026-05-26] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-26",
   "Source": "RappelConso (FR)",
   "Company": "Le Farto de Thones",
   "Brand": "Le Farto de Thones",
-  "Product": "reblochon de savoie fermier aop 450g",
+  "Product": "reblochon de savoie fermier aop 450g (RappelConso fiche 22351)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Presence of E. coli STEC",
   "Class": "Voluntary",
@@ -6573,14 +6573,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22351/Interne",
-  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste odeon [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-26: Company ''→'Le Farto de Thones'] [gemini-enrich 2026-05-26: Brand 'Unbranded'→'Le Farto de Thones'] [gemini-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste odeon [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-26: Company ''→'Le Farto de Thones'] [gemini-enrich 2026-05-26: Brand 'Unbranded'→'Le Farto de Thones'] [gemini-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-26",
   "Source": "RappelConso (FR)",
   "Company": "Pierre de Seillac",
   "Brand": "Pierre de Seillac",
-  "Product": "reblochon de savoie fermier aop 450g",
+  "Product": "reblochon de savoie fermier aop 450g (RappelConso fiche 22350)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Presence of E. coli STEC",
   "Class": "Voluntary",
@@ -6589,14 +6589,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22350/Interne",
-  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste prolaidis [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: pass; corrections: Date→2026-05-26, Company→Pierre de Seillac, Brand→Pierre de Seillac, Product→Reblochon de Savoie fermier AOP 450g, Pathogen→Escherichia coli STEC; pass; date on page=2026-05-26]"
+  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste prolaidis [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: pass; corrections: Date→2026-05-26, Company→Pierre de Seillac, Brand→Pierre de Seillac, Product→Reblochon de Savoie fermier AOP 450g, Pathogen→Escherichia coli STEC; pass; date on page=2026-05-26] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-26",
   "Source": "RappelConso (FR)",
   "Company": "Le Suzerain",
   "Brand": "Le Suzerain",
-  "Product": "reblochon de savoie fermier aop 450g",
+  "Product": "reblochon de savoie fermier aop 450g (RappelConso fiche 22349)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Presence of E. coli STEC",
   "Class": "Voluntary",
@@ -6605,14 +6605,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22349/Interne",
-  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste gratiot [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: pass; corrections: Date→2026-05-26, Company→Le Suzerain, Brand→Le Suzerain, Product→Reblochon de Savoie fermier AOP 450g, Pathogen→Escherichia coli STEC; pass; date on page=2026-05-26]"
+  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste gratiot [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: pass; corrections: Date→2026-05-26, Company→Le Suzerain, Brand→Le Suzerain, Product→Reblochon de Savoie fermier AOP 450g, Pathogen→Escherichia coli STEC; pass; date on page=2026-05-26] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-26",
   "Source": "RappelConso (FR)",
   "Company": "Le Chaudron",
   "Brand": "Le Chaudron",
-  "Product": "reblochon de savoie fermier aop 450g",
+  "Product": "reblochon de savoie fermier aop 450g (RappelConso fiche 22348)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Presence of E. coli STEC",
   "Class": "Voluntary",
@@ -6621,14 +6621,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22348/Interne",
-  "Notes": "grand frais [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: pass; corrections: Date→2026-05-26, Company→SOCIETE COOPERATIVE AGRICOLE DES PRODUCT, Brand→Le Chaudron, Product→Reblochon de Savoie fermier AOP 450g, Pathogen→Escherichia coli STEC; pass; date on page=2026-05-26]"
+  "Notes": "grand frais [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: pass; corrections: Date→2026-05-26, Company→SOCIETE COOPERATIVE AGRICOLE DES PRODUCT, Brand→Le Chaudron, Product→Reblochon de Savoie fermier AOP 450g, Pathogen→Escherichia coli STEC; pass; date on page=2026-05-26] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-26",
   "Source": "RappelConso (FR)",
   "Company": "SOCIETE COOPERATIVE AGRICOLE DES PRODUCTEURS DE REBLOCHONS DE LA VALLEE DE THONES Coopérative des Producteurs de Reblochon de la Vallée de Thones",
   "Brand": "La Bergère de Thones",
-  "Product": "reblochon de savoie fermier aop 450g",
+  "Product": "reblochon de savoie fermier aop 450g (RappelConso fiche 22347)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Presence of E. coli STEC",
   "Class": "Voluntary",
@@ -6637,14 +6637,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22347/Interne",
-  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste desailly [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: fix; corrections: Company→SOCIETE COOPERATIVE AGRICOLE DES PRODUCT; fix; company mismatch | Row's Company is the brand, not the recalling firm; corrected to the 'Origine de la fiche' from ]"
+  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste desailly [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: fix; corrections: Company→SOCIETE COOPERATIVE AGRICOLE DES PRODUCT; fix; company mismatch | Row's Company is the brand, not the recalling firm; corrected to the 'Origine de la fiche' from ] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-26",
   "Source": "RappelConso (FR)",
   "Company": "SOCIETE COOPERATIVE AGRICOLE DES PRODUCTEURS DE REBLOCHONS DE LA VALLEE DE THONES",
   "Brand": "Le Farto de Thones",
-  "Product": "reblochon de savoie fermier aop 450g",
+  "Product": "reblochon de savoie fermier aop 450g (RappelConso fiche 22346)",
   "Pathogen": "Escherichia coli STEC",
   "Reason": "Presence of E. coli STEC",
   "Class": "Voluntary",
@@ -6653,7 +6653,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22346/Interne",
-  "Notes": "point de vente de la coopérative à thônes [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: fix; corrections: Company→SOCIETE COOPERATIVE AGRICOLE DES PRODUCT, Pathogen→Escherichia coli STEC; fix; company mismatch | Company in row is the brand, not the recalling firm; corrected to the cooperative named on the p]"
+  "Notes": "point de vente de la coopérative à thônes [url-gate 2026-05-26: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-26: fix; corrections: Company→SOCIETE COOPERATIVE AGRICOLE DES PRODUCT, Pathogen→Escherichia coli STEC; fix; company mismatch | Company in row is the brand, not the recalling firm; corrected to the cooperative named on the p] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-26",
@@ -8100,7 +8100,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Société Coopérative Agricole des Producteurs de Reblochons des Vallées de Thônes",
   "Brand": "Le farto de Thônes",
-  "Product": "Reblochon de Savoie fermier AOP 450g",
+  "Product": "Reblochon de Savoie fermier AOP 450g (RappelConso fiche 22275)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "présence de escherichia coli stec",
   "Class": "Voluntary",
@@ -8109,7 +8109,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22275/Interne",
-  "Notes": "point de vente de la coopérative à thônes; fromtome à poligny [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [patch 2026-05-15 W20#3: pathogen label canonicalised from 'Escherichia coli STEC'] [patch 2026-05-15 W20#4: linked-lot 015526100 also recalled under fiche 22274 — Sans marque, wholesale distribution to Bretagne via team ouest]"
+  "Notes": "point de vente de la coopérative à thônes; fromtome à poligny [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [patch 2026-05-15 W20#3: pathogen label canonicalised from 'Escherichia coli STEC'] [patch 2026-05-15 W20#4: linked-lot 015526100 also recalled under fiche 22274 — Sans marque, wholesale distribution to Bretagne via team ouest] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-13",
@@ -8148,7 +8148,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Société Coopérative Agricole des Producteurs de Reblochons des Vallées de Thônes",
   "Brand": "Unbranded",
-  "Product": "reblochon de savoie fermier aop 450g",
+  "Product": "reblochon de savoie fermier aop 450g (RappelConso fiche 22274)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "présence de escherichia coli stec",
   "Class": "Voluntary",
@@ -8157,7 +8157,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22274/Interne",
-  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste team ouest [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [patch 2026-05-15 W20#4: linked-lot 015526100 also recalled under fiche 22275 — Le farto de Thones brand, Jura+Haute-Savoie retail channel]"
+  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste team ouest [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [patch 2026-05-15 W20#4: linked-lot 015526100 also recalled under fiche 22275 — Le farto de Thones brand, Jura+Haute-Savoie retail channel] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-13",
@@ -8324,7 +8324,7 @@
   "Source": "RappelConso (FR)",
   "Company": "WORLDMARECHAL",
   "Brand": "GRAND FRAIS / FRESH / mon-marché.fr",
-  "Product": "Brisures de saumon fumé 150g",
+  "Product": "Brisures de saumon fumé 150g (RappelConso fiche 22234)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -8333,7 +8333,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22234/Interne",
-  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-05-13: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14: fix; corrections: Company→WORLDMARECHAL, Brand→GRAND FRAIS / FRESH / mon-marché.fr, Product→Brisures de saumon fumé 150g, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains distributor names (Grand Frais / Fresh / Mon-Marché.Fr) instead of the ac] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
+  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-05-13: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14: fix; corrections: Company→WORLDMARECHAL, Brand→GRAND FRAIS / FRESH / mon-marché.fr, Product→Brisures de saumon fumé 150g, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains distributor names (Grand Frais / Fresh / Mon-Marché.Fr) instead of the ac] [manual fix 2026-05-14: Reason FR→EN per audit rule] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-12",
@@ -8852,7 +8852,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Pierre Sajous",
   "Brand": "Pierre Sajous",
-  "Product": "Viandes (charcuterie)",
+  "Product": "Viandes (charcuterie) (RappelConso fiche 22196)",
   "Pathogen": "Salmonella",
   "Reason": "Contamination with Salmonella",
   "Class": "Voluntary",
@@ -8861,14 +8861,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22196/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check (RappelConso sans-marque path)] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check (RappelConso sans-marque path)] [manual fix 2026-05-14: Reason FR→EN per audit rule] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-07",
   "Source": "RappelConso (FR)",
   "Company": "Pierre Sajous",
   "Brand": "Pierre Sajous",
-  "Product": "Viandes (charcuterie)",
+  "Product": "Viandes (charcuterie) (RappelConso fiche 22197)",
   "Pathogen": "Salmonella",
   "Reason": "Contamination with Salmonella",
   "Class": "Voluntary",
@@ -8877,14 +8877,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22197/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-07",
   "Source": "RappelConso (FR)",
   "Company": "Pierre Sajous",
   "Brand": "Pierre Sajous",
-  "Product": "Viandes (charcuterie)",
+  "Product": "Viandes (charcuterie) (RappelConso fiche 22198)",
   "Pathogen": "Salmonella",
   "Reason": "Contamination with Salmonella",
   "Class": "Voluntary",
@@ -8893,14 +8893,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22198/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-07",
   "Source": "RappelConso (FR)",
   "Company": "Pierre Sajous",
   "Brand": "Pierre Sajous",
-  "Product": "Viandes (charcuterie)",
+  "Product": "Viandes (charcuterie) (RappelConso fiche 22199)",
   "Pathogen": "Salmonella",
   "Reason": "Contamination with Salmonella",
   "Class": "Voluntary",
@@ -8909,14 +8909,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22199/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-07",
   "Source": "RappelConso (FR)",
   "Company": "Les Ateliers",
   "Brand": "Les Ateliers",
-  "Product": "Viandes",
+  "Product": "Viandes (RappelConso fiche 22211)",
   "Pathogen": "Salmonella",
   "Reason": "Contamination with Salmonella",
   "Class": "Voluntary",
@@ -8925,7 +8925,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22211/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-07",
@@ -8948,7 +8948,7 @@
   "Source": "RappelConso (FR)",
   "Company": "BORDON DENIS",
   "Brand": "Unbranded",
-  "Product": "tomme",
+  "Product": "tomme (RappelConso fiche 22219)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria",
   "Class": "Voluntary",
@@ -8957,7 +8957,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22219/Interne",
-  "Notes": "aucun [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'BORDON DENIS'] [manual fix 2026-05-14: Reason FR→EN per audit rule]"
+  "Notes": "aucun [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-11: Company ''→'BORDON DENIS'] [manual fix 2026-05-14: Reason FR→EN per audit rule] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-07",
@@ -9444,7 +9444,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Mont Charvin Salaisons",
   "Brand": "Mont Charvin",
-  "Product": "viandes",
+  "Product": "viandes (RappelConso fiche 22190)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Contamination with Listeria monocytogenes",
   "Class": "Voluntary",
@@ -9453,7 +9453,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22190/Interne",
-  "Notes": "magasin produits régionaux, marchés [scraper-flag: no Company/Brand from API — claude-check please extract from page] [scraper-flag: Product is subcategory fallback] [url-gate 2026-05-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-08: pass; pass | All fields verified: date 2026-05-05 matches page; company MONT CHARVIN SALAISONS identified; product 'saucisson ] [manual-fix 2026-05-08: Company/Brand/Reason filled] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "magasin produits régionaux, marchés [scraper-flag: no Company/Brand from API — claude-check please extract from page] [scraper-flag: Product is subcategory fallback] [url-gate 2026-05-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-08: pass; pass | All fields verified: date 2026-05-05 matches page; company MONT CHARVIN SALAISONS identified; product 'saucisson ] [manual-fix 2026-05-08: Company/Brand/Reason filled] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-05",
@@ -9540,7 +9540,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Vracbio",
   "Brand": "Vracbio",
-  "Product": "fruits et légumes",
+  "Product": "fruits et légumes (RappelConso fiche 22178)",
   "Pathogen": "Aflatoxin",
   "Reason": "Detection of Aflatoxin",
   "Class": "Voluntary",
@@ -9549,14 +9549,14 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22178/Interne",
-  "Notes": "vracbio [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Vracbio; Brand→Vracbio; Tier verified=2 FDA framework] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "vracbio [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Vracbio; Brand→Vracbio; Tier verified=2 FDA framework] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-04",
   "Source": "RappelConso (FR)",
   "Company": "Boucherie Aux Enfants",
   "Brand": "Boucherie Aux Enfants",
-  "Product": "viandes",
+  "Product": "viandes (RappelConso fiche 22177)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -9565,14 +9565,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22177/Interne",
-  "Notes": "boucherie aux enfants [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Boucherie Aux Enfants; Brand→Boucherie Aux Enfants; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "boucherie aux enfants [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Boucherie Aux Enfants; Brand→Boucherie Aux Enfants; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-04",
   "Source": "RappelConso (FR)",
   "Company": "Société de Distribution de Lesparre Leclerc",
   "Brand": "Leclerc Lesparre",
-  "Product": "viandes",
+  "Product": "viandes (RappelConso fiche 22173)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -9581,7 +9581,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22173/Interne",
-  "Notes": "leclerc lesparre 33340 [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Leclerc Lesparre; Brand→Leclerc Lesparre; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "leclerc lesparre 33340 [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Leclerc Lesparre; Brand→Leclerc Lesparre; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-05-04",
@@ -10148,7 +10148,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Origin: Türkiye | Notifying: Italy",
   "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture",
+  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22157)",
   "Pathogen": "Marine biotoxin",
   "Reason": "Ochratoxin A in dried figs - diced  from Türkiye; risk: serious; category: fruits and vegetables",
   "Class": "Voluntary",
@@ -10157,7 +10157,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22157/Interne",
-  "Notes": "[Claude-flag 2026-04-30: Missing critical information: Company name is empty; Product description is gene] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[Claude-flag 2026-04-30: Missing critical information: Company name is empty; Product description is gene] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-28",
@@ -10772,7 +10772,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Origin: Türkiye | Notifying: France",
   "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture",
+  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22113)",
   "Pathogen": "Histamine / scombrotoxin",
   "Reason": "Aflatoxins in dried figs from Turkiye; risk: serious; category: fruits and vegetables",
   "Class": "Voluntary",
@@ -10781,7 +10781,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22113/Interne",
-  "Notes": "[RASFF #2026.3528; classification: border rejection notification; category: fruits and vegetables; notifId=839681]"
+  "Notes": "[RASFF #2026.3528; classification: border rejection notification; category: fruits and vegetables; notifId=839681] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-23",
@@ -11220,7 +11220,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Various pistachios and pistachio-containing products made at Kunafa's",
   "Brand": "—",
-  "Product": "fruits et légumes",
+  "Product": "fruits et légumes (RappelConso fiche 22055)",
   "Pathogen": "Salmonella",
   "Reason": "Salmonella — outbreak",
   "Class": "Voluntary",
@@ -11229,14 +11229,14 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22055/Interne",
-  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by test results.\n\nThere have been reported illnesses that may be associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a food safety investigation, which may   [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-18: pending_gap → pending_gap_v1] [claude-check 2026-05-19: fix; corrections: Date→2026-04-21; fix; date on page=2026-04-21 | Row Date field is empty but page shows 2026-04-21 (meta-dcterms.issued and Last updated);] [gap-gate 2026-05-19: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by test results.\n\nThere have been reported illnesses that may be associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a food safety investigation, which may   [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-18: pending_gap → pending_gap_v1] [claude-check 2026-05-19: fix; corrections: Date→2026-04-21; fix; date on page=2026-04-21 | Row Date field is empty but page shows 2026-04-21 (meta-dcterms.issued and Last updated);] [gap-gate 2026-05-19: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-21",
   "Source": "RappelConso (FR)",
   "Company": "Origin: Türkiye | Notifying: France",
   "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture",
+  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22067)",
   "Pathogen": "Marine biotoxin",
   "Reason": "Aflatoxins in dried figs from Turkiye; risk: serious; category: fruits and vegetables",
   "Class": "Voluntary",
@@ -11245,7 +11245,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22067/Interne",
-  "Notes": "[Claude-flag 2026-04-30: Missing critical information: Company name is empty; Product description is gene]"
+  "Notes": "[Claude-flag 2026-04-30: Missing critical information: Company name is empty; Product description is gene] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-21",
@@ -11332,7 +11332,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Origin: Georgia | Notifying: Bulgaria",
   "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture",
+  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22082)",
   "Pathogen": "Histamine / scombrotoxin",
   "Reason": "aflatoxins in hazelnutl from Georgia; risk: serious; category: nuts, nut products and seeds",
   "Class": "Voluntary",
@@ -11341,7 +11341,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22082/Interne",
-  "Notes": "[RASFF #2026.3421; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838957]"
+  "Notes": "[RASFF #2026.3421; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838957] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-21",
@@ -11812,7 +11812,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Rossmann",
   "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture",
+  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22056)",
   "Pathogen": "Histamine / scombrotoxin",
   "Reason": "Recall over foreign bodies posing injury risk; an additional batch is also affected",
   "Class": "Voluntary",
@@ -11821,7 +11821,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22056/Interne",
-  "Notes": "[Rossmann = retailer recalling same product; sister to Phag GmbH manufacturer-level recall same day; physical hazard in scope; Tier 3]"
+  "Notes": "[Rossmann = retailer recalling same product; sister to Phag GmbH manufacturer-level recall same day; physical hazard in scope; Tier 3] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-18",
@@ -12420,7 +12420,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Origin: Brazil | Notifying: Netherlands",
   "Brand": "—",
-  "Product": "fruits et légumes",
+  "Product": "fruits et légumes (RappelConso fiche 22039)",
   "Pathogen": "Salmonella",
   "Reason": "Salmonella spp. in poultry meat preparation from Brazil.; risk: serious; category: poultry meat and poultry meat products",
   "Class": "Voluntary",
@@ -12429,7 +12429,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22039/Interne",
-  "Notes": "[RASFF #2026.3211; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837004]"
+  "Notes": "[RASFF #2026.3211; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837004] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-15",
@@ -13076,7 +13076,7 @@
   "Source": "RappelConso (FR)",
   "Company": "DROME ARDECHE TRADITION Drôme Ardèche Tradition",
   "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture",
+  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22005)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Suspicion of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -13085,7 +13085,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22005/Interne",
-  "Notes": "[fiche 22001 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22002/22004/22006); replaces polluted Notes from your row]"
+  "Notes": "[fiche 22001 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22002/22004/22006); replaces polluted Notes from your row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-10",
@@ -13396,7 +13396,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Amandis",
   "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture",
+  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 21987)",
   "Pathogen": "Histamine / scombrotoxin",
   "Reason": "Presence of Listeria",
   "Class": "Voluntary",
@@ -13405,7 +13405,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21987/Interne",
-  "Notes": "[fiche 21863 / ref. 2026-04-0035 / 2026-04-09; 5th AMANDIS / Les Ateliers de Sébastien recall this month — sister fiches 22141/22142/22143 (Apr 28 Batch 1); preserve typo \"PRECENCE\" from your row corrected to \"Presence\"]"
+  "Notes": "[fiche 21863 / ref. 2026-04-0035 / 2026-04-09; 5th AMANDIS / Les Ateliers de Sébastien recall this month — sister fiches 22141/22142/22143 (Apr 28 Batch 1); preserve typo \"PRECENCE\" from your row corrected to \"Presence\"] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-09",
@@ -13620,7 +13620,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Origin: Lithuania | Notifying: Germany",
   "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture",
+  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 21975)",
   "Pathogen": "Histamine / scombrotoxin",
   "Reason": "Listeria monocytogenes in matjes fillets from Lithuania; risk: not serious; category: fish and fish products",
   "Class": "Voluntary",
@@ -13629,7 +13629,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21975/Interne",
-  "Notes": "[RASFF #2026.2983; classification: information notification for attention; category: fish and fish products; notifId=836200]"
+  "Notes": "[RASFF #2026.2983; classification: information notification for attention; category: fish and fish products; notifId=836200] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-08",
@@ -13844,7 +13844,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Luisa e basilio",
-  "Product": "Luisa e basilio ready meal",
+  "Product": "Luisa e basilio ready meal (RappelConso fiche 21942)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -13853,14 +13853,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21942/Interne",
-  "Notes": "[fiche 21942 / 2026-04-07; LUNA FOOD Luisa e basilio cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21942 / 2026-04-07; LUNA FOOD Luisa e basilio cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-07",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Luisa e basilio",
-  "Product": "Luisa e basilio ready meal",
+  "Product": "Luisa e basilio ready meal (RappelConso fiche 21943)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -13869,14 +13869,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21943/Interne",
-  "Notes": "[fiche 21943 / 2026-04-07; LUNA FOOD Luisa e basilio cluster; replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21943 / 2026-04-07; LUNA FOOD Luisa e basilio cluster; replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-07",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Luisa e basilio",
-  "Product": "Luisa e basilio ready meal",
+  "Product": "Luisa e basilio ready meal (RappelConso fiche 21945)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -13885,14 +13885,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21945/Interne",
-  "Notes": "[fiche 21945 / 2026-04-07; LUNA FOOD Luisa e basilio cluster; replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21945 / 2026-04-07; LUNA FOOD Luisa e basilio cluster; replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-07",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Luisa e basilio",
-  "Product": "Luisa e basilio ready meal",
+  "Product": "Luisa e basilio ready meal (RappelConso fiche 21944)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -13901,14 +13901,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21944/Interne",
-  "Notes": "[fiche 21944 / 2026-04-07; LUNA FOOD Luisa e basilio cluster; replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21944 / 2026-04-07; LUNA FOOD Luisa e basilio cluster; replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-07",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Luisa e basilio",
-  "Product": "Luisa e basilio ready meal",
+  "Product": "Luisa e basilio ready meal (RappelConso fiche 21947)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -13917,7 +13917,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21947/Interne",
-  "Notes": "[fiche 21947 / 2026-04-07; LUNA FOOD Luisa e basilio cluster (see also 21974 Apr 8); replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21947 / 2026-04-07; LUNA FOOD Luisa e basilio cluster (see also 21974 Apr 8); replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-07",
@@ -13988,7 +13988,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Foodles",
-  "Product": "Cooked salmon poke",
+  "Product": "Cooked salmon poke (RappelConso fiche 21950)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -13997,7 +13997,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21950/Interne",
-  "Notes": "[fiche 21950 / 2026-04-07; LUNA FOOD Foodles cluster (also see 21992/21993/21994 Apr 10); replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21950 / 2026-04-07; LUNA FOOD Foodles cluster (also see 21992/21993/21994 Apr 10); replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-07",
@@ -14228,7 +14228,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Shakishaki",
-  "Product": "Cooked Salmon Poke",
+  "Product": "Cooked Salmon Poke (RappelConso fiche 21954)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14237,7 +14237,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21954/Interne",
-  "Notes": "[fiche 21954 / 2026-04-07; LUNA FOOD Shakishaki cluster; replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21954 / 2026-04-07; LUNA FOOD Shakishaki cluster; replaces polluted Notes] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
@@ -14276,7 +14276,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21899)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14285,14 +14285,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21899/Interne",
-  "Notes": "[fiche 21899 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21899 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21898)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14301,14 +14301,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21898/Interne",
-  "Notes": "[fiche 21898 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21898 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21897)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14317,14 +14317,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21897/Interne",
-  "Notes": "[fiche 21897 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21897 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21901)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14333,14 +14333,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21901/Interne",
-  "Notes": "[fiche 21901 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21901 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21902)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14349,14 +14349,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21902/Interne",
-  "Notes": "[fiche 21902 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21902 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21903)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14365,14 +14365,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21903/Interne",
-  "Notes": "[fiche 21903 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21903 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21904)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14381,14 +14381,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21904/Interne",
-  "Notes": "[fiche 21904 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21904 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21905)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14397,14 +14397,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21905/Interne",
-  "Notes": "[fiche 21905 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21905 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21906)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14413,14 +14413,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21906/Interne",
-  "Notes": "[fiche 21906 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21906 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21907)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14429,14 +14429,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21907/Interne",
-  "Notes": "[fiche 21907 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21907 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21908)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14445,14 +14445,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21908/Interne",
-  "Notes": "[fiche 21908 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD from per-fiche fetch; REPAIRED from broken row, distributor leak removed] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21908 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD from per-fiche fetch; REPAIRED from broken row, distributor leak removed] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21909)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14461,14 +14461,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21909/Interne",
-  "Notes": "[fiche 21909 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21909 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21911)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14477,14 +14477,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21911/Interne",
-  "Notes": "[fiche 21911 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21911 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21910)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14493,14 +14493,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21910/Interne",
-  "Notes": "[fiche 21910 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21910 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21913)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14509,14 +14509,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21913/Interne",
-  "Notes": "[fiche 21913 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21913 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21912)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14525,14 +14525,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21912/Interne",
-  "Notes": "[fiche 21912 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21912 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21915)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14541,14 +14541,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21915/Interne",
-  "Notes": "[fiche 21915 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21915 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21914)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14557,7 +14557,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21914/Interne",
-  "Notes": "[fiche 21914 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21914 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
@@ -14580,7 +14580,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21916)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14589,14 +14589,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21916/Interne",
-  "Notes": "[fiche 21916 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21916 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21919)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14605,14 +14605,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21919/Interne",
-  "Notes": "[fiche 21919 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21919 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21918)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14621,14 +14621,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21918/Interne",
-  "Notes": "[fiche 21918 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21918 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21921)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14637,14 +14637,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21921/Interne",
-  "Notes": "[fiche 21921 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21921 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Unknown (LUNA FOOD multi-brand recall)",
-  "Product": "Ready meal / sandwich (SKU not extractable)",
+  "Product": "Ready meal / sandwich (RappelConso fiche 21920)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14653,14 +14653,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21920/Interne",
-  "Notes": "[fiche 21920 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD from per-fiche fetch; REPAIRED from broken row, distributor leak removed] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21920 / 2026-04-06; LUNA FOOD multi-brand cluster — brand TBD from per-fiche fetch; REPAIRED from broken row, distributor leak removed] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Bim bang",
-  "Product": "Bim bang Asian-style ready meal / kimbap",
+  "Product": "Bim bang Asian-style ready meal / kimbap (RappelConso fiche 21924)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14669,7 +14669,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21924/Interne",
-  "Notes": "[fiche 21924 / 2026-04-06; LUNA FOOD Bim bang cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21924 / 2026-04-06; LUNA FOOD Bim bang cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
@@ -14724,7 +14724,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Bim bang",
-  "Product": "Bim bang Asian-style ready meal / kimbap",
+  "Product": "Bim bang Asian-style ready meal / kimbap (RappelConso fiche 21926)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14733,14 +14733,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21926/Interne",
-  "Notes": "[fiche 21926 / 2026-04-06; LUNA FOOD Bim bang cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21926 / 2026-04-06; LUNA FOOD Bim bang cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Bim bang",
-  "Product": "Bim bang Asian-style ready meal / kimbap",
+  "Product": "Bim bang Asian-style ready meal / kimbap (RappelConso fiche 21925)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14749,14 +14749,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21925/Interne",
-  "Notes": "[fiche 21925 / 2026-04-06; LUNA FOOD Bim bang cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21925 / 2026-04-06; LUNA FOOD Bim bang cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Chinese Kitchen",
-  "Product": "Chinese Kitchen ready meal",
+  "Product": "Chinese Kitchen ready meal (RappelConso fiche 21930)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14765,14 +14765,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21930/Interne",
-  "Notes": "[fiche 21930 / 2026-04-06; LUNA FOOD Chinese Kitchen cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21930 / 2026-04-06; LUNA FOOD Chinese Kitchen cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Chinese Kitchen",
-  "Product": "Chinese Kitchen ready meal",
+  "Product": "Chinese Kitchen ready meal (RappelConso fiche 21929)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14781,14 +14781,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21929/Interne",
-  "Notes": "[fiche 21929 / 2026-04-06; LUNA FOOD Chinese Kitchen cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21929 / 2026-04-06; LUNA FOOD Chinese Kitchen cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Chinese Kitchen",
-  "Product": "Chinese Kitchen ready meal",
+  "Product": "Chinese Kitchen ready meal (RappelConso fiche 21928)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14797,7 +14797,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21928/Interne",
-  "Notes": "[fiche 21928 / 2026-04-06; LUNA FOOD Chinese Kitchen cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21928 / 2026-04-06; LUNA FOOD Chinese Kitchen cluster] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-06",
@@ -14852,7 +14852,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Luna Food",
   "Brand": "Luisa e basilio",
-  "Product": "Luisa e basilio ready meal",
+  "Product": "Luisa e basilio ready meal (RappelConso fiche 21935)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria detected in the manufacturing environment",
   "Class": "Mandatory",
@@ -14861,7 +14861,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21935/Interne",
-  "Notes": "[fiche 21935 / 2026-04-06; LUNA FOOD Luisa e basilio cluster — earliest Luisa fiche (predates 21942-21947 Apr 7 and 21974 Apr 8)] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food']"
+  "Notes": "[fiche 21935 / 2026-04-06; LUNA FOOD Luisa e basilio cluster — earliest Luisa fiche (predates 21942-21947 Apr 7 and 21974 Apr 8)] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-04",
@@ -14884,7 +14884,7 @@
   "Source": "RappelConso (FR)",
   "Company": "MONOPRIX HOLDING MONOPRIX",
   "Brand": "MONOPRIX",
-  "Product": "Monoprix-branded onigiri / ready meal (SKU not extractable)",
+  "Product": "Monoprix-branded onigiri / ready meal (RappelConso fiche 21883)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria contamination",
   "Class": "Mandatory",
@@ -14893,7 +14893,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21883/Interne",
-  "Notes": "[fiche 21883 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row]"
+  "Notes": "[fiche 21883 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-04",
@@ -14916,7 +14916,7 @@
   "Source": "RappelConso (FR)",
   "Company": "MONOPRIX HOLDING MONOPRIX",
   "Brand": "MONOPRIX",
-  "Product": "Monoprix-branded onigiri / ready meal (SKU not extractable)",
+  "Product": "Monoprix-branded onigiri / ready meal (RappelConso fiche 21889)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria contamination",
   "Class": "Mandatory",
@@ -14925,7 +14925,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21889/Interne",
-  "Notes": "[fiche 21889 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row]"
+  "Notes": "[fiche 21889 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-04",
@@ -14964,7 +14964,7 @@
   "Source": "RappelConso (FR)",
   "Company": "MONOPRIX HOLDING MONOPRIX",
   "Brand": "MONOPRIX",
-  "Product": "Monoprix-branded onigiri / ready meal (SKU not extractable)",
+  "Product": "Monoprix-branded onigiri / ready meal (RappelConso fiche 21887)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria contamination",
   "Class": "Mandatory",
@@ -14973,7 +14973,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21887/Interne",
-  "Notes": "[fiche 21887 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21887 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-03",
@@ -15076,7 +15076,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Carrefour France",
   "Brand": "CARREFOUR LE MARCHE",
-  "Product": "Carrefour Le Marché ready meal (SKU not extractable)",
+  "Product": "Carrefour Le Marché ready meal (RappelConso fiche 21877)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria contamination",
   "Class": "Mandatory",
@@ -15085,7 +15085,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21877/Interne",
-  "Notes": "[fiche 21877 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21877 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-03",
@@ -15140,7 +15140,7 @@
   "Source": "RappelConso (FR)",
   "Company": "WORLDMARECHAL",
   "Brand": "Unbranded",
-  "Product": "Onigiri / wrap / sandwich (SKU not extractable)",
+  "Product": "Onigiri / wrap / sandwich (RappelConso fiche 21873)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria contamination",
   "Class": "Mandatory",
@@ -15149,14 +15149,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21873/Interne",
-  "Notes": "[fiche 21873 / 2026-04-03; WORLDMARECHAL multi-fiche cluster — SKU TBD; Grand Frais distribution; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21873 / 2026-04-03; WORLDMARECHAL multi-fiche cluster — SKU TBD; Grand Frais distribution; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-03",
   "Source": "RappelConso (FR)",
   "Company": "Carrefour France",
   "Brand": "CARREFOUR LE MARCHE",
-  "Product": "Carrefour Le Marché ready meal (SKU not extractable)",
+  "Product": "Carrefour Le Marché ready meal (RappelConso fiche 21872)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria contamination",
   "Class": "Mandatory",
@@ -15165,7 +15165,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21872/Interne",
-  "Notes": "[fiche 21872 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21872 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-03",
@@ -15188,7 +15188,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Carrefour France",
   "Brand": "CARREFOUR LE MARCHE",
-  "Product": "Carrefour Le Marché ready meal (SKU not extractable)",
+  "Product": "Carrefour Le Marché ready meal (RappelConso fiche 21870)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria contamination",
   "Class": "Mandatory",
@@ -15197,7 +15197,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21870/Interne",
-  "Notes": "[fiche 21870 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD per blank-distributor pattern of 21878/21879; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21870 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD per blank-distributor pattern of 21878/21879; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-03",
@@ -15220,7 +15220,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Carrefour France",
   "Brand": "CARREFOUR LE MARCHE",
-  "Product": "Carrefour Le Marché ready meal (SKU not extractable)",
+  "Product": "Carrefour Le Marché ready meal (RappelConso fiche 21868)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria contamination",
   "Class": "Mandatory",
@@ -15229,14 +15229,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21868/Interne",
-  "Notes": "[fiche 21868 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21868 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-03",
   "Source": "RappelConso (FR)",
   "Company": "Carrefour France",
   "Brand": "CARREFOUR LE MARCHE",
-  "Product": "Carrefour Le Marché ready meal (SKU not extractable)",
+  "Product": "Carrefour Le Marché ready meal (RappelConso fiche 21867)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria contamination",
   "Class": "Mandatory",
@@ -15245,14 +15245,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21867/Interne",
-  "Notes": "[fiche 21867 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21867 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-03",
   "Source": "RappelConso (FR)",
   "Company": "WORLDMARECHAL",
   "Brand": "Unbranded",
-  "Product": "Onigiri / wrap / sandwich (SKU not extractable)",
+  "Product": "Onigiri / wrap / sandwich (RappelConso fiche 21866)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria contamination",
   "Class": "Mandatory",
@@ -15261,7 +15261,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21866/Interne",
-  "Notes": "[fiche 21866 / 2026-04-03; WORLDMARECHAL multi-fiche cluster — SKU TBD; Grand Frais distribution; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21866 / 2026-04-03; WORLDMARECHAL multi-fiche cluster — SKU TBD; Grand Frais distribution; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-04-03",
@@ -15972,7 +15972,7 @@
   "Source": "RappelConso (FR)",
   "Company": "STE LIONOR SA Lionor",
   "Brand": "FRANCE COQ",
-  "Product": "14 halal chicken sausages tray 140 g",
+  "Product": "14 halal chicken sausages tray 140 g (RappelConso fiche 21736)",
   "Pathogen": "Salmonella",
   "Reason": "Salmonella detected",
   "Class": "Voluntary",
@@ -15981,14 +15981,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21736/Interne",
-  "Notes": "[fiche 21736 / 2026-03-25; STE LIONOR mega-cluster] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21736 / 2026-03-25; STE LIONOR mega-cluster] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-03-25",
   "Source": "RappelConso (FR)",
   "Company": "STE LIONOR SA Lionor",
   "Brand": "Salma",
-  "Product": "14 halal chicken sausages tray 140 g",
+  "Product": "14 halal chicken sausages tray 140 g (RappelConso fiche 21735)",
   "Pathogen": "Salmonella",
   "Reason": "Salmonella detected",
   "Class": "Voluntary",
@@ -15997,14 +15997,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21735/Interne",
-  "Notes": "[fiche 21735 / 2026-03-25; STE LIONOR mega-cluster] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21735 / 2026-03-25; STE LIONOR mega-cluster] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-03-25",
   "Source": "RappelConso (FR)",
   "Company": "STE LIONOR SA Lionor",
   "Brand": "Séléction France Coq",
-  "Product": "14 chicken-emmental sausage tray 140 g HAL SFC (sous atmosphère)",
+  "Product": "14 chicken-emmental sausage tray 140 g HAL SFC (sous atmosphère) (RappelConso fiche 21734)",
   "Pathogen": "Salmonella",
   "Reason": "Salmonella detected",
   "Class": "Voluntary",
@@ -16013,7 +16013,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21734/Interne",
-  "Notes": "[fiche 21734 / ref. 2026-03-0283 / 2026-03-25; STE LIONOR mega-cluster — 13+ fiches over 5 weeks across SALMA/Lionor/SFC/FRANCE COQ/Neutre brands; recurring Salmonella in halal chicken sausage product line] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21734 / ref. 2026-03-0283 / 2026-03-25; STE LIONOR mega-cluster — 13+ fiches over 5 weeks across SALMA/Lionor/SFC/FRANCE COQ/Neutre brands; recurring Salmonella in halal chicken sausage product line] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-03-25",
@@ -16308,7 +16308,7 @@
   "Source": "RappelConso (FR)",
   "Company": "STE LIONOR SA Lionor",
   "Brand": "Séléction France Coq",
-  "Product": "14 chicken-emmental sausage tray 140 g HAL SFC (sous atmosphère)",
+  "Product": "14 chicken-emmental sausage tray 140 g HAL SFC (sous atmosphère) (RappelConso fiche 21639)",
   "Pathogen": "Salmonella",
   "Reason": "Salmonella detected",
   "Class": "Voluntary",
@@ -16317,14 +16317,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21639/Interne",
-  "Notes": "[fiche 21639 / 2026-03-17; STE LIONOR mega-cluster — same product+brand as 21734 Mar 25 = repeat production with recurring Salmonella] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21639 / 2026-03-17; STE LIONOR mega-cluster — same product+brand as 21734 Mar 25 = repeat production with recurring Salmonella] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-03-17",
   "Source": "RappelConso (FR)",
   "Company": "STE LIONOR SA Lionor",
   "Brand": "Lionor",
-  "Product": "6 chicken-emmental sausages tray 300 g",
+  "Product": "6 chicken-emmental sausages tray 300 g (RappelConso fiche 21635)",
   "Pathogen": "Salmonella",
   "Reason": "Salmonella detected",
   "Class": "Voluntary",
@@ -16333,14 +16333,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21635/Interne",
-  "Notes": "[fiche 21635 / 2026-03-17; STE LIONOR mega-cluster — earliest fiches in cluster (Mar 17 trio: 21632/21635/21639)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21635 / 2026-03-17; STE LIONOR mega-cluster — earliest fiches in cluster (Mar 17 trio: 21632/21635/21639)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-03-17",
   "Source": "RappelConso (FR)",
   "Company": "STE LIONOR SA Lionor",
   "Brand": "Lionor",
-  "Product": "6 chicken-emmental sausages tray 300 g",
+  "Product": "6 chicken-emmental sausages tray 300 g (RappelConso fiche 21632)",
   "Pathogen": "Salmonella",
   "Reason": "Salmonella detected",
   "Class": "Voluntary",
@@ -16349,7 +16349,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21632/Interne",
-  "Notes": "[fiche 21632 / 2026-03-17; STE LIONOR mega-cluster] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21632 / 2026-03-17; STE LIONOR mega-cluster] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-03-16",
@@ -16516,7 +16516,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Unbranded",
   "Brand": "Unbranded",
-  "Product": "TOMME",
+  "Product": "TOMME (RappelConso fiche 21578)",
   "Pathogen": "Salmonella spp.",
   "Reason": "Salmonella contamination (serotype identification in progress)",
   "Class": "Voluntary",
@@ -16525,7 +16525,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21578/Interne",
-  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule]"
+  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-03-11",
