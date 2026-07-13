@@ -1,13 +1,22 @@
 {
   "entries": [
     {
+      "date": "2026-07-12",
+      "url": "daily/2026-07-12.html",
+      "total": 0,
+      "tier1": 0,
+      "outbreak": 0,
+      "by_region": {},
+      "generated": "2026-07-13T07:10:23Z"
+    },
+    {
       "date": "2026-07-11",
       "url": "daily/2026-07-11.html",
       "total": 0,
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-07-12T07:10:18Z"
+      "generated": "2026-07-13T07:10:24Z"
     },
     {
       "date": "2026-07-10",
@@ -23,7 +32,7 @@
         "Asia": 1,
         "Latin America": 1
       },
-      "generated": "2026-07-12T07:10:18Z"
+      "generated": "2026-07-13T07:10:24Z"
     },
     {
       "date": "2026-07-09",
@@ -37,7 +46,7 @@
         "Not specified in the article": 1,
         "Oceania": 1
       },
-      "generated": "2026-07-12T07:10:18Z"
+      "generated": "2026-07-13T07:10:24Z"
     },
     {
       "date": "2026-07-08",
@@ -51,7 +60,7 @@
         "Africa": 2,
         "Athens": 1
       },
-      "generated": "2026-07-12T07:10:18Z"
+      "generated": "2026-07-13T07:10:25Z"
     },
     {
       "date": "2026-07-07",
@@ -63,7 +72,7 @@
         "Europe": 14,
         "North America": 1
       },
-      "generated": "2026-07-12T07:10:19Z"
+      "generated": "2026-07-13T07:10:25Z"
     },
     {
       "date": "2026-07-06",
@@ -77,34 +86,7 @@
         "North America": 2,
         "Africa": 1
       },
-      "generated": "2026-07-12T07:10:19Z"
-    },
-    {
-      "date": "2026-07-05",
-      "url": "daily/2026-07-05.html",
-      "total": 1,
-      "tier1": 1,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 1
-      },
-      "generated": "2026-07-12T07:10:19Z"
-    },
-    {
-      "date": "2026-06-30",
-      "url": "daily/2026-06-30.html",
-      "total": 15,
-      "tier1": 10,
-      "outbreak": 1,
-      "by_region": {
-        "Oceania": 1,
-        "Europe": 10,
-        "Latin America": 1,
-        "North America": 1,
-        "Asia": 1,
-        "Africa": 1
-      },
-      "generated": "2026-07-13T04:11:53Z"
+      "generated": "2026-07-13T07:10:25Z"
     }
   ]
 }
