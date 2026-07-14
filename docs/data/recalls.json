@@ -16401,6 +16401,22 @@
  },
  {
   "Date": "2026-03-16",
+  "Source": "CFS (HK) - aggregator (MPI NZ)",
+  "Company": "Emborg",
+  "Brand": "Emborg",
+  "Product": "Emmentaler cheese 200g",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Possible presence of Listeria",
+  "Class": "Recall",
+  "Country": "New Zealand",
+  "Region": "Oceania",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260316_3.pdf",
+  "Notes": "HK CFS FISS notification of MPI NZ recall [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+ },
+ {
+  "Date": "2026-03-16",
   "Source": "CFS (HK) - aggregator (RappelConso FR)",
   "Company": "AOSTE",
   "Brand": "AOSTE",
@@ -16512,6 +16528,22 @@
   "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
  },
  {
+  "Date": "2026-03-12",
+  "Source": "CFS (HK) - aggregator (FSANZ AU)",
+  "Company": "Datah International (Aust) Pty Ltd",
+  "Brand": "Vadilal",
+  "Product": "Grated Coconut 312g",
+  "Pathogen": "Hepatitis A",
+  "Reason": "Viral (Hepatitis A) contamination",
+  "Class": "Recall",
+  "Country": "Australia",
+  "Region": "Oceania",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260312_1.pdf",
+  "Notes": "FSANZ recall via HK CFS"
+ },
+ {
   "Date": "2026-03-11",
   "Source": "RappelConso (FR)",
   "Company": "Unbranded",
@@ -16574,6 +16606,38 @@
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260310_2.pdf",
   "Notes": "[restored 2026-06-30: distinct recall (BEBIKO 1 nutriFLOR, AFSCA Belgium origin via CFS HK) — wrongly deleted during a Nutricia-cereulide dedup that over-matched on company+pathogen. Different product and market from the SA Aptamil recall.]"
+ },
+ {
+  "Date": "2026-03-10",
+  "Source": "CFS (HK) - aggregator (FDA US)",
+  "Company": "Drayton Harbor Oyster Co.",
+  "Brand": "Drayton Harbor Oysters",
+  "Product": "Drayton Harbor oysters",
+  "Pathogen": "Norovirus",
+  "Reason": "FDA recall - norovirus contamination in raw oysters.",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260310_5.pdf",
+  "Notes": "FDA via HK CFS aggregator | shellfish norovirus [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+ },
+ {
+  "Date": "2026-03-10",
+  "Source": "CFS (HK) - aggregator (FDA US)",
+  "Company": "— (Drayton Harbor)",
+  "Brand": "—",
+  "Product": "Certain oysters and Manila clams from Drayton Harbor, Washington",
+  "Pathogen": "Norovirus",
+  "Reason": "Possible norovirus contamination",
+  "Class": "Public advisory",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260310_3.pdf",
+  "Notes": "FDA advisory via HK CFS [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
  },
  {
   "Date": "2026-03-10",
@@ -16750,6 +16814,22 @@
   "Outbreak": 1,
   "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-11-2026",
   "Notes": "[FSA-PRIN-11-2026; OUTBREAK: 84 cases (England 69 / Wales 10 / Scotland 5); HIGH SEVERITY Tier-1 Salmonella Typhimurium with confirmed outbreak; sister to row 4 (CFS HK aggregator same day)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+ },
+ {
+  "Date": "2026-03-03",
+  "Source": "CFS (HK) - aggregator (UK FSA)",
+  "Company": "Sacor",
+  "Brand": "Bastides",
+  "Product": "Saucisson Sec",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella contamination",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260303_1.pdf",
+  "Notes": "[HK CFS FISS aggregator notification of UK FSA Sacor/Bastides outbreak; sister to row 3] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
  },
  {
   "Date": "2026-03-02",
