@@ -1,5 +1,37 @@
 [
  {
+  "Date": "2026-07-13",
+  "Source": "RappelConso (FR)",
+  "Company": "AUCHAN RETAIL SERVICES AUCHAN",
+  "Brand": "Produit vendu en vente assistée du rayon traditionnel charcuterie stand",
+  "Product": "SALADE CHARCUTIERE",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes (agent responsable de la listeriose)",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22816/Interne",
+  "Notes": "auchan val d'europe serris [url-gate 2026-07-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-14: fix; corrections: Company→AUCHAN RETAIL SERVICES AUCHAN, Brand→Produit vendu en vente assistée du rayon, Product→SALADE CHARCUTIERE, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains brand/product descriptor instead of recalling firm (AUCHAN RETAIL SERVICE]"
+ },
+ {
+  "Date": "2026-07-13",
+  "Source": "RappelConso (FR)",
+  "Company": "Carrefour",
+  "Brand": "Unbranded",
+  "Product": "PILON DE POULET MARINE (TOUTE MARINADE) ET NON MARINE - CRU",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of listéria",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22805/Interne",
+  "Notes": "carrefour pontault combault uniquement [url-gate 2026-07-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-14: fix; corrections: Company→Carrefour, Brand→Unbranded, Product→PILON DE POULET MARINE (TOUTE MARINADE) , Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page identifies Carrefour as t]"
+ },
+ {
   "Date": "2026-07-10",
   "Source": "RASFF (EU)",
   "Company": "Origin: Madagascar | Notifying: France",
@@ -270,6 +302,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/858228",
   "Notes": "[RASFF #2026.6199; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=858228] [gemini-enrich 2026-07-13: Brand '—'→'POLAND'] [gemini-check 2026-07-13: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-07-10",
+  "Source": "CFIA",
+  "Company": "Boucherie Charcuterie Lyn Tremblay Inc.",
+  "Brand": "Charcuterie Charlevoisienne, Joe Smoked Meat",
+  "Product": "Produits de viande",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Contamination microbienne",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://recalls-rappels.canada.ca/fr/avis-rappel/rappel-produits-viande-marque-charlevoisienne-et-joe-smoked-meat-en-raison-bacterie",
+  "Notes": "Distribution online and in Quebec.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [claude-check 2026-07-14: fix; corrections: Company→Boucherie Charcuterie Lyn Tremblay Inc., Brand→Charcuterie Charlevoisienne, Joe Smoked , Product→Produits de viande, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains brand names instead of recalling firm (Boucherie Charcuterie Lyn Tremblay] [gap-gate 2026-07-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-07-09",
@@ -1854,6 +1902,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22683/Interne",
   "Notes": "Promoted 2026-06-30 from Pending. In scope: foreign material. [retailer: Paris Store]"
+ },
+ {
+  "Date": "2026-06-30",
+  "Source": "FSAI",
+  "Company": "Butchers Selection",
+  "Brand": "Butchers Selection",
+  "Product": "Butchers Selection Irish Turkey Burgers Mediterranean Style, 400g",
+  "Pathogen": "Salmonella",
+  "Reason": "Recall of a specific batch of Butchers Selection Irish Turkey Burgers Mediterranean Style Recall of a specific batch of Butchers Selection Irish Turkey Burgers Mediterranean Style due to the presence of Salmonella Tuesday, 30 June 2026 Alert Summary Category 1: For Action Alert Notification: 2026.39 Product Identification: Butchers Selection Irish Turkey Burgers Mediterranean Style; pack size: 400g Batch Code Use-by date: 05/07/2026 Country Of Origin: Ireland Message: The above batch of Butchers Selection Irish Turkey Burgers Mediterranean Style is being recalled due to the presence of Salmonella . Recall notices will be displayed at point-of-sale. Nature Of Danger: People infected with Salmonella typically develop symptoms between 12 and 36 hours after infection, but this can range betwee",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-specific-batch-of-butchers-selection-i",
+  "Notes": "source_id=FSAI-recall-of-a-specific-batch-of-butchers-selection-i [via official-feed collector] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [claude-check 2026-07-14: fix; corrections: Company→Butchers Selection, Brand→Butchers Selection, Product→Butchers Selection Irish Turkey Burgers , Pathogen→Salmonella; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page clearly identifies 'Butch] [gap-gate 2026-07-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-06-29",
@@ -17966,5 +18030,21 @@
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-branded-spinach-and-mixed-leaves",
   "Notes": "Food Alerts.Ireland. Message: The below branded Spinach and Mixed Leaves products are being recalled by McCormack Family Farms due to the detection of Listeria monocytogenes.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-04: pending_gap → pending_gap_v1] [gap-gate 2026-07-05: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-05: pass; pass | All fields verified: date 2025-07-27 matches page; McCormack Family Farms is the recalling firm; spinach/mixed le] [gap-gate 2026-07-05: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
+  "Date": "",
+  "Source": "BVL",
+  "Company": "lebensmittelwarnung.de",
+  "Brand": "lebensmittelwarnung.de",
+  "Product": "Homepage - Salatkäse Kräuter",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "E. coli STEC",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/07_Juli/260707_11_SH_Salatkaese/260707_11_SH_Salatkaese.html",
+  "Notes": "5 days ago · Mögliche Folgen: Eine EHEC - (Synonyme: STEC, VTEC) Erkrankung äußert sich meist innerhalb einer Woche nach Infektion mit Durchfall und Bauchkrämpfen. Insbesondere Säuglinge, Kleinkinder, Senioren und Menschen mit geschwächtem Abwehrsystem können schwerere Krankheitsverläufe mit blutige  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [claude-check 2026-07-14: pass; pass | All fields verified: date 2026-07-07 matches page; Company (Hof Dannwisch) and Product (Salatkäse Kräuter) confir] [gap-gate 2026-07-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  }
 ]
