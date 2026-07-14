@@ -662,15 +662,28 @@ def validate_pending_row(
             is_pet_food_product as _is_pet_food,
         )
         from pipeline._news_mirror_blocklist import is_news_mirror as _is_news_mirror
+        from pipeline._cfs_aggregator_guard import is_foreign_cfs_repost as _is_foreign_cfs
     except ImportError:
         is_year_mismatch = None
         _is_tier1_pathogen = None
         _is_empty_pathogen = None
         _is_news_mirror = None
         _is_pet_food = None
+        _is_foreign_cfs = None
 
     if _is_news_mirror is not None and _is_news_mirror(url):
         return False, "news_mirror_domain (locked 2026-04-30)"
+
+    # ── CFS aggregator guard (added 2026-07-14) ─────────────────────────
+    # cfs.gov.hk "Food Incident Post" PDFs re-post other jurisdictions'
+    # recalls. When the origin Country is NOT Hong Kong, the row is a
+    # cross-source duplicate of the upstream regulator (RappelConso/FDA/
+    # FSA/MPI/FSANZ/...) that FSIS already ingests directly. Reject it.
+    # HK-origin CFS rows (CFS is the primary/sole source) are kept.
+    if _is_foreign_cfs is not None and _is_foreign_cfs(url, row.get("Country", "")):
+        return False, ("cfs_foreign_repost: cfs.gov.hk aggregator of a "
+                       f"non-HK recall (Country={row.get('Country', '')!r}) "
+                       "— upstream regulator row is the primary source")
 
     # ── Gap-finder-only guards (audit 2026-06-25) ───────────────────────
     # Recency (reject months-old / mis-dated rows), authority-allowlist
