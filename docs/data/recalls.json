@@ -33,6 +33,38 @@
  },
  {
   "Date": "2026-07-10",
+  "Source": "CFIA",
+  "Company": "Boucherie Charcuterie Lyn Tremblay Inc.",
+  "Brand": "Charcuterie Charlevoisienne, Joe Smoked Meat",
+  "Product": "Produits de viande",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Contamination microbienne",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://recalls-rappels.canada.ca/fr/avis-rappel/rappel-produits-viande-marque-charlevoisienne-et-joe-smoked-meat-en-raison-bacterie",
+  "Notes": "Distribution online and in Quebec.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [claude-check 2026-07-14: fix; corrections: Company→Boucherie Charcuterie Lyn Tremblay Inc., Brand→Charcuterie Charlevoisienne, Joe Smoked , Product→Produits de viande, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains brand names instead of recalling firm (Boucherie Charcuterie Lyn Tremblay] [gap-gate 2026-07-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
+  "Date": "2026-07-10",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Poland | Notifying: Poland",
+  "Brand": "POLAND",
+  "Product": "Salmonella spp. w 5 z 5 próbek skórek z szyi brojlerów",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella spp. w 5 z 5 próbek skórek z szyi brojlerów; risk: not serious; category: poultry meat and poultry meat products",
+  "Class": "Information",
+  "Country": "Poland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/858228",
+  "Notes": "[RASFF #2026.6199; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=858228] [gemini-enrich 2026-07-13: Brand '—'→'POLAND'] [gemini-check 2026-07-13: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-07-10",
   "Source": "RASFF (EU)",
   "Company": "Origin: Madagascar | Notifying: France",
   "Brand": "FRA",
@@ -74,10 +106,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22794/Interne",
-  "Notes": "poissonneries, commerces de détails, mccf ets annecy ( metro annecy ), mccf ets la rochelle ( metro la rochelle ), metro [url-gate 2026-07-10: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-10: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-11: pending_enrichment → pending (Claude verified)]"
+  "Notes": "poissonneries, commerces de détails, mccf ets annecy ( metro annecy ), mccf ets la rochelle ( metro la rochelle ), metro [url-gate 2026-07-10: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-10: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-11: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-07-10",
@@ -106,10 +138,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22807/Interne",
-  "Notes": "grand frais sud et est [url-gate 2026-07-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-11: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-11: pending_enrichment → pending (Claude verified)]"
+  "Notes": "grand frais sud et est [url-gate 2026-07-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-11: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-11: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-07-10",
@@ -288,38 +320,6 @@
   "Notes": "centre commercial e.leclerc outreau, poissonneries, commerces de détails [url-gate 2026-07-10: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-10: pass; pass]"
  },
  {
-  "Date": "2026-07-10",
-  "Source": "RASFF (EU)",
-  "Company": "Origin: Poland | Notifying: Poland",
-  "Brand": "POLAND",
-  "Product": "Salmonella spp. w 5 z 5 próbek skórek z szyi brojlerów",
-  "Pathogen": "Salmonella",
-  "Reason": "Salmonella spp. w 5 z 5 próbek skórek z szyi brojlerów; risk: not serious; category: poultry meat and poultry meat products",
-  "Class": "Information",
-  "Country": "Poland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/858228",
-  "Notes": "[RASFF #2026.6199; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=858228] [gemini-enrich 2026-07-13: Brand '—'→'POLAND'] [gemini-check 2026-07-13: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
- },
- {
-  "Date": "2026-07-10",
-  "Source": "CFIA",
-  "Company": "Boucherie Charcuterie Lyn Tremblay Inc.",
-  "Brand": "Charcuterie Charlevoisienne, Joe Smoked Meat",
-  "Product": "Produits de viande",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Contamination microbienne",
-  "Class": "Recall",
-  "Country": "Canada",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://recalls-rappels.canada.ca/fr/avis-rappel/rappel-produits-viande-marque-charlevoisienne-et-joe-smoked-meat-en-raison-bacterie",
-  "Notes": "Distribution online and in Quebec.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [claude-check 2026-07-14: fix; corrections: Company→Boucherie Charcuterie Lyn Tremblay Inc., Brand→Charcuterie Charlevoisienne, Joe Smoked , Product→Produits de viande, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains brand names instead of recalling firm (Boucherie Charcuterie Lyn Tremblay] [gap-gate 2026-07-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
- },
- {
   "Date": "2026-07-09",
   "Source": "RASFF (EU)",
   "Company": "Origin: Poland | Notifying: Belgium",
@@ -442,10 +442,10 @@
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/la-vera-group-pty-ltd-la-vera-cheddar-pepper-rw-approx-300g",
-  "Notes": "[gemini-enrich 2026-07-09: Brand '—'→'La Vera'] [gemini-check 2026-07-09: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[gemini-enrich 2026-07-09: Brand '—'→'La Vera'] [gemini-check 2026-07-09: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-07-08",
@@ -634,10 +634,10 @@
   "Class": "Alert",
   "Country": "Spain",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/857201",
-  "Notes": "[RASFF #2026.6034; classification: alert notification; category: fruits and vegetables; notifId=857201] [gemini-enrich 2026-07-09: Brand '—'→'DEU, FRA, ITA'] [claude-check 2026-07-09: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.6034; classification: alert notification; category: fruits and vegetables; notifId=857201] [gemini-enrich 2026-07-09: Brand '—'→'DEU, FRA, ITA'] [claude-check 2026-07-09: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Hepatitis A virus is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-07-07",
@@ -762,10 +762,10 @@
   "Class": "Recall",
   "Country": "Canada",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 1,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/certain-pillsbury-brand-pizza-pops-pepperoni-bacon-recalled-due-e-coli-o26",
-  "Notes": "source_id=DS-be7d8ea5d6 [via official-feed collector] [gemini-enrich 2026-07-07: Company ''→'General Mills Canada'] [gemini-enrich 2026-07-07: Brand ''→'Pillsbury'] [outbreak 2026-07-07: 0→1 — The Canadian Food Inspection Agency says 20 people have been made sick and four hospitalized after an outbreak of E. col] [gap-gate 2026-07-07: pending_gap → pending_gap_v1] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-07: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "source_id=DS-be7d8ea5d6 [via official-feed collector] [gemini-enrich 2026-07-07: Company ''→'General Mills Canada'] [gemini-enrich 2026-07-07: Brand ''→'Pillsbury'] [outbreak 2026-07-07: 0→1 — The Canadian Food Inspection Agency says 20 people have been made sick and four hospitalized after an outbreak of E. col] [gap-gate 2026-07-07: pending_gap → pending_gap_v1] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-07: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [tier-guard 2026-07-14: E. coli is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-07-07",
@@ -922,10 +922,10 @@
   "Class": "Recall",
   "Country": "USA",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due",
-  "Notes": "FDA listing HTML (Layer 1) [claude-check 2026-07-07: fix; corrections: Pathogen→Escherichia coli O145; fix; pathogen mismatch | Pathogen should be 'Escherichia coli O145' not generic 'Escherichia coli'; Tier should be 1 (ST]"
+  "Notes": "FDA listing HTML (Layer 1) [claude-check 2026-07-07: fix; corrections: Pathogen→Escherichia coli O145; fix; pathogen mismatch | Pathogen should be 'Escherichia coli O145' not generic 'Escherichia coli'; Tier should be 1 (ST] [tier-guard 2026-07-14: Escherichia coli O145 is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-07-06",
@@ -1290,10 +1290,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22692/Interne",
-  "Notes": "intermarché plaisance du touch [url-gate 2026-07-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-03: Company ''→'SAS LES POISSONNERIES DE LA COTE'] [gemini-enrich 2026-07-03: Pathogen ''→'Listeria monocytogenes'] [gemini-check 2026-07-03: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-03: pending_enrichment → pending (Claude verified)]"
+  "Notes": "intermarché plaisance du touch [url-gate 2026-07-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-03: Company ''→'SAS LES POISSONNERIES DE LA COTE'] [gemini-enrich 2026-07-03: Pathogen ''→'Listeria monocytogenes'] [gemini-check 2026-07-03: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-03: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-07-02",
@@ -1354,10 +1354,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22715/Interne",
-  "Notes": "biocoop les oyats, ginguette de piquet, séchoir de fab, la ferme de camille. [url-gate 2026-07-02: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-02: Pathogen ''→'Listeria monocytogenes'] [gemini-check 2026-07-02: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-02: pending_enrichment → pending (Claude verified)]"
+  "Notes": "biocoop les oyats, ginguette de piquet, séchoir de fab, la ferme de camille. [url-gate 2026-07-02: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-02: Pathogen ''→'Listeria monocytogenes'] [gemini-check 2026-07-02: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-02: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-07-02",
@@ -1904,22 +1904,6 @@
   "Notes": "Promoted 2026-06-30 from Pending. In scope: foreign material. [retailer: Paris Store]"
  },
  {
-  "Date": "2026-06-30",
-  "Source": "FSAI",
-  "Company": "Butchers Selection",
-  "Brand": "Butchers Selection",
-  "Product": "Butchers Selection Irish Turkey Burgers Mediterranean Style, 400g",
-  "Pathogen": "Salmonella",
-  "Reason": "Recall of a specific batch of Butchers Selection Irish Turkey Burgers Mediterranean Style Recall of a specific batch of Butchers Selection Irish Turkey Burgers Mediterranean Style due to the presence of Salmonella Tuesday, 30 June 2026 Alert Summary Category 1: For Action Alert Notification: 2026.39 Product Identification: Butchers Selection Irish Turkey Burgers Mediterranean Style; pack size: 400g Batch Code Use-by date: 05/07/2026 Country Of Origin: Ireland Message: The above batch of Butchers Selection Irish Turkey Burgers Mediterranean Style is being recalled due to the presence of Salmonella . Recall notices will be displayed at point-of-sale. Nature Of Danger: People infected with Salmonella typically develop symptoms between 12 and 36 hours after infection, but this can range betwee",
-  "Class": "Recall",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-specific-batch-of-butchers-selection-i",
-  "Notes": "source_id=FSAI-recall-of-a-specific-batch-of-butchers-selection-i [via official-feed collector] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [claude-check 2026-07-14: fix; corrections: Company→Butchers Selection, Brand→Butchers Selection, Product→Butchers Selection Irish Turkey Burgers , Pathogen→Salmonella; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page clearly identifies 'Butch] [gap-gate 2026-07-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
- },
- {
   "Date": "2026-06-29",
   "Source": "RASFF (EU)",
   "Company": "Origin: India | Notifying: Netherlands",
@@ -2026,10 +2010,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22664/Interne",
-  "Notes": "Manual fix 2026-06-29: Product field had lot-string garbage (\"n° lot ab94859; fr24551002ce\" with ;  artifact); Company was \"Sans Marques\" (=unbranded, not a firm). Official RappelConso URL retained; product name needs confirmation from the official fiche."
+  "Notes": "Manual fix 2026-06-29: Product field had lot-string garbage (\"n° lot ab94859; fr24551002ce\" with ;  artifact); Company was \"Sans Marques\" (=unbranded, not a firm). Official RappelConso URL retained; product name needs confirmation from the official fiche. [tier-guard 2026-07-14: Escherichia coli STEC is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-06-27",
@@ -2138,10 +2122,10 @@
   "Class": "Information",
   "Country": "Italy",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853976",
-  "Notes": "[RASFF #2026.5673; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=853976] [gemini-enrich 2026-06-29: Brand '—'→'ESP'] [claude-check 2026-06-29: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.5673; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=853976] [gemini-enrich 2026-06-29: Brand '—'→'ESP'] [claude-check 2026-06-29: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-06-26",
@@ -2746,10 +2730,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22618/Interne",
-  "Notes": "leclerc la chapelle en serval [url-gate 2026-06-22: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-22: Pathogen ''→'Listeria monocytogenes'] [gemini-check 2026-06-22: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-22: pending_enrichment → pending (Claude verified)]"
+  "Notes": "leclerc la chapelle en serval [url-gate 2026-06-22: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-22: Pathogen ''→'Listeria monocytogenes'] [gemini-check 2026-06-22: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-22: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-06-19",
@@ -2938,10 +2922,10 @@
   "Class": "Alert",
   "Country": "Ireland",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-jarred-leis-sorrel",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Leis'] [gemini-enrich 2026-06-19: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Leis'] [gemini-enrich 2026-06-19: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-06-19",
@@ -2954,10 +2938,10 @@
   "Class": "Alert",
   "Country": "Ireland",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-various-flavours-of-glenisk-o",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Glenisk'] [gemini-enrich 2026-06-19: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Glenisk'] [gemini-enrich 2026-06-19: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-06-19",
@@ -3722,10 +3706,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22573/Interne",
-  "Notes": "leclerc ruffec, leclerc poitiers, hyper u la rochelle beaulieu, inter melle, inter savigne, inter chef boutonne , inter [url-gate 2026-06-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-16: Pathogen ''→'Listeria monocytogenes'] [gemini-check 2026-06-16: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-16: pending_enrichment → pending (Claude verified)]"
+  "Notes": "leclerc ruffec, leclerc poitiers, hyper u la rochelle beaulieu, inter melle, inter savigne, inter chef boutonne , inter [url-gate 2026-06-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-16: Pathogen ''→'Listeria monocytogenes'] [gemini-check 2026-06-16: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-16: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-06-15",
@@ -4026,10 +4010,10 @@
   "Class": "Alert",
   "Country": "Germany",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851286",
-  "Notes": "[RASFF #2026.5247; classification: alert notification; category: meat and meat products (other than poultry); notifId=851286] [gemini-enrich 2026-06-13: Brand '—'→'DEU'] [gemini-check 2026-06-13: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.5247; classification: alert notification; category: meat and meat products (other than poultry); notifId=851286] [gemini-enrich 2026-06-13: Brand '—'→'DEU'] [gemini-check 2026-06-13: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-06-12",
@@ -6010,10 +5994,10 @@
   "Class": "Information",
   "Country": "Romania",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847272",
-  "Notes": "[RASFF #2026.4669; classification: information notification for attention; category: meat and meat products (other than poultry); notifId=847272] [gemini-enrich 2026-05-30: Brand '—'→'NLD'] [claude-check 2026-05-30: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.4669; classification: information notification for attention; category: meat and meat products (other than poultry); notifId=847272] [gemini-enrich 2026-05-30: Brand '—'→'NLD'] [claude-check 2026-05-30: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-05-28",
@@ -6058,10 +6042,10 @@
   "Class": "Alert",
   "Country": "Ireland",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-the-bare-pantry-shelled-pista",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-05-28: Brand '—'→'The Bare Pantry'] [gemini-check 2026-05-28: pass; corrections: Pathogen→Salmonella; pass | All core fields match; tier mismatch noted.] [enrich-gate 2026-05-28: pending_enrichment → pending (Claude verified)]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-05-28: Brand '—'→'The Bare Pantry'] [gemini-check 2026-05-28: pass; corrections: Pathogen→Salmonella; pass | All core fields match; tier mismatch noted.] [enrich-gate 2026-05-28: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-05-28",
@@ -6090,10 +6074,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22397/Interne",
-  "Notes": "la fromagee jy bordier; team ouest distralis; ugalait paris; la degusterie sas; bacbam; desailly; maitres laitiers distributio [url-gate 2026-05-28: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-28: Pathogen ''→'Listeria monocytogenes'] [gemini-check 2026-05-28: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-05-28: pending_enrichment → pending (Claude verified)]"
+  "Notes": "la fromagee jy bordier; team ouest distralis; ugalait paris; la degusterie sas; bacbam; desailly; maitres laitiers distributio [url-gate 2026-05-28: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-28: Pathogen ''→'Listeria monocytogenes'] [gemini-check 2026-05-28: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-05-28: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-05-28",
@@ -6330,10 +6314,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22381/Interne",
-  "Notes": "distributeurs gms et collectivite [url-gate 2026-05-28: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-28: Pathogen ''→'Salmonella'] [gemini-check 2026-05-28: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-05-28: pending_enrichment → pending (Claude verified)]"
+  "Notes": "distributeurs gms et collectivite [url-gate 2026-05-28: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-28: Pathogen ''→'Salmonella'] [gemini-check 2026-05-28: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-05-28: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-05-27",
@@ -6426,10 +6410,10 @@
   "Class": "Recall",
   "Country": "Canada",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.hortidaily.com/article/9841186/canada-recalls-broccoli-microgreens-over-possible-e-coli-contamination/",
-  "Notes": "source_id=GN-DS-fa4ae3764b [via official-feed collector] [gemini-check 2026-07-01: fix; corrections: Date→2026-05-26, Company→Les Fermes Lufa, Brand→Les Fermes Lufa, Product→broccoli microgreens, Pathogen→Escherichia coli; placeholder_company_filled_from_page | fail; company mismatch; date on page=2026-05-26 | URL is on a news-mirror or aggr]"
+  "Notes": "source_id=GN-DS-fa4ae3764b [via official-feed collector] [gemini-check 2026-07-01: fix; corrections: Date→2026-05-26, Company→Les Fermes Lufa, Brand→Les Fermes Lufa, Product→broccoli microgreens, Pathogen→Escherichia coli; placeholder_company_filled_from_page | fail; company mismatch; date on page=2026-05-26 | URL is on a news-mirror or aggr] [tier-guard 2026-07-14: Escherichia coli is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-05-26",
@@ -6954,10 +6938,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22333/Interne",
-  "Notes": "voir pièce jointe [url-gate 2026-05-22: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-22: Pathogen ''→'Salmonella'] [gemini-check 2026-05-22: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-05-22: pending_enrichment → pending (Claude verified)]"
+  "Notes": "voir pièce jointe [url-gate 2026-05-22: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-22: Pathogen ''→'Salmonella'] [gemini-check 2026-05-22: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-05-22: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-05-22",
@@ -7322,10 +7306,10 @@
   "Class": "volontaire (sans arrêté préfectoral)",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22315/Interne",
-  "Notes": "intermarche ambert [url-gate 2026-05-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-20: Company ''→'SAS BOURGOIN'] [gemini-enrich 2026-05-20: Brand 'Unbranded'→'SAS BOURGOIN'] [gemini-enrich 2026-05-20: Pathogen ''→'Salmonella'] [claude-check 2026-05-20 17:12: PASS]"
+  "Notes": "intermarche ambert [url-gate 2026-05-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-20: Company ''→'SAS BOURGOIN'] [gemini-enrich 2026-05-20: Brand 'Unbranded'→'SAS BOURGOIN'] [gemini-enrich 2026-05-20: Pathogen ''→'Salmonella'] [claude-check 2026-05-20 17:12: PASS] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-05-20",
@@ -7850,10 +7834,10 @@
   "Class": "Voluntary recall",
   "Country": "United States",
   "Region": "North America",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/straus-family-creamery-voluntarily-recalls-select-flavors-organic-ice-cream-due-potential-presence",
-  "Notes": "Company announcement date 2026-05-14 (Petaluma CA); FDA Publish Date 2026-05-16 (authoritative per AFTS date rule). Distribution: 17 states (AZ, CA, CO, CT, FL, GA, IA, IL, IN, MD, NJ, OR, PA, SC, TX, WA, WI). On shelves from May 4, 2026. No injuries reported. Foreign material → Tier 3 per AFTS scope (in-scope). Vouchers available via strausfamilycreamery.com/recall. [manual-promote 2026-05-21: URL-guardian had blanked URL on http_error]"
+  "Notes": "Company announcement date 2026-05-14 (Petaluma CA); FDA Publish Date 2026-05-16 (authoritative per AFTS date rule). Distribution: 17 states (AZ, CA, CO, CT, FL, GA, IA, IL, IN, MD, NJ, OR, PA, SC, TX, WA, WI). On shelves from May 4, 2026. No injuries reported. Foreign material → Tier 3 per AFTS scope (in-scope). Vouchers available via strausfamilycreamery.com/recall. [manual-promote 2026-05-21: URL-guardian had blanked URL on http_error] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-05-16",
@@ -8394,10 +8378,10 @@
   "Class": "Alert",
   "Country": "Serbia",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843220",
-  "Notes": "[RASFF #2026.4148; classification: alert notification; category: fruits and vegetables; notifId=843220] [gemini-enrich 2026-05-13: Brand '—'→'DEU'] [claude-check 2026-05-14: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.4148; classification: alert notification; category: fruits and vegetables; notifId=843220] [gemini-enrich 2026-05-13: Brand '—'→'DEU'] [claude-check 2026-05-14: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Hepatitis A virus is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-05-12",
@@ -9050,10 +9034,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22220/Interne",
-  "Notes": "cooperative u [url-gate 2026-05-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-09: Company ''→'COOPERATIVE U ENSEIGNE COOPERATIVE U'] [gemini-enrich 2026-05-09: Pathogen ''→'Escherichia coli'] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "cooperative u [url-gate 2026-05-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-05-09: Company ''→'COOPERATIVE U ENSEIGNE COOPERATIVE U'] [gemini-enrich 2026-05-09: Pathogen ''→'Escherichia coli'] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-05-07",
@@ -9146,10 +9130,10 @@
   "Class": "Class 1",
   "Country": "Canada",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/germina-brand-brocoli-calabrese-seeds-recalled-due-possible-contamination-pathogenic-e",
-  "Notes": "CFIA open-data NID=82039 [gemini-enrich 2026-05-12: Company ''→'Germina'] [gemini-check 2026-05-12: fix; corrections: Company→Germina; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty and corrected from page; Tier mis]"
+  "Notes": "CFIA open-data NID=82039 [gemini-enrich 2026-05-12: Company ''→'Germina'] [gemini-check 2026-05-12: fix; corrections: Company→Germina; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty and corrected from page; Tier mis] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-05-06",
@@ -9162,10 +9146,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22184/Interne",
-  "Notes": "smch [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...]"
+  "Notes": "smch [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-05-06",
@@ -9258,10 +9242,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22208/Interne",
-  "Notes": "carrefour, provera, auchan, intermarché, leclerc, casino, monoprix [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...]"
+  "Notes": "carrefour, provera, auchan, intermarché, leclerc, casino, monoprix [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-05-06",
@@ -9434,10 +9418,10 @@
   "Class": "Information",
   "Country": "Germany",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841837",
-  "Notes": "[RASFF #2026.3923; classification: information notification for follow-up; category: meat and meat products (other than poultry); notifId=841837] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3923; classification: information notification for follow-up; category: meat and meat products (other than poultry); notifId=841837] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-05-05",
@@ -9482,10 +9466,10 @@
   "Class": "Information",
   "Country": "Spain",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/840819",
-  "Notes": "[RASFF #2026.3944; classification: information notification for attention; category: nuts, nut products and seeds; notifId=840819] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3944; classification: information notification for attention; category: nuts, nut products and seeds; notifId=840819] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-05-05",
@@ -9546,10 +9530,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22188/Interne",
-  "Notes": "magasins spécialisés bio [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "magasins spécialisés bio [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-05-05",
@@ -9594,10 +9578,10 @@
   "Class": "Information",
   "Country": "Germany",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841489",
-  "Notes": "[RASFF #2026.3906; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=841489] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3906; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=841489] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-05-04",
@@ -9610,10 +9594,10 @@
   "Class": "Information",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839461",
-  "Notes": "[RASFF #2026.3902; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=839461] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3902; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=839461] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-05-04",
@@ -9802,10 +9786,10 @@
   "Class": "Information",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838827",
-  "Notes": "[RASFF #2026.3853; Salmonella Enteritidis in raw poultry from Poland — Tier 2 per FDA framework (cooking-required product, no PHA, classification = information notification for attention). manual-add 2026-05-04; notifId=838827] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3853; Salmonella Enteritidis in raw poultry from Poland — Tier 2 per FDA framework (cooking-required product, no PHA, classification = information notification for attention). manual-add 2026-05-04; notifId=838827] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-05-01",
@@ -9834,10 +9818,10 @@
   "Class": "Public Health Alert",
   "Country": "United States",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-various-meat-and-poultry-products-containing-fda",
-  "Notes": "FSIS PHA covering many establishments downstream of California Dairies Inc. milk-powder recall. [tier-fix 2026-05-04: PHA → Tier 1 per H15 (regulator class trumps pathogen-only lookup)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "FSIS PHA covering many establishments downstream of California Dairies Inc. milk-powder recall. [tier-fix 2026-05-04: PHA → Tier 1 per H15 (regulator class trumps pathogen-only lookup)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-30",
@@ -9898,10 +9882,10 @@
   "Class": "Alert",
   "Country": "Vietnam",
   "Region": "Asia",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841421",
-  "Notes": "[RASFF #2026.3846; classification: alert notification; category: nuts, nut products and seeds; notifId=841421] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3846; classification: alert notification; category: nuts, nut products and seeds; notifId=841421] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-30",
@@ -9914,10 +9898,10 @@
   "Class": "Alert",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841365",
-  "Notes": "[RASFF #2026.3828; classification: alert notification; category: meat and meat products (other than poultry); notifId=841365] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3828; classification: alert notification; category: meat and meat products (other than poultry); notifId=841365] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-30",
@@ -9946,10 +9930,10 @@
   "Class": "Border Rejection",
   "Country": "India",
   "Region": "Asia",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841216",
-  "Notes": "[RASFF #2026.3809; classification: border rejection notification; category: fruits and vegetables; notifId=841216] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3809; classification: border rejection notification; category: fruits and vegetables; notifId=841216] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-30",
@@ -9978,10 +9962,10 @@
   "Class": "Information",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841078",
-  "Notes": "[RASFF #2026.3792; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=841078] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3792; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=841078] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-30",
@@ -10090,10 +10074,10 @@
   "Class": "Alert",
   "Country": "Belgium",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/840997",
-  "Notes": "[RASFF #2026.3780; classification: alert notification; category: herbs and spices; notifId=840997] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3780; classification: alert notification; category: herbs and spices; notifId=840997] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-29",
@@ -10170,10 +10154,10 @@
   "Class": "Information",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/840604",
-  "Notes": "[RASFF #2026.3754; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=840604] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3754; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=840604] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-29",
@@ -10186,10 +10170,10 @@
   "Class": "Information",
   "Country": "Lithuania",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/840599",
-  "Notes": "[RASFF #2026.3776; classification: information notification for attention; category: meat and meat products (other than poultry); notifId=840599] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3776; classification: information notification for attention; category: meat and meat products (other than poultry); notifId=840599] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-29",
@@ -10202,10 +10186,10 @@
   "Class": "Information",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/840551",
-  "Notes": "[RASFF #2026.3786; classification: information notification for follow-up; category: other food product / mixed; notifId=840551] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3786; classification: information notification for follow-up; category: other food product / mixed; notifId=840551] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-29",
@@ -10282,10 +10266,10 @@
   "Class": "Alert",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/840708",
-  "Notes": "[RASFF #2026.3721; classification: alert notification; category: poultry meat and poultry meat products; notifId=840708] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3721; classification: alert notification; category: poultry meat and poultry meat products; notifId=840708] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-28",
@@ -10298,10 +10282,10 @@
   "Class": "Alert",
   "Country": "Slovakia",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/840191",
-  "Notes": "[RASFF #2026.3679; classification: alert notification; category: poultry meat and poultry meat products; notifId=840191] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3679; classification: alert notification; category: poultry meat and poultry meat products; notifId=840191] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-28",
@@ -10426,10 +10410,10 @@
   "Class": "Information",
   "Country": "Ukraine",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/840389",
-  "Notes": "[RASFF #2026.3670; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=840389] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3670; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=840389] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-27",
@@ -10442,10 +10426,10 @@
   "Class": "Information",
   "Country": "Ukraine",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/840339",
-  "Notes": "[RASFF #2026.3671; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=840339] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3671; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=840339] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-27",
@@ -10506,10 +10490,10 @@
   "Class": "Information",
   "Country": "Italy",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839878",
-  "Notes": "[RASFF #2026.3660; classification: information notification for follow-up; category: meat and meat products (other than poultry); notifId=839878] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3660; classification: information notification for follow-up; category: meat and meat products (other than poultry); notifId=839878] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-27",
@@ -10634,10 +10618,10 @@
   "Class": "Border Rejection",
   "Country": "Nigeria",
   "Region": "Africa",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839403",
-  "Notes": "[RASFF #2026.3563; classification: border rejection notification; category: nuts, nut products and seeds; notifId=839403]"
+  "Notes": "[RASFF #2026.3563; classification: border rejection notification; category: nuts, nut products and seeds; notifId=839403] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-24",
@@ -11082,10 +11066,10 @@
   "Class": "Information",
   "Country": "Brazil",
   "Region": "Latin America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839649",
-  "Notes": "[RASFF #2026.3537; classification: information notification for follow-up; category: poultry meat and poultry meat products; notifId=839649] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3537; classification: information notification for follow-up; category: poultry meat and poultry meat products; notifId=839649] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-22",
@@ -11130,10 +11114,10 @@
   "Class": "Alert",
   "Country": "Turkey",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839093",
-  "Notes": "[RASFF #2026.3442; classification: alert notification; category: nuts, nut products and seeds; notifId=839093]"
+  "Notes": "[RASFF #2026.3442; classification: alert notification; category: nuts, nut products and seeds; notifId=839093] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-22",
@@ -11146,10 +11130,10 @@
   "Class": "Information",
   "Country": "Slovakia",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838815",
-  "Notes": "[RASFF #2026.3450; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=838815] [fix 2026-06-29: replaced ;  multi-SKU separator artifact with \"; \"]"
+  "Notes": "[RASFF #2026.3450; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=838815] [fix 2026-06-29: replaced ;  multi-SKU separator artifact with \"; \"] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-22",
@@ -11162,10 +11146,10 @@
   "Class": "Information",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838762",
-  "Notes": "[RASFF #2026.3457; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=838762]"
+  "Notes": "[RASFF #2026.3457; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=838762] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-22",
@@ -11226,10 +11210,10 @@
   "Class": "Border Rejection",
   "Country": "India",
   "Region": "Asia",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839308",
-  "Notes": "[RASFF #2026.3466; classification: border rejection notification; category: nuts, nut products and seeds; notifId=839308]"
+  "Notes": "[RASFF #2026.3466; classification: border rejection notification; category: nuts, nut products and seeds; notifId=839308] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-22",
@@ -11306,10 +11290,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22055/Interne",
-  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by test results.\n\nThere have been reported illnesses that may be associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a food safety investigation, which may   [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-18: pending_gap → pending_gap_v1] [claude-check 2026-05-19: fix; corrections: Date→2026-04-21; fix; date on page=2026-04-21 | Row Date field is empty but page shows 2026-04-21 (meta-dcterms.issued and Last updated);] [gap-gate 2026-05-19: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by test results.\n\nThere have been reported illnesses that may be associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a food safety investigation, which may   [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-18: pending_gap → pending_gap_v1] [claude-check 2026-05-19: fix; corrections: Date→2026-04-21; fix; date on page=2026-04-21 | Row Date field is empty but page shows 2026-04-21 (meta-dcterms.issued and Last updated);] [gap-gate 2026-05-19: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-04-21",
@@ -11690,10 +11674,10 @@
   "Class": "Alert",
   "Country": "India",
   "Region": "Asia",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838795",
-  "Notes": "[RASFF #2026.3378; classification: alert notification; category: nuts, nut products and seeds; notifId=838795] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3378; classification: alert notification; category: nuts, nut products and seeds; notifId=838795] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-20",
@@ -11754,10 +11738,10 @@
   "Class": "Information",
   "Country": "Belgium",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838441",
-  "Notes": "[RASFF #2026.3331; classification: information notification for follow-up; category: poultry meat and poultry meat products; notifId=838441] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3331; classification: information notification for follow-up; category: poultry meat and poultry meat products; notifId=838441] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-20",
@@ -11770,10 +11754,10 @@
   "Class": "Alert",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838410",
-  "Notes": "[RASFF #2026.3328; classification: alert notification; category: poultry meat and poultry meat products; notifId=838410] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3328; classification: alert notification; category: poultry meat and poultry meat products; notifId=838410] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-20",
@@ -11818,10 +11802,10 @@
   "Class": "Information",
   "Country": "Spain",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836704",
-  "Notes": "[RASFF #2026.3381; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=836704] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3381; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=836704] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-20",
@@ -12138,10 +12122,10 @@
   "Class": "Information",
   "Country": "Chile",
   "Region": "Latin America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838294",
-  "Notes": "[RASFF #2026.3322; classification: information notification for follow-up; category: meat and meat products (other than poultry); notifId=838294]"
+  "Notes": "[RASFF #2026.3322; classification: information notification for follow-up; category: meat and meat products (other than poultry); notifId=838294] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-17",
@@ -12170,10 +12154,10 @@
   "Class": "Alert",
   "Country": "Slovakia",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838436",
-  "Notes": "[RASFF #2026.3320; classification: alert notification; category: poultry meat and poultry meat products; notifId=838436]"
+  "Notes": "[RASFF #2026.3320; classification: alert notification; category: poultry meat and poultry meat products; notifId=838436] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-17",
@@ -12250,10 +12234,10 @@
   "Class": "Border Rejection",
   "Country": "China",
   "Region": "Asia",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836493",
-  "Notes": "[RASFF #2026.3248; classification: border rejection notification; category: herbs and spices; notifId=836493]"
+  "Notes": "[RASFF #2026.3248; classification: border rejection notification; category: herbs and spices; notifId=836493] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-16",
@@ -12266,10 +12250,10 @@
   "Class": "Border Rejection",
   "Country": "Nigeria",
   "Region": "Africa",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836057",
-  "Notes": "[RASFF #2026.3247; classification: border rejection notification; category: nuts, nut products and seeds; notifId=836057]"
+  "Notes": "[RASFF #2026.3247; classification: border rejection notification; category: nuts, nut products and seeds; notifId=836057] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-16",
@@ -12282,10 +12266,10 @@
   "Class": "Information",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/834356",
-  "Notes": "[RASFF #2026.3249; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=834356]"
+  "Notes": "[RASFF #2026.3249; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=834356] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-16",
@@ -12362,10 +12346,10 @@
   "Class": "Border Rejection",
   "Country": "Brazil",
   "Region": "Latin America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/837896",
-  "Notes": "[RASFF #2026.3252; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837896]"
+  "Notes": "[RASFF #2026.3252; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837896] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-16",
@@ -12378,10 +12362,10 @@
   "Class": "Information",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/837926",
-  "Notes": "[RASFF #2026.3257; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=837926]"
+  "Notes": "[RASFF #2026.3257; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=837926] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-16",
@@ -12506,10 +12490,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22039/Interne",
-  "Notes": "[RASFF #2026.3211; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837004] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[RASFF #2026.3211; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837004] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-04-15",
@@ -12522,10 +12506,10 @@
   "Class": "Border Rejection",
   "Country": "Brazil",
   "Region": "Latin America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/837004",
-  "Notes": "[RASFF #2026.3211; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837004]"
+  "Notes": "[RASFF #2026.3211; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837004] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-15",
@@ -12602,10 +12586,10 @@
   "Class": "Alert",
   "Country": "Italy",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/837477",
-  "Notes": "[RASFF #2026.3213; classification: alert notification; category: meat and meat products (other than poultry); notifId=837477]"
+  "Notes": "[RASFF #2026.3213; classification: alert notification; category: meat and meat products (other than poultry); notifId=837477] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-15",
@@ -12666,10 +12650,10 @@
   "Class": "Border Rejection",
   "Country": "Brazil",
   "Region": "Latin America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/837740",
-  "Notes": "[RASFF #2026.3223; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837740]"
+  "Notes": "[RASFF #2026.3223; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837740] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-15",
@@ -12682,10 +12666,10 @@
   "Class": "Recall",
   "Country": "Germany",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260416_17_BW_Salami_1A/260416_17_BW_Salami_1A_Meldung.html",
-  "Notes": "[distributed via Kaufland; specific E. coli strain not specified on regulator page; URL repaired from produktwarnung.eu news mirror to lebensmittelwarnung.de regulator]"
+  "Notes": "[distributed via Kaufland; specific E. coli strain not specified on regulator page; URL repaired from produktwarnung.eu news mirror to lebensmittelwarnung.de regulator] [tier-guard 2026-07-14: E. coli is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-04-15",
@@ -12698,10 +12682,10 @@
   "Class": "Alert",
   "Country": "Germany",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/837457",
-  "Notes": "[RASFF #2026.3214; classification: alert notification; category: nuts, nut products and seeds; notifId=837457] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3214; classification: alert notification; category: nuts, nut products and seeds; notifId=837457] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-14",
@@ -12778,10 +12762,10 @@
   "Class": "Information",
   "Country": "Iran",
   "Region": "Middle East",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/837392",
-  "Notes": "[RASFF #2026.3179; classification: information notification for attention; category: herbs and spices; notifId=837392] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3179; classification: information notification for attention; category: herbs and spices; notifId=837392] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-14",
@@ -12938,10 +12922,10 @@
   "Class": "Border Rejection",
   "Country": "Brazil",
   "Region": "Latin America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/837103",
-  "Notes": "[RASFF #2026.3118; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837103] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3118; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837103] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-13",
@@ -13002,10 +12986,10 @@
   "Class": "Information",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836603",
-  "Notes": "[RASFF #2026.3112; classification: information notification for attention; category: eggs and egg products; notifId=836603] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3112; classification: information notification for attention; category: eggs and egg products; notifId=836603] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-11",
@@ -13162,10 +13146,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22005/Interne",
-  "Notes": "[fiche 22001 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22002/22004/22006); replaces polluted Notes from your row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 22001 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22002/22004/22006); replaces polluted Notes from your row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-04-10",
@@ -13370,10 +13354,10 @@
   "Class": "Border Rejection",
   "Country": "Brazil",
   "Region": "Latin America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836741",
-  "Notes": "[RASFF #2026.3055; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=836741] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3055; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=836741] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-09",
@@ -13402,10 +13386,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21811/Interne",
-  "Notes": "[RASFF #2026.3007; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=836418]"
+  "Notes": "[RASFF #2026.3007; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=836418] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3]"
  },
  {
   "Date": "2026-04-09",
@@ -13578,10 +13562,10 @@
   "Class": "Information",
   "Country": "Poland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836418",
-  "Notes": "[RASFF #2026.3007; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=836418]"
+  "Notes": "[RASFF #2026.3007; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=836418] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
  },
  {
   "Date": "2026-04-09",
@@ -14138,10 +14122,10 @@
   "Class": "Alert",
   "Country": "Ireland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836052",
-  "Notes": "[RASFF #2026.2954; classification: alert notification; category: milk and milk products; notifId=836052]"
+  "Notes": "[RASFF #2026.2954; classification: alert notification; category: milk and milk products; notifId=836052] [tier-guard 2026-07-14: Cronobacter sakazakii is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-04-07",
@@ -16289,22 +16273,6 @@
  },
  {
   "Date": "2026-03-18",
-  "Source": "CFS (HK) - aggregator (CFIA)",
-  "Company": "Importations Mini Italia",
-  "Brand": "Auricchio",
-  "Product": "Taleggio D.O.P. Cheese",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Canada",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260318_2.pdf",
-  "Notes": "[HK CFS FISS notification of CFIA recall; Auricchio cluster — 3rd Auricchio fiche this period (sisters: Mar 29 Gorgonzola batch 12, Apr 2 Taleggio batch 11); same Italian PDO cheese producer recurring Listeria — possibly different Taleggio batches recalled in waves] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
- },
- {
-  "Date": "2026-03-18",
   "Source": "RappelConso (FR)",
   "Company": "Saint Alby",
   "Brand": "Saint Alby",
@@ -16318,22 +16286,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21674/Interne",
   "Notes": "[fiche 21674 / 2026-03-18; named brand fiche] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
- },
- {
-  "Date": "2026-03-17",
-  "Source": "CFS (HK) - aggregator (CFIA)",
-  "Company": "— (multiple)",
-  "Brand": "—",
-  "Product": "Various pistachios and pistachio-containing products",
-  "Pathogen": "Salmonella spp.",
-  "Reason": "Possible Salmonella contamination — UPDATE",
-  "Class": "Recall (update)",
-  "Country": "Canada",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_4.pdf",
-  "Notes": "[STRICT-OUTBREAK-AUDIT 2026-05-01: Outbreak 1→0 — CFS HK aggregator update on global pistachio outbreak from Iran; downstream HK aggregator entry, no HK cases stated] Update to Food Incident Post 16 January 2026. Linked to global pistachio outbreak from Iran [outbreak 2026-04-29: 0→1 — explicitly notes 'Linked to global pistachio outbreak from Iran' (PHAC: 189 illnesses, 26 hospitalisations)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
  },
  {
   "Date": "2026-03-17",
@@ -17226,10 +17178,10 @@
   "Class": "Alert",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/la-vera-group-pty-ltd-trading-la-vera-cheese-la-vera-fresh-ricotta-500g",
-  "Notes": "[FSANZ AU; SA/VIC/NSW/WA distribution] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[FSANZ AU; SA/VIC/NSW/WA distribution] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-guard 2026-07-14: E. coli is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-02-12",
@@ -18017,22 +17969,6 @@
  },
  {
   "Date": "",
-  "Source": "FSAI",
-  "Company": "McCormack Family Farms",
-  "Brand": "McCormack Family Farms; Tesco; Egan's; SuperValu",
-  "Product": "Spinach and Mixed Leaves products (multiple branded variants including Energise Super Mix, Irish Spinach Leaves, Mixed Leaves, Baby Leaves, Tesco Mild Spinach, Egan's Irish Baby Spinach, SuperValu Spinach)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-branded-spinach-and-mixed-leaves",
-  "Notes": "Food Alerts.Ireland. Message: The below branded Spinach and Mixed Leaves products are being recalled by McCormack Family Farms due to the detection of Listeria monocytogenes.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-04: pending_gap → pending_gap_v1] [gap-gate 2026-07-05: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-05: pass; pass | All fields verified: date 2025-07-27 matches page; McCormack Family Farms is the recalling firm; spinach/mixed le] [gap-gate 2026-07-05: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
- },
- {
-  "Date": "",
   "Source": "BVL",
   "Company": "lebensmittelwarnung.de",
   "Brand": "lebensmittelwarnung.de",
@@ -18046,5 +17982,21 @@
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/07_Juli/260707_11_SH_Salatkaese/260707_11_SH_Salatkaese.html",
   "Notes": "5 days ago · Mögliche Folgen: Eine EHEC - (Synonyme: STEC, VTEC) Erkrankung äußert sich meist innerhalb einer Woche nach Infektion mit Durchfall und Bauchkrämpfen. Insbesondere Säuglinge, Kleinkinder, Senioren und Menschen mit geschwächtem Abwehrsystem können schwerere Krankheitsverläufe mit blutige  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [claude-check 2026-07-14: pass; pass | All fields verified: date 2026-07-07 matches page; Company (Hof Dannwisch) and Product (Salatkäse Kräuter) confir] [gap-gate 2026-07-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
+  "Date": "",
+  "Source": "FSAI",
+  "Company": "McCormack Family Farms",
+  "Brand": "McCormack Family Farms; Tesco; Egan's; SuperValu",
+  "Product": "Spinach and Mixed Leaves products (multiple branded variants including Energise Super Mix, Irish Spinach Leaves, Mixed Leaves, Baby Leaves, Tesco Mild Spinach, Egan's Irish Baby Spinach, SuperValu Spinach)",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-branded-spinach-and-mixed-leaves",
+  "Notes": "Food Alerts.Ireland. Message: The below branded Spinach and Mixed Leaves products are being recalled by McCormack Family Farms due to the detection of Listeria monocytogenes.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-04: pending_gap → pending_gap_v1] [gap-gate 2026-07-05: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-05: pass; pass | All fields verified: date 2025-07-27 matches page; McCormack Family Farms is the recalling firm; spinach/mixed le] [gap-gate 2026-07-05: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
  }
 ]

@@ -7,10 +7,10 @@
     "month_start": "2026-06-01",
     "month_end": "2026-06-30",
     "total": 247,
-    "tier1": 188,
+    "tier1": 195,
     "outbreaks": 4,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "June 2026: 247 recalls, 188 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "summary": "June 2026: 247 recalls, 195 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
     "pdf_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/marketing/2026-M06-marketing.pdf"
   },
   {
@@ -21,10 +21,10 @@
     "month_start": "2026-05-01",
     "month_end": "2026-05-31",
     "total": 261,
-    "tier1": 204,
+    "tier1": 223,
     "outbreaks": 10,
     "top_pathogen": "Salmonella spp.",
-    "summary": "May 2026: 261 recalls, 204 Tier-1, 10 outbreak(s). Leading pathogen: Salmonella spp..",
+    "summary": "May 2026: 261 recalls, 223 Tier-1, 10 outbreak(s). Leading pathogen: Salmonella spp..",
     "pdf_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/marketing/2026-M05-marketing.pdf"
   },
   {
@@ -35,10 +35,10 @@
     "month_start": "2026-04-01",
     "month_end": "2026-04-30",
     "total": 367,
-    "tier1": 226,
+    "tier1": 272,
     "outbreaks": 9,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "April 2026: 367 recalls, 226 Tier-1, 9 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "summary": "April 2026: 367 recalls, 272 Tier-1, 9 outbreak(s). Leading pathogen: Listeria monocytogenes.",
     "pdf_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/marketing/2026-M04-marketing.pdf"
   },
   {
@@ -48,11 +48,11 @@
     "month_name": "March 2026",
     "month_start": "2026-03-01",
     "month_end": "2026-03-31",
-    "total": 76,
-    "tier1": 65,
+    "total": 74,
+    "tier1": 63,
     "outbreaks": 6,
     "top_pathogen": "Salmonella spp.",
-    "summary": "March 2026: 76 recalls, 65 Tier-1, 6 outbreak(s). Leading pathogen: Salmonella spp..",
+    "summary": "March 2026: 74 recalls, 63 Tier-1, 6 outbreak(s). Leading pathogen: Salmonella spp..",
     "pdf_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/marketing/2026-M03-marketing.pdf"
   },
   {

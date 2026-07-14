@@ -8,10 +8,10 @@
   "week_end": "2026-07-09",
   "week_start_display": "3 Jul",
   "week_end_display": "9 Jul 2026",
-  "generated_utc": "2026-07-13T15:07:08.782973+00:00",
+  "generated_utc": "2026-07-14T15:57:38.345860+00:00",
   "stats": {
     "total": 61,
-    "tier1": 43,
+    "tier1": 48,
     "outbreaks": 4,
     "delta": 0,
     "delta_pct": 0
@@ -28,7 +28,7 @@
       "date": "2026-07-07",
       "pathogen": "E. coli",
       "pathogen_raw": "E. coli",
-      "tier": 2,
+      "tier": 1,
       "outbreak": true,
       "company": "General Mills Canada",
       "brand": "Pillsbury",
