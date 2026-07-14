@@ -1411,6 +1411,22 @@ def promote_approved(
                         approved_row.get("URL", "<no-url>"),
                         type(exc).__name__, str(exc)[:80])
 
+        # ── Always-Tier-1 enforcement (added 2026-07-14) ────────────────
+        # Operator rule: Listeria, Salmonella, E. coli/STEC, C. botulinum,
+        # cereulide, Cronobacter, Hepatitis A are ALWAYS Tier 1 — no matter
+        # what the source Class or an AI reviewer assigned. Rows were leaking
+        # in at Tier 2/3 (RappelConso "voluntary" Listeria recalls tiered
+        # from Class; Salmonella at Tier 2). This is the LAST gate before the
+        # row is written to Recalls, so enforcing here catches every path
+        # (scraper, gap-finder, URL-gate, AI enrichment) in one place.
+        try:
+            from pipeline._pathogen_scope import enforce_tier1 as _enforce_tier1
+            _enforce_tier1(approved_row)
+        except Exception as exc:  # never let this crash promotion
+            log.warning("Tier-1 enforcement skipped for %s: %s: %s",
+                        approved_row.get("URL", "<no-url>"),
+                        type(exc).__name__, str(exc)[:80])
+
         approved_row["DateAdded"] = _today
         approved_row["LastUpdated"] = _today
         approved_row["LastChecked"] = ""
@@ -1471,6 +1487,18 @@ def _write_sheet(wb: Workbook,
         c.font = Font(bold=True)
         if header_fill is not None:
             c.fill = header_fill
+    # Absolute-final always-Tier-1 guard (added 2026-07-14). Applies only
+    # to the Recalls sheet (never Pending/Weekly_Rejected). Catches any row
+    # that reached the writer without passing through promote_approved —
+    # e.g. a hand-edited xlsx re-saved by the pipeline, or a direct merge.
+    if sheet_name == "Recalls":
+        try:
+            from pipeline._pathogen_scope import enforce_tier1 as _enforce_tier1
+            for _row in rows:
+                _enforce_tier1(_row)
+        except Exception:
+            pass  # writer must never crash on the guard
+
     for r_idx, row in enumerate(rows, 2):
         for c_idx, col in enumerate(schema, 1):
             v = row.get(col, "")

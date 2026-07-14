@@ -85,6 +85,75 @@ def is_tier1(pathogen: str) -> bool:
 
 
 # ──────────────────────────────────────────────────────────────────────
+# ALWAYS-Tier-1 pathogens (hard enforcement, added 2026-07-14)
+# ──────────────────────────────────────────────────────────────────────
+# Operator rule (emphatic, repeated): these pathogens are ALWAYS Tier 1,
+# regardless of what a source's Class field or an AI reviewer assigned.
+# Rows were leaking into Recalls at Tier 2/3 (e.g. RappelConso "voluntary"
+# Listeria fish/cheese recalls tiered from Class rather than pathogen;
+# Salmonella rows at Tier 2). This is distinct from the broader FSIS scope:
+# aflatoxin/ochratoxin/adulteration ARE in scope but may legitimately sit
+# at Tier 2/3, so they are NOT forced here.
+#
+# NOTE on Bacillus cereus: plain environmental B. cereus is NOT forced —
+# only the emetic toxin (cereulide) is always Tier 1. Matching therefore
+# keys on "cereulide" (and explicit "emetic"), never bare "bacillus cereus".
+ALWAYS_TIER1_KEYWORDS = (
+    "listeria",
+    "salmonella",
+    "e. coli", "e.coli", "escherichia coli", "stec",
+    "o157", "o104", "o121", "o26", "o45", "o103", "o111", "o145",
+    "shiga toxin", "shigatoxin",
+    "botulin", "botulisme", "clostridium botulin",
+    "cereulide",                     # emetic B. cereus toxin only
+    "cronobacter", "sakazakii",
+    "hepatitis a", "hépatite a",
+)
+
+
+def is_always_tier1(pathogen: str) -> bool:
+    """True if pathogen must ALWAYS be Tier 1 regardless of source Class.
+
+    Narrower than is_in_scope(): only the pathogens the operator has ruled
+    are unconditionally Tier 1. Does NOT fire on aflatoxin/ochratoxin/
+    adulteration (in-scope but tierable) or on bare "bacillus cereus"
+    (only cereulide is forced).
+    """
+    if is_empty_pathogen(pathogen):
+        return False
+    s = str(pathogen).strip().lower()
+    # Guard: bare "bacillus cereus" without cereulide/emetic is NOT forced.
+    return any(t in s for t in ALWAYS_TIER1_KEYWORDS)
+
+
+def enforce_tier1(row: dict) -> dict:
+    """Force Tier=1 in-place when the row's Pathogen is always-Tier-1.
+
+    Idempotent. Returns the same dict for chaining. Stamps a provenance
+    note the first time it changes a value so the audit trail records the
+    original tier. Safe to call on every promotion and every merge.
+    """
+    try:
+        pathogen = row.get("Pathogen", "")
+    except AttributeError:
+        return row
+    if not is_always_tier1(pathogen):
+        return row
+    try:
+        cur = int(row.get("Tier") or 0)
+    except (ValueError, TypeError):
+        cur = 0
+    if cur == 1:
+        return row
+    row["Tier"] = 1
+    note = str(row.get("Notes") or "")
+    stamp = ("[tier-guard: %s is always Tier 1; forced from Tier %s]"
+             % (str(pathogen).strip(), cur if cur else "unset"))
+    row["Notes"] = (note + " " + stamp).strip() if note else stamp
+    return row
+
+
+# ──────────────────────────────────────────────────────────────────────
 # Pet / animal food scope filter (added 2026-05-23)
 # ──────────────────────────────────────────────────────────────────────
 # AFTS-FSIS monitors HUMAN food recalls only. Pet food, dog/cat treats,
