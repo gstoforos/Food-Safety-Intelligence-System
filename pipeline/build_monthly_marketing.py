@@ -496,7 +496,8 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
     #
     # Previously each row height was purely content-driven, so the table ended
     # wherever content stopped — leaving a gap above the footer for short rows
-    # or risking collision for tall ones. Now one uniform row height =
+    # or clipping the last row under the footer for tall ones (the row-10
+    # collision seen on the April marketing PDF). Now one uniform row height =
     # (row-start Y minus footer-band top) / N spans the band; content still
     # decides how many wrap lines print, but the row SLOT is fixed to the grid.
     _foot_top = 46            # navy footer band height (see FOOTER section)
@@ -520,6 +521,25 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
         comp_lines = _wrap(company, H_BOLD, COMPANY_FONT_SIZE, col_widths[3])
         src_lines  = _wrap(source, H_BOLD, 8, col_widths[5])
 
+        # ---- Line-cap guard (added 2026-07-15) ------------------------------
+        # The uniform slot is UNIFORM_ROW_H tall. If a row's wrapped PRODUCT is
+        # taller than the slot, its lowest line spills past the slot bottom —
+        # and for the LAST row the slot bottom IS the footer, so the overflow
+        # lands inside the navy footer band (the row-10 "…all codes" clip on the
+        # April marketing PDF). Cap the number of PRODUCT lines to what fits in
+        # the slot (minus top/bottom padding), appending an ellipsis to the last
+        # kept line if we had to drop any. Company/source columns are short and
+        # never the tall one, so only PRODUCT needs the cap.
+        _avail_lines = int((UNIFORM_ROW_H - PAD_TOP - PAD_BOT - 6) // PRODUCT_LEADING)
+        _max_prod_lines = max(1, _avail_lines)
+        if len(prod_lines) > _max_prod_lines:
+            prod_lines = prod_lines[:_max_prod_lines]
+            last = prod_lines[-1].rstrip(" ,;:.—–-")
+            # trim a couple of chars to make room for the ellipsis if the line is full
+            while last and _text_w(last + "…", H_REG, PRODUCT_FONT_SIZE) > col_widths[4]:
+                last = last[:-1].rstrip(" ,;:.—–-")
+            prod_lines[-1] = last + "…"
+
         # Content height (how tall the wrapped text actually is) — used only to
         # vertically center the text inside the fixed uniform slot.
         n_path = 1 + (1 if flag else 0)
@@ -541,9 +561,7 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
         c.setStrokeColor(LINE); c.setLineWidth(0.4)
         c.line(MARGIN_L, row_y, PAGE_W - MARGIN_R, row_y)
 
-        # Vertically center the text block within the fixed uniform slot: the
-        # taller the slot is relative to the content, the more top-offset we add
-        # so rows look evenly spaced rather than top-stuck.
+        # Vertically center the text block within the fixed uniform slot.
         _slack = max(0.0, row_h - (content_h + PAD_TOP + PAD_BOT))
         text_top_y = y - PAD_TOP - 8 - (_slack / 2.0)
 
