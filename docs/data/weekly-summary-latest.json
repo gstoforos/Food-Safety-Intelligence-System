@@ -8,18 +8,18 @@
   "week_end": "2026-07-09",
   "week_start_display": "3 Jul",
   "week_end_display": "9 Jul 2026",
-  "generated_utc": "2026-07-14T19:37:02.344423+00:00",
+  "generated_utc": "2026-07-15T03:19:58.172427+00:00",
   "stats": {
-    "total": 61,
-    "tier1": 48,
+    "total": 62,
+    "tier1": 49,
     "outbreaks": 4,
-    "delta": 0,
-    "delta_pct": 0
+    "delta": 1,
+    "delta_pct": 2
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
     "cases": 26,
-    "pct": 43
+    "pct": 42
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -94,5 +94,5 @@
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/854390"
     }
   ],
-  "country_count": 20
+  "country_count": 21
 }

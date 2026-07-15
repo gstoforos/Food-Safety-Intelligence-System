@@ -609,6 +609,22 @@
  },
  {
   "Date": "2026-07-07",
+  "Source": "BVL",
+  "Company": "lebensmittelwarnung.de",
+  "Brand": "lebensmittelwarnung.de",
+  "Product": "Salatkäse Kräuter",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "E. coli STEC",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/07_Juli/260707_11_SH_Salatkaese/260707_11_SH_Salatkaese.html",
+  "Notes": "5 days ago · Mögliche Folgen: Eine EHEC - (Synonyme: STEC, VTEC) Erkrankung äußert sich meist innerhalb einer Woche nach Infektion mit Durchfall und Bauchkrämpfen. Insbesondere Säuglinge, Kleinkinder, Senioren und Menschen mit geschwächtem Abwehrsystem können schwerere Krankheitsverläufe mit blutige  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [claude-check 2026-07-14: pass; pass | All fields verified: date 2026-07-07 matches page; Company (Hof Dannwisch) and Product (Salatkäse Kräuter) confir] [gap-gate 2026-07-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [date-fix 2026-07-14: Date was blank; recovered 2026-07-07 from URL slug; stripped \"Homepage -\" scrape artifact from Product]"
+ },
+ {
+  "Date": "2026-07-07",
   "Source": "RASFF (EU)",
   "Company": "Origin: France | Notifying: France",
   "Brand": "DEU",
@@ -17888,23 +17904,7 @@
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent]"
  },
  {
-  "Date": "",
-  "Source": "BVL",
-  "Company": "lebensmittelwarnung.de",
-  "Brand": "lebensmittelwarnung.de",
-  "Product": "Homepage - Salatkäse Kräuter",
-  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "E. coli STEC",
-  "Class": "Recall",
-  "Country": "Germany",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/07_Juli/260707_11_SH_Salatkaese/260707_11_SH_Salatkaese.html",
-  "Notes": "5 days ago · Mögliche Folgen: Eine EHEC - (Synonyme: STEC, VTEC) Erkrankung äußert sich meist innerhalb einer Woche nach Infektion mit Durchfall und Bauchkrämpfen. Insbesondere Säuglinge, Kleinkinder, Senioren und Menschen mit geschwächtem Abwehrsystem können schwerere Krankheitsverläufe mit blutige  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [claude-check 2026-07-14: pass; pass | All fields verified: date 2026-07-07 matches page; Company (Hof Dannwisch) and Product (Salatkäse Kräuter) confir] [gap-gate 2026-07-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
- },
- {
-  "Date": "",
+  "Date": "2025-07-25",
   "Source": "FSAI",
   "Company": "McCormack Family Farms",
   "Brand": "McCormack Family Farms; Tesco; Egan's; SuperValu",
@@ -17917,6 +17917,6 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-branded-spinach-and-mixed-leaves",
-  "Notes": "Food Alerts.Ireland. Message: The below branded Spinach and Mixed Leaves products are being recalled by McCormack Family Farms due to the detection of Listeria monocytogenes.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-04: pending_gap → pending_gap_v1] [gap-gate 2026-07-05: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-05: pass; pass | All fields verified: date 2025-07-27 matches page; McCormack Family Farms is the recalling firm; spinach/mixed le] [gap-gate 2026-07-05: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "Food Alerts.Ireland. Message: The below branded Spinach and Mixed Leaves products are being recalled by McCormack Family Farms due to the detection of Listeria monocytogenes.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-04: pending_gap → pending_gap_v1] [gap-gate 2026-07-05: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-05: pass; pass | All fields verified: date 2025-07-27 matches page; McCormack Family Farms is the recalling firm; spinach/mixed le] [gap-gate 2026-07-05: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [date-fix 2026-07-14: Date was blank; this is FSAI Food Alert 2025.35 (McCormack spinach, Listeria), published 25 Jul 2025 per FSAI source; best-before dates and outbreak context confirm 2025 not 2026]"
  }
 ]
