@@ -489,6 +489,21 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
     COMPANY_FONT_SIZE = 8.2
     COMPANY_LEADING = 10.0
 
+    # ---- Uniform-grid layout (added 2026-07-15) -----------------------------
+    # Operator rule: all N rows must fit EXACTLY between the "TOP N" title strip
+    # and the blue footer band — evenly filling that vertical space, last row
+    # flush to the footer (no gap above it, no crowding/overlap).
+    #
+    # Previously each row height was purely content-driven, so the table ended
+    # wherever content stopped — leaving a gap above the footer for short rows
+    # or risking collision for tall ones. Now one uniform row height =
+    # (row-start Y minus footer-band top) / N spans the band; content still
+    # decides how many wrap lines print, but the row SLOT is fixed to the grid.
+    _foot_top = 46            # navy footer band height (see FOOTER section)
+    _grid_top = y             # first row starts just below the header rule
+    _n_rows = len(m["rows"]) or 1
+    UNIFORM_ROW_H = (_grid_top - _foot_top) / _n_rows
+
     for idx, row in enumerate(m["rows"], start=1):
         date     = row["date"]
         pathogen = abbreviate_pathogen(row["pathogen"])
@@ -505,15 +520,18 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
         comp_lines = _wrap(company, H_BOLD, COMPANY_FONT_SIZE, col_widths[3])
         src_lines  = _wrap(source, H_BOLD, 8, col_widths[5])
 
+        # Content height (how tall the wrapped text actually is) — used only to
+        # vertically center the text inside the fixed uniform slot.
         n_path = 1 + (1 if flag else 0)
-        max_h  = max(
+        content_h = max(
             len(prod_lines) * PRODUCT_LEADING,
             (len(comp_lines) + 1) * COMPANY_LEADING,
             n_path * 10,
             (len(src_lines) + 1) * 9.5,
             18,
         )
-        row_h = max_h + PAD_TOP + PAD_BOT
+        # Fixed uniform slot so all N rows exactly span title-strip → footer.
+        row_h = UNIFORM_ROW_H
         row_y = y - row_h
 
         if idx % 2 == 0:
@@ -523,7 +541,11 @@ def render_marketing_pdf(out_path: str, m: MonthData) -> str:
         c.setStrokeColor(LINE); c.setLineWidth(0.4)
         c.line(MARGIN_L, row_y, PAGE_W - MARGIN_R, row_y)
 
-        text_top_y = y - PAD_TOP - 8
+        # Vertically center the text block within the fixed uniform slot: the
+        # taller the slot is relative to the content, the more top-offset we add
+        # so rows look evenly spaced rather than top-stuck.
+        _slack = max(0.0, row_h - (content_h + PAD_TOP + PAD_BOT))
+        text_top_y = y - PAD_TOP - 8 - (_slack / 2.0)
 
         # #
         c.setFont(H_BOLD, 11); c.setFillColor(NAVY)
