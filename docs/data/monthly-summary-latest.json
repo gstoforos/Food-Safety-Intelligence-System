@@ -63,7 +63,7 @@
       "pathogen": "Clostridium botulinum",
       "company": "Boucherie Courthieu",
       "brand": "Boucherie Courthieu",
-      "product": "conserves dindonneau; 280g",
+      "product": "conserves dindonneau; 280g (RappelConso fiche 22454)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22454/Interne",
       "tier": 1,
       "outbreak": 0
@@ -75,7 +75,7 @@
       "pathogen": "Clostridium botulinum",
       "company": "Boucherie Courthieu",
       "brand": "Boucherie Courthieu",
-      "product": "conserves jambonneau; 280g",
+      "product": "conserves jambonneau; 280g (RappelConso fiche 22453)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22453/Interne",
       "tier": 1,
       "outbreak": 0
@@ -316,7 +316,7 @@
       "pathogen_raw": "Clostridium botulinum",
       "company": "Boucherie Courthieu",
       "brand": "Boucherie Courthieu",
-      "product": "conserves dindonneau; 280g",
+      "product": "conserves dindonneau; 280g (RappelConso fiche 22454)",
       "country": "France",
       "source": "RappelConso (FR)",
       "tier": 1,
@@ -331,7 +331,7 @@
       "pathogen_raw": "Clostridium botulinum",
       "company": "Boucherie Courthieu",
       "brand": "Boucherie Courthieu",
-      "product": "conserves jambonneau; 280g",
+      "product": "conserves jambonneau; 280g (RappelConso fiche 22453)",
       "country": "France",
       "source": "RappelConso (FR)",
       "tier": 1,
@@ -346,7 +346,7 @@
       "pathogen_raw": "Clostridium botulinum",
       "company": "Boucherie Courthieu",
       "brand": "Boucherie Courthieu",
-      "product": "conserves pâté de foie pur porc; 120g / 200g / 280g / 1580g",
+      "product": "conserves pâté de foie pur porc; 120g / 200g / 280g / 1580g (RappelConso fiche 22452)",
       "country": "France",
       "source": "RappelConso (FR)",
       "tier": 1,
@@ -361,7 +361,7 @@
       "pathogen_raw": "Clostridium botulinum",
       "company": "Boucherie Courthieu",
       "brand": "Boucherie Courthieu",
-      "product": "conserves pâté de foie de volaille; 120g / 200g / 280g / 1580g",
+      "product": "conserves pâté de foie de volaille; 120g / 200g / 280g / 1580g (RappelConso fiche 22451)",
       "country": "France",
       "source": "RappelConso (FR)",
       "tier": 1,
@@ -416,6 +416,6 @@
     }
   ],
   "email_html": "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937\">\n<div style=\"max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb\">\n\n<div style=\"background:#0a0e1a;color:#fff;padding:20px 24px\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em\">\nAdvanced Food-Tech Solutions <span style=\"color:#E8601A\">·</span> AFTS</div>\n<div style=\"font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px\">\nMonthly Briefing · June 2026</div>\n</div>\n\n<div style=\"padding:28px 24px 16px\">\n<h1 style=\"font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:#0a0e1a\">Hazard &amp; Pathogen Surveillance · June 2026</h1>\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px\">\n01 Jun – 30 Jun 2026 · 247 recalls · 195 Tier-1 · 4 outbreaks\n</div>\n\n<table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;border-collapse:collapse;margin-bottom:20px\">\n<tr>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#0a0e1a\">247</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Total</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#dc2626\">195</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Tier-1</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#7c3aed\">4</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Outbreaks</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:18px;color:#E8601A;font-style:italic\">Listeria monocytogenes</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Leading</div>\n</td>\n</tr>\n</table>\n\n<div style=\"background:#f9fafb;border-left:3px solid #E8601A;padding:14px 18px;margin-bottom:20px\">\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px\">Month signal</div>\n<div style=\"font-size:14px;line-height:1.55\"><strong>-5%</strong> vs prior month\n\n· severity index <strong>48.0/100</strong> (elevated).</div>\n<div style=\"font-size:13px;margin-top:8px\"><strong>Top hotspot:</strong> Turkey × <em>Ochratoxin A</em> (8 recalls, 13.25× expected).</div><div style=\"font-size:13px;margin-top:8px\"><strong>Next-month forecast:</strong> 362 recalls (95% CI [129, 595]).</div>\n</div>\n\n<div style=\"text-align:center;margin:28px 0 12px\">\n<a href=\"https://gstoforos.github.io/Food-Safety-Intelligence-System/2026-M06.html\" target=\"_blank\" style=\"display:inline-block;background:#0a0e1a;color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px\">View Full Monthly Report →</a>\n</div>\n\n<div style=\"font-size:11px;color:#94a3b8;text-align:center;margin-top:20px\">\nAdvanced Food-Tech Solutions · advfood.tech · info@advfood.tech\n</div>\n</div>\n</div>\n</body></html>",
-  "generated_utc": "2026-07-15T05:46:58.440127+00:00",
-  "generated_at": "2026-07-15T05:46:58.440136+00:00"
+  "generated_utc": "2026-07-15T18:23:22.772714+00:00",
+  "generated_at": "2026-07-15T18:23:22.772724+00:00"
 }

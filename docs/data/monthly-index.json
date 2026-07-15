@@ -66,7 +66,8 @@
     "tier1": 31,
     "outbreaks": 3,
     "top_pathogen": "Salmonella spp.",
-    "summary": "February 2026: 33 recalls, 31 Tier-1, 3 outbreak(s). Leading pathogen: Salmonella spp.."
+    "summary": "February 2026: 33 recalls, 31 Tier-1, 3 outbreak(s). Leading pathogen: Salmonella spp..",
+    "pdf_url": null
   },
   {
     "filename": "2026-M01.html",
@@ -79,6 +80,7 @@
     "tier1": 35,
     "outbreaks": 5,
     "top_pathogen": "Bacillus cereus / Cereulide",
-    "summary": "January 2026: 36 recalls, 35 Tier-1, 5 outbreak(s). Leading pathogen: Bacillus cereus / Cereulide."
+    "summary": "January 2026: 36 recalls, 35 Tier-1, 5 outbreak(s). Leading pathogen: Bacillus cereus / Cereulide.",
+    "pdf_url": null
   }
 ]
