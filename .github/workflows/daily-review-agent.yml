@@ -1,0 +1,147 @@
+name: FSIS Daily Review Agent
+
+# ==========================================================================
+# Runs once per day AFTER the morning scrape + merge have settled.
+# Performs the integrity review that was previously done by hand:
+#   1. Applies SAFE deterministic fixes (tier-1 enforcement, blank DateAdded,
+#      Homepage- artifact strip, blank-Date recovery) — Lane A.
+#   2. Rebuilds any weekly/monthly report whose counts drifted (UPDATED
+#      masthead).
+#   3. Writes a summary (daily_review_report.json + daily_review_digest.md)
+#      and QUEUES risky items (duplicates, CFS/CFIA reposts) for approval —
+#      Lane B. It NEVER deletes rows itself.
+#   4. Commits the safe changes + the report.
+#
+# Times are Athens local (EET winter / EEST summer). Two cron lines, one per
+# DST offset, plus a TZ hour-guard — matches every other FSIS workflow.
+# 09:00 Athens: EEST = 06:00 UTC, EET = 07:00 UTC.
+# ==========================================================================
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"   # 09:00 Athens during EEST (summer)
+    - cron: "0 7 * * *"   # 09:00 Athens during EET  (winter)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers      # shares the lock with merge_master etc.
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # DST hour-guard: only proceed if it is 09:xx in Athens right now.
+      - name: Athens hour guard
+        id: guard
+        run: |
+          H=$(TZ=Europe/Athens date +%H)
+          echo "Athens hour = $H"
+          if [ "$H" != "09" ]; then
+            echo "Not 09:00 Athens — skipping this DST-offset run."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run daily review agent (Lane A auto-fixes + detect Lane B)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pipeline.daily_review_agent
+
+      - name: Rebuild stale reports (UPDATED mastheads)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python - <<'PY'
+          import json, subprocess, sys
+          from datetime import date
+          rpt = json.load(open("docs/data/daily_review_report.json"))
+          stale = rpt.get("stale_reports", {})
+          weeks = stale.get("weeklies", [])
+          months = stale.get("monthlies", [])
+          rebuilt = {"weeklies": [], "monthlies": []}
+
+          # weeklies (build W28/current last so latest pointer stays correct)
+          def wend(w):
+              return date.fromisocalendar(2026, int(w[1:]), 5).isoformat()
+          order = sorted(weeks, key=lambda w: int(w[1:]))
+          for w in order:
+              subprocess.run([sys.executable, "docs/build_weekly_report_afts.py",
+                              "--week-end", wend(w), "--xlsx", "docs/data/recalls.xlsx",
+                              "--no-refresh"], check=False)
+              rebuilt["weeklies"].append(w)
+
+          # monthlies (rebuild latest last)
+          mend = {"M01":"2026-01-31","M02":"2026-02-28","M03":"2026-03-31",
+                  "M04":"2026-04-30","M05":"2026-05-31","M06":"2026-06-30"}
+          order_m = sorted(months, key=lambda m: int(m[1:]))
+          for m in order_m:
+              if m not in mend:
+                  continue
+              subprocess.run([sys.executable, "docs/build_monthly_report_afts.py",
+                              "--month-end", mend[m], "--xlsx", "docs/data/recalls.xlsx"],
+                             check=False)
+              subprocess.run([sys.executable, "-m", "pipeline.build_monthly_marketing",
+                              "--summary", "docs/data/monthly-summary-latest.json",
+                              "--out-dir", "docs/marketing"], check=False)
+              rebuilt["monthlies"].append(m)
+
+          if rebuilt["monthlies"]:
+              subprocess.run([sys.executable, "-m", "pipeline.set_pdf_urls",
+                              "--index", "docs/data/monthly-index.json",
+                              "--docs-dir", "docs",
+                              "--site-url", "https://gstoforos.github.io/Food-Safety-Intelligence-System"],
+                             check=False)
+
+          rpt["rebuilt"] = rebuilt
+          json.dump(rpt, open("docs/data/daily_review_report.json","w"),
+                    indent=2, ensure_ascii=False)
+          print("rebuilt:", rebuilt)
+          PY
+
+      - name: Commit review output + safe fixes (if changed)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          git config --local user.email "fsis-bot@advfood.tech"
+          git config --local user.name  "AFTS Intelligence System"
+          git add docs/data/recalls.xlsx docs/data/recalls.json \
+                  docs/data/weekly-index.json docs/data/weekly-summary-latest.json \
+                  docs/data/monthly-index.json docs/data/monthly-summary-latest.json \
+                  docs/data/daily_review_report.json docs/data/daily_review_digest.md \
+                  docs/data/review_ledger.json \
+                  docs/2026-W*.html docs/2026-M*.html docs/marketing/*.pdf 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "Daily review: no changes to commit."
+          else
+            git commit -m "daily review agent: auto-fixes + report ($(TZ=Europe/Athens date +%Y-%m-%d))"
+            git push
+          fi
+
+      # The e-mail step is intentionally left as a follow-on (Phase 2):
+      # a mailer reads docs/data/daily_review_digest.md and sends it to George,
+      # with Approve/Reject links for each proposed_deletion. Kept separate so
+      # this workflow never blocks on mail delivery.
