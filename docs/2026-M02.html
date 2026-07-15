@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AFTS Monthly · February 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Cloudflare Web Analytics — see docs/index.html for setup instructions. -->
+
+<style>
+:root{
+--bg:#ffffff; --s1:#f9fafb; --s2:#f3f4f6; --brd:#e5e7eb;
+--ink:#1f2937; --black:#0a0e1a; --muted:#6b7280; --body:#374151;
+--orange:#E8601A; --red:#dc2626; --amber:#f59e0b;
+--violet:#7c3aed; --green:#059669;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:#f5f5f7;font-family:'Times New Roman',Times,Georgia,serif;color:var(--ink);font-size:14.5px;line-height:1.5;}
+body{padding:28px 16px 60px;}
+.page{max-width:980px;margin:0 auto;background:#fff;padding:36px 44px;border:1px solid var(--brd);}
+a{color:var(--orange);} a:hover{color:#0a0e1a;}
+
+.mast{border-bottom:1px solid var(--brd);padding-bottom:18px;margin-bottom:26px;
+display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+.brand{font-family:Syne,Georgia,serif;font-weight:800;font-size:18px;color:#0a0e1a;
+text-transform:uppercase;letter-spacing:-0.01em;}
+.brand em{color:#E8601A;font-style:normal;}
+.tagline{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+text-transform:uppercase;letter-spacing:0.14em;margin-top:4px;}
+.pubdate{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+text-transform:uppercase;letter-spacing:0.12em;margin-top:6px;}
+.pubdate strong{color:#0a0e1a;font-weight:700;}
+.pill{background:#0a0e1a;color:#fff;font-family:'DM Mono',monospace;font-size:10px;
+padding:5px 12px;letter-spacing:0.12em;text-transform:uppercase;}
+h1.r-title{font-family:Syne,Georgia,serif;font-weight:800;font-size:30px;color:#0a0e1a;
+letter-spacing:-0.02em;margin:14px 0 6px;}
+h1.r-title .accent{color:#E8601A;}
+.sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+text-transform:uppercase;letter-spacing:0.1em;margin:0 0 26px;}
+
+.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--brd);
+border:1px solid var(--brd);margin-bottom:28px;}
+.kpi{background:#fff;padding:16px 14px;}
+.kpi-label{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--muted);
+text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.kpi-value{font-family:Syne,Georgia,serif;font-weight:800;font-size:26px;line-height:1;color:#0a0e1a;}
+.kpi-value.red{color:var(--red);} .kpi-value.vio{color:var(--violet);}
+.kpi-value.orange{color:var(--orange);font-style:italic;font-size:15px;line-height:1.3;}
+.kpi-value.mom{font-size:22px;}
+.kpi-top{font-size:10px;color:var(--muted);margin-top:6px;}
+@media(max-width:760px){.kpi-strip{grid-template-columns:repeat(3,1fr);}}
+
+.sec-head{display:flex;align-items:center;gap:12px;margin:32px 0 12px;}
+.sec-num{font-family:'DM Mono',monospace;font-size:10px;color:#E8601A;font-weight:700;letter-spacing:0.12em;}
+.sec-title{font-family:Syne,Georgia,serif;font-weight:800;font-size:20px;color:#0a0e1a;letter-spacing:-0.01em;margin:0;}
+.sec-rule{flex:1;height:1px;background:var(--brd);}
+.sec-caption{color:var(--muted);font-size:13px;margin:-4px 0 14px;}
+.sec-link{font-family:'DM Mono',monospace;font-size:10px;color:var(--orange);letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;}
+.sec-link:hover{text-decoration:underline;}
+
+.analysis{background:var(--s1);padding:24px 28px;margin-bottom:12px;}
+.analysis p{font-size:14px;line-height:1.75;color:var(--ink);margin:0 0 14px;}
+.analysis p:last-child{margin-bottom:0;}
+.analysis p.pa-note{margin:18px -28px 0 -28px;padding:18px 28px 2px 28px;background:#fff;
+border-top:1px solid var(--brd);font-size:13.5px;line-height:1.7;}
+.analysis p.pa-note .pa-label{display:inline;font-family:'DM Mono',monospace;font-weight:700;
+letter-spacing:0.08em;text-transform:uppercase;color:var(--red);font-size:10px;margin-right:8px;}
+
+/* Trend panel */
+.trend-grid{display:grid;grid-template-columns:1fr;gap:20px;margin-bottom:6px;justify-items:center;}
+.trend-grid > * { width:100%; max-width:680px; }
+.trend-panel{background:var(--s1);padding:18px 22px;border-left:3px solid var(--orange);}
+.trend-num{font-family:Syne,sans-serif;font-weight:800;font-size:30px;color:#0a0e1a;}
+.trend-num.up{color:var(--red);} .trend-num.down{color:var(--green);}
+.trend-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;}
+.trend-row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px;}
+
+/* Heatmap */
+.heat-panel{background:var(--s1);padding:20px 22px;text-align:center;}
+.heat-panel svg{max-width:100%;height:auto;display:block;margin:0 auto;}
+.hotspot-list{margin:12px 0 0;padding:0;list-style:none;font-size:13px;}
+.hotspot-list li{padding:6px 0;color:var(--ink);border-top:1px dashed var(--brd);}
+.hotspot-list li:first-child{border-top:none;}
+.hotspot-list li.empty{color:var(--muted);font-style:italic;}
+
+/* Timeline */
+.timeline-panel{background:var(--s1);padding:20px 22px;text-align:center;}
+.timeline-panel svg{max-width:100%;height:auto;display:block;margin:0 auto;}
+
+/* Concentration */
+.conc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:10px;}
+@media(max-width:600px){.conc-grid{grid-template-columns:1fr;}}
+.conc-card{background:var(--s1);padding:16px 18px;border-left:3px solid var(--orange);}
+.conc-card.diverse{border-left-color:var(--green);}
+.conc-card.concentrated{border-left-color:var(--red);}
+.conc-card.very_uneven{border-left-color:var(--red);}
+.conc-card.moderate{border-left-color:var(--amber);}
+.conc-val{font-family:Syne,sans-serif;font-weight:800;font-size:22px;color:#0a0e1a;}
+.conc-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;}
+.conc-note{font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* Growth lists */
+.growth-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px;}
+@media(max-width:600px){.growth-grid{grid-template-columns:1fr;}}
+.growth-panel{background:var(--s1);padding:16px 20px;}
+.growth-panel h4{font-family:'DM Mono',monospace;font-size:10px;margin:0 0 10px;
+color:#E8601A;letter-spacing:0.1em;text-transform:uppercase;}
+.growth-panel ul{margin:0;padding:0;list-style:none;font-size:12.5px;}
+.growth-panel li{padding:5px 0;border-top:1px dashed var(--brd);}
+.growth-panel li:first-child{border-top:none;}
+.growth-panel li.empty{color:var(--muted);font-style:italic;}
+
+/* Models roadmap */
+.mdl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+@media(max-width:700px){.mdl-grid{grid-template-columns:1fr;}}
+.mdl-card{padding:12px 16px;font-size:12.5px;border-radius:2px;}
+.mdl-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.mdl-name{font-weight:700;color:#0a0e1a;}
+.mdl-status{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.1em;}
+.mdl-sub{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.mdl-detail{font-size:11.5px;color:var(--ink);line-height:1.55;}
+table.mini{width:100%;font-size:11px;border-collapse:collapse;margin-top:6px;}
+table.mini th{background:#0a0e1a;color:#fff;font-family:'DM Mono',monospace;
+font-size:9px;font-weight:700;padding:4px 6px;text-align:left;letter-spacing:0.06em;}
+table.mini td{padding:4px 6px;border-bottom:1px solid var(--brd);}
+table.mini td.num{text-align:right;font-family:'DM Mono',monospace;}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:11.5px;}
+table.paths td{padding:6px 8px;border-bottom:1px solid #f3f4f6;vertical-align:middle;font-size:12px;}
+table.paths td.num{text-align:right;font-family:'DM Mono',monospace;}
+table.paths td.muted{color:var(--muted);}
+.agg-note{font-size:10.5px;color:var(--muted);font-style:italic;font-weight:normal;}
+table.repro{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:6px;}
+table.repro td{padding:4px 6px;border-bottom:1px dotted #e5e7eb;vertical-align:top;}
+table.repro td.repro-lbl{color:var(--ink);}
+table.repro td.repro-num{text-align:right;font-family:'DM Mono',monospace;font-variant-numeric:tabular-nums;color:var(--muted);}
+.path-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle;}
+.bar{background:var(--s2);height:6px;border-radius:1px;width:100%;min-width:120px;}
+.bar-fill{height:6px;border-radius:1px;}
+
+/* Top 10 table (reuses weekly .top5 styles) */
+table.top5 { table-layout:fixed; width:100%; margin-top:8px; font-size:11px; }
+table.top5 th { background:#0a0e1a; color:#fff; font-family:'DM Mono',monospace; font-size:9.5px; font-weight:700; padding:8px 6px; text-align:left; letter-spacing:0.08em; }
+table.top5 td { padding:8px 6px; border-bottom:1px solid #f3f4f6; vertical-align:top; word-wrap:break-word; overflow-wrap:break-word; word-break:normal; hyphens:none; font-size:11px; line-height:1.35; }
+table.top5 th:nth-child(1), table.top5 td:nth-child(1) { width:5%; }
+table.top5 th:nth-child(2), table.top5 td:nth-child(2) { width:11%; }
+table.top5 th:nth-child(3), table.top5 td:nth-child(3) { width:21%; }
+table.top5 th:nth-child(4), table.top5 td:nth-child(4) { width:17%; }
+table.top5 th:nth-child(5), table.top5 td:nth-child(5) { width:28%; }
+table.top5 th:nth-child(6), table.top5 td:nth-child(6) { width:18%; }
+table.top5 td.num.rank { font-family:'DM Mono',monospace; font-size:13px; font-weight:700; color:#E8601A; white-space:nowrap; }
+table.top5 td.date { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); white-space:nowrap; }
+table.top5 td.pathogen { word-break:normal; }
+table.top5 td.pathogen .path-name { white-space:normal; }
+table.top5 td.company .company-name { font-weight:700; color:#0a0e1a; }
+table.top5 td.company .brand { font-size:11px; color:var(--muted); margin-top:2px; font-style:italic; }
+table.top5 td.src .country { font-weight:600; color:var(--ink); font-size:11.5px; }
+table.top5 td.src .agency { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); margin-top:2px; }
+table.top5 td.src .agency a { color:#E8601A; text-decoration:none; }
+.rank-num{font-family:Syne,sans-serif;font-weight:800;font-size:22px;color:#E8601A;
+text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}
+.rank-num.rank-num--multi{font-size:18px;}
+.date-cell{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;}
+.path-name{font-weight:600;color:var(--ink);font-style:italic;}
+.co-cell strong{color:#0a0e1a;font-weight:700;display:block;}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:2px;font-style:italic;}
+.juris-country{font-weight:600;color:var(--ink);}
+.src-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.src-link{color:#E8601A;font-size:11px;text-decoration:none;font-family:'DM Mono',monospace;}
+.src-na{font-family:'DM Mono',monospace;font-size:10px;color:#94a3b8;font-style:italic;}
+.chip-tier-1,.chip-tier-2,.chip-outbreak,.chip-tier1,.chip-tier2{display:inline-block;color:#fff;font-size:9px;
+font-weight:700;padding:2px 6px;border-radius:2px;letter-spacing:0.06em;margin-left:5px;white-space:nowrap;}
+.chip-tier-1,.chip-tier1{background:#dc2626;}
+.chip-tier-2,.chip-tier2{background:#f59e0b;color:#1f2937;}
+.chip-outbreak{background:#7c3aed;}
+
+.meth{background:var(--s1);padding:20px 24px;font-size:13px;line-height:1.7;color:var(--body);}
+.meth p{margin:0 0 10px;} .meth p:last-child{margin:0;}
+.meth strong{color:#0a0e1a;}
+
+.footer{border-top:2px solid #0a0e1a;margin-top:34px;padding-top:18px;
+font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.7;}
+.footer .fb{font-family:Syne,Georgia,serif;font-weight:800;font-size:12px;
+color:#0a0e1a;text-transform:uppercase;}
+.footer .fb em{color:#E8601A;font-style:normal;}
+
+/* Appendix */
+.appendix-head{display:flex;align-items:center;gap:12px;margin:42px 0 12px;
+page-break-before:always;}
+.appendix-num{font-family:'DM Mono',monospace;font-size:10px;color:#E8601A;
+font-weight:700;letter-spacing:0.12em;}
+.appendix-title{font-family:Syne,Georgia,serif;font-weight:800;font-size:20px;
+color:#0a0e1a;letter-spacing:-0.01em;margin:0;}
+.appendix-count{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);
+letter-spacing:0.08em;text-transform:uppercase;}
+
+/* ─────────────────────────────────────────────────────────────────
+   PRINT / PDF — mirror the mobile HTML aesthetic.
+   WeasyPrint applies @media print for PDF rendering. Goal: a clean,
+   readable single-column flow at A4 (matching what users see on a
+   phone), not a cramped desktop dashboard squashed onto paper.
+   ───────────────────────────────────────────────────────────── */
+@media print {
+  /* Page setup — A4 portrait with comfortable side margins.
+     The @bottom-center page-margin box renders a footer on every
+     page with brand left, page number right. WeasyPrint reads the
+     CSS `counter(page)` / `counter(pages)` pseudo-counters. */
+  @page {
+    size: A4 portrait;
+    margin: 14mm 12mm 18mm 12mm;
+    @bottom-left {
+      content: "AFTS · Food Safety Intelligence System";
+      font-family: 'Times New Roman', Times, Georgia, serif;
+      font-size: 8pt;
+      color: #6b7280;
+      padding-bottom: 4mm;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " / " counter(pages);
+      font-family: 'DM Mono', monospace;
+      font-size: 8pt;
+      color: #6b7280;
+      padding-bottom: 4mm;
+    }
+  }
+
+  body {
+    background: #fff;
+    padding: 0;
+    font-family: 'Times New Roman', Times, Georgia, serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  .page {
+    border: none;
+    padding: 0;
+    max-width: none;
+    background: transparent;
+  }
+
+  /* Headings — Times Roman, generous spacing */
+  h1.r-title { font-size: 22pt; line-height: 1.2; margin: 0 0 8px; }
+  .sub { font-size: 8pt; }
+  .sec-title { font-size: 14pt; }
+  .sec-num { font-size: 9pt; }
+
+  /* KPI strip — 3-column grid (matches mobile) */
+  .kpi-strip { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .kpi { padding: 10px 10px; }
+  .kpi-value { font-size: 22pt; }
+  .kpi-label, .kpi-top { font-size: 8pt; }
+
+  /* Concentration / growth / models / trend — 1-column flow */
+  .conc-grid, .growth-grid, .mdl-grid, .trend-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+  }
+  .conc-val { font-size: 18pt; }
+
+  /* SVG charts — bigger so they're actually readable on paper.
+     380px is roughly half an A4 page in landscape orientation,
+     about right for a single-chart panel. */
+  svg {
+    max-width: 100%;
+    max-height: 380px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  /* Heatmap allowed even more height for matrix legibility */
+  .heat-panel svg { max-height: 480px; }
+
+  /* Chart panels — keep each chart panel together as one atomic
+     block. Use the ACTUAL class names that exist in the rendered
+     HTML (verified via `grep class= 2026-M<MM>.html`):
+       .trend-panel    — MoM trend, weekly cadence (each one a card)
+       .heat-panel     — Country × Pathogen heatmap container
+       .timeline-panel — Outbreak timeline container
+       .growth-panel   — Emerging / declining lists
+       .conc-card      — Source HHI / Geographic Gini / Tier-1 Intensity
+       .analysis       — Intelligence Analysis narrative card
+       .pa-note        — Process Authority note block
+       .meth           — Methodology card
+       table.paths     — Hazard distribution table (16 rows)
+       table.repro     — HHI/Gini reproducibility tables (12 rows each)
+     Each one needs `page-break-inside: avoid` so it doesn't split. */
+  .trend-panel,
+  .heat-panel,
+  .timeline-panel,
+  .growth-panel,
+  .conc-card,
+  .analysis,
+  .pa-note,
+  .meth,
+  table.paths,
+  table.repro {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Section headers must stay with the content that follows.
+     Without this, a §04 header lands at the bottom of page 4
+     and its heatmap pushes to page 5 — exactly the bug from
+     the user's page 3→4 screenshot. */
+  .sec-head {
+    page-break-after: avoid;
+    break-after: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .sec-caption {
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+
+  /* Top-10 + Appendix tables — smaller font, tighter padding,
+     keep rows together */
+  table.top5 { font-size: 8.5pt; }
+  table.top5 th { font-size: 7pt; padding: 6px 5px; }
+  table.top5 td { font-size: 8.5pt; padding: 6px 5px; line-height: 1.3; }
+  table.top5 tr { page-break-inside: avoid; break-inside: avoid; }
+
+  table.paths { font-size: 9pt; }
+  table.paths td { padding: 5px 7px; }
+  table.paths tr { page-break-inside: avoid; break-inside: avoid; }
+
+  /* Reproducibility tables (§09a) */
+  table.repro { font-size: 8.5pt; }
+  table.repro td { padding: 3px 6px; }
+  table.repro tr { page-break-inside: avoid; break-inside: avoid; }
+
+  /* Methodology + narrative cards */
+  .meth, .analysis { font-size: 10pt; line-height: 1.55; padding: 14px 16px; }
+  .meth p, .analysis p { margin: 0 0 10px; }
+
+  /* KPI strip stays together */
+  .kpi-strip { page-break-inside: avoid; break-inside: avoid; }
+
+  /* Appendix A always starts a new page */
+  .appendix-head {
+    page-break-before: always; break-before: page;
+    page-break-after: avoid; break-after: avoid;
+    page-break-inside: avoid; break-inside: avoid;
+  }
+
+  /* Hide the body-level "Generated …" footer — page-numbers come
+     from the @page @bottom-* margin boxes now */
+  .footer { display: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   MOBILE — phones at ≤640px and tablets ≤900px.
+   Strategy: shrink page padding, stack KPI/concentration grids
+   into 1 column, scale typography, and wrap the wide Top-10 /
+   Appendix tables in a horizontally-scrollable container so
+   columns stay readable rather than collapsing.
+   ───────────────────────────────────────────────────────────── */
+@media (max-width:900px) {
+  body { padding:14px 10px 40px; font-size:13.5px; }
+  .page { padding:22px 18px; max-width:100%; }
+  h1.r-title { font-size:24px; }
+  .sub { font-size:9.5px; line-height:1.5; }
+
+  /* KPI strip: 6 cols → 2 cols on tablet, 1 col on phone */
+  .kpi-strip { grid-template-columns:repeat(2,1fr); }
+  .kpi { padding:14px 12px; }
+  .kpi-value { font-size:24px; }
+
+  /* Concentration / growth / models stack to 1 column */
+  .conc-grid, .growth-grid, .mdl-grid, .trend-grid { grid-template-columns:1fr !important; }
+  .conc-val { font-size:20px; }
+
+  /* Top-10 + Appendix tables get horizontal scroll on narrow
+     viewports. table-layout:fixed with a min-width preserves the
+     6-column structure; the wrapper provides the swipe surface. */
+  table.top5 { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; min-width:0; }
+  table.top5 thead, table.top5 tbody { display:table; width:auto; min-width:680px; }
+  table.top5 thead { width:680px; }
+  table.top5 tbody { width:680px; }
+  table.top5 td { font-size:11.5px; padding:8px 6px; }
+  table.top5 td.date { font-size:10.5px; }
+
+  /* SVG charts scale with container */
+  svg { max-width:100%; height:auto; }
+  .heat-panel, .timeline-panel { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+  /* Appendix table — same scroll treatment */
+  table.paths { font-size:12px; }
+  table.paths td { padding:6px 8px; }
+
+  /* Methodology card — tighter padding */
+  .meth { padding:16px 18px; font-size:12.5px; }
+
+  /* Section headings */
+  .sec-title { font-size:18px; }
+  .sec-num { font-size:11px; }
+}
+
+@media (max-width:640px) {
+  .kpi-strip { grid-template-columns:1fr; }
+  .mast { flex-direction:column; align-items:flex-start; gap:10px; }
+  h1.r-title { font-size:21px; line-height:1.2; }
+  .page { padding:18px 14px; }
+}
+</style></head><body><div class="page">
+
+<div class="mast">
+  <div>
+    <div class="brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div>
+    <div class="tagline">Food Safety Intelligence System · Monthly Briefing</div>
+    <div class="pubdate"><strong>PUBLISHED</strong> &middot; 1 Mar 2026</div>
+  </div>
+  <div class="pill">February 2026</div>
+</div>
+
+<h1 class="r-title">Food Safety Hazard &amp; Pathogen Surveillance <span class="accent">·</span> February 2026</h1>
+<div class="sub">01 Feb 2026 – 28 Feb 2026
+ &middot; 33 recall incidents across 8 jurisdictions
+ &middot; 10 regulatory sources</div>
+
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-label">Total Recalls</div>
+    <div class="kpi-value">33</div>
+    <div class="kpi-top">-3 (-8%) vs prior month</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Tier-1 Critical</div>
+    <div class="kpi-value red">31</div>
+    <div class="kpi-top">94% of total</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Outbreaks</div>
+    <div class="kpi-value vio">3</div>
+    <div class="kpi-top">0 clusters across 3 outbreak-associated events</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Leading Pathogen</div>
+    <div class="kpi-value orange">Salmonella spp.</div>
+    <div class="kpi-top">16 recall incidents &middot; 48%</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">MoM Change</div>
+    <div class="kpi-value mom" style="color:#059669">-8%</div>
+    <div class="kpi-top">Z = n/a</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Severity Index</div>
+    <div class="kpi-value">60.0</div>
+    <div class="kpi-top">ELEVATED</div>
+  </div>
+</div>
+
+<!-- § 01 Intelligence Analysis -->
+<div class="sec-head"><span class="sec-num">§ 01</span><h2 class="sec-title">Intelligence Analysis</h2><span class="sec-rule"></span></div>
+<div class="analysis"><p>February 2026 produced 33 food-safety hazard recall incidents across the AFTS monitoring network, a -8% move below the prior month — the rolling baseline is too narrow for a Z estimate this early in the series. <em>Salmonella</em> spp. dominated with 16 of 33 incidents (48%). The composite severity index closed at 60.0/100 (elevated), with 31 Tier-1 critical events and 3 outbreak-associated events (no temporal clustering) on record.</p><p>Structurally, the month reads as geographically concentrated with mixed signal concentration (Source HHI 1736.0, Geographic Gini 0.42). For a <em>Salmonella</em> spp.-dominated month, the relevant failure modes are post-process environmental harbourage in Zone 1 of RTE lines, sanitation SOP drift, and cold-chain lapses — not thermal underprocess. The Tier-1 intensity ratio of 0.95× vs the rolling baseline indicates severity is in line.</p><p>Looking forward, operators in <em>Salmonella</em> spp.-relevant commodity categories should re-verify the single highest-leverage control this month: environmental monitoring swab frequency on RTE deli and dairy lines, or pasteurisation D-value validation on low-moisture commodities, whichever matches their product mix. The linear-trend projection for next month stands at 55 recalls (95% CI [0, 111]), with r²=0.68, slope 16.0/month and t=1.46 on 1 degrees of freedom. The estimate is exploratory because the series is short — only 3 monthly observation(s) — and the slope is not statistically significant at α=0.05. Documentation packages should be ready for rapid regulatory response given continued inspection intensity.</p><p class="pa-note"><span class="pa-label">Process Authority Note:</span> This window includes <em>Clostridium botulinum</em> or botulism-relevant recalls. The control review for such events is product-specific. For shelf-stable low-acid, acidified, aseptic, or commercially sterile products, scheduled-process adequacy under a qualified process authority is the central control. For refrigerated anaerobic products — peeled garlic, sous-vide, vacuum or modified-atmosphere packs, smoked or fermented fish — the operative controls are validated refrigeration discipline, water-activity, pH, salt content, oxygen barrier integrity, and shelf-life qualification, with or without a thermal step. Across global jurisdictions the regulatory architecture differs but the engineering principle converges. In the United States, FDA 21 CFR 113 (thermally processed low-acid canned foods) and 21 CFR 114 (acidified foods) require a scheduled process established by a qualified process authority. In the European Union, Regulation 852/2004 imposes general hygiene and HACCP obligations on food-business operators, and Regulation 2073/2005 fixes microbiological criteria — neither is a direct equivalent of US LACF/acidified-food filing, but both presuppose process control validated against a documented hazard analysis, with national LACF/acidified-food rules layered on top in some Member States. Canada&#x27;s Safe Food for Canadians Regulations, FSA / FSS in the UK, FSANZ in Australia and New Zealand, and Japan&#x27;s MHLW each impose comparable preventive-control obligations. The common engineering principle: low-acid, aseptic, and commercially sterile products require a scheduled process established by a qualified process authority and executed under documented GMP oversight. Recall events in this category most commonly trace to one of: an unfiled or outdated scheduled process; a deviation resolved without qualified review; a formulation or packaging change introduced without process re-evaluation; a temperature-abuse event in the cold chain; or seal-integrity loss in anaerobic packaging. Manufacturers producing low-acid canned, acidified, fermented, or anaerobically packaged products — including refrigerated anaerobic products — should confirm with a qualified process authority that filings, multi-hurdle controls, GMP programmes, and deviation handling remain current before any production change.</p></div>
+
+<!-- § 02 MoM Trend -->
+<div class="sec-head"><span class="sec-num">§ 02</span><h2 class="sec-title">Month-over-Month Trend</h2><span class="sec-rule"></span></div>
+<div class="trend-grid">
+  <div class="trend-panel">
+    <div class="trend-row">
+      <div>
+        <div class="trend-num down">-8%</div>
+        <div class="trend-lbl">vs prior month</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--muted)">Z = n/a</div>
+        <div class="trend-lbl">Within baseline</div>
+      </div>
+    </div>
+    <svg width="320" height="72" viewBox="0 0 320 72" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;"><defs><linearGradient id="sg" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#059669" stop-opacity="0.35"/><stop offset="100%" stop-color="#059669" stop-opacity="0"/></linearGradient></defs><path d="M 24.0,58.7 L 160.0,12.0 L 296.0,16.0 L 296.0,60.0 L 24.0,60.0 Z" fill="url(#sg)"/><path d="M 24.0,58.7 L 160.0,12.0 L 296.0,16.0" fill="none" stroke="#059669" stroke-width="1.8"/><circle cx="296.0" cy="16.0" r="3.5" fill="#059669"/><text x="302.0" y="12.0" font-size="10" font-weight="700" font-family="DM Mono,monospace" fill="#059669">33</text><text x="24.0" y="70" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">07</text><text x="160.0" y="70" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">01</text><text x="296.0" y="70" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">02</text></svg>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px">
+      Rolling 3-month mean: <strong>18.0</strong>
+      &nbsp;·&nbsp; σ: <strong>24.7</strong>
+      &nbsp;·&nbsp; <span style="color:var(--orange)">baseline too narrow for Z (n &lt; 6)</span>
+    </div>
+  </div>
+  <div class="trend-panel">
+    <div class="trend-lbl" style="margin-bottom:4px">Weekly cadence (recalls per ISO week)</div>
+    <svg width="300" height="72" viewBox="0 0 300 72" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;"><rect x="23.0" y="24.2" width="59.0" height="33.8" fill="#E8601A" opacity="0.85" rx="1"/><text x="52.5" y="21.2" text-anchor="middle" font-size="9" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">10</text><text x="52.5" y="70.0" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">W06</text><rect x="88.0" y="37.7" width="59.0" height="20.3" fill="#E8601A" opacity="0.85" rx="1"/><text x="117.5" y="34.7" text-anchor="middle" font-size="9" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">6</text><text x="117.5" y="70.0" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">W07</text><rect x="153.0" y="44.5" width="59.0" height="13.5" fill="#E8601A" opacity="0.85" rx="1"/><text x="182.5" y="41.5" text-anchor="middle" font-size="9" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">4</text><text x="182.5" y="70.0" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">W08</text><rect x="218.0" y="14.0" width="59.0" height="44.0" fill="#E8601A" opacity="0.85" rx="1"/><text x="247.5" y="11.0" text-anchor="middle" font-size="9" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">13</text><text x="247.5" y="70.0" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">W09</text></svg>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">
+      Peak week: <strong>2026-W09</strong>
+      &nbsp;·&nbsp; σ: <strong>4.0</strong>
+    </div>
+  </div>
+</div>
+
+<!-- § 03 Hazard & Pathogen Distribution -->
+<div class="sec-head"><span class="sec-num">§ 03</span><h2 class="sec-title">Hazard &amp; Pathogen Distribution</h2><span class="sec-rule"></span></div>
+<p class="sec-caption">Distribution covers all reported food-safety hazards in the window — biological pathogens (Listeria, Salmonella, STEC, Campylobacter, etc.), biological toxins (marine biotoxins, histamine, cereulide), mycotoxins (aflatoxin, ochratoxin A, alternaria), heavy metals, residues, and physical/foreign-body contamination. Rows are ranked by share of total recall incidents.</p>
+<table class="paths"><tbody>
+<tr>
+<td><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em></td>
+<td class="num">16</td>
+<td><div class="bar"><div class="bar-fill" style="width:48%;background:#f59e0b"></div></div></td>
+<td class="num muted">48%</td>
+</tr>
+<tr>
+<td><span class="path-dot" style="background:#6b7280"></span><em class="path-name">Bacillus cereus / Cereulide</em></td>
+<td class="num">6</td>
+<td><div class="bar"><div class="bar-fill" style="width:18%;background:#6b7280"></div></div></td>
+<td class="num muted">18%</td>
+</tr>
+<tr>
+<td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Listeria monocytogenes</em></td>
+<td class="num">3</td>
+<td><div class="bar"><div class="bar-fill" style="width:9%;background:#dc2626"></div></div></td>
+<td class="num muted">9%</td>
+</tr>
+<tr>
+<td><span class="path-dot" style="background:#7c3aed"></span><em class="path-name">Norovirus</em></td>
+<td class="num">2</td>
+<td><div class="bar"><div class="bar-fill" style="width:6%;background:#7c3aed"></div></div></td>
+<td class="num muted">6%</td>
+</tr>
+<tr>
+<td><span class="path-dot" style="background:#6b7280"></span><em class="path-name">Possible incomplete pasteurization</em></td>
+<td class="num">1</td>
+<td><div class="bar"><div class="bar-fill" style="width:4%;background:#6b7280"></div></div></td>
+<td class="num muted">3%</td>
+</tr>
+<tr>
+<td><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella Newport</em></td>
+<td class="num">1</td>
+<td><div class="bar"><div class="bar-fill" style="width:4%;background:#f59e0b"></div></div></td>
+<td class="num muted">3%</td>
+</tr>
+<tr>
+<td><span class="path-dot" style="background:#f97316"></span><em class="path-name">E. coli</em></td>
+<td class="num">1</td>
+<td><div class="bar"><div class="bar-fill" style="width:4%;background:#f97316"></div></div></td>
+<td class="num muted">3%</td>
+</tr>
+<tr>
+<td><span class="path-dot" style="background:#ea580c"></span><em class="path-name">E. coli STEC</em></td>
+<td class="num">1</td>
+<td><div class="bar"><div class="bar-fill" style="width:4%;background:#ea580c"></div></div></td>
+<td class="num muted">3%</td>
+</tr>
+<tr>
+<td><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella Enteritidis</em></td>
+<td class="num">1</td>
+<td><div class="bar"><div class="bar-fill" style="width:4%;background:#f59e0b"></div></div></td>
+<td class="num muted">3%</td>
+</tr>
+<tr>
+<td><span class="path-dot" style="background:#b91c1c"></span><em class="path-name">Clostridium botulinum</em></td>
+<td class="num">1</td>
+<td><div class="bar"><div class="bar-fill" style="width:4%;background:#b91c1c"></div></div></td>
+<td class="num muted">3%</td>
+</tr></tbody></table>
+
+<!-- § 04 Country × Pathogen Hotspot Matrix -->
+<div class="sec-head"><span class="sec-num">§ 04</span><h2 class="sec-title">Country × Pathogen Hotspot Matrix</h2><span class="sec-rule"></span></div>
+<p class="sec-caption">Cells show observed recall counts. σ values are standardised residuals vs an independence-baseline expected count; cells with σ&gt;2 are statistically over-represented and are bordered in red. <strong>Caveat:</strong> hotspot flags are screening signals only — many cells have small expected counts, multiple country×hazard cells are tested simultaneously, and no multiple-comparison correction is applied. Treat any flag as a prompt for editorial review, not as a confirmatory epidemiological finding; for formal inference an exact / Monte-Carlo test or a Bonferroni / FDR adjustment is recommended.</p>
+<div class="heat-panel">
+  <svg width="626" height="388" viewBox="0 0 626 388" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;"><text x="198.0" y="50" text-anchor="middle" font-size="9" font-family="DM Mono,monospace" font-weight="700" fill="#0a0e1a"><tspan font-style="italic">Salmonella spp</tspan></text><text x="274.0" y="50" text-anchor="middle" font-size="9" font-family="DM Mono,monospace" font-weight="700" fill="#0a0e1a"><tspan font-style="italic">Listeria monoc</tspan></text><text x="350.0" y="50" text-anchor="middle" font-size="9" font-family="DM Mono,monospace" font-weight="700" fill="#0a0e1a"><tspan font-style="italic">Cereulide (B. </tspan></text><text x="426.0" y="50" text-anchor="middle" font-size="9" font-family="DM Mono,monospace" font-weight="700" fill="#0a0e1a"><tspan font-style="italic">Bacillus cereu</tspan></text><text x="502.0" y="50" text-anchor="middle" font-size="9" font-family="DM Mono,monospace" font-weight="700" fill="#0a0e1a"><tspan font-style="italic">Norovirus</tspan></text><text x="578.0" y="50" text-anchor="middle" font-size="9" font-family="DM Mono,monospace" font-weight="700" fill="#0a0e1a"><tspan font-style="italic">Possible Incom</tspan></text><text x="152" y="82.0" text-anchor="end" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#0a0e1a">France</text><rect x="160" y="58" width="76" height="40" fill="rgb(254,120,90)" stroke="#e5e7eb" stroke-width="1"/><text x="198.0" y="82.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#ffffff">10</text><text x="198.0" y="93.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#ffffff" opacity="0.65">σ=+1.2</text><rect x="236" y="58" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="274.0" y="82.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="312" y="58" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="350.0" y="82.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="388" y="58" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="426.0" y="82.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="464" y="58" width="76" height="40" fill="rgb(254,230,200)" stroke="#e5e7eb" stroke-width="1"/><text x="502.0" y="82.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">1</text><text x="502.0" y="93.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=+0.3</text><rect x="540" y="58" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="578.0" y="82.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><text x="152" y="122.0" text-anchor="end" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#0a0e1a">United States</text><rect x="160" y="98" width="76" height="40" fill="rgb(254,216,186)" stroke="#e5e7eb" stroke-width="1"/><text x="198.0" y="122.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">2</text><text x="198.0" y="133.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=-0.6</text><rect x="236" y="98" width="76" height="40" fill="rgb(254,216,186)" stroke="#e5e7eb" stroke-width="1"/><text x="274.0" y="122.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">2</text><text x="274.0" y="133.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=+2.1</text><rect x="312" y="98" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="350.0" y="122.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="388" y="98" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="426.0" y="122.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="464" y="98" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="502.0" y="122.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="540" y="98" width="76" height="40" fill="rgb(254,230,200)" stroke="#e5e7eb" stroke-width="1"/><text x="578.0" y="122.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">1</text><text x="578.0" y="133.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=+2.0</text><text x="152" y="162.0" text-anchor="end" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#0a0e1a">Canada</text><rect x="160" y="138" width="76" height="40" fill="rgb(254,201,171)" stroke="#e5e7eb" stroke-width="1"/><text x="198.0" y="162.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">3</text><text x="198.0" y="173.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=-0.1</text><rect x="236" y="138" width="76" height="40" fill="rgb(254,230,200)" stroke="#e5e7eb" stroke-width="1"/><text x="274.0" y="162.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">1</text><text x="274.0" y="173.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=+0.7</text><rect x="312" y="138" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="350.0" y="162.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="388" y="138" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="426.0" y="162.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="464" y="138" width="76" height="40" fill="rgb(254,230,200)" stroke="#e5e7eb" stroke-width="1"/><text x="502.0" y="162.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">1</text><text x="502.0" y="173.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=+1.1</text><rect x="540" y="138" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="578.0" y="162.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><text x="152" y="202.0" text-anchor="end" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#0a0e1a">United Kingdom</text><rect x="160" y="178" width="76" height="40" fill="rgb(254,230,200)" stroke="#e5e7eb" stroke-width="1"/><text x="198.0" y="202.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">1</text><text x="198.0" y="213.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=-0.6</text><rect x="236" y="178" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="274.0" y="202.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="312" y="178" width="76" height="40" fill="rgb(254,216,186)" stroke="#e5e7eb" stroke-width="1"/><text x="350.0" y="202.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">2</text><text x="350.0" y="213.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=+3.0</text><rect x="388" y="178" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="426.0" y="202.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="464" y="178" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="502.0" y="202.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="540" y="178" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="578.0" y="202.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><text x="152" y="242.0" text-anchor="end" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#0a0e1a">Ireland</text><rect x="160" y="218" width="76" height="40" fill="rgb(254,216,186)" stroke="#e5e7eb" stroke-width="1"/><text x="198.0" y="242.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">2</text><text x="198.0" y="253.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=+0.7</text><rect x="236" y="218" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="274.0" y="242.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="312" y="218" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="350.0" y="242.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="388" y="218" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="426.0" y="242.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="464" y="218" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="502.0" y="242.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="540" y="218" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="578.0" y="242.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><text x="152" y="282.0" text-anchor="end" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#0a0e1a">Hong Kong</text><rect x="160" y="258" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="198.0" y="282.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="236" y="258" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="274.0" y="282.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="312" y="258" width="76" height="40" fill="rgb(254,230,200)" stroke="#e5e7eb" stroke-width="1"/><text x="350.0" y="282.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">1</text><text x="350.0" y="293.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=+1.7</text><rect x="388" y="258" width="76" height="40" fill="rgb(254,230,200)" stroke="#e5e7eb" stroke-width="1"/><text x="426.0" y="282.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">1</text><text x="426.0" y="293.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=+2.3</text><rect x="464" y="258" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="502.0" y="282.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="540" y="258" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="578.0" y="282.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><text x="152" y="322.0" text-anchor="end" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#0a0e1a">Mexico</text><rect x="160" y="298" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="198.0" y="322.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="236" y="298" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="274.0" y="322.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="312" y="298" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="350.0" y="322.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="388" y="298" width="76" height="40" fill="rgb(254,230,200)" stroke="#e5e7eb" stroke-width="1"/><text x="426.0" y="322.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#0a0e1a">1</text><text x="426.0" y="333.0" text-anchor="middle" font-size="7" font-family="DM Mono,monospace" fill="#0a0e1a" opacity="0.65">σ=+3.5</text><rect x="464" y="298" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="502.0" y="322.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="540" y="298" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="578.0" y="322.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><text x="152" y="362.0" text-anchor="end" font-size="10" font-family="Inter,sans-serif" font-weight="600" fill="#0a0e1a">Australia</text><rect x="160" y="338" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="198.0" y="362.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="236" y="338" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="274.0" y="362.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="312" y="338" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="350.0" y="362.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="388" y="338" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="426.0" y="362.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="464" y="338" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="502.0" y="362.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text><rect x="540" y="338" width="76" height="40" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/><text x="578.0" y="362.0" text-anchor="middle" font-size="13" font-weight="700" font-family="DM Mono,monospace" fill="#94a3b8">0</text></svg>
+  <div style="margin-top:16px;font-family:'DM Mono',monospace;font-size:10px;
+  color:#E8601A;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;">Hotspot alerts</div>
+  <ul class="hotspot-list"><li class="empty">No statistically significant hotspot cells (σ≤2 across the whole matrix).</li></ul>
+</div>
+
+<!-- § 05 Outbreak Timeline -->
+<div class="sec-head"><span class="sec-num">§ 05</span><h2 class="sec-title">Outbreak Timeline &amp; Cluster Analysis</h2><span class="sec-rule"></span></div>
+<p class="sec-caption">One marker per outbreak event; hover/print for detail. Clusters are ≥3 same-pathogen outbreaks within a 14-day window.</p>
+<div class="timeline-panel">
+  <svg width="620" height="110" viewBox="0 0 620 110" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;"><line x1="36" y1="78" x2="584" y2="78" stroke="#94a3b8" stroke-width="1.5"/><line x1="36.0" y1="78" x2="36.0" y2="82" stroke="#cbd5e1" stroke-width="1"/><text x="36.0" y="96" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">01 Feb</text><line x1="137.5" y1="78" x2="137.5" y2="82" stroke="#cbd5e1" stroke-width="1"/><text x="137.5" y="96" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">06 Feb</text><line x1="239.0" y1="78" x2="239.0" y2="82" stroke="#cbd5e1" stroke-width="1"/><text x="239.0" y="96" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">11 Feb</text><line x1="340.4" y1="78" x2="340.4" y2="82" stroke="#cbd5e1" stroke-width="1"/><text x="340.4" y="96" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">16 Feb</text><line x1="441.9" y1="78" x2="441.9" y2="82" stroke="#cbd5e1" stroke-width="1"/><text x="441.9" y="96" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">21 Feb</text><line x1="543.4" y1="78" x2="543.4" y2="82" stroke="#cbd5e1" stroke-width="1"/><text x="543.4" y="96" text-anchor="middle" font-size="8" font-family="DM Mono,monospace" fill="#64748b">26 Feb</text><circle cx="279.6" cy="80.0" r="5" fill="#0a0e1a" stroke="#fff" stroke-width="1.5"><title>2026-02-13 · Salmonella spp. · United States · Ambrosia Brands, LLC</title></circle><line x1="279.6" y1="85.0" x2="279.6" y2="78" stroke="#0a0e1a" stroke-width="1" opacity="0.3"/><circle cx="259.3" cy="44.0" r="5" fill="#818cf8" stroke="#fff" stroke-width="1.5"><title>2026-02-12 · Norovirus · Canada · Stellar Bay Shellfish Ltd.</title></circle><line x1="259.3" y1="49.0" x2="259.3" y2="78" stroke="#818cf8" stroke-width="1" opacity="0.3"/><circle cx="76.6" cy="80.0" r="5" fill="#0a0e1a" stroke="#fff" stroke-width="1.5"><title>2026-02-03 · Cereulide · United Kingdom · Nestlé</title></circle><line x1="76.6" y1="85.0" x2="76.6" y2="78" stroke="#0a0e1a" stroke-width="1" opacity="0.3"/><circle cx="41.0" cy="106.0" r="3" fill="#818cf8"/><text x="48.0" y="109.0" font-size="9" font-family="DM Mono,monospace" fill="#475569"><tspan font-style="italic">Norovirus</tspan></text><circle cx="120.5" cy="106.0" r="3" fill="#0a0e1a"/><text x="127.5" y="109.0" font-size="9" font-family="DM Mono,monospace" fill="#475569"><tspan font-style="italic">Cereulide</tspan></text><circle cx="200.0" cy="106.0" r="3" fill="#0a0e1a"/><text x="207.0" y="109.0" font-size="9" font-family="DM Mono,monospace" fill="#475569"><tspan font-style="italic">Salmonella spp.</tspan></text></svg>
+  <div style="margin-top:16px;font-family:'DM Mono',monospace;font-size:10px;
+  color:#E8601A;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;">
+    Detected clusters (0)</div>
+  <ul class="hotspot-list"><li class="empty">No temporal clusters detected — outbreak events (3 this month) are sporadic rather than linked.</li></ul>
+</div>
+
+<!-- § 06 Regulatory Intensity + Growth -->
+<div class="sec-head"><span class="sec-num">§ 06</span><h2 class="sec-title">Regulatory Intensity &amp; Concentration</h2><span class="sec-rule"></span></div>
+<div class="conc-grid">
+  <div class="conc-card moderately concentrated">
+    <div class="conc-lbl">Source HHI</div>
+    <div class="conc-val">1736.0</div>
+    <div class="conc-note">10 sources · <strong>moderately concentrated</strong> (&lt;1500 diverse · 1500–2500 moderate · &gt;2500 concentrated)</div>
+  </div>
+  <div class="conc-card concentrated">
+    <div class="conc-lbl">Geographic Gini</div>
+    <div class="conc-val">0.42</div>
+    <div class="conc-note">8 countries · <strong>concentrated</strong> (&lt;0.4 even · 0.4–0.6 moderate · &gt;0.6 uneven)</div>
+  </div>
+  <div class="conc-card">
+    <div class="conc-lbl">Tier-1 Intensity</div>
+    <div class="conc-val">0.95×</div>
+    <div class="conc-note">This month: 94% · baseline: 99%</div>
+  </div>
+</div>
+<div class="growth-grid">
+  <div class="growth-panel">
+    <h4>↑ Emerging pathogens (Z &gt; 2)</h4>
+    <ul><li><em>Salmonella spp.</em> <span class="agg-note">(all serovars combined)</span>: 18 recall incidents, Z=+2.40, MoM +678%</li></ul>
+  </div>
+  <div class="growth-panel">
+    <h4>↓ Declining pathogens (Z &lt; −2)</h4>
+    <ul><li class="empty">No pathogens with &gt;2σ month-over-month decline.</li></ul>
+  </div>
+</div>
+
+<!-- § 07 Severity + Predictive -->
+<div class="sec-head"><span class="sec-num">§ 07</span><h2 class="sec-title">Predictive Outlook</h2><span class="sec-rule"></span></div>
+<div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;margin-bottom:20px">
+  <div style="flex:0 0 auto;background:var(--s1);padding:16px 20px;text-align:center;">
+    <svg width="200" height="110" viewBox="0 0 200 110" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:0 auto;"><path d="M 30.0 92.0 A 70 70 0 0 1 43.4 50.9" fill="none" stroke="#059669" stroke-width="12" opacity="0.8"/><path d="M 43.4 50.9 A 70 70 0 0 1 78.4 25.4" fill="none" stroke="#E8601A" stroke-width="12" opacity="0.8"/><path d="M 78.4 25.4 A 70 70 0 0 1 121.6 25.4" fill="none" stroke="#f59e0b" stroke-width="12" opacity="0.8"/><path d="M 121.6 25.4 A 70 70 0 0 1 156.6 50.9" fill="none" stroke="#dc2626" stroke-width="12" opacity="0.8"/><path d="M 156.6 50.9 A 70 70 0 0 1 170.0 92.0" fill="none" stroke="#7c3aed" stroke-width="12" opacity="0.8"/><line x1="100.0" y1="92" x2="119.2" y2="33.0" stroke="#0a0e1a" stroke-width="2.5"/><circle cx="100.0" cy="92" r="5" fill="#0a0e1a"/><text x="100.0" y="57" text-anchor="middle" font-size="22" font-weight="800" font-family="Syne,sans-serif" fill="#0a0e1a">60.0</text><text x="100.0" y="74" text-anchor="middle" font-size="9" font-family="DM Mono,monospace" letter-spacing="1.5" fill="#64748b" text-transform="uppercase">ELEVATED</text></svg>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:0.1em;text-transform:uppercase">Composite Severity · 0–100</div>
+  </div>
+  <div style="flex:1;min-width:280px;font-size:12.5px;color:var(--body);line-height:1.7;">
+    <strong>How to read this panel.</strong> Each card shows a predictive model
+    AFTS runs on the monthly series. Active cards publish a forecast with its
+    confidence envelope; dormant cards show the data threshold required to
+    activate — an honest roadmap as the dataset grows. When <em>n</em> reaches
+    12 months, STL decomposition unlocks; 24 months unlocks Holt-Winters,
+    SARIMA, and Prophet. All models run on the same Recalls sheet you already
+    subscribe to — no secondary data required.
+  </div>
+</div>
+<div class="mdl-grid">
+<div class="mdl-card" style="border-left:3px solid #059669;background:rgba(5,150,105,.06)">
+  <div class="mdl-hdr">
+    <span class="mdl-name">Linear trend projection</span>
+    <span class="mdl-status" style="color:#059669">ACTIVE</span>
+  </div>
+  <div class="mdl-sub">OLS on total monthly counts</div>
+  <div class="mdl-detail">Next-month forecast: <strong>55</strong> recalls (95% CI [0, 111]); slope <strong>+16.0/month</strong>; r²=0.68. Direction: rising (slope +16.0/month, r²=0.68). Estimate is exploratory — only 3 monthly observations available; a formal significance test requires n ≥ 12 (critical t at α=0.05 is approximately 2.18 with the current n−2 = 1 degrees of freedom).</div>
+</div>
+<div class="mdl-card" style="border-left:3px solid #94a3b8;background:rgba(148,163,184,.04)">
+  <div class="mdl-hdr">
+    <span class="mdl-name">Poisson per-pathogen forecast</span>
+    <span class="mdl-status" style="color:#94a3b8">INACTIVE</span>
+  </div>
+  <div class="mdl-sub">For rare pathogens (&lt;10 incidents/mo)</div>
+  <div class="mdl-detail">No pathogen has ≥6 months of history & rare profile.</div>
+</div>
+<div class="mdl-card" style="border-left:3px solid #94a3b8;background:rgba(148,163,184,.04)">
+  <div class="mdl-hdr">
+    <span class="mdl-name">CUSUM change-point detection</span>
+    <span class="mdl-status" style="color:#94a3b8">Activates at n≥6 months (have 3).</span>
+  </div>
+  <div class="mdl-sub">Page-1954 tabular CUSUM</div>
+  
+</div>
+<div class="mdl-card" style="border-left:3px solid #94a3b8;background:rgba(148,163,184,.04)">
+  <div class="mdl-hdr">
+    <span class="mdl-name">OLS with seasonal dummies</span>
+    <span class="mdl-status" style="color:#94a3b8">Activates at n≥14 months (have 3).</span>
+  </div>
+  <div class="mdl-sub">Linear trend + month-of-year effects</div>
+  
+</div>
+<div class="mdl-card" style="border-left:3px solid #94a3b8;background:rgba(148,163,184,.04)">
+  <div class="mdl-hdr">
+    <span class="mdl-name">STL decomposition</span>
+    <span class="mdl-status" style="color:#94a3b8">STL activates at n≥24 months (have 3).</span>
+  </div>
+  <div class="mdl-sub">Trend + seasonal + residual (LOESS)</div>
+  
+</div>
+<div class="mdl-card" style="border-left:3px solid #94a3b8;background:rgba(148,163,184,.04)">
+  <div class="mdl-hdr">
+    <span class="mdl-name">Holt-Winters</span>
+    <span class="mdl-status" style="color:#94a3b8">Holt-Winters activates at n≥24 months (have 3).</span>
+  </div>
+  <div class="mdl-sub">Level + trend + seasonal smoothing</div>
+  
+</div>
+<div class="mdl-card" style="border-left:3px solid #94a3b8;background:rgba(148,163,184,.04)">
+  <div class="mdl-hdr">
+    <span class="mdl-name">SARIMA</span>
+    <span class="mdl-status" style="color:#94a3b8">SARIMA activates at n≥24 months (have 3).</span>
+  </div>
+  <div class="mdl-sub">Seasonal ARIMA(p,d,q)(P,D,Q)s</div>
+  
+</div>
+<div class="mdl-card" style="border-left:3px solid #94a3b8;background:rgba(148,163,184,.04)">
+  <div class="mdl-hdr">
+    <span class="mdl-name">Prophet</span>
+    <span class="mdl-status" style="color:#94a3b8">Prophet activates at n≥24 months (have 3).</span>
+  </div>
+  <div class="mdl-sub">Additive seasonality + holidays</div>
+  
+</div></div>
+
+<!-- § 08 Top 10 -->
+<div class="sec-head">
+  <span class="sec-num">§ 08</span>
+  <h2 class="sec-title">Top 10 Critical Incidents</h2>
+  <span class="sec-rule"></span>
+  <a class="sec-link" href="2026-M02-all.html" target="_blank">View all 33 &rarr;</a>
+</div>
+<p class="sec-caption">Ranked by pathogen severity, outbreak status, and tier. For editorial clarity, where a single event appears both as a primary regulator recall and as a CDC outbreak page (Nara Organics, Clover Hill Dairy), only the FDA recall is shown here; the full severity-ranked list — including every regulator record — is in the companion appendix below.</p>
+<table class="top5"><thead><tr>
+<th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th>
+<th>Product</th><th>Jurisdiction &amp; Source</th>
+</tr></thead><tbody><tr><td class="num rank">#1</td><td class="date">2026-02-13</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella Newport</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span> <span class="chip chip-outbreak">Outbreak</span></td><td class="company"><div class="company-name">Ambrosia Brands, LLC</div><div class="brand">Rosabella</div></td><td class="prod">Pure Organic Moringa Powder Capsules 800 mg</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/ambrosia-brands-llc-recalls-rosabella-moringa-capsules-because-possible-health-risk" target="_blank" rel="noopener">FDA &rarr;</a></div></td></tr><tr><td class="num rank">#2</td><td class="date">2026-02-03</td><td class="pathogen"><span class="path-dot" style="background:#6b7280"></span><em class="path-name">Bacillus cereus / Cereulide</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span> <span class="chip chip-outbreak">Outbreak</span></td><td class="company"><div class="company-name">Nestlé</div><div class="brand">SMA</div></td><td class="prod">SMA Infant Formula and Follow-On Formula</td><td class="src"><div class="country">United Kingdom</div><div class="agency"><a href="https://www.food.gov.uk/news-alerts/alert/fsa-prin-02-2026-update-1" target="_blank" rel="noopener">FSA (UK) &rarr;</a></div></td></tr><tr><td class="num rank">#3</td><td class="date">2026-02-12</td><td class="pathogen"><span class="path-dot" style="background:#7c3aed"></span><em class="path-name">Norovirus</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span> <span class="chip chip-outbreak">Outbreak</span></td><td class="company"><div class="company-name">Stellar Bay Shellfish Ltd.</div><div class="brand">Kusshi / Chrome Point / Stellar Bay</div></td><td class="prod">Oysters from BC harvest area BC 17-20</td><td class="src"><div class="country">Canada</div><div class="agency"><a href="https://recalls-rappels.canada.ca/en/alert-recall/certain-stellar-bay-shellfish-brand-oysters-recalled-due-norovirus-0" target="_blank" rel="noopener">CFIA &rarr;</a></div></td></tr><tr><td class="num rank">#4</td><td class="date">2026-02-05</td><td class="pathogen"><span class="path-dot" style="background:#b91c1c"></span><em class="path-name">Clostridium botulinum</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Prime Food Processing LLC</div><div class="brand">(Dried Croaker Fish)</div></td><td class="prod">Uneviscerated Dried Croaker Fish</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-croaker-fish" target="_blank" rel="noopener">FDA &rarr;</a></div></td></tr><tr><td class="num rank">#5</td><td class="date">2026-02-20</td><td class="pathogen"><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Listeria monocytogenes</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Made Fresh Salads, Inc.</div><div class="brand">Made Fresh Salads</div></td><td class="prod">Cream cheese assorted flavors + tofu spread (5 lb tubs)</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/made-fresh-salads-inc-recalls-assorted-flavors-cream-cheese-because-possible-health-risk" target="_blank" rel="noopener">FDA &rarr;</a></div></td></tr><tr><td class="num rank">#6</td><td class="date">2026-02-11</td><td class="pathogen"><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Listeria monocytogenes</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Slade Gorton &amp; Co., Inc.</div><div class="brand">Wellsley Farms</div></td><td class="prod">Farm-Raised Atlantic Salmon, 2-lb bags (sold at BJ&#x27;s Wholesale Club)</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/slade-gorton-co-inc-recalls-one-lot-wellsley-farms-farm-raised-atlantic-salmon-sold-bjs-wholesale" target="_blank" rel="noopener">FDA &rarr;</a></div></td></tr><tr><td class="num rank">#7</td><td class="date">2026-02-02</td><td class="pathogen"><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Listeria monocytogenes</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Longsheng (Canada) Agricultural Products Ltd.</div><div class="brand">Mushmoshi</div></td><td class="prod">Enoki Mushroom (200 g)</td><td class="src"><div class="country">Canada</div><div class="agency"><a href="https://recalls-rappels.canada.ca/en/alert-recall/mushmoshi-brand-enoki-mushroom-recalled-due-listeria-monocytogenes" target="_blank" rel="noopener">CFIA &rarr;</a></div></td></tr><tr><td class="num rank">#8</td><td class="date">2026-02-12</td><td class="pathogen"><span class="path-dot" style="background:#f97316"></span><em class="path-name">E. coli</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">La Vera Group Pty Ltd</div><div class="brand">La Vera</div></td><td class="prod">La Vera Fresh Ricotta 500 g</td><td class="src"><div class="country">Australia</div><div class="agency"><a href="https://www.foodstandards.gov.au/food-recalls/recall-alert/la-vera-group-pty-ltd-trading-la-vera-cheese-la-vera-fresh-ricotta-500g" target="_blank" rel="noopener">FSANZ (AU) &rarr;</a></div></td></tr><tr><td class="num rank">#9</td><td class="date">2026-02-11</td><td class="pathogen"><span class="path-dot" style="background:#ea580c"></span><em class="path-name">E. coli STEC</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">CS Beef Packers, LLC (Kuna, ID)</div><div class="brand">Fire River Farms / Beef 73L</div></td><td class="prod">Raw ground beef ~22,912 lbs (EST 630)</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fsis.usda.gov/recalls-alerts/cs-beef-packers-llc-recalls-ground-beef-products-may-be-contaminated-e--coli-o145" target="_blank" rel="noopener">USDA FSIS &rarr;</a></div></td></tr><tr><td class="num rank">#10</td><td class="date">2026-02-27</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">PALMI D&#x27;OR BOURGOGNE PALMID&#x27;OR BOURGOGNE</div><div class="brand">NEUTRE</div></td><td class="prod">Duck fillets in 5% brine — extra tender vacuum-packed (Lot 2)</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21437/Interne" target="_blank" rel="noopener">RappelConso (FR) &rarr;</a></div></td></tr></tbody></table>
+
+<!-- § 09 Methodology -->
+<div class="sec-head"><span class="sec-num">§ 09</span><h2 class="sec-title">Methodology &amp; Sources</h2><span class="sec-rule"></span></div>
+<div class="meth">
+  <p><strong>Definitions.</strong> A <em>recall incident</em> is a single regulator-published recall fiche / notice covering one identified product or product family. Where a single multi-country event is reported by two regulators (for example FSAI in Ireland plus FSA in the United Kingdom), each regulator's notice counts as one incident — the incident table accordingly shows the multi-jurisdictional footprint rather than de-duplicating to a single row. <em>Tier-1</em> indicates an immediate public-health risk (Listeria, Salmonella, STEC, Campylobacter, Cronobacter, Vibrio, Hepatitis A, marine biotoxins, mycotoxins above regulatory limits, undeclared major allergens). <em>Outbreak-associated</em> means the regulator's notice cites confirmed human cases or epidemiologically-linked illnesses, not merely a positive product test.</p>
+
+  <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, hazard classification, and the engineering interpretation of each recall are developed by the AFTS process-authority practice, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP.</p>
+
+  <p><strong>Statistical methods.</strong> Month-over-month <em>Z-scores</em> use the rolling-prior-months mean and sample standard deviation; the score is suppressed (n/a) when the baseline contains fewer than six months. The <em>hotspot matrix</em> uses standardised chi-square residuals against an independence-baseline expected count; cells with σ&gt;2 are flagged as over-represented but are screening signals only (no multiple-comparison correction; small expected counts in many cells). <em>Source concentration</em> uses the Herfindahl-Hirschman Index on agency counts (HHI = Σ s²ᵢ × 10000, where sᵢ is each agency's share; &lt;1500 diverse, 1500–2500 moderate, &gt;2500 concentrated). <em>Geographic distribution</em> uses the Gini coefficient on country counts (0 = perfectly even, 1 = single-country regime; &lt;0.4 even, 0.4–0.6 moderate, &gt;0.6 uneven). <em>Outbreak clusters</em> are detected via a sliding 14-day window over same-pathogen outbreak events (cluster threshold: ≥3 events). The <em>composite severity index</em> (0–100) is a transparent two-component blend: <strong>100 × (0.60 × Tier-1 share + 0.40 × outbreak rate)</strong>, where Tier-1 share = Tier-1 incidents ÷ total incidents and outbreak rate = outbreak-flagged incidents ÷ total incidents (using the same criterion as the headline outbreaks KPI). For February 2026 this evaluates to 100 × (0.60 × 31/33 + 0.40 × 3/33) = 60.0. Buckets: ≥65 critical, ≥45 elevated, ≥25 moderate, &lt;25 low. Predictive models are gated to activate only when data history meets the minimum size required for valid estimation; the linear-trend OLS reports a 95% CI but does not claim slope significance until n ≥ 12 monthly observations (so dof ≥ 10, where the t-critical at α = 0.05 falls below 2.23).</p>
+
+  <p><strong>Reporting-system caveats.</strong> National recall-publication regimes differ in granularity. France's RappelConso publishes one fiche per identified product/lot configuration, often producing several fiches per single root-cause event; the headline French count therefore reflects a transparent, item-level reporting practice rather than a higher true incidence. EU member-state counts likewise reflect both the actual hazard signal and each authority's publication discipline. Treat country totals as a recall-publication signal, not as a direct food-safety league table.</p>
+
+  <p><strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from 70+ countries and 15+ agencies (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso, BVL, AESAN, EFET and national authorities) into the accumulative Recalls sheet. AI narrative is produced against AFTS process-authority prompts and edited for publication. Figures, hazard names, and source URLs are preserved verbatim from regulator data.</p>
+</div>
+
+<!-- §09a — HHI / Gini reproducibility table -->
+<div class="sec-head"><span class="sec-num">§ 09a</span><h2 class="sec-title">Concentration Reproducibility</h2><span class="sec-rule"></span></div>
+<p class="sec-caption">Per review-1 audit guidance — the source-count table reproduces Source HHI = 1736.0 on agency shares, and the country-count table reproduces Geographic Gini = 0.42 on country counts. Top 12 of each are shown; the residual rows behave identically and contribute proportionally smaller s².</p>
+<div class="conc-grid">
+  <div class="conc-card">
+    <div class="conc-lbl">Source / Agency &middot; share &middot; HHI s²ᵢ contribution</div>
+    <table class="repro"><tbody>
+      <tr><td class="repro-lbl">RappelConso (FR)</td><td class="repro-num">10</td><td class="repro-num">30.3%</td><td class="repro-num">918.3</td></tr><tr><td class="repro-lbl">FDA</td><td class="repro-num">6</td><td class="repro-num">18.2%</td><td class="repro-num">330.6</td></tr><tr><td class="repro-lbl">CFIA</td><td class="repro-num">5</td><td class="repro-num">15.2%</td><td class="repro-num">229.6</td></tr><tr><td class="repro-lbl">FSA (UK)</td><td class="repro-num">4</td><td class="repro-num">12.1%</td><td class="repro-num">146.9</td></tr><tr><td class="repro-lbl">FSAI (IE)</td><td class="repro-num">2</td><td class="repro-num">6.1%</td><td class="repro-num">36.7</td></tr><tr><td class="repro-lbl">CFS (HK)</td><td class="repro-num">2</td><td class="repro-num">6.1%</td><td class="repro-num">36.7</td></tr><tr><td class="repro-lbl">COFEPRIS (MX)</td><td class="repro-num">1</td><td class="repro-num">3.0%</td><td class="repro-num">9.2</td></tr><tr><td class="repro-lbl">RASFF (EU)</td><td class="repro-num">1</td><td class="repro-num">3.0%</td><td class="repro-num">9.2</td></tr><tr><td class="repro-lbl">FSANZ (AU)</td><td class="repro-num">1</td><td class="repro-num">3.0%</td><td class="repro-num">9.2</td></tr><tr><td class="repro-lbl">USDA FSIS</td><td class="repro-num">1</td><td class="repro-num">3.0%</td><td class="repro-num">9.2</td></tr>
+    </tbody></table>
+  </div>
+  <div class="conc-card">
+    <div class="conc-lbl">Country &middot; count &middot; share</div>
+    <table class="repro"><tbody>
+      <tr><td class="repro-lbl">France</td><td class="repro-num">11</td><td class="repro-num">33.3%</td></tr><tr><td class="repro-lbl">United States</td><td class="repro-num">7</td><td class="repro-num">21.2%</td></tr><tr><td class="repro-lbl">Canada</td><td class="repro-num">5</td><td class="repro-num">15.2%</td></tr><tr><td class="repro-lbl">United Kingdom</td><td class="repro-num">4</td><td class="repro-num">12.1%</td></tr><tr><td class="repro-lbl">Ireland</td><td class="repro-num">2</td><td class="repro-num">6.1%</td></tr><tr><td class="repro-lbl">Hong Kong</td><td class="repro-num">2</td><td class="repro-num">6.1%</td></tr><tr><td class="repro-lbl">Mexico</td><td class="repro-num">1</td><td class="repro-num">3.0%</td></tr><tr><td class="repro-lbl">Australia</td><td class="repro-num">1</td><td class="repro-num">3.0%</td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<!-- Appendix A — Complete Recall Register -->
+<div class="appendix-head">
+  <span class="appendix-num">APPENDIX A</span>
+  <h2 class="appendix-title">Complete Recall Register</h2>
+  <span class="sec-rule"></span>
+  <span class="appendix-count">33 recalls</span>
+</div>
+<p class="sec-caption">Every food-safety hazard recall recorded in February 2026, ranked by severity. This appendix replaces the companion page for subscriber convenience.</p>
+<table class="top5"><thead><tr>
+<th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th>
+<th>Product</th><th>Jurisdiction &amp; Source</th>
+</tr></thead><tbody><tr><td class="num rank">#1</td><td class="date">2026-02-13</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella Newport</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span> <span class="chip chip-outbreak">Outbreak</span></td><td class="company"><div class="company-name">Ambrosia Brands, LLC</div><div class="brand">Rosabella</div></td><td class="prod">Pure Organic Moringa Powder Capsules 800 mg</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/ambrosia-brands-llc-recalls-rosabella-moringa-capsules-because-possible-health-risk" target="_blank" rel="noopener">FDA &rarr;</a></div></td></tr><tr><td class="num rank">#2</td><td class="date">2026-02-03</td><td class="pathogen"><span class="path-dot" style="background:#6b7280"></span><em class="path-name">Bacillus cereus / Cereulide</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span> <span class="chip chip-outbreak">Outbreak</span></td><td class="company"><div class="company-name">Nestlé</div><div class="brand">SMA</div></td><td class="prod">SMA Infant Formula and Follow-On Formula</td><td class="src"><div class="country">United Kingdom</div><div class="agency"><a href="https://www.food.gov.uk/news-alerts/alert/fsa-prin-02-2026-update-1" target="_blank" rel="noopener">FSA (UK) &rarr;</a></div></td></tr><tr><td class="num rank">#3</td><td class="date">2026-02-12</td><td class="pathogen"><span class="path-dot" style="background:#7c3aed"></span><em class="path-name">Norovirus</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span> <span class="chip chip-outbreak">Outbreak</span></td><td class="company"><div class="company-name">Stellar Bay Shellfish Ltd.</div><div class="brand">Kusshi / Chrome Point / Stellar Bay</div></td><td class="prod">Oysters from BC harvest area BC 17-20</td><td class="src"><div class="country">Canada</div><div class="agency"><a href="https://recalls-rappels.canada.ca/en/alert-recall/certain-stellar-bay-shellfish-brand-oysters-recalled-due-norovirus-0" target="_blank" rel="noopener">CFIA &rarr;</a></div></td></tr><tr><td class="num rank">#4</td><td class="date">2026-02-05</td><td class="pathogen"><span class="path-dot" style="background:#b91c1c"></span><em class="path-name">Clostridium botulinum</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Prime Food Processing LLC</div><div class="brand">(Dried Croaker Fish)</div></td><td class="prod">Uneviscerated Dried Croaker Fish</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-croaker-fish" target="_blank" rel="noopener">FDA &rarr;</a></div></td></tr><tr><td class="num rank">#5</td><td class="date">2026-02-20</td><td class="pathogen"><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Listeria monocytogenes</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Made Fresh Salads, Inc.</div><div class="brand">Made Fresh Salads</div></td><td class="prod">Cream cheese assorted flavors + tofu spread (5 lb tubs)</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/made-fresh-salads-inc-recalls-assorted-flavors-cream-cheese-because-possible-health-risk" target="_blank" rel="noopener">FDA &rarr;</a></div></td></tr><tr><td class="num rank">#6</td><td class="date">2026-02-11</td><td class="pathogen"><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Listeria monocytogenes</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Slade Gorton &amp; Co., Inc.</div><div class="brand">Wellsley Farms</div></td><td class="prod">Farm-Raised Atlantic Salmon, 2-lb bags (sold at BJ&#x27;s Wholesale Club)</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/slade-gorton-co-inc-recalls-one-lot-wellsley-farms-farm-raised-atlantic-salmon-sold-bjs-wholesale" target="_blank" rel="noopener">FDA &rarr;</a></div></td></tr><tr><td class="num rank">#7</td><td class="date">2026-02-02</td><td class="pathogen"><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Listeria monocytogenes</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Longsheng (Canada) Agricultural Products Ltd.</div><div class="brand">Mushmoshi</div></td><td class="prod">Enoki Mushroom (200 g)</td><td class="src"><div class="country">Canada</div><div class="agency"><a href="https://recalls-rappels.canada.ca/en/alert-recall/mushmoshi-brand-enoki-mushroom-recalled-due-listeria-monocytogenes" target="_blank" rel="noopener">CFIA &rarr;</a></div></td></tr><tr><td class="num rank">#8</td><td class="date">2026-02-12</td><td class="pathogen"><span class="path-dot" style="background:#f97316"></span><em class="path-name">E. coli</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">La Vera Group Pty Ltd</div><div class="brand">La Vera</div></td><td class="prod">La Vera Fresh Ricotta 500 g</td><td class="src"><div class="country">Australia</div><div class="agency"><a href="https://www.foodstandards.gov.au/food-recalls/recall-alert/la-vera-group-pty-ltd-trading-la-vera-cheese-la-vera-fresh-ricotta-500g" target="_blank" rel="noopener">FSANZ (AU) &rarr;</a></div></td></tr><tr><td class="num rank">#9</td><td class="date">2026-02-11</td><td class="pathogen"><span class="path-dot" style="background:#ea580c"></span><em class="path-name">E. coli STEC</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">CS Beef Packers, LLC (Kuna, ID)</div><div class="brand">Fire River Farms / Beef 73L</div></td><td class="prod">Raw ground beef ~22,912 lbs (EST 630)</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fsis.usda.gov/recalls-alerts/cs-beef-packers-llc-recalls-ground-beef-products-may-be-contaminated-e--coli-o145" target="_blank" rel="noopener">USDA FSIS &rarr;</a></div></td></tr><tr><td class="num rank">#10</td><td class="date">2026-02-27</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">PALMI D&#x27;OR BOURGOGNE PALMID&#x27;OR BOURGOGNE</div><div class="brand">NEUTRE</div></td><td class="prod">Duck fillets in 5% brine — extra tender vacuum-packed (Lot 2)</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21437/Interne" target="_blank" rel="noopener">RappelConso (FR) &rarr;</a></div></td></tr><tr><td class="num rank">#11</td><td class="date">2026-02-27</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Teba 44</div><div class="brand">Unbranded</div></td><td class="prod">Garlic saucisson BIO Ferme du Doiterneau (lot 040326041002, use-by 2026-03-11)</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21410/Interne" target="_blank" rel="noopener">RappelConso (FR) &rarr;</a></div></td></tr><tr><td class="num rank">#12</td><td class="date">2026-02-26</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Etablissements Monfort</div><div class="brand">Monfort Viandes</div></td><td class="prod">6 ground beef steaks 15% fat 100 g (GTIN 3361114015067, lot 980/605103201, use-by 2026-02-27)</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21419/Interne" target="_blank" rel="noopener">RappelConso (FR) &rarr;</a></div></td></tr><tr><td class="num rank">#13</td><td class="date">2026-02-26</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Eleveurs de Bretagne</div></td><td class="prod">Ground beef steak 15% NEBH</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21418/Interne" target="_blank" rel="noopener">RappelConso (FR) &rarr;</a></div></td></tr><tr><td class="num rank">#14</td><td class="date">2026-02-26</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">SCHILDIS E.LECLERC</div><div class="brand">E.Leclerc Schiltigheim</div></td><td class="prod">Chicken fillet (lots Nollens 16.02 LCFEGKND10, use-by from 2026-02-20)</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21416/Interne" target="_blank" rel="noopener">RappelConso (FR) &rarr;</a></div></td></tr><tr><td class="num rank">#15</td><td class="date">2026-02-26</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">SARL COMMENGES</div><div class="brand">CHARCUTERIE COMMENGES</div></td><td class="prod">Dry liver sausage</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21344/Interne" target="_blank" rel="noopener">RappelConso (FR) &rarr;</a></div></td></tr><tr><td class="num rank">#16</td><td class="date">2026-02-24</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Etablissements Monfort</div><div class="brand">Monfort Viandes</div></td><td class="prod">Ground beef steak 15% fat 8x125 g</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21395/Interne" target="_blank" rel="noopener">RappelConso (FR) &rarr;</a></div></td></tr><tr><td class="num rank">#17</td><td class="date">2026-02-24</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Etablissements Monfort</div><div class="brand">Monfort Viandes</div></td><td class="prod">Round ground beef steak 15% fat 8x125 g</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21393/Interne" target="_blank" rel="noopener">RappelConso (FR) &rarr;</a></div></td></tr><tr><td class="num rank">#18</td><td class="date">2026-02-24</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Etablissements Monfort</div><div class="brand">Monfort Viandes</div></td><td class="prod">Round ground beef steak 15% fat — Valtero Bretagne</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21391/Interne" target="_blank" rel="noopener">RappelConso (FR) &rarr;</a></div></td></tr><tr><td class="num rank">#19</td><td class="date">2026-02-24</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Elite Treats, LLC</div><div class="brand">Elite Treats</div></td><td class="prod">Chicken Chips for Dogs (6 oz, lot 24045) - PET FOOD</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/elite-treats-llc-recalls-single-lot-chicken-chips-due-salmonella-contamination" target="_blank" rel="noopener">FDA &rarr;</a></div></td></tr><tr><td class="num rank">#20</td><td class="date">2026-02-23</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Rosabella</div></td><td class="prod">Moringa capsules</td><td class="src"><div class="country">Ireland</div><div class="agency"><a href="https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-rosabella-moringa-capsules" target="_blank" rel="noopener">FSAI (IE) &rarr;</a></div></td></tr><tr><td class="num rank">#21</td><td class="date">2026-02-23</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Ambrosia Brands, LLC</div><div class="brand">Rosabella Moringa</div></td><td class="prod">Rosabella Moringa 100% Pure capsules</td><td class="src"><div class="country">Ireland</div><div class="agency"><a href="https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-rosabella-moringa-ca" target="_blank" rel="noopener">FSAI (IE) &rarr;</a></div></td></tr><tr><td class="num rank">#22</td><td class="date">2026-02-18</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Jabbour Export/Import Ltd.</div><div class="brand">Mahrousa</div></td><td class="prod">Tahini 800 g</td><td class="src"><div class="country">Canada</div><div class="agency"><a href="https://recalls-rappels.canada.ca/en/alert-recall/mahrousa-brand-tahini-recalled-due-salmonella" target="_blank" rel="noopener">CFIA &rarr;</a></div></td></tr><tr><td class="num rank">#23</td><td class="date">2026-02-16</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Tesco</div></td><td class="prod">Grape &amp; Berry Medley 230 g</td><td class="src"><div class="country">United Kingdom</div><div class="agency"><a href="https://www.food.gov.uk/news-alerts/alert/fsa-prin-10-2026" target="_blank" rel="noopener">FSA (UK) &rarr;</a></div></td></tr><tr><td class="num rank">#24</td><td class="date">2026-02-07</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Phoenicia Group Inc.</div><div class="brand">Al Kanater</div></td><td class="prod">Halawa with Pistachio (450 g)</td><td class="src"><div class="country">Canada</div><div class="agency"><a href="https://recalls-rappels.canada.ca/en/alert-recall/al-kanater-brand-halawa-pistachio-recalled-due-salmonella" target="_blank" rel="noopener">CFIA &rarr;</a></div></td></tr><tr><td class="num rank">#25</td><td class="date">2026-02-06</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella Enteritidis</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">PLUKON MAASMECHELEN Plukon Maasmechelen NV</div><div class="brand">Unbranded</div></td><td class="prod">Chicken filet 1 kg, chicken aiguillettes 500 g, chicken filet 2.5 kg, à la minute filet 600 g, halal chicke…</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://rappel.conso.gouv.fr/fiche-rappel/21234/Interne" target="_blank" rel="noopener">RappelConso (FR) &rarr;</a></div></td></tr><tr><td class="num rank">#26</td><td class="date">2026-02-05</td><td class="pathogen"><span class="path-dot" style="background:#f59e0b"></span><em class="path-name">Salmonella spp.</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Les Aliments Johnvince Foods</div><div class="brand">Les Aliments Johnvince</div></td><td class="prod">Raw Pecan Halves (230 g)</td><td class="src"><div class="country">Canada</div><div class="agency"><a href="https://recalls-rappels.canada.ca/en/alert-recall/aliments-johnvince-brand-pecans-halves-raw-recalled-due-salmonella" target="_blank" rel="noopener">CFIA &rarr;</a></div></td></tr><tr><td class="num rank">#27</td><td class="date">2026-02-19</td><td class="pathogen"><span class="path-dot" style="background:#6b7280"></span><em class="path-name">Bacillus cereus / Cereulide</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">SANULAC NUTRICIÓN MÉXICO S. de R.L. de C.V.</div><div class="brand">ALULA Gold</div></td><td class="prod">ALULA Gold infant formula — sanitary alert update</td><td class="src"><div class="country">Mexico</div><div class="agency"><a href="https://www.unotv.com/salud/cofepris-actualiza-alerta-por-formulas-para-bebes-advirte-que-representan-un-riesgo-para-la-salud/" target="_blank" rel="noopener">COFEPRIS (MX) &rarr;</a></div></td></tr><tr><td class="num rank">#28</td><td class="date">2026-02-06</td><td class="pathogen"><span class="path-dot" style="background:#6b7280"></span><em class="path-name">Bacillus cereus / Cereulide</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Danone</div></td><td class="prod">several Aptamil and Cow &amp; Gate First Infant Milk and Follow on Milk formula products</td><td class="src"><div class="country">United Kingdom</div><div class="agency"><a href="https://www.food.gov.uk/news-alerts/alert/fsa-prin-05-2026" target="_blank" rel="noopener">FSA (UK) &rarr;</a></div></td></tr><tr><td class="num rank">#29</td><td class="date">2026-02-04</td><td class="pathogen"><span class="path-dot" style="background:#6b7280"></span><em class="path-name">Bacillus cereus / Cereulide</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Nestlé</div><div class="brand">SMA</div></td><td class="prod">SMA Infant Formula and Follow-On Formula</td><td class="src"><div class="country">United Kingdom</div><div class="agency"><a href="https://www.food.gov.uk/news-alerts/alert/fsa-prin-02-2026-update-2" target="_blank" rel="noopener">FSA (UK) &rarr;</a></div></td></tr><tr><td class="num rank">#30</td><td class="date">2026-02-03</td><td class="pathogen"><span class="path-dot" style="background:#6b7280"></span><em class="path-name">Bacillus cereus / Cereulide</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">Danone</div><div class="brand">Aptamil</div></td><td class="prod">Aptamil powdered infant formula</td><td class="src"><div class="country">Hong Kong</div><div class="agency"><a href="https://www.cfs.gov.hk/english/press/20260203_12167.html" target="_blank" rel="noopener">CFS (HK) &rarr;</a></div></td></tr><tr><td class="num rank">#31</td><td class="date">2026-02-03</td><td class="pathogen"><span class="path-dot" style="background:#6b7280"></span><em class="path-name">Cereulide (Bacillus cereus toxin)</em>&nbsp;<span class="chip chip-tier-1">Tier&nbsp;1</span></td><td class="company"><div class="company-name">— (infant formula manufacturer)</div></td><td class="prod">Powdered infant formula (single batch)</td><td class="src"><div class="country">Hong Kong</div><div class="agency"><a href="https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_611.html" target="_blank" rel="noopener">CFS (HK) &rarr;</a></div></td></tr><tr><td class="num rank">#32</td><td class="date">2026-02-13</td><td class="pathogen"><span class="path-dot" style="background:#7c3aed"></span><em class="path-name">Norovirus</em>&nbsp;<span class="chip chip-tier-2">Tier&nbsp;2</span></td><td class="company"><div class="company-name">Origin: France | Notifying: unknown | Distributed: unknown</div></td><td class="prod">Oysters from France</td><td class="src"><div class="country">France</div><div class="agency"><a href="https://webgate.ec.europa.eu/rasff-window/screen/notification/822538" target="_blank" rel="noopener">RASFF (EU) &rarr;</a></div></td></tr><tr><td class="num rank">#33</td><td class="date">2026-02-25</td><td class="pathogen"><span class="path-dot" style="background:#6b7280"></span><em class="path-name">Possible incomplete pasteurization (process deviation)</em>&nbsp;<span class="chip chip-tier-2">Tier&nbsp;2</span></td><td class="company"><div class="company-name">Saputo USA</div><div class="brand">Great Value (Walmart)</div></td><td class="prod">Cottage Cheese (24 states)</td><td class="src"><div class="country">United States</div><div class="agency"><a href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/saputo-usa-recalls-great-value-cottage-cheese-because-possible-health-risk" target="_blank" rel="noopener">FDA &rarr;</a></div></td></tr></tbody></table>
+
+<div class="footer">
+  <div class="fb">Advanced Food-Tech Solutions <em>·</em> AFTS</div>
+  Food Process Engineering · Thermal Processing · Regulatory Compliance<br>
+  advfood.tech · info@advfood.tech · Athens, Greece<br>
+  Generated 01 March 2026
+</div>
+
+</div></body></html>
