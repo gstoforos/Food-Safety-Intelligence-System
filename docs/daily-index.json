@@ -3,11 +3,15 @@
     {
       "date": "2026-07-14",
       "url": "daily/2026-07-14.html",
-      "total": 0,
-      "tier1": 0,
+      "total": 5,
+      "tier1": 4,
       "outbreak": 0,
-      "by_region": {},
-      "generated": "2026-07-15T07:10:28Z"
+      "by_region": {
+        "Latin America": 1,
+        "Europe": 3,
+        "Oceania": 1
+      },
+      "generated": "2026-07-15T17:14:18Z"
     },
     {
       "date": "2026-07-13",
@@ -82,6 +86,22 @@
         "Athens": 1
       },
       "generated": "2026-07-15T07:10:30Z"
+    },
+    {
+      "date": "2026-06-30",
+      "url": "daily/2026-06-30.html",
+      "total": 15,
+      "tier1": 10,
+      "outbreak": 1,
+      "by_region": {
+        "Oceania": 1,
+        "Europe": 10,
+        "Latin America": 1,
+        "North America": 1,
+        "Asia": 1,
+        "Africa": 1
+      },
+      "generated": "2026-07-15T17:14:18Z"
     }
   ]
 }
