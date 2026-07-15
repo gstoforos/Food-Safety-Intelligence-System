@@ -32,6 +32,38 @@
   "Notes": "carrefour pontault combault uniquement [url-gate 2026-07-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-14: fix; corrections: Company→Carrefour, Brand→Unbranded, Product→PILON DE POULET MARINE (TOUTE MARINADE) , Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page identifies Carrefour as t]"
  },
  {
+  "Date": "2026-07-13",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Nigeria | Notifying: Netherlands",
+  "Brand": "NLD",
+  "Product": "Salmonella spp in hulled sesame seeds from Nigeria",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella spp in hulled sesame seeds from Nigeria; risk: potentially serious; category: nuts, nut products and seeds",
+  "Class": "Border Rejection",
+  "Country": "Nigeria",
+  "Region": "Africa",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/858413",
+  "Notes": "[RASFF #2026.6217; classification: border rejection notification; category: nuts, nut products and seeds; notifId=858413] [gemini-enrich 2026-07-14: Brand '—'→'NLD'] [claude-check 2026-07-15: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-07-13",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Belgium | Notifying: Italy",
+  "Brand": "ITA",
+  "Product": "Salmonella Infantis in frozen poultry meat from Belgium via the Netherlands",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella Infantis in frozen poultry meat from Belgium via the Netherlands; risk: not serious; category: poultry meat and poultry meat products",
+  "Class": "Information",
+  "Country": "Belgium",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/858355",
+  "Notes": "[RASFF #2026.6207; classification: information notification for follow-up; category: poultry meat and poultry meat products; notifId=858355] [gemini-enrich 2026-07-14: Brand '—'→'ITA'] [claude-check 2026-07-15: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
   "Date": "2026-07-10",
   "Source": "CFIA",
   "Company": "Boucherie Charcuterie Lyn Tremblay Inc.",
@@ -318,6 +350,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22798/Interne",
   "Notes": "centre commercial e.leclerc outreau, poissonneries, commerces de détails [url-gate 2026-07-10: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-10: pass; pass]"
+ },
+ {
+  "Date": "2026-07-10",
+  "Source": "CFIA",
+  "Company": "Boucherie Charcuterie Lyn Tremblay Inc.",
+  "Brand": "Joe Smoked Meat, Charcuterie Charlevoisienne",
+  "Product": "Charcuterie Charlevoisienne and Joe Smoked Meat brand meat products recalled due to Listeria monocytogenes",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Charcuterie Charlevoisienne and Joe Smoked Meat brand meat products recalled due to Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/charcuterie-charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due",
+  "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/charcuterie-charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due [via official-feed collector] [gemini-check 2026-07-14: fix; corrections: Company→Boucherie Charcuterie Lyn Tremblay Inc., Brand→Joe Smoked Meat, Charcuterie Charlevoisi; placeholder_company_filled_from_page | fix; company mismatch | Company and Brand were empty in the row but found on the ] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [gap-gate 2026-07-14: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-15: pass; pass | All fields match the official CFIA page. Date 2026-07-10 confirmed. Company Boucherie Charcuterie Lyn Tremblay In] [gap-gate 2026-07-15: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-07-09",
