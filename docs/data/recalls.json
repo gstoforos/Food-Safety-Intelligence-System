@@ -2128,6 +2128,22 @@
   "Notes": "Promoted 2026-06-30 from Pending. In scope: foreign material. [retailer: Paris Store]"
  },
  {
+  "Date": "2026-06-30",
+  "Source": "FSAI",
+  "Company": "Butchers Selection",
+  "Brand": "Butchers Selection",
+  "Product": "Butchers Selection Irish Turkey Burgers Mediterranean Style, 400g",
+  "Pathogen": "Salmonella",
+  "Reason": "Recall of a specific batch of Butchers Selection Irish Turkey Burgers Mediterranean Style Recall of a specific batch of Butchers Selection Irish Turkey Burgers Mediterranean Style due to the presence of Salmonella Tuesday, 30 June 2026 Alert Summary Category 1: For Action Alert Notification: 2026.39 Product Identification: Butchers Selection Irish Turkey Burgers Mediterranean Style; pack size: 400g Batch Code Use-by date: 05/07/2026 Country Of Origin: Ireland Message: The above batch of Butchers Selection Irish Turkey Burgers Mediterranean Style is being recalled due to the presence of Salmonella . Recall notices will be displayed at point-of-sale. Nature Of Danger: People infected with Salmonella typically develop symptoms between 12 and 36 hours after infection, but this can range betwee",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-specific-batch-of-butchers-selection-i",
+  "Notes": "source_id=FSAI-recall-of-a-specific-batch-of-butchers-selection-i [via official-feed collector] [gap-gate 2026-07-16: pending_gap → pending_gap_v1] [claude-check 2026-07-16: fix; corrections: Company→Butchers Selection, Brand→Butchers Selection, Product→Butchers Selection Irish Turkey Burgers , Pathogen→Salmonella; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page clearly identifies 'Butch] [gap-gate 2026-07-16: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-06-29",
   "Source": "RASFF (EU)",
   "Company": "Origin: India | Notifying: Netherlands",
