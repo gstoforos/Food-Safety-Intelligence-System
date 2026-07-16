@@ -1,6 +1,17 @@
 {
   "entries": [
     {
+      "date": "2026-07-15",
+      "url": "daily/2026-07-15.html",
+      "total": 6,
+      "tier1": 6,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 6
+      },
+      "generated": "2026-07-16T07:10:22Z"
+    },
+    {
       "date": "2026-07-14",
       "url": "daily/2026-07-14.html",
       "total": 5,
@@ -11,7 +22,7 @@
         "Europe": 3,
         "Oceania": 1
       },
-      "generated": "2026-07-15T17:14:18Z"
+      "generated": "2026-07-16T07:10:22Z"
     },
     {
       "date": "2026-07-13",
@@ -23,7 +34,7 @@
         "Africa": 1,
         "Europe": 3
       },
-      "generated": "2026-07-15T07:10:28Z"
+      "generated": "2026-07-16T07:10:22Z"
     },
     {
       "date": "2026-07-12",
@@ -32,7 +43,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-07-15T07:10:29Z"
+      "generated": "2026-07-16T07:10:23Z"
     },
     {
       "date": "2026-07-11",
@@ -41,7 +52,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-07-15T07:10:29Z"
+      "generated": "2026-07-16T07:10:23Z"
     },
     {
       "date": "2026-07-10",
@@ -57,7 +68,7 @@
         "Asia": 1,
         "Latin America": 1
       },
-      "generated": "2026-07-15T07:10:29Z"
+      "generated": "2026-07-16T07:10:23Z"
     },
     {
       "date": "2026-07-09",
@@ -71,37 +82,7 @@
         "Not specified in the article": 1,
         "Oceania": 1
       },
-      "generated": "2026-07-15T07:10:30Z"
-    },
-    {
-      "date": "2026-07-08",
-      "url": "daily/2026-07-08.html",
-      "total": 10,
-      "tier1": 6,
-      "outbreak": 0,
-      "by_region": {
-        "Asia": 1,
-        "Europe": 6,
-        "Africa": 2,
-        "Athens": 1
-      },
-      "generated": "2026-07-15T07:10:30Z"
-    },
-    {
-      "date": "2026-06-30",
-      "url": "daily/2026-06-30.html",
-      "total": 15,
-      "tier1": 10,
-      "outbreak": 1,
-      "by_region": {
-        "Oceania": 1,
-        "Europe": 10,
-        "Latin America": 1,
-        "North America": 1,
-        "Asia": 1,
-        "Africa": 1
-      },
-      "generated": "2026-07-16T04:12:27Z"
+      "generated": "2026-07-16T07:10:23Z"
     }
   ]
 }
