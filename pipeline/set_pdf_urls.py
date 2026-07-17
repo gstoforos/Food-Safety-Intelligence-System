@@ -16,7 +16,7 @@ Usage (called from .github/workflows/afts-monthly-report.yml):
     python -m pipeline.set_pdf_urls \\
         --index docs/data/monthly-index.json \\
         --docs-dir docs \\
-        --site-url "https://gstoforos.github.io/Food-Safety-Intelligence-System"
+        --site-url "https://fsis.advfood.tech"
 """
 from __future__ import annotations
 
@@ -76,9 +76,16 @@ def main() -> int:
         marketing_pdf_path = docs_dir / "marketing" / marketing_pdf_name
         existing = e.get("pdf_url")
 
-        # Skip legacy entries that already point to a Wix (or any external)
-        # PDF — don't overwrite George's manual Jan/Feb/Mar uploads.
-        if existing and "gstoforos.github.io" not in existing:
+        # Skip legacy entries that point to a genuinely EXTERNAL PDF (e.g. the
+        # Wix-hosted Jan/Feb uploads) — don't overwrite George's manual ones.
+        # Auto-managed URLs are those under our own marketing path (either the
+        # old github.io base or the current fsis.advfood.tech domain); those we
+        # may refresh. Anything else (Wix _files/ugd, etc.) is left untouched.
+        _auto_managed = existing and (
+            "/marketing/" in existing
+            and ("fsis.advfood.tech" in existing or "gstoforos.github.io" in existing)
+        )
+        if existing and not _auto_managed:
             log.info("Keep legacy pdf_url for %s: %s", filename, existing)
             continue
 

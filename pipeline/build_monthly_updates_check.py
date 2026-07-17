@@ -78,7 +78,7 @@ import build_weekly_report_afts as weekly  # noqa: E402
 # CONFIG
 # ---------------------------------------------------------------------------
 LOOKBACK_MONTHS = 3       # check anchor + 2 priors
-SITE_URL_BASE = "https://gstoforos.github.io/Food-Safety-Intelligence-System"
+SITE_URL_BASE = "https://fsis.advfood.tech"
 DASHBOARD_URL = "https://www.advfood.tech/fsis-recalls"
 INDEX_DASHBOARD_URL = "https://www.advfood.tech/#monthly"
 

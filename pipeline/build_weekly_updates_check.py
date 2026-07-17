@@ -31,7 +31,7 @@ docs/data/weekly-updates-pending.json with shape:
         "year": 2026,
         "week_num": 17,
         "filename": "2026-W17.html",
-        "report_url": "https://gstoforos.github.io/.../2026-W17.html",
+        "report_url": "https://fsis.advfood.tech/.../2026-W17.html",
         "week_start": "2026-04-18",
         "week_end":   "2026-04-24",
         "old_total":  12,
@@ -81,7 +81,7 @@ from build_weekly_report_afts import (  # noqa: E402
 
 XLSX = ROOT / "docs" / "data" / "recalls.xlsx"
 MANIFEST = ROOT / "docs" / "data" / "weekly-updates-pending.json"
-REPORT_URL_BASE = "https://gstoforos.github.io/Food-Safety-Intelligence-System"
+REPORT_URL_BASE = "https://fsis.advfood.tech"
 LOOKBACK_WEEKS = 4
 
 logging.basicConfig(level=logging.INFO,
