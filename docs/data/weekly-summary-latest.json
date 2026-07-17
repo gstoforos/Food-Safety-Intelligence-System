@@ -8,18 +8,18 @@
   "week_end": "2026-07-16",
   "week_start_display": "10 Jul",
   "week_end_display": "16 Jul 2026",
-  "generated_utc": "2026-07-17T01:10:53.548877+00:00",
+  "generated_utc": "2026-07-17T06:18:18.416680+00:00",
   "stats": {
-    "total": 42,
-    "tier1": 36,
+    "total": 48,
+    "tier1": 40,
     "outbreaks": 0,
-    "delta": -20,
-    "delta_pct": -32
+    "delta": -14,
+    "delta_pct": -23
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 22,
-    "pct": 52
+    "cases": 23,
+    "pct": 48
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -32,7 +32,7 @@
       "outbreak": false,
       "company": "Prestige de la Sarthe",
       "brand": "Prestige de la Sarthe",
-      "product": "1/2 pied de porc vinaigrette prestige de la sarthe 3kg",
+      "product": "1/2 pied de porc vinaigrette prestige de la sarthe 3kg (RappelConso fiche 22859)",
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22859/Interne"
@@ -46,13 +46,27 @@
       "outbreak": false,
       "company": "Prestige de la Sarthe",
       "brand": "Prestige de la Sarthe",
-      "product": "pied porc vinaigrette",
+      "product": "pied porc vinaigrette (RappelConso fiche 22853)",
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22853/Interne"
     },
     {
       "rank": 3,
+      "date": "2026-07-16",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Update to",
+      "brand": "K O'Connell Fishmongers",
+      "product": "Update to recall of K O'Connell Fishmongers Smoked Salmon Slices (Update 1)",
+      "country": "Ireland",
+      "source": "FSAI (IE)",
+      "url": "https://www.fsai.ie/news-and-alerts/food-alerts/update-to-recall-of-k-o-connell-fishmongers-smoked"
+    },
+    {
+      "rank": 4,
       "date": "2026-07-14",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -66,7 +80,7 @@
       "url": "https://www.foodstandards.gov.au/food-recalls/recall-alert/tasmanian-mountain-waters-exp-mt-ossa-australian-spring-water-10l"
     },
     {
-      "rank": 4,
+      "rank": 5,
       "date": "2026-07-10",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -78,21 +92,7 @@
       "country": "Belgium",
       "source": "RASFF (EU)",
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/857996"
-    },
-    {
-      "rank": 5,
-      "date": "2026-07-10",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Boucherie Charcuterie Lyn Tremblay Inc.",
-      "brand": "Joe Smoked Meat, Charcuterie Charlevoisienne",
-      "product": "Charcuterie Charlevoisienne and Joe Smoked Meat brand meat products recalled due to Listeria monocytogenes",
-      "country": "Canada",
-      "source": "CFIA",
-      "url": "https://recalls-rappels.canada.ca/en/alert-recall/charcuterie-charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due"
     }
   ],
-  "country_count": 14
+  "country_count": 18
 }
