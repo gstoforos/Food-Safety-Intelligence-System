@@ -95,9 +95,16 @@ def is_tier1(pathogen: str) -> bool:
 # aflatoxin/ochratoxin/adulteration ARE in scope but may legitimately sit
 # at Tier 2/3, so they are NOT forced here.
 #
-# NOTE on Bacillus cereus: plain environmental B. cereus is NOT forced —
-# only the emetic toxin (cereulide) is always Tier 1. Matching therefore
-# keys on "cereulide" (and explicit "emetic"), never bare "bacillus cereus".
+# NOTE on Bacillus cereus (updated 2026-07-17): the emetic toxin (cereulide)
+# is ALWAYS Tier 1 and is keyed unconditionally below. Bare "Bacillus cereus"
+# (no cereulide named) is forced to Tier 1 ONLY when the product is a
+# LOW-MOISTURE / dried / starchy matrix (rice, pasta, flour, powder, infant
+# formula, spices, dried herbs, cereal, etc.) — the matrices where cereulide
+# formation is the real hazard and cannot be ruled out at recall stage. In
+# fresh / high-moisture products (e.g. fresh rosemary, fresh tomatoes, fresh
+# pastry) bare B. cereus stays tierable (typically Tier 2, diarrheal-type
+# risk). This is handled in enforce_tier1() via _is_low_moisture_product(),
+# NOT by a blanket keyword, so fresh-product B. cereus is not over-tiered.
 ALWAYS_TIER1_KEYWORDS = (
     "listeria",
     "salmonella",
@@ -105,10 +112,48 @@ ALWAYS_TIER1_KEYWORDS = (
     "o157", "o104", "o121", "o26", "o45", "o103", "o111", "o145",
     "shiga toxin", "shigatoxin",
     "botulin", "botulisme", "clostridium botulin",
-    "cereulide",                     # emetic B. cereus toxin only
+    "cereulide",                     # emetic B. cereus toxin — always Tier 1
     "cronobacter", "sakazakii",
     "hepatitis a", "hépatite a",
 )
+
+# Low-moisture / dried / starchy matrix vocabulary. Bare "Bacillus cereus"
+# in these products is forced to Tier 1 (cereulide-formation risk). Kept in
+# sync with the weekly builder's _is_low_moisture heuristic.
+_LOW_MOISTURE_KEYWORDS = (
+    "peanut", "nut butter", "almond", "cashew", "pistachio", "hazelnut",
+    "flour", "cereal", "granola", "oat", "rice", "pasta", "grain",
+    "powder", "powdered", "infant formula", "formula", "milk powder",
+    "spice", "herb", "seasoning", "dried", "chocolate", "cocoa",
+    "tahini", "sesame", "cinnamon", "curry", "paprika", "pepper",
+    "couscous", "semolina", "noodle", "crisp", "cracker", "biscuit",
+)
+
+
+def _is_low_moisture_product(row: dict) -> bool:
+    """True if the row's product looks like a low-moisture / dried matrix.
+
+    Used to decide whether bare 'Bacillus cereus' is forced to Tier 1.
+    Explicit 'fresh' in the product/reason excludes it (fresh herbs, fresh
+    produce are high-moisture and stay tierable).
+    """
+    import re as _re
+    text = ((row.get("Product") or "") + " " +
+            (row.get("Reason") or "")).lower()
+    if not text.strip():
+        return False
+    if "fresh" in text:
+        return False
+    return any(_re.search(r"\b" + _re.escape(k), text)
+               for k in _LOW_MOISTURE_KEYWORDS)
+
+
+def _is_bare_bacillus_cereus(pathogen: str) -> bool:
+    """True for 'Bacillus cereus' where cereulide/emetic is NOT named."""
+    s = str(pathogen or "").strip().lower()
+    if "cereus" not in s:
+        return False
+    return "cereulide" not in s and "emetic" not in s
 
 
 def is_always_tier1(pathogen: str) -> bool:
@@ -137,7 +182,19 @@ def enforce_tier1(row: dict) -> dict:
         pathogen = row.get("Pathogen", "")
     except AttributeError:
         return row
-    if not is_always_tier1(pathogen):
+
+    # Determine whether this row must be Tier 1:
+    #   (a) an always-Tier-1 pathogen (Listeria/Salmonella/STEC/botulinum/
+    #       cereulide/Cronobacter/HepA), OR
+    #   (b) bare "Bacillus cereus" in a LOW-MOISTURE product (cereulide-
+    #       formation risk — rice, pasta, powder, infant formula, spices,
+    #       dried herbs, etc.). Fresh / high-moisture B. cereus is NOT forced.
+    force = is_always_tier1(pathogen)
+    reason_tag = "is always Tier 1"
+    if not force and _is_bare_bacillus_cereus(pathogen) and _is_low_moisture_product(row):
+        force = True
+        reason_tag = "bare Bacillus cereus in low-moisture product (cereulide risk) is Tier 1"
+    if not force:
         return row
     try:
         cur = int(row.get("Tier") or 0)
@@ -147,8 +204,8 @@ def enforce_tier1(row: dict) -> dict:
         return row
     row["Tier"] = 1
     note = str(row.get("Notes") or "")
-    stamp = ("[tier-guard: %s is always Tier 1; forced from Tier %s]"
-             % (str(pathogen).strip(), cur if cur else "unset"))
+    stamp = ("[tier-guard: %s %s; forced from Tier %s]"
+             % (str(pathogen).strip(), reason_tag, cur if cur else "unset"))
     row["Notes"] = (note + " " + stamp).strip() if note else stamp
     return row
 
