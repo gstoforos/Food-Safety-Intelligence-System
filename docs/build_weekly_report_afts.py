@@ -1039,9 +1039,17 @@ def _process_authority_note(recalls, bot):
         ))
 
     def _names(rows, limit=3):
-        return ", ".join("{} ({})".format(
-            r.get("Company", ""), _country_display(r.get("Country", "")))
-            for r in rows[:limit])
+        # Dedupe by company so multi-SKU / multi-fiche recalls from the same
+        # producer (e.g. two RappelConso fiches) aren't cited twice.
+        seen = []
+        for r in rows:
+            label = "{} ({})".format(
+                r.get("Company", ""), _country_display(r.get("Country", "")))
+            if label not in seen:
+                seen.append(label)
+            if len(seen) >= limit:
+                break
+        return ", ".join(seen)
 
     # ------------------------------------------------------------------
     # Jurisdiction-aware framework picker.
@@ -1096,7 +1104,7 @@ def _process_authority_note(recalls, bot):
             },
             "listeria": {
                 "US": "FDA 21 CFR 117 Subparts B and G (Preventive Controls), FDA CPG 555.320 (L. monocytogenes zero-tolerance in RTE), and USDA FSIS Directive 10,240.4 where meat/poultry is implicated",
-                "EU": "Regulation (EC) No 2073/2005 as amended by Reg. (EU) 2024/2895 (applicable from 1 July 2026): for RTE foods able to support growth of Listeria monocytogenes, operators must demonstrate compliance throughout shelf life; where a business cannot demonstrate to the competent authority that levels remain ≤100 CFU/g, the applicable criterion is not detected in 25 g. Reg. 852/2004 HACCP and national RASFF notification obligations apply.",
+                "EU": "Regulation (EC) No 2073/2005 as amended by Reg. (EU) 2024/2895 (applicable from 1 July 2026): for RTE foods able to support growth of Listeria monocytogenes, operators must demonstrate compliance throughout shelf life; where a business cannot demonstrate to the competent authority that levels remain ≤100 CFU/g, the applicable criterion is not detected in 25 g. Regulation (EC) No 852/2004 HACCP requirements and national RASFF notification obligations also apply",
                 "UK": "retained EU Reg. 2073/2005, UK Food Hygiene Regulations, and FSA listeria-in-RTE control guidance",
                 "CA": "CFIA Policy on Control of Listeria monocytogenes in Ready-to-Eat Foods and the SFCR Preventive Control Plan",
                 "AU_NZ": "FSANZ Food Standards Code Standard 1.6.1 (microbiological limits) and industry Listeria management guidelines",
@@ -1156,13 +1164,16 @@ def _process_authority_note(recalls, bot):
         parallel_keys = order[1:]
         parallels_text = ""
         if parallel_keys:
-            parallels_text = "; parallel frameworks apply under " + "; ".join(
+            parallels_text = ". Parallel frameworks apply under " + "; ".join(
                 FRAMEWORKS[k] for k in parallel_keys)
 
         # Codex as a supra-national reference for low-moisture Salmonella
         if hazard == "salmonella_lm":
             if "CODEX" in FRAMEWORKS:
-                parallels_text += ("; supranational reference: " + FRAMEWORKS["CODEX"])
+                if parallels_text:
+                    parallels_text += "; supranational reference: " + FRAMEWORKS["CODEX"]
+                else:
+                    parallels_text = ". Supranational reference: " + FRAMEWORKS["CODEX"]
 
         # Regulator names for the closing sentence
         AUTHORITY_NAMES = {
@@ -1216,6 +1227,17 @@ def _process_authority_note(recalls, bot):
     lst = _by_pathogen("listeria")
     if lst:
         regs = _regs_for("listeria", lst)
+        # Count STRICT "Listeria monocytogenes" for the note so the figure
+        # matches the KPI/analysis Lm count (2026-07-17 fix). The KPI counts
+        # the EXACT pathogen string "Listeria monocytogenes"; _by_pathogen
+        # ("listeria") also catches a bare generic "Listeria" record and any
+        # mixed record such as "Listeria monocytogenes, Salmonella spp", which
+        # would inflate the note above the KPI (25 or 24 vs 23). The trigger
+        # still fires on ANY listeria presence; only the printed count is exact.
+        lst_strict = [r for r in lst
+                      if (r.get("Pathogen") or "").strip().lower()
+                      == "listeria monocytogenes"]
+        _lm_count = len(lst_strict) if lst_strict else len(lst)
         return ("This window contains {ip}, "
                 "with {co} among those cited. Ready-to-eat (RTE) manufacturers "
                 "\u2014 particularly deli, soft cheese and dairy (including raw-"
@@ -1236,8 +1258,8 @@ def _process_authority_note(recalls, bot):
                 "including environmental monitoring (EMP) audits, Zone 1\u20134 "
                 "sampling verification, and review of post-lethality control "
                 "programmes on the subsequent inspection."
-                ).format(ip=_count_phrase(len(lst), "Listeria monocytogenes incident"),
-                         co=_names(lst),
+                ).format(ip=_count_phrase(_lm_count, "Listeria monocytogenes incident"),
+                         co=_names(lst_strict or lst),
                          primary=regs["primary"], parallels=regs["parallels"],
                          regulators=regs["regulators"])
 
@@ -2045,8 +2067,8 @@ __CSS_PLACEHOLDER__
 </div>
 <div class="meth">
   <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, pathogen classification, and the engineering interpretation of each recall are developed by the AFTS process-authority practice, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP. This is what the AFTS platform brings that pure data feeds do not &mdash; interpretation under engineering authority.</p>
-  <p><strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from 66 primary sources across 60+ countries (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso, BVL, AESAN, EFET, and national authorities) and processes each record through Gemini (extraction), OpenAI GPT (normalisation), and Claude (Tier-1 validation). Records are de-duplicated and harmonised into the accumulative dataset.</p>
-  <p><strong>This briefing.</strong> Statistical analysis filters the accumulative dataset to the reporting week ({period}). AI-generated narrative is produced against AFTS process-authority prompts and edited for publication. Figures and pathogen names are preserved verbatim from source data.</p>
+  <p><strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from 66 primary sources across 60+ countries (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso, BVL, AESAN, EFET, and national authorities) and processes each record through Gemini (extraction), OpenAI GPT (normalisation), and Claude (Tier-1 validation). Records are de-duplicated and harmonised into the cumulative dataset.</p>
+  <p><strong>This briefing.</strong> Statistical analysis filters the cumulative dataset to the reporting week ({period}). AI-generated narrative is produced against AFTS process-authority prompts and edited for publication. Figures and pathogen names are preserved verbatim from source data.</p>
 </div>
 
 <footer class="footer">
