@@ -2308,7 +2308,7 @@ def main() -> int:
     ap.add_argument("--all-output", default=None,
                     help="Path for the companion all-recalls HTML")
     ap.add_argument("--site-url",
-                    default="https://gstoforos.github.io/Food-Safety-Intelligence-System")
+                    default="https://fsis.advfood.tech")
     ap.add_argument("--dashboard-url",
                     default="https://www.advfood.tech/fsis-recalls")
     ap.add_argument("--summary-json",

@@ -2395,7 +2395,7 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir):
             "product":str(r.get("Product","")),"country":str(r.get("Country","")),
             "source":str(r.get("Source","")),"url":str(r.get("URL",""))})
     summary = {"filename":"{}-W{:02d}.html".format(year,wnum),
-        "report_url":"https://gstoforos.github.io/Food-Safety-Intelligence-System/{}-W{:02d}.html".format(year,wnum),
+        "report_url":"https://fsis.advfood.tech/{}-W{:02d}.html".format(year,wnum),
         "dashboard_url":"https://www.advfood.tech/fsis-recalls",
         "week_num":wnum,"year":year,"week_start":ws.isoformat(),"week_end":we_display.isoformat(),
         "week_start_display":ws.strftime("%-d %b"),"week_end_display":we_display.strftime("%-d %b %Y"),
