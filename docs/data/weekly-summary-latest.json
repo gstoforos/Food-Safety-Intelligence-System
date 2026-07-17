@@ -8,7 +8,7 @@
   "week_end": "2026-07-16",
   "week_start_display": "10 Jul",
   "week_end_display": "16 Jul 2026",
-  "generated_utc": "2026-07-17T06:18:18.416680+00:00",
+  "generated_utc": "2026-07-17T06:34:45.355485+00:00",
   "stats": {
     "total": 48,
     "tier1": 40,
@@ -58,9 +58,9 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Update to",
+      "company": "K O'Connell Fishmongers",
       "brand": "K O'Connell Fishmongers",
-      "product": "Update to recall of K O'Connell Fishmongers Smoked Salmon Slices (Update 1)",
+      "product": "Smoked Salmon Slices (Update 1 to FSAI recall)",
       "country": "Ireland",
       "source": "FSAI (IE)",
       "url": "https://www.fsai.ie/news-and-alerts/food-alerts/update-to-recall-of-k-o-connell-fishmongers-smoked"
