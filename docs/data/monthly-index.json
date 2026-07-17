@@ -10,7 +10,8 @@
     "tier1": 195,
     "outbreaks": 4,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "June 2026: 247 recalls, 195 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes."
+    "summary": "June 2026: 247 recalls, 195 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "pdf_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/marketing/2026-M06-marketing.pdf"
   },
   {
     "filename": "2026-M05.html",
@@ -23,7 +24,8 @@
     "tier1": 220,
     "outbreaks": 10,
     "top_pathogen": "Salmonella spp.",
-    "summary": "May 2026: 260 recalls, 220 Tier-1, 10 outbreak(s). Leading pathogen: Salmonella spp.."
+    "summary": "May 2026: 260 recalls, 220 Tier-1, 10 outbreak(s). Leading pathogen: Salmonella spp..",
+    "pdf_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/marketing/2026-M05-marketing.pdf"
   },
   {
     "filename": "2026-M04.html",
@@ -36,7 +38,8 @@
     "tier1": 272,
     "outbreaks": 9,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "April 2026: 367 recalls, 272 Tier-1, 9 outbreak(s). Leading pathogen: Listeria monocytogenes."
+    "summary": "April 2026: 367 recalls, 272 Tier-1, 9 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "pdf_url": "https://gstoforos.github.io/Food-Safety-Intelligence-System/marketing/2026-M04-marketing.pdf"
   },
   {
     "filename": "2026-M03.html",
