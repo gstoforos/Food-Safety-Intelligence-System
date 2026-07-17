@@ -882,7 +882,7 @@
  {
   "Date": "2026-07-09",
   "Source": "FSANZ (AU)",
-  "Company": "La Vera Group Pty Ltd- La Vera Cheddar Pepper R/W approx 300g",
+  "Company": "La Vera Group Pty Ltd",
   "Brand": "La Vera",
   "Product": "La Vera Group Pty Ltd- La Vera Cheddar Pepper R/W approx 300g",
   "Pathogen": "Escherichia coli (generic)",
@@ -893,7 +893,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/la-vera-group-pty-ltd-la-vera-cheddar-pepper-rw-approx-300g",
-  "Notes": "[gemini-enrich 2026-07-09: Brand '—'→'La Vera'] [gemini-check 2026-07-09: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "[gemini-enrich 2026-07-09: Brand '—'→'La Vera'] [gemini-check 2026-07-09: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [fix 2026-07-17: Company was product/headline echo -> 'La Vera Group Pty Ltd' (stripped product suffix)]"
  },
  {
   "Date": "2026-07-08",
@@ -994,7 +994,7 @@
  {
   "Date": "2026-07-08",
   "Source": "FSA (UK)",
-  "Company": "M&S recalls M&S Food Truffle Gouda due to the presence of Listeria Monocytogenes",
+  "Company": "Marks & Spencer",
   "Brand": "M&S",
   "Product": "M&S recalls M&S Food Truffle Gouda due to the presence of Listeria Monocytogenes",
   "Pathogen": "Listeria monocytogenes",
@@ -1005,7 +1005,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-33-2026",
-  "Notes": "PRIN-33-2026 [gemini-enrich 2026-07-08: Brand '—'→'M&S'] [gemini-check 2026-07-08: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "PRIN-33-2026 [gemini-enrich 2026-07-08: Brand '—'→'M&S'] [gemini-check 2026-07-08: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: Company was product/headline echo -> 'Marks & Spencer' (headline artifact -> company)]"
  },
  {
   "Date": "2026-07-08",
@@ -3362,7 +3362,7 @@
  {
   "Date": "2026-06-19",
   "Source": "FSAI (IE)",
-  "Company": "Biona Organic Himalayan Basmati Brown Rice",
+  "Company": "Biona Organic",
   "Brand": "Biona Organic",
   "Product": "Biona Organic Himalayan Basmati Brown Rice",
   "Pathogen": "Aflatoxin",
@@ -3373,12 +3373,12 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-biona-organic-himalayan-basma",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Biona Organic'] [gemini-enrich 2026-06-19: Pathogen ''→'Aflatoxin'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Biona Organic'] [gemini-enrich 2026-06-19: Pathogen ''→'Aflatoxin'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)] [fix 2026-07-17: Company was product/headline echo -> 'Biona Organic' (product echo -> brand)]"
  },
  {
   "Date": "2026-06-19",
   "Source": "FSAI (IE)",
-  "Company": "Leis Sauerampfer (Sorrel)",
+  "Company": "Leis",
   "Brand": "Leis",
   "Product": "Leis Sauerampfer (Sorrel)",
   "Pathogen": "Listeria monocytogenes",
@@ -3389,12 +3389,12 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-jarred-leis-sorrel",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Leis'] [gemini-enrich 2026-06-19: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Leis'] [gemini-enrich 2026-06-19: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3] [fix 2026-07-17: Company was product/headline echo -> 'Leis' (product echo -> brand)]"
  },
  {
   "Date": "2026-06-19",
   "Source": "FSAI (IE)",
-  "Company": "various Glenisk Baby Organic Fromage Frais products",
+  "Company": "Glenisk",
   "Brand": "Glenisk",
   "Product": "various Glenisk Baby Organic Fromage Frais products",
   "Pathogen": "Listeria monocytogenes",
@@ -3405,7 +3405,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-various-flavours-of-glenisk-o",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Glenisk'] [gemini-enrich 2026-06-19: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Glenisk'] [gemini-enrich 2026-06-19: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3] [fix 2026-07-17: Company was \"various Glenisk...\" product echo -> Glenisk]"
  },
  {
   "Date": "2026-06-19",
@@ -6498,18 +6498,18 @@
  {
   "Date": "2026-05-28",
   "Source": "FSAI (IE)",
-  "Company": "Bare Pantry Shelled Pistachios",
+  "Company": "The Bare Pantry",
   "Brand": "The Bare Pantry",
   "Product": "Bare Pantry Shelled Pistachios",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Bare Pantry Shelled Pistachios",
+  "Pathogen": "Salmonella",
+  "Reason": "Presence of Salmonella (FSAI recall)",
   "Class": "Alert",
   "Country": "Ireland",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-the-bare-pantry-shelled-pista",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-05-28: Brand '—'→'The Bare Pantry'] [gemini-check 2026-05-28: pass; corrections: Pathogen→Salmonella; pass | All core fields match; tier mismatch noted.] [enrich-gate 2026-05-28: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-05-28: Brand '—'→'The Bare Pantry'] [gemini-check 2026-05-28: pass; corrections: Pathogen→Salmonella; pass | All core fields match; tier mismatch noted.] [enrich-gate 2026-05-28: pending_enrichment → pending (Claude verified)] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3] [fix 2026-07-17: MIS-CLASSIFIED — enrich stamped Pathogen='Listeria monocytogenes'; FSAI source states recall is due to SALMONELLA, corrected. Company was product-name echo -> The Bare Pantry; Reason populated. Tier 1 unchanged (Salmonella always T1)]"
  },
  {
   "Date": "2026-05-28",
@@ -7922,7 +7922,7 @@
  {
   "Date": "2026-05-19",
   "Source": "FSAI (IE)",
-  "Company": "an additional batch of Green Box Limited Enoki Mushroom (Update 1)",
+  "Company": "Green Box Limited",
   "Brand": "Green Box Limited",
   "Product": "an additional batch of Green Box Limited Enoki Mushroom (Update 1)",
   "Pathogen": "Listeria monocytogenes",
@@ -7933,7 +7933,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-an-additional-batch-of-green-box-limited",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-05-19: Brand '—'→'Green Box Limited'] [gemini-enrich 2026-05-19: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-05-19T17:10Z: PASS] [operator recovery v2 2026-05-19: re-applied after xlsx-staging bug + Tavily-run] [operator fix 2026-05-19: Tier 3→1. Listeria monocytogenes is hardcoded Tier 1 per FSIS scope rules (same lethality class as Salmonella, cereulide). Rule gap in fsis_reviewer_prompts.md v2 — claude-check should auto-fix this on next pass once the rule is added.]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-05-19: Brand '—'→'Green Box Limited'] [gemini-enrich 2026-05-19: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-05-19T17:10Z: PASS] [operator recovery v2 2026-05-19: re-applied after xlsx-staging bug + Tavily-run] [operator fix 2026-05-19: Tier 3→1. Listeria monocytogenes is hardcoded Tier 1 per FSIS scope rules (same lethality class as Salmonella, cereulide). Rule gap in fsis_reviewer_prompts.md v2 — claude-check should auto-fix this on next pass once the rule is added.] [fix 2026-07-17: Company was product/headline echo -> 'Green Box Limited' (headline artifact -> company)]"
  },
  {
   "Date": "2026-05-19",
