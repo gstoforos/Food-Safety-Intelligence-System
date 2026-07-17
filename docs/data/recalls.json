@@ -405,15 +405,15 @@
   "Company": "Tasmanian Mountain Waters Exp",
   "Brand": "Mt Ossa",
   "Product": "Mt Ossa Australian Spring Water - 10L",
-  "Pathogen": "Listeria monocytogenes",
+  "Pathogen": "Mould",
   "Reason": "Microbial (Mould) contamination.",
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 1,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/tasmanian-mountain-waters-exp-mt-ossa-australian-spring-water-10l",
-  "Notes": "[gemini-enrich 2026-07-15: Brand '—'→'Mt Ossa'] [gemini-check 2026-07-15: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[gemini-enrich 2026-07-15: Brand '—'→'Mt Ossa'] [gemini-check 2026-07-15: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Mould' T2 (FSANZ: Microbial (Mould) contamination, not Listeria)]"
  },
  {
   "Date": "2026-07-13",
@@ -1349,15 +1349,15 @@
   "Company": "Bellevue Orchard Pty Ltd",
   "Brand": "Summer Snow",
   "Product": "Summer Snow - Pink Lady Apple Juice 1 litre & Summer Snow - Granny Smith Apple Juice 2 Litres",
-  "Pathogen": "Listeria monocytogenes",
+  "Pathogen": "Mould",
   "Reason": "Unsuccessful pasteurisation resulting in microbial (Mould) contamination.",
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 1,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/bellevue-orchard-pty-ltd-summer-snow-pink-lady-apple-juice-1-litre-summer",
-  "Notes": "[gemini-enrich 2026-07-07: Brand '—'→'Summer Snow'] [claude-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[gemini-enrich 2026-07-07: Brand '—'→'Summer Snow'] [claude-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Mould' T2 (mould from unsuccessful pasteurisation)]"
  },
  {
   "Date": "2026-07-06",
@@ -1461,15 +1461,15 @@
   "Company": "Bellevue Orchard Pty Ltd",
   "Brand": "Summer Snow",
   "Product": "Summer Snow - Pink Lady Apple Juice 1 litre & Summer Snow - Granny Smith Apple Juice 2 Litres",
-  "Pathogen": "Listeria monocytogenes",
+  "Pathogen": "Mould",
   "Reason": "Unsuccessful pasteurisation resulting in microbial (Mould) contamination.",
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 1,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/updated-07072026-bellevue-orchard-pty-ltd-summer-snow-pink-lady-apple",
-  "Notes": "[gemini-enrich 2026-07-07: Brand '—'→'Summer Snow'] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[gemini-enrich 2026-07-07: Brand '—'→'Summer Snow'] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Mould' T2 (mould from unsuccessful pasteurisation)]"
  },
  {
   "Date": "2026-07-06",
@@ -2149,15 +2149,15 @@
   "Company": "Kaisi Melbourne Pty Ltd",
   "Brand": "Wu Xian Zhai",
   "Product": "Wu Xian Zhai Soybean Snacks - Five Spice Flavour, Sauce Flavour and Spicy Flavour 108g",
-  "Pathogen": "Listeria monocytogenes",
+  "Pathogen": "Undeclared allergen (egg)",
   "Reason": "The presence of an undeclared allergen (Egg).",
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 1,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/kaisi-melbourne-pty-ltd-wu-xian-zhai-soybean-snacks-five-spice-flavour",
-  "Notes": "[gemini-enrich 2026-07-06: Brand '—'→'Wu Xian Zhai'] [claude-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[gemini-enrich 2026-07-06: Brand '—'→'Wu Xian Zhai'] [claude-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Undeclared allergen (egg)' T2 (undeclared egg allergen)]"
  },
  {
   "Date": "2026-06-30",
@@ -3466,10 +3466,10 @@
   "Class": "Information",
   "Country": "China",
   "Region": "Asia",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851110",
-  "Notes": "[RASFF #2026.5230; classification: information notification for follow-up; category: other food product / mixed; notifId=851110] [gemini-enrich 2026-06-20: Brand '—'→'Germany'] [gemini-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.5230; classification: information notification for follow-up; category: other food product / mixed; notifId=851110] [gemini-enrich 2026-06-20: Brand '—'→'Germany'] [gemini-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard: Bacillus cereus bare Bacillus cereus in low-moisture product (cereulide risk) is Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-06-19",
@@ -7941,15 +7941,15 @@
   "Company": "Global Seafood Distributors (Australia) Pty Ltd",
   "Brand": "Global Seafood Distributors (Australia) Pty Ltd",
   "Product": "Seafood Marinara Mix - 500g",
-  "Pathogen": "Listeria monocytogenes",
+  "Pathogen": "Foreign material (shell fragments)",
   "Reason": "The presence of foreign matter (mussel shell fragments with product).",
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 1,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/global-seafood-distributors-australia-pty-ltd-seafood-marinara-mix-500g",
-  "Notes": "[gemini-enrich 2026-05-19: Brand '—'→'Global Seafood Distributors (Australia) Pty Ltd'] [claude-check 2026-05-19T17:10Z: PASS] [operator recovery v2 2026-05-19: re-applied after xlsx-staging bug + Tavily-run]"
+  "Notes": "[gemini-enrich 2026-05-19: Brand '—'→'Global Seafood Distributors (Australia) Pty Ltd'] [claude-check 2026-05-19T17:10Z: PASS] [operator recovery v2 2026-05-19: re-applied after xlsx-staging bug + Tavily-run] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Foreign material (shell fragments)' T2 (foreign matter mussel shell)]"
  },
  {
   "Date": "2026-05-19",
@@ -8293,15 +8293,15 @@
   "Company": "Straus Family Creamery",
   "Brand": "Straus Family Creamery",
   "Product": "Organic Super Premium Ice Cream — 6 flavors/sizes: Vanilla Bean (pint BB Dec 23/28 2026); Strawberry (quart BB Dec 24, pint BB Dec 25 2026); Cookie Dough (pint BB Dec 26 2026); Dutch Chocolate (quart BB Dec 27 2026); Mint Chip (pint BB Dec 30 2026)",
-  "Pathogen": "Salmonella",
+  "Pathogen": "Foreign material (metal)",
   "Reason": "Potential presence of metal foreign material (damaged equipment)",
   "Class": "Voluntary recall",
   "Country": "United States",
   "Region": "North America",
-  "Tier": 1,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/straus-family-creamery-voluntarily-recalls-select-flavors-organic-ice-cream-due-potential-presence",
-  "Notes": "Company announcement date 2026-05-14 (Petaluma CA); FDA Publish Date 2026-05-16 (authoritative per AFTS date rule). Distribution: 17 states (AZ, CA, CO, CT, FL, GA, IA, IL, IN, MD, NJ, OR, PA, SC, TX, WA, WI). On shelves from May 4, 2026. No injuries reported. Foreign material → Tier 3 per AFTS scope (in-scope). Vouchers available via strausfamilycreamery.com/recall. [manual-promote 2026-05-21: URL-guardian had blanked URL on http_error] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3]"
+  "Notes": "Company announcement date 2026-05-14 (Petaluma CA); FDA Publish Date 2026-05-16 (authoritative per AFTS date rule). Distribution: 17 states (AZ, CA, CO, CT, FL, GA, IA, IL, IN, MD, NJ, OR, PA, SC, TX, WA, WI). On shelves from May 4, 2026. No injuries reported. Foreign material → Tier 3 per AFTS scope (in-scope). Vouchers available via strausfamilycreamery.com/recall. [manual-promote 2026-05-21: URL-guardian had blanked URL on http_error] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3] [fix 2026-07-17: MIS-CLASSIFIED — was 'Salmonella' T1; corrected to 'Foreign material (metal)' T2 (metal foreign material)]"
  },
  {
   "Date": "2026-05-16",
@@ -8597,15 +8597,15 @@
   "Company": "Murray River Smokehouse",
   "Brand": "Murray River Smokehouse",
   "Product": "Turkey Bacon - 150g",
-  "Pathogen": "Listeria monocytogenes",
+  "Pathogen": "Undeclared allergen (milk)",
   "Reason": "The presence of an undeclared allergen (milk).",
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 1,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/murray-river-smokehouse-turkey-bacon-150g",
-  "Notes": "[gemini-enrich 2026-05-16: Brand '—'→'Murray River Smokehouse'] [claude-check 2026-05-16: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[gemini-enrich 2026-05-16: Brand '—'→'Murray River Smokehouse'] [claude-check 2026-05-16: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Undeclared allergen (milk)' T2 (undeclared milk allergen)]"
  },
  {
   "Date": "2026-05-13",
@@ -9034,10 +9034,10 @@
   "Class": "Alert",
   "Country": "Madagascar",
   "Region": "Africa",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843280",
-  "Notes": "[RASFF #2026.4119; classification: alert notification; category: herbs and spices; notifId=843280] [gemini-enrich 2026-05-12: Brand '—'→'Madagascar'] [gemini-check 2026-05-12: pass; clean-row shortcut (gemini-enriched + all fields valid)] [region-fix 2026-05-12: Madagascar→Africa]"
+  "Notes": "[RASFF #2026.4119; classification: alert notification; category: herbs and spices; notifId=843280] [gemini-enrich 2026-05-12: Brand '—'→'Madagascar'] [gemini-check 2026-05-12: pass; clean-row shortcut (gemini-enriched + all fields valid)] [region-fix 2026-05-12: Madagascar→Africa] [tier-guard: Bacillus cereus bare Bacillus cereus in low-moisture product (cereulide risk) is Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-05-11",
