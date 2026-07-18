@@ -368,6 +368,38 @@
   "Notes": "coopérative le  farto  thônes¤le comptoir des alpes le grand bornand¤carrefour market saint jean de sixt¤épicerie du pet [url-gate 2026-07-18: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-18: pass; pass | All fields verified: date 2026-07-17 matches page; company Tommette (JON TANGUY chevrerie du Paradis) confirmed; ]"
  },
  {
+  "Date": "2026-07-17",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Slovenia | Notifying: Croatia",
+  "Brand": "Croatia",
+  "Product": "Salmonella spp in poultry preparation meat from Slovenia",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella spp in poultry preparation meat from Slovenia; risk: serious; category: poultry meat and poultry meat products",
+  "Class": "Information",
+  "Country": "Slovenia",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859756",
+  "Notes": "[RASFF #2026.6378; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=859756] [gemini-enrich 2026-07-18: Brand '—'→'Croatia'] [gemini-check 2026-07-18: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-07-17",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Türkiye | Notifying: Germany",
+  "Brand": "Germany",
+  "Product": "Ochratoxin A contamination in dried figs from turkey",
+  "Pathogen": "Ochratoxin",
+  "Reason": "Ochratoxin A contamination in dried figs from turkey; risk: potentially serious; category: fruits and vegetables",
+  "Class": "Border Rejection",
+  "Country": "Turkey",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859703",
+  "Notes": "[RASFF #2026.6370; classification: border rejection notification; category: fruits and vegetables; notifId=859703] [gemini-enrich 2026-07-18: Brand '—'→'Germany'] [gemini-check 2026-07-18: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
   "Date": "2026-07-16",
   "Source": "FSAI (IE)",
   "Company": "K O'Connell Fishmongers",
