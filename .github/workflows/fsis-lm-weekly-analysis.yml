@@ -1,0 +1,383 @@
+name: FSIS-LM Weekly Analysis
+
+# Day 11 of the FSIS-LM project: automated weekly accuracy monitoring.
+#
+# Reads the accumulated shadow log (written by fsis-lm-inference-agent.yml)
+# and cross-references each logged decision against reality — did that row
+# end up in Recalls or Weekly_Rejected? Produces the TRUE production
+# accuracy of the model over time.
+#
+# Run this weekly (e.g. Wednesday 10:00 Athens, before Thursday's cutoff)
+# to track model performance and detect drift. When confident-call accuracy
+# holds >=95% over enough resolved rows, it's safe to flip the inference
+# agent to active mode.
+#
+# Trigger: manually, or add a schedule via Apps Script / cron.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet --upgrade pip
+          pip install --quiet openpyxl
+
+      - name: Capture Athens date
+        id: dt
+        run: echo "date=$(TZ=Europe/Athens date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Write analysis script
+        run: |
+          mkdir -p tools/fsis-lm
+          cat > tools/fsis-lm/fsis_lm_weekly_analysis.py <<'PYEOF_WEEKLY'
+          #!/usr/bin/env python3
+          """
+          fsis_lm_weekly_analysis.py
+          ==========================
+
+          Reads the accumulated FSIS-LM shadow log (docs/audits/fsis_lm_shadow_log.xlsx)
+          and cross-references each logged decision against what actually happened to
+          that row in the live data — did it end up in Recalls (promoted) or
+          Weekly_Rejected (rejected)?
+
+          This gives the TRUE production accuracy of the model, measured on real
+          rows over time, rather than against the val set or the volatile
+          Weekly_Rejected snapshot.
+
+          For each shadow-logged row we resolve ground truth by URL:
+            - URL now in Recalls        → truth = PROMOTE
+            - URL now in Weekly_Rejected → truth = REJECT
+            - URL still in Pending       → undecided (skip)
+            - URL nowhere                → likely rejected+wiped or promoted+archived
+
+          Then computes: how often the model's decision matched reality, broken
+          down by decision type + confidence.
+
+          Usage:
+              python fsis_lm_weekly_analysis.py \\
+                  --shadow-log docs/audits/fsis_lm_shadow_log.xlsx \\
+                  --xlsx docs/data/recalls.xlsx \\
+                  --out-dir docs/audits
+          """
+          from __future__ import annotations
+
+          import argparse
+          import datetime as dt
+          import json
+          import sys
+          from collections import Counter, defaultdict
+          from pathlib import Path
+          from typing import Any, Dict, List, Optional, Set
+
+
+          def load_urls_from_sheet(xlsx_path: Path, sheet: str) -> Set[str]:
+              import openpyxl
+              wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+              if sheet not in wb.sheetnames:
+                  return set()
+              ws = wb[sheet]
+              headers = [c.value for c in ws[1]]
+              try:
+                  url_idx = headers.index("URL")
+              except ValueError:
+                  return set()
+              urls = set()
+              for r in ws.iter_rows(min_row=2, values_only=True):
+                  if url_idx < len(r) and r[url_idx]:
+                      urls.add(str(r[url_idx]).strip())
+              return urls
+
+
+          def load_shadow_log(log_path: Path) -> List[Dict[str, Any]]:
+              import openpyxl
+              if not log_path.exists():
+                  return []
+              wb = openpyxl.load_workbook(log_path, read_only=True, data_only=True)
+              ws = wb.active
+              rows = list(ws.iter_rows(values_only=True))
+              if not rows:
+                  return []
+              headers = list(rows[0])
+              records = []
+              for r in rows[1:]:
+                  rec = dict(zip(headers, r))
+                  if rec.get("url") and rec.get("model_decision") not in (None, "NOOP", ""):
+                      records.append(rec)
+              return records
+
+
+          def main():
+              ap = argparse.ArgumentParser()
+              ap.add_argument("--shadow-log", type=Path,
+                              default=Path("docs/audits/fsis_lm_shadow_log.xlsx"))
+              ap.add_argument("--xlsx", type=Path, default=Path("docs/data/recalls.xlsx"))
+              ap.add_argument("--out-dir", type=Path, default=Path("docs/audits"))
+              ap.add_argument("--date", type=str, default=None)
+              args = ap.parse_args()
+
+              today = args.date or dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+
+              # ── Load shadow log ──
+              print(f"Loading shadow log from {args.shadow_log}...")
+              records = load_shadow_log(args.shadow_log)
+              print(f"  {len(records)} logged decisions")
+              if not records:
+                  print("No shadow-logged decisions yet. Run the inference agent first.")
+                  md = (f"# FSIS-LM Weekly Analysis — {today}\n\n"
+                        "No shadow-logged decisions to analyze yet. The inference "
+                        "agent needs to run (in shadow mode) at least once, and rows "
+                        "need time to resolve to Recalls/Weekly_Rejected before this "
+                        "analysis produces signal.\n")
+                  args.out_dir.mkdir(parents=True, exist_ok=True)
+                  (args.out_dir / f"fsis_lm_weekly_{today}.md").write_text(md)
+                  return
+
+              # ── Resolve ground truth by URL ──
+              print("Resolving ground truth from current sheets...")
+              recalls_urls = load_urls_from_sheet(args.xlsx, "Recalls")
+              rejected_urls = load_urls_from_sheet(args.xlsx, "Weekly_Rejected")
+              pending_urls = load_urls_from_sheet(args.xlsx, "Pending")
+              print(f"  Recalls: {len(recalls_urls)} URLs")
+              print(f"  Weekly_Rejected: {len(rejected_urls)} URLs")
+              print(f"  Pending: {len(pending_urls)} URLs")
+
+              # ── Deduplicate: keep the most recent shadow decision per URL ──
+              by_url: Dict[str, Dict[str, Any]] = {}
+              for rec in records:
+                  url = str(rec["url"]).strip()
+                  # Keep latest by run_utc
+                  if url not in by_url or str(rec.get("run_utc", "")) > str(by_url[url].get("run_utc", "")):
+                      by_url[url] = rec
+              print(f"  {len(by_url)} unique URLs in shadow log")
+
+              # ── Match model decision to reality ──
+              matched = []       # (model_decision, truth, correct, rec)
+              undecided = 0
+              for url, rec in by_url.items():
+                  model_decision = rec["model_decision"]
+                  if url in recalls_urls:
+                      truth = "PROMOTE"
+                  elif url in rejected_urls:
+                      truth = "REJECT"
+                  elif url in pending_urls:
+                      undecided += 1
+                      continue
+                  else:
+                      # URL vanished — could be promoted-then-archived or
+                      # rejected-then-wiped. Can't attribute reliably; skip.
+                      undecided += 1
+                      continue
+
+                  # A FALLBACK decision has no "correct/incorrect" — it deferred to API
+                  if model_decision == "FALLBACK":
+                      matched.append((model_decision, truth, None, rec))
+                  else:
+                      correct = (model_decision == truth)
+                      matched.append((model_decision, truth, correct, rec))
+
+              print(f"  {len(matched)} resolved, {undecided} still undecided/vanished")
+
+              # ── Compute metrics ──
+              # Among rows where the model made a confident call (not FALLBACK):
+              confident = [m for m in matched if m[2] is not None]
+              n_confident = len(confident)
+              n_correct = sum(1 for m in confident if m[2])
+              accuracy = n_correct / n_confident if n_confident else 0.0
+
+              # Broken down by decision
+              reject_calls = [m for m in confident if m[0] == "REJECT"]
+              promote_calls = [m for m in confident if m[0] == "PROMOTE"]
+              reject_correct = sum(1 for m in reject_calls if m[2])
+              promote_correct = sum(1 for m in promote_calls if m[2])
+
+              n_fallback = sum(1 for m in matched if m[0] == "FALLBACK")
+
+              # ── Build report ──
+              md = []
+              md.append(f"# FSIS-LM Weekly Analysis — {today}")
+              md.append("")
+              md.append(f"Cross-referenced **{len(by_url)} shadow-logged decisions** "
+                        f"against the current Recalls / Weekly_Rejected sheets to "
+                        f"measure real production accuracy.")
+              md.append("")
+              md.append("## Headline")
+              md.append("")
+              md.append(f"- Resolved decisions (reached Recalls or Weekly_Rejected): "
+                        f"**{len(matched)}**")
+              md.append(f"- Still undecided (in Pending) or vanished: {undecided}")
+              md.append(f"- Confident model calls (not fallback): **{n_confident}**")
+              if n_confident:
+                  md.append(f"- **Confident-call accuracy: {accuracy:.1%}** "
+                            f"({n_correct}/{n_confident})")
+              md.append(f"- Fallback calls (deferred to API): {n_fallback}")
+              md.append("")
+
+              if n_confident:
+                  md.append("## Accuracy by decision type")
+                  md.append("")
+                  md.append("| Decision | Count | Correct | Accuracy |")
+                  md.append("|---|---:|---:|---:|")
+                  if reject_calls:
+                      md.append(f"| REJECT | {len(reject_calls)} | {reject_correct} | "
+                                f"{reject_correct/len(reject_calls):.1%} |")
+                  if promote_calls:
+                      md.append(f"| PROMOTE | {len(promote_calls)} | {promote_correct} | "
+                                f"{promote_correct/len(promote_calls):.1%} |")
+                  md.append("")
+
+                  # Automation rate
+                  total_resolved = len(matched)
+                  automation_rate = n_confident / total_resolved if total_resolved else 0
+                  md.append("## Automation potential")
+                  md.append("")
+                  md.append(f"Of {total_resolved} resolved rows, the model made a "
+                            f"confident call on **{n_confident} ({automation_rate:.0%})**, "
+                            f"deferring {n_fallback} to the API.")
+                  md.append("")
+                  md.append(f"At {accuracy:.0%} accuracy on confident calls, deploying "
+                            f"in active mode would auto-handle ~{automation_rate:.0%} of "
+                            f"Pending rows and cut API usage proportionally.")
+                  md.append("")
+
+                  # Any wrong confident calls — these are the important ones to inspect
+                  wrong = [m for m in confident if m[2] is False]
+                  md.append(f"## Incorrect confident calls ({len(wrong)})")
+                  md.append("")
+                  if not wrong:
+                      md.append("_None — every confident model call matched reality._ ✓")
+                  else:
+                      md.append("These are the rows where the model was confident but "
+                                "wrong. Inspect before switching to active mode.")
+                      md.append("")
+                      md.append("| Model said | Reality | Source | Pathogen | URL |")
+                      md.append("|---|---|---|---|---|")
+                      for decision, truth, _, rec in wrong[:30]:
+                          md.append(f"| {decision} | {truth} | {rec.get('source','')} | "
+                                    f"{str(rec.get('pathogen',''))[:40]} | "
+                                    f"{str(rec.get('url',''))[:70]} |")
+                  md.append("")
+
+              md.append("## Recommendation")
+              md.append("")
+              if n_confident < 20:
+                  md.append(f"⏳ **Keep accumulating.** Only {n_confident} confident "
+                            "calls have resolved so far — too few to judge. Let shadow "
+                            "mode run another week.")
+              elif accuracy >= 0.95:
+                  md.append(f"✅ **Ready for active mode.** Confident-call accuracy is "
+                            f"{accuracy:.0%} over {n_confident} resolved rows. Switching "
+                            "the inference agent to `--mode active` would safely automate "
+                            f"~{n_confident/len(matched):.0%} of Pending decisions.")
+              elif accuracy >= 0.90:
+                  md.append(f"🟡 **Close.** {accuracy:.0%} accuracy. Review the incorrect "
+                            "calls above; if they're borderline/defensible, active mode "
+                            "is reasonable. Otherwise raise thresholds and re-measure.")
+              else:
+                  md.append(f"⚠ **Not yet.** {accuracy:.0%} accuracy is below the safe "
+                            "bar for automation. Inspect the incorrect calls, consider "
+                            "raising thresholds or retraining.")
+              md.append("")
+
+              args.out_dir.mkdir(parents=True, exist_ok=True)
+              md_path = args.out_dir / f"fsis_lm_weekly_{today}.md"
+              md_path.write_text("\n".join(md), encoding="utf-8")
+
+              metrics = {
+                  "generated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+                  "n_logged": len(by_url),
+                  "n_resolved": len(matched),
+                  "n_confident": n_confident,
+                  "n_correct": n_correct,
+                  "accuracy": accuracy,
+                  "n_fallback": n_fallback,
+                  "reject_calls": len(reject_calls),
+                  "reject_correct": reject_correct,
+                  "promote_calls": len(promote_calls),
+                  "promote_correct": promote_correct,
+              }
+              (args.out_dir / f"fsis_lm_weekly_{today}.json").write_text(
+                  json.dumps(metrics, indent=2, default=float), encoding="utf-8")
+
+              print(f"\n  → {md_path}")
+              print(f"\n{'='*56}")
+              if n_confident:
+                  print(f"Confident-call accuracy: {accuracy:.1%} ({n_correct}/{n_confident})")
+              print(f"Resolved: {len(matched)} | Fallback: {n_fallback} | "
+                    f"Undecided: {undecided}")
+              print(f"{'='*56}")
+
+
+          if __name__ == "__main__":
+              main()
+          PYEOF_WEEKLY
+          chmod +x tools/fsis-lm/fsis_lm_weekly_analysis.py
+
+      - name: Run weekly analysis
+        env:
+          RUN_DATE: ${{ steps.dt.outputs.date }}
+        run: |
+          LOG_FILE=$(mktemp)
+          set -o pipefail
+          python tools/fsis-lm/fsis_lm_weekly_analysis.py \
+            --shadow-log docs/audits/fsis_lm_shadow_log.xlsx \
+            --xlsx docs/data/recalls.xlsx \
+            --out-dir docs/audits \
+            --date "$RUN_DATE" \
+            2>&1 | tee "$LOG_FILE"
+
+          {
+            echo "## FSIS-LM Weekly Analysis — ${RUN_DATE} (Athens)"
+            echo ""
+            echo '```'
+            cat "$LOG_FILE"
+            echo '```'
+            echo ""
+            if [ -f "docs/audits/fsis_lm_weekly_${RUN_DATE}.md" ]; then
+              echo "### Full report"
+              echo ""
+              cat "docs/audits/fsis_lm_weekly_${RUN_DATE}.md"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit analysis report
+        env:
+          RUN_DATE: ${{ steps.dt.outputs.date }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/audits/fsis_lm_weekly_*.md \
+                  docs/audits/fsis_lm_weekly_*.json \
+                  tools/fsis-lm/fsis_lm_weekly_analysis.py
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "fsis-lm-weekly: analysis ${RUN_DATE}"
+          for i in 1 2 3; do
+            if git push; then exit 0; fi
+            git pull --rebase
+            sleep 3
+          done
+          echo "::error::push failed"
+          exit 1
