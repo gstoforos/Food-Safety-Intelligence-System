@@ -8,18 +8,18 @@
   "week_end": "2026-07-16",
   "week_start_display": "10 Jul",
   "week_end_display": "16 Jul 2026",
-  "generated_utc": "2026-07-17T10:10:51.229755+00:00",
+  "generated_utc": "2026-07-19T17:31:12.265059+00:00",
   "stats": {
-    "total": 48,
-    "tier1": 39,
+    "total": 54,
+    "tier1": 42,
     "outbreaks": 0,
-    "delta": -14,
-    "delta_pct": -23
+    "delta": -8,
+    "delta_pct": -13
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
     "cases": 22,
-    "pct": 46
+    "pct": 41
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -94,5 +94,5 @@
       "url": "https://recalls-rappels.canada.ca/en/alert-recall/charcuterie-charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due"
     }
   ],
-  "country_count": 18
+  "country_count": 22
 }
