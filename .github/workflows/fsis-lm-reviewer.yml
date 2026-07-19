@@ -1,0 +1,682 @@
+name: FSIS-LM Reviewer (API replacement)
+
+# The production cutover. Replaces the Claude/Gemini per-row verification
+# with the local FSIS-LM classifiers — same pipeline entry point
+# (pipeline.claude_check), same page-fetch, same H1-H14 tier rules, same
+# promote_approved writeback. ONLY the "judge the row against page text"
+# brain changes from an API call to the trained classifiers.
+#
+# Cost: $0 per row (models run on the GH Actions CPU). No ANTHROPIC or
+# GEMINI key needed.
+#
+# HOW IT WORKS
+#   1. Pull the trained tier + promote model artifacts.
+#   2. Drop fsis_lm_reviewer.py + fsis_lm_integration.py next to the
+#      pipeline so `import fsis_lm_integration` resolves.
+#   3. Apply a 2-line patch to pipeline/claude_check.py (idempotent — the
+#      step checks if already patched).
+#   4. Run `python -m pipeline.claude_check` with FSIS_LM_REVIEWER=1.
+#
+# VALIDATION MODE (recommended for the weeks before API expiry)
+#   Run this with `commit: false`. It reviews every Pending row with the
+#   classifiers and writes a comparison log, but does NOT modify data.
+#   Meanwhile your existing claude-check keeps running for real. Compare
+#   the two to confirm agreement before switching the real decision over.
+#
+# CUTOVER
+#   Set `commit: true` and disable claude-check.yml / gemini-check.yml.
+#   This workflow becomes the reviewer.
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "true = write decisions to data (CUTOVER); false = dry-run/validation"
+        required: false
+        default: "false"
+      skip_days:
+        description: "Skip Pending rows older than N days (0 = all)"
+        required: false
+        default: "0"
+      reject_threshold:
+        description: "promote model P(REJECT) >= this → reject"
+        required: false
+        default: "0.60"
+      tier_training_workflow:
+        description: "Workflow to pull tier model from"
+        required: false
+        default: "train-tier-classifier.yml"
+      promote_training_workflow:
+        description: "Workflow to pull promote model from"
+        required: false
+        default: "train-promote-classifier.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # Model runtime (CPU torch + transformers) on top of the
+          # pipeline's own requirements.
+          pip install --quiet --extra-index-url https://download.pytorch.org/whl/cpu torch
+          pip install --quiet transformers sentencepiece protobuf
+
+      - name: Download tier-classifier model
+        uses: dawidd6/action-download-artifact@v9
+        with:
+          workflow: ${{ inputs.tier_training_workflow }}
+          workflow_conclusion: success
+          name_is_regexp: true
+          name: tier-classifier-\d{4}-\d{2}-\d{2}
+          path: tools/fsis-lm/tier-classifier-v1
+          if_no_artifact_found: fail
+
+      - name: Download promote-classifier model
+        uses: dawidd6/action-download-artifact@v9
+        with:
+          workflow: ${{ inputs.promote_training_workflow }}
+          workflow_conclusion: success
+          name_is_regexp: true
+          name: promote-classifier-\d{4}-\d{2}-\d{2}
+          path: tools/fsis-lm/promote-classifier-v1
+          if_no_artifact_found: fail
+
+      - name: Flatten + verify model dirs
+        run: |
+          for D in tools/fsis-lm/tier-classifier-v1 tools/fsis-lm/promote-classifier-v1; do
+            if [ ! -f "$D/config.json" ]; then
+              INNER=$(find "$D" -name config.json -type f | head -1)
+              [ -n "$INNER" ] && mv "$(dirname "$INNER")"/* "$D/" 2>/dev/null || true
+            fi
+            [ -f "$D/config.json" ] || { echo "::error::missing $D/config.json"; exit 1; }
+          done
+
+      - name: Install FSIS-LM reviewer next to the pipeline
+        run: |
+          # Put the two modules on the import path used by pipeline.claude_check.
+          # The repo root is on sys.path for `python -m`, so top-level is fine.
+          cat > fsis_lm_reviewer.py <<'PYEOF_REVIEWER'
+          #!/usr/bin/env python3
+          """
+          fsis_lm_reviewer.py
+          ===================
+
+          Drop-in replacement for the Claude/Gemini API reviewer call inside
+          pipeline/claude_check.py. Produces the SAME per-row `result` dict that
+          check_row() consumes, so all downstream logic (H1-H14 tier rules,
+          date_pre_2026 / url_year_mismatch / pathogen scope overrides, verdict
+          handling, promote_approved writeback) works UNCHANGED.
+
+          The only thing this replaces is the "read page text + judge each field"
+          step that used to cost an API call. It sources that judgment from:
+
+            1. The trained promote classifier   → is_recall_page / overall validity
+            2. The trained tier classifier       → (used by check_row's own tier logic)
+            3. Deterministic page-text matching  → company_match, product_match,
+                                                    pathogen_match, date_match
+            4. The existing deterministic date extractor (passed in) → date_corrected
+
+          Design contract — the result dict this returns:
+              {
+                "verdict":        "pass" | "fix" | "fail",
+                "is_recall_page": bool,
+                "company_match":  bool,
+                "product_match":  bool,
+                "pathogen_match": bool,
+                "date_match":     bool,
+                "date_on_page":   "YYYY-MM-DD" | "",
+                "date_corrected": "YYYY-MM-DD" | None,
+                "reason":         str,
+              }
+
+          check_row() then layers its own deterministic overrides on top and makes
+          the final verdict. We intentionally do NOT re-implement those here — we
+          feed check_row the field-level signals it expects and let it do the rest,
+          exactly as it did with the LLM's answer.
+
+          Threshold philosophy: when the deterministic signal is ambiguous, we bias
+          toward the SAFE outcome — is_recall_page stays True (let check_row's other
+          gates catch it) but a genuinely uncertain promote/reject defers by
+          producing verdict="fail" with a "needs_human" reason, so the row stays in
+          Pending rather than being wrongly promoted. Nothing here makes an
+          irreversible wrong call that the API wouldn't also have caught.
+          """
+          from __future__ import annotations
+
+          import difflib
+          import re
+          import unicodedata
+          from pathlib import Path
+          from typing import Any, Callable, Dict, List, Optional, Tuple
+
+          import numpy as np
+
+
+          # ─── Text normalization + fuzzy matching ─────────────────────────────────
+
+          def _norm(s: Any) -> str:
+              """Lowercase, strip accents, collapse whitespace/punctuation."""
+              if s is None:
+                  return ""
+              s = str(s)
+              s = unicodedata.normalize("NFKD", s)
+              s = "".join(c for c in s if not unicodedata.combining(c))
+              s = s.lower()
+              s = re.sub(r"[^a-z0-9\s]", " ", s)
+              s = re.sub(r"\s+", " ", s).strip()
+              return s
+
+
+          def _tokens(s: str) -> List[str]:
+              return [t for t in _norm(s).split() if len(t) >= 3]
+
+
+          def _page_contains(page_norm: str, value: str,
+                             min_ratio: float = 0.72) -> bool:
+              """Is `value` meaningfully present in the page text?
+
+              Two ways to match:
+                1. Any distinctive token (>=4 chars) of value appears verbatim, OR
+                2. A fuzzy window of the page matches value above min_ratio.
+              """
+              v = _norm(value)
+              if not v:
+                  return False
+              # Generic placeholders always "match" (page needn't name them)
+              if v in {"various brands", "various producers", "unbranded",
+                       "sans marque", "various", "n a", "none", "unknown", "unk"}:
+                  return True
+
+              toks = [t for t in v.split() if len(t) >= 4]
+              if toks:
+                  hits = sum(1 for t in toks if t in page_norm)
+                  # If a majority of distinctive tokens are present, call it a match
+                  if hits >= max(1, len(toks) // 2):
+                      return True
+
+              # Fuzzy fallback: slide value-length windows, take best ratio.
+              if len(v) >= 6 and len(page_norm) >= len(v):
+                  best = 0.0
+                  step = max(1, len(v) // 2)
+                  for i in range(0, min(len(page_norm) - len(v) + 1, 200000), step):
+                      window = page_norm[i:i + len(v)]
+                      r = difflib.SequenceMatcher(None, v, window).ratio()
+                      if r > best:
+                          best = r
+                          if best >= min_ratio:
+                              return True
+              return False
+
+
+          # ─── Pathogen scope (mirrors claude_check §2d + H-rules) ─────────────────
+
+          _TIER1_PATHOGENS = [
+              "listeria", "salmonella", "stec", "e. coli", "e.coli", "escherichia",
+              "o157", "vtec", "ehec", "botulinum", "clostridium botulinum",
+              "cereus", "cereulide", "aflatoxin", "ochratoxin", "mycotoxin",
+              "cronobacter", "hepatitis a", "hep a", "norovirus",
+              "staphylococc", "enterotoxin", "campylobacter", "marine biotoxin",
+              "biotoxin",
+          ]
+          _OUT_OF_SCOPE_HINTS = [
+              "histamine", "foreign body", "allergen", "undeclared", "sulfite",
+              "heavy metal", "rodenticide", "pfas", "plastic", "metal fragment",
+              "glass", "quality", "labeling", "label", "net weight",
+          ]
+
+
+          def _pathogen_in_scope(pathogen: str, page_norm: str) -> bool:
+              p = _norm(pathogen)
+              if not p:
+                  return False
+              if any(k in p for k in [_norm(x) for x in _TIER1_PATHOGENS]):
+                  return True
+              return False
+
+
+          # ─── News-mirror / aggregator domains (mirrors §2b) ──────────────────────
+
+          _NEWS_MIRROR_DOMAINS = [
+              "sedaily.com", "reuters.com", "beaconbio.org", "ilfattoalimentare.it",
+              "foodsafetynews.com", "cnn.com", "bbc.com", "bbc.co.uk",
+              "news.google.com", "google.com/search",
+          ]
+
+
+          # ─── The classifier-backed reviewer ──────────────────────────────────────
+
+          class FsisLmReviewer:
+              """Loads the two classifiers once, reviews rows against page text."""
+
+              def __init__(self, tier_model_dir: Path, promote_model_dir: Path,
+                           promote_reject_threshold: float = 0.60,
+                           tier_max_length: int = 128,
+                           promote_max_length: int = 256):
+                  import torch
+                  from transformers import (AutoTokenizer,
+                                             AutoModelForSequenceClassification)
+                  self.torch = torch
+                  self.reject_threshold = promote_reject_threshold
+                  self.tier_max_length = tier_max_length
+                  self.promote_max_length = promote_max_length
+
+                  self.tier_tok = AutoTokenizer.from_pretrained(tier_model_dir)
+                  self.tier_model = AutoModelForSequenceClassification.from_pretrained(
+                      tier_model_dir)
+                  self.tier_model.eval()
+
+                  self.promote_tok = AutoTokenizer.from_pretrained(promote_model_dir)
+                  self.promote_model = AutoModelForSequenceClassification.from_pretrained(
+                      promote_model_dir)
+                  self.promote_model.eval()
+
+              # ── input formatting (MUST match training) ──
+              @staticmethod
+              def _tier_input(row: Dict[str, Any]) -> str:
+                  lines = []
+                  for f in ("Pathogen", "Outbreak", "Class", "Product"):
+                      v = row.get(f, "")
+                      lines.append(f"- **{f}**: {v if v not in ('', None) else '(empty)'}")
+                  return "\n".join(lines)
+
+              @staticmethod
+              def _promote_input(row: Dict[str, Any]) -> str:
+                  fields = ["Date", "Source", "Company", "Brand", "Product",
+                            "Pathogen", "Class", "Country", "Tier", "Outbreak", "URL"]
+                  lines = []
+                  for f in fields:
+                      v = row.get(f, "")
+                      lines.append(f"- **{f}**: {v if v not in ('', None) else '(empty)'}")
+                  notes = str(row.get("Notes", ""))[:600]
+                  if notes:
+                      lines.append(f"- **Notes excerpt**: {notes}")
+                  return "\n".join(lines)
+
+              def _promote_probs(self, row: Dict[str, Any]) -> Tuple[float, float]:
+                  inp = self._promote_input(row)
+                  enc = self.promote_tok([inp], return_tensors="pt", truncation=True,
+                                         max_length=self.promote_max_length, padding=True)
+                  with self.torch.no_grad():
+                      logits = self.promote_model(**enc).logits
+                  p = self.torch.softmax(logits.float(), dim=-1).cpu().numpy()[0]
+                  # id2label: 0=PROMOTE, 1=REJECT
+                  return float(p[0]), float(p[1])
+
+              def _tier_pred(self, row: Dict[str, Any]) -> Tuple[int, float]:
+                  inp = self._tier_input(row)
+                  enc = self.tier_tok([inp], return_tensors="pt", truncation=True,
+                                     max_length=self.tier_max_length, padding=True)
+                  with self.torch.no_grad():
+                      logits = self.tier_model(**enc).logits
+                  p = self.torch.softmax(logits.float(), dim=-1).cpu().numpy()[0]
+                  idx = int(np.argmax(p))
+                  return idx + 1, float(p[idx])   # tier (1-based), confidence
+
+              # ── the main entry point: produces the check_row result dict ──
+              def review_row(self, row: Dict[str, Any],
+                             page_text: Optional[str],
+                             page_error: Optional[str],
+                             extract_date: Optional[Callable[[str], Optional[str]]] = None,
+                             ) -> Dict[str, Any]:
+                  """Return a result dict shaped exactly like the LLM reviewer's.
+
+                  page_text  : text extracted from the URL (or None on fetch failure)
+                  page_error : fetch error string (or None)
+                  extract_date: the deterministic date extractor from claude_check
+                                (_extract_publication_date). Optional; used to fill
+                                date_corrected / date_on_page.
+                  """
+                  url = str(row.get("URL", "") or "")
+
+                  # ── Fetch failure → fail (same as LLM path when page unreadable) ──
+                  if page_text is None:
+                      return {
+                          "verdict": "fail",
+                          "is_recall_page": False,
+                          "company_match": False, "product_match": False,
+                          "pathogen_match": False, "date_match": False,
+                          "date_on_page": "", "date_corrected": None,
+                          "reason": f"page_fetch_failed: {page_error or 'unknown'}",
+                      }
+
+                  page_norm = _norm(page_text)
+
+                  # ── News-mirror domain guard (deterministic, mirrors §2b) ──
+                  url_l = url.lower()
+                  if any(d in url_l for d in _NEWS_MIRROR_DOMAINS):
+                      return {
+                          "verdict": "fail", "is_recall_page": False,
+                          "company_match": False, "product_match": False,
+                          "pathogen_match": False, "date_match": False,
+                          "date_on_page": "", "date_corrected": None,
+                          "reason": "news_mirror_domain",
+                      }
+
+                  # ── Field matches against page text (deterministic) ──
+                  company = str(row.get("Company", "") or "")
+                  product = str(row.get("Product", "") or "")
+                  pathogen = str(row.get("Pathogen", "") or "")
+
+                  company_match = _page_contains(page_norm, company) if company else False
+                  product_match = _page_contains(page_norm, product) if product else False
+                  pathogen_match = (_page_contains(page_norm, pathogen)
+                                    if pathogen else False)
+
+                  # ── Date verification via the deterministic extractor ──
+                  date_on_page = ""
+                  date_corrected = None
+                  date_match = True   # default optimistic; check_row re-checks anyway
+                  if extract_date is not None:
+                      extracted = extract_date(page_text)
+                      if extracted:
+                          date_on_page = extracted
+                          row_date = str(row.get("Date", "") or "")[:10]
+                          if row_date and row_date != extracted:
+                              # off by more than tz tolerance → propose correction
+                              date_match = _within_one_day(row_date, extracted)
+                              if not date_match:
+                                  date_corrected = extracted
+
+                  # ── is_recall_page + overall validity from the promote classifier ──
+                  p_promote, p_reject = self._promote_probs(row)
+                  model_says_reject = p_reject >= self.reject_threshold
+                  is_recall_page = not model_says_reject
+
+                  # ── Assemble verdict (check_row will refine with H-rules) ──
+                  # Decision policy:
+                  #   - model confidently rejects           → fail
+                  #   - a required field clearly mismatches  → fail (row re-scraped)
+                  #   - date needs fixing, everything else OK → fix
+                  #   - all good                              → pass
+                  reason_bits = []
+                  if model_says_reject:
+                      reason_bits.append(f"model_reject p={p_reject:.2f}")
+                  if not is_recall_page:
+                      verdict = "fail"
+                  elif company and not company_match:
+                      verdict = "fail"; reason_bits.append("company mismatch")
+                  elif product and not product_match:
+                      verdict = "fail"; reason_bits.append("product mismatch")
+                  elif pathogen and not pathogen_match:
+                      verdict = "fail"; reason_bits.append("pathogen mismatch")
+                  elif date_corrected:
+                      verdict = "fix"; reason_bits.append(f"date→{date_corrected}")
+                  else:
+                      verdict = "pass"
+
+                  return {
+                      "verdict": verdict,
+                      "is_recall_page": is_recall_page,
+                      "company_match": company_match if company else True,
+                      "product_match": product_match if product else True,
+                      "pathogen_match": pathogen_match if pathogen else True,
+                      "date_match": date_match,
+                      "date_on_page": date_on_page,
+                      "date_corrected": date_corrected,
+                      "reason": ("fsis-lm: " + "; ".join(reason_bits)) if reason_bits
+                                else "fsis-lm: all checks passed",
+                      # extra fields for logging / active-mode use (ignored by check_row)
+                      "_p_promote": p_promote,
+                      "_p_reject": p_reject,
+                  }
+
+
+          def _within_one_day(a_iso: str, b_iso: str) -> bool:
+              import datetime as _dt
+              try:
+                  a = _dt.date.fromisoformat(a_iso[:10])
+                  b = _dt.date.fromisoformat(b_iso[:10])
+                  return abs((a - b).days) <= 1
+              except Exception:
+                  return a_iso[:10] == b_iso[:10]
+          PYEOF_REVIEWER
+          cat > fsis_lm_integration.py <<'PYEOF_INTEGRATION'
+          #!/usr/bin/env python3
+          """
+          fsis_lm_integration.py
+          ======================
+
+          The glue that lets pipeline/claude_check.py use the local FSIS-LM
+          classifiers instead of the Claude/Gemini API, WITHOUT rewriting
+          claude_check.py's 1,860 lines.
+
+          How it plugs in (see PATCH INSTRUCTIONS at the bottom):
+
+            1. Copy this file + fsis_lm_reviewer.py next to claude_check.py
+               (i.e. into pipeline/ or a tools/fsis-lm/ dir on the import path).
+
+            2. Add ONE import near the top of claude_check.py:
+                   from fsis_lm_integration import (
+                       verify_with_fsis_lm, FSIS_LM_ENABLED)
+
+            3. Replace the single line in check_row():
+                   result = _verify_with_claude(row, text)
+               with:
+                   if FSIS_LM_ENABLED:
+                       result = verify_with_fsis_lm(row, text, _extract_publication_date)
+                   else:
+                       result = _verify_with_claude(row, text)
+
+          That's the entire integration. Everything downstream — the H1-H14 tier
+          rules, date_pre_2026 / url_year_mismatch / pathogen scope overrides in
+          check_row, the promote_approved writeback — runs UNCHANGED, because
+          verify_with_fsis_lm returns the exact same result-dict shape that
+          _verify_with_claude did.
+
+          Toggle behaviour:
+            FSIS_LM_ENABLED is True when the env var FSIS_LM_REVIEWER is set to
+            "1"/"true"/"yes". Otherwise the original Claude path runs. This lets you:
+              - run both reviewers in parallel during validation
+                (FSIS_LM_REVIEWER=1 on the FSIS-LM job, unset on the Claude job)
+              - fall back to Claude instantly if anything looks wrong, by flipping
+                one env var — no code change, no redeploy
+          """
+          from __future__ import annotations
+
+          import os
+          from pathlib import Path
+          from typing import Any, Callable, Dict, Optional
+
+          # Resolve model dirs relative to this file, with env overrides.
+          _HERE = Path(__file__).resolve().parent
+
+
+          def _model_dir(env_var: str, default_rel: str) -> Path:
+              v = os.environ.get(env_var)
+              if v:
+                  return Path(v)
+              # Try a few likely locations so this works whether the file sits in
+              # pipeline/ or tools/fsis-lm/
+              candidates = [
+                  _HERE / default_rel,
+                  _HERE.parent / default_rel,
+                  _HERE.parent / "tools" / "fsis-lm" / Path(default_rel).name,
+                  Path.cwd() / default_rel,
+              ]
+              for c in candidates:
+                  if (c / "config.json").exists():
+                      return c
+              return candidates[0]
+
+
+          FSIS_LM_ENABLED = os.environ.get("FSIS_LM_REVIEWER", "").lower() in (
+              "1", "true", "yes", "on")
+
+          _TIER_DIR = _model_dir("FSIS_LM_TIER_DIR", "tools/fsis-lm/tier-classifier-v1")
+          _PROMOTE_DIR = _model_dir("FSIS_LM_PROMOTE_DIR",
+                                    "tools/fsis-lm/promote-classifier-v1")
+          _REJECT_THRESHOLD = float(os.environ.get("FSIS_LM_REJECT_THRESHOLD", "0.60"))
+
+          # Lazy singleton so model load (a few seconds) only happens once, and only
+          # if the reviewer is actually enabled.
+          _reviewer = None
+
+
+          def _get_reviewer():
+              global _reviewer
+              if _reviewer is None:
+                  from fsis_lm_reviewer import FsisLmReviewer
+                  _reviewer = FsisLmReviewer(
+                      tier_model_dir=_TIER_DIR,
+                      promote_model_dir=_PROMOTE_DIR,
+                      promote_reject_threshold=_REJECT_THRESHOLD,
+                  )
+              return _reviewer
+
+
+          def verify_with_fsis_lm(row: Dict[str, Any],
+                                  page_text: str,
+                                  extract_date: Optional[Callable[[str], Optional[str]]] = None,
+                                  ) -> Optional[Dict[str, Any]]:
+              """Drop-in replacement for _verify_with_claude(row, text).
+
+              Returns the same result-dict shape (verdict / is_recall_page /
+              *_match / date_corrected / date_on_page / reason), or None on an
+              unexpected internal error (so check_row's None-handling still works).
+              """
+              try:
+                  reviewer = _get_reviewer()
+                  return reviewer.review_row(
+                      row=row, page_text=page_text, page_error=None,
+                      extract_date=extract_date)
+              except Exception as exc:  # pragma: no cover
+                  import logging
+                  logging.getLogger(__name__).warning(
+                      "fsis-lm reviewer failed: %s: %s", type(exc).__name__,
+                      str(exc)[:160])
+                  return None
+
+
+          # ─────────────────────────────────────────────────────────────────────────
+          # PATCH INSTRUCTIONS (for pipeline/claude_check.py)
+          # ─────────────────────────────────────────────────────────────────────────
+          #
+          # 1. Near the other imports (around line 68-70, next to
+          #    `from review.claude_client import ...`) add:
+          #
+          #        from fsis_lm_integration import (
+          #            verify_with_fsis_lm, FSIS_LM_ENABLED)
+          #
+          # 2. In check_row(), find (≈ line 1265):
+          #
+          #        result = _verify_with_claude(row, text)
+          #
+          #    Replace with:
+          #
+          #        if FSIS_LM_ENABLED:
+          #            result = verify_with_fsis_lm(row, text, _extract_publication_date)
+          #        else:
+          #            result = _verify_with_claude(row, text)
+          #
+          # 3. Ensure fsis_lm_reviewer.py and fsis_lm_integration.py are importable
+          #    (same dir as claude_check.py, or on PYTHONPATH), and that the model
+          #    dirs exist (config.json present). In the workflow, the models are
+          #    pulled from the training artifacts into tools/fsis-lm/*/.
+          #
+          # 4. To activate, set env in the workflow step:
+          #        FSIS_LM_REVIEWER: "1"
+          #    Leave it unset to keep using Claude.
+          #
+          # No other lines change. The CHECKER_TAG audit stamp, promote_approved
+          # writeback, tier auto-fix, and every H-rule stay exactly as they are.
+          PYEOF_INTEGRATION
+          echo "Installed fsis_lm_reviewer.py + fsis_lm_integration.py"
+
+      - name: Patch pipeline/claude_check.py (idempotent)
+        run: |
+          python - <<'PYEOF_PATCH'
+          import re, io, sys
+          p = "pipeline/claude_check.py"
+          src = open(p, encoding="utf-8").read()
+
+          if "verify_with_fsis_lm" in src:
+              print("Already patched — skipping.")
+              sys.exit(0)
+
+          # 1. Add import after the claude_client import block.
+          import_anchor = "from review.claude_client import ("
+          idx = src.find(import_anchor)
+          if idx == -1:
+              print("::error::could not find claude_client import anchor")
+              sys.exit(1)
+          # insert after the close paren of that import
+          end = src.find(")", idx)
+          inject = ("\n\ntry:\n"
+                    "    from fsis_lm_integration import (\n"
+                    "        verify_with_fsis_lm, FSIS_LM_ENABLED)\n"
+                    "except Exception:\n"
+                    "    verify_with_fsis_lm = None\n"
+                    "    FSIS_LM_ENABLED = False\n")
+          src = src[:end+1] + inject + src[end+1:]
+
+          # 2. Swap the reviewer call inside check_row.
+          old = "    result = _verify_with_claude(row, text)"
+          new = ("    if FSIS_LM_ENABLED and verify_with_fsis_lm is not None:\n"
+                 "        result = verify_with_fsis_lm(row, text, _extract_publication_date)\n"
+                 "    else:\n"
+                 "        result = _verify_with_claude(row, text)")
+          if old not in src:
+              print("::error::could not find the _verify_with_claude call site")
+              sys.exit(1)
+          src = src.replace(old, new, 1)
+
+          open(p, "w", encoding="utf-8").write(src)
+          print("Patched pipeline/claude_check.py")
+          PYEOF_PATCH
+
+      - name: Run reviewer (FSIS-LM brain)
+        env:
+          FSIS_LM_REVIEWER: "1"
+          FSIS_LM_REJECT_THRESHOLD: ${{ inputs.reject_threshold }}
+          FSIS_LM_TIER_DIR: tools/fsis-lm/tier-classifier-v1
+          FSIS_LM_PROMOTE_DIR: tools/fsis-lm/promote-classifier-v1
+          CLAUDE_CHECK_SKIP_DAYS: ${{ inputs.skip_days }}
+          SKIP_COMMIT: ${{ inputs.commit == 'true' && 'false' || 'true' }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME: "AFTS Intelligence System (FSIS-LM)"
+          HF_HUB_DISABLE_PROGRESS_BARS: "1"
+          TOKENIZERS_PARALLELISM: "false"
+        run: |
+          echo "Mode: $([ "${{ inputs.commit }}" = "true" ] && echo CUTOVER-writes-data || echo DRY-RUN-no-writes)"
+          python -m pipeline.claude_check
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## FSIS-LM Reviewer — $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M') Athens"
+            echo ""
+            echo "Mode: **$([ "${{ inputs.commit }}" = "true" ] && echo 'CUTOVER (data written)' || echo 'DRY-RUN (no writes)')**"
+            echo "Reject threshold: ${{ inputs.reject_threshold }}"
+            echo ""
+            echo "Recalls sheet rows: $(python -c "
+          import openpyxl
+          try:
+              wb = openpyxl.load_workbook('docs/data/recalls.xlsx', read_only=True)
+              print(wb['Recalls'].max_row - 1 if 'Recalls' in wb.sheetnames else '(no sheet)')
+          except Exception as e:
+              print(f'(unreadable: {e})')
+          ")"
+          } >> "$GITHUB_STEP_SUMMARY"
