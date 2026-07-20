@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-07-19",
+  "Source": "FDA",
+  "Company": "Relay Peak Research LLC dba Zen Principle Naturals",
+  "Brand": "Zen Principle",
+  "Product": "Moringa Leaf Powder Capsules",
+  "Pathogen": "Salmonella",
+  "Reason": "Possible Salmonella Contamination",
+  "Class": "Recall",
+  "Country": "USA",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/relay-peak-research-llc-recalls-zen-principler-moringa-capsules-because-possible-health-risk",
+  "Notes": "FDA listing HTML (Layer 1) [claude-check 2026-07-20: pass; pass | All fields match the FDA page. Salmonella in dietary supplement (moringa powder capsules) is Tier 1 under FDA fra]"
+ },
+ {
   "Date": "2026-07-18",
   "Source": "FDA",
   "Company": "Taylor Fresh Foods",
@@ -526,6 +542,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22850/Interne",
   "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company in row is the brand/distributor, not the recalling firm 'CARREFOUR FRANCE CARREFOUR' as ]"
+ },
+ {
+  "Date": "2026-07-17",
+  "Source": "FSANZ (AU)",
+  "Company": "Truong Ton Group",
+  "Brand": "Truong Ton Group",
+  "Product": "Vietnamese Sausage 500g",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "The presence of an undeclared allergen (Wheat).",
+  "Class": "Recall",
+  "Country": "Australia",
+  "Region": "Oceania",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/truong-ton-group-vietnamese-sausage-500g",
+  "Notes": "[gemini-enrich 2026-07-20: Brand '—'→'Truong Ton Group'] [claude-check 2026-07-20: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
   "Date": "2026-07-16",
@@ -2990,6 +3022,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22683/Interne",
   "Notes": "Promoted 2026-06-30 from Pending. In scope: foreign material. [retailer: Paris Store]"
+ },
+ {
+  "Date": "2026-06-30",
+  "Source": "FSAI",
+  "Company": "Butchers Selection",
+  "Brand": "Butchers Selection",
+  "Product": "Butchers Selection Irish Turkey Burgers Mediterranean Style, 400g",
+  "Pathogen": "Salmonella",
+  "Reason": "Recall of a specific batch of Butchers Selection Irish Turkey Burgers Mediterranean Style Recall of a specific batch of Butchers Selection Irish Turkey Burgers Mediterranean Style due to the presence of Salmonella Tuesday, 30 June 2026 Alert Summary Category 1: For Action Alert Notification: 2026.39 Product Identification: Butchers Selection Irish Turkey Burgers Mediterranean Style; pack size: 400g Batch Code Use-by date: 05/07/2026 Country Of Origin: Ireland Message: The above batch of Butchers Selection Irish Turkey Burgers Mediterranean Style is being recalled due to the presence of Salmonella . Recall notices will be displayed at point-of-sale. Nature Of Danger: People infected with Salmonella typically develop symptoms between 12 and 36 hours after infection, but this can range betwee",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-specific-batch-of-butchers-selection-i",
+  "Notes": "source_id=FSAI-recall-of-a-specific-batch-of-butchers-selection-i [via official-feed collector] [gap-gate 2026-07-20: pending_gap → pending_gap_v1] [claude-check 2026-07-20: fix; corrections: Company→Butchers Selection, Brand→Butchers Selection, Product→Butchers Selection Irish Turkey Burgers , Pathogen→Salmonella; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page clearly identifies 'Butch] [gap-gate 2026-07-20: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-06-29",
