@@ -1136,6 +1136,22 @@
   "Notes": "[gemini-enrich 2026-07-15: Brand '—'→'Mt Ossa'] [gemini-check 2026-07-15: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Mould' T2 (FSANZ: Microbial (Mould) contamination, not Listeria)]"
  },
  {
+  "Date": "2026-07-14",
+  "Source": "Ministero della Salute",
+  "Company": "Avicola Emiliana di Bertoni Alberto e C. Società Agricola S.S.",
+  "Brand": "UOVA FRESCHE CAT:A",
+  "Product": "Uova fresche di categoria A (Fresh eggs category A), 6 or 30 eggs",
+  "Pathogen": "Salmonella",
+  "Reason": "Presenza di Salmonella Typhimurium",
+  "Class": "Richiamo precauzionale",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843",
+  "Notes": "Lots: 50/26 (exp 2026-07-19), 51/26 (exp 2026-07-23), 52/26 (exp 2026-07-26), 53/26 (exp 2026-07-30). Produced in Corlo di Formigine, Modena.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-20: pending_gap → pending_gap_v1] [gemini-enrich 2026-07-20: Brand '—'→'UOVA FRESCHE CAT:A'] [gap-gate 2026-07-20: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-21: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-21: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-07-13",
   "Source": "RASFF (EU)",
   "Company": "Origin: Nigeria | Notifying: Netherlands",
