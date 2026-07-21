@@ -2,7 +2,7 @@
  {
   "Date": "2026-07-20",
   "Source": "RappelConso (FR)",
-  "Company": "ROUSSALY ROUSSALY",
+  "Company": "Roussaly",
   "Brand": "Vpf",
   "Product": "jambon sec sans os 9 mois // dss3005021-00 // lot 13084",
   "Pathogen": "Listeria monocytogenes",
@@ -13,12 +13,12 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22887/Interne",
-  "Notes": "voir liste ci-dessous [url-gate 2026-07-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-20: fix; corrections: Company→ROUSSALY ROUSSALY; fix; company mismatch | Company name corrected from brand name to recalling firm 'Origine de la fiche'.]"
+  "Notes": "voir liste ci-dessous [url-gate 2026-07-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-20: fix; corrections: Company→ROUSSALY ROUSSALY; fix; company mismatch | Company name corrected from brand name to recalling firm 'Origine de la fiche'.] [fix 2026-07-21: doubled company name \"ROUSSALY ROUSSALY\" -> \"Roussaly\" (RappelConso source itself shows the doubling)] [note: Reason says \"avec os\" while product is \"sans os\"; verbatim from RappelConso fiche 22887 source Motif text — kept as-published, not our error]"
  },
  {
   "Date": "2026-07-20",
   "Source": "RappelConso (FR)",
-  "Company": "ROUSSALY ROUSSALY",
+  "Company": "Roussaly",
   "Brand": "Vpf",
   "Product": "jambon sec avec os 9 mois // dss3001021-00 // lot 11070",
   "Pathogen": "Listeria monocytogenes",
@@ -29,7 +29,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22886/Interne",
-  "Notes": "bonzom - 66 800 saillagouse¤salaisons oberti - 81 230 lacaune [url-gate 2026-07-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-20: fix; corrections: Company→ROUSSALY ROUSSALY; fix; company mismatch | Company name on row does not match the 'Origine de la fiche' on the page.]"
+  "Notes": "bonzom - 66 800 saillagouse¤salaisons oberti - 81 230 lacaune [url-gate 2026-07-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-20: fix; corrections: Company→ROUSSALY ROUSSALY; fix; company mismatch | Company name on row does not match the 'Origine de la fiche' on the page.] [fix 2026-07-21: doubled company name \"ROUSSALY ROUSSALY\" -> \"Roussaly\" (RappelConso source itself shows the doubling)]"
  },
  {
   "Date": "2026-07-20",
@@ -1041,6 +1041,22 @@
  },
  {
   "Date": "2026-07-14",
+  "Source": "Ministero della Salute",
+  "Company": "Avicola Emiliana di Bertoni Alberto e C. Società Agricola S.S.",
+  "Brand": "UOVA FRESCHE CAT:A",
+  "Product": "Uova fresche di categoria A (Fresh eggs category A), 6 or 30 eggs",
+  "Pathogen": "Salmonella",
+  "Reason": "Presenza di Salmonella Typhimurium",
+  "Class": "Richiamo precauzionale",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843",
+  "Notes": "Lots: 50/26 (exp 2026-07-19), 51/26 (exp 2026-07-23), 52/26 (exp 2026-07-26), 53/26 (exp 2026-07-30). Produced in Corlo di Formigine, Modena.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-20: pending_gap → pending_gap_v1] [gemini-enrich 2026-07-20: Brand '—'→'UOVA FRESCHE CAT:A'] [gap-gate 2026-07-20: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-21: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-21: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
+  "Date": "2026-07-14",
   "Source": "CFIA",
   "Company": "Dollarama L.P.",
   "Brand": "Heavenly Spices",
@@ -1134,22 +1150,6 @@
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/tasmanian-mountain-waters-exp-mt-ossa-australian-spring-water-10l",
   "Notes": "[gemini-enrich 2026-07-15: Brand '—'→'Mt Ossa'] [gemini-check 2026-07-15: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Mould' T2 (FSANZ: Microbial (Mould) contamination, not Listeria)]"
- },
- {
-  "Date": "2026-07-14",
-  "Source": "Ministero della Salute",
-  "Company": "Avicola Emiliana di Bertoni Alberto e C. Società Agricola S.S.",
-  "Brand": "UOVA FRESCHE CAT:A",
-  "Product": "Uova fresche di categoria A (Fresh eggs category A), 6 or 30 eggs",
-  "Pathogen": "Salmonella",
-  "Reason": "Presenza di Salmonella Typhimurium",
-  "Class": "Richiamo precauzionale",
-  "Country": "Italy",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843",
-  "Notes": "Lots: 50/26 (exp 2026-07-19), 51/26 (exp 2026-07-23), 52/26 (exp 2026-07-26), 53/26 (exp 2026-07-30). Produced in Corlo di Formigine, Modena.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-20: pending_gap → pending_gap_v1] [gemini-enrich 2026-07-20: Brand '—'→'UOVA FRESCHE CAT:A'] [gap-gate 2026-07-20: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-21: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-21: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-07-13",
