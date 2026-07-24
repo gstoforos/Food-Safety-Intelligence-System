@@ -35,7 +35,7 @@
   "Date": "2026-07-22",
   "Source": "RASFF (EU)",
   "Company": "Origin: Germany | Notifying: Germany",
-  "Brand": "ESP",
+  "Brand": "DEU",
   "Product": "Norovirus RNA in organic frozen mixed berries from Germany",
   "Pathogen": "Norovirus",
   "Reason": "Norovirus RNA in organic frozen mixed berries from Germany; risk: serious; category: fruits and vegetables",
@@ -45,7 +45,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860140",
-  "Notes": "[RASFF #2026.6507; classification: alert notification; category: fruits and vegetables; notifId=860140] [gemini-enrich 2026-07-23: Brand '—'→'ESP'] [claude-check 2026-07-24: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.6507; classification: alert notification; category: fruits and vegetables; notifId=860140] [gemini-enrich 2026-07-23: Brand '—'→'ESP'] [claude-check 2026-07-24: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-24: Brand ISO code 'ESP' (Spain) contradicted the row's own Origin/Notifying=Germany and Country=Germany; corrected to 'DEU'. Set incorrectly by gemini-enrich.]"
  },
  {
   "Date": "2026-07-22",
@@ -285,7 +285,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.foodsafetynews.com/2026/07/greece-reports-salmonella-outbreak-and-2025-figures/",
-  "Notes": "[OPERATOR-APPROVED EXCEPTION 2026-07-24: news-sourced entry (Food Safety News) — no EFET recall notice issued at time of entry; EODY-led outbreak investigation ongoing. Included on operator decision given severity: 30+ ER presentations, 15+ hospitalised. Corroborating coverage: thetoc.gr (supplier identified), ekathimerini, tovima, protothema, news247, iefimerida, CNN.gr, in.gr. REPLACE URL with EFET/EODY authority notice when published.] [region-normalise 2026-07-24: Region was 'Lamia, Central Greece (Fthiotida)' (detail level); set to continent bucket 'Europe' for daily/weekly region grouping — detail retained here] [fix 2026-07-24: Reason shortened (long text was truncating the outbreak-watch sentence mid-word); Source relabelled EODY/Food Safety News -> \"Region of Central Greece / EODY\" per review — link remains the Food Safety News report until an official EFET/EODY notice is available.]"
+  "Notes": "[OPERATOR-APPROVED EXCEPTION 2026-07-24: news-sourced entry — no EFET/EODY recall notice issued at time of entry; EODY-led outbreak investigation ongoing. CASUALTY FIGURES BY SOURCE (corrected 2026-07-24 after review flagged unsupported figures): the LINKED Food Safety News report states about 20 people sickened and does not mention hospitalisations; separately, iefimerida and news247 reported 30+ sought treatment at General Hospital of Lamia with at least 15 hospitalised. Earlier Notes attributed the 30+/15+ figures to the linked article, which does not support them. Outbreak=1 justified: confirmed human cases in all sources. Corroborating coverage: thetoc.gr (supplier identified), ekathimerini, tovima, protothema, CNN.gr, in.gr. REPLACE URL with official EFET/EODY notice when published.]"
  },
  {
   "Date": "2026-07-20",
