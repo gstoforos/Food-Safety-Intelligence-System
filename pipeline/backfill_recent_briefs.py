@@ -38,7 +38,7 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent   # repo root (script lives in pipeline/)
 sys.path.insert(0, str(ROOT))
 
 # Import from the shipped module

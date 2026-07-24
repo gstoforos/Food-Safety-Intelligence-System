@@ -25,7 +25,7 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent   # repo root (script lives in pipeline/)
 DAILY_DIR = ROOT / "docs" / "daily"
 DAILY_INDEX = ROOT / "docs" / "daily-index.json"
 
