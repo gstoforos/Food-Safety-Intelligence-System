@@ -5,22 +5,23 @@
       "url": "daily/2026-07-23.html",
       "total": 1,
       "tier1": 1,
-      "outbreak": 1,
+      "outbreak": 0,
       "by_region": {
         "Europe": 1
       },
-      "generated": "2026-07-24T07:10:54Z"
+      "generated": "BACKFILLED 2026-07-24"
     },
     {
       "date": "2026-07-22",
       "url": "daily/2026-07-22.html",
-      "total": 5,
-      "tier1": 3,
+      "total": 6,
+      "tier1": 4,
       "outbreak": 0,
       "by_region": {
-        "Europe": 5
+        "Europe": 5,
+        "North America": 1
       },
-      "generated": "2026-07-24T07:10:54Z"
+      "generated": "BACKFILLED 2026-07-24"
     },
     {
       "date": "2026-07-21",
@@ -32,20 +33,20 @@
         "Europe": 9,
         "North America": 1
       },
-      "generated": "2026-07-24T07:10:55Z"
+      "generated": "BACKFILLED 2026-07-24"
     },
     {
       "date": "2026-07-20",
       "url": "daily/2026-07-20.html",
-      "total": 7,
-      "tier1": 7,
-      "outbreak": 0,
+      "total": 8,
+      "tier1": 8,
+      "outbreak": 1,
       "by_region": {
-        "Europe": 5,
+        "Europe": 6,
         "Asia": 1,
         "Unknown": 1
       },
-      "generated": "2026-07-24T07:10:55Z"
+      "generated": "BACKFILLED 2026-07-24"
     },
     {
       "date": "2026-07-19",
@@ -56,7 +57,7 @@
       "by_region": {
         "North America": 1
       },
-      "generated": "2026-07-24T07:10:55Z"
+      "generated": "BACKFILLED 2026-07-24"
     },
     {
       "date": "2026-07-18",
@@ -65,9 +66,9 @@
       "tier1": 1,
       "outbreak": 1,
       "by_region": {
-        "Multistate (AL,AR,CT,FL,GA,IA,IL,IN,KS,KY,LA,MA,MD,MI,MO,MS,NC,NH,NJ,OH,OK,PA,SC,TN,TX,VA,WI)": 1
+        "North America": 1
       },
-      "generated": "2026-07-24T07:10:56Z"
+      "generated": "BACKFILLED 2026-07-24"
     },
     {
       "date": "2026-07-17",
@@ -80,7 +81,7 @@
         "North America": 2,
         "Europe": 30
       },
-      "generated": "2026-07-24T07:10:56Z"
+      "generated": "BACKFILLED 2026-07-24"
     }
   ]
 }
