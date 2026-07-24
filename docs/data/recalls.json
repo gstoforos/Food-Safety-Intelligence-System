@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-07-23",
+  "Source": "RappelConso (FR)",
+  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Brand": "CARREFOUR",
+  "Product": "crevettes cuites 25/35 vendues au rayon traditionnel",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22938/Interne",
+  "Notes": "carrefour hyper sartrouville uniquement [url-gate 2026-07-23: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-23: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [gemini-enrich 2026-07-23: Company ''→'CARREFOUR FRANCE CARREFOUR'] [outbreak 2026-07-23: 0→1 — Les personnes qui auraient consommé les « produits » mentionnés ci-dessus et qui prése [claude-check 2026-07-24: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-24: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-07-22",
   "Source": "RappelConso (FR)",
   "Company": "Ozen et",
@@ -46,6 +62,38 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22919/Interne",
   "Notes": "leclerc fontenay tresigny en charcuterie trad [url-gate 2026-07-22: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-22: fix; corrections: Company→TRESIGNY DISTRIBUTION LECLERC, Product→JAMBON CUIT SUP AVEC SON OS AC, PATE DE ; placeholder_company_filled_from_page | fix; company mismatch | Company was empty in the row but identified on the page; ]"
+ },
+ {
+  "Date": "2026-07-22",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Italy | Notifying: Germany",
+  "Brand": "DEU",
+  "Product": "Ochratoxin A in ice cream from Germany, manufactured in Italy",
+  "Pathogen": "Ochratoxin",
+  "Reason": "Ochratoxin A in ice cream from Germany, manufactured in Italy; risk: potential risk; category: ices and desserts",
+  "Class": "Information",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860697",
+  "Notes": "[RASFF #2026.6503; classification: information notification for follow-up; category: ices and desserts; notifId=860697] [gemini-enrich 2026-07-23: Brand '—'→'DEU'] [claude-check 2026-07-24: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-07-22",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Germany | Notifying: Germany",
+  "Brand": "ESP",
+  "Product": "Norovirus RNA in organic frozen mixed berries from Germany",
+  "Pathogen": "Norovirus",
+  "Reason": "Norovirus RNA in organic frozen mixed berries from Germany; risk: serious; category: fruits and vegetables",
+  "Class": "Alert",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860140",
+  "Notes": "[RASFF #2026.6507; classification: alert notification; category: fruits and vegetables; notifId=860140] [gemini-enrich 2026-07-23: Brand '—'→'ESP'] [claude-check 2026-07-24: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
   "Date": "2026-07-21",
