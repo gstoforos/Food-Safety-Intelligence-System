@@ -249,14 +249,37 @@ def filter_week(recalls, week_end):
         it as fallback preserves identical output for refresh_stale_weeks
         runs against pre-stamp data.
     """
-    expected_tag = "W{:02d}".format(week_end.isocalendar()[1])
+    _exp_iso = week_end.isocalendar()
+    expected_tag = "W{:02d}".format(_exp_iso[1])
+    expected_year = _exp_iso[0]
     legacy_ws = week_end - timedelta(days=6)
+
+    def _row_report_year(row):
+        """ISO year of the smallest Friday > Date (same rule as the stamp).
+
+        The `report_week` stamp is year-less ("W30"), so an old row from a
+        previous year with the same week number would otherwise match the
+        current report. Audit 2026-07-24: a 2025-07-25 FSAI row stamped W30
+        leaked into 2026-W30. Deriving the row's own report-year and
+        requiring it to match closes that hole, and handles the Dec/Jan
+        boundary correctly (a late-December date can legitimately roll into
+        W01 of the following ISO year).
+        """
+        d = row.get("Date", "")
+        try:
+            rd = datetime.strptime(str(d)[:10], "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            return expected_year          # unparseable -> don't drop the row
+        days = (4 - rd.weekday()) % 7 or 7   # smallest Friday strictly after
+        return (rd + timedelta(days=days)).isocalendar()[0]
+
     out = []
     for r in recalls:
         stamp = (r.get("report_week") or "").strip()
         if stamp:
-            # New path: trust the sticky stamp set at promote time.
-            if stamp == expected_tag:
+            # New path: trust the sticky stamp set at promote time,
+            # but confirm the row belongs to THIS report year.
+            if stamp == expected_tag and _row_report_year(r) == expected_year:
                 out.append(r)
             continue
         # Legacy fallback: date-window math (pre-stamp historical rows).
