@@ -5,26 +5,40 @@
   "week_num": 30,
   "year": 2026,
   "week_start": "2026-07-17",
-  "week_end": "2026-07-22",
+  "week_end": "2026-07-23",
   "week_start_display": "17 Jul",
-  "week_end_display": "22 Jul 2026",
-  "generated_utc": "2026-07-24T01:10:42.082898+00:00",
+  "week_end_display": "23 Jul 2026",
+  "generated_utc": "2026-07-24T07:04:30.422887+00:00",
   "stats": {
-    "total": 56,
-    "tier1": 49,
-    "outbreaks": 1,
-    "delta": 1,
-    "delta_pct": 2
+    "total": 61,
+    "tier1": 52,
+    "outbreaks": 2,
+    "delta": 6,
+    "delta_pct": 11
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 34,
-    "pct": 61
+    "cases": 35,
+    "pct": 57
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
+      "date": "2026-07-20",
+      "pathogen": "Salmonella",
+      "pathogen_raw": "Salmonella",
+      "tier": 1,
+      "outbreak": true,
+      "company": "Multiple chicken suppliers (under EODY/regional investigation)",
+      "brand": "Multiple",
+      "product": "Chicken fillet and chicken souvlaki — batches supplied to restaurants in Lamia (multiple suppliers)",
+      "country": "Greece",
+      "source": "EODY / Food Safety News",
+      "url": "https://www.foodsafetynews.com/2026/07/greece-reports-salmonella-outbreak-and-2025-figures/"
+    },
+    {
+      "rank": 2,
       "date": "2026-07-18",
       "pathogen": "Cyclospora",
       "pathogen_raw": "Cyclospora",
@@ -38,7 +52,21 @@
       "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-iceberg-lettuce-central-mexico-because-possible-health-risk"
     },
     {
-      "rank": 2,
+      "rank": 3,
+      "date": "2026-07-23",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Carrefour France",
+      "brand": "CARREFOUR",
+      "product": "crevettes cuites 25/35 vendues au rayon traditionnel",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22938/Interne"
+    },
+    {
+      "rank": 4,
       "date": "2026-07-22",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -52,21 +80,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22922/Interne"
     },
     {
-      "rank": 3,
-      "date": "2026-07-22",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "TRESIGNY DISTRIBUTION LECLERC",
-      "brand": "Unbranded",
-      "product": "JAMBON CUIT SUP AVEC SON OS AC, PATE DE CAMP. FINES HERBES, TETE ROULEE, JAMBON CUIT A OS, PATE DE CAMPAGNE ANC",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22919/Interne"
-    },
-    {
-      "rank": 4,
+      "rank": 5,
       "date": "2026-07-21",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -78,21 +92,7 @@
       "country": "Belgium",
       "source": "RASFF (EU)",
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860262"
-    },
-    {
-      "rank": 5,
-      "date": "2026-07-20",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Origin: Italy | Notifying: Italy",
-      "brand": "Italy",
-      "product": "Listeria Monocytogenes in Tramezzino al kebab di pollo e tacchino con maionese senza uova, pomodoro e cipolla/ Listeria monocytogenes in chicken and turkey kebab sandwich with egg-free mayonnaise, tomato, and onion from Italy",
-      "country": "Italy",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859157"
     }
   ],
-  "country_count": 13
+  "country_count": 15
 }
