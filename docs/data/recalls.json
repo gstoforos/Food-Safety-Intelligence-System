@@ -133,7 +133,7 @@
   "Company": "LIDL",
   "Brand": "/",
   "Product": "Œufs Frais x30",
-  "Pathogen": "Salmonella enteritidis",
+  "Pathogen": "Salmonella Enteritidis",
   "Reason": "Presence of Salmonella enteritidis",
   "Class": "Voluntary",
   "Country": "France",
@@ -273,19 +273,19 @@
  },
  {
   "Date": "2026-07-20",
-  "Source": "EODY / Food Safety News",
+  "Source": "Region of Central Greece / EODY",
   "Company": "Multiple chicken suppliers (under EODY/regional investigation)",
   "Brand": "Multiple",
-  "Product": "Chicken fillet and chicken souvlaki — batches supplied to restaurants in Lamia (multiple suppliers)",
+  "Product": "Chicken fillet and chicken souvlaki (multiple suppliers, Lamia)",
   "Pathogen": "Salmonella",
-  "Reason": "Salmonella outbreak: 30+ presented to General Hospital of Lamia, 15+ hospitalised; EODY confirmed Salmonella in chicken fillet and chicken souvlaki batches from multiple suppliers; supplier traced, investigation widening",
+  "Reason": "Salmonella in chicken fillet and chicken souvlaki batches (Lamia investigation)",
   "Class": "Outbreak investigation",
   "Country": "Greece",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.foodsafetynews.com/2026/07/greece-reports-salmonella-outbreak-and-2025-figures/",
-  "Notes": "[OPERATOR-APPROVED EXCEPTION 2026-07-24: news-sourced entry (Food Safety News) — no EFET recall notice issued at time of entry; EODY-led outbreak investigation ongoing. Included on operator decision given severity: 30+ ER presentations, 15+ hospitalised. Corroborating coverage: thetoc.gr (supplier identified), ekathimerini, tovima, protothema, news247, iefimerida, CNN.gr, in.gr. REPLACE URL with EFET/EODY authority notice when published.] [region-normalise 2026-07-24: Region was 'Lamia, Central Greece (Fthiotida)' (detail level); set to continent bucket 'Europe' for daily/weekly region grouping — detail retained here]"
+  "Notes": "[OPERATOR-APPROVED EXCEPTION 2026-07-24: news-sourced entry (Food Safety News) — no EFET recall notice issued at time of entry; EODY-led outbreak investigation ongoing. Included on operator decision given severity: 30+ ER presentations, 15+ hospitalised. Corroborating coverage: thetoc.gr (supplier identified), ekathimerini, tovima, protothema, news247, iefimerida, CNN.gr, in.gr. REPLACE URL with EFET/EODY authority notice when published.] [region-normalise 2026-07-24: Region was 'Lamia, Central Greece (Fthiotida)' (detail level); set to continent bucket 'Europe' for daily/weekly region grouping — detail retained here] [fix 2026-07-24: Reason shortened (long text was truncating the outbreak-watch sentence mid-word); Source relabelled EODY/Food Safety News -> \"Region of Central Greece / EODY\" per review — link remains the Food Safety News report until an official EFET/EODY notice is available.]"
  },
  {
   "Date": "2026-07-20",
@@ -19421,6 +19421,6 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-branded-spinach-and-mixed-leaves",
-  "Notes": "Food Alerts.Ireland. Message: The below branded Spinach and Mixed Leaves products are being recalled by McCormack Family Farms due to the detection of Listeria monocytogenes.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-04: pending_gap → pending_gap_v1] [gap-gate 2026-07-05: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-05: pass; pass | All fields verified: date 2025-07-27 matches page; McCormack Family Farms is the recalling firm; spinach/mixed le] [gap-gate 2026-07-05: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [date-fix 2026-07-14: Date was blank; this is FSAI Food Alert 2025.35 (McCormack spinach, Listeria), published 25 Jul 2025 per FSAI source; best-before dates and outbreak context confirm 2025 not 2026]"
+  "Notes": "Food Alerts.Ireland. Message: The below branded Spinach and Mixed Leaves products are being recalled by McCormack Family Farms due to the detection of Listeria monocytogenes.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-04: pending_gap → pending_gap_v1] [gap-gate 2026-07-05: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-05: pass; pass | All fields verified: date 2025-07-27 matches page; McCormack Family Farms is the recalling firm; spinach/mixed le] [gap-gate 2026-07-05: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [date-fix 2026-07-14: Date was blank; this is FSAI Food Alert 2025.35 (McCormack spinach, Listeria), published 25 Jul 2025 per FSAI source; best-before dates and outbreak context confirm 2025 not 2026] [fix 2026-07-24: report_week W30->W31 (next-Friday rule: 2025-07-25 -> Fri 2025-08-01 = ISO W31). Stale W30 stamp was leaking this 2025 row into the 2026-W30 report.]"
  }
 ]

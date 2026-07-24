@@ -8,17 +8,17 @@
   "week_end": "2026-07-23",
   "week_start_display": "17 Jul",
   "week_end_display": "23 Jul 2026",
-  "generated_utc": "2026-07-24T07:04:30.422887+00:00",
+  "generated_utc": "2026-07-24T07:27:57.635606+00:00",
   "stats": {
-    "total": 61,
-    "tier1": 52,
+    "total": 60,
+    "tier1": 51,
     "outbreaks": 2,
-    "delta": 6,
-    "delta_pct": 11
+    "delta": 5,
+    "delta_pct": 9
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 35,
+    "cases": 34,
     "pct": 57
   },
   "ai_lead_paragraph": "",
@@ -32,9 +32,9 @@
       "outbreak": true,
       "company": "Multiple chicken suppliers (under EODY/regional investigation)",
       "brand": "Multiple",
-      "product": "Chicken fillet and chicken souvlaki — batches supplied to restaurants in Lamia (multiple suppliers)",
+      "product": "Chicken fillet and chicken souvlaki (multiple suppliers, Lamia)",
       "country": "Greece",
-      "source": "EODY / Food Safety News",
+      "source": "Region of Central Greece / EODY",
       "url": "https://www.foodsafetynews.com/2026/07/greece-reports-salmonella-outbreak-and-2025-figures/"
     },
     {
@@ -94,5 +94,5 @@
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860262"
     }
   ],
-  "country_count": 15
+  "country_count": 14
 }
