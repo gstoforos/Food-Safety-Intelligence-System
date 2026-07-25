@@ -4944,6 +4944,22 @@
   "Notes": "leclerc - systeme u - intermarche - gemma [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→STOEFFLER Stoeffler; fix; company mismatch | Company mismatch, corrected to recalling firm from page.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
+  "Date": "2026-06-19",
+  "Source": "EFET",
+  "Company": "Eurofood Quality S.A.",
+  "Brand": "Ile de France",
+  "Product": "Petit Brie cheese",
+  "Pathogen": "Staphylococcus aureus enterotoxin",
+  "Reason": "Recall ID 842632",
+  "Class": "",
+  "Country": "Greece",
+  "Region": "Athens, Greece",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5401-deltio-typou-enimerosi-anaklisis-tyrioy-brie",
+  "Notes": "Discovered via news: in.gr [gemini-check 2026-07-25: fix; corrections: Date→2026-06-19, Company→Eurofood Quality S.A., Brand→Ile de France, Product→Petit Brie cheese, Pathogen→Staphylococcus aureus enterotoxin; fix; company mismatch; pathogen mismatch; date on page=2026-06-19 | Corrected date, company, brand, product, and pathoge]"
+ },
+ {
   "Date": "2026-06-18",
   "Source": "FAVV (BE)",
   "Company": "(not specified in AFSCA notice)",
