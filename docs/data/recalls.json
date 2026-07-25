@@ -6413,7 +6413,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nelson-isa-lacteos-llc-recalls-requeson-cheese-due-possible-health-risk",
-  "Notes": "Company Announcement and FDA Publish Date both 2026-06-05. Connected to the broader multi-state Clover Hill Dairy Listeria outbreak (existing R36 CDC outbreak investigation + R24 outbreak index for soft-cheese-06-26). Nelson & Isa Lacteos is the retail repacker — they did NOT manufacture the cheese; they repacked Clover Hill Dairy 18 lb bulk containers into 1 lb clamshells at their NY retail. No illnesses reported in this firm's specific distribution (outbreak=0 for this row; the CDC outbreak rows carry the outbreak=1 flag). Manual operator add 2026-06-09. fda_listing.py title-only filter missed this URL — slug ends in \"possible-health-risk\" with no pathogen keyword (same fail pattern as Champion Foods, Prime Herring, Mogo, Total Nutrition, SKS Copack — sixth confirmed instance)."
+  "Notes": "Company Announcement and FDA Publish Date both 2026-06-05. Connected to the broader multi-state Clover Hill Dairy Listeria outbreak (existing R36 CDC outbreak investigation + R24 outbreak index for soft-cheese-06-26). Nelson & Isa Lacteos is the retail repacker — they did NOT manufacture the cheese; they repacked Clover Hill Dairy 18 lb bulk containers into 1 lb clamshells at their NY retail. No illnesses reported in this firm's specific distribution (outbreak=0 for this row; the CDC outbreak rows carry the outbreak=1 flag). Manual operator add 2026-06-09. fda_listing.py title-only filter missed this URL — slug ends in \"possible-health-risk\" with no pathogen keyword (same fail pattern as Champion Foods, Prime Herring, Mogo, Total Nutrition, SKS Copack — sixth confirmed instance). [week-fix 2026-07-25: report_week W23->W24; Thursday-to-Thursday rule — week runs 2026-06-05 Fri -> 2026-06-11 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-06-05",
@@ -10253,7 +10253,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/nl/producten/terugroeping-van-laerco-bv",
-  "Notes": "[fix 2026-07-01: cleaned FAVV news-listing artifact (\"5 days ago · In overleg met het FAVV...\") from Company/Brand/Product/Notes.]"
+  "Notes": "[fix 2026-07-01: cleaned FAVV news-listing artifact (\"5 days ago · In overleg met het FAVV...\") from Company/Brand/Product/Notes.] [week-fix 2026-07-25: report_week W19->W20; Thursday-to-Thursday rule — week runs 2026-05-08 Fri -> 2026-05-14 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-05-11",
@@ -11453,7 +11453,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-organic-moringa-powder",
-  "Notes": "[manual-promote 2026-05-08: Company corrected] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[manual-promote 2026-05-08: Company corrected] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W18->W19; Thursday-to-Thursday rule — week runs 2026-05-01 Fri -> 2026-05-07 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-05-01",
@@ -11469,7 +11469,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841474",
-  "Notes": "[RASFF #2026.3863; cereulide in infant formula; H1 cereulide → Tier 1; H13 vulnerable population (infants); follow-up: Malta. manual-add 2026-05-04; notifId=841474] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3863; cereulide in infant formula; H1 cereulide → Tier 1; H13 vulnerable population (infants); follow-up: Malta. manual-add 2026-05-04; notifId=841474] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W18->W19; Thursday-to-Thursday rule — week runs 2026-05-01 Fri -> 2026-05-07 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-05-01",
@@ -11485,7 +11485,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841471",
-  "Notes": "[RASFF #2026.3862; cereulide in infant formula manufactured in Poland; sister to #2026.3863 from Ireland; H1 cereulide → Tier 1; H13 vulnerable population. manual-add 2026-05-04; notifId=841471] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3862; cereulide in infant formula manufactured in Poland; sister to #2026.3863 from Ireland; H1 cereulide → Tier 1; H13 vulnerable population. manual-add 2026-05-04; notifId=841471] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W18->W19; Thursday-to-Thursday rule — week runs 2026-05-01 Fri -> 2026-05-07 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-05-01",
@@ -11501,7 +11501,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841438",
-  "Notes": "[RASFF #2026.3858; aflatoxin in Peru-origin groundnuts (notifying: Netherlands; follow-up: France); recurring third-country origin pattern. manual-add 2026-05-04; notifId=841438] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3858; aflatoxin in Peru-origin groundnuts (notifying: Netherlands; follow-up: France); recurring third-country origin pattern. manual-add 2026-05-04; notifId=841438] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W18->W19; Thursday-to-Thursday rule — week runs 2026-05-01 Fri -> 2026-05-07 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-05-01",
@@ -11517,7 +11517,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838827",
-  "Notes": "[RASFF #2026.3853; Salmonella Enteritidis in raw poultry from Poland — Tier 2 per FDA framework (cooking-required product, no PHA, classification = information notification for attention). manual-add 2026-05-04; notifId=838827] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
+  "Notes": "[RASFF #2026.3853; Salmonella Enteritidis in raw poultry from Poland — Tier 2 per FDA framework (cooking-required product, no PHA, classification = information notification for attention). manual-add 2026-05-04; notifId=838827] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2] [week-fix 2026-07-25: report_week W18->W19; Thursday-to-Thursday rule — week runs 2026-05-01 Fri -> 2026-05-07 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-05-01",
@@ -11533,7 +11533,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/certain-broccoli-carbonara-pasta-salad-recalled-due-listeria-monocytogenes",
-  "Notes": "CFIA Notification (Class 1). Distribution: AB, BC. Recall ID RA-82007. Recall date 2026-04-14, published 2026-05-01. Manually added 2026-05-06 — CFIA scraper missed this row. [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "CFIA Notification (Class 1). Distribution: AB, BC. Recall ID RA-82007. Recall date 2026-04-14, published 2026-05-01. Manually added 2026-05-06 — CFIA scraper missed this row. [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W18->W19; Thursday-to-Thursday rule — week runs 2026-05-01 Fri -> 2026-05-07 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-30",
@@ -12317,7 +12317,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22128/Interne",
-  "Notes": "[fiche 22128 / ref. 2026-04-0149 v.4 / 2026-04-24; sister fiche to 22129 (same producer LA RACOTIERE, different SKUs: Bouchons + Apérichèvres here vs. Pyramides in 22129); REPAIRED from broken row in your data — Company was empty, Notes contained distributor strings; URL slug normalised to /Interne (was lowercase /interne)] [dedupe-fix 2026-05-04: 'LA RACOTIERE La RACOTIERE' -> 'La Racotière'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 22128 / ref. 2026-04-0149 v.4 / 2026-04-24; sister fiche to 22129 (same producer LA RACOTIERE, different SKUs: Bouchons + Apérichèvres here vs. Pyramides in 22129); REPAIRED from broken row in your data — Company was empty, Notes contained distributor strings; URL slug normalised to /Interne (was lowercase /interne)] [dedupe-fix 2026-05-04: 'LA RACOTIERE La RACOTIERE' -> 'La Racotière'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-24",
@@ -12333,7 +12333,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22129/Interne",
-  "Notes": "[fiche 22129 / ref. 2026-04-0148 v.4 / 2026-04-24; nationwide distribution; distributors: La Racotière, Fromagerie Moreau, Fromagerie MJ; health mark 7121202; sister fiche: 22128 (different SKUs, same producer)] [dedupe-fix 2026-05-04: 'LA RACOTIERE La RACOTIERE' -> 'La Racotière'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 22129 / ref. 2026-04-0148 v.4 / 2026-04-24; nationwide distribution; distributors: La Racotière, Fromagerie Moreau, Fromagerie MJ; health mark 7121202; sister fiche: 22128 (different SKUs, same producer)] [dedupe-fix 2026-05-04: 'LA RACOTIERE La RACOTIERE' -> 'La Racotière'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-24",
@@ -12349,7 +12349,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839403",
-  "Notes": "[RASFF #2026.3563; classification: border rejection notification; category: nuts, nut products and seeds; notifId=839403] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
+  "Notes": "[RASFF #2026.3563; classification: border rejection notification; category: nuts, nut products and seeds; notifId=839403] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-24",
@@ -12365,7 +12365,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839676",
-  "Notes": "[RASFF #2026.3569; classification: border rejection notification; category: nuts, nut products and seeds; notifId=839676]"
+  "Notes": "[RASFF #2026.3569; classification: border rejection notification; category: nuts, nut products and seeds; notifId=839676] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-24",
@@ -12381,7 +12381,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839804",
-  "Notes": "[RASFF #2026.3604; classification: information notification for attention; category: herbs and spices; notifId=839804]"
+  "Notes": "[RASFF #2026.3604; classification: information notification for attention; category: herbs and spices; notifId=839804] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-24",
@@ -12397,7 +12397,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.produktwarnung.eu/2026/04/24/rueckruf-aflatoxin-orienta-foods-ruft-rotes-chilipulver-der-marke-rino-zurueck/37845",
-  "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-24",
@@ -12413,7 +12413,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260424_27_NW_Mettwurst/260424_27_NW_Mettwurst_Meldung.html",
-  "Notes": "[date 2026-04-24; Hausmarke = REWE Dortmund private label; 4 SKU variants under one fiche; URL repaired from produktwarnung.eu news mirror to regulator] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[date 2026-04-24; Hausmarke = REWE Dortmund private label; 4 SKU variants under one fiche; URL repaired from produktwarnung.eu news mirror to regulator] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-24",
@@ -12429,7 +12429,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/oeffentliche-warnungen/ow-salmonellen-pistaziencreme-gourmet-celebi.pdf.download.pdf/DE_Oeffentliche%20Warnung%20Salmonellen%20in%20Pistaziencreme%20DE.pdf",
-  "Notes": "[BLV public warning, document BLV-D-48263501/51; PDF dated 2026-04-24; brand = Gourmet Çelebi (Hersteller not listed in PDF, brand name used as recalling entity); points of sale: various] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[BLV public warning, document BLV-D-48263501/51; PDF dated 2026-04-24; brand = Gourmet Çelebi (Hersteller not listed in PDF, brand name used as recalling entity); points of sale: various] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-24",
@@ -12445,7 +12445,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/840023",
-  "Notes": "[RASFF #2026.3593; classification: information notification for attention; category: nuts, nut products and seeds; notifId=840023] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3593; classification: information notification for attention; category: nuts, nut products and seeds; notifId=840023] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-23",
@@ -13581,7 +13581,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.szpi.gov.cz/en/article/cafia-warns-consumers-about-baby-food-that-may-be-contaminated.aspx",
-  "Notes": "[Czech retail partners pulled all HiPP baby-food jars as precaution; South Moravian criminal police investigating; URL repaired from news mirror to SZPI regulator; outbreak=0 — criminal tampering, jars seized before consumption, no illnesses linked to this product] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[Czech retail partners pulled all HiPP baby-food jars as precaution; South Moravian criminal police investigating; URL repaired from news mirror to SZPI regulator; outbreak=0 — criminal tampering, jars seized before consumption, no illnesses linked to this product] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-19",
@@ -13597,7 +13597,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-19-2026-update-1",
-  "Notes": "[FSA-PRIN-19-2026 Update 1; physical/microbial hazard — rodent contamination at manufacturing site] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[FSA-PRIN-19-2026 Update 1; physical/microbial hazard — rodent contamination at manufacturing site] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-18",
@@ -13613,7 +13613,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22056/Interne",
-  "Notes": "[Rossmann = retailer recalling same product; sister to Phag GmbH manufacturer-level recall same day; physical hazard in scope; Tier 3] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[Rossmann = retailer recalling same product; sister to Phag GmbH manufacturer-level recall same day; physical hazard in scope; Tier 3] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-18",
@@ -13629,7 +13629,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.ages.at/mensch/produktwarnungen-produktrueckrufe/produkt/hipp-gemueseglaeschen-karotte-mit-kartoffel-190-gramm",
-  "Notes": "[entire HiPP baby-food jar line recalled at SPAR Austria (SPAR, EUROSPAR, INTERSPAR, Maximarkt); criminal tampering spread to Czech Republic and Slovakia; Burgenland State Criminal Investigation Office investigating; outbreak=0 — single tampered jar reported by customer, no consumption-linked illnesses; root case for SZPI (CZ) and VFA (VN) recalls]"
+  "Notes": "[entire HiPP baby-food jar line recalled at SPAR Austria (SPAR, EUROSPAR, INTERSPAR, Maximarkt); criminal tampering spread to Czech Republic and Slovakia; Burgenland State Criminal Investigation Office investigating; outbreak=0 — single tampered jar reported by customer, no consumption-linked illnesses; root case for SZPI (CZ) and VFA (VN) recalls] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13645,7 +13645,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22025/Interne",
-  "Notes": "[fiche 22025 / ref. 2026-04-0193 / 2026-04-17; REPAIRED from broken row in your data — Company was empty, Notes contained \"vente directe gaec au p'tit bonheur du champ\" (distributor); URL slug normalised to /Interne; Loire-Atlantique (44) only; direct sale via GAEC au p'tit bonheur du champ; health mark FR 44138002; sister fiche to 22101 (TEBA 44 pork rillettes Apr 23)] [dedupe-fix 2026-05-04: 'TEBA 44 TEBA 44' -> 'Teba 44'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 22025 / ref. 2026-04-0193 / 2026-04-17; REPAIRED from broken row in your data — Company was empty, Notes contained \"vente directe gaec au p'tit bonheur du champ\" (distributor); URL slug normalised to /Interne; Loire-Atlantique (44) only; direct sale via GAEC au p'tit bonheur du champ; health mark FR 44138002; sister fiche to 22101 (TEBA 44 pork rillettes Apr 23)] [dedupe-fix 2026-05-04: 'TEBA 44 TEBA 44' -> 'Teba 44'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13661,7 +13661,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22035/Interne",
-  "Notes": "[fiche 22035 / ref. 2026-04-0203 / 2026-04-17; full Origine = SOBERT DISTRIBUTION SUPER U SAINT DONAT SUR L HERBASSE — your row had truncated SOBERT DISTRIBUTION SUPER U; out-of-scope per locked Tier-1 (histamine excluded), kept at Tier 2; scombroid toxin]"
+  "Notes": "[fiche 22035 / ref. 2026-04-0203 / 2026-04-17; full Origine = SOBERT DISTRIBUTION SUPER U SAINT DONAT SUR L HERBASSE — your row had truncated SOBERT DISTRIBUTION SUPER U; out-of-scope per locked Tier-1 (histamine excluded), kept at Tier 2; scombroid toxin] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13677,7 +13677,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22042/Interne",
-  "Notes": "[fiche 22042 / ref. 2026-04-0210 / 2026-04-17; REPAIRED from broken row — Company empty, Notes had distributor leak from 22101; URL slug /Interne; 3rd TEBA 44 Listeria fiche (sister: 22025 same day, 22101 Apr 23)] [dedupe-fix 2026-05-04: 'TEBA 44 TEBA 44' -> 'Teba 44'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 22042 / ref. 2026-04-0210 / 2026-04-17; REPAIRED from broken row — Company empty, Notes had distributor leak from 22101; URL slug /Interne; 3rd TEBA 44 Listeria fiche (sister: 22025 same day, 22101 Apr 23)] [dedupe-fix 2026-05-04: 'TEBA 44 TEBA 44' -> 'Teba 44'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13693,7 +13693,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22049/Interne",
-  "Notes": "[fiche 22049 / ref. 2026-04-0217 / 2026-04-17; REPAIRED from broken row — Company empty, Notes had \"carrefour\" leak; URL slug /Interne; distributed via Carrefour]"
+  "Notes": "[fiche 22049 / ref. 2026-04-0217 / 2026-04-17; REPAIRED from broken row — Company empty, Notes had \"carrefour\" leak; URL slug /Interne; distributed via Carrefour] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13709,7 +13709,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22053/Interne",
-  "Notes": "[fiche 22053 / ref. 2026-04-0221 / page date 2026-04-17 (your row had 2026-04-18 — corrected); 4th SKU in COLOR COLOR FOODS sunflower-seed cluster (sister fiches: 22107/22108/22109); marketing 2025-11-27 to 2026-03-19; out-of-scope per locked Tier-1, kept at Tier 2 per your data] [dedupe-fix 2026-05-04: 'COLOR COLOR FOODS' -> 'Color Foods']"
+  "Notes": "[fiche 22053 / ref. 2026-04-0221 / page date 2026-04-17 (your row had 2026-04-18 — corrected); 4th SKU in COLOR COLOR FOODS sunflower-seed cluster (sister fiches: 22107/22108/22109); marketing 2025-11-27 to 2026-03-19; out-of-scope per locked Tier-1, kept at Tier 2 per your data] [dedupe-fix 2026-05-04: 'COLOR COLOR FOODS' -> 'Color Foods'] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13725,7 +13725,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838092",
-  "Notes": "[RASFF #2026.3271; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838092]"
+  "Notes": "[RASFF #2026.3271; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838092] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13741,7 +13741,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838210",
-  "Notes": "[RASFF #2026.3287; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838210]"
+  "Notes": "[RASFF #2026.3287; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838210] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13757,7 +13757,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838199",
-  "Notes": "[RASFF #2026.3286; classification: border rejection notification; category: fruits and vegetables; notifId=838199]"
+  "Notes": "[RASFF #2026.3286; classification: border rejection notification; category: fruits and vegetables; notifId=838199] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13773,7 +13773,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838225",
-  "Notes": "[RASFF #2026.3289; classification: border rejection notification; category: fruits and vegetables; notifId=838225]"
+  "Notes": "[RASFF #2026.3289; classification: border rejection notification; category: fruits and vegetables; notifId=838225] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13789,7 +13789,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838212",
-  "Notes": "[RASFF #2026.3292; classification: border rejection notification; category: fruits and vegetables; notifId=838212]"
+  "Notes": "[RASFF #2026.3292; classification: border rejection notification; category: fruits and vegetables; notifId=838212] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13805,7 +13805,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838265",
-  "Notes": "[RASFF #2026.3291; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838265]"
+  "Notes": "[RASFF #2026.3291; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838265] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13821,7 +13821,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838234",
-  "Notes": "[RASFF #2026.3293; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838234]"
+  "Notes": "[RASFF #2026.3293; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838234] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13837,7 +13837,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838360",
-  "Notes": "[RASFF #2026.3314; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838360]"
+  "Notes": "[RASFF #2026.3314; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838360] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13853,7 +13853,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838294",
-  "Notes": "[RASFF #2026.3322; classification: information notification for follow-up; category: meat and meat products (other than poultry); notifId=838294] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
+  "Notes": "[RASFF #2026.3322; classification: information notification for follow-up; category: meat and meat products (other than poultry); notifId=838294] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13869,7 +13869,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/rueckrufe/rr-phag-gmbh-foodloose.pdf.download.pdf/Marktaushang%20R%C3%BCckruf%20(erweitert).pdf",
-  "Notes": "[Phag GmbH = manufacturer/Inverkehrbringer; physical hazard (foreign body) — in scope per expanded hazard whitelist; Tier 3 per your data; sister recall: Rossmann (retailer-level recall same product)]"
+  "Notes": "[Phag GmbH = manufacturer/Inverkehrbringer; physical hazard (foreign body) — in scope per expanded hazard whitelist; Tier 3 per your data; sister recall: Rossmann (retailer-level recall same product)] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13885,7 +13885,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838436",
-  "Notes": "[RASFF #2026.3320; classification: alert notification; category: poultry meat and poultry meat products; notifId=838436] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
+  "Notes": "[RASFF #2026.3320; classification: alert notification; category: poultry meat and poultry meat products; notifId=838436] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13901,7 +13901,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fda.gov/food/alerts-advisories-safety-information/fda-advises-restaurants-and-retailers-not-serve-or-sell-and-consumers-not-eat-recalled-shellfish",
-  "Notes": "FDA Safety Alert (state recall + FDA advisory). WA Dept of Health advised FDA on 2026-04-10; FDA published advisory 2026-04-17. Manually added 2026-05-09 — FDA scraper missed (audit gap, same Akamai 404 root cause as 5/6–5/8 cluster). [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "FDA Safety Alert (state recall + FDA advisory). WA Dept of Health advised FDA on 2026-04-10; FDA published advisory 2026-04-17. Manually added 2026-05-09 — FDA scraper missed (audit gap, same Akamai 404 root cause as 5/6–5/8 cluster). [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-17",
@@ -13917,7 +13917,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/rueckrufe/rr-rossmann-foodloose.pdf.download.pdf/R%C3%BCckruf%20Aushang_Foodloose_16.04.2026_aktualisiert.pdf",
-  "Notes": "[Rossmann = retailer recalling same product; sister to Phag GmbH manufacturer-level recall same day; physical hazard in scope; Tier 3] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[Rossmann = retailer recalling same product; sister to Phag GmbH manufacturer-level recall same day; physical hazard in scope; Tier 3] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-16",
@@ -14733,7 +14733,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22010/Interne",
-  "Notes": "[fiche 22010 / ref. 2026-04-0178 / 2026-04-11; replaces polluted Notes from your row (4× repeated null-flag messages)]"
+  "Notes": "[fiche 22010 / ref. 2026-04-0178 / 2026-04-11; replaces polluted Notes from your row (4× repeated null-flag messages)] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14749,7 +14749,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21985/Interne",
-  "Notes": "[fiche 21985 / ref. 2026-04-0155 / 2026-04-10; DISTRIBUTOR-LEVEL recall — LE FROMAGER DES HALLES echoing original manufacturer recall 21979 (FROMAGERIE JACQUES DELIN, Apr 8); same product, distinct fiche; replaces polluted Notes] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21985 / ref. 2026-04-0155 / 2026-04-10; DISTRIBUTOR-LEVEL recall — LE FROMAGER DES HALLES echoing original manufacturer recall 21979 (FROMAGERIE JACQUES DELIN, Apr 8); same product, distinct fiche; replaces polluted Notes] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14765,7 +14765,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21990/Interne",
-  "Notes": "[fiche 21990 / ref. 2026-04-0160 / 2026-04-10; same lot 076085 as 21991 — same farm-sheep-cheese inspection at LE FROMAGER DES HALLES] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21990 / ref. 2026-04-0160 / 2026-04-10; same lot 076085 as 21991 — same farm-sheep-cheese inspection at LE FROMAGER DES HALLES] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14781,7 +14781,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21991/Interne",
-  "Notes": "[fiche 21991 / ref. 2026-04-0161 / 2026-04-10; same lot 076085 as 21990 (Brique brebis) — 2 sheep-cheese SKUs from one inspection at LE FROMAGER DES HALLES distributor; sister of 22145 Apr 28 (Gorgonzola) + 21985 Apr 10 (DELIN echo)] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21991 / ref. 2026-04-0161 / 2026-04-10; same lot 076085 as 21990 (Brique brebis) — 2 sheep-cheese SKUs from one inspection at LE FROMAGER DES HALLES distributor; sister of 22145 Apr 28 (Gorgonzola) + 21985 Apr 10 (DELIN echo)] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14797,7 +14797,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21992/Interne",
-  "Notes": "[fiche 21992 / ref. 2026-04-0162 / 2026-04-10; sister fiches 21993/21994 Foodles + 21974/21973 LUNA FOOD; mandatory prefectural recall] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21992 / ref. 2026-04-0162 / 2026-04-10; sister fiches 21993/21994 Foodles + 21974/21973 LUNA FOOD; mandatory prefectural recall] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14813,7 +14813,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21993/Interne",
-  "Notes": "[fiche 21993 / ref. 2026-04-0163 / 2026-04-10; sister fiches 21992/21994 Foodles + 21974/21973 LUNA FOOD; mandatory prefectural recall] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21993 / ref. 2026-04-0163 / 2026-04-10; sister fiches 21992/21994 Foodles + 21974/21973 LUNA FOOD; mandatory prefectural recall] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14829,7 +14829,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21994/Interne",
-  "Notes": "[fiche 21994 / ref. 2026-04-0164 / 2026-04-10; LUNA FOOD producer mega-cluster: 21992/21993/21994 Foodles + 21974 Luisa e basilio + 21973 Luna Sweet — all 5 SKUs mandatory prefectural recall same factory; replaces polluted Notes from your row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21994 / ref. 2026-04-0164 / 2026-04-10; LUNA FOOD producer mega-cluster: 21992/21993/21994 Foodles + 21974 Luisa e basilio + 21973 Luna Sweet — all 5 SKUs mandatory prefectural recall same factory; replaces polluted Notes from your row] [dedupe-fix 2026-05-04: 'LUNA FOOD LUNA FOOD' -> 'Luna Food'] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14845,7 +14845,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22002/Interne",
-  "Notes": "[fiche 22002 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22001/22004/22006); replaces polluted Notes from your row] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 22002 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22001/22004/22006); replaces polluted Notes from your row] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14861,7 +14861,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22001/Interne",
-  "Notes": "[fiche 22001 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22002/22004/22006); replaces polluted Notes from your row] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 22001 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22002/22004/22006); replaces polluted Notes from your row] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14877,7 +14877,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22005/Interne",
-  "Notes": "[fiche 22001 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22002/22004/22006); replaces polluted Notes from your row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3]"
+  "Notes": "[fiche 22001 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22002/22004/22006); replaces polluted Notes from your row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14893,7 +14893,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22004/Interne",
-  "Notes": "[fiche 22004 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22001/22002/22006); replaces polluted Notes from your row] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 22004 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22001/22002/22006); replaces polluted Notes from your row] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14909,7 +14909,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22009/Interne",
-  "Notes": "[fiche 22009 / ref. 2026-04-0177 / 2026-04-10; REPAIRED from broken row — Notes had \"aucun distributeur ; vente en direct sur le marché de barbezieux et le marché de baignes\" leak; URL slug normalised /Interne; direct sales at Barbezieux and Baignes markets; Staph enterotoxin in Tier-1 scope, kept at Tier 3 per your data]"
+  "Notes": "[fiche 22009 / ref. 2026-04-0177 / 2026-04-10; REPAIRED from broken row — Notes had \"aucun distributeur ; vente en direct sur le marché de barbezieux et le marché de baignes\" leak; URL slug normalised /Interne; direct sales at Barbezieux and Baignes markets; Staph enterotoxin in Tier-1 scope, kept at Tier 3 per your data] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14925,7 +14925,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22006/Interne",
-  "Notes": "[fiche 22006 / ref. 2026-04-0174 / 2026-04-10; sister fiches: 22001/22002/22004 — same producer DROME ARDECHE TRADITION, 4-SKU Jules Courtial Listeria cluster; replaces polluted Notes from your row] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 22006 / ref. 2026-04-0174 / 2026-04-10; sister fiches: 22001/22002/22004 — same producer DROME ARDECHE TRADITION, 4-SKU Jules Courtial Listeria cluster; replaces polluted Notes from your row] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14941,7 +14941,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/pistachio-kernel-recalled-due-salmonella-0",
-  "Notes": "[STRICT-OUTBREAK-AUDIT 2026-05-01: Outbreak 1→0 — \"Linked to\" outbreak language only; downstream individual recall, no illness from this specific Sultan-branded product] [RA-81886, CFIA ID 17325; hotel/restaurant/institution distribution; linked to national pistachio Salmonella outbreak (189+ cases per PHAC)]"
+  "Notes": "[STRICT-OUTBREAK-AUDIT 2026-05-01: Outbreak 1→0 — \"Linked to\" outbreak language only; downstream individual recall, no illness from this specific Sultan-branded product] [RA-81886, CFIA ID 17325; hotel/restaurant/institution distribution; linked to national pistachio Salmonella outbreak (189+ cases per PHAC)] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14957,7 +14957,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/fresh-start-foods-brand-salads-recalled-due-listeria-monocytogenes",
-  "Notes": "[RA-81868; British Columbia distribution]"
+  "Notes": "[RA-81868; British Columbia distribution] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14973,7 +14973,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836362",
-  "Notes": "[RASFF #2026.3016; Turkey-origin dried figs distributed in Germany — recurring Turkey ochratoxin pattern]"
+  "Notes": "[RASFF #2026.3016; Turkey-origin dried figs distributed in Germany — recurring Turkey ochratoxin pattern] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -14989,7 +14989,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836354",
-  "Notes": "[RASFF #2026.3017; Turkey-origin dried figs ochratoxin A — recurring pattern (Turkey is largest source of EU dried-fig imports with seasonal Q4 mycotoxin peaks)]"
+  "Notes": "[RASFF #2026.3017; Turkey-origin dried figs ochratoxin A — recurring pattern (Turkey is largest source of EU dried-fig imports with seasonal Q4 mycotoxin peaks)] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -15005,7 +15005,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-salmonelle-dans-les-barres-de-chocolat-aux-pistaches-et-les-bouchees-de-chocolat-aux-pistaches-preparees-et-vendues-par-lentreprise-chocostyle-440-69727",
-  "Notes": "[STRICT-OUTBREAK-AUDIT 2026-05-01: Outbreak 1→0 — \"Linked to\" outbreak — downstream individual recall, no illness from this specific product] [MAPAQ ref 5687; Laval, QC; part of ongoing CFIA investigation into Iranian-origin pistachio Salmonella outbreak — sister recalls Heeva Fine Foods (Batch 2), Sultan Fine Foods (this batch), CFIA various pistachios (Batch 5)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[STRICT-OUTBREAK-AUDIT 2026-05-01: Outbreak 1→0 — \"Linked to\" outbreak — downstream individual recall, no illness from this specific product] [MAPAQ ref 5687; Laval, QC; part of ongoing CFIA investigation into Iranian-origin pistachio Salmonella outbreak — sister recalls Heeva Fine Foods (Batch 2), Sultan Fine Foods (this batch), CFIA various pistachios (Batch 5)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -15021,7 +15021,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260410_12_HH_Suessware_Pistazie/260410_12_HH_Suessware_Pistazie_Meldung.html",
-  "Notes": "[Hamburg-led recall; foodloose brand also recalled at BLV (CH) Apr 17 by Phag GmbH and Rossmann (Batch 5) — different products under same brand; URL repaired to regulator] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[Hamburg-led recall; foodloose brand also recalled at BLV (CH) Apr 17 by Phag GmbH and Rossmann (Batch 5) — different products under same brand; URL repaired to regulator] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -15037,7 +15037,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260410_10_SN_Nuss-Nougat-Creme/260410_10_SN_Nuss-Nougat-Creme_Meldung.html",
-  "Notes": "[Saxony-led recall; hazelnut-nougat spread; URL repaired from produktwarnung.eu news mirror to lebensmittelwarnung.de regulator] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[Saxony-led recall; hazelnut-nougat spread; URL repaired from produktwarnung.eu news mirror to lebensmittelwarnung.de regulator] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -15053,7 +15053,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836889",
-  "Notes": "[RASFF #2026.3085; classification: alert notification; category: fruits and vegetables; notifId=836889] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3085; classification: alert notification; category: fruits and vegetables; notifId=836889] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -15069,7 +15069,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836765",
-  "Notes": "[RASFF #2026.3077; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=836765] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.3077; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=836765] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-10",
@@ -15085,7 +15085,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836741",
-  "Notes": "[RASFF #2026.3055; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=836741] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
+  "Notes": "[RASFF #2026.3055; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=836741] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-09",
@@ -16669,7 +16669,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21865/Interne",
-  "Notes": "[fiche 21865 / ref. 2026-04-0037 / 2026-04-04; REPAIRED from broken row — Notes had \"leclerc, inter\" leak; URL slug normalised /Interne; SEPARATE cluster (NOT LUNA FOOD) — raw-milk Cantal cheese maker, multi-SKU recall]"
+  "Notes": "[fiche 21865 / ref. 2026-04-0037 / 2026-04-04; REPAIRED from broken row — Notes had \"leclerc, inter\" leak; URL slug normalised /Interne; SEPARATE cluster (NOT LUNA FOOD) — raw-milk Cantal cheese maker, multi-SKU recall] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-04",
@@ -16685,7 +16685,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21883/Interne",
-  "Notes": "[fiche 21883 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21883 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-04",
@@ -16701,7 +16701,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21886/Interne",
-  "Notes": "[fiche 21886 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21886 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-04",
@@ -16717,7 +16717,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21889/Interne",
-  "Notes": "[fiche 21889 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21889 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-04",
@@ -16733,7 +16733,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/co-op-brand-creamy-garlic-and-spinach-salad-recalled-due-listeria-monocytogenes",
-  "Notes": "[CFIA Class 1; AB/BC/MB/NWT/SK distribution]"
+  "Notes": "[CFIA Class 1; AB/BC/MB/NWT/SK distribution] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-04",
@@ -16749,7 +16749,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21888/Interne",
-  "Notes": "[fiche 21888 / ref. 2026-04-0060 / 2026-04-04; MONOPRIX HOLDING parent — Apr 4 mandatory prefectural cluster; FIRST WAVE of LUNA FOOD factory bust via Monoprix MDD private-label onigiri; REPAIRED from broken row, all 6 Monoprix-distributed Apr 4 fiches share this parent] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21888 / ref. 2026-04-0060 / 2026-04-04; MONOPRIX HOLDING parent — Apr 4 mandatory prefectural cluster; FIRST WAVE of LUNA FOOD factory bust via Monoprix MDD private-label onigiri; REPAIRED from broken row, all 6 Monoprix-distributed Apr 4 fiches share this parent] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-04",
@@ -16765,7 +16765,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21887/Interne",
-  "Notes": "[fiche 21887 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21887 / 2026-04-04; MONOPRIX HOLDING multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16781,7 +16781,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/836000",
-  "Notes": "[RASFF #2026.2931; Turkey-origin dried figs aflatoxins — border rejection prevented EU market entry] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.2931; Turkey-origin dried figs aflatoxins — border rejection prevented EU market entry] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16797,7 +16797,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/835992",
-  "Notes": "[RASFF #2026.2930; Turkey-origin dried figs aflatoxins — border rejection prevented EU market entry; sister notification to 2026.2931] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.2930; Turkey-origin dried figs aflatoxins — border rejection prevented EU market entry; sister notification to 2026.2931] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16813,7 +16813,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21881/Interne",
-  "Notes": "[fiche 21881 / ref. 2026-04-0053 / 2026-04-03; CARREFOUR FRANCE — Apr 3 LUNA FOOD factory bust via Carrefour MDD; GTIN prefix 3760373... matches LUNA FOOD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21881 / ref. 2026-04-0053 / 2026-04-03; CARREFOUR FRANCE — Apr 3 LUNA FOOD factory bust via Carrefour MDD; GTIN prefix 3760373... matches LUNA FOOD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16829,7 +16829,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21880/Interne",
-  "Notes": "[fiche 21880 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; sister to 21875 same day same parent; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21880 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; sister to 21875 same day same parent; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16845,7 +16845,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21879/Interne",
-  "Notes": "[fiche 21879 / ref. 2026-04-0051 / 2026-04-03; CARREFOUR FRANCE — Apr 3 LUNA FOOD factory bust; GTIN 3760373400506 matches LUNA FOOD prefix; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21879 / ref. 2026-04-0051 / 2026-04-03; CARREFOUR FRANCE — Apr 3 LUNA FOOD factory bust; GTIN 3760373400506 matches LUNA FOOD prefix; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16861,7 +16861,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21878/Interne",
-  "Notes": "[fiche 21878 / ref. 2026-04-0050 / 2026-04-03; CARREFOUR FRANCE — Apr 3 LUNA FOOD factory bust; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21878 / ref. 2026-04-0050 / 2026-04-03; CARREFOUR FRANCE — Apr 3 LUNA FOOD factory bust; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16877,7 +16877,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21877/Interne",
-  "Notes": "[fiche 21877 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21877 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16893,7 +16893,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21876/Interne",
-  "Notes": "[fiche 21876 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21876 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16909,7 +16909,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21875/Interne",
-  "Notes": "[fiche 21875 / ref. 2026-04-0047 / 2026-04-03; CARREFOUR FRANCE parent — Apr 3 FIRST WAVE of LUNA FOOD factory bust via Carrefour MDD private-label Indian-style ready meal; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21875 / ref. 2026-04-0047 / 2026-04-03; CARREFOUR FRANCE parent — Apr 3 FIRST WAVE of LUNA FOOD factory bust via Carrefour MDD private-label Indian-style ready meal; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16925,7 +16925,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21874/Interne",
-  "Notes": "[fiche 21874 / ref. 2026-04-0046 / 2026-04-03; WORLDMARECHAL parent — 4th Origine in LUNA FOOD factory bust (alongside LUNA FOOD, CARREFOUR FRANCE, MONOPRIX HOLDING); GTIN prefix 3760373... matches LUNA FOOD-supplied SKUs; distributed via Grand Frais / Fresh / Mon Marché; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21874 / ref. 2026-04-0046 / 2026-04-03; WORLDMARECHAL parent — 4th Origine in LUNA FOOD factory bust (alongside LUNA FOOD, CARREFOUR FRANCE, MONOPRIX HOLDING); GTIN prefix 3760373... matches LUNA FOOD-supplied SKUs; distributed via Grand Frais / Fresh / Mon Marché; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16941,7 +16941,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21873/Interne",
-  "Notes": "[fiche 21873 / 2026-04-03; WORLDMARECHAL multi-fiche cluster — SKU TBD; Grand Frais distribution; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21873 / 2026-04-03; WORLDMARECHAL multi-fiche cluster — SKU TBD; Grand Frais distribution; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16957,7 +16957,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21872/Interne",
-  "Notes": "[fiche 21872 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21872 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16973,7 +16973,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21871/Interne",
-  "Notes": "[fiche 21871 / 2026-04-03; WORLDMARECHAL multi-fiche cluster — SKU TBD; Grand Frais distribution per pattern; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21871 / 2026-04-03; WORLDMARECHAL multi-fiche cluster — SKU TBD; Grand Frais distribution per pattern; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -16989,7 +16989,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21870/Interne",
-  "Notes": "[fiche 21870 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD per blank-distributor pattern of 21878/21879; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21870 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD per blank-distributor pattern of 21878/21879; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -17005,7 +17005,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21869/Interne",
-  "Notes": "[fiche 21869 / ref. 2026-04-0041 / 2026-04-03; WORLDMARECHAL parent — Apr 3 first wave LUNA FOOD factory bust; distributed Grand Frais / Fresh / Mon Marché; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21869 / ref. 2026-04-0041 / 2026-04-03; WORLDMARECHAL parent — Apr 3 first wave LUNA FOOD factory bust; distributed Grand Frais / Fresh / Mon Marché; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -17021,7 +17021,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21868/Interne",
-  "Notes": "[fiche 21868 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21868 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -17037,7 +17037,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21867/Interne",
-  "Notes": "[fiche 21867 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21867 / 2026-04-03; CARREFOUR FRANCE multi-fiche cluster — SKU TBD; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -17053,7 +17053,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21866/Interne",
-  "Notes": "[fiche 21866 / 2026-04-03; WORLDMARECHAL multi-fiche cluster — SKU TBD; Grand Frais distribution; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21866 / 2026-04-03; WORLDMARECHAL multi-fiche cluster — SKU TBD; Grand Frais distribution; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -17069,7 +17069,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21862/Interne",
-  "Notes": "[fiche 21862 / ref. 2026-04-0034 / 2026-04-03; REPAIRED from broken row — Notes had multi-distributor leak; SISTER to 21855 (150 g Carrefour Classic, batch 8) — your earlier \"150 g + 120 g\" row conflated TWO distinct fiches with TWO different producers (Carrefour France vs Fromagerie Le Centurion); distributors: Auchan, Carrefour, Leclerc, Système U, Intermarché, Cora, Coop Saveurs] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21862 / ref. 2026-04-0034 / 2026-04-03; REPAIRED from broken row — Notes had multi-distributor leak; SISTER to 21855 (150 g Carrefour Classic, batch 8) — your earlier \"150 g + 120 g\" row conflated TWO distinct fiches with TWO different producers (Carrefour France vs Fromagerie Le Centurion); distributors: Auchan, Carrefour, Leclerc, Système U, Intermarché, Cora, Coop Saveurs] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -17085,7 +17085,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21861/Interne",
-  "Notes": "[fiche 21861 / ref. 2026-04-0033 / 2026-04-03; CARREFOUR FRANCE but VOLUNTARY (NOT prefectural) — separate single-store recall, Carrefour Market Six Fours only; UNRELATED to LUNA FOOD factory bust despite same Origine; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21861 / ref. 2026-04-0033 / 2026-04-03; CARREFOUR FRANCE but VOLUNTARY (NOT prefectural) — separate single-store recall, Carrefour Market Six Fours only; UNRELATED to LUNA FOOD factory bust despite same Origine; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -17101,7 +17101,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21860/Interne",
-  "Notes": "[fiche 21860 / ref. 2026-04-0032 / 2026-04-03; SEPARATE cluster — Intermarché shrimp counter, NOT related to LUNA FOOD bust; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21860 / ref. 2026-04-0032 / 2026-04-03; SEPARATE cluster — Intermarché shrimp counter, NOT related to LUNA FOOD bust; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -17117,7 +17117,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21859/Interne",
-  "Notes": "[fiche 21859 / ref. 2026-04-0031 / 2026-04-03; SEPARATE cluster — Leclerc Thouars distributor recall of single goat-cheese SKU; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21859 / ref. 2026-04-0031 / 2026-04-03; SEPARATE cluster — Leclerc Thouars distributor recall of single goat-cheese SKU; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -17133,7 +17133,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21855/Interne",
-  "Notes": "[fiche 21855 / ref. 2026-04-0028 / page date 2026-04-03 (your row had 2026-04-07 — corrected); your row also said \"150g + 120g\" — page only shows 150g Carrefour Classic; the 120g (Petit Marché) is likely a separate fiche not yet captured] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21855 / ref. 2026-04-0028 / page date 2026-04-03 (your row had 2026-04-07 — corrected); your row also said \"150g + 120g\" — page only shows 150g Carrefour Classic; the 120g (Petit Marché) is likely a separate fiche not yet captured] [dedupe-fix 2026-05-04: 'CARREFOUR FRANCE CARREFOUR' -> 'Carrefour France'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-03",
@@ -17149,7 +17149,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21848/Interne",
-  "Notes": "[fiche 21848 / ref. 2026-04-0021 / 2026-04-03; SCOPE FLAG: HISTAMINE/scombrotoxin is OUT OF SCOPE per locked _pathogen_scope.py rules — should never have entered Recalls (pipeline scope-gate failure); RECOMMEND DROP from your master sheet; REPAIRED from broken row but row should be removed] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21848 / ref. 2026-04-0021 / 2026-04-03; SCOPE FLAG: HISTAMINE/scombrotoxin is OUT OF SCOPE per locked _pathogen_scope.py rules — should never have entered Recalls (pipeline scope-gate failure); RECOMMEND DROP from your master sheet; REPAIRED from broken row but row should be removed] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-04-02",
@@ -17597,7 +17597,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/auricchio-brand-gorgonzola-dop-dolce-recalled-due-listeria-monocytogenes",
-  "Notes": "[CFIA Class 1; ON/QC distribution; Auricchio — 2nd CFIA fiche this period (sister: Auricchio Taleggio Apr 2 in batch 11); same Italian producer, recurring Listeria across PDO cheese product lines] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[CFIA Class 1; ON/QC distribution; Auricchio — 2nd CFIA fiche this period (sister: Auricchio Taleggio Apr 2 in batch 11); same Italian producer, recurring Listeria across PDO cheese product lines] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W13->W14; Thursday-to-Thursday rule — week runs 2026-03-27 Fri -> 2026-04-02 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-27",
@@ -17613,7 +17613,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5376-deltio-typou-enimerosi-anaklisis-fystikioy-arapikou-logo-parousias-aflatoksinon",
-  "Notes": "[EFET item/5376; aflatoxin in Tier-1 scope, kept at Tier 2; AB is a Greek supermarket private-label brand] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[EFET item/5376; aflatoxin in Tier-1 scope, kept at Tier 2; AB is a Greek supermarket private-label brand] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W13->W14; Thursday-to-Thursday rule — week runs 2026-03-27 Fri -> 2026-04-02 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-27",
@@ -17629,7 +17629,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21785/Interne",
-  "Notes": "[fiche 21785 / ref. 2026-03-0329 / page date 2026-03-27 (your row had 2026-03-25 — corrected); SICAREV is national French beef processor; nationwide distribution; Class corrected from \"Alert\" to \"Voluntary\" per page; Brand was \"N/A\" on page, set to Unbranded] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21785 / ref. 2026-03-0329 / page date 2026-03-27 (your row had 2026-03-25 — corrected); SICAREV is national French beef processor; nationwide distribution; Class corrected from \"Alert\" to \"Voluntary\" per page; Brand was \"N/A\" on page, set to Unbranded] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W13->W14; Thursday-to-Thursday rule — week runs 2026-03-27 Fri -> 2026-04-02 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-27",
@@ -17645,7 +17645,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://en.sedaily.com/society/2026/03/26/bacteria-found-in-ice-at-cafes-and-restaurants-across-korea",
-  "Notes": "[URL FLAG: en.sedaily.com IS on locked news_mirror_blocklist — pipeline gate failure; pathogen \"coliform/total bacterial count\" is OUT OF SCOPE per _pathogen_scope.py (no specific Tier-1 pathogen identified); RECOMMEND DROP both this row and row 22 (sister duplicate)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[URL FLAG: en.sedaily.com IS on locked news_mirror_blocklist — pipeline gate failure; pathogen \"coliform/total bacterial count\" is OUT OF SCOPE per _pathogen_scope.py (no specific Tier-1 pathogen identified); RECOMMEND DROP both this row and row 22 (sister duplicate)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W13->W14; Thursday-to-Thursday rule — week runs 2026-03-27 Fri -> 2026-04-02 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-27",
@@ -17661,7 +17661,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://en.sedaily.com/NewsView/2REI1NCM2Q",
-  "Notes": "[DUPLICATE of row 21 — both rows reference same MFDS event via two sedaily.com URLs; URL FLAG: news_mirror_blocklist + pathogen out of scope; STRONG RECOMMEND DROP — keep only one if any] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[DUPLICATE of row 21 — both rows reference same MFDS event via two sedaily.com URLs; URL FLAG: news_mirror_blocklist + pathogen out of scope; STRONG RECOMMEND DROP — keep only one if any] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W13->W14; Thursday-to-Thursday rule — week runs 2026-03-27 Fri -> 2026-04-02 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-26",
@@ -17949,7 +17949,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.mpi.govt.nz/news/media-releases/emborg-emmentaler-cheese-recalled-due-to-possible-presence-of-listeria",
-  "Notes": "[MPI NZ; imported from Germany; detected via routine testing] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[MPI NZ; imported from Germany; detected via routine testing] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W12->W13; Thursday-to-Thursday rule — week runs 2026-03-20 Fri -> 2026-03-26 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-20",
@@ -17965,7 +17965,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260320_1.pdf",
-  "Notes": "[HK CFS FISS notification of RappelConso recall] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[HK CFS FISS notification of RappelConso recall] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W12->W13; Thursday-to-Thursday rule — week runs 2026-03-20 Fri -> 2026-03-26 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-19",
@@ -18205,7 +18205,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260313_2.pdf",
-  "Notes": "MPI NZ via HK CFS aggregator | marine biotoxin [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "MPI NZ via HK CFS aggregator | marine biotoxin [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W11->W12; Thursday-to-Thursday rule — week runs 2026-03-13 Fri -> 2026-03-19 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-13",
@@ -18221,7 +18221,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260313_1.pdf",
-  "Notes": "MPI NZ shellfish biotoxin warning [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "MPI NZ shellfish biotoxin warning [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W11->W12; Thursday-to-Thursday rule — week runs 2026-03-13 Fri -> 2026-03-19 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-13",
@@ -18237,7 +18237,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21622/Interne",
-  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W11->W12; Thursday-to-Thursday rule — week runs 2026-03-13 Fri -> 2026-03-19 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-11",
@@ -18397,7 +18397,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/828968",
-  "Notes": "RASFF #2026.1933"
+  "Notes": "RASFF #2026.1933 [week-fix 2026-07-25: report_week W10->W11; Thursday-to-Thursday rule — week runs 2026-03-06 Fri -> 2026-03-12 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-06",
@@ -18413,7 +18413,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://thencc.org.za/product-safety-recall-nutricia-aptamil-nutribiotik-2-and-nutricia-aptajunior-nutribiotik-3/",
-  "Notes": "[2026-06-30: canonical South Africa NCC Aptamil recall. The two SA news-sourced copies (timelessnews 03-06 + businesstech 03-15) were the same recall, consolidated here with the official thencc.org.za URL.]"
+  "Notes": "[2026-06-30: canonical South Africa NCC Aptamil recall. The two SA news-sourced copies (timelessnews 03-06 + businesstech 03-15) were the same recall, consolidated here with the official thencc.org.za URL.] [week-fix 2026-07-25: report_week W10->W11; Thursday-to-Thursday rule — week runs 2026-03-06 Fri -> 2026-03-12 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-06",
@@ -18429,7 +18429,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21548/Interne",
-  "Notes": "Fiche réf. 2026-03-0108 [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "Fiche réf. 2026-03-0108 [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W10->W11; Thursday-to-Thursday rule — week runs 2026-03-06 Fri -> 2026-03-12 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-03-05",
@@ -18525,7 +18525,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21437/Interne",
-  "Notes": "[fiche 21437 / ref. 2026-02-0303 / 2026-02-27; PALMI D'OR BOURGOGNE — Burgundy duck producer; NEUTRE here is brand name, NOT related to STE LIONOR cluster (which has separate \"Neutre\" sausage brand)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21437 / ref. 2026-02-0303 / 2026-02-27; PALMI D'OR BOURGOGNE — Burgundy duck producer; NEUTRE here is brand name, NOT related to STE LIONOR cluster (which has separate \"Neutre\" sausage brand)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W09->W10; Thursday-to-Thursday rule — week runs 2026-02-27 Fri -> 2026-03-05 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-02-27",
@@ -18541,7 +18541,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21410/Interne",
-  "Notes": "[fiche 21410 / ref. 2026-02-0278 / 2026-02-27; TEBA 44 — 5TH FICHE in cluster (Feb 27 → Apr 23 across 2 months); MULTI-PATHOGEN: Salmonella here vs Listeria in later fiches (21822 Mar 31, 22025/22042 Apr 17, 22101 Apr 23); same factory FR 44138002 with recurring multi-pathogen issues — quality-control failure flag] [dedupe-fix 2026-05-04: 'TEBA 44 TEBA 44' -> 'Teba 44'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21410 / ref. 2026-02-0278 / 2026-02-27; TEBA 44 — 5TH FICHE in cluster (Feb 27 → Apr 23 across 2 months); MULTI-PATHOGEN: Salmonella here vs Listeria in later fiches (21822 Mar 31, 22025/22042 Apr 17, 22101 Apr 23); same factory FR 44138002 with recurring multi-pathogen issues — quality-control failure flag] [dedupe-fix 2026-05-04: 'TEBA 44 TEBA 44' -> 'Teba 44'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W09->W10; Thursday-to-Thursday rule — week runs 2026-02-27 Fri -> 2026-03-05 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-02-26",
@@ -18733,7 +18733,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/made-fresh-salads-inc-recalls-assorted-flavors-cream-cheese-because-possible-health-risk",
-  "Notes": "[FDA Class I (upgraded 2026-03-11 from initial classification); NYC area distribution] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[FDA Class I (upgraded 2026-03-11 from initial classification); NYC area distribution] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W08->W09; Thursday-to-Thursday rule — week runs 2026-02-20 Fri -> 2026-02-26 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-02-19",
@@ -18797,7 +18797,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/ambrosia-brands-llc-recalls-rosabella-moringa-capsules-because-possible-health-risk",
-  "Notes": "[FDA Class I OUTBREAK ORIGIN: 97 ill, 26 hosp, 32 states; Salmonella Newport in moringa supplement; this is the ORIGINATING US outbreak that triggered ANVISA BR Apr 8 ban (already in workbook batch 7) + BLV CH Mar 30 Govinda moringa Salmonella (batch 12) — global moringa Salmonella supply-chain event] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[FDA Class I OUTBREAK ORIGIN: 97 ill, 26 hosp, 32 states; Salmonella Newport in moringa supplement; this is the ORIGINATING US outbreak that triggered ANVISA BR Apr 8 ban (already in workbook batch 7) + BLV CH Mar 30 Govinda moringa Salmonella (batch 12) — global moringa Salmonella supply-chain event] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W07->W08; Thursday-to-Thursday rule — week runs 2026-02-13 Fri -> 2026-02-19 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-02-13",
@@ -18813,7 +18813,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/822538",
-  "Notes": "[RASFF #2026.1098; France-origin oysters / Norovirus — France is the most-notified origin for oyster norovirus historically; same pattern as Mar 17 RappelConso 21862 Étang de Diana oyster recalls] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.1098; France-origin oysters / Norovirus — France is the most-notified origin for oyster norovirus historically; same pattern as Mar 17 RappelConso 21862 Étang de Diana oyster recalls] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W07->W08; Thursday-to-Thursday rule — week runs 2026-02-13 Fri -> 2026-02-19 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-02-12",
@@ -18893,7 +18893,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/al-kanater-brand-halawa-pistachio-recalled-due-salmonella",
-  "Notes": "[CFIA Class 2; nationwide distribution; same Phoenicia Group importer as Apr 9 Alarjawi Royal Zaatar — recurring Salmonella across multiple imported brands]"
+  "Notes": "[CFIA Class 2; nationwide distribution; same Phoenicia Group importer as Apr 9 Alarjawi Royal Zaatar — recurring Salmonella across multiple imported brands] [week-fix 2026-07-25: report_week W06->W07; Thursday-to-Thursday rule — week runs 2026-02-06 Fri -> 2026-02-12 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-02-06",
@@ -18909,7 +18909,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21234/Interne",
-  "Notes": "[fiche 21234 / ref. 2026-02-0109 / 2026-02-06; REPAIRED broken row — Origine extracted from page (Belgian poultry processor PLUKON MAASMECHELEN); 7 SKUs single lot 26022001; sold 2026-01-27 to 2026-02-06; distributed nationwide via Carrefour, Intermarché, Colruyt, COOP-U]"
+  "Notes": "[fiche 21234 / ref. 2026-02-0109 / 2026-02-06; REPAIRED broken row — Origine extracted from page (Belgian poultry processor PLUKON MAASMECHELEN); 7 SKUs single lot 26022001; sold 2026-01-27 to 2026-02-06; distributed nationwide via Carrefour, Intermarché, Colruyt, COOP-U] [week-fix 2026-07-25: report_week W06->W07; Thursday-to-Thursday rule — week runs 2026-02-06 Fri -> 2026-02-12 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-02-06",
@@ -18925,7 +18925,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-05-2026",
-  "Notes": "### About product recalls and withdrawals\n\nIf there is a problem with a food product that means it should not be sold, then it might be 'withdrawn' (taken off the shelves) or 'recalled' (when customers are asked to return the product). The FSA issues Product Recall Information Notices to let consume  [via Tavily gap-finder, deterministic extract] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_v2] [Claude-flag 2026-05-06: Notes field contain [claude-check 2026-05-07: fix; Date 2026-06-11 → 2026-02-06; fix; date on page=2026-02-06 | Row date 2026-06-11 does not match page publication date 2026-02-06; corrected date appli] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)]"
+  "Notes": "### About product recalls and withdrawals\n\nIf there is a problem with a food product that means it should not be sold, then it might be 'withdrawn' (taken off the shelves) or 'recalled' (when customers are asked to return the product). The FSA issues Product Recall Information Notices to let consume  [via Tavily gap-finder, deterministic extract] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_v2] [Claude-flag 2026-05-06: Notes field contain [claude-check 2026-05-07: fix; Date 2026-06-11 → 2026-02-06; fix; date on page=2026-02-06 | Row date 2026-06-11 does not match page publication date 2026-02-06; corrected date appli] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)] [week-fix 2026-07-25: report_week W06->W07; Thursday-to-Thursday rule — week runs 2026-02-06 Fri -> 2026-02-12 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-02-05",
@@ -19101,7 +19101,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/nestle-alfamino-infant-formula-0-12-months-400g",
-  "Notes": "FSANZ joint announcement 'Cereulide toxin in infant formula products' published 2026-01-23. Two-recall announcement: Nestlé Alfamino (this row) + Sanulac/Alula Gold (separate row). [manual add 2026-05-14 evening: operator caught omission — the FSANZ announcement page covers two recalls but only Sanulac was captured by claude-check enrichment.]"
+  "Notes": "FSANZ joint announcement 'Cereulide toxin in infant formula products' published 2026-01-23. Two-recall announcement: Nestlé Alfamino (this row) + Sanulac/Alula Gold (separate row). [manual add 2026-05-14 evening: operator caught omission — the FSANZ announcement page covers two recalls but only Sanulac was captured by claude-check enrichment.] [week-fix 2026-07-25: report_week W04->W05; Thursday-to-Thursday rule — week runs 2026-01-23 Fri -> 2026-01-29 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-01-23",
@@ -19117,7 +19117,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/nl/producten/terugroeping-van-danone-0",
-  "Notes": "[manual-promote 2026-05-08: claude-check PASS]"
+  "Notes": "[manual-promote 2026-05-08: claude-check PASS] [week-fix 2026-07-25: report_week W04->W05; Thursday-to-Thursday rule — week runs 2026-01-23 Fri -> 2026-01-29 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-01-23",
@@ -19133,7 +19133,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/oeffentliche-warnungen/ow-bio-power-mix.pdf.download.pdf/Oeffentliche%20Warnung_Salmonellen%20in%20Bio%20Power%20Mix_verkauft%20bei%20Migros%20DE.pdf",
-  "Notes": "[BLV public warning 2026-01-23; sold at Migros stores]"
+  "Notes": "[BLV public warning 2026-01-23; sold at Migros stores] [week-fix 2026-07-25: report_week W04->W05; Thursday-to-Thursday rule — week runs 2026-01-23 Fri -> 2026-01-29 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-01-23",
@@ -19149,7 +19149,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/navitas-organics-voluntarily-recalls-select-lots-8oz-organic-chia-seeds-because-possible-health-risk",
-  "Notes": "[FDA Class II voluntary recall; selected lots; same chia-Salmonella pattern as Jan 20 CFIA Left Coast Organics — possibly related supply chain]"
+  "Notes": "[FDA Class II voluntary recall; selected lots; same chia-Salmonella pattern as Jan 20 CFIA Left Coast Organics — possibly related supply chain] [week-fix 2026-07-25: report_week W04->W05; Thursday-to-Thursday rule — week runs 2026-01-23 Fri -> 2026-01-29 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-01-23",
@@ -19165,7 +19165,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.foodstandards.gov.au/news/cereulide-toxin-infant-formula-products",
-  "Notes": "No cases of illness linked to these products have been reported in Australia.\n\n## Food recalls\n\nSanulac Nutritionals Australia Pty Ltd - Alula Gold Reflux infant formula 900g (0-12 months) & Alula Colic & Constipation infant formula 850g (0-12 months) | Food Standards Australia New Zealand\n\nNestlé -  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [outbreak 2026-05-13: 1→0 — No cases of illness linked to these products have been reported in Australi [claude-check 2026-05-14: skip; claude unreachable / parse failed] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [date correction 2026-05-14 evening: operator caught date error. FSANZ page 'Cereulide toxin in infant formula products' is published 2026-01-23 (per the 'Page last updated' field), not 2026-05-13 as previously recorded. This announcement covers TWO recalls: (1) Sanulac/Alula Gold (captured here) and (2) Nestlé Alfamino Infant Formula 400g — second recall added as separate row.]"
+  "Notes": "No cases of illness linked to these products have been reported in Australia.\n\n## Food recalls\n\nSanulac Nutritionals Australia Pty Ltd - Alula Gold Reflux infant formula 900g (0-12 months) & Alula Colic & Constipation infant formula 850g (0-12 months) | Food Standards Australia New Zealand\n\nNestlé -  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [outbreak 2026-05-13: 1→0 — No cases of illness linked to these products have been reported in Australi [claude-check 2026-05-14: skip; claude unreachable / parse failed] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [date correction 2026-05-14 evening: operator caught date error. FSANZ page 'Cereulide toxin in infant formula products' is published 2026-01-23 (per the 'Page last updated' field), not 2026-05-13 as previously recorded. This announcement covers TWO recalls: (1) Sanulac/Alula Gold (captured here) and (2) Nestlé Alfamino Infant Formula 400g — second recall added as separate row.] [week-fix 2026-07-25: report_week W04->W05; Thursday-to-Thursday rule — week runs 2026-01-23 Fri -> 2026-01-29 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-01-23",
@@ -19181,7 +19181,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/latest-news/danone-infant-formula-and-follow-on-formula-recall",
-  "Notes": "The Food Safety Authority of Ireland (FSAI) today advises that Danone is recalling specific batches of its infant formula and follow-on formula due to the potential presence of cereulide. The implicated products were manufactured in Ireland and exported to a number of EU countries, the UK and third   [via Tavily gap-finder, deterministic extract] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-07: pass; pass | All fields verified: date 2026-01-23 matches page header; Company (Danone) and Product (infant formula and follow] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)]"
+  "Notes": "The Food Safety Authority of Ireland (FSAI) today advises that Danone is recalling specific batches of its infant formula and follow-on formula due to the potential presence of cereulide. The implicated products were manufactured in Ireland and exported to a number of EU countries, the UK and third   [via Tavily gap-finder, deterministic extract] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-07: pass; pass | All fields verified: date 2026-01-23 matches page header; Company (Danone) and Product (infant formula and follow] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)] [week-fix 2026-07-25: report_week W04->W05; Thursday-to-Thursday rule — week runs 2026-01-23 Fri -> 2026-01-29 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-01-23",
@@ -19197,7 +19197,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.gob.mx/cms/uploads/attachment/file/1051500/Alerta_Sanitaria__Alula_23012026.pdf",
-  "Notes": "[COFEPRIS sanitary alert 2026-01-23; FRENCH-imported product — initial alert later reinforced by Feb 19 update; global cereulide infant formula crisis]"
+  "Notes": "[COFEPRIS sanitary alert 2026-01-23; FRENCH-imported product — initial alert later reinforced by Feb 19 update; global cereulide infant formula crisis] [week-fix 2026-07-25: report_week W04->W05; Thursday-to-Thursday rule — week runs 2026-01-23 Fri -> 2026-01-29 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-01-22",
@@ -19325,7 +19325,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.sfa.gov.sg/news-publications/newsroom/direction-to-recall-additional-infant-formula-products-due-to-presence-of-cereulide-toxin",
-  "Notes": "[SFA recall direction; Swiss-origin product; global cereulide infant formula crisis]"
+  "Notes": "[SFA recall direction; Swiss-origin product; global cereulide infant formula crisis] [week-fix 2026-07-25: report_week W03->W04; Thursday-to-Thursday rule — week runs 2026-01-16 Fri -> 2026-01-22 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-01-16",
@@ -19341,7 +19341,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/20978/Interne",
-  "Notes": "[fiche 20978 / ref. 2026-01-0076 / 2026-01-16; CORRECTED Class from Class I → Voluntary per page; single lot 090162191-11-116, use-by 2026-12-31; sold France-wide 2025-10-27 to 2026-12-31; backfilled after mycotoxin scope patch (Alternaria/tenuazonic added)]"
+  "Notes": "[fiche 20978 / ref. 2026-01-0076 / 2026-01-16; CORRECTED Class from Class I → Voluntary per page; single lot 090162191-11-116, use-by 2026-12-31; sold France-wide 2025-10-27 to 2026-12-31; backfilled after mycotoxin scope patch (Alternaria/tenuazonic added)] [week-fix 2026-07-25: report_week W03->W04; Thursday-to-Thursday rule — week runs 2026-01-16 Fri -> 2026-01-22 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-01-16",
@@ -19357,7 +19357,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsis.usda.gov/recalls-alerts/suzannas-kitchen-recalls-ready-eat-grilled-chicken-breast-fillet-products-due",
-  "Notes": "[USDA FSIS Class I; AL/FL/GA/MO/NH/NC/OH distribution]"
+  "Notes": "[USDA FSIS Class I; AL/FL/GA/MO/NH/NC/OH distribution] [week-fix 2026-07-25: report_week W03->W04; Thursday-to-Thursday rule — week runs 2026-01-16 Fri -> 2026-01-22 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-01-15",
@@ -19597,7 +19597,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/si-ji-mei-brand-wuhan-egg-sheets-glutinous-rice-recalled-due-salmonella",
-  "Notes": "[CFIA Class 2; AB/BC distribution]"
+  "Notes": "[CFIA Class 2; AB/BC distribution] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2026-01-02",
@@ -19613,7 +19613,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
-  "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent]"
+  "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
  },
  {
   "Date": "2025-07-25",

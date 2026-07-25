@@ -8,18 +8,18 @@
   "week_end": "2026-07-23",
   "week_start_display": "17 Jul",
   "week_end_display": "23 Jul 2026",
-  "generated_utc": "2026-07-24T08:14:34.771455+00:00",
+  "generated_utc": "2026-07-25T13:53:14.949786+00:00",
   "stats": {
-    "total": 60,
-    "tier1": 51,
+    "total": 63,
+    "tier1": 53,
     "outbreaks": 2,
-    "delta": 5,
-    "delta_pct": 9
+    "delta": 8,
+    "delta_pct": 15
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 34,
-    "pct": 57
+    "cases": 35,
+    "pct": 56
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -67,6 +67,20 @@
     },
     {
       "rank": 4,
+      "date": "2026-07-23",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Origin: Germany | Notifying: Switzerland",
+      "brand": "CHE",
+      "product": "Listeria monocytogenes in prepared thai dish",
+      "country": "Germany",
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860928"
+    },
+    {
+      "rank": 5,
       "date": "2026-07-22",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -78,21 +92,7 @@
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22922/Interne"
-    },
-    {
-      "rank": 5,
-      "date": "2026-07-21",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Origin: Belgium | Notifying: Italy",
-      "brand": "Italy",
-      "product": "Listeria monocytogenes in smoked salmon from Belgium",
-      "country": "Belgium",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860262"
     }
   ],
-  "country_count": 14
+  "country_count": 15
 }
