@@ -208,6 +208,38 @@
   "Notes": "[RASFF #2026.6625; classification: alert notification; category: meat and meat products (other than poultry); notifId=860904] [gemini-enrich 2026-07-26: Brand '—'→'POL'] [claude-check 2026-07-26: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
+  "Date": "2026-07-24",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: unknown | Notifying: Italy",
+  "Brand": "UNK",
+  "Product": "PRESENZA DI AFLATOSSINE IN RISO ROTTO DALL'INDIA/High levels of aflatoxin B1 in broken rice from India",
+  "Pathogen": "Aflatoxin",
+  "Reason": "PRESENZA DI AFLATOSSINE IN RISO ROTTO DALL'INDIA/High levels of aflatoxin B1 in broken rice from India; risk: potential risk; category: cereals and bakery products",
+  "Class": "Information",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/861297",
+  "Notes": "[RASFF #2026.6617; classification: information notification for follow-up; category: cereals and bakery products; notifId=861297] [gemini-enrich 2026-07-26: Brand '—'→'UNK'] [gemini-check 2026-07-26: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
+  "Date": "2026-07-24",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Romania | Notifying: Italy",
+  "Brand": "ITA",
+  "Product": "Salmonella spp. in poultry meat originating in Romania",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella spp. in poultry meat originating in Romania; risk: not serious; category: poultry meat and poultry meat products",
+  "Class": "Information",
+  "Country": "Romania",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/861328",
+  "Notes": "[RASFF #2026.6588; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=861328] [gemini-enrich 2026-07-26: Brand '—'→'ITA'] [gemini-check 2026-07-26: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+ },
+ {
   "Date": "2026-07-23",
   "Source": "RappelConso (FR)",
   "Company": "Carrefour France",
