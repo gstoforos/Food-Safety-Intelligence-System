@@ -79,6 +79,21 @@
         "Unknown": 1
       },
       "generated": "2026-07-27T07:10:50Z"
+    },
+    {
+      "date": "2026-07-16",
+      "url": "daily/2026-07-16.html",
+      "total": 17,
+      "tier1": 12,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 13,
+        "Africa": 1,
+        "Asia": 1,
+        "North America": 1,
+        "Not specified in the article": 1
+      },
+      "generated": "2026-07-27T17:13:53Z"
     }
   ]
 }

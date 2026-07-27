@@ -1504,6 +1504,22 @@
   "Notes": "antonin 1919, mon panier de campagne [url-gate 2026-07-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-16: pass; pass]"
  },
  {
+  "Date": "2026-07-16",
+  "Source": "EFET",
+  "Company": "TSAKONAS D. MONOS K. A.E.",
+  "Brand": "casa mania",
+  "Product": "κουτάλα σούπας",
+  "Pathogen": "Salmonella spp",
+  "Reason": "",
+  "Class": "",
+  "Country": "Greece",
+  "Region": "Not specified in the article",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5407-deltio-typou-anaklisi-mi-asfaloys-proiontos-vathias-koutalas-soypas",
+  "Notes": "Discovered via news: news247.gr [gemini-check 2026-07-27: fix; corrections: Date→2026-07-16, Company→TSAKONAS D. MONOS K. A.E., Brand→casa mania, Product→κουτάλα σούπας; fix; company mismatch; product mismatch; pathogen mismatch; date on page=2026-07-16 | Date matches, but company, product]"
+ },
+ {
   "Date": "2026-07-15",
   "Source": "RASFF (EU)",
   "Company": "Origin: Morocco | Notifying: Finland",
