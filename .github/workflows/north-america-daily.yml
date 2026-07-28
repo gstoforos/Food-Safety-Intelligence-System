@@ -143,38 +143,92 @@ jobs:
           GIT_USER_EMAIL: "fsis-bot@advfood.tech"
           GIT_USER_NAME:  "AFTS Intelligence System"
         run: |
-          python -m pipeline.run_all
+          # pipefail so a run_all crash is NOT masked by tee's exit code.
+          set -o pipefail
+          # 2>&1 is REQUIRED: run_all's logging.basicConfig uses a bare
+          # StreamHandler(), which writes to STDERR. A plain `| tee` captures
+          # stdout only and would produce an empty log — which is exactly how
+          # the health check below ended up permanently disabled.
+          python -m pipeline.run_all 2>&1 | tee /tmp/fsis-run.log
 
-      - name: Loud-fail if all FDA layers returned 0 rows
+      - name: Loud-fail if all NA layers returned 0 rows
         if: steps.guard.outputs.run == 'true'
-        # The whole point of L1+L2+L3 redundancy is that a 0-row result
-        # across all three is now a real alarm, not a false positive.
-        # Inspect the run_all log written to the previous step's stdout.
-        # We grep for the per-scraper row counts (logged by run_all as
-        # "scraper.fda*: <N> rows") and fail the workflow if FDA totals
-        # to zero AND USDA+CFIA also zero — meaning every NA layer dark.
+        # ── FIXED 2026-07-26 — this check had NEVER been able to fire ──────
         #
-        # On a typical day this step is a no-op. On the day FDA's edge
-        # changes again, this step turns the workflow red and emails
-        # the operator within minutes.
+        # Symptom: run #77 completed green in 49s. A healthy NA pass cannot
+        # be 49s — the comparable NA feeds collector takes ~14m. Reproduced
+        # locally: when every NA fetch fails, all six scrapers return 0 rows
+        # in ~24s and the job still exits 0.
+        #
+        # Three independent fail-open layers, each enough on its own:
+        #
+        #   1. NOTHING EVER WROTE /tmp/fsis-run.log. No workflow, no script
+        #      in the repo created that file. The step below always took the
+        #      `[ ! -f ... ]` branch, printed "no log file — skipping health
+        #      check", and exited 0. The alarm this workflow exists to raise
+        #      has never once been armed.
+        #
+        #   2. WRONG GREP PATTERN. It looked for "scraper.fda: <N>". run_all
+        #      actually logs "[DONE]  FDA/United States -> 12 recalls". Even
+        #      with a log present, every total would have parsed as 0 —
+        #      which, per the old logic, means the step would then have
+        #      failed EVERY run. Both halves were broken in opposite
+        #      directions and cancelled out.
+        #
+        #   3. run_one_scraper() catches every exception and returns [], and
+        #      run_all only log.warning()s "No recalls scraped this run".
+        #      A total blackout is not a non-zero exit.
+        #
+        # Fix: tee the run (with 2>&1 — logging goes to stderr), parse the
+        # real "[DONE]" line format, and treat an empty/missing log as a
+        # FAILURE rather than a pass.
         run: |
-          set -e
-          # Exit 0 if there's nothing to evaluate (e.g. SKIP_COMMIT dry run).
-          if [ ! -f /tmp/fsis-run.log ]; then
-            echo "no log file — skipping health check"
-            exit 0
-          fi
-          FDA_TOTAL=$(grep -E "scraper\.(fda|fda_press|fda_datatables): [0-9]+" /tmp/fsis-run.log | awk '{print $NF}' | paste -sd+ | bc || echo 0)
-          USDA_TOTAL=$(grep -E "scraper\.usda" /tmp/fsis-run.log | awk '{print $NF}' | paste -sd+ | bc || echo 0)
-          CFIA_TOTAL=$(grep -E "scraper\.cfia" /tmp/fsis-run.log | awk '{print $NF}' | paste -sd+ | bc || echo 0)
-          echo "Health summary: FDA=$FDA_TOTAL USDA=$USDA_TOTAL CFIA=$CFIA_TOTAL"
-          # Total-zero across every layer for >24h is the actionable failure.
-          # Single 0 is normal (slow news day).
-          # Triple 0 means our 3 NA regulators are all dark = either
-          # network/auth issue on our side or coordinated outage on theirs.
-          if [ "$FDA_TOTAL" = "0" ] && [ "$USDA_TOTAL" = "0" ] && [ "$CFIA_TOTAL" = "0" ]; then
-            echo "::error::All three NA regulators returned 0 rows — investigate immediately."
+          set -euo pipefail
+
+          if [ ! -s /tmp/fsis-run.log ]; then
+            echo "::error::run log missing or empty — the scrape step produced no output. \
+          This is a failure, not a skip (see the 2026-07-26 note above)."
             exit 1
+          fi
+
+          # run_all logs one line per scraper:
+          #   <ts> [INFO] pipeline.run_all: [DONE]  FDA/United States -> 12 recalls
+          count_for() {
+            grep -E "\[DONE\]  $1/" /tmp/fsis-run.log \
+              | sed -E 's/.*-> ([0-9]+) recalls.*/\1/' \
+              | paste -sd+ - \
+              | bc 2>/dev/null || echo 0
+          }
+          FDA_TOTAL=$(count_for "FDA");        FDA_TOTAL=${FDA_TOTAL:-0}
+          USDA_TOTAL=$(count_for "USDA FSIS"); USDA_TOTAL=${USDA_TOTAL:-0}
+          CFIA_TOTAL=$(count_for "CFIA");      CFIA_TOTAL=${CFIA_TOTAL:-0}
+
+          echo "Health summary: FDA=$FDA_TOTAL USDA=$USDA_TOTAL CFIA=$CFIA_TOTAL"
+
+          # Did the scrapers even run? If no [DONE] line names an NA agency,
+          # the filter matched nothing or the step died early — distinct from
+          # "ran fine, quiet day", and worth its own message.
+          if ! grep -qE "\[DONE\]  (FDA|USDA FSIS|CFIA)/" /tmp/fsis-run.log; then
+            echo "::error::No NA scraper reported a [DONE] line — AGENCIES_FILTER \
+          matched nothing, or the scrape step failed before running. Check the log above."
+            exit 1
+          fi
+
+          # Single 0 is normal (slow news day). All three dark for a 7-day
+          # lookback is the actionable failure this workflow exists to catch.
+          if [ "$FDA_TOTAL" = "0" ] && [ "$USDA_TOTAL" = "0" ] && [ "$CFIA_TOTAL" = "0" ]; then
+            echo "::error::All three NA regulators returned 0 rows over a \
+          ${SINCE_DAYS:-7}-day lookback — investigate immediately (Akamai block, \
+          endpoint change, or runner-IP reputation)."
+            exit 1
+          fi
+
+          # Soft signal: FDA has three redundant layers (L1 datatables,
+          # L2 press/RSS, L3 openFDA). All three silent while USDA or CFIA
+          # still report is the exact 3-week April blackout signature.
+          if [ "$FDA_TOTAL" = "0" ]; then
+            echo "::warning::All three FDA layers returned 0 rows while other NA \
+          agencies reported — this is the April 2026 Akamai-blackout signature."
           fi
 
       - name: Summary
