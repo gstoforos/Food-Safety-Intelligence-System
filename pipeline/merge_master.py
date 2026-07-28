@@ -237,12 +237,33 @@ def _normalize_url_for_dedup(url: str) -> str:
       • strip trailing '/'
       • strip URL fragment '#...'
       • strip non-canonical query strings (utm_*, ref, etc.) but PRESERVE
-        identifier-style query params (permalink, id, fiche, ref, recall_id)
+        identifier-style query params (permalink, id, fiche, ref, recall_id,
+        search_api_fulltext)
+
+    Audit 2026-07-26 — TWO OVER-COLLAPSES FOUND, each discarding the only
+    thing distinguishing one recall from another on the same host:
+
+      1. FDA serves individual recalls off ONE search endpoint, with the
+         recall number in `search_api_fulltext` (H-0700-2026 / H-0699 /
+         H-0698 — three separate California Dairies recalls). That param
+         was not a keeper, so all three collapsed to the bare search URL
+         and two could be silently dropped as "duplicates" on a promote.
+      2. Italy's Salute publishes several recalls inside ONE shared PDF,
+         addressing each by fragment (flax seeds / hydrocyanic acid vs
+         sheep cheese / Listeria). Stripping the fragment collapsed them.
+
+    Fragments are normally presentation-only and must still be stripped
+    (that is what makes ...page#section a duplicate of ...page). The narrow
+    exception is a document URL: on a .pdf path the host serves a shared
+    file and the fragment is the per-recall anchor, so it is identity-
+    bearing and is preserved.
     """
     if not url:
         return ""
     s = url.strip().lower()
-    s = s.split("#", 1)[0]
+    base, sep, frag = s.partition("#")
+    keep_frag = bool(sep and frag and base.split("?", 1)[0].endswith(".pdf"))
+    s = base
     if s.startswith("https://"):
         s = s[8:]
     elif s.startswith("http://"):
@@ -254,11 +275,14 @@ def _normalize_url_for_dedup(url: str) -> str:
         keepers = []
         for kv in query.split("&"):
             k = kv.split("=", 1)[0]
-            if k in ("permalink", "id", "fiche", "ref", "recall_id"):
+            if k in ("permalink", "id", "fiche", "ref", "recall_id",
+                     "search_api_fulltext"):
                 keepers.append(kv)
         s = path + (("?" + "&".join(keepers)) if keepers else "")
     if s.endswith("/"):
         s = s[:-1]
+    if keep_frag:
+        s = s + "#" + frag
     return s
 
 
@@ -1261,6 +1285,34 @@ def promote_approved(
     """
     approved_keys = {_dedup_key(r) for r in approved_existing}
 
+    # ── Secondary dedup axis: normalized URL ────────────────────────────
+    #
+    # AUDIT 2026-07-26 — the FSAI "Butchers Selection" duplicate, promoted
+    # for the 5th time. Proven against the live rows:
+    #
+    #   Dunnes Stores       -> content|2026-06-30|dunnes|salmonella
+    #   Butchers Selection  -> content|2026-06-30|butchers-selection|salmonella
+    #
+    # Both carry the SAME alert URL, differing only in case, so
+    # _normalize_url_for_dedup collapses them cleanly. But fsai.ie is
+    # registered in _url_identity as a host with no stable alert identifier,
+    # so _dedup_key deliberately keys it on CONTENT — and the two rows
+    # disagree on Company (retailer vs own-brand). Different content key =>
+    # not a duplicate => promoted again.
+    #
+    # The 2026-07-09 content-key rule is correct and stays: it stops
+    # fabricated FSAI URLs (the Horgans case) landing as new rows every pass.
+    # The gap is that it REPLACED the URL axis instead of adding to it.
+    #
+    # Fix: check BOTH axes, reject on either. An identical normalized URL is
+    # stronger evidence of sameness than a Company-string mismatch is of
+    # difference — two rows cannot be different alerts if the regulator
+    # serves them at the same address.
+    approved_url_norms = {
+        u for u in (_normalize_url_for_dedup(str(r.get("URL", "") or ""))
+                    for r in approved_existing) if u
+    }
+
     new_approved: List[Dict[str, Any]] = []
     kept_in_pending: List[Dict[str, Any]] = []
     archived_rejected: List[Dict[str, Any]] = []
@@ -1376,12 +1428,17 @@ def promote_approved(
             kept_in_pending.append(clean)
             continue
 
-        # Approved row: dedup against existing Recalls
+        # Approved row: dedup against existing Recalls on BOTH axes —
+        # content/dedup key AND normalized URL. See approved_url_norms above
+        # for why one axis alone is not enough (FSAI, audit 2026-07-26).
         k = _dedup_key(clean)
-        if k in approved_keys:
+        u = _normalize_url_for_dedup(str(clean.get("URL", "") or ""))
+        if k in approved_keys or (u and u in approved_url_norms):
             # Already published — drop silently from Pending
             continue
         approved_keys.add(k)
+        if u:
+            approved_url_norms.add(u)
 
         # Strip pending-only tracking columns before inserting into Recalls.
         # Fill RECALLS_SCHEMA, including the internal tracking columns:
