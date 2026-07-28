@@ -197,3 +197,106 @@ class TestDedupKey:
         a = dict(sample_recall_row); a["URL"] = "https://example.com/a"
         b = dict(sample_recall_row); b["URL"] = "https://example.com/b"
         assert _dedup_key(a) != _dedup_key(b)
+
+
+# ---------------------------------------------------------------------------
+# 2026-07-26 INCIDENT — FSAI "Butchers Selection" promoted for the 5th time
+# ---------------------------------------------------------------------------
+# The same FSAI alert entered Recalls twice. Both rows carry the same URL,
+# differing only in case, and the same date, pathogen and product:
+#
+#   Dunnes Stores       .../News-and-Alerts/Food-Alerts/Recall-of-a-specific-batch-of-Butchers-Selection-I
+#   Butchers Selection  .../news-and-alerts/food-alerts/recall-of-a-specific-batch-of-butchers-selection-i
+#
+# _normalize_url_for_dedup collapses those to one string, so the URL axis
+# catches it. But fsai.ie is registered in _url_identity as a host with no
+# stable alert identifier, so _dedup_key routes it to a CONTENT key — and the
+# two rows disagree on Company (retailer vs own-brand), producing different
+# keys. promote_approved checked the content key only, so it promoted again.
+#
+# The content-key rule is deliberate (it stops fabricated FSAI URLs — the
+# 2026-07-09 Horgans case) and must stay. These tests pin the invariant that
+# promote_approved checks BOTH axes, so neither failure mode can return.
+
+_FSAI = "https://www.fsai.ie"
+_ROW_224 = {
+    "Date": "2026-06-30", "Source": "FSAI", "Company": "Dunnes Stores",
+    "Brand": "Butchers Selection",
+    "Product": "Butchers Selection Irish Turkey Burgers Mediterranean Style",
+    "Pathogen": "Salmonella", "Reason": "Salmonella", "Class": "Recall",
+    "Country": "Ireland", "Region": "Europe", "Tier": 1, "Outbreak": 0,
+    "URL": f"{_FSAI}/News-and-Alerts/Food-Alerts/Recall-of-a-specific-batch-of-Butchers-Selection-I",
+    "Notes": "",
+}
+_ROW_233 = {
+    **_ROW_224, "Company": "Butchers Selection",
+    "Product": "Butchers Selection Irish Turkey Burgers Mediterranean Style, 400g",
+    "URL": f"{_FSAI}/news-and-alerts/food-alerts/recall-of-a-specific-batch-of-butchers-selection-i",
+    "Status": "pending",
+}
+
+
+class TestFsaiButchersSelectionDuplicate:
+    def test_url_normalizer_collapses_the_case_variants(self):
+        assert (_normalize_url_for_dedup(_ROW_224["URL"])
+                == _normalize_url_for_dedup(_ROW_233["URL"]))
+
+    def test_content_key_alone_does_not_catch_it(self):
+        # Documents WHY the URL axis is required. If this ever starts
+        # failing, _url_identity's host registry changed and the comment
+        # block in promote_approved needs revisiting.
+        assert _dedup_key(_ROW_224) != _dedup_key(_ROW_233)
+
+    def test_promote_approved_rejects_the_duplicate(self):
+        from pipeline.merge_master import promote_approved
+        new_approved, _kept, _arch = promote_approved(
+            [dict(_ROW_233)], [dict(_ROW_224)], {})
+        assert new_approved == [], (
+            "FSAI Butchers Selection duplicate promoted again — promote_approved "
+            "must dedup on normalized URL as well as content key")
+
+    def test_promote_approved_still_admits_a_genuinely_new_fsai_row(self):
+        from pipeline.merge_master import promote_approved
+        other = {**_ROW_233, "Company": "Western Brand",
+                 "Product": "Sage & Onion Cook in Bag Whole Chicken",
+                 "URL": f"{_FSAI}/news-and-alerts/food-alerts/recall-of-specific-batches-of-western-brand-sage-o"}
+        new_approved, _kept, _arch = promote_approved(
+            [dict(other)], [dict(_ROW_224)], {})
+        assert len(new_approved) == 1
+
+    def test_case_variant_caught_for_a_url_keyed_host_too(self):
+        from pipeline.merge_master import promote_approved
+        a = {**_ROW_224, "Source": "RappelConso (FR)", "Country": "France",
+             "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22960/Interne"}
+        b = {**a, "Company": "Someone Else", "Status": "pending",
+             "URL": "http://www.rappel.conso.gouv.fr/Fiche-Rappel/22960/interne/"}
+        new_approved, _kept, _arch = promote_approved([dict(b)], [dict(a)], {})
+        assert new_approved == []
+
+
+# ---------------------------------------------------------------------------
+# 2026-07-26 — normalizer over-collapse: distinct recalls sharing a base URL
+# ---------------------------------------------------------------------------
+class TestNormalizerDoesNotOverCollapse:
+    def test_fda_search_param_is_identity_bearing(self):
+        base = "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts"
+        keys = {_normalize_url_for_dedup(f"{base}?search_api_fulltext=H-{n}-2026")
+                for n in ("0700", "0699", "0698")}
+        assert len(keys) == 3, "FDA recall numbers must not collapse to one key"
+
+    def test_pdf_fragment_is_identity_bearing(self):
+        pdf = ("https://www.salute.gov.it/new/sites/default/files/external_data/"
+               "avvisi_sicurezza_alimentare/cartello%20richiamo_1781203550.pdf")
+        assert _normalize_url_for_dedup(pdf) != _normalize_url_for_dedup(pdf + "#tuma-san-giorz")
+
+    def test_fragment_still_stripped_on_ordinary_pages(self):
+        page = "https://www.fsai.ie/news-and-alerts/food-alerts/some-recall"
+        assert _normalize_url_for_dedup(page) == _normalize_url_for_dedup(page + "#main-content")
+
+    def test_tracking_params_still_stripped(self):
+        assert _normalize_url_for_dedup(
+            "https://example.com/recall?utm_source=x&utm_campaign=y") == "example.com/recall"
+
+    def test_protocol_and_www_still_collapse(self):
+        assert (_normalize_url_for_dedup("http://www.fsis.usda.gov/a/")
+                == _normalize_url_for_dedup("https://fsis.usda.gov/a"))
