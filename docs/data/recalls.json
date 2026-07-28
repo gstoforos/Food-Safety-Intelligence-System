@@ -145,22 +145,6 @@
  },
  {
   "Date": "2026-07-24",
-  "Source": "FSANZ (AU)",
-  "Company": "Viet Meatballs",
-  "Brand": "Viet Meatballs",
-  "Product": "Chinese Sausage - 500g",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "The presence of an undeclared allergen (gluten).",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/viet-meatballs-chinese-sausage-500g",
-  "Notes": "[gemini-enrich 2026-07-25: Brand '—'→'Viet Meatballs'] [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
- },
- {
-  "Date": "2026-07-24",
   "Source": "RASFF (EU)",
   "Company": "Origin: Italy | Notifying: Italy",
   "Brand": "ITA",
@@ -347,9 +331,9 @@
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 0,
+  "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
-  "Notes": "[FDA company announcement + publish 2026-07-22; produced Texas, distributed 2026-06-06 to 2026-07-03; retail Kroger (TX,LA), Brookshire (TX,OK,AR,LA,NM,MS); company states NO illnesses linked -> Outbreak=0; Salmonella = always Tier 1; source-verified 2026-07-24] [region-normalise 2026-07-24: Region was 'TX, OK, LA, AR, NM, MS' (detail level); set to continent bucket 'North America' for daily/weekly region grouping — detail retained here]"
+  "Notes": "[FDA company announcement + publish 2026-07-22; produced Texas, distributed 2026-06-06 to 2026-07-03; retail Kroger (TX,LA), Brookshire (TX,OK,AR,LA,NM,MS); company states NO illnesses linked -> Outbreak=0; Salmonella = always Tier 1; source-verified 2026-07-24] [region-normalise 2026-07-24: Region was 'TX, OK, LA, AR, NM, MS' (detail level); set to continent bucket 'North America' for daily/weekly region grouping — detail retained here] [outbreak-fix 2026-07-28: Outbreak 0->1. CDC shell-eggs investigation (updated 2026-07-24): 98 illnesses, 26 hospitalisations, 17 states; Midwest Poultry Services named as recalling firm. Confirmed human cases meet the Outbreak=1 bar; the original 'company states NO illnesses' basis is superseded. Source: cdc.gov/salmonella/outbreaks/shell-eggs-07-26/]"
  },
  {
   "Date": "2026-07-22",
@@ -1502,22 +1486,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22828/Interne",
   "Notes": "antonin 1919, mon panier de campagne [url-gate 2026-07-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-16: pass; pass]"
- },
- {
-  "Date": "2026-07-16",
-  "Source": "EFET",
-  "Company": "TSAKONAS D. MONOS K. A.E.",
-  "Brand": "casa mania",
-  "Product": "κουτάλα σούπας",
-  "Pathogen": "Salmonella spp",
-  "Reason": "",
-  "Class": "",
-  "Country": "Greece",
-  "Region": "Not specified in the article",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5407-deltio-typou-anaklisi-mi-asfaloys-proiontos-vathias-koutalas-soypas",
-  "Notes": "Discovered via news: news247.gr [gemini-check 2026-07-27: fix; corrections: Date→2026-07-16, Company→TSAKONAS D. MONOS K. A.E., Brand→casa mania, Product→κουτάλα σούπας; fix; company mismatch; product mismatch; pathogen mismatch; date on page=2026-07-16 | Date matches, but company, product]"
  },
  {
   "Date": "2026-07-15",
@@ -3744,22 +3712,6 @@
   "Notes": "Promoted 2026-06-30 from Pending. In scope: foreign material. [retailer: Paris Store]"
  },
  {
-  "Date": "2026-06-30",
-  "Source": "FSAI",
-  "Company": "Butchers Selection",
-  "Brand": "Butchers Selection",
-  "Product": "Butchers Selection Irish Turkey Burgers Mediterranean Style, 400g",
-  "Pathogen": "Salmonella",
-  "Reason": "Recall of a specific batch of Butchers Selection Irish Turkey Burgers Mediterranean Style Recall of a specific batch of Butchers Selection Irish Turkey Burgers Mediterranean Style due to the presence of Salmonella Tuesday, 30 June 2026 Alert Summary Category 1: For Action Alert Notification: 2026.39 Product Identification: Butchers Selection Irish Turkey Burgers Mediterranean Style; pack size: 400g Batch Code Use-by date: 05/07/2026 Country Of Origin: Ireland Message: The above batch of Butchers Selection Irish Turkey Burgers Mediterranean Style is being recalled due to the presence of Salmonella . Recall notices will be displayed at point-of-sale. Nature Of Danger: People infected with Salmonella typically develop symptoms between 12 and 36 hours after infection, but this can range betwee",
-  "Class": "Recall",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-specific-batch-of-butchers-selection-i",
-  "Notes": "source_id=FSAI-recall-of-a-specific-batch-of-butchers-selection-i [via official-feed collector] [gemini-check 2026-07-25: pass; pass] [gap-gate 2026-07-26: pending_gap → pending_gap_v1] [claude-check 2026-07-26: pass; pass | All fields verified: date 2026-06-30 matches page header; Company (Butchers Selection) and Brand (Butchers Select] [gap-gate 2026-07-26: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
- },
- {
   "Date": "2026-06-29",
   "Source": "RASFF (EU)",
   "Company": "Origin: India | Notifying: Netherlands",
@@ -5063,13 +5015,13 @@
   "Product": "Petit Brie cheese",
   "Pathogen": "Staphylococcus aureus enterotoxin",
   "Reason": "Recall ID 842632",
-  "Class": "",
+  "Class": "Alert",
   "Country": "Greece",
-  "Region": "Athens, Greece",
+  "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5401-deltio-typou-enimerosi-anaklisis-tyrioy-brie",
-  "Notes": "Discovered via news: in.gr [gemini-check 2026-07-25: fix; corrections: Date→2026-06-19, Company→Eurofood Quality S.A., Brand→Ile de France, Product→Petit Brie cheese, Pathogen→Staphylococcus aureus enterotoxin; fix; company mismatch; pathogen mismatch; date on page=2026-06-19 | Corrected date, company, brand, product, and pathoge]"
+  "Notes": "Discovered via news: in.gr [gemini-check 2026-07-25: fix; corrections: Date→2026-06-19, Company→Eurofood Quality S.A., Brand→Ile de France, Product→Petit Brie cheese, Pathogen→Staphylococcus aureus enterotoxin; fix; company mismatch; pathogen mismatch; date on page=2026-06-19 | Corrected date, company, brand, product, and pathoge] [region-fix 2026-07-28: Region 'Athens, Greece'->'Europe'; Region is a continent bucket, detailed geography belongs in Notes. Country=Greece] [class-fix 2026-07-28: Class was blank -> 'Alert', matching the other EFET rows]"
  },
  {
   "Date": "2026-06-18",
@@ -11625,11 +11577,11 @@
   "Reason": "Aflatoxin B1 and aflatoxin total (mycotoxins) detected in groundnuts from Peru; serious risk classification; distributed in Netherlands",
   "Class": "Alert",
   "Country": "Peru",
-  "Region": "South America",
+  "Region": "Latin America",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/841438",
-  "Notes": "[RASFF #2026.3858; aflatoxin in Peru-origin groundnuts (notifying: Netherlands; follow-up: France); recurring third-country origin pattern. manual-add 2026-05-04; notifId=841438] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W18->W19; Thursday-to-Thursday rule — week runs 2026-05-01 Fri -> 2026-05-07 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[RASFF #2026.3858; aflatoxin in Peru-origin groundnuts (notifying: Netherlands; follow-up: France); recurring third-country origin pattern. manual-add 2026-05-04; notifId=841438] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W18->W19; Thursday-to-Thursday rule — week runs 2026-05-01 Fri -> 2026-05-07 Thu, labelled by ISO week of the closing Thursday] [region-fix 2026-07-28: Region 'South America'->'Latin America'; Region is a continent bucket, detailed geography belongs in Notes. Country=Peru]"
  },
  {
   "Date": "2026-05-01",
@@ -13673,11 +13625,11 @@
   "Reason": "Suspected contamination with rat poison — recall following Austrian tampering case",
   "Class": "Recall",
   "Country": "Vietnam",
-  "Region": "Asia-Pacific",
+  "Region": "Asia",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://vietnam.vnanet.vn/english/tin-van/vietnam-warns-of-hipp-baby-food-after-austrias-recall-441522.html",
-  "Notes": "[VFA Vietnam alert following Austrian recall; URL is news service (vietnam.vnanet.vn) — no direct VFA regulator URL located; same Austrian tampering case as AGES (AT) and SZPI (CZ)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[VFA Vietnam alert following Austrian recall; URL is news service (vietnam.vnanet.vn) — no direct VFA regulator URL located; same Austrian tampering case as AGES (AT) and SZPI (CZ)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Vietnam]"
  },
  {
   "Date": "2026-04-20",
@@ -16161,22 +16113,6 @@
  },
  {
   "Date": "2026-04-06",
-  "Source": "RappelConso (FR)",
-  "Company": "FROMAGERIE CONDUTIER Fromagerie condutier",
-  "Brand": "—",
-  "Product": "plats préparés et snacks",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria contamination",
-  "Class": "Voluntary",
-  "Country": "France",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/14000/Interne",
-  "Notes": "[fiche 21865 / ref. 2026-04-0037 / 2026-04-04; REPAIRED from broken row — Notes had \"leclerc, inter\" leak; URL slug normalised /Interne; SEPARATE cluster (NOT LUNA FOOD) — raw-milk Cantal cheese maker, multi-SKU recall]"
- },
- {
-  "Date": "2026-04-06",
   "Source": "BeaconBio (TW)",
   "Company": "Multiple (Kaohsiung outbreak)",
   "Brand": "Unbranded",
@@ -16185,11 +16121,11 @@
   "Reason": "Outbreak — pathogen contamination",
   "Class": "Outbreak",
   "Country": "Taiwan",
-  "Region": "Asia-Pacific",
+  "Region": "Asia",
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://beaconbio.org/en/report/?reportid=3b6a3e2e-b70c-4f9f-a5ea-4263d3779787&eventid=3ef2c366-0f67-4b48-ab53-ab77c5772c16&page=2",
-  "Notes": "[outbreak: 157 cases reported; URL FLAG: beaconbio.org IS on the locked news_mirror_blocklist — pipeline gate failure; consider DROP from Recalls or swap to TFDA Taiwan regulator URL if available]"
+  "Notes": "[outbreak: 157 cases reported; URL FLAG: beaconbio.org IS on the locked news_mirror_blocklist — pipeline gate failure; consider DROP from Recalls or swap to TFDA Taiwan regulator URL if available] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Taiwan]"
  },
  {
   "Date": "2026-04-06",
@@ -17769,11 +17705,11 @@
   "Reason": "MFDS national inspection — 7 ice samples failed bacterial/coliform standards",
   "Class": "Administrative action",
   "Country": "South Korea",
-  "Region": "Asia-Pacific",
+  "Region": "Asia",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://en.sedaily.com/society/2026/03/26/bacteria-found-in-ice-at-cafes-and-restaurants-across-korea",
-  "Notes": "[URL FLAG: en.sedaily.com IS on locked news_mirror_blocklist — pipeline gate failure; pathogen \"coliform/total bacterial count\" is OUT OF SCOPE per _pathogen_scope.py (no specific Tier-1 pathogen identified); RECOMMEND DROP both this row and row 22 (sister duplicate)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W13->W14; Thursday-to-Thursday rule — week runs 2026-03-27 Fri -> 2026-04-02 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[URL FLAG: en.sedaily.com IS on locked news_mirror_blocklist — pipeline gate failure; pathogen \"coliform/total bacterial count\" is OUT OF SCOPE per _pathogen_scope.py (no specific Tier-1 pathogen identified); RECOMMEND DROP both this row and row 22 (sister duplicate)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W13->W14; Thursday-to-Thursday rule — week runs 2026-03-27 Fri -> 2026-04-02 Thu, labelled by ISO week of the closing Thursday] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=South Korea]"
  },
  {
   "Date": "2026-03-27",
@@ -17785,11 +17721,11 @@
   "Reason": "MFDS Korea inspection — failed bacterial/coliform standards",
   "Class": "Public health alert",
   "Country": "South Korea",
-  "Region": "Asia-Pacific",
+  "Region": "Asia",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://en.sedaily.com/NewsView/2REI1NCM2Q",
-  "Notes": "[DUPLICATE of row 21 — both rows reference same MFDS event via two sedaily.com URLs; URL FLAG: news_mirror_blocklist + pathogen out of scope; STRONG RECOMMEND DROP — keep only one if any] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W13->W14; Thursday-to-Thursday rule — week runs 2026-03-27 Fri -> 2026-04-02 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[DUPLICATE of row 21 — both rows reference same MFDS event via two sedaily.com URLs; URL FLAG: news_mirror_blocklist + pathogen out of scope; STRONG RECOMMEND DROP — keep only one if any] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W13->W14; Thursday-to-Thursday rule — week runs 2026-03-27 Fri -> 2026-04-02 Thu, labelled by ISO week of the closing Thursday] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=South Korea]"
  },
  {
   "Date": "2026-03-26",
@@ -17801,11 +17737,11 @@
   "Reason": "Patulin concentration exceeding legal limit",
   "Class": "Food Alert",
   "Country": "Hong Kong",
-  "Region": "Asia-Pacific",
+  "Region": "Asia",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_614.html",
-  "Notes": "[CFS food alert 2026_614; patulin = mycotoxin in apple juice, Tier-1 scope] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[CFS food alert 2026_614; patulin = mycotoxin in apple juice, Tier-1 scope] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Hong Kong]"
  },
  {
   "Date": "2026-03-26",
@@ -18249,11 +18185,11 @@
   "Reason": "Possible cereulide contamination - SFA Singapore notification.",
   "Class": "Recall",
   "Country": "Singapore",
-  "Region": "Asia-Pacific",
+  "Region": "Asia",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260316_4.pdf",
-  "Notes": "SFA Singapore via HK CFS aggregator | global cereulide crisis [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "SFA Singapore via HK CFS aggregator | global cereulide crisis [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Singapore]"
  },
  {
   "Date": "2026-03-16",
@@ -18313,11 +18249,11 @@
   "Reason": "Listeria contamination detected by supplier testing",
   "Class": "Recall",
   "Country": "South Africa",
-  "Region": "Middle East & Africa",
+  "Region": "Africa",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://thencc.org.za/product-recalls/",
-  "Notes": "Distributed: South Africa + Lesotho. [fix 2026-06-30: replaced iol.co.za news URL with NCC official recalls page (thencc.org.za/product-recalls). Specific per-recall permalink not separately resolvable. Real Tier-1 Listeria recall, Made for Tots Corn Puffs.] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "Distributed: South Africa + Lesotho. [fix 2026-06-30: replaced iol.co.za news URL with NCC official recalls page (thencc.org.za/product-recalls). Specific per-recall permalink not separately resolvable. Real Tier-1 Listeria recall, Made for Tots Corn Puffs.] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [region-fix 2026-07-28: Region 'Middle East & Africa'->'Africa'; Region is a continent bucket, detailed geography belongs in Notes. Country=South Africa]"
  },
  {
   "Date": "2026-03-13",
@@ -18489,11 +18425,11 @@
   "Reason": "Inadequate sterilization process",
   "Class": "Recall",
   "Country": "Japan",
-  "Region": "Asia-Pacific",
+  "Region": "Asia",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260309_2.pdf",
-  "Notes": "MHLW Japan recall via HK CFS"
+  "Notes": "MHLW Japan recall via HK CFS [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Japan]"
  },
  {
   "Date": "2026-03-09",
@@ -19145,11 +19081,11 @@
   "Reason": "Powdered infant formula recall",
   "Class": "Food Alert",
   "Country": "Hong Kong",
-  "Region": "Asia-Pacific",
+  "Region": "Asia",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_611.html",
-  "Notes": "[CFS food alert 2026_611; part of global cereulide infant formula crisis]"
+  "Notes": "[CFS food alert 2026_611; part of global cereulide infant formula crisis] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Hong Kong]"
  },
  {
   "Date": "2026-02-02",
@@ -19449,11 +19385,11 @@
   "Reason": "Presence of cereulide toxin",
   "Class": "Recall",
   "Country": "Singapore",
-  "Region": "Asia-Pacific",
+  "Region": "Asia",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.sfa.gov.sg/news-publications/newsroom/direction-to-recall-additional-infant-formula-products-due-to-presence-of-cereulide-toxin",
-  "Notes": "[SFA recall direction; Swiss-origin product; global cereulide infant formula crisis] [week-fix 2026-07-25: report_week W03->W04; Thursday-to-Thursday rule — week runs 2026-01-16 Fri -> 2026-01-22 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[SFA recall direction; Swiss-origin product; global cereulide infant formula crisis] [week-fix 2026-07-25: report_week W03->W04; Thursday-to-Thursday rule — week runs 2026-01-16 Fri -> 2026-01-22 Thu, labelled by ISO week of the closing Thursday] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Singapore]"
  },
  {
   "Date": "2026-01-16",
@@ -19513,11 +19449,11 @@
   "Reason": "Cereulide detected in supplied ingredient",
   "Class": "Recall",
   "Country": "South Africa",
-  "Region": "Middle East & Africa",
+  "Region": "Africa",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://thencc.org.za/product-recall-nan-special-pro-ha-infant-formula-800g/",
-  "Notes": "[NCC; FIRST South Africa cereulide infant formula recall of 2026; distributed major SA retailers + exported to Namibia and Eswatini; global cereulide infant formula crisis]"
+  "Notes": "[NCC; FIRST South Africa cereulide infant formula recall of 2026; distributed major SA retailers + exported to Namibia and Eswatini; global cereulide infant formula crisis] [region-fix 2026-07-28: Region 'Middle East & Africa'->'Africa'; Region is a continent bucket, detailed geography belongs in Notes. Country=South Africa]"
  },
  {
   "Date": "2026-01-15",
@@ -19657,11 +19593,11 @@
   "Reason": "Powdered infant formula recall",
   "Class": "Food Alert",
   "Country": "Hong Kong",
-  "Region": "Asia-Pacific",
+  "Region": "Asia",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_610.html",
-  "Notes": "[CFS food alert 2026_610; global cereulide infant formula crisis]"
+  "Notes": "[CFS food alert 2026_610; global cereulide infant formula crisis] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Hong Kong]"
  },
  {
   "Date": "2026-01-05",

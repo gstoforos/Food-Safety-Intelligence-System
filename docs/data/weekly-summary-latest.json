@@ -8,11 +8,11 @@
   "week_end": "2026-07-23",
   "week_start_display": "17 Jul",
   "week_end_display": "23 Jul 2026",
-  "generated_utc": "2026-07-25T13:53:14.949786+00:00",
+  "generated_utc": "2026-07-28T01:36:45.423792+00:00",
   "stats": {
     "total": 63,
     "tier1": 53,
-    "outbreaks": 2,
+    "outbreaks": 3,
     "delta": 8,
     "delta_pct": 15
   },
@@ -25,6 +25,20 @@
   "top_threats": [
     {
       "rank": 1,
+      "date": "2026-07-22",
+      "pathogen": "Salmonella",
+      "pathogen_raw": "Salmonella",
+      "tier": 1,
+      "outbreak": true,
+      "company": "Midwest Poultry Services, L.P.",
+      "brand": "Kroger / Simple Truth / Brookshire's / Country Morning / Sunups (multiple)",
+      "product": "White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, Julian 157-184, best/sell-by 2026-07-20 to 2026-08-17)",
+      "country": "United States",
+      "source": "FDA",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination"
+    },
+    {
+      "rank": 2,
       "date": "2026-07-20",
       "pathogen": "Salmonella",
       "pathogen_raw": "Salmonella",
@@ -38,7 +52,7 @@
       "url": "https://www.foodsafetynews.com/2026/07/greece-reports-salmonella-outbreak-and-2025-figures/"
     },
     {
-      "rank": 2,
+      "rank": 3,
       "date": "2026-07-18",
       "pathogen": "Cyclospora",
       "pathogen_raw": "Cyclospora",
@@ -52,7 +66,7 @@
       "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-iceberg-lettuce-central-mexico-because-possible-health-risk"
     },
     {
-      "rank": 3,
+      "rank": 4,
       "date": "2026-07-23",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -66,7 +80,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/22938/Interne"
     },
     {
-      "rank": 4,
+      "rank": 5,
       "date": "2026-07-23",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -78,20 +92,6 @@
       "country": "Germany",
       "source": "RASFF (EU)",
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860928"
-    },
-    {
-      "rank": 5,
-      "date": "2026-07-22",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "PRESTIGE DE LA SARTHE",
-      "brand": "Rustadou",
-      "product": "rillette d’oie supérieure 1 kg rustadou",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22922/Interne"
     }
   ],
   "country_count": 15
