@@ -157,6 +157,16 @@ OK_PENDING_ENRICHMENT = "OK_PENDING_ENRICHMENT"
 # next successful pass, in the same run, so it promotes immediately.
 STATUS_PENDING_RETRY = "pending_retry"
 
+# ── Transient-failure parking (audit 2026-07-28) ───────────────────────
+# A row whose verification could not COMPLETE (fetch failed, reviewer API
+# errored) must not auto-promote, but it is not a gap-finder row either.
+# Parking it in STATUS_PENDING_GAP_V2 was a DEMOTION whose only exit is a
+# successful Claude pass — a closed loop when the fetch failure is
+# permanent. This status is equally non-promotable but keeps the row's
+# identity, so claude_check flips it straight back to "pending" on the
+# next successful pass and it promotes in the same run.
+STATUS_PENDING_RETRY = "pending_retry"
+
 GAP_GATING_STATUSES = frozenset({
     STATUS_PENDING_GAP, STATUS_PENDING_GAP_V1, STATUS_PENDING_GAP_V2,
 })
