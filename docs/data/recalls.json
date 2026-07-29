@@ -266,10 +266,10 @@
   "Class": "Recall",
   "Country": "Canada",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/fromagerie-p-jacquin-fils-brand-valencay-aop-fromage-chevre-au-lait-cru-recalled-due",
-  "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/fromagerie-p-jacquin-fils-brand-valencay-aop-fromage-chevre-au-lait-cru-recalled-due [via official-feed collector] [gemini-check 2026-07-28: fix; corrections: Company→106978 Canada Ltée (Yannick Fromagerie), Brand→Fromagerie P. Jacquin & Fils, Product→Valençay AOP \"fromage de chèvre au lait , Pathogen→E. coli; placeholder_company_filled_from_page | fix; company mismatch; product mismatch | Company, Brand, and Product fields were] [gap-gate 2026-07-28: pending_gap → pending_gap_v1] [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_gap_v1'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.]"
+  "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/fromagerie-p-jacquin-fils-brand-valencay-aop-fromage-chevre-au-lait-cru-recalled-due [via official-feed collector] [gemini-check 2026-07-28: fix; corrections: Company→106978 Canada Ltée (Yannick Fromagerie), Brand→Fromagerie P. Jacquin & Fils, Product→Valençay AOP \"fromage de chèvre au lait , Pathogen→E. coli; placeholder_company_filled_from_page | fix; company mismatch; product mismatch | Company, Brand, and Product fields were] [gap-gate 2026-07-28: pending_gap → pending_gap_v1] [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_gap_v1'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [tier-guard: E. coli is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-07-27",
