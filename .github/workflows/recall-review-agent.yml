@@ -10,6 +10,12 @@ name: Recall Review Agent (self-hosted Qwen)
 # VPS moves to a Mac, only the LLAMA_BASE_URL secret changes.
 
 on:
+  schedule:
+    # Agent 2 (deep review + promote) — 10 min after Agent 1.
+    # Times are UTC; Athens is EEST (UTC+3) in summer.
+    - cron: "45 2 * * *"    # 05:45 Athens (slot 1)
+    - cron: "45 12 * * *"   # 15:45 Athens (slot 2)
+    - cron: "45 20 * * *"   # 23:45 Athens (slot 3)
   workflow_dispatch:
     inputs:
       commit:
@@ -327,12 +333,27 @@ jobs:
                page.
              - needs_human if: the page cannot be read or the case is genuinely
                ambiguous.
+          4. VERIFY THE OUTBREAK FLAG (strict — this drives the tier). Set outbreak = 1
+             ONLY if the page (or a linked official health page) states one or more of:
+               • a specific number of confirmed/probable illnesses/cases
+                 ("166 illnesses", "two cases", "26 hospitalised")
+               • the word outbreak / épidémie / Ausbruch / brote / epidemia describing
+                 THIS hazard (not generic boilerplate)
+               • an epidemiological investigation triggered by reported illness
+               • death(s) attributed to the hazard
+               • a named ongoing outbreak with published case counts
+             Set outbreak = 0 if: the notice says no reported illnesses / aucun cas
+             signalé; routine sampling caught it (lab test only, product not consumed);
+             criminal tampering with no consumption; or "outbreak" appears only in a
+             brand name or boilerplate. Default to 0 when in doubt.
 
           Return ONLY this JSON (no markdown):
           {{
             "verdict": "approve" | "reject" | "needs_human",
             "reason": "<one line>",
             "verified_url": "<the URL you actually confirmed, may differ from input>",
+            "outbreak": 0 | 1,
+            "outbreak_evidence": "<verbatim quote from page, max 200 chars, '' if 0>",
             "fields": {{
               "Date": "", "Company": "", "Brand": "", "Product": "",
               "Pathogen": "", "Reason": "", "Country": "", "Region": ""
@@ -401,6 +422,8 @@ jobs:
               parsed.setdefault("verdict", "needs_human")
               parsed.setdefault("fields", {})
               parsed.setdefault("verified_url", row.get("URL", ""))
+              parsed.setdefault("outbreak", row.get("Outbreak", 0))
+              parsed.setdefault("outbreak_evidence", "")
               return parsed
 
 
@@ -542,6 +565,11 @@ jobs:
                                 "Reason", "Country", "Region", "URL"):
                           if merged.get(k):
                               full_pending[idx][k] = merged[k]
+                      # Outbreak is verified explicitly (0 or 1) — always apply it,
+                      # including a correction from 1→0, since it drives the tier bump.
+                      ob = review.get("outbreak")
+                      if ob in (0, 1, "0", "1"):
+                          full_pending[idx]["Outbreak"] = int(ob)
                       applied_corrections += 1
                       cur = str(full_pending[idx].get("Status", "")).strip()
                       if cur in _ADVANCE_FROM:
@@ -616,16 +644,16 @@ jobs:
           ARGS=""
           [ -n "${{ inputs.source_filter }}" ] && ARGS="$ARGS --source-filter ${{ inputs.source_filter }}"
           [ "${{ inputs.limit }}" != "0" ] && ARGS="$ARGS --limit ${{ inputs.limit }}"
-          echo "Running review agent (commit=${{ inputs.commit }})"
+          echo "Running review agent (commit=${{ inputs.commit || 'true' }})"
           python -m pipeline.recall_review_agent \
             --xlsx docs/data/recalls.xlsx \
-            --commit "${{ inputs.commit }}" \
+            --commit "${{ inputs.commit || 'true' }}" \
             $ARGS | tee /tmp/review.log
 
           {
             echo "## Recall Review Agent — $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M') Athens"
             echo ""
-            echo "Mode: **$([ "${{ inputs.commit }}" = "true" ] && echo 'COMMIT' || echo 'DRY-RUN')**"
+            echo "Mode: **$([ "${{ inputs.commit || 'true' }}" = "true" ] && echo 'COMMIT' || echo 'DRY-RUN')**"
             echo ""
             echo '```'
             tail -30 /tmp/review.log
@@ -633,7 +661,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit xlsx changes (race-safe)
-        if: inputs.commit == 'true'
+        if: ${{ github.event_name == 'schedule' || inputs.commit == 'true' }}
         run: |
           if [ -f scripts/safe_push.sh ]; then
             bash scripts/safe_push.sh \

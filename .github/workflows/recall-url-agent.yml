@@ -10,6 +10,12 @@ name: Recall URL Agent — Reviewer 1 (self-hosted Qwen)
 # VPS moves to a Mac, only the LLAMA_BASE_URL secret changes.
 
 on:
+  schedule:
+    # Agent 1 (URL confirm) — 10 min before Agent 2 in each slot.
+    # Times are UTC; Athens is EEST (UTC+3) in summer.
+    - cron: "35 2 * * *"    # 05:35 Athens (slot 1)
+    - cron: "35 12 * * *"   # 15:35 Athens (slot 2)
+    - cron: "35 20 * * *"   # 23:35 Athens (slot 3)
   workflow_dispatch:
     inputs:
       commit:
@@ -516,16 +522,16 @@ jobs:
           ARGS=""
           [ -n "${{ inputs.source_filter }}" ] && ARGS="$ARGS --source-filter ${{ inputs.source_filter }}"
           [ "${{ inputs.limit }}" != "0" ] && ARGS="$ARGS --limit ${{ inputs.limit }}"
-          echo "Running review agent (commit=${{ inputs.commit }})"
+          echo "Running review agent (commit=${{ inputs.commit || 'true' }})"
           python -m pipeline.recall_url_agent \
             --xlsx docs/data/recalls.xlsx \
-            --commit "${{ inputs.commit }}" \
+            --commit "${{ inputs.commit || 'true' }}" \
             $ARGS | tee /tmp/review.log
 
           {
             echo "## Recall URL Agent (Reviewer 1) — $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M') Athens"
             echo ""
-            echo "Mode: **$([ "${{ inputs.commit }}" = "true" ] && echo 'COMMIT' || echo 'DRY-RUN')**"
+            echo "Mode: **$([ "${{ inputs.commit || 'true' }}" = "true" ] && echo 'COMMIT' || echo 'DRY-RUN')**"
             echo ""
             echo '```'
             tail -30 /tmp/review.log
@@ -533,7 +539,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit xlsx changes (race-safe)
-        if: inputs.commit == 'true'
+        if: ${{ github.event_name == 'schedule' || inputs.commit == 'true' }}
         run: |
           if [ -f scripts/safe_push.sh ]; then
             bash scripts/safe_push.sh \
