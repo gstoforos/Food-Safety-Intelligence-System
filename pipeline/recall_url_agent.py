@@ -1,0 +1,429 @@
+#!/usr/bin/env python3
+"""
+recall_url_agent.py  —  AGENT 1 (first reviewer, replaces Gemini url-gate)
+=========================================================================
+
+Runs on the self-hosted Qwen 2.5 7B (LlamaClient, Tailscale — no API key).
+Full deep review of gap-finder candidates, focused on FINDING and CONFIRMING
+the correct official regulator URL, then verifying the fields against it.
+
+This is reviewer #1 in the two-reviewer model. It does a complete review
+(not a light gate): it searches the web, confirms the authoritative URL,
+checks every field against the page, enriches a missing Pathogen, and only
+then advances the gap-gating status. If it cannot confirm a real recall, it
+rejects.
+
+Status transitions this agent drives (authoritative, from merge_master):
+    pending_gap        → pending_gap_v1   (one reviewer pass)
+    pending_gap_v1     → pending_gap_v2   (still first-reviewer lane; the
+                                           original model ran url_gate twice)
+    pending_enrichment → pending_gap_v2   (Pathogen filled + URL confirmed)
+    (any)              → rejected          (not a recall / no confirmable URL)
+
+Ending at pending_gap_v2 means "reviewer 1 passed"; Agent 2
+(recall_review_agent) is reviewer 2 and does the final promote.
+
+Tools given to Qwen:
+    web_search(query)        — Searx over Tailscale (your existing box)
+    fetch_page(url)          — curl_cffi Chrome TLS impersonation + BS4
+Plus deterministic pre-step: if a regulator API can supply the canonical
+URL (e.g. RappelConso repair_french_row), use that FIRST — 100% accurate,
+no search needed.
+
+CLI:
+  python -m pipeline.recall_url_agent --xlsx docs/data/recalls.xlsx \\
+      --commit false                 # dry-run: prints per-row decision
+  --commit true                      # writes advanced statuses / rejects
+  --limit N                          # cap rows
+  --source-filter "RappelConso"      # restrict by Source
+
+Env: LLAMA_BASE_URL, LLAMA_MODEL, SEARX_URL  (same as gap-finders)
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+import sys
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+# ── Pipeline infrastructure (same imports the gap-finders use) ───────────
+try:
+    from pipeline.official_feeds.agents import llama_client
+except Exception:  # pragma: no cover
+    llama_client = None
+try:
+    from pipeline.official_feeds.agents import searx_search
+except Exception:  # pragma: no cover
+    searx_search = None
+try:
+    from pipeline import regulator_apis
+except Exception:  # pragma: no cover
+    regulator_apis = None
+
+# Status constants — mirror merge_master exactly.
+S_GAP = "pending_gap"
+S_GAP_V1 = "pending_gap_v1"
+S_GAP_V2 = "pending_gap_v2"
+S_ENRICH = "pending_enrichment"
+S_PENDING = "pending"
+S_REJECTED = "rejected"
+
+# Statuses Agent 1 is responsible for (first-reviewer lane).
+AGENT1_STATUSES = {S_GAP, S_GAP_V1, S_ENRICH}
+
+MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "12000"))
+
+
+# ─── Page fetch (self-contained, TLS-impersonated) ───────────────────────
+
+def _fetch_page_text(url: str) -> Tuple[str, str]:
+    headers = {
+        "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                       "AppleWebKit/537.36 (KHTML, like Gecko) "
+                       "Chrome/131.0 Safari/537.36"),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    }
+    html = ""
+    try:
+        from curl_cffi import requests as cf  # type: ignore
+        r = cf.get(url, headers=headers, timeout=30,
+                   impersonate="chrome131", allow_redirects=True)
+        html = r.text or ""
+        if r.status_code >= 400:
+            return "", f"http_{r.status_code}"
+    except Exception:
+        try:
+            import requests as rq
+            r = rq.get(url, headers=headers, timeout=30, allow_redirects=True)
+            html = r.text or ""
+            if r.status_code >= 400:
+                return "", f"http_{r.status_code}"
+        except Exception as e:  # noqa: BLE001
+            return "", f"error_{type(e).__name__}"
+    try:
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(html, "html.parser")
+        for t in soup(["script", "style", "nav", "header", "footer"]):
+            t.decompose()
+        text = "\n".join(ln.strip() for ln in
+                         soup.get_text("\n").splitlines() if ln.strip())
+    except Exception:
+        text = html
+    return text[:MAX_PAGE_CHARS], "ok"
+
+
+# ─── Deterministic URL confirmation via regulator APIs ───────────────────
+
+def _regulator_url(row: Dict[str, Any]) -> Optional[str]:
+    """If a regulator API can supply the canonical URL, return it (100%
+    authoritative, no search). Currently wired for RappelConso via the
+    existing repair_french_row; extend as more repair helpers appear."""
+    if regulator_apis is None:
+        return None
+    src = str(row.get("Source", "")).lower()
+    try:
+        if "rappelconso" in src or "rappel" in src:
+            fn = getattr(regulator_apis, "repair_french_row", None)
+            if fn:
+                return fn(row) or None
+    except Exception:
+        return None
+    return None
+
+
+# ─── Tool schema + executor ──────────────────────────────────────────────
+
+def _tools() -> List[Dict[str, Any]]:
+    return [
+        {"type": "function", "function": {
+            "name": "web_search",
+            "description": "Search the web (Searx) for the OFFICIAL regulator "
+                           "recall page. Query with company + product + hazard "
+                           "+ country. Returns title/url/snippet list.",
+            "parameters": {"type": "object", "properties": {
+                "query": {"type": "string"}}, "required": ["query"]}}},
+        {"type": "function", "function": {
+            "name": "fetch_page",
+            "description": "Fetch readable text of a URL to confirm it is the "
+                           "real recall page and read its fields.",
+            "parameters": {"type": "object", "properties": {
+                "url": {"type": "string"}}, "required": ["url"]}}},
+    ]
+
+
+def _executor(seen: set) -> Callable[[str, dict], str]:
+    def run(name: str, args: dict) -> str:
+        if name == "web_search":
+            q = (args or {}).get("query", "").strip()
+            if searx_search is None:
+                return json.dumps({"error": "searx unavailable"})
+            try:
+                res = searx_search.search(q, max_results=8)
+                slim = [{"title": r.get("title", ""), "url": r.get("url", ""),
+                         "snippet": (r.get("content", "") or "")[:200]}
+                        for r in (res or [])[:8]]
+                return json.dumps({"query": q, "results": slim})
+            except Exception as e:  # noqa: BLE001
+                return json.dumps({"error": f"{type(e).__name__}: {e}"})
+        if name == "fetch_page":
+            url = (args or {}).get("url", "").strip()
+            if not url:
+                return json.dumps({"error": "no url"})
+            text, status = _fetch_page_text(url)
+            seen.add(url)
+            return json.dumps({"url": url, "status": status, "text": text})
+        return json.dumps({"error": f"unknown tool {name}"})
+    return run
+
+
+# ─── Prompt ──────────────────────────────────────────────────────────────
+
+SYSTEM = (
+    "You are the FIRST of two independent food-safety reviewers verifying a "
+    "recall before publication. Your special responsibility is to FIND and "
+    "CONFIRM the correct OFFICIAL regulator URL for this exact recall, then "
+    "verify the fields against that page. You have web_search (to find the "
+    "official page) and fetch_page (to read it). You never invent facts: if "
+    "the page does not state something, leave it empty. You answer ONLY with "
+    "the final JSON object the user specifies — no prose, no markdown."
+)
+
+
+def build_prompt(row: Dict[str, Any], suggested_url: Optional[str]) -> str:
+    def g(k):
+        return row.get(k, "") or ""
+    hint = (f"\nA regulator API suggests this canonical URL — verify it first "
+            f"with fetch_page: {suggested_url}\n" if suggested_url else "")
+    return f"""Confirm the official URL and verify this candidate recall.
+{hint}
+═══ CANDIDATE (from gap-finder, may contain errors) ═══
+Date     : {g('Date')}
+Source   : {g('Source')}
+Country  : {g('Country')}
+Company  : {g('Company')}
+Brand    : {g('Brand')}
+Product  : {g('Product')}
+Pathogen : {g('Pathogen')}
+Reason   : {g('Reason')}
+URL      : {g('URL')}   (may be missing, wrong, or a news mirror)
+
+STEPS:
+1. If a canonical URL was suggested above, fetch_page it first. Otherwise, or
+   if it is wrong, web_search with company + product + hazard + country to
+   find the OFFICIAL regulator page (not a news article, not a listing index).
+2. fetch_page the candidate official URL. Confirm the page is THIS specific
+   recall (same product + hazard + company). If it is a listing/index/news
+   page or a different recall, search again.
+3. Read the page and check each field. Note corrections but do NOT rewrite the
+   row here — reviewer 2 does the final field correction. Your job: confirm a
+   real, official recall page exists and the core identity (product + hazard)
+   matches.
+4. If the Pathogen field is empty, fill it from the page (this candidate may be
+   an enrichment row that needs its hazard identified).
+5. Decide:
+   - "confirm" : a real 2026+ food recall with a confirmed OFFICIAL url.
+   - "reject"  : not a recall / pre-2026 / non-food / no official page findable
+                 / duplicate / hazard clearly out of food-safety scope.
+
+Return ONLY this JSON:
+{{
+  "decision": "confirm" | "reject",
+  "reason": "<one line>",
+  "official_url": "<the confirmed official regulator URL>",
+  "pathogen_if_found": "<pathogen from page if the row was missing it, else ''>",
+  "identity_matches": true | false
+}}"""
+
+
+# ─── Agent core ──────────────────────────────────────────────────────────
+
+def review_url(row: Dict[str, Any]) -> Dict[str, Any]:
+    if llama_client is None or not llama_client.is_configured():
+        return {"decision": "needs_human",
+                "reason": "llama not configured", "official_url": row.get("URL", ""),
+                "pathogen_if_found": "", "identity_matches": False}
+    if llama_client.is_open():
+        return {"decision": "needs_human", "reason": "llama circuit open",
+                "official_url": row.get("URL", ""), "pathogen_if_found": "",
+                "identity_matches": False}
+
+    suggested = _regulator_url(row)
+    seen: set = set()
+    msgs = [
+        {"role": "system", "content": SYSTEM},
+        {"role": "user", "content": build_prompt(row, suggested)},
+    ]
+    out = llama_client.chat(messages=msgs, tools=_tools(),
+                            tool_executor=_executor(seen),
+                            temperature=0.0, max_tokens=600)
+    if not out:
+        return {"decision": "needs_human", "reason": "no llama response",
+                "official_url": row.get("URL", ""), "pathogen_if_found": "",
+                "identity_matches": False}
+    txt = out.strip()
+    if txt.startswith("```"):
+        txt = txt.strip("`")
+        if txt.lower().startswith("json"):
+            txt = txt[4:]
+    try:
+        parsed = json.loads(txt)
+    except json.JSONDecodeError:
+        import re
+        m = re.search(r"\{.*\}", txt, re.DOTALL)
+        if not m:
+            return {"decision": "needs_human",
+                    "reason": f"unparseable: {txt[:100]}",
+                    "official_url": row.get("URL", ""),
+                    "pathogen_if_found": "", "identity_matches": False}
+        try:
+            parsed = json.loads(m.group(0))
+        except json.JSONDecodeError:
+            return {"decision": "needs_human", "reason": "json parse fail",
+                    "official_url": row.get("URL", ""),
+                    "pathogen_if_found": "", "identity_matches": False}
+    parsed.setdefault("decision", "needs_human")
+    parsed.setdefault("official_url", row.get("URL", ""))
+    parsed.setdefault("pathogen_if_found", "")
+    parsed.setdefault("identity_matches", False)
+    # A regulator-supplied URL overrides if the model didn't find a better one
+    if suggested and not parsed.get("official_url"):
+        parsed["official_url"] = suggested
+    return parsed
+
+
+# ─── Status advance logic (mirrors the two-reviewer model) ───────────────
+
+def next_status(cur: str, decision: str) -> Optional[str]:
+    """Given current status + Agent-1 decision, return the new status,
+    or None to leave unchanged. Reject → 'rejected'."""
+    if decision == "reject":
+        return S_REJECTED
+    if decision != "confirm":
+        return None  # needs_human → leave as-is
+    # confirm: advance one step in the first-reviewer lane
+    if cur == S_GAP:
+        return S_GAP_V1
+    if cur == S_GAP_V1:
+        return S_GAP_V2
+    if cur == S_ENRICH:
+        return S_GAP_V2   # enrichment confirmed → hand to reviewer 2
+    return None
+
+
+# ─── Sheet I/O ───────────────────────────────────────────────────────────
+
+def _load_sheet(xlsx: Path, sheet: str) -> List[Dict[str, Any]]:
+    import openpyxl
+    wb = openpyxl.load_workbook(xlsx, read_only=True, data_only=True)
+    if sheet not in wb.sheetnames:
+        return []
+    ws = wb[sheet]
+    headers = [c.value for c in ws[1]]
+    rows = []
+    for r in ws.iter_rows(min_row=2, values_only=True):
+        row = {h: ("" if v is None else v) for h, v in zip(headers, r) if h}
+        if any(str(v).strip() for v in row.values()):
+            rows.append(row)
+    return rows
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--xlsx", type=Path, default=Path("docs/data/recalls.xlsx"))
+    ap.add_argument("--commit", type=str, default="false")
+    ap.add_argument("--source-filter", type=str, default=None)
+    ap.add_argument("--limit", type=int, default=0)
+    args = ap.parse_args()
+    commit = args.commit.lower() in ("1", "true", "yes", "on")
+
+    full_pending = _load_sheet(args.xlsx, "Pending")
+    # Agent 1 acts only on its lane
+    work_idx = [i for i, r in enumerate(full_pending)
+                if str(r.get("Status", "")).strip() in AGENT1_STATUSES]
+    if args.source_filter:
+        sf = args.source_filter.lower()
+        work_idx = [i for i in work_idx
+                    if sf in str(full_pending[i].get("Source", "")).lower()]
+    if args.limit and args.limit > 0:
+        work_idx = work_idx[:args.limit]
+
+    print(f"Agent 1 (URL confirm / reviewer 1): {len(work_idx)} rows in lane "
+          f"{sorted(AGENT1_STATUSES)} (commit={commit})")
+    if not work_idx:
+        print("Nothing in Agent 1's lane.")
+        return 0
+
+    today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+    counts = {"confirm": 0, "reject": 0, "needs_human": 0}
+    rejected_flags: Dict[int, str] = {}
+
+    for n, idx in enumerate(work_idx, 1):
+        row = full_pending[idx]
+        cur = str(row.get("Status", "")).strip()
+        res = review_url(row)
+        dec = res.get("decision", "needs_human")
+        counts[dec if dec in counts else "needs_human"] += 1
+        newstat = next_status(cur, dec)
+
+        # Apply confirmed URL + enrichment pathogen in place
+        if dec == "confirm":
+            if res.get("official_url"):
+                row["URL"] = res["official_url"]
+            if (not str(row.get("Pathogen", "")).strip()
+                    and res.get("pathogen_if_found")):
+                row["Pathogen"] = res["pathogen_if_found"]
+            if newstat:
+                row["Status"] = newstat
+                note = str(row.get("Notes", "")).strip()
+                row["Notes"] = (note + f" [url-agent {today}: {cur}→{newstat} "
+                                f"URL confirmed]").strip()[:1000]
+        elif dec == "reject":
+            rejected_flags[idx] = f"URL agent: {res.get('reason','')[:280]}"
+
+        print(f"  [{n}/{len(work_idx)}] {dec.upper():11s} {cur:18s} "
+              f"→ {newstat or cur:16s} {str(row.get('Product',''))[:34]:34s}"
+              f" | {res.get('reason','')[:44]}")
+
+    print(f"\n{'='*60}")
+    print(f"confirm: {counts['confirm']}  reject: {counts['reject']}  "
+          f"needs_human: {counts['needs_human']}")
+    print(f"{'='*60}")
+
+    if not commit:
+        print("\nDRY RUN — no writes. Set --commit true to advance statuses.")
+        return 0
+
+    # Write-back: apply rejects via promote_approved (first-reviewer mode →
+    # archive_immediately=False, matching url_gate's original call), and save
+    # the status advances we made in place.
+    from pipeline.merge_master import (  # type: ignore
+        promote_approved, sort_rows, save_xlsx_with_pending)
+    approved_existing = _load_sheet(args.xlsx, "Recalls")
+
+    new_approved, remaining, archived = promote_approved(
+        pending=full_pending,
+        approved_existing=approved_existing,
+        rejected_flags=rejected_flags,
+        archive_immediately=False,   # first reviewer: stamp, don't hard-evict
+    )
+    final_approved = sort_rows(approved_existing + new_approved)
+    final_pending = sort_rows(remaining)
+    save_xlsx_with_pending(final_approved, final_pending, Path(args.xlsx),
+                           newly_rejected_rows=archived)
+
+    try:
+        from pipeline.merge_master import mirror_json_from_xlsx, JSON_PATH  # type: ignore
+        mirror_json_from_xlsx(Path(args.xlsx), JSON_PATH)
+    except Exception:
+        pass
+
+    print(f"\n✓ Agent 1 complete: {counts['confirm']} advanced, "
+          f"{len(archived)} rejected/archived, {len(remaining)} in Pending.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
