@@ -9,20 +9,20 @@
       "by_region": {
         "Europe": 17
       },
-      "generated": "2026-07-29T04:10:40Z"
+      "generated": "2026-07-29T07:11:01Z"
     },
     {
       "date": "2026-07-27",
       "url": "daily/2026-07-27.html",
       "total": 3,
-      "tier1": 1,
+      "tier1": 2,
       "outbreak": 0,
       "by_region": {
         "North America": 1,
         "Europe": 1,
         "Unknown": 1
       },
-      "generated": "BACKFILLED 2026-07-29"
+      "generated": "2026-07-29T07:11:02Z"
     },
     {
       "date": "2026-07-26",
@@ -31,7 +31,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "BACKFILLED 2026-07-29"
+      "generated": "2026-07-29T07:11:02Z"
     },
     {
       "date": "2026-07-25",
@@ -40,7 +40,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "BACKFILLED 2026-07-29"
+      "generated": "2026-07-29T07:11:02Z"
     },
     {
       "date": "2026-07-24",
@@ -52,7 +52,7 @@
         "Europe": 21,
         "Asia": 1
       },
-      "generated": "BACKFILLED 2026-07-29"
+      "generated": "2026-07-29T07:11:03Z"
     },
     {
       "date": "2026-07-23",
@@ -64,7 +64,7 @@
         "Europe": 8,
         "North America": 1
       },
-      "generated": "BACKFILLED 2026-07-29"
+      "generated": "2026-07-29T07:11:03Z"
     },
     {
       "date": "2026-07-22",
@@ -76,7 +76,7 @@
         "Europe": 5,
         "North America": 1
       },
-      "generated": "BACKFILLED 2026-07-29"
+      "generated": "2026-07-29T07:11:03Z"
     }
   ]
 }
