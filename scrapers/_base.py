@@ -162,6 +162,31 @@ def fetch(
         return fetch_via_curl_cffi(url, method=method, timeout=timeout, **kwargs)
     try:
         return session.request(method, url, timeout=timeout, **kwargs)
+    except requests.exceptions.SSLError as exc:
+        # ── TLS chain fallback (audit 2026-07-28) ───────────────────────
+        # rappel.conso.gouv.fr began serving an INCOMPLETE certificate
+        # chain — the intermediate CA is not presented, so Python's ssl
+        # cannot build a path to a trusted root:
+        #   SSLError: certificate verify failed: unable to get local
+        #   issuer certificate
+        # Browsers do not notice; they fetch the missing intermediate via
+        # the certificate's AIA extension. requests/certifi does not.
+        #
+        # Unhandled, this stopped publication for four days: every
+        # RappelConso fiche failed to fetch, claude_check recorded SKIP,
+        # and 24 rows (16 Listeria, 3 STEC, 2 Salmonella, ...) were parked
+        # unpromotable while each run reported a green "+0 promoted".
+        #
+        # curl follows AIA and completes the chain, so retry once through
+        # curl_cffi. Verification stays ON — this is chain-building, never
+        # verify=False. If curl also fails the caller still sees a failure
+        # and nothing is promoted.
+        log.warning("fetch: TLS chain error for %s (%s) — retrying via curl_cffi",
+                    url, str(exc)[:120])
+        resp = fetch_via_curl_cffi(url, method=method, timeout=timeout, **kwargs)
+        if resp is None:
+            log.warning("fetch: curl_cffi TLS fallback also failed for %s", url)
+        return resp
     except requests.RequestException as exc:
         log.warning("fetch failed for %s: %s", url, exc)
         return None
