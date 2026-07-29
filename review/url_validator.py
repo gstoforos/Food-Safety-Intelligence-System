@@ -170,19 +170,20 @@ def check_url(url: str, do_get_fallback: bool = True) -> Dict[str, Any]:
         return {"url": url, "status": code, "ok": False, "generic": False,
                 "error": f"HTTP {code}", "reason": "http_error"}
     except requests.exceptions.SSLError as e:
-        # ── AUDIT 2026-07-28 ────────────────────────────────────────────
-        # An SSL/TLS failure says our client could not complete a
-        # handshake. It says NOTHING about whether the recall URL is
-        # valid. Before this branch existed it fell through to the bare
-        # `except Exception` below and was classified reason="network",
-        # ok=False — i.e. "broken URL" — which stamped the row rejected
-        # and, combined with claude_check's second look, archived real
-        # recalls to Weekly_Rejected.
+        # ── AUDIT 2026-07-29 ────────────────────────────────────────────
+        # An SSL/TLS failure means OUR client could not complete a
+        # handshake. It says nothing about whether the recall URL is
+        # valid. Previously this fell through to the bare `except
+        # Exception` below and was classified reason="network", ok=False
+        # — i.e. "broken URL" — which stamped the row rejected and,
+        # combined with claude_check's second look at the same failure,
+        # archived real recalls to Weekly_Rejected.
         #
         # rappel.conso.gouv.fr serves an INCOMPLETE chain (missing
-        # intermediate); browsers recover via AIA, Python does not.
-        # Treated as tolerated, exactly like BOT_HOSTILE_DOMAINS: the row
-        # stays eligible and the content reviewer decides on the merits.
+        # intermediate); browsers recover via the certificate's AIA
+        # extension, Python does not. Tolerated exactly like
+        # BOT_HOSTILE_DOMAINS: the row stays eligible and the content
+        # reviewer decides on the merits.
         return {"url": url, "status": 0, "ok": True, "generic": False,
                 "error": f"tls chain ({str(e)[:60]}) — tolerated",
                 "reason": "tls_error"}
