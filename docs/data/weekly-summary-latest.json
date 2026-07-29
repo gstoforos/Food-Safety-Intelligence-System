@@ -8,17 +8,17 @@
   "week_end": "2026-07-23",
   "week_start_display": "17 Jul",
   "week_end_display": "23 Jul 2026",
-  "generated_utc": "2026-07-28T01:36:45.423792+00:00",
+  "generated_utc": "2026-07-29T01:46:30.563943+00:00",
   "stats": {
-    "total": 63,
-    "tier1": 53,
+    "total": 68,
+    "tier1": 57,
     "outbreaks": 3,
-    "delta": 8,
-    "delta_pct": 15
+    "delta": 13,
+    "delta_pct": 24
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 35,
+    "cases": 38,
     "pct": 56
   },
   "ai_lead_paragraph": "",
@@ -86,12 +86,12 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Origin: Germany | Notifying: Switzerland",
-      "brand": "CHE",
-      "product": "Listeria monocytogenes in prepared thai dish",
-      "country": "Germany",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860928"
+      "company": "Auchan",
+      "brand": "Auchan",
+      "product": "auchan langue de porc en gelee tranchee 180g",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22932/Interne"
     }
   ],
   "country_count": 15
