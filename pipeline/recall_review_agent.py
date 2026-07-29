@@ -249,12 +249,27 @@ STEPS:
      page.
    - needs_human if: the page cannot be read or the case is genuinely
      ambiguous.
+4. VERIFY THE OUTBREAK FLAG (strict — this drives the tier). Set outbreak = 1
+   ONLY if the page (or a linked official health page) states one or more of:
+     • a specific number of confirmed/probable illnesses/cases
+       ("166 illnesses", "two cases", "26 hospitalised")
+     • the word outbreak / épidémie / Ausbruch / brote / epidemia describing
+       THIS hazard (not generic boilerplate)
+     • an epidemiological investigation triggered by reported illness
+     • death(s) attributed to the hazard
+     • a named ongoing outbreak with published case counts
+   Set outbreak = 0 if: the notice says no reported illnesses / aucun cas
+   signalé; routine sampling caught it (lab test only, product not consumed);
+   criminal tampering with no consumption; or "outbreak" appears only in a
+   brand name or boilerplate. Default to 0 when in doubt.
 
 Return ONLY this JSON (no markdown):
 {{
   "verdict": "approve" | "reject" | "needs_human",
   "reason": "<one line>",
   "verified_url": "<the URL you actually confirmed, may differ from input>",
+  "outbreak": 0 | 1,
+  "outbreak_evidence": "<verbatim quote from page, max 200 chars, '' if 0>",
   "fields": {{
     "Date": "", "Company": "", "Brand": "", "Product": "",
     "Pathogen": "", "Reason": "", "Country": "", "Region": ""
@@ -323,6 +338,8 @@ def review_row(row: Dict[str, Any]) -> Dict[str, Any]:
     parsed.setdefault("verdict", "needs_human")
     parsed.setdefault("fields", {})
     parsed.setdefault("verified_url", row.get("URL", ""))
+    parsed.setdefault("outbreak", row.get("Outbreak", 0))
+    parsed.setdefault("outbreak_evidence", "")
     return parsed
 
 
@@ -464,6 +481,11 @@ def main() -> int:
                       "Reason", "Country", "Region", "URL"):
                 if merged.get(k):
                     full_pending[idx][k] = merged[k]
+            # Outbreak is verified explicitly (0 or 1) — always apply it,
+            # including a correction from 1→0, since it drives the tier bump.
+            ob = review.get("outbreak")
+            if ob in (0, 1, "0", "1"):
+                full_pending[idx]["Outbreak"] = int(ob)
             applied_corrections += 1
             cur = str(full_pending[idx].get("Status", "")).strip()
             if cur in _ADVANCE_FROM:
