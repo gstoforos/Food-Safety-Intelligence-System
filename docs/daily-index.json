@@ -3,13 +3,13 @@
     {
       "date": "2026-07-28",
       "url": "daily/2026-07-28.html",
-      "total": 16,
-      "tier1": 14,
+      "total": 17,
+      "tier1": 15,
       "outbreak": 0,
       "by_region": {
-        "Europe": 16
+        "Europe": 17
       },
-      "generated": "BACKFILLED 2026-07-29"
+      "generated": "2026-07-29T04:10:40Z"
     },
     {
       "date": "2026-07-27",

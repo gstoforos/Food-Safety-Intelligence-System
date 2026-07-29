@@ -256,6 +256,22 @@
   "Notes": "magasins u [url-gate 2026-07-28: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-28: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_gap_v2'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.]"
  },
  {
+  "Date": "2026-07-28",
+  "Source": "FSAI",
+  "Company": "Peklimar",
+  "Brand": "Peklimar",
+  "Product": "Packs of the implicated sausagesRecall of specific batches of Peklimar Metla Lososiowa and Peklimar Metla Brunszwicka sausages",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Recall of specific batches of Peklimar Metla Lososiowa and Peklimar Metla Brunszwicka sausages Recall of specific batches of Peklimar Metla Lososiowa and Peklimar Metla Brunszwicka sausages due to the presence of Listeria monocytogenes Tuesday, 28 July 2026 Alert Summary Category 2: For Information Alert Notification: 2026.46 Product Identification: Please see table below. Batch Code Please see table below for batch code and use-by dates. Country Of Origin: Poland Message: The below batches of Peklimar Metla Lososiowa and Peklimar Metla Brunszwicka sausages are being recalled due to the presence of Listeria monocytogenes . Recall notices will be displayed at point-of-sale. Implicated products and batches: Product name: Approximate pack size (g): Batch code: Use-by date: Peklimar Metka Loso",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-peklimar-metla-losos",
+  "Notes": "source_id=FSAI-recall-of-specific-batches-of-peklimar-metla-losos [via official-feed collector] [gemini-enrich 2026-07-29: Company ''→'Peklimar'] [gemini-enrich 2026-07-29: Brand ''→'Peklimar'] [gap-gate 2026-07-29: pending_gap → pending_gap_v1] [claude-check 2026-07-29: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-29: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+ },
+ {
   "Date": "2026-07-27",
   "Source": "CFIA",
   "Company": "106978 Canada Ltée (Yannick Fromagerie)",
