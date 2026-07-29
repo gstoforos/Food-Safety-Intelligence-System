@@ -46,7 +46,7 @@ import json
 import logging
 import time
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 from typing import List, Dict, Any, Optional, Tuple
 
 import requests as _requests
@@ -61,6 +61,8 @@ from pipeline.merge_master import (  # noqa: E402
     rebuild_daily_briefs_for_promoted,
     STATUS_REJECTED, STATUS_PENDING,
     STATUS_PENDING_GAP, STATUS_PENDING_GAP_V1, STATUS_PENDING_GAP_V2,
+    STATUS_PENDING_RETRY,
+    NON_PROMOTABLE_STATUSES,
     STATUS_PENDING_ENRICHMENT,
     mark_rejected_with_counter,
 )
@@ -535,6 +537,24 @@ def _fetch_page_text(url: str) -> Tuple[Optional[str], Optional[str]]:
                 headers=_FETCH_HEADERS,
                 allow_redirects=True,
             )
+        except _requests.exceptions.SSLError as exc:
+            # ── TLS chain fallback (audit 2026-07-28) ───────────────────
+            # rappel.conso.gouv.fr serves an INCOMPLETE certificate chain
+            # (missing intermediate). Python's ssl cannot build a trust
+            # path; browsers recover via the certificate's AIA extension.
+            # Unhandled this halted publication for four days — see
+            # STATUS_PENDING_RETRY in merge_master for the full incident.
+            # curl follows AIA, so retry through curl_cffi. Verification
+            # stays ON. If curl also fails the row stays in Pending, which
+            # is the correct fail-closed outcome.
+            resp = fetch_via_curl_cffi(
+                url, timeout=FETCH_TIMEOUT_S,
+                headers=_FETCH_HEADERS,
+                allow_redirects=True,
+            )
+            if resp is None:
+                return None, (f"fetch error: SSLError (TLS chain) and curl_cffi "
+                              f"fallback failed: {str(exc)[:90]}")
         except Exception as exc:
             return None, f"fetch error: {type(exc).__name__}: {str(exc)[:120]}"
 
@@ -1558,6 +1578,83 @@ def check_row(row: Dict[str, Any]) -> Tuple[str, Dict[str, str], Optional[str]]:
 # Main
 # ---------------------------------------------------------------------------
 
+
+# ---------------------------------------------------------------------------
+# Parking-lot staleness alarm (audit 2026-07-28)
+# ---------------------------------------------------------------------------
+PARKING_STALE_WARN_DAYS = int(os.getenv("PARKING_STALE_WARN_DAYS", "2"))
+PARKING_STALE_ERROR_DAYS = int(os.getenv("PARKING_STALE_ERROR_DAYS", "4"))
+
+
+def _row_age_days(row: dict, today: date) -> Optional[int]:
+    """Days since the row was scraped (ScrapedAt), falling back to Date."""
+    for field in ("ScrapedAt", "DateAdded", "Date"):
+        raw = str(row.get(field) or "")[:10]
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", raw):
+            continue
+        try:
+            return (today - date.fromisoformat(raw)).days
+        except ValueError:
+            continue
+    return None
+
+
+def _report_parking_lot_staleness(pending_rows: List[Dict[str, Any]]) -> int:
+    """Count non-promotable Pending rows and shout if any are stale.
+
+    Returns the number of rows at or over the error threshold.
+
+    A row in a non-promotable status is, by definition, a recall the
+    system has decided not to publish yet. That is fine for hours. It is
+    an incident after days — it means some upstream check can never
+    complete, and a food-safety platform is silently sitting on Tier-1
+    recalls. Publication stopping is exactly as reportable as publishing
+    something wrong.
+    """
+    today = datetime.now(timezone.utc).date()
+    stuck: Dict[str, List[int]] = {}
+    worst = 0
+    for row in pending_rows:
+        status = (row.get("Status") or "").strip().lower()
+        if status not in NON_PROMOTABLE_STATUSES:
+            continue
+        age = _row_age_days(row, today)
+        if age is None:
+            continue
+        stuck.setdefault(status, []).append(age)
+        worst = max(worst, age)
+
+    if not stuck:
+        log.info("Parking lot clear — no non-promotable rows in Pending.")
+        return 0
+
+    total = sum(len(v) for v in stuck.values())
+    log.info("Parking lot: %d non-promotable row(s); oldest %d day(s).",
+             total, worst)
+    for status, ages in sorted(stuck.items()):
+        log.info("   %-20s %3d row(s), oldest %d day(s)",
+                 status, len(ages), max(ages))
+
+    n_error = sum(1 for ages in stuck.values() for a in ages
+                  if a >= PARKING_STALE_ERROR_DAYS)
+    n_warn = sum(1 for ages in stuck.values() for a in ages
+                 if PARKING_STALE_WARN_DAYS <= a < PARKING_STALE_ERROR_DAYS)
+
+    if n_error:
+        print(f"::error title=FSIS publication stalled::{n_error} Pending row(s) "
+              f"have been non-promotable for {PARKING_STALE_ERROR_DAYS}+ days "
+              f"(oldest {worst}). Recalls are being withheld — check the "
+              f"reviewer fetch path (TLS/403/404) before the next run.",
+              flush=True)
+        log.error("STALL: %d row(s) parked >= %d days (oldest %d).",
+                  n_error, PARKING_STALE_ERROR_DAYS, worst)
+    elif n_warn:
+        print(f"::warning title=FSIS parking lot ageing::{n_warn} Pending row(s) "
+              f"parked {PARKING_STALE_WARN_DAYS}+ days (oldest {worst}).",
+              flush=True)
+    return n_error
+
+
 def main() -> int:
     t0 = datetime.now(timezone.utc)
     log.info("=" * 60)
@@ -1688,16 +1785,38 @@ def main() -> int:
     # stay in Pending until the next reviewer run can verify them. Skipped
     # rows that were ALREADY in a gap-gating status are left alone — they
     # were going to stay in Pending anyway.
+    # ── AUDIT 2026-07-28 — parking must not DEMOTE a normal row ────────
+    # This used to write STATUS_PENDING_GAP_V2, pushing an ordinary
+    # scraper row into the gap-finder state machine whose only exit is a
+    # successful Claude pass. When the fetch failure was permanent that
+    # became a closed loop: fetch fails -> SKIP -> pending_gap_v2 ->
+    # cannot promote -> exit needs a pass -> needs the fetch. On
+    # 2026-07-24..28 a broken TLS chain on rappel.conso.gouv.fr locked 24
+    # rows (16 Listeria, 3 STEC, 2 Salmonella, ...) for four days while
+    # every run reported a green "+0 promoted".
+    #
+    # STATUS_PENDING_RETRY is still non-promotable — the fail-closed
+    # guarantee is unchanged, an unverified row never reaches Recalls —
+    # but it keeps the row's identity as a plain pending row, and the
+    # advance loop below flips it straight back to "pending" on the next
+    # successful pass, in the same run, so it promotes immediately.
     parked = 0
     for idx in skipped_idx:
         row = pending[idx]
         cur_status = (row.get("Status") or "").strip().lower()
-        if cur_status in ("", "pending"):
-            row["Status"] = STATUS_PENDING_GAP_V2
+        if cur_status in ("", "pending", STATUS_PENDING_RETRY):
+            row["Status"] = STATUS_PENDING_RETRY
+            # Consecutive-skip counter, so a permanently unreachable row is
+            # visible rather than silently cycling forever.
+            notes = (row.get("Notes") or "").strip()
+            m_prev = re.search(r"\[retry (\d+)x\]", notes)
+            n_try = (int(m_prev.group(1)) + 1) if m_prev else 1
+            notes = re.sub(r"\s*\[retry \d+x\]\s*", " ", notes).strip()
+            row["Notes"] = (notes + f" [retry {n_try}x]").strip()[:1000]
             parked += 1
     if parked:
-        log.info("Parked %d skipped row(s) in pending_gap_v2 to prevent "
-                 "auto-promotion (will retry next reviewer run)", parked)
+        log.info("Parked %d skipped row(s) in %s to prevent auto-promotion "
+                 "(re-checked next reviewer run)", parked, STATUS_PENDING_RETRY)
 
     # ── Gap-finder gating state machine advance (audit 2026-04-29, fixed 2026-05-13) ──
     # Operator's design: 2 reviewers (url_gate_gemini + claude_check). Both
@@ -1721,7 +1840,8 @@ def main() -> int:
             continue  # SKIP — leave in parking lot (audit 2026-05-08)
         row = pending[idx]
         cur = (row.get("Status") or "").strip()
-        if cur in (STATUS_PENDING_GAP_V1, STATUS_PENDING_GAP_V2):
+        if cur in (STATUS_PENDING_GAP_V1, STATUS_PENDING_GAP_V2,
+                   STATUS_PENDING_RETRY):
             row["Status"] = STATUS_PENDING
             notes = (row.get("Notes") or "").strip()
             tag = (f"[gap-gate {today_iso2}: "
@@ -1846,6 +1966,22 @@ def main() -> int:
         if not ok:
             log.error("Git push failed")
             return 1
+
+    # ── Parking-lot staleness alarm (audit 2026-07-28) ──────────────────
+    # The 2026-07-24..28 outage was invisible: every run finished green
+    # with "+0 promoted" while 24 verified Tier-1 recalls sat frozen in
+    # the parking lot. Nothing counted how long rows had been stuck, so
+    # nothing could alarm. This does.
+    #
+    # Emits GitHub Actions annotations, so a stall shows up on the run
+    # itself rather than only in a log nobody reads. Never fails the run —
+    # the workbook is already written and committed by this point, and
+    # turning a data-quality signal into a red build would block the very
+    # runs that recover the backlog.
+    try:
+        _stuck = _report_parking_lot_staleness(final_pending)
+    except Exception as _exc:            # never let telemetry break the run
+        log.warning("parking-lot staleness check failed: %s", _exc)
 
     elapsed = (datetime.now(timezone.utc) - t0).total_seconds()
     log.info("=" * 60)

@@ -131,6 +131,32 @@ STATUS_PENDING_ENRICHMENT = "pending_enrichment"
 # default Status=STATUS_PENDING.
 OK_PENDING_ENRICHMENT = "OK_PENDING_ENRICHMENT"
 
+# ── Transient-failure parking (audit 2026-07-28) ───────────────────────
+# A row whose content check could not COMPLETE — the page fetch failed, the
+# reviewer API errored, the response didn't parse — must not auto-promote
+# (nothing verified it), but it is not a gap-finder row either.
+#
+# Before this status existed, claude_check parked such rows in
+# STATUS_PENDING_GAP_V2. That was a DEMOTION: a normal scraper row got
+# pushed into the gap-finder state machine, whose only exit is a
+# successful Claude pass. When the fetch failure was permanent rather
+# than transient the row could never escape:
+#
+#     fetch fails -> SKIP -> parked in pending_gap_v2 -> blocked from
+#     promotion -> exit requires a Claude pass -> which requires the
+#     fetch -> which still fails.
+#
+# 2026-07-24..28: rappel.conso.gouv.fr began serving an incomplete TLS
+# chain. 24 rows locked solid — 16 Listeria, 3 STEC, 2 Salmonella,
+# Norovirus, Ochratoxin, Aflatoxin — while every run reported a green
+# "+0 promoted". Publication stopped for four days and nothing alarmed.
+#
+# STATUS_PENDING_RETRY keeps the fail-closed guarantee (still
+# non-promotable) while preserving the row's identity as an ordinary
+# pending row: claude_check flips it straight back to "pending" on the
+# next successful pass, in the same run, so it promotes immediately.
+STATUS_PENDING_RETRY = "pending_retry"
+
 GAP_GATING_STATUSES = frozenset({
     STATUS_PENDING_GAP, STATUS_PENDING_GAP_V1, STATUS_PENDING_GAP_V2,
 })
@@ -141,6 +167,7 @@ GAP_GATING_STATUSES = frozenset({
 # semantics for code that introspects it).
 NON_PROMOTABLE_STATUSES = GAP_GATING_STATUSES | frozenset({
     STATUS_PENDING_ENRICHMENT,
+    STATUS_PENDING_RETRY,
 })
 
 
