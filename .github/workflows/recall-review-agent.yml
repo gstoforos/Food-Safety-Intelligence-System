@@ -524,6 +524,15 @@ jobs:
               applied_corrections = 0
 
               # Approvals — write corrected fields IN PLACE; leave out of rejected_flags
+              # Also advance gap-gating / enrichment statuses to plain 'pending' so
+              # promote_approved will actually promote them (it skips pending_gap* and
+              # pending_enrichment). This replicates claude_check.py's documented
+              # state-machine advance (audit 2026-04-29 / 2026-05-11) — the review
+              # agent is the 2nd/final reviewer, so an approval flips the gate.
+              _ADVANCE_FROM = {"pending_gap_v1", "pending_gap_v2", "pending_retry",
+                               "pending_enrichment"}
+              today_iso = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+              gap_advanced = 0
               for merged, review in results["approve"]:
                   idx = url_to_idx.get(str(merged.get("URL", "")).strip())
                   if idx is None:
@@ -534,6 +543,14 @@ jobs:
                           if merged.get(k):
                               full_pending[idx][k] = merged[k]
                       applied_corrections += 1
+                      cur = str(full_pending[idx].get("Status", "")).strip()
+                      if cur in _ADVANCE_FROM:
+                          full_pending[idx]["Status"] = "pending"
+                          notes = str(full_pending[idx].get("Notes", "")).strip()
+                          tag = (f"[review-agent {today_iso}: {cur} → pending "
+                                 f"(Qwen verified, final reviewer)]")
+                          full_pending[idx]["Notes"] = (notes + " " + tag).strip()[:1000]
+                          gap_advanced += 1
 
               # Rejects → rejected_flags (index → reason)
               for merged, review in results["reject"]:
@@ -555,7 +572,8 @@ jobs:
                   archive_immediately=True,
               )
 
-              print(f"\nApplied {applied_corrections} field-corrected approvals.")
+              print(f"\nApplied {applied_corrections} field-corrected approvals "
+                    f"({gap_advanced} gap/enrichment rows advanced to 'pending').")
               print(f"Promotion: {len(new_approved)} → Recalls, "
                     f"{len(remaining)} remain in Pending, "
                     f"{len(archived_rejected)} archived to Rejected.")
