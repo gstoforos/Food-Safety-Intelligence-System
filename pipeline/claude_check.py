@@ -46,7 +46,7 @@ import json
 import logging
 import time
 from pathlib import Path
-from datetime import datetime, timezone, date, date
+from datetime import datetime, timezone, date
 from typing import List, Dict, Any, Optional, Tuple
 
 import requests as _requests
@@ -61,8 +61,6 @@ from pipeline.merge_master import (  # noqa: E402
     rebuild_daily_briefs_for_promoted,
     STATUS_REJECTED, STATUS_PENDING,
     STATUS_PENDING_GAP, STATUS_PENDING_GAP_V1, STATUS_PENDING_GAP_V2,
-    STATUS_PENDING_RETRY,
-    NON_PROMOTABLE_STATUSES,
     STATUS_PENDING_RETRY,
     NON_PROMOTABLE_STATUSES,
     STATUS_PENDING_ENRICHMENT,
@@ -554,19 +552,6 @@ def _fetch_page_text(url: str) -> Tuple[Optional[str], Optional[str]]:
                 headers=_FETCH_HEADERS,
                 allow_redirects=True,
             )
-            if resp is None:
-                return None, (f"fetch error: SSLError (TLS chain) and curl_cffi "
-                              f"fallback failed: {str(exc)[:90]}")
-        except _requests.exceptions.SSLError as exc:
-            # AUDIT 2026-07-28 — rappel.conso.gouv.fr serves an INCOMPLETE
-            # certificate chain. Browsers recover via the cert's AIA
-            # extension; requests/certifi cannot. curl does, so retry once
-            # through curl_cffi. Verification stays ON — chain-building,
-            # never verify=False. If curl also fails the row stays in
-            # Pending, which is the correct fail-closed outcome.
-            resp = fetch_via_curl_cffi(
-                url, timeout=FETCH_TIMEOUT_S, headers=_FETCH_HEADERS,
-                allow_redirects=True)
             if resp is None:
                 return None, (f"fetch error: SSLError (TLS chain) and curl_cffi "
                               f"fallback failed: {str(exc)[:90]}")
@@ -1671,85 +1656,31 @@ def _report_parking_lot_staleness(pending_rows: List[Dict[str, Any]]) -> int:
 
 
 
-PARKING_STALE_WARN_DAYS = int(os.getenv("PARKING_STALE_WARN_DAYS", "2"))
-PARKING_STALE_ERROR_DAYS = int(os.getenv("PARKING_STALE_ERROR_DAYS", "4"))
-
-
-def _row_age_days(row: dict, today: date):
-    for field in ("ScrapedAt", "DateAdded", "Date"):
-        raw = str(row.get(field) or "")[:10]
-        if not re.match(r"^\d{4}-\d{2}-\d{2}$", raw):
-            continue
-        try:
-            return (today - date.fromisoformat(raw)).days
-        except ValueError:
-            continue
-    return None
-
-
-def _report_parking_lot_staleness(pending_rows) -> int:
-    """Alarm when recalls sit unpublished. Publication stopping is exactly
-    as reportable as publishing something wrong — the 2026-07-24..28
-    outage was invisible because nothing measured this."""
-    today = datetime.now(timezone.utc).date()
-    stuck, worst = {}, 0
-    for row in pending_rows:
-        st = (row.get("Status") or "").strip().lower()
-        if st not in NON_PROMOTABLE_STATUSES:
-            continue
-        age = _row_age_days(row, today)
-        if age is None:
-            continue
-        stuck.setdefault(st, []).append(age)
-        worst = max(worst, age)
-    if not stuck:
-        log.info("Parking lot clear.")
-        return 0
-    total = sum(len(v) for v in stuck.values())
-    log.info("Parking lot: %d non-promotable row(s); oldest %d day(s).", total, worst)
-    for st, ages in sorted(stuck.items()):
-        log.info("   %-20s %3d row(s), oldest %d day(s)", st, len(ages), max(ages))
-    n_err = sum(1 for a in (x for v in stuck.values() for x in v)
-                if a >= PARKING_STALE_ERROR_DAYS)
-    n_warn = sum(1 for a in (x for v in stuck.values() for x in v)
-                 if PARKING_STALE_WARN_DAYS <= a < PARKING_STALE_ERROR_DAYS)
-    if n_err:
-        print(f"::error title=FSIS publication stalled::{n_err} Pending row(s) "
-              f"non-promotable for {PARKING_STALE_ERROR_DAYS}+ days (oldest "
-              f"{worst}). Recalls are being withheld — check the reviewer "
-              f"fetch path (TLS/403/404).", flush=True)
-        log.error("STALL: %d row(s) parked >= %d days (oldest %d).",
-                  n_err, PARKING_STALE_ERROR_DAYS, worst)
-    elif n_warn:
-        print(f"::warning title=FSIS parking lot ageing::{n_warn} row(s) parked "
-              f"{PARKING_STALE_WARN_DAYS}+ days (oldest {worst}).", flush=True)
-    return n_err
-
-
-
 def _is_dead_url_reason(reason: str) -> bool:
     """True only when a SKIP reason proves the URL itself is GONE.
 
-    AUDIT 2026-07-28. claude_check escalates a SKIP into a rejection when a
+    AUDIT 2026-07-29. claude_check escalates a SKIP into a rejection when a
     prior reviewer already flagged the row and this reviewer confirms the
     URL is dead. The old inline test counted ANY fetch problem — network,
     timeout, TLS, HTTP 5xx, 403 — as confirmation. That is not two
     reviewers agreeing; it is ONE infrastructure fault observed twice.
 
-    When rappel.conso.gouv.fr started serving an incomplete TLS chain,
-    url_gate saw SSLError -> Status=rejected, then claude_check saw the
-    SAME SSLError -> "second reviewer confirms" -> archived. 23 rows were
-    destroyed, 19 with real pathogens (10 Listeria, 5 Salmonella,
-    Aflatoxin, Cronobacter, Norovirus): Bienheureux camembert, Vpf jambon
-    sec, Maubert brie, Fleury Michon, LDC/Lidl, Auchan charcuterie.
+    When rappel.conso.gouv.fr began serving an incomplete TLS chain,
+    url_validator saw SSLError -> Status=rejected, then claude_check saw
+    the SAME SSLError -> "second reviewer confirms" -> archived to
+    Weekly_Rejected. 23 rows destroyed, 19 carrying real pathogens
+    (10 Listeria, 5 Salmonella, Aflatoxin, Cronobacter, Norovirus):
+    Bienheureux camembert, Vpf jambon sec, Maubert brie, Fleury Michon,
+    LDC/Lidl, Auchan charcuterie — all genuine French Tier-1 recalls,
+    discarded because our TLS stack could not complete a handshake.
 
     Only a response proving the resource is gone counts. 404/410 come from
-    a server that ANSWERED — that is evidence about the URL. A timeout, a
-    reset, a TLS handshake failure or a 5xx is evidence about the network
-    or the server's health, never about the recall.
+    a server that ANSWERED — evidence about the URL. A timeout, a reset, a
+    TLS failure or a 5xx is evidence about the network or the server's
+    health, never about the recall.
 
-    Extracted from the inline conditional so it is directly testable —
-    the previous inline form could not be regression-guarded.
+    Extracted from the inline conditional so it can be regression-tested;
+    the previous inline form could not be.
     """
     r = (reason or "").lower()
     transient = any(t in r for t in (
@@ -1860,29 +1791,8 @@ def main() -> int:
             # RejectedBy='unknown' or similar single-reviewer state — never
             # archived because SKIP didn't count as a verdict.
             cur_status = (row.get("Status") or "").strip().lower()
-
-            # ── AUDIT 2026-07-28 — a TRANSPORT failure is not a verdict ────
-            # This escalation exists so that two reviewers independently
-            # confirming a DEAD URL archives the row. The old trigger list
-            # counted ANY fetch problem — network, timeout, TLS, HTTP 5xx,
-            # 403 — as confirmation. That is not two reviewers agreeing; it
-            # is ONE infrastructure fault observed twice.
-            #
-            # When rappel.conso.gouv.fr started serving an incomplete TLS
-            # chain, url_gate saw SSLError -> Status=rejected, then
-            # claude_check saw the SAME SSLError -> "second reviewer
-            # confirms" -> archived to Weekly_Rejected. 23 rows were
-            # permanently discarded that way, 19 of them carrying real
-            # pathogens: 10 Listeria, 5 Salmonella, Aflatoxin, Cronobacter,
-            # Norovirus. Bienheureux camembert, Vpf jambon sec, Maubert
-            # brie, Fleury Michon, LDC/Lidl, Auchan charcuterie — all real
-            # French Tier-1 recalls, thrown away because our TLS stack
-            # could not complete a handshake.
-            #
-            # Only a response that proves the URL itself is gone counts.
-            # 404/410 come from a server that answered — that is evidence.
-            # A timeout, a reset, a TLS failure or a 5xx is evidence about
-            # the network or the server's health, never about the recall.
+            # AUDIT 2026-07-29 — a TRANSPORT failure is not a verdict.
+            # See _is_dead_url_reason() for the incident this prevents.
             url_fetch_fail = _is_dead_url_reason(reason)
             if cur_status == STATUS_REJECTED and url_fetch_fail:
                 rejected_flags[idx] = (
@@ -2107,11 +2017,6 @@ def main() -> int:
     try:
         _stuck = _report_parking_lot_staleness(final_pending)
     except Exception as _exc:            # never let telemetry break the run
-        log.warning("parking-lot staleness check failed: %s", _exc)
-
-    try:
-        _report_parking_lot_staleness(final_pending)
-    except Exception as _exc:
         log.warning("parking-lot staleness check failed: %s", _exc)
 
     elapsed = (datetime.now(timezone.utc) - t0).total_seconds()
