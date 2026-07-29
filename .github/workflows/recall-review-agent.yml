@@ -424,18 +424,30 @@ jobs:
           # ─── Sheet I/O ───────────────────────────────────────────────────────────
 
           def load_pending(xlsx: Path) -> Tuple[List[Dict[str, Any]], List[str]]:
+              return _load_sheet(xlsx, "Pending"), _sheet_headers(xlsx, "Pending")
+
+
+          def _load_sheet(xlsx: Path, sheet: str) -> List[Dict[str, Any]]:
               import openpyxl
               wb = openpyxl.load_workbook(xlsx, read_only=True, data_only=True)
-              if "Pending" not in wb.sheetnames:
-                  return [], []
-              ws = wb["Pending"]
+              if sheet not in wb.sheetnames:
+                  return []
+              ws = wb[sheet]
               headers = [c.value for c in ws[1]]
               rows = []
               for r in ws.iter_rows(min_row=2, values_only=True):
                   row = {h: ("" if v is None else v) for h, v in zip(headers, r) if h}
                   if any(str(v).strip() for v in row.values()):
                       rows.append(row)
-              return rows, [h for h in headers if h]
+              return rows
+
+
+          def _sheet_headers(xlsx: Path, sheet: str) -> List[str]:
+              import openpyxl
+              wb = openpyxl.load_workbook(xlsx, read_only=True, data_only=True)
+              if sheet not in wb.sheetnames:
+                  return []
+              return [c.value for c in wb[sheet][1] if c.value]
 
 
           def main() -> int:
@@ -463,6 +475,7 @@ jobs:
               results = {"approve": [], "reject": [], "needs_human": []}
               for i, row in enumerate(rows, 1):
                   review = review_row(row)
+                  review["_orig_url"] = str(row.get("URL", "")).strip()
                   verdict = review.get("verdict", "needs_human")
                   merged = apply_review(row, review)
                   results[verdict if verdict in results else "needs_human"].append(
@@ -480,30 +493,95 @@ jobs:
 
               if not commit:
                   print("\nDRY RUN — no writes. Set --commit true to apply:")
-                  print("  approvals → Recalls, rejects → Weekly_Rejected, "
-                        "needs_human stays in Pending.")
+                  print("  approvals → Recalls (corrected fields), "
+                        "rejects → Weekly_Rejected, needs_human stays in Pending.")
                   return 0
 
-              # Write-back through the pipeline's own helpers so dedup + formatting
-              # match everything else.
+              # ── Write-back: mirror claude_check.py's final-reviewer sequence ──
+              # The review agent IS "Reviewer 2 — final verdict", so promote_approved
+              # is called with archive_immediately=True, exactly as claude_check does.
               try:
                   from pipeline.merge_master import (  # type: ignore
                       promote_approved, sort_rows, save_xlsx_with_pending,
-                      mark_rejected_with_counter)
+                      mirror_json_from_xlsx)
               except Exception as e:
-                  print(f"ERROR importing write helpers: {e}", file=sys.stderr)
-                  print("Adjust the import to match your merge_master API.",
-                        file=sys.stderr)
+                  print(f"ERROR importing merge_master helpers: {e}", file=sys.stderr)
                   return 1
 
-              approved_rows = [m for m, _ in results["approve"]]
-              # promote_approved expects rows tagged as approved; wiring mirrors
-              # claude_check's usage. Left explicit for the operator to confirm.
-              print(f"\nWould promote {len(approved_rows)} rows to Recalls, "
-                    f"reject {len(results['reject'])} to Weekly_Rejected.")
-              print("Write-back wiring is intentionally explicit — confirm the "
-                    "promote_approved / mark_rejected_with_counter calls match your "
-                    "merge_master signatures before enabling in production.")
+              XLSX_PATH = Path(args.xlsx)
+
+              # Recalls (approved_existing) + FULL Pending, so indices line up.
+              approved_existing = _load_sheet(args.xlsx, "Recalls")
+              full_pending = _load_sheet(args.xlsx, "Pending")
+
+              url_to_idx: Dict[str, int] = {}
+              for i, pr in enumerate(full_pending):
+                  u = str(pr.get("URL", "")).strip()
+                  if u:
+                      url_to_idx[u] = i
+
+              rejected_flags: Dict[int, str] = {}
+              applied_corrections = 0
+
+              # Approvals — write corrected fields IN PLACE; leave out of rejected_flags
+              for merged, review in results["approve"]:
+                  idx = url_to_idx.get(str(merged.get("URL", "")).strip())
+                  if idx is None:
+                      idx = url_to_idx.get(str(review.get("_orig_url", "")).strip())
+                  if idx is not None:
+                      for k in ("Date", "Company", "Brand", "Product", "Pathogen",
+                                "Reason", "Country", "Region", "URL"):
+                          if merged.get(k):
+                              full_pending[idx][k] = merged[k]
+                      applied_corrections += 1
+
+              # Rejects → rejected_flags (index → reason)
+              for merged, review in results["reject"]:
+                  idx = url_to_idx.get(str(merged.get("URL", "")).strip())
+                  if idx is not None:
+                      rejected_flags[idx] = f"Review agent: {review.get('reason','')[:280]}"
+
+              # needs_human → hold in Pending: set Status so promote_approved won't
+              # promote it (it promotes rows whose Status is 'pending' and not flagged).
+              for merged, review in results["needs_human"]:
+                  idx = url_to_idx.get(str(merged.get("URL", "")).strip())
+                  if idx is not None:
+                      full_pending[idx]["Status"] = "needs_human"
+
+              new_approved, remaining, archived_rejected = promote_approved(
+                  pending=full_pending,
+                  approved_existing=approved_existing,
+                  rejected_flags=rejected_flags,
+                  archive_immediately=True,
+              )
+
+              print(f"\nApplied {applied_corrections} field-corrected approvals.")
+              print(f"Promotion: {len(new_approved)} → Recalls, "
+                    f"{len(remaining)} remain in Pending, "
+                    f"{len(archived_rejected)} archived to Rejected.")
+
+              final_approved = sort_rows(approved_existing + new_approved)
+              final_pending = sort_rows(remaining)
+              save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH,
+                                     newly_rejected_rows=archived_rejected)
+              try:
+                  from pipeline.merge_master import JSON_PATH  # type: ignore
+                  mirror_json_from_xlsx(XLSX_PATH, JSON_PATH)
+              except Exception:
+                  pass
+
+              try:
+                  from pipeline.weekly_review_capture import record_promotions  # noqa
+                  record_promotions(new_approved, xlsx_path=XLSX_PATH)
+              except Exception as e:
+                  print(f"  (Weekly_Review capture skipped: {e})")
+              try:
+                  from pipeline.weekly_rejected_capture import record_rejections  # noqa
+                  record_rejections(archived_rejected, xlsx_path=XLSX_PATH)
+              except Exception as e:
+                  print(f"  (Weekly_Rejected capture skipped: {e})")
+
+              print("\n✓ Write-back complete via promote_approved (final-reviewer mode).")
               return 0
 
 
