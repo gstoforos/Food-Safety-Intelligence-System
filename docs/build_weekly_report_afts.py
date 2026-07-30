@@ -595,8 +595,12 @@ def render_top5_row(rank, r):
     # Tier / outbreak chips (best-effort; missing fields render nothing)
     chips = []
     tier = _safe_int(r.get("Tier"), 99)
+    # Same three-value fix as the table renderer below: a Tier-3 row used to
+    # append no chip at all here, so the card silently showed no tier.
     if   tier == 1: chips.append('<span class="chip chip-tier-1">Tier&nbsp;1</span>')
     elif tier == 2: chips.append('<span class="chip chip-tier-2">Tier&nbsp;2</span>')
+    elif tier in (3, 4): chips.append(
+        '<span class="chip chip-tier-3">Tier&nbsp;{}</span>'.format(tier))
     if r.get("Outbreak") in (True, 1, "1", "TRUE", "True", "true", "Y", "Yes"):
         chips.append('<span class="chip chip-outbreak">Outbreak</span>')
     chip_html = " ".join(chips)
@@ -1458,7 +1462,20 @@ def _recall_row(rank, r, top_n=5):
     source = r.get("Source","") or ""; url = r.get("URL","") or ""
     dt = _fmt_date(r.get("Date",""))
     dot = _dot_color(pathogen); ps = pathogen.split("(")[0].strip()
-    chip = '<span class="chip-tier1">T1</span>' if tier==1 else '<span class="chip-tier2">T2</span>'
+    # AUDIT 2026-07-30 — this was a binary if/else over a THREE-valued field:
+    #     'T1' if tier==1 else 'T2'
+    # so every Tier-3 recall was labelled "T2" in every weekly report. 45 rows
+    # across W14-W29 were mislabelled (mycotoxins, histamine, physical
+    # hazards, heavy metals, allergens — all correctly Tier 3 in the
+    # workbook). It read as stale HTML, but a full rebuild reproduced it
+    # exactly: the reports were never stale, the renderer could not express
+    # Tier 3. Anything that is not 1 or 2 now renders its real tier.
+    if tier == 1:
+        chip = '<span class="chip-tier1">T1</span>'
+    elif tier == 2:
+        chip = '<span class="chip-tier2">T2</span>'
+    else:
+        chip = '<span class="chip-tier3">T{}</span>'.format(_safe_int(tier, 3))
     obc = ' <span class="chip-outbreak">OUTBREAK</span>' if ob else ""
     rc = "rank-num" if rank<=top_n else "rank-num rank-num--multi"
     sd = AUTHORITY_DISPLAY.get(source, source)
@@ -1689,6 +1706,11 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
 }
 .chip-tier2 {
   display:inline-block; background:var(--amber); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
+}
+.chip-tier3 {
+  display:inline-block; background:var(--dim); color:#fff;
   font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
   padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
 }
