@@ -240,6 +240,18 @@ STEPS:
    Translate Product / Pathogen / Reason / Region to English. Keep Company in
    its original language. Use ORIGINAL publication date (YYYY-MM-DD), not any
    later "update" date.
+   CRITICAL HAZARD CHECK (a common gap-finder error):
+   - The Pathogen field must name the ACTUAL biological hazard stated on the
+     page. If the page describes an undeclared ALLERGEN (peanuts, milk, soy,
+     gluten, sulphites, etc.), a foreign body (glass, plastic, metal), or a
+     chemical hazard, then it is NOT a pathogen — set Pathogen to "" and put
+     the real hazard in Reason. Never leave a pathogen name (Listeria,
+     Salmonella, E. coli…) in the Pathogen field unless the page explicitly
+     names that organism.
+   - Watch for internal contradiction: if the Pathogen field says one thing
+     (e.g. "Listeria") but the Reason field / page says another (e.g.
+     "undeclared peanuts"), the page wins — correct Pathogen to match the
+     page, even if that means clearing it.
 3. Decide scope:
    - reject if: not a recall page; pre-2026 date; pet/animal food; hazard
      outside the food-safety universe (labeling-only quality, non-food, etc.);
@@ -481,6 +493,13 @@ def main() -> int:
                       "Reason", "Country", "Region", "URL"):
                 if merged.get(k):
                     full_pending[idx][k] = merged[k]
+            # Pathogen may be intentionally CLEARED by the agent when the
+            # hazard is an allergen / foreign body / chemical (not a pathogen).
+            # merged only carries non-empty values, so consult the raw review
+            # fields dict: if it explicitly returned Pathogen == "" we honor it.
+            rfields = review.get("fields") or {}
+            if "Pathogen" in rfields and not str(rfields.get("Pathogen")).strip():
+                full_pending[idx]["Pathogen"] = ""
             # Outbreak is verified explicitly (0 or 1) — always apply it,
             # including a correction from 1→0, since it drives the tier bump.
             ob = review.get("outbreak")
