@@ -323,19 +323,30 @@ jobs:
              its original language. Use ORIGINAL publication date (YYYY-MM-DD), not any
              later "update" date.
              CRITICAL — NEVER FABRICATE COMPANY OR BRAND (this is a known failure):
-             - Company and Brand must appear VERBATIM on the page. If you cannot find a
-               brand named on the page, the Brand is "Unbranded" — never invent one.
-             - If the page says the product is sold loose / at the counter / à la coupe
-               / vendu au rayon / sans marque / "unbranded", then Brand = "Unbranded"
-               and Company is the responsible distributor/retailer named on the page
-               (e.g. the supermarket chain), NOT a made-up producer name.
-             - If a previous step already put a brand/company on the row but the page
+             - RASFF EXCEPTION (Source contains "RASFF"): RASFF notifications have a
+               FIXED format that is CORRECT — do NOT treat it as fabricated and do NOT
+               change it to "Unbranded":
+                 Company = "Origin: <origin country> | Notifying: <notifying country>"
+                 Brand   = the 3-letter ISO code of the NOTIFYING country (e.g. DEU,
+                           NLD, ROU, LVA)
+                 Country = the ORIGIN country (where the hazard product came from)
+                 Notes   = keep the "[RASFF #<number>; classification: ...]" block
+               For RASFF rows, verify these against the RASFF notification page and the
+               notification number; fill/correct them to this exact format. NEVER put
+               "Unbranded" on a RASFF row and never blank its Company.
+             - NON-RASFF rows only: Company and Brand must appear VERBATIM on the page.
+               If no brand is named on the page, Brand is "Unbranded" — never invent one.
+             - NON-RASFF: if the page says the product is sold loose / at the counter /
+               à la coupe / vendu au rayon / sans marque / "unbranded", then
+               Brand = "Unbranded" and Company is the responsible distributor/retailer
+               named on the page (e.g. the supermarket chain), NOT a made-up producer.
+             - If a previous step put a brand/company on a NON-RASFF row but the page
                does not contain that exact name, that value was fabricated — replace it
-               with what the page actually says (or "Unbranded"). Do NOT trust a value
+               with what the page actually says (or "Unbranded"). Do not trust a value
                just because it is already in the row; verify every one against the page.
-             - A plausible-sounding brand that is not on the page is a HALLUCINATION.
-               When unsure, use "Unbranded" / leave Company empty and return
-               needs_human rather than guessing.
+             - A plausible-sounding brand not on the page (non-RASFF) is a
+               HALLUCINATION. When unsure, use "Unbranded" / leave Company empty and
+               return needs_human rather than guessing.
              CRITICAL HAZARD / SCOPE CHECK (a common gap-finder error):
              - This system tracks PATHOGEN / microbial-contamination food recalls only.
                If the page shows the recall is for an UNDECLARED ALLERGEN (peanuts,
