@@ -224,9 +224,17 @@ STEPS:
 4. If the Pathogen field is empty, fill it from the page (this candidate may be
    an enrichment row that needs its hazard identified).
 5. Decide:
-   - "confirm" : a real 2026+ food recall with a confirmed OFFICIAL url.
-   - "reject"  : not a recall / pre-2026 / non-food / no official page findable
-                 / duplicate / hazard clearly out of food-safety scope.
+   - "confirm" : a real 2026+ food recall whose hazard is a MICROBIAL PATHOGEN
+                 (Listeria, Salmonella, E. coli/STEC, Cronobacter, botulinum,
+                 norovirus, hepatitis A, etc.) explicitly stated on a confirmed
+                 OFFICIAL regulator page.
+   - "reject"  : not a recall / pre-2026 / non-food / pet food / no official
+                 page findable / duplicate / OR the hazard is an UNDECLARED
+                 ALLERGEN (peanuts, milk, soy, gluten, sulphites, egg, sesame,
+                 mustard…), a FOREIGN BODY (glass, plastic, metal), or a
+                 chemical / quality / labelling-only issue with no microbial
+                 pathogen. Those are OUT OF SCOPE — reject them here so they
+                 never reach reviewer 2.
 
 Return ONLY this JSON:
 {{
