@@ -10,6 +10,10 @@ name: Recall URL Agent — Reviewer 1 (self-hosted Qwen)
 # VPS moves to a Mac, only the LLAMA_BASE_URL secret changes.
 
 on:
+  schedule:
+    - cron: "35 2 * * *"   # 05:35 Athens
+    - cron: "35 12 * * *"   # 15:35 Athens
+    - cron: "35 20 * * *"   # 23:35 Athens
   workflow_dispatch:
     inputs:
       skip_commit:
