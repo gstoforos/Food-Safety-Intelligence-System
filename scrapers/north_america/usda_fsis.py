@@ -79,13 +79,64 @@ DESIGN DECISIONS (mirrors fda_listing.py for codebase consistency)
      emitted with langcode="English" (FSIS issues bilingual records),
      so dropping Spanish doesn't lose data.
 
-6. URL — taken from field_recall_url or url, never synthesised from
-   the title slug. If both fields are missing, the row is dropped and
-   logged. (Project rule: real URLs only — no slug guessing.)
+6. URL — taken from field_recall_url / url / field_url /
+   field_en_press_release / field_press_release, never synthesised from
+   the title slug. Site-relative values are resolved against the FSIS
+   origin (see AUDIT 2026-07-29 below); if every field is missing the
+   row is dropped and logged. (Project rule: real URLs only — no slug
+   guessing.)
 
 7. Both Recalls and Public Health Alerts kept in scope. PHAs are
    sometimes pathogen-driven (e.g. raw beef PHAs for STEC). Filtered
    downstream by Pathogen + Outbreak fields, not by recall type.
+
+AUDIT 2026-07-29 — three stacked bugs, all fixed here
+=====================================================
+The 2026-05-10 rewrite above made the failure paths loud, and the loud
+output was then misread as "quiet week". FSIS contributed 0 rows from
+2026-06-25 to 2026-07-29. Run log:
+
+    USDA FSIS: 0 pathogen recalls in 7-day window (2013 records scanned,
+    skipped: archived=1832 spanish=5 no_date=0 old=174 no_pathogen=0
+    no_url=0 bad_url=2)
+
+2013 - 1832 - 5 - 174 - 2 = 0. Filters run in the order
+archived -> spanish -> date -> old -> url -> pathogen, so those 2
+bad_url drops were the ONLY records to survive the 7-day window, and
+no_pathogen=0 proves nothing ever reached the pathogen scan.
+
+  A. URL GATE. _ACCEPTABLE_URL_PREFIXES demands an absolute
+     https://www.fsis.usda.gov/... link. The API emits a site-relative
+     path, so the gate rejected 100% of in-window records.
+     -> _canonicalise_fsis_url() resolves relative / bare-http / no-www /
+        protocol-relative forms before the gate, without ever rewriting a
+        foreign host into an FSIS one. Any surviving rejection now logs
+        the offending value at WARNING, and a scrape where zero records
+        reach the pathogen scan logs at ERROR.
+
+  B. PATHOGEN VOCABULARY. PATHOGEN_KEYWORDS used for_languages("en"),
+     which is pathogens ∪ recall_signals. Every FSIS title contains
+     "Recalls", so the gate matched everything and stamped
+     Pathogen="recall" on misbranding / retraction / import-violation
+     rows — the exact regression _pathogen_vocab.py was split to prevent.
+     Invisible because bug A rejected the rows first; fixing A alone
+     would have flooded Pending with junk.
+     -> switched to pathogens("en") (149 hazard terms, still includes
+        "metal fragment" / "glass fragment").
+
+  C. PATHOGEN IDENTITY. _matched_pathogen_keyword returns the FIRST
+     vocabulary hit and the vocabulary lists generic before serotype, so
+     a real "E. coli O157:H7" recall stored as
+     "Escherichia coli (generic)" — downgrading a STEC Class I.
+     -> the matched keyword now decides SCOPE only; identity comes from
+        the authoritative field_recall_reason when it normalises.
+
+  D. TEST COVERAGE (the reason A-C survived). The test module lived at
+     scrapers/test_usda_fsis_scraper.py while pytest.ini sets
+     `testpaths = tests`, so CI never collected it; run by hand, 14 of
+     15 tests failed because _MockResponse had no .status_code. Moved to
+     tests/, mock completed, and every fixture URL shape above is now
+     pinned by a regression test.
 """
 from __future__ import annotations
 from datetime import datetime, timedelta
@@ -94,8 +145,8 @@ import logging
 import re
 
 from scrapers._base import BaseScraper, fetch
-from scrapers._models import Recall
-from scrapers._pathogen_vocab import for_languages
+from scrapers._models import Recall, normalize_pathogen
+from scrapers._pathogen_vocab import pathogens as _pathogen_vocab_en
 
 log = logging.getLogger(__name__)
 
@@ -162,6 +213,52 @@ def _parse_date_any(s: str) -> Optional[datetime]:
         return None
 
 
+_FSIS_ORIGIN = "https://www.fsis.usda.gov"
+
+# Hosts that are genuinely FSIS and may be rewritten to the canonical
+# origin. Anything else is left untouched so the prefix gate still
+# rejects it — this helper normalises, it never launders a foreign URL
+# into an fsis.usda.gov one.
+_FSIS_HOSTS = ("www.fsis.usda.gov", "fsis.usda.gov")
+
+
+def _canonicalise_fsis_url(url: str) -> str:
+    """Resolve an FSIS API link to a canonical absolute FSIS URL.
+
+    The Recall API does not emit absolute links. Observed / documented
+    shapes, all of which must end up as ``https://www.fsis.usda.gov/...``:
+
+        /recalls-alerts/maple-leaf-foods-inc--recalls-not-ready-eat-...
+        recalls-alerts/acme-deli                (no leading slash)
+        http://www.fsis.usda.gov/recalls-alerts/x   (bare http)
+        https://fsis.usda.gov/recalls-alerts/x      (no www)
+
+    Anything already canonical is returned unchanged, and any URL on a
+    host that is not FSIS is returned unchanged so the caller's prefix
+    gate still rejects it.
+    """
+    u = (url or "").strip()
+    if not u:
+        return ""
+
+    # Protocol-relative → https
+    if u.startswith("//"):
+        u = "https:" + u
+
+    if u.startswith(("http://", "https://")):
+        scheme, _, rest = u.partition("://")
+        host, slash, path = rest.partition("/")
+        if host.lower() not in _FSIS_HOSTS:
+            return u          # foreign host — leave it for the gate to reject
+        return _FSIS_ORIGIN + (slash + path if slash else "")
+
+    # Site-relative path. Only accept path-looking values; a bare word or
+    # a mailto:/tel: style scheme must NOT be turned into an FSIS URL.
+    if ":" in u.split("/", 1)[0]:
+        return u              # some other scheme — leave it to be rejected
+    return _FSIS_ORIGIN + ("" if u.startswith("/") else "/") + u
+
+
 # Date field names tried in priority order. The first one that yields
 # a parseable date wins. Logged per-scrape so the schema is observable.
 _DATE_FIELD_CANDIDATES = (
@@ -180,7 +277,28 @@ class USDAFSISScraper(BaseScraper):
 
     BASE_URL = "https://www.fsis.usda.gov/fsis/api/recall/v/1"
 
-    PATHOGEN_KEYWORDS = for_languages("en")
+    # AUDIT 2026-07-29 — was `for_languages("en")`, which is
+    # pathogens ∪ recall_signals. recall_signals is the 9-word set
+    # ("recall", "recalled", "recalls", "recalling", "withdrawal",
+    # "withdrawn", "withdraws", "alert", "warning") and _pathogen_vocab.py
+    # says so in its own header:
+    #
+    #     "Generic recall-event verbs and warning words. Useful for 'is this
+    #      a recall page' detection but should NOT be used as a pathogen
+    #      filter."
+    #
+    # …because every FSIS record contains the word "Recalls" in its title.
+    # The pathogen gate therefore matched 100% of records and stamped
+    # Pathogen="recall" on misbranding, retraction, undeclared-allergen and
+    # import-violation rows — the exact failure the vocab split was created
+    # to end. It stayed invisible only because the URL gate above was
+    # rejecting every in-window record first; fixing that bug alone would
+    # have flooded Pending with junk.
+    #
+    # pathogens("en") is the 149-term hazard vocabulary and still includes
+    # the non-microbial hazards this scraper must catch ("metal fragment",
+    # "glass fragment", …).
+    PATHOGEN_KEYWORDS = _pathogen_vocab_en("en")
 
     # FSIS recall page URL prefix. Anything outside this path is rejected
     # (defensive — the API should only emit canonical recall URLs but we
@@ -265,6 +383,10 @@ class USDAFSISScraper(BaseScraper):
         n_skipped_bad_url = 0
         n_skipped_no_url = 0
 
+        # Actual offending values behind bad_url / no_url, so a schema
+        # change is visible in the run log instead of being a silent zero.
+        bad_url_samples: List[str] = []
+
         # Track which date-field actually held parseable dates this run
         date_field_hits: dict = {}
 
@@ -304,19 +426,55 @@ class USDAFSISScraper(BaseScraper):
                     n_skipped_old += 1
                     continue
 
-                # URL — never synthesised. Try canonical fields then
-                # fall back to whatever string-y URL-ish thing is present.
+                # URL — never synthesised from a title slug. Try canonical
+                # fields, then fall back to the documented press-release
+                # fields.
+                #
+                # AUDIT 2026-07-29 — this gate was silently destroying 100%
+                # of in-window FSIS recalls. The production run logged:
+                #     2013 records scanned, skipped: archived=1832 spanish=5
+                #     no_date=0 old=174 no_pathogen=0 no_url=0 bad_url=2
+                # 2013 - 1832 - 5 - 174 - 2 = 0, and the checks run in the
+                # order archived -> spanish -> date -> old -> url, so those 2
+                # bad_url drops were the ONLY two records to survive the
+                # 7-day window. Both died here. no_pathogen=0 is the proof:
+                # nothing ever reached the pathogen scan.
+                #
+                # Cause: the value the API emits is not an absolute
+                # https://www.fsis.usda.gov/... link, so startswith() against
+                # _ACCEPTABLE_URL_PREFIXES could never be true.
+                #   * `field_recall_url` does not appear in the published FSIS
+                #     Recall API schema at all (checked against the official
+                #     API documentation PDF, 2026-07-29). The documented link
+                #     fields are field_en_press_release / field_press_release.
+                #   * pipeline/regulator_apis.py:399, written earlier against
+                #     live data, already carries the tell:
+                #         if not url.startswith("http"):
+                #             url = "https://www.fsis.usda.gov" + url
+                #     i.e. the API hands back a site-relative path.
+                # The unit-test fixture hard-codes absolute URLs, which is
+                # why the suite stayed green while production kept zeroing.
+                #
+                # Fix: canonicalise before the prefix test, and make any
+                # surviving rejection LOUD — log the offending value so a
+                # future schema change is diagnosable from one run log
+                # instead of another month of silent zeros.
                 url = (
                     rec.get("field_recall_url")
                     or rec.get("url")
                     or rec.get("field_url")
+                    or rec.get("field_en_press_release")
+                    or rec.get("field_press_release")
                     or ""
                 ).strip()
                 if not url:
                     n_skipped_no_url += 1
                     continue
+                url = _canonicalise_fsis_url(url)
                 if not any(url.startswith(p) for p in self._ACCEPTABLE_URL_PREFIXES):
                     n_skipped_bad_url += 1
+                    if len(bad_url_samples) < 5:
+                        bad_url_samples.append(url[:160])
                     continue
                 if url in seen_urls:
                     continue
@@ -334,6 +492,25 @@ class USDAFSISScraper(BaseScraper):
                 if not matched_kw:
                     n_skipped_no_pathogen += 1
                     continue
+
+                # AUDIT 2026-07-29 — the matched keyword decides SCOPE (is
+                # this in-scope at all?), but it must not decide IDENTITY.
+                # _matched_pathogen_keyword returns the first vocabulary hit,
+                # and the vocabulary lists the generic term before the
+                # serotype, so a genuine "E. coli O157:H7" recall matched
+                # "e. coli" and was stored as "Escherichia coli (generic)" —
+                # downgrading a STEC Class I to a generic-coli tier.
+                #
+                # FSIS publishes the authoritative cause in
+                # field_recall_reason ("E. coli O157:H7", "Listeria
+                # monocytogenes", …), which normalize_pathogen resolves
+                # correctly. Prefer it, exactly as the outbreak flag already
+                # prefers field_related_to_outbreak; fall back to the matched
+                # keyword only when the API field yields nothing canonical.
+                reason_field = _strip_html(rec.get("field_recall_reason") or "")
+                pathogen_value = matched_kw
+                if reason_field and normalize_pathogen(reason_field):
+                    pathogen_value = reason_field
 
                 # Outbreak — prefer authoritative API field, fall back to text.
                 api_outbreak = (rec.get("field_related_to_outbreak") or "").lower()
@@ -375,7 +552,7 @@ class USDAFSISScraper(BaseScraper):
                     Company=company[:150],
                     Brand="—",
                     Product=(products or title)[:300],
-                    Pathogen=matched_kw,         # canonical kw, normalised by _new_recall
+                    Pathogen=pathogen_value,     # normalised by _new_recall
                     Reason=(summary or title)[:400],
                     Class=cls,
                     URL=url,
@@ -397,4 +574,35 @@ class USDAFSISScraper(BaseScraper):
             n_skipped_bad_url,
             date_field_hits or "n/a",
         )
+
+        # A bad_url drop is never routine: the API is supposed to emit
+        # canonical recall links and _canonicalise_fsis_url() already
+        # absorbs every relative / http / no-www variant. If anything still
+        # falls through, the schema moved — say so at WARNING with the
+        # evidence attached.
+        if bad_url_samples:
+            log.warning(
+                "USDA FSIS: %d record(s) rejected by the URL gate AFTER "
+                "canonicalisation. This should be 0 — the API schema may have "
+                "changed. Offending values: %s",
+                n_skipped_bad_url, bad_url_samples,
+            )
+
+        # Zero in-window survivors means every fresh record was filtered
+        # before the pathogen scan ever ran. That is exactly how the
+        # 2026-05..07 FSIS blackout looked, so make it impossible to miss.
+        n_reached_pathogen_scan = (
+            n_total - n_skipped_archived - n_skipped_spanish
+            - n_skipped_no_date - n_skipped_old
+            - n_skipped_no_url - n_skipped_bad_url
+        )
+        if n_reached_pathogen_scan <= 0 and n_total > 0:
+            log.error(
+                "USDA FSIS: 0 of %d records reached the pathogen scan — every "
+                "in-window record was dropped by an upstream filter "
+                "(no_url=%d bad_url=%d old=%d archived=%d). This is a filter "
+                "fault, not a quiet week.",
+                n_total, n_skipped_no_url, n_skipped_bad_url,
+                n_skipped_old, n_skipped_archived,
+            )
         return out
