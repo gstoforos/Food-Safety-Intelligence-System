@@ -10,16 +10,10 @@ name: Recall URL Agent — Reviewer 1 (self-hosted Qwen)
 # VPS moves to a Mac, only the LLAMA_BASE_URL secret changes.
 
 on:
-  schedule:
-    # Agent 1 (URL confirm) — 10 min before Agent 2 in each slot.
-    # Times are UTC; Athens is EEST (UTC+3) in summer.
-    - cron: "35 2 * * *"    # 05:35 Athens (slot 1)
-    - cron: "35 12 * * *"   # 15:35 Athens (slot 2)
-    - cron: "35 20 * * *"   # 23:35 Athens (slot 3)
   workflow_dispatch:
     inputs:
-      commit:
-        description: "true = write approvals→Recalls, rejects→Weekly_Rejected; false = dry-run"
+      skip_commit:
+        description: "true = run but do NOT write/commit (dry-run). Default false = commit."
         required: false
         default: "false"
       source_filter:
@@ -308,9 +302,17 @@ jobs:
           4. If the Pathogen field is empty, fill it from the page (this candidate may be
              an enrichment row that needs its hazard identified).
           5. Decide:
-             - "confirm" : a real 2026+ food recall with a confirmed OFFICIAL url.
-             - "reject"  : not a recall / pre-2026 / non-food / no official page findable
-                           / duplicate / hazard clearly out of food-safety scope.
+             - "confirm" : a real 2026+ food recall whose hazard is a MICROBIAL PATHOGEN
+                           (Listeria, Salmonella, E. coli/STEC, Cronobacter, botulinum,
+                           norovirus, hepatitis A, etc.) explicitly stated on a confirmed
+                           OFFICIAL regulator page.
+             - "reject"  : not a recall / pre-2026 / non-food / pet food / no official
+                           page findable / duplicate / OR the hazard is an UNDECLARED
+                           ALLERGEN (peanuts, milk, soy, gluten, sulphites, egg, sesame,
+                           mustard…), a FOREIGN BODY (glass, plastic, metal), or a
+                           chemical / quality / labelling-only issue with no microbial
+                           pathogen. Those are OUT OF SCOPE — reject them here so they
+                           never reach reviewer 2.
 
           Return ONLY this JSON:
           {{
@@ -520,18 +522,22 @@ jobs:
           SEARX_URL: ${{ secrets.SEARX_URL }}
         run: |
           ARGS=""
-          [ -n "${{ inputs.source_filter }}" ] && ARGS="$ARGS --source-filter ${{ inputs.source_filter }}"
-          [ "${{ inputs.limit }}" != "0" ] && ARGS="$ARGS --limit ${{ inputs.limit }}"
-          echo "Running review agent (commit=${{ inputs.commit || 'true' }})"
+          SF="${{ github.event.inputs.source_filter || '' }}"
+          [ -n "$SF" ] && ARGS="$ARGS --source-filter $SF"
+          LIMIT="${{ github.event.inputs.limit || '0' }}"
+          [ -n "$LIMIT" ] && [ "$LIMIT" != "0" ] && ARGS="$ARGS --limit $LIMIT"
+          SKIP="${{ github.event.inputs.skip_commit || 'false' }}"
+          COMMIT=$([ "$SKIP" = "true" ] && echo false || echo true)
+          echo "Running (skip_commit=$SKIP → commit=$COMMIT)"
           python -m pipeline.recall_url_agent \
             --xlsx docs/data/recalls.xlsx \
-            --commit "${{ inputs.commit || 'true' }}" \
+            --commit "$COMMIT" \
             $ARGS | tee /tmp/review.log
 
           {
             echo "## Recall URL Agent (Reviewer 1) — $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M') Athens"
             echo ""
-            echo "Mode: **$([ "${{ inputs.commit || 'true' }}" = "true" ] && echo 'COMMIT' || echo 'DRY-RUN')**"
+            echo "Mode: **$([ "$COMMIT" = "true" ] && echo 'COMMIT' || echo 'DRY-RUN')**"
             echo ""
             echo '```'
             tail -30 /tmp/review.log
@@ -539,7 +545,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit xlsx changes (race-safe)
-        if: ${{ github.event_name == 'schedule' || inputs.commit == 'true' }}
+        if: ${{ github.event.inputs.skip_commit != 'true' }}
         run: |
           if [ -f scripts/safe_push.sh ]; then
             bash scripts/safe_push.sh \

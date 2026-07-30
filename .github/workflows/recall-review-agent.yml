@@ -318,28 +318,40 @@ jobs:
              Translate Product / Pathogen / Reason / Region to English. Keep Company in
              its original language. Use ORIGINAL publication date (YYYY-MM-DD), not any
              later "update" date.
-             CRITICAL HAZARD CHECK (a common gap-finder error):
-             - The Pathogen field must name the ACTUAL biological hazard stated on the
-               page. If the page describes an undeclared ALLERGEN (peanuts, milk, soy,
-               gluten, sulphites, etc.), a foreign body (glass, plastic, metal), or a
-               chemical hazard, then it is NOT a pathogen — set Pathogen to "" and put
-               the real hazard in Reason. Never leave a pathogen name (Listeria,
-               Salmonella, E. coli…) in the Pathogen field unless the page explicitly
-               names that organism.
-             - Watch for internal contradiction: if the Pathogen field says one thing
-               (e.g. "Listeria") but the Reason field / page says another (e.g.
-               "undeclared peanuts"), the page wins — correct Pathogen to match the
-               page, even if that means clearing it.
-          3. Decide scope:
-             - reject if: not a recall page; pre-2026 date; pet/animal food; hazard
-               outside the food-safety universe (labeling-only quality, non-food, etc.);
-               dead URL with no findable official page; duplicate of an existing recall.
-             - approve if: it is a real 2026+ food recall and every REQUIRED field
-               (Date, Company OR Brand, Product, Pathogen, URL) is verified against the
-               page.
-             - needs_human if: the page cannot be read or the case is genuinely
-               ambiguous.
-          4. VERIFY THE OUTBREAK FLAG (strict — this drives the tier). Set outbreak = 1
+             CRITICAL HAZARD / SCOPE CHECK (a common gap-finder error):
+             - This system tracks PATHOGEN / microbial-contamination food recalls only.
+               If the page shows the recall is for an UNDECLARED ALLERGEN (peanuts,
+               milk, soy, gluten, sulphites, egg, sesame, mustard, etc.), a FOREIGN
+               BODY (glass, plastic, metal), or a purely CHEMICAL / quality / labelling
+               issue with no microbial pathogen — it is OUT OF SCOPE. Set
+               verdict = "reject" with reason naming the actual hazard. Do NOT approve
+               it and do NOT leave a pathogen name on it.
+             - Watch for the internal contradiction that signals this error: the
+               Pathogen field says an organism (e.g. "Listeria") but the Reason / page
+               says "undeclared allergen". The PAGE wins — if the page says allergen,
+               reject as out of scope.
+             - Only a recall whose actual hazard is a microbial pathogen
+               (Listeria, Salmonella, E. coli/STEC, Cronobacter, botulinum, norovirus,
+               hepatitis A, etc.) explicitly stated on the page is IN SCOPE.
+          3. COMPLETENESS (strict — no missing data may be promoted). Every field that
+             the page makes available MUST be found and filled: Date, Company, Brand
+             (if the page names one), Product, Pathogen, Reason, Country, Region (if
+             the page/state names one). If a field is genuinely absent from the page,
+             it may stay empty — but you must have actually READ the page and confirmed
+             it is not there. If you cannot confirm a REQUIRED field (Date, Company OR
+             Brand, Product, Pathogen, URL) from the page, do NOT approve → return
+             "needs_human". Never approve a row with a required field you could not
+             verify or fill from the source.
+          4. Decide scope:
+             - reject if: not a recall page; pre-2026 date; pet/animal food; undeclared
+               allergen / foreign body / chemical / labelling-only (OUT OF SCOPE per
+               above); dead URL with no findable official page; duplicate.
+             - approve ONLY if: it is a real 2026+ microbial-pathogen food recall AND
+               every required field is verified/filled from the page AND every
+               page-available field has been filled.
+             - needs_human if: the page cannot be read, a required field cannot be
+               confirmed, or the case is genuinely ambiguous.
+          5. VERIFY THE OUTBREAK FLAG (strict — this drives the tier). Set outbreak = 1
              ONLY if the page (or a linked official health page) states one or more of:
                • a specific number of confirmed/probable illnesses/cases
                  ("166 illnesses", "two cases", "26 hospitalised")
