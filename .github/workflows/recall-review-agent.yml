@@ -10,16 +10,10 @@ name: Recall Review Agent (self-hosted Qwen)
 # VPS moves to a Mac, only the LLAMA_BASE_URL secret changes.
 
 on:
-  schedule:
-    # Agent 2 (deep review + promote) — 10 min after Agent 1.
-    # Times are UTC; Athens is EEST (UTC+3) in summer.
-    - cron: "45 2 * * *"    # 05:45 Athens (slot 1)
-    - cron: "45 12 * * *"   # 15:45 Athens (slot 2)
-    - cron: "45 20 * * *"   # 23:45 Athens (slot 3)
   workflow_dispatch:
     inputs:
-      commit:
-        description: "true = write approvals→Recalls, rejects→Weekly_Rejected; false = dry-run"
+      skip_commit:
+        description: "true = run but do NOT write/commit (dry-run). Default false = commit."
         required: false
         default: "false"
       source_filter:
@@ -324,6 +318,18 @@ jobs:
              Translate Product / Pathogen / Reason / Region to English. Keep Company in
              its original language. Use ORIGINAL publication date (YYYY-MM-DD), not any
              later "update" date.
+             CRITICAL HAZARD CHECK (a common gap-finder error):
+             - The Pathogen field must name the ACTUAL biological hazard stated on the
+               page. If the page describes an undeclared ALLERGEN (peanuts, milk, soy,
+               gluten, sulphites, etc.), a foreign body (glass, plastic, metal), or a
+               chemical hazard, then it is NOT a pathogen — set Pathogen to "" and put
+               the real hazard in Reason. Never leave a pathogen name (Listeria,
+               Salmonella, E. coli…) in the Pathogen field unless the page explicitly
+               names that organism.
+             - Watch for internal contradiction: if the Pathogen field says one thing
+               (e.g. "Listeria") but the Reason field / page says another (e.g.
+               "undeclared peanuts"), the page wins — correct Pathogen to match the
+               page, even if that means clearing it.
           3. Decide scope:
              - reject if: not a recall page; pre-2026 date; pet/animal food; hazard
                outside the food-safety universe (labeling-only quality, non-food, etc.);
@@ -565,6 +571,13 @@ jobs:
                                 "Reason", "Country", "Region", "URL"):
                           if merged.get(k):
                               full_pending[idx][k] = merged[k]
+                      # Pathogen may be intentionally CLEARED by the agent when the
+                      # hazard is an allergen / foreign body / chemical (not a pathogen).
+                      # merged only carries non-empty values, so consult the raw review
+                      # fields dict: if it explicitly returned Pathogen == "" we honor it.
+                      rfields = review.get("fields") or {}
+                      if "Pathogen" in rfields and not str(rfields.get("Pathogen")).strip():
+                          full_pending[idx]["Pathogen"] = ""
                       # Outbreak is verified explicitly (0 or 1) — always apply it,
                       # including a correction from 1→0, since it drives the tier bump.
                       ob = review.get("outbreak")
@@ -642,18 +655,22 @@ jobs:
           SEARX_URL: ${{ secrets.SEARX_URL }}
         run: |
           ARGS=""
-          [ -n "${{ inputs.source_filter }}" ] && ARGS="$ARGS --source-filter ${{ inputs.source_filter }}"
-          [ "${{ inputs.limit }}" != "0" ] && ARGS="$ARGS --limit ${{ inputs.limit }}"
-          echo "Running review agent (commit=${{ inputs.commit || 'true' }})"
+          SF="${{ github.event.inputs.source_filter || '' }}"
+          [ -n "$SF" ] && ARGS="$ARGS --source-filter $SF"
+          LIMIT="${{ github.event.inputs.limit || '0' }}"
+          [ -n "$LIMIT" ] && [ "$LIMIT" != "0" ] && ARGS="$ARGS --limit $LIMIT"
+          SKIP="${{ github.event.inputs.skip_commit || 'false' }}"
+          COMMIT=$([ "$SKIP" = "true" ] && echo false || echo true)
+          echo "Running (skip_commit=$SKIP → commit=$COMMIT)"
           python -m pipeline.recall_review_agent \
             --xlsx docs/data/recalls.xlsx \
-            --commit "${{ inputs.commit || 'true' }}" \
+            --commit "$COMMIT" \
             $ARGS | tee /tmp/review.log
 
           {
             echo "## Recall Review Agent — $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M') Athens"
             echo ""
-            echo "Mode: **$([ "${{ inputs.commit || 'true' }}" = "true" ] && echo 'COMMIT' || echo 'DRY-RUN')**"
+            echo "Mode: **$([ "$COMMIT" = "true" ] && echo 'COMMIT' || echo 'DRY-RUN')**"
             echo ""
             echo '```'
             tail -30 /tmp/review.log
@@ -661,7 +678,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit xlsx changes (race-safe)
-        if: ${{ github.event_name == 'schedule' || inputs.commit == 'true' }}
+        if: ${{ github.event.inputs.skip_commit != 'true' }}
         run: |
           if [ -f scripts/safe_push.sh ]; then
             bash scripts/safe_push.sh \
