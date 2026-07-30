@@ -173,6 +173,23 @@ def _is_bare_domain(s: str) -> bool:
     return False
 
 
+def _norm_echo_url(url: Any) -> str:
+    """Normalise a URL for the batch identity check only.
+
+    Deliberately loose — the model may lower-case a host or drop a trailing
+    slash without that meaning it is talking about a different recall. It must
+    NOT be loose enough to make two different recalls compare equal, so the
+    path is preserved verbatim apart from case and a trailing slash.
+    """
+    s = str(url or "").strip()
+    if not s:
+        return ""
+    s = re.sub(r"^https?://", "", s, flags=re.I)
+    s = re.sub(r"^www\.", "", s, flags=re.I)
+    host, sep, rest = s.partition("/")
+    return host.lower() + sep + rest.rstrip("/")
+
+
 def _is_structurally_bad(url: str) -> Optional[str]:
     """Return a rejection reason if URL is structurally bad, else None."""
     if not url or not url.startswith("http"):
@@ -668,12 +685,21 @@ Set pass=false with one of these reasons (in priority order):
 
 {rows_json}
 
+═══ IDENTITY RULE (MANDATORY) ═══
+Every decision MUST carry "url_echo" — the input URL of the row you are
+deciding about, copied VERBATIM from the input above. Do not normalise,
+shorten, or repair it in this field; put any repair in "url_corrected".
+Emit exactly one decision per input row and never reorder or renumber them.
+A decision whose "url_echo" does not match the URL at its "row_index" is
+DISCARDED, because it cannot be attributed to a row.
+
 ═══ OUTPUT (STRICT JSON) ═══
 
 {{
   "decisions": [
     {{
       "row_index": <int>,
+      "url_echo": "<copy the input URL for this row VERBATIM — identity check>",
       "pass": true|false,
       "url_corrected": "<canonical URL or null if no fix>",
       "verification": {{
@@ -887,6 +913,11 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
     """
     decisions: Dict[int, Tuple[bool, str, Optional[str]]] = {}
 
+    # Batch identity-check telemetry (audit 2026-07-30). A non-zero count
+    # here means the model mis-attributed decisions and the guard caught it.
+    n_identity_discarded = 0
+    n_identity_rehomed = 0
+
     # Deterministic baseline — always compute
     det_fail: Dict[int, str] = {}
     for i, r in enumerate(rows):
@@ -932,6 +963,65 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                     j = d.get("row_index")
                     if j is None or j < 0 or j >= len(chunk):
                         continue
+
+                    # ── IDENTITY CHECK (audit 2026-07-30) ────────────────
+                    # Everything below this point validates whether the
+                    # decision is PLAUSIBLE (confidence, date_match,
+                    # brand_match, bare-domain, JS artifacts). Nothing
+                    # validated whether the decision belongs to THIS ROW.
+                    # `row_index` is self-reported by the model, and a
+                    # shifted index passes every plausibility check —
+                    # the content is genuine, it just describes a
+                    # different recall.
+                    #
+                    # That is exactly the corruption found in production:
+                    # RappelConso rows carrying a neighbour's Reason, each
+                    # sharing its exact Reason string with a row from
+                    # another source whose Pathogen matches that Reason
+                    # correctly. e.g. Recalls row 740 (fiche 22205,
+                    # Pathogen "Listeria monocytogenes") holding
+                    # "Aflatoxins in mini corn wafers from Slovakia...;
+                    # risk: serious; category: ..." — verbatim RASFF
+                    # notification text that RappelConso never emits, and
+                    # that belongs to row 745. Ten rows are affected.
+                    #
+                    # Fix: the model must echo the row's URL back, and we
+                    # attribute the decision by URL, not by its claimed
+                    # index. An echo that matches a DIFFERENT row in the
+                    # chunk is re-homed to that row; an echo that matches
+                    # nothing is discarded. Silence here would mean
+                    # writing a real recall's data onto a different recall.
+                    echo = _norm_echo_url(d.get("url_echo"))
+                    claimed = _norm_echo_url(chunk[j].get("URL"))
+                    if echo and claimed and echo != claimed:
+                        relocated = next(
+                            (k for k, r in enumerate(chunk)
+                             if _norm_echo_url(r.get("URL")) == echo), None)
+                        if relocated is None:
+                            log.error(
+                                "url-gate: DISCARDED decision for chunk index "
+                                "%d — url_echo %r matches no row in the batch "
+                                "(row claims %r). Cross-row contamination "
+                                "prevented.", j, echo[:120], claimed[:120])
+                            n_identity_discarded += 1
+                            continue
+                        log.warning(
+                            "url-gate: decision claimed row_index %d (%r) but "
+                            "echoed %r — re-homed to chunk index %d.",
+                            j, claimed[:80], echo[:80], relocated)
+                        n_identity_rehomed += 1
+                        j = relocated
+                    elif not echo:
+                        # No echo at all: the model ignored the identity
+                        # rule. Do not guess — a wrong attribution writes
+                        # one recall's data onto another.
+                        log.error(
+                            "url-gate: DISCARDED decision for chunk index %d "
+                            "(%r) — no url_echo returned, identity "
+                            "unverifiable.", j, claimed[:120])
+                        n_identity_discarded += 1
+                        continue
+
                     real_idx = start + j
                     passed = bool(d.get("pass"))
                     url_fix = d.get("url_corrected") or None
@@ -1056,6 +1146,14 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
     log.info("Gemini gate: %d pass, %d fail, %d URL fixes, "
              "%d outbreak verdicts across %d rows",
              passes, len(decisions) - passes, fixed, outbreak_set, len(rows))
+    if n_identity_discarded or n_identity_rehomed:
+        log.error(
+            "url-gate batch identity guard fired: %d decision(s) DISCARDED "
+            "(unattributable) and %d RE-HOMED to the row they actually "
+            "described. Any non-zero count means the model mis-indexed its "
+            "batch response — the pre-2026-07-30 code would have written "
+            "these onto the wrong recall.",
+            n_identity_discarded, n_identity_rehomed)
     return decisions
 
 

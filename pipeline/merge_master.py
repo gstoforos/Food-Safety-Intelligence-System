@@ -1606,6 +1606,40 @@ def _write_sheet(wb: Workbook,
         except Exception:
             pass  # writer must never crash on the guard
 
+        # ── Absolute-final Class language normalisation (audit 2026-07-30) ─
+        # Same rationale as the Tier-1 guard directly above. promote_approved
+        # normalises Class at its own last gate (audit 2026-05-12) and
+        # Recall.__post_init__ normalises at scraper time, yet 41 rows dated
+        # 2026-05-12..2026-07-28 still reached the published Recalls sheet
+        # holding raw French. Distribution of Class over the 535 RappelConso
+        # rows when this was found:
+        #
+        #     394  'Voluntary'
+        #      83  'Mandatory'
+        #      38  'volontaire (sans arrete prefectoral)'   <- un-normalised
+        #      17  'Recall'
+        #       3  'impose par arrete prefectoral'          <- un-normalised
+        #
+        # All 41 carry a [url-gate ...] note, i.e. they were updated in place
+        # after promotion, so neither earlier gate ran again. Rather than
+        # chase every writer, normalise HERE — the single choke point every
+        # Recalls write passes through. The earlier gates stay; this one
+        # cannot be bypassed.
+        try:
+            from scrapers._models import (  # noqa: WPS433
+                _normalize_class_language as _norm_cls,
+            )
+            for _row in rows:
+                _raw = _row.get("Class") or ""
+                _norm = _norm_cls(_raw)
+                if _norm and _norm != _raw:
+                    log.info("Class normalised at writer: %r -> %r (%s)",
+                             _raw, _norm, str(_row.get("URL", ""))[:80])
+                    _row["Class"] = _norm
+        except Exception as exc:
+            log.warning("Class normalisation skipped at writer: %s: %s",
+                        type(exc).__name__, str(exc)[:80])
+
     for r_idx, row in enumerate(rows, 2):
         for c_idx, col in enumerate(schema, 1):
             v = row.get(col, "")
