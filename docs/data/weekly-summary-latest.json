@@ -8,13 +8,13 @@
   "week_end": "2026-07-23",
   "week_start_display": "17 Jul",
   "week_end_display": "23 Jul 2026",
-  "generated_utc": "2026-07-29T01:46:30.563943+00:00",
+  "generated_utc": "2026-07-30T18:03:03.430014+00:00",
   "stats": {
     "total": 68,
     "tier1": 57,
     "outbreaks": 3,
-    "delta": 13,
-    "delta_pct": 24
+    "delta": 12,
+    "delta_pct": 21
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
@@ -72,12 +72,12 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Carrefour France",
-      "brand": "CARREFOUR",
-      "product": "crevettes cuites 25/35 vendues au rayon traditionnel",
+      "company": "Auchan",
+      "brand": "Auchan",
+      "product": "auchan langue de porc en gelee tranchee 180g",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22938/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22932/Interne"
     },
     {
       "rank": 5,
@@ -86,12 +86,12 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Auchan",
-      "brand": "Auchan",
-      "product": "auchan langue de porc en gelee tranchee 180g",
+      "company": "Auchan le Charcutier",
+      "brand": "Auchan le Charcutier",
+      "product": "saucisson ail nature et fume vendu a la coupe",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22932/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22936/Interne"
     }
   ],
   "country_count": 15
