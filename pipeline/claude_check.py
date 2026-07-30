@@ -1102,6 +1102,61 @@ _HAZARD_CLASS_KEYWORDS = {
         "paralytic shellfish", "amnesic shellfish", "diarrhetic shellfish",
         "psp toxin", "asp toxin", "dsp toxin",
     ),
+    # ── Audit 2026-07-30 ────────────────────────────────────────────────
+    # The 2026-06-14 guard below shipped with six hazard classes and no
+    # allergen class. Allergen mislabelling is the single most common
+    # recall reason worldwide, so the omission was not a rare edge:
+    # _classify_hazard("...undeclared allergen (peanuts)") returned an
+    # EMPTY set, _pathogen_reason_class_mismatch bailed out on
+    # "either field unclassifiable", the clean-row shortcut fired, and the
+    # row was promoted with a Gemini-invented Pathogen and Tier 1.
+    #
+    # Confirmed damage (both verified against the live FSANZ pages — the
+    # word "Listeria" appears NOWHERE on either one):
+    #   Recalls row  3  2026-07-29  Auxico (Perth) LGM Hot Chilli Oil 275g
+    #       Reason "undeclared allergen (peanuts)" / Pathogen "Listeria
+    #       monocytogenes" / Tier 1
+    #   Recalls row 55  2026-07-24  Viet Meatballs Chinese Sausage 500g
+    #       Reason "undeclared allergen (gluten)"  / Pathogen "Listeria
+    #       monocytogenes" / Tier 1
+    #
+    # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
+    # "fish") must NOT appear here: RASFF Reason text routinely carries
+    # "category: milk and milk products" on genuine Listeria and STEC
+    # notifications, and a bare "milk" token would classify those as
+    # allergen and manufacture a false mismatch on correct rows. Every
+    # real allergen recall states the framing explicitly.
+    "allergen": (
+        "undeclared allergen", "undeclared allergens",
+        "undeclared ingredient", "undeclared ingredients",
+        "undeclared milk", "undeclared egg", "undeclared peanut",
+        "undeclared soy", "undeclared gluten", "undeclared wheat",
+        "undeclared sesame", "undeclared mustard", "undeclared sulphite",
+        "undeclared sulfite", "undeclared nut", "undeclared fish",
+        "undeclared shellfish", "undeclared celery", "undeclared lupin",
+        "allergen not declared", "allergen labelling", "allergen labeling",
+        "not declared on the label", "missing allergen",
+        "incorrect allergen", "allergen mislabel",
+        "misbranding", "misbranded", "mislabelled", "mislabeled",
+        "mislabelling", "mislabeling", "incorrect label", "wrong label",
+        "label error", "labelling error", "labeling error",
+        # non-English regulators
+        "allergene non declare", "allergène non déclaré",
+        "allergene non dichiarato", "alergeno no declarado",
+        "alérgeno no declarado", "nicht deklariertes allergen",
+        "niet-gedeclareerd allergeen", "niet gedeclareerd allergeen",
+        "allergeen niet vermeld",
+    ),
+    # Mould / spoilage was likewise unclassifiable, so a Gemini-invented
+    # "Listeria monocytogenes" on an FSANZ "Microbial (Mould)
+    # contamination" row would also have slipped the guard. Only explicit
+    # mould vocabulary — a bare "microbial contamination" must stay
+    # unclassifiable so the guard keeps failing safe on vague text.
+    "spoilage": (
+        "mould", "moulds", "mould contamination", "mold contamination",
+        "moisissure", "muffa", "moho", "schimmel",
+        "visible mould", "visible mold", "mouldy", "moldy",
+    ),
 }
 
 
