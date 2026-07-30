@@ -223,6 +223,10 @@ STEPS:
    matches.
 4. If the Pathogen field is empty, fill it from the page (this candidate may be
    an enrichment row that needs its hazard identified).
+   NEVER fabricate Company or Brand: if the page names no brand (sold at the
+   counter / à la coupe / sans marque / unbranded), the brand is "Unbranded".
+   If the row already carries a brand/company that does NOT appear on the
+   page, treat it as fabricated — do not confirm on the strength of it.
 5. Decide:
    - "confirm" : a real 2026+ food recall whose hazard is a MICROBIAL PATHOGEN
                  (Listeria, Salmonella, E. coli/STEC, Cronobacter, botulinum,
