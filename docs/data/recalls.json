@@ -2089,11 +2089,11 @@
   "Reason": "",
   "Class": "",
   "Country": "Greece",
-  "Region": "N/A",
+  "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5407-deltio-typou-anaklisi-mi-asfaloys-proiontos-vathias-koutalas-soypas",
-  "Notes": "Discovered via news: news247.gr [gemini-check 2026-07-29: fix; corrections: Date→2026-07-16, Company→TSAKONAS D. MONOS K. AE, Brand→casa mania, Product→κουτάλα σούπας; fix; company mismatch; product mismatch; pathogen mismatch; date on page=2026-07-16 | Row date matches corrected date, b]"
+  "Notes": "Discovered via news: news247.gr [gemini-check 2026-07-29: fix; corrections: Date→2026-07-16, Company→TSAKONAS D. MONOS K. AE, Brand→casa mania, Product→κουτάλα σούπας; fix; company mismatch; product mismatch; pathogen mismatch; date on page=2026-07-16 | Row date matches corrected date, b] [region-fix 2026-07-30: 'N/A'->'Europe'; Region follows the origin Country, per the dataset's own rule (12 other Greece rows agree)]"
  },
  {
   "Date": "2026-07-16",
@@ -2729,11 +2729,11 @@
   "Reason": "Presence of listeria monocytognes in cooked prawns; risk: serious; category: crustaceans and products thereof",
   "Class": "Information",
   "Country": "Madagascar",
-  "Region": "Unknown",
+  "Region": "Africa",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856612",
-  "Notes": "[RASFF #2026.6149; classification: information notification for attention; category: crustaceans and products thereof; notifId=856612] [gemini-enrich 2026-07-11: Brand '—'→'FRA'] [claude-check 2026-07-12: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.6149; classification: information notification for attention; category: crustaceans and products thereof; notifId=856612] [gemini-enrich 2026-07-11: Brand '—'→'FRA'] [claude-check 2026-07-12: pass; clean-row shortcut (gemini-enriched + all fields valid)] [region-fix 2026-07-30: 'Unknown'->'Africa'; Region follows the origin Country, per the dataset's own rule (1 other Madagascar rows agree)]"
  },
  {
   "Date": "2026-07-10",
@@ -3081,11 +3081,11 @@
   "Reason": "Recall ID 842632",
   "Class": "Alert",
   "Country": "Greece",
-  "Region": "Unknown",
+  "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5406-deltio-typou-anaklisi-proionton-xoymous-logo-parousias-salmonella-spp",
-  "Notes": "Discovered via news: protothema.gr [gemini-check 2026-07-10: fix; corrections: Company→AMVROSIA A.E., Brand→AMVROSIA, Product→Hummus, Pathogen→Salmonella; fix; company mismatch | Row's company lists retailers; page identifies AMVROSIA A.E. as the recalling firm and AMVROSIA ] [region-normalise 2026-07-24: Region was 'Not specified in the article' (detail level); set to continent bucket 'Unknown' for daily/weekly region grouping — detail retained here]"
+  "Notes": "Discovered via news: protothema.gr [gemini-check 2026-07-10: fix; corrections: Company→AMVROSIA A.E., Brand→AMVROSIA, Product→Hummus, Pathogen→Salmonella; fix; company mismatch | Row's company lists retailers; page identifies AMVROSIA A.E. as the recalling firm and AMVROSIA ] [region-normalise 2026-07-24: Region was 'Not specified in the article' (detail level); set to continent bucket 'Unknown' for daily/weekly region grouping — detail retained here] [region-fix 2026-07-30: 'Unknown'->'Europe'; Region follows the origin Country, per the dataset's own rule (12 other Greece rows agree)]"
  },
  {
   "Date": "2026-07-09",
@@ -4601,11 +4601,11 @@
   "Reason": "Salmonella in sesame seeds from India",
   "Class": "Border rejection",
   "Country": "India",
-  "Region": "Europe",
+  "Region": "Asia",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/854567",
-  "Notes": "Promoted 2026-06-30 from Pending. RASFF notification 854567."
+  "Notes": "Promoted 2026-06-30 from Pending. RASFF notification 854567. [region-fix 2026-07-30: 'Europe'->'Asia'; Region follows the origin Country, per the dataset's own rule (8 other India rows agree)]"
  },
  {
   "Date": "2026-06-29",
@@ -7913,11 +7913,11 @@
   "Reason": "Recall ID 842632",
   "Class": "Voluntary",
   "Country": "Poland",
-  "Region": "Unknown",
+  "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://informacje.wp.pl/wiadomosci/pilne-ostrzezenie-gis-w-salatce-z-tunczykiem-wykryto-grozna-bakterie-7292798203951584a",
-  "Notes": "Discovered via news: wp.pl [claude-check 2026-06-14: pass; pass | All fields verified: date 2026-06-03 matches page metadata; company DEGA S.A. confirmed; product 'Sałatka z tuńcz] [region-normalise 2026-07-24: Region was 'Not specified in the article' (detail level); set to continent bucket 'Unknown' for daily/weekly region grouping — detail retained here]"
+  "Notes": "Discovered via news: wp.pl [claude-check 2026-06-14: pass; pass | All fields verified: date 2026-06-03 matches page metadata; company DEGA S.A. confirmed; product 'Sałatka z tuńcz] [region-normalise 2026-07-24: Region was 'Not specified in the article' (detail level); set to continent bucket 'Unknown' for daily/weekly region grouping — detail retained here] [region-fix 2026-07-30: 'Unknown'->'Europe'; Region follows the origin Country, per the dataset's own rule (38 other Poland rows agree)]"
  },
  {
   "Date": "2026-06-03",
@@ -8953,11 +8953,11 @@
   "Reason": "Recall ID 842632",
   "Class": "Voluntary",
   "Country": "Germany",
-  "Region": "Unknown",
+  "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/05_Mai/260527_19_BW_Paprika_Gewuerz/260527_19_BW_Paprika_Gewuerz.html",
-  "Notes": "Discovered via news: produktwarnung.eu [claude-check 2026-05-31: pass; pass | All fields verified: date 2026-05-27 matches page publication date; company BLG Kardesler Lebensmittel-Handelsges] [bvl-fix 2026-06-14: URL replaced from third-party produktwarnung.eu to official BVL/lebensmittelwarnung.de page. Suntat Paprika Pul Biber, BLG Kardesler GmbH, Aflatoxin, sold via Kaufland. Source bare BVL → BVL (DE).] [region-normalise 2026-07-24: Region was 'not specified in article' (detail level); set to continent bucket 'Unknown' for daily/weekly region grouping — detail retained here]"
+  "Notes": "Discovered via news: produktwarnung.eu [claude-check 2026-05-31: pass; pass | All fields verified: date 2026-05-27 matches page publication date; company BLG Kardesler Lebensmittel-Handelsges] [bvl-fix 2026-06-14: URL replaced from third-party produktwarnung.eu to official BVL/lebensmittelwarnung.de page. Suntat Paprika Pul Biber, BLG Kardesler GmbH, Aflatoxin, sold via Kaufland. Source bare BVL → BVL (DE).] [region-normalise 2026-07-24: Region was 'not specified in article' (detail level); set to continent bucket 'Unknown' for daily/weekly region grouping — detail retained here] [region-fix 2026-07-30: 'Unknown'->'Europe'; Region follows the origin Country, per the dataset's own rule (35 other Germany rows agree)]"
  },
  {
   "Date": "2026-05-27",
@@ -13625,11 +13625,11 @@
   "Reason": "Listeria monocytogenes detected in chilled packaged enoki mushrooms (Chinese origin); recall by German wholesaler Asia Express Food, distributed across multiple EU member states including Hungary",
   "Class": "Alert",
   "Country": "China",
-  "Region": "Europe",
+  "Region": "Asia",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838838",
-  "Notes": "[RASFF #2026.3410; original Asia Express Food recall via German BVL is the EU recaller layer; Hungarian NKFH issued follow-up Apr 28; SAME enoki Listeria pattern as Feb 2 CFIA Mushmoshi (CA) and Apr 30 FSANZ Concordia (AU) — global enoki Listeria event; product category: vegetables and vegetable products] [region-normalise 2026-07-24: Region was 'Asia (origin) / Europe (distribution)' (detail level); set to continent bucket 'Europe' for daily/weekly region grouping — detail retained here]"
+  "Notes": "[RASFF #2026.3410; original Asia Express Food recall via German BVL is the EU recaller layer; Hungarian NKFH issued follow-up Apr 28; SAME enoki Listeria pattern as Feb 2 CFIA Mushmoshi (CA) and Apr 30 FSANZ Concordia (AU) — global enoki Listeria event; product category: vegetables and vegetable products] [region-normalise 2026-07-24: Region was 'Asia (origin) / Europe (distribution)' (detail level); set to continent bucket 'Europe' for daily/weekly region grouping — detail retained here] [region-fix 2026-07-30: 'Europe'->'Asia'; Region follows the origin Country, per the dataset's own rule (10 other China rows agree)]"
  },
  {
   "Date": "2026-04-23",
@@ -20233,11 +20233,11 @@
   "Reason": "Aflatoxin contamination detected in groundnut runner kernels from Argentina, distributed in Netherlands and Uruguay — found by company's own check",
   "Class": "Information notification for attention",
   "Country": "Argentina",
-  "Region": "Europe",
+  "Region": "Latin America",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/817723",
-  "Notes": "[RASFF #2026.0443 verified from screenshot 2026-05-01: notified 20 JAN 2026 by Netherlands, last update 22 JAN 2026; Argentina (o)(op)(ffa), Netherlands (n)(d)(op), Uruguay (d)(op)(ffa), INFOSAN (ffa); product type Food, product category Nuts, nut products and seeds; notification basis Company's own check; CORRECTED date 2026-01-15 → 2026-01-20; CORRECTED class Border Rejection → Information notification for attention; CORRECTED origin Unknown → Argentina] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[RASFF #2026.0443 verified from screenshot 2026-05-01: notified 20 JAN 2026 by Netherlands, last update 22 JAN 2026; Argentina (o)(op)(ffa), Netherlands (n)(d)(op), Uruguay (d)(op)(ffa), INFOSAN (ffa); product type Food, product category Nuts, nut products and seeds; notification basis Company's own check; CORRECTED date 2026-01-15 → 2026-01-20; CORRECTED class Border Rejection → Information notification for attention; CORRECTED origin Unknown → Argentina] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [region-fix 2026-07-30: 'Europe'->'Latin America'; Region follows the origin Country, per the dataset's own rule (10 other Argentina rows agree)]"
  },
  {
   "Date": "2026-01-20",
