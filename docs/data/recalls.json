@@ -420,16 +420,16 @@
   "Source": "FSAI",
   "Company": "Peklimar",
   "Brand": "Peklimar",
-  "Product": "Packs of the implicated sausagesRecall of specific batches of Peklimar Metla Lososiowa and Peklimar Metla Brunszwicka sausages",
+  "Product": "Peklimar Metka Lososiowa and Peklimar Metka Brunszwicka kiełbasa surowa metka, 1500g (batch 1R808070707; use-by 01/08/2026 and 27/07/2026)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Recall of specific batches of Peklimar Metla Lososiowa and Peklimar Metla Brunszwicka sausages Recall of specific batches of Peklimar Metla Lososiowa and Peklimar Metla Brunszwicka sausages due to the presence of Listeria monocytogenes Tuesday, 28 July 2026 Alert Summary Category 2: For Information Alert Notification: 2026.46 Product Identification: Please see table below. Batch Code Please see table below for batch code and use-by dates. Country Of Origin: Poland Message: The below batches of Peklimar Metla Lososiowa and Peklimar Metla Brunszwicka sausages are being recalled due to the presence of Listeria monocytogenes . Recall notices will be displayed at point-of-sale. Implicated products and batches: Product name: Approximate pack size (g): Batch code: Use-by date: Peklimar Metka Loso",
+  "Reason": "Presence of Listeria monocytogenes",
   "Class": "Recall",
   "Country": "Ireland",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-peklimar-metla-losos",
-  "Notes": "source_id=FSAI-recall-of-specific-batches-of-peklimar-metla-losos [via official-feed collector] [gemini-enrich 2026-07-29: Company ''→'Peklimar'] [gemini-enrich 2026-07-29: Brand ''→'Peklimar'] [gap-gate 2026-07-29: pending_gap → pending_gap_v1] [claude-check 2026-07-29: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-29: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "source_id=FSAI-recall-of-specific-batches-of-peklimar-metla-losos [via official-feed collector] [gemini-enrich 2026-07-29: Company ''→'Peklimar'] [gemini-enrich 2026-07-29: Brand ''→'Peklimar'] [gap-gate 2026-07-29: pending_gap → pending_gap_v1] [claude-check 2026-07-29: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-29: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [wording-fix 2026-07-31: Product was a copy-paste dump of the alert body ('Packs of the implicated sausagesRecall of specific batches of...' — headline run together with a caption, no space) and Reason was the entire page text repeated and truncated mid-word at 'Peklimar Metka Loso'. Both replaced with the values on the FSAI alert page, which spells the product 'Metka' (the URL slug says 'metla'). Pack size, batch code and use-by dates verified against the same page. Pathogen and Tier were already correct and are unchanged.]"
  },
  {
   "Date": "2026-07-28",
@@ -692,7 +692,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Auchan le Charcutier",
   "Brand": "Auchan le Charcutier",
-  "Product": "a la marque auchan le charcutier :¤salade museau boeuf 250g, ¤salade de museau de porc 250g, ¤saucisson a l'ail fume a l'ancienne 10 tr, ¤langue en gelee 180g, ¤salade de langue de porc 250g",
+  "Product": "a la marque auchan le charcutier : salade museau boeuf 250g, salade de museau de porc 250g, saucisson a l'ail fume a l'ancienne 10 tr, langue en gelee 180g, salade de langue de porc 250g",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -852,7 +852,7 @@
   "Source": "RappelConso (FR)",
   "Company": "CRUSTA C",
   "Brand": "Unbranded",
-  "Product": "crevettes cuites sauvages 40/60 emballées sous atmosphère modifiée et vendues au rayon poissonnerie libre-service¤",
+  "Product": "crevettes cuites sauvages 40/60 emballées sous atmosphère modifiée et vendues au rayon poissonnerie libre-service",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Mise en évidence de la présence de listéria monocytogenes",
   "Class": "Voluntary",
@@ -893,7 +893,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22966/Interne",
-  "Notes": "gssn¤maxime geraud¤tlc¤david master [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [gemini-enrich 2026-07-25: Company ''→'PRESTIGE DE LA SARTHE'] [gemini-enrich 2026-07-25: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-25: pending_enrichment → pending (Claude verified)] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]"
+  "Notes": "gssn; maxime geraud; tlc; david master [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [gemini-enrich 2026-07-25: Company ''→'PRESTIGE DE LA SARTHE'] [gemini-enrich 2026-07-25: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-25: pending_enrichment → pending (Claude verified)] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]"
  },
  {
   "Date": "2026-07-24",
@@ -925,7 +925,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22926/Interne",
-  "Notes": "systeme u¤poissonnerie sas erwema¤ [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [gemini-enrich 2026-07-24: Company ''→'CRUSTA C CRUSTA C'] [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-25: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "systeme u; poissonnerie sas erwema; [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [gemini-enrich 2026-07-24: Company ''→'CRUSTA C CRUSTA C'] [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-25: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-07-24",
@@ -1332,7 +1332,7 @@
   "Source": "RappelConso (FR)",
   "Company": "RUMEAU LA FUXEENNE DES VIANDES",
   "Brand": "Unbranded",
-  "Product": "steak haches¤",
+  "Product": "steak haches",
   "Pathogen": "Salmonella spp.",
   "Reason": "Presence of Salmonella spp.",
   "Class": "Voluntary",
@@ -1485,14 +1485,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22886/Interne",
-  "Notes": "bonzom - 66 800 saillagouse¤salaisons oberti - 81 230 lacaune [url-gate 2026-07-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-20: fix; corrections: Company→ROUSSALY ROUSSALY; fix; company mismatch | Company name on row does not match the 'Origine de la fiche' on the page.] [fix 2026-07-21: doubled company name \"ROUSSALY ROUSSALY\" -> \"Roussaly\" (RappelConso source itself shows the doubling)]"
+  "Notes": "bonzom - 66 800 saillagouse; salaisons oberti - 81 230 lacaune [url-gate 2026-07-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-20: fix; corrections: Company→ROUSSALY ROUSSALY; fix; company mismatch | Company name on row does not match the 'Origine de la fiche' on the page.] [fix 2026-07-21: doubled company name \"ROUSSALY ROUSSALY\" -> \"Roussaly\" (RappelConso source itself shows the doubling)]"
  },
  {
   "Date": "2026-07-20",
   "Source": "RappelConso (FR)",
   "Company": "La Toque Bourbonnaise",
   "Brand": "La Toque Bourbonnaise",
-  "Product": "salade auvergnate de cochonnaille kg¤salade auvergnate de cochonnaille 300g¤salade auvergnate de cochonnaille 300g + 20% offert",
+  "Product": "salade auvergnate de cochonnaille kg; salade auvergnate de cochonnaille 300g; salade auvergnate de cochonnaille 300g + 20% offert",
   "Pathogen": "Salmonella",
   "Reason": "Presence salmonelle s. typhimurium",
   "Class": "Voluntary",
@@ -1501,7 +1501,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22885/Interne",
-  "Notes": "intermarche moulins¤verriere traiteur¤bi1 st pierre le moutier¤auchan domerat¤base itm alimentaire bourges¤maison montar [url-gate 2026-07-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-20: pass; pass | All fields match the page, and no issues found during cross-checks.]"
+  "Notes": "intermarche moulins; verriere traiteur; bi1 st pierre le moutier; auchan domerat; base itm alimentaire bourges; maison montar [url-gate 2026-07-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-20: pass; pass | All fields match the page, and no issues found during cross-checks.]"
  },
  {
   "Date": "2026-07-20",
@@ -1686,7 +1686,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "PETIT SALE DE PORC CUIT - 2 TRANCHES - Poids variable",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Mandatory",
   "Country": "France",
   "Region": "Europe",
@@ -1702,7 +1702,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "saucisson a l'ail a l'ancienne courbe nature - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -1718,7 +1718,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "saucisson a l'ail fume au bois de hetre a l'ancienne - carrefour le marche 250g",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -1750,7 +1750,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "cocktail bacon emmental - carrefour le marche x12 160g",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -1773,7 +1773,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22873/Interne",
-  "Notes": "les matins clairs plateau de beauregard¤le grizzly plateau de beauregard ¤le 1647 plateau de beauregard¤le repaire le gr [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-17: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-18: fix; corrections: Company→JON TANGUY Chevrerie du paradis, Brand→frais, Product→frais de chèvre (petit frais de chèvre d, Pathogen→Listeria monocytogenes, Tier→1; fix; company mismatch; product mismatch | Company field is incomplete (row says 'Frais' but page identifies 'JON TANGUY ] [enrich-gate 2026-07-18: pending_enrichment → pending (Claude verified)]"
+  "Notes": "les matins clairs plateau de beauregard; le grizzly plateau de beauregard; le 1647 plateau de beauregard; le repaire le gr [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-17: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-18: fix; corrections: Company→JON TANGUY Chevrerie du paradis, Brand→frais, Product→frais de chèvre (petit frais de chèvre d, Pathogen→Listeria monocytogenes, Tier→1; fix; company mismatch; product mismatch | Company field is incomplete (row says 'Frais' but page identifies 'JON TANGUY ] [enrich-gate 2026-07-18: pending_enrichment → pending (Claude verified)]"
  },
  {
   "Date": "2026-07-17",
@@ -1782,7 +1782,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "saucisson a l'ail a l'ancienne droit fume - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -1798,7 +1798,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "cocktail bacon pruneau - carrefour le marche x12 180g",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -1837,7 +1837,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22874/Interne",
-  "Notes": "coopérative le  farto  thônes¤le comptoir des alpes le grand bornand¤carrefour market saint jean de sixt¤épicerie du pet [url-gate 2026-07-18: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-18: pass; pass | All fields verified: date 2026-07-17 matches page; company Tommette (JON TANGUY chevrerie du Paradis) confirmed; ]"
+  "Notes": "coopérative le farto thônes; le comptoir des alpes le grand bornand; carrefour market saint jean de sixt; épicerie du pet [url-gate 2026-07-18: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-18: pass; pass | All fields verified: date 2026-07-17 matches page; company Tommette (JON TANGUY chevrerie du Paradis) confirmed; ]"
  },
  {
   "Date": "2026-07-17",
@@ -1894,7 +1894,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "jarreton de porc cuit - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -1910,7 +1910,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "carre de cote de porc cuit - 2 tranches",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -1926,7 +1926,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "roti de porc cuit - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -1942,7 +1942,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "saucisson a l'ail a l'ancienne nature droit - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -1958,7 +1958,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "poitrine de porc cuite - 3 tranches - poids variable",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -1974,7 +1974,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "saucisson a l'ail a l'ancienne courbe fume - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -1990,7 +1990,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "demi poitrine cuite  - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -2022,7 +2022,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "carre de cote de porc cuit - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -2038,7 +2038,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "pate de campagne a l'ancienne - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -2054,7 +2054,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "poitrine de porc cuite fumee - 3 tranches - poids variable",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -2070,7 +2070,7 @@
   "Brand": "Carrefour le Marche",
   "Product": "demi poitrine cuite fumee - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de contamination bactériologique (Listeria)¤",
+  "Reason": "Suspicion de contamination bactériologique (Listeria)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -2276,7 +2276,7 @@
   "Source": "RappelConso (FR)",
   "Company": "GAEC TURXIL",
   "Brand": "Irubela",
-  "Product": "lot n22 et n23 - portion sous vide etiquettés ¤fabrication du 30/01/2026 et 01/02/2026",
+  "Product": "lot n22 et n23 - portion sous vide etiquettés; fabrication du 30/01/2026 et 01/02/2026",
   "Pathogen": "Staphylococcus aureus enterotoxin",
   "Reason": "Entérotoxine détectée",
   "Class": "Voluntary",
@@ -2317,7 +2317,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22856/Interne",
-  "Notes": "super u mordelles¤01 avenue des platanes¤35310 mordelles [url-gate 2026-07-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-16: pass; pass]"
+  "Notes": "super u mordelles; 01 avenue des platanes; 35310 mordelles [url-gate 2026-07-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-16: pass; pass]"
  },
  {
   "Date": "2026-07-16",
@@ -2772,7 +2772,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Yaffa",
   "Brand": "Yaffa",
-  "Product": "bowl mezze¤bowl mezze falafels",
+  "Product": "bowl mezze; bowl mezze falafels",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Detection of Listeria monocytogenes suite à une analyse de produit semi fini",
   "Class": "Voluntary",
@@ -3325,7 +3325,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22762/Interne",
-  "Notes": "dream cake beauséjour¤dream cake la providence¤dream cake saint-denis¤la parisienne [url-gate 2026-07-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-08: fix; corrections: Company→BOULANGERIE PATISSERIE LA PARISIENNE, Brand→Sans marque, Product→Salade de taboulé poulet; Salade de tabo, Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page clearly names 'BOULANGERI] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "dream cake beauséjour; dream cake la providence; dream cake saint-denis; la parisienne [url-gate 2026-07-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-08: fix; corrections: Company→BOULANGERIE PATISSERIE LA PARISIENNE, Brand→Sans marque, Product→Salade de taboulé poulet; Salade de tabo, Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page clearly names 'BOULANGERI] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-07-07",
@@ -3414,7 +3414,7 @@
   "Brand": "Select & Go",
   "Product": "variété thon - oeuf",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Une analyse a mis en évidence la présence de Listeria monocytogenes dans le produit. ¤",
+  "Reason": "Une analyse a mis en évidence la présence de Listeria monocytogenes dans le produit.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
@@ -3469,7 +3469,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22757/Interne",
-  "Notes": "dream cake beauséjour¤dream cake la providence¤dream cake saint-denis¤la parisienne [url-gate 2026-07-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-07: fix; corrections: Company→BOULANGERIE PATISSERIE LA PARISIENNE; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty but found on page; corrected.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "dream cake beauséjour; dream cake la providence; dream cake saint-denis; la parisienne [url-gate 2026-07-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-07: fix; corrections: Company→BOULANGERIE PATISSERIE LA PARISIENNE; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty but found on page; corrected.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
   "Date": "2026-07-07",
@@ -3901,7 +3901,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22717/Interne",
-  "Notes": "bam atac tresses, lyon, rungis, poittiers¤bam auchan coudray, toussieu, le luc¤blanc, demarne frères rungis, maree 2m, f [url-gate 2026-07-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-03: fix; corrections: Company→UNIMA DISTRIBUTION UD, Brand→Produit vrac; fix; company mismatch | Company in row is the brand; corrected to recalling firm 'UNIMA DISTRIBUTION UD'.]"
+  "Notes": "bam atac tresses, lyon, rungis, poittiers; bam auchan coudray, toussieu, le luc; blanc, demarne frères rungis, maree 2m, f [url-gate 2026-07-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-03: fix; corrections: Company→UNIMA DISTRIBUTION UD, Brand→Produit vrac; fix; company mismatch | Company in row is the brand; corrected to recalling firm 'UNIMA DISTRIBUTION UD'.]"
  },
  {
   "Date": "2026-07-03",
@@ -3949,7 +3949,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22727/Interne",
-  "Notes": "boucherie qualité viande - guichen - 15kg¤boucherie barre à viande - plelan le grand - 3kg [url-gate 2026-07-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-03: fix; corrections: Company→QUALITE VIANDE; fix; company mismatch | Company name in the row does not match the recalling firm on the page; corrected.]"
+  "Notes": "boucherie qualité viande - guichen - 15kg; boucherie barre à viande - plelan le grand - 3kg [url-gate 2026-07-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-03: fix; corrections: Company→QUALITE VIANDE; fix; company mismatch | Company name in the row does not match the recalling firm on the page; corrected.]"
  },
  {
   "Date": "2026-07-03",
