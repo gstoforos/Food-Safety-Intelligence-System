@@ -130,8 +130,8 @@
  {
   "Date": "2026-07-29",
   "Source": "RappelConso (FR)",
-  "Company": "OCEAN DELIGHTS",
-  "Brand": "Ocean Delights",
+  "Company": "Non communiqué",
+  "Brand": "Unbranded",
   "Product": "crevettes cuites 30/50 vendues au rayon libre service",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of listéria",
@@ -141,7 +141,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23044/Interne",
-  "Notes": "carrefour market bois guillaume bocquet uniquement [url-gate 2026-07-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-29: Company ''→'OCEAN DELIGHTS'] [gemini-enrich 2026-07-29: Brand 'Unbranded'→'Ocean Delights'] [gemini-check 2026-07-29: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "carrefour market bois guillaume bocquet uniquement [url-gate 2026-07-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-29: Company ''→'OCEAN DELIGHTS'] [gemini-enrich 2026-07-29: Brand 'Unbranded'→'Ocean Delights'] [gemini-check 2026-07-29: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fabrication-revert 2026-07-30: Company ''→'OCEAN DELIGHTS' and Brand 'Unbranded'→'Ocean Delights' were both written by gemini-enrich in the same pass, from a row that arrived with NO company and NO brand. 'Ocean Delights' is an English trade name on a French Carrefour Market (Bois-Guillaume) shrimp recall; it has no trace on rappel.conso.gouv.fr, while every genuine French row in the same batch carries a French raison sociale (CRUSTA C, SAS BOURGOIN, GAEC DU BARETOUS). Reverted to the true source values. The recall itself is retained — only the invented attribution is removed. Fiche unverifiable from CI: rappel.conso.gouv.fr serves an incomplete TLS chain.]"
  },
  {
   "Date": "2026-07-29",
