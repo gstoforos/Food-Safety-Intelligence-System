@@ -211,6 +211,11 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
   padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
 }
+.chip-tier3 {
+  display:inline-block; background:var(--dim); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
+}
 .chip-outbreak {
   display:inline-block; background:var(--violet); color:#fff;
   font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
@@ -476,7 +481,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
     <div class="report-meta">
       <strong>ISSUE</strong> &middot; Week 13, 2026<br>
       <strong>PERIOD</strong> &middot; 20 Mar &ndash; 26 Mar 2026<br>
-      <strong>UPDATED</strong> &middot; 25 Jul 2026
+      <strong>UPDATED</strong> &middot; 1 Aug 2026
     </div>
   </div>
 </header>
@@ -502,7 +507,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   </div>
   <div class="kpi">
     <div class="kpi-label">Active Outbreaks</div>
-    <div class="kpi-value violet">1</div>
+    <div class="kpi-value violet">0</div>
     <div class="kpi-delta" style="color:var(--muted)">Confirmed cluster events</div>
   </div>
   <div class="kpi">
@@ -518,8 +523,7 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   <span class="sec-rule"></span>
 </div>
 <div class="analysis">
-  <p>This week produced 19 food-safety hazard recall incidents across the AFTS monitoring network, with 17 classified as Tier-1 and 1 confirmed outbreak event. Salmonella spp. dominated the surveillance window, accounting for 11 of 19 incidents (58%). Although total activity may vary week to week, the high Tier-1 share indicates that serious microbiological and chemical hazards continue to drive regulatory action.</p>
-  <p>Outbreak watch: 1 confirmed cluster event tracked this week — Listeria monocytogenes linked to Lux Ham 1.9 kg. Although Salmonella spp. remained the leading incident driver, this outbreak should remain under active monitoring given cross-border exposure potential.</p>
+  <p>This week produced 19 food-safety hazard recall incidents across the AFTS monitoring network, with 17 classified as Tier-1 and no confirmed outbreak events. Salmonella spp. dominated the surveillance window, accounting for 11 of 19 incidents (58%). Although total activity may vary week to week, the high Tier-1 share indicates that serious microbiological and chemical hazards continue to drive regulatory action.</p>
   <p>Salmonella at this concentration is consistent with raw-ingredient contamination spanning multiple commodity classes — produce, meat and poultry, dairy and soft cheese, nuts and seeds, spices and dried herbs, and low-moisture foods (peanut butter, flour, infant formula). The common-cause pattern points to gaps in supplier-verification, post-process recontamination control, validated kill-step parameters, and produce/meat handling hygiene rather than a single-commodity failure. The relevant frameworks are 21 CFR 117 Preventive Controls, HACCP critical limits on any validated kill step, supplier-verification programmes, and the FDA Produce Safety Rule (21 CFR 112) where applicable.</p>
   <p>Regulatory activity this week spanned multiple jurisdictions (CFS Hong Kong, BLV, AESAN, FSA, RappelConso, and national authorities), signalling continued inspection intensity. AFTS recommends that food manufacturers use this briefing as a prompt to re-verify the single highest-leverage control for their commodity this week and to confirm documentation packages are ready for rapid regulatory response.</p>
 <p class="pa-note"><span class="pa-label">Process Authority Note:</span> This window contains 4 Listeria monocytogenes incidents, with Gilbert&#x27;s (United Kingdom), Barkly Smokehouse Pty Ltd (Australia), Goodfood Group Limited (New Zealand) among those cited. Ready-to-eat (RTE) manufacturers — particularly deli, soft cheese and dairy (including raw-milk cheese), charcuterie and cured-meat, smoked and cured seafood, cooked-meat, refrigerated prepared salads, and cut produce — should review their environmental monitoring programme (EMP), Zone 1–4 sampling plan, and corrective-action triggers under FSANZ Food Standards Code Standard 1.6.1 (microbiological limits) and industry Listeria management guidelines. Parallel frameworks apply under Regulation (EC) No 2073/2005 as amended by Reg. (EU) 2024/2895 (applicable from 1 July 2026): for RTE foods able to support growth of Listeria monocytogenes, operators must demonstrate compliance throughout shelf life; where a business cannot demonstrate to the competent authority that levels remain ≤100 CFU/g, the applicable criterion is not detected in 25 g. Regulation (EC) No 852/2004 HACCP requirements and national RASFF notification obligations also apply; retained EU Reg. 2073/2005, UK Food Hygiene Regulations, and FSA listeria-in-RTE control guidance. The process-authority deliverable for this hazard class is a validated lethality at the kill step (where one exists) or a documented post-lethality control programme where the organism cannot be eliminated in-pack. Typical compliance gaps: incomplete Zone 1 sampling, sanitation SOPs not validated against worst-case soil load, equipment hollows harbouring persistent strains, and post-lethality recontamination pathways not mapped. Tier-1 classification with RTE product categories may trigger targeted regulatory follow-up by FSANZ, the national competent authority (with RASFF notification), and the FSA, including environmental monitoring (EMP) audits, Zone 1–4 sampling verification, and review of post-lethality control programmes on the subsequent inspection.</p>
@@ -540,22 +544,6 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   <tbody>
         <tr>
       <td class="rank-num" data-label="#">1</td>
-      <td class="date-cell" data-label="Date">24 Mar 2026</td>
-      <td data-label="Pathogen">
-        <span class="path-dot" style="background:#dc2626"></span>
-        <span class="path-name">Listeria monocytogenes</span>
-        <span class="chip-tier1">T1</span> <span class="chip-outbreak">OUTBREAK</span>
-      </td>
-      <td class="co-cell" data-label="Company"><strong>Barkly Smokehouse Pty Ltd</strong><div class="brand-sub">Barkly Smokehouse</div></td>
-      <td class="prod-cell" data-label="Product">Lux Ham 1.9 kg</td>
-      <td class="juris-cell" data-label="Jurisdiction">
-        <div class="juris-country">Australia</div>
-        <div class="src-sub">FSANZ (AU)</div>
-        <div class="juris-link"><a class="src-link" href="https://www.foodstandards.gov.au/food-recalls/recall-alert/barkly-smokehouse-pty-ltd-lux-ham-19-kg" target="_blank" rel="noopener">View source &rarr;</a></div>
-      </td>
-    </tr>
-    <tr>
-      <td class="rank-num" data-label="#">2</td>
       <td class="date-cell" data-label="Date">25 Mar 2026</td>
       <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
@@ -568,6 +556,22 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
         <div class="juris-country">United Kingdom</div>
         <div class="src-sub">FSA (UK)</div>
         <div class="juris-link"><a class="src-link" href="https://www.food.gov.uk/news-alerts/alert/fsa-prin-14-2026" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">2</td>
+      <td class="date-cell" data-label="Date">24 Mar 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Barkly Smokehouse Pty Ltd</strong><div class="brand-sub">Barkly Smokehouse</div></td>
+      <td class="prod-cell" data-label="Product">Lux Ham 1.9 kg</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Australia</div>
+        <div class="src-sub">FSANZ (AU)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.foodstandards.gov.au/food-recalls/recall-alert/barkly-smokehouse-pty-ltd-lux-ham-19-kg" target="_blank" rel="noopener">View source &rarr;</a></div>
       </td>
     </tr>
     <tr>
@@ -753,22 +757,6 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
   <tbody>
         <tr>
       <td class="rank-num" data-label="#">1</td>
-      <td class="date-cell" data-label="Date">24 Mar 2026</td>
-      <td data-label="Pathogen">
-        <span class="path-dot" style="background:#dc2626"></span>
-        <span class="path-name">Listeria monocytogenes</span>
-        <span class="chip-tier1">T1</span> <span class="chip-outbreak">OUTBREAK</span>
-      </td>
-      <td class="co-cell" data-label="Company"><strong>Barkly Smokehouse Pty Ltd</strong><div class="brand-sub">Barkly Smokehouse</div></td>
-      <td class="prod-cell" data-label="Product">Lux Ham 1.9 kg</td>
-      <td class="juris-cell" data-label="Jurisdiction">
-        <div class="juris-country">Australia</div>
-        <div class="src-sub">FSANZ (AU)</div>
-        <div class="juris-link"><a class="src-link" href="https://www.foodstandards.gov.au/food-recalls/recall-alert/barkly-smokehouse-pty-ltd-lux-ham-19-kg" target="_blank" rel="noopener">View source &rarr;</a></div>
-      </td>
-    </tr>
-    <tr>
-      <td class="rank-num" data-label="#">2</td>
       <td class="date-cell" data-label="Date">25 Mar 2026</td>
       <td data-label="Pathogen">
         <span class="path-dot" style="background:#dc2626"></span>
@@ -781,6 +769,22 @@ table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
         <div class="juris-country">United Kingdom</div>
         <div class="src-sub">FSA (UK)</div>
         <div class="juris-link"><a class="src-link" href="https://www.food.gov.uk/news-alerts/alert/fsa-prin-14-2026" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">2</td>
+      <td class="date-cell" data-label="Date">24 Mar 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Barkly Smokehouse Pty Ltd</strong><div class="brand-sub">Barkly Smokehouse</div></td>
+      <td class="prod-cell" data-label="Product">Lux Ham 1.9 kg</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Australia</div>
+        <div class="src-sub">FSANZ (AU)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.foodstandards.gov.au/food-recalls/recall-alert/barkly-smokehouse-pty-ltd-lux-ham-19-kg" target="_blank" rel="noopener">View source &rarr;</a></div>
       </td>
     </tr>
     <tr>
