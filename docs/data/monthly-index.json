@@ -10,7 +10,8 @@
     "tier1": 218,
     "outbreaks": 3,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "July 2026: 289 recalls, 218 Tier-1, 3 outbreak(s). Leading pathogen: Listeria monocytogenes."
+    "summary": "July 2026: 289 recalls, 218 Tier-1, 3 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M07-marketing.pdf"
   },
   {
     "filename": "2026-M06.html",
@@ -23,7 +24,8 @@
     "tier1": 197,
     "outbreaks": 4,
     "top_pathogen": "Salmonella spp.",
-    "summary": "June 2026: 250 recalls, 197 Tier-1, 4 outbreak(s). Leading pathogen: Salmonella spp.."
+    "summary": "June 2026: 250 recalls, 197 Tier-1, 4 outbreak(s). Leading pathogen: Salmonella spp..",
+    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M06-marketing.pdf"
   },
   {
     "filename": "2026-M05.html",
@@ -36,7 +38,8 @@
     "tier1": 220,
     "outbreaks": 7,
     "top_pathogen": "Salmonella spp.",
-    "summary": "May 2026: 260 recalls, 220 Tier-1, 7 outbreak(s). Leading pathogen: Salmonella spp.."
+    "summary": "May 2026: 260 recalls, 220 Tier-1, 7 outbreak(s). Leading pathogen: Salmonella spp..",
+    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M05-marketing.pdf"
   },
   {
     "filename": "2026-M04.html",
@@ -49,7 +52,8 @@
     "tier1": 271,
     "outbreaks": 9,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "April 2026: 366 recalls, 271 Tier-1, 9 outbreak(s). Leading pathogen: Listeria monocytogenes."
+    "summary": "April 2026: 366 recalls, 271 Tier-1, 9 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M04-marketing.pdf"
   },
   {
     "filename": "2026-M03.html",
@@ -62,7 +66,8 @@
     "tier1": 60,
     "outbreaks": 3,
     "top_pathogen": "Salmonella spp.",
-    "summary": "March 2026: 69 recalls, 60 Tier-1, 3 outbreak(s). Leading pathogen: Salmonella spp.."
+    "summary": "March 2026: 69 recalls, 60 Tier-1, 3 outbreak(s). Leading pathogen: Salmonella spp..",
+    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M03-marketing.pdf"
   },
   {
     "filename": "2026-M02.html",
@@ -89,6 +94,7 @@
     "tier1": 35,
     "outbreaks": 4,
     "top_pathogen": "Bacillus cereus / Cereulide",
-    "summary": "January 2026: 36 recalls, 35 Tier-1, 4 outbreak(s). Leading pathogen: Bacillus cereus / Cereulide."
+    "summary": "January 2026: 36 recalls, 35 Tier-1, 4 outbreak(s). Leading pathogen: Bacillus cereus / Cereulide.",
+    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M01-marketing.pdf"
   }
 ]
