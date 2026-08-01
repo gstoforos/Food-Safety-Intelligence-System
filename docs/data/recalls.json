@@ -28,14 +28,14 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23060/interne",
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23060/Interne",
   "Notes": "leclerc intermarche auchan"
  },
  {
   "Date": "2026-07-31",
   "Source": "RappelConso (FR)",
-  "Company": "0",
-  "Brand": "0",
+  "Company": "(not specified in RappelConso fiche 23067)",
+  "Brand": "(not specified in RappelConso fiche 23067)",
   "Product": "charcuterie seche",
   "Pathogen": "Salmonella",
   "Reason": "Presence of salmonelle dans le produit",
@@ -44,8 +44,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23067/interne",
-  "Notes": "e.leclerc sebadis"
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23067/Interne",
+  "Notes": "e.leclerc sebadis [audit 2026-08-02: Company and Brand both arrived as the literal string '0' — an extractor sentinel, not a name. Fiche 23067 is dated 2026-07-31 and the DGCCRF open-data export currently ends at fiche 22990 (2026-07-24), so there is no authoritative record to repair from yet; normal publication lag. The names are NOT guessed. 'e.leclerc sebadis' in this row's Notes is the RappelConso distributeurs field, not the company. pipeline/verify_rappelconso.py will fill this in automatically once the export catches up; until then, OPERATOR ACTION: open fiche 23067 and set Company/Brand.]"
  },
  {
   "Date": "2026-07-31",
@@ -510,38 +510,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23044/Interne",
   "Notes": "carrefour market bois guillaume bocquet uniquement [url-gate 2026-07-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-07-29: Company ''→'OCEAN DELIGHTS'] [gemini-enrich 2026-07-29: Brand 'Unbranded'→'Ocean Delights'] [gemini-check 2026-07-29: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fabrication-revert 2026-07-30: Company ''→'OCEAN DELIGHTS' and Brand 'Unbranded'→'Ocean Delights' were both written by gemini-enrich in the same pass, from a row that arrived with NO company and NO brand. 'Ocean Delights' is an English trade name on a French Carrefour Market (Bois-Guillaume) shrimp recall; it has no trace on rappel.conso.gouv.fr, while every genuine French row in the same batch carries a French raison sociale (CRUSTA C, SAS BOURGOIN, GAEC DU BARETOUS). Reverted to the true source values. The recall itself is retained — only the invented attribution is removed. Fiche unverifiable from CI: rappel.conso.gouv.fr serves an incomplete TLS chain.]"
- },
- {
-  "Date": "2026-07-29",
-  "Source": "FSANZ (AU)",
-  "Company": "Auxico (Perth) Pty Ltd",
-  "Brand": "LGM",
-  "Product": "LGM HOT CHILLI OIL 275G",
-  "Pathogen": "Undeclared allergen (peanuts)",
-  "Reason": "The recall is due to the presence of an undeclared allergen (peanuts).",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/auxico-perth-pty-ltd-lgm-hot-chilli-oil-275g",
-  "Notes": "[gemini-enrich 2026-07-29: Brand '—'→'LGM'] [gemini-check 2026-07-29: pass; clean-row shortcut (gemini-enriched + all fields valid)] [correction 2026-07-30: Pathogen 'Listeria monocytogenes'->'Undeclared allergen (peanuts)', Tier 1->2. Verified against the FSANZ recall page: the hazard is an undeclared allergen and the word 'Listeria' appears nowhere on the page. Fabricated by enrichment default-tagging; promoted because the hazard-class guard had no allergen class.]"
- },
- {
-  "Date": "2026-07-29",
-  "Source": "FSANZ (AU)",
-  "Company": "UPDATED 30.07.26 | Auxico (Perth) Pty Ltd",
-  "Brand": "—",
-  "Product": "LGM HOT CHILLI OIL 275G",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "The recall is due to the presence of an undeclared allergen (peanuts).",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/updated-300726-auxico-perth-pty-ltd-lgm-hot-chilli-oil-275g",
-  "Notes": ""
  },
  {
   "Date": "2026-07-28",
@@ -1166,22 +1134,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22964/Interne",
   "Notes": "poulet du nord; socovol; utp magasin abattoir des crets [url-gate 2026-07-28: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-28: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_gap_v2'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict. Date corrected 2026-07-28->2026-07-24: fiche 22964 sits in the published sequence at 2026-07-24, so the scraped date was the collection date, not the publication date.]"
- },
- {
-  "Date": "2026-07-24",
-  "Source": "FSANZ (AU)",
-  "Company": "Viet Meatballs",
-  "Brand": "Viet Meatballs",
-  "Product": "Chinese Sausage - 500g",
-  "Pathogen": "Undeclared allergen (gluten)",
-  "Reason": "The presence of an undeclared allergen (gluten).",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/viet-meatballs-chinese-sausage-500g",
-  "Notes": "[gemini-enrich 2026-07-29: Brand '—'→'Viet Meatballs'] [gemini-check 2026-07-29: pass; clean-row shortcut (gemini-enriched + all fields valid)] [correction 2026-07-30: Pathogen 'Listeria monocytogenes'->'Undeclared allergen (gluten)', Tier 1->2. Verified against the FSANZ recall page: the hazard is an undeclared allergen and the word 'Listeria' appears nowhere on the page. Fabricated by enrichment default-tagging; promoted because the hazard-class guard had no allergen class.]"
  },
  {
   "Date": "2026-07-24",
@@ -1982,22 +1934,6 @@
   "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-iceberg-lettuce-central-mexico-because-possible-health-risk",
   "Notes": "[FDA company announcement 2026-07-17, FDA publish 2026-07-18; Taylor Farms de Mexico, Guanajuato MX; distributed 6/29-7/16 across 28 states; OUTBREAK-LINKED to FDA 5-state Cyclospora investigation (iceberg lettuce, July 2026) -> Outbreak=1; Tier 1 by outbreak-override (active multistate outbreak w/ illnesses), though Cyclospora not in always-Tier-1 pathogen list; verified against fda.gov source 2026-07-17] [date: using FDA publish date 2026-07-18 per operator] [region-normalise 2026-07-24: Region was 'Multistate (AL,AR,CT,FL,GA,IA,IL,IN,KS,KY,LA,MA,MD,MI,MO,MS,NC,NH,NJ,OH,OK,PA,SC,TN,TX,VA,WI)' (detail level); set to continent bucket 'North America' for daily/weekly region grouping — detail retained here] [detail-add 2026-08-01: outbreak metrics added. Figures verified on the CDC investigation page as of its 2026-07-16 update (1,644 cases / 5 states / 94 hospitalisations); the FDA page title and a CDC newsroom release confirm later expansion to 9 states, so counts after 16 July are higher than the ones quoted here. Company qualified: the US recall notice names Taylor Fresh Foods, the implicated growing/packing source is Taylor Farms de Mexico. Recall initiated 17 July, FDA published 18 July — both now stated.]"
- },
- {
-  "Date": "2026-07-17",
-  "Source": "FSANZ (AU)",
-  "Company": "Truong Ton Group",
-  "Brand": "Truong Ton Group",
-  "Product": "Vietnamese Sausage 500g",
-  "Pathogen": "Undeclared allergen (wheat)",
-  "Reason": "The presence of an undeclared allergen (wheat)",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/truong-ton-group-vietnamese-sausage-500g",
-  "Notes": "[gemini-enrich 2026-07-20: Brand '—'→'Truong Ton Group'] [claude-check 2026-07-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-20: MIS-CLASSIFIED — enrich stamped Pathogen='Listeria monocytogenes' T1; FSANZ source (FSANZ202641, pub 17 Jul 2026) states recall is undeclared allergen WHEAT, no pathogen. Corrected -> allergen, Tier 2]"
  },
  {
   "Date": "2026-07-17",
@@ -4766,22 +4702,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22700/Interne",
   "Notes": "cf liste jointe [url-gate 2026-07-01: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-01: fix; corrections: Company→TERRES DE MOULIN MADAME, Pathogen→Mycotoxins (T-2 toxin, HT-2 toxin); fix; company mismatch; pathogen mismatch | Company and Pathogen corrected based on page content.] [enrich-gate 2026-07-01: pending_enrichment → pending (Claude verified)] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
- },
- {
-  "Date": "2026-06-30",
-  "Source": "FSANZ (AU)",
-  "Company": "Kaisi Melbourne Pty Ltd",
-  "Brand": "Wu Xian Zhai",
-  "Product": "Wu Xian Zhai Soybean Snacks - Five Spice Flavour, Sauce Flavour and Spicy Flavour 108g",
-  "Pathogen": "Undeclared allergen (egg)",
-  "Reason": "The presence of an undeclared allergen (Egg).",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/kaisi-melbourne-pty-ltd-wu-xian-zhai-soybean-snacks-five-spice-flavour",
-  "Notes": "[gemini-enrich 2026-07-06: Brand '—'→'Wu Xian Zhai'] [claude-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Undeclared allergen (egg)' T2 (undeclared egg allergen)]"
  },
  {
   "Date": "2026-06-30",
@@ -11265,22 +11185,6 @@
  },
  {
   "Date": "2026-05-13",
-  "Source": "FSANZ (AU)",
-  "Company": "Murray River Smokehouse",
-  "Brand": "Murray River Smokehouse",
-  "Product": "Turkey Bacon - 150g",
-  "Pathogen": "Undeclared allergen (milk)",
-  "Reason": "The presence of an undeclared allergen (milk).",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/murray-river-smokehouse-turkey-bacon-150g",
-  "Notes": "[gemini-enrich 2026-05-16: Brand '—'→'Murray River Smokehouse'] [claude-check 2026-05-16: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Undeclared allergen (milk)' T2 (undeclared milk allergen)]"
- },
- {
-  "Date": "2026-05-13",
   "Source": "RappelConso (FR)",
   "Company": "Metro France",
   "Brand": "Metro Chef",
@@ -12116,16 +12020,16 @@
   "Source": "RappelConso (FR)",
   "Company": "Les Ateliers",
   "Brand": "Les Ateliers",
-  "Product": "Viandes (RappelConso fiche 22211)",
+  "Product": "Tartare Brasserie 5% Charolais — 2 x 180 g",
   "Pathogen": "Salmonella",
-  "Reason": "Contamination with Salmonella",
+  "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22211/Interne",
-  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[manual-promote 2026-05-08: Company filled per claude-check] [manual fix 2026-05-14: Reason FR→EN per audit rule] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [audit 2026-08-02 (sweep 2): reconciled against the official DGCCRF open-data record for fiche 22211 — motif_rappel: \"présence salmonelle\"; risques_encourus: \"salmonella spp\"; marque_produit: \"les ateliers\". Fields corrected: Product, Reason.]"
  },
  {
   "Date": "2026-05-07",
@@ -12262,14 +12166,14 @@
   "Brand": "Salaisons Jouvin",
   "Product": "Merguez Bœuf Volaille Halal — Barquette de 5kg (Lot 611705, DDM 15/05/2026)",
   "Pathogen": "Salmonella",
-  "Reason": "Germina brand \"Brocoli Calabrese\" seeds recalled due to possible contamination with pathogenic E. coli",
+  "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22184/Interne",
-  "Notes": "smch [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
+  "Notes": "smch [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2] [audit 2026-08-02: Reason had been overwritten with a neighbouring recall's text by the url-gate batch mis-attribution. Repaired from the official DGCCRF open-data record for fiche 22184 (motif_rappel: \"présence de salmonelle\"; risques_encourus: \"salmonella spp\"; marque_produit: \"salaisons jouvin\"), fetched via the data.gouv.fr tabular API. Pathogen was already correct and is unchanged.]"
  },
  {
   "Date": "2026-05-06",
@@ -12339,17 +12243,17 @@
   "Date": "2026-05-06",
   "Source": "RappelConso (FR)",
   "Company": "Ferme baracand",
-  "Brand": "Ferme baracand",
+  "Brand": "Ferme Baracand",
   "Product": "Picodon — emballé par 3 ou à l'unité (Lot 97, DLC 16/06/2026, GTIN 3770016897129/006)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "Exceed level of Ochratoxin A 62 ± 32 µg/kg in raisins from Uzbekistan; risk: serious; category: fruits and vegetables",
+  "Reason": "Contamination with Shiga toxin-producing E. coli (STEC)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22206/Interne",
-  "Notes": "au primeur du chantre; quartier le chantre, 1750 avenue de provence, 26320 saint-marcel-lès-valence [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [Claude-flag 2026-05-06: Missing Company field (empty string). Critical for Tier-1 STEC recall.]"
+  "Notes": "au primeur du chantre; quartier le chantre, 1750 avenue de provence, 26320 saint-marcel-lès-valence [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [Claude-flag 2026-05-06: Missing Company field (empty string). Critical for Tier-1 STEC recall.] [audit 2026-08-02: Reason had been overwritten with a neighbouring recall's text by the url-gate batch mis-attribution. Repaired from the official DGCCRF open-data record for fiche 22206 (motif_rappel: \"contamination e.coli stec\"; risques_encourus: \"escherichia coli shiga toxinogène (stec)\"; marque_produit: \"ferme baracand\"), fetched via the data.gouv.fr tabular API. Pathogen was already correct and is unchanged.]"
  },
  {
   "Date": "2026-05-06",
@@ -12358,14 +12262,14 @@
   "Brand": "HERTA",
   "Product": "Lardons Fumés 200g et 200g+25% (3 GTINs, Lots 6145084101/6146084101, DLC 25-26/05/2026)",
   "Pathogen": "Salmonella",
-  "Reason": "Exceed level of Ochratoxin A 62 ± 32 µg/kg in raisins from Uzbekistan; risk: serious; category: fruits and vegetables",
+  "Reason": "Isolated detection of Salmonella on a batch of Lardons Fumés 200g+25%",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22208/Interne",
-  "Notes": "carrefour, provera, auchan, intermarché, leclerc, casino, monoprix [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
+  "Notes": "carrefour, provera, auchan, intermarché, leclerc, casino, monoprix [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2] [audit 2026-08-02: Reason had been overwritten with a neighbouring recall's text by the url-gate batch mis-attribution. Repaired from the official DGCCRF open-data record for fiche 22208 (motif_rappel: \"en raison d'une détection de présence isolée de salmonella sur un lot de lardons fumés 200g+25%\"; risques_encourus: \"salmonella spp\"; marque_produit: \"herta\"), fetched via the data.gouv.fr tabular API. Pathogen was already correct and is unchanged.]"
  },
  {
   "Date": "2026-05-06",
@@ -12628,16 +12532,16 @@
   "Source": "RappelConso (FR)",
   "Company": "Mont Charvin Salaisons",
   "Brand": "Mont Charvin",
-  "Product": "viandes (RappelConso fiche 22190)",
+  "Product": "Dry-cured sausage with walnuts (saucisson sec aux noix)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Contamination with Listeria monocytogenes",
+  "Reason": "Presence of Listeria",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22190/Interne",
-  "Notes": "magasin produits régionaux, marchés [scraper-flag: no Company/Brand from API — claude-check please extract from page] [scraper-flag: Product is subcategory fallback] [url-gate 2026-05-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-08: pass; pass | All fields verified: date 2026-05-05 matches page; company MONT CHARVIN SALAISONS identified; product 'saucisson ] [manual-fix 2026-05-08: Company/Brand/Reason filled] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "magasin produits régionaux, marchés [scraper-flag: no Company/Brand from API — claude-check please extract from page] [scraper-flag: Product is subcategory fallback] [url-gate 2026-05-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-08: pass; pass | All fields verified: date 2026-05-05 matches page; company MONT CHARVIN SALAISONS identified; product 'saucisson ] [manual-fix 2026-05-08: Company/Brand/Reason filled] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [audit 2026-08-02 (sweep 2): reconciled against the official DGCCRF open-data record for fiche 22190 — motif_rappel: \"présence de listéria\"; risques_encourus: \"listeria monocytogenes\"; marque_produit: \"mont charvin salaisons\". Fields corrected: Product, Reason.]"
  },
  {
   "Date": "2026-05-05",
@@ -12662,14 +12566,14 @@
   "Brand": "FOODMAKER",
   "Product": "Salade Penne Chicken Lemon 300g (Lot TGT 01/05/2026, GTIN 5407009903120)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Aflatoxin contamination above legal limit",
+  "Reason": "Possible presence of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22186/Interne",
-  "Notes": "franprix [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [Claude-flag 2026-05-06: Missing Company field (empty string). Critical for Tier-1 Listeria recall.] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "franprix [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [Claude-flag 2026-05-06: Missing Company field (empty string). Critical for Tier-1 Listeria recall.] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [audit 2026-08-02: Reason had been overwritten with a neighbouring recall's text by the url-gate batch mis-attribution. Repaired from the official DGCCRF open-data record for fiche 22186 (motif_rappel: \"possible présence de listeria monocytogenes\"; risques_encourus: \"listeria monocytogenes\"; marque_produit: \"foodmaker\"), fetched via the data.gouv.fr tabular API. Pathogen was already correct and is unchanged.]"
  },
  {
   "Date": "2026-05-04",
@@ -12724,39 +12628,39 @@
   "Source": "RappelConso (FR)",
   "Company": "Vracbio",
   "Brand": "Vracbio",
-  "Product": "fruits et légumes (RappelConso fiche 22178)",
+  "Product": "Dried figs (figue séchée)",
   "Pathogen": "Aflatoxin",
-  "Reason": "Detection of Aflatoxin",
+  "Reason": "High levels of aflatoxin B1 and total aflatoxins",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22178/Interne",
-  "Notes": "vracbio [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Vracbio; Brand→Vracbio; Tier verified=2 FDA framework] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "vracbio [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Vracbio; Brand→Vracbio; Tier verified=2 FDA framework] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [audit 2026-08-02 (sweep 2): reconciled against the official DGCCRF open-data record for fiche 22178 — motif_rappel: \"teneurs élevées en aflatoxine b1 et en aflatoxines totales\"; risques_encourus: \"aflatoxines\"; marque_produit: \"vracbio\". Fields corrected: Product, Reason.]"
  },
  {
   "Date": "2026-05-04",
   "Source": "RappelConso (FR)",
   "Company": "Boucherie Aux Enfants",
   "Brand": "Boucherie Aux Enfants",
-  "Product": "viandes (RappelConso fiche 22177)",
+  "Product": "Beech-smoked lardons, packed 27/04/2026",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Detection of Listeria monocytogenes",
+  "Reason": "Presence of Listeria",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22177/Interne",
-  "Notes": "boucherie aux enfants [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Boucherie Aux Enfants; Brand→Boucherie Aux Enfants; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "boucherie aux enfants [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Boucherie Aux Enfants; Brand→Boucherie Aux Enfants; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [audit 2026-08-02 (sweep 2): reconciled against the official DGCCRF open-data record for fiche 22177 — motif_rappel: \"présence de listeria\"; risques_encourus: \"listeria monocytogenes\"; marque_produit: \"sans marque\". Fields corrected: Product, Reason.]"
  },
  {
   "Date": "2026-05-04",
   "Source": "RappelConso (FR)",
   "Company": "Société de Distribution de Lesparre Leclerc",
   "Brand": "Leclerc Lesparre",
-  "Product": "viandes (RappelConso fiche 22173)",
+  "Product": "Charcuterie from manufacturer Charcuterie L. Fassier (Sarthe)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -12765,7 +12669,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22173/Interne",
-  "Notes": "leclerc lesparre 33340 [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Leclerc Lesparre; Brand→Leclerc Lesparre; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "leclerc lesparre 33340 [url-gate 2026-05-04: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-04: fix-upgraded; Company→Leclerc Lesparre; Brand→Leclerc Lesparre; Tier verified=1 H4 Listeria] [manual fix 2026-05-14: Reason FR→EN per audit rule] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [audit 2026-08-02 (sweep 2): reconciled against the official DGCCRF open-data record for fiche 22173 — motif_rappel: \"détection de listéria monocytogènes\"; risques_encourus: \"listeria monocytogenes\"; marque_produit: \"fournisseur fabriquant : charcuterie l.fassier (sarthe)\". Fields corrected: Product.]"
  },
  {
   "Date": "2026-05-04",
@@ -13330,18 +13234,18 @@
  {
   "Date": "2026-04-29",
   "Source": "RappelConso (FR)",
-  "Company": "Origin: Türkiye | Notifying: Italy",
-  "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22157)",
+  "Company": "E.Leclerc L'Immaculée Saint-Nazaire; E.Leclerc Herbignac; Intermarché Séné; Intermarché Elven",
+  "Brand": "L'Estran à Pénestin / unbranded (bulk, fishmonger's display)",
+  "Product": "Rope-grown mussels from Île d'Houat, in nets and bags",
   "Pathogen": "Marine biotoxin",
-  "Reason": "Ochratoxin A in dried figs - diced  from Türkiye; risk: serious; category: fruits and vegetables",
+  "Reason": "Suspected DSP (diarrhetic shellfish poisoning) toxins",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22157/Interne",
-  "Notes": "[Claude-flag 2026-04-30: Missing critical information: Company name is empty; Product description is gene] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[Claude-flag 2026-04-30: Missing critical information: Company name is empty; Product description is gene] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [audit 2026-08-02: Reason had been overwritten with a neighbouring recall's text by the url-gate batch mis-attribution. Repaired from the official DGCCRF open-data record for fiche 22157 (motif_rappel: \"suspicion de toxines diarrhéiques (dsp)\"; risques_encourus: \"biotoxines marines dsp (toxines diarrhéiques)\"; marque_produit: \"sans marque (vrac étale poissonnerie) et l'estran à pénéstin\"), fetched via the data.gouv.fr tabular API. Pathogen was already correct and is unchanged.]"
  },
  {
   "Date": "2026-04-28",
@@ -13954,18 +13858,18 @@
  {
   "Date": "2026-04-23",
   "Source": "RappelConso (FR)",
-  "Company": "Origin: Türkiye | Notifying: France",
-  "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22113)",
+  "Company": "Intermarché Le Passage",
+  "Brand": "Unbranded",
+  "Product": "Whole sardines sold at the traditional counter",
   "Pathogen": "Histamine / scombrotoxin",
-  "Reason": "Aflatoxins in dried figs from Turkiye; risk: serious; category: fruits and vegetables",
+  "Reason": "High histamine level",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22113/Interne",
-  "Notes": "[RASFF #2026.3528; classification: border rejection notification; category: fruits and vegetables; notifId=839681] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[RASFF #2026.3528; classification: border rejection notification; category: fruits and vegetables; notifId=839681] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [audit 2026-08-02: Reason had been overwritten with a neighbouring recall's text by the url-gate batch mis-attribution. Repaired from the official DGCCRF open-data record for fiche 22113 (motif_rappel: \"teneur eleve en histamine\"; risques_encourus: \"toxines endogènes : histamine\"; marque_produit: \"sans marque\"), fetched via the data.gouv.fr tabular API. Pathogen was already correct and is unchanged.]"
  },
  {
   "Date": "2026-04-23",
@@ -14402,34 +14306,34 @@
  {
   "Date": "2026-04-21",
   "Source": "RappelConso (FR)",
-  "Company": "Various pistachios and pistachio-containing products made at Kunafa's",
-  "Brand": "—",
-  "Product": "fruits et légumes (RappelConso fiche 22055)",
-  "Pathogen": "Salmonella",
-  "Reason": "Salmonella — outbreak",
+  "Company": "Carrefour",
+  "Brand": "Simpl",
+  "Product": "Avocados — net of 3 fruits",
+  "Pathogen": "Cadmium (heavy metal)",
+  "Reason": "Presence of cadmium",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 1,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22055/Interne",
-  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by test results.\n\nThere have been reported illnesses that may be associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a food safety investigation, which may   [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-18: pending_gap → pending_gap_v1] [claude-check 2026-05-19: fix; corrections: Date→2026-04-21; fix; date on page=2026-04-21 | Row Date field is empty but page shows 2026-04-21 (meta-dcterms.issued and Last updated);] [gap-gate 2026-05-19: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3]"
+  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by test results.\n\nThere have been reported illnesses that may be associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a food safety investigation, which may   [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-18: pending_gap → pending_gap_v1] [claude-check 2026-05-19: fix; corrections: Date→2026-04-21; fix; date on page=2026-04-21 | Row Date field is empty but page shows 2026-04-21 (meta-dcterms.issued and Last updated);] [gap-gate 2026-05-19: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3] [audit 2026-08-02 (sweep 2): reconciled against the official DGCCRF open-data record for fiche 22055 — motif_rappel: \"présence de cadmium\"; risques_encourus: \"éléments traces métalliques (métaux lourds : plomb, mercure, cadmium...)\"; marque_produit: \"simpl\". Fields corrected: Company, Brand, Product, Reason, Pathogen, Tier. THE PUBLISHED HAZARD WAS WRONG: this row had been overwritten with a different recall's content by the url-gate batch mis-attribution, so Pathogen and Tier are corrected too.]"
  },
  {
   "Date": "2026-04-21",
   "Source": "RappelConso (FR)",
-  "Company": "Origin: Türkiye | Notifying: France",
-  "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22067)",
+  "Company": "Grossistes–détaillants (wholesalers and retailers)",
+  "Brand": "Unbranded",
+  "Product": "Tellines (wedge clams) packed on 15/04/2026 and 16/04/2026",
   "Pathogen": "Marine biotoxin",
-  "Reason": "Aflatoxins in dried figs from Turkiye; risk: serious; category: fruits and vegetables",
+  "Reason": "Fishing-zone closure — DSP (diarrhetic shellfish poisoning) marine biotoxins",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22067/Interne",
-  "Notes": "[Claude-flag 2026-04-30: Missing critical information: Company name is empty; Product description is gene] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[Claude-flag 2026-04-30: Missing critical information: Company name is empty; Product description is gene] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [audit 2026-08-02: Reason had been overwritten with a neighbouring recall's text by the url-gate batch mis-attribution. Repaired from the official DGCCRF open-data record for fiche 22067 (motif_rappel: \"fermeture zone de pêche\"; risques_encourus: \"biotoxines marines dsp (toxines diarrhéiques)\"; marque_produit: \"sans marque\"), fetched via the data.gouv.fr tabular API. Pathogen was already correct and is unchanged.]"
  },
  {
   "Date": "2026-04-21",
@@ -14514,18 +14418,18 @@
  {
   "Date": "2026-04-21",
   "Source": "RappelConso (FR)",
-  "Company": "Origin: Georgia | Notifying: Bulgaria",
-  "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22082)",
+  "Company": "E.Leclerc La Réserve",
+  "Brand": "Unbranded",
+  "Product": "Albacore tuna steak, self-service counter",
   "Pathogen": "Histamine / scombrotoxin",
-  "Reason": "aflatoxins in hazelnutl from Georgia; risk: serious; category: nuts, nut products and seeds",
+  "Reason": "Presence of histamine",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22082/Interne",
-  "Notes": "[RASFF #2026.3421; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838957] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[RASFF #2026.3421; classification: border rejection notification; category: nuts, nut products and seeds; notifId=838957] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [audit 2026-08-02: Reason had been overwritten with a neighbouring recall's text by the url-gate batch mis-attribution. Repaired from the official DGCCRF open-data record for fiche 22082 (motif_rappel: \"présence d'histamine\"; risques_encourus: \"toxines endogènes : histamine\"; marque_produit: \"sans marque\"), fetched via the data.gouv.fr tabular API. Pathogen was already correct and is unchanged.]"
  },
  {
   "Date": "2026-04-21",
@@ -14686,22 +14590,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839010",
   "Notes": "[RASFF #2026.3404; classification: border rejection notification; category: fruits and vegetables; notifId=839010]"
- },
- {
-  "Date": "2026-04-21",
-  "Source": "FSANZ (AU)",
-  "Company": "Greenstorm Foods t/a Austral Herbs",
-  "Brand": "Certified Organic Garlic Powder",
-  "Product": "Certified Organic Garlic Powder — 250 g, 500 g, 1 kg, 5 kg, 10 kg (best-before 2028-12-08)",
-  "Pathogen": "Peanut",
-  "Reason": "Undeclared allergen (peanut)",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 3,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/greenstorm-foods-ta-austral-herbs-certified-organic-garlic-powder-250g",
-  "Notes": "[available in NSW, QLD, VIC, TAS, SA and online nationally; out-of-scope per locked Tier-1 rule (allergens excluded), kept at Tier 3]"
  },
  {
   "Date": "2026-04-21",
@@ -14994,18 +14882,18 @@
  {
   "Date": "2026-04-18",
   "Source": "RappelConso (FR)",
-  "Company": "Rossmann",
-  "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22056)",
+  "Company": "Intermarché Agen",
+  "Brand": "Unbranded",
+  "Product": "Sardine fillets",
   "Pathogen": "Histamine / scombrotoxin",
-  "Reason": "Recall over foreign bodies posing injury risk; an additional batch is also affected",
+  "Reason": "High histamine level",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22056/Interne",
-  "Notes": "[Rossmann = retailer recalling same product; sister to Phag GmbH manufacturer-level recall same day; physical hazard in scope; Tier 3] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[Rossmann = retailer recalling same product; sister to Phag GmbH manufacturer-level recall same day; physical hazard in scope; Tier 3] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [week-fix 2026-07-25: report_week W16->W17; Thursday-to-Thursday rule — week runs 2026-04-17 Fri -> 2026-04-23 Thu, labelled by ISO week of the closing Thursday] [audit 2026-08-02 (sweep 2): reconciled against the official DGCCRF open-data record for fiche 22056 — motif_rappel: \"taux élevé histamine\"; risques_encourus: \"toxines endogènes : histamine\"; marque_produit: \"sans\". Fields corrected: Company, Brand, Product, Reason.]"
  },
  {
   "Date": "2026-04-18",
@@ -15602,18 +15490,18 @@
  {
   "Date": "2026-04-15",
   "Source": "RappelConso (FR)",
-  "Company": "Origin: Brazil | Notifying: Netherlands",
-  "Brand": "—",
-  "Product": "fruits et légumes (RappelConso fiche 22039)",
-  "Pathogen": "Salmonella",
-  "Reason": "Salmonella spp. in poultry meat preparation from Brazil.; risk: serious; category: poultry meat and poultry meat products",
+  "Company": "Lidl (selected stores — see the attached list)",
+  "Brand": "Unbranded",
+  "Product": "Avocados — net of 3 fruits, and loose",
+  "Pathogen": "Cadmium (heavy metal)",
+  "Reason": "Cadmium above the maximum permitted level",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 1,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22039/Interne",
-  "Notes": "[RASFF #2026.3211; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837004] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3]"
+  "Notes": "[RASFF #2026.3211; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=837004] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3] [audit 2026-08-02 (sweep 2): reconciled against the official DGCCRF open-data record for fiche 22039 — motif_rappel: \"dépassement de la teneur maximale autorisée sur un contaminant (cadmium)\"; risques_encourus: \"éléments traces métalliques (métaux lourds : plomb, mercure, cadmium...)\"; marque_produit: \"-\". Fields corrected: Company, Brand, Product, Reason, Pathogen, Tier. THE PUBLISHED HAZARD WAS WRONG: this row had been overwritten with a different recall's content by the url-gate batch mis-attribution, so Pathogen and Tier are corrected too.]"
  },
  {
   "Date": "2026-04-15",
@@ -16258,18 +16146,18 @@
  {
   "Date": "2026-04-10",
   "Source": "RappelConso (FR)",
-  "Company": "DROME ARDECHE TRADITION Drôme Ardèche Tradition",
-  "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 22005)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion of Listeria monocytogenes",
+  "Company": "Carrefour Market Vimoutiers",
+  "Brand": "Unbranded",
+  "Product": "Ling fillet (filet de julienne) sold in vacuum-packed trays",
+  "Pathogen": "Mercury (heavy metal)",
+  "Reason": "Non-compliant mercury level",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 1,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22005/Interne",
-  "Notes": "[fiche 22001 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22002/22004/22006); replaces polluted Notes from your row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[fiche 22001 / 2026-04-10; part of Jules Courtial 4-SKU Listeria cluster (sisters: 22002/22004/22006); replaces polluted Notes from your row] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [tier-fix 2026-07-14: Listeria monocytogenes is always Tier 1; was Tier 3] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday] [audit 2026-08-02 (sweep 2): reconciled against the official DGCCRF open-data record for fiche 22005 — motif_rappel: \"taux de mercure non conforme\"; risques_encourus: \"éléments traces métalliques (métaux lourds : plomb, mercure, cadmium...)\"; marque_produit: \"sans marque\". Fields corrected: Company, Brand, Product, Reason, Pathogen, Tier. THE PUBLISHED HAZARD WAS WRONG: this row had been overwritten with a different recall's content by the url-gate batch mis-attribution, so Pathogen and Tier are corrected too.]"
  },
  {
   "Date": "2026-04-10",
@@ -16498,18 +16386,18 @@
  {
   "Date": "2026-04-09",
   "Source": "RappelConso (FR)",
-  "Company": "Origin: Poland | Notifying: Czechia",
-  "Brand": "—",
-  "Product": "aliments diététiques et nutrition",
-  "Pathogen": "Salmonella",
-  "Reason": "Salmonella Agona in chilled turkey breast fillet from Poland; risk: serious; category: poultry meat and poultry meat products",
+  "Company": "Dieti Natura",
+  "Brand": "Dieti Natura",
+  "Product": "Food supplement — pot of 60 capsules",
+  "Pathogen": "Lead (heavy metal)",
+  "Reason": "Abnormal level of lead detected in a raw material used in this product",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 1,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21811/Interne",
-  "Notes": "[RASFF #2026.3007; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=836418] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3]"
+  "Notes": "[RASFF #2026.3007; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=836418] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3] [audit 2026-08-02 (sweep 2): reconciled against the official DGCCRF open-data record for fiche 21811 — motif_rappel: \"détection d'une quantité anormale de plomb dans une matière première contenue dans ce produit\"; risques_encourus: \"éléments traces métalliques (métaux lourds : plomb, mercure, cadmium...)\"; marque_produit: \"dieti natura\". Fields corrected: Company, Brand, Product, Reason, Pathogen, Tier. THE PUBLISHED HAZARD WAS WRONG: this row had been overwritten with a different recall's content by the url-gate batch mis-attribution, so Pathogen and Tier are corrected too.]"
  },
  {
   "Date": "2026-04-09",
@@ -16579,17 +16467,17 @@
   "Date": "2026-04-09",
   "Source": "RappelConso (FR)",
   "Company": "Amandis",
-  "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 21987)",
+  "Brand": "Unbranded",
+  "Product": "Albacore tuna loin sold at the self-service counter adjoining the traditional counter",
   "Pathogen": "Histamine / scombrotoxin",
-  "Reason": "Presence of Listeria",
+  "Reason": "Presence of histamine",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21987/Interne",
-  "Notes": "[fiche 21863 / ref. 2026-04-0035 / 2026-04-09; 5th AMANDIS / Les Ateliers de Sébastien recall this month — sister fiches 22141/22142/22143 (Apr 28 Batch 1); preserve typo \"PRECENCE\" from your row corrected to \"Presence\"] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[fiche 21863 / ref. 2026-04-0035 / 2026-04-09; 5th AMANDIS / Les Ateliers de Sébastien recall this month — sister fiches 22141/22142/22143 (Apr 28 Batch 1); preserve typo \"PRECENCE\" from your row corrected to \"Presence\"] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [audit 2026-08-02: Reason had been overwritten with a neighbouring recall's text by the url-gate batch mis-attribution. Repaired from the official DGCCRF open-data record for fiche 21987 (motif_rappel: \"présence d'histamine\"; risques_encourus: \"toxines endogènes : histamine\"; marque_produit: \"sans marque\"), fetched via the data.gouv.fr tabular API. Pathogen was already correct and is unchanged.]"
  },
  {
   "Date": "2026-04-09",
@@ -16802,18 +16690,18 @@
  {
   "Date": "2026-04-08",
   "Source": "RappelConso (FR)",
-  "Company": "Origin: Lithuania | Notifying: Germany",
-  "Brand": "—",
-  "Product": "produits de la pêche et d'aquaculture (RappelConso fiche 21975)",
+  "Company": "Auchan Supermarché Mérignac – Robinson",
+  "Brand": "Auchan Le Poissonnier",
+  "Product": "Vacuum-packed mackerel fillet (filet de maquereau sous vide)",
   "Pathogen": "Histamine / scombrotoxin",
-  "Reason": "Listeria monocytogenes in matjes fillets from Lithuania; risk: not serious; category: fish and fish products",
+  "Reason": "Histamine detected in the product",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21975/Interne",
-  "Notes": "[RASFF #2026.2983; classification: information notification for attention; category: fish and fish products; notifId=836200] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "[RASFF #2026.2983; classification: information notification for attention; category: fish and fish products; notifId=836200] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [audit 2026-08-02: Reason had been overwritten with a neighbouring recall's text by the url-gate batch mis-attribution. Repaired from the official DGCCRF open-data record for fiche 21975 (motif_rappel: \"suite à la détection d'histamine\"; risques_encourus: \"toxines endogènes : histamine\"; marque_produit: \"auchan le poissonnier\"), fetched via the data.gouv.fr tabular API. Pathogen was already correct and is unchanged.]"
  },
  {
   "Date": "2026-04-08",
@@ -18718,22 +18606,6 @@
   "Outbreak": 0,
   "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5368-deltio-typou-anaklisi-mi-asfalon-trofimon-typou-zeledon-gummies-kai-synafon-glykismaton-pou-periexoun-mouskimoli",
   "Notes": "[EFET item/5368; press release dated 2026-02-10; PSILLYS = brand; distributor EC STEVIA A.E. (Tauros), retailer SMOKE CARTEL E.E.; mushroom-derived neurotoxin in scope as biological hazard; **CORRECTION: prior cross-listing claim to FR fiche 21828 was WRONG — 21828 is SCEA CAHOREL Camembert AOP Listeria recall, completely unrelated] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
- },
- {
-  "Date": "2026-04-01",
-  "Source": "BLV (CH)",
-  "Company": "DAISY IMPORT - EXPORT ROSHANI Yekta",
-  "Brand": "Unbranded",
-  "Product": "Green raisins, dried apricots, dried cherries",
-  "Pathogen": "Sulfites (undeclared)",
-  "Reason": "Recall — undeclared sulfites",
-  "Class": "Recall",
-  "Country": "Switzerland",
-  "Region": "Europe",
-  "Tier": 3,
-  "Outbreak": 0,
-  "URL": "https://www.blv.admin.ch/dam/blv/de/dokumente/rueckrufe/rr-sulfite.pdf.download.pdf/sulfites.pdf",
-  "Notes": "[SCOPE FLAG: SULFITES are allergens — explicitly EXCLUDED from _pathogen_scope.py per locked rules; pipeline scope-gate failure; RECOMMEND DROP from Recalls] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
  },
  {
   "Date": "2026-04-01",
