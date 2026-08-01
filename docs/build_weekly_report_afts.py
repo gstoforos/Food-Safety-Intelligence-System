@@ -531,6 +531,39 @@ def rank_top_recalls(recalls, n=10):
     """
     OUTBREAK_TRUTHY = {True, 1, "1", "TRUE", "True", "true", "Y", "Yes"}
 
+    # ── Illness burden (audit 2026-08-01) ─────────────────────────────────
+    # Inside the outbreak phase the ranker used pathogen-INTRINSIC severity
+    # and then date, and never looked at how big the outbreak actually was.
+    # In July 2026 that put the Cyclospora iceberg-lettuce outbreak — 1,644
+    # laboratory-confirmed cases, 94 hospitalisations, 9 states — BELOW the
+    # Lamia Salmonella cluster of about 20 people, purely because Cyclospora
+    # scores 99 on the intrinsic table while Salmonella scores 4.
+    #
+    # For events already confirmed as outbreaks, the pathogen genus is a poor
+    # proxy for public-health weight; the case count is the direct measure.
+    # Burden now leads inside phase 0, with intrinsic severity retained as
+    # the tie-break for outbreaks whose counts are unknown or equal.
+    #
+    # Counts are read from the row's own Reason text — the same place a
+    # reader sees them — so nothing is inferred that is not published.
+    _BURDEN_RE = re.compile(
+        r"(\d[\d,]{1,7})\s*(?:laboratory-confirmed\s+)?"
+        r"(?:confirmed\s+)?(?:cases?|illnesses|ill\b|sickened|infections?)",
+        re.IGNORECASE)
+    _HOSP_RE = re.compile(r"(\d[\d,]{1,6})\s*hospitali[sz]", re.IGNORECASE)
+
+    def _illness_burden(r):
+        """Highest published case count for the row, 0 when none is stated."""
+        text = " ".join(str(r.get(k) or "") for k in ("Reason", "Notes"))
+        best = 0
+        for rx in (_BURDEN_RE, _HOSP_RE):
+            for m in rx.finditer(text):
+                try:
+                    best = max(best, int(m.group(1).replace(",", "")))
+                except ValueError:
+                    continue
+        return best
+
     def _rank_key(r):
         pathogen = r.get("Pathogen") or ""
         sev_score, _ = severity_score(pathogen)
@@ -553,7 +586,12 @@ def rank_top_recalls(recalls, n=10):
             d_key = 0
 
         country_key = str(r.get("Country") or "").lower()
-        return (phase, sev_score, tier, d_key, country_key)
+
+        # Burden only reorders CONFIRMED outbreaks (phase 0). Phases 1 and 2
+        # keep their existing intrinsic-severity ordering untouched.
+        burden_key = -_illness_burden(r) if phase == 0 else 0
+
+        return (phase, burden_key, sev_score, tier, d_key, country_key)
 
     return sorted(recalls, key=_rank_key)[:n]
 

@@ -276,11 +276,47 @@ def _consolidate_pathogen_label(label: str) -> str:
     return base if base else s
 
 
-def _consolidate_counter(c: Counter) -> Counter:
-    """Return a new Counter with synonymous keys merged."""
+# ─── Serovar / serotype roll-up (audit 2026-08-01) ──────────────────────────
+# The pathogen DISTRIBUTION used to split one organism across several rows —
+# "Salmonella spp.", "Salmonella Enteritidis", "Salmonella Typhimurium",
+# "E. coli STEC", "Escherichia coli", "E. coli" — which makes the ranking hard
+# to read and distorts the concentration and hotspot maths, because a single
+# dominant organism is scattered over several buckets.
+#
+# Headline counts now use the PARENT organism. The serovar is untouched in the
+# recall register and in every row's Pathogen field, so nothing is lost — the
+# 2026-07-22 Midwest Poultry row still reads "Salmonella Enteritidis" where it
+# matters. Only the aggregation rolls up.
+_PARENT_PATHOGEN = (
+    (("salmonella",), "Salmonella spp."),
+    (("e. coli", "e.coli", "escherichia", "stec", "vtec", "shiga"),
+     "Pathogenic E. coli"),
+    (("listeria",), "Listeria monocytogenes"),
+    (("campylobacter",), "Campylobacter spp."),
+)
+
+
+def _parent_pathogen_label(label: str) -> str:
+    """Roll a serovar/serotype up to its parent organism for aggregation."""
+    s = _consolidate_pathogen_label(label)
+    low = s.lower()
+    for needles, parent in _PARENT_PATHOGEN:
+        if any(n in low for n in needles):
+            return parent
+    return s
+
+
+def _consolidate_counter(c: Counter, roll_up: bool = True) -> Counter:
+    """Return a new Counter with synonymous keys merged.
+
+    roll_up=True (the default, used for headline distributions) also folds
+    serovars into the parent organism. Pass roll_up=False anywhere the
+    serovar-level breakdown is the point.
+    """
+    fn = _parent_pathogen_label if roll_up else _consolidate_pathogen_label
     out: Counter = Counter()
     for k, v in c.items():
-        out[_consolidate_pathogen_label(k)] += v
+        out[fn(k)] += v
     return out
 
 
@@ -597,8 +633,21 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
     p2 = (f"Structurally, the month reads as {gini_phrase} with {bucket_phrase} "
           f"(Source HHI {co.get('hhi_source')}, Geographic Gini {co.get('gini_country')}). "
           f"For a {top_name}-dominated month, the relevant failure modes are "
-          f"post-process environmental harbourage in Zone 1 of RTE lines, sanitation SOP "
-          f"drift, and cold-chain lapses — not thermal underprocess. {intensity_clause}")
+          # AUDIT 2026-08-01 — this read "environmental harbourage in Zone 1
+          # ... — not thermal underprocess". Two problems. Zone 1 means
+          # direct food-contact surfaces, whereas harbourage sites are
+          # typically niches within or adjacent to equipment spanning
+          # Zones 1-3. And "not thermal underprocess" is too categorical:
+          # inadequate lethality, formulation change, product geometry,
+          # equipment operation and process deviation cannot be excluded
+          # without event-specific evidence.
+          f"Listeria persistence on food-contact surfaces and in associated "
+          f"equipment niches, followed by post-process contamination of RTE "
+          f"foods, together with sanitation SOP drift and cold-chain lapses. "
+          f"These are the leading hypotheses for a {top_name}-dominated "
+          f"month; inadequate process delivery or other control failures "
+          f"cannot be excluded without event-specific evidence. "
+          f"{intensity_clause}")
 
     lt_txt = ""
     if lt.get("status") == "active":
@@ -620,9 +669,16 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
 
     p3 = (f"Looking forward, operators in {top_name}-relevant commodity categories should "
           f"re-verify the single highest-leverage control this month: environmental "
-          f"monitoring swab frequency on RTE deli and dairy lines, or pasteurisation "
-          f"D-value validation on low-moisture commodities, whichever matches their "
-          f"product mix.{lt_txt} Documentation packages should be ready for rapid "
+          # AUDIT 2026-08-01 — "pasteurisation D-value validation on
+          # low-moisture commodities" mixes two different control contexts.
+          # Low-moisture lethality validation is product-specific thermal
+          # resistance measured under the actual water activity, formulation
+          # and process conditions, not simply a D-value exercise.
+          f"monitoring swab frequency on RTE deli and dairy lines, or "
+          f"product-specific thermal lethality validation for low-moisture "
+          f"commodities — measured under the actual water activity, "
+          f"formulation and process conditions rather than a generic D-value "
+          f"— whichever matches their product mix.{lt_txt} Documentation packages should be ready for rapid "
           f"regulatory response given continued inspection intensity.")
 
     body = f"{p1}\n\n{p2}\n\n{p3}"
