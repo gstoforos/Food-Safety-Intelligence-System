@@ -2278,6 +2278,28 @@ def update_monthly_index_json(month_start: date, month_end: date,
         except (json.JSONDecodeError, OSError) as e:
             log.warning("monthly-index.json unreadable, starting fresh: %s", e)
 
+    # ── Preserve pdf_url across rebuilds (audit 2026-08-01) ───────────────
+    # hub.html omits a month card ENTIRELY when linkFor() finds no href
+    # (hub.html:256, "no PDF yet -> omit card entirely"), and the only
+    # sources of that href are this entry's pdf_url or the two-item
+    # LEGACY_PDF map for M01/M02. This function rebuilt the entry from
+    # scratch every run and never carried pdf_url over, so ANY monthly
+    # rebuild silently blanked it and every card from M03 onwards vanished
+    # from the hub. pipeline/set_pdf_urls.py exists to repopulate it, but a
+    # rebuild that forgets to re-run it takes the whole carousel down.
+    #
+    # Carry the previous value forward. set_pdf_urls still owns setting it
+    # in the first place, and its own "keep legacy pdf_url" branch is
+    # unaffected.
+    _prev_pdf_url = next(
+        (e.get("pdf_url") for e in entries
+         if e.get("filename") == entry["filename"] and e.get("pdf_url")),
+        None,
+    )
+    if _prev_pdf_url:
+        entry["pdf_url"] = _prev_pdf_url
+        log.info("Preserved pdf_url for %s: %s", entry["filename"], _prev_pdf_url)
+
     # Drop any pre-existing entry for this month, then insert the new one.
     # Filename is the unique key (matches year_m exactly).
     entries = [e for e in entries if e.get("filename") != entry["filename"]]
