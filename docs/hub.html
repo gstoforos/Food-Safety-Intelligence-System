@@ -253,7 +253,22 @@ function thumbFallback(img){
 
 function renderCard(e, stripe){
   var lnk = linkFor(e);
-  if (!lnk.href) return '';  // no PDF yet → omit card entirely
+  if (!lnk.href) {
+    // AUDIT 2026-08-01 — this used to `return ''`, deleting the month from
+    // the carousel with no trace. Every entry in monthly-index.json had
+    // pdf_url:null (a monthly rebuild blanks the field, and only M01/M02
+    // have a LEGACY_PDF fallback), so March onwards silently vanished and
+    // the hub looked like it had simply stopped working. A missing PDF is
+    // now VISIBLE as the "Coming Soon" card that renderComing() has always
+    // existed to draw, and it is logged. Silent omission is how a data
+    // problem masquerades as a broken page.
+    if (window.console && console.warn) {
+      console.warn('[FSIS hub] no download link for ' + mkey(e) +
+                   ' — pdf_url is null in monthly-index.json and there is no '
+                   + 'LEGACY_PDF entry. Run pipeline/set_pdf_urls.py.');
+    }
+    return renderComing(e.month_name || mkey(e));
+  }
   var hasStats = e.total != null && e.tier1 != null && e.outbreaks != null;
   var stats = hasStats
     ? '<div class="mc-stats">'
@@ -317,7 +332,20 @@ function render(index){
   var track = document.getElementById('cTrack');
   var html = '';
   index.forEach(function(e,i){ html += renderCard(e, (i%4)+1); });
-  // no "coming soon" — cards only appear when the 1-page PDF is published
+  // A month with no published PDF now renders as "Coming Soon" rather than
+  // disappearing (see renderCard). If the index itself failed to load we
+  // still have nothing to draw — say so instead of leaving "Loading…" up
+  // for ever, which is what a failed fetch looked like.
+  if (!html) {
+    html = '<div class="month-card coming">'
+         + '<div class="mc-period">Reports</div>'
+         + '<div class="mc-title">Temporarily unavailable</div>'
+         + '<div class="mc-coming-lbl">Could not load the report index</div>'
+         + '</div>';
+    if (window.console && console.warn) {
+      console.warn('[FSIS hub] monthly-index.json produced no cards.');
+    }
+  }
   track.innerHTML = html;
   var vis = visibleCount();
   var pages = Math.max(1, track.children.length - vis + 1);
