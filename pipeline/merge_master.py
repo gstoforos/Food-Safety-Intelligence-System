@@ -1489,6 +1489,31 @@ def promote_approved(
         approved_row = {col: clean.get(col, "" if col not in ("Tier", "Outbreak") else 0)
                         for col in SCHEMA}
 
+        # ── Deterministic publish gate (audit 2026-08-01) ────────────────
+        # Runs BEFORE any language-model reviewer and needs neither tokens nor
+        # network, so it keeps working when the Gemini quota is exhausted, when
+        # the API is down, and when a regulator refuses a TLS handshake. It
+        # exists because a 2024 South African recall was published as
+        # 2026-07-27 and emailed to subscribers while carrying six defects that
+        # no model was needed to see, and because a passenger car, a bath toy,
+        # lamp oil, a plastic soup ladle and a sports bottle were all sitting in
+        # a pathogen database. See pipeline/_publish_gate.py.
+        try:
+            from pipeline._publish_gate import publish_blockers  # noqa: WPS433
+            _blockers = publish_blockers(clean)
+            if _blockers:
+                log.warning("publish gate BLOCKED %s: %s",
+                            str(clean.get("URL", "<no-url>"))[:90],
+                            "; ".join(_blockers))
+                clean["Notes"] = (
+                    str(clean.get("Notes") or "").strip()
+                    + " [publish-gate 2026-08-01: " + "; ".join(_blockers) + "]"
+                ).strip()
+                _archive(clean)
+                continue
+        except ImportError:
+            pass  # gate module absent — fall through to the old behaviour
+
         # ── Class language normalisation (audit 2026-05-12) ──────────────
         # Recall.__post_init__() runs _normalize_class_language() at
         # scraper time, but rows that enter Pending via gap-finders or
