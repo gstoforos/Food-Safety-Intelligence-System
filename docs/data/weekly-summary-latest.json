@@ -5,26 +5,68 @@
   "week_num": 31,
   "year": 2026,
   "week_start": "2026-07-24",
-  "week_end": "2026-07-29",
+  "week_end": "2026-07-30",
   "week_start_display": "24 Jul",
-  "week_end_display": "29 Jul 2026",
-  "generated_utc": "2026-07-31T02:11:29.439064+00:00",
+  "week_end_display": "30 Jul 2026",
+  "generated_utc": "2026-08-01T02:06:52.638647+00:00",
   "stats": {
-    "total": 62,
-    "tier1": 48,
-    "outbreaks": 0,
-    "delta": -6,
-    "delta_pct": -9
+    "total": 77,
+    "tier1": 57,
+    "outbreaks": 2,
+    "delta": 8,
+    "delta_pct": 12
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 33,
-    "pct": 53
+    "cases": 36,
+    "pct": 47
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
+      "date": "2026-07-30",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": true,
+      "company": "FSIS Issues Public Health",
+      "brand": "FSIS Issues Public Health",
+      "product": "for Chicken Salad Product that May Be Contaminated with Listeria",
+      "country": "USA",
+      "source": "USDA FSIS",
+      "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-chicken-salad-product-may-be-contaminated-listeria"
+    },
+    {
+      "rank": 2,
+      "date": "2026-07-30",
+      "pathogen": "Shiga toxin-producing E. coli (STEC)",
+      "pathogen_raw": "Shiga toxin-producing E. coli (STEC)",
+      "tier": 1,
+      "outbreak": true,
+      "company": "Origin: Austria | Notifying: Germany",
+      "brand": "DEU",
+      "product": "Shigatoxin-producing Escherichia coli (STEC) in organic red clover seeds for sprouts and seedlings from Austria, via Germany",
+      "country": "Austria",
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862688"
+    },
+    {
+      "rank": 3,
+      "date": "2026-07-30",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "La Ferme des Tertres",
+      "brand": "La Ferme des Tertres",
+      "product": "beurre doux; beurre demi sel",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23043/Interne"
+    },
+    {
+      "rank": 4,
       "date": "2026-07-29",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -38,7 +80,7 @@
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/861879"
     },
     {
-      "rank": 2,
+      "rank": 5,
       "date": "2026-07-29",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -50,49 +92,7 @@
       "country": "China",
       "source": "RASFF (EU)",
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862375"
-    },
-    {
-      "rank": 3,
-      "date": "2026-07-29",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Non communiqué",
-      "brand": "Unbranded",
-      "product": "crevettes cuites 30/50 vendues au rayon libre service",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23044/Interne"
-    },
-    {
-      "rank": 4,
-      "date": "2026-07-28",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Origin: Brazil | Notifying: Poland",
-      "brand": "POL",
-      "product": "Salmonella spp. i Listeria monocytogenes w filecie drobiowym mrożonym // Salmonella spp. and Listeria monocytogenes in frozen poultry meat from Brazil via Netherlands",
-      "country": "Brazil",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862060"
-    },
-    {
-      "rank": 5,
-      "date": "2026-07-28",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Andre Loussouarn",
-      "brand": "Andre Loussouarn",
-      "product": "museau vinaigrette 2kg environ",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23005/Interne"
     }
   ],
-  "country_count": 19
+  "country_count": 20
 }

@@ -1,16 +1,29 @@
 [
   {
+    "filename": "2026-M07.html",
+    "year": 2026,
+    "month_num": 7,
+    "month_name": "July 2026",
+    "month_start": "2026-07-01",
+    "month_end": "2026-07-31",
+    "total": 290,
+    "tier1": 219,
+    "outbreaks": 10,
+    "top_pathogen": "Listeria monocytogenes",
+    "summary": "July 2026: 290 recalls, 219 Tier-1, 10 outbreak(s). Leading pathogen: Listeria monocytogenes."
+  },
+  {
     "filename": "2026-M06.html",
     "year": 2026,
     "month_num": 6,
     "month_name": "June 2026",
     "month_start": "2026-06-01",
     "month_end": "2026-06-30",
-    "total": 251,
-    "tier1": 198,
+    "total": 250,
+    "tier1": 197,
     "outbreaks": 4,
     "top_pathogen": "Salmonella spp.",
-    "summary": "June 2026: 251 recalls, 198 Tier-1, 4 outbreak(s). Leading pathogen: Salmonella spp.."
+    "summary": "June 2026: 250 recalls, 197 Tier-1, 4 outbreak(s). Leading pathogen: Salmonella spp.."
   },
   {
     "filename": "2026-M05.html",

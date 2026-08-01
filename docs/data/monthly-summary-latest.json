@@ -1,137 +1,137 @@
 {
-  "month": "2026-M06",
-  "month_tag": "2026-M06",
-  "month_name": "June",
+  "month": "2026-M07",
+  "month_tag": "2026-M07",
+  "month_name": "July",
   "year": 2026,
-  "month_num": 6,
-  "window_start": "2026-06-01",
-  "window_end": "2026-06-30",
-  "month_end": "2026-06-30",
+  "month_num": 7,
+  "window_start": "2026-07-01",
+  "window_end": "2026-07-31",
+  "month_end": "2026-07-31",
   "stats": {
-    "total": 251,
-    "tier1": 198,
-    "outbreaks": 4,
-    "delta": -9,
-    "delta_pct": -3
+    "total": 290,
+    "tier1": 219,
+    "outbreaks": 10,
+    "delta": 40,
+    "delta_pct": 16
   },
   "leading_pathogen": {
-    "name": "Salmonella spp.",
-    "cases": 85,
-    "pct": 34
+    "name": "Listeria monocytogenes",
+    "cases": 129,
+    "pct": 44
   },
   "top_threats": [
     {
       "rank": 1,
-      "date": "2026-06-30",
-      "country": "European Union",
-      "pathogen": "Salmonella Stanley",
-      "company": "Unknown producer in Ukraine",
-      "brand": "Multi-country outbreak of Salmonella Stanley infections linked to flavoured noodle products | EFSA",
-      "product": "Flavoured noodle products (chicken-flavoured and hot chicken-flavoured varieties)",
-      "url": "https://www.efsa.europa.eu/en/news/multi-country-outbreak-salmonella-stanley-infections-linked-flavoured-noodle-products",
+      "date": "2026-07-30",
+      "country": "USA",
+      "pathogen": "Listeria monocytogenes",
+      "company": "FSIS Issues Public Health",
+      "brand": "FSIS Issues Public Health",
+      "product": "for Chicken Salad Product that May Be Contaminated with Listeria",
+      "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-chicken-salad-product-may-be-contaminated-listeria",
       "tier": 1,
       "outbreak": 1
     },
     {
       "rank": 2,
-      "date": "2026-06-25",
-      "country": "Multiple EU/EEA + UK",
-      "pathogen": "Salmonella spp.",
-      "company": "Multiple producers",
-      "brand": "Various / Unbranded",
-      "product": "Alfalfa sprouted seeds (and possibly other sprouted seeds)",
-      "url": "https://www.ecdc.europa.eu/en/publications-data/multi-country-outbreak-salmonella-bovismorbificans-st377-infections-linked",
+      "date": "2026-07-30",
+      "country": "Austria",
+      "pathogen": "E. coli STEC",
+      "company": "Origin: Austria | Notifying: Germany",
+      "brand": "DEU",
+      "product": "Shigatoxin-producing Escherichia coli (STEC) in organic red clover seeds for sprouts and seedlings from Austria, via Germany",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862688",
       "tier": 1,
       "outbreak": 1
     },
     {
       "rank": 3,
-      "date": "2026-06-13",
-      "country": "United States",
-      "pathogen": "Clostridium botulinum",
-      "company": "Nara Organics",
-      "brand": "Nara Organics",
-      "product": "Whole Milk Powdered Infant Formula — Nara Organics. TWO SKUs: (1) 700 g can, UPC 860013251901; (2) 400 g can, UPC 860013251918. Sixteen lot codes affected (all lots currently on market): 408125075E14F2; 708125076E14F2; 708125083E14F2; 408125139E14F2; 708125141E14F2; 708125145E14F2; 708125174E14F2; 709125273E14F2; 709125280E14F2; 709125288E14F2; 70926019ENNB; 70926029ENNB; 70926035ENNB; 70926039ENNB; 70926042ENNB; 409125307E14F2. Three specific lots tied to confirmed infant illnesses: 709125280E14F2, 709125288E14F2, 708125174E14F2.",
-      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nara-organics-recalls-all-lots-nara-infant-formula-because-possible-health-risk",
+      "date": "2026-07-07",
+      "country": "Canada",
+      "pathogen": "E. coli",
+      "company": "General Mills Canada",
+      "brand": "Pillsbury",
+      "product": "Certain Pillsbury brand Pizza Pops Pepperoni + Bacon recalled due to E. coli O26 - Canada.ca",
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-pillsbury-brand-pizza-pops-pepperoni-bacon-recalled-due-e-coli-o26",
       "tier": 1,
-      "outbreak": 0
+      "outbreak": 1
     },
     {
       "rank": 4,
-      "date": "2026-06-04",
-      "country": "France",
-      "pathogen": "Clostridium botulinum",
-      "company": "Boucherie Courthieu",
-      "brand": "Boucherie Courthieu",
-      "product": "conserves dindonneau; 280g (RappelConso fiche 22454)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22454/Interne",
+      "date": "2026-07-22",
+      "country": "United States",
+      "pathogen": "Salmonella spp.",
+      "company": "Midwest Poultry Services, L.P.",
+      "brand": "Kroger / Simple Truth / Brookshire's / Country Morning / Sunups (multiple)",
+      "product": "White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, Julian 157-184, best/sell-by 2026-07-20 to 2026-08-17)",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
       "tier": 1,
-      "outbreak": 0
+      "outbreak": 1
     },
     {
       "rank": 5,
-      "date": "2026-06-04",
-      "country": "France",
-      "pathogen": "Clostridium botulinum",
-      "company": "Boucherie Courthieu",
-      "brand": "Boucherie Courthieu",
-      "product": "conserves jambonneau; 280g (RappelConso fiche 22453)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22453/Interne",
+      "date": "2026-07-20",
+      "country": "Greece",
+      "pathogen": "Salmonella spp.",
+      "company": "Multiple chicken suppliers (under EODY/regional investigation)",
+      "brand": "Multiple",
+      "product": "Chicken fillet and chicken souvlaki (multiple suppliers, Lamia)",
+      "url": "https://www.foodsafetynews.com/2026/07/greece-reports-salmonella-outbreak-and-2025-figures/",
       "tier": 1,
-      "outbreak": 0
+      "outbreak": 1
     }
   ],
-  "total": 251,
-  "tier1": 198,
-  "outbreaks": 4,
-  "delta": -9,
-  "delta_pct": -3,
+  "total": 290,
+  "tier1": 219,
+  "outbreaks": 10,
+  "delta": 40,
+  "delta_pct": 16,
   "top_pathogen": [
-    "Salmonella spp.",
-    85
+    "Listeria monocytogenes",
+    129
   ],
   "top_countries": [
     [
       "France",
-      98
+      151
     ],
     [
-      "Ireland",
-      17
+      "Poland",
+      12
     ],
     [
-      "United States",
-      16
-    ],
-    [
-      "Turkey",
+      "USA",
       11
     ],
     [
-      "Belgium",
+      "Spain",
       9
+    ],
+    [
+      "Italy",
+      8
     ]
   ],
   "top_sources": [
     [
       "RappelConso (FR)",
-      92
+      144
     ],
     [
       "RASFF (EU)",
-      89
+      108
     ],
     [
-      "FSAI (IE)",
-      16
+      "FSANZ (AU)",
+      7
+    ],
+    [
+      "CFIA",
+      6
     ],
     [
       "FDA",
-      13
-    ],
-    [
-      "FAVV (BE)",
-      7
+      5
     ]
   ],
   "mom_trend": {
@@ -158,281 +158,266 @@
       ],
       [
         "2026-06",
-        251
+        250
+      ],
+      [
+        "2026-07",
+        290
       ]
     ],
-    "delta_pct": -3,
-    "direction": "flat",
-    "z_score": 0.6,
-    "z_score_raw": 0.6,
+    "delta_pct": 16,
+    "direction": "up",
+    "z_score": 0.9,
+    "z_score_raw": 0.9,
     "anomaly_flag": false,
-    "baseline_n": 6,
+    "baseline_n": 7,
     "baseline_too_narrow": false,
-    "rolling_mean": 153.0,
-    "rolling_std": 151.6
+    "rolling_mean": 169.0,
+    "rolling_std": 141.3
   },
   "hotspots": [
     {
       "country": "Turkey",
       "pathogen": "Ochratoxin A",
-      "observed": 8,
-      "expected": 0.6,
-      "stdres": 9.52,
-      "ratio": 13.25
-    },
-    {
-      "country": "Belgium",
-      "pathogen": "Aflatoxin",
-      "observed": 3,
-      "expected": 0.71,
-      "stdres": 2.71,
-      "ratio": 4.21
-    },
-    {
-      "country": "United States",
-      "pathogen": "Clostridium botulinum",
-      "observed": 3,
-      "expected": 0.73,
-      "stdres": 2.65,
-      "ratio": 4.1
+      "observed": 4,
+      "expected": 0.32,
+      "stdres": 6.52,
+      "ratio": 12.53
     },
     {
       "country": "Poland",
       "pathogen": "Salmonella spp.",
-      "observed": 6,
-      "expected": 2.54,
-      "stdres": 2.17,
-      "ratio": 2.37
+      "observed": 9,
+      "expected": 2.16,
+      "stdres": 4.65,
+      "ratio": 4.16
+    },
+    {
+      "country": "USA",
+      "pathogen": "Aflatoxin",
+      "observed": 4,
+      "expected": 0.88,
+      "stdres": 3.33,
+      "ratio": 4.56
+    },
+    {
+      "country": "France",
+      "pathogen": "Listeria monocytogenes",
+      "observed": 100,
+      "expected": 79.71,
+      "stdres": 2.27,
+      "ratio": 1.25
     }
   ],
   "clusters": [
     {
       "pathogen": "Salmonella spp.",
-      "size": 4,
-      "span_days": 5,
-      "start": "2026-06-25",
-      "end": "2026-06-30",
-      "countries": [
-        "European Union",
-        "Multiple EU/EEA + UK",
-        "USA"
-      ]
-    },
-    {
-      "pathogen": "Listeria monocytogenes",
       "size": 3,
       "span_days": 14,
-      "start": "2026-06-04",
-      "end": "2026-06-18",
+      "start": "2026-07-06",
+      "end": "2026-07-20",
       "countries": [
-        "United States"
+        "Egypt",
+        "Greece",
+        "Poland"
       ]
     }
   ],
   "concentration": {
-    "hhi_source": 2691.0,
+    "hhi_source": 3871.0,
     "hhi_bucket": "highly concentrated",
-    "gini_country": 0.653,
+    "gini_country": 0.702,
     "gini_bucket": "highly concentrated",
-    "tier1_share": 0.789,
-    "baseline_tier1_share": 0.874,
-    "tier1_intensity_ratio": 0.9,
-    "n_countries": 40,
-    "n_sources": 20,
-    "top_country_share": 0.39
+    "tier1_share": 0.755,
+    "baseline_tier1_share": 0.859,
+    "tier1_intensity_ratio": 0.88,
+    "n_countries": 41,
+    "n_sources": 16,
+    "top_country_share": 0.521
   },
   "severity": {
-    "score": 48.0,
+    "score": 46.7,
     "bucket": "elevated",
-    "tier1_count": 198,
-    "outbreak_count": 4,
-    "tier1_share": 0.789,
-    "outbreak_share": 0.016
+    "tier1_count": 219,
+    "outbreak_count": 10,
+    "tier1_share": 0.755,
+    "outbreak_share": 0.034
   },
-  "emerging": [
-    {
-      "pathogen": "Physical hazard (glass/fragment)",
-      "count": 3,
-      "share_current": 0.012,
-      "share_hist_mean": 0.001,
-      "z_score": 6.5,
-      "growth_pct": 2452
-    }
-  ],
+  "emerging": [],
   "linear_trend": {
     "status": "active",
-    "n": 6,
-    "n_dof": 4,
-    "slope_per_month": 58.66,
-    "intercept": 22.52,
-    "r_squared": 0.602,
-    "slope_se": 23.841,
-    "t_stat": 2.46,
+    "n": 7,
+    "n_dof": 5,
+    "slope_per_month": 49.54,
+    "intercept": 37.68,
+    "r_squared": 0.611,
+    "slope_se": 17.663,
+    "t_stat": 2.8,
     "slope_significant": false,
-    "next_month_point": 374,
+    "next_month_point": 384,
     "next_month_ci95": [
-      107,
-      642
+      145,
+      624
     ],
-    "note": "Direction: rising (slope +58.7/month, r²=0.60). Estimate is exploratory — only 6 monthly observations available; a formal significance test requires n ≥ 12 (critical t at α=0.05 is approximately 2.78 with the current n−2 = 4 degrees of freedom)."
+    "note": "Direction: rising (slope +49.5/month, r²=0.61). Estimate is exploratory — only 7 monthly observations available; a formal significance test requires n ≥ 12 (critical t at α=0.05 is approximately 2.45 with the current n−2 = 5 degrees of freedom)."
   },
-  "narrative": "June 2026 produced 251 food-safety hazard recall incidents across the AFTS monitoring network, a -3% move flat vs the prior month, a +0.6-sigma anomaly vs the prior-month baseline. Salmonella spp. dominated with 85 of 251 incidents (34%). The composite severity index closed at 48.0/100 (elevated), with 198 Tier-1 critical events and 4 outbreak-associated events, forming 2 same-pathogen temporal clusters on record. The standout hotspot was Turkey × Ochratoxin A, with 8 recalls against an independence-baseline expectation of 0.6 (stdres +9.52).\n\nStructurally, the month reads as strongly concentrated in a few jurisdictions with mixed signal concentration (Source HHI 2691.0, Geographic Gini 0.653). For a Salmonella spp.-dominated month, the relevant failure modes are post-process environmental harbourage in Zone 1 of RTE lines, sanitation SOP drift, and cold-chain lapses — not thermal underprocess. The Tier-1 intensity ratio of 0.90× vs the rolling baseline indicates severity is in line.\n\nLooking forward, operators in Salmonella spp.-relevant commodity categories should re-verify the single highest-leverage control this month: environmental monitoring swab frequency on RTE deli and dairy lines, or pasteurisation D-value validation on low-moisture commodities, whichever matches their product mix. The linear-trend projection for next month stands at 374 recalls (95% CI [107, 642]), with r²=0.602, slope 58.66/month and t=2.46 on 4 degrees of freedom. The estimate is exploratory because the series is short — only 6 monthly observation(s) — and the slope is not statistically significant at α=0.05. Documentation packages should be ready for rapid regulatory response given continued inspection intensity.\n\nProcess Authority Note: This window includes Clostridium botulinum or botulism-relevant recalls. The control review for such events is product-specific. For shelf-stable low-acid, acidified, aseptic, or commercially sterile products, scheduled-process adequacy under a qualified process authority is the central control. For refrigerated anaerobic products — peeled garlic, sous-vide, vacuum or modified-atmosphere packs, smoked or fermented fish — the operative controls are validated refrigeration discipline, water-activity, pH, salt content, oxygen barrier integrity, and shelf-life qualification, with or without a thermal step. Across global jurisdictions the regulatory architecture differs but the engineering principle converges. In the United States, FDA 21 CFR 113 (thermally processed low-acid canned foods) and 21 CFR 114 (acidified foods) require a scheduled process established by a qualified process authority. In the European Union, Regulation 852/2004 imposes general hygiene and HACCP obligations on food-business operators, and Regulation 2073/2005 fixes microbiological criteria — neither is a direct equivalent of US LACF/acidified-food filing, but both presuppose process control validated against a documented hazard analysis, with national LACF/acidified-food rules layered on top in some Member States. Canada's Safe Food for Canadians Regulations, FSA / FSS in the UK, FSANZ in Australia and New Zealand, and Japan's MHLW each impose comparable preventive-control obligations. The common engineering principle: low-acid, aseptic, and commercially sterile products require a scheduled process established by a qualified process authority and executed under documented GMP oversight. Recall events in this category most commonly trace to one of: an unfiled or outdated scheduled process; a deviation resolved without qualified review; a formulation or packaging change introduced without process re-evaluation; a temperature-abuse event in the cold chain; or seal-integrity loss in anaerobic packaging. Manufacturers producing low-acid canned, acidified, fermented, or anaerobically packaged products — including refrigerated anaerobic products — should confirm with a qualified process authority that filings, multi-hurdle controls, GMP programmes, and deviation handling remain current before any production change.",
-  "report_url": "https://fsis.advfood.tech/2026-M06.html",
-  "all_month_url": "https://fsis.advfood.tech/2026-M06-all.html",
+  "narrative": "July 2026 produced 290 food-safety hazard recall incidents across the AFTS monitoring network, a 16% move above the prior month, a +0.9-sigma anomaly vs the prior-month baseline. Listeria monocytogenes dominated with 129 of 290 incidents (44%). The composite severity index closed at 46.7/100 (elevated), with 219 Tier-1 critical events and 10 outbreak-associated events, forming 1 same-pathogen temporal cluster on record. The standout hotspot was Turkey × Ochratoxin A, with 4 recalls against an independence-baseline expectation of 0.32 (stdres +6.52).\n\nStructurally, the month reads as strongly concentrated in a few jurisdictions with mixed signal concentration (Source HHI 3871.0, Geographic Gini 0.702). For a Listeria monocytogenes-dominated month, the relevant failure modes are post-process environmental harbourage in Zone 1 of RTE lines, sanitation SOP drift, and cold-chain lapses — not thermal underprocess. The Tier-1 intensity ratio of 0.88× vs the rolling baseline indicates severity is below baseline.\n\nLooking forward, operators in Listeria monocytogenes-relevant commodity categories should re-verify the single highest-leverage control this month: environmental monitoring swab frequency on RTE deli and dairy lines, or pasteurisation D-value validation on low-moisture commodities, whichever matches their product mix. The linear-trend projection for next month stands at 384 recalls (95% CI [145, 624]), with r²=0.611, slope 49.54/month and t=2.8 on 5 degrees of freedom. The estimate is exploratory because the series is short — only 7 monthly observation(s) — and the slope is not statistically significant at α=0.05. Documentation packages should be ready for rapid regulatory response given continued inspection intensity.\n\nProcess Authority Note: This window includes recalls in anaerobic-packaging product categories (vacuum, modified-atmosphere, reduced-oxygen, sous-vide, fermented or smoked fish). Across global jurisdictions the regulatory architecture differs but the engineering principle converges. In the United States, FDA 21 CFR 113 (thermally processed low-acid canned foods) and 21 CFR 114 (acidified foods) require a scheduled process established by a qualified process authority. In the European Union, Regulation 852/2004 imposes general hygiene and HACCP obligations on food-business operators, and Regulation 2073/2005 fixes microbiological criteria — neither is a direct equivalent of US LACF/acidified-food filing, but both presuppose process control validated against a documented hazard analysis, with national LACF/acidified-food rules layered on top in some Member States. Canada's Safe Food for Canadians Regulations, FSA / FSS in the UK, FSANZ in Australia and New Zealand, and Japan's MHLW each impose comparable preventive-control obligations. The common engineering principle: low-acid, aseptic, and commercially sterile products require a scheduled process established by a qualified process authority and executed under documented GMP oversight. Anaerobic packaging removes the oxygen barrier that would otherwise suppress C. botulinum growth, so product safety depends entirely on water-activity, pH, salt content, refrigeration discipline, or thermal-process control — individually or in combination. Operators should confirm with a qualified process authority that the multi-hurdle approach in use is documented, validated, and consistent with the current regulatory framework before extending shelf life or modifying formulation.",
+  "report_url": "https://fsis.advfood.tech/2026-M07.html",
+  "all_month_url": "https://fsis.advfood.tech/2026-M07-all.html",
   "dashboard_url": "https://www.advfood.tech/fsis-recalls",
   "top10": [
     {
       "rank": 1,
-      "date": "2026-06-30",
-      "pathogen": "Salmonella Stanley",
-      "pathogen_raw": "Salmonella Stanley",
-      "company": "Unknown producer in Ukraine",
-      "brand": "Multi-country outbreak of Salmonella Stanley infections linked to flavoured noodle products | EFSA",
-      "product": "Flavoured noodle products (chicken-flavoured and hot chicken-flavoured varieties)",
-      "country": "European Union",
-      "source": "EFSA",
+      "date": "2026-07-30",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "FSIS Issues Public Health",
+      "brand": "FSIS Issues Public Health",
+      "product": "for Chicken Salad Product that May Be Contaminated with Listeria",
+      "country": "USA",
+      "source": "USDA FSIS",
       "tier": 1,
       "outbreak": 1,
-      "url": "https://www.efsa.europa.eu/en/news/multi-country-outbreak-salmonella-stanley-infections-linked-flavoured-noodle-products",
+      "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-chicken-salad-product-may-be-contaminated-listeria",
       "url_ok": true
     },
     {
       "rank": 2,
-      "date": "2026-06-25",
-      "pathogen": "Salmonella spp.",
-      "pathogen_raw": "Salmonella",
-      "company": "Multiple producers",
-      "brand": "Various / Unbranded",
-      "product": "Alfalfa sprouted seeds (and possibly other sprouted seeds)",
-      "country": "Multiple EU/EEA + UK",
-      "source": "ECDC",
+      "date": "2026-07-30",
+      "pathogen": "E. coli STEC",
+      "pathogen_raw": "Shiga toxin-producing E. coli (STEC)",
+      "company": "Origin: Austria | Notifying: Germany",
+      "brand": "DEU",
+      "product": "Shigatoxin-producing Escherichia coli (STEC) in organic red clover seeds for sprouts and seedlings from Austria, via Germany",
+      "country": "Austria",
+      "source": "RASFF (EU)",
       "tier": 1,
       "outbreak": 1,
-      "url": "https://www.ecdc.europa.eu/en/publications-data/multi-country-outbreak-salmonella-bovismorbificans-st377-infections-linked",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862688",
       "url_ok": true
     },
     {
       "rank": 3,
-      "date": "2026-06-13",
-      "pathogen": "Clostridium botulinum",
-      "pathogen_raw": "Clostridium botulinum",
-      "company": "Nara Organics",
-      "brand": "Nara Organics",
-      "product": "Whole Milk Powdered Infant Formula — Nara Organics. TWO SKUs: (1) 700 g can, UPC 860013251901; (2) 400 g can, UPC 860013251918. Sixteen lot codes affected (all lots currently on market): 408125075E14F2; 708125076E14F2; 708125083E14F2; 408125139E14F2; 708125141E14F2; 708125145E14F2; 708125174E14F2; 709125273E14F2; 709125280E14F2; 709125288E14F2; 70926019ENNB; 70926029ENNB; 70926035ENNB; 70926039ENNB; 70926042ENNB; 409125307E14F2. Three specific lots tied to confirmed infant illnesses: 709125280E14F2, 709125288E14F2, 708125174E14F2.",
-      "country": "United States",
-      "source": "FDA",
+      "date": "2026-07-07",
+      "pathogen": "E. coli",
+      "pathogen_raw": "E. coli",
+      "company": "General Mills Canada",
+      "brand": "Pillsbury",
+      "product": "Certain Pillsbury brand Pizza Pops Pepperoni + Bacon recalled due to E. coli O26 - Canada.ca",
+      "country": "Canada",
+      "source": "CFIA",
       "tier": 1,
-      "outbreak": 0,
-      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nara-organics-recalls-all-lots-nara-infant-formula-because-possible-health-risk",
+      "outbreak": 1,
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-pillsbury-brand-pizza-pops-pepperoni-bacon-recalled-due-e-coli-o26",
       "url_ok": true
     },
     {
       "rank": 4,
-      "date": "2026-06-04",
-      "pathogen": "Clostridium botulinum",
-      "pathogen_raw": "Clostridium botulinum",
-      "company": "Boucherie Courthieu",
-      "brand": "Boucherie Courthieu",
-      "product": "conserves dindonneau; 280g (RappelConso fiche 22454)",
-      "country": "France",
-      "source": "RappelConso (FR)",
+      "date": "2026-07-22",
+      "pathogen": "Salmonella spp.",
+      "pathogen_raw": "Salmonella",
+      "company": "Midwest Poultry Services, L.P.",
+      "brand": "Kroger / Simple Truth / Brookshire's / Country Morning / Sunups (multiple)",
+      "product": "White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, Julian 157-184, best/sell-by 2026-07-20 to 2026-08-17)",
+      "country": "United States",
+      "source": "FDA",
       "tier": 1,
-      "outbreak": 0,
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22454/Interne",
+      "outbreak": 1,
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
       "url_ok": true
     },
     {
       "rank": 5,
-      "date": "2026-06-04",
-      "pathogen": "Clostridium botulinum",
-      "pathogen_raw": "Clostridium botulinum",
-      "company": "Boucherie Courthieu",
-      "brand": "Boucherie Courthieu",
-      "product": "conserves jambonneau; 280g (RappelConso fiche 22453)",
-      "country": "France",
-      "source": "RappelConso (FR)",
+      "date": "2026-07-20",
+      "pathogen": "Salmonella spp.",
+      "pathogen_raw": "Salmonella",
+      "company": "Multiple chicken suppliers (under EODY/regional investigation)",
+      "brand": "Multiple",
+      "product": "Chicken fillet and chicken souvlaki (multiple suppliers, Lamia)",
+      "country": "Greece",
+      "source": "Region of Central Greece / EODY",
       "tier": 1,
-      "outbreak": 0,
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22453/Interne",
-      "url_ok": true
+      "outbreak": 1,
+      "url": "https://www.foodsafetynews.com/2026/07/greece-reports-salmonella-outbreak-and-2025-figures/",
+      "url_ok": false
     },
     {
       "rank": 6,
-      "date": "2026-06-04",
-      "pathogen": "Clostridium botulinum",
-      "pathogen_raw": "Clostridium botulinum",
-      "company": "Boucherie Courthieu",
-      "brand": "Boucherie Courthieu",
-      "product": "conserves pâté de foie pur porc; 120g / 200g / 280g / 1580g (RappelConso fiche 22452)",
-      "country": "France",
-      "source": "RappelConso (FR)",
+      "date": "2026-07-06",
+      "pathogen": "Salmonella spp.",
+      "pathogen_raw": "Salmonella",
+      "company": "Origin: Egypt | Notifying: Netherlands",
+      "brand": "Netherlands",
+      "product": "Salmonella in thyme from Egypt",
+      "country": "Egypt",
+      "source": "RASFF (EU)",
       "tier": 1,
-      "outbreak": 0,
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22452/Interne",
+      "outbreak": 1,
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856608",
       "url_ok": true
     },
     {
       "rank": 7,
-      "date": "2026-06-04",
-      "pathogen": "Clostridium botulinum",
-      "pathogen_raw": "Clostridium botulinum",
-      "company": "Boucherie Courthieu",
-      "brand": "Boucherie Courthieu",
-      "product": "conserves pâté de foie de volaille; 120g / 200g / 280g / 1580g (RappelConso fiche 22451)",
-      "country": "France",
-      "source": "RappelConso (FR)",
+      "date": "2026-07-06",
+      "pathogen": "Salmonella spp.",
+      "pathogen_raw": "Salmonella",
+      "company": "Origin: Poland | Notifying: Italy",
+      "brand": "Italy",
+      "product": "Salmonella spp in chicken and turkey kebab from Poland",
+      "country": "Poland",
+      "source": "RASFF (EU)",
       "tier": 1,
-      "outbreak": 0,
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22451/Interne",
+      "outbreak": 1,
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856500",
       "url_ok": true
     },
     {
       "rank": 8,
-      "date": "2026-06-04",
-      "pathogen": "Clostridium botulinum",
-      "pathogen_raw": "Clostridium botulinum",
-      "company": "Prime Food Processing LLC",
-      "brand": "Unbranded",
-      "product": "Dried Herring Fish — Item #AF4110, Lot Code 26020, expiration 2028-12-06, 7 oz (198 g) clear plastic packaging with blue trim. 69 cases recalled. Manufactured in Vietnam; imported. Distributed to Asian grocery stores in AZ, CA, FL, HI, IL, KS, LA, MD, MO, NC, NH, NV, NY, OK, PA, TX, UT (17 states).",
-      "country": "United States",
-      "source": "FDA",
+      "date": "2026-07-31",
+      "pathogen": "Escherichia coli (generic)",
+      "pathogen_raw": "Escherichia coli (generic)",
+      "company": "Where People Got Sick: E. coli  Outbreak, July 2026 | E. coli infection | CDC",
+      "brand": "Where People Got Sick: E. coli  Outbreak, July 2026 | E. coli infection | CDC",
+      "product": "# Where People Got Sick: E",
+      "country": "USA",
+      "source": "CDC",
       "tier": 1,
-      "outbreak": 0,
-      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish",
+      "outbreak": 1,
+      "url": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/locations.html",
       "url_ok": true
     },
     {
       "rank": 9,
-      "date": "2026-06-02",
-      "pathogen": "Clostridium botulinum",
-      "pathogen_raw": "Clostridium botulinum",
-      "company": "La Ferme des Colibris",
-      "brand": "La Ferme des Colibris",
-      "product": "rillettes de porc bio la ferme des colibris",
-      "country": "France",
-      "source": "RappelConso (FR)",
+      "date": "2026-07-18",
+      "pathogen": "Cyclospora",
+      "pathogen_raw": "Cyclospora",
+      "company": "Taylor Fresh Foods",
+      "brand": "CV / JB / MARK / MKTSD / PK / SUB / SY / TF",
+      "product": "Iceberg lettuce from central Mexico (shredded/chopped/blend food-service & retail; multiple lot codes, best-by 7/16/2026–8/3/2026)",
+      "country": "United States",
+      "source": "FDA",
       "tier": 1,
-      "outbreak": 0,
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22439/Interne",
+      "outbreak": 1,
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-iceberg-lettuce-central-mexico-because-possible-health-risk",
       "url_ok": true
     },
     {
       "rank": 10,
-      "date": "2026-06-30",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "company": "Dessaint Authentique Gourmand",
-      "brand": "Dessaint Authentique Gourmand",
-      "product": "dessaint authentique gourmand - 6 crêpes goût caramel beurre salé",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "tier": 1,
-      "outbreak": 0,
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/22686/Interne",
+      "date": "2026-07-06",
+      "pathogen": "Aflatoxin",
+      "pathogen_raw": "Aflatoxin",
+      "company": "Origin: United States | Notifying: Netherlands",
+      "brand": "Netherlands",
+      "product": "Aflatoxin B1 in USA pistachio kernels",
+      "country": "USA",
+      "source": "RASFF (EU)",
+      "tier": 2,
+      "outbreak": 1,
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856526",
       "url_ok": true
     }
   ],
-  "email_html": "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937\">\n<div style=\"max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb\">\n\n<div style=\"background:#0a0e1a;color:#fff;padding:20px 24px\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em\">\nAdvanced Food-Tech Solutions <span style=\"color:#E8601A\">·</span> AFTS</div>\n<div style=\"font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px\">\nMonthly Briefing · June 2026</div>\n</div>\n\n<div style=\"padding:28px 24px 16px\">\n<h1 style=\"font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:#0a0e1a\">Hazard &amp; Pathogen Surveillance · June 2026</h1>\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px\">\n01 Jun – 30 Jun 2026 · 251 recalls · 198 Tier-1 · 4 outbreaks\n</div>\n\n<table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;border-collapse:collapse;margin-bottom:20px\">\n<tr>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#0a0e1a\">251</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Total</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#dc2626\">198</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Tier-1</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#7c3aed\">4</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Outbreaks</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:18px;color:#E8601A;font-style:italic\">Salmonella spp.</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Leading</div>\n</td>\n</tr>\n</table>\n\n<div style=\"background:#f9fafb;border-left:3px solid #E8601A;padding:14px 18px;margin-bottom:20px\">\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px\">Month signal</div>\n<div style=\"font-size:14px;line-height:1.55\"><strong>-3%</strong> vs prior month\n\n· severity index <strong>48.0/100</strong> (elevated).</div>\n<div style=\"font-size:13px;margin-top:8px\"><strong>Top hotspot:</strong> Turkey × <em>Ochratoxin A</em> (8 recalls, 13.25× expected).</div><div style=\"font-size:13px;margin-top:8px\"><strong>Next-month forecast:</strong> 374 recalls (95% CI [107, 642]).</div>\n</div>\n\n<div style=\"text-align:center;margin:28px 0 12px\">\n<a href=\"https://fsis.advfood.tech/2026-M06.html\" target=\"_blank\" style=\"display:inline-block;background:#0a0e1a;color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px\">View Full Monthly Report →</a>\n</div>\n\n<div style=\"font-size:11px;color:#94a3b8;text-align:center;margin-top:20px\">\nAdvanced Food-Tech Solutions · advfood.tech · info@advfood.tech\n</div>\n</div>\n</div>\n</body></html>",
-  "generated_utc": "2026-07-30T18:21:25.348840+00:00",
-  "generated_at": "2026-07-30T18:21:25.348849+00:00"
+  "email_html": "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937\">\n<div style=\"max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb\">\n\n<div style=\"background:#0a0e1a;color:#fff;padding:20px 24px\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em\">\nAdvanced Food-Tech Solutions <span style=\"color:#E8601A\">·</span> AFTS</div>\n<div style=\"font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px\">\nMonthly Briefing · July 2026</div>\n</div>\n\n<div style=\"padding:28px 24px 16px\">\n<h1 style=\"font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:#0a0e1a\">Hazard &amp; Pathogen Surveillance · July 2026</h1>\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px\">\n01 Jul – 31 Jul 2026 · 290 recalls · 219 Tier-1 · 10 outbreaks\n</div>\n\n<table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;border-collapse:collapse;margin-bottom:20px\">\n<tr>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#0a0e1a\">290</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Total</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#dc2626\">219</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Tier-1</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#7c3aed\">10</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Outbreaks</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:18px;color:#E8601A;font-style:italic\">Listeria monocytogenes</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Leading</div>\n</td>\n</tr>\n</table>\n\n<div style=\"background:#f9fafb;border-left:3px solid #E8601A;padding:14px 18px;margin-bottom:20px\">\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px\">Month signal</div>\n<div style=\"font-size:14px;line-height:1.55\"><strong>16%</strong> vs prior month\n\n· severity index <strong>46.7/100</strong> (elevated).</div>\n<div style=\"font-size:13px;margin-top:8px\"><strong>Top hotspot:</strong> Turkey × <em>Ochratoxin A</em> (4 recalls, 12.53× expected).</div><div style=\"font-size:13px;margin-top:8px\"><strong>Next-month forecast:</strong> 384 recalls (95% CI [145, 624]).</div>\n</div>\n\n<div style=\"text-align:center;margin:28px 0 12px\">\n<a href=\"https://fsis.advfood.tech/2026-M07.html\" target=\"_blank\" style=\"display:inline-block;background:#0a0e1a;color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px\">View Full Monthly Report →</a>\n</div>\n\n<div style=\"font-size:11px;color:#94a3b8;text-align:center;margin-top:20px\">\nAdvanced Food-Tech Solutions · advfood.tech · info@advfood.tech\n</div>\n</div>\n</div>\n</body></html>",
+  "generated_utc": "2026-08-01T02:06:58.137981+00:00",
+  "generated_at": "2026-08-01T02:06:58.137990+00:00"
 }
