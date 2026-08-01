@@ -302,6 +302,31 @@ class FSANZScraper(BaseScraper):
             stats["no_title"] += 1
             return None
 
+        # ── Strip FSANZ's own status banner (audit 2026-08-02) ────────────
+        # When FSANZ amends an alert it republishes it at a new slug and
+        # prefixes the <h1> with a status banner:
+        #
+        #   "UPDATED 30.07.26 | Auxico (Perth) Pty Ltd - LGM HOT CHILLI OIL 275G"
+        #
+        # The " - " split below then puts the banner into Company, and the
+        # row is published naming a company that does not exist. Observed in
+        # production; the row also duplicated the un-amended alert because the
+        # republished URL is a different address.
+        #
+        # The banner is captured into `update_banner` rather than discarded —
+        # it is the only place the page states WHEN it was amended, which is
+        # worth keeping in Notes.
+        update_banner = ""
+        _banner = re.match(
+            r"^\s*((?:updated?|update|revised|corrected|amended|extended)"
+            r"\b[^|]{0,40})\|\s*", title, re.IGNORECASE)
+        if _banner:
+            update_banner = _banner.group(1).strip()
+            title = title[_banner.end():].strip()
+            if not title:
+                stats["no_title"] += 1
+                return None
+
         # FSANZ recall-alert titles follow "Company - Product" almost
         # universally. Use the first " - " as the split.
         if " - " in title:
@@ -341,7 +366,8 @@ class FSANZScraper(BaseScraper):
             Class="Recall",
             URL=url,
             Outbreak=outbreak,
-            Notes="",
+            Notes=(f"[FSANZ page banner: {update_banner}]"
+                   if update_banner else ""),
         )
 
     @staticmethod
