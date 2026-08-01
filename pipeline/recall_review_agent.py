@@ -27,13 +27,13 @@ The agent's job per row:
      correct it. Fill any blank the page supports. Never invent.
   3. Verify the recall is real, in-scope (2026+, food, Tier-1 hazard
      universe), and not a duplicate.
-  4. Return a corrected row + verdict {approve|reject|needs_human} + a
+  4. Return a corrected row + verdict {approve|reject} (retry only on infra
      per-field provenance note.
 
 Verdicts:
   approve       — every required field verified against the page, in scope
   reject        — not a recall / out of scope / pre-2026 / dead URL / dup
-  needs_human   — page unreadable or genuinely ambiguous; stays in Pending
+  retry         — INFRA failure only (llama down); row left in Pending
 
 CLI:
   python -m pipeline.recall_review_agent --xlsx docs/data/recalls.xlsx \\
@@ -264,7 +264,7 @@ STEPS:
      just because it is already in the row; verify every one against the page.
    - A plausible-sounding brand not on the page (non-RASFF) is a
      HALLUCINATION. When unsure, use "Unbranded" / leave Company empty and
-     return needs_human rather than guessing.
+     REJECT rather than guessing (there is no human to defer to).
    CRITICAL HAZARD / SCOPE CHECK (a common gap-finder error):
    - This system tracks PATHOGEN / microbial-contamination food recalls only.
      If the page shows the recall is for an UNDECLARED ALLERGEN (peanuts,
@@ -287,7 +287,7 @@ STEPS:
    it may stay empty — but you must have actually READ the page and confirmed
    it is not there. If you cannot confirm a REQUIRED field (Date, Company OR
    Brand, Product, Pathogen, URL) from the page, do NOT approve → return
-   "needs_human". Never approve a row with a required field you could not
+   REJECT. Never approve a row with a required field you could not
    verify or fill from the source.
 4. Decide scope:
    - reject if: not a recall page; pre-2026 date; pet/animal food; undeclared
@@ -296,25 +296,41 @@ STEPS:
    - approve ONLY if: it is a real 2026+ microbial-pathogen food recall AND
      every required field is verified/filled from the page AND every
      page-available field has been filled.
-   - needs_human if: the page cannot be read, a required field cannot be
-     confirmed, or the case is genuinely ambiguous.
-5. VERIFY THE OUTBREAK FLAG (strict — this drives the tier). Set outbreak = 1
-   ONLY if the page (or a linked official health page) states one or more of:
-     • a specific number of confirmed/probable illnesses/cases
+   - reject if: the page cannot be read from its content, a required field
+     cannot be confirmed, or the case is ambiguous. There is no human
+     fallback — an unverifiable row is rejected.
+5. VERIFY THE OUTBREAK FLAG (strict — this drives the tier).
+   FIRST, mentally STRIP the regulator's standard risk-language before you
+   judge. Almost every notice contains boilerplate that mentions illness but
+   is NOT evidence of an outbreak, e.g.:
+     • "Listeria may cause severe illness in pregnant women, the elderly…"
+     • "Symptoms of salmonellosis include fever, diarrhoea…"
+     • "Consumers should not eat this product… may cause illness"
+     • RASFF's hazard-severity classification "risk: serious" / "risk: not
+       serious" — this is a SEVERITY LABEL present on EVERY notification and
+       is NEVER evidence of an outbreak.
+   Those phrases must be ignored entirely. A notice that contains ONLY such
+   language is outbreak = 0.
+   AFTER stripping that, set outbreak = 1 ONLY if what remains states:
+     • a specific count of confirmed/probable illnesses or cases
        ("166 illnesses", "two cases", "26 hospitalised")
-     • the word outbreak / épidémie / Ausbruch / brote / epidemia describing
-       THIS hazard (not generic boilerplate)
-     • an epidemiological investigation triggered by reported illness
-     • death(s) attributed to the hazard
-     • a named ongoing outbreak with published case counts
-   Set outbreak = 0 if: the notice says no reported illnesses / aucun cas
-   signalé; routine sampling caught it (lab test only, product not consumed);
-   criminal tampering with no consumption; or "outbreak" appears only in a
-   brand name or boilerplate. Default to 0 when in doubt.
+     • an epidemiological investigation opened BECAUSE people reported illness
+     • death(s) attributed to this hazard
+     • a named ongoing outbreak with published case counts, or a linked
+       public-health notice (e.g. a PHAC/CDC/UKHSA outbreak page) for THIS
+       product
+   Set outbreak = 0 when: the page says "no reported illnesses" / "aucun cas
+   signalé" / "no illnesses have been associated"; the finding came from
+   routine sampling, environmental monitoring, or a lab test with no
+   consumption; the hazard is a contamination finding only; or the wording is
+   precautionary ("possible presence of…"). A contamination finding is NOT an
+   outbreak. Default to 0 whenever the remaining evidence is not explicit.
+   If the row already has Outbreak=1 but the page (after stripping
+   boilerplate) shows no such evidence, CORRECT it to 0.
 
 Return ONLY this JSON (no markdown):
 {{
-  "verdict": "approve" | "reject" | "needs_human",
+  "verdict": "approve" | "reject",
   "reason": "<one line>",
   "verified_url": "<the URL you actually confirmed, may differ from input>",
   "outbreak": 0 | 1,
@@ -330,18 +346,22 @@ Return ONLY this JSON (no markdown):
 # ─── The agent ───────────────────────────────────────────────────────────
 
 def review_row(row: Dict[str, Any]) -> Dict[str, Any]:
-    """Run the Qwen review agent on one row. Returns a dict:
-       {verdict, reason, verified_url, fields{...}, provenance}."""
+    """Run the Qwen review agent on one row. Verdict is one of:
+       - "approve" : verified + complete + in-scope 2026+ pathogen recall
+       - "reject"  : the model READ the page and it is invalid / out of scope
+                     / incomplete / cannot be verified. There is NO human, so
+                     an unverifiable row is rejected, not held.
+       - "retry"   : INFRASTRUCTURE failure only (llama down / no response /
+                     unparseable). NOT the row's fault → leave it untouched in
+                     Pending so the next scheduled run tries again.
+    """
+    infra = {"verdict": "retry", "fields": {},
+             "verified_url": row.get("URL", ""), "provenance": "",
+             "outbreak": row.get("Outbreak", 0), "outbreak_evidence": ""}
     if llama_client is None or not llama_client.is_configured():
-        return {"verdict": "needs_human",
-                "reason": "llama_client not configured (LLAMA_BASE_URL unset)",
-                "verified_url": row.get("URL", ""), "fields": {},
-                "provenance": ""}
+        return {**infra, "reason": "INFRA: llama not configured (retry next run)"}
     if llama_client.is_open():
-        return {"verdict": "needs_human",
-                "reason": "llama circuit breaker open",
-                "verified_url": row.get("URL", ""), "fields": {},
-                "provenance": ""}
+        return {**infra, "reason": "INFRA: llama circuit breaker open (retry)"}
 
     seen: set = set()
     messages = [
@@ -356,10 +376,7 @@ def review_row(row: Dict[str, Any]) -> Dict[str, Any]:
         max_tokens=700,
     )
     if not out:
-        return {"verdict": "needs_human",
-                "reason": "no response from llama",
-                "verified_url": row.get("URL", ""), "fields": {},
-                "provenance": ""}
+        return {**infra, "reason": "INFRA: no response from llama (retry)"}
     # Parse the JSON (strip any accidental fences)
     txt = out.strip()
     if txt.startswith("```"):
@@ -369,27 +386,44 @@ def review_row(row: Dict[str, Any]) -> Dict[str, Any]:
     try:
         parsed = json.loads(txt)
     except json.JSONDecodeError:
-        # Try to locate the first {...} block
         import re
         m = re.search(r"\{.*\}", txt, re.DOTALL)
         if not m:
-            return {"verdict": "needs_human",
-                    "reason": f"unparseable llama output: {txt[:120]}",
-                    "verified_url": row.get("URL", ""), "fields": {},
-                    "provenance": ""}
+            return {**infra, "reason": f"INFRA: unparseable output (retry): {txt[:80]}"}
         try:
             parsed = json.loads(m.group(0))
         except json.JSONDecodeError:
-            return {"verdict": "needs_human",
-                    "reason": "json parse failed",
-                    "verified_url": row.get("URL", ""), "fields": {},
-                    "provenance": ""}
-    parsed.setdefault("verdict", "needs_human")
+            return {**infra, "reason": "INFRA: json parse failed (retry)"}
+    # Valid JSON → the model's verdict is authoritative, but only approve /
+    # reject are accepted. Anything else (including a stray 'needs_human')
+    # collapses to REJECT: the model read the page and did not verify it.
+    v = str(parsed.get("verdict", "")).strip().lower()
+    if v not in ("approve", "reject"):
+        parsed["verdict"] = "reject"
+        parsed["reason"] = ("could not verify as valid in-scope recall: "
+                            + str(parsed.get("reason", ""))[:200])
     parsed.setdefault("fields", {})
     parsed.setdefault("verified_url", row.get("URL", ""))
     parsed.setdefault("outbreak", row.get("Outbreak", 0))
     parsed.setdefault("outbreak_evidence", "")
     return parsed
+
+
+def _normalize_country_source(merged: Dict[str, Any]) -> None:
+    """Enforce dataset conventions (from the repo's own canonical usage):
+       - Country: the United States is written "United States", never "USA"
+         (82 rows + gap_finder_tavily/regulator_apis/gap_finder_claude agree).
+       - Source: US meat/poultry recalls are "USDA FSIS" (consistent form).
+    """
+    c = str(merged.get("Country", "")).strip()
+    if c.upper() in ("USA", "U.S.A.", "US", "U.S.", "UNITED STATES OF AMERICA",
+                     "AMERICA"):
+        merged["Country"] = "United States"
+    s = str(merged.get("Source", "")).strip()
+    # Normalise any FSIS/USDA source label to the canonical "USDA FSIS".
+    sl = s.lower()
+    if ("fsis" in sl or "usda" in sl) and s != "USDA FSIS":
+        merged["Source"] = "USDA FSIS"
 
 
 def apply_review(row: Dict[str, Any], review: Dict[str, Any]) -> Dict[str, Any]:
@@ -406,6 +440,7 @@ def apply_review(row: Dict[str, Any], review: Dict[str, Any]) -> Dict[str, Any]:
     vu = review.get("verified_url")
     if vu:
         merged["URL"] = vu
+    _normalize_country_source(merged)
     return merged
 
 
@@ -460,15 +495,15 @@ def main() -> int:
         print("Nothing to review.")
         return 0
 
-    results = {"approve": [], "reject": [], "needs_human": []}
+    results = {"approve": [], "reject": [], "retry": []}
     for i, row in enumerate(rows, 1):
         review = review_row(row)
         review["_orig_url"] = str(row.get("URL", "")).strip()
-        verdict = review.get("verdict", "needs_human")
+        verdict = review.get("verdict", "retry")
         merged = apply_review(row, review)
-        results[verdict if verdict in results else "needs_human"].append(
+        results[verdict if verdict in results else "retry"].append(
             (merged, review))
-        print(f"  [{i}/{len(rows)}] {verdict.upper():12s} "
+        print(f"  [{i}/{len(rows)}] {verdict.upper():8s} "
               f"{str(row.get('Source',''))[:14]:14s} "
               f"{str(merged.get('Product',''))[:44]:44s} "
               f"| {review.get('reason','')[:60]}")
@@ -476,13 +511,13 @@ def main() -> int:
     print(f"\n{'='*60}")
     print(f"approve: {len(results['approve'])}  "
           f"reject: {len(results['reject'])}  "
-          f"needs_human: {len(results['needs_human'])}")
+          f"retry (infra, left in Pending): {len(results['retry'])}")
     print(f"{'='*60}")
 
     if not commit:
         print("\nDRY RUN — no writes. Set --commit true to apply:")
         print("  approvals → Recalls (corrected fields), "
-              "rejects → Weekly_Rejected, needs_human stays in Pending.")
+              "rejects → Weekly_Rejected, retry → untouched in Pending.")
         return 0
 
     # ── Write-back: mirror claude_check.py's final-reviewer sequence ──
@@ -564,12 +599,29 @@ def main() -> int:
         if idx is not None:
             rejected_flags[idx] = f"Review agent: {review.get('reason','')[:280]}"
 
-    # needs_human → hold in Pending: set Status so promote_approved won't
-    # promote it (it promotes rows whose Status is 'pending' and not flagged).
-    for merged, review in results["needs_human"]:
-        idx = url_to_idx.get(str(merged.get("URL", "")).strip())
-        if idx is not None:
-            full_pending[idx]["Status"] = "needs_human"
+    # retry (infra failure) → leave the row COMPLETELY untouched in Pending.
+    # Do not change status, do not reject. The next scheduled run retries it.
+
+    # ── HARD SAFETY GUARD (no-assumptions rule) ──
+    # Only rows the agent EXPLICITLY approved this run may promote. Any row at
+    # promotable status 'pending' that is NOT in the approved set is demoted so
+    # a server failure / retry can never leak an unverified row into Recalls.
+    # (Fixes the incident where rows already at 'pending' promoted during a
+    # total llama outage.)
+    approved_urls = set()
+    for merged, review in results["approve"]:
+        for key in ("URL", "_orig_url"):
+            u = str((merged.get(key) if key == "URL" else review.get(key)) or "").strip()
+            if u:
+                approved_urls.add(u)
+    for prow in full_pending:
+        if str(prow.get("Status", "")).strip() == "pending":
+            u = str(prow.get("URL", "")).strip()
+            if u not in approved_urls:
+                prow["Status"] = "pending_gap_v2"  # hold; do not promote
+                note = str(prow.get("Notes", "")).strip()
+                prow["Notes"] = (note + " [safety-hold: not approved this "
+                                 "run; not promoted]").strip()[:1000]
 
     new_approved, remaining, archived_rejected = promote_approved(
         pending=full_pending,
