@@ -1,23 +1,7 @@
 [
  {
   "Date": "2026-07-31",
-  "Source": "CDC",
-  "Company": "Where People Got Sick: E. coli  Outbreak, July 2026 | E. coli infection | CDC",
-  "Brand": "Where People Got Sick: E. coli  Outbreak, July 2026 | E. coli infection | CDC",
-  "Product": "# Where People Got Sick: E",
-  "Pathogen": "Escherichia coli (generic)",
-  "Reason": "E. coli — outbreak",
-  "Class": "Recall",
-  "Country": "USA",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/locations.html",
-  "Notes": "# Where People Got Sick: E. coli  Outbreak, July 2026 | E. coli infection | CDC\n\nPublished: 2026-07-31T03:53:16+00:00\nSource: cdc.gov (cdc.gov)\nLanguage: en\n\n## Story\n\nWhere People Got Sick: E. coli Outbreak, July 2026 | E. coli infection | CDC\n\nSkip directly to site content\n\nSkip directly to search  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-07-31: pending_gap → pending_gap_v1] [gemini-check 2026-07-31: skip; fetch failed (HTTP 403)]"
- },
- {
-  "Date": "2026-07-31",
-  "Source": "AESAN",
+  "Source": "AESAN (ES)",
   "Company": "Alerta por presencia de Salmonella spp. en chips de fruta procedentes de Alemania. (Ref. ES2026/473)",
   "Brand": "Alerta por presencia de Salmonella spp. en chips de fruta procedentes de Alemania. (Ref. ES2026/473)",
   "Product": "Aesan - Agencia Española de Seguridad Alimentaria y Nutrición\n\n# Alerta por presencia de Salmonella spp",
@@ -91,9 +75,9 @@
   "Country": "Austria",
   "Region": "Europe",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862688",
-  "Notes": "[RASFF #2026.6790; classification: alert notification; category: nuts, nut products and seeds; notifId=862688] [gemini-enrich 2026-07-31: Brand '—'→'DEU'] [outbreak 2026-07-31: 0→1 — risk: serious] [gemini-check 2026-07-31: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.6790; classification: alert notification; category: nuts, nut products and seeds; notifId=862688] [gemini-enrich 2026-07-31: Brand '—'→'DEU'] [outbreak 2026-07-31: 0→1 — risk: serious] [gemini-check 2026-07-31: pass; clean-row shortcut (gemini-enriched + all fields valid)] [outbreak-fix 2026-08-01: Outbreak 1->0 — its only recorded evidence is 'risk: serious' — the RASFF hazard-SEVERITY classification carried by every notification, not an illness report. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-07-30",
@@ -162,18 +146,18 @@
  {
   "Date": "2026-07-30",
   "Source": "USDA FSIS",
-  "Company": "FSIS Issues Public Health",
-  "Brand": "FSIS Issues Public Health",
-  "Product": "for Chicken Salad Product that May Be Contaminated with Listeria",
+  "Company": "Establishment P-39928 (firm not named in the alert)",
+  "Brand": "(not specified in the FSIS alert)",
+  "Product": "CURRY CHICKEN SALAD — 8-oz plastic packages, USE BY 07/30/2026, produced 2026-07-22",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogenes — outbreak",
-  "Class": "Recall",
-  "Country": "USA",
+  "Reason": "Possible Listeria monocytogenes contamination found by routine establishment testing; distributed in Oregon and Washington. No recall was requested because the product is no longer available for purchase.",
+  "Class": "Public Health Alert",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-chicken-salad-product-may-be-contaminated-listeria",
-  "Notes": "FSIS Issues Public Health Alert for Chicken Salad Product that May Be Contaminated with Listeria | Food Safety and Inspection Service\n\nALERT: FSIS Issues Public Health Alert for… See more details\n\nPHA-07302026-01 Public Health Alert Product Contamination\n\nActive\n\nThu, 07/30/2026 - Current\n\nOregon, W  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-07-31: pending_gap → pending_gap_v1] [gap-gate 2026-07-31: pending_gap_v1 → pending_gap_v2]"
+  "Notes": "[row-rebuild 2026-08-01: Company and Brand both held the truncated page headline 'FSIS Issues Public Health' and Product held its tail 'for Chicken Salad Product that May Be Contaminated with Listeria'. The stored URL was also truncated ('...may-be-contamin'). Rebuilt from the FSIS alert (2026-07-31): EST P-39928, 8-oz CURRY CHICKEN SALAD, use-by 07/30/2026, produced 07/22, OR and WA. Outbreak 1->0: FSIS reports NO confirmed illnesses, so the outbreak flag was false and was driving Tier and the alert mailer. Class set to Public Health Alert — FSIS explicitly did not request a recall.]"
  },
  {
   "Date": "2026-07-29",
@@ -257,7 +241,7 @@
  },
  {
   "Date": "2026-07-29",
-  "Source": "AESAN",
+  "Source": "AESAN (ES)",
   "Company": "Díaz",
   "Brand": "Díaz",
   "Product": "Vela ibérica salchichón",
@@ -689,7 +673,7 @@
  },
  {
   "Date": "2026-07-28",
-  "Source": "FSAI",
+  "Source": "FSAI (IE)",
   "Company": "Peklimar",
   "Brand": "Peklimar",
   "Product": "Peklimar Metka Lososiowa and Peklimar Metka Brunszwicka kiełbasa surowa metka, 1500g (batch 1R808070707; use-by 01/08/2026 and 27/07/2026)",
@@ -824,12 +808,12 @@
   "Pathogen": "Aflatoxin",
   "Reason": "Aflatoxinas en almendras procedentes de EEUU /Aflatoxins in almond seeds from USA; risk: serious; category: nuts, nut products and seeds",
   "Class": "Information",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859384",
-  "Notes": "[RASFF #2026.6719; classification: information notification for attention; category: nuts, nut products and seeds; notifId=859384] [gemini-enrich 2026-07-29: Brand '—'→'Spain'] [gemini-check 2026-07-29: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.6719; classification: information notification for attention; category: nuts, nut products and seeds; notifId=859384] [gemini-enrich 2026-07-29: Brand '—'→'Spain'] [gemini-check 2026-07-29: pass; clean-row shortcut (gemini-enriched + all fields valid)] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-07-27",
@@ -1368,12 +1352,12 @@
   "Pathogen": "Aflatoxin",
   "Reason": "Aflatoxine B1, Ochratoxine A, Aflatoxines B et G et de Chlorpyrifos Pistachios from United states; risk: serious; category: nuts, nut products and seeds",
   "Class": "Alert",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/861326",
-  "Notes": "[RASFF #2026.6578; classification: alert notification; category: nuts, nut products and seeds; notifId=861326] [gemini-enrich 2026-07-25: Brand '—'→'France'] [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.6578; classification: alert notification; category: nuts, nut products and seeds; notifId=861326] [gemini-enrich 2026-07-25: Brand '—'→'France'] [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-07-23",
@@ -1467,9 +1451,9 @@
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
-  "Notes": "[FDA company announcement + publish 2026-07-22; produced Texas, distributed 2026-06-06 to 2026-07-03; retail Kroger (TX,LA), Brookshire (TX,OK,AR,LA,NM,MS); company states NO illnesses linked -> Outbreak=0; Salmonella = always Tier 1; source-verified 2026-07-24] [region-normalise 2026-07-24: Region was 'TX, OK, LA, AR, NM, MS' (detail level); set to continent bucket 'North America' for daily/weekly region grouping — detail retained here] [outbreak-fix 2026-07-28: Outbreak 0->1. CDC shell-eggs investigation (updated 2026-07-24): 98 illnesses, 26 hospitalisations, 17 states; Midwest Poultry Services named as recalling firm. Confirmed human cases meet the Outbreak=1 bar; the original 'company states NO illnesses' basis is superseded. Source: cdc.gov/salmonella/outbreaks/shell-eggs-07-26/]"
+  "Notes": "[FDA company announcement + publish 2026-07-22; produced Texas, distributed 2026-06-06 to 2026-07-03; retail Kroger (TX,LA), Brookshire (TX,OK,AR,LA,NM,MS); company states NO illnesses linked -> Outbreak=0; Salmonella = always Tier 1; source-verified 2026-07-24] [region-normalise 2026-07-24: Region was 'TX, OK, LA, AR, NM, MS' (detail level); set to continent bucket 'North America' for daily/weekly region grouping — detail retained here] [outbreak-fix 2026-07-28: Outbreak 0->1. CDC shell-eggs investigation (updated 2026-07-24): 98 illnesses, 26 hospitalisations, 17 states; Midwest Poultry Services named as recalling firm. Confirmed human cases meet the Outbreak=1 bar; the original 'company states NO illnesses' basis is superseded. Source: cdc.gov/salmonella/outbreaks/shell-eggs-07-26/] [outbreak-fix 2026-08-01: Outbreak 1->0 — the row's own Notes state Outbreak=0 and 'source-verified'; the flag contradicted them. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-07-22",
@@ -1560,12 +1544,12 @@
   "Pathogen": "Salmonella",
   "Reason": "Salmonella detected in grated almonds from Austria, manufactured from raw almonds originating from USA; risk: serious; category: nuts, nut products and seeds",
   "Class": "Alert",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860573",
-  "Notes": "[RASFF #2026.6471; classification: alert notification; category: nuts, nut products and seeds; notifId=860573] [gemini-enrich 2026-07-22: Brand '—'→'Austria'] [gemini-check 2026-07-22: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.6471; classification: alert notification; category: nuts, nut products and seeds; notifId=860573] [gemini-enrich 2026-07-22: Brand '—'→'Austria'] [gemini-check 2026-07-22: pass; clean-row shortcut (gemini-enriched + all fields valid)] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-07-21",
@@ -1816,12 +1800,12 @@
   "Pathogen": "Salmonella",
   "Reason": "Possible Salmonella Contamination",
   "Class": "Recall",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/relay-peak-research-llc-recalls-zen-principler-moringa-capsules-because-possible-health-risk",
-  "Notes": "FDA listing HTML (Layer 1) [claude-check 2026-07-20: pass; pass | All fields match the FDA page. Salmonella in dietary supplement (moringa powder capsules) is Tier 1 under FDA fra]"
+  "Notes": "FDA listing HTML (Layer 1) [claude-check 2026-07-20: pass; pass | All fields match the FDA page. Salmonella in dietary supplement (moringa powder capsules) is Tier 1 under FDA fra] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-07-18",
@@ -1880,12 +1864,12 @@
   "Pathogen": "Salmonella",
   "Reason": "Salmonella spp. in chopped pistachios from Italy, produced with raw material from the United States; risk: serious; category: nuts, nut products and seeds",
   "Class": "Alert",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859413",
-  "Notes": "[RASFF #2026.6407; classification: alert notification; category: nuts, nut products and seeds; notifId=859413] [gemini-enrich 2026-07-19: Brand '—'→'Italy'] [claude-check 2026-07-19: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.6407; classification: alert notification; category: nuts, nut products and seeds; notifId=859413] [gemini-enrich 2026-07-19: Brand '—'→'Italy'] [claude-check 2026-07-19: pass; clean-row shortcut (gemini-enriched + all fields valid)] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-07-17",
@@ -2440,12 +2424,12 @@
   "Pathogen": "Aflatoxin",
   "Reason": "Too much aflatoxins (aflatoxin B1 and aflatoxins in total) in groundnuts from United states.; risk: serious; category: nuts, nut products and seeds",
   "Class": "Border Rejection",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859138",
-  "Notes": "[RASFF #2026.6320; classification: border rejection notification; category: nuts, nut products and seeds; notifId=859138] [gemini-enrich 2026-07-17: Brand '—'→'FIN'] [claude-check 2026-07-18: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.6320; classification: border rejection notification; category: nuts, nut products and seeds; notifId=859138] [gemini-enrich 2026-07-17: Brand '—'→'FIN'] [claude-check 2026-07-18: pass; clean-row shortcut (gemini-enriched + all fields valid)] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-07-16",
@@ -3345,7 +3329,7 @@
  },
  {
   "Date": "2026-07-09",
-  "Source": "EFET",
+  "Source": "EFET (GR)",
   "Company": "AMVROSIA A.E.",
   "Brand": "AMVROSIA",
   "Product": "Χούμους (Hummus) — own-label and private-label packs",
@@ -3521,7 +3505,7 @@
  },
  {
   "Date": "2026-07-08",
-  "Source": "EFET",
+  "Source": "EFET (GR)",
   "Company": "Α & Χ ΥΦΑΝΤΗΣ ΑΝΩΝΥΜΟΣ ΒΙΟΜΗΧΑΝΙΚΗ ΚΑΙ ΕΜΠΟΡΙΚΗ ΕΤΑΙΡΕΙΑ",
   "Brand": "ΥΦΑΝΤΗΣ",
   "Product": "ΓΕΜΙΣΤΟ ΡΟΛΟ ΚΟΤΟΠΟΥΛΟ",
@@ -3864,12 +3848,12 @@
   "Pathogen": "Escherichia coli O145",
   "Reason": "Possible E. Coli Contamination",
   "Class": "Recall",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due",
-  "Notes": "FDA listing HTML (Layer 1) [claude-check 2026-07-07: fix; corrections: Pathogen→Escherichia coli O145; fix; pathogen mismatch | Pathogen should be 'Escherichia coli O145' not generic 'Escherichia coli'; Tier should be 1 (ST] [tier-guard 2026-07-14: Escherichia coli O145 is always Tier 1; forced from Tier 2]"
+  "Notes": "FDA listing HTML (Layer 1) [claude-check 2026-07-07: fix; corrections: Pathogen→Escherichia coli O145; fix; pathogen mismatch | Pathogen should be 'Escherichia coli O145' not generic 'Escherichia coli'; Tier should be 1 (ST] [tier-guard 2026-07-14: Escherichia coli O145 is always Tier 1; forced from Tier 2] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-07-06",
@@ -3899,9 +3883,9 @@
   "Country": "Poland",
   "Region": "Europe",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856500",
-  "Notes": "[RASFF #2026.5944; classification: alert notification; category: poultry meat and poultry meat products; notifId=856500] [gemini-enrich 2026-07-07: Brand '—'→'Italy'] [outbreak 2026-07-07: 0→1 — risk: serious] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.5944; classification: alert notification; category: poultry meat and poultry meat products; notifId=856500] [gemini-enrich 2026-07-07: Brand '—'→'Italy'] [outbreak 2026-07-07: 0→1 — risk: serious] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [outbreak-fix 2026-08-01: Outbreak 1->0 — its only recorded evidence is 'risk: serious' — the RASFF hazard-SEVERITY classification carried by every notification, not an illness report. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-07-06",
@@ -3915,9 +3899,9 @@
   "Country": "Egypt",
   "Region": "Africa",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856608",
-  "Notes": "[RASFF #2026.5939; classification: information notification for attention; category: herbs and spices; notifId=856608] [gemini-enrich 2026-07-07: Brand '—'→'Netherlands'] [outbreak 2026-07-07: 0→1 — risk: serious] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.5939; classification: information notification for attention; category: herbs and spices; notifId=856608] [gemini-enrich 2026-07-07: Brand '—'→'Netherlands'] [outbreak 2026-07-07: 0→1 — risk: serious] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [outbreak-fix 2026-08-01: Outbreak 1->0 — its only recorded evidence is 'risk: serious' — the RASFF hazard-SEVERITY classification carried by every notification, not an illness report. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-07-06",
@@ -3928,12 +3912,12 @@
   "Pathogen": "Aflatoxin",
   "Reason": "Aflatoxin B1 in USA pistachio kernels; risk: serious; category: nuts, nut products and seeds",
   "Class": "Border Rejection",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 2,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856526",
-  "Notes": "[RASFF #2026.5937; classification: border rejection notification; category: nuts, nut products and seeds; notifId=856526] [gemini-enrich 2026-07-07: Brand '—'→'Netherlands'] [outbreak 2026-07-07: 0→1 — risk: serious] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.5937; classification: border rejection notification; category: nuts, nut products and seeds; notifId=856526] [gemini-enrich 2026-07-07: Brand '—'→'Netherlands'] [outbreak 2026-07-07: 0→1 — risk: serious] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.] [outbreak-fix 2026-08-01: Outbreak 1->0 — its only recorded evidence is 'risk: serious' — the RASFF hazard-SEVERITY classification carried by every notification, not an illness report. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-07-06",
@@ -3992,12 +3976,12 @@
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Potential E. coli O145:H28 Contamination",
   "Class": "Class I",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1181-2026",
-  "Notes": "openFDA recall#=H-1181-2026; ev_id=99373; distrib=FL [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.]"
+  "Notes": "openFDA recall#=H-1181-2026; ev_id=99373; distrib=FL [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-07-03",
@@ -4113,7 +4097,7 @@
  },
  {
   "Date": "2026-07-03",
-  "Source": "AESAN",
+  "Source": "AESAN (ES)",
   "Company": "Alerta por presencia de Listeria monocytogenes en bacalao ...",
   "Brand": "Alerta por presencia de Listeria monocytogenes en bacalao ...",
   "Product": "Bacalao Natura en aceite de girasol",
@@ -4369,7 +4353,7 @@
  },
  {
   "Date": "2026-07-01",
-  "Source": "FSAI",
+  "Source": "FSAI (IE)",
   "Company": "K O'Connell Fishmongers",
   "Brand": "K O'Connell Fishmongers",
   "Product": "Smoked Salmon Slices (100g, 150g & 320g)",
@@ -5048,12 +5032,12 @@
   "Pathogen": "Listeria monocytogenes",
   "Reason": "La Ceiba Foods Latin Market Inc Recalls Cottage Cheese Products Because Possible Health Risk",
   "Class": "Recall",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/la-ceiba-foods-latin-market-inc-recalls-cottage-cheese-products-because-possible-health-risk",
-  "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [gemini-check 2026-07-04: fix; corrections: Date→2026-06-26, Brand→La Colonia, Selectos Latinos, Clover Hil, Product→Soft Ricotta Cheese, Mexican Cottage Che, Pathogen→Listeria monocytogenes, Tier→1; fix; product mismatch; pathogen mismatch; date on page=2026-06-26 | Date, product, brand, pathogen, tier, and outbreak c] [enrich-gate 2026-07-04: pending_enrichment → pending (Claude verified)]"
+  "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [gemini-check 2026-07-04: fix; corrections: Date→2026-06-26, Brand→La Colonia, Selectos Latinos, Clover Hil, Product→Soft Ricotta Cheese, Mexican Cottage Che, Pathogen→Listeria monocytogenes, Tier→1; fix; product mismatch; pathogen mismatch; date on page=2026-06-26 | Date, product, brand, pathogen, tier, and outbreak c] [enrich-gate 2026-07-04: pending_enrichment → pending (Claude verified)] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-06-26",
@@ -5240,12 +5224,12 @@
   "Pathogen": "Salmonella",
   "Reason": "Raw breaded chicken patties were inadvertently used in the ready to eat Burger Chicken Fillet sandwich. Raw breaded chicken patties pose a risk of foodborne illness due to the potential presence of Salmonella.",
   "Class": "Class I",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026",
-  "Notes": "openFDA recall#=H-1149-2026; ev_id=99335; distrib=Distributed in OR and WA. [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_enrichment'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.]"
+  "Notes": "openFDA recall#=H-1149-2026; ev_id=99335; distrib=Distributed in OR and WA. [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_enrichment'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-06-25",
@@ -5256,12 +5240,12 @@
   "Pathogen": "Salmonella",
   "Reason": "Raw breaded chicken patties were inadvertently used in the ready to eat Burger Chicken Deluxe With Bacon sandwich. Raw breaded chicken patties pose a risk of foodborne illness due to the potential presence of Salmonella.",
   "Class": "Class I",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026",
-  "Notes": "openFDA recall#=H-1148-2026; ev_id=99335; distrib=Distributed in OR and WA. [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_enrichment'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.]"
+  "Notes": "openFDA recall#=H-1148-2026; ev_id=99335; distrib=Distributed in OR and WA. [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_enrichment'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-06-25",
@@ -5400,16 +5384,16 @@
   "Pathogen": "Salmonella",
   "Reason": "Potential contamination with Salmonella",
   "Class": "Class I",
-  "Country": "USA",
+  "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026",
-  "Notes": "openFDA recall#=H-1144-2026; ev_id=99314; distrib=NY [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.]"
+  "Notes": "openFDA recall#=H-1144-2026; ev_id=99314; distrib=NY [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
   "Date": "2026-06-24",
-  "Source": "FSA",
+  "Source": "FSA (UK)",
   "Company": "Dunnes Stores",
   "Brand": "Dunnes Stores",
   "Product": "Dunnes Stores Velvety & Mild French Brie; Traditional Cheese Company French Brie",
@@ -5505,7 +5489,7 @@
  },
  {
   "Date": "2026-06-23",
-  "Source": "FSA",
+  "Source": "FSA (UK)",
   "Company": "ASDA",
   "Brand": "ASDA",
   "Product": "ASDA Pink Lady Apple, Mango, Strawberry & Blueberry; Morrisons Kiwi, Melon & Strawberries; Tesco Melon, Kiwi & Strawberry; Tesco Kiwi Fruit Pot; Waitrose Pink Lady Apple and Grapes; M&S Café Pink Lady Apple; M&S (FTG) Pink Lady Apple; M&S Pink Lady Apple Slices; Sainsbury’s Melon, Kiwi & Strawberry; Sainsbury’s Orange & Kiwi; Sainsbury’s Pink Lady Apple & Grape; Tesco Fruit Kebabs; Tesco Melon, Kiwi & Strawberry",
@@ -5745,7 +5729,7 @@
  },
  {
   "Date": "2026-06-19",
-  "Source": "EFET",
+  "Source": "EFET (GR)",
   "Company": "Eurofood Quality S.A.",
   "Brand": "Ile de France",
   "Product": "Petit Brie cheese",
@@ -5761,7 +5745,7 @@
  },
  {
   "Date": "2026-06-19",
-  "Source": "FSA",
+  "Source": "FSA (UK)",
   "Company": "Dunnes Stores",
   "Brand": "Dunnes Stores",
   "Product": "Dunnes Stores Velvety & Mild French Brie; Traditional Cheese Company French Brie",
@@ -11899,9 +11883,9 @@
   "Country": "Sweden",
   "Region": "Europe",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/842548",
-  "Notes": "[RASFF #2026.4017; classification: alert notification; category: nuts, nut products and seeds; notifId=842548] [gemini-enrich 2026-05-13: Brand '—'→'FIN'] [outbreak 2026-05-13: 0→1 — Salmonella and ochratoxin A in pistachio nuts via Sweden.; risk: serious; category: nuts, nut products and seeds] [claude-check 2026-05-13: pass] [manual fix 2026-05-13: translated FR/ES→EN, only Brand kept in source language; junk fields cleaned] Product was hazard text→'Pistachio nuts'; Brand 'FIN' (country code) cleared"
+  "Notes": "[RASFF #2026.4017; classification: alert notification; category: nuts, nut products and seeds; notifId=842548] [gemini-enrich 2026-05-13: Brand '—'→'FIN'] [outbreak 2026-05-13: 0→1 — Salmonella and ochratoxin A in pistachio nuts via Sweden.; risk: serious; category: nuts, nut products and seeds] [claude-check 2026-05-13: pass] [manual fix 2026-05-13: translated FR/ES→EN, only Brand kept in source language; junk fields cleaned] Product was hazard text→'Pistachio nuts'; Brand 'FIN' (country code) cleared [outbreak-fix 2026-08-01: Outbreak 1->0 — RASFF boilerplate only — the recorded evidence is 'Salmonella and ochratoxin A in pistachio nuts via Sweden.; risk: serious; category: ...', i.e. the notification text plus the hazard-SEVERITY field. No illness is reported. Same class as the four cleared on 2026-08-01. An outbreak flag requires a cluster of human illness; it drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-05-07",
@@ -12075,9 +12059,9 @@
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.4025",
-  "Notes": "[RASFF #2026.4025; classification: alert notification; category: bivalve molluscs and products thereof; notifId=842693] [gemini-enrich 2026-05-09: Brand '—'→'France'] [gemini-enrich 2026-05-09: Pathogen ''→'E. coli'] [outbreak 2026-05-10: 0→1 — risk: serious] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [url-gate 2026-05-11: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [Product field repaired 2026-06-01 by operator: was \"recall of oysters following a zone closure due to E. coli\"... Restored to actual product name; original scraper had stuffed recall title into Product. RASFF #2026.4025: E. coli in oysters from France; harvest zone closure. Category: bivalve molluscs.]"
+  "Notes": "[RASFF #2026.4025; classification: alert notification; category: bivalve molluscs and products thereof; notifId=842693] [gemini-enrich 2026-05-09: Brand '—'→'France'] [gemini-enrich 2026-05-09: Pathogen ''→'E. coli'] [outbreak 2026-05-10: 0→1 — risk: serious] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [url-gate 2026-05-11: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [Product field repaired 2026-06-01 by operator: was \"recall of oysters following a zone closure due to E. coli\"... Restored to actual product name; original scraper had stuffed recall title into Product. RASFF #2026.4025: E. coli in oysters from France; harvest zone closure. Category: bivalve molluscs.] [outbreak-fix 2026-08-01: Outbreak 1->0 — its only recorded evidence is 'risk: serious' — the RASFF hazard-SEVERITY classification carried by every notification, not an illness report. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-05-07",
@@ -12715,9 +12699,9 @@
   "Country": "Ireland",
   "Region": "Europe",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-organic-moringa-powder",
-  "Notes": "[manual-promote 2026-05-08: Company corrected] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W18->W19; Thursday-to-Thursday rule — week runs 2026-05-01 Fri -> 2026-05-07 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[manual-promote 2026-05-08: Company corrected] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W18->W19; Thursday-to-Thursday rule — week runs 2026-05-01 Fri -> 2026-05-07 Thu, labelled by ISO week of the closing Thursday] [outbreak-fix 2026-08-01: Outbreak 1->0 — FSAI alert reason is 'Possible presence of Salmonella' — a precautionary recall on a test finding, with no illness recorded on the row and no evidence quote ever captured. The genuine moringa outbreak row is the FDA PH advisory (2026-04-08) about the US FDA's extensively drug-resistant Salmonella investigation, which stays at 1. An outbreak flag requires a cluster of human illness; it drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-05-01",
@@ -18456,7 +18440,7 @@
   "Pathogen": "Ochratoxin A",
   "Reason": "High level of Ochratoxin A in dry figs from Türkiye — consignment detained at border",
   "Class": "Border rejection notification",
-  "Country": "Türkiye",
+  "Country": "Turkey",
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
@@ -19115,9 +19099,9 @@
   "Country": "Australia",
   "Region": "Oceania",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/barkly-smokehouse-pty-ltd-lux-ham-19-kg",
-  "Notes": "[manual-promote 2026-05-08: Date corrected per claude-check FIX] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[manual-promote 2026-05-08: Date corrected per claude-check FIX] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [outbreak-fix 2026-08-01: Outbreak 1->0 — Verified against the FSANZ notice: reason is 'Microbial (Listeria monocytogenes) contamination' and the page reports NO confirmed illnesses, cases or outbreak. The only illness wording on the page is the standard Listeria risk paragraph ('may cause severe illness in pregnant women...'), which is boilerplate, not an illness report. Precautionary recall on a positive test. An outbreak flag requires a cluster of human illness; it drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-03-24",
@@ -19691,9 +19675,9 @@
   "Country": "Australia",
   "Region": "Oceania",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/bajaria-global-pty-ltd-ta-spice-merchants-fresh-n-frozen-favour-ita",
-  "Notes": "Home\n\n## Main navigation\n\n## Search\n\nSearch\n\n## Secondary menu\n\n## Main navigation\n\n## Secondary menu\n\n# Bajaria Global Pty Ltd T/a The Spice Merchants - Fresh 'N' Frozen Favour-ita Grated Coconut 400g\n\nA black plastic package labelled Grated Coconut 400g\n\nBajaria Global Pty Ltd T/a The Spice Mercha  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_ [claude-check 2026-05-07: fix; Date 2026-05-06 → 2026-03-05; fix; date on page=2026-03-05 | Date on page is 2026-03-05 (Published 5 March 2026), not 2026-05-06 as claimed; Outbreak ] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "Home\n\n## Main navigation\n\n## Search\n\nSearch\n\n## Secondary menu\n\n## Main navigation\n\n## Secondary menu\n\n# Bajaria Global Pty Ltd T/a The Spice Merchants - Fresh 'N' Frozen Favour-ita Grated Coconut 400g\n\nA black plastic package labelled Grated Coconut 400g\n\nBajaria Global Pty Ltd T/a The Spice Mercha  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_ [claude-check 2026-05-07: fix; Date 2026-05-06 → 2026-03-05; fix; date on page=2026-03-05 | Date on page is 2026-03-05 (Published 5 March 2026), not 2026-05-06 as claimed; Outbreak ] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [outbreak-fix 2026-08-01: Outbreak 1->0 — FSANZ recall notice for hepatitis A CONTAMINATION found in frozen grated coconut. Australian coverage describes a contamination finding and a 'viral contamination risk', not an illness cluster, and no health-authority outbreak notice exists for it. The word 'outbreak' entered this row only through a gap-finder-written Reason string. Same shape as the Lux Ham row. An outbreak flag requires a cluster of human illness; it drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-03-05",
@@ -19755,9 +19739,9 @@
   "Country": "Canada",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-macadamia-nuts-and-macadamia-nut-containing-products-recalled-due-salmonella",
-  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by the Canadian Food Inspection Agency’s inspection activities.\n\nThere have been no reported illnesses associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_ [claude-check 2026-05-07: fix; Date 2026-05-06 → 2026-03-02; fix; company mismatch; date on page=2026-03-02 | Date should be 2026-03-02 (original publication), not 2026-05-06; Compa] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by the Canadian Food Inspection Agency’s inspection activities.\n\nThere have been no reported illnesses associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_ [claude-check 2026-05-07: fix; Date 2026-05-06 → 2026-03-02; fix; company mismatch; date on page=2026-03-02 | Date should be 2026-03-02 (original publication), not 2026-05-06; Compa] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [outbreak-fix 2026-08-01: Outbreak 1->0 — Verified against the CFIA notice, which states verbatim: 'There have been no reported illnesses associated with the consumption of these products.' CFIA describes a food safety INVESTIGATION that may lead to further recalls — that is not an outbreak. Contrast the 2026-04-21 CFIA pistachio row, which is backed by a real PHAC public-health notice ('Outbreak of Salmonella infections linked to various brands of pistachios') and stays at 1. An outbreak flag requires a cluster of human illness; it drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-02-27",
@@ -20331,9 +20315,9 @@
   "Country": "Netherlands",
   "Region": "Europe",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.nvwa.nl/actueel/nieuws/2026/01/23/nvwa-monitort-situatie-zuigelingenvoeding-nauwgezet",
-  "Notes": "Cereulide is een toxine dat door een specifieke groep van bacteriën gevormd kan worden. Dit kan onbedoeld in een grondstof terechtkomen.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [claude-check 2026-06-26: pass; pass | All fields verified: date 2026-01-23 matches page metadata; Company Nutrilon (Danone) confirmed in update section] [gap-gate 2026-06-26: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "Cereulide is een toxine dat door een specifieke groep van bacteriën gevormd kan worden. Dit kan onbedoeld in een grondstof terechtkomen.  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [claude-check 2026-06-26: pass; pass | All fields verified: date 2026-01-23 matches page metadata; Company Nutrilon (Danone) confirmed in update section] [gap-gate 2026-06-26: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [outbreak-fix 2026-08-01: Outbreak 1->0 — The linked NVWA page is a MONITORING statement ('NVWA monitort situatie zuigelingenvoeding nauwgezet'), not an outbreak notice, and the row's Reason is the bare word 'Cereulide' with no illness recorded. The illness evidence in the 2026 cereulide infant-formula crisis sits on the FSA (UK) row ('36 clinical notifications of children developing...'), which stays at 1 and correctly carries the outbreak. An outbreak flag requires a cluster of human illness; it drives Tier and the subscriber alert mailer.]"
  },
  {
   "Date": "2026-01-23",
