@@ -199,19 +199,37 @@ class TestWholeWorkbookRegression(unittest.TestCase):
     the data files).
     """
 
-    # Corrected 2026-07-30 — must never be flagged again.
-    FIXED_URLS = (
+    # ── REVISED 2026-08-02 ────────────────────────────────────────────────
+    # These two FSANZ rows were "corrected" on 2026-07-30 by replacing the
+    # invented "Listeria monocytogenes" with the real hazard, and left in
+    # Recalls at Tier 2. This test then asserted they must STAY there — which
+    # quietly encoded the wrong policy, because the real hazard is an
+    # undeclared allergen and allergen-only recalls have been out of AFTS
+    # scope since 2026-07-29:
+    #
+    #   "Pathogens + biotoxins + mycotoxins + foreign material + pest +
+    #    chemical hazards only. Allergen-only, labeling, quality issues
+    #    excluded per AFTS scope."   — footer of every daily brief
+    #
+    # Correcting the Pathogen was right. Keeping the rows was not. Both now
+    # live in Weekly_Rejected, archived by the scope rule (rule 8 of
+    # pipeline/_publish_gate.py), and the assertion is inverted: they must be
+    # ABSENT from Recalls and PRESENT in Weekly_Rejected.
+    OUT_OF_SCOPE_URLS = (
         "https://www.foodstandards.gov.au/food-recalls/recall-alert/"
         "auxico-perth-pty-ltd-lgm-hot-chilli-oil-275g",
         "https://www.foodstandards.gov.au/food-recalls/recall-alert/"
         "viet-meatballs-chinese-sausage-500g",
     )
 
-    # Reason-field cross-contamination, awaiting source adjudication.
-    KNOWN_UNRESOLVED_FICHES = frozenset({
-        "22205", "22206", "22208", "22186", "22157",
-        "22113", "22067", "22082", "21987", "21975",
-    })
+    # Reason-field cross-contamination.
+    #
+    # REVISED 2026-08-02: nine of the original ten have been repaired from the
+    # official DGCCRF open-data record, reachable via the data.gouv.fr tabular
+    # API even though rappel.conso.gouv.fr itself is not. See
+    # pipeline/verify_rappelconso.py. Fiche 22205 is absent from that export
+    # (ids jump 22204 -> 22206) so it alone stays pinned.
+    KNOWN_UNRESOLVED_FICHES = frozenset({"22205"})
 
     def _load(self):
         try:
@@ -237,18 +255,31 @@ class TestWholeWorkbookRegression(unittest.TestCase):
             })
         return out
 
-    def test_corrected_rows_stay_corrected(self):
+    def test_out_of_scope_allergen_rows_are_not_in_recalls(self):
         rows = {r["URL"]: r for r in self._load()}
-        for url in self.FIXED_URLS:
-            self.assertIn(url, rows, url)
-            row = rows[url]
-            self.assertFalse(
-                _pathogen_reason_class_mismatch(row["Pathogen"].lower(),
-                                               row["Reason"]),
-                f"{url} has regressed to a contradictory Pathogen: "
-                f"{row['Pathogen']!r} vs {row['Reason']!r}")
-            self.assertIn("allergen", row["Pathogen"].lower(), url)
-            self.assertEqual(2, row["Tier"], url)
+        still_there = [u for u in self.OUT_OF_SCOPE_URLS if u in rows]
+        self.assertEqual(
+            [], still_there,
+            "allergen-only recall(s) back in Recalls — out of AFTS scope "
+            "since 2026-07-29")
+
+    def test_they_were_archived_not_deleted(self):
+        try:
+            import openpyxl
+        except ImportError:                       # pragma: no cover
+            self.skipTest("openpyxl not installed")
+        xlsx = ROOT / "docs" / "data" / "recalls.xlsx"
+        if not xlsx.exists():                     # pragma: no cover
+            self.skipTest("recalls.xlsx not present")
+        wb = openpyxl.load_workbook(xlsx, read_only=True)
+        rows = list(wb["Weekly_Rejected"].values)
+        hdr = [str(h) for h in rows[0]]
+        iu = hdr.index("URL")
+        archived = {str(r[iu] or "") for r in rows[1:] if r}
+        missing = [u for u in self.OUT_OF_SCOPE_URLS if u not in archived]
+        self.assertEqual([], missing,
+                         "removed rows must land in Weekly_Rejected with a "
+                         "reason, never be silently deleted")
 
     def test_no_new_contradictions_appear(self):
         """Every flagged row must be on the documented unresolved list."""

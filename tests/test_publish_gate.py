@@ -398,6 +398,24 @@ class TestWorkbookStaysClean(unittest.TestCase):
         # gate exists to stop, so the listing URL stays until the real
         # permalink is confirmed.
         "efet.gr/index.php/el/enimerosi/deltia-typou",
+        # ── Revised 2026-08-02 (second pass) ──────────────────────────────
+        # The ten RappelConso rows previously pinned here have been REPAIRED
+        # from the official DGCCRF open-data record and are gone from this
+        # list. rappel.conso.gouv.fr is unreachable from the audit environment
+        # (robots.txt fetch fails TLS verification), but the DGCCRF publishes
+        # every fiche as open data and the fiche id in the URL is the primary
+        # key, so the join is exact and needs no model:
+        #
+        #   https://tabular-api.data.gouv.fr/api/resources/
+        #       5a4e7174-657c-4920-af1f-3440a996837c/data/?id__exact=<fiche>
+        #
+        # See pipeline/verify_rappelconso.py, which now reconciles the whole
+        # French corpus against that record on a schedule.
+        #
+        # ONE remains. Fiche 22205 is ABSENT from the export — the ids jump
+        # 22204 -> 22206 — so there is no authoritative record to repair it
+        # from, and guessing is the failure this gate exists to prevent.
+        "fiche-rappel/22205",   # Listeria mc <- aflatoxin / corn wafers (SK)
     })
 
     def test_no_NEW_row_violates_the_gate(self):
