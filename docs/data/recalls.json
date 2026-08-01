@@ -960,6 +960,22 @@
   "Notes": "[RASFF #2026.6719; classification: information notification for attention; category: nuts, nut products and seeds; notifId=859384] [gemini-enrich 2026-07-29: Brand '—'→'Spain'] [gemini-check 2026-07-29: pass; clean-row shortcut (gemini-enriched + all fields valid)] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
  },
  {
+  "Date": "2026-07-28",
+  "Source": "BLV (CH)",
+  "Company": "Lidl",
+  "Brand": "Freshona Bio",
+  "Product": "Freshona Bio Beerenmischung tiefgefroren, 300g",
+  "Pathogen": "Norovirus",
+  "Reason": "In tiefgekühlten Beeren wurden Noroviren nachgewiesen. Eine Gesundheitsgefährdung kann nicht ausgeschlossen werden.",
+  "Class": "Recall",
+  "Country": "Switzerland",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.blv.admin.ch/de/newnsb/F880wt7ttea28QG0eJI5b",
+  "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [gemini-check 2026-08-01: fix; corrections: Brand→Freshona Bio, Product→Freshona Bio Beerenmischung tiefgefroren; fix | Brand and product description corrected to be more specific based on page content.]"
+ },
+ {
   "Date": "2026-07-27",
   "Source": "CFIA",
   "Company": "106978 Canada Ltée (Yannick Fromagerie)",
