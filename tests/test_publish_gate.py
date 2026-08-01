@@ -432,3 +432,69 @@ class TestWorkbookStaysClean(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestOutbreakRankingUsesBurden(unittest.TestCase):
+    """Inside the outbreak phase, rank by published illness burden.
+
+    The ranker used pathogen-INTRINSIC severity then date, and never looked at
+    how large the outbreak actually was. In July 2026 that put the Cyclospora
+    iceberg-lettuce outbreak (1,644 laboratory-confirmed cases, 94
+    hospitalisations, 9 states) BELOW the Lamia Salmonella cluster of about 20
+    people, purely because Cyclospora scores 99 on the intrinsic table while
+    Salmonella scores 4. For confirmed outbreaks the genus is a poor proxy for
+    public-health weight; the case count is the direct measure.
+    """
+
+    def _ranker(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_wb", ROOT / "docs" / "build_weekly_report_afts.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod.rank_top_recalls
+
+    JULY = [
+        {"Date": "2026-07-22", "Pathogen": "Salmonella Enteritidis", "Tier": 1,
+         "Outbreak": 1, "Country": "United States", "Company": "Midwest Poultry",
+         "Reason": "Multistate outbreak: 98 illnesses across 17 states, "
+                   "26 hospitalizations, 0 deaths."},
+        {"Date": "2026-07-20", "Pathogen": "Salmonella", "Tier": 1,
+         "Outbreak": 1, "Country": "Greece", "Company": "Multiple chicken suppliers",
+         "Reason": "Lamia investigation. Approximately 20 people sickened."},
+        {"Date": "2026-07-18", "Pathogen": "Cyclospora", "Tier": 1,
+         "Outbreak": 1, "Country": "United States", "Company": "Taylor Fresh Foods",
+         "Reason": "CDC counted 1,644 laboratory-confirmed cases and 94 "
+                   "hospitalisations across 5 states."},
+        {"Date": "2026-07-30", "Pathogen": "Listeria monocytogenes", "Tier": 1,
+         "Outbreak": 0, "Country": "France", "Company": "La Ferme des Tertres",
+         "Reason": "Listeria monocytogenes."},
+    ]
+
+    def test_largest_outbreak_ranks_first(self):
+        ranked = self._ranker()(self.JULY, n=5)
+        self.assertEqual("Cyclospora", ranked[0]["Pathogen"],
+                         "the 1,644-case outbreak must outrank the 98-case and "
+                         "20-case ones")
+        self.assertEqual("Salmonella Enteritidis", ranked[1]["Pathogen"])
+        self.assertEqual("Salmonella", ranked[2]["Pathogen"])
+
+    def test_outbreaks_still_outrank_non_outbreaks(self):
+        """Burden must not let a big outbreak be beaten by a severe pathogen,
+        nor let a non-outbreak jump the phase."""
+        ranked = self._ranker()(self.JULY, n=5)
+        self.assertEqual(0, ranked[-1]["Outbreak"],
+                         "a non-outbreak Listeria row must stay below every "
+                         "confirmed outbreak")
+
+    def test_unknown_burden_falls_back_to_intrinsic_severity(self):
+        rows = [
+            {"Date": "2026-07-10", "Pathogen": "Salmonella", "Tier": 1,
+             "Outbreak": 1, "Country": "X", "Reason": "outbreak, no counts given"},
+            {"Date": "2026-07-10", "Pathogen": "Listeria monocytogenes", "Tier": 1,
+             "Outbreak": 1, "Country": "X", "Reason": "outbreak, no counts given"},
+        ]
+        ranked = self._ranker()(rows, n=2)
+        self.assertEqual("Listeria monocytogenes", ranked[0]["Pathogen"],
+                         "with no published counts, intrinsic severity still "
+                         "decides")

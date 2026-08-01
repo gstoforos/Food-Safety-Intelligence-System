@@ -114,9 +114,23 @@ class TestHubContractUnchanged(unittest.TestCase):
         if not HUB.exists():                      # pragma: no cover
             self.skipTest("hub.html not present")
 
-    def test_hub_still_omits_cards_without_a_link(self):
+    def test_hub_no_longer_silently_deletes_a_month(self):
+        """It used to `return ''` and the month vanished without trace. A
+        missing PDF must now be VISIBLE as a Coming Soon card."""
         src = HUB.read_text(encoding="utf-8")
-        self.assertIn("if (!lnk.href) return ''", src)
+        self.assertNotIn("if (!lnk.href) return ''", src,
+                         "hub.html is silently omitting months again")
+        self.assertIn("return renderComing(", src)
+
+    def test_hub_shows_something_when_the_index_yields_no_cards(self):
+        src = HUB.read_text(encoding="utf-8")
+        self.assertIn("Temporarily unavailable", src,
+                      "a failed index fetch would leave 'Loading…' up for ever")
+
+    def test_hub_logs_a_missing_pdf_url(self):
+        src = HUB.read_text(encoding="utf-8")
+        self.assertIn("set_pdf_urls", src,
+                      "the console warning should name the fix")
 
     def test_hub_still_reads_the_data_scoped_index(self):
         src = HUB.read_text(encoding="utf-8")
