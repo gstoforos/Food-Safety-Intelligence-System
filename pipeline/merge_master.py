@@ -318,6 +318,32 @@ def _normalize_url_for_dedup(url: str) -> str:
         s = path + (("?" + "&".join(keepers)) if keepers else "")
     if s.endswith("/"):
         s = s[:-1]
+
+    # ── FSANZ amended-alert republication (audit 2026-08-02) ───────────────
+    # Food Standards Australia New Zealand does not update a recall alert in
+    # place. When an alert is amended it is republished at a NEW slug carrying
+    # a status prefix, and BOTH pages stay live:
+    #
+    #   .../recall-alert/auxico-perth-pty-ltd-lgm-hot-chilli-oil-275g
+    #   .../recall-alert/updated-300726-auxico-perth-pty-ltd-lgm-hot-chilli-oil-275g
+    #
+    # Same company, same product, same recall — one hazard, two addresses. The
+    # URL-keyed dedup saw a second address and minted a second row, which then
+    # took an independent trip through the reviewers and came back carrying an
+    # invented Pathogen at Tier 1 while the correct original sat two rows away
+    # in the same sheet. It went out in a subscriber alert.
+    #
+    # Stripping the status segment collapses the two. Scoped to the FSANZ host
+    # and the /recall-alert/ path so no other regulator's slugs are touched,
+    # and anchored at the START of the slug so a product legitimately named
+    # "...updated..." mid-slug is unaffected.
+    if s.startswith("foodstandards.gov.au/food-recalls/recall-alert/"):
+        head, _, slug = s.rpartition("/")
+        stripped = re.sub(r"^(?:updated?|update|revised|corrected|amended)"
+                          r"-\d{4,8}-", "", slug)
+        if stripped and stripped != slug:
+            s = head + "/" + stripped
+
     if keep_frag:
         s = s + "#" + frag
     return s
@@ -1264,12 +1290,97 @@ def cleanup_orphan_rejected(pending: List[Dict[str, Any]],
 
 
 # ---------------------------------------------------------------------------
+# Re-promotion guard (audit 2026-08-02)
+# ---------------------------------------------------------------------------
+# A rejection was not sticky. Reconstructed from the commit history of
+# docs/data/recalls.xlsx on 2026-08-01, for one FSANZ row:
+#
+#   07-31 21:10  Weekly_Rejected   claude-check: "fail; pathogen mismatch"
+#   08-01 02:16  Pending           restored by an "Add files via upload" commit
+#   08-01 03:10  Pending           gemini-enrich fills Brand
+#   08-01 04:11  (evicted again by the automated run)
+#   08-01 07:52  Pending           restored by the next manual upload
+#   08-01 13:40  Pending           still there
+#   08-01 14:16  Recalls           Qwen review agent APPROVED and promoted it
+#   08-01 13:25  → subscriber alert email
+#
+# Two things are wrong in that trace and this guard fixes the second, which
+# is the one that decides whether the first can hurt anyone:
+#
+#   1. Manually re-uploaded workbook snapshots resurrect rows the pipeline
+#      already evicted. That is an operational hazard outside this module.
+#   2. NOTHING consulted Weekly_Rejected before promoting. Every reviewer got
+#      a clean slate on a row the binding reviewer had already killed, so a
+#      resurrected row only had to find one reviewer willing to say yes — and
+#      with several reviewers of differing strength in rotation, it did.
+#
+# Weekly_Rejected is the single source of rejection truth (see REJECTED_SCHEMA
+# above). Once a URL is in it, promoting the same URL again is a decision that
+# needs a human, not a second opinion from a weaker model. The row is archived
+# straight back with the original verdict quoted, so the trail stays intact
+# and nothing is silently deleted.
+#
+# Deliberately keyed on the NORMALISED URL only. Content keys drift as
+# enrichment rewrites Company and Brand — that drift is exactly how the row
+# escaped in the first place — whereas the address the regulator serves the
+# notice at does not.
+_REJECTED_URL_CACHE: Dict[str, Tuple[float, Dict[str, str]]] = {}
+
+
+def load_rejected_urls(xlsx_path: Optional[Path] = None) -> Dict[str, str]:
+    """Map normalised URL -> short description of the recorded rejection.
+
+    Reads the Weekly_Rejected sheet. Returns {} on any problem: this guard
+    must never be the reason a pipeline run dies.
+    """
+    if xlsx_path is None:
+        xlsx_path = Path(__file__).resolve().parent.parent / "docs" / "data" / "recalls.xlsx"
+    xlsx_path = Path(xlsx_path)
+    try:
+        stamp = xlsx_path.stat().st_mtime
+    except OSError:
+        return {}
+    key = str(xlsx_path)
+    cached = _REJECTED_URL_CACHE.get(key)
+    if cached and cached[0] == stamp:
+        return cached[1]
+    out: Dict[str, str] = {}
+    try:
+        wb = load_workbook(xlsx_path, read_only=True, data_only=True)
+        if "Weekly_Rejected" in wb.sheetnames:
+            rows = list(wb["Weekly_Rejected"].values)
+            if rows:
+                hdr = [str(h) for h in rows[0]]
+                i_url = hdr.index("URL") if "URL" in hdr else None
+                i_by = hdr.index("RejectedBy") if "RejectedBy" in hdr else None
+                i_why = (hdr.index("RejectionReason")
+                         if "RejectionReason" in hdr else None)
+                if i_url is not None:
+                    for r in rows[1:]:
+                        if not r or i_url >= len(r):
+                            continue
+                        u = _normalize_url_for_dedup(str(r[i_url] or ""))
+                        if not u:
+                            continue
+                        by = str(r[i_by] or "") if i_by is not None and i_by < len(r) else ""
+                        why = str(r[i_why] or "") if i_why is not None and i_why < len(r) else ""
+                        out[u] = f"{by or 'a reviewer'}: {why[:160]}".strip()
+        wb.close()
+    except Exception as exc:  # pragma: no cover - defensive
+        log.warning("Weekly_Rejected re-promotion guard unavailable (%s: %s)",
+                    type(exc).__name__, str(exc)[:80])
+        return {}
+    _REJECTED_URL_CACHE[key] = (stamp, out)
+    return out
+
+
 def promote_approved(
     pending: List[Dict[str, Any]],
     approved_existing: List[Dict[str, Any]],
     rejected_flags: Dict[int, str],
     *,
     archive_immediately: bool = False,
+    previously_rejected: Optional[Dict[str, str]] = None,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Split the Pending list into
@@ -1321,6 +1432,13 @@ def promote_approved(
     rather than implicit in caller knowledge.
     """
     approved_keys = {_dedup_key(r) for r in approved_existing}
+
+    # Rejection registry for the re-promotion guard. Loaded once per call;
+    # callers that already hold the workbook can pass it in. `{}` explicitly
+    # disables the guard (used by the tests and by a deliberate operator
+    # override), `None` means "look it up".
+    if previously_rejected is None:
+        previously_rejected = load_rejected_urls()
 
     # ── Secondary dedup axis: normalized URL ────────────────────────────
     #
@@ -1463,6 +1581,25 @@ def promote_approved(
                 _archive(clean)
                 continue
             kept_in_pending.append(clean)
+            continue
+
+        # ── Re-promotion guard (audit 2026-08-02) ───────────────────────
+        # A URL already recorded in Weekly_Rejected does not get a second
+        # verdict from a different reviewer. See load_rejected_urls() above
+        # for the trace that made this necessary.
+        _u_now = _normalize_url_for_dedup(str(clean.get("URL", "") or ""))
+        if _u_now and _u_now in previously_rejected:
+            _prior = previously_rejected[_u_now]
+            log.warning("re-promotion BLOCKED %s — already in Weekly_Rejected "
+                        "(%s)", str(clean.get("URL", ""))[:90], _prior[:120])
+            clean["Notes"] = (
+                str(clean.get("Notes") or "").strip()
+                + f" [re-promotion blocked 2026-08-02: this URL is already in "
+                  f"Weekly_Rejected — {_prior[:200]}]"
+            ).strip()
+            if not clean.get("RejectedBy"):
+                clean["RejectedBy"] = "repromotion-guard"
+            _archive(clean)
             continue
 
         # Approved row: dedup against existing Recalls on BOTH axes —
@@ -1680,6 +1817,35 @@ def _write_sheet(wb: Workbook,
     if _artifact_hits:
         log.info("Stripped U+00A4 transcription artifact from %d cell(s) [%s]",
                  _artifact_hits, sheet_name)
+
+    # ── Page status banners folded into Company (audit 2026-08-02) ─────────
+    # FSANZ prefixes the <h1> of an amended alert with its own status banner:
+    #
+    #   "UPDATED 30.07.26 | Auxico (Perth) Pty Ltd - LGM HOT CHILLI OIL 275G"
+    #
+    # The scraper splits that title on the first " - " to get Company and
+    # Product, so the banner lands in Company and the row is published naming
+    # a company that does not exist. It also defeats every Company-keyed
+    # comparison — content dedup, the FSAI-style identity key, and an
+    # operator's eye scanning the sheet.
+    #
+    # Stripped at the writer, on every sheet, for the same reason the Class
+    # and Country guards are: rows are updated in place after promotion by the
+    # url-gate and enrichment passes, so a scraper-side clean can be undone,
+    # and Pending/Weekly_Review are read by humans too.
+    try:
+        from pipeline._publish_gate import strip_title_status_prefix  # noqa
+        if "Company" in schema:
+            for _row in rows:
+                _raw = _row.get("Company")
+                _clean = strip_title_status_prefix(_raw)
+                if isinstance(_raw, str) and _clean != _raw:
+                    log.info("Company status banner stripped at writer [%s]: "
+                             "%r -> %r", sheet_name, _raw[:60], _clean[:60])
+                    _row["Company"] = _clean
+    except Exception as exc:
+        log.warning("Company banner strip skipped at writer [%s]: %s: %s",
+                    sheet_name, type(exc).__name__, str(exc)[:80])
 
     # ── Country-name canonicalisation (audit 2026-08-01) ───────────────────
     # Country is a join key: it drives Region, the country counts in the weekly

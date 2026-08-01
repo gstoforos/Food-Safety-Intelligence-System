@@ -52,10 +52,55 @@ when the API is down, and when rappel.conso.gouv.fr refuses a TLS handshake.
 
 Use `publish_blockers(row)` — it returns a list of human-readable reasons, one
 per violated rule, or an empty list when the row is publishable.
+
+
+SECOND INCIDENT (audit 2026-08-02) — WHY THE HAZARD CROSS-CHECK MOVED HERE
+=========================================================================
+On 2026-08-01 a subscriber alert went out carrying this row:
+
+    Date      2026-07-29
+    Source    FSANZ (AU)
+    Company   UPDATED 30.07.26 | Auxico (Perth) Pty Ltd
+    Product   LGM HOT CHILLI OIL 275G
+    Pathogen  Listeria monocytogenes          <- appears NOWHERE on the page
+    Reason    The recall is due to the presence of an undeclared allergen
+              (peanuts).
+    Tier      1
+    URL       .../recall-alert/updated-300726-auxico-perth-pty-ltd-...
+
+Verified against the live FSANZ notice: the hazard is an undeclared peanut
+allergen, the word "Listeria" does not occur on the page at all, and the
+correct row for the very same recall was ALREADY in Recalls, correct, at
+Tier 2 with Pathogen "Undeclared allergen (peanuts)".
+
+Three separate mechanisms had to fail together:
+
+  1. FSANZ republishes an amended alert at a NEW slug, prefixing both the
+     URL ("updated-300726-<slug>") and the <h1> ("UPDATED 30.07.26 | ...").
+     The URL-keyed dedup saw a new address, so it minted a second row; the
+     "Company - Product" title split put the page's status banner into
+     Company.
+  2. claude_check DID catch the contradiction and archived the row to
+     Weekly_Rejected for "pathogen mismatch" — but the cross-check lived
+     inside claude_check's clean-row shortcut, so it only ever guarded
+     claude_check's own path. A later, weaker reviewer (the self-hosted
+     Qwen review agent) re-approved the same row and promoted it.
+  3. Nothing consulted Weekly_Rejected before promoting, so a row the
+     binding reviewer had already killed got a fresh verdict every time a
+     re-uploaded workbook snapshot put it back into Pending.
+
+The cross-check therefore belongs HERE, in the deterministic gate every
+promotion path funnels through, and as a hard blocker rather than a hint to
+go ask a model. Pathogen "Listeria monocytogenes" against Reason "undeclared
+allergen (peanuts)" is a contradiction visible from the row alone, for free,
+with every API key revoked.
+
+`claude_check` now imports the tables below instead of keeping its own copy,
+so the classifier cannot drift between the two callers.
 """
 from __future__ import annotations
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 # Controlled vocabularies. A value outside these is an extraction artifact,
 # not a regional judgement call.
@@ -97,13 +142,167 @@ _LANDING_PATHS = frozenset({
     "/en/food-alerts", "/fr/rappels", "/nl/terugroepingen",
 })
 
+# Audit 2026-08-02: '0' added. RappelConso fiche 23067 reached Recalls with
+# Company and Brand both holding the literal string "0" — an extractor writing
+# a falsy sentinel into a text field, not a company called zero. Every field
+# _blank() guards (Pathogen, Reason, Company, Product, Class, Date, Source,
+# URL) is free text where "0" can only ever be an artifact; the numeric
+# columns Tier and Outbreak are checked elsewhere and never pass through here.
 _PLACEHOLDER_VALUES = frozenset({
-    "", "none", "null", "n/a", "na", "-", "—", "tbd", "unknown", "nan",
+    "", "none", "null", "n/a", "na", "-", "—", "tbd", "unknown", "nan", "0",
 })
+
+# Regulator page-status banners that some scrapers fold into Company because
+# the agency prepends them to the <h1>. FSANZ: "UPDATED 30.07.26 | Auxico
+# (Perth) Pty Ltd - LGM HOT CHILLI OIL 275G".
+_TITLE_STATUS_PREFIX = re.compile(
+    r"^\s*(?:updated?|update|revised|corrected|amended|extended)\b[^|]{0,40}\|\s*",
+    re.IGNORECASE,
+)
 
 
 def _blank(value: Any) -> bool:
     return str(value or "").strip().lower() in _PLACEHOLDER_VALUES
+
+
+# ---------------------------------------------------------------------------
+# Hazard-class classifier (canonical home — audit 2026-08-02)
+# ---------------------------------------------------------------------------
+# Moved here from claude_check.py so every promotion path shares one table.
+# See the module docstring for the incident that forced the move.
+HAZARD_CLASS_KEYWORDS = {
+    "biological": (
+        "listeria", "salmonella", "shiga toxin", "shigatoxi", "stec", "vtec",
+        "e. coli", "ecoli", "escherichia", "botulinum", "botulism",
+        "campylobacter", "shigella", "bacillus cereus", "cereulide",
+        "staphylococcus", "staphyloc", "enterotoxin",
+        "norovirus", "norwalk", "hepatitis a", "hav",
+        "yersinia", "vibrio", "clostridium perfringens",
+        "cronobacter", "enterobacter", "enterohaem",
+    ),
+    "physical": (
+        "foreign matter", "foreign material", "foreign body",
+        "physical contamination", "physical hazard",
+        "pieces of glass", "pieces of metal", "pieces of plastic",
+        "metal fragment", "plastic fragment", "glass fragment",
+        "rubber fragment", "wood fragment", "stone fragment",
+        "shard", "splinter",
+    ),
+    "chemical": (
+        "chemical contaminant", "chemical residue", "pesticide", "fungicide",
+        "herbicide", "rodenticide", "antibiotic", "veterinary",
+        "nitrofurazone", "chloramphenicol", "sulphonamide", "sulfonamide",
+        "semicarbazide", " sem ", " sem)", " sem,",
+        "histamine",
+        "heavy metal", " lead ", " mercury ", " cadmium ", " arsenic ",
+        "dioxin", "pcb", "acrylamide", "perchlorate", "melamine",
+        "ethylene oxide", "chlorate",
+    ),
+    "mycotoxin": (
+        "aflatoxin", "ochratoxin", "patulin", "fumonisin",
+        "deoxynivalenol", " don ", "zearalenone", "mycotoxin", "alternaria",
+    ),
+    "fermentation": (
+        "unintended fermentation", "yeast contamination", "wild yeast",
+        "spoilage", "alcohol formation", "co2 formation", "fermenting",
+    ),
+    "biotoxin": (
+        "saxitoxin", "tetrodotoxin", "marine biotoxin", "ciguatoxin",
+        "domoic acid", "okadaic acid", "azaspiracid", "palytoxin",
+        "paralytic shellfish", "amnesic shellfish", "diarrhetic shellfish",
+        "psp toxin", "asp toxin", "dsp toxin",
+    ),
+    # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
+    # "fish") must NOT appear here: RASFF Reason text routinely carries
+    # "category: milk and milk products" on genuine Listeria and STEC
+    # notifications, and a bare "milk" token would classify those as
+    # allergen and manufacture a false mismatch on correct rows. Every
+    # real allergen recall states the framing explicitly.
+    "allergen": (
+        "undeclared allergen", "undeclared allergens",
+        "undeclared ingredient", "undeclared ingredients",
+        "undeclared milk", "undeclared egg", "undeclared peanut",
+        "undeclared soy", "undeclared gluten", "undeclared wheat",
+        "undeclared sesame", "undeclared mustard", "undeclared sulphite",
+        "undeclared sulfite", "undeclared nut", "undeclared fish",
+        "undeclared shellfish", "undeclared celery", "undeclared lupin",
+        "allergen not declared", "allergen labelling", "allergen labeling",
+        "not declared on the label", "missing allergen",
+        "incorrect allergen", "allergen mislabel",
+        "misbranding", "misbranded", "mislabelled", "mislabeled",
+        "mislabelling", "mislabeling", "incorrect label", "wrong label",
+        "label error", "labelling error", "labeling error",
+        # non-English regulators
+        "allergene non declare", "allergène non déclaré",
+        "allergene non dichiarato", "alergeno no declarado",
+        "alérgeno no declarado", "nicht deklariertes allergen",
+        "niet-gedeclareerd allergeen", "niet gedeclareerd allergeen",
+        "allergeen niet vermeld",
+    ),
+    # Only explicit mould vocabulary — a bare "microbial contamination" must
+    # stay unclassifiable so the guard keeps failing safe on vague text.
+    "spoilage": (
+        "mould", "moulds", "mould contamination", "mold contamination",
+        "moisissure", "muffa", "moho", "schimmel",
+        "visible mould", "visible mold", "mouldy", "moldy",
+    ),
+}
+
+
+def classify_hazard(text: str) -> Set[str]:
+    """Return the set of hazard classes whose keywords appear in `text`."""
+    if not text:
+        return set()
+    s = " " + text.lower() + " "
+    classes = set()
+    for cls, kws in HAZARD_CLASS_KEYWORDS.items():
+        for kw in kws:
+            if kw in s:
+                classes.add(cls)
+                break
+    return classes
+
+
+# Bare allergen names, matched against the WHOLE Pathogen field only.
+# These can never join HAZARD_CLASS_KEYWORDS: as substrings they would match
+# RASFF's "category: milk and milk products" on genuine Listeria rows and
+# manufacture a false hazard class. As a whole-field equality test on Pathogen
+# they are unambiguous — nothing else writes "Peanut" into a pathogen column.
+_BARE_ALLERGEN_PATHOGENS = frozenset({
+    "peanut", "peanuts", "tree nut", "tree nuts", "nut", "nuts",
+    "milk", "cow's milk", "cows milk", "dairy", "lactose",
+    "egg", "eggs", "gluten", "wheat", "barley", "rye", "oats",
+    "soy", "soya", "soybean", "sesame", "sesame seed",
+    "mustard", "celery", "lupin", "molluscs", "crustaceans",
+    "shellfish", "fish", "sulfite", "sulfites", "sulphite", "sulphites",
+})
+
+
+def _is_bare_allergen(pathogen: str) -> bool:
+    """True when the whole Pathogen field is just an allergen's name.
+
+    Tolerates a trailing qualifier in brackets — 'Sulfites (undeclared)' and
+    'Peanut (undeclared)' are the shapes seen in production.
+    """
+    p = str(pathogen or "").strip().lower()
+    p = re.sub(r"\s*\((?:un)?declared\)\s*$", "", p)
+    p = re.sub(r"^(?:un)?declared\s+", "", p).strip(" .")
+    return p in _BARE_ALLERGEN_PATHOGENS
+
+
+def pathogen_reason_class_mismatch(pathogen: str, reason: str) -> bool:
+    """True if Pathogen and Reason describe DIFFERENT hazard classes.
+
+    Conservative by construction: returns False whenever EITHER field is
+    unclassifiable, and False whenever the classes overlap at all. It only
+    fires when both fields classify cleanly and share nothing — e.g.
+    biological vs allergen, biological vs physical.
+    """
+    p_cls = classify_hazard(pathogen)
+    r_cls = classify_hazard(reason)
+    if not p_cls or not r_cls:
+        return False
+    return len(p_cls & r_cls) == 0
 
 
 def publish_blockers(row: Dict[str, Any]) -> List[str]:
@@ -174,7 +373,79 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
                     f"URL is a regulator landing page, not a recall notice "
                     f"({url[:80]!r})")
 
+    # 7. Pathogen and Reason must not describe different hazard classes.
+    #    See the 2026-08-02 incident in the module docstring: an invented
+    #    "Listeria monocytogenes" sat on a row whose own Reason said
+    #    "undeclared allergen (peanuts)", and it reached subscribers because
+    #    the only copy of this check lived inside one reviewer's fast path.
+    pathogen = str(row.get("Pathogen") or "").strip()
+    if pathogen and reason and pathogen_reason_class_mismatch(pathogen, reason):
+        problems.append(
+            f"Pathogen {pathogen[:40]!r} contradicts Reason "
+            f"({sorted(classify_hazard(pathogen))} vs "
+            f"{sorted(classify_hazard(reason))}) — one of the two fields is "
+            f"not what the source page says")
+
+    # 8. AFTS SCOPE — allergen-only recalls do not belong in this database.
+    #
+    #    Policy 2026-07-29, and the footer printed on every daily brief:
+    #      "Pathogens + biotoxins + mycotoxins + foreign material + pest +
+    #       chemical hazards only. Allergen-only, labeling, quality issues
+    #       excluded per AFTS scope."
+    #
+    #    That policy shipped as a ONE-OFF script (pipeline/fix_allergen_rows.py)
+    #    that removed two FSANZ rows by exact URL and was never wired into any
+    #    gate. Both rows came back. By 2026-08-02 there were SEVEN allergen-only
+    #    rows in Recalls, and one of them had been re-promoted carrying an
+    #    invented "Listeria monocytogenes" at Tier 1 and mailed to subscribers.
+    #
+    #    A recall that carries a real hazard AND an allergen issue stays IN
+    #    scope — the rule only fires when allergen/labelling is the ONLY class
+    #    the row resolves to, across both Pathogen and Reason.
+    #
+    #    Two of the seven did not resolve to the allergen class at all,
+    #    because their Pathogen field is a BARE allergen name with no framing
+    #    token: "Peanut" (FSANZ garlic powder, verified — Problem reads "The
+    #    presence of an undeclared allergen (Peanut)") and "Sulfites
+    #    (undeclared)" (BLV). Bare food names must never go into
+    #    HAZARD_CLASS_KEYWORDS — RASFF Reason text carries "category: milk and
+    #    milk products" on genuine Listeria notifications — so they are matched
+    #    here against the WHOLE Pathogen field only, never as a substring and
+    #    never against Reason.
+    if pathogen or reason:
+        _classes = classify_hazard(pathogen) | classify_hazard(reason)
+        if not _classes and _is_bare_allergen(pathogen):
+            _classes = {"allergen"}
+        if _classes and _classes <= {"allergen"}:
+            problems.append(
+                "Out of AFTS scope: allergen/labelling is the only hazard "
+                "class this row resolves to (policy 2026-07-29 — allergen-"
+                "only, labelling and quality recalls are excluded; pathogens, "
+                "biotoxins, mycotoxins, foreign material, pest and chemical "
+                "hazards only)")
+
+    # 9. Company must not carry the page's status banner. FSANZ prepends
+    #    "UPDATED DD.MM.YY | " to the <h1> of an amended alert, and a
+    #    "Company - Product" title split folds it straight into Company.
+    company = str(row.get("Company") or "").strip()
+    if company and _TITLE_STATUS_PREFIX.match(company):
+        problems.append(
+            f"Company starts with a page status banner ({company[:50]!r}) — "
+            f"the regulator's <h1> prefix was parsed as part of the name")
+
     return problems
+
+
+def strip_title_status_prefix(value: Any) -> Any:
+    """Remove a leading regulator status banner from a Company string.
+
+    Identity for anything that does not carry one, so it is safe to run over
+    every row on every write.
+    """
+    if not isinstance(value, str):
+        return value
+    cleaned = _TITLE_STATUS_PREFIX.sub("", value).strip()
+    return cleaned if cleaned else value
 
 
 def is_publishable(row: Dict[str, Any]) -> bool:

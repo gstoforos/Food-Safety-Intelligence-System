@@ -1060,135 +1060,29 @@ def _is_clean_row(row: Dict[str, Any]) -> bool:
 
 
 # ─── Hazard-class classifier for the cross-check guard above ─────────────────
-_HAZARD_CLASS_KEYWORDS = {
-    "biological": (
-        "listeria", "salmonella", "shiga toxin", "shigatoxi", "stec", "vtec",
-        "e. coli", "ecoli", "escherichia", "botulinum", "botulism",
-        "campylobacter", "shigella", "bacillus cereus", "cereulide",
-        "staphylococcus", "staphyloc", "enterotoxin",
-        "norovirus", "norwalk", "hepatitis a", "hav",
-        "yersinia", "vibrio", "clostridium perfringens",
-        "cronobacter", "enterobacter", "enterohaem",
-    ),
-    "physical": (
-        "foreign matter", "foreign material", "foreign body",
-        "physical contamination", "physical hazard",
-        "pieces of glass", "pieces of metal", "pieces of plastic",
-        "metal fragment", "plastic fragment", "glass fragment",
-        "rubber fragment", "wood fragment", "stone fragment",
-        "shard", "splinter",
-    ),
-    "chemical": (
-        "chemical contaminant", "chemical residue", "pesticide", "fungicide",
-        "herbicide", "rodenticide", "antibiotic", "veterinary",
-        "nitrofurazone", "chloramphenicol", "sulphonamide", "sulfonamide",
-        "semicarbazide", " sem ", " sem)", " sem,",
-        "histamine",
-        "heavy metal", " lead ", " mercury ", " cadmium ", " arsenic ",
-        "dioxin", "pcb", "acrylamide", "perchlorate", "melamine",
-        "ethylene oxide", "chlorate",
-    ),
-    "mycotoxin": (
-        "aflatoxin", "ochratoxin", "patulin", "fumonisin",
-        "deoxynivalenol", " don ", "zearalenone", "mycotoxin", "alternaria",
-    ),
-    "fermentation": (
-        "unintended fermentation", "yeast contamination", "wild yeast",
-        "spoilage", "alcohol formation", "co2 formation", "fermenting",
-    ),
-    "biotoxin": (
-        "saxitoxin", "tetrodotoxin", "marine biotoxin", "ciguatoxin",
-        "domoic acid", "okadaic acid", "azaspiracid", "palytoxin",
-        "paralytic shellfish", "amnesic shellfish", "diarrhetic shellfish",
-        "psp toxin", "asp toxin", "dsp toxin",
-    ),
-    # ── Audit 2026-07-30 ────────────────────────────────────────────────
-    # The 2026-06-14 guard below shipped with six hazard classes and no
-    # allergen class. Allergen mislabelling is the single most common
-    # recall reason worldwide, so the omission was not a rare edge:
-    # _classify_hazard("...undeclared allergen (peanuts)") returned an
-    # EMPTY set, _pathogen_reason_class_mismatch bailed out on
-    # "either field unclassifiable", the clean-row shortcut fired, and the
-    # row was promoted with a Gemini-invented Pathogen and Tier 1.
-    #
-    # Confirmed damage (both verified against the live FSANZ pages — the
-    # word "Listeria" appears NOWHERE on either one):
-    #   Recalls row  3  2026-07-29  Auxico (Perth) LGM Hot Chilli Oil 275g
-    #       Reason "undeclared allergen (peanuts)" / Pathogen "Listeria
-    #       monocytogenes" / Tier 1
-    #   Recalls row 55  2026-07-24  Viet Meatballs Chinese Sausage 500g
-    #       Reason "undeclared allergen (gluten)"  / Pathogen "Listeria
-    #       monocytogenes" / Tier 1
-    #
-    # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
-    # "fish") must NOT appear here: RASFF Reason text routinely carries
-    # "category: milk and milk products" on genuine Listeria and STEC
-    # notifications, and a bare "milk" token would classify those as
-    # allergen and manufacture a false mismatch on correct rows. Every
-    # real allergen recall states the framing explicitly.
-    "allergen": (
-        "undeclared allergen", "undeclared allergens",
-        "undeclared ingredient", "undeclared ingredients",
-        "undeclared milk", "undeclared egg", "undeclared peanut",
-        "undeclared soy", "undeclared gluten", "undeclared wheat",
-        "undeclared sesame", "undeclared mustard", "undeclared sulphite",
-        "undeclared sulfite", "undeclared nut", "undeclared fish",
-        "undeclared shellfish", "undeclared celery", "undeclared lupin",
-        "allergen not declared", "allergen labelling", "allergen labeling",
-        "not declared on the label", "missing allergen",
-        "incorrect allergen", "allergen mislabel",
-        "misbranding", "misbranded", "mislabelled", "mislabeled",
-        "mislabelling", "mislabeling", "incorrect label", "wrong label",
-        "label error", "labelling error", "labeling error",
-        # non-English regulators
-        "allergene non declare", "allergène non déclaré",
-        "allergene non dichiarato", "alergeno no declarado",
-        "alérgeno no declarado", "nicht deklariertes allergen",
-        "niet-gedeclareerd allergeen", "niet gedeclareerd allergeen",
-        "allergeen niet vermeld",
-    ),
-    # Mould / spoilage was likewise unclassifiable, so a Gemini-invented
-    # "Listeria monocytogenes" on an FSANZ "Microbial (Mould)
-    # contamination" row would also have slipped the guard. Only explicit
-    # mould vocabulary — a bare "microbial contamination" must stay
-    # unclassifiable so the guard keeps failing safe on vague text.
-    "spoilage": (
-        "mould", "moulds", "mould contamination", "mold contamination",
-        "moisissure", "muffa", "moho", "schimmel",
-        "visible mould", "visible mold", "mouldy", "moldy",
-    ),
-}
-
-
-def _classify_hazard(text: str) -> set:
-    """Return set of hazard classes whose keywords appear in `text`."""
-    if not text:
-        return set()
-    s = " " + text.lower() + " "
-    classes = set()
-    for cls, kws in _HAZARD_CLASS_KEYWORDS.items():
-        for kw in kws:
-            if kw in s:
-                classes.add(cls)
-                break
-    return classes
-
-
-def _pathogen_reason_class_mismatch(pathogen: str, reason: str) -> bool:
-    """True if Pathogen and Reason describe DIFFERENT hazard classes.
-
-    Conservative: returns False whenever EITHER field is unclassifiable,
-    OR whenever the classes overlap. Only flags clear mismatches where
-    one field is biological and the other is physical/chemical/
-    mycotoxin/fermentation/biotoxin without any shared class.
-
-    Returning True forces Claude verification (clean-row shortcut bypassed).
-    """
-    p_cls = _classify_hazard(pathogen)
-    r_cls = _classify_hazard(reason)
-    if not p_cls or not r_cls:
-        return False
-    return len(p_cls & r_cls) == 0
+#
+# AUDIT 2026-08-02 — THE TABLES MOVED. They now live in
+# pipeline/_publish_gate.py and are imported here, so there is exactly one
+# copy in the codebase.
+#
+# Why: this classifier was correct and it worked — on 2026-08-01 it caught an
+# FSANZ row whose Pathogen said "Listeria monocytogenes" while its own Reason
+# said "undeclared allergen (peanuts)", and claude_check archived that row to
+# Weekly_Rejected for "pathogen mismatch". The row still reached subscribers,
+# because the check only guarded THIS module's clean-row shortcut. A second,
+# weaker reviewer (the self-hosted Qwen review agent) never consulted it, and
+# promoted the same row a few hours later.
+#
+# A correctness rule that only one of several promotion paths runs is not a
+# guard, it is a coincidence. The canonical tables therefore sit in the
+# deterministic publish gate that every path funnels through, and this module
+# imports them. The names below are kept as aliases so the rest of this file
+# — and any external caller — is unchanged.
+from pipeline._publish_gate import (  # noqa: E402
+    HAZARD_CLASS_KEYWORDS as _HAZARD_CLASS_KEYWORDS,
+    classify_hazard as _classify_hazard,
+    pathogen_reason_class_mismatch as _pathogen_reason_class_mismatch,
+)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
