@@ -160,54 +160,6 @@
   "Notes": "[row-rebuild 2026-08-01: Company and Brand both held the truncated page headline 'FSIS Issues Public Health' and Product held its tail 'for Chicken Salad Product that May Be Contaminated with Listeria'. The stored URL was also truncated ('...may-be-contamin'). Rebuilt from the FSIS alert (2026-07-31): EST P-39928, 8-oz CURRY CHICKEN SALAD, use-by 07/30/2026, produced 07/22, OR and WA. Outbreak 1->0: FSIS reports NO confirmed illnesses, so the outbreak flag was false and was driving Tier and the alert mailer. Class set to Public Health Alert — FSIS explicitly did not request a recall.]"
  },
  {
-  "Date": "2026-07-30",
-  "Source": "RASFF (EU)",
-  "Company": "Origin: Belgium, Poland | Notifying: Belgium",
-  "Brand": "POL, BEL",
-  "Product": "Norovirus in frozen smoothie mix from Belgium",
-  "Pathogen": "Norovirus",
-  "Reason": "Norovirus in frozen smoothie mix from Belgium; risk: serious; category: prepared dishes and snacks",
-  "Class": "Alert",
-  "Country": "Belgium",
-  "Region": "Europe",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/863002",
-  "Notes": "[RASFF #2026.6812; classification: alert notification; category: prepared dishes and snacks; notifId=863002] [gemini-enrich 2026-08-01: Brand '—'→'POL, BEL'] [claude-check 2026-08-01: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
- },
- {
-  "Date": "2026-07-30",
-  "Source": "RASFF (EU)",
-  "Company": "Origin: Germany | Notifying: Germany",
-  "Brand": "DEU",
-  "Product": "Salmonella spp. in fruit chips from Germany",
-  "Pathogen": "Salmonella",
-  "Reason": "Salmonella spp. in fruit chips from Germany; risk: potentially serious; category: prepared dishes and snacks",
-  "Class": "Alert",
-  "Country": "Germany",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862851",
-  "Notes": "[RASFF #2026.6809; classification: alert notification; category: prepared dishes and snacks; notifId=862851] [gemini-enrich 2026-08-01: Brand '—'→'DEU'] [claude-check 2026-08-01: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
- },
- {
-  "Date": "2026-07-30",
-  "Source": "FDA",
-  "Company": "Publix",
-  "Brand": "GreenWise",
-  "Product": "Organic IQF Frozen Blueberries and Whole Mixed Berries, 10 oz and 48 oz",
-  "Pathogen": "Escherichia coli O145",
-  "Reason": "Possible E. Coli Contamination",
-  "Class": "Recall",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e",
-  "Notes": "FDA listing HTML (Layer 1) [claude-check 2026-08-01: fix; corrections: Pathogen→Escherichia coli O145; fix; pathogen mismatch | Pathogen should be 'Escherichia coli O145' (specific strain identified on page), not generic 'E] [tier-guard: Escherichia coli O145 is always Tier 1; forced from Tier 2]"
- },
- {
   "Date": "2026-07-29",
   "Source": "RASFF (EU)",
   "Company": "Origin: Spain | Notifying: France",
@@ -226,7 +178,7 @@
  {
   "Date": "2026-07-29",
   "Source": "RappelConso (FR)",
-  "Company": "CHEVENET SARL CHEVENET",
+  "Company": "CHEVENET SARL",
   "Brand": "Unbranded",
   "Product": "chevre frais",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
@@ -237,7 +189,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23033/Interne",
-  "Notes": "liste ci jointe [url-gate 2026-07-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-31: skip; fetch failed (fetch error: SSLError (TLS chain) and curl_cffi fallback failed: HTTPSConnectionPool(host='rappel.conso.go] [gemini-check 2026-07-31: skip; fetch failed (fetch error: SSLError (TLS chain) and curl_cffi fallback failed: HTTPSConnectionPool(host='rappel.conso.go] [retry 5x] [gemini-enrich 2026-07-31: Company ''→'CH"
+  "Notes": "liste ci jointe [url-gate 2026-07-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-31: skip; fetch failed (fetch error: SSLError (TLS chain) and curl_cffi fallback failed: HTTPSConnectionPool(host='rappel.conso.go] [gemini-check 2026-07-31: skip; fetch failed (fetch error: SSLError (TLS chain) and curl_cffi fallback failed: HTTPSConnectionPool(host='rappel.conso.go] [retry 5x] [gemini-enrich 2026-07-31: Company ''→'CH [name-clean 2026-08-01: Company 'CHEVENET SARL CHEVENET'->'CHEVENET SARL'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-07-29",
@@ -1218,7 +1170,7 @@
  {
   "Date": "2026-07-24",
   "Source": "RappelConso (FR)",
-  "Company": "CRUSTA C CRUSTA C",
+  "Company": "CRUSTA C",
   "Brand": "Unbranded",
   "Product": "crevettes cuites réfrigérées sauvages boite polystyrène 2 kg",
   "Pathogen": "Listeria monocytogenes",
@@ -1229,7 +1181,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22926/Interne",
-  "Notes": "systeme u; poissonnerie sas erwema; [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [gemini-enrich 2026-07-24: Company ''→'CRUSTA C CRUSTA C'] [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-25: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "systeme u; poissonnerie sas erwema; [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [gemini-enrich 2026-07-24: Company ''→'CRUSTA C CRUSTA C'] [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-25: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [name-clean 2026-08-01: Company 'CRUSTA C CRUSTA C'->'CRUSTA C'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-07-24",
@@ -1266,7 +1218,7 @@
  {
   "Date": "2026-07-24",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "CARREFOUR",
   "Product": "crevettes roses cuites vrac",
   "Pathogen": "Listeria monocytogenes",
@@ -1277,7 +1229,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22968/Interne",
-  "Notes": "cap.houat, creno, demarne, ffg maree, h. acadiens, filets erquy, jaffray, maree pour tous, margain, mericq, o.sourcing, [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [gemini-enrich 2026-07-24: Company ''→'CARREFOUR FRANCE CARREFOUR'] [gemini-enrich 2026-07-25: Brand ' [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-25: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "cap.houat, creno, demarne, ffg maree, h. acadiens, filets erquy, jaffray, maree pour tous, margain, mericq, o.sourcing, [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [gemini-enrich 2026-07-24: Company ''→'CARREFOUR FRANCE CARREFOUR'] [gemini-enrich 2026-07-25: Brand ' [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-25: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-07-24",
@@ -1493,15 +1445,15 @@
   "Company": "Midwest Poultry Services, L.P.",
   "Brand": "Kroger / Simple Truth / Brookshire's / Country Morning / Sunups (multiple)",
   "Product": "White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, Julian 157-184, best/sell-by 2026-07-20 to 2026-08-17)",
-  "Pathogen": "Salmonella",
-  "Reason": "Potential contamination with Salmonella Enteritidis (identified via environmental monitoring on two Texas farms)",
+  "Pathogen": "Salmonella Enteritidis",
+  "Reason": "Salmonella Enteritidis. Multistate outbreak confirmed by CDC and FDA: 98 illnesses across 17 states, 26 hospitalizations, 0 deaths (CDC investigation update 2026-07-24). Recall initiated 2026-07-22; ~1,589,577 dozen shell eggs.",
   "Class": "Recall",
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 0,
+  "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
-  "Notes": "[FDA company announcement + publish 2026-07-22; produced Texas, distributed 2026-06-06 to 2026-07-03; retail Kroger (TX,LA), Brookshire (TX,OK,AR,LA,NM,MS); company states NO illnesses linked -> Outbreak=0; Salmonella = always Tier 1; source-verified 2026-07-24] [region-normalise 2026-07-24: Region was 'TX, OK, LA, AR, NM, MS' (detail level); set to continent bucket 'North America' for daily/weekly region grouping — detail retained here] [outbreak-fix 2026-07-28: Outbreak 0->1. CDC shell-eggs investigation (updated 2026-07-24): 98 illnesses, 26 hospitalisations, 17 states; Midwest Poultry Services named as recalling firm. Confirmed human cases meet the Outbreak=1 bar; the original 'company states NO illnesses' basis is superseded. Source: cdc.gov/salmonella/outbreaks/shell-eggs-07-26/] [outbreak-fix 2026-08-01: Outbreak 1->0 — the row's own Notes state Outbreak=0 and 'source-verified'; the flag contradicted them. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.]"
+  "Notes": "[FDA company announcement + publish 2026-07-22; produced Texas, distributed 2026-06-06 to 2026-07-03; retail Kroger (TX,LA), Brookshire (TX,OK,AR,LA,NM,MS); company states NO illnesses linked -> Outbreak=0; Salmonella = always Tier 1; source-verified 2026-07-24] [region-normalise 2026-07-24: Region was 'TX, OK, LA, AR, NM, MS' (detail level); set to continent bucket 'North America' for daily/weekly region grouping — detail retained here] [outbreak-fix 2026-07-28: Outbreak 0->1. CDC shell-eggs investigation (updated 2026-07-24): 98 illnesses, 26 hospitalisations, 17 states; Midwest Poultry Services named as recalling firm. Confirmed human cases meet the Outbreak=1 bar; the original 'company states NO illnesses' basis is superseded. Source: cdc.gov/salmonella/outbreaks/shell-eggs-07-26/] [outbreak-fix 2026-08-01: Outbreak 1->0 — the row's own Notes state Outbreak=0 and 'source-verified'; the flag contradicted them. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.] [outbreak-RESTORE 2026-08-01: I cleared this flag on 2026-08-01 because the row's own stale note read 'Outbreak=0; source-verified' and its Reason said the finding came from 'environmental monitoring on two Texas farms'. That was wrong — I trusted an internal note over the world. CDC and FDA both run dedicated outbreak pages for it (cdc.gov/salmonella/outbreaks/shell-eggs-07-26/ and fda.gov Outbreak Investigation of Salmonella: Eggs (July 2026)): 98 cases / 17 states / 26 hospitalisations / 0 deaths, last updated 2026-07-24. Outbreak restored to 1 and Pathogen made serotype-specific.]"
  },
  {
   "Date": "2026-07-22",
@@ -1713,19 +1665,19 @@
  },
  {
   "Date": "2026-07-20",
-  "Source": "Region of Central Greece / EODY",
+  "Source": "Food Safety News (citing EODY / Region of Central Greece)",
   "Company": "Multiple chicken suppliers (under EODY/regional investigation)",
   "Brand": "Multiple",
   "Product": "Chicken fillet and chicken souvlaki (multiple suppliers, Lamia)",
   "Pathogen": "Salmonella",
-  "Reason": "Salmonella in chicken fillet and chicken souvlaki batches (Lamia investigation)",
+  "Reason": "Salmonella in chicken fillet and chicken souvlaki, Lamia. Investigation under way from approximately 13-14 July 2026 (illnesses and hospital presentations already occurring); major public update 20 July 2026 (the Date field uses this publication date); additional positive product findings across further suppliers reported 23 July 2026. Approximately 20 people sickened per the linked report.",
   "Class": "Outbreak investigation",
   "Country": "Greece",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.foodsafetynews.com/2026/07/greece-reports-salmonella-outbreak-and-2025-figures/",
-  "Notes": "[OPERATOR-APPROVED EXCEPTION 2026-07-24: news-sourced entry — no EFET/EODY recall notice issued at time of entry; EODY-led outbreak investigation ongoing. CASUALTY FIGURES BY SOURCE (corrected 2026-07-24 after review flagged unsupported figures): the LINKED Food Safety News report states about 20 people sickened and does not mention hospitalisations; separately, iefimerida and news247 reported 30+ sought treatment at General Hospital of Lamia with at least 15 hospitalised. Earlier Notes attributed the 30+/15+ figures to the linked article, which does not support them. Outbreak=1 justified: confirmed human cases in all sources. Corroborating coverage: thetoc.gr (supplier identified), ekathimerini, tovima, protothema, CNN.gr, in.gr. REPLACE URL with official EFET/EODY notice when published.]"
+  "Notes": "[OPERATOR-APPROVED EXCEPTION 2026-07-24: news-sourced entry — no EFET/EODY recall notice issued at time of entry; EODY-led outbreak investigation ongoing. CASUALTY FIGURES BY SOURCE (corrected 2026-07-24 after review flagged unsupported figures): the LINKED Food Safety News report states about 20 people sickened and does not mention hospitalisations; separately, iefimerida and news247 reported 30+ sought treatment at General Hospital of Lamia with at least 15 hospitalised. Earlier Notes attributed the 30+/15+ figures to the linked article, which does not support them. Outbreak=1 justified: confirmed human cases in all sources. Corroborating coverage: thetoc.gr (supplier identified), ekathimerini, tovima, protothema, CNN.gr, in.gr. REPLACE URL with official EFET/EODY notice when published.] [attribution-fix 2026-08-01: Source read 'Region of Central Greece / EODY' while the URL is a Food Safety News article. Food Safety News is a secondary publication, not the regulator-of-record, and claiming otherwise overstates the provenance. Relabelled honestly as the secondary source citing EODY / the Region of Central Greece. Replace with a direct EODY or regional-authority release when one is available. Dates clarified: 20 July is the media publication date, not the outbreak onset.]"
  },
  {
   "Date": "2026-07-20",
@@ -1858,18 +1810,18 @@
  {
   "Date": "2026-07-18",
   "Source": "FDA",
-  "Company": "Taylor Fresh Foods",
+  "Company": "Taylor Fresh Foods (implicated supply: Taylor Farms de Mexico)",
   "Brand": "CV / JB / MARK / MKTSD / PK / SUB / SY / TF",
   "Product": "Iceberg lettuce from central Mexico (shredded/chopped/blend food-service & retail; multiple lot codes, best-by 7/16/2026–8/3/2026)",
   "Pathogen": "Cyclospora",
-  "Reason": "Possible Cyclospora contamination; prompted by multistate (5-state) Cyclospora outbreak linked to iceberg lettuce",
+  "Reason": "Cyclospora cayetanensis. Multistate outbreak: FDA \"Investigation of 9-State Outbreak of Cyclospora Illnesses: Iceberg Lettuce (July 2026)\"; CDC counted 1,644 laboratory-confirmed cases and 94 hospitalisations across 5 states at its 2026-07-16 update, then reported expansion to 9 states. No deaths. Recall initiated by the company 2026-07-17; FDA published 2026-07-18 (the Date field uses the FDA publication date per the AFTS date rule).",
   "Class": "Recall",
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-iceberg-lettuce-central-mexico-because-possible-health-risk",
-  "Notes": "[FDA company announcement 2026-07-17, FDA publish 2026-07-18; Taylor Farms de Mexico, Guanajuato MX; distributed 6/29-7/16 across 28 states; OUTBREAK-LINKED to FDA 5-state Cyclospora investigation (iceberg lettuce, July 2026) -> Outbreak=1; Tier 1 by outbreak-override (active multistate outbreak w/ illnesses), though Cyclospora not in always-Tier-1 pathogen list; verified against fda.gov source 2026-07-17] [date: using FDA publish date 2026-07-18 per operator] [region-normalise 2026-07-24: Region was 'Multistate (AL,AR,CT,FL,GA,IA,IL,IN,KS,KY,LA,MA,MD,MI,MO,MS,NC,NH,NJ,OH,OK,PA,SC,TN,TX,VA,WI)' (detail level); set to continent bucket 'North America' for daily/weekly region grouping — detail retained here]"
+  "Notes": "[FDA company announcement 2026-07-17, FDA publish 2026-07-18; Taylor Farms de Mexico, Guanajuato MX; distributed 6/29-7/16 across 28 states; OUTBREAK-LINKED to FDA 5-state Cyclospora investigation (iceberg lettuce, July 2026) -> Outbreak=1; Tier 1 by outbreak-override (active multistate outbreak w/ illnesses), though Cyclospora not in always-Tier-1 pathogen list; verified against fda.gov source 2026-07-17] [date: using FDA publish date 2026-07-18 per operator] [region-normalise 2026-07-24: Region was 'Multistate (AL,AR,CT,FL,GA,IA,IL,IN,KS,KY,LA,MA,MD,MI,MO,MS,NC,NH,NJ,OH,OK,PA,SC,TN,TX,VA,WI)' (detail level); set to continent bucket 'North America' for daily/weekly region grouping — detail retained here] [detail-add 2026-08-01: outbreak metrics added. Figures verified on the CDC investigation page as of its 2026-07-16 update (1,644 cases / 5 states / 94 hospitalisations); the FDA page title and a CDC newsroom release confirm later expansion to 9 states, so counts after 16 July are higher than the ones quoted here. Company qualified: the US recall notice names Taylor Fresh Foods, the implicated growing/packing source is Taylor Farms de Mexico. Recall initiated 17 July, FDA published 18 July — both now stated.]"
  },
  {
   "Date": "2026-07-17",
@@ -2194,7 +2146,7 @@
  {
   "Date": "2026-07-17",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "Carrefour le Marché",
   "Product": "coquilles au saumon x2",
   "Pathogen": "Listeria monocytogenes",
@@ -2205,7 +2157,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22867/Interne",
-  "Notes": "magasins carrefour hypermarchés, supermarchés, proximité et e-commerce. [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company field corrected to recalling firm from page.]"
+  "Notes": "magasins carrefour hypermarchés, supermarchés, proximité et e-commerce. [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company field corrected to recalling firm from page.] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-07-17",
@@ -2226,7 +2178,7 @@
  {
   "Date": "2026-07-17",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "Carrefour le Marche",
   "Product": "carre de cote de porc cuit - 2 tranches",
   "Pathogen": "Listeria monocytogenes",
@@ -2237,12 +2189,12 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22838/Interne",
-  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Pathogen→Listeria monocytogenes; fix; company mismatch | Company corrected from brand name to recalling firm 'Origine de la fiche'.]"
+  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Pathogen→Listeria monocytogenes; fix; company mismatch | Company corrected from brand name to recalling firm 'Origine de la fiche'.] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-07-17",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "Carrefour le Marche",
   "Product": "roti de porc cuit - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
@@ -2253,7 +2205,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22848/Interne",
-  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company in row is the brand, not the recalling firm; corrected to 'CARREFOUR FRANCE CARREFOUR'.]"
+  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company in row is the brand, not the recalling firm; corrected to 'CARREFOUR FRANCE CARREFOUR'.] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-07-17",
@@ -2306,7 +2258,7 @@
  {
   "Date": "2026-07-17",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "Carrefour le Marche",
   "Product": "demi poitrine cuite  - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
@@ -2317,7 +2269,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22851/Interne",
-  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company in row does not match recalling firm on page.]"
+  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company in row does not match recalling firm on page.] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-07-17",
@@ -2354,7 +2306,7 @@
  {
   "Date": "2026-07-17",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "Carrefour le Marche",
   "Product": "pate de campagne a l'ancienne - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
@@ -2365,12 +2317,12 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22846/Interne",
-  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company name corrected from brand/distributor to recalling firm.]"
+  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company name corrected from brand/distributor to recalling firm.] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-07-17",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "Carrefour le Marche",
   "Product": "poitrine de porc cuite fumee - 3 tranches - poids variable",
   "Pathogen": "Listeria monocytogenes",
@@ -2381,12 +2333,12 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22839/Interne",
-  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company in row is the brand/distributor, not the recalling firm 'CARREFOUR FRANCE CARREFOUR' as ]"
+  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company in row is the brand/distributor, not the recalling firm 'CARREFOUR FRANCE CARREFOUR' as ] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-07-17",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "Carrefour le Marche",
   "Product": "demi poitrine cuite fumee - vendu au rayon coupe (stand traditionnel)",
   "Pathogen": "Listeria monocytogenes",
@@ -2397,7 +2349,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22850/Interne",
-  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company in row is the brand/distributor, not the recalling firm 'CARREFOUR FRANCE CARREFOUR' as ]"
+  "Notes": "carrefour [url-gate 2026-07-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-17: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; fix; company mismatch | Company in row is the brand/distributor, not the recalling firm 'CARREFOUR FRANCE CARREFOUR' as ] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-07-16",
@@ -3729,22 +3681,6 @@
  },
  {
   "Date": "2026-07-07",
-  "Source": "CFIA",
-  "Company": "General Mills Canada",
-  "Brand": "Pillsbury",
-  "Product": "Certain Pillsbury brand Pizza Pops Pepperoni + Bacon recalled due to E. coli O26 - Canada.ca",
-  "Pathogen": "E. coli",
-  "Reason": "Certain Pillsbury brand Pizza Pops Pepperoni + Bacon recalled due to E. coli O26 - Canada.ca",
-  "Class": "Recall",
-  "Country": "Canada",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/certain-pillsbury-brand-pizza-pops-pepperoni-bacon-recalled-due-e-coli-o26",
-  "Notes": "source_id=DS-be7d8ea5d6 [via official-feed collector] [gemini-enrich 2026-07-07: Company ''→'General Mills Canada'] [gemini-enrich 2026-07-07: Brand ''→'Pillsbury'] [outbreak 2026-07-07: 0→1 — The Canadian Food Inspection Agency says 20 people have been made sick and four hospitalized after an outbreak of E. col] [gap-gate 2026-07-07: pending_gap → pending_gap_v1] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-07: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [tier-guard 2026-07-14: E. coli is always Tier 1; forced from Tier 2]"
- },
- {
-  "Date": "2026-07-07",
   "Source": "RappelConso (FR)",
   "Company": "Carrefour France",
   "Brand": "SIMPL",
@@ -4210,7 +4146,7 @@
  {
   "Date": "2026-07-03",
   "Source": "RappelConso (FR)",
-  "Company": "BUISSON BUISSON",
+  "Company": "BUISSON",
   "Brand": "DF",
   "Product": "fromage pecorino italien au lait de brebis pasteurise",
   "Pathogen": "Listeria monocytogenes",
@@ -4221,7 +4157,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22721/Interne",
-  "Notes": "buisson [url-gate 2026-07-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-03: fix; corrections: Company→BUISSON BUISSON, Brand→DF; fix; company mismatch | Company and Brand in row are incorrect; corrected from page.]"
+  "Notes": "buisson [url-gate 2026-07-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-03: fix; corrections: Company→BUISSON BUISSON, Brand→DF; fix; company mismatch | Company and Brand in row are incorrect; corrected from page.] [name-clean 2026-08-01: Company 'BUISSON BUISSON'->'BUISSON'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-07-03",
@@ -6210,7 +6146,7 @@
  {
   "Date": "2026-06-19",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "Sans marque",
   "Product": "Steak haché vendu au rayon traditionnel à la demande du client (RappelConso fiche 22607)",
   "Pathogen": "Listeria monocytogenes",
@@ -6221,7 +6157,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22607/Interne",
-  "Notes": "carrefour contact cirey sur vezouze uniquement [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Brand→Sans marque, Product→Steak haché vendu au rayon traditionnel , Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company is listed as CARREFOUR FRANCE CARREFOUR on page, ] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "carrefour contact cirey sur vezouze uniquement [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Brand→Sans marque, Product→Steak haché vendu au rayon traditionnel , Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company is listed as CARREFOUR FRANCE CARREFOUR on page, ] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-06-19",
@@ -6242,7 +6178,7 @@
  {
   "Date": "2026-06-19",
   "Source": "RappelConso (FR)",
-  "Company": "STOEFFLER Stoeffler",
+  "Company": "STOEFFLER",
   "Brand": "Les Créations de Pierre",
   "Product": "format 180g (RappelConso fiche 22600)",
   "Pathogen": "Listeria monocytogenes",
@@ -6253,7 +6189,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22600/Interne",
-  "Notes": "leclerc - systeme u - intermarche - gemma [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→STOEFFLER Stoeffler; fix; company mismatch | Company mismatch, corrected to recalling firm from page.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "leclerc - systeme u - intermarche - gemma [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→STOEFFLER Stoeffler; fix; company mismatch | Company mismatch, corrected to recalling firm from page.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [name-clean 2026-08-01: Company 'STOEFFLER Stoeffler'->'STOEFFLER'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-06-18",
@@ -7144,7 +7080,7 @@
   "Pathogen": "Norovirus",
   "Reason": "Norovirus on frozen oysters from South Korea; risk: serious; category: bivalve molluscs and products thereof",
   "Class": "Alert",
-  "Country": "Korea, South",
+  "Country": "South Korea",
   "Region": "Asia",
   "Tier": 2,
   "Outbreak": 0,
@@ -7218,7 +7154,7 @@
  {
   "Date": "2026-06-11",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "Unbranded",
   "Product": "tomme de brebis fichous emballé en magasin (RappelConso fiche 22519)",
   "Pathogen": "Listeria monocytogenes",
@@ -7229,12 +7165,12 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22519/Interne",
-  "Notes": "crf contact arzacq arraziguet uniquement [url-gate 2026-06-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-11: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty in the row but identified on the ] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "crf contact arzacq arraziguet uniquement [url-gate 2026-06-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-11: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty in the row but identified on the ] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-06-11",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "Unbranded",
   "Product": "crevettes grises cuites vendues au rayon traditionnel (RappelConso fiche 22526)",
   "Pathogen": "Listeria monocytogenes",
@@ -7245,7 +7181,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22526/Interne",
-  "Notes": "carrefour market vannes-tohannic uniquement [url-gate 2026-06-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-11: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Brand→Unbranded; placeholder_company_filled_from_page | fix; company mismatch | Company was empty in the row but found on the page; Brand] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
+  "Notes": "carrefour market vannes-tohannic uniquement [url-gate 2026-06-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-11: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Brand→Unbranded; placeholder_company_filled_from_page | fix; company mismatch | Company was empty in the row but found on the page; Brand] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-06-11",
@@ -9986,7 +9922,7 @@
  {
   "Date": "2026-05-22",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "CARREFOUR FRANCE",
   "Brand": "Unbranded",
   "Product": "filets de poulets marinés",
   "Pathogen": "Salmonella",
@@ -9997,7 +9933,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22293/Interne",
-  "Notes": "uniquement le carrefour aire sur la lys [url-gate 2026-05-22: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-22: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Pathogen→Salmonella; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty but identified on page; Tier mism]"
+  "Notes": "uniquement le carrefour aire sur la lys [url-gate 2026-05-22: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-22: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Pathogen→Salmonella; placeholder_company_filled_from_page | fix; company mismatch | Company field was empty but identified on page; Tier mism] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-05-21",
@@ -10818,7 +10754,7 @@
  {
   "Date": "2026-05-18",
   "Source": "RappelConso (FR)",
-  "Company": "ARRIVE ARRIVE SAS",
+  "Company": "ARRIVE SAS",
   "Brand": "Maitre Coq",
   "Product": "merguez de volaille x9, barquette 450g",
   "Pathogen": "Salmonella",
@@ -10829,7 +10765,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22283/Interne",
-  "Notes": "leclerc, cooperative u, intermarche [url-gate 2026-05-18: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-18: fix; corrections: Company→ARRIVE ARRIVE SAS; fix; company mismatch | Company name on row does not match 'Origine de la fiche' on page; corrected.]"
+  "Notes": "leclerc, cooperative u, intermarche [url-gate 2026-05-18: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-05-18: fix; corrections: Company→ARRIVE ARRIVE SAS; fix; company mismatch | Company name on row does not match 'Origine de la fiche' on page; corrected.] [name-clean 2026-08-01: Company 'ARRIVE ARRIVE SAS'->'ARRIVE SAS'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-05-18",
@@ -11362,7 +11298,7 @@
  {
   "Date": "2026-05-12",
   "Source": "RASFF (EU)",
-  "Company": "Origin: United Kingdom (Northern Ireland) | Notifying: European Commission",
+  "Company": "Origin: United Kingdom (Northern Ireland) | Notifying: European",
   "Brand": "GB",
   "Product": "Salmonella Enteritidis in environment of egg laying facility from Northern Ireland",
   "Pathogen": "Salmonella",
@@ -11373,7 +11309,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843742",
-  "Notes": "[RASFF #2026.4182; classification: information notification for follow-up; category: eggs and egg products; notifId=843742] [gemini-enrich 2026-05-14: Brand '—'→'GB'] [claude-check 2026-05-14: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.4182; classification: information notification for follow-up; category: eggs and egg products; notifId=843742] [gemini-enrich 2026-05-14: Brand '—'→'GB'] [claude-check 2026-05-14: pass; clean-row shortcut (gemini-enriched + all fields valid)] [name-clean 2026-08-01: Company 'Origin: United Kingdom (Northern Ireland) | Notifying: Europ'->'Origin: United Kingdom (Northern Ireland) | Notifying: Europ'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-05-12",
@@ -11640,7 +11576,7 @@
   "Pathogen": "Norovirus",
   "Reason": "Norovirus in nori (roasted seaweed); risk: serious; category: fruits and vegetables",
   "Class": "Information",
-  "Country": "Korea, South",
+  "Country": "South Korea",
   "Region": "Asia",
   "Tier": 2,
   "Outbreak": 0,
@@ -14690,7 +14626,7 @@
  {
   "Date": "2026-04-20",
   "Source": "RASFF (EU)",
-  "Company": "Origin: India, Italy, United States | Notifying: European Commission",
+  "Company": "Origin: India, Italy, United States | Notifying: European",
   "Brand": "—",
   "Product": "foodborne outbreak suspected (Salmonella Bovismorbificans) to be caused by alfalfa seeds, clover seeds, broccoli seeds and radish seeds from Italy",
   "Pathogen": "Salmonella",
@@ -14701,7 +14637,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838795",
-  "Notes": "[RASFF #2026.3378; classification: alert notification; category: nuts, nut products and seeds; notifId=838795] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2]"
+  "Notes": "[RASFF #2026.3378; classification: alert notification; category: nuts, nut products and seeds; notifId=838795] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 2] [name-clean 2026-08-01: Company 'Origin: India, Italy, United States | Notifying: European Co'->'Origin: India, Italy, United States | Notifying: European'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-04-20",
@@ -17938,7 +17874,7 @@
  {
   "Date": "2026-04-04",
   "Source": "RappelConso (FR)",
-  "Company": "FROMAGERIE CONDUTIER Fromagerie condutier",
+  "Company": "FROMAGERIE CONDUTIER",
   "Brand": "Fromagerie Condutier",
   "Product": "Cantal cru — multi-SKU: Cantal entre deux, Cantal jeune, tome fraiche, tome broyée salée, beurre",
   "Pathogen": "Listeria monocytogenes",
@@ -17949,7 +17885,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21865/Interne",
-  "Notes": "[fiche 21865 / ref. 2026-04-0037 / 2026-04-04; REPAIRED from broken row — Notes had \"leclerc, inter\" leak; URL slug normalised /Interne; SEPARATE cluster (NOT LUNA FOOD) — raw-milk Cantal cheese maker, multi-SKU recall] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[fiche 21865 / ref. 2026-04-0037 / 2026-04-04; REPAIRED from broken row — Notes had \"leclerc, inter\" leak; URL slug normalised /Interne; SEPARATE cluster (NOT LUNA FOOD) — raw-milk Cantal cheese maker, multi-SKU recall] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday] [name-clean 2026-08-01: Company 'FROMAGERIE CONDUTIER Fromagerie condutier'->'FROMAGERIE CONDUTIER'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-04-04",
@@ -18338,7 +18274,7 @@
  {
   "Date": "2026-04-03",
   "Source": "RappelConso (FR)",
-  "Company": "FROMAGERIE LE CENTURION CENTURION",
+  "Company": "FROMAGERIE LE CENTURION",
   "Brand": "Petit Marché",
   "Product": "Cheese cubes with walnuts PMA 120 g",
   "Pathogen": "Listeria monocytogenes",
@@ -18349,7 +18285,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21862/Interne",
-  "Notes": "[fiche 21862 / ref. 2026-04-0034 / 2026-04-03; REPAIRED from broken row — Notes had multi-distributor leak; SISTER to 21855 (150 g Carrefour Classic, batch 8) — your earlier \"150 g + 120 g\" row conflated TWO distinct fiches with TWO different producers (Carrefour France vs Fromagerie Le Centurion); distributors: Auchan, Carrefour, Leclerc, Système U, Intermarché, Cora, Coop Saveurs] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[fiche 21862 / ref. 2026-04-0034 / 2026-04-03; REPAIRED from broken row — Notes had multi-distributor leak; SISTER to 21855 (150 g Carrefour Classic, batch 8) — your earlier \"150 g + 120 g\" row conflated TWO distinct fiches with TWO different producers (Carrefour France vs Fromagerie Le Centurion); distributors: Auchan, Carrefour, Leclerc, Système U, Intermarché, Cora, Coop Saveurs] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W14->W15; Thursday-to-Thursday rule — week runs 2026-04-03 Fri -> 2026-04-09 Thu, labelled by ISO week of the closing Thursday] [name-clean 2026-08-01: Company 'FROMAGERIE LE CENTURION CENTURION'->'FROMAGERIE LE CENTURION'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-04-03",
@@ -18530,7 +18466,7 @@
  {
   "Date": "2026-04-02",
   "Source": "RappelConso (FR)",
-  "Company": "FROMAGERIE BEAUDE Fromagerie beaude",
+  "Company": "FROMAGERIE BEAUDE",
   "Brand": "tomette de montagne au lait de chèvre",
   "Product": "Mountain tomette goat cheese",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
@@ -18541,7 +18477,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21854/Interne",
-  "Notes": "[fiche 21854 / ref. 2026-04-0027 / 2026-04-02; FROMAGERIE BEAUDE — 4TH STEC fiche this period (earliest in cluster); 5 days later same producer triple recall (21938/21939/21946 lot 2604201C); recurring STEC pattern at one producer = quality-control failure flag; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21854 / ref. 2026-04-0027 / 2026-04-02; FROMAGERIE BEAUDE — 4TH STEC fiche this period (earliest in cluster); 5 days later same producer triple recall (21938/21939/21946 lot 2604201C); recurring STEC pattern at one producer = quality-control failure flag; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [name-clean 2026-08-01: Company 'FROMAGERIE BEAUDE Fromagerie beaude'->'FROMAGERIE BEAUDE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-04-02",
@@ -18920,7 +18856,7 @@
   "Pathogen": "Coliform / total bacterial count",
   "Reason": "MFDS national inspection — 7 ice samples failed bacterial/coliform standards",
   "Class": "Administrative action",
-  "Country": "Korea, South",
+  "Country": "South Korea",
   "Region": "Asia",
   "Tier": 2,
   "Outbreak": 0,
@@ -18936,7 +18872,7 @@
   "Pathogen": "Coliform / total bacterial count",
   "Reason": "MFDS Korea inspection — failed bacterial/coliform standards",
   "Class": "Public health alert",
-  "Country": "Korea, South",
+  "Country": "South Korea",
   "Region": "Asia",
   "Tier": 2,
   "Outbreak": 0,
@@ -19122,7 +19058,7 @@
  {
   "Date": "2026-03-25",
   "Source": "RappelConso (FR)",
-  "Company": "LS BUTCHERS ls butchers",
+  "Company": "LS BUTCHERS",
   "Brand": "MERGUEZ maison",
   "Product": "Merguez sausages (30 kg sold loose between 2026-03-16 and 2026-03-17, GTIN 2136206534)",
   "Pathogen": "Salmonella",
@@ -19133,7 +19069,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21710/Interne",
-  "Notes": "[fiche 21710 / ref. 2026-03-0262 / 2026-03-25; LS BUTCHERS — separate single-store butcher recall; date your row had 2026-03-25 matches page] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21710 / ref. 2026-03-0262 / 2026-03-25; LS BUTCHERS — separate single-store butcher recall; date your row had 2026-03-25 matches page] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [name-clean 2026-08-01: Company 'LS BUTCHERS ls butchers'->'LS BUTCHERS'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
  },
  {
   "Date": "2026-03-24",
