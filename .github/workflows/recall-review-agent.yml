@@ -410,9 +410,78 @@ jobs:
              If the row already has Outbreak=1 but the page (after stripping
              boilerplate) shows no such evidence, CORRECT it to 0.
 
+             MANDATORY SECOND SOURCE BEFORE CONCLUDING outbreak = 0:
+             The recall notice and the outbreak evidence are often on DIFFERENT pages.
+             A recall notice frequently says only "potential to be contaminated" with
+             standard risk boilerplate, while the epidemiology (case counts,
+             hospitalisations) lives on a separate public-health page. So for any
+             Tier-1 pathogen (Listeria, Salmonella, E. coli/STEC, Cronobacter,
+             botulinum, hepatitis A) you MUST run one web_search for a linked
+             public-health outbreak notice before setting outbreak = 0, e.g.
+               "<company> <product> <pathogen> outbreak CDC FDA"  (US)
+               "<company> <product> <pathogen> outbreak PHAC"     (Canada)
+               "<company> <product> <pathogen> outbreak UKHSA/EODY/RIVM" (as relevant)
+             If an official health agency (CDC / FDA outbreak page / PHAC / UKHSA /
+             ECDC / national authority) reports illnesses linked to THIS product, set
+             outbreak = 1 and cite the case count in outbreak_evidence — even though the
+             recall notice itself mentioned no illnesses.
+             Only after that search comes back empty may you set outbreak = 0.
+
+             DATE — VERIFY AGAINST THE PAGE, THIS IS A KNOWN ERROR CLASS:
+             - Date must be the ORIGINAL publication date the regulator issued the
+               notice, read from the page. Not today, not the date it was scraped, not a
+               later "updated" stamp, not a media article's publication date.
+             - If the row's Date differs from the page's publication date, CORRECT it to
+               the page's date. Rows have been wrongly stamped with the scrape date and
+               landed in the wrong month (e.g. a December-2025 recall carrying a July
+               date, a 2024 statement carrying a 2026 date). Always check.
+             - If the page's original publication date is before 2026-01-01, REJECT the
+               row as out of scope — even if the page was later updated or expanded in
+               2026. An expansion notice is only in scope if the EXPANSION itself was
+               published in 2026 and you use that expansion's date.
+             REGULATOR TITLE PREFIXES — strip them from Company:
+             - Regulators prepend status markers to their page titles, e.g.
+               "UPDATED 30.07.26 | Auxico (Perth) Pty Ltd - LGM HOT CHILLI OIL 275G".
+               A scraper that takes the page title as the Company produces
+               Company = "UPDATED 30.07.26 | Auxico (Perth) Pty Ltd". That is WRONG.
+               Strip any leading status marker (UPDATED, UPDATE, REVISED, EXPANDED,
+               AMENDED, followed by a date and/or a pipe) and any trailing product
+               name, leaving only the firm: "Auxico (Perth) Pty Ltd".
+             DUPLICATE / UPDATED-NOTICE DETECTION:
+             - Regulators publish an UPDATED version of a recall at a NEW url while the
+               original stays live. These are the SAME recall, not two recalls. If the
+               page you verified is an updated/revised version of a notice for the same
+               firm + product + hazard, say so in `duplicate_of` with the original URL
+               if you can identify it, and set verdict = "reject" with reason
+               "duplicate: updated version of an existing recall" — the register keeps
+               one row per recall.
+             FIELD HYGIENE — no merged or concatenated values:
+             - Company, Brand and Product must each be a single clean value as printed
+               on the page. Watch for run-together artifacts from earlier processing
+               such as "General Mills Canada Pillsbury", "Midwest Poultry Services,
+               L.P.Kroger", "Origin: Brazil | Notifying: Ireland IRELAND", or a repeated
+               country appended to itself. If you see one, rewrite the field to the
+               clean value from the page (for RASFF keep the fixed Origin/Notifying
+               format, with no duplicated country appended).
+             PATHOGEN NAMING — use the canonical organism name:
+             - Write the organism as the page identifies it, using standard naming:
+               "Salmonella spp." when no serovar is given, "Salmonella Enteritidis" (or
+               Typhimurium etc.) when the page names the serovar; "E. coli O26",
+               "E. coli O157" or "STEC" when a serotype is given, otherwise
+               "Escherichia coli". Do not invent a serovar the page does not state, and
+               do not strip one the page does state.
+             SOURCE OF RECORD — do not credit a regulator for a media article:
+             - Source must name the body that actually published the notice you
+               verified. If the only page you could confirm is a secondary outlet (news
+               site, trade magazine, blog), the Source is that outlet — do NOT label it
+               with a regulator's name (e.g. do not write an authority's name when the
+               verified URL is a news article). Prefer finding the regulator's own
+               notice; if none exists, be honest about the source you used.
+
           Return ONLY this JSON (no markdown):
           {{
             "verdict": "approve" | "reject",
+            "duplicate_of": "<url of the original recall if this is a duplicate/updated notice, else ''>",
             "reason": "<one line>",
             "verified_url": "<the URL you actually confirmed, may differ from input>",
             "outbreak": 0 | 1,
@@ -488,6 +557,18 @@ jobs:
               parsed.setdefault("verified_url", row.get("URL", ""))
               parsed.setdefault("outbreak", row.get("Outbreak", 0))
               parsed.setdefault("outbreak_evidence", "")
+              # ── DETERMINISTIC SCOPE GUARD (does not rely on the model) ──
+              # A pre-2026 publication date is out of scope, period. If the model
+              # approved a row whose verified Date is before 2026, override to reject.
+              # This is the backstop for the stale-recall class (2024 statements and
+              # Dec-2025 recalls that arrived stamped with a fresh scrape date).
+              if parsed.get("verdict") == "approve":
+                  d = str((parsed.get("fields") or {}).get("Date")
+                          or row.get("Date") or "").strip()[:10]
+                  if len(d) >= 4 and d[:4].isdigit() and int(d[:4]) < 2026:
+                      parsed["verdict"] = "reject"
+                      parsed["reason"] = (f"out of scope: original publication date {d} "
+                                          f"is before 2026")
               return parsed
 
 
@@ -561,8 +642,17 @@ jobs:
               ap.add_argument("--commit", type=str, default="false")
               ap.add_argument("--source-filter", type=str, default=None)
               ap.add_argument("--limit", type=int, default=0)
+              ap.add_argument("--max-removals", type=int, default=10,
+                              help="Audit mode safety cap: abort without writing if the "
+                                   "model wants to remove more than N rows from Recalls.")
+              ap.add_argument("--audit-recalls", type=str, default="false",
+                              help="Re-verify rows ALREADY in Recalls (audit mode). "
+                                   "Corrects fields in place; moves out-of-scope / "
+                                   "duplicate / unverifiable rows to Weekly_Rejected.")
               args = ap.parse_args()
               commit = args.commit.lower() in ("1", "true", "yes", "on")
+              if args.audit_recalls.lower() in ("1", "true", "yes", "on"):
+                  return audit_recalls(args, commit)
 
               rows, _ = load_pending(args.xlsx)
               if args.source_filter:
@@ -745,6 +835,147 @@ jobs:
 
           if __name__ == "__main__":
               raise SystemExit(main())
+
+
+          # ─── AUDIT MODE: re-verify rows ALREADY promoted to Recalls ──────────────
+
+          def audit_recalls(args, commit: bool) -> int:
+              """Re-review rows already in Recalls against their source pages.
+
+              Exists because bad rows reach Recalls when an enricher fabricates a field
+              and a reviewer passes it on a 'clean-row shortcut' (documented FSANZ
+              Listeria default-tagging incident). The scheduled agents only see Pending,
+              so nothing ever re-checks a promoted row. This does.
+
+              approve → corrections applied in place (Pathogen, Company, Date, …)
+              reject  → row MOVED out of Recalls into Weekly_Rejected with the reason
+              retry   → row left exactly as-is (infra failure, not the row's fault)
+              """
+              import openpyxl
+              xlsx = Path(args.xlsx)
+              wb = openpyxl.load_workbook(xlsx)
+              ws = wb["Recalls"]
+              headers = [c.value for c in ws[1]]
+              hidx = {h: i for i, h in enumerate(headers) if h}
+
+              rows = []
+              for ridx in range(2, ws.max_row + 1):
+                  row = {h: (ws.cell(ridx, i + 1).value or "") for h, i in hidx.items()}
+                  if any(str(v).strip() for v in row.values()):
+                      rows.append((ridx, row))
+
+              if args.source_filter:
+                  sf = args.source_filter.lower()
+                  rows = [(i, r) for i, r in rows
+                          if sf in str(r.get("Source", "")).lower()]
+              if args.limit and args.limit > 0:
+                  rows = rows[:args.limit]
+
+              print(f"AUDIT MODE — re-verifying {len(rows)} rows already in Recalls "
+                    f"(commit={commit})")
+              if not rows:
+                  print("Nothing to audit.")
+                  return 0
+
+              fixed, to_remove, retried = [], [], 0
+              for n, (ridx, row) in enumerate(rows, 1):
+                  review = review_row(row)
+                  v = review.get("verdict", "retry")
+                  if v == "retry":
+                      retried += 1
+                      print(f"  [{n}/{len(rows)}] RETRY    {str(row.get('Product',''))[:40]}")
+                      continue
+                  if v == "reject":
+                      to_remove.append((ridx, row, review.get("reason", "")[:200]))
+                      print(f"  [{n}/{len(rows)}] REMOVE   "
+                            f"{str(row.get('Product',''))[:40]:40s} | {review.get('reason','')[:45]}")
+                      continue
+                  merged = apply_review(row, review)
+                  changes = {k: (row.get(k), merged.get(k))
+                             for k in ("Date", "Company", "Brand", "Product", "Pathogen",
+                                       "Reason", "Country", "Region", "URL")
+                             if str(row.get(k, "")) != str(merged.get(k, ""))}
+                  ob = review.get("outbreak")
+                  if ob in (0, 1, "0", "1") and str(row.get("Outbreak", "")) != str(int(ob)):
+                      changes["Outbreak"] = (row.get("Outbreak"), int(ob))
+                  if changes:
+                      fixed.append((ridx, changes))
+                      print(f"  [{n}/{len(rows)}] FIX      "
+                            f"{str(row.get('Product',''))[:40]:40s} | "
+                            + ", ".join(f"{k}:{a!r}->{b!r}" for k, (a, b) in
+                                        list(changes.items())[:2])[:60])
+                  else:
+                      print(f"  [{n}/{len(rows)}] OK       {str(row.get('Product',''))[:40]}")
+
+              print(f"\n{'='*60}")
+              print(f"fix: {len(fixed)}  remove: {len(to_remove)}  "
+                    f"retry(infra): {retried}  ok: {len(rows)-len(fixed)-len(to_remove)-retried}")
+              print(f"{'='*60}")
+
+              # ── SAFETY CAP ──
+              # Audit mode deletes from the published register. A misbehaving or
+              # context-starved model that rejects everything must not be able to wipe
+              # good rows. Abort the whole run if removals exceed the cap.
+              cap = max(0, int(getattr(args, "max_removals", 10)))
+              if len(to_remove) > cap:
+                  print(f"\n*** ABORTED — model wants to remove {len(to_remove)} rows, "
+                        f"cap is {cap}. NOTHING WRITTEN. ***")
+                  print("    This usually means the model is failing (context exceeded, "
+                        "bad output) rather than the data being wrong.")
+                  print(f"    Review the list above. If the removals are genuinely "
+                        f"correct, re-run with --max-removals {len(to_remove)}.")
+                  return 2
+              if to_remove and len(to_remove) > max(1, len(rows) // 2):
+                  print(f"\n*** ABORTED — {len(to_remove)} of {len(rows)} reviewed rows "
+                        f"would be removed (>50%). NOTHING WRITTEN. ***")
+                  return 2
+
+              if not commit:
+                  print("\nDRY RUN — nothing written. Re-run with --commit true.")
+                  return 0
+
+              today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+              # apply field fixes in place
+              for ridx, changes in fixed:
+                  for k, (old, new) in changes.items():
+                      if k in hidx:
+                          ws.cell(ridx, hidx[k] + 1).value = new
+                  if "Notes" in hidx:
+                      cur = str(ws.cell(ridx, hidx["Notes"] + 1).value or "")
+                      desc = "; ".join(f"{k} {old!r}->{new!r}"
+                                       for k, (old, new) in changes.items())
+                      ws.cell(ridx, hidx["Notes"] + 1).value = (
+                          cur + f" [audit-agent {today}: {desc}]").strip()[:2000]
+
+              # move rejected rows to Weekly_Rejected, then delete bottom-up
+              if to_remove and "Weekly_Rejected" in wb.sheetnames:
+                  wr = wb["Weekly_Rejected"]
+                  wrh = [c.value for c in wr[1]]
+                  for _ridx, row, reason in to_remove:
+                      new = [""] * len(wrh)
+                      for k, v in row.items():
+                          if k in wrh:
+                              new[wrh.index(k)] = v
+                      for rc in ("RejectionReason", "Reason"):
+                          if rc in wrh:
+                              new[wrh.index(rc)] = f"audit-agent {today}: {reason}"
+                              break
+                      if "RejectedBy" in wrh:
+                          new[wrh.index("RejectedBy")] = "audit-agent"
+                      wr.append(new)
+              for ridx, _row, _reason in sorted(to_remove, key=lambda x: -x[0]):
+                  ws.delete_rows(ridx, 1)
+
+              wb.save(xlsx)
+              print(f"\n✓ Applied {len(fixed)} field corrections, "
+                    f"removed {len(to_remove)} rows from Recalls.")
+              try:
+                  from pipeline.merge_master import mirror_json_from_xlsx
+                  mirror_json_from_xlsx(xlsx, xlsx.parent / "recalls.json")
+                  print("✓ recalls.json mirrored.")
+              except Exception as e:
+                  print(f"  (JSON mirror skipped: {e})")
+              return 0
           PYEOF_AGENT
           echo "Installed pipeline/recall_review_agent.py"
 
