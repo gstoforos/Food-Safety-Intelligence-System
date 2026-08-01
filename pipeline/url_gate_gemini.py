@@ -1076,6 +1076,53 @@ def gemini_gate(rows: List[Dict[str, Any]]) -> Dict[int, Tuple[bool, str, Option
                     # existing scraper-set Outbreak value alone.
                     ob_raw = d.get("outbreak_verified")
                     ob_evidence = str(d.get("outbreak_evidence") or "").strip()
+
+                    # ── Outbreak evidence must describe HUMAN ILLNESS ──────
+                    # (audit 2026-08-01) The existing guard only required the
+                    # evidence quote to be non-empty. On RASFF rows the model
+                    # satisfied that by quoting "risk: serious" — the hazard
+                    # SEVERITY classification carried by every single RASFF
+                    # notification — and flipped Outbreak 0 -> 1. Five rows
+                    # were published as outbreaks on that basis, including
+                    # "Aflatoxin B1 in USA pistachio kernels", which cannot be
+                    # an outbreak in any epidemiological sense.
+                    #
+                    # The scraper is right to set Outbreak=0 for RASFF
+                    # (scrapers/eu_wide/rasff.py:372 — "consolidated/en/
+                    # doesn't expose illness counts"); it was this gate that
+                    # overrode it. An outbreak is a cluster of human illness,
+                    # so the quote must actually mention illness. Hazard
+                    # severity and environmental monitoring findings are not
+                    # outbreaks, and the flag drives Tier and the alert mailer.
+                    _ILLNESS_WORDS = (
+                        "sick", "ill", "illness", "case", "hospital", "death",
+                        "died", "fatal", "infect", "outbreak of", "people",
+                        "patient", "notification", "cluster", "onset",
+                        "κρούσμ", "malad", "erkrank",
+                    )
+                    # Regulator risk boilerplate mentions illness generically
+                    # ("Listeria monocytogenes may cause severe illness in
+                    # pregnant women...") on EVERY notice. Quoting it is not
+                    # reporting an outbreak — the FSANZ Lux Ham row was flagged
+                    # on exactly that paragraph while its notice states no
+                    # confirmed illnesses. Strip the boilerplate before looking
+                    # for real illness language.
+                    _ev = re.sub(
+                        r"(may|can|could|might)\s+(also\s+|even\s+|still\s+)?(cause|lead to|result in|become|make)"
+                        r"[^.;]{0,140}", " ", ob_evidence, flags=re.I)
+                    _ev = re.sub(
+                        r"(no|without)\s+(reported\s+|confirmed\s+)?"
+                        r"(illness|case|infection)\w*", " ", _ev, flags=re.I)
+                    if ob_evidence and not any(
+                            w in _ev.lower() for w in _ILLNESS_WORDS):
+                        log.warning(
+                            "url-gate: DISCARDED outbreak verdict for %s — the "
+                            "evidence quote %r names no human illness. Hazard "
+                            "severity is not an outbreak.",
+                            str(chunk[j].get("URL", ""))[:70], ob_evidence[:70])
+                        ob_evidence = ""
+                        ob_raw = None
+
                     outbreak_verdict: Optional[int]
                     if ob_raw is None or ob_evidence == "":
                         outbreak_verdict = None

@@ -1599,6 +1599,42 @@ def sort_rows(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return sorted(rows, key=_key, reverse=True)
 
 
+# ─── Transcription-artifact normalisation (audit 2026-07-30) ────────────────
+# RappelConso's API emits U+00A4 (¤) where its source text had a LINE BREAK:
+# as a list-item separator ("marque auchan le charcutier :¤salade museau boeuf
+# 250g, ¤salade de museau…"), as a boundary between two run-together items
+# ("saucisson sec pur porc 1 kg¤salade de museau 250g"), and as a stray
+# trailing character ("Suspicion de contamination bactériologique
+# (Listeria)¤"). 34 published rows carried it into Product, Reason and Notes,
+# where it renders as a currency sign in the weekly reports and the daily
+# briefs.
+#
+# The codebase already knew the character was an artifact —
+# pipeline/_gap_finder_guards.py:161 uses it as a REJECT signal
+# (`_ARTIFACT_RE = re.compile(r"[\u00A4\u00D7\uFFFD]")`) — but nothing ever
+# stripped it from rows that arrived through the normal scraper path.
+#
+# Normalised HERE rather than in the RappelConso scraper for the same reason
+# the Class guard lives here: rows are updated in place after promotion by
+# url-gate and the enrichment passes, so a scraper-side clean can be undone.
+# This is the one gate every published row passes through.
+_TEXT_ARTIFACT = "\u00a4"
+
+
+def _strip_text_artifacts(value: Any) -> Any:
+    """Replace RappelConso's U+00A4 line-break artifact with real punctuation.
+
+    Leaves any value without the character untouched (identity), so this is
+    safe to run over every cell on every write.
+    """
+    if not isinstance(value, str) or _TEXT_ARTIFACT not in value:
+        return value
+    t = re.sub(r"\s*\u00a4\s*$", "", value)          # trailing -> drop
+    t = re.sub(r"([,:;])\s*\u00a4\s*", r"\1 ", t)     # already punctuated
+    t = re.sub(r"\s*\u00a4\s*", "; ", t)             # otherwise a boundary
+    return re.sub(r"\s{2,}", " ", t).strip()
+
+
 def _write_sheet(wb: Workbook,
                  sheet_name: str,
                  schema: List[str],
@@ -1631,6 +1667,70 @@ def _write_sheet(wb: Workbook,
         except Exception:
             pass  # writer must never crash on the guard
 
+
+    # Transcription artifacts — every sheet, every text column.
+    _artifact_hits = 0
+    for _row in rows:
+        for _col in ("Product", "Reason", "Company", "Brand", "Notes", "Pathogen"):
+            _v = _row.get(_col)
+            _n = _strip_text_artifacts(_v)
+            if _n is not _v and _n != _v:
+                _row[_col] = _n
+                _artifact_hits += 1
+    if _artifact_hits:
+        log.info("Stripped U+00A4 transcription artifact from %d cell(s) [%s]",
+                 _artifact_hits, sheet_name)
+
+    # ── Country-name canonicalisation (audit 2026-08-01) ───────────────────
+    # Country is a join key: it drives Region, the country counts in the weekly
+    # and monthly reports, and the per-country filters subscribers set on their
+    # alert rules. Two spellings of one country silently split all of that.
+    #
+    # The workbook had 82 rows saying 'United States' and 15 saying 'USA' — and
+    # the RASFF rows were self-contradictory, spelling it 'Origin: United
+    # States' in their own Company field while Country said 'USA'. Same story
+    # for the UK and a few others, so the aliases are canonicalised here at the
+    # single writer choke point rather than in each scraper, exactly as the
+    # Class guard below.
+    _COUNTRY_ALIASES = {
+        "usa": "United States", "u.s.a.": "United States", "us": "United States",
+        "u.s.": "United States", "united states of america": "United States",
+        "uk": "United Kingdom", "u.k.": "United Kingdom",
+        "great britain": "United Kingdom", "england": "United Kingdom",
+        "holland": "Netherlands", "the netherlands": "Netherlands",
+        "czech republic": "Czechia", "turkiye": "Turkey", "türkiye": "Turkey",
+        "republic of ireland": "Ireland", "south korea": "Korea, South",
+        "russian federation": "Russia",
+    }
+    # Source labels carry the jurisdiction suffix so two agencies with the same
+    # acronym never collide, and so the reports read consistently. 'FSIS' alone
+    # is ambiguous; 'USDA FSIS' is the established label on all 9 US rows.
+    _SOURCE_ALIASES = {
+        "fsis": "USDA FSIS", "usda": "USDA FSIS", "usda-fsis": "USDA FSIS",
+        "usda fsis (us)": "USDA FSIS",
+        "ncc": "NCC (ZA)", "efet": "EFET (GR)", "aesan": "AESAN (ES)",
+        "fsai": "FSAI (IE)", "fsa": "FSA (UK)",
+    }
+    try:
+        if "Country" in schema:
+            for _row in rows:
+                _raw = str(_row.get("Country") or "").strip()
+                _canon = _COUNTRY_ALIASES.get(_raw.lower())
+                if _canon and _canon != _raw:
+                    log.info("Country canonicalised at writer [%s]: %r -> %r",
+                             sheet_name, _raw, _canon)
+                    _row["Country"] = _canon
+        if "Source" in schema:
+            for _row in rows:
+                _raw = str(_row.get("Source") or "").strip()
+                _canon = _SOURCE_ALIASES.get(_raw.lower())
+                if _canon and _canon != _raw:
+                    log.info("Source canonicalised at writer [%s]: %r -> %r",
+                             sheet_name, _raw, _canon)
+                    _row["Source"] = _canon
+    except Exception as exc:
+        log.warning("Country canonicalisation skipped at writer [%s]: %s: %s",
+                    sheet_name, type(exc).__name__, str(exc)[:80])
 
     # ── Absolute-final Class language normalisation (audit 2026-07-30) ──────
     # Same rationale as the Tier-1 guard above, but deliberately applied to
