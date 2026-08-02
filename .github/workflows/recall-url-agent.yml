@@ -313,6 +313,14 @@ jobs:
              marque / unbranded), the brand is "Unbranded". If a non-RASFF row already
              carries a brand/company that does NOT appear on the page, treat it as
              fabricated — do not confirm on the strength of it.
+             DATE CHECK (known error class): read the ORIGINAL publication date off the
+             page. Do not trust the row's Date — rows have arrived stamped with the
+             scrape date while the notice itself is from a previous year (e.g. a 2024
+             statement, or a December-2025 recall carrying a July-2026 date). If the
+             page's original publication date is before 2026-01-01, REJECT as out of
+             scope, even if it was later updated. An expansion counts only if the
+             expansion itself was published in 2026.
+
           5. Decide:
              - "confirm" : a real 2026+ food recall whose hazard is a MICROBIAL PATHOGEN
                            (Listeria, Salmonella, E. coli/STEC, Cronobacter, botulinum,
@@ -325,6 +333,14 @@ jobs:
                            chemical / quality / labelling-only issue with no microbial
                            pathogen. Those are OUT OF SCOPE — reject them here so they
                            never reach reviewer 2.
+             NAME THE HAZARD CORRECTLY in your reason — it goes into the audit trail.
+             "undeclared allergen (<name>)" applies ONLY to recognised allergens
+             (peanuts, tree nuts, milk, egg, soy, wheat/gluten, fish, crustaceans,
+             molluscs, sesame, mustard, celery, lupin, sulphites). SUGAR IS NOT AN
+             ALLERGEN. A wrong/swapped label, wrong nutrition or sugar declaration, or
+             wrong variant in the pack is a "labelling error". Use "foreign body
+             (<material>)", "chemical contamination (<substance>)", "biotoxin (<name>)"
+             or "non-food product" as appropriate. Never invent a category.
 
           Return ONLY this JSON:
           {{
@@ -339,14 +355,12 @@ jobs:
           # ─── Agent core ──────────────────────────────────────────────────────────
 
           def review_url(row: Dict[str, Any]) -> Dict[str, Any]:
+              infra = {"decision": "retry", "official_url": row.get("URL", ""),
+                       "pathogen_if_found": "", "identity_matches": False}
               if llama_client is None or not llama_client.is_configured():
-                  return {"decision": "needs_human",
-                          "reason": "llama not configured", "official_url": row.get("URL", ""),
-                          "pathogen_if_found": "", "identity_matches": False}
+                  return {**infra, "reason": "INFRA: llama not configured (retry)"}
               if llama_client.is_open():
-                  return {"decision": "needs_human", "reason": "llama circuit open",
-                          "official_url": row.get("URL", ""), "pathogen_if_found": "",
-                          "identity_matches": False}
+                  return {**infra, "reason": "INFRA: llama circuit open (retry)"}
 
               suggested = _regulator_url(row)
               seen: set = set()
@@ -358,9 +372,7 @@ jobs:
                                       tool_executor=_executor(seen),
                                       temperature=0.0, max_tokens=600)
               if not out:
-                  return {"decision": "needs_human", "reason": "no llama response",
-                          "official_url": row.get("URL", ""), "pathogen_if_found": "",
-                          "identity_matches": False}
+                  return {**infra, "reason": "INFRA: no llama response (retry)"}
               txt = out.strip()
               if txt.startswith("```"):
                   txt = txt.strip("`")
@@ -372,17 +384,16 @@ jobs:
                   import re
                   m = re.search(r"\{.*\}", txt, re.DOTALL)
                   if not m:
-                      return {"decision": "needs_human",
-                              "reason": f"unparseable: {txt[:100]}",
-                              "official_url": row.get("URL", ""),
-                              "pathogen_if_found": "", "identity_matches": False}
+                      return {**infra, "reason": f"INFRA: unparseable (retry): {txt[:80]}"}
                   try:
                       parsed = json.loads(m.group(0))
                   except json.JSONDecodeError:
-                      return {"decision": "needs_human", "reason": "json parse fail",
-                              "official_url": row.get("URL", ""),
-                              "pathogen_if_found": "", "identity_matches": False}
-              parsed.setdefault("decision", "needs_human")
+                      return {**infra, "reason": "INFRA: json parse fail (retry)"}
+              # Valid JSON: only confirm/reject accepted; any other → reject (no human).
+              _d = str(parsed.get("decision", "")).strip().lower()
+              if _d not in ("confirm", "reject"):
+                  parsed["decision"] = "reject"
+                  parsed["reason"] = "could not confirm official recall: " + str(parsed.get("reason",""))[:150]
               parsed.setdefault("official_url", row.get("URL", ""))
               parsed.setdefault("pathogen_if_found", "")
               parsed.setdefault("identity_matches", False)
@@ -400,7 +411,7 @@ jobs:
               if decision == "reject":
                   return S_REJECTED
               if decision != "confirm":
-                  return None  # needs_human → leave as-is
+                  return None  # retry (infra) → leave unchanged, next run tries again
               # confirm: advance one step in the first-reviewer lane
               if cur == S_GAP:
                   return S_GAP_V1
@@ -455,15 +466,15 @@ jobs:
                   return 0
 
               today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
-              counts = {"confirm": 0, "reject": 0, "needs_human": 0}
+              counts = {"confirm": 0, "reject": 0, "retry": 0}
               rejected_flags: Dict[int, str] = {}
 
               for n, idx in enumerate(work_idx, 1):
                   row = full_pending[idx]
                   cur = str(row.get("Status", "")).strip()
                   res = review_url(row)
-                  dec = res.get("decision", "needs_human")
-                  counts[dec if dec in counts else "needs_human"] += 1
+                  dec = res.get("decision", "retry")
+                  counts[dec if dec in counts else "retry"] += 1
                   newstat = next_status(cur, dec)
 
                   # Apply confirmed URL + enrichment pathogen in place
@@ -487,7 +498,7 @@ jobs:
 
               print(f"\n{'='*60}")
               print(f"confirm: {counts['confirm']}  reject: {counts['reject']}  "
-                    f"needs_human: {counts['needs_human']}")
+                    f"retry (infra, left in Pending): {counts['retry']}")
               print(f"{'='*60}")
 
               if not commit:
