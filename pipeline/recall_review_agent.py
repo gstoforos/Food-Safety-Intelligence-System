@@ -237,9 +237,37 @@ STEPS:
    - If it is wrong: correct it to what the page says.
    - If it is blank and the page states it: fill it.
    - If the page does not state it: leave it empty.
-   Translate Product / Pathogen / Reason / Region to English. Keep Company in
-   its original language. Use ORIGINAL publication date (YYYY-MM-DD), not any
-   later "update" date.
+   LANGUAGE — EVERYTHING IN ENGLISH EXCEPT COMPANY AND BRAND:
+   - Product, Pathogen, Reason, Region and Class MUST be written in ENGLISH,
+     fully translated. No source-language words may remain.
+       "brie a l'ail"                     -> "garlic brie"
+       "charcuterie seche"                -> "dried cured meat"
+       "Presence Listeria monocytogenes"  -> "Presence of Listeria monocytogenes"
+       "chips de fruta"                   -> "fruit chips"
+   - NEVER leave a half-translated string. "Presence of salmonelle dans le
+     produit" is WRONG — write "Presence of Salmonella in the product".
+     Re-read your own output: if any word is not English, translate it.
+   - Company and Brand KEEP their original language and spelling exactly as
+     printed on the page (e.g. "Artisanale de Ris", "SARL SCALA"). Never
+     translate or anglicise a firm or brand name.
+   Use ORIGINAL publication date (YYYY-MM-DD), not any later "update" date.
+   NO PLACEHOLDER STRINGS IN DATA FIELDS:
+   - Never write explanatory text into a field. Strings like
+     "(not specified in RappelConso fiche 23067)", "not stated", "unknown",
+     "n/a", "see notice" are NOT values. If the page names no brand, Brand is
+     "Unbranded" (for RASFF, the notifying ISO code). If a required field
+     truly has no value on the page, REJECT the row rather than writing a
+     placeholder into it.
+   PRODUCT MUST BE A PRODUCT — NOT A HEADLINE OR AN AGENCY NAME:
+   - Product is the recalled food item ("fruit chips", "garlic brie"). It is
+     NOT the alert headline and NOT the regulator's own name. If you find the
+     authority in Product (e.g. "Aesan - Agencia Espanola de Seguridad
+     Alimentaria y Nutricion"), that is a scraper artifact — replace it with
+     the real food item from the page. Strip formatting debris: a leading
+     "#", stray newlines, or "//" duplication.
+   - Company must be the responsible firm, never the alert title and never
+     the regulator's name. If Company and Brand both hold the same long
+     headline string, BOTH are wrong — re-read the page for the real firm.
    CRITICAL — NEVER FABRICATE COMPANY OR BRAND (this is a known failure):
    - RASFF EXCEPTION (Source contains "RASFF"): RASFF notifications have a
      FIXED format that is CORRECT — do NOT treat it as fabricated and do NOT
@@ -280,6 +308,26 @@ STEPS:
    - Only a recall whose actual hazard is a microbial pathogen
      (Listeria, Salmonella, E. coli/STEC, Cronobacter, botulinum, norovirus,
      hepatitis A, etc.) explicitly stated on the page is IN SCOPE.
+   - NAME THE HAZARD CATEGORY CORRECTLY IN YOUR REASON. The rejection reason
+     is written into the audit trail, so it must be factually accurate. Use
+     the category the page actually describes:
+       • "undeclared allergen (<name>)" — ONLY for one of the recognised
+         allergens: peanuts, tree nuts, milk, egg, soy, wheat/gluten, fish,
+         crustaceans, molluscs, sesame, mustard, celery, lupin, sulphites.
+         SUGAR IS NOT AN ALLERGEN. Neither is salt, caffeine, or alcohol.
+       • "labelling error" / "incorrect nutrition labelling" — wrong or
+         swapped labels, wrong sugar or nutrition declaration, wrong
+         date-mark, wrong variant in the pack. (e.g. a drink multipack whose
+         pouches are wrongly labelled as the zero-sugar version is a
+         LABELLING ERROR, not an allergen.)
+       • "foreign body (<material>)" — glass, metal, plastic, wood.
+       • "chemical contamination (<substance>)" — cleaning agent, pesticide,
+         mycotoxin, heavy metal, migration from packaging.
+       • "biotoxin (<name>)" — brevetoxin, histamine, ciguatera.
+       • "non-food product" — a toy, a vehicle, cosmetics, lamp oil.
+     If none of these fits, describe the hazard in the page's own words.
+     Never invent a category, and never call something an allergen because it
+     appears on a label.
 3. COMPLETENESS (strict — no missing data may be promoted). Every field that
    the page makes available MUST be found and filled: Date, Company, Brand
    (if the page names one), Product, Pathogen, Reason, Country, Region (if
@@ -481,6 +529,17 @@ def review_row(row: Dict[str, Any]) -> Dict[str, Any]:
     # This is the backstop for the stale-recall class (2024 statements and
     # Dec-2025 recalls that arrived stamped with a fresh scrape date).
     if parsed.get("verdict") == "approve":
+        # Field-integrity backstop: untranslated text, placeholder strings,
+        # headline-as-product and regulator-as-product are all disqualifying.
+        _m = dict(row)
+        for _k, _v in (parsed.get("fields") or {}).items():
+            if _v:
+                _m[_k] = _v
+        _probs = _field_integrity_flags(_m)
+        if _probs:
+            parsed["verdict"] = "reject"
+            parsed["reason"] = "field integrity: " + "; ".join(_probs[:3])
+            return parsed
         d = str((parsed.get("fields") or {}).get("Date")
                 or row.get("Date") or "").strip()[:10]
         if len(d) >= 4 and d[:4].isdigit() and int(d[:4]) < 2026:
@@ -488,6 +547,56 @@ def review_row(row: Dict[str, Any]) -> Dict[str, Any]:
             parsed["reason"] = (f"out of scope: original publication date {d} "
                                 f"is before 2026")
     return parsed
+
+
+# Words that betray an untranslated / half-translated field. Deliberately
+# short and unambiguous — these are not English and appear in real rows.
+_NON_ENGLISH_TOKENS = (
+    " dans le ", " du produit", "presencia", "procedente", "procedentes",
+    "presence de", "présence", " et de ", " avec ", " sur place",
+    " nella ", " nel prodotto", " im produkt", " en el producto",
+    " a l'ail", "seche", "sèche", "fabriquees", "fabriquées",
+)
+# Strings that are explanations, not values.
+_PLACEHOLDER_MARKERS = (
+    "not specified", "non spécifié", "no especificado", "not stated",
+    "unknown", "n/a", "see notice", "see the notice", "aucune information",
+)
+
+
+def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
+    """Deterministic checks the model cannot skip. Returns a list of problems;
+    an approved row with any problem is downgraded to reject."""
+    probs = []
+    for fld in ("Product", "Reason", "Region", "Class"):
+        v = str(merged.get(fld, "") or "").lower()
+        if not v:
+            continue
+        for tok in _NON_ENGLISH_TOKENS:
+            if tok in v:
+                probs.append(f"{fld} not in English ({tok.strip()!r})")
+                break
+    for fld in ("Company", "Brand", "Product", "Reason"):
+        v = str(merged.get(fld, "") or "").lower()
+        if any(m in v for m in _PLACEHOLDER_MARKERS):
+            probs.append(f"{fld} holds a placeholder string, not a value")
+    # Product must not be the regulator / an alert headline.
+    prod = str(merged.get("Product", "") or "")
+    if prod.lstrip().startswith("#") or "\n" in prod:
+        probs.append("Product contains formatting debris (# or newline)")
+    if len(prod) > 160:
+        probs.append("Product looks like a headline, not a product name")
+    for agency in ("Agencia Española", "Agencia Espanola", "Food Standards",
+                   "Autorité", "Bundesamt", "Ministero della Salute"):
+        if agency.lower() in prod.lower():
+            probs.append("Product contains the regulator's name")
+            break
+    # Company and Brand identical AND long => both are the headline.
+    c = str(merged.get("Company", "") or "")
+    b = str(merged.get("Brand", "") or "")
+    if c and c == b and len(c) > 60:
+        probs.append("Company and Brand are the same long headline string")
+    return probs
 
 
 def _normalize_country_source(merged: Dict[str, Any]) -> None:
