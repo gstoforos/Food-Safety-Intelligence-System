@@ -566,8 +566,21 @@ _PLACEHOLDER_MARKERS = (
 
 def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
     """Deterministic checks the model cannot skip. Returns a list of problems;
-    an approved row with any problem is downgraded to reject."""
+    an approved row with any problem is downgraded to reject.
+
+    RASFF EXEMPTION: RASFF rows are correct by design — the notification
+    subject line IS the Product, it stays in the notifier's language, Brand
+    is the notifying-country ISO code (or a dash), and Company is the fixed
+    "Origin: X | Notifying: Y" string. Applying the language / headline /
+    placeholder heuristics to them produces false positives, so RASFF rows
+    are checked only for outright emptiness.
+    """
     probs = []
+    if "rasff" in str(merged.get("Source", "")).lower():
+        for fld in ("Product", "URL"):
+            if not str(merged.get(fld, "") or "").strip():
+                probs.append(f"{fld} is empty")
+        return probs
     for fld in ("Product", "Reason", "Region", "Class"):
         v = str(merged.get(fld, "") or "").lower()
         if not v:
