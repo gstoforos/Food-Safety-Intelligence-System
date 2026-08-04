@@ -420,3 +420,94 @@ class TestTheWorkbookIsClean(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TestUkropsFabricatedPathogen(unittest.TestCase):
+    """The 2026-08-04 fabrication: 'Hepatitis A virus' on a metal recall.
+
+    Three guards failed in three different ways, so all three are pinned.
+    Verified at source: the FDA permalink ends 'due-possible-foreign-object',
+    the hazard is aluminium slivers from the baking pans, and no pathogen is
+    named anywhere on the notice.
+    """
+
+    REASON = ("Baked products have potential for presence of aluminum slivers "
+              "from the pans that were used")
+    ROW = {
+        "Date": "2026-08-01", "Source": "FDA",
+        "Company": "Ukrops Homestyle Foods", "Brand": "Ukrops Homestyle Foods",
+        "Product": "Baked Spaghetti and Bread Pudding products",
+        "Pathogen": "Hepatitis A virus", "Reason": REASON,
+        "Class": "Recall", "Country": "United States", "Region": "North America",
+        "Tier": 1, "Outbreak": 0,
+        "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-"
+               "alerts/ukrops-homestyle-foods-announces-voluntary-recall-due-"
+               "possible-foreign-object",
+        "Notes": "",
+    }
+
+    def test_gap_1_foreign_object_wording_now_classifies(self):
+        """'aluminum slivers' matched nothing, so the Reason was
+        unclassifiable and the contradiction rule failed safe."""
+        self.assertIn("physical", classify_hazard(self.REASON))
+
+    def test_gap_2_the_bare_hav_keyword_no_longer_matches_the_word_have(self):
+        """The worse half: 'hav' was in the BIOLOGICAL list as the Hepatitis A
+        abbreviation and matched 'HAVe', so the invented pathogen and the
+        reason appeared to agree."""
+        self.assertNotIn("biological", classify_hazard(self.REASON))
+        self.assertNotIn("biological", classify_hazard(
+            "We have received no reports of illness to date"))
+        # …while the real abbreviation still classifies.
+        self.assertIn("biological", classify_hazard("Hepatitis A virus (HAV)"))
+
+    def test_the_contradiction_is_caught(self):
+        self.assertTrue(pathogen_reason_class_mismatch(
+            "Hepatitis A virus", self.REASON))
+        blockers = " | ".join(publish_blockers(self.ROW)).lower()
+        self.assertIn("contradicts reason", blockers)
+
+    def test_gap_3_tier_guard_does_not_escalate_on_a_contradicted_pathogen(self):
+        """It forced Tier 2 -> 1 on the strength of the fabrication, and
+        stamped Notes so the row looked reviewed."""
+        from pipeline._pathogen_scope import enforce_tier1
+        row = dict(self.ROW, Tier=2, Notes="")
+        enforce_tier1(row)
+        self.assertEqual(2, row["Tier"],
+                         "the tier-guard escalated on a pathogen the row's own "
+                         "Reason contradicts")
+        self.assertIn("escalation SKIPPED", str(row["Notes"]))
+
+    def test_a_genuine_always_tier1_row_still_escalates(self):
+        """The rule itself is correct and must keep working."""
+        from pipeline._pathogen_scope import enforce_tier1
+        row = {"Pathogen": "Hepatitis A virus",
+               "Reason": "Hepatitis A virus detected in frozen berries",
+               "Tier": 3, "Notes": ""}
+        enforce_tier1(row)
+        self.assertEqual(1, row["Tier"])
+
+    def test_slivered_almonds_are_not_a_physical_hazard(self):
+        """Why the vocabulary uses qualified shapes and never a bare
+        'sliver' — 'slivered almonds' is an ingredient."""
+        self.assertNotIn("physical", classify_hazard(
+            "Aflatoxin B1 above the limit in slivered almonds from the USA"))
+
+    def test_the_workbook_row_is_repaired(self):
+        try:
+            import openpyxl
+        except ImportError:                       # pragma: no cover
+            self.skipTest("openpyxl not installed")
+        xlsx = ROOT / "docs" / "data" / "recalls.xlsx"
+        if not xlsx.exists():                     # pragma: no cover
+            self.skipTest("recalls.xlsx not present")
+        wb = openpyxl.load_workbook(xlsx, read_only=True)
+        rows = list(wb["Recalls"].values)
+        hdr = [str(h) for h in rows[0]]
+        hits = [dict(zip(hdr, r)) for r in rows[1:] if r
+                and "ukrops" in str(dict(zip(hdr, r)).get("Company") or "").lower()]
+        self.assertEqual(1, len(hits))
+        row = hits[0]
+        self.assertNotIn("hepatitis", str(row["Pathogen"]).lower())
+        self.assertEqual("2", str(row["Tier"]))
+        self.assertNotIn("[tier-guard: Hepatitis A virus", str(row["Notes"]))
