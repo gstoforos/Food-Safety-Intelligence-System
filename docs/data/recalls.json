@@ -16,6 +16,38 @@
   "Notes": "marché de chateau gontier, marché de la prairie grez neuville"
  },
  {
+  "Date": "2026-08-03",
+  "Source": "FDA",
+  "Company": "Boticelli Foods",
+  "Brand": "Bettergoods",
+  "Product": "Pistachio Nut Butter",
+  "Pathogen": "Salmonella",
+  "Reason": "Possible Salmonella Contamination",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/boticelli-foods-recalls-bettergoods-pistachio-nut-butter-because-possible-health-risk",
+  "Notes": "FDA listing HTML (Layer 1)"
+ },
+ {
+  "Date": "2026-08-01",
+  "Source": "FDA",
+  "Company": "Ukrops Homestyle Foods",
+  "Brand": "Ukrops Homestyle Foods",
+  "Product": "Baked Spaghetti and Bread Pudding products",
+  "Pathogen": "Hepatitis A virus",
+  "Reason": "Baked products have potential for presence of aluminum slivers from the pans that were used",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/ukrops-homestyle-foods-announces-voluntary-recall-due-possible-foreign-object",
+  "Notes": "FDA listing HTML (Layer 1) [tier-guard: Hepatitis A virus is always Tier 1; forced from Tier 2]"
+ },
+ {
   "Date": "2026-07-31",
   "Source": "AESAN (ES)",
   "Company": "Rossmann",
@@ -318,6 +350,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862851",
   "Notes": "[RASFF #2026.6809; classification: alert notification; category: prepared dishes and snacks; notifId=862851]"
+ },
+ {
+  "Date": "2026-07-30",
+  "Source": "FDA",
+  "Company": "Publix",
+  "Brand": "GreenWise",
+  "Product": "Organic IQF Frozen Blueberries and Whole Mixed Berries, 10 oz and 48 oz",
+  "Pathogen": "Escherichia coli (generic)",
+  "Reason": "Possible E. Coli Contamination",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e",
+  "Notes": "FDA listing HTML (Layer 1) [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-07-29",
