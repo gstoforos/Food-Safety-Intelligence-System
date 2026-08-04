@@ -74,7 +74,7 @@ S_REJECTED = "rejected"
 # Statuses Agent 1 is responsible for (first-reviewer lane).
 AGENT1_STATUSES = {S_GAP, S_GAP_V1, S_ENRICH}
 
-MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "12000"))
+MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "5000"))
 
 
 # ─── Page fetch (self-contained, TLS-impersonated) ───────────────────────

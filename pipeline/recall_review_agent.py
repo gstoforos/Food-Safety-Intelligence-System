@@ -79,7 +79,7 @@ PENDING_COLUMNS = [
     "ScrapedAt", "Status", "RejectedBy",
 ]
 
-MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "12000"))
+MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "5000"))
 
 
 # ─── Tool-calling schema for the agent ───────────────────────────────────
@@ -208,257 +208,80 @@ REVIEW_SYSTEM = (
     "the final JSON object described by the user — no prose, no markdown."
 )
 
-
 def build_review_prompt(row: Dict[str, Any]) -> str:
+    """COMPACT prompt sized for a 4096-token context.
+
+    Rules already enforced deterministically in code are NOT repeated here —
+    they are applied after the model answers, so spending context on them is
+    waste:
+      * pre-2026 publication date        -> hard guard in review_row()
+      * language / placeholder / headline / regulator-as-product
+                                         -> _field_integrity_flags()
+      * USA -> "United States", USDA FSIS source
+                                         -> _normalize_country_source()
+    What remains here is only what the model alone can judge: reading the
+    page, correcting fields, hazard scope, and outbreak evidence.
+    """
     def g(k):
-        return row.get(k, "") if row.get(k) not in (None,) else ""
-    return f"""Verify this recall row against its source page.
+        return row.get(k, "") or ""
 
-═══ ROW (claimed) ═══
-Date     : {g('Date')}
-Source   : {g('Source')}
-Country  : {g('Country')}
-Company  : {g('Company')}
-Brand    : {g('Brand')}
-Product  : {g('Product')}
-Pathogen : {g('Pathogen')}
-Reason   : {g('Reason')}
-Class    : {g('Class')}
-Region   : {g('Region')}
-Outbreak : {g('Outbreak')}
-URL      : {g('URL')}
+    is_rasff = "rasff" in str(g("Source")).lower()
+    rasff_note = ("\nRASFF row: its Company/Brand/Country format is already "
+                  "correct — keep it, never write 'Unbranded'.\n"
+                  if is_rasff else "")
 
-STEPS:
-1. Call fetch_page on the URL. If it is dead, a listing page, or clearly the
-   wrong recall, call web_search with company + product + hazard to find the
-   correct OFFICIAL regulator page, then fetch_page that.
-2. Read the page. For EACH field, decide if the row's value matches the page.
-   - If it matches: keep it.
-   - If it is wrong: correct it to what the page says.
-   - If it is blank and the page states it: fill it.
-   - If the page does not state it: leave it empty.
-   LANGUAGE — EVERYTHING IN ENGLISH EXCEPT COMPANY AND BRAND:
-   - Product, Pathogen, Reason, Region and Class MUST be written in ENGLISH,
-     fully translated. No source-language words may remain.
-       "brie a l'ail"                     -> "garlic brie"
-       "charcuterie seche"                -> "dried cured meat"
-       "Presence Listeria monocytogenes"  -> "Presence of Listeria monocytogenes"
-       "chips de fruta"                   -> "fruit chips"
-   - NEVER leave a half-translated string. "Presence of salmonelle dans le
-     produit" is WRONG — write "Presence of Salmonella in the product".
-     Re-read your own output: if any word is not English, translate it.
-   - Company and Brand KEEP their original language and spelling exactly as
-     printed on the page (e.g. "Artisanale de Ris", "SARL SCALA"). Never
-     translate or anglicise a firm or brand name.
-   Use ORIGINAL publication date (YYYY-MM-DD), not any later "update" date.
-   NO PLACEHOLDER STRINGS IN DATA FIELDS:
-   - Never write explanatory text into a field. Strings like
-     "(not specified in RappelConso fiche 23067)", "not stated", "unknown",
-     "n/a", "see notice" are NOT values. If the page names no brand, Brand is
-     "Unbranded" (for RASFF, the notifying ISO code). If a required field
-     truly has no value on the page, REJECT the row rather than writing a
-     placeholder into it.
-   PRODUCT MUST BE A PRODUCT — NOT A HEADLINE OR AN AGENCY NAME:
-   - Product is the recalled food item ("fruit chips", "garlic brie"). It is
-     NOT the alert headline and NOT the regulator's own name. If you find the
-     authority in Product (e.g. "Aesan - Agencia Espanola de Seguridad
-     Alimentaria y Nutricion"), that is a scraper artifact — replace it with
-     the real food item from the page. Strip formatting debris: a leading
-     "#", stray newlines, or "//" duplication.
-   - Company must be the responsible firm, never the alert title and never
-     the regulator's name. If Company and Brand both hold the same long
-     headline string, BOTH are wrong — re-read the page for the real firm.
-   CRITICAL — NEVER FABRICATE COMPANY OR BRAND (this is a known failure):
-   - RASFF EXCEPTION (Source contains "RASFF"): RASFF notifications have a
-     FIXED format that is CORRECT — do NOT treat it as fabricated and do NOT
-     change it to "Unbranded":
-       Company = "Origin: <origin country> | Notifying: <notifying country>"
-       Brand   = the 3-letter ISO code of the NOTIFYING country (e.g. DEU,
-                 NLD, ROU, LVA)
-       Country = the ORIGIN country (where the hazard product came from)
-       Notes   = keep the "[RASFF #<number>; classification: ...]" block
-     For RASFF rows, verify these against the RASFF notification page and the
-     notification number; fill/correct them to this exact format. NEVER put
-     "Unbranded" on a RASFF row and never blank its Company.
-   - NON-RASFF rows only: Company and Brand must appear VERBATIM on the page.
-     If no brand is named on the page, Brand is "Unbranded" — never invent one.
-   - NON-RASFF: if the page says the product is sold loose / at the counter /
-     à la coupe / vendu au rayon / sans marque / "unbranded", then
-     Brand = "Unbranded" and Company is the responsible distributor/retailer
-     named on the page (e.g. the supermarket chain), NOT a made-up producer.
-   - If a previous step put a brand/company on a NON-RASFF row but the page
-     does not contain that exact name, that value was fabricated — replace it
-     with what the page actually says (or "Unbranded"). Do not trust a value
-     just because it is already in the row; verify every one against the page.
-   - A plausible-sounding brand not on the page (non-RASFF) is a
-     HALLUCINATION. When unsure, use "Unbranded" / leave Company empty and
-     REJECT rather than guessing (there is no human to defer to).
-   CRITICAL HAZARD / SCOPE CHECK (a common gap-finder error):
-   - This system tracks PATHOGEN / microbial-contamination food recalls only.
-     If the page shows the recall is for an UNDECLARED ALLERGEN (peanuts,
-     milk, soy, gluten, sulphites, egg, sesame, mustard, etc.), a FOREIGN
-     BODY (glass, plastic, metal), or a purely CHEMICAL / quality / labelling
-     issue with no microbial pathogen — it is OUT OF SCOPE. Set
-     verdict = "reject" with reason naming the actual hazard. Do NOT approve
-     it and do NOT leave a pathogen name on it.
-   - Watch for the internal contradiction that signals this error: the
-     Pathogen field says an organism (e.g. "Listeria") but the Reason / page
-     says "undeclared allergen". The PAGE wins — if the page says allergen,
-     reject as out of scope.
-   - Only a recall whose actual hazard is a microbial pathogen
-     (Listeria, Salmonella, E. coli/STEC, Cronobacter, botulinum, norovirus,
-     hepatitis A, etc.) explicitly stated on the page is IN SCOPE.
-   - NAME THE HAZARD CATEGORY CORRECTLY IN YOUR REASON. The rejection reason
-     is written into the audit trail, so it must be factually accurate. Use
-     the category the page actually describes:
-       • "undeclared allergen (<name>)" — ONLY for one of the recognised
-         allergens: peanuts, tree nuts, milk, egg, soy, wheat/gluten, fish,
-         crustaceans, molluscs, sesame, mustard, celery, lupin, sulphites.
-         SUGAR IS NOT AN ALLERGEN. Neither is salt, caffeine, or alcohol.
-       • "labelling error" / "incorrect nutrition labelling" — wrong or
-         swapped labels, wrong sugar or nutrition declaration, wrong
-         date-mark, wrong variant in the pack. (e.g. a drink multipack whose
-         pouches are wrongly labelled as the zero-sugar version is a
-         LABELLING ERROR, not an allergen.)
-       • "foreign body (<material>)" — glass, metal, plastic, wood.
-       • "chemical contamination (<substance>)" — cleaning agent, pesticide,
-         mycotoxin, heavy metal, migration from packaging.
-       • "biotoxin (<name>)" — brevetoxin, histamine, ciguatera.
-       • "non-food product" — a toy, a vehicle, cosmetics, lamp oil.
-     If none of these fits, describe the hazard in the page's own words.
-     Never invent a category, and never call something an allergen because it
-     appears on a label.
-3. COMPLETENESS (strict — no missing data may be promoted). Every field that
-   the page makes available MUST be found and filled: Date, Company, Brand
-   (if the page names one), Product, Pathogen, Reason, Country, Region (if
-   the page/state names one). If a field is genuinely absent from the page,
-   it may stay empty — but you must have actually READ the page and confirmed
-   it is not there. If you cannot confirm a REQUIRED field (Date, Company OR
-   Brand, Product, Pathogen, URL) from the page, do NOT approve → return
-   REJECT. Never approve a row with a required field you could not
-   verify or fill from the source.
-4. Decide scope:
-   - reject if: not a recall page; pre-2026 date; pet/animal food; undeclared
-     allergen / foreign body / chemical / labelling-only (OUT OF SCOPE per
-     above); dead URL with no findable official page; duplicate.
-   - approve ONLY if: it is a real 2026+ microbial-pathogen food recall AND
-     every required field is verified/filled from the page AND every
-     page-available field has been filled.
-   - reject if: the page cannot be read from its content, a required field
-     cannot be confirmed, or the case is ambiguous. There is no human
-     fallback — an unverifiable row is rejected.
-5. VERIFY THE OUTBREAK FLAG (strict — this drives the tier).
-   FIRST, mentally STRIP the regulator's standard risk-language before you
-   judge. Almost every notice contains boilerplate that mentions illness but
-   is NOT evidence of an outbreak, e.g.:
-     • "Listeria may cause severe illness in pregnant women, the elderly…"
-     • "Symptoms of salmonellosis include fever, diarrhoea…"
-     • "Consumers should not eat this product… may cause illness"
-     • RASFF's hazard-severity classification "risk: serious" / "risk: not
-       serious" — this is a SEVERITY LABEL present on EVERY notification and
-       is NEVER evidence of an outbreak.
-   Those phrases must be ignored entirely. A notice that contains ONLY such
-   language is outbreak = 0.
-   AFTER stripping that, set outbreak = 1 ONLY if what remains states:
-     • a specific count of confirmed/probable illnesses or cases
-       ("166 illnesses", "two cases", "26 hospitalised")
-     • an epidemiological investigation opened BECAUSE people reported illness
-     • death(s) attributed to this hazard
-     • a named ongoing outbreak with published case counts, or a linked
-       public-health notice (e.g. a PHAC/CDC/UKHSA outbreak page) for THIS
-       product
-   Set outbreak = 0 when: the page says "no reported illnesses" / "aucun cas
-   signalé" / "no illnesses have been associated"; the finding came from
-   routine sampling, environmental monitoring, or a lab test with no
-   consumption; the hazard is a contamination finding only; or the wording is
-   precautionary ("possible presence of…"). A contamination finding is NOT an
-   outbreak. Default to 0 whenever the remaining evidence is not explicit.
-   If the row already has Outbreak=1 but the page (after stripping
-   boilerplate) shows no such evidence, CORRECT it to 0.
-
-   MANDATORY SECOND SOURCE BEFORE CONCLUDING outbreak = 0:
-   The recall notice and the outbreak evidence are often on DIFFERENT pages.
-   A recall notice frequently says only "potential to be contaminated" with
-   standard risk boilerplate, while the epidemiology (case counts,
-   hospitalisations) lives on a separate public-health page. So for any
-   Tier-1 pathogen (Listeria, Salmonella, E. coli/STEC, Cronobacter,
-   botulinum, hepatitis A) you MUST run one web_search for a linked
-   public-health outbreak notice before setting outbreak = 0, e.g.
-     "<company> <product> <pathogen> outbreak CDC FDA"  (US)
-     "<company> <product> <pathogen> outbreak PHAC"     (Canada)
-     "<company> <product> <pathogen> outbreak UKHSA/EODY/RIVM" (as relevant)
-   If an official health agency (CDC / FDA outbreak page / PHAC / UKHSA /
-   ECDC / national authority) reports illnesses linked to THIS product, set
-   outbreak = 1 and cite the case count in outbreak_evidence — even though the
-   recall notice itself mentioned no illnesses.
-   Only after that search comes back empty may you set outbreak = 0.
-
-   DATE — VERIFY AGAINST THE PAGE, THIS IS A KNOWN ERROR CLASS:
-   - Date must be the ORIGINAL publication date the regulator issued the
-     notice, read from the page. Not today, not the date it was scraped, not a
-     later "updated" stamp, not a media article's publication date.
-   - If the row's Date differs from the page's publication date, CORRECT it to
-     the page's date. Rows have been wrongly stamped with the scrape date and
-     landed in the wrong month (e.g. a December-2025 recall carrying a July
-     date, a 2024 statement carrying a 2026 date). Always check.
-   - If the page's original publication date is before 2026-01-01, REJECT the
-     row as out of scope — even if the page was later updated or expanded in
-     2026. An expansion notice is only in scope if the EXPANSION itself was
-     published in 2026 and you use that expansion's date.
-   REGULATOR TITLE PREFIXES — strip them from Company:
-   - Regulators prepend status markers to their page titles, e.g.
-     "UPDATED 30.07.26 | Auxico (Perth) Pty Ltd - LGM HOT CHILLI OIL 275G".
-     A scraper that takes the page title as the Company produces
-     Company = "UPDATED 30.07.26 | Auxico (Perth) Pty Ltd". That is WRONG.
-     Strip any leading status marker (UPDATED, UPDATE, REVISED, EXPANDED,
-     AMENDED, followed by a date and/or a pipe) and any trailing product
-     name, leaving only the firm: "Auxico (Perth) Pty Ltd".
-   DUPLICATE / UPDATED-NOTICE DETECTION:
-   - Regulators publish an UPDATED version of a recall at a NEW url while the
-     original stays live. These are the SAME recall, not two recalls. If the
-     page you verified is an updated/revised version of a notice for the same
-     firm + product + hazard, say so in `duplicate_of` with the original URL
-     if you can identify it, and set verdict = "reject" with reason
-     "duplicate: updated version of an existing recall" — the register keeps
-     one row per recall.
-   FIELD HYGIENE — no merged or concatenated values:
-   - Company, Brand and Product must each be a single clean value as printed
-     on the page. Watch for run-together artifacts from earlier processing
-     such as "General Mills Canada Pillsbury", "Midwest Poultry Services,
-     L.P.Kroger", "Origin: Brazil | Notifying: Ireland IRELAND", or a repeated
-     country appended to itself. If you see one, rewrite the field to the
-     clean value from the page (for RASFF keep the fixed Origin/Notifying
-     format, with no duplicated country appended).
-   PATHOGEN NAMING — use the canonical organism name:
-   - Write the organism as the page identifies it, using standard naming:
-     "Salmonella spp." when no serovar is given, "Salmonella Enteritidis" (or
-     Typhimurium etc.) when the page names the serovar; "E. coli O26",
-     "E. coli O157" or "STEC" when a serotype is given, otherwise
-     "Escherichia coli". Do not invent a serovar the page does not state, and
-     do not strip one the page does state.
-   SOURCE OF RECORD — do not credit a regulator for a media article:
-   - Source must name the body that actually published the notice you
-     verified. If the only page you could confirm is a secondary outlet (news
-     site, trade magazine, blog), the Source is that outlet — do NOT label it
-     with a regulator's name (e.g. do not write an authority's name when the
-     verified URL is a news article). Prefer finding the regulator's own
-     notice; if none exists, be honest about the source you used.
-
-Return ONLY this JSON (no markdown):
-{{
-  "verdict": "approve" | "reject",
-  "duplicate_of": "<url of the original recall if this is a duplicate/updated notice, else ''>",
-  "reason": "<one line>",
-  "verified_url": "<the URL you actually confirmed, may differ from input>",
-  "outbreak": 0 | 1,
-  "outbreak_evidence": "<verbatim quote from page, max 200 chars, '' if 0>",
-  "fields": {{
-    "Date": "", "Company": "", "Brand": "", "Product": "",
-    "Pathogen": "", "Reason": "", "Country": "", "Region": ""
-  }},
-  "provenance": "<which fields you corrected/filled and from where>"
-}}"""
-
+    return (
+        "Verify this recall against its source page.\n\n"
+        f"Date {g('Date')} | Source {g('Source')} | Country {g('Country')}\n"
+        f"Company {g('Company')} | Brand {g('Brand')}\n"
+        f"Product {g('Product')}\n"
+        f"Pathogen {g('Pathogen')} | Reason {g('Reason')} | "
+        f"Outbreak {g('Outbreak')}\n"
+        f"URL {g('URL')}\n"
+        f"{rasff_note}\n"
+        "1. fetch_page the URL. If it is dead or the wrong recall, web_search\n"
+        "   for the official regulator page and fetch that instead.\n"
+        "2. Correct EVERY field to what the page says. Date = the regulator's\n"
+        "   ORIGINAL publication date, not an update. Product, Pathogen,\n"
+        "   Reason and Region in ENGLISH; Company and Brand keep their\n"
+        "   original language. Product is the food item itself, never the\n"
+        "   alert headline and never the agency's name.\n"
+        "3. Company and Brand must appear verbatim on the page. If no brand is\n"
+        "   named (sold loose / a la coupe / sans marque), use \"Unbranded\".\n"
+        "   Never invent one, and never trust a value already on the row\n"
+        "   without seeing it on the page.\n"
+        "4. SCOPE — approve ONLY a 2026+ food recall whose hazard is a\n"
+        "   microbial pathogen (Listeria, Salmonella, E. coli/STEC,\n"
+        "   Cronobacter, botulinum, norovirus, hepatitis A). REJECT anything\n"
+        "   else and name the real hazard:\n"
+        "     \"undeclared allergen (X)\" only for the 14 legal allergens —\n"
+        "       SUGAR IS NOT AN ALLERGEN;\n"
+        "     \"labelling error\" for wrong or swapped labels, or a wrong sugar\n"
+        "       or nutrition declaration;\n"
+        "     \"foreign body (X)\", \"chemical contamination (X)\",\n"
+        "     \"biotoxin (X)\", \"non-food product\".\n"
+        "   Also reject a duplicate, or an UPDATED re-issue of a recall that\n"
+        "   is already in the register (put the original URL in duplicate_of).\n"
+        "5. OUTBREAK. Ignore standard risk boilerplate (\"may cause severe\n"
+        "   illness in pregnant women...\", \"no reported illnesses\") and\n"
+        "   RASFF's \"risk: serious\", which is only a severity label present on\n"
+        "   every notification. Set 1 ONLY for a stated case count, an\n"
+        "   epidemiological investigation opened because people fell ill,\n"
+        "   attributed deaths, or a linked CDC / FDA / PHAC / UKHSA outbreak\n"
+        "   notice for THIS product. The outbreak page is often separate from\n"
+        "   the recall notice, so run ONE web_search for it before settling on\n"
+        "   0. Contamination findings and routine or environmental sampling\n"
+        "   are 0. Default 0.\n"
+        "6. If a required field (Date, Company or Brand, Product, Pathogen,\n"
+        "   URL) cannot be confirmed from the page, REJECT — there is no\n"
+        "   human to defer to.\n\n"
+        "Reply with ONLY this JSON:\n"
+        '{"verdict":"approve"|"reject","reason":"<one line>",'
+        '"verified_url":"","duplicate_of":"","outbreak":0,'
+        '"outbreak_evidence":"","fields":{"Date":"","Company":"","Brand":"",'
+        '"Product":"","Pathogen":"","Reason":"","Country":"","Region":""},'
+        '"provenance":""}'
+    )
 
 # ─── The agent ───────────────────────────────────────────────────────────
 
