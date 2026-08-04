@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-08-03",
+  "Source": "RappelConso (FR)",
+  "Company": "Brebis du Bois",
+  "Brand": "Brebis du Bois",
+  "Product": "brebis du bois",
+  "Pathogen": "Salmonella",
+  "Reason": "Contamination à la salmonellle",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23075/interne",
+  "Notes": "marché de chateau gontier, marché de la prairie grez neuville"
+ },
+ {
   "Date": "2026-07-31",
   "Source": "AESAN (ES)",
   "Company": "Rossmann",
