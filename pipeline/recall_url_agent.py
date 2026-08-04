@@ -363,6 +363,10 @@ def main() -> int:
     ap.add_argument("--commit", type=str, default="false")
     ap.add_argument("--source-filter", type=str, default=None)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--time-budget-min", type=int, default=20,
+                    help="Stop reviewing after N minutes and SAVE what has "
+                         "been done, so a workflow timeout cannot discard the "
+                         "run. Remaining rows are picked up next run.")
     args = ap.parse_args()
     commit = args.commit.lower() in ("1", "true", "yes", "on")
 
@@ -387,7 +391,16 @@ def main() -> int:
     counts = {"confirm": 0, "reject": 0, "retry": 0}
     rejected_flags: Dict[int, str] = {}
 
+    _deadline = (dt.datetime.now(dt.timezone.utc)
+                 + dt.timedelta(minutes=max(1, args.time_budget_min)))
+    _stopped_early = 0
     for n, idx in enumerate(work_idx, 1):
+        if dt.datetime.now(dt.timezone.utc) >= _deadline:
+            _stopped_early = len(work_idx) - n + 1
+            print(f"\n  [time budget {args.time_budget_min}m reached] "
+                  f"stopping after {n-1} rows; {_stopped_early} left for the "
+                  f"next run. Saving progress now.")
+            break
         row = full_pending[idx]
         cur = str(row.get("Status", "")).strip()
         res = review_url(row)
@@ -414,6 +427,8 @@ def main() -> int:
               f"→ {newstat or cur:16s} {str(row.get('Product',''))[:34]:34s}"
               f" | {res.get('reason','')[:44]}")
 
+    if _stopped_early:
+        print(f"NOTE: {_stopped_early} rows not reviewed this run (time budget).")
     print(f"\n{'='*60}")
     print(f"confirm: {counts['confirm']}  reject: {counts['reject']}  "
           f"retry (infra, left in Pending): {counts['retry']}")

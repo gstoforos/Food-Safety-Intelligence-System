@@ -682,6 +682,10 @@ def main() -> int:
     ap.add_argument("--commit", type=str, default="false")
     ap.add_argument("--source-filter", type=str, default=None)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--time-budget-min", type=int, default=20,
+                    help="Stop reviewing after N minutes and SAVE what has "
+                         "been done, so a workflow timeout cannot discard the "
+                         "run. Remaining rows are picked up next run.")
     ap.add_argument("--max-removals", type=int, default=10,
                     help="Audit mode safety cap: abort without writing if the "
                          "model wants to remove more than N rows from Recalls.")
@@ -708,7 +712,16 @@ def main() -> int:
         return 0
 
     results = {"approve": [], "reject": [], "retry": []}
+    _deadline = (dt.datetime.now(dt.timezone.utc)
+                 + dt.timedelta(minutes=max(1, args.time_budget_min)))
+    _stopped_early = 0
     for i, row in enumerate(rows, 1):
+        if dt.datetime.now(dt.timezone.utc) >= _deadline:
+            _stopped_early = len(rows) - i + 1
+            print(f"\n  [time budget {args.time_budget_min}m reached] "
+                  f"stopping after {i-1} rows; {_stopped_early} left for the "
+                  f"next run. Saving progress now.")
+            break
         review = review_row(row)
         review["_orig_url"] = str(row.get("URL", "")).strip()
         verdict = review.get("verdict", "retry")
@@ -720,6 +733,8 @@ def main() -> int:
               f"{str(merged.get('Product',''))[:44]:44s} "
               f"| {review.get('reason','')[:60]}")
 
+    if _stopped_early:
+        print(f"NOTE: {_stopped_early} rows not reviewed this run (time budget).")
     print(f"\n{'='*60}")
     print(f"approve: {len(results['approve'])}  "
           f"reject: {len(results['reject'])}  "
