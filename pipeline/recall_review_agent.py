@@ -242,10 +242,15 @@ def build_review_prompt(row: Dict[str, Any]) -> str:
         "1. fetch_page the URL. If it is dead or the wrong recall, web_search\n"
         "   for the official regulator page and fetch that instead.\n"
         "2. Correct EVERY field to what the page says. Date = the regulator's\n"
-        "   ORIGINAL publication date, not an update. Product, Pathogen,\n"
-        "   Reason and Region in ENGLISH; Company and Brand keep their\n"
-        "   original language. Product is the food item itself, never the\n"
-        "   alert headline and never the agency's name.\n"
+        "   ORIGINAL publication date, not an update.\n"
+        "   LANGUAGE POLICY (pipeline/_language.py, operator 2026-08-02):\n"
+        "   Company, Brand and Product are NAMES — keep them EXACTLY as\n"
+        "   published, in the original language ('brie a l'ail' stays).\n"
+        "   Translating them breaks matching against the regulator page.\n"
+        "   Reason, Class, Pathogen, Country and Region are DESCRIPTIONS\n"
+        "   and must read in ENGLISH.\n"
+        "   Product must still be the food item itself, never the alert\n"
+        "   headline and never the agency's name.\n"
         "3. Company and Brand must appear verbatim on the page. If no brand is\n"
         "   named (sold loose / a la coupe / sans marque), use \"Unbranded\".\n"
         "   Never invent one, and never trust a value already on the row\n"
@@ -453,12 +458,25 @@ def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
     _contra = _pathogen_reason_contradiction(merged)
     if _contra:
         probs.append(_contra)
-    _reason = " " + str(merged.get("Reason", "") or "").lower() + " "
-    for _w in _NON_ENGLISH_FUNCTION_WORDS:
-        if _w in _reason:
-            probs.append(f"Reason not in English ({_w.strip()!r})")
-            break
-    for fld in ("Product", "Reason", "Region", "Class"):
+    _reason_raw = str(merged.get("Reason", "") or "")
+    _flagged_reason = False
+    try:  # canonical detector — same one merge_master uses
+        from pipeline._language import looks_non_english as _lne
+        if _reason_raw and _lne(_reason_raw):
+            probs.append("Reason not in English (pipeline._language)")
+            _flagged_reason = True
+    except Exception:
+        pass
+    if not _flagged_reason:
+        _reason = " " + _reason_raw.lower() + " "
+        for _w in _NON_ENGLISH_FUNCTION_WORDS:
+            if _w in _reason:
+                probs.append(f"Reason not in English ({_w.strip()!r})")
+                break
+    # Per pipeline/_language.py (operator rule 2026-08-02) Company, Brand and
+    # Product are NAMES and stay in the original language — they are NOT
+    # language-checked. Only DESCRIPTION fields must read in English.
+    for fld in ("Reason", "Region"):
         v = str(merged.get(fld, "") or "").lower()
         if not v:
             continue
