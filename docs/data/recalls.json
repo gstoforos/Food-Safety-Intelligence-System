@@ -32,6 +32,22 @@
   "Notes": "FDA listing HTML (Layer 1)"
  },
  {
+  "Date": "2026-08-03",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Poland | Notifying: Romania",
+  "Brand": "—",
+  "Product": "Salmonella spp in piept curcan bucati origine Polonia// Salmonella spp. in turkey breast pieces of Polish origin",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella spp in piept curcan bucati origine Polonia// Salmonella spp. in turkey breast pieces of Polish origin; risk: potential risk; category: poultry meat and poultry meat products",
+  "Class": "Information",
+  "Country": "Poland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/863489",
+  "Notes": "[RASFF #2026.6876; classification: information notification for follow-up; category: poultry meat and poultry meat products; notifId=863489]"
+ },
+ {
   "Date": "2026-08-01",
   "Source": "FDA",
   "Company": "Ukrops Homestyle Foods",
