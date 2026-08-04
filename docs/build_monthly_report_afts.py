@@ -862,7 +862,22 @@ def svg_outbreak_timeline(cl: Dict[str, Any], month_start: date, month_end: date
     # Legend
     legend_parts = []
     lx = pad_x
-    for p in sorted(seen_pathogens, key=lambda p: lane_map.get(p, (None, 99))[1]):
+    # DETERMINISM (audit 2026-08-04). This used to be
+    #     sorted(seen_pathogens, key=lambda p: lane_map.get(p, (None, 99))[1])
+    # over a SET. lane_map holds five pathogens; every other one keys to 99, so
+    # the sort tied for all of them and the order fell out of set iteration —
+    # which depends on PYTHONHASHSEED and is randomised per process.
+    #
+    # Consequence: three consecutive builds of IDENTICAL data produced three
+    # different files. Months whose data had not changed still showed a diff,
+    # every rebuild, in the outbreak-timeline legend and marker coordinates.
+    # That is why a monthly repair of one month shipped as "all the monthly
+    # files changed": most of the diff was build noise, not data.
+    #
+    # The name is the tie-break, so the output is now a pure function of the
+    # data. Same rows in, byte-identical file out.
+    for p in sorted(seen_pathogens,
+                    key=lambda p: (lane_map.get(p, (None, 99))[1], p)):
         colour = lane_map.get(p, (BRAND_BLACK,))[0]
         legend_parts.append(
             f'<circle cx="{lx+5:.1f}" cy="{h-4:.1f}" r="3" fill="{colour}"/>'
