@@ -189,6 +189,40 @@ def enforce_tier1(row: dict) -> dict:
     #   (b) bare "Bacillus cereus" in a LOW-MOISTURE product (cereulide-
     #       formation risk — rice, pasta, powder, infant formula, spices,
     #       dried herbs, etc.). Fresh / high-moisture B. cereus is NOT forced.
+    # ── Do not escalate on a pathogen the row's own Reason contradicts ──
+    # Audit 2026-08-04. An FDA row arrived with Pathogen "Hepatitis A virus"
+    # and Reason "Baked products have potential for presence of aluminum
+    # slivers from the pans that were used" (FDA permalink: "...due-possible-
+    # foreign-object"). This guard read the invented pathogen, forced Tier
+    # 2 -> 1, and stamped "[tier-guard: Hepatitis A virus is always Tier 1]"
+    # into Notes — so a metal-fragment recall was published as a Tier-1
+    # viral event, and the tier-guard's own stamp became the evidence that
+    # made it look reviewed.
+    #
+    # The always-Tier-1 rule is correct. What was wrong is applying it to a
+    # Pathogen value the row itself disagrees with: when Pathogen and Reason
+    # describe different hazard classes, Pathogen is exactly the field not to
+    # trust, and escalating on it amplifies the error instead of catching it.
+    #
+    # Fails OPEN on any import or classification problem — an escalation
+    # skipped is a Tier-2 row that a reviewer still sees; a crash here would
+    # stop the promotion entirely.
+    try:
+        from pipeline._publish_gate import pathogen_reason_class_mismatch
+        if pathogen_reason_class_mismatch(str(pathogen or ""),
+                                          str(row.get("Reason") or "")):
+            note = str(row.get("Notes") or "")
+            stamp = ("[tier-guard 2026-08-04: escalation SKIPPED — Pathogen %r "
+                     "contradicts this row's own Reason, so the pathogen is "
+                     "not trustworthy enough to raise the tier on. The "
+                     "publish gate blocks this row separately.]"
+                     % str(pathogen).strip()[:60])
+            if "tier-guard 2026-08-04" not in note:
+                row["Notes"] = (note + " " + stamp).strip() if note else stamp
+            return row
+    except Exception:
+        pass
+
     force = is_always_tier1(pathogen)
     reason_tag = "is always Tier 1"
     if not force and _is_bare_bacillus_cereus(pathogen) and _is_low_moisture_product(row):

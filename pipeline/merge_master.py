@@ -1847,6 +1847,83 @@ def _write_sheet(wb: Workbook,
         log.warning("Company banner strip skipped at writer [%s]: %s: %s",
                     sheet_name, type(exc).__name__, str(exc)[:80])
 
+    # ── English-output policy (audit 2026-08-02) ───────────────────────────
+    # Operator rule: "everything in English except brand / or product name".
+    #
+    # 157 published rows carried a non-English Reason. The single largest
+    # cause was mechanical and is fixed here: RASFF writes its notification
+    # subject BILINGUALLY into both Reason and Product —
+    #
+    #   "Presencia de Salmonela spp en salchichón procedente de España //
+    #    Presence of Salmonella spp. in cured sausage from Spain;
+    #    risk: serious; category: meat and meat products"
+    #
+    # — sometimes native-first, sometimes English-first, with "//", "/",
+    # "/////" or ";" between. split_bilingual() scores both halves and keeps
+    # the English one, preserving the "; risk: …; category: …" tail.
+    #
+    # Applied at the writer, on every sheet, for the same reason the Class and
+    # Country guards are: rows are updated in place after promotion by the
+    # url-gate and enrichment passes, so a scraper-side clean can be undone.
+    #
+    # ONLY the mechanical split runs here. Translating a whole-sentence French
+    # or German motif needs the verified table in pipeline/_language.py and is
+    # a deliberate, auditable act — never something a writer does silently. A
+    # row that is still non-English after the split is LOGGED, not mangled.
+    #
+    # Product is included because RASFF puts the same subject string there,
+    # and that is a description, not a name. A genuine foreign product name
+    # ("brie a l'ail", "Χούμους", "Freshona Bio Beerenmischung") does not
+    # split into two languages, so it is never touched — which is exactly the
+    # brand/product-name exemption the rule asks for.
+    try:
+        from pipeline._language import (  # noqa: WPS433
+            split_bilingual as _split_bilingual,
+            looks_non_english as _looks_non_english,
+        )
+        _still_foreign = 0
+        for _col in ("Reason", "Product"):
+            if _col not in schema:
+                continue
+            for _row in rows:
+                # PRODUCT IS SCOPED TO RASFF (audit 2026-08-04, second pass).
+                # RASFF is the only source that writes a bilingual notification
+                # SUBJECT into Product; everywhere else Product is a NAME, and
+                # a name may contain "/" or ";" for entirely innocent reasons.
+                # Running the splitter on all sources truncated two real
+                # products before this scope was added:
+                #   FDA   "Hellas Meze Golden Smoked Whole Herring, vacuum-
+                #          packaged, refrigerated; production date 4/12/2025,
+                #          best before 4/12/2026, lot L120425F54..."
+                #          -> everything after "refrigerated" lost
+                #   EFET  'Σαλάτα "ΜΑΡΟΥΛΕΝΙΑ" — μαρούλι romaine... (ΒΙ.ΠΕ. /
+                #          Industrial Area, Central Macedonia)'
+                #          -> reduced to "Industrial Area, Central Macedonia)."
+                # The second is the worse one: the product name disappeared
+                # entirely and what survived was a fragment of the address.
+                if _col == "Product" and \
+                        str(_row.get("Source") or "") != "RASFF (EU)":
+                    continue
+                _v = _row.get(_col)
+                if not isinstance(_v, str) or not _looks_non_english(_v):
+                    continue
+                _en = _split_bilingual(_v)
+                if _en and _en != _v:
+                    log.info("Bilingual %s split at writer [%s]: kept the "
+                             "English half (%r)", _col, sheet_name, _en[:70])
+                    _row[_col] = _en
+                elif _col == "Reason":
+                    _still_foreign += 1
+        if _still_foreign:
+            log.warning(
+                "%d row(s) still carry a non-English Reason after the writer "
+                "split [%s]. Add them to REASON_EN in pipeline/_language.py — "
+                "they are NOT machine-translated on purpose.",
+                _still_foreign, sheet_name)
+    except Exception as exc:
+        log.warning("English-output guard skipped at writer [%s]: %s: %s",
+                    sheet_name, type(exc).__name__, str(exc)[:80])
+
     # ── Country-name canonicalisation (audit 2026-08-01) ───────────────────
     # Country is a join key: it drives Region, the country counts in the weekly
     # and monthly reports, and the per-country filters subscribers set on their

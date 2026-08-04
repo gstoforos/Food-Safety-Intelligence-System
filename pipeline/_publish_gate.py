@@ -176,7 +176,14 @@ HAZARD_CLASS_KEYWORDS = {
         "e. coli", "ecoli", "escherichia", "botulinum", "botulism",
         "campylobacter", "shigella", "bacillus cereus", "cereulide",
         "staphylococcus", "staphyloc", "enterotoxin",
-        "norovirus", "norwalk", "hepatitis a", "hav",
+        "norovirus", "norwalk", "hepatitis a",
+        # NOT a bare "hav" (audit 2026-08-04). It was intended as the
+        # abbreviation for Hepatitis A virus and instead matched the word
+        # "have": "Baked products HAVe potential for presence of aluminum
+        # slivers" classified as BIOLOGICAL, which let a fabricated
+        # "Hepatitis A virus" agree with a metal-fragment reason and pass
+        # the contradiction rule. Spaced so it only matches the token.
+        " hav ", "(hav)", "hav virus",
         "yersinia", "vibrio", "clostridium perfringens",
         "cronobacter", "enterobacter", "enterohaem",
     ),
@@ -187,6 +194,35 @@ HAZARD_CLASS_KEYWORDS = {
         "metal fragment", "plastic fragment", "glass fragment",
         "rubber fragment", "wood fragment", "stone fragment",
         "shard", "splinter",
+        # ── Audit 2026-08-04 ──────────────────────────────────────────
+        # An FDA row reached Recalls with Pathogen "Hepatitis A virus" and
+        # Reason "Baked products have potential for presence of aluminum
+        # slivers from the pans that were used". The FDA permalink itself
+        # ends "...due-possible-foreign-object", and the word Hepatitis
+        # appears nowhere on the notice — a fabricated viral pathogen on a
+        # metal-fragment recall. The contradiction rule stayed silent
+        # because NONE of the vocabulary above matches "aluminum slivers",
+        # so the Reason was unclassifiable and the rule failed safe.
+        #
+        # Worse, the always-Tier-1 guard then read the invented pathogen
+        # and escalated the row from Tier 2 to Tier 1, stamping
+        # "[tier-guard: Hepatitis A virus is always Tier 1]" into Notes.
+        # A foreign-object recall was published as a Tier-1 viral event.
+        #
+        # NOTE the shapes below are all QUALIFIED. A bare "sliver" must
+        # never go in this list: "slivered almonds" is an ingredient, and
+        # classifying every almond recall as a physical hazard would
+        # manufacture contradictions on correct rows.
+        "foreign object", "foreign objects",
+        "metal sliver", "aluminum sliver", "aluminium sliver",
+        "slivers of", "sliver of",
+        "aluminum fragment", "aluminium fragment",
+        "metal contamination", "metal pieces", "pieces of wire",
+        "wire fragment", "hard plastic", "sharp object",
+        "corps etranger", "corps étranger",   # RappelConso
+        "fremdkoerper", "fremdkörper",        # BVL / BLV
+        "corpo estraneo",                     # Ministero della Salute
+        "cuerpo extrano", "cuerpo extraño",   # AESAN
     ),
     "chemical": (
         "chemical contaminant", "chemical residue", "pesticide", "fungicide",
@@ -194,7 +230,15 @@ HAZARD_CLASS_KEYWORDS = {
         "nitrofurazone", "chloramphenicol", "sulphonamide", "sulfonamide",
         "semicarbazide", " sem ", " sem)", " sem,",
         "histamine",
-        "heavy metal", " lead ", " mercury ", " cadmium ", " arsenic ",
+        "heavy metal", " mercury ", " cadmium ", " arsenic ",
+        # NOT a bare " lead " (audit 2026-08-02). Once the French motifs were
+        # translated, "…can lead to poor preservation and microbial growth"
+        # classified as CHEMICAL and manufactured a contradiction against a
+        # correct Listeria row (RappelConso fiche 22408, whose official
+        # risques_encourus names Listeria monocytogenes explicitly). The metal
+        # sense needs its own context.
+        "lead contamination", "lead content", "lead level", "excess lead",
+        "plomb",
         "dioxin", "pcb", "acrylamide", "perchlorate", "melamine",
         "ethylene oxide", "chlorate",
     ),
