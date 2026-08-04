@@ -469,6 +469,51 @@ jobs:
           )
 
 
+          # Hazard words that describe something OTHER than a microbial pathogen. If the
+          # Reason is about one of these while the Pathogen field names an organism, the
+          # pathogen was almost certainly fabricated (the LGM "Listeria"/peanuts and the
+          # Ukrops "Hepatitis A"/aluminium-slivers incidents both look exactly like this).
+          _NON_PATHOGEN_HAZARDS = (
+              "foreign body", "foreign material", "aluminium", "aluminum", "metal sliver",
+              "metal fragment", "glass", "plastic fragment", "wood fragment",
+              "undeclared allergen", "undeclared milk", "undeclared peanut",
+              "undeclared soy", "undeclared gluten", "undeclared sulphite",
+              "labelling error", "labeling error", "incorrect label", "mislabel",
+              "sugar content", "nutrition declaration",
+          )
+          _PATHOGEN_NAMES = (
+              "listeria", "salmonella", "escherichia", "e. coli", "e.coli", "stec",
+              "cronobacter", "botulinum", "norovirus", "hepatitis", "staphylococc",
+              "campylobacter", "bacillus cereus", "vibrio", "shigella",
+          )
+          # Non-English function words. Checked on Reason only — Reason should always be
+          # English prose, whereas a Product may legitimately carry a foreign proper name
+          # (e.g. "Brie de Meaux"), so a function-word test there would false-positive.
+          _NON_ENGLISH_FUNCTION_WORDS = (
+              " a la ", " à la ", " de la ", " du ", " des ", " dans ", " avec ",
+              " sur ", " pour ", " en el ", " de los ", " nel ", " nella ", " im ",
+              " und ", " para ", " procedente", " presencia", " présence", " aux ",
+          )
+
+
+          def _pathogen_reason_contradiction(merged: Dict[str, Any]) -> Optional[str]:
+              """Pathogen names an organism but the Reason describes a non-pathogen
+              hazard, and the organism appears nowhere in the Reason."""
+              patho = str(merged.get("Pathogen", "") or "").lower()
+              reason = str(merged.get("Reason", "") or "").lower()
+              if not patho or not reason:
+                  return None
+              if not any(p in patho for p in _PATHOGEN_NAMES):
+                  return None
+              if any(p in reason for p in _PATHOGEN_NAMES):
+                  return None  # reason mentions the organism too — consistent
+              for hz in _NON_PATHOGEN_HAZARDS:
+                  if hz in reason:
+                      return (f"Pathogen {merged.get('Pathogen')!r} contradicts Reason "
+                              f"(describes {hz!r}) — pathogen likely fabricated")
+              return None
+
+
           def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
               """Deterministic checks the model cannot skip. Returns a list of problems;
               an approved row with any problem is downgraded to reject.
@@ -481,11 +526,20 @@ jobs:
               are checked only for outright emptiness.
               """
               probs = []
+              # RASFF exemption FIRST — its format is correct by design.
               if "rasff" in str(merged.get("Source", "")).lower():
                   for fld in ("Product", "URL"):
                       if not str(merged.get(fld, "") or "").strip():
                           probs.append(f"{fld} is empty")
                   return probs
+              _contra = _pathogen_reason_contradiction(merged)
+              if _contra:
+                  probs.append(_contra)
+              _reason = " " + str(merged.get("Reason", "") or "").lower() + " "
+              for _w in _NON_ENGLISH_FUNCTION_WORDS:
+                  if _w in _reason:
+                      probs.append(f"Reason not in English ({_w.strip()!r})")
+                      break
               for fld in ("Product", "Reason", "Region", "Class"):
                   v = str(merged.get(fld, "") or "").lower()
                   if not v:
