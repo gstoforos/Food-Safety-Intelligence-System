@@ -1,5 +1,37 @@
 [
  {
+  "Date": "2026-08-04",
+  "Source": "RappelConso (FR)",
+  "Company": "Distribué par GAEC Fort Belin",
+  "Brand": "Distribué par GAEC Fort Belin",
+  "Product": "préparation de viande bovine  à consommer cuit à cœur",
+  "Pathogen": "Salmonella",
+  "Reason": "Presence of Salmonella spp. dans 10g",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23078/interne",
+  "Notes": "gaec du fort belin"
+ },
+ {
+  "Date": "2026-08-04",
+  "Source": "RappelConso (FR)",
+  "Company": "Hérens et Nautilus Collection",
+  "Brand": "Hérens et Nautilus Collection",
+  "Product": "sachet de truite fumée bio 120g.; sachet de truite fumée bio 130g.; chutes de truite fumée bio 200g.; sachet de truite fumée bio 500g.",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes dans les produits",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23088/interne",
+  "Notes": "biocoop; vitafrais"
+ },
+ {
   "Date": "2026-08-03",
   "Source": "RappelConso (FR)",
   "Company": "Brebis du Bois",
@@ -46,6 +78,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/863489",
   "Notes": "[RASFF #2026.6876; classification: information notification for follow-up; category: poultry meat and poultry meat products; notifId=863489]"
+ },
+ {
+  "Date": "2026-08-03",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Netherlands | Notifying: Netherlands",
+  "Brand": "—",
+  "Product": "Listeria in a rice tuna (triangle) snack, from the Netherlands",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria in a rice tuna (triangle) snack, from the Netherlands; risk: serious; category: prepared dishes and snacks",
+  "Class": "Alert",
+  "Country": "Netherlands",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/863645",
+  "Notes": "[RASFF #2026.6891; classification: alert notification; category: prepared dishes and snacks; notifId=863645]"
  },
  {
   "Date": "2026-08-01",
