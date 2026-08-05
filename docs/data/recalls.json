@@ -32,6 +32,38 @@
   "Notes": "biocoop; vitafrais"
  },
  {
+  "Date": "2026-08-04",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Türkiye | Notifying: Sweden",
+  "Brand": "—",
+  "Product": "Ochratoxin A in dried figs from Türkiye",
+  "Pathogen": "Ochratoxin",
+  "Reason": "Ochratoxin A in dried figs from Türkiye; risk: serious; category: fruits and vegetables",
+  "Class": "Border Rejection",
+  "Country": "Turkey",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/863923",
+  "Notes": "[RASFF #2026.6913; classification: border rejection notification; category: fruits and vegetables; notifId=863923]"
+ },
+ {
+  "Date": "2026-08-04",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: France | Notifying: France",
+  "Brand": "—",
+  "Product": "Listeria in octopus",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria in octopus; risk: serious; category: cephalopods and products thereof",
+  "Class": "Alert",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/863844",
+  "Notes": "[RASFF #2026.6910; classification: alert notification; category: cephalopods and products thereof; notifId=863844]"
+ },
+ {
   "Date": "2026-08-03",
   "Source": "RappelConso (FR)",
   "Company": "Brebis du Bois",
