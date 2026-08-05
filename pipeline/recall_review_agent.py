@@ -351,6 +351,27 @@ def review_row(row: Dict[str, Any]) -> Dict[str, Any]:
     parsed.setdefault("verified_url", row.get("URL", ""))
     parsed.setdefault("outbreak", row.get("Outbreak", 0))
     parsed.setdefault("outbreak_evidence", "")
+    # ── EVIDENCE GATE FOR Outbreak=1 ──
+    # An outbreak flag drives the tier, so it may never rest on a keyword.
+    # Rows have arrived with Reason = "<pathogen> — outbreak" and nothing else,
+    # which trips a naive keyword match; 10 such rows reached the register.
+    # If the model claims outbreak=1 it MUST cite what it saw (a case count, a
+    # named investigation, a linked health-agency notice). No evidence -> 0,
+    # matching the documented "default 0" policy. This never forces a genuine
+    # outbreak to 0, because a genuine one comes with evidence.
+    try:
+        _ob = int(str(parsed.get("outbreak", 0)).strip() or 0)
+    except (TypeError, ValueError):
+        _ob = 0
+    if _ob == 1:
+        _ev = str(parsed.get("outbreak_evidence", "") or "").strip()
+        _bare = _ev.lower().rstrip(".")
+        if len(_ev) < 12 or _bare in ("outbreak", "yes", "true", "n/a", "none"):
+            parsed["outbreak"] = 0
+            parsed["outbreak_evidence"] = ""
+            parsed["provenance"] = (
+                str(parsed.get("provenance", "")) +
+                " [outbreak=1 dropped to 0: no evidence cited]").strip()
     # ── DETERMINISTIC SCOPE GUARD (does not rely on the model) ──
     # A pre-2026 publication date is out of scope, period. If the model
     # approved a row whose verified Date is before 2026, override to reject.
