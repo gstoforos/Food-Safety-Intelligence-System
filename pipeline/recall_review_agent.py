@@ -255,16 +255,27 @@ def build_review_prompt(row: Dict[str, Any]) -> str:
         "   named (sold loose / a la coupe / sans marque), use \"Unbranded\".\n"
         "   Never invent one, and never trust a value already on the row\n"
         "   without seeing it on the page.\n"
-        "4. SCOPE — approve ONLY a 2026+ food recall whose hazard is a\n"
-        "   microbial pathogen (Listeria, Salmonella, E. coli/STEC,\n"
-        "   Cronobacter, botulinum, norovirus, hepatitis A). REJECT anything\n"
-        "   else and name the real hazard:\n"
+        "4. SCOPE — the in-scope hazard vocabulary is defined in\n"
+        "   pipeline/_pathogen_scope.py (locked 2026-04-30). It covers:\n"
+        "     bacteria/viruses: Listeria, Salmonella, E. coli/STEC,\n"
+        "       Cronobacter, botulinum, B. cereus/cereulide, staph\n"
+        "       enterotoxin, Campylobacter, norovirus, hepatitis A;\n"
+        "     mycotoxins: aflatoxin, ochratoxin, fumonisin, patulin,\n"
+        "       zearalenone, deoxynivalenol;\n"
+        "     undeclared pharmaceutical adulteration (sildenafil etc.);\n"
+        "     other chemical/toxic-metal exceedances treated as food-safety\n"
+        "       hazards (histamine/scombrotoxin, cadmium, methylmercury).\n"
+        "   Approve a 2026+ FOOD recall whose hazard is in that vocabulary.\n"
+        "   REJECT anything else and name the real hazard:\n"
         "     \"undeclared allergen (X)\" only for the 14 legal allergens —\n"
         "       SUGAR IS NOT AN ALLERGEN;\n"
         "     \"labelling error\" for wrong or swapped labels, or a wrong sugar\n"
         "       or nutrition declaration;\n"
-        "     \"foreign body (X)\", \"chemical contamination (X)\",\n"
-        "     \"biotoxin (X)\", \"non-food product\".\n"
+        "     \"foreign body (X)\", \"labelling error\",\n"
+        "     \"non-food product\" (toys, vehicles, cosmetics, lamp oil),\n"
+        "     \"pet/animal food\" — a human-pathogen outbreak traced to PET\n"
+        "       animals or pet food (e.g. Salmonella from pet turtles) is NOT\n"
+        "       a food recall; reject it.\n"
         "   Also reject a duplicate, or an UPDATED re-issue of a recall that\n"
         "   is already in the register (put the original URL in duplicate_of).\n"
         "5. OUTBREAK. Ignore standard risk boilerplate (\"may cause severe\n"
@@ -378,6 +389,50 @@ def review_row(row: Dict[str, Any]) -> Dict[str, Any]:
     # This is the backstop for the stale-recall class (2024 statements and
     # Dec-2025 recalls that arrived stamped with a fresh scrape date).
     if parsed.get("verdict") == "approve":
+        # ── CANONICAL SCOPE + PET-FOOD BACKSTOP ──
+        # Defer to pipeline/_pathogen_scope.py (locked 2026-04-30) rather than
+        # any list held here, so the agent can never disagree with the module
+        # that governs the rest of the pipeline. Also rejects pet/animal-food
+        # rows (e.g. a Salmonella outbreak traced to pet turtles is a real
+        # outbreak but not a food recall).
+        try:
+            from pipeline._pathogen_scope import (  # noqa: WPS433
+                is_in_scope as _in_scope, is_pet_food_product as _is_pet)
+            _f = parsed.get("fields") or {}
+            # NOTE: hazard-vocabulary enforcement is deliberately NOT done here.
+            # _pathogen_scope.TIER1_KEYWORDS omits histamine, cadmium and
+            # methylmercury, yet the published register carries 7 histamine and
+            # 4 cadmium rows and the operator asked for a methylmercury recall
+            # to be included (2026-08-06). Rejecting on that list would delete
+            # legitimate rows, so scope stays with the prompt and the existing
+            # pipeline enforcement. Only the pet/animal check runs here, because
+            # it is unambiguous.
+            # Live-animal contact outbreaks (pet turtles, backyard poultry,
+            # reptiles, hedgehogs) are real human-Salmonella outbreaks but are
+            # NOT food recalls. _PET_FOOD_RE targets pet FOOD, so it does not
+            # match these; this narrow addition does.
+            _blob = " ".join(str(x or "").lower() for x in (
+                _f.get("Product") or row.get("Product"),
+                _f.get("Company") or row.get("Company"),
+                _f.get("Reason") or row.get("Reason"),
+                row.get("URL")))
+            import re as _re2
+            if _re2.search(r"\b(pet|backyard|live)\s+(turtle|tortoise|reptile|"
+                           r"poultry|chick|duckling|bird|hedgehog|frog|lizard|"
+                           r"snake)s?\b|\bturtles?-\d|\bsmall\s+turtles?\b",
+                           _blob):
+                parsed["verdict"] = "reject"
+                parsed["reason"] = ("out of scope: outbreak linked to live "
+                                    "animal contact, not a food product")
+                return parsed
+            if _is_pet(str(_f.get("Product") or row.get("Product") or ""),
+                       str(_f.get("Company") or row.get("Company") or ""),
+                       str(_f.get("Reason") or row.get("Reason") or "")):
+                parsed["verdict"] = "reject"
+                parsed["reason"] = "out of scope: pet/animal product, not a food recall"
+                return parsed
+        except Exception:
+            pass
         # Field-integrity backstop: untranslated text, placeholder strings,
         # headline-as-product and regulator-as-product are all disqualifying.
         _m = dict(row)
