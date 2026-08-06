@@ -587,6 +587,18 @@ _RAW_TRANSLATIONS = {
     "Presence of Listeria (inférieure à 10)":
         "Listeria present at below 10 CFU/g",
     "Présence d'ochratoxine A": "Presence of ochratoxin A",
+
+    # ── Audit 2026-08-06 (pre-Friday) ─────────────────────────────────────
+    # Both reached Recalls on 2026-08-05 and both fall inside the W32 window,
+    # so they would have rendered in Friday's weekly report. Same half-
+    # translated shape as the rest of the RappelConso set: the enricher did
+    # the opening clause and stopped. "dans 10g" is the French analytical
+    # convention — Listeria/Salmonella results are reported per 25 g or, as
+    # here, per 10 g of sample.
+    "Presence of Salmonella spp. dans 10g":
+        "Presence of Salmonella spp. in a 10 g sample",
+    "Detection of Listeria monocytogenes dans les produits":
+        "Detection of Listeria monocytogenes in the products",
     "E. coli STEC dans Crottin de Chavignol (AFSCA/FAVV rappel 133).":
         "E. coli STEC in Crottin de Chavignol (AFSCA/FAVV recall 133)",
 
