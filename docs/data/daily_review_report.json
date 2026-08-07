@@ -1,0 +1,345 @@
+{
+  "generated": "2026-08-07T09:58:44+03:00",
+  "date": "2026-08-07",
+  "mode": "live",
+  "in_progress_week": "W33",
+  "counts": {
+    "recalls_rows": 1347,
+    "duplicate_url_groups": 0,
+    "shared_nonspecific_urls": 0,
+    "blank_field_rows": 0,
+    "mistiered_rows": 0,
+    "date_issue_rows": 0,
+    "lane_a_changes": 0,
+    "proposed_deletions": 16,
+    "ledger_resolved": 0,
+    "asset_issues": 1
+  },
+  "integrity": {
+    "duplicate_urls": [],
+    "shared_nonspecific_urls": [],
+    "blank_fields": [],
+    "mistiered": [],
+    "date_issues": []
+  },
+  "asset_issues": [
+    {
+      "kind": "unexpected_pdf_link",
+      "month": "M01",
+      "detail": "M01 has a pdf_url but is HTML-only by rule"
+    }
+  ],
+  "lane_a": {
+    "applied": true,
+    "summary": {},
+    "changes": []
+  },
+  "lane_b": {
+    "proposed_deletions": [
+      {
+        "id": "1d09f80d00b75c39",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-23",
+          "Source": "CFS (HK) - aggregator (UK FSA)",
+          "Company": "MOMA Foods",
+          "Product": "Various porridge pots and sachet products",
+          "Pathogen": "Mouse contamination (physical/biological hazard)",
+          "Country": "United Kingdom",
+          "Tier": 2,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260323_1.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "ff4cd90f95bbe00c",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-20",
+          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Company": "AMBROSI",
+          "Product": "GORGONZOLA DOP 1-8 1.5 kg env x 4 — AMBROSI cheese",
+          "Pathogen": "Listeria monocytogenes",
+          "Country": "France",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260320_1.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "88b9fb1367e60dc6",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-19",
+          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Company": "Metro Chef",
+          "Product": "Bloc Serrano 2.2 kg env Metro Chef ham",
+          "Pathogen": "Listeria monocytogenes",
+          "Country": "France",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260319_1.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "df8fb35974550510",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-17",
+          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Company": "Ets Guittonneau",
+          "Product": "HUITRES CREUSES oyster products",
+          "Pathogen": "Norovirus",
+          "Country": "France",
+          "Tier": 2,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_3.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "ab345f1b331c896b",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-17",
+          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Company": "HUITRE DE DIANA",
+          "Product": "Oyster products from Étang de Diana",
+          "Pathogen": "Phytoplankton biotoxins",
+          "Country": "France",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_2.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "b93f14ec635290bc",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-17",
+          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Company": "Étang de Diana producers",
+          "Product": "Oysters and mussel products from Étang de Diana (harvested 2026-02-24 to 2026-03-05)",
+          "Pathogen": "Lipophilic biotoxins (DSP)",
+          "Country": "France",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_1.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "9fa32f6b5b62aad1",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-16",
+          "Source": "CFS (HK) - aggregator (SFA SG)",
+          "Company": "Nestlé / Nature One Dairy",
+          "Product": "Nestle NAN HA2 + Nature One Premium Toddler Step 3 infant/toddler formulas",
+          "Pathogen": "Bacillus cereus / cereulide",
+          "Country": "Singapore",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260316_4.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "be1fd274238bf359",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-16",
+          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Company": "AOSTE",
+          "Product": "Cooked ham products",
+          "Pathogen": "Listeria monocytogenes",
+          "Country": "France",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260316_1.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "8650b1c83d7f17a9",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-13",
+          "Source": "CFS (HK) - aggregator (MPI NZ)",
+          "Company": "Banks Peninsula shellfish harvesters",
+          "Product": "Banks Peninsula shellfish (mussels, oysters, scallops, paua, cockles)",
+          "Pathogen": "Paralytic shellfish toxins (PSP)",
+          "Country": "New Zealand",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260313_2.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "a7ef85e600f15beb",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-13",
+          "Source": "CFS (HK) - aggregator (MPI NZ)",
+          "Company": "— (Banks Peninsula shellfish)",
+          "Product": "Shellfish gathered from northern side of Banks Peninsula",
+          "Pathogen": "Paralytic shellfish toxins (PSP)",
+          "Country": "New Zealand",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260313_1.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "6b14426c4be02fb1",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-10",
+          "Source": "CFS (HK)",
+          "Company": "Nutricia (Danone)",
+          "Product": "BEBIKO 1 nutriFLOR EXPERT infant formula",
+          "Pathogen": "Bacillus cereus / cereulide",
+          "Country": "Belgium",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260310_2.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "b0aa885e2714c8f9",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-09",
+          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Company": "AOSTE",
+          "Product": "Cooked ham products",
+          "Pathogen": "Listeria monocytogenes",
+          "Country": "France",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260309_1.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "67abcae3b4d4dd0d",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-09",
+          "Source": "CFS (HK) - aggregator (MHLW Japan)",
+          "Company": "UCC Ueshima Coffee",
+          "Product": "UCC BEANS&ROASTERS Cafe Latte リキャップ缶 375g",
+          "Pathogen": "Inadequate sterilization (microbiological hazard)",
+          "Country": "Japan",
+          "Tier": 2,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260309_2.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "524140746fb766d1",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-03-02",
+          "Source": "CFS (HK) - aggregator (Czech)",
+          "Company": "Czech Agriculture & Food Inspection",
+          "Product": "Happy Mimi 1 infant formula (single batch)",
+          "Pathogen": "Bacillus cereus / cereulide",
+          "Country": "Czechia",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260302_1.pdf"
+        },
+        "duplicate_of": null
+      },
+      {
+        "id": "4ae9dcc6ef9bc9fc",
+        "category": "cfia_duplicate",
+        "confidence": "high",
+        "reason": "CFIA slug variants of one recall (shared stem: charlevoisienne-joe-meat-smoked)",
+        "row": {
+          "Date": "2026-07-10",
+          "Source": "CFIA",
+          "Company": "Boucherie Charcuterie Lyn Tremblay Inc.",
+          "Product": "Charcuterie Charlevoisienne and Joe Smoked Meat brand meat products recalled due to Listeria monocytogenes",
+          "Pathogen": "Listeria monocytogenes",
+          "Country": "Canada",
+          "Tier": 1,
+          "URL": "https://recalls-rappels.canada.ca/en/alert-recall/charcuterie-charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due"
+        },
+        "duplicate_of": {
+          "Date": "2026-07-10",
+          "Source": "CFIA",
+          "Company": "Charlevoisienne",
+          "Product": "Charlevoisienne and Joe Smoked Meat brand meat products recalled due to Listeria monocytogenes",
+          "Pathogen": "Listeria",
+          "Country": "Canada",
+          "Tier": 1,
+          "URL": "https://recalls-rappels.canada.ca/en/alert-recall/charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due-listeria"
+        }
+      },
+      {
+        "id": "e96aa2b1ef3d3756",
+        "category": "cross_source_dup",
+        "confidence": "medium",
+        "reason": "same content identity (date + company + pathogen) as a row from a different source (fsa (uk))",
+        "row": {
+          "Date": "2026-04-22",
+          "Source": "FSAI (IE)",
+          "Company": "Good4U",
+          "Product": "Super Sprouts Super Greens, 60 g (use-by 2026-04-22, 2026-04-26, 2026-04-29, 2026-04-30, 2026-05-03)",
+          "Pathogen": "Salmonella Bovismorbificans",
+          "Country": "Ireland",
+          "Tier": 1,
+          "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-batches-of-good4u-super-sprouts-super-gr"
+        },
+        "duplicate_of": {
+          "Date": "2026-04-22",
+          "Source": "FSA (UK)",
+          "Company": "Good4U",
+          "Product": "Super Sprouts Super Greens — specific batches",
+          "Pathogen": "Salmonella Bovismorbificans",
+          "Country": "United Kingdom",
+          "Tier": 1,
+          "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-20-2026"
+        }
+      }
+    ],
+    "escalate": false,
+    "max_links": 25
+  },
+  "stale_reports": {
+    "weeklies": [
+      "W27"
+    ],
+    "monthlies": []
+  },
+  "rebuilt": {
+    "weeklies": [
+      "W27"
+    ],
+    "monthlies": []
+  }
+}
