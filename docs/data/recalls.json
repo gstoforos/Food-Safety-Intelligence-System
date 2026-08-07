@@ -256,6 +256,22 @@
   "Notes": "[promoted 2026-08-06: FSAI food alert 2026.47, dated Wednesday 05 August 2026. Batch, pack size, best-before and Indian origin read from the alert. The truncated URL slug is FSAI's own — verified against the FSAI food-alerts index. The Pending row had no Date and held the page title in Company/Brand.]"
  },
  {
+  "Date": "2026-08-05",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Brazil | Notifying: Belgium",
+  "Brand": "—",
+  "Product": "Salmonella in poultry meat preparation from Brazil",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella in poultry meat preparation from Brazil; risk: serious; category: poultry meat and poultry meat products",
+  "Class": "Border Rejection",
+  "Country": "Brazil",
+  "Region": "Latin America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/864285",
+  "Notes": "[RASFF #2026.6960; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=864285]"
+ },
+ {
   "Date": "2026-08-04",
   "Source": "RappelConso (FR)",
   "Company": "Distribué par GAEC Fort Belin",
