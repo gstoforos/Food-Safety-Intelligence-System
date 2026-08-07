@@ -2854,6 +2854,62 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir):
         "leading_pathogen":leading,"ai_lead_paragraph":"","top_threats":threats,
         "country_count":len(set(str(r.get("Country","")) for r in recalls if r.get("Country")))}
     out = data_dir / "weekly-summary-latest.json"
+
+    # ---------------------------------------------------------------------
+    # "LATEST" MEANS LATEST (incident 2026-08-07).
+    #
+    # WHAT HAPPENED
+    # Subscribers received a Week 27 briefing on Friday 7 August. Week 27
+    # ended 2 July — five weeks stale — and had already been sent once.
+    #
+    # The mailer was NOT at fault. It fetches this file, checks that
+    # generated_utc is fresh, and sends whatever week the file names. This
+    # file said Week 27 and had been written four hours earlier, so the
+    # staleness guard passed: the JSON was fresh, its CONTENT was ancient.
+    # Nothing in the chain compared the week number to the calendar.
+    #
+    # HOW THIS FILE CAME TO SAY W27
+    #   1. A Clostridium botulinum recall dated 2026-07-02 was promoted on
+    #      2026-08-06. compute_report_week correctly stamped it W27.
+    #   2. daily-review-agent.yml noticed W27's count had drifted and
+    #      rebuilt it. Its loop sorts stale weeks ascending, with the
+    #      comment "build W28/current last so latest pointer stays correct"
+    #      — i.e. it ASSUMES the current week is always also stale, so the
+    #      current week is always built last and reclaims the pointer.
+    #   3. That day only W27 had drifted. The only week built was therefore
+    #      also the last week built. It took the pointer.
+    #
+    # An assumption held in a comment in a YAML file is not a guard. The
+    # guard belongs here, at the single place the pointer is written, where
+    # it covers every caller — the daily review agent, the gap-filler, a
+    # manual backfill, and whatever gets written next year.
+    #
+    # RULE: a build of a week that is NOT the newest week on record writes
+    # its own HTML and its weekly-index.json row and leaves this pointer
+    # alone. Retro-rebuilds of closed weeks are exactly what
+    # weekly-updates-pending.json and the Wednesday notification exist for.
+    # ---------------------------------------------------------------------
+    if out.exists():
+        try:
+            prior = json.loads(out.read_text(encoding="utf-8"))
+            prior_key = (int(prior.get("year") or 0),
+                         int(prior.get("week_num") or 0))
+            if prior_key > (year, wnum):
+                log.warning(
+                    "REFUSING to move the weekly latest-pointer backwards: "
+                    "%s already points at %04d-W%02d and this build is "
+                    "%04d-W%02d. Retro-rebuild of a closed week — the HTML "
+                    "and weekly-index.json are updated, the subscriber "
+                    "pointer is not. (Incident 2026-08-07: a W27 rebuild "
+                    "took this pointer and a five-week-old briefing went to "
+                    "every subscriber.)",
+                    out.name, prior_key[0], prior_key[1], year, wnum)
+                return
+        except Exception as exc:                       # pragma: no cover
+            # A corrupt pointer must not block a legitimate build — but say so.
+            log.warning("weekly latest-pointer unreadable (%s: %s) — writing "
+                        "%04d-W%02d", type(exc).__name__, exc, year, wnum)
+
     out.write_text(json.dumps(summary,indent=2,ensure_ascii=False),encoding="utf-8")
     log.info("Wrote %s",out)
 
