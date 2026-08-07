@@ -319,6 +319,17 @@ _BARE_ALLERGEN_PATHOGENS = frozenset({
     "soy", "soya", "soybean", "sesame", "sesame seed",
     "mustard", "celery", "lupin", "molluscs", "crustaceans",
     "shellfish", "fish", "sulfite", "sulfites", "sulphite", "sulphites",
+    # PENDING AUDIT 2026-08-07. The AFTS scope excludes "allergen-only,
+    # labeling, quality issues" — but this set only knew ALLERGENS, so two
+    # Pending rows passed every deterministic check with zero blockers:
+    #   Capri-Sun Orange   Pathogen "Undeclared sugar"  — a labelling defect
+    #   Yopokki cups       Pathogen "Spoilage"          — a quality defect
+    # Neither is a hazard this database covers. Both had already been
+    # rejected once by claude-check and had found their way back to Pending.
+    "undeclared sugar", "sugar", "spoilage", "mould", "mold",
+    "off-odour", "off odour", "off-odor", "off odor",
+    "quality", "quality defect", "labelling", "labeling",
+    "mislabelling", "mislabeling", "undeclared ingredient",
 })
 
 
@@ -458,7 +469,17 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
     #    never against Reason.
     if pathogen or reason:
         _classes = classify_hazard(pathogen) | classify_hazard(reason)
-        if not _classes and _is_bare_allergen(pathogen):
+        # Was `if not _classes and _is_bare_allergen(pathogen)`. The Yopokki
+        # row (audit 2026-08-07) got past it: Pathogen "Spoilage" classifies
+        # as {"fermentation"}, so _classes was non-empty and this branch never
+        # ran — a bare quality term counted as a hazard class of its own.
+        # The condition that matters is not "did the PATHOGEN classify" but
+        # "does the REASON name a hazard". When the whole Pathogen field is a
+        # bare allergen/quality/labelling term and the Reason names no hazard
+        # at all, there is no hazard on this row. A genuine fermentation-toxin
+        # row — "Cereulide (B. cereus toxin)" — is not a whole-field match and
+        # is untouched.
+        if _is_bare_allergen(pathogen) and not classify_hazard(reason):
             _classes = {"allergen"}
         if _classes and _classes <= {"allergen"}:
             problems.append(
