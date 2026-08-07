@@ -173,3 +173,127 @@ class TestDatetimeInput:
 
     def test_iso_datetime_with_microseconds_handled(self):
         assert compute_report_week("2026-05-08T08:00:00.000Z") == "W20"
+
+
+# ===========================================================================
+# INCIDENT 2026-08-07 — a five-week-old briefing was mailed to subscribers
+# ===========================================================================
+# Subscribers received a Week 27 briefing on Friday 7 August. W27 ended
+# 2 July and had already been sent once.
+#
+# The rule above worked exactly as specified. A Clostridium botulinum recall
+# dated 2026-07-02 was promoted on 2026-08-06 and compute_report_week
+# correctly stamped it W27 — that is the whole point of a sticky stamp: a
+# late-arriving row belongs to the week it happened in, not the week it was
+# found. The tests above still pass and the rule is unchanged.
+#
+# What broke is downstream. W27's count drifted, daily-review-agent.yml
+# rebuilt W27, and the weekly builder unconditionally rewrote
+# docs/data/weekly-summary-latest.json — the file the subscriber mailer
+# fetches to decide which week to send. The agent's loop sorts stale weeks
+# ascending and carries the comment "build W28/current last so latest
+# pointer stays correct": it ASSUMES the current week is always also stale,
+# so the current week is always built last and reclaims the pointer. That
+# day only W27 had drifted, so the only week built was also the last week
+# built.
+#
+# The mailer's staleness guard could not catch it: it checks generated_utc,
+# which was four hours old. The JSON was fresh; its CONTENT was five weeks
+# stale. Nothing compared the week number to the calendar.
+#
+# An assumption written in a comment in a YAML file is not a guard. The
+# guard now lives at the single place the pointer is written.
+class TestLatestPointerNeverMovesBackwards:
+    """docs/data/weekly-summary-latest.json is a claim about the NEWEST week.
+
+    A retro-rebuild of a closed week must update that week's HTML and its
+    weekly-index.json row, and leave the subscriber pointer alone. That is
+    what weekly-updates-pending.json and the Wednesday notification are for.
+    """
+
+    def _build(self, tmp_path):
+        import importlib.util, json, sys
+        from pathlib import Path
+        root = Path(__file__).resolve().parent.parent
+        spec = importlib.util.spec_from_file_location(
+            "_wkly_ptr", root / "docs" / "build_weekly_report_afts.py")
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["_wkly_ptr"] = mod
+        spec.loader.exec_module(mod)
+        return mod, json
+
+    def _stats(self):
+        return {"top_pathogen": ("Listeria monocytogenes", 20), "total": 48,
+                "tier1": 40, "outbreaks": 1, "delta": -31, "delta_pct": -39}
+
+    def test_a_retro_rebuild_does_not_take_the_pointer(self, tmp_path):
+        from datetime import date
+        mod, json = self._build(tmp_path)
+        rows = [{"Date": "2026-08-03", "Country": "France", "Pathogen":
+                 "Listeria monocytogenes", "Tier": 1, "Outbreak": 0,
+                 "Company": "X", "Product": "cheese", "Source":
+                 "RappelConso (FR)", "URL": "https://example.invalid/a"}]
+
+        # Friday 2026-08-07 → W32. This is the legitimate current build.
+        mod.write_weekly_summary_json(date(2026, 8, 7), rows, self._stats(),
+                                      tmp_path)
+        ptr = tmp_path / "weekly-summary-latest.json"
+        assert json.loads(ptr.read_text())["week_num"] == 32
+
+        # Now the incident: a rebuild of W27, five weeks earlier.
+        mod.write_weekly_summary_json(date(2026, 7, 3), rows, self._stats(),
+                                      tmp_path)
+        after = json.loads(ptr.read_text())
+        assert after["week_num"] == 32, (
+            "a W27 rebuild took the subscriber pointer — this is the "
+            "2026-08-07 incident, where every subscriber was mailed a "
+            "five-week-old briefing")
+        assert after["filename"] == "2026-W32.html"
+
+    def test_the_current_week_can_still_claim_it(self, tmp_path):
+        """The guard must not freeze the pointer. Next Friday must win."""
+        from datetime import date
+        mod, json = self._build(tmp_path)
+        rows = [{"Date": "2026-08-10", "Country": "France", "Pathogen":
+                 "Salmonella", "Tier": 1, "Outbreak": 0, "Company": "Y",
+                 "Product": "z", "Source": "RappelConso (FR)",
+                 "URL": "https://example.invalid/b"}]
+        ptr = tmp_path / "weekly-summary-latest.json"
+        mod.write_weekly_summary_json(date(2026, 8, 7), rows, self._stats(),
+                                      tmp_path)
+        mod.write_weekly_summary_json(date(2026, 8, 14), rows, self._stats(),
+                                      tmp_path)
+        assert json.loads(ptr.read_text())["week_num"] == 33
+
+    def test_rebuilding_the_same_week_still_refreshes_it(self, tmp_path):
+        """A same-week rebuild (corrections, a fixed narrative) must go
+        through — otherwise a fix pushed between the 06:00 review and the
+        11:00 send would never reach subscribers."""
+        from datetime import date
+        mod, json = self._build(tmp_path)
+        rows = [{"Date": "2026-08-03", "Country": "France", "Pathogen":
+                 "Listeria monocytogenes", "Tier": 1, "Outbreak": 0,
+                 "Company": "X", "Product": "cheese", "Source":
+                 "RappelConso (FR)", "URL": "https://example.invalid/a"}]
+        ptr = tmp_path / "weekly-summary-latest.json"
+        mod.write_weekly_summary_json(date(2026, 8, 7), rows, self._stats(),
+                                      tmp_path)
+        first = json.loads(ptr.read_text())["generated_utc"]
+        mod.write_weekly_summary_json(date(2026, 8, 7), rows, self._stats(),
+                                      tmp_path)
+        second = json.loads(ptr.read_text())["generated_utc"]
+        assert second != first, "a same-week rebuild was blocked"
+
+    def test_the_published_pointer_is_not_a_closed_week(self):
+        """The live file, as it will ship. W32 closed Thursday 2026-08-06
+        and ships Friday 2026-08-07."""
+        import json
+        from pathlib import Path
+        root = Path(__file__).resolve().parent.parent
+        ptr = root / "docs" / "data" / "weekly-summary-latest.json"
+        if not ptr.exists():
+            return
+        d = json.loads(ptr.read_text(encoding="utf-8"))
+        assert d["week_num"] == 32 and d["year"] == 2026, (
+            f"weekly-summary-latest.json points at {d.get('filename')} — "
+            f"the subscriber mailer sends whatever this file names")
