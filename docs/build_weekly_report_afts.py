@@ -19,6 +19,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 log = logging.getLogger(__name__)
 CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
+# Stamped on the front of the deterministic P4 paragraph by
+# _process_authority_note() and stripped by the HTML renderer. See the
+# "THE NOTE IDENTIFIES ITSELF" comment at the render site: detection used to
+# be phrase-sniffing, which let the Listeria narrative wear this label.
+PA_NOTE_MARKER = "[[PA-NOTE]] "
+
 SEVERITY = OrderedDict([
     ("clostridium botulinum",1),("botulinum",1),
     ("listeria monocytogenes",2),("listeria",2),
@@ -596,6 +602,52 @@ def rank_top_recalls(recalls, n=10):
     return sorted(recalls, key=_rank_key)[:n]
 
 
+def brand_subline(company, brand):
+    """The brand to print UNDER the company, or "" when there is nothing to add.
+
+    REVIEW 2026-08-07 — the published W32 page exposed database concatenation
+    in the Company / Brand column:
+
+        U Bio U Bio
+        Les Pensees Sauvages Les Pensees Sauvages
+        Herens et Nautilus Collection Herens et Nautilus Collection
+        Origin: Czechia | Notifying: Czechia—
+        (not specified in RappelConso fiche 23090)Unbranded
+
+    None of those is a data defect. A small producer legitimately IS its own
+    brand, so Company == Brand is the correct record; RASFF genuinely has no
+    brand, so "—" is correct; and "(not specified in fiche N)" + "Unbranded"
+    is two honest disclosures rendered one after the other. The defect is the
+    RENDERER printing a second line that carries no information.
+
+    Section 02 already suppressed the exact-match case. Section 04 did not,
+    and neither suppressed placeholders, case/whitespace variants, or a
+    placeholder brand sitting under a placeholder company. One helper now
+    serves both tables so they cannot drift apart again.
+
+    A REAL brand under a "(not specified ...)" company is still printed — on
+    fiche 23065 the fiche names no manufacturer but the brand is genuinely
+    "U", and that is the most identifying thing the reader gets.
+    """
+    company = str(company or "").strip()
+    brand = str(brand or "").strip()
+    if not brand:
+        return ""
+    placeholders = {"—", "-", "–", "n/a", "na", "none", "unknown",
+                    "unbranded", "sans marque", "aucune", "no brand"}
+    b_low = brand.lower()
+    if b_low in placeholders:
+        return ""
+    # "U Bio" vs "U Bio ", "SuperValu" vs "Supervalu" — same string, twice.
+    if b_low == company.lower().strip():
+        return ""
+    # A company that is itself a disclosure gains nothing from a second
+    # disclosure underneath it.
+    if brand.startswith("(") and company.startswith("("):
+        return ""
+    return brand
+
+
 def render_top5_row(rank, r):
     """Render ONE table row (HTML <tr>) for the top-N recalls table.
 
@@ -643,10 +695,11 @@ def render_top5_row(rank, r):
         chips.append('<span class="chip chip-outbreak">Outbreak</span>')
     chip_html = " ".join(chips)
 
-    # Brand sub-line only if it's distinct from company and not the placeholder "—"
+    # Brand sub-line only when it adds information — see brand_subline().
     brand_html = ""
-    if brand and brand not in ("—", company):
-        brand_html = f'<div class="brand">{html_mod.escape(brand)}</div>'
+    _b = brand_subline(company, brand)
+    if _b:
+        brand_html = f'<div class="brand">{html_mod.escape(_b)}</div>'
 
     # Source cell: agency name as a link to URL (if present), else plain text
     if url:
@@ -743,6 +796,59 @@ def compute_stats(wr, pr):
             "prev_total":pt,"delta":delta,
             "delta_pct":round(delta/max(pt,1)*100) if pt else 0}
 
+def _disambiguate_genus_labels(pathogen_counts):
+    """Relabel a genus bucket that sits in the same table as one of its own
+    serovars.
+
+    REVIEW 2026-08-07 (W32). The Pathogen Profile listed:
+
+        Salmonella spp.       15
+        Salmonella Javiana     1
+
+    Arithmetically fine — 15 + 1 = 16 and the table totals correctly. But
+    Javiana IS a Salmonella serovar, so a reader cannot tell whether the
+    genus burden for the week is 15 (32%) or 16 (34%), and the honest answer
+    is 16. Splitting the named outbreak serovar out is deliberate and worth
+    keeping: it is the row the outbreak hangs on. What was missing was a
+    label saying the other row excludes it.
+
+    So the counts are untouched — only the LABEL changes, and only when a
+    named serovar of the same genus is actually present in the same table:
+
+        Other Salmonella spp.   15
+        Salmonella Javiana       1
+
+    Rendering this instead of merging keeps the outbreak serovar visible in
+    §03 while removing the taxonomic ambiguity. A week with no named serovar
+    is left exactly as it was.
+    """
+    rows = list(pathogen_counts)
+    genera = ("Salmonella", "Listeria", "Escherichia", "Clostridium",
+              "Campylobacter", "Vibrio", "Bacillus", "Cronobacter")
+    labels = [str(p) for p, _ in rows]
+
+    out = []
+    for path, cnt in rows:
+        label = str(path)
+        low = label.lower()
+        for genus in genera:
+            g = genus.lower()
+            # This row is the GENERIC bucket for its genus ("Salmonella spp.",
+            # "Salmonella", "Listeria spp.") — not a named species/serovar.
+            rest = low.replace(g, "", 1).replace("spp.", "").replace("spp", "")
+            rest = rest.replace(".", "").strip()
+            if not low.startswith(g) or rest:
+                continue
+            # Is a named member of the same genus also in this table?
+            named = [o for o in labels
+                     if o != label and o.lower().startswith(g)]
+            if named:
+                label = "Other " + str(path)
+            break
+        out.append((label, cnt))
+    return out
+
+
 def _diversify_by_country(sorted_recalls, cap=2, window=5):
     """Reorder a severity-sorted list so no single country dominates the
     top `window` slots. Defers a country's (cap+1)th entry past the window
@@ -833,9 +939,17 @@ Tone: professional, process-engineering voice, no emojis, no bullets, no colons 
         claude_out = _fallback_p1_to_p3(stats, recalls)
 
     # Append deterministic P4 Process Authority Note (multi-trigger).
+    #
+    # Marked, not sniffed. The renderer used to identify this paragraph by
+    # looking for stock phrases such as "qualified process authority" — which
+    # meant (a) the Listeria P2 narrative, which happens to contain that
+    # phrase, was labelled "Process Authority Note", and (b) the moment the
+    # 2026-08-07 review removed US process-authority language from the EU
+    # branch of this note, the REAL note stopped matching and lost its label
+    # to that impostor. The paragraph knows what it is; it now says so.
     pa = _process_authority_note(recalls, bot)
     if pa:
-        claude_out = claude_out.rstrip() + "\n\n" + pa
+        claude_out = claude_out.rstrip() + "\n\n" + PA_NOTE_MARKER + pa
     return claude_out
 
 
@@ -852,7 +966,7 @@ def _fallback_p1_to_p3(stats, recalls):
                                  _count_phrase(stats["outbreaks"], "confirmed outbreak event",
                                                zero="no confirmed outbreak events"),
                                  tp, tc, t, pct)
-    p2 = _pathogen_narrative(tp, pct)
+    p2 = _pathogen_narrative(tp, pct) + _framework_jurisdiction_qualifier(recalls)
     # Outbreak Watch: if any outbreak-flagged recall exists, surface it by name
     # so the outbreak KPI is reflected in the narrative even when the Top-5
     # headline threats are a different pathogen (reviewer note 2026-07-03).
@@ -868,7 +982,27 @@ def _fallback_p1_to_p3(stats, recalls):
         for r in ob_recalls:
             path = str(r.get("Pathogen") or "").strip()
             prod = str(r.get("Product") or r.get("Company") or "").strip()
-            prod_short = prod.split("(")[0].strip()[:60]
+            # REVIEW 2026-08-07 — this was a hard prod[:60], which cut the
+            # jalapeno product mid-word and published:
+            #   "linked to Fresh jalapeno peppers grown in Sinaloa, Mexico
+            #    — distribute."
+            # Product strings in this database carry lot codes, pack sizes and
+            # distribution after a dash or semicolon, so take the first clause
+            # and, only if that is still long, stop on a word boundary.
+            prod_short = prod.split("(")[0].strip()
+            for sep in ("—", " - ", ";", "|"):
+                if sep in prod_short:
+                    prod_short = prod_short.split(sep)[0].strip()
+            prod_short = prod_short.rstrip(" ,;:–—-")
+            if len(prod_short) > 70:
+                prod_short = prod_short[:70].rsplit(" ", 1)[0].rstrip(
+                    " ,;:–—-") + "…"
+            # "linked to Fresh jalapeno peppers" — Product is title-cased as
+            # a heading but sits mid-sentence here. Lower the first letter,
+            # unless the opening looks like an acronym or proper noun run
+            # (two capitals: "IQF", "EU").
+            if prod_short[:2].isalpha() and not prod_short[:2].isupper():
+                prod_short = prod_short[0].lower() + prod_short[1:]
             descs.append(f"{path} linked to {prod_short}" if prod_short else path)
         joined = "; ".join(descs)
         n_ob = len(ob_recalls)
@@ -902,6 +1036,81 @@ def _fallback_p1_to_p3(stats, recalls):
 # Each entry returns the W16-style paragraph: product category → failure modes
 # → relevant regulatory framework. Mirrors the W16 gold-standard specificity.
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Jurisdiction qualifier for the fallback pathogen narratives.
+#
+# REVIEW 2026-08-07 (W32), second-order finding. The reviewer flagged the
+# botulinum Process Authority Note for wearing US law under EU citations. The
+# same defect is live one paragraph up: every _pathogen_narrative() below
+# closes with "The relevant frameworks are <US CFR citations>", unconditionally
+# — so a week that was 54% France read as though 21 CFR 117 governed French
+# raw-milk cheese.
+#
+# The engineering content of those paragraphs (product classes, failure modes)
+# is jurisdiction-neutral and correct, so it is kept. What is added is an
+# explicit statement of WHOSE law is being cited and where the equivalent duty
+# sits when the week is not US-dominated. Rewriting twelve narratives with
+# per-jurisdiction legal text is a bigger change than this defect warrants,
+# and each rewrite would need its own verification.
+#
+# This affects the DETERMINISTIC FALLBACK only. In CI the P2 paragraph is
+# written by Claude with the week's jurisdictions in the prompt.
+# ---------------------------------------------------------------------------
+_EQUIVALENT_FRAMEWORK = {
+    "EU": "Regulation (EC) No 852/2004 (hygiene and HACCP) and Regulation (EC) "
+          "No 2073/2005 (microbiological criteria), with national "
+          "competent-authority oversight",
+    "UK": "retained Regulation (EC) No 2073/2005, the UK Food Hygiene "
+          "Regulations and FSA guidance",
+    "CA": "the CFIA Safe Food for Canadians Regulations and the Preventive "
+          "Control Plan",
+    "AU_NZ": "the FSANZ Food Standards Code (Standards 1.6.1, 3.2.1 and 3.2.2)",
+    "JP": "the Japan Food Sanitation Act and MHLW standards",
+    "KR": "the MFDS Food Sanitation Act and Food Code",
+}
+
+_JURISDICTION_BY_SOURCE = {
+    "FDA": "US", "USDA FSIS": "US", "CDC": "US", "FDA PH": "US",
+    "RASFF (EU)": "EU", "RappelConso (FR)": "EU", "AESAN (ES)": "EU",
+    "BVL (DE)": "EU", "FSAI (IE)": "EU", "FAVV (BE)": "EU", "EFET (GR)": "EU",
+    "Ministero della Salute": "EU", "AGES (AT)": "EU", "NVWA (NL)": "EU",
+    "EFSA": "EU", "ECDC": "EU",
+    "FSA (UK)": "UK", "FSS (UK)": "UK",
+    "CFIA": "CA",
+    "FSANZ (AU)": "AU_NZ", "MPI (NZ)": "AU_NZ",
+}
+
+
+def _dominant_jurisdiction(recalls):
+    """The jurisdiction most of this week's incidents belong to, or None.
+
+    Sources not in the map are ignored rather than guessed — an unmapped
+    regulator must not silently vote for a legal framework.
+    """
+    counts = {}
+    for r in (recalls or []):
+        key = _JURISDICTION_BY_SOURCE.get(str(r.get("Source") or "").strip())
+        if key:
+            counts[key] = counts.get(key, 0) + 1
+    if not counts:
+        return None
+    return max(counts.items(), key=lambda kv: (kv[1], kv[0]))[0]
+
+
+def _framework_jurisdiction_qualifier(recalls):
+    """The sentence that stops a US citation from reading as local law."""
+    key = _dominant_jurisdiction(recalls)
+    if not key or key == "US":
+        return ""
+    equivalent = _EQUIVALENT_FRAMEWORK.get(key)
+    if not equivalent:
+        return ""
+    return (" The frameworks cited above are United States instruments, given "
+            "here as the most fully specified statement of the control. The "
+            "majority of this week's incidents fall outside that jurisdiction, "
+            "where the equivalent duties sit in {}.".format(equivalent))
+
+
 def _pathogen_narrative(pathogen, pct):
     p = (pathogen or "").lower()
     # The pct token gives us "at this prevalence" / "at this concentration" flavour
@@ -1062,6 +1271,121 @@ def _jurisdictions_from_recalls(recalls, max_list=5):
     return seen[:max_list]
 
 
+# ---------------------------------------------------------------------------
+# The botulinum duty clause, per jurisdiction.
+#
+# REVIEW 2026-08-07 (W32). The note published for W32 read:
+#
+#   "... confirm that the scheduled thermal process has been established,
+#    FILED, and validated under the guidance of a QUALIFIED PROCESS
+#    AUTHORITY — REQUIRED under Regulation (EC) No 852/2004 and Regulation
+#    (EC) No 2073/2005 ..."
+#
+# That sentence is correct US law and incorrect EU law. "Filing" a scheduled
+# process and using a designated "process authority" are creatures of the US
+# low-acid / acidified framework — 21 CFR 108 (Form 2541/2541e), 113 and 114.
+# Neither cited EU Regulation creates a general scheduled-process filing
+# regime or requires a US-style process authority:
+#
+#   · Reg. 852/2004 requires HACCP-based controls — hazard analysis, critical
+#     limits, monitoring, corrective action, verification, documentation — and
+#     in Annex II Chapter XI requires that heat treatment of food in
+#     hermetically sealed containers achieve the intended time/temperature
+#     objective, prevent post-process contamination, be routinely controlled
+#     on the relevant parameters (temperature, pressure, sealing,
+#     microbiology), and conform to an internationally recognised standard.
+#   · Reg. 2073/2005 sets microbiological criteria and the associated
+#     validation/verification duties inside HACCP. It creates no filing regime.
+#
+# The defect was structural, not a typo: ONE sentence carried a US-shaped
+# obligation and the citation was swapped per jurisdiction underneath it. So
+# the obligation itself is now per-jurisdiction, and the citation follows it.
+#
+# Each entry is (duty, gaps, records):
+#   duty    — what the operator must be able to demonstrate
+#   gaps    — the failure modes behind recalls of this profile there
+#   records — what an inspector asks to see afterwards
+# ---------------------------------------------------------------------------
+_BOTULINUM_DUTY = {
+    "US": (
+        "the scheduled thermal process has been established and validated by a "
+        "qualified process authority and filed with the competent authority, "
+        "and that critical factors are controlled and documented as specified "
+        "in that process",
+        "an unfiled or outdated scheduled process, a process deviation "
+        "resolved without qualified process authority review, a container or "
+        "seal-integrity lapse, or a formulation change (pH, a_w, salt, "
+        "preservative) introduced without re-evaluation",
+        "scheduled-process filings, deviation handling, container integrity, "
+        "and process-authority records"),
+    "EU": (
+        "the thermal process and its critical factors have been scientifically "
+        "established, validated, implemented and documented within the HACCP "
+        "system. Heat treatment applied to food in hermetically sealed "
+        "containers must achieve the intended time/temperature objective, "
+        "prevent post-process contamination, and be routinely controlled "
+        "through the relevant parameters — temperature, pressure, container "
+        "sealing and microbiological checks — using a process conforming to an "
+        "internationally recognised standard. Applicable microbiological "
+        "criteria and the associated validation and verification duties should "
+        "also be considered",
+        "a thermal process never validated against the actual formulation, "
+        "container and fill conditions, a deviation closed without documented "
+        "technical review, a container or seal-integrity lapse, or a "
+        "formulation change (pH, a_w, salt, preservative) introduced without "
+        "re-evaluation of the hazard analysis",
+        "HACCP validation records, heat-treatment monitoring and calibration "
+        "records, container-seal integrity checks, and deviation handling"),
+    "UK": (
+        "the thermal process and its critical factors have been scientifically "
+        "established, validated and documented within the HACCP system, with "
+        "heat treatment of hermetically sealed containers controlled on "
+        "temperature, pressure and seal integrity against a recognised process "
+        "standard",
+        "a process not validated for the actual formulation and container, a "
+        "deviation closed without documented technical review, a seal-integrity "
+        "lapse, or an unreviewed formulation change",
+        "HACCP validation records, heat-treatment monitoring records, seal "
+        "integrity checks, and deviation handling"),
+    "CA": (
+        "the thermal process has been scientifically established and validated "
+        "and is documented within the Preventive Control Plan, with critical "
+        "factors monitored and deviations handled under it",
+        "a process not validated for the product as made, a deviation closed "
+        "outside the PCP, a seal-integrity lapse, or an unreviewed formulation "
+        "change",
+        "the Preventive Control Plan, process validation evidence, container "
+        "integrity checks, and deviation records"),
+    "AU_NZ": (
+        "the thermal process has been validated and is documented within the "
+        "food safety programme, with critical limits monitored and deviations "
+        "handled under it",
+        "a process not validated for the product as made, a deviation closed "
+        "outside the food safety programme, a seal-integrity lapse, or an "
+        "unreviewed formulation change",
+        "the food safety programme, process validation evidence, container "
+        "integrity checks, and deviation records"),
+    "JP": (
+        "the thermal process meets the applicable standards for shelf-stable "
+        "and canned foods and that its establishment, validation and routine "
+        "control are documented",
+        "a process not validated for the product as made, an undocumented "
+        "deviation, a seal-integrity lapse, or an unreviewed formulation "
+        "change",
+        "process validation evidence, heat-treatment records, container "
+        "integrity checks, and deviation records"),
+    "KR": (
+        "the thermal process has been validated against the applicable "
+        "requirements and that its establishment and routine control are "
+        "documented",
+        "a process not validated for the product as made, an undocumented "
+        "deviation, a seal-integrity lapse, or an unreviewed formulation "
+        "change",
+        "process validation evidence, heat-treatment records, container "
+        "integrity checks, and deviation records"),
+}
+
+
 def _process_authority_note(recalls, bot):
     """Return the P4 Process Authority Note string, or '' if no trigger fires.
 
@@ -1106,10 +1430,33 @@ def _process_authority_note(recalls, bot):
     def _names(rows, limit=3):
         # Dedupe by company so multi-SKU / multi-fiche recalls from the same
         # producer (e.g. two RappelConso fiches) aren't cited twice.
+        #
+        # REVIEW 2026-08-07 — a RASFF row's Company is the database convention
+        # "Origin: X | Notifying: Y", not a firm. Dropped verbatim into the
+        # Process Authority Note it read:
+        #
+        #   "with Origin: Czechia | Notifying: Czechia (Czechia) cited for
+        #    Clostridium botulinum"
+        #
+        # which is a schema leaking into a regulatory paragraph. RASFF genuinely
+        # does not name the operator, so the honest rendering is the
+        # notification itself.
         seen = []
         for r in rows:
-            label = "{} ({})".format(
-                r.get("Company", ""), _country_display(r.get("Country", "")))
+            company = str(r.get("Company") or "").strip()
+            country = _country_display(r.get("Country", ""))
+            m = re.match(r"^\s*Origin:\s*(.+?)\s*\|\s*Notifying:\s*(.+?)\s*$",
+                         company)
+            if m:
+                origin, notifying = m.group(1), m.group(2)
+                label = ("a RASFF notification from {}".format(notifying)
+                         if origin.lower() == notifying.lower() else
+                         "a RASFF notification from {} concerning product of "
+                         "{} origin".format(notifying, origin))
+            elif company:
+                label = "{} ({})".format(company, country)
+            else:
+                label = country
             if label not in seen:
                 seen.append(label)
             if len(seen) >= limit:
@@ -1257,6 +1604,7 @@ def _process_authority_note(recalls, bot):
         return {"primary": primary_text,
                 "parallels": parallels_text,
                 "regulators": regulators,
+                "primary_key": primary_key,
                 "buckets": b}
 
     # ------------------------------------------------------------------
@@ -1264,25 +1612,20 @@ def _process_authority_note(recalls, bot):
     # ------------------------------------------------------------------
     if bot:
         regs = _regs_for("botulinum", bot)
+        duty, gaps, records = _BOTULINUM_DUTY.get(
+            regs["primary_key"], _BOTULINUM_DUTY["EU"])
         return ("This window contains {ip} implicating Clostridium or "
                 "botulinum toxin, with {co} cited for {path}. Any shelf-stable "
                 "low-acid, acidified, aseptic/UHT, hot-filled, or reduced-oxygen-"
-                "packaged product in the affected category must be reviewed to "
-                "confirm that the scheduled thermal process has been established, "
-                "filed, and validated under the guidance of a qualified process "
-                "authority \u2014 required under {primary}{parallels}. The most "
-                "common compliance gap behind recalls of this profile is an "
-                "unfiled or outdated scheduled process, a process deviation "
-                "resolved without qualified process authority review, a container "
-                "or seal-integrity lapse, or a formulation change (pH, a_w, salt, "
-                "preservative) introduced without re-evaluation. Tier-1 / Class-I "
-                "classification on a low-acid product may trigger targeted "
-                "regulatory follow-up by {regulators}, including review of "
-                "scheduled-process documentation, deviation handling, container "
-                "integrity, and process-authority records on the subsequent "
-                "inspection."
+                "packaged product in the affected category should be reviewed to "
+                "confirm that {duty} \u2014 {primary}{parallels}. The most "
+                "common compliance gaps behind recalls of this profile are {gaps}. "
+                "Tier-1 / Class-I classification on a product of this class may "
+                "trigger targeted regulatory follow-up by {regulators}, including "
+                "review of {records} on the subsequent inspection."
                 ).format(ip=_count_phrase(len(bot), "incident"), co=_names(bot),
                          path=bot[0].get("Pathogen","Clostridium botulinum"),
+                         duty=duty, gaps=gaps, records=records,
                          primary=regs["primary"], parallels=regs["parallels"],
                          regulators=regs["regulators"])
 
@@ -1521,7 +1864,11 @@ def _recall_row(rank, r, top_n=5):
         lk = '<div class="juris-link"><a class="src-link" href="{}" target="_blank" rel="noopener">View source &rarr;</a></div>'.format(esc(url))
     else:
         lk = '<div class="juris-link"><span class="src-na" title="No verified specific-recall URL available">unverified</span></div>'
-    bs = esc(brand) if brand and brand!="\u2014" else "\u2014"
+    # Brand sub-line: printed only when it is not a repeat of the company and
+    # not a placeholder. This used to print "\u2014" or a verbatim copy of the
+    # company underneath itself \u2014 see brand_subline() for the W32 review.
+    _b = brand_subline(company, brand)
+    bs = ('<div class="brand-sub">{}</div>'.format(esc(_b))) if _b else ""
     return """    <tr>
       <td class="{rc}" data-label="#">{rank}</td>
       <td class="date-cell" data-label="Date">{dt}</td>
@@ -1530,7 +1877,7 @@ def _recall_row(rank, r, top_n=5):
         <span class="path-name">{ps}</span>
         {chip}{obc}
       </td>
-      <td class="co-cell" data-label="Company"><strong>{co}</strong><div class="brand-sub">{bs}</div></td>
+      <td class="co-cell" data-label="Company"><strong>{co}</strong>{bs}</td>
       <td class="prod-cell" data-label="Product">{prod}</td>
       <td class="juris-cell" data-label="Jurisdiction">
         <div class="juris-country">{ctry}</div>
@@ -2039,14 +2386,14 @@ __CSS_PLACEHOLDER__
 <div class="r-kicker">AFTS <span class="r-kicker-dot">&middot;</span> Food Safety Validation Intelligence</div>
 <h1 class="r-title">Food Safety Hazard &amp; Pathogen Surveillance <span class="accent">&middot;</span> Week {wnum}</h1>
 <p class="r-sub">
-  AI-powered analysis of <strong>{total}</strong> regulatory recall actions across
+  AI-powered analysis of <strong>{total}</strong> regulatory food-safety incidents across
   <strong>{n_jurisdictions}</strong> jurisdictions, aggregated from 66 primary sources
   monitored continuously by the AFTS intelligence platform.
 </p>
 
 <div class="kpi-strip">
   <div class="kpi">
-    <div class="kpi-label">Total Recalls</div>
+    <div class="kpi-label">Total Incidents</div>
     <div class="kpi-value"><a href="#all-recalls">{total}</a></div>
     {delta_html}
   </div>
@@ -2129,12 +2476,15 @@ __CSS_PLACEHOLDER__
 
 <div id="all-recalls" class="sec-head">
   <span class="sec-num">&sect; 04</span>
-  <h2 class="sec-title">All {total} Recalls &middot; {period}</h2>
+  <h2 class="sec-title">All {total} Regulatory Incidents &middot; {period}</h2>
   <span class="sec-rule"></span>
 </div>
 <p class="sec-caption">
   Complete record for the reporting period. Sorted by pathogen severity, outbreak status, and tier classification.
-  Each row links to the originating regulatory notice.
+  Each row links to the originating regulatory notice. &ldquo;Incident&rdquo; covers every regulatory food-safety
+  action captured in the window &mdash; consumer recalls, public-health alerts, withdrawals and RASFF
+  notifications alike. A RASFF notification is a border or market-control notification between competent
+  authorities and does not necessarily correspond to a consumer recall.
 </p>
 <table class="data top5">
   <thead><tr><th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction &amp; Source</th></tr></thead>
@@ -2223,13 +2573,29 @@ def build_html(week_end, recalls, prev_week, original_published=None):
     paras = [_strip_md_heading(p) for p in paras]
     paras = [p.strip() for p in paras if p.strip()]   # re-filter empties
 
-    pa_html = ""; reg = []
+    def _pa(text):
+        return ('<p class="pa-note"><span class="pa-label">Process Authority '
+                'Note:</span> ' + _md_em(esc(text.strip())) + '</p>')
+
+    # THE NOTE IDENTIFIES ITSELF (review 2026-08-07). A marked paragraph wins
+    # outright; the phrase heuristic below only runs when there is none.
+    marked = [p for p in paras if p.startswith(PA_NOTE_MARKER)]
+    pa_html = _pa(marked[-1][len(PA_NOTE_MARKER):]) if marked else ""
+    reg = []
     for p in paras:
+        if p.startswith(PA_NOTE_MARKER):
+            continue
         pl = p.lower()
         # PA Note detection — any paragraph using the process-authority idiom
         # and citing a regulatory-enforcement framework. Jurisdiction-neutral
         # since the primary regulator block varies by week.
-        is_pa = (
+        # The note IDENTIFIES ITSELF. _process_authority_note() is the only
+        # thing that produces this paragraph, and it stamps PA_NOTE_MARKER on
+        # the front. The phrase heuristic below is kept ONLY as a fallback for
+        # a Claude response that writes a note despite the prompt forbidding
+        # it \u2014 and it can no longer steal the label, because a marked
+        # paragraph wins outright.
+        is_pa = (not pa_html) and (
             ("process-authority deliverable" in pl) or
             ("qualified process authority" in pl) or
             ("regulatory-response readiness" in pl) or
@@ -2239,7 +2605,7 @@ def build_html(week_end, recalls, prev_week, original_published=None):
             ("multi-jurisdiction" in pl and ("escalate" in pl or "import-alert" in pl))
         )
         if is_pa:
-            pa_html = '<p class="pa-note"><span class="pa-label">Process Authority Note:</span> ' + _md_em(esc(p)) + '</p>'
+            pa_html = _pa(p)
         else:
             reg.append(p)
     analysis = "\n".join("  <p>{}</p>".format(_md_em(esc(p))) for p in reg)
@@ -2275,7 +2641,7 @@ def build_html(week_end, recalls, prev_week, original_published=None):
         co_dom_note = ""
 
     prows = ""
-    for path, cnt in stats["pathogen_counts"]:
+    for path, cnt in _disambiguate_genus_labels(stats["pathogen_counts"]):
         pct = round(cnt/max(total,1)*100); dot = _dot_color(path)
         prows += '        <tr>\n          <td><span class="path-dot" style="background:{}"></span><em class="path-name">{}</em></td>\n          <td class="num">{}</td>\n          <td class="num">{}%</td>\n          <td><div class="bar-track"><div class="bar-fill" style="width:{}%;background:{}"></div></div></td>\n        </tr>\n'.format(dot, esc(path), cnt, pct, pct, dot)
     if not prows: prows = '        <tr><td class="empty" colspan="4">No pathogen data</td></tr>\n'
@@ -2498,8 +2864,13 @@ def _extract_total_from_html(path):
         html = Path(path).read_text(encoding="utf-8")
         m = re.search(r'<a href="#all-recalls">(\d+)</a>', html)
         if m: return int(m.group(1))
-        # Fallback: look for "All N Recalls" in §04 heading
-        m2 = re.search(r'All (\d+) Recalls', html)
+        # Fallback: the §04 heading. Accept BOTH wordings — the heading was
+        # "All N Recalls" until the 2026-08-07 review renamed it to "All N
+        # Regulatory Incidents", and every report published before that date
+        # still carries the old text. A regex that only matched the new
+        # wording would silently return None for the whole back catalogue,
+        # which is how the week-on-week delta gets computed against nothing.
+        m2 = re.search(r'All (\d+) (?:Regulatory Incidents|Recalls)', html)
         if m2: return int(m2.group(1))
     except Exception:
         pass
