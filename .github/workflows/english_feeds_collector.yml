@@ -90,6 +90,29 @@ jobs:
           if [ -z "$SOURCES" ]; then SOURCES="uk,scotland,ireland"; fi
           echo "Will run: $SOURCES"
 
+          # ────────────────────────────────────────────────────────────────
+          # A FAILING SOURCE MUST FAIL THE RUN (audit 2026-08-07).
+          #
+          # This loop used to end each source with
+          #     || echo "✗ $s failed (continuing)"
+          # and nothing else. Continuing past a broken source is right — one
+          # dead endpoint should not cost us the other two — but the run then
+          # finished GREEN, so a permanently broken source looked identical
+          # to a quiet one.
+          #
+          # That is how a month of UK recalls went missing. pipeline/
+          # official_feeds/sources/uk.py queried the FSA API with
+          # _sort=-created, which that API ignores; it answered HTTP 200 with
+          # its oldest page (2018), every row was dropped downstream as
+          # out-of-date-range, and the workflow reported success. Three
+          # in-scope recalls were lost, including a Listeria recall the FSA
+          # posted publicly.
+          #
+          # uk.py now raises when the query comes back empty or stale. That
+          # is only useful if the raise reaches the run status — so failures
+          # are collected and re-raised AFTER every source has had its turn.
+          # ────────────────────────────────────────────────────────────────
+          FAILED=""
           IFS=',' read -ra LIST <<< "$SOURCES"
           for s in "${LIST[@]}"; do
             s=$(echo "$s" | xargs)
@@ -97,11 +120,25 @@ jobs:
             echo "======================================================================"
             echo "  STARTING source: $s"
             echo "======================================================================"
-            python -m pipeline.official_feeds.main --source "$s" --max-age-days "$AGE" $ARGS \
-              || echo "✗ $s failed (continuing)"
+            if ! python -m pipeline.official_feeds.main --source "$s" --max-age-days "$AGE" $ARGS; then
+              echo "✗ $s failed (continuing to the remaining sources)"
+              FAILED="$FAILED $s"
+            fi
           done
 
+          if [ -n "$FAILED" ]; then
+            echo ""
+            echo "::error title=Official feed source failed::Source(s) failed:$FAILED"
+            echo "Other sources still ran and their rows were written; this step"
+            echo "fails so the failure is visible instead of green."
+            exit 1
+          fi
+
+      # always(): the step above now EXITS 1 when a source fails, and the
+      # default `if` would skip this commit — throwing away the rows the
+      # sources that DID work had already written to the workbook. One dead
+      # endpoint must not cost us the other two. Commit first, fail after.
       - name: Commit xlsx changes (race-safe)
-        if: inputs.dry_run != 'true'
+        if: always() && inputs.dry_run != 'true'
         run: |
           bash scripts/safe_push.sh "English feeds collector: $(date -u +%Y-%m-%d) (UK+Scotland+Ireland)" docs/data/recalls.xlsx
