@@ -16,6 +16,22 @@
   "Notes": "[promoted 2026-08-07: read back from the FSA Food Alerts API record FSA-PRIN-38-2026 (created 2026-08-07). The FSA scraper produced nothing between 2026-07-08 and 2026-08-07 — pipeline/official_feeds/sources/uk.py queried the endpoint with _sort=-created, which that API ignores silently, so it returned its oldest page (2018) on every run and reported success. This row was never rejected; it was never fetched.] [FSA alert covers England, Scotland and Wales.] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 2]"
  },
  {
+  "Date": "2026-08-07",
+  "Source": "FDA",
+  "Company": "Lexunder Inc. dba Food To Live",
+  "Brand": "Food To Live",
+  "Product": "Green Powder Products",
+  "Pathogen": "Salmonella",
+  "Reason": "Possible Salmonella Contamination",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/lexunder-inc-recalls-food-live-brand-green-powder-products-because-possible-health-risk",
+  "Notes": "FDA listing HTML (Layer 1)"
+ },
+ {
   "Date": "2026-08-05",
   "Source": "RappelConso (FR)",
   "Company": "U Bio",
