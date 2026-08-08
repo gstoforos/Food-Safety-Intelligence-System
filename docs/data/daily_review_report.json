@@ -1,10 +1,10 @@
 {
-  "generated": "2026-08-07T09:58:44+03:00",
-  "date": "2026-08-07",
+  "generated": "2026-08-08T09:32:48+03:00",
+  "date": "2026-08-08",
   "mode": "live",
   "in_progress_week": "W33",
   "counts": {
-    "recalls_rows": 1347,
+    "recalls_rows": 1354,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
@@ -332,13 +332,13 @@
   },
   "stale_reports": {
     "weeklies": [
-      "W27"
+      "W32"
     ],
     "monthlies": []
   },
   "rebuilt": {
     "weeklies": [
-      "W27"
+      "W32"
     ],
     "monthlies": []
   }

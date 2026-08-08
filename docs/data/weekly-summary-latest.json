@@ -5,21 +5,21 @@
   "week_num": 32,
   "year": 2026,
   "week_start": "2026-07-31",
-  "week_end": "2026-08-05",
+  "week_end": "2026-08-06",
   "week_start_display": "31 Jul",
-  "week_end_display": "5 Aug 2026",
-  "generated_utc": "2026-08-07T10:39:38.701742+00:00",
+  "week_end_display": "6 Aug 2026",
+  "generated_utc": "2026-08-08T06:32:49.443215+00:00",
   "stats": {
-    "total": 48,
-    "tier1": 40,
+    "total": 53,
+    "tier1": 43,
     "outbreaks": 1,
-    "delta": -31,
-    "delta_pct": -39
+    "delta": -26,
+    "delta_pct": -33
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 20,
-    "pct": 42
+    "cases": 23,
+    "pct": 43
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -53,46 +53,46 @@
     },
     {
       "rank": 3,
-      "date": "2026-08-05",
+      "date": "2026-08-06",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "U Bio",
-      "brand": "U Bio",
-      "product": "petits pois carottes u bio 600g",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23092/Interne"
+      "company": "Origin: Denmark | Notifying: Germany",
+      "brand": "—",
+      "product": "Listeria monocytogenes in frozen salmon from Denmark",
+      "country": "Denmark",
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862795"
     },
     {
       "rank": 4,
-      "date": "2026-08-05",
+      "date": "2026-08-06",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "(not specified in RappelConso fiche 23090)",
-      "brand": "Unbranded",
-      "product": "Andouille de Dinan",
+      "company": "E.Leclerc la Réserve",
+      "brand": "E.Leclerc la Réserve",
+      "product": "sauté de mines volaille",
       "country": "France",
       "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23090/Interne"
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23102/interne"
     },
     {
       "rank": 5,
-      "date": "2026-08-05",
+      "date": "2026-08-06",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Origin: Portugal | Notifying: Portugal",
-      "brand": "—",
-      "product": "Listeria monocytogenes Meat-based product – Chouriça",
-      "country": "Portugal",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/864025"
+      "company": "La Fumerie du Coin",
+      "brand": "La Fumerie du Coin",
+      "product": "idem",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23108/interne"
     }
   ],
-  "country_count": 16
+  "country_count": 18
 }
