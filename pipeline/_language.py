@@ -605,6 +605,12 @@ _RAW_TRANSLATIONS = {
     # ── RappelConso (FR), remainder ───────────────────────────────────────
     "Taux d'alcaloïdes d'ergot supérieur au seuil réglementaire.":
         "Ergot alkaloid level above the regulatory limit",
+    # Fiche 23052 (2026-08-07). A precautionary recall: the trigger was a
+    # non-conforming analysis on an INGREDIENT, not on the finished product,
+    # so "concerning an ingredient used in making these products" is kept
+    # explicit. The date range is the packing window, not a best-before.
+    "Rappel préventif suite à une résultat d'analyse non conforme concernant un ingrédient utilisé dans la fabrication de ces produits.; l'ingrédient a été utilisé dans les préparations emballées entre le 15/07/2026 et le 22/07/2026":
+        "Precautionary recall following a non-conforming analysis result on an ingredient used in making these products; the ingredient was used in preparations packed between 15/07/2026 and 22/07/2026",
 }
 
 REASON_EN: Dict[str, str] = {_norm_key(k): v for k, v in _RAW_TRANSLATIONS.items()}
