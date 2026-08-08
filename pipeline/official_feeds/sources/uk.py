@@ -131,14 +131,69 @@ def _derive_country(codes: list[str], include_scotland: bool):
     return "gb", "United Kingdom", "FSA"
 
 
-def fetch(limit: int = 50, include_scotland: bool = False) -> list[Record]:
+def fetch(limit: int = 50, include_scotland: bool = False,
+          lookback_days: int = 90) -> list[Record]:
     """
     Fetch recent FSA alerts. By default EXCLUDES Scotland-only alerts
     (those are emitted by scotland.py). An alert tagged for multiple
     countries including England/Wales/NI is kept here.
     """
-    data = get_json(API, params={"_limit": limit, "_sort": "-created"})
+    # ---------------------------------------------------------------------
+    # SILENT SCRAPER FAILURE (found 2026-08-07).
+    #
+    # This call used to read:
+    #     get_json(API, params={"_limit": limit, "_sort": "-created"})
+    #
+    # The FSA endpoint is an Epimorphics Linked Data API. It accepts NEITHER
+    # of those parameters and ignores both silently — no error, no warning,
+    # HTTP 200. What comes back is the FIRST page of the collection in its
+    # natural order: fifty alerts from January-April 2018.
+    #
+    # So the scraper ran green every day, returned fifty rows every day, and
+    # every one of them was eight years old — dropped downstream by the
+    # minimum-date rule. Zero output, zero errors. "FSA (UK)" does not appear
+    # in scraper-health.json either, so nothing else flagged it.
+    #
+    # Cost: no FSA (UK) row entered the database between 2026-07-08 and
+    # 2026-08-07. Three in-scope recalls were missed —
+    #   FSA-PRIN-36-2026 (21 Jul) Waitrose brioche rolls, hard plastic + metal
+    #   FSA-PRIN-37-2026 (22 Jul) Graham's Family Dairy milk, veterinary
+    #                             medicines including penicillin
+    #   FSA-PRIN-38-2026 (07 Aug) Greencore, three pasta products, Listeria
+    #                             monocytogenes
+    #
+    # The parameter this API actually honours is `min-created`. Verified by
+    # hand: min-created=2026-07-01 returns twelve 2026 alerts, while
+    # _sort=-created returns FSA-AA-01-2018. A rolling date window is used
+    # rather than a page count so the query cannot drift back in time again.
+    # ---------------------------------------------------------------------
+    from datetime import date, timedelta
+    since = (date.today() - timedelta(days=lookback_days)).isoformat()
+    data = get_json(API, params={"min-created": since, "_pageSize": limit})
     items = data.get("items", [])
+
+    # A window this wide is never legitimately empty — the FSA publishes
+    # several alerts a week. Empty means the query stopped working again,
+    # and that has to be loud rather than green.
+    if not items:
+        raise RuntimeError(
+            f"FSA food-alerts returned 0 items for min-created={since} "
+            f"(_pageSize={limit}). The FSA publishes several alerts a week, "
+            f"so an empty {lookback_days}-day window means the query is "
+            f"being ignored — which is exactly how a month of UK recalls was "
+            f"lost in July 2026. Check the parameter names against "
+            f"https://data.food.gov.uk/food-alerts/ before concluding it was "
+            f"a quiet month.")
+
+    # The endpoint ignores unknown parameters rather than rejecting them, so
+    # a working filter must be confirmed from the DATA, not the HTTP status.
+    newest = max((str(i.get("created") or "") for i in items), default="")
+    if newest and newest[:10] < since:
+        raise RuntimeError(
+            f"FSA food-alerts ignored min-created={since}: the newest item "
+            f"returned is {newest[:10]}. This is the July 2026 failure mode "
+            f"— the API served its oldest page and the scraper reported "
+            f"success.")
     records: list[Record] = []
     for item in items:
         notation = item.get("notation") or item.get("@id", "").split("/")[-1]
