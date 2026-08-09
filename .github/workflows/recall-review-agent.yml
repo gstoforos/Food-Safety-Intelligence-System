@@ -627,12 +627,36 @@ jobs:
           )
 
 
+          # Some regulators publish a machine-readable record at one URL and the human
+          # notice at another. Storing the API record gives metadata, not a page a reader
+          # can open, so canonicalise to the public alert page.
+          #   FSA (UK): data.food.gov.uk/food-alerts/id/FSA-PRIN-38-2026
+          #             -> www.food.gov.uk/news-alerts/alert/fsa-prin-38-2026
+          # (The FSA's own linked-data record carries this as its "alertURL" field.)
+          _FSA_API_RE = re.compile(
+              r"https?://data\.food\.gov\.uk/food-alerts/id/([A-Za-z0-9\-]+)", re.I)
+
+
+          def canonical_url(url: str) -> str:
+              """Rewrite a known API/metadata URL to its public page. Returns the URL
+              unchanged when no rule applies."""
+              u = str(url or "").strip()
+              m = _FSA_API_RE.match(u)
+              if m:
+                  return ("https://www.food.gov.uk/news-alerts/alert/"
+                          + m.group(1).lower())
+              return u
+
+
           def _url_source_mismatch(merged: Dict[str, Any]) -> Optional[str]:
               """The URL must be on the regulator's own domain for its Source."""
               url = str(merged.get("URL", "") or "").lower()
               src = str(merged.get("Source", "") or "").lower()
               if not url:
                   return "URL is empty"
+              if "data.food.gov.uk" in url:
+                  return ("URL is the FSA linked-data record (metadata), not the public "
+                          "alert page — use www.food.gov.uk/news-alerts/alert/...")
               for bad in _NON_OFFICIAL_DOMAINS:
                   if bad in url:
                       return (f"URL is a news/aggregator site ({bad}), not the "
@@ -772,6 +796,9 @@ jobs:
               if c.upper() in ("USA", "U.S.A.", "US", "U.S.", "UNITED STATES OF AMERICA",
                                "AMERICA"):
                   merged["Country"] = "United States"
+              u = canonical_url(merged.get("URL", ""))
+              if u:
+                  merged["URL"] = u
               p = _canonical_pathogen(merged.get("Pathogen", ""))
               if p:
                   merged["Pathogen"] = p
