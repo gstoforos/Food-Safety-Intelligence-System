@@ -542,10 +542,18 @@ jobs:
               "presence de", "présence", " et de ", " avec ", " sur place",
               " nella ", " nel prodotto", " im produkt", " en el producto",
               " a l'ail", "seche", "sèche", "fabriquees", "fabriquées",
+              # Foreign-language spellings of pathogen names. Their presence means the
+              # Reason was only half-translated (e.g. "Presence of salmonelle"), which a
+              # function-word test misses because the rest of the sentence is English.
+              "salmonelle", "salmonela", "salmonellose", "salmonelose",
+              "listerie", "listérie", "listeriose", "listériose", "listeriosis dans",
+              "colibacille", "escherichia coli dans", "botulisme", "norovirus dans",
+              "hepatite", "hépatite",
           )
           # Strings that are explanations, not values.
           _PLACEHOLDER_MARKERS = (
               "not specified", "non spécifié", "no especificado", "not stated",
+              "idem", "ditto", "voir ci-dessus", "same as above", "as above",
               "unknown", "n/a", "see notice", "see the notice", "aucune information",
           )
 
@@ -555,8 +563,11 @@ jobs:
           # pathogen was almost certainly fabricated (the LGM "Listeria"/peanuts and the
           # Ukrops "Hepatitis A"/aluminium-slivers incidents both look exactly like this).
           _NON_PATHOGEN_HAZARDS = (
-              "foreign body", "foreign material", "aluminium", "aluminum", "metal sliver",
-              "metal fragment", "glass", "plastic fragment", "wood fragment",
+              "foreign body", "foreign material", "foreign matter", "foreign object",
+              "corps etranger", "corps étranger", "aluminium", "aluminum",
+              "metal sliver", "metal fragment", "metal piece", "piece of metal",
+              "metal shard", "pieces of metal", "glass", "plastic fragment",
+              "wood fragment", "rubber fragment",
               "undeclared allergen", "undeclared milk", "undeclared peanut",
               "undeclared soy", "undeclared gluten", "undeclared sulphite",
               "labelling error", "labeling error", "incorrect label", "mislabel",
