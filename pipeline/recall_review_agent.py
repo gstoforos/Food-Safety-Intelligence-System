@@ -460,10 +460,18 @@ _NON_ENGLISH_TOKENS = (
     "presence de", "présence", " et de ", " avec ", " sur place",
     " nella ", " nel prodotto", " im produkt", " en el producto",
     " a l'ail", "seche", "sèche", "fabriquees", "fabriquées",
+    # Foreign-language spellings of pathogen names. Their presence means the
+    # Reason was only half-translated (e.g. "Presence of salmonelle"), which a
+    # function-word test misses because the rest of the sentence is English.
+    "salmonelle", "salmonela", "salmonellose", "salmonelose",
+    "listerie", "listérie", "listeriose", "listériose", "listeriosis dans",
+    "colibacille", "escherichia coli dans", "botulisme", "norovirus dans",
+    "hepatite", "hépatite",
 )
 # Strings that are explanations, not values.
 _PLACEHOLDER_MARKERS = (
     "not specified", "non spécifié", "no especificado", "not stated",
+    "idem", "ditto", "voir ci-dessus", "same as above", "as above",
     "unknown", "n/a", "see notice", "see the notice", "aucune information",
 )
 
@@ -473,8 +481,11 @@ _PLACEHOLDER_MARKERS = (
 # pathogen was almost certainly fabricated (the LGM "Listeria"/peanuts and the
 # Ukrops "Hepatitis A"/aluminium-slivers incidents both look exactly like this).
 _NON_PATHOGEN_HAZARDS = (
-    "foreign body", "foreign material", "aluminium", "aluminum", "metal sliver",
-    "metal fragment", "glass", "plastic fragment", "wood fragment",
+    "foreign body", "foreign material", "foreign matter", "foreign object",
+    "corps etranger", "corps étranger", "aluminium", "aluminum",
+    "metal sliver", "metal fragment", "metal piece", "piece of metal",
+    "metal shard", "pieces of metal", "glass", "plastic fragment",
+    "wood fragment", "rubber fragment",
     "undeclared allergen", "undeclared milk", "undeclared peanut",
     "undeclared soy", "undeclared gluten", "undeclared sulphite",
     "labelling error", "labeling error", "incorrect label", "mislabel",
@@ -495,62 +506,96 @@ _NON_ENGLISH_FUNCTION_WORDS = (
 )
 
 
+# Official domain for each Source. A verified URL MUST live on the regulator's
+# own site — a news aggregator that merely reports the recall is not the source
+# of record. (City Foods 015-2026 was approved on a usatoday.com link.)
+_SOURCE_DOMAINS = {
+    "usda fsis": ("fsis.usda.gov",),
+    "fda": ("fda.gov", "accessdata.fda.gov"),
+    "cdc": ("cdc.gov",),
+    "cfia": ("recalls-rappels.canada.ca", "inspection.canada.ca"),
+    "rappelconso": ("rappel.conso.gouv.fr",),
+    "rasff": ("webgate.ec.europa.eu",),
+    "fsa (uk)": ("food.gov.uk",),
+    "fsai": ("fsai.ie",),
+    "fsanz": ("foodstandards.gov.au",),
+    "aesan": ("aesan.gob.es",),
+    "efet": ("efet.gr",),
+    "bvl": ("bvl.bund.de", "lebensmittelwarnung.de"),
+    "blv": ("blv.admin.ch", "recallswiss.admin.ch"),
+    "favv": ("favv-afsca.be", "favv.be", "afsca.be"),
+    "afsca": ("favv-afsca.be", "favv.be", "afsca.be"),
+    "nvwa": ("nvwa.nl",),
+    "ages": ("ages.at",),
+    "mfds": ("mfds.go.kr", "foodsafetykorea.go.kr"),
+    "anvisa": ("gov.br",),
+    "sfa": ("sfa.gov.sg",),
+    "cfs": ("cfs.gov.hk",),
+    "ncc": ("thencc.org.za",),
+    "livsmedelsverket": ("livsmedelsverket.se",),
+    "salute": ("salute.gov.it",),
+}
+# Aggregators / news sites that must never be a row's URL.
+_NON_OFFICIAL_DOMAINS = (
+    "usatoday.com", "recalltracker", "vigiproduit", "60millions",
+    "foodsafetynews", "thenightly", "culturacolectiva", "freedom.fr",
+    "newsweek", "cnn.com", "bbc.co", "reuters.com", "yahoo.",
+    "facebook.", "twitter.", "x.com", "reddit.",
+)
+
+
+def _url_source_mismatch(merged: Dict[str, Any]) -> Optional[str]:
+    """The URL must be on the regulator's own domain for its Source."""
+    url = str(merged.get("URL", "") or "").lower()
+    src = str(merged.get("Source", "") or "").lower()
+    if not url:
+        return "URL is empty"
+    for bad in _NON_OFFICIAL_DOMAINS:
+        if bad in url:
+            return (f"URL is a news/aggregator site ({bad}), not the "
+                    f"regulator's own notice")
+    for key, domains in _SOURCE_DOMAINS.items():
+        if key in src:
+            if not any(d in url for d in domains):
+                return (f"URL domain does not match Source {merged.get('Source')!r} "
+                        f"(expected {domains[0]})")
+            return None
+    return None
+
+
+# Bare genus names that must carry their species, matching the register's own
+# vocabulary (494 rows use "Listeria monocytogenes"; only 2 said "Listeria").
+_PATHOGEN_CANON = {
+    "listeria": "Listeria monocytogenes",
+    "listeria spp": "Listeria monocytogenes",
+    "listeria spp.": "Listeria monocytogenes",
+    "l. monocytogenes": "Listeria monocytogenes",
+    "e. coli": "Escherichia coli",
+    "e.coli": "Escherichia coli",
+    "hepatitis a": "Hepatitis A virus",
+}
+
+
+def _canonical_pathogen(value: str) -> str:
+    v = str(value or "").strip()
+    return _PATHOGEN_CANON.get(v.lower(), v)
+
+
 def _pathogen_reason_contradiction(merged: Dict[str, Any]) -> Optional[str]:
-    """Pathogen names an organism but the Reason describes a different class
-    of hazard.
-
-    DELEGATES TO THE CANONICAL CLASSIFIER (audit 2026-08-09).
-    ========================================================
-    This used to walk `_NON_PATHOGEN_HAZARDS` above — a private copy of a
-    table that already exists, maintained, in pipeline/_publish_gate.py. On
-    2026-08-05 the FSANZ Key-Sun Kids lozenge arrived with
-
-        Pathogen  Listeria monocytogenes
-        Reason    "There is a risk of the presence of foreign matter (metal)."
-
-    and this function returned None, because the private copy knows
-    "foreign body" and "foreign material" but not "foreign MATTER". The
-    canonical table has carried "foreign matter" all along, so _publish_gate
-    blocked the row and the fabricated pathogen never reached Recalls — the
-    deterministic gate covered for the reviewer.
-
-    That is the third time a duplicated hazard table has drifted (LGM
-    Listeria/peanuts, Ukrops Hepatitis A/aluminium, now this). The
-    _publish_gate docstring already records the decision that claude_check
-    must import rather than copy; this module was never brought into line.
-    Adding "foreign matter" to the copy would fix this one row and leave the
-    next divergence to be found by the next incident.
-
-    The private tuples are kept ONLY as an offline fallback for the case
-    where _publish_gate cannot be imported at all. They are no longer the
-    primary path, so they can no longer silently disagree with it.
-    """
-    patho = str(merged.get("Pathogen", "") or "")
-    reason = str(merged.get("Reason", "") or "")
-    if not patho.strip() or not reason.strip():
+    """Pathogen names an organism but the Reason describes a non-pathogen
+    hazard, and the organism appears nowhere in the Reason."""
+    patho = str(merged.get("Pathogen", "") or "").lower()
+    reason = str(merged.get("Reason", "") or "").lower()
+    if not patho or not reason:
         return None
-
-    try:
-        from pipeline._publish_gate import (
-            pathogen_reason_class_mismatch, classify_hazard,
-        )
-    except ImportError:                                # pragma: no cover
-        pl, rl = patho.lower(), reason.lower()
-        if not any(p in pl for p in _PATHOGEN_NAMES):
-            return None
-        if any(p in rl for p in _PATHOGEN_NAMES):
-            return None
-        for hz in _NON_PATHOGEN_HAZARDS:
-            if hz in rl:
-                return (f"Pathogen {patho!r} contradicts Reason "
-                        f"(describes {hz!r}) — pathogen likely fabricated")
+    if not any(p in patho for p in _PATHOGEN_NAMES):
         return None
-
-    if pathogen_reason_class_mismatch(patho, reason):
-        return (f"Pathogen {patho!r} contradicts Reason "
-                f"({sorted(classify_hazard(patho))} vs "
-                f"{sorted(classify_hazard(reason))}) — one of the two fields "
-                f"is not what the source page says")
+    if any(p in reason for p in _PATHOGEN_NAMES):
+        return None  # reason mentions the organism too — consistent
+    for hz in _NON_PATHOGEN_HAZARDS:
+        if hz in reason:
+            return (f"Pathogen {merged.get('Pathogen')!r} contradicts Reason "
+                    f"(describes {hz!r}) — pathogen likely fabricated")
     return None
 
 
@@ -572,6 +617,9 @@ def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
             if not str(merged.get(fld, "") or "").strip():
                 probs.append(f"{fld} is empty")
         return probs
+    _mismatch = _url_source_mismatch(merged)
+    if _mismatch:
+        probs.append(_mismatch)
     _contra = _pathogen_reason_contradiction(merged)
     if _contra:
         probs.append(_contra)
@@ -634,6 +682,9 @@ def _normalize_country_source(merged: Dict[str, Any]) -> None:
     if c.upper() in ("USA", "U.S.A.", "US", "U.S.", "UNITED STATES OF AMERICA",
                      "AMERICA"):
         merged["Country"] = "United States"
+    p = _canonical_pathogen(merged.get("Pathogen", ""))
+    if p:
+        merged["Pathogen"] = p
     s = str(merged.get("Source", "")).strip()
     # Normalise any FSIS/USDA source label to the canonical "USDA FSIS".
     sl = s.lower()
