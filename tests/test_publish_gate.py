@@ -142,15 +142,49 @@ class TestUrlRule(unittest.TestCase):
             self.assertFalse(is_publishable(_good(URL=url)), url)
 
     def test_real_notices_with_trailing_slash_pass(self):
-        """The first draft of this rule flagged 20+ of these. It must not."""
-        for url in (
-            "https://thencc.org.za/product-safety-recall-nutricia-aptamil-nutribiotik-2-and-nutricia-aptajunior-nutribiotik-3/",
-            "https://thencc.org.za/product-recall-nan-special-pro-ha-infant-formula-800g/",
-            "https://thencc.org.za/national-consumer-commission-refers-hummus-supplier-to-the-tribunal-over-listeria-contamination/",
-            "https://www.cdc.gov/listeria/outbreaks/soft-cheese-06-26/index.html",
-            "https://www.fda.gov.ph/fda-advisory-no-2026-0030-voluntary-recall-of-nan-optipro/",
+        """The first draft of this rule flagged 20+ of these. It must not.
+
+        Each URL is now paired with the Source that actually published it.
+        The fixture used to stamp every one of these with the default
+        "RappelConso (FR)", which was harmless while the gate only looked at
+        the PATH — and became a self-contradiction the moment rule 6b started
+        checking the host (audit 2026-08-09). A test asserting that an NCC
+        notice is a valid RappelConso row would have had to be answered by
+        weakening the rule.
+        """
+        for url, source in (
+            ("https://thencc.org.za/product-safety-recall-nutricia-aptamil-nutribiotik-2-and-nutricia-aptajunior-nutribiotik-3/", "NCC (ZA)"),
+            ("https://thencc.org.za/product-recall-nan-special-pro-ha-infant-formula-800g/", "NCC (ZA)"),
+            ("https://thencc.org.za/national-consumer-commission-refers-hummus-supplier-to-the-tribunal-over-listeria-contamination/", "NCC (ZA)"),
+            ("https://www.cdc.gov/listeria/outbreaks/soft-cheese-06-26/index.html", "CDC"),
+            ("https://www.fda.gov.ph/fda-advisory-no-2026-0030-voluntary-recall-of-nan-optipro/", "FDA PH"),
         ):
-            self.assertEqual([], publish_blockers(_good(URL=url)), url)
+            self.assertEqual([], publish_blockers(_good(URL=url, Source=source)),
+                             f"{source} / {url}")
+
+    def test_a_row_citing_another_regulator_is_blocked(self):
+        """FSIS recall 015-2026 (City Foods) was promoted with Source
+        'USDA FSIS' and a usatoday.com URL, past every reviewer, because
+        nothing on the promotion path looked at the host. verify_urls.py had
+        the check; the gate did not import it."""
+        blockers = publish_blockers(_good(
+            Source="USDA FSIS",
+            URL="https://www.usatoday.com/recalls/meat-and-poultry/USDA-de86KfcgQrc/"))
+        self.assertTrue(any("does not belong to Source" in b for b in blockers),
+                        blockers)
+
+    def test_the_regulators_own_host_passes(self):
+        self.assertEqual([], publish_blockers(_good(
+            Source="USDA FSIS",
+            URL="https://www.fsis.usda.gov/recalls-alerts/city-foods-inc-"
+                "recalls-ready-eat-pastrami-and-corned-beef-products-due-possible")))
+
+    def test_an_unmapped_source_is_not_guessed_at(self):
+        """Sources absent from HOST_FOR_SOURCE are not checked — better
+        silent than wrong, same rule as verify_urls."""
+        self.assertEqual([], publish_blockers(_good(
+            Source="Some Regulator We Have Not Mapped",
+            URL="https://example.invalid/notice/1")))
 
     def test_relative_url_blocked(self):
         self.assertFalse(is_publishable(_good(URL="/fiche-rappel/22963/Interne")))
@@ -398,6 +432,22 @@ class TestWorkbookStaysClean(unittest.TestCase):
         # gate exists to stop, so the listing URL stays until the real
         # permalink is confirmed.
         "efet.gr/index.php/el/enimerosi/deltia-typou",
+        # ── Added 2026-08-09 with rule 6b (host must match Source) ────────
+        # Seven rows cite an AGGREGATOR rather than the regulator named in
+        # their Source. They are not new defects — verify_urls.py has listed
+        # them since 2026-08-02 — but they only became GATE failures when the
+        # host check moved out of the standalone CLI and into publish_blockers.
+        #
+        # Pinned rather than deleted because each is a real recall whose
+        # facts check out; what is missing is the official permalink. Every
+        # one of them contradicts the "Official regulator sources only"
+        # footer, so this is an OPERATOR DECISION, not a code fix: either
+        # find the bvl.bund.de / lebensmittelwarnung.de and CFIA permalinks,
+        # or drop the rows. The eighth (City Foods / usatoday.com) was
+        # repaired on 2026-08-09 — its fsis.usda.gov notice was sitting in
+        # Pending on three sibling rows at the time it was published.
+        "produktwarnung.eu",
+        "hortidaily.com",
         # ── Revised 2026-08-02 (second pass) ──────────────────────────────
         # The ten RappelConso rows previously pinned here have been REPAIRED
         # from the official DGCCRF open-data record and are gone from this
