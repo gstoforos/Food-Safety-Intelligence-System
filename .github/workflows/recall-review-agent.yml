@@ -588,6 +588,81 @@ jobs:
           )
 
 
+          # Official domain for each Source. A verified URL MUST live on the regulator's
+          # own site — a news aggregator that merely reports the recall is not the source
+          # of record. (City Foods 015-2026 was approved on a usatoday.com link.)
+          _SOURCE_DOMAINS = {
+              "usda fsis": ("fsis.usda.gov",),
+              "fda": ("fda.gov", "accessdata.fda.gov"),
+              "cdc": ("cdc.gov",),
+              "cfia": ("recalls-rappels.canada.ca", "inspection.canada.ca"),
+              "rappelconso": ("rappel.conso.gouv.fr",),
+              "rasff": ("webgate.ec.europa.eu",),
+              "fsa (uk)": ("food.gov.uk",),
+              "fsai": ("fsai.ie",),
+              "fsanz": ("foodstandards.gov.au",),
+              "aesan": ("aesan.gob.es",),
+              "efet": ("efet.gr",),
+              "bvl": ("bvl.bund.de", "lebensmittelwarnung.de"),
+              "blv": ("blv.admin.ch", "recallswiss.admin.ch"),
+              "favv": ("favv-afsca.be", "favv.be", "afsca.be"),
+              "afsca": ("favv-afsca.be", "favv.be", "afsca.be"),
+              "nvwa": ("nvwa.nl",),
+              "ages": ("ages.at",),
+              "mfds": ("mfds.go.kr", "foodsafetykorea.go.kr"),
+              "anvisa": ("gov.br",),
+              "sfa": ("sfa.gov.sg",),
+              "cfs": ("cfs.gov.hk",),
+              "ncc": ("thencc.org.za",),
+              "livsmedelsverket": ("livsmedelsverket.se",),
+              "salute": ("salute.gov.it",),
+          }
+          # Aggregators / news sites that must never be a row's URL.
+          _NON_OFFICIAL_DOMAINS = (
+              "usatoday.com", "recalltracker", "vigiproduit", "60millions",
+              "foodsafetynews", "thenightly", "culturacolectiva", "freedom.fr",
+              "newsweek", "cnn.com", "bbc.co", "reuters.com", "yahoo.",
+              "facebook.", "twitter.", "x.com", "reddit.",
+          )
+
+
+          def _url_source_mismatch(merged: Dict[str, Any]) -> Optional[str]:
+              """The URL must be on the regulator's own domain for its Source."""
+              url = str(merged.get("URL", "") or "").lower()
+              src = str(merged.get("Source", "") or "").lower()
+              if not url:
+                  return "URL is empty"
+              for bad in _NON_OFFICIAL_DOMAINS:
+                  if bad in url:
+                      return (f"URL is a news/aggregator site ({bad}), not the "
+                              f"regulator's own notice")
+              for key, domains in _SOURCE_DOMAINS.items():
+                  if key in src:
+                      if not any(d in url for d in domains):
+                          return (f"URL domain does not match Source {merged.get('Source')!r} "
+                                  f"(expected {domains[0]})")
+                      return None
+              return None
+
+
+          # Bare genus names that must carry their species, matching the register's own
+          # vocabulary (494 rows use "Listeria monocytogenes"; only 2 said "Listeria").
+          _PATHOGEN_CANON = {
+              "listeria": "Listeria monocytogenes",
+              "listeria spp": "Listeria monocytogenes",
+              "listeria spp.": "Listeria monocytogenes",
+              "l. monocytogenes": "Listeria monocytogenes",
+              "e. coli": "Escherichia coli",
+              "e.coli": "Escherichia coli",
+              "hepatitis a": "Hepatitis A virus",
+          }
+
+
+          def _canonical_pathogen(value: str) -> str:
+              v = str(value or "").strip()
+              return _PATHOGEN_CANON.get(v.lower(), v)
+
+
           def _pathogen_reason_contradiction(merged: Dict[str, Any]) -> Optional[str]:
               """Pathogen names an organism but the Reason describes a non-pathogen
               hazard, and the organism appears nowhere in the Reason."""
@@ -624,6 +699,9 @@ jobs:
                       if not str(merged.get(fld, "") or "").strip():
                           probs.append(f"{fld} is empty")
                   return probs
+              _mismatch = _url_source_mismatch(merged)
+              if _mismatch:
+                  probs.append(_mismatch)
               _contra = _pathogen_reason_contradiction(merged)
               if _contra:
                   probs.append(_contra)
@@ -686,6 +764,9 @@ jobs:
               if c.upper() in ("USA", "U.S.A.", "US", "U.S.", "UNITED STATES OF AMERICA",
                                "AMERICA"):
                   merged["Country"] = "United States"
+              p = _canonical_pathogen(merged.get("Pathogen", ""))
+              if p:
+                  merged["Pathogen"] = p
               s = str(merged.get("Source", "")).strip()
               # Normalise any FSIS/USDA source label to the canonical "USDA FSIS".
               sl = s.lower()
