@@ -52,6 +52,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -657,7 +658,14 @@ def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
     prod = str(merged.get("Product", "") or "")
     if prod.lstrip().startswith("#") or "\n" in prod:
         probs.append("Product contains formatting debris (# or newline)")
-    if len(prod) > 160:
+    # A long Product is NOT itself a problem — USDA/FSA notices legitimately
+    # list several items with case codes and weights (55 of 57 long strings in
+    # the register are genuine product lists). Only flag when the text reads
+    # like a press-release TITLE: a recall verb plus a company/authority framing.
+    if len(prod) > 120 and re.search(
+            r"\b(recalls|is recalling|issues|issued|announces|announced|"
+            r"due to possible|public health alert for|warns|withdraws)\b",
+            prod, re.I):
         probs.append("Product looks like a headline, not a product name")
     for agency in ("Agencia Española", "Agencia Espanola", "Food Standards",
                    "Autorité", "Bundesamt", "Ministero della Salute"):
