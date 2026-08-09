@@ -611,6 +611,49 @@ _RAW_TRANSLATIONS = {
     # explicit. The date range is the packing window, not a best-before.
     "Rappel préventif suite à une résultat d'analyse non conforme concernant un ingrédient utilisé dans la fabrication de ces produits.; l'ingrédient a été utilisé dans les préparations emballées entre le 15/07/2026 et le 22/07/2026":
         "Precautionary recall following a non-conforming analysis result on an ingredient used in making these products; the ingredient was used in preparations packed between 15/07/2026 and 22/07/2026",
+
+    # ── HALF-TRANSLATED PATHOGEN NAMES (audit 2026-08-09) ─────────────────
+    #
+    # 26 published RappelConso Reasons read "Presence of salmonelle" — the
+    # verb translated, the ORGANISM left in French. detect_language() cannot
+    # see these: it needs two function-word hits and "Presence of salmonelle"
+    # has none, so looks_non_english() returns False and the row passes the
+    # writer's English-output guard untouched.
+    #
+    # Same failure shape as the bilingual Product split, one word smaller,
+    # and fixed the same way: a verified table, not a rule. There are only
+    # SEVEN distinct strings behind those 26 rows, so a transliteration
+    # engine would be more machinery than the problem deserves — and it
+    # would start guessing at the eighth.
+    #
+    # NOT added: a generic "salmonelle -> Salmonella" substring rewrite.
+    # "Salmonela" appears legitimately inside the Spanish and Romanian halves
+    # of RASFF bilingual subjects, where the English half is already there
+    # after the "//" and the SPLITTER is the right fix. A substring rewrite
+    # would tidy up half of a sentence that should be discarded whole.
+    "Presence of salmonelle": "Presence of Salmonella",
+    "Detection of salmonelle": "Detection of Salmonella",
+    "Salmonelle": "Salmonella",
+    "Presence salmonelle": "Presence of Salmonella",
+    "Presence of salmonelle enteritidis":
+        "Presence of Salmonella Enteritidis",
+    "Presence salmonelle s. typhimurium":
+        "Presence of Salmonella Typhimurium",
+    "Salmonelle entéritidis": "Salmonella Enteritidis",
+
+    # Same half-translation shape, caught by the test above once the 26
+    # salmonelle rows stopped masking it: the count was translated, the
+    # phrase after it was not. "ufc/g" is the French rendering of CFU/g.
+    "Presence of Listeria monocytogenes <10 ufc/g dans une portion de ce lot":
+        "Presence of Listeria monocytogenes at <10 CFU/g in one portion of "
+        "this lot",
+
+    # The one RASFF bilingual subject the splitter cannot resolve: BOTH
+    # halves are non-English (Romanian // Romanian-inflected English), so
+    # split_bilingual() correctly refuses to pick a winner rather than
+    # guessing. Translated here instead, from the notification's own text.
+    "Salmonella spp in care pasare, origine Brazilia // Salmonela spp in chicken meat from Brasil; risk: serious; category: poultry meat and poultry meat products":
+        "Salmonella spp. in poultry meat from Brazil; risk: serious; category: poultry meat and poultry meat products",
 }
 
 REASON_EN: Dict[str, str] = {_norm_key(k): v for k, v in _RAW_TRANSLATIONS.items()}
@@ -665,7 +708,31 @@ def englishify_reason(text) -> Tuple[str, bool]:
     reports it), and never invents.
     """
     s = str(text or "")
-    if not s.strip() or not looks_non_english(s):
+    if not s.strip():
+        return s, False
+
+    # THE TABLE IS CONSULTED FIRST (audit 2026-08-09).
+    #
+    # This used to read `if not looks_non_english(s): return s, False` — the
+    # detector gated the table. That is backwards. looks_non_english() is a
+    # STATISTICAL test: it needs two function-word hits before it will call a
+    # string foreign, deliberately, so that "brie a l'ail" and a Greek lab
+    # name are never mistaken for prose to translate.
+    #
+    # "Presence of salmonelle" has no French function words at all — the verb
+    # was translated and only the ORGANISM was left behind. The detector
+    # scored it English, so the table was never consulted, and 26 published
+    # rows kept a French pathogen name that the table has an exact, verified
+    # entry for.
+    #
+    # A verified exact-match table entry is stronger evidence than any
+    # detector: someone wrote that mapping down deliberately. So it wins.
+    # Unknown strings still fall through to the detector, so nothing is
+    # guessed and the caller still gets its report.
+    out = to_english(s)
+    if out and out != s:
+        return out, True
+    if not looks_non_english(s):
         return s, False
     out = to_english(s)
     if out and out != s:

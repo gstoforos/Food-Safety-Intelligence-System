@@ -148,8 +148,21 @@ _LANDING_PATHS = frozenset({
 # _blank() guards (Pathogen, Reason, Company, Product, Class, Date, Source,
 # URL) is free text where "0" can only ever be an artifact; the numeric
 # columns Tier and Outbreak are checked elsewhere and never pass through here.
+#
+# Audit 2026-08-09: ditto markers added. RappelConso fiche 23108 (La Fumerie
+# du Coin, Listeria) is published in Recalls with Product = "idem".
+#
+# Worth being precise about whose defect that is: it is NOT a scraper
+# artifact. The DGCCRF open-data record for 23108 carries
+# modeles_ou_references = "idem" verbatim — the notifier typed a ditto mark
+# into the product-name field. The pipeline captured it faithfully. But a
+# ditto referring to a field the reader cannot see names no product, so it is
+# a placeholder in exactly the sense this set means, and a hazard row whose
+# Product names no product should not publish.
 _PLACEHOLDER_VALUES = frozenset({
     "", "none", "null", "n/a", "na", "-", "—", "tbd", "unknown", "nan", "0",
+    "idem", "ditto", "id.", "same as above", "voir ci-dessus", "cf. ci-dessus",
+    "s.o.", "idem que ci-dessus",
 })
 
 # Regulator page-status banners that some scrapers fold into Company because

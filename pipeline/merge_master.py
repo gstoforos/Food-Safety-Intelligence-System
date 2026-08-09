@@ -1876,6 +1876,32 @@ def _write_sheet(wb: Workbook,
     # ("brie a l'ail", "Χούμους", "Freshona Bio Beerenmischung") does not
     # split into two languages, so it is never touched — which is exactly the
     # brand/product-name exemption the rule asks for.
+    # ── HTML ENTITIES (audit 2026-08-09) ────────────────────────────────
+    # Two USDA FSIS rows reached Pending as
+    #     "City Foods, Inc./Bea&#039;s Best Corned Beef"
+    #     "Mary&#039;s Harvest Fresh Foods, Inc."
+    # — the scraper read the entity-encoded HTML source and never decoded it.
+    # These render literally on the dashboard and in subscriber email, and
+    # they break exact-match dedup against the same firm captured correctly
+    # elsewhere.
+    #
+    # Decoded HERE rather than in each scraper because this is the single
+    # writer every sheet write passes through, and because the fix must apply
+    # to the rows already sitting in Pending, not only to future scrapes.
+    # unescape() is idempotent and leaves a bare "&" alone, so re-running it
+    # on already-clean text is a no-op.
+    try:
+        import html as _html_mod                       # noqa: WPS433
+        for _row in rows:
+            for _col in ("Company", "Brand", "Product", "Reason", "Notes"):
+                _val = _row.get(_col)
+                if isinstance(_val, str) and "&" in _val and ";" in _val:
+                    _dec = _html_mod.unescape(_val)
+                    if _dec != _val:
+                        _row[_col] = _dec
+    except Exception:                                  # pragma: no cover
+        pass
+
     try:
         from pipeline._language import (  # noqa: WPS433
             split_bilingual as _split_bilingual,

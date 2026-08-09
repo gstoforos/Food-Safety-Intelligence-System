@@ -460,18 +460,10 @@ _NON_ENGLISH_TOKENS = (
     "presence de", "présence", " et de ", " avec ", " sur place",
     " nella ", " nel prodotto", " im produkt", " en el producto",
     " a l'ail", "seche", "sèche", "fabriquees", "fabriquées",
-    # Foreign-language spellings of pathogen names. Their presence means the
-    # Reason was only half-translated (e.g. "Presence of salmonelle"), which a
-    # function-word test misses because the rest of the sentence is English.
-    "salmonelle", "salmonela", "salmonellose", "salmonelose",
-    "listerie", "listérie", "listeriose", "listériose", "listeriosis dans",
-    "colibacille", "escherichia coli dans", "botulisme", "norovirus dans",
-    "hepatite", "hépatite",
 )
 # Strings that are explanations, not values.
 _PLACEHOLDER_MARKERS = (
     "not specified", "non spécifié", "no especificado", "not stated",
-    "idem", "ditto", "voir ci-dessus", "same as above", "as above",
     "unknown", "n/a", "see notice", "see the notice", "aucune information",
 )
 
@@ -481,11 +473,8 @@ _PLACEHOLDER_MARKERS = (
 # pathogen was almost certainly fabricated (the LGM "Listeria"/peanuts and the
 # Ukrops "Hepatitis A"/aluminium-slivers incidents both look exactly like this).
 _NON_PATHOGEN_HAZARDS = (
-    "foreign body", "foreign material", "foreign matter", "foreign object",
-    "corps etranger", "corps étranger", "aluminium", "aluminum",
-    "metal sliver", "metal fragment", "metal piece", "piece of metal",
-    "metal shard", "pieces of metal", "glass", "plastic fragment",
-    "wood fragment", "rubber fragment",
+    "foreign body", "foreign material", "aluminium", "aluminum", "metal sliver",
+    "metal fragment", "glass", "plastic fragment", "wood fragment",
     "undeclared allergen", "undeclared milk", "undeclared peanut",
     "undeclared soy", "undeclared gluten", "undeclared sulphite",
     "labelling error", "labeling error", "incorrect label", "mislabel",
@@ -507,20 +496,61 @@ _NON_ENGLISH_FUNCTION_WORDS = (
 
 
 def _pathogen_reason_contradiction(merged: Dict[str, Any]) -> Optional[str]:
-    """Pathogen names an organism but the Reason describes a non-pathogen
-    hazard, and the organism appears nowhere in the Reason."""
-    patho = str(merged.get("Pathogen", "") or "").lower()
-    reason = str(merged.get("Reason", "") or "").lower()
-    if not patho or not reason:
+    """Pathogen names an organism but the Reason describes a different class
+    of hazard.
+
+    DELEGATES TO THE CANONICAL CLASSIFIER (audit 2026-08-09).
+    ========================================================
+    This used to walk `_NON_PATHOGEN_HAZARDS` above — a private copy of a
+    table that already exists, maintained, in pipeline/_publish_gate.py. On
+    2026-08-05 the FSANZ Key-Sun Kids lozenge arrived with
+
+        Pathogen  Listeria monocytogenes
+        Reason    "There is a risk of the presence of foreign matter (metal)."
+
+    and this function returned None, because the private copy knows
+    "foreign body" and "foreign material" but not "foreign MATTER". The
+    canonical table has carried "foreign matter" all along, so _publish_gate
+    blocked the row and the fabricated pathogen never reached Recalls — the
+    deterministic gate covered for the reviewer.
+
+    That is the third time a duplicated hazard table has drifted (LGM
+    Listeria/peanuts, Ukrops Hepatitis A/aluminium, now this). The
+    _publish_gate docstring already records the decision that claude_check
+    must import rather than copy; this module was never brought into line.
+    Adding "foreign matter" to the copy would fix this one row and leave the
+    next divergence to be found by the next incident.
+
+    The private tuples are kept ONLY as an offline fallback for the case
+    where _publish_gate cannot be imported at all. They are no longer the
+    primary path, so they can no longer silently disagree with it.
+    """
+    patho = str(merged.get("Pathogen", "") or "")
+    reason = str(merged.get("Reason", "") or "")
+    if not patho.strip() or not reason.strip():
         return None
-    if not any(p in patho for p in _PATHOGEN_NAMES):
+
+    try:
+        from pipeline._publish_gate import (
+            pathogen_reason_class_mismatch, classify_hazard,
+        )
+    except ImportError:                                # pragma: no cover
+        pl, rl = patho.lower(), reason.lower()
+        if not any(p in pl for p in _PATHOGEN_NAMES):
+            return None
+        if any(p in rl for p in _PATHOGEN_NAMES):
+            return None
+        for hz in _NON_PATHOGEN_HAZARDS:
+            if hz in rl:
+                return (f"Pathogen {patho!r} contradicts Reason "
+                        f"(describes {hz!r}) — pathogen likely fabricated")
         return None
-    if any(p in reason for p in _PATHOGEN_NAMES):
-        return None  # reason mentions the organism too — consistent
-    for hz in _NON_PATHOGEN_HAZARDS:
-        if hz in reason:
-            return (f"Pathogen {merged.get('Pathogen')!r} contradicts Reason "
-                    f"(describes {hz!r}) — pathogen likely fabricated")
+
+    if pathogen_reason_class_mismatch(patho, reason):
+        return (f"Pathogen {patho!r} contradicts Reason "
+                f"({sorted(classify_hazard(patho))} vs "
+                f"{sorted(classify_hazard(reason))}) — one of the two fields "
+                f"is not what the source page says")
     return None
 
 
