@@ -1876,6 +1876,54 @@ def _write_sheet(wb: Workbook,
     # ("brie a l'ail", "Χούμους", "Freshona Bio Beerenmischung") does not
     # split into two languages, so it is never touched — which is exactly the
     # brand/product-name exemption the rule asks for.
+    # ── PATHOGEN LABEL NOTATION (audit 2026-08-09) ──────────────────────
+    # Operator: "why in some we have listeria and others listeria mono..".
+    #
+    # Counting the register settles it — bare "Listeria" is not a convention,
+    # it is an outlier:
+    #     Listeria monocytogenes  494        Salmonella        382
+    #     Listeria                  2        Salmonella spp.    11
+    #                                        Salmonella spp      2
+    #
+    # Two different problems hide in that, and only ONE is safe to fix
+    # mechanically:
+    #
+    #   NOTATION — "Salmonella spp." and "Salmonella spp" are the same claim
+    #     as "Salmonella": genus named, species unspecified. Three spellings
+    #     of one fact split the pathogen table in every weekly and monthly
+    #     report — the same ambiguity the W32 reviewer raised about
+    #     "Salmonella spp. 15" beside "Salmonella Javiana 1". Collapsed here.
+    #
+    #   SPECIFICITY — a bare "Listeria" where the source says "Listeria
+    #     monocytogenes" is a LOST FACT, not a spelling. It is NOT repaired
+    #     here: promoting a genus to a species is a claim about the world and
+    #     belongs in an audited row-by-row fix against the source, never in a
+    #     silent writer rewrite. Both offending rows were repaired that way on
+    #     2026-08-09 — each one's own Reason text already named the species.
+    #
+    # A trailing "spp"/"spp." is stripped ONLY when it directly follows the
+    # genus. "Salmonella Javiana" and "Listeria innocua" name a member of the
+    # genus and are never touched — that distinction is the whole point.
+    try:
+        import re as _re_p                             # noqa: WPS433
+        _SPP = _re_p.compile(
+            r"^(Listeria|Salmonella|Escherichia|Campylobacter|Vibrio|"
+            r"Bacillus|Clostridium|Shigella|Cronobacter|Yersinia)"
+            r"\s+spp\.?$", _re_p.IGNORECASE)
+        for _row in rows:
+            _p = _row.get("Pathogen")
+            if not isinstance(_p, str) or not _p.strip():
+                continue
+            # Multi-pathogen cells are comma-separated; normalise each part.
+            _parts = [p.strip() for p in _p.split(",")]
+            _fixed = [(_SPP.sub(r"\1", p) if _SPP.match(p) else p)
+                      for p in _parts]
+            _new = ", ".join(x for x in _fixed if x)
+            if _new and _new != _p:
+                _row["Pathogen"] = _new
+    except Exception:                                  # pragma: no cover
+        pass
+
     # ── HTML ENTITIES (audit 2026-08-09) ────────────────────────────────
     # Two USDA FSIS rows reached Pending as
     #     "City Foods, Inc./Bea&#039;s Best Corned Beef"

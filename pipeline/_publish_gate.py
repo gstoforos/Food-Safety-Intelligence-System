@@ -441,6 +441,47 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
                     f"URL is a regulator landing page, not a recall notice "
                     f"({url[:80]!r})")
 
+            # 6b. THE URL MUST BE ON THE REGULATOR'S OWN HOST.
+            #
+            # Audit 2026-08-09. FSIS recall 015-2026 (City Foods, Inc. /
+            # Bea's Best Corned Beef, Listeria) was promoted into Recalls
+            # with Source "USDA FSIS" and
+            #     URL  https://www.usatoday.com/recalls/meat-and-poultry/...
+            # It passed every reviewer, including the final one, and passed
+            # this gate, because nothing here looked at the HOST. Three
+            # sibling rows for the same recall were sitting in Pending at the
+            # same moment carrying the correct fsis.usda.gov address — the
+            # pipeline minted four rows for one recall and published the one
+            # citing a newspaper.
+            #
+            # The check itself was not missing. pipeline/verify_urls.py has
+            # had HOST_FOR_SOURCE since 2026-08-02 and names this row in one
+            # line. But it is a standalone CLI meant for CI, so nothing on
+            # the promotion path ever consulted it. A check that exists but
+            # is not wired into the gate is a check that does not run.
+            #
+            # Imported, not copied — today's other finding was a fourth
+            # private copy of a hazard table drifting out of sync. The import
+            # is lazy because verify_urls imports publish_blockers back.
+            #
+            # Sources absent from the map are not checked: better silent than
+            # wrong, same rule as in verify_urls.
+            try:
+                from pipeline.verify_urls import HOST_FOR_SOURCE, _host
+                _allowed = HOST_FOR_SOURCE.get(str(row.get("Source") or "").strip())
+                if _allowed:
+                    _h = _host(url)
+                    if not any(_h == a or _h.endswith("." + a) or a in _h
+                               for a in _allowed):
+                        problems.append(
+                            f"URL host {_h!r} does not belong to Source "
+                            f"{str(row.get('Source'))!r} (expected one of "
+                            f"{list(_allowed)}) — the row cites a regulator "
+                            f"that did not publish it. AFTS publishes "
+                            f"official regulator sources only")
+            except ImportError:                        # pragma: no cover
+                pass
+
     # 7. Pathogen and Reason must not describe different hazard classes.
     #    See the 2026-08-02 incident in the module docstring: an invented
     #    "Listeria monocytogenes" sat on a row whose own Reason said
