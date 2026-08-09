@@ -412,3 +412,140 @@ class TestProductSplitIsScopedToRASFF(unittest.TestCase):
         self.assertEqual([], bad,
                          f"Product ends with an unmatched ')' — the tell of a "
                          f"split through the middle of a parenthetical: {bad}")
+
+
+class TestAudit20260809(unittest.TestCase):
+    """Half-translated PATHOGEN NAMES, and the detector-first ordering bug.
+
+    26 published RappelConso Reasons read "Presence of salmonelle" — verb in
+    English, organism still French. detect_language() cannot see them: it
+    requires two function-word hits and that string has none. So the writer
+    guard scored them English and left them alone.
+
+    The deeper defect was the ORDER inside englishify_reason(): the statistical
+    detector gated the verified table. A table entry someone wrote down by hand
+    is stronger evidence than a word-frequency heuristic, so the table is now
+    consulted first. Restoring the old order re-hides 57 rows.
+    """
+
+    def test_the_published_offenders_translate(self):
+        for src, want in (
+            ("Presence of salmonelle", "Presence of Salmonella"),
+            ("Detection of salmonelle", "Detection of Salmonella"),
+            ("Salmonelle", "Salmonella"),
+            ("Presence of salmonelle enteritidis",
+             "Presence of Salmonella Enteritidis"),
+            ("Presence salmonelle s. typhimurium",
+             "Presence of Salmonella Typhimurium"),
+        ):
+            out, changed = englishify_reason(src)
+            self.assertTrue(changed, f"{src!r} was left alone")
+            self.assertEqual(want, out)
+
+    def test_the_detector_still_cannot_see_them(self):
+        """The premise. If this ever starts returning True the ordering fix is
+        no longer what is doing the work, and this suite would pass for the
+        wrong reason."""
+        self.assertFalse(looks_non_english("Presence of salmonelle"))
+
+    def test_the_table_is_consulted_before_the_detector(self):
+        src = (ROOT / "pipeline" / "_language.py").read_text(encoding="utf-8")
+        body = src.split("def englishify_reason", 1)[1]
+        # CODE only — the explanatory comment above names both functions, and
+        # matching on prose would make this test assert about paragraph order.
+        body = "\n".join(l for l in body.splitlines()
+                         if not l.lstrip().startswith("#"))
+        first_to_english = body.find("out = to_english(s)")
+        first_detector = body.find("if not looks_non_english(s)")
+        self.assertNotEqual(-1, first_to_english)
+        self.assertNotEqual(-1, first_detector)
+        self.assertLess(first_to_english, first_detector,
+                        "the statistical detector is gating the verified "
+                        "table again — that is what hid 26 rows")
+
+    def test_an_unknown_string_is_still_never_guessed(self):
+        text = "Une formulation totalement inconnue de cette table"
+        out, changed = englishify_reason(text)
+        self.assertFalse(changed)
+        self.assertEqual(text, out)
+
+    def test_no_salmonelle_survives_in_a_published_reason(self):
+        try:
+            import openpyxl
+        except ImportError:                            # pragma: no cover
+            self.skipTest("openpyxl not installed")
+        xlsx = ROOT / "docs" / "data" / "recalls.xlsx"
+        if not xlsx.exists():                          # pragma: no cover
+            self.skipTest("recalls.xlsx not present")
+        import re
+        wb = openpyxl.load_workbook(xlsx, read_only=True)
+        rows = list(wb["Recalls"].values)
+        hdr = [str(h) for h in rows[0]]
+        bad = [str(dict(zip(hdr, r)).get("Reason"))
+               for r in rows[1:] if r
+               and re.search(r"\bsalmonelle\b",
+                             str(dict(zip(hdr, r)).get("Reason") or ""), re.I)]
+        self.assertEqual([], bad, f"{len(bad)} published Reason(s) still name "
+                                  f"the organism in French: {bad[:3]}")
+
+
+class TestDittoIsNotAProductName(unittest.TestCase):
+    """RappelConso fiche 23108 published with Product = "idem".
+
+    Not a scraper artifact: the DGCCRF open-data record carries
+    modeles_ou_references = "idem" verbatim. The notifier typed a ditto mark.
+    The pipeline captured it faithfully — and a ditto pointing at a field the
+    reader cannot see still names no product.
+    """
+
+    def test_the_gate_rejects_a_ditto_product(self):
+        from pipeline._publish_gate import publish_blockers
+        row = {"Date": "2026-08-06", "Source": "RappelConso (FR)",
+               "Company": "La Fumerie du Coin", "Brand": "La Fumerie du Coin",
+               "Product": "idem", "Pathogen": "Listeria monocytogenes",
+               "Reason": "Presence of Listeria monocytogenes",
+               "Class": "Voluntary", "Country": "France", "Region": "Europe",
+               "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23108/Interne"}
+        self.assertTrue(any("Product is empty" in b
+                            for b in publish_blockers(row)),
+                        "a ditto mark passed as a product name")
+
+    def test_a_real_product_name_is_untouched(self):
+        from pipeline._publish_gate import publish_blockers
+        row = {"Date": "2026-08-06", "Source": "RappelConso (FR)",
+               "Company": "La Fumerie du Coin", "Brand": "La Fumerie du Coin",
+               "Product": "Saumon fumé 200 g", "Pathogen": "Listeria monocytogenes",
+               "Reason": "Presence of Listeria monocytogenes",
+               "Class": "Voluntary", "Country": "France", "Region": "Europe",
+               "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23108/Interne"}
+        self.assertEqual([], publish_blockers(row))
+
+
+class TestReviewAgentUsesTheCanonicalHazardTable(unittest.TestCase):
+    """The FSANZ Key-Sun lozenge (2026-08-05) carried a fabricated
+    "Listeria monocytogenes" against Reason "risk of the presence of foreign
+    matter (metal)". _publish_gate blocked it. recall_review_agent did not,
+    because it kept a PRIVATE copy of the hazard table that knew
+    "foreign body" and "foreign material" but not "foreign matter".
+
+    Third drift of a duplicated hazard table. The agent now delegates.
+    """
+
+    def test_foreign_matter_is_a_physical_hazard(self):
+        from pipeline._publish_gate import classify_hazard
+        self.assertIn("physical", classify_hazard(
+            "There is a risk of the presence of foreign matter (metal)."))
+
+    def test_the_gate_blocks_the_lozenge(self):
+        from pipeline._publish_gate import pathogen_reason_class_mismatch
+        self.assertTrue(pathogen_reason_class_mismatch(
+            "Listeria monocytogenes",
+            "There is a risk of the presence of foreign matter (metal)."))
+
+    def test_the_agent_delegates_instead_of_copying(self):
+        src = (ROOT / "pipeline" / "recall_review_agent.py").read_text(
+            encoding="utf-8")
+        body = src.split("def _pathogen_reason_contradiction", 1)[1]
+        self.assertIn("pathogen_reason_class_mismatch", body,
+                      "recall_review_agent is still walking its private "
+                      "hazard list as the primary path")
