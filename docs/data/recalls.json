@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-08-10",
+  "Source": "FSAI (IE)",
+  "Company": "Tesco",
+  "Brand": "",
+  "Product": "Tesco Sesame Seeds",
+  "Pathogen": "Salmonella",
+  "Reason": "Recall due to the presence of Salmonella",
+  "Class": "Alert",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-tesco-sesame-seeds",
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [review-agent 2026-08-10: pending_enrichment → pending (Qwen verified, final reviewer)] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
+ },
+ {
   "Date": "2026-08-09",
   "Source": "FDA",
   "Company": "Taylor Fresh Foods",
@@ -206,6 +222,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23052/interne",
   "Notes": "e leclerc chécy"
+ },
+ {
+  "Date": "2026-08-07",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Pakistan | Notifying: Ireland",
+  "Brand": "—",
+  "Product": "Salmonella in sesame seeds",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella in sesame seeds; risk: serious; category: nuts, nut products and seeds",
+  "Class": "Alert",
+  "Country": "Pakistan",
+  "Region": "Asia",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/864557",
+  "Notes": "[RASFF #2026.7044; classification: alert notification; category: nuts, nut products and seeds; notifId=864557]"
  },
  {
   "Date": "2026-08-06",
