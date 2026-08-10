@@ -179,6 +179,47 @@ class TestUrlRule(unittest.TestCase):
             URL="https://www.fsis.usda.gov/recalls-alerts/city-foods-inc-"
                 "recalls-ready-eat-pastrami-and-corned-beef-products-due-possible")))
 
+    def test_the_fsa_metadata_endpoint_is_not_a_notice(self):
+        """Eight rows cited data.food.gov.uk/food-alerts/id/FSA-PRIN-NN — the
+        linked-data record (JSON/RDF/CSV/Turtle), not a page a subscriber can
+        open. uk.py was reading a field named "url" that the API does not
+        publish, so every FSA row fell through to the @id."""
+        from pipeline.verify_urls import _host
+        self.assertEqual("data.food.gov.uk", _host(
+            "https://data.food.gov.uk/food-alerts/id/FSA-PRIN-38-2026"))
+        src = (ROOT / "pipeline" / "official_feeds" / "sources"
+               / "uk.py").read_text(encoding="utf-8")
+        self.assertIn('item.get("alertURL")', src,
+                      "the FSA scraper is not reading the record's alertURL")
+        self.assertNotIn('item.get("url") or item.get("@id", "")', src,
+                         "the @id is being used as a URL fallback again — a "
+                         "metadata endpoint is not a notice")
+
+    def test_the_www_transform_is_not_used(self):
+        """The obvious repair — lowercase the notation onto
+        www.food.gov.uk/news-alerts/alert/ — is what a 2018 record suggests
+        and 404s for 2026 alerts. The FSA moved its alert host to
+        alerts.food.gov.uk. Verified by hand:
+            www.food.gov.uk/news-alerts/alert/fsa-prin-38-2026     -> 404
+            alerts.food.gov.uk/news-alerts/alert/fsa-prin-38-2026  -> notice
+        """
+        try:
+            import openpyxl
+        except ImportError:                            # pragma: no cover
+            self.skipTest("openpyxl not installed")
+        xlsx = ROOT / "docs" / "data" / "recalls.xlsx"
+        if not xlsx.exists():                          # pragma: no cover
+            self.skipTest("recalls.xlsx not present")
+        wb = openpyxl.load_workbook(xlsx, read_only=True)
+        rows = list(wb["Recalls"].values)
+        hdr = [str(h) for h in rows[0]]
+        bad = [str(dict(zip(hdr, r)).get("URL"))
+               for r in rows[1:] if r
+               and "data.food.gov.uk/food-alerts/id/" in
+               str(dict(zip(hdr, r)).get("URL") or "")]
+        self.assertEqual([], bad, f"{len(bad)} row(s) still cite the FSA "
+                                  f"metadata endpoint: {bad[:3]}")
+
     def test_an_unmapped_source_is_not_guessed_at(self):
         """Sources absent from HOST_FOR_SOURCE are not checked — better
         silent than wrong, same rule as verify_urls."""
