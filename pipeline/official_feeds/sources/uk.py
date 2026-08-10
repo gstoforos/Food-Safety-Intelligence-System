@@ -212,8 +212,38 @@ def fetch(limit: int = 50, include_scotland: bool = False,
 
         cc, cname, auth = _derive_country(countries, include_scotland)
 
-        # Prefer the public news-alerts URL over the data.food.gov.uk JSON @id.
-        pub_url = item.get("url") or item.get("@id", "")
+        # THE FIELD IS alertURL, NOT url (audit 2026-08-09).
+        #
+        # The intent below was already right — "prefer the public news-alerts
+        # URL over the data.food.gov.uk JSON @id" — but it read a field this
+        # API does not publish. item.get("url") was always None, so every FSA
+        # row fell through to the @id and was stored as
+        #     https://data.food.gov.uk/food-alerts/id/FSA-PRIN-38-2026
+        # which is the machine-readable record (JSON/RDF/CSV/Turtle), not a
+        # page a subscriber can open. Eight published rows carry it.
+        #
+        # The human page is published by the record itself, in alertURL:
+        #     alertURL  https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-38-2026
+        #
+        # Read from the record rather than derived by transform. The obvious
+        # transform — lowercase the notation onto
+        # www.food.gov.uk/news-alerts/alert/ — is what a 2018 record suggests
+        # and it is WRONG for 2026:
+        #     www.food.gov.uk/news-alerts/alert/fsa-prin-38-2026     -> 404
+        #     alerts.food.gov.uk/news-alerts/alert/fsa-prin-38-2026  -> the notice
+        # The FSA moved its alert host; older alerts still answer on www, so a
+        # rule inferred from an old record produces dead links for new ones
+        # while looking verified. The record's own field cannot drift that way.
+        #
+        # If a record ever lacks alertURL the @id is NOT used as a fallback: a
+        # metadata endpoint is not a notice, and publishing one is the defect
+        # this comment exists to describe.
+        pub_url = (item.get("alertURL") or item.get("alerturl")
+                   or item.get("url") or "")
+        if not pub_url:
+            print(f"  [WARN] {notation}: no alertURL in the record "
+                  f"({item.get('@id', '')}) — emitting the row without a URL "
+                  f"rather than citing the metadata endpoint")
 
         rec = Record(
             source_id=notation,
