@@ -52,6 +52,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -460,6 +461,9 @@ _NON_ENGLISH_TOKENS = (
     "presence de", "présence", " et de ", " avec ", " sur place",
     " nella ", " nel prodotto", " im produkt", " en el producto",
     " a l'ail", "seche", "sèche", "fabriquees", "fabriquées",
+    "salmonelle", "salmonela", "salmonellose", "salmonelose",
+    "listerie", "listérie", "listeriose", "listériose",
+    "colibacille", "botulisme", "hepatite", "hépatite",
 )
 # Strings that are explanations, not values.
 _PLACEHOLDER_MARKERS = (
@@ -493,6 +497,105 @@ _NON_ENGLISH_FUNCTION_WORDS = (
     " sur ", " pour ", " en el ", " de los ", " nel ", " nella ", " im ",
     " und ", " para ", " procedente", " presencia", " présence", " aux ",
 )
+
+
+# Official domain for each Source. A verified URL MUST live on the regulator's
+# own site — a news aggregator that merely reports the recall is not the source
+# of record. (City Foods 015-2026 was approved on a usatoday.com link.)
+_SOURCE_DOMAINS = {
+    "usda fsis": ("fsis.usda.gov",),
+    "fda": ("fda.gov", "accessdata.fda.gov"),
+    "cdc": ("cdc.gov",),
+    "cfia": ("recalls-rappels.canada.ca", "inspection.canada.ca"),
+    "rappelconso": ("rappel.conso.gouv.fr",),
+    "rasff": ("webgate.ec.europa.eu",),
+    "fsa (uk)": ("food.gov.uk",),
+    "fsai": ("fsai.ie",),
+    "fsanz": ("foodstandards.gov.au",),
+    "aesan": ("aesan.gob.es",),
+    "efet": ("efet.gr",),
+    "bvl": ("bvl.bund.de", "lebensmittelwarnung.de"),
+    "blv": ("blv.admin.ch", "recallswiss.admin.ch"),
+    "favv": ("favv-afsca.be", "favv.be", "afsca.be"),
+    "afsca": ("favv-afsca.be", "favv.be", "afsca.be"),
+    "nvwa": ("nvwa.nl",),
+    "ages": ("ages.at",),
+    "mfds": ("mfds.go.kr", "foodsafetykorea.go.kr"),
+    "anvisa": ("gov.br",),
+    "sfa": ("sfa.gov.sg",),
+    "cfs": ("cfs.gov.hk",),
+    "ncc": ("thencc.org.za",),
+    "livsmedelsverket": ("livsmedelsverket.se",),
+    "salute": ("salute.gov.it",),
+}
+# Aggregators / news sites that must never be a row's URL.
+_NON_OFFICIAL_DOMAINS = (
+    "usatoday.com", "recalltracker", "vigiproduit", "60millions",
+    "foodsafetynews", "thenightly", "culturacolectiva", "freedom.fr",
+    "newsweek", "cnn.com", "bbc.co", "reuters.com", "yahoo.",
+    "facebook.", "twitter.", "x.com", "reddit.",
+)
+
+
+# Some regulators publish a machine-readable record at one URL and the human
+# notice at another. Storing the API record gives metadata, not a page a reader
+# can open, so canonicalise to the public alert page.
+#   FSA (UK): data.food.gov.uk/food-alerts/id/FSA-PRIN-38-2026
+#             -> www.food.gov.uk/news-alerts/alert/fsa-prin-38-2026
+# (The FSA's own linked-data record carries this as its "alertURL" field.)
+_FSA_API_RE = re.compile(
+    r"https?://data\.food\.gov\.uk/food-alerts/id/([A-Za-z0-9\-]+)", re.I)
+
+
+def canonical_url(url: str) -> str:
+    """Rewrite a known API/metadata URL to its public page. Returns the URL
+    unchanged when no rule applies."""
+    u = str(url or "").strip()
+    m = _FSA_API_RE.match(u)
+    if m:
+        return ("https://www.food.gov.uk/news-alerts/alert/"
+                + m.group(1).lower())
+    return u
+
+
+def _url_source_mismatch(merged: Dict[str, Any]) -> Optional[str]:
+    """The URL must be on the regulator's own domain for its Source."""
+    url = str(merged.get("URL", "") or "").lower()
+    src = str(merged.get("Source", "") or "").lower()
+    if not url:
+        return "URL is empty"
+    if "data.food.gov.uk" in url:
+        return ("URL is the FSA linked-data record (metadata), not the public "
+                "alert page — use www.food.gov.uk/news-alerts/alert/...")
+    for bad in _NON_OFFICIAL_DOMAINS:
+        if bad in url:
+            return (f"URL is a news/aggregator site ({bad}), not the "
+                    f"regulator's own notice")
+    for key, domains in _SOURCE_DOMAINS.items():
+        if key in src:
+            if not any(d in url for d in domains):
+                return (f"URL domain does not match Source {merged.get('Source')!r} "
+                        f"(expected {domains[0]})")
+            return None
+    return None
+
+
+# Bare genus names that must carry their species, matching the register's own
+# vocabulary (494 rows use "Listeria monocytogenes"; only 2 said "Listeria").
+_PATHOGEN_CANON = {
+    "listeria": "Listeria monocytogenes",
+    "listeria spp": "Listeria monocytogenes",
+    "listeria spp.": "Listeria monocytogenes",
+    "l. monocytogenes": "Listeria monocytogenes",
+    "e. coli": "Escherichia coli",
+    "e.coli": "Escherichia coli",
+    "hepatitis a": "Hepatitis A virus",
+}
+
+
+def _canonical_pathogen(value: str) -> str:
+    v = str(value or "").strip()
+    return _PATHOGEN_CANON.get(v.lower(), v)
 
 
 def _pathogen_reason_contradiction(merged: Dict[str, Any]) -> Optional[str]:
@@ -572,6 +675,9 @@ def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
             if not str(merged.get(fld, "") or "").strip():
                 probs.append(f"{fld} is empty")
         return probs
+    _mismatch = _url_source_mismatch(merged)
+    if _mismatch:
+        probs.append(_mismatch)
     _contra = _pathogen_reason_contradiction(merged)
     if _contra:
         probs.append(_contra)
@@ -634,6 +740,12 @@ def _normalize_country_source(merged: Dict[str, Any]) -> None:
     if c.upper() in ("USA", "U.S.A.", "US", "U.S.", "UNITED STATES OF AMERICA",
                      "AMERICA"):
         merged["Country"] = "United States"
+    u = canonical_url(merged.get("URL", ""))
+    if u:
+        merged["URL"] = u
+    p = _canonical_pathogen(merged.get("Pathogen", ""))
+    if p:
+        merged["Pathogen"] = p
     s = str(merged.get("Source", "")).strip()
     # Normalise any FSIS/USDA source label to the canonical "USDA FSIS".
     sl = s.lower()
