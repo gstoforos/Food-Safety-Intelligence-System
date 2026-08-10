@@ -22,14 +22,14 @@
   "Brand": "",
   "Product": "Sesame Seeds Products",
   "Pathogen": "Salmonella",
-  "Reason": "People infected with Salmonella typically develop symptoms between 12 and 36 hours after infection, but this can range between 6 and 72 hours. The most common symptom is diarrhoea, which can sometimes be bloody. Other symptoms may include fever, headache, and abdominal cramps. The illness usually lasts 4 to 7 days. Diarrhoea can occasionally be severe enough to require hospital admission. The elderly, infants, and those with impaired immune systems are more likely to have a severe illness.",
+  "Reason": "Presence of Salmonella in sesame seeds. Part of the FSAI action of 8 August 2026 recalling more than 40 sesame-seed-containing products across Dunnes Stores, SuperValu and Gem Pack.",
   "Class": "Alert",
   "Country": "Ireland",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-gem-pack-sesame-seed",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [review-agent 2026-08-09: pending_enrichment → pending (Qwen verified, final reviewer)] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [review-agent 2026-08-09: pending_enrichment → pending (Qwen verified, final reviewer)] [tier-guard: Salmonella is always Tier 1; forced from Tier 3] [audit 2026-08-10: Reason held the FSAI page's generic Salmonella SYMPTOM paragraph ('People infected with Salmonella typically develop symptoms between 12 and 36 hours after infection...'), which is health advice printed on every FSAI Salmonella alert, not the reason this product was recalled. It had already reached the public daily brief of 2026-08-08. Replaced with the hazard. The scraper is taking the longest paragraph on the page rather than the recall statement — the same shape as the FSAI rows whose Company/Product hold the page title. Salmonella confirmed as the hazard (RTE, Irish Times, thejournal.ie, 2026-08-08/09: FSAI recalls over 40 items from Dunnes Stores and SuperValu over Salmonella risk); the Pathogen field was already correct.]"
  },
  {
   "Date": "2026-08-08",
@@ -38,14 +38,14 @@
   "Brand": "",
   "Product": "SuperValu Seed Mix",
   "Pathogen": "Salmonella",
-  "Reason": "People infected with Salmonella typically develop symptoms between 12 and 36 hours after infection, but this can range between 6 and 72 hours. The most common symptom is diarrhoea, which can sometimes be bloody. Other symptoms may include fever, headache, and abdominal cramps. The illness usually lasts 4 to 7 days. Diarrhoea can occasionally be severe enough to require hospital admission. The elderly, infants, and those with impaired immune systems are more likely to have a severe illness.",
+  "Reason": "Presence of Salmonella in sesame seeds used in the seed mix. Part of the FSAI action of 8 August 2026 recalling more than 40 sesame-seed-containing products across Dunnes Stores, SuperValu and Gem Pack.",
   "Class": "Alert",
   "Country": "Ireland",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-supervalu-seed-mix",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [review-agent 2026-08-09: pending_enrichment → pending (Qwen verified, final reviewer)] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [review-agent 2026-08-09: pending_enrichment → pending (Qwen verified, final reviewer)] [tier-guard: Salmonella is always Tier 1; forced from Tier 3] [audit 2026-08-10: Reason held the FSAI page's generic Salmonella SYMPTOM paragraph ('People infected with Salmonella typically develop symptoms between 12 and 36 hours after infection...'), which is health advice printed on every FSAI Salmonella alert, not the reason this product was recalled. It had already reached the public daily brief of 2026-08-08. Replaced with the hazard. The scraper is taking the longest paragraph on the page rather than the recall statement — the same shape as the FSAI rows whose Company/Product hold the page title. Salmonella confirmed as the hazard (RTE, Irish Times, thejournal.ie, 2026-08-08/09: FSAI recalls over 40 items from Dunnes Stores and SuperValu over Salmonella risk); the Pathogen field was already correct.]"
  },
  {
   "Date": "2026-08-08",
@@ -60,8 +60,8 @@
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fsis.usda.gov/recalls-alerts/city-foods-inc-recalls-ready-eat-pastrami-and-corned-beef-products-due-possible",
-  "Notes": "source_id=015-2026 [via official-feed collector] [url-gate 2026-08-09: Gemini fixed https://www.fsis.usda.gov/recalls-alerts... -> https://www.fsis.usda.gov/recalls-alerts...] [gap-gate 2026-08-09: pending_gap → pending_gap_v1] [review-agent 2026-08-09: pending_gap_v1 → pending (Qwen verified, final reviewer)] [audit 2026-08-09: four defects on one row, promoted after passing every reviewer including the final one. (1) URL was https://www.usatoday.com/recalls/meat-and-poultry/USDA-de86KfcgQrc/ — a newspaper, on a row whose Source is USDA FSIS. Three sibling rows carrying the correct fsis.usda.gov address were in Pending at the same moment; the pipeline minted four rows for one recall and published the one citing an aggregator. The host check existed in pipeline/verify_urls.py but was never wired into the publish gate; it is now rule 6b. (2) Pathogen was the bare genus 'Listeria' — the row's own Reason and the FSIS notice both say Listeria monocytogenes. (3) Class was 'Public Health Alert'; FSIS 015-2026 is a RECALL. (4) Product was the category description, not the products. Firm, establishment number, case codes, weight and distribution read back from the FSIS recall notice.]"
+  "URL": "https://www.fsis.usda.gov/recalls-alerts/city-foods-inc--recalls-ready-eat-pastrami-and-corned-beef-products-due-possible",
+  "Notes": "source_id=015-2026 [via official-feed collector] [url-gate 2026-08-09: Gemini fixed https://www.fsis.usda.gov/recalls-alerts... -> https://www.fsis.usda.gov/recalls-alerts...] [gap-gate 2026-08-09: pending_gap → pending_gap_v1] [review-agent 2026-08-09: pending_gap_v1 → pending (Qwen verified, final reviewer)] [audit 2026-08-09: four defects on one row, promoted after passing every reviewer including the final one. (1) URL was https://www.usatoday.com/recalls/meat-and-poultry/USDA-de86KfcgQrc/ — a newspaper, on a row whose Source is USDA FSIS. Three sibling rows carrying the correct fsis.usda.gov address were in Pending at the same moment; the pipeline minted four rows for one recall and published the one citing an aggregator. The host check existed in pipeline/verify_urls.py but was never wired into the publish gate; it is now rule 6b. (2) Pathogen was the bare genus 'Listeria' — the row's own Reason and the FSIS notice both say Listeria monocytogenes. (3) Class was 'Public Health Alert'; FSIS 015-2026 is a RECALL. (4) Product was the category description, not the products. Firm, establishment number, case codes, weight and distribution read back from the FSIS recall notice.] [audit 2026-08-10: URL slug corrected — 'city-foods-inc-recalls' -> 'city-foods-inc--recalls' (DOUBLE hyphen). FSIS slugifies the full headline 'City Foods, Inc. Recalls Ready-To-Eat...', and the period plus space after 'Inc' becomes two hyphens. The correct address was already in the workbook on 2026-08-09 — it was one of the three Pending duplicates archived that day, and the single-hyphen variant was kept instead. Confirmed against the FSIS page as indexed under its own title; fsis.usda.gov answers 403 to this environment's fetcher, so the search index is the evidence rather than a direct fetch"
  },
  {
   "Date": "2026-08-07",
@@ -76,8 +76,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://data.food.gov.uk/food-alerts/id/FSA-PRIN-38-2026",
-  "Notes": "[promoted 2026-08-07: read back from the FSA Food Alerts API record FSA-PRIN-38-2026 (created 2026-08-07). The FSA scraper produced nothing between 2026-07-08 and 2026-08-07 — pipeline/official_feeds/sources/uk.py queried the endpoint with _sort=-created, which that API ignores silently, so it returned its oldest page (2018) on every run and reported success. This row was never rejected; it was never fetched.] [FSA alert covers England, Scotland and Wales.] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 2]"
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-38-2026",
+  "Notes": "[promoted 2026-08-07: read back from the FSA Food Alerts API record FSA-PRIN-38-2026 (created 2026-08-07). The FSA scraper produced nothing between 2026-07-08 and 2026-08-07 — pipeline/official_feeds/sources/uk.py queried the endpoint with _sort=-created, which that API ignores silently, so it returned its oldest page (2018) on every run and reported success. This row was never rejected; it was never fetched.] [FSA alert covers England, Scotland and Wales.] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 2] [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.]"
  },
  {
   "Date": "2026-08-07",
@@ -2588,8 +2588,8 @@
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
-  "URL": "https://data.food.gov.uk/food-alerts/id/FSA-PRIN-37-2026",
-  "Notes": "[promoted 2026-08-07: read back from the FSA Food Alerts API record FSA-PRIN-37-2026 (created 2026-07-22). The FSA scraper produced nothing between 2026-07-08 and 2026-08-07 — pipeline/official_feeds/sources/uk.py queried the endpoint with _sort=-created, which that API ignores silently, so it returned its oldest page (2018) on every run and reported success. This row was never rejected; it was never fetched.] [FSA alert covers England and Scotland.]"
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-37-2026",
+  "Notes": "[promoted 2026-08-07: read back from the FSA Food Alerts API record FSA-PRIN-37-2026 (created 2026-07-22). The FSA scraper produced nothing between 2026-07-08 and 2026-08-07 — pipeline/official_feeds/sources/uk.py queried the endpoint with _sort=-created, which that API ignores silently, so it returned its oldest page (2018) on every run and reported success. This row was never rejected; it was never fetched.] [FSA alert covers England and Scotland.] [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.]"
  },
  {
   "Date": "2026-07-21",
@@ -2764,8 +2764,8 @@
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
-  "URL": "https://data.food.gov.uk/food-alerts/id/FSA-PRIN-36-2026",
-  "Notes": "[promoted 2026-08-07: read back from the FSA Food Alerts API record FSA-PRIN-36-2026 (created 2026-07-21). The FSA scraper produced nothing between 2026-07-08 and 2026-08-07 — pipeline/official_feeds/sources/uk.py queried the endpoint with _sort=-created, which that API ignores silently, so it returned its oldest page (2018) on every run and reported success. This row was never rejected; it was never fetched.] [FSA alert covers England, Scotland and Wales.]"
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-36-2026",
+  "Notes": "[promoted 2026-08-07: read back from the FSA Food Alerts API record FSA-PRIN-36-2026 (created 2026-07-21). The FSA scraper produced nothing between 2026-07-08 and 2026-08-07 — pipeline/official_feeds/sources/uk.py queried the endpoint with _sort=-created, which that API ignores silently, so it returned its oldest page (2018) on every run and reported success. This row was never rejected; it was never fetched.] [FSA alert covers England, Scotland and Wales.] [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.]"
  },
  {
   "Date": "2026-07-20",
@@ -4556,8 +4556,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-33-2026",
-  "Notes": "PRIN-33-2026 [gemini-enrich 2026-07-08: Brand '—'→'M&S'] [gemini-check 2026-07-08: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: Company was product/headline echo -> 'Marks & Spencer' (headline artifact -> company)]"
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-33-2026",
+  "Notes": "PRIN-33-2026 [gemini-enrich 2026-07-08: Brand '—'→'M&S'] [gemini-check 2026-07-08: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: Company was product/headline echo -> 'Marks & Spencer' (headline artifact -> company)] [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.]"
  },
  {
   "Date": "2026-07-08",
@@ -5457,22 +5457,6 @@
  },
  {
   "Date": "2026-07-01",
-  "Source": "FSA (UK)",
-  "Company": "O'Brien Fine Foods",
-  "Brand": "O'Brien Fine Foods",
-  "Product": "Ham products",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Possible contamination with Listeria monocytogenes",
-  "Class": "Alert",
-  "Country": "United Kingdom",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-32-2026",
-  "Notes": "PRIN-32-2026 [gemini-enrich 2026-07-05: Brand '—'→'O’Brien Fine Foods'] [claude-check 2026-07-05: pass; clean-row shortcut (gemini-enriched + all fields valid)] [audit 2026-08-02: Reason held 'Taux de t-2 toxine et ht-2 toxine supérieures à la valeur réglementaire' — French, and the motif of the six Terres de Moulin Madame flour recalls published the same day (2026-07-01). Cross-row contamination from the url-gate batch mis-attribution. Company held the FSA headline sentence rather than a company name. Repaired from the row's own Product text and the FSA notice; Pathogen (Listeria monocytogenes) was already correct.]"
- },
- {
-  "Date": "2026-07-01",
   "Source": "RappelConso (FR)",
   "Company": "TERRES DE MOULIN MADAME",
   "Brand": "Les Moulinettes",
@@ -5500,8 +5484,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-32-2026",
-  "Notes": "[restored 2026-07-03: kept as distinct UK notice alongside FSAI Irish primary, per operator. Real FSA PRIN-32-2026, dated 2026-07-01.]"
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-32-2026",
+  "Notes": "[restored 2026-07-03: kept as distinct UK notice alongside FSAI Irish primary, per operator. Real FSA PRIN-32-2026, dated 2026-07-01.] [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.]"
  },
  {
   "Date": "2026-07-01",
@@ -6476,8 +6460,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-28-2026-update-1",
-  "Notes": "source_id=FSA-PRIN-28-2026-update-1 [via official-feed collector] [gap-gate 2026-07-03: pending_gap → pending_gap_v1] [claude-check 2026-07-03: skip; fetch failed (non-text content-type: application/json)] [gemini-enrich 2026-07-03: Company ''→'Dunnes Stores'] [gemini-enrich 2026-07-03: Brand ''→'Dunnes Stores'] [gap-gate 2026-07-03: pending_gap_v1 → pending_gap_v2] [gemini-check 2026-07-03: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-03: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-28-2026-update-1",
+  "Notes": "source_id=FSA-PRIN-28-2026-update-1 [via official-feed collector] [gap-gate 2026-07-03: pending_gap → pending_gap_v1] [claude-check 2026-07-03: skip; fetch failed (non-text content-type: application/json)] [gemini-enrich 2026-07-03: Company ''→'Dunnes Stores'] [gemini-enrich 2026-07-03: Brand ''→'Dunnes Stores'] [gap-gate 2026-07-03: pending_gap_v1 → pending_gap_v2] [gemini-check 2026-07-03: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-03: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.]"
  },
  {
   "Date": "2026-06-24",
@@ -6561,22 +6545,6 @@
  },
  {
   "Date": "2026-06-23",
-  "Source": "FSA (UK)",
-  "Company": "ASDA",
-  "Brand": "ASDA",
-  "Product": "ASDA Pink Lady Apple, Mango, Strawberry & Blueberry; Morrisons Kiwi, Melon & Strawberries; Tesco Melon, Kiwi & Strawberry; Tesco Kiwi Fruit Pot; Waitrose Pink Lady Apple and Grapes; M&S Café Pink Lady Apple; M&S (FTG) Pink Lady Apple; M&S Pink Lady Apple Slices; Sainsbury’s Melon, Kiwi & Strawberry; Sainsbury’s Orange & Kiwi; Sainsbury’s Pink Lady Apple & Grape; Tesco Fruit Kebabs; Tesco Melon, Kiwi & Strawberry",
-  "Pathogen": "Salmonella",
-  "Reason": "['Possible contamination of product with salmonella', 'Possible contamination of product with salmonella']",
-  "Class": "Recall",
-  "Country": "United Kingdom",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-29-2026",
-  "Notes": "source_id=FSA-PRIN-29-2026 [via official-feed collector] [gap-gate 2026-07-03: pending_gap → pending_gap_v1] [claude-check 2026-07-03: skip; fetch failed (non-text content-type: application/json)] [gemini-enrich 2026-07-03: Company ''→'ASDA'] [gemini-enrich 2026-07-03: Brand ''→'ASDA'] [gap-gate 2026-07-03: pending_gap_v1 → pending_gap_v2] [gemini-check 2026-07-03: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-03: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
- },
- {
-  "Date": "2026-06-23",
   "Source": "FSAI (IE)",
   "Company": "Traditional Cheese Company",
   "Brand": "Traditional Cheese Company",
@@ -6604,8 +6572,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-29-2026",
-  "Notes": "Prepworld recalls fruit products because of possible contamination with Salmonella | Food Standards Agency\n\nFood Alert\n\n# Prepworld recalls fruit products because of possible contamination with Salmonella\n\nLast updated: 23 June 2026\n\nPrint this page\n\nLast updated: 23 June 2026\n\nPrint this page\n\nPrep  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gemini-check 2026-06-24: skip; claude unreachable / parse failed (unknown)] [gap-gate 2026-06-25: pending_gap → pending_gap_v1] [claude-check 2026-06-25: pass; pass | All fields verified: Date 2026-06-23 matches page header; Company Prepworld confirmed as recalling firm; Product ] [gap-gate 2026-06-25: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-29-2026",
+  "Notes": "Prepworld recalls fruit products because of possible contamination with Salmonella | Food Standards Agency\n\nFood Alert\n\n# Prepworld recalls fruit products because of possible contamination with Salmonella\n\nLast updated: 23 June 2026\n\nPrint this page\n\nLast updated: 23 June 2026\n\nPrint this page\n\nPrep  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gemini-check 2026-06-24: skip; claude unreachable / parse failed (unknown)] [gap-gate 2026-06-25: pending_gap → pending_gap_v1] [claude-check 2026-06-25: pass; pass | All fields verified: Date 2026-06-23 matches page header; Company Prepworld confirmed as recalling firm; Product ] [gap-gate 2026-06-25: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.]"
  },
  {
   "Date": "2026-06-23",
@@ -6814,22 +6782,6 @@
   "Outbreak": 0,
   "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5401-deltio-typou-enimerosi-anaklisis-tyrioy-brie",
   "Notes": "Discovered via news: in.gr [gemini-check 2026-07-25: fix; corrections: Date→2026-06-19, Company→Eurofood Quality S.A., Brand→Ile de France, Product→Petit Brie cheese, Pathogen→Staphylococcus aureus enterotoxin; fix; company mismatch; pathogen mismatch; date on page=2026-06-19 | Corrected date, company, brand, product, and pathoge] [region-fix 2026-07-28: Region 'Athens, Greece'->'Europe'; Region is a continent bucket, detailed geography belongs in Notes. Country=Greece] [class-fix 2026-07-28: Class was blank -> 'Alert', matching the other EFET rows] [wording-fix 2026-08-01: Reason was 'Recall ID 842632', the leaked prompt example. Replaced with the hazard already recorded in this row's verified Pathogen field (Staphylococcus aureus enterotoxin) for the product named in EFET's URL slug (anaklisis-tyrioy-brie / recall of Brie cheese).]"
- },
- {
-  "Date": "2026-06-19",
-  "Source": "FSA (UK)",
-  "Company": "Dunnes Stores",
-  "Brand": "Dunnes Stores",
-  "Product": "Dunnes Stores Velvety & Mild French Brie; Traditional Cheese Company French Brie",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "['Contamination of product with Listeria monocytogenes', 'Contamination of product with Listeria monocytogenes']",
-  "Class": "Recall",
-  "Country": "United Kingdom",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "http://data.food.gov.uk/food-alerts/id/FSA-PRIN-28-2026",
-  "Notes": "source_id=FSA-PRIN-28-2026 [via official-feed collector] [gemini-enrich 2026-07-05: Company ''→'Dunnes Stores'] [gemini-enrich 2026-07-05: Brand ''→'Dunnes Stores'] [gap-gate 2026-07-05: pending_gap → pending_gap_v1] [claude-check 2026-07-05: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-05: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-06-19",
@@ -7052,8 +7004,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-28-2026",
-  "Notes": "Manual fix 2026-06-25: consolidated Traditional Cheese Brie recall. Kept this FSA food.gov.uk alert as canonical; dropped data.food.gov.uk JSON-format duplicate, FSA-PRIN-28-update-1, and FSAI Irish mirror. RASFF 853516 + FSAI R39 retained as distinct regulator notifications."
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-28-2026",
+  "Notes": "Manual fix 2026-06-25: consolidated Traditional Cheese Brie recall. Kept this FSA food.gov.uk alert as canonical; dropped data.food.gov.uk JSON-format duplicate, FSA-PRIN-28-update-1, and FSAI Irish mirror. RASFF 853516 + FSAI R39 retained as distinct regulator notifications. [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.]"
  },
  {
   "Date": "2026-06-19",
