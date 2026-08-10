@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-08-09",
+  "Source": "FDA",
+  "Company": "Taylor Fresh Foods",
+  "Brand": "Trader Joe’s, Freshness Guaranteed and more",
+  "Product": "Finished products (e.g. dips, salsa, guacamole and more) containing jalapeno",
+  "Pathogen": "Salmonella",
+  "Reason": "Possible Salmonella Contamination",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-products-made-jalapeno-peppers-because-possible-health-risk",
+  "Notes": "FDA listing HTML (Layer 1)"
+ },
+ {
   "Date": "2026-08-08",
   "Source": "FSAI (IE)",
   "Company": "Dunnes Stores Baxter & Greene",
