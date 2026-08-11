@@ -1,10 +1,10 @@
 {
-  "generated": "2026-08-09T09:36:33+03:00",
-  "date": "2026-08-09",
+  "generated": "2026-08-11T09:45:16+03:00",
+  "date": "2026-08-11",
   "mode": "live",
   "in_progress_week": "W33",
   "counts": {
-    "recalls_rows": 1363,
+    "recalls_rows": 1368,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
@@ -294,7 +294,7 @@
           "Source": "CFIA",
           "Company": "Charlevoisienne",
           "Product": "Charlevoisienne and Joe Smoked Meat brand meat products recalled due to Listeria monocytogenes",
-          "Pathogen": "Listeria",
+          "Pathogen": "Listeria monocytogenes",
           "Country": "Canada",
           "Tier": 1,
           "URL": "https://recalls-rappels.canada.ca/en/alert-recall/charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due-listeria"
@@ -332,14 +332,21 @@
   },
   "stale_reports": {
     "weeklies": [
-      "W32"
+      "W26",
+      "W27"
     ],
-    "monthlies": []
+    "monthlies": [
+      "M06",
+      "M07"
+    ]
   },
   "rebuilt": {
     "weeklies": [
-      "W32"
+      "W26",
+      "W27"
     ],
-    "monthlies": []
+    "monthlies": [
+      "M06"
+    ]
   }
 }
