@@ -34,7 +34,10 @@ name: AFTS Monthly Updates Check
 
 on:
   # Scheduling is centralized in Apps Script (FsisScheduler.gs) which
-  # dispatches this workflow on the 8th of each month at 09:00 Athens.
+  # dispatches this workflow on the 10th of each month at 04:00 Athens.
+  # (Day 8 -> 10 on operator request, 2026-08-11. The dispatch-path guard
+  # below is bypassed on workflow_dispatch, so the day/hour literals here
+  # only matter if this workflow is ever given its own cron back.)
   # No internal cron block — Apps Script is the single source of truth.
   workflow_dispatch: {}   # manual run / catch-up + Apps Script dispatch
 
@@ -51,7 +54,7 @@ jobs:
     timeout-minutes: 30   # marketing PDF + 3 monthly rebuilds can take several min
 
     steps:
-      - name: Athens-time guard (8th of month, 09:xx Athens)
+      - name: Athens-time guard (10th of month, 04:xx Athens)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
@@ -60,12 +63,12 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Manually dispatched — running."
-          elif [ "$HOUR" = "09" ] && [ "$DAY" = "08" ]; then
+          elif [ "$HOUR" = "04" ] && [ "$DAY" = "10" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "Athens 8th-of-month 09:xx — running."
+            echo "Athens 10th-of-month 04:xx — running."
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Skip: not Athens 8th-of-month 09:xx (day=$DAY hour=$HOUR)."
+            echo "Skip: not Athens 10th-of-month 04:xx (day=$DAY hour=$HOUR)."
           fi
 
       - name: Checkout
