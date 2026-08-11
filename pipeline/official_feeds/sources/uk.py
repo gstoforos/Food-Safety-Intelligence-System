@@ -131,12 +131,18 @@ def _derive_country(codes: list[str], include_scotland: bool):
     return "gb", "United Kingdom", "FSA"
 
 
-def fetch(limit: int = 50, include_scotland: bool = False,
+def fetch(limit: int = 250, include_scotland: bool = False,
           lookback_days: int = 90) -> list[Record]:
     """
     Fetch recent FSA alerts. By default EXCLUDES Scotland-only alerts
     (those are emitted by scotland.py). An alert tagged for multiple
     countries including England/Wales/NI is kept here.
+
+    `limit` is the API's _pageSize, NOT a cap on how many alerts we want. It
+    was 50, which a 90-day window filled EXACTLY (audit 2026-08-11) — see the
+    full-page guard below. 250 leaves roughly five times headroom over the
+    FSA's real publication rate, so the guard fires on a genuine surge rather
+    than on a normal quarter.
     """
     # ---------------------------------------------------------------------
     # SILENT SCRAPER FAILURE (found 2026-08-07).
@@ -194,6 +200,30 @@ def fetch(limit: int = 50, include_scotland: bool = False,
             f"returned is {newest[:10]}. This is the July 2026 failure mode "
             f"— the API served its oldest page and the scraper reported "
             f"success.")
+
+    # THE PAGE IS FULL — WE MAY BE MISSING THE NEWEST ALERTS (audit 2026-08-11).
+    #
+    # The collection comes back in ASCENDING created order, so a full page is
+    # the OLDEST `limit` alerts in the window and everything newer is silently
+    # dropped. Measured on 2026-08-11: a 90-day window returned exactly 50
+    # items — the page size — ending at FSA-PRIN-39-2026. One more alert in
+    # the window and PRIN-39 would have fallen off the end, and the scraper
+    # would have reported success while missing the newest UK recall.
+    #
+    # That is the July 2026 bug wearing different clothes: right query, wrong
+    # slice, no error. So a full page is treated as a failure rather than a
+    # result. The caller can widen `limit` or shorten `lookback_days`; what it
+    # must not do is quietly publish an incomplete sweep.
+    if len(items) >= limit:
+        raise RuntimeError(
+            f"FSA food-alerts returned a FULL page ({len(items)} items for "
+            f"_pageSize={limit}, window {since} onwards, newest "
+            f"{newest[:10]}). The collection is ordered oldest-first, so a "
+            f"full page means alerts newer than {newest[:10]} were cut off "
+            f"and this sweep is incomplete. Raise limit or lower "
+            f"lookback_days ({lookback_days} today) — do not treat this as a "
+            f"successful run.")
+
     records: list[Record] = []
     for item in items:
         notation = item.get("notation") or item.get("@id", "").split("/")[-1]

@@ -13,7 +13,9 @@ from ..base import Record, FeedSource, register
 from . import uk as _uk
 
 
-def fetch(limit: int = 50) -> list[Record]:
+def fetch(limit: int = 250) -> list[Record]:
+    # Matches uk.fetch's page size — Scotland reuses the same API call,
+    # so a 50-item page would truncate here too (audit 2026-08-11).
     return _uk.fetch(limit=limit, include_scotland=True)
 
 
