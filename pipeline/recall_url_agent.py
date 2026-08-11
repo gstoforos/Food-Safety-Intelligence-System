@@ -434,6 +434,15 @@ def main() -> int:
           f"retry (infra, left in Pending): {counts['retry']}")
     print(f"{'='*60}")
 
+    _n = len(work_idx)
+    if _n and counts.get("retry", 0) == _n:
+        print("\n" + "=" * 60)
+        print(f"*** NO REVIEW PERFORMED — all {_n} rows returned retry. ***")
+        print("The model was unreachable for every row. Nothing was written.")
+        print("Check: curl $LLAMA_BASE_URL/models on the VPS.")
+        print("=" * 60)
+        return 3
+
     if not commit:
         print("\nDRY RUN — no writes. Set --commit true to advance statuses.")
         return 0

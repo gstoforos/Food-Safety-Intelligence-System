@@ -865,6 +865,24 @@ def main() -> int:
           f"retry (infra, left in Pending): {len(results['retry'])}")
     print(f"{'='*60}")
 
+    # ── VISIBLE FAILURE ON A TOTAL INFRA WASHOUT ──
+    # A run where EVERY row came back "retry" did no reviewing at all: llama was
+    # unreachable or the context was exceeded. Exiting 0 there paints the run
+    # green in the Actions tab and hides the outage for days. Make it loud.
+    _n = len(rows)
+    _retry = len(results["retry"])
+    if _n and _retry == _n:
+        print("\n" + "=" * 60)
+        print(f"*** NO REVIEW PERFORMED — all {_n} rows returned retry. ***")
+        print("The model was unreachable for every row (llama down, context")
+        print("exceeded, or circuit breaker open). Nothing was written.")
+        print("Check: curl $LLAMA_BASE_URL/models on the VPS.")
+        print("=" * 60)
+        return 3
+    if _n and _retry > _n * 0.8:
+        print(f"\n*** WARNING: {_retry}/{_n} rows returned retry — the model is "
+              f"mostly unreachable. Review coverage this run was minimal. ***")
+
     if not commit:
         print("\nDRY RUN — no writes. Set --commit true to apply:")
         print("  approvals → Recalls (corrected fields), "
