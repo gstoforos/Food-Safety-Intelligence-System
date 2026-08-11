@@ -16,6 +16,22 @@
   "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [review-agent 2026-08-10: pending_enrichment → pending (Qwen verified, final reviewer)] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
  },
  {
+  "Date": "2026-08-10",
+  "Source": "FSA (UK)",
+  "Company": "A.Vogel Ltd",
+  "Brand": "Rapunzel bioSnacky",
+  "Product": "Rapunzel bioSnacky Das Original Red Clover — Seeds for Sprouts and Seedlings, 30 g — batch code 11293, best before December 2028",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Contamination with Shiga toxin-producing E. coli (STEC) in seeds sold for home sprouting. The FSA advises consumers not to grow or consume the sprouts or seedlings and to return the product for a refund. Symptoms can include severe and bloody diarrhoea, abdominal pain and occasionally haemolytic uraemic syndrome. No illnesses reported in the alert.",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-39-2026",
+  "Notes": "[promoted 2026-08-11: FSA-PRIN-39-2026, created 2026-08-10. Every field read back from the FSA alert page and the food-alerts API record; URL is the record's own alertURL. Food Standards Scotland issued the same recall separately and is cross-referenced rather than published as a second row, so the weekly counts one event. THE PIPELINE HAD THIS RECALL THREE TIMES AND PUBLISHED NONE OF THEM: one FSA row whose Company and Product both held the headline, whose Pathogen was the under-specific 'Escherichia coli (generic)', whose Reason was empty and whose URL was the data.food.gov.uk METADATA endpoint (uk.py's alertURL fix is deployed, but the English Feeds Collector has not been dispatched since 2026-07-29, so this row came from a gap-finder rather than the feed); and two well-extracted Food Standards Scotland rows carrying the correct brand, pack size, batch code and best-before, both killed on URL grounds — one rejected by the URL agent, one blanked by the URL guardian on 2026-08-11. The facts were in the workbook; only a working address was missing.]"
+ },
+ {
   "Date": "2026-08-09",
   "Source": "FDA",
   "Company": "Taylor Fresh Foods",
