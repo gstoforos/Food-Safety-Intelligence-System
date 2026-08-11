@@ -1,41 +1,6 @@
 {
   "entries": [
     {
-      "ts": "2026-06-11T07:12:39Z",
-      "eur": 0.0,
-      "region": "Europe",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-06-11T07:12:42Z",
-      "eur": 0.0,
-      "region": "NorthAmerica",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-06-11T07:12:46Z",
-      "eur": 0.0,
-      "region": "LATAM",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-06-11T07:12:49Z",
-      "eur": 0.0,
-      "region": "AsiaPacific",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
-      "ts": "2026-06-11T07:12:53Z",
-      "eur": 0.0,
-      "region": "MiddleEastAfrica",
-      "input_tokens": 0,
-      "output_tokens": 0
-    },
-    {
       "ts": "2026-06-12T07:12:45Z",
       "eur": 0.0,
       "region": "Europe",
@@ -2130,6 +2095,41 @@
     },
     {
       "ts": "2026-08-10T07:11:18Z",
+      "eur": 0.0,
+      "region": "MiddleEastAfrica",
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    {
+      "ts": "2026-08-11T07:10:37Z",
+      "eur": 0.0,
+      "region": "Europe",
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    {
+      "ts": "2026-08-11T07:10:42Z",
+      "eur": 0.0,
+      "region": "NorthAmerica",
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    {
+      "ts": "2026-08-11T07:10:54Z",
+      "eur": 0.0,
+      "region": "LATAM",
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    {
+      "ts": "2026-08-11T07:11:01Z",
+      "eur": 0.0,
+      "region": "AsiaPacific",
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    {
+      "ts": "2026-08-11T07:11:09Z",
       "eur": 0.0,
       "region": "MiddleEastAfrica",
       "input_tokens": 0,

@@ -1,13 +1,26 @@
 {
   "entries": [
     {
+      "date": "2026-08-10",
+      "url": "daily/2026-08-10.html",
+      "total": 2,
+      "tier1": 2,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 2
+      },
+      "generated": "2026-08-11T07:11:10Z"
+    },
+    {
       "date": "2026-08-09",
       "url": "daily/2026-08-09.html",
-      "total": 0,
-      "tier1": 0,
+      "total": 1,
+      "tier1": 1,
       "outbreak": 0,
-      "by_region": {},
-      "generated": "2026-08-10T07:11:18Z"
+      "by_region": {
+        "North America": 1
+      },
+      "generated": "2026-08-11T07:11:10Z"
     },
     {
       "date": "2026-08-08",
@@ -19,19 +32,20 @@
         "Europe": 3,
         "North America": 1
       },
-      "generated": "2026-08-10T07:11:19Z"
+      "generated": "2026-08-11T07:11:11Z"
     },
     {
       "date": "2026-08-07",
       "url": "daily/2026-08-07.html",
-      "total": 8,
-      "tier1": 7,
+      "total": 9,
+      "tier1": 8,
       "outbreak": 0,
       "by_region": {
         "Europe": 7,
-        "North America": 1
+        "North America": 1,
+        "Asia": 1
       },
-      "generated": "2026-08-10T07:11:19Z"
+      "generated": "2026-08-11T07:11:11Z"
     },
     {
       "date": "2026-08-06",
@@ -44,7 +58,7 @@
         "Latin America": 1,
         "Europe": 4
       },
-      "generated": "2026-08-10T07:11:20Z"
+      "generated": "2026-08-11T07:11:11Z"
     },
     {
       "date": "2026-08-05",
@@ -58,7 +72,7 @@
         "Africa": 2,
         "North America": 1
       },
-      "generated": "2026-08-10T07:11:20Z"
+      "generated": "2026-08-11T07:11:12Z"
     },
     {
       "date": "2026-08-04",
@@ -71,19 +85,7 @@
         "Unknown": 1,
         "North America": 1
       },
-      "generated": "2026-08-10T07:11:20Z"
-    },
-    {
-      "date": "2026-08-03",
-      "url": "daily/2026-08-03.html",
-      "total": 8,
-      "tier1": 7,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 7,
-        "North America": 1
-      },
-      "generated": "2026-08-10T07:11:21Z"
+      "generated": "2026-08-11T07:11:12Z"
     }
   ]
 }
