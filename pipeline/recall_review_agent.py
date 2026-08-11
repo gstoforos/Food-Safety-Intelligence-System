@@ -983,14 +983,30 @@ def main() -> int:
             u = str((merged.get(key) if key == "URL" else review.get(key)) or "").strip()
             if u:
                 approved_urls.add(u)
+    # SCOPE OF THE GUARD — this matters. It applies ONLY to rows this run
+    # actually reviewed. A row the agent never looked at (outside its lane,
+    # past --limit, past the time budget, or written after the sheet was read)
+    # is not the agent's to demote: holding it back would silently stall the
+    # register whenever the model is unavailable, which is what stranded the
+    # French RappelConso rows for four days. The original incident this guard
+    # exists for — 16 rows promoting during a total outage — is still covered,
+    # because those rows WERE in the reviewed set and all came back unverified.
+    reviewed_urls = set()
+    for _r in rows:
+        _u = str(_r.get("URL", "")).strip()
+        if _u:
+            reviewed_urls.add(_u)
     for prow in full_pending:
-        if str(prow.get("Status", "")).strip() == "pending":
-            u = str(prow.get("URL", "")).strip()
-            if u not in approved_urls:
-                prow["Status"] = "pending_gap_v2"  # hold; do not promote
-                note = str(prow.get("Notes", "")).strip()
-                prow["Notes"] = (note + " [safety-hold: not approved this "
-                                 "run; not promoted]").strip()[:1000]
+        if str(prow.get("Status", "")).strip() != "pending":
+            continue
+        u = str(prow.get("URL", "")).strip()
+        if u not in reviewed_urls:
+            continue          # never reviewed this run — leave it alone
+        if u not in approved_urls:
+            prow["Status"] = "pending_gap_v2"  # reviewed, not approved: hold
+            note = str(prow.get("Notes", "")).strip()
+            prow["Notes"] = (note + " [safety-hold: reviewed but not approved "
+                             "this run; not promoted]").strip()[:1000]
 
     new_approved, remaining, archived_rejected = promote_approved(
         pending=full_pending,
