@@ -2,7 +2,7 @@
 AFTS FSIS — Monthly updates check.
 ====================================
 
-Runs every month on the 8th at 09:00 Athens time (via
+Runs every month on the 10th at 04:00 Athens time (via
 .github/workflows/monthly-updates-check.yml). Walks back N closed months
 (default 3) and, for each, decides whether the previously-built monthly
 HTML report needs to be rebuilt to reflect new data that has arrived
@@ -109,8 +109,8 @@ def _month_minus(d: date, months: int) -> date:
 def _anchor_month_end(today: Optional[date] = None) -> date:
     """The most recent CLOSED month's last day.
 
-    The monthly-updates-check is scheduled for the 8th of each month, so
-    on May 8th the anchor is April 30th (April closed at end of last
+    The monthly-updates-check is scheduled for the 10th of each month, so
+    on May 10th the anchor is April 30th (April closed at end of last
     month). Using the day-1 of "today" minus 1 day reliably gives last
     month's last day regardless of which day of the current month it is.
     """
@@ -246,6 +246,59 @@ def _refresh_index_json(all_recalls: List[Dict], months_back: int = 12) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# THE BASELINE MUST SURVIVE A REBUILD (audit 2026-08-11)
+# ---------------------------------------------------------------------------
+# On 2026-08-08 this check ran, found nothing, and wrote updated_months: [].
+# July had in fact gained SEVEN recalls since its 1 August publication
+# (296 -> 303), and no subscriber was ever told.
+#
+# The reason is that `old_total` was read from the PUBLISHED HTML. Any
+# rebuild of that HTML — by the daily review agent's stale-report sweep, by
+# an operator repair, by this very script on a previous run — rewrites the
+# number the comparison is made against. The baseline erases itself, and by
+# the 10th there is nothing left to detect. A month can drift by any amount
+# and report zero, silently, forever.
+#
+# The correct baseline is not "what the HTML currently says" but "what
+# subscribers were last told", which changes only when a notification is
+# actually emitted. That is stored per month in monthly-index.json as
+# `notified_total`, seeded from the HTML the first time a month is seen and
+# carried across rebuilds by update_monthly_index_json.
+def _notified_total(year_m: str):
+    """The count subscribers were last told about, or None if never set."""
+    try:
+        raw = json.loads(INDEX_JSON.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    entries = raw if isinstance(raw, list) else (raw or {}).get("reports", [])
+    for e in entries or []:
+        if e.get("filename") == f"{year_m}.html":
+            v = e.get("notified_total")
+            return int(v) if v is not None else None
+    return None
+
+
+def _set_notified_total(year_m: str, total: int) -> None:
+    """Record the count subscribers have now been told about."""
+    try:
+        raw = json.loads(INDEX_JSON.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return
+    entries = raw if isinstance(raw, list) else (raw or {}).get("reports", [])
+    hit = False
+    for e in entries or []:
+        if e.get("filename") == f"{year_m}.html":
+            e["notified_total"] = int(total)
+            hit = True
+    if not hit:
+        return
+    payload = entries if isinstance(raw, list) else raw
+    INDEX_JSON.write_text(json.dumps(payload, indent=2, ensure_ascii=False),
+                          encoding="utf-8")
+    log.info("%s: notified_total baseline set to %d", year_m, total)
+
+
+# ---------------------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------------------
 def main() -> int:
@@ -275,6 +328,18 @@ def main() -> int:
         dataset_total = len(month_recalls)
         existing_total = _extract_total_from_html_monthly(report_path)
         existing_label = _extract_label_from_html_monthly(report_path)
+
+        # Compare against what subscribers were last TOLD, not against what
+        # the HTML currently says — see the comment on _notified_total. On
+        # first sight of a month the HTML total seeds the baseline, which
+        # reproduces the old behaviour exactly for a month nobody has
+        # rebuilt, and fixes it for every month somebody has.
+        baseline = _notified_total(year_m)
+        if baseline is None and existing_total is not None:
+            baseline = existing_total
+            _set_notified_total(year_m, baseline)
+        if baseline is not None:
+            existing_total = baseline
 
         # ── Decision branch (mirrors weekly) ────────────────────────────
         # 1. No HTML                       → fresh build (PUBLISHED)
@@ -346,6 +411,10 @@ def main() -> int:
             "delta":       int(dataset_total - old_total),
             "first_publish": is_fresh,
         })
+        # Subscribers are about to be told this number, so it becomes the
+        # baseline. Advanced ONLY here — a rebuild that emits no notification
+        # must not move it, which is the whole point of the fix.
+        _set_notified_total(year_m, dataset_total)
 
     # ── Unconditional JSON refresh (audit 2026-05-09) ───────────────────
     # See comment block on _refresh_index_json: the dashboard's monthly
