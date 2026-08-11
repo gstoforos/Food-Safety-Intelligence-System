@@ -2371,6 +2371,24 @@ def update_monthly_index_json(month_start: date, month_end: date,
         entry["pdf_url"] = _prev_pdf_url
         log.info("Preserved pdf_url for %s: %s", entry["filename"], _prev_pdf_url)
 
+    # ── Preserve notified_total across rebuilds (audit 2026-08-11) ────────
+    # Same failure shape as pdf_url above, one field along. `notified_total`
+    # is the count SUBSCRIBERS WERE LAST TOLD ABOUT for this month, and it is
+    # the baseline pipeline/build_monthly_updates_check.py compares against on
+    # the 8th. Rebuilding the entry from scratch would drop it and the month
+    # would silently lose its baseline on the very next refresh — which is
+    # precisely the bug it exists to fix. Carry it forward; only the
+    # updates-check may advance it, and only when it actually emits a
+    # notification.
+    _prev_notified = next(
+        (e.get("notified_total") for e in entries
+         if e.get("filename") == entry["filename"]
+         and e.get("notified_total") is not None),
+        None,
+    )
+    if _prev_notified is not None:
+        entry["notified_total"] = _prev_notified
+
     # Drop any pre-existing entry for this month, then insert the new one.
     # Filename is the unique key (matches year_m exactly).
     entries = [e for e in entries if e.get("filename") != entry["filename"]]
