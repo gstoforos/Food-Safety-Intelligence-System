@@ -128,7 +128,12 @@ jobs:
           python -m pipeline.set_pdf_urls \
             --index docs/data/monthly-index.json \
             --docs-dir docs \
-            --site-url "https://gstoforos.github.io/Food-Safety-Intelligence-System"
+          # fsis.advfood.tech, NOT gstoforos.github.io (audit 2026-08-11).
+          # This line rewrote all six monthly pdf_url values to the raw
+          # Pages host on 2026-08-07 and again on 2026-08-11; every URL the
+          # project publishes uses the custom domain, and
+          # tests/test_monthly_hub_cards.py fails on the github.io form.
+            --site-url "https://fsis.advfood.tech"
 
       - name: Commit outputs
         if: steps.guard.outputs.run == 'true'

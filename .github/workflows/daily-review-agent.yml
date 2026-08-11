@@ -114,7 +114,9 @@ jobs:
               subprocess.run([sys.executable, "-m", "pipeline.set_pdf_urls",
                               "--index", "docs/data/monthly-index.json",
                               "--docs-dir", "docs",
-                              "--site-url", "https://gstoforos.github.io/Food-Safety-Intelligence-System"],
+                              # fsis.advfood.tech, NOT github.io — see the
+                              # note in afts-monthly-report.yml (2026-08-11).
+                              "--site-url", "https://fsis.advfood.tech"],
                              check=False)
 
           rpt["rebuilt"] = rebuilt
