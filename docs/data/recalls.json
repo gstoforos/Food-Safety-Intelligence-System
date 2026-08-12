@@ -112,6 +112,22 @@
   "Notes": "[RASFF #2026.7069; classification: alert notification; category: meat and meat products (other than poultry); notifId=865068]"
  },
  {
+  "Date": "2026-08-10",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Rwanda | Notifying: Belgium",
+  "Brand": "—",
+  "Product": "Aflatoxins in peanuts from Rwanda",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Aflatoxins in peanuts from Rwanda; risk: potentially serious; category: nuts, nut products and seeds",
+  "Class": "Information",
+  "Country": "Rwanda",
+  "Region": "Unknown",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865249",
+  "Notes": "[RASFF #2026.7098; classification: information notification for attention; category: nuts, nut products and seeds; notifId=865249]"
+ },
+ {
   "Date": "2026-08-09",
   "Source": "FDA",
   "Company": "Taylor Fresh Foods",
