@@ -580,9 +580,19 @@ def canonical_url(url: str) -> str:
 
 
 def _url_source_mismatch(merged: Dict[str, Any]) -> Optional[str]:
-    """The URL must be on the regulator's own domain for its Source."""
+    """The URL must be on the regulator's own domain for its Source.
+
+    Honours the register's "X - aggregator (Y)" convention: when a source is
+    labelled e.g. "CFS (HK) - aggregator (RappelConso FR)", CFS is the
+    publisher and RappelConso is only the original notice being republished.
+    The URL must therefore match CFS, not RappelConso. Reading the whole label
+    wrongly flagged 8 correctly-recorded CFS rows whose URLs are genuine
+    cfs.gov.hk PDFs.
+    """
     url = str(merged.get("URL", "") or "").lower()
     src = str(merged.get("Source", "") or "").lower()
+    # Keep only the publishing agency — drop the "(original source)" part.
+    src = re.split(r"\s*-\s*aggregator\b", src)[0].strip()
     if not url:
         return "URL is empty"
     if "data.food.gov.uk" in url:
