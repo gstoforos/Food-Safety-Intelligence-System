@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-08-11",
+  "Source": "FDA",
+  "Company": "Lidl US Trading",
+  "Brand": "Vitasia",
+  "Product": "Asian Style Wok Spice Mix, 1.58 oz (45 g), UPC 4335619355491, lot 155846, best by JUN 2028",
+  "Pathogen": "Salmonella",
+  "Reason": "Potential to be contaminated with Salmonella",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/lidl-us-recalls-vitasia-asian-style-wok-spice-mix-due-potential-salmonella-contamination",
+  "Notes": "[added 2026-08-13: coverage gap found while answering 'do we have the latest of FDA, Canada and USDA'. Verified against the FDA notice: recall dated 11 August 2026, Lidl US Trading, Vitasia Asian Style Wok Spice Mix, distributed in DE, DC, GA, MD, NJ, NY, NC, PA, SC and VA. The hazard is quoted from the notice: 'potential to be contaminated with Salmonella'. This is 2 days newer than the newest FDA row we held (2026-08-09 Taylor Fresh Foods).]"
+ },
+ {
   "Date": "2026-08-10",
   "Source": "FSAI (IE)",
   "Company": "Tesco",
@@ -96,22 +112,6 @@
   "Notes": "fromagerie en vente directe [safety-hold: not approved this run; not promoted] [url-gate 2026-08-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-11: Company ''→'LE CABRAS FROMAGERIE'] [approved 2026-08-13: RappelConso fiche, STEC in fresh cheese] [audit 2026-08-13: Reason rendered in English per the English-output rule, which exempts brand and product names only. The French source text is preserved in this note: 'Potentielle présence de la bactérie E. coli (stec)'. Translation is literal — no hazard, serotype or qualifier was added or dropped.]"
  },
  {
-  "Date": "2026-08-10",
-  "Source": "CDC",
-  "Company": "Coast Citrus Distributors / Taylor Fresh Foods",
-  "Brand": "Various",
-  "Product": "Jalapeño peppers from Sinaloa, Mexico, and downstream products",
-  "Pathogen": "Salmonella",
-  "Reason": "Salmonella Javiana outbreak linked to recalled jalapeño peppers; 345 cases across 27 states, 36 hospitalisations",
-  "Class": "Recall",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://www.cdc.gov/salmonella/outbreaks/javiana-08-26/investigation.html",
-  "Notes": "# Investigation Update: Salmonella  Outbreak, August 2026 | Salmonella Infection | CDC\n\nPublished: 2026-08-10T17:15:23+00:00\nSource: cdc.gov (cdc.gov)\nLanguage: en\n\n## Story\n\nInvestigation Update: Salmonella Outbreak, August 2026 | Salmonella Infection | CDC\n\nSkip directly to site content\n\nSkip dire  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [approved 2026-08-13: verified against the CDC investigation page. Company held the page headline ('Investigation Update: Salmonella...'). CDC names Coast Citrus Distributors as distributor and Taylor Fresh Foods as issuing the 8 August 2026 recall. Posted 5 August, last updated 10 August 2026]"
- },
- {
   "Date": "2026-08-09",
   "Source": "FDA",
   "Company": "Taylor Fresh Foods",
@@ -190,22 +190,6 @@
   "Outbreak": 0,
   "URL": "https://www.fsis.usda.gov/recalls-alerts/city-foods-inc--recalls-ready-eat-pastrami-and-corned-beef-products-due-possible",
   "Notes": "source_id=015-2026 [via official-feed collector] [url-gate 2026-08-09: Gemini fixed https://www.fsis.usda.gov/recalls-alerts... -> https://www.fsis.usda.gov/recalls-alerts...] [gap-gate 2026-08-09: pending_gap → pending_gap_v1] [review-agent 2026-08-09: pending_gap_v1 → pending (Qwen verified, final reviewer)] [audit 2026-08-09: four defects on one row, promoted after passing every reviewer including the final one. (1) URL was https://www.usatoday.com/recalls/meat-and-poultry/USDA-de86KfcgQrc/ — a newspaper, on a row whose Source is USDA FSIS. Three sibling rows carrying the correct fsis.usda.gov address were in Pending at the same moment; the pipeline minted four rows for one recall and published the one citing an aggregator. The host check existed in pipeline/verify_urls.py but was never wired into the publish gate; it is now rule 6b. (2) Pathogen was the bare genus 'Listeria' — the row's own Reason and the FSIS notice both say Listeria monocytogenes. (3) Class was 'Public Health Alert'; FSIS 015-2026 is a RECALL. (4) Product was the category description, not the products. Firm, establishment number, case codes, weight and distribution read back from the FSIS recall notice.] [audit 2026-08-10: URL slug corrected — 'city-foods-inc-recalls' -> 'city-foods-inc--recalls' (DOUBLE hyphen). FSIS slugifies the full headline 'City Foods, Inc. Recalls Ready-To-Eat...', and the period plus space after 'Inc' becomes two hyphens. The correct address was already in the workbook on 2026-08-09 — it was one of the three Pending duplicates archived that day, and the single-hyphen variant was kept instead. Confirmed against the FSIS page as indexed under its own title; fsis.usda.gov answers 403 to this environment's fetcher, so the search index is the evidence rather than a direct fetch"
- },
- {
-  "Date": "2026-08-08",
-  "Source": "USDA FSIS",
-  "Company": "Multiple establishments (FSIS public health alert)",
-  "Brand": "Various",
-  "Product": "Various meat and poultry products containing FDA-regulated jalapeño peppers",
-  "Pathogen": "Salmonella",
-  "Reason": "Possible Salmonella contamination from recalled jalapeño peppers used as an ingredient",
-  "Class": "Public Health Alert",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-various-meat-and-poultry-products-containing-fda-0",
-  "Notes": "source_id=PHA-08082026-01 [via official-feed collector] [url-agent 2026-08-09: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-08-09: pending_gap_v1→pending_gap_v2 URL confirmed] [outbreak 2026-08-10: 0→1 — linked to an outbreak affecting at least 345 people across 27 states] [approved 2026-08-13: Company was EMPTY and Product/Reason both held the alert headline. An FSIS public health alert of this kind names no single recalling firm — it covers products from many establishments — so Company records that rather than inventing one. Linked to the Salmonella Javiana jalapeño outbreak (CDC: 345 cases, 27 states, as of 4 August 2026)]"
  },
  {
   "Date": "2026-08-07",
@@ -1397,7 +1381,7 @@
   "Company": "Origin: Belgium | Notifying: Germany",
   "Brand": "DEU",
   "Product": "Verotoxin-producing Escherichia coli in a ready-to-eat salad and vegetable mix from Belgium",
-  "Pathogen": "Escherichia coli (generic)",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Verotoxin-producing Escherichia coli in a ready-to-eat salad and vegetable mix from Belgium; risk: potential risk; category: fruits and vegetables",
   "Class": "Information",
   "Country": "Belgium",
@@ -1405,7 +1389,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.6859",
-  "Notes": "[RASFF #2026.6859; classification: information notification for attention; category: fruits and vegetables; notifId=862983] [safety-hold: not approved this run; not promoted] [gemini-enrich 2026-08-02: Brand '—'→'DEU'] [url-gate 2026-08-03: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [approved 2026-08-13: RASFF notification; Company follows the Origin/Notifying convention and Brand carries the notifying-state code] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "[RASFF #2026.6859; classification: information notification for attention; category: fruits and vegetables; notifId=862983] [safety-hold: not approved this run; not promoted] [gemini-enrich 2026-08-02: Brand '—'→'DEU'] [url-gate 2026-08-03: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [approved 2026-08-13: RASFF notification; Company follows the Origin/Notifying convention and Brand carries the notifying-state code] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [audit 2026-08-13: Pathogen corrected from 'Escherichia coli (generic)' to 'Shiga toxin-producing E. coli (STEC)'. The row's own Reason reads 'Verotoxin-producing Escherichia coli in a ready-to-eat salad and vegetable mix from Belgium'. VTEC is the European name for STEC — the same organism class this register already records 68 times as 'Shiga toxin-producing E. coli (STEC)'. 'Generic' understated a Tier-1 hazard on evidence present in the row itself. Tier was already 1 and is unchanged; no serogroup is claimed because the notification does not name one.]"
  },
  {
   "Date": "2026-07-30",
@@ -8453,7 +8437,7 @@
   "Company": "Origin: Germany | Notifying: Germany",
   "Brand": "DEU",
   "Product": "Verotoxin producing Escherichia coli in salami from Germany",
-  "Pathogen": "Escherichia coli (generic)",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Verotoxin producing Escherichia coli in salami from Germany; risk: serious; category: meat and meat products (other than poultry)",
   "Class": "Alert",
   "Country": "Germany",
@@ -8461,7 +8445,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851286",
-  "Notes": "[RASFF #2026.5247; classification: alert notification; category: meat and meat products (other than poultry); notifId=851286] [gemini-enrich 2026-06-13: Brand '—'→'DEU'] [gemini-check 2026-06-13: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "[RASFF #2026.5247; classification: alert notification; category: meat and meat products (other than poultry); notifId=851286] [gemini-enrich 2026-06-13: Brand '—'→'DEU'] [gemini-check 2026-06-13: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [audit 2026-08-13: Pathogen 'Escherichia coli (generic)' -> 'Shiga toxin-producing E. coli (STEC)'. The row's own Reason reads 'Verotoxin producing Escherichia coli in salami from Germany'. Verotoxin/verocytotoxin (VTEC) and Shiga toxin (STEC) are two naming traditions for the same organism group — ECDC and EFSA publish jointly as 'STEC/VTEC'. In food microbiology 'generic' E. coli is a FAECAL INDICATOR, a hygiene marker; STEC is a pathogen causing bloody diarrhoea and HUS. Labelling a toxin-producing isolate 'generic' understated a Tier-1 pathogen as a hygiene result. Reclassified ONLY because the row's own text names the toxin — the eight remaining '(generic)' rows say only 'E. coli' and were left untouched.]"
  },
  {
   "Date": "2026-06-12",
@@ -10421,7 +10405,7 @@
   "Company": "Origin: Romania | Notifying: Netherlands",
   "Brand": "NLD",
   "Product": "Shigatoxine producing Escherichia coli in beef tartare from Romania",
-  "Pathogen": "Escherichia coli (generic)",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Shigatoxine producing Escherichia coli in beef tartare from Romania; risk: potentially serious; category: meat and meat products (other than poultry)",
   "Class": "Information",
   "Country": "Romania",
@@ -10429,7 +10413,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847272",
-  "Notes": "[RASFF #2026.4669; classification: information notification for attention; category: meat and meat products (other than poultry); notifId=847272] [gemini-enrich 2026-05-30: Brand '—'→'NLD'] [claude-check 2026-05-30: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "[RASFF #2026.4669; classification: information notification for attention; category: meat and meat products (other than poultry); notifId=847272] [gemini-enrich 2026-05-30: Brand '—'→'NLD'] [claude-check 2026-05-30: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [audit 2026-08-13: Pathogen 'Escherichia coli (generic)' -> 'Shiga toxin-producing E. coli (STEC)'. The row's own Reason reads 'Shigatoxine producing Escherichia coli in beef tartare from Romania'. Verotoxin/verocytotoxin (VTEC) and Shiga toxin (STEC) are two naming traditions for the same organism group — ECDC and EFSA publish jointly as 'STEC/VTEC'. In food microbiology 'generic' E. coli is a FAECAL INDICATOR, a hygiene marker; STEC is a pathogen causing bloody diarrhoea and HUS. Labelling a toxin-producing isolate 'generic' understated a Tier-1 pathogen as a hygiene result. Reclassified ONLY because the row's own text names the toxin — the eight remaining '(generic)' rows say only 'E. coli' and were left untouched.]"
  },
  {
   "Date": "2026-05-28",
