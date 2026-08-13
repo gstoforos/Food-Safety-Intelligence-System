@@ -1,8 +1,8 @@
 {
   "week_end": "2026-08-13",
-  "generated_utc": "2026-08-13T05:44:49+00:00",
-  "row_count": 74,
-  "tier1_count": 47,
+  "generated_utc": "2026-08-13T08:37:15+00:00",
+  "row_count": 76,
+  "tier1_count": 49,
   "outbreak_count": 14,
   "by_reviewer": {
     "operator-approved zero-out 2026-08-13": 34,
@@ -12,7 +12,9 @@
     "operator decision 2026-08-13": 2,
     "pending-review-2026-08-11": 2,
     "operator-approved audit 2026-08-13": 2,
-    "repromotion-guard": 1
+    "repromotion-guard": 1,
+    "audit 2026-08-13 (duplicate slug variant)": 1,
+    "audit 2026-08-13 (dead citation, unrepairable)": 1
   },
   "rows": [
     {
@@ -729,6 +731,29 @@
       "Reviewed": "N"
     },
     {
+      "Date": "2026-07-30",
+      "Source": "USDA FSIS",
+      "Company": "Mary's Harvest Fresh Foods, Inc.",
+      "Brand": "Mary's Harvest",
+      "Product": "8-oz. plastic packages containing portions of \"CURRY CHICKEN SALAD\" with a USE BY: 07/30/2026 date stamp on the lid.",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "Concerns that the product may be contaminated with Listeria monocytogenes",
+      "Class": "Public Health Alert",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-chicken-salad-product-may-be-contaminated-listeria-0",
+      "Notes": "source_id=PHA-07302026-01 [via official-feed collector] [url-gate 2026-08-10: Gemini fixed https://www.fsis.usda.gov/recalls-alerts... -> https://www.fsis.usda.gov/recalls-alerts...] [gap-gate 2026-08-10: pending_gap → pending_gap_v1] [gap-gate 2026-08-11: pending_gap_v1 → pending_gap_v2] [audit 2026-08-13: kept as the surviving Mary's Harvest row. The FSIS index knows exactly one alert for this product — 'FSIS Issues Public Health Alert for Chicken Salad Product that May Be Contaminated with Listeria' — and its label sheet is PHA-07302026-01-Labels.pdf, so PHA-07302026-01 is this alert. Reason had been overwritten with the headline plus 'Product Contamination'. Pathogen was the bare genus; the notice names Listeria monocytogenes in its own text.] [approved 2026-08-13: verified against the FSIS index (repaired earlier today)] [archived 2026-08-13: DUPLICATE. Same alert as the row citing .../fsis-issues-public-health-alert-chicken-salad-product-may-be-contaminated-listeria (no '-0'). The FSIS search index returns exactly ONE URL for the headline 'FSIS Issues Public Health Alert for Chicken Salad Product that May Be Contaminated with Listeria', and it has no suffix; '-0' is a Drupal slug-collision form that FSIS does not publish for this alert. Both rows carried identical Date, Company, Brand, Pathogen and Tier. The canonical row is retained. This escaped the duplicate sweep because that check keys on the exact URL string and these differ by two characters — a slug-suffix axis has been added to the follow-up list.]",
+      "DateAdded": "2026-08-13",
+      "LastUpdated": "2026-08-13",
+      "LastChecked": "",
+      "Week_Added": "2026-08-13",
+      "RejectedBy": "audit 2026-08-13 (duplicate slug variant)",
+      "RejectionReason": "",
+      "Reviewed": "N"
+    },
+    {
       "Date": "2026-07-29",
       "Source": "RASFF",
       "Company": "RASFF Window",
@@ -864,6 +889,29 @@
       "Week_Added": "2026-08-13",
       "RejectedBy": "pending-review-2026-08-09",
       "RejectionReason": "Duplicate of the FSA row already in Recalls for the same alert, and the worse of the two: its Company holds the RETAILER where the FSA record names the recalling business (Traditional Cheese Company, ",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-05-06",
+      "Source": "RappelConso (FR)",
+      "Company": "K.S.P. (Kruz Seafood Production)",
+      "Brand": "aucune",
+      "Product": "Crevette cuite réfrigérée 40/60 P. Vannamei élevage OP 2KG (Lot 180421, GTIN 3760283210035, DLC 01/05/2026)",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "Aflatoxins in mini corn wafers from Slovakia, raw material from Hungary.; risk: serious; category: cereals and bakery products",
+      "Class": "Voluntary",
+      "Country": "France",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22205/Interne",
+      "Notes": "ruano pedro, top langouste, gavignaud maree service, roumegous distribution, les pecheries de la cotiniere [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [Claude-flag 2026-05-06: Missing Company field (empty string). Critical for Tier-1 Listeria recall.] [tier-guard 2026-08-04: escalation SKIPPED — Pathogen 'Listeria monocytogenes' contradicts this row's own Reason, so the pathogen is not trustworthy enough to raise the tier on. The publish gate blocks this row separately.] [archived 2026-08-13: Cross-contaminated row on a DEAD citation. Product is 'Crevette cuite refrigeree 40/60 P. Vannamei' (KSP, shrimp) while Reason reads 'Aflatoxins in mini corn wafers from Slovakia, raw material from Hungary; category: cereals and bakery' — the Reason belongs to a different notice entirely, and Pathogen says Listeria monocytogenes, agreeing with neither. Two of the three hazard fields are irreconcilable.\nIt cannot be repaired, because fiche 22205 DOES NOT EXIST. Verified 2026-08-13 by direct fetch: rappel.conso.gouv.fr/fiche-rappel/22206/Interne returns ONE recall (Ferme Baracand, Picodon, E. coli STEC, 06/05/2026) while /22205/Interne falls through to the site's LISTING page and returns unrelated recalls dated 12/08/2026. This matches the DGCCRF open-data export, where the ids jump 22204 -> 22206. There is no authoritative record to repair from, and guessing is the failure the publish gate exists to prevent.\nSYSTEMIC NOTE: a dead RappelConso fiche returns HTTP 200 with the index, not a 404. Any URL checker that trusts the status code will report dead French citations as alive — the same shape as the FSA _sort failure, green while broken. Archived 2026-08-13, not deleted.]",
+      "DateAdded": "2026-05-12",
+      "LastUpdated": "2026-05-14",
+      "LastChecked": "",
+      "Week_Added": "2026-08-13",
+      "RejectedBy": "audit 2026-08-13 (dead citation, unrepairable)",
+      "RejectionReason": "",
       "Reviewed": "N"
     },
     {

@@ -82,18 +82,18 @@
  {
   "Date": "2026-08-10",
   "Source": "RappelConso (FR)",
-  "Company": "BCT 500 bct 500",
+  "Company": "Grand Frais (BCT 500)",
   "Brand": "Unbranded",
-  "Product": "pied de porc cuit x1",
+  "Product": "Pied de porc cuit (cooked pig's trotter), sold at the traditional counter",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Détection listéria",
+  "Reason": "Detection of Listeria",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23128/Interne",
-  "Notes": "voir liste des magasins grand frais concernés en pièce jointe [safety-hold: not approved this run; not promoted] [url-gate 2026-08-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-11: Company ''→'BCT 500 bct 500'] [approved 2026-08-13: RappelConso fiche, pathogen + product + distributor all present]"
+  "Notes": "voir liste des magasins grand frais concernés en pièce jointe [safety-hold: not approved this run; not promoted] [url-gate 2026-08-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-11: Company ''→'BCT 500 bct 500'] [approved 2026-08-13: RappelConso fiche, pathogen + product + distributor all present] [audit 2026-08-13: verified against fiche 23128. Company read 'BCT 500 bct 500' — the legal entity code repeated in two cases, the scraper's concatenation defect. The fiche names Grand Frais as the retailer, so the entity code is kept in parentheses rather than discarded. Reason was the French motif 'Détection listéria'; rendered in English per the English-output rule, which exempts brand and product names only. Product normalised from the lowercased scrape.]"
  },
  {
   "Date": "2026-08-10",
@@ -1598,22 +1598,6 @@
   "Outbreak": 0,
   "URL": "https://www.favv-afsca.be/fr/produits/rappel-de-bio-planet-2",
   "Notes": "Date de durabilité minimale (DDM): 03/2027, Lot code: L6075A. Sold from 13/04/2026 to 29/07/2026.  [via Gemini gap-finder + Google Search] [gap-gate 2026-08-05: pending_gap → pending_gap_v1] [url-agent 2026-08-05: pending_gap_v1→pending_gap_v2 URL confirmed] [approved 2026-08-13: AFSCA notice, ochratoxin A above limit in organic figs. Class was the French 'Rappel'; the English-output rule exempts brand and product names only, and Class is neither]"
- },
- {
-  "Date": "2026-07-30",
-  "Source": "USDA FSIS",
-  "Company": "Mary's Harvest Fresh Foods, Inc.",
-  "Brand": "Mary's Harvest",
-  "Product": "8-oz. plastic packages containing portions of \"CURRY CHICKEN SALAD\" with a USE BY: 07/30/2026 date stamp on the lid.",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Concerns that the product may be contaminated with Listeria monocytogenes",
-  "Class": "Public Health Alert",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-chicken-salad-product-may-be-contaminated-listeria-0",
-  "Notes": "source_id=PHA-07302026-01 [via official-feed collector] [url-gate 2026-08-10: Gemini fixed https://www.fsis.usda.gov/recalls-alerts... -> https://www.fsis.usda.gov/recalls-alerts...] [gap-gate 2026-08-10: pending_gap → pending_gap_v1] [gap-gate 2026-08-11: pending_gap_v1 → pending_gap_v2] [audit 2026-08-13: kept as the surviving Mary's Harvest row. The FSIS index knows exactly one alert for this product — 'FSIS Issues Public Health Alert for Chicken Salad Product that May Be Contaminated with Listeria' — and its label sheet is PHA-07302026-01-Labels.pdf, so PHA-07302026-01 is this alert. Reason had been overwritten with the headline plus 'Product Contamination'. Pathogen was the bare genus; the notice names Listeria monocytogenes in its own text.] [approved 2026-08-13: verified against the FSIS index (repaired earlier today)]"
  },
  {
   "Date": "2026-07-29",
@@ -13586,22 +13570,6 @@
  {
   "Date": "2026-05-06",
   "Source": "RappelConso (FR)",
-  "Company": "K.S.P. (Kruz Seafood Production)",
-  "Brand": "aucune",
-  "Product": "Crevette cuite réfrigérée 40/60 P. Vannamei élevage OP 2KG (Lot 180421, GTIN 3760283210035, DLC 01/05/2026)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Aflatoxins in mini corn wafers from Slovakia, raw material from Hungary.; risk: serious; category: cereals and bakery products",
-  "Class": "Voluntary",
-  "Country": "France",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22205/Interne",
-  "Notes": "ruano pedro, top langouste, gavignaud maree service, roumegous distribution, les pecheries de la cotiniere [url-gate 2026-05-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [Claude-flag 2026-05-06: Missing Company field (empty string). Critical for Tier-1 Listeria recall.] [tier-guard 2026-08-04: escalation SKIPPED — Pathogen 'Listeria monocytogenes' contradicts this row's own Reason, so the pathogen is not trustworthy enough to raise the tier on. The publish gate blocks this row separately.]"
- },
- {
-  "Date": "2026-05-06",
-  "Source": "RappelConso (FR)",
   "Company": "Ferme baracand",
   "Brand": "Ferme Baracand",
   "Product": "Picodon — emballé par 3 ou à l'unité (Lot 97, DLC 16/06/2026, GTIN 3770016897129/006)",
@@ -21110,14 +21078,14 @@
   "Brand": "Various",
   "Product": "Macadamia nut products: 'Super Mac Mix' (salted and unsalted), raw macadamia nuts, roasted macadamia nuts and macadamia-containing mixed nuts, bulk and packaged, multiple sizes",
   "Pathogen": "Salmonella",
-  "Reason": "Salmonella — outbreak",
+  "Reason": "Possible Salmonella contamination",
   "Class": "Recall",
   "Country": "Canada",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-macadamia-nuts-and-macadamia-nut-containing-products-recalled-due-salmonella",
-  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by the Canadian Food Inspection Agency’s inspection activities.\n\nThere have been no reported illnesses associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_ [claude-check 2026-05-07: fix; Date 2026-05-06 → 2026-03-02; fix; company mismatch; date on page=2026-03-02 | Date should be 2026-03-02 (original publication), not 2026-05-06; Compa] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [outbreak-fix 2026-08-01: Outbreak 1->0 — Verified against the CFIA notice, which states verbatim: 'There have been no reported illnesses associated with the consumption of these products.' CFIA describes a food safety INVESTIGATION that may lead to further recalls — that is not an outbreak. Contrast the 2026-04-21 CFIA pistachio row, which is backed by a real PHAC public-health notice ('Outbreak of Salmonella infections linked to various brands of pistachios') and stays at 1. An outbreak flag requires a cluster of human illness; it drives Tier and the subscriber alert mailer.] [audit 2026-08-13: publish-gate rule 6f. Same headline-split defect — Product read 'due to Salmonella - Canada.ca'. Repaired from the notice. This is a CFIA MULTI-FIRM recall: twelve recalling firms are named, so Company records that fact rather than picking one arbitrarily. Published 2026-03-02, last updated 2026-03-05.]"
+  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by the Canadian Food Inspection Agency’s inspection activities.\n\nThere have been no reported illnesses associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_ [claude-check 2026-05-07: fix; Date 2026-05-06 → 2026-03-02; fix; company mismatch; date on page=2026-03-02 | Date should be 2026-03-02 (original publication), not 2026-05-06; Compa] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [outbreak-fix 2026-08-01: Outbreak 1->0 — Verified against the CFIA notice, which states verbatim: 'There have been no reported illnesses associated with the consumption of these products.' CFIA describes a food safety INVESTIGATION that may lead to further recalls — that is not an outbreak. Contrast the 2026-04-21 CFIA pistachio row, which is backed by a real PHAC public-health notice ('Outbreak of Salmonella infections linked to various brands of pistachios') and stays at 1. An outbreak flag requires a cluster of human illness; it drives Tier and the subscriber alert mailer.] [audit 2026-08-13: publish-gate rule 6f. Same headline-split defect — Product read 'due to Salmonella - Canada.ca'. Repaired from the notice. This is a CFIA MULTI-FIRM recall: twelve recalling firms are named, so Company records that fact rather than picking one arbitrarily. Published 2026-03-02, last updated 2026-03-05.] [audit 2026-08"
  },
  {
   "Date": "2026-02-27",
