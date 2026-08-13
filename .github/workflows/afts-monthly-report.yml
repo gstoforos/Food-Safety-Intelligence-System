@@ -122,6 +122,20 @@ jobs:
             --summary docs/data/monthly-summary-latest.json \
             --out-dir docs/marketing
 
+      - name: Build social cards (LinkedIn / Instagram / X)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          # Same summary as the marketing one-pager, so the two can never
+          # describe different top-10s. These carry NO COUNTS by design: a
+          # social post is immutable once published, and a month's totals keep
+          # moving for weeks after it closes (July 2026: 294 -> 307 in twelve
+          # days). The cards are emailed at 05:00 on the 1st, so they must
+          # exist by then — which is why this step lives in the DAY-1 workflow
+          # and not only in the day-10 updates check.
+          python -m pipeline.build_monthly_social \
+            --summary docs/data/monthly-summary-latest.json \
+            --out-dir docs/social
+
       - name: Wire pdf_url into monthly-index.json (so hub auto-renders)
         if: steps.guard.outputs.run == 'true'
         run: |
@@ -146,6 +160,7 @@ jobs:
           # the public lead magnet on hub.html.
           git add 'docs/20*-M*.html' \
                   'docs/marketing/20*-M*.pdf' \
+                  'docs/social/20*-M*.pdf' \
                   'docs/marketing/20*-M*.html' \
                   docs/data/monthly-summary-latest.json \
                   docs/data/monthly-summary-20*.json \
