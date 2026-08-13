@@ -158,6 +158,18 @@ jobs:
               "ScrapedAt", "Status", "RejectedBy",
           ]
 
+          # Agent 2 is REVIEWER 2. Its lane is what reviewer 1 has already cleared, plus
+          # anything already promotable:
+          #     pending_gap_v2  — reviewer 1 confirmed the URL; awaiting final review
+          #     pending         — promotable, must be verified before it goes
+          #
+          # It must NOT spend its budget on reviewer 1's lane (pending_gap,
+          # pending_gap_v1, pending_enrichment). Reviewing those cannot produce a
+          # promotion — pending_gap is not even in the advance set — and on CPU-only
+          # inference each wasted row costs ~109 s. Measured on the live sheet, 53 of 96
+          # rows sat outside the lane: 55% of every run produced nothing.
+          AGENT2_STATUSES = {"pending_gap_v2", "pending"}
+
           MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "5000"))
 
 
@@ -408,7 +420,10 @@ jobs:
                   tools=_tool_schema(),
                   tool_executor=_make_tool_executor(seen),
                   temperature=0.0,
-                  max_tokens=700,
+                  # Full response contract is ~137 tokens; 700 only bounded a rambling
+                  # answer, and on CPU inference that worst case dominated the measured
+                  # 109 s/row. 300 keeps >2x headroom over any real answer.
+                  max_tokens=300,
               )
               if not out:
                   return {**infra, "reason": "INFRA: no response from llama (retry)"}
@@ -519,10 +534,16 @@ jobs:
                       if _v:
                           _m[_k] = _v
                   _probs = _field_integrity_flags(_m)
-                  if _probs:
+                  _blocking = [p for p in _probs if _is_blocking(p)]
+                  _warnings = [p for p in _probs if not _is_blocking(p)]
+                  if _blocking:
                       parsed["verdict"] = "reject"
-                      parsed["reason"] = "field integrity: " + "; ".join(_probs[:3])
+                      parsed["reason"] = "field integrity: " + "; ".join(_blocking[:3])
                       return parsed
+                  if _warnings:
+                      parsed["provenance"] = (
+                          str(parsed.get("provenance", "")) +
+                          " [needs cleanup: " + "; ".join(_warnings[:2]) + "]").strip()
                   d = str((parsed.get("fields") or {}).get("Date")
                           or row.get("Date") or "").strip()[:10]
                   if len(d) >= 4 and d[:4].isdigit() and int(d[:4]) < 2026:
@@ -735,6 +756,23 @@ jobs:
               return None
 
 
+          # DEFECTS OF FACT — the row asserts something its source does not support.
+          # These block publication:
+          #   fabricated pathogen · placeholder instead of a value · wrong regulator
+          #   domain · authority name in Product · headline as Product
+          #
+          # Everything else is a defect of PRESENTATION. A RappelConso recall with the
+          # right date, company, product, pathogen and URL is a true, publishable record
+          # even if its Reason still reads in French. Rejecting it would discard a real
+          # food-safety alert over a formatting nit — that is what stalled the French
+          # feed while 8 of 11 rows were rejected on language alone.
+          _WARNING_ONLY = ("not in English", "formatting debris")
+
+
+          def _is_blocking(problem: str) -> bool:
+              return not any(w in problem for w in _WARNING_ONLY)
+
+
           def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
               """Deterministic checks the model cannot skip. Returns a list of problems;
               an approved row with any problem is downgraded to reject.
@@ -884,7 +922,10 @@ jobs:
               ap.add_argument("--commit", type=str, default="false")
               ap.add_argument("--source-filter", type=str, default=None)
               ap.add_argument("--limit", type=int, default=0)
-              ap.add_argument("--time-budget-min", type=int, default=20,
+              ap.add_argument("--all-statuses", action="store_true",
+                              help="Review every Pending row, not just reviewer 2's lane. "
+                                   "Slower; use only for a deliberate full sweep.")
+              ap.add_argument("--time-budget-min", type=int, default=40,
                               help="Stop reviewing after N minutes and SAVE what has "
                                    "been done, so a workflow timeout cannot discard the "
                                    "run. Remaining rows are picked up next run.")
@@ -901,6 +942,15 @@ jobs:
                   return audit_recalls(args, commit)
 
               rows, _ = load_pending(args.xlsx)
+              if not args.all_statuses:
+                  _before = len(rows)
+                  rows = [r for r in rows
+                          if str(r.get("Status", "")).strip() in AGENT2_STATUSES]
+                  _skipped = _before - len(rows)
+                  if _skipped:
+                      print(f"Lane filter: {len(rows)} row(s) in "
+                            f"{sorted(AGENT2_STATUSES)}; skipped {_skipped} row(s) "
+                            f"belonging to reviewer 1 (--all-statuses to override).")
               if args.source_filter:
                   sf = args.source_filter.lower()
                   rows = [r for r in rows if sf in str(r.get("Source", "")).lower()]
@@ -999,8 +1049,15 @@ jobs:
               # pending_enrichment). This replicates claude_check.py's documented
               # state-machine advance (audit 2026-04-29 / 2026-05-11) — the review
               # agent is the 2nd/final reviewer, so an approval flips the gate.
+              # REVIEWER 2 DOES NOT PROMOTE. An approved row is parked at
+              # pending_gap_v3 — merge_master skips every pending_gap* status, so this
+              # stage physically cannot reach Recalls until reviewer 3 confirms it and
+              # flips it to "pending". That is what makes a mid-run timeout harmless:
+              # whatever this agent finished is banked, and reviewer 3 publishes it in
+              # seconds without needing the model at all.
               _ADVANCE_FROM = {"pending_gap_v1", "pending_gap_v2", "pending_retry",
                                "pending_enrichment"}
+              _A2_APPROVED_STATUS = "pending_gap_v3"
               today_iso = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
               gap_advanced = 0
               for merged, review in results["approve"]:
@@ -1033,10 +1090,11 @@ jobs:
                       applied_corrections += 1
                       cur = str(full_pending[idx].get("Status", "")).strip()
                       if cur in _ADVANCE_FROM:
-                          full_pending[idx]["Status"] = "pending"
+                          full_pending[idx]["Status"] = _A2_APPROVED_STATUS
                           notes = str(full_pending[idx].get("Notes", "")).strip()
-                          tag = (f"[review-agent {today_iso}: {cur} → pending "
-                                 f"(Qwen verified, final reviewer)]")
+                          tag = (f"[review-agent {today_iso}: {cur} → "
+                                 f"{_A2_APPROVED_STATUS} (Qwen verified; awaiting "
+                                 f"reviewer 3 confirmation)]")
                           full_pending[idx]["Notes"] = (notes + " " + tag).strip()[:1000]
                           gap_advanced += 1
 
@@ -1074,6 +1132,8 @@ jobs:
                   _u = str(_r.get("URL", "")).strip()
                   if _u:
                       reviewed_urls.add(_u)
+              # (Reviewer 2 no longer writes "pending" at all, so this guard now only
+              # protects rows that arrived promotable from elsewhere.)
               for prow in full_pending:
                   if str(prow.get("Status", "")).strip() != "pending":
                       continue
@@ -1086,41 +1146,33 @@ jobs:
                       prow["Notes"] = (note + " [safety-hold: reviewed but not approved "
                                        "this run; not promoted]").strip()[:1000]
 
-              new_approved, remaining, archived_rejected = promote_approved(
-                  pending=full_pending,
-                  approved_existing=approved_existing,
-                  rejected_flags=rejected_flags,
-                  archive_immediately=True,
-              )
+              # ── REVIEWER 2 DOES NOT PUBLISH ──
+              # It records its verdicts and saves. Reviewer 3 (recall_confirm_agent)
+              # re-checks and publishes. This is what makes a mid-run timeout harmless:
+              # everything finished so far is already banked on disk, and publication
+              # does not depend on this agent completing, or on the model at all.
+              from pipeline.merge_master import (  # type: ignore
+                  sort_rows, save_xlsx_with_pending)
+              for idx, reason in rejected_flags.items():
+                  full_pending[idx]["Status"] = "rejected"
+                  _n = str(full_pending[idx].get("Notes", "")).strip()
+                  full_pending[idx]["Notes"] = (
+                      _n + f" [review-agent {today_iso}: REJECTED — {reason}]"
+                  ).strip()[:1000]
 
-              print(f"\nApplied {applied_corrections} field-corrected approvals "
-                    f"({gap_advanced} gap/enrichment rows advanced to 'pending').")
-              print(f"Promotion: {len(new_approved)} → Recalls, "
-                    f"{len(remaining)} remain in Pending, "
-                    f"{len(archived_rejected)} archived to Rejected.")
-
-              final_approved = sort_rows(approved_existing + new_approved)
-              final_pending = sort_rows(remaining)
-              save_xlsx_with_pending(final_approved, final_pending, XLSX_PATH,
-                                     newly_rejected_rows=archived_rejected)
+              save_xlsx_with_pending(sort_rows(approved_existing),
+                                     sort_rows(full_pending), XLSX_PATH)
               try:
-                  from pipeline.merge_master import JSON_PATH  # type: ignore
-                  mirror_json_from_xlsx(XLSX_PATH, JSON_PATH)
+                  from pipeline.merge_master import mirror_json_from_xlsx
+                  mirror_json_from_xlsx(XLSX_PATH, XLSX_PATH.parent / "recalls.json")
               except Exception:
                   pass
 
-              try:
-                  from pipeline.weekly_review_capture import record_promotions  # noqa
-                  record_promotions(new_approved, xlsx_path=XLSX_PATH)
-              except Exception as e:
-                  print(f"  (Weekly_Review capture skipped: {e})")
-              try:
-                  from pipeline.weekly_rejected_capture import record_rejections  # noqa
-                  record_rejections(archived_rejected, xlsx_path=XLSX_PATH)
-              except Exception as e:
-                  print(f"  (Weekly_Rejected capture skipped: {e})")
-
-              print("\n✓ Write-back complete via promote_approved (final-reviewer mode).")
+              _v3 = sum(1 for r in full_pending
+                        if str(r.get("Status", "")).strip() == _A2_APPROVED_STATUS)
+              print(f"\n✓ Reviewer 2 done. {applied_corrections} row(s) verified and "
+                    f"banked at {_A2_APPROVED_STATUS} ({_v3} awaiting reviewer 3), "
+                    f"{len(rejected_flags)} marked rejected. Nothing published here.")
               return 0
 
 
@@ -1286,7 +1338,7 @@ jobs:
           python -m pipeline.recall_review_agent \
             --xlsx docs/data/recalls.xlsx \
             --commit "$COMMIT" \
-            --time-budget-min 20 \
+            --time-budget-min 40 \
             $ARGS | tee /tmp/review.log
 
           {
