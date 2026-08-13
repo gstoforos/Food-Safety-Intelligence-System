@@ -6,11 +6,11 @@
     "month_name": "July 2026",
     "month_start": "2026-07-01",
     "month_end": "2026-07-31",
-    "total": 302,
-    "tier1": 228,
+    "total": 307,
+    "tier1": 231,
     "outbreaks": 4,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "July 2026: 302 recalls, 228 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "summary": "July 2026: 307 recalls, 231 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
     "pdf_url": "https://fsis.advfood.tech/marketing/2026-M07-marketing.pdf",
     "notified_total": 302
   },
@@ -27,7 +27,7 @@
     "top_pathogen": "Salmonella spp.",
     "summary": "June 2026: 247 recalls, 195 Tier-1, 4 outbreak(s). Leading pathogen: Salmonella spp..",
     "pdf_url": "https://fsis.advfood.tech/marketing/2026-M06-marketing.pdf",
-    "notified_total": 239
+    "notified_total": 247
   },
   {
     "filename": "2026-M05.html",
@@ -42,7 +42,7 @@
     "top_pathogen": "Salmonella spp.",
     "summary": "May 2026: 259 recalls, 220 Tier-1, 7 outbreak(s). Leading pathogen: Salmonella spp..",
     "pdf_url": "https://fsis.advfood.tech/marketing/2026-M05-marketing.pdf",
-    "notified_total": 257
+    "notified_total": 259
   },
   {
     "filename": "2026-M04.html",

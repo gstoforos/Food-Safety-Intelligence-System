@@ -8,17 +8,17 @@
   "week_end": "2026-08-06",
   "week_start_display": "31 Jul",
   "week_end_display": "6 Aug 2026",
-  "generated_utc": "2026-08-09T06:36:34.100183+00:00",
+  "generated_utc": "2026-08-13T05:26:00.368864+00:00",
   "stats": {
-    "total": 54,
-    "tier1": 44,
+    "total": 62,
+    "tier1": 51,
     "outbreaks": 1,
-    "delta": -25,
-    "delta_pct": -32
+    "delta": -21,
+    "delta_pct": -25
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 24,
+    "cases": 27,
     "pct": 44
   },
   "ai_lead_paragraph": "",
@@ -94,5 +94,5 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23103/interne"
     }
   ],
-  "country_count": 18
+  "country_count": 20
 }
