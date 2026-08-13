@@ -1,5 +1,37 @@
 [
  {
+  "Date": "2026-08-12",
+  "Source": "FDA",
+  "Company": "Whole Foods Market",
+  "Brand": "Whole Foods Market",
+  "Product": "Finished products such as dips, salsa, guacamole, and more containing jalapeno.",
+  "Pathogen": "Salmonella",
+  "Reason": "Potential Salmonella Contamination",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/whole-foods-market-announces-recall-select-salsas-guacamole-pico-de-gallo-and-prepared-foods",
+  "Notes": "FDA listing HTML (Layer 1)"
+ },
+ {
+  "Date": "2026-08-12",
+  "Source": "FDA",
+  "Company": "Miller Foods, Inc.",
+  "Brand": "Oma’s Pride",
+  "Product": "Canine Food",
+  "Pathogen": "Salmonella",
+  "Reason": "Contaminated with Salmonella",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/omas-pride-voluntarily-recalls-one-lot-woof-complete-canine-chicken-recipe-6-lb-bag-because-possible",
+  "Notes": "FDA listing HTML (Layer 1)"
+ },
+ {
   "Date": "2026-08-11",
   "Source": "FDA",
   "Company": "Lidl US Trading",
