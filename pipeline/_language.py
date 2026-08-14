@@ -803,6 +803,20 @@ _US_SPELLINGS = (
     (_re_us.compile(r"\boesophag", _re_us.I), "esophag"),
     (_re_us.compile(r"\bhaemolytic\b", _re_us.I), "hemolytic"),
     (_re_us.compile(r"\bhaemorrhagic\b", _re_us.I), "hemorrhagic"),
+    # PREFIXED FORMS. \b...\b does not match inside a word, so "pasteurised"
+    # leaves "unpasteurised" untouched — and "unpasteurised milk" is the single
+    # most common British spelling in raw-milk cheese recalls (FR/UK/IE), the
+    # exact rows this register carries most of. "non-pasteurised" and
+    # "re-analysed" already worked because the hyphen creates a boundary; the
+    # un-/mis-/dis- forms did not. Zero occurrences in the register today, so
+    # this is closing the hole before it is used, not repairing damage.
+    (_re_us.compile(r"\bunpasteurised\b", _re_us.I), "unpasteurized"),
+    (_re_us.compile(r"\bunlabelled\b", _re_us.I), "unlabeled"),
+    (_re_us.compile(r"\bmislabelled\b", _re_us.I), "mislabeled"),
+    (_re_us.compile(r"\blabelled\b", _re_us.I), "labeled"),
+    (_re_us.compile(r"\bdiscoloured\b", _re_us.I), "discolored"),
+    (_re_us.compile(r"\bdiscolouration\b", _re_us.I), "discoloration"),
+    (_re_us.compile(r"\bunanalysed\b", _re_us.I), "unanalyzed"),
     # NOT here on purpose: programme (proper nouns), moulded/demoulded
     # (shaped, not fungal), litre/flavour/yoghurt (Product and Brand are
     # exempt from the English-output rule and must match the pack).
