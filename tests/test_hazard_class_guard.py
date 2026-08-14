@@ -271,15 +271,36 @@ class TestWholeWorkbookRegression(unittest.TestCase):
         xlsx = ROOT / "docs" / "data" / "recalls.xlsx"
         if not xlsx.exists():                     # pragma: no cover
             self.skipTest("recalls.xlsx not present")
+        # Check BOTH archive sheets (audit 2026-08-14).
+        #
+        # Weekly_Rejected is a ROLLING Thu->Thu window that the Thursday
+        # 17:30 Athens wipe empties on purpose. Checking only that sheet
+        # meant this guard reported data loss every time the wipe ran
+        # correctly, and reported nothing when rows were actually lost in
+        # between — the failure mode it exists to catch.
+        #
+        # tools/wipe_weekly_rejected.py now MOVES rows to a permanent
+        # "Rejected" sheet before clearing the rolling one, which is what
+        # the wipe workflow's own header always claimed happened. A row is
+        # correctly archived if it is in either sheet.
         wb = openpyxl.load_workbook(xlsx, read_only=True)
-        rows = list(wb["Weekly_Rejected"].values)
-        hdr = [str(h) for h in rows[0]]
-        iu = hdr.index("URL")
-        archived = {str(r[iu] or "") for r in rows[1:] if r}
+        archived = set()
+        for sheet in ("Weekly_Rejected", "Rejected"):
+            if sheet not in wb.sheetnames:
+                continue
+            rows = list(wb[sheet].values)
+            if not rows or not rows[0]:
+                continue
+            hdr = [str(h) for h in rows[0]]
+            if "URL" not in hdr:
+                continue
+            iu = hdr.index("URL")
+            archived |= {str(r[iu] or "") for r in rows[1:] if r}
         missing = [u for u in self.OUT_OF_SCOPE_URLS if u not in archived]
-        self.assertEqual([], missing,
-                         "removed rows must land in Weekly_Rejected with a "
-                         "reason, never be silently deleted")
+        self.assertEqual(
+            [], missing,
+            "removed rows must land in Weekly_Rejected or the permanent "
+            "Rejected archive with a reason, never be silently deleted")
 
     def test_no_new_contradictions_appear(self):
         """Every flagged row must be on the documented unresolved list."""

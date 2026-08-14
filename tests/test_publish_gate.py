@@ -489,6 +489,58 @@ class TestWorkbookStaysClean(unittest.TestCase):
         # Pending on three sibling rows at the time it was published.
         "produktwarnung.eu",
         "hortidaily.com",
+        # ── Added 2026-08-14 with rule 6d (URL must not be a search query) ─
+        # Eight FDA rows cite the enforcement-report SEARCH page with the
+        # recall number in the query string rather than the notice itself:
+        #     fda.gov/safety/recalls-market-withdrawals-safety-alerts
+        #         ?search_api_fulltext=H-1181-2026
+        # Numbers: H-0698/0699/0700-2026 (20 Apr), H-1144-2026 (24 Jun),
+        # H-1148/1149-2026 (25 Jun), H-1179-2026 (02 Jul), H-1181-2026 (03 Jul).
+        #
+        # These are NOT new defects. They sat on the operator's open list from
+        # 2026-08-13, before any rule could name them; rule 6d found all eight
+        # the moment it was wired in, which is the rule doing its job. Pinned
+        # rather than deleted because every one is a GENUINE recall with
+        # correct fields — only the citation is wrong.
+        #
+        # WHY NOT REPAIRED HERE: an FDA enforcement-report entry does not
+        # always have a press-release permalink; many Class II/III enforcement
+        # actions exist only as database rows. Substituting a plausible-looking
+        # /safety/recalls-.../<slug> URL is precisely the fabrication this gate
+        # exists to stop. The correct repair is to resolve each recall number
+        # against the openFDA enforcement API
+        #   api.fda.gov/food/enforcement.json?search=recall_number:"H-1181-2026"
+        # and cite what it returns, or record that no permalink exists. Eight
+        # source lookups, not a bulk edit.
+        "search_api_fulltext=H-0698-2026",
+        "search_api_fulltext=H-0699-2026",
+        "search_api_fulltext=H-0700-2026",
+        "search_api_fulltext=H-1144-2026",
+        "search_api_fulltext=H-1148-2026",
+        "search_api_fulltext=H-1149-2026",
+        "search_api_fulltext=H-1179-2026",
+        "search_api_fulltext=H-1181-2026",
+        # ── Added 2026-08-14 with rule 6g (RASFF numeric notifId) ────────
+        # Seven RASFF rows cite the notification REFERENCE instead of the
+        # numeric notifId, so the page does not load:
+        #   2026.6859 (31 Jul), 2026.4556 / 4544 / 4543 (22 May),
+        #   2026.4499 (21 May), 2026.4017 / 4025 (07 May).
+        # An accuracy review caught one by hand; rule 6g found all seven.
+        #
+        # NOT repairable from the audit environment: RASFF Window is a JS
+        # application that returns an empty shell to any server-side fetch,
+        # so the numeric id cannot be looked up, and guessing one would be a
+        # fabricated citation — the exact failure this gate exists to stop.
+        # Each row carries a [url-defect] stamp in Notes so the weakness is
+        # visible in the row itself. Repair needs a browser session or the
+        # RASFF export; the row DATA is unaffected, only the link.
+        "notification/2026.6859",
+        "notification/2026.4556",
+        "notification/2026.4544",
+        "notification/2026.4543",
+        "notification/2026.4499",
+        "notification/2026.4017",
+        "notification/2026.4025",
         # ── Revised 2026-08-02 (second pass) ──────────────────────────────
         # The ten RappelConso rows previously pinned here have been REPAIRED
         # from the official DGCCRF open-data record and are gone from this
