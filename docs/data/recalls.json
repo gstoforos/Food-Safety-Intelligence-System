@@ -146,7 +146,7 @@
  {
   "Date": "2026-08-12",
   "Source": "RappelConso (FR)",
-  "Company": "Manicamp",
+  "Company": "GAEC de la Pâturelle",
   "Brand": "Manicamp",
   "Product": "manicamp",
   "Pathogen": "Listeria monocytogenes",
@@ -157,7 +157,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23136/interne",
-  "Notes": "ferme de la pâturelle [language 2026-08-14: Reason rendered in English per the English-output rule, which exempts brand and product names only. Verified against the live fiche at rappel.conso.gouv.fr/fiche-rappel/23136/Interne on 2026-08-14, not machine-translated and not pattern-swept. Entreprise at source: GAEC DE LA PATURELLE / Ferme de la Pâturelle. Source motif verbatim: « Présence potentielle de listéria monocytogenes ». Source risque verbatim: « Listeria monocytogenes (agent responsable de la listériose) ». Nothing was added to or removed from the hazard.]"
+  "Notes": "ferme de la pâturelle [language 2026-08-14: Reason rendered in English per the English-output rule, which exempts brand and product names only. Verified against the live fiche at rappel.conso.gouv.fr/fiche-rappel/23136/Interne on 2026-08-14, not machine-translated and not pattern-swept. Entreprise at source: GAEC DE LA PATURELLE / Ferme de la Pâturelle. Source motif verbatim: « Présence potentielle de listéria monocytogenes ». Source risque verbatim: « Listeria monocytogenes (agent responsable de la listériose) ». Nothing was added to or removed from the hazard.] [company 2026-08-14: 'Manicamp' -> 'GAEC de la Pâturelle'. fiche 23136 names the entreprise as 'GAEC DE LA PATURELLE Ferme de la Pâturelle'; 'Manicamp' is the marque and stays in Brand. Verified against the live fiche page.]"
  },
  {
   "Date": "2026-08-12",
@@ -301,7 +301,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847056",
-  "Notes": "[RASFF #2026.7126; classification: border rejection notification; category: nuts, nut products and seeds; notifId=847056]"
+  "Notes": "[RASFF #2026.7126; classification: border rejection notification; category: nuts, nut products and seeds; notifId=847056] [url-suspect 2026-08-14: notifId 847056 on a row dated 2026-08-11. Every other August RASFF row falls in 861073..865741 and this row's same-day siblings are 865271..865534, so a value ~18k lower almost certainly points at a notification from weeks earlier. NOT changed: RASFF Window cannot be fetched server-side, and replacing a citation with a guess is worse than flagging it. Verify before this row is cited externally.]"
  },
  {
   "Date": "2026-08-11",
@@ -946,7 +946,7 @@
  {
   "Date": "2026-08-06",
   "Source": "RappelConso (FR)",
-  "Company": "Wälchli",
+  "Company": "Établissements Schoepfer",
   "Brand": "Wälchli",
   "Product": "Saint Nectaire fermier AOP, 140 g portions",
   "Pathogen": "Listeria monocytogenes",
@@ -957,7 +957,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23096/Interne",
-  "Notes": "intermarché, coopérative u, leclerc, auchan, carrefour [url-gate 2026-08-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-10: Pathogen ''→'Listeria monocytogenes'] [audit 2026-08-13: verified against fiche 23096. Tier was 3; Listeria monocytogenes in a ready-to-eat raw-milk cheese is Tier 1 and is Tier 1 on every comparable row here. Reason was half-English half-French ('...<10 ufc/g dans une portion de ce lot'); rendered in English per the English-output rule, which exempts brand and product names only. Product normalised from the lowercased scrape. Distributors named on the fiche: Intermarché, Coopérative U, Leclerc, Auchan, Carrefour.] [approved 2026-08-13: verified against fiche 23096 (repaired earlier today)]"
+  "Notes": "intermarché, coopérative u, leclerc, auchan, carrefour [url-gate 2026-08-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-10: Pathogen ''→'Listeria monocytogenes'] [audit 2026-08-13: verified against fiche 23096. Tier was 3; Listeria monocytogenes in a ready-to-eat raw-milk cheese is Tier 1 and is Tier 1 on every comparable row here. Reason was half-English half-French ('...<10 ufc/g dans une portion de ce lot'); rendered in English per the English-output rule, which exempts brand and product names only. Product normalised from the lowercased scrape. Distributors named on the fiche: Intermarché, Coopérative U, Leclerc, Auchan, Carrefour.] [approved 2026-08-13: verified against fiche 23096 (repaired earlier today)] [company 2026-08-14: 'Wälchli' -> 'Établissements Schoepfer'. fiche 23096 names the recalling firm as 'Établissements Schoepfer'; 'Wälchli' is the marque and stays in Brand. Date de publication confirmed 06/08/2026 — unchanged. Verified against the live fiche page.]"
  },
  {
   "Date": "2026-08-06",
@@ -1821,7 +1821,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.6859",
-  "Notes": "[RASFF #2026.6859; classification: information notification for attention; category: fruits and vegetables; notifId=862983] [safety-hold: not approved this run; not promoted] [gemini-enrich 2026-08-02: Brand '—'→'DEU'] [url-gate 2026-08-03: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [approved 2026-08-13: RASFF notification; Company follows the Origin/Notifying convention and Brand carries the notifying-state code] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [audit 2026-08-13: Pathogen corrected from 'Escherichia coli (generic)' to 'Shiga toxin-producing E. coli (STEC)'. The row's own Reason reads 'Verotoxin-producing Escherichia coli in a ready-to-eat salad and vegetable mix from Belgium'. VTEC is the European name for STEC — the same organism class this register already records 68 times as 'Shiga toxin-producing E. coli (STEC)'. 'Generic' understated a Tier-1 hazard on evidence present in the row itself. Tier was already 1 and is unchanged; no serogroup is claimed because the notification does not name one.]"
+  "Notes": "[RASFF #2026.6859; classification: information notification for attention; category: fruits and vegetables; notifId=862983] [safety-hold: not approved this run; not promoted] [gemini-enrich 2026-08-02: Brand '—'→'DEU'] [url-gate 2026-08-03: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [approved 2026-08-13: RASFF notification; Company follows the Origin/Notifying convention and Brand carries the notifying-state code] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [audit 2026-08-13: Pathogen corrected from 'Escherichia coli (generic)' to 'Shiga toxin-producing E. coli (STEC)'. The row's own Reason reads 'Verotoxin-producing Escherichia coli in a ready-to-eat salad and vegetable mix from Belgium'. VTEC is the European name for STEC — the same organism class this register already records 68 times as 'Shiga toxin-producing E. coli (STEC)'. 'Generic' understated a Tier-1 hazard on evidence present in the row itself. Tier was already 1 and is unchanged; no serogroup is claimed because the notification does not name one.] [url-defect 2026-08-14: this RASFF URL cites the notification REFERENCE (2026.6859) instead of the numeric notifId that webgate.ec.europa.eu/rasff-window/screen/notification/<id> resolves, so the page does not load. Every other RASFF row in this register uses the numeric form. NOT corrected: RASFF Window is a JS application that returns an empty shell to server-side fetch, and a guessed numeric id would be a fabricated citation. The row's data is unaffected; only the link is unusable.]"
  },
  {
   "Date": "2026-07-30",
@@ -1893,7 +1893,7 @@
   "Company": "Origin: Türkiye | Notifying: France",
   "Brand": "FRA",
   "Product": "Aflatoxins and ochratoxin A in dried figs from Turkiye",
-  "Pathogen": "Aflatoxin",
+  "Pathogen": "Aflatoxin, Ochratoxin",
   "Reason": "Aflatoxins and ochratoxin A in dried figs from Turkiye; risk: serious; category: fruits and vegetables",
   "Class": "Border Rejection",
   "Country": "Turkey",
@@ -1901,7 +1901,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862778",
-  "Notes": "[RASFF #2026.6775; classification: border rejection notification; category: fruits and vegetables; notifId=862778] [gemini-enrich 2026-07-31: Brand '—'→'FRA'] [gemini-check 2026-07-31: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.6775; classification: border rejection notification; category: fruits and vegetables; notifId=862778] [gemini-enrich 2026-07-31: Brand '—'→'FRA'] [gemini-check 2026-07-31: pass; clean-row shortcut (gemini-enriched + all fields valid)] [pathogen 2026-08-14: 'Aflatoxin' -> 'Aflatoxin, Ochratoxin'. row Reason reads 'Aflatoxins and ochratoxin A in dried figs from Turkiye' — the second hazard was dropped from Pathogen. Taken from the row's own Reason text; nothing inferred.]"
  },
  {
   "Date": "2026-07-30",
@@ -7653,7 +7653,7 @@
   "Company": "Origin: Türkiye | Notifying: Bulgaria",
   "Brand": "BULGARIA",
   "Product": "Aflatoxins and Ochratoxin A in dried figs from Türkiye",
-  "Pathogen": "Aflatoxin",
+  "Pathogen": "Aflatoxin, Ochratoxin",
   "Reason": "Aflatoxins and Ochratoxin A in dried figs from Türkiye; risk: serious; category: fruits and vegetables",
   "Class": "Border Rejection",
   "Country": "Turkey",
@@ -7661,7 +7661,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/852588",
-  "Notes": "[RASFF #2026.5444; classification: border rejection notification; category: fruits and vegetables; notifId=852588] [gemini-enrich 2026-06-21: Brand '—'→'BULGARIA'] [claude-check 2026-06-21: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.5444; classification: border rejection notification; category: fruits and vegetables; notifId=852588] [gemini-enrich 2026-06-21: Brand '—'→'BULGARIA'] [claude-check 2026-06-21: pass; clean-row shortcut (gemini-enriched + all fields valid)] [pathogen 2026-08-14: 'Aflatoxin' -> 'Aflatoxin, Ochratoxin'. row Reason reads 'Aflatoxins and Ochratoxin A in dried figs from Türkiye' — the second hazard was dropped from Pathogen. Taken from the row's own Reason text; nothing inferred.]"
  },
  {
   "Date": "2026-06-19",
@@ -11581,7 +11581,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.4556",
-  "Notes": "[RASFF #2026.4556; classification: alert notification; category: meat and meat products (other than poultry); notifId=845447] [url-gate 2026-05-25: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [gemini-enrich 2026-05-25: Brand '—'→'DEU, ROU'] [claude-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.4556; classification: alert notification; category: meat and meat products (other than poultry); notifId=845447] [url-gate 2026-05-25: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [gemini-enrich 2026-05-25: Brand '—'→'DEU, ROU'] [claude-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)] [url-defect 2026-08-14: this RASFF URL cites the notification REFERENCE (2026.4556) instead of the numeric notifId that webgate.ec.europa.eu/rasff-window/screen/notification/<id> resolves, so the page does not load. Every other RASFF row in this register uses the numeric form. NOT corrected: RASFF Window is a JS application that returns an empty shell to server-side fetch, and a guessed numeric id would be a fabricated citation. The row's data is unaffected; only the link is unusable.]"
  },
  {
   "Date": "2026-05-22",
@@ -11597,7 +11597,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.4544",
-  "Notes": "[RASFF #2026.4544; classification: information notification for attention; category: meat and meat products (other than poultry); notifId=846260] [url-gate 2026-05-25: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [gemini-enrich 2026-05-25: Brand '—'→'DEU'] [claude-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.4544; classification: information notification for attention; category: meat and meat products (other than poultry); notifId=846260] [url-gate 2026-05-25: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [gemini-enrich 2026-05-25: Brand '—'→'DEU'] [claude-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)] [url-defect 2026-08-14: this RASFF URL cites the notification REFERENCE (2026.4544) instead of the numeric notifId that webgate.ec.europa.eu/rasff-window/screen/notification/<id> resolves, so the page does not load. Every other RASFF row in this register uses the numeric form. NOT corrected: RASFF Window is a JS application that returns an empty shell to server-side fetch, and a guessed numeric id would be a fabricated citation. The row's data is unaffected; only the link is unusable.]"
  },
  {
   "Date": "2026-05-22",
@@ -11613,7 +11613,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.4543",
-  "Notes": "[RASFF #2026.4543; classification: information notification for attention; category: crustaceans and products thereof; notifId=846228] [url-gate 2026-05-25: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [gemini-enrich 2026-05-25: Brand '—'→'FRA'] [claude-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.4543; classification: information notification for attention; category: crustaceans and products thereof; notifId=846228] [url-gate 2026-05-25: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [gemini-enrich 2026-05-25: Brand '—'→'FRA'] [claude-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)] [url-defect 2026-08-14: this RASFF URL cites the notification REFERENCE (2026.4543) instead of the numeric notifId that webgate.ec.europa.eu/rasff-window/screen/notification/<id> resolves, so the page does not load. Every other RASFF row in this register uses the numeric form. NOT corrected: RASFF Window is a JS application that returns an empty shell to server-side fetch, and a guessed numeric id would be a fabricated citation. The row's data is unaffected; only the link is unusable.]"
  },
  {
   "Date": "2026-05-22",
@@ -11757,7 +11757,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.4499",
-  "Notes": "[RASFF #2026.4499; classification: information notification for attention; category: fruits and vegetables; notifId=845301] [url-gate 2026-05-25: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [gemini-enrich 2026-05-25: Brand '—'→'FRA'] [claude-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.4499; classification: information notification for attention; category: fruits and vegetables; notifId=845301] [url-gate 2026-05-25: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [gemini-enrich 2026-05-25: Brand '—'→'FRA'] [claude-check 2026-05-26: pass; clean-row shortcut (gemini-enriched + all fields valid)] [url-defect 2026-08-14: this RASFF URL cites the notification REFERENCE (2026.4499) instead of the numeric notifId that webgate.ec.europa.eu/rasff-window/screen/notification/<id> resolves, so the page does not load. Every other RASFF row in this register uses the numeric form. NOT corrected: RASFF Window is a JS application that returns an empty shell to server-side fetch, and a guessed numeric id would be a fabricated citation. The row's data is unaffected; only the link is unusable.]"
  },
  {
   "Date": "2026-05-21",
@@ -13821,7 +13821,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.4017",
-  "Notes": "[RASFF #2026.4017; classification: alert notification; category: nuts, nut products and seeds; notifId=842548] [url-gate 2026-05-08: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [gemini-enrich 2026-05-08: Brand '—'→'SWE'] [claude-check 2026-05-09: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.4017; classification: alert notification; category: nuts, nut products and seeds; notifId=842548] [url-gate 2026-05-08: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [gemini-enrich 2026-05-08: Brand '—'→'SWE'] [claude-check 2026-05-09: pass; clean-row shortcut (gemini-enriched + all fields valid)] [url-defect 2026-08-14: this RASFF URL cites the notification REFERENCE (2026.4017) instead of the numeric notifId that webgate.ec.europa.eu/rasff-window/screen/notification/<id> resolves, so the page does not load. Every other RASFF row in this register uses the numeric form. NOT corrected: RASFF Window is a JS application that returns an empty shell to server-side fetch, and a guessed numeric id would be a fabricated citation. The row's data is unaffected; only the link is unusable.]"
  },
  {
   "Date": "2026-05-07",
@@ -13837,7 +13837,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.4025",
-  "Notes": "[RASFF #2026.4025; classification: alert notification; category: bivalve molluscs and products thereof; notifId=842693] [gemini-enrich 2026-05-09: Brand '—'→'France'] [gemini-enrich 2026-05-09: Pathogen ''→'E. coli'] [outbreak 2026-05-10: 0→1 — risk: serious] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [url-gate 2026-05-11: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [Product field repaired 2026-06-01 by operator: was \"recall of oysters following a zone closure due to E. coli\"... Restored to actual product name; original scraper had stuffed recall title into Product. RASFF #2026.4025: E. coli in oysters from France; harvest zone closure. Category: bivalve molluscs.] [outbreak-fix 2026-08-01: Outbreak 1->0 — its only recorded evidence is 'risk: serious' — the RASFF hazard-SEVERITY classification carried by every notification, not an illness report. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.]"
+  "Notes": "[RASFF #2026.4025; classification: alert notification; category: bivalve molluscs and products thereof; notifId=842693] [gemini-enrich 2026-05-09: Brand '—'→'France'] [gemini-enrich 2026-05-09: Pathogen ''→'E. coli'] [outbreak 2026-05-10: 0→1 — risk: serious] [claude-check 2026-05-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [url-gate 2026-05-11: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [Product field repaired 2026-06-01 by operator: was \"recall of oysters following a zone closure due to E. coli\"... Restored to actual product name; original scraper had stuffed recall title into Product. RASFF #2026.4025: E. coli in oysters from France; harvest zone closure. Category: bivalve molluscs.] [outbreak-fix 2026-08-01: Outbreak 1->0 — its only recorded evidence is 'risk: serious' — the RASFF hazard-SEVERITY classification carried by every notification, not an illness report. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.] [url-defect 2026-08-14: this RASFF URL cites the notification REFERENCE (2026.4025) instead of the numeric notifId that webgate.ec.europa.eu/rasff-window/screen/notification/<id> resolves, so the page does not load. Every other RASFF row in this register uses the numeric form. NOT corrected: RASFF Window is a JS application that returns an empty shell to server-side fetch, and a guessed numeric id would be a fabricated citation. The row's data is unaffected; only the link is unusable.]"
  },
  {
   "Date": "2026-05-07",
