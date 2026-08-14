@@ -436,6 +436,13 @@ def pathogen_badge_color(canonical):
     if "stec" in name or "shiga" in name or "o157" in name:
                                                      return "#ea580c"   # orange-red
     # Tier 2 — common acute pathogens
+    # Severe Vibrio species sit in the Tier-1 band, not the cyan Tier-2 one
+    # (added 2026-08-14). This palette is documented as tracking SEVERITY,
+    # so leaving V. vulnificus — ~1 in 5 fatal per CDC — the same cyan as
+    # V. parahaemolyticus would make the colour say the opposite of the
+    # tier. Must precede the generic "vibrio" branch below.
+    if "vulnificus" in name:                         return "#dc2626"   # red
+    if "cholera" in name and "non-o" not in name:    return "#dc2626"   # red
     if "salmonella" in name:                         return "#f59e0b"   # amber
     if "campylobacter" in name:                      return "#d97706"   # amber-dark
     if "e. coli" in name or "escherichia" in name:   return "#f97316"   # orange
