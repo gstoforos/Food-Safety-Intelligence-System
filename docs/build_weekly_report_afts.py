@@ -743,7 +743,33 @@ def render_top5_row(rank, r):
 def compute_stats(wr, pr):
     total = len(wr)
     tier1 = sum(1 for r in wr if _safe_int(r.get("Tier")) == 1)
-    outbreaks = sum(1 for r in wr if _safe_int(r.get("Outbreak")) == 1)
+
+    # ── Outbreaks are counted as EVENTS, not rows (audit 2026-08-14) ────
+    # `Outbreak` is a per-ROW boolean, but one outbreak produces several
+    # rows: the implicated ingredient, each downstream manufacturer, the
+    # agency investigation page, and any regulator's public-health alert.
+    # W33 is the worked example — the Salmonella Javiana jalapeño event
+    # appears as three separate recalls (FDA Taylor Fresh 9 Aug, FDA Whole
+    # Foods 12 Aug, CFIA RA-82480 13 Aug), all naming the same open
+    # investigation. Summing the flag printed one outbreak three times,
+    # which is the inflation the operator removed by hand on 13 Aug.
+    #
+    # pipeline/_outbreak_id.count_events() has solved this since
+    # 2026-08-11 — it merges rows that share a real investigation slug or
+    # an explicit [outbreak:<id>] override, and pointedly REFUSES to merge
+    # on the low-confidence pathogen+month key (that key was measured
+    # collapsing four unrelated April events into one). It was simply
+    # never called from here.
+    #
+    # Fails OPEN to the old row count: an over-count is visible and
+    # arguable, a crashed build ships nothing.
+    try:
+        from pipeline._outbreak_id import count_events
+        outbreaks = count_events(wr)
+    except Exception as _oe:                                  # noqa: BLE001
+        log.warning("outbreak event-count unavailable (%s) — falling back "
+                    "to row count, which OVERSTATES multi-row events", _oe)
+        outbreaks = sum(1 for r in wr if _safe_int(r.get("Outbreak")) == 1)
     pc = Counter(); cc = Counter()
     cs = {}  # country → set of Source labels — used by geographic-table
              # builder to choose the right "Authority" label per row. Audit
@@ -910,21 +936,37 @@ def generate_analysis_claude(stats, recalls):
     auths = _jurisdictions_from_recalls(recalls)
     auth_hint = ", ".join(auths[:5]) if auths else "multiple jurisdictions"
 
+    # ── Commodity mix for the leading pathogen (audit 2026-08-14) ───────
+    # The prompt used to receive pathogen counts and country counts and
+    # NOTHING about what the products actually were, so the model had no
+    # basis for a commodity statement and filled the gap from the canned
+    # examples in the instruction itself. W33 is the worked case: the
+    # published paragraph said this week's Salmonella signal spanned
+    # "dairy and soft cheese" and cited "peanut butter, flour, infant
+    # formula", while the dataset contained ZERO dairy or cheese
+    # Salmonella rows. The real distribution was meat and poultry 15/27,
+    # sesame and seed products 5/27. An external review caught it.
+    # Passing the measured mix is what makes the paragraph describe this
+    # week instead of Salmonella in general.
+    commodity_mix = _commodity_mix(recalls, tp)
+
     prompt = """You are a food safety intelligence analyst for AFTS. Generate the Intelligence Analysis section.
 
-DATA: Total={}, Tier-1={}, Outbreaks={}, Leading={} ({}, {}%)
+DATA: Total={}, Tier-1={}, Outbreaks={} (DISTINCT EVENTS, not rows — several recalls can belong to one outbreak), Leading={} ({}, {}%)
 Pathogens: {}
 Countries: {}
 Jurisdictions this week: {}
+Commodity mix for {} THIS WEEK (measured from the actual rows): {}
 
 Generate EXACTLY these three paragraphs (plain text, no HTML, no headers, no paragraph numbers):
 1. Executive overview — total, tier-1, outbreaks, leading pathogen %, interpret as regulatory-pressure signal.
-2. Pathogen-specific process-engineering analysis for {} — name the specific product categories at risk (e.g. for Listeria: RTE deli / dairy / cooked-meat; for Salmonella: low-moisture foods / peanut butter / flour / spices; for STEC: raw beef / leafy greens / sprouts), the specific failure modes (e.g. Zone 1 environmental harbourage, sanitation SOP drift, post-lethality recontamination for Listeria), and cite the specific regulatory frameworks (21 CFR 117 Preventive Controls, 21 CFR 113/114 thermal lethality, validated lethality for L. monocytogenes under FDA CPG 555.320 / 9 CFR 430, FDA Produce Safety Rule 21 CFR 112, etc. as applicable).
+2. Pathogen-specific process-engineering analysis for {} — describe the product categories USING THE MEASURED COMMODITY MIX GIVEN ABOVE. Do not name a commodity class that does not appear in that mix, and do not substitute textbook examples for it; if the mix is spread across several classes, say so and read it as multiple independent supply-chain events rather than one commodity-level failure. Then give the specific failure modes (e.g. Zone 1 environmental harbourage, sanitation SOP drift, post-lethality recontamination for Listeria) and cite only BINDING regulatory frameworks (21 CFR 117 Preventive Controls including environmental monitoring, 21 CFR 113/114 thermal lethality, 9 CFR 430 for post-lethality-exposed RTE meat and poultry, FDA Produce Safety Rule 21 CFR 112, Reg. (EC) 2073/2005 as amended by Reg. (EU) 2024/2895, etc. as applicable). Do NOT cite FDA CPG 555.320: FDA's own page marks it "Draft - Not for Implementation" containing "non-binding recommendations", and it does not set a blanket RTE zero-tolerance.
 3. Regulatory/geographic assessment — name the actual authorities active this week ({}). Close with AFTS recommendation to re-verify the single highest-leverage control for the commodity and confirm documentation packages are ready for rapid regulatory response.
 
 Tone: professional, process-engineering voice, no emojis, no bullets, no colons at paragraph starts. 3-5 sentences each. Preserve the word 'AFTS' exactly where referenced. Do NOT write a Process Authority Note — that is appended separately.""".format(
         t, stats["tier1"], stats["outbreaks"], tp, tc, pct,
         dict(stats["pathogen_counts"]), dict(stats["country_counts"]), auth_hint,
+        tp, commodity_mix,
         tp, auth_hint)
 
     claude_out = None
@@ -973,13 +1015,43 @@ def _fallback_p1_to_p3(stats, recalls):
                                  _count_phrase(stats["outbreaks"], "confirmed outbreak event",
                                                zero="no confirmed outbreak events"),
                                  tp, tc, t, pct)
-    p2 = _pathogen_narrative(tp, pct) + _framework_jurisdiction_qualifier(recalls)
+    p2 = (_pathogen_narrative(tp, pct, _commodity_mix(recalls, tp))
+          + _framework_jurisdiction_qualifier(recalls))
     # Outbreak Watch: if any outbreak-flagged recall exists, surface it by name
     # so the outbreak KPI is reflected in the narrative even when the Top-5
     # headline threats are a different pathogen (reviewer note 2026-07-03).
     OUTBREAK_TRUTHY = {True, 1, "1", "TRUE", "True", "true", "Y", "Yes"}
     ob_recalls = [r for r in (recalls or [])
                   if r.get("Outbreak") in OUTBREAK_TRUTHY]
+
+    # ── One line per EVENT, not per row (audit 2026-08-14) ─────────────
+    # compute_stats() now counts distinct events, but this paragraph still
+    # iterated rows, so the first build after that change printed
+    # "3 confirmed cluster events tracked this week" directly beneath a
+    # KPI reading "Active Outbreaks 1", and named the same jalapeño event
+    # three times over ("linked to guacamoles; ... dips, salsa, guacamole
+    # ...; ... finished products"). Fixing the counter without fixing the
+    # prose would have produced a report that contradicted itself in
+    # consecutive sentences — worse than the original error, because the
+    # KPI now looks wrong instead of the narrative.
+    #
+    # Keep the FIRST row of each event: rows are sorted newest-first, and
+    # the earliest-dated row of an investigation is usually the implicated
+    # ingredient rather than a downstream retailer, which reads better.
+    try:
+        from pipeline._outbreak_id import derive as _derive_oid
+        _seen_events, _deduped = {}, []
+        for _r in ob_recalls:
+            _oid, _conf, _ = _derive_oid(_r)
+            _key = _oid if (_oid and _conf == "high") else id(_r)
+            if _key in _seen_events:
+                continue
+            _seen_events[_key] = True
+            _deduped.append(_r)
+        ob_recalls = _deduped
+    except Exception as _de:                                   # noqa: BLE001
+        log.warning("outbreak narrative dedupe unavailable (%s) — naming "
+                    "every flagged row", _de)
     p_outbreak = None
     if ob_recalls:
         descs = []
@@ -1118,7 +1190,82 @@ def _framework_jurisdiction_qualifier(recalls):
             "where the equivalent duties sit in {}.".format(equivalent))
 
 
-def _pathogen_narrative(pathogen, pct):
+_COMMODITY_CLASSES = (
+    # (label, regex) — ordered, first match wins. Deliberately coarse: this
+    # exists to stop the narrative naming commodity classes that are not in
+    # the data, not to be a taxonomy.
+    ("meat and poultry",
+     r"chicken|poultry|poulet|pollo|turkey|dinde|duck|pork|porc|beef|veau|"
+     r"veal|\blamb\b|mutton|sausage|merguez|salami|pastrami|charcuter|\bham\b|"
+     r"bacon|\bmeat\b"),
+    ("seeds, sesame and sprouts",
+     r"sesame|tahini|sprout|\bseeds?\b|linseed|sunflower seed|chia"),
+    ("nuts and nut butters",
+     r"peanut|almond|cashew|pistachio|hazelnut|walnut|nut butter"),
+    ("eggs and egg products", r"\begg"),
+    ("cheese and dairy",
+     r"cheese|fromage|brie|camembert|cheddar|milk|lait|dairy|yog|cream|"
+     r"butter\b|queso"),
+    # WORD BOUNDARIES ARE LOAD-BEARING HERE. Without \b on "salmon" this
+    # class swallowed every Salmonella row that no earlier class matched,
+    # because "SALMONella" contains "salmon". The first build printed
+    # "fish and seafood 5/26 (19%)" for a set that was a mango, a spice
+    # mix, a green powder and two jalapeño salsa recalls. Caught by
+    # listing the rows behind the number instead of trusting it.
+    ("fish and seafood",
+     r"\bfish\b|poisson|\bsalmon\b|\btrout\b|truite|\btuna\b|shrimp|crevette|"
+     r"\bprawn|oyster|mussel|\bclam\b|molluscs?|seafood|langoustine|\bcrab\b"),
+    ("fresh produce",
+     r"salad|lettuce|leafy|spinach|jalape|salsa|guacamole|pico de gallo|"
+     r"tomato|mango|melon|berry|berries|fruit|vegetable|legume|mushroom|"
+     r"onion|herb|cucumber|carrot|sprouted"),
+    ("spices and dried herbs",
+     r"spice|paprika|curry|cinnamon|pepper corn|oregano|basil|dried herb|"
+     r"seasoning"),
+    ("low-moisture and bakery",
+     r"flour|cereal|granola|\boat|rice|pasta|noodle|powder|infant formula|"
+     r"biscuit|cracker|bread|pastry|cake|chocolate|cocoa"),
+)
+
+
+def _commodity_mix(recalls, pathogen, top_n=4):
+    """Measured commodity distribution for `pathogen` in THIS week's rows.
+
+    Returns a human-readable string like
+        "meat and poultry 15/27 (56%), seeds, sesame and sprouts 5/27 (19%)"
+    or "" when there is nothing to measure.
+
+    Added 2026-08-14. Before this, both the AI prompt and the deterministic
+    fallback asserted a commodity pattern from a hardcoded list, with no
+    reference to the rows being summarised. In W33 that published "dairy and
+    soft cheese" and "peanut butter, flour, infant formula" for a Salmonella
+    signal containing zero dairy, zero cheese and zero low-moisture rows.
+    """
+    import re as _re_c
+    p = (pathogen or "").strip().lower()
+    if not p:
+        return ""
+    rows = [r for r in (recalls or [])
+            if p.split()[0] in str(r.get("Pathogen") or "").lower()]
+    if not rows:
+        return ""
+    counts = Counter()
+    for r in rows:
+        blob = " ".join(str(r.get(k) or "") for k in
+                        ("Product", "Reason", "Company", "Brand")).lower()
+        for label, pattern in _COMMODITY_CLASSES:
+            if _re_c.search(pattern, blob):
+                counts[label] += 1
+                break
+        else:
+            counts["other or unclassified"] += 1
+    n = len(rows)
+    parts = [f"{label} {c}/{n} ({round(c / n * 100)}%)"
+             for label, c in counts.most_common(top_n)]
+    return ", ".join(parts)
+
+
+def _pathogen_narrative(pathogen, pct, commodity_mix=""):
     p = (pathogen or "").lower()
     # The pct token gives us "at this prevalence" / "at this concentration" flavour
     intensity = "at this concentration" if pct >= 30 else "at this prevalence"
@@ -1134,18 +1281,33 @@ def _pathogen_narrative(pathogen, pct):
                 "authority oversight.").format(intensity=intensity)
 
     if "salmonella" in p:
-        return ("Salmonella {intensity} is consistent with raw-ingredient "
-                "contamination spanning multiple commodity classes \u2014 produce, "
-                "meat and poultry, dairy and soft cheese, nuts and seeds, spices "
-                "and dried herbs, and low-moisture foods (peanut butter, flour, "
-                "infant formula). The common-cause pattern points to gaps in "
+        # AUDIT 2026-08-14 \u2014 this branch used to assert a fixed commodity
+        # list ("produce, meat and poultry, dairy and soft cheese, nuts and
+        # seeds, spices and dried herbs, and low-moisture foods (peanut
+        # butter, flour, infant formula)") no matter what the week actually
+        # contained. In W33 it published "dairy and soft cheese" for a
+        # 27-row Salmonella signal holding zero dairy and zero cheese rows,
+        # and cited peanut butter, flour and infant formula with none of
+        # them present. It now states the measured mix, and falls back to a
+        # commodity-free sentence rather than inventing one.
+        if commodity_mix:
+            spread = ("This week's Salmonella signal was concentrated in "
+                      "{mix}. That distribution is consistent with multiple "
+                      "independent supply-chain contamination events rather "
+                      "than a single commodity-level failure."
+                      ).format(mix=commodity_mix)
+        else:
+            spread = ("Salmonella {intensity} is consistent with "
+                      "raw-ingredient contamination entering through "
+                      "supplier-side controls."
+                      ).format(intensity=intensity)
+        return (spread + " The common-cause pattern points to gaps in "
                 "supplier-verification, post-process recontamination control, "
-                "validated kill-step parameters, and produce/meat handling "
-                "hygiene rather than a single-commodity failure. The relevant "
-                "frameworks are 21 CFR 117 Preventive Controls, HACCP critical "
-                "limits on any validated kill step, supplier-verification "
-                "programmes, and the FDA Produce Safety Rule (21 CFR 112) where "
-                "applicable.").format(intensity=intensity)
+                "validated kill-step parameters, and raw-material handling "
+                "hygiene. The relevant frameworks are 21 CFR 117 Preventive "
+                "Controls, HACCP critical limits on any validated kill step, "
+                "supplier-verification programmes, and the FDA Produce Safety "
+                "Rule (21 CFR 112) where applicable.")
 
     if "stec" in p or "e. coli" in p or "escherichia" in p:
         return ("E. coli / STEC {intensity} is most consistent with raw beef, leafy greens, "
@@ -1522,8 +1684,34 @@ def _process_authority_note(recalls, bot):
                 "KR": "MFDS Food Sanitation Act with thermal-process validation requirements",
             },
             "listeria": {
-                "US": "FDA 21 CFR 117 Subparts B and G (Preventive Controls), FDA CPG 555.320 (L. monocytogenes zero-tolerance in RTE), and USDA FSIS Directive 10,240.4 where meat/poultry is implicated",
-                "EU": "Regulation (EC) No 2073/2005 as amended by Reg. (EU) 2024/2895 (applicable from 1 July 2026): for RTE foods able to support growth of Listeria monocytogenes, operators must demonstrate compliance throughout shelf life; where a business cannot demonstrate to the competent authority that levels remain ≤100 CFU/g, the applicable criterion is not detected in 25 g. Regulation (EC) No 852/2004 HACCP requirements and national RASFF notification obligations also apply",
+                # AUDIT 2026-08-14 — CPG 555.320 REMOVED.
+                # It was cited here as an applicable US framework and
+                # glossed as "L. monocytogenes zero-tolerance in RTE".
+                # Both halves are wrong on FDA's own page, which labels the
+                # document "Draft - Not for Implementation", states it
+                # "Contains non-binding recommendations", and says FDA
+                # guidance documents "do not establish legally enforceable
+                # responsibilities". It also does NOT set a blanket
+                # zero-tolerance: it separates RTE foods that SUPPORT
+                # L. monocytogenes growth (detection triggers action) from
+                # those that do not (action at >=100 CFU/g). Citing a draft
+                # as binding, and mis-stating what the draft says, in a
+                # briefing food manufacturers act on is the kind of error
+                # that costs credibility. Replaced with the binding
+                # instruments: 21 CFR 117 preventive controls and
+                # environmental monitoring where an environmental pathogen
+                # is a hazard requiring a preventive control, plus FSIS
+                # Directive 10,240.4 for post-lethality-exposed RTE
+                # meat/poultry, which is where a real zero-tolerance
+                # style regime does apply.
+                "US": "FDA 21 CFR 117 Subparts B and G (Preventive Controls), including environmental monitoring where contamination of an RTE food with an environmental pathogen is a hazard requiring a preventive control, and USDA FSIS Directive 10,240.4 where post-lethality-exposed RTE meat/poultry is implicated",
+                # AUDIT 2026-08-14 — "national RASFF notification
+                # obligations" removed. RASFF is the rapid alert network
+                # operated BETWEEN competent authorities and the
+                # Commission; food business operators do not notify RASFF.
+                # Their duty runs to the competent authority, and the
+                # authority then decides what enters RASFF.
+                "EU": "Regulation (EC) No 2073/2005 as amended by Reg. (EU) 2024/2895 (applicable from 1 July 2026): for RTE foods able to support growth of Listeria monocytogenes, operators must demonstrate compliance throughout shelf life; where a business cannot demonstrate to the competent authority that levels remain ≤100 CFU/g, the applicable criterion is not detected in 25 g. Regulation (EC) No 852/2004 HACCP requirements apply, and operators must notify and cooperate with the national competent authority, which is the body that issues any RASFF notification",
                 "UK": "retained EU Reg. 2073/2005, UK Food Hygiene Regulations, and FSA listeria-in-RTE control guidance",
                 "CA": "CFIA Policy on Control of Listeria monocytogenes in Ready-to-Eat Foods and the SFCR Preventive Control Plan",
                 "AU_NZ": "FSANZ Food Standards Code Standard 1.6.1 (microbiological limits) and industry Listeria management guidelines",
@@ -1668,8 +1856,9 @@ def _process_authority_note(recalls, bot):
                 "gaps: incomplete Zone 1 sampling, sanitation SOPs not validated "
                 "against worst-case soil load, equipment hollows harbouring "
                 "persistent strains, and post-lethality recontamination pathways "
-                "not mapped. Tier-1 classification with RTE product categories "
-                "may trigger targeted regulatory follow-up by {regulators}, "
+                "not mapped. Incidents of this severity, particularly "
+                "confirmed contamination of ready-to-eat product, "
+                "may result in targeted regulatory follow-up by {regulators}, "
                 "including environmental monitoring (EMP) audits, Zone 1\u20134 "
                 "sampling verification, and review of post-lethality control "
                 "programmes on the subsequent inspection."
@@ -1701,8 +1890,8 @@ def _process_authority_note(recalls, bot):
                 "certificate-of-analysis (COA) verification, insufficient "
                 "sanitary design at post-kill-step transitions, and the absence "
                 "of a documented environmental-monitoring programme for the "
-                "dry side. Tier-1 classification in this product class "
-                "may trigger targeted regulatory follow-up by {regulators}, "
+                "dry side. Incidents of this severity in this product class "
+                "may result in targeted regulatory follow-up by {regulators}, "
                 "including kill-step revalidation requests and review of "
                 "supplier-verification programmes on the subsequent inspection."
                 ).format(ip=_count_phrase(len(sal_lm), "Salmonella incident"),
@@ -1725,9 +1914,17 @@ def _process_authority_note(recalls, bot):
                 "boundaries, a validated kill-step not re-qualified after "
                 "formulation or line changes, and time-temperature CCPs "
                 "monitored without recording-rigour sufficient for inspector "
-                "reconstruction. Tier-1 classification here triggers HACCP-"
-                "plan reassessment and formal enforcement action by "
-                "{regulators}."
+                # AUDIT 2026-08-14 — was "Tier-1 classification here
+                # triggers HACCP-plan reassessment and formal enforcement
+                # action by {regulators}". The strongest version of the
+                # same error: AFTS Tier-1 is an internal severity label
+                # with no legal standing and triggers nothing. Stating
+                # that it compels formal enforcement is a claim about
+                # regulators that a manufacturer could act on.
+                "reconstruction. Findings of this kind ordinarily warrant "
+                "HACCP-plan reassessment, and confirmed contamination of "
+                "this product class may attract formal enforcement action "
+                "by {regulators}."
                 ).format(ip=_count_phrase(len(sal), "Salmonella incident"),
                          co=_names(sal),
                          primary=regs["primary"], parallels=regs["parallels"],
@@ -1753,8 +1950,8 @@ def _process_authority_note(recalls, bot):
                 "chlorine, pH, ORP) not validated to prevent carry-over, "
                 "time-temperature CCPs on hot-hold and cook-chill programmes "
                 "insufficiently monitored, and sprout-seed treatment "
-                "protocols unvalidated. Tier-1 STEC classification in these "
-                "product categories may trigger targeted regulatory follow-up "
+                "protocols unvalidated. Confirmed STEC contamination in these "
+                "product categories may result in targeted regulatory follow-up "
                 "by {regulators}, including verification of cook-chill "
                 "temperature controls, post-harvest wash-water chemistry, and "
                 "sprout-seed treatment protocols on the subsequent inspection."
@@ -2396,6 +2593,21 @@ __CSS_PLACEHOLDER__
   AI-powered analysis of <strong>{total}</strong> regulatory food-safety incidents across
   <strong>{n_jurisdictions}</strong> jurisdictions, aggregated from 66 primary sources
   monitored continuously by the AFTS intelligence platform.
+</p>
+<p class="r-sub" style="margin-top:6px">
+  <!-- Scope statement added 2026-08-14. An external review of W33 asked
+       whether the register covers human food only or the wider food and
+       feed chain, having found a canine-food recall and a live-poultry
+       notification in the week. It is human food only; those two rows
+       were archived and the pet-food filter that should have caught the
+       first was repaired. Stating the boundary here means the question
+       is answered in the deliverable rather than in a mailbox. -->
+  <strong>Scope.</strong> Human food only. Pet food, animal feed and live
+  animals are outside this register, as are allergen-only, labelling and
+  quality or spoilage recalls; monitored hazards are pathogens, biotoxins,
+  mycotoxins, foreign material, pest and chemical contamination.
+  Outbreak figures count <strong>distinct events</strong>, not rows &mdash;
+  several recalls arising from one investigation are counted once.
 </p>
 
 <div class="kpi-strip">
