@@ -73,7 +73,14 @@ HOST_FOR_SOURCE: Dict[str, tuple] = {
     "RASFF (EU)":               ("webgate.ec.europa.eu",),
     "FSANZ (AU)":               ("foodstandards.gov.au",),
     "AESAN (ES)":               ("aesan.gob.es",),
-    "BLV (CH)":                 ("blv.admin.ch",),
+    # recallswiss.admin.ch is the BLV's own public recall portal — the
+    # map listed only blv.admin.ch, so every Swiss recall row failed the
+    # host check against the regulator that actually published it
+    # (audit 2026-08-13). The portal routes by URL fragment
+    # (#Recalls/<id>), which no server-side fetch can resolve; that is a
+    # citation weakness worth noting in a row's Notes, not grounds for
+    # calling the host wrong.
+    "BLV (CH)":                 ("blv.admin.ch", "recallswiss.admin.ch"),
     "BVL (DE)":                 ("bvl.bund.de", "lebensmittelwarnung.de"),
     "FSAI (IE)":                ("fsai.ie",),
     "FSA (UK)":                 ("food.gov.uk", "data.food.gov.uk"),

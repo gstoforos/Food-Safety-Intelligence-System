@@ -86,9 +86,35 @@ def _dedup_key(row: Dict[str, Any]) -> str:
     return f"{row.get('Date','')}|{co}|{(str(row.get('Pathogen','')) or '')[:30]}"
 
 
+def _norm_news_link(u) -> str:
+    """Canonical form of a NEWS link for dedup. See the audit note above."""
+    s = str(u or "").strip().lower()
+    if not s:
+        return ""
+    s = s.split("#", 1)[0].rstrip("/")
+    for pre in ("https://", "http://"):
+        if s.startswith(pre):
+            s = s[len(pre):]
+            break
+    if s.startswith("www."):
+        s = s[4:]
+    return s
+
+
 def _news_dedup_key(row: Dict[str, Any]) -> str:
     """Same logic as pipeline.merge_master._news_dedup_key."""
-    link = (row.get("Link") or "").strip().lower()
+    # AUDIT 2026-08-14 — TRAILING SLASH AND SCHEME ARE NOT IDENTITY.
+    # Two Food Safety News items were re-added as duplicates because the
+    # feed emitted them once without a trailing slash and once with:
+    #   .../2026/08/states-say-cyclospora-outbreak-is-slowing
+    #   .../2026/08/states-say-cyclospora-outbreak-is-slowing/
+    # Same article, two keys, so the union kept both. The published
+    # timestamps also differ in FORMAT ("2026-08-11 04:05 UT" vs
+    # "2026-08-11T04:05:06"), which is the tell that they came from two
+    # different fetch paths rather than two real postings.
+    # Normalise the URL before keying: strip the trailing slash, drop a
+    # leading "www.", and treat http/https as the same document.
+    link = _norm_news_link(row.get("Link"))
     if link:
         return link
     title = (str(row.get("Title") or "")).strip().lower()[:120]

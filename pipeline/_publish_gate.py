@@ -381,6 +381,95 @@ def pathogen_reason_class_mismatch(pathogen: str, reason: str) -> bool:
     return len(p_cls & r_cls) == 0
 
 
+
+# ---------------------------------------------------------------------------
+# A SEARCH RESULTS PAGE IS NOT A RECALL NOTICE (audit 2026-08-13)
+# ---------------------------------------------------------------------------
+# Three rows were sitting in Pending, all passing every rule, all citing a
+# query string instead of a notice:
+#     fsis.usda.gov/recalls-alerts?search=015-2026
+#     fsis.usda.gov/recalls-alerts?search=PHA-07302026-01
+#     fda.gov/safety/recalls-market-withdrawals-safety-alerts
+#         ?search_api_fulltext=H-1180-2026
+#
+# Rule 6 already refuses regulator LANDING pages, but it tests the path and
+# these have a legitimate-looking path — the defect is entirely in the query
+# string. A search URL is worse than a landing page: it looks specific, it
+# even contains the recall number, and it renders a live result today. It
+# stops resolving the moment the regulator re-indexes, and it is not the
+# document that was published.
+_SEARCH_QUERY_URL = re.compile(
+    r"[?&](search|search_api_fulltext|q|query|keywords?|s)=", re.I)
+
+
+# ---------------------------------------------------------------------------
+# COMPANY MUST BE A COMPANY, NOT THE NOTICE HEADLINE (audit 2026-08-13)
+# ---------------------------------------------------------------------------
+# Eleven Pending rows carried a scraped page title in Company:
+#     'Terugroeping van Laerco BV'                     (FAVV, Dutch)
+#     'Alerta por presencia de Salmonella...'          (AESAN, Spanish)
+#     'rappel de fromages Cheddar blancs de marque...' (CFIA, French)
+#     'Investigation Update: Salmonella...'            (CDC)
+#     'Where People Got Sick: Salmonella...'           (CDC)
+#     'Agencia Española de Seguridad Alimentaria...'   (AESAN — the AGENCY)
+#     'Divya brand Cumin Powder recalled due to...'    (CFIA)
+#
+# This is the FSAI shape from 2026-08-09 in new clothes: the scraper takes the
+# longest/first heading on the page and writes it into a name field.
+#
+# The operator rule is "everything in English except brand / product name" —
+# Company IS allowed to be a foreign NAME. So this must not fire on
+# 'Laiterie de Coaticook Limitée' or 'Wälchli'. It fires on SENTENCES: a
+# value that opens with a recall/alert verb-phrase in any of the languages
+# this pipeline ingests, or that contains a recall predicate.
+_HEADLINE_COMPANY_START = re.compile(
+    r"^\s*("
+    r"terugroeping|terugroepen|rappel\s+(de|des|du|d')|retiro\s+de|"
+    r"richiamo|r[uü]ckruf|ανάκληση|anakl[ie]si|"
+    r"alerta|alerte|alert\b|aviso|avis\s+de\s+rappel|"
+    r"recall\s+of|recall\s+for|recalls?\s+of|"
+    r"investigation\s+update|outbreak\s+(of|investigation)|"
+    r"where\s+people\s+got\s+sick|multistate\b|"
+    r"agencia\s+espa|agence\s+|food\s+standards\s+agency|"
+    r"rasff\s+window"
+    r")", re.I)
+_HEADLINE_COMPANY_BODY = re.compile(
+    r"(recalled\s+due\s+to|recalls?\s+due\s+to|due\s+to\s+possible|"
+    r"en\s+raison\s+de|por\s+presencia\s+de|wegen\s+m[oö]glicher|"
+    r"a\s+cause\s+de|vanwege)", re.I)
+
+
+# A Product that OPENS with a causal connector is a fragment of the notice
+# headline, not a product. Found 2026-08-13 in a gate-passing Pending row:
+#     Company  'Coaticook brand White Cheddar cheeses'
+#     Product  'due to Listeria monocytogenes'
+#     Reason   'Listeria monocytogenes — outbreak'
+# The CFIA headline reads "Coaticook brand White Cheddar cheeses recalled due
+# to Listeria monocytogenes"; the scraper split it across three fields and
+# every one of them passed. Deliberately anchored to the START — a real
+# product name never begins "due to".
+_FRAGMENT_PRODUCT = re.compile(
+    r"^\s*(due\s+to|because\s+of|owing\s+to|en\s+raison\s+de|"
+    r"por\s+presencia\s+de|wegen|a\s+causa\s+de)\b", re.I)
+
+
+def looks_like_a_fragment(product: str) -> bool:
+    """True when Product opens with a causal connector — a split headline."""
+    return bool(_FRAGMENT_PRODUCT.match(str(product or "")))
+
+
+def looks_like_a_headline(company: str) -> bool:
+    """True when Company holds a notice title/sentence rather than a name."""
+    c = str(company or "").strip()
+    if not c:
+        return False
+    return bool(_HEADLINE_COMPANY_START.search(c)
+                or _HEADLINE_COMPANY_BODY.search(c))
+
+
+from datetime import date as _date  # rule 6c
+
+
 def publish_blockers(row: Dict[str, Any]) -> List[str]:
     """Return every reason this row must not be published. Empty == publishable.
 
@@ -489,6 +578,89 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
                             f"official regulator sources only")
             except ImportError:                        # pragma: no cover
                 pass
+
+
+            # 6c. THE URL MUST NOT CITE A DIFFERENT YEAR THAN THE RECALL.
+            #
+            # Audit 2026-08-13. On 2026-08-12 the North America recall agent
+            # answered a 2026 cheese-Listeria row with
+            #     .../listeria-announced-top-10-recalls-july-2023#listeria-cheese
+            # a real, live, indexed FDA page — about a 2023 round-up. It was
+            # blocked only by the agent's own "not in Searx results"
+            # fabrication check, which is about invention rather than
+            # staleness. A stale page that IS indexed passes that check.
+            #
+            # pipeline/_url_year.is_year_mismatch existed and would have been
+            # the right test, but url_year() only read years from PATH
+            # SEGMENTS (/2023/), never from slugs (-2023), so it returned
+            # None and the caller is contractually required to treat None as
+            # "no opinion". Two checks, both present, neither able to see it.
+            # url_year now reads regulator slugs too; this rule wires the
+            # result into the gate so it cannot depend on which reviewer ran.
+            #
+            # Imported, not copied — a fourth private copy of a shared table
+            # is how the hazard-class drift happened.
+            try:
+                from pipeline._url_year import is_year_mismatch as _iym
+                _d = row.get("Date")
+                if isinstance(_d, str) and len(_d) >= 10:
+                    try:
+                        _d = _date.fromisoformat(_d[:10])
+                    except ValueError:
+                        _d = None
+                elif hasattr(_d, "year"):
+                    _d = _d if not hasattr(_d, "date") else _d.date()
+                else:
+                    _d = None
+                if _d is not None:
+                    _why = _iym(_d, url, str(row.get("Source") or ""))
+                    if _why:
+                        problems.append(
+                            f"URL year conflicts with the recall date: {_why} "
+                            f"({url[:80]!r}) — a citation must point at THIS "
+                            f"recall's notice, not an older page about a "
+                            f"similar one")
+            except ImportError:                        # pragma: no cover
+                pass
+
+    # 6g. A RASFF citation must use the NUMERIC notifId (audit 2026-08-14).
+    #
+    # webgate.ec.europa.eu/rasff-window/screen/notification/<id> resolves a
+    # numeric notifId. Seven rows cited the notification REFERENCE instead
+    # — 2026.6859, 2026.4556, 2026.4544, 2026.4543, 2026.4499, 2026.4017,
+    # 2026.4025 — and none of those pages loads. An accuracy review found
+    # one of the seven by hand; the other six had been sitting since May.
+    #
+    # The reference form is the harder one to spot precisely BECAUSE it
+    # looks right: it is the real notification's real identifier, printed
+    # the way RASFF prints it in prose, just not the key the URL path
+    # takes. A human reading the sheet sees a plausible RASFF link.
+    if url and re.search(r"rasff-window/screen/notification/\d{4}\.\d+", url):
+        problems.append(
+            f"RASFF URL cites the notification reference, not the numeric "
+            f"notifId ({url[:80]!r}) — /notification/<id> resolves a number, "
+            f"so this link does not load")
+
+    # 6d. The URL must not be a SEARCH QUERY. See _SEARCH_QUERY_URL above.
+    if url and _SEARCH_QUERY_URL.search(url):
+        problems.append(
+            f"URL is a search query, not a recall notice ({url[:80]!r}) — it "
+            f"renders today and breaks when the regulator re-indexes, and it "
+            f"is not the document that was published")
+
+    # 6e. Company must be a company, not the page headline. See above.
+    if looks_like_a_headline(row.get("Company")):
+        problems.append(
+            f"Company holds the notice headline, not a company name "
+            f"({str(row.get('Company'))[:60]!r}) — the scraper wrote a page "
+            f"title into a name field")
+
+    # 6f. Product must be a product, not a fragment of the headline.
+    if looks_like_a_fragment(row.get("Product")):
+        problems.append(
+            f"Product is a fragment of the notice headline "
+            f"({str(row.get('Product'))[:60]!r}) — a product name does not "
+            f"begin with a causal connector")
 
     # 7. Pathogen and Reason must not describe different hazard classes.
     #    See the 2026-08-02 incident in the module docstring: an invented
