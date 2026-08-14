@@ -8,23 +8,65 @@
   "week_end": "2026-08-13",
   "week_start_display": "7 Aug",
   "week_end_display": "13 Aug 2026",
-  "generated_utc": "2026-08-14T06:42:03.034474+00:00",
+  "generated_utc": "2026-08-14T07:04:46.313617+00:00",
   "stats": {
-    "total": 53,
-    "tier1": 48,
-    "outbreaks": 0,
-    "delta": -9,
-    "delta_pct": -15
+    "total": 52,
+    "tier1": 47,
+    "outbreaks": 1,
+    "delta": -10,
+    "delta_pct": -16
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 27,
-    "pct": 51
+    "cases": 26,
+    "pct": 50
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
+      "date": "2026-08-12",
+      "pathogen": "Salmonella",
+      "pathogen_raw": "Salmonella",
+      "tier": 1,
+      "outbreak": true,
+      "company": "Whole Foods Market",
+      "brand": "Whole Foods Market",
+      "product": "Finished products such as dips, salsa, guacamole, and more containing jalapeno.",
+      "country": "United States",
+      "source": "FDA",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/whole-foods-market-announces-recall-select-salsas-guacamole-pico-de-gallo-and-prepared-foods"
+    },
+    {
+      "rank": 2,
+      "date": "2026-08-09",
+      "pathogen": "Salmonella",
+      "pathogen_raw": "Salmonella",
+      "tier": 1,
+      "outbreak": true,
+      "company": "Taylor Fresh Foods",
+      "brand": "Trader Joe’s, Freshness Guaranteed and more",
+      "product": "Finished products (e.g. dips, salsa, guacamole and more) containing jalapeno",
+      "country": "United States",
+      "source": "FDA",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-products-made-jalapeno-peppers-because-possible-health-risk"
+    },
+    {
+      "rank": 3,
+      "date": "2026-08-13",
+      "pathogen": "Salmonella",
+      "pathogen_raw": "Salmonella",
+      "tier": 1,
+      "outbreak": true,
+      "company": "Whole Foods Market",
+      "brand": "Whole Foods Market",
+      "product": "Guacamoles (small, hot, mild, mango, pomegranate, medium, spicy, roasted corn), pico de gallos, salsas, chicken quesadilla and turkey burgers — 22 items",
+      "country": "Canada",
+      "source": "CFIA",
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-whole-foods-market-brand-guacamoles-pico-gallos-salsas-and-prepared-foods"
+    },
+    {
+      "rank": 4,
       "date": "2026-08-13",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -38,7 +80,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23150/interne"
     },
     {
-      "rank": 2,
+      "rank": 5,
       "date": "2026-08-13",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -50,48 +92,6 @@
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23152/Interne"
-    },
-    {
-      "rank": 3,
-      "date": "2026-08-13",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Kettle Cuisine LLC",
-      "brand": "Marketside",
-      "product": "Tomato Bisque Soup Kit 14oz (397g)",
-      "country": "United States",
-      "source": "FDA",
-      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/kettle-cuisine-recalls-marketside-tomato-bisque-soup-kit-sold-exclusively-walmart-stores-because"
-    },
-    {
-      "rank": 4,
-      "date": "2026-08-11",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Origin: Belgium | Notifying: Germany",
-      "brand": "—",
-      "product": "Listeria monocytogenes in chilled pork from Belgium",
-      "country": "Belgium",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865306"
-    },
-    {
-      "rank": 5,
-      "date": "2026-08-08",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "City Foods, Inc. (dba Bea's Best Corned Beef), EST. 1896",
-      "brand": "Midamar / Bea's Best / Kirsch Delicatessen",
-      "product": "Ready-to-eat pastrami and corned beef — Midamar Premium Beef Pastrami (case code 19410); Bea's Best Cooked Corned Beef Brisket (18919); Kirsch Delicatessen Style Cooked Corned Beef Brisket (19751). Approximately 3,215 lb.",
-      "country": "United States",
-      "source": "USDA FSIS",
-      "url": "https://www.fsis.usda.gov/recalls-alerts/city-foods-inc--recalls-ready-eat-pastrami-and-corned-beef-products-due-possible"
     }
   ],
   "country_count": 19

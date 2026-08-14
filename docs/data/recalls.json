@@ -64,6 +64,22 @@
   "Notes": "[promoted 2026-08-14: fiche 23152. Verified against the live RappelConso fiche page https://rappel.conso.gouv.fr/fiche-rappel/23152/Interne on 2026-08-14, field by field. The tabular-api open-data export was NOT used: it is lagging and returns total:0 for fiches that render fully on the site (23150, 23152), so it can no longer distinguish 'not issued' from 'not yet exported'. Source motif verbatim: « Risque listeria ». Distributeurs: Intermarché Etauliers (Gironde). Reason rendered in English per the English-output rule, which exempts brand and product names only; nothing was added to or removed from the hazard as stated at source.]"
  },
  {
+  "Date": "2026-08-13",
+  "Source": "CFIA",
+  "Company": "Whole Foods Market",
+  "Brand": "Whole Foods Market",
+  "Product": "Guacamoles (small, hot, mild, mango, pomegranate, medium, spicy, roasted corn), pico de gallos, salsas, chicken quesadilla and turkey burgers — 22 items",
+  "Pathogen": "Salmonella",
+  "Reason": "Possible Salmonella contamination",
+  "Class": "Class 2",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/certain-whole-foods-market-brand-guacamoles-pico-gallos-salsas-and-prepared-foods",
+  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] [added 2026-08-14: CFIA recall RA-82480, published 13 Aug 2026, transcribed from the CFIA notice at recalls-rappels.canada.ca. CFIA states the recall is 'associated with Outbreak Investigation of Salmonella: Jalapeño (August 2026)' and that 'There have been no reported illnesses associated with the consumption of these products in Canada'. Added by hand because the CFIA open-data export (HCRSAMOpenData.json), which the scraper's preferred L1 layer reads, does not contain this record — its newest CFIA entry on 2026-08-14 was dated 2026-08-08. The export lags the website, and the scraper's L2/L3 fallbacks only fire when L1 FAILS, not when it is stale.]"
+ },
+ {
   "Date": "2026-08-12",
   "Source": "FDA",
   "Company": "Whole Foods Market",
@@ -75,25 +91,9 @@
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 0,
+  "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/whole-foods-market-announces-recall-select-salsas-guacamole-pico-de-gallo-and-prepared-foods",
-  "Notes": "FDA listing HTML (Layer 1)"
- },
- {
-  "Date": "2026-08-12",
-  "Source": "FDA",
-  "Company": "Miller Foods, Inc.",
-  "Brand": "Oma’s Pride",
-  "Product": "Canine Food",
-  "Pathogen": "Salmonella",
-  "Reason": "Contaminated with Salmonella",
-  "Class": "Recall",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/omas-pride-voluntarily-recalls-one-lot-woof-complete-canine-chicken-recipe-6-lb-bag-because-possible",
-  "Notes": "FDA listing HTML (Layer 1)"
+  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-14: FDA recall of Whole Foods Market salsas, guacamole, pico de gallo and prepared foods, 2026-08-12. FDA's own notice states the FDA and CDC 'are investigating illnesses in a multistate outbreak of Salmonella infections linked to fresh jalapeños supplied by Coast Citrus Distributors'. CDC records the Salmonella Javiana investigation as Open with 345 illnesses, 36 hospitalisations across 27 states. The explicit event id matches the one the lead investigation row (Coast Citrus, 2026-08-05) already derives from its FDA investigation slug, so all rows of this event count ONCE. Without the override derive() only reaches 'inferred:salmonella:2026-08' at low confidence, which count_events() refuses to merge on by design.]"
  },
  {
   "Date": "2026-08-12",
@@ -530,22 +530,6 @@
  {
   "Date": "2026-08-10",
   "Source": "RASFF (EU)",
-  "Company": "Origin: Czechia | Notifying: Croatia",
-  "Brand": "—",
-  "Product": "Suspicion of Salmonella enteritidis in the eggshells of day‑old chicks after hatching",
-  "Pathogen": "Salmonella",
-  "Reason": "Suspicion of Salmonella enteritidis in the eggshells of day‑old chicks after hatching; risk: potentially serious; category: live animals",
-  "Class": "Information",
-  "Country": "Czechia",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/864904",
-  "Notes": "[RASFF #2026.7080; classification: information notification for attention; category: live animals; notifId=864904]"
- },
- {
-  "Date": "2026-08-10",
-  "Source": "RASFF (EU)",
   "Company": "Origin: Estonia | Notifying: Latvia",
   "Brand": "—",
   "Product": "Salmonella Infantis (in 3 out of 5 units) in marinated chicken thigh meat.",
@@ -571,9 +555,9 @@
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 0,
+  "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-products-made-jalapeno-peppers-because-possible-health-risk",
-  "Notes": "FDA listing HTML (Layer 1)"
+  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-14: FDA recall of Taylor Fresh Foods products made with jalapeño peppers, 2026-08-09. FDA's own notice states the FDA and CDC 'are investigating illnesses in a multistate outbreak of Salmonella infections linked to fresh jalapeños supplied by Coast Citrus Distributors'. CDC records the Salmonella Javiana investigation as Open with 345 illnesses, 36 hospitalisations across 27 states. The explicit event id matches the one the lead investigation row (Coast Citrus, 2026-08-05) already derives from its FDA investigation slug, so all rows of this event count ONCE. Without the override derive() only reaches 'inferred:salmonella:2026-08' at low confidence, which count_events() refuses to merge on by design.]"
  },
  {
   "Date": "2026-08-08",
