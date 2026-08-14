@@ -103,10 +103,78 @@ def main() -> int:
             print("Aborted.")
             return 2
 
-    # Wipe data rows: delete every row from row 2 to the end.
-    # openpyxl's delete_rows(idx, amount) takes the FIRST row index and
-    # number of rows. Row 1 = header, so we delete rows 2..max_row.
+    # ── MOVE, DON'T DELETE (audit 2026-08-14) ──────────────────────────
+    # This step used to delete the rows outright. The workflow that calls
+    # it has always described a permanent archive —
+    #     "Does NOT touch Rejected sheet (permanent audit archive —
+    #      separate from the rolling Weekly_Rejected)"
+    # — but no "Rejected" sheet has ever existed in recalls.xlsx. The
+    # sheets are Recalls, Pending, Weekly_Rejected, NEWS. The archive the
+    # design assumed was doing the remembering was never there, so every
+    # Thursday at 17:30 Athens the reasons were destroyed.
+    #
+    # MEASURED DAMAGE: Weekly_Rejected went from 263 rows to 12 in one
+    # wipe. Two FSANZ allergen rows removed on 2026-07-29 for a documented
+    # reason lost their archive record entirely, which is what turned
+    # tests/test_hazard_class_guard.py::test_they_were_archived_not_deleted
+    # red on main — the only reason anyone noticed. They had to be
+    # reconstructed by hand on 2026-08-14.
+    #
+    # It also erases the re-promotion memory: load_rejected_urls() reads
+    # this sheet, so after a wipe the pipeline forgets which URLs a human
+    # already turned down and re-ingests them. The USDA jalapeno public
+    # health alert came back exactly this way after being archived on
+    # 2026-08-13.
+    #
+    # The operator rule is standing and explicit: removed rows are
+    # archived with a reason, NEVER silently deleted. A scheduled job is
+    # not an exception to it.
+    #
+    # Rows now MOVE to a permanent "Rejected" sheet first. The rolling
+    # Thu->Thu window still resets, which is the entire point of the wipe,
+    # but the reasons survive. Dedup on (URL, Date) keeps it idempotent.
     if ws.max_row >= 2:
+        archive = (wb["Rejected"] if "Rejected" in wb.sheetnames
+                   else wb.create_sheet("Rejected"))
+        hdr = [c.value for c in ws[1]]
+        if archive.max_row < 1 or all(c.value in (None, "")
+                                      for c in archive[1]):
+            for i, h in enumerate(hdr, 1):
+                archive.cell(row=1, column=i, value=h)
+            arch_hdr = list(hdr)
+        else:
+            arch_hdr = [c.value for c in archive[1]]
+
+        try:
+            iu, idt = arch_hdr.index("URL"), arch_hdr.index("Date")
+        except ValueError:
+            iu = idt = None
+        seen = set()
+        if iu is not None:
+            for t in archive.iter_rows(min_row=2, values_only=True):
+                if t and not all(v in (None, "") for v in t):
+                    seen.add((str(t[iu] or "").strip().lower(),
+                              str(t[idt] or "")[:10]))
+
+        moved = already = 0
+        for t in ws.iter_rows(min_row=2, values_only=True):
+            if all(v in (None, "") for v in t):
+                continue
+            row_map = dict(zip(hdr, t))
+            if iu is not None:
+                key = (str(row_map.get("URL") or "").strip().lower(),
+                       str(row_map.get("Date") or "")[:10])
+                if key in seen:
+                    already += 1
+                    continue
+                seen.add(key)
+            archive.append([row_map.get(h, "") for h in arch_hdr])
+            moved += 1
+
+        print(f"  ✓ Archived {moved} row(s) to the permanent 'Rejected' "
+              f"sheet ({already} already present); archive now holds "
+              f"{archive.max_row - 1}.")
+
         ws.delete_rows(2, ws.max_row - 1)
 
     # Defensive: if header is somehow missing or wrong, restore it.
