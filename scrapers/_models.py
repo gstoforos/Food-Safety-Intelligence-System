@@ -253,7 +253,36 @@ PATHOGEN_RULES: List[Tuple[str, str]] = [
     ("Escherichia coli (generic)",
         r"\b(?:e\.?\s*coli|escherichia\s+coli)\b"),
     ("Campylobacter", r"\bcampylobacter\b"),
+
+    # Vibrio — SPECIES BEFORE GENUS (added 2026-08-14).
+    #
+    # This block obeys the first-match-wins ordering rule stated at the top
+    # of PATHOGEN_RULES, for the same reason STEC precedes generic E. coli.
+    # Before this change the single rule r"\bvibrio\b" collapsed EVERY
+    # species to the canonical "Vibrio", which then hit tier_2_pathogens and
+    # came out Tier 2. So a "Vibrio vulnificus" recall — an organism CDC
+    # describes as killing about 1 in 5 of the people it infects — was
+    # normalised into a string that could no longer be told apart from
+    # V. parahaemolyticus, and the severity was gone before assign_tier()
+    # ever ran. Collapsing first and tiering second cannot be repaired
+    # downstream: the information is destroyed at normalisation.
+    #
+    # non-O1/non-O139 is matched BEFORE the epidemic serogroups so the
+    # negative form wins — "non-O1" contains the token "O1".
+    ("Vibrio cholerae non-O1/non-O139",
+        r"\bv(ibrio)?\.?\s*cholerae\b(?=.*\bnon[\s\-]?o\s*-?\s*(?:1|139)\b)"
+        r"|\bnon[\s\-]?o\s*-?\s*(?:1|139)\s+v(ibrio)?\.?\s*cholerae\b"),
+    ("Vibrio cholerae O1/O139",
+        r"\bv(ibrio)?\.?\s*cholerae\b(?=.*\bo\s*-?\s*(?:1|139)\b)"
+        r"|\bcholera\b(?!e)"),
+    ("Vibrio vulnificus", r"\bv(ibrio)?\.?\s*vulnificus\b|\bvulnificus\b"),
+    ("Vibrio parahaemolyticus",
+        r"\bv(ibrio)?\.?\s*parahaemolyticus\b|\bparahaemolyticus\b"),
+    ("Vibrio cholerae", r"\bv(ibrio)?\.?\s*cholerae\b"),
+    ("Vibrio alginolyticus",
+        r"\bv(ibrio)?\.?\s*alginolyticus\b|\balginolyticus\b"),
     ("Vibrio", r"\bvibrio\b"),
+
     ("Cyclospora cayetanensis", r"\bcyclospora\b"),
     ("Yersinia enterocolitica", r"\byersinia\b"),
     ("Bacillus cereus", r"\bb(acillus)?\.?\s*cereus\b"),
@@ -286,6 +315,15 @@ _TIERS: Dict[str, int] = {
     "Clostridium botulinum": 1,
     "Cereulide (B. cereus toxin)": 1,
     "Marine biotoxin": 1,
+    # Vibrio, severe species only (added 2026-08-14). Grounded, not assumed:
+    #   V. vulnificus — CDC, About Vibrio Infection: "About 1 in 5 people
+    #     with this infection die, sometimes within a day or two of
+    #     becoming ill."
+    #   V. cholerae O1/O139 — FDA Fish and Fishery Products Hazards and
+    #     Controls Guidance Ch.4 separates these fecal-origin epidemic
+    #     serogroups from non-O1/non-O139.
+    "Vibrio vulnificus": 1,
+    "Vibrio cholerae O1/O139": 1,
     # Tier 2
     "Salmonella": 2,
     "Hepatitis A virus": 2,
@@ -294,6 +332,10 @@ _TIERS: Dict[str, int] = {
     "Escherichia coli (generic)": 3,
     "Campylobacter": 3,
     "Vibrio": 3,
+    "Vibrio parahaemolyticus": 3,
+    "Vibrio cholerae": 3,
+    "Vibrio cholerae non-O1/non-O139": 3,
+    "Vibrio alginolyticus": 3,
     "Cyclospora cayetanensis": 3,
     "Yersinia enterocolitica": 3,
     "Bacillus cereus": 3,
@@ -475,6 +517,11 @@ _ALWAYS_TIER_1_PATHOGENS: set = {
     "Cereulide (B. cereus toxin)",
     "Marine biotoxin",
     "Salmonella",
+    # Severe Vibrio species only (added 2026-08-14). The genus,
+    # V. parahaemolyticus, V. alginolyticus and non-O1/non-O139
+    # V. cholerae stay in tier_2_pathogens below — unchanged behaviour.
+    "Vibrio vulnificus",
+    "Vibrio cholerae O1/O139",
 }
 
 
@@ -559,6 +606,13 @@ def _fda_framework_tier(pathogen_canonical: str, product: Any) -> int:
     # Campylobacter, Yersinia, Vibrio etc. — always Tier 2 (FDA Class II)
     tier_2_pathogens = {
         "Campylobacter", "Vibrio", "Cyclospora cayetanensis",
+        # Vibrio species that are NOT the severe two. Listed explicitly so
+        # the new species canonicals from PATHOGEN_RULES land here rather
+        # than falling through to the Tier-3 default branch (added
+        # 2026-08-14 — same failure mode the "Escherichia coli (generic)"
+        # comment above documents).
+        "Vibrio parahaemolyticus", "Vibrio cholerae",
+        "Vibrio cholerae non-O1/non-O139", "Vibrio alginolyticus",
         "Yersinia enterocolitica", "Cronobacter sakazakii",
         "Bacillus cereus", "Brucella", "Shigella",
         "Staphylococcus enterotoxin", "Histamine / scombrotoxin",
