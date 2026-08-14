@@ -131,18 +131,15 @@ def _derive_country(codes: list[str], include_scotland: bool):
     return "gb", "United Kingdom", "FSA"
 
 
-def fetch(limit: int = 250, include_scotland: bool = False,
-          lookback_days: int = 90) -> list[Record]:
+def fetch(limit: int = 50, include_scotland: bool = False,
+          lookback_days: int = 90, max_pages: int = 40) -> list[Record]:
     """
     Fetch recent FSA alerts. By default EXCLUDES Scotland-only alerts
     (those are emitted by scotland.py). An alert tagged for multiple
     countries including England/Wales/NI is kept here.
 
-    `limit` is the API's _pageSize, NOT a cap on how many alerts we want. It
-    was 50, which a 90-day window filled EXACTLY (audit 2026-08-11) — see the
-    full-page guard below. 250 leaves roughly five times headroom over the
-    FSA's real publication rate, so the guard fires on a genuine surge rather
-    than on a normal quarter.
+    `limit` is the API's _pageSize. It is NOT a cap on how many alerts we
+    want — see the pagination note below. Leave it at 50.
     """
     # ---------------------------------------------------------------------
     # SILENT SCRAPER FAILURE (found 2026-08-07).
@@ -173,10 +170,72 @@ def fetch(limit: int = 250, include_scotland: bool = False,
     # _sort=-created returns FSA-AA-01-2018. A rolling date window is used
     # rather than a page count so the query cannot drift back in time again.
     # ---------------------------------------------------------------------
+    #
+    # ---------------------------------------------------------------------
+    # THE PAGE SIZE IS CAPPED — PAGINATE, DO NOT ENLARGE (fix 2026-08-13).
+    #
+    # On 2026-08-11 a 90-day window came back with exactly 50 items, the page
+    # size. The collection is served OLDEST-FIRST, so a full page means the
+    # newest alerts fell off the end: a real truncation risk, and the same
+    # shape as the July failure — right query, wrong slice, no error.
+    #
+    # The fix attempted then was to raise _pageSize 50 -> 250. That was
+    # WRONG. Epimorphics caps _pageSize server-side, and the request is
+    # rejected outright:
+    #
+    #     GET .../food-alerts/id?min-created=2026-05-15&_pageSize=250
+    #     -> 400 Client Error
+    #
+    # which took out UK *and* Scotland (scotland.py delegates here) for every
+    # run until it was noticed. A bigger page was never the answer; the API
+    # pages, so the collector must page too.
+    #
+    # `_page` is 0-based. Each page is requested until a SHORT page arrives,
+    # which is the only reliable end-of-collection signal on this API.
+    #
+    # Because this endpoint ignores unknown parameters instead of rejecting
+    # them, `_page` being honoured is verified from the DATA: if a page
+    # returns nothing we have not already seen, it is being ignored and we
+    # stop rather than loop forever on page 0. `max_pages` is a hard backstop.
+    # ---------------------------------------------------------------------
     from datetime import date, timedelta
     since = (date.today() - timedelta(days=lookback_days)).isoformat()
-    data = get_json(API, params={"min-created": since, "_pageSize": limit})
-    items = data.get("items", [])
+
+    items: list[dict] = []
+    seen_ids: set[str] = set()
+
+    for page in range(max_pages):
+        data = get_json(API, params={"min-created": since,
+                                     "_pageSize": limit,
+                                     "_page": page})
+        batch = data.get("items", []) or []
+
+        fresh = []
+        for it in batch:
+            key = str(it.get("@id") or it.get("notation") or "")
+            if key and key in seen_ids:
+                continue
+            if key:
+                seen_ids.add(key)
+            fresh.append(it)
+
+        if batch and not fresh:
+            # Every item on this page was already collected: `_page` is being
+            # ignored and the API is re-serving page 0. Keep what we have —
+            # it is a valid first page — and stop, loudly.
+            print(f"  [WARN] FSA food-alerts appears to ignore _page "
+                  f"(page {page} repeated page {page - 1}). Stopping with "
+                  f"{len(items)} items; coverage may be incomplete.")
+            break
+
+        items.extend(fresh)
+
+        if len(batch) < limit:
+            break          # short page = end of the collection
+    else:
+        print(f"  [WARN] FSA food-alerts hit the {max_pages}-page backstop "
+              f"({len(items)} items). Raise max_pages or shorten "
+              f"lookback_days.")
 
     # A window this wide is never legitimately empty — the FSA publishes
     # several alerts a week. Empty means the query stopped working again,
@@ -201,28 +260,9 @@ def fetch(limit: int = 250, include_scotland: bool = False,
             f"— the API served its oldest page and the scraper reported "
             f"success.")
 
-    # THE PAGE IS FULL — WE MAY BE MISSING THE NEWEST ALERTS (audit 2026-08-11).
-    #
-    # The collection comes back in ASCENDING created order, so a full page is
-    # the OLDEST `limit` alerts in the window and everything newer is silently
-    # dropped. Measured on 2026-08-11: a 90-day window returned exactly 50
-    # items — the page size — ending at FSA-PRIN-39-2026. One more alert in
-    # the window and PRIN-39 would have fallen off the end, and the scraper
-    # would have reported success while missing the newest UK recall.
-    #
-    # That is the July 2026 bug wearing different clothes: right query, wrong
-    # slice, no error. So a full page is treated as a failure rather than a
-    # result. The caller can widen `limit` or shorten `lookback_days`; what it
-    # must not do is quietly publish an incomplete sweep.
-    if len(items) >= limit:
-        raise RuntimeError(
-            f"FSA food-alerts returned a FULL page ({len(items)} items for "
-            f"_pageSize={limit}, window {since} onwards, newest "
-            f"{newest[:10]}). The collection is ordered oldest-first, so a "
-            f"full page means alerts newer than {newest[:10]} were cut off "
-            f"and this sweep is incomplete. Raise limit or lower "
-            f"lookback_days ({lookback_days} today) — do not treat this as a "
-            f"successful run.")
+    print(f"  [FSA] {len(items)} alerts since {since} "
+          f"across {min(max_pages, (len(items) // limit) + 1)} page(s); "
+          f"newest {newest[:10] or '?'}")
 
     records: list[Record] = []
     for item in items:

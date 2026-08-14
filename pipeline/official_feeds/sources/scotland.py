@@ -13,9 +13,16 @@ from ..base import Record, FeedSource, register
 from . import uk as _uk
 
 
-def fetch(limit: int = 250) -> list[Record]:
-    # Matches uk.fetch's page size — Scotland reuses the same API call,
-    # so a 50-item page would truncate here too (audit 2026-08-11).
+def fetch(limit: int = 50) -> list[Record]:
+    # `limit` is uk.fetch's _pageSize, and the FSA API CAPS it server-side.
+    #
+    # This read 250 between 2026-08-11 and 2026-08-13, matching a change made
+    # in uk.py to avoid page truncation. The endpoint rejected it outright:
+    #     GET .../food-alerts/id?min-created=...&_pageSize=250 -> 400
+    # which killed Scotland as well as the UK, because this delegates.
+    #
+    # Truncation is now handled the way the API intends — uk.fetch pages with
+    # _page at a page size the server accepts. Do NOT raise this number.
     return _uk.fetch(limit=limit, include_scotland=True)
 
 
