@@ -154,7 +154,8 @@ def get(code: str) -> FeedSource:
                               philippines, indonesia,
                               thailand, vietnam,
                               brazil, mexico, argentina,
-                              chile, colombia, peru)
+                              chile, colombia, peru,
+                              nigeria, kenya)
     if code not in _REGISTRY:
         raise KeyError(f"Unknown feed source {code!r}. Registered: {sorted(_REGISTRY)}")
     return _REGISTRY[code]
@@ -170,5 +171,6 @@ def all_codes() -> list:
                               philippines, indonesia,
                               thailand, vietnam,
                               brazil, mexico, argentina,
-                              chile, colombia, peru)
+                              chile, colombia, peru,
+                              nigeria, kenya)
     return sorted(_REGISTRY.keys())
