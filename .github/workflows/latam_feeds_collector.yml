@@ -43,7 +43,14 @@ jobs:
         id: pick
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            SRC="${{ github.event.inputs.sources }}"
+            # Apps Script dispatches with NO inputs, so
+            # github.event.inputs.sources is EMPTY — not the input default.
+            # Without the || fallback SRC was blank, the run exited with
+            # "No sources to run", and every source here returned 0 recalls
+            # daily while the job showed a green tick. Same failure mode as
+            # the agents' empty --limit. oceania_feeds_collector already had
+            # this fallback, which is why Oceania kept working.
+            SRC="${{ github.event.inputs.sources || 'brazil,mexico,argentina,chile,colombia,peru' }}"
             echo "Manual run with sources: $SRC"
             echo "sources=$SRC" >> $GITHUB_OUTPUT
           else
@@ -54,7 +61,11 @@ jobs:
               13) SRC="chile" ;;
               14) SRC="colombia,peru" ;;
               15) SRC="mexico" ;;
-              *)  SRC="" ;;
+              # No cron remains on this workflow — Apps Script is the only
+              # dispatcher — so this branch is unreachable. The empty
+              # default is kept out of the way rather than silently
+              # disabling the run.
+              *)  SRC="brazil,mexico,argentina,chile,colombia,peru" ;;
             esac
             echo "Selected sources for $HOUR:00 UTC: $SRC"
             echo "sources=$SRC" >> $GITHUB_OUTPUT
