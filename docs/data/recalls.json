@@ -38,14 +38,14 @@
   "Brand": "Lesage et Fils",
   "Product": "hachis de veau 1kg",
   "Pathogen": "Salmonella",
-  "Reason": "Détection salmonelle sur 2 échantillons sur 5 suite à analyse",
+  "Reason": "Salmonella detected in 2 of 5 samples on analysis",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23156/interne",
-  "Notes": "gueuleton lille, au 235, jardin hilde, au pain de la bouche, pizza armand"
+  "Notes": "gueuleton lille, au 235, jardin hilde, au pain de la bouche, pizza armand [language 2026-08-14: Reason rendered in English per the English-output rule, which exempts brand and product names only. Verified against the live fiche at rappel.conso.gouv.fr/fiche-rappel/23156/Interne on 2026-08-14, not machine-translated and not pattern-swept. Entreprise at source: Lesage et fils. Source motif verbatim: « Détection salmonelle sur 2 échantillons sur 5 suite à analyse ». Source risque verbatim: « Salmonella spp (agent responsable de la salmonellose) ». Nothing was added to or removed from the hazard.]"
  },
  {
   "Date": "2026-08-13",
@@ -150,14 +150,14 @@
   "Brand": "Manicamp",
   "Product": "manicamp",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Présence potentielle de listéria monocytogenes",
+  "Reason": "Potential presence of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23136/interne",
-  "Notes": "ferme de la pâturelle"
+  "Notes": "ferme de la pâturelle [language 2026-08-14: Reason rendered in English per the English-output rule, which exempts brand and product names only. Verified against the live fiche at rappel.conso.gouv.fr/fiche-rappel/23136/Interne on 2026-08-14, not machine-translated and not pattern-swept. Entreprise at source: GAEC DE LA PATURELLE / Ferme de la Pâturelle. Source motif verbatim: « Présence potentielle de listéria monocytogenes ». Source risque verbatim: « Listeria monocytogenes (agent responsable de la listériose) ». Nothing was added to or removed from the hazard.]"
  },
  {
   "Date": "2026-08-12",
@@ -166,14 +166,14 @@
   "Brand": "Qualiko",
   "Product": "lot de filets de poulet qualiko lot 09720 b2, production du 30/05/2026, best before 29/05/2028",
   "Pathogen": "Salmonella",
-  "Reason": "Blanc poulet congele teste positif a la salmonelle",
+  "Reason": "Frozen chicken breast tested positive for Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23147/interne",
-  "Notes": "bir can"
+  "Notes": "bir can [language 2026-08-14: Reason rendered in English per the English-output rule, which exempts brand and product names only. Verified against the live fiche at rappel.conso.gouv.fr/fiche-rappel/23147/Interne on 2026-08-14, not machine-translated and not pattern-swept. Entreprise at source: QUALIKO. Source motif verbatim: « Blanc poulet congele teste positif a la salmonelle ». Source risque verbatim: « Salmonella spp (agent responsable de la salmonellose) ». Nothing was added to or removed from the hazard.]"
  },
  {
   "Date": "2026-08-12",
@@ -4768,22 +4768,6 @@
   "Notes": "[RASFF #2026.6272; classification: alert notification; category: meat and meat products (other than poultry); notifId=858221] [gemini-enrich 2026-07-15: Brand '—'→'BELGIUM'] [gemini-check 2026-07-15: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
-  "Date": "2026-07-14",
-  "Source": "FSANZ (AU)",
-  "Company": "Tasmanian Mountain Waters Exp",
-  "Brand": "Mt Ossa",
-  "Product": "Mt Ossa Australian Spring Water - 10L",
-  "Pathogen": "Mould",
-  "Reason": "Microbial (Mould) contamination.",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/tasmanian-mountain-waters-exp-mt-ossa-australian-spring-water-10l",
-  "Notes": "[gemini-enrich 2026-07-15: Brand '—'→'Mt Ossa'] [gemini-check 2026-07-15: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Mould' T2 (FSANZ: Microbial (Mould) contamination, not Listeria)]"
- },
- {
   "Date": "2026-07-13",
   "Source": "RASFF (EU)",
   "Company": "Origin: Nigeria | Notifying: Netherlands",
@@ -5697,22 +5681,6 @@
  },
  {
   "Date": "2026-07-06",
-  "Source": "FSANZ (AU)",
-  "Company": "Bellevue Orchard Pty Ltd",
-  "Brand": "Summer Snow",
-  "Product": "Summer Snow - Pink Lady Apple Juice 1 litre & Summer Snow - Granny Smith Apple Juice 2 Litres",
-  "Pathogen": "Mould",
-  "Reason": "Unsuccessful pasteurisation resulting in microbial (Mould) contamination.",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/bellevue-orchard-pty-ltd-summer-snow-pink-lady-apple-juice-1-litre-summer",
-  "Notes": "[gemini-enrich 2026-07-07: Brand '—'→'Summer Snow'] [claude-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Mould' T2 (mould from unsuccessful pasteurisation)]"
- },
- {
-  "Date": "2026-07-06",
   "Source": "FSAI (IE)",
   "Company": "Horgans",
   "Brand": "Horgans / M&S",
@@ -5806,22 +5774,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856526",
   "Notes": "[RASFF #2026.5937; classification: border rejection notification; category: nuts, nut products and seeds; notifId=856526] [gemini-enrich 2026-07-07: Brand '—'→'Netherlands'] [outbreak 2026-07-07: 0→1 — risk: serious] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.] [outbreak-fix 2026-08-01: Outbreak 1->0 — its only recorded evidence is 'risk: serious' — the RASFF hazard-SEVERITY classification carried by every notification, not an illness report. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.]"
- },
- {
-  "Date": "2026-07-06",
-  "Source": "FSANZ (AU)",
-  "Company": "Bellevue Orchard Pty Ltd",
-  "Brand": "Summer Snow",
-  "Product": "Summer Snow - Pink Lady Apple Juice 1 litre & Summer Snow - Granny Smith Apple Juice 2 Litres",
-  "Pathogen": "Mould",
-  "Reason": "Unsuccessful pasteurisation resulting in microbial (Mould) contamination.",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/updated-07072026-bellevue-orchard-pty-ltd-summer-snow-pink-lady-apple",
-  "Notes": "[gemini-enrich 2026-07-07: Brand '—'→'Summer Snow'] [gemini-check 2026-07-07: pass; clean-row shortcut (gemini-enriched + all fields valid)] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Mould' T2 (mould from unsuccessful pasteurisation)]"
  },
  {
   "Date": "2026-07-06",
@@ -7030,14 +6982,14 @@
   "Brand": "MILBONA",
   "Product": "HIGH PROTEIN Pudding — Chocolate Flavour, 200 g milk dessert, batch 152, best-before 17/07/2026",
   "Pathogen": "None (organoleptic spoilage)",
-  "Reason": "EFET recall: macroscopic inspection confirmed alteration of organoleptic characteristics (colour, texture, odour) rendering the product unsafe. Manufacturer: Fude+Serrahm Milchprodukte (Hamburg, Germany); distributed by Lidl Hellas. EFET Central Macedonia regional directorate, following consumer reports.",
+  "Reason": "EFET recall: macroscopic inspection confirmed alteration of organoleptic characteristics (color, texture, odor) rendering the product unsafe. Manufacturer: Fude+Serrahm Milchprodukte (Hamburg, Germany); distributed by Lidl Hellas. EFET Central Macedonia regional directorate, following consumer reports.",
   "Class": "Recall",
   "Country": "Greece",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou",
-  "Notes": "Added 2026-06-26 as a one-off operator exception. NOTE: organoleptic spoilage (quality defect) is normally OUT OF SCOPE per AFTS scope rules (spoilage/quality excluded); admitted by operator decision. Tier 3. Verified via multiple Greek outlets (protothema, efsyn, news247, EFET deltia-typou index 2026-06-26)."
+  "Notes": "Added 2026-06-26 as a one-off operator exception. NOTE: organoleptic spoilage (quality defect) is normally OUT OF SCOPE per AFTS scope rules (spoilage/quality excluded); admitted by operator decision. Tier 3. Verified via multiple Greek outlets (protothema, efsyn, news247, EFET deltia-typou index 2026-06-26). [us-english 2026-08-14: British spelling normalised to US English in this register's own analytical prose. Product and Brand untouched — the English-output rule exempts them and pack text must stay as printed. Hazard meaning unchanged.]"
  },
  {
   "Date": "2026-06-26",
@@ -20501,7 +20453,7 @@
   "Company": "Belle & Bio",
   "Brand": "Belle & Bio",
   "Product": "ZINC LIPOSOMAL — 90-capsule pillbox (lots 024133-01, 039...)",
-  "Pathogen": "Unspecified hazard (supplement labelling/composition)",
+  "Pathogen": "Unspecified hazard (supplement labeling/composition)",
   "Reason": "Recall reason not in pathogen scope",
   "Class": "Voluntary",
   "Country": "France",
@@ -20509,7 +20461,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21812/Interne",
-  "Notes": "[fiche 21812 / ref. 2026-03-0356 / 2026-03-30; SCOPE FLAG: dietary supplement with no pathogen contamination — likely a labelling/heavy-metal/excessive-content issue, OUT OF SCOPE per _pathogen_scope.py; RECOMMEND DROP; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'BELLE & BIO BELLE & BIO' -> 'Belle & Bio'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21812 / ref. 2026-03-0356 / 2026-03-30; SCOPE FLAG: dietary supplement with no pathogen contamination — likely a labelling/heavy-metal/excessive-content issue, OUT OF SCOPE per _pathogen_scope.py; RECOMMEND DROP; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'BELLE & BIO BELLE & BIO' -> 'Belle & Bio'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [us-english 2026-08-14: British spelling normalised to US English in this register's own analytical prose. Product and Brand untouched — the English-output rule exempts them and pack text must stay as printed. Hazard meaning unchanged.]"
  },
  {
   "Date": "2026-03-30",
