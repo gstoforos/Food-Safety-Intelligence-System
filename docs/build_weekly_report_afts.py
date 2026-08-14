@@ -1035,13 +1035,18 @@ def _fallback_p1_to_p3(stats, recalls):
     # consecutive sentences — worse than the original error, because the
     # KPI now looks wrong instead of the narrative.
     #
-    # Keep the FIRST row of each event: rows are sorted newest-first, and
-    # the earliest-dated row of an investigation is usually the implicated
-    # ingredient rather than a downstream retailer, which reads better.
+    # Keep the EARLIEST-DATED row of each event. The comment here used to
+    # claim that and the code did the opposite: it kept the first row of a
+    # NEWEST-first list, i.e. the most recent one. For the jalapeno event
+    # that surfaced the CFIA guacamole recall, so W33 described an outbreak
+    # whose vehicle is jalapeno peppers as "Salmonella linked to
+    # guacamoles" — naming a downstream retail product as the source
+    # commodity. The earliest row of an investigation is normally closer to
+    # the implicated ingredient.
     try:
         from pipeline._outbreak_id import derive as _derive_oid
         _seen_events, _deduped = {}, []
-        for _r in ob_recalls:
+        for _r in sorted(ob_recalls, key=lambda x: str(x.get("Date") or "")):
             _oid, _conf, _ = _derive_oid(_r)
             _key = _oid if (_oid and _conf == "high") else id(_r)
             if _key in _seen_events:
@@ -1068,7 +1073,19 @@ def _fallback_p1_to_p3(stats, recalls):
             # Product strings in this database carry lot codes, pack sizes and
             # distribution after a dash or semicolon, so take the first clause
             # and, only if that is still long, stop on a word boundary.
-            prod_short = prod.split("(")[0].strip()
+            # Dropping the parenthetical is right when it holds pack sizes
+            # or lot codes, and wrong when it holds the only description
+            # there is: "Finished products (e.g. dips, salsa, guacamole and
+            # more) containing jalapeno" collapses to "Finished products",
+            # which names no food at all. Keep the fuller string when the
+            # stripped head is generic or too short to identify anything.
+            _head = prod.split("(")[0].strip()
+            _generic = _head.lower().rstrip(" .,;:").rstrip("s") in (
+                "finished product", "product", "various product",
+                "prepared food", "food", "item", "various item",
+                "assorted product", "multiple product",
+            )
+            prod_short = prod.strip() if (_generic or len(_head) < 18) else _head
             for sep in ("—", " - ", ";", "|"):
                 if sep in prod_short:
                     prod_short = prod_short.split(sep)[0].strip()
@@ -1198,7 +1215,11 @@ _COMMODITY_CLASSES = (
      r"chicken|poultry|poulet|pollo|turkey|dinde|duck|pork|porc|beef|veau|"
      r"veal|\blamb\b|mutton|sausage|merguez|salami|pastrami|charcuter|\bham\b|"
      r"bacon|\bmeat\b"),
-    ("seeds, sesame and sprouts",
+        # Label said "sprouts" while no sprout incident was in the set it
+    # described (external review 2026-08-14). A class label reads as a
+    # description of contents; it must not advertise a member that is
+    # not there.
+    ("seeds and sesame",
      r"sesame|tahini|sprout|\bseeds?\b|linseed|sunflower seed|chia"),
     ("nuts and nut butters",
      r"peanut|almond|cashew|pistachio|hazelnut|walnut|nut butter"),
@@ -1228,7 +1249,7 @@ _COMMODITY_CLASSES = (
 )
 
 
-def _commodity_mix(recalls, pathogen, top_n=4):
+def _commodity_mix(recalls, pathogen, top_n=5):
     """Measured commodity distribution for `pathogen` in THIS week's rows.
 
     Returns a human-readable string like
@@ -1260,8 +1281,21 @@ def _commodity_mix(recalls, pathogen, top_n=4):
         else:
             counts["other or unclassified"] += 1
     n = len(rows)
-    parts = [f"{label} {c}/{n} ({round(c / n * 100)}%)"
-             for label, c in counts.most_common(top_n)]
+    # THE PARTS MUST SUM TO n. The first version returned
+    # counts.most_common(top_n) and nothing else, so W33 published
+    # "meat and poultry 15/26 (58%), seeds ... 5/26 (19%), fresh produce
+    # 3/26 (12%), eggs 1/26 (4%)" — four classes totalling 24 of 26,
+    # presented as if it were the whole breakdown. An external review did
+    # the arithmetic and caught it. Silent truncation dressed as a
+    # complete accounting is the same failure this codebase keeps hitting
+    # elsewhere; a tail bucket makes it impossible.
+    shown = counts.most_common(top_n)
+    parts = [f"{label} {c}/{n} ({round(c / n * 100)}%)" for label, c in shown]
+    remainder = n - sum(c for _, c in shown)
+    if remainder > 0:
+        parts.append(f"other categories {remainder}/{n} "
+                     f"({round(remainder / n * 100)}%)")
+    assert sum(c for _, c in shown) + max(remainder, 0) == n
     return ", ".join(parts)
 
 
