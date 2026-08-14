@@ -46,6 +46,7 @@ Author: AFTS / G. Stoforos
 from __future__ import annotations
 
 import json
+import logging
 import re
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -55,6 +56,8 @@ from zoneinfo import ZoneInfo
 import openpyxl
 from openpyxl.styles import Font, PatternFill
 from openpyxl.workbook import Workbook
+
+log = logging.getLogger("pipeline.weekly_rejected_capture")
 
 ROOT = Path(__file__).resolve().parent.parent
 XLSX_DEFAULT = ROOT / "docs" / "data" / "recalls.xlsx"
@@ -113,27 +116,71 @@ def _ensure_sheet(wb: Workbook):
     return ws
 
 
-def _existing_keys(ws) -> set:
-    """URL+Date dedup against rows already in Weekly_Rejected.
+def _content_key(get) -> tuple:
+    """Identity for a row that has NO URL. `get` is a field accessor.
 
-    Same key shape as Weekly_Review so a row can never appear in both
-    sheets for the same week (passes go to Weekly_Review, rejections
-    go here — they're disjoint by claude-check verdict).
+    AUDIT 2026-08-14 — record_rejections() used to key on URL alone and
+    `continue` on an empty URL, so a rejection with no URL was never
+    written to Weekly_Rejected AT ALL. Not a dedup collision: an outright
+    silent drop, which is exactly what the archive exists to prevent.
+
+    This is not a rare edge case and it is getting commoner. The
+    URL-guardian BLANKS the URL of any row whose link 404s or errors
+    ("[URL-guardian 2026-08-14: blanked http_error ...]", then "blanked
+    empty"). Every row it blanks becomes unarchivable. In the 2026-08-14
+    W33 review, 3 of 21 rejections vanished this way — including a real
+    FDA Salmonella-in-eggs outbreak row and a Kettle Cuisine Listeria
+    row, i.e. precisely the rows an operator would most want to dispute
+    on Thursday.
+
+    Same shape as the fix already made in xlsx_merge._wr_dedup_key for
+    the identical bug class; that fix was never propagated here.
+    """
+    def _f(name, n=None):
+        v = get(name)
+        if v in (None, ""):
+            return ""
+        v = str(v).strip().lower()
+        return v[:n] if n else v
+    return ("", _f("Date", 10), _f("Source"), _f("Company", 60),
+            _f("Product", 60), _f("Pathogen", 40), _f("Reason", 60))
+
+
+def _row_key(get) -> tuple:
+    """URL+Date when a URL exists, content signature when it does not."""
+    url = _s(get("URL")).strip().lower()
+    if url:
+        return (url, _s(get("Date"))[:10])
+    return _content_key(get)
+
+
+def _s(v) -> str:
+    return "" if v in (None, "") else str(v)
+
+
+def _existing_keys(ws) -> set:
+    """Dedup against rows already in Weekly_Rejected.
+
+    URL+Date where a URL exists; a content signature where it does not,
+    so URL-less rows stay distinct instead of collapsing (or vanishing).
+    See _content_key for why.
     """
     if ws.max_row < 2:
         return set()
     headers = [str(c.value or "") for c in ws[1]]
-    try:
-        url_idx = headers.index("URL")
-        date_idx = headers.index("Date")
-    except ValueError:
+    if "URL" not in headers or "Date" not in headers:
         return set()
+    idx = {h: i for i, h in enumerate(headers) if h}
     keys: set = set()
     for r in ws.iter_rows(min_row=2, values_only=True):
-        url = (str(r[url_idx]) if r[url_idx] else "").strip().lower()
-        d = str(r[date_idx])[:10] if r[date_idx] else ""
-        if url:
-            keys.add((url, d))
+        if all(v in (None, "") for v in r):
+            continue
+
+        def get(name, _r=r):
+            i = idx.get(name)
+            return _r[i] if i is not None and i < len(_r) else ""
+
+        keys.add(_row_key(get))
     return keys
 
 
@@ -222,12 +269,21 @@ def record_rejections(
     seen = _existing_keys(ws)
 
     appended = 0
+    dropped_no_identity = 0
     for r in rejected_rows or []:
-        url = (str(r.get("URL", "") or "")).strip().lower()
-        d = str(r.get("Date", ""))[:10]
-        if not url or (url, d) in seen:
+        # AUDIT 2026-08-14: was `if not url or (url, d) in seen: continue`,
+        # which threw away every URL-less rejection instead of archiving it.
+        key = _row_key(r.get)
+        if key in seen:
             continue
-        seen.add((url, d))
+        # A row with neither a URL nor any content to key on is the only
+        # thing we still refuse — and we COUNT it rather than pass over it
+        # in silence, so "nothing was archived" can never look like
+        # "nothing was rejected".
+        if not any(part for part in key):
+            dropped_no_identity += 1
+            continue
+        seen.add(key)
 
         rejected_by, reason = _extract_rejection_metadata(r)
         row_out = (
@@ -236,6 +292,14 @@ def record_rejections(
         )
         ws.append(row_out)
         appended += 1
+
+    if dropped_no_identity:
+        log.error(
+            "Weekly_Rejected: %d rejection(s) had NO URL and no content to "
+            "key on, so they could not be archived. The operator's Thursday "
+            "review will not show them. This is data loss, not filtering.",
+            dropped_no_identity,
+        )
 
     if appended:
         # Preserve sheet order: Recalls, Pending, (auxiliary), NEWS last

@@ -27,6 +27,40 @@ TIER1_KEYWORDS = (
     "cronobacter", "sakazakii",
     "staphylococcus", "staph", "enterotoxin", "entérotoxine",
     "campylobacter",
+    # Vibrio (added 2026-08-14 on operator instruction "Add vibrio").
+    #
+    # THIS WAS AN OMISSION, NOT A POLICY. Vibrio was already recognised
+    # everywhere else in the pipeline and only this scope list left it out:
+    #   scrapers/_models.py          PATHOGEN_RULES + _TIERS + tier_2_pathogens
+    #   pipeline/_publish_gate.py    line 200, listed as an accepted pathogen
+    #   pipeline/verify_pathogen_in_source.py   "Vibrio": ["vibrio"]
+    #   pipeline/regulator_apis.py   "Vibrio": "vibrio"
+    #   every scraper PATHOGEN_KEYWORDS (CFIA, FSA UK, FSANZ,
+    #   Livsmedelsverket, ...) and every AI prompt that enumerates scope
+    #   ("Campylobacter, Yersinia, Vibrio, Cyclospora, Cronobacter, ...")
+    #
+    # So the scrapers collected Vibrio rows, the publish gate accepted them,
+    # the reviewers were told they were in scope — and is_in_scope() threw
+    # them away at the Pending gate with "pathogen_out_of_scope: 'Vibrio'".
+    # Confirmed cost: ZERO Vibrio rows exist across all 1415 rows of
+    # Recalls, and none in Pending, Weekly_Rejected or NEWS. The register
+    # has never held one. The 2026-08-13 daily run shows the mechanism
+    # live, rejecting RASFF 865446 on exactly this string.
+    #
+    # Unlike "Histamine / scombrotoxin" and "Marine biotoxin", which are
+    # kept OUT deliberately and have tests defending their exclusion
+    # (test_pathogen_out_of_scope_histamine, ..._marine_biotoxin), nothing
+    # anywhere defended Vibrio's absence.
+    #
+    # Species spellings are listed so a source that names only the species
+    # ("V. vulnificus", "parahaemolyticus") is still in scope. Severity is
+    # NOT decided here — see ALWAYS_TIER1_KEYWORDS below.
+    # "cholera" (not "cholerae") so a source that writes only the disease
+    # name is in scope too — the round-trip test caught bare "Cholera"
+    # being forced to Tier 1 while is_in_scope() said False, which would
+    # have escalated a row the gate was about to throw away.
+    "vibrio", "vulnificus", "parahaemolyticus",
+    "cholera", "alginolyticus",
     # Viral
     "hepatitis a", "hépatite a", "norovirus",
     # Toxins (mycotoxins)
@@ -115,7 +149,83 @@ ALWAYS_TIER1_KEYWORDS = (
     "cereulide",                     # emetic B. cereus toxin — always Tier 1
     "cronobacter", "sakazakii",
     "hepatitis a", "hépatite a",
+    # Vibrio: SPECIES-LEVEL, not genus-level (added 2026-08-14).
+    #
+    # Bare "Vibrio" and V. parahaemolyticus deliberately do NOT appear here.
+    # They keep the tier the existing framework already gives them — Tier 2,
+    # via tier_2_pathogens in scrapers/_models.py, whose comment reads
+    # "Campylobacter, Yersinia, Vibrio etc. — always Tier 2 (FDA Class II)".
+    # That was already the pipeline's answer and adding the genus to scope
+    # does not change it. No new judgement is introduced.
+    #
+    # Two species are forced to Tier 1 because leaving them at Tier 2 would
+    # understate them on published evidence:
+    #
+    #   vulnificus — CDC, "About Vibrio Infection": "Some Vibrio species,
+    #     such as Vibrio vulnificus, can cause severe and life-threatening
+    #     infections" and "About 1 in 5 people with this infection die,
+    #     sometimes within a day or two of becoming ill."
+    #     A ~20% case-fatality organism is not FDA Class II.
+    #
+    #   cholera / O1 / O139 — FDA Fish and Fishery Products Hazards and
+    #     Controls Guidance, Chapter 4, separates "Vibrio cholerae O1 and
+    #     O139" (fecal-origin, epidemic cholera) from "Vibrio cholerae
+    #     non-O1 and non-O139" (naturally occurring). Only the epidemic
+    #     serogroups are forced here.
+    #
+    # NOTE the deliberate gap: bare "Vibrio cholerae" with NO serogroup
+    # stated is NOT forced, because FDA's own guidance splits on serogroup
+    # and the register does not invent one the source did not give. Such a
+    # row lands at Tier 2 and is visible for review.
+    #
+    # Only "vulnificus" goes in this tuple. The epidemic cholera serogroups
+    # CANNOT live here: is_always_tier1() matches by plain substring
+    # (`any(t in s for t in ALWAYS_TIER1_KEYWORDS)`), and "cholera" is a
+    # substring of "cholerae", so listing it would silently force EVERY
+    # V. cholerae row to Tier 1 — the exact opposite of the serogroup split
+    # above. They are handled by _is_epidemic_cholera() instead, which is a
+    # regex, same shape as the _is_bare_bacillus_cereus() carve-out.
+    "vulnificus",
 )
+
+
+# Epidemic-cholera serogroups. Kept OUT of ALWAYS_TIER1_KEYWORDS on purpose
+# — see the note there. Matches "O1" / "O139" as standalone serogroup tokens
+# (optionally introduced by "serogroup"/"serotype"/"group"), or the disease
+# name "cholera" when it is NOT just the tail of the species word
+# "cholerae".
+_EPIDEMIC_CHOLERA = _re_cholera = None  # bound below, after `re` is imported
+
+
+def _is_epidemic_cholera(pathogen: str) -> bool:
+    """True for V. cholerae O1 / O139, or an explicit mention of cholera.
+
+    False for bare "Vibrio cholerae" and for non-O1/non-O139, which FDA's
+    Fish and Fishery Products Hazards and Controls Guidance (Chapter 4)
+    treats as a different, naturally-occurring hazard rather than the
+    fecal-origin epidemic one.
+    """
+    import re
+    if is_empty_pathogen(pathogen):
+        return False
+    s = str(pathogen).strip().lower()
+    if "cholera" not in s:          # "cholerae" contains "cholera"
+        return False
+
+    # NEGATIVE FIRST. "non-O1" and "non-O139" CONTAIN the tokens "O1" and
+    # "O139", so a naive serogroup search matches the exact strings that
+    # mean the opposite. Caught by the round-trip test below, which had
+    # 'Vibrio cholerae non-O1' coming back True.
+    if re.search(r"\bnon[\s\-]?o\s*-?\s*(1|139)\b", s):
+        return False
+
+    # Serogroup stated explicitly.
+    if re.search(r"(?<!non[\s\-])\bo\s*-?\s*(1|139)\b", s):
+        return True
+    # "cholera" as the disease name, not the "-e" tail of the species word.
+    if re.search(r"\bcholera\b", s):
+        return True
+    return False
 
 # Low-moisture / dried / starchy matrix vocabulary. Bare "Bacillus cereus"
 # in these products is forced to Tier 1 (cereulide-formation risk). Kept in
@@ -228,6 +338,10 @@ def enforce_tier1(row: dict) -> dict:
     if not force and _is_bare_bacillus_cereus(pathogen) and _is_low_moisture_product(row):
         force = True
         reason_tag = "bare Bacillus cereus in low-moisture product (cereulide risk) is Tier 1"
+    if not force and _is_epidemic_cholera(pathogen):
+        force = True
+        reason_tag = ("epidemic cholera serogroup (V. cholerae O1/O139) is "
+                      "Tier 1; non-O1/non-O139 is not")
     if not force:
         return row
     try:

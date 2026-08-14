@@ -53,6 +53,23 @@ def test_pathogen_in_scope_campylobacter():
     assert is_in_scope("Campylobacter")
 
 
+def test_pathogen_in_scope_vibrio():
+    """Vibrio is IN scope (operator instruction 2026-08-14, "Add vibrio").
+
+    Nothing defended its absence before — unlike histamine and marine
+    biotoxin below, which are excluded deliberately and have had these
+    tests since the scope was locked. Vibrio was simply missing from
+    TIER1_KEYWORDS while every scraper, the publish gate and every AI
+    prompt already treated it as in scope, so the pipeline collected
+    Vibrio rows and then discarded them at the Pending gate. Zero Vibrio
+    rows existed in the workbook when this was found.
+    """
+    for p in ("Vibrio", "Vibrio spp.", "Vibrio parahaemolyticus",
+              "Vibrio vulnificus", "V. vulnificus", "Vibrio cholerae",
+              "Vibrio cholerae O1", "Vibrio alginolyticus", "Cholera"):
+        assert is_in_scope(p), f"{p!r} must be in scope"
+
+
 def test_pathogen_out_of_scope_marine_biotoxin():
     assert not is_in_scope("Marine biotoxin")
 

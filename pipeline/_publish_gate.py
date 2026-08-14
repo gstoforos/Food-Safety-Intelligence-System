@@ -198,6 +198,14 @@ HAZARD_CLASS_KEYWORDS = {
         # the contradiction rule. Spaced so it only matches the token.
         " hav ", "(hav)", "hav virus",
         "yersinia", "vibrio", "clostridium perfringens",
+        # Vibrio species / disease names (added 2026-08-14). "vibrio" alone
+        # covers "Vibrio vulnificus", but a source that writes only the
+        # species or only "cholera" would not match it, and an unmatched
+        # biological hazard reads as a class MISMATCH against a biological
+        # Reason — which blocks the row and, via enforce_tier1's
+        # contradiction guard, also suppresses its Tier-1 escalation.
+        "vulnificus", "parahaemolyticus", "cholerae", "cholera",
+        "alginolyticus",
         "cronobacter", "enterobacter", "enterohaem",
     ),
     "physical": (

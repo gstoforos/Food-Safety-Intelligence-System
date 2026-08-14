@@ -179,6 +179,18 @@ _PATHOGEN_OVERRIDES = {
     "Salmonella spp.":          "Salmonella",
     "Clostridium botulinum":    "C. botulinum",
     "Clostridium perfringens":  "C. perfringens",
+    # Vibrio (added 2026-08-14). "Vibrio" is in _GENUS_ONLY, so without
+    # these overrides abbreviate_pathogen() would render EVERY species as
+    # plain "Vibrio" — folding V. vulnificus (Tier 1) and
+    # V. parahaemolyticus (Tier 2) into a single marketing tile and
+    # undoing the species split the rest of this change exists to make.
+    # _PATHOGEN_OVERRIDES is consulted before _GENUS_ONLY, so these win.
+    "Vibrio vulnificus":                "V. vulnificus",
+    "Vibrio cholerae O1/O139":          "V. cholerae O1/O139",
+    "Vibrio cholerae non-O1/non-O139":  "V. cholerae non-O1",
+    "Vibrio cholerae":                  "V. cholerae",
+    "Vibrio parahaemolyticus":          "V. parahaemolyticus",
+    "Vibrio alginolyticus":             "V. alginolyticus",
     # E. coli / STEC family — every known surface form folds to one label.
     # Bare "Escherichia coli" / "E. coli" map to plain "E. coli" because
     # those forms can refer to non-pathogenic hygiene-indicator counts.

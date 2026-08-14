@@ -124,7 +124,34 @@ PATHOGEN_ALIASES: Dict[str, List[str]] = {
         "e. coli", "ecoli", "escherichia coli",
     ],
     "Campylobacter": ["campylobacter"],
+
+    # ── Vibrio ────────────────────────────────────────────────────────
+    # Added 2026-08-14 alongside the species split in
+    # scrapers/_models.PATHOGEN_RULES. These entries are NOT optional
+    # decoration: _aliases_for() falls back to [pathogen.lower()] when a
+    # canonical has no entry here, so without them a row canonicalised as
+    # "Vibrio cholerae O1/O139" would be verified by searching the source
+    # page for the literal string "vibrio cholerae o1/o139" — a string no
+    # regulator ever writes. Verification would fail on every such row and
+    # the gate would reject a correctly-extracted recall.
     "Vibrio": ["vibrio"],
+    "Vibrio vulnificus": ["vibrio vulnificus", "v. vulnificus", "vulnificus"],
+    "Vibrio parahaemolyticus": [
+        "vibrio parahaemolyticus", "v. parahaemolyticus", "parahaemolyticus",
+    ],
+    "Vibrio cholerae": ["vibrio cholerae", "v. cholerae", "cholerae"],
+    "Vibrio cholerae O1/O139": [
+        "vibrio cholerae", "v. cholerae", "cholerae", "cholera",
+        "o1", "o139",
+    ],
+    "Vibrio cholerae non-O1/non-O139": [
+        "vibrio cholerae", "v. cholerae", "cholerae",
+        "non-o1", "non o1", "non-o139", "non o139",
+    ],
+    "Vibrio alginolyticus": [
+        "vibrio alginolyticus", "v. alginolyticus", "alginolyticus",
+    ],
+
     "Cyclospora cayetanensis": ["cyclospora"],
     "Yersinia enterocolitica": ["yersinia"],
     "Bacillus cereus": ["b. cereus", "bacillus cereus"],
