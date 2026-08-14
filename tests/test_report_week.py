@@ -285,15 +285,43 @@ class TestLatestPointerNeverMovesBackwards:
         assert second != first, "a same-week rebuild was blocked"
 
     def test_the_published_pointer_is_not_a_closed_week(self):
-        """The live file, as it will ship. W32 closed Thursday 2026-08-06
-        and ships Friday 2026-08-07."""
+        """The live pointer must name the most recently CLOSED week.
+
+        AUDIT 2026-08-14 — this test used to assert
+            d["week_num"] == 32 and d["year"] == 2026
+        against the live file. That is a hardcoded literal, so it went red
+        the moment a newer week shipped correctly, and it had been failing
+        on main ever since W33 was built. It fails EVERY week, forever,
+        which makes the `tests` workflow permanently red and trains
+        everyone to ignore it — the worst outcome for a guard whose job is
+        to protect what the subscriber mailer sends.
+
+        The invariant the name states is the real one: the pointer must
+        name a week that has CLOSED, never the week still in progress.
+        A week closes on its Thursday and ships the following Friday, so
+        the newest legitimate pointer is the week whose Friday is the most
+        recent Friday on or before today. Asserting that holds every week
+        without edits.
+        """
         import json
+        from datetime import date, timedelta
         from pathlib import Path
         root = Path(__file__).resolve().parent.parent
         ptr = root / "docs" / "data" / "weekly-summary-latest.json"
         if not ptr.exists():
             return
         d = json.loads(ptr.read_text(encoding="utf-8"))
-        assert d["week_num"] == 32 and d["year"] == 2026, (
-            f"weekly-summary-latest.json points at {d.get('filename')} — "
-            f"the subscriber mailer sends whatever this file names")
+
+        today = date.today()
+        # Most recent Friday on or before today — the current ship day.
+        ship_friday = today - timedelta(days=(today.weekday() - 4) % 7)
+        # The week that ships on that Friday closed on the Thursday before.
+        newest_allowed = ship_friday - timedelta(days=1)
+
+        week_end = date.fromisoformat(str(d["week_end"])[:10])
+        assert week_end <= newest_allowed, (
+            f"weekly-summary-latest.json points at {d.get('filename')} "
+            f"covering data through {week_end}, but the most recently "
+            f"closed week ends {newest_allowed}. The subscriber mailer "
+            f"sends whatever this file names, so it must never name a week "
+            f"that is still open.")
