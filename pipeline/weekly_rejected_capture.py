@@ -286,10 +286,24 @@ def record_rejections(
         seen.add(key)
 
         rejected_by, reason = _extract_rejection_metadata(r)
-        row_out = (
-            [r.get(c, "") for c in RECALLS_COLS]
-            + [week_end, rejected_by, reason, "N"]
-        )
+        # US spelling in the archive too (audit 2026-08-14). Weekly_Rejected
+        # is not written through merge_master's writer, so it does not pick
+        # up the normalisation there — and this sheet is what the operator
+        # reads in the Thursday review email, so "Mould" would survive in
+        # the one place a human actually looks. Pathogen/Reason/Class only;
+        # Notes keep the original wording because they are the audit trail.
+        try:
+            from pipeline._language import americanize as _us
+        except Exception:                                      # noqa: BLE001
+            def _us(v):                                        # type: ignore
+                return v
+        _vals = []
+        for c in RECALLS_COLS:
+            _v = r.get(c, "")
+            if c in ("Pathogen", "Reason", "Class") and isinstance(_v, str):
+                _v = _us(_v)
+            _vals.append(_v)
+        row_out = _vals + [week_end, rejected_by, reason, "N"]
         ws.append(row_out)
         appended += 1
 

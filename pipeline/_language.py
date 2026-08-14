@@ -731,10 +731,100 @@ def englishify_reason(text) -> Tuple[str, bool]:
     # guessed and the caller still gets its report.
     out = to_english(s)
     if out and out != s:
-        return out, True
+        return americanize(out), True
     if not looks_non_english(s):
-        return s, False
+        a = americanize(s)
+        return a, a != s
     out = to_english(s)
     if out and out != s:
-        return out, True
-    return s, False
+        return americanize(out), True
+    a = americanize(s)
+    return a, a != s
+
+
+# ──────────────────────────────────────────────────────────────────────
+# US spelling — the house language (added 2026-08-14)
+# ──────────────────────────────────────────────────────────────────────
+# Operator instruction: "mould must be mold to us US english".
+#
+# WHY THIS IS A WRITE-TIME RULE AND NOT A ONE-OFF DATA EDIT
+# ---------------------------------------------------------
+# Three FSANZ rows reached Recalls with Pathogen "Mould". They were
+# removed on 2026-08-14 as out of scope, but nothing stopped the next
+# FSANZ mould recall arriving spelled the same way — Australian and UK
+# regulators write British English and always will. Fixing the rows
+# without fixing the writer is fixing the symptom.
+#
+# It also matters for SCOPE, not just style: _publish_gate lists
+# "mould" and "mold" as out-of-scope hazard terms, but the pair
+# Pathogen "Mould" + Reason "Microbial (Mould) contamination." did not
+# resolve to the quality/spoilage class while the US spelling does. So
+# the British spelling was letting out-of-scope rows through a gate
+# written in US English. Normalising at write time closes that.
+#
+# TWO GUARDS, BOTH LEARNED THE HARD WAY
+# --------------------------------------
+# 1. PROPER NOUNS. "Programme" is NOT converted. The register cites
+#    "2026 Official Microbiological Criteria for Food Safety Monitoring
+#    Programme" (EFET) and "CFS Food Surveillance Programme" (Hong Kong
+#    CFS). Those are the official names of named regulatory programmes;
+#    renaming them is the same error as writing "US Ministry of
+#    Defense". A blanket s/programme/program/ hit all three.
+#
+# 2. FALSE FRIENDS. "moulded" / "demoulded" are NOT converted here as
+#    fungus words — they mean SHAPED IN A MOULD. The register carries
+#    "Pork-head brawn (parsleyed) — both moulded and demoulded variants",
+#    a charcuterie term rendered from the French "moulé / démoulé". A
+#    naive s/mould/mold/ turns a description of how a terrine was formed
+#    into an implied fungal contamination on a Product field that the
+#    English-output rule exempts anyway. Only the standalone noun and
+#    adjective forms are mapped.
+import re as _re_us
+
+_US_SPELLINGS = (
+    # (compiled pattern, replacement) — word-bounded, case-preserving for
+    # a leading capital only, which is all these fields ever use.
+    (_re_us.compile(r"\bmould\b", _re_us.I), "mold"),
+    (_re_us.compile(r"\bmoulds\b", _re_us.I), "molds"),
+    (_re_us.compile(r"\bmouldy\b", _re_us.I), "moldy"),
+    (_re_us.compile(r"\bpasteurisation\b", _re_us.I), "pasteurization"),
+    (_re_us.compile(r"\bpasteurised\b", _re_us.I), "pasteurized"),
+    (_re_us.compile(r"\bsterilised\b", _re_us.I), "sterilized"),
+    (_re_us.compile(r"\banalysed\b", _re_us.I), "analyzed"),
+    (_re_us.compile(r"\bcolour\b", _re_us.I), "color"),
+    (_re_us.compile(r"\bcoloured\b", _re_us.I), "colored"),
+    (_re_us.compile(r"\bodour\b", _re_us.I), "odor"),
+    (_re_us.compile(r"\bodours\b", _re_us.I), "odors"),
+    (_re_us.compile(r"\blabelling\b", _re_us.I), "labeling"),
+    (_re_us.compile(r"\bmislabelling\b", _re_us.I), "mislabeling"),
+    (_re_us.compile(r"\bfibre\b", _re_us.I), "fiber"),
+    (_re_us.compile(r"\bfaecal\b", _re_us.I), "fecal"),
+    (_re_us.compile(r"\bdiarrhoea\b", _re_us.I), "diarrhea"),
+    (_re_us.compile(r"\boesophag", _re_us.I), "esophag"),
+    (_re_us.compile(r"\bhaemolytic\b", _re_us.I), "hemolytic"),
+    (_re_us.compile(r"\bhaemorrhagic\b", _re_us.I), "hemorrhagic"),
+    # NOT here on purpose: programme (proper nouns), moulded/demoulded
+    # (shaped, not fungal), litre/flavour/yoghurt (Product and Brand are
+    # exempt from the English-output rule and must match the pack).
+)
+
+
+def _match_case(original: str, replacement: str) -> str:
+    if original[:1].isupper():
+        return replacement[:1].upper() + replacement[1:]
+    return replacement
+
+
+def americanize(text) -> str:
+    """British -> US spelling for this register's own analytical prose.
+
+    Call on Reason / Pathogen / Class. Do NOT call on Product or Brand:
+    the English-output rule exempts them and the text must match what is
+    printed on the pack.
+    """
+    s = str(text or "")
+    if not s:
+        return s
+    for pat, repl in _US_SPELLINGS:
+        s = pat.sub(lambda m, _r=repl: _match_case(m.group(0), _r), s)
+    return s

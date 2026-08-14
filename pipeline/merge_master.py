@@ -1994,6 +1994,42 @@ def _write_sheet(wb: Workbook,
                 "split [%s]. Add them to REASON_EN in pipeline/_language.py — "
                 "they are NOT machine-translated on purpose.",
                 _still_foreign, sheet_name)
+
+        # ── US spelling at the writer (audit 2026-08-14) ────────────────
+        # Operator: "mould must be mold to us US english". Applied HERE, on
+        # every write, because the alternative is repairing rows after each
+        # Australian or British recall arrives — FSANZ and the FSA write
+        # British English and always will.
+        #
+        # It is a SCOPE control as well as a style one. _publish_gate lists
+        # "mould"/"mold" among the out-of-scope hazard terms, yet three
+        # FSANZ rows with Pathogen "Mould" sat in Recalls until 2026-08-14:
+        # the British spelling did not resolve to the quality/spoilage
+        # class, the US spelling does. Normalising before the gate sees the
+        # row is what makes that check work.
+        #
+        # Pathogen / Reason / Class ONLY. Product and Brand are exempt
+        # under the English-output rule and must match the pack — and
+        # "moulded / demoulded" in a Product means shaped in a mould, not
+        # fungus (see the false-friend guard in _language.americanize).
+        try:
+            from pipeline._language import americanize as _us  # noqa: WPS433
+            _n_us = 0
+            for _row in rows:
+                for _col in ("Pathogen", "Reason", "Class"):
+                    _v = _row.get(_col)
+                    if not isinstance(_v, str) or not _v:
+                        continue
+                    _a = _us(_v)
+                    if _a != _v:
+                        _row[_col] = _a
+                        _n_us += 1
+            if _n_us:
+                log.info("US-spelling normalisation applied to %d field(s) "
+                         "[%s]", _n_us, sheet_name)
+        except Exception as _ue:                              # noqa: BLE001
+            log.warning("US-spelling normalisation skipped [%s]: %s",
+                        sheet_name, _ue)
     except Exception as exc:
         log.warning("English-output guard skipped at writer [%s]: %s: %s",
                     sheet_name, type(exc).__name__, str(exc)[:80])

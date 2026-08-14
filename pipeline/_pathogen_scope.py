@@ -389,7 +389,29 @@ _PET_FOOD_RE = _re.compile(
     r"animal[\s\-]*feed|animal[\s\-]*food|"
     r"livestock[\s\-]*feed|poultry[\s\-]*feed|cattle[\s\-]*feed|"
     r"raw[\s\-]*dog|raw[\s\-]*cat|raw[\s\-]*pet|"
-    r"kibble"
+    r"kibble|"
+    # ── AUDIT 2026-08-14 ──────────────────────────────────────────────
+    # The species ADJECTIVES were missing. FDA labels several products
+    # "Canine Food" / "Feline Food" rather than "dog food", and this
+    # pattern had no word for any of them, so the row
+    #     Miller Foods, Inc. | Oma's Pride | "Canine Food" | Salmonella
+    # (2026-08-12) walked straight past a filter written specifically to
+    # stop it and was published in W33 as a human-food recall. An
+    # external review flagged it as a scope question; it was not — the
+    # scope was already correct and the regex simply could not read the
+    # label. Tested field by field: Company, Brand, Product and Reason
+    # all returned None before this line existed.
+    r"canine|feline|equine|porcine[\s\-]*feed|"
+    r"puppy[\s\-]*food|kitten[\s\-]*food|"
+    r"bird[\s\-]*seed|bird[\s\-]*food|ferret[\s\-]*food|"
+    r"chicken[\s\-]*feed|horse[\s\-]*feed|swine[\s\-]*feed|"
+    # NOTE the hyphen class. RASFF emits U+2011 NON-BREAKING HYPHEN, not
+    # ASCII "-": the notification reads "day‑old chicks", and a plain
+    # [\s\-] class does not match it. Every hyphen class in this pattern
+    # would have the same blind spot on RASFF text; this is the one place
+    # it currently matters, and it is called out so the next person adding
+    # a term here does not reintroduce it.
+    r"day[\s\-‐-―]*old[\s\-‐-―]*chicks?"
     r")\b"
     # "for dogs / cats / pets / puppies / kittens"
     r"|\bfor\s+(?:dogs?|cats?|pets?|puppies|kittens?)\b"
