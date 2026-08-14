@@ -174,8 +174,54 @@ def _matched_pathogen_keyword(
     return None
 
 
-def _strip_html(s: str) -> str:
+def _as_text(v) -> str:
+    """Coerce an FSIS API field to a plain string.
+
+    AUDIT 2026-08-13 — the 2026-08-13T21:54Z production run logged
+        USDA FSIS row parse failed: expected string or bytes-like object,
+        got 'list'
+    four times, and then reported "0 pathogen recalls in 7-day window".
+    That message is a `re` TypeError, raised by _strip_html() on
+    field_summary. The FSIS Drupal API does not emit a flat scalar for
+    every field on every record: multi-value fields (summary, product
+    items, recall reason, states) come back as JSON ARRAYS whenever the
+    record carries more than one value, and as bare strings otherwise.
+    The parser assumed scalar throughout.
+
+    Why it was invisible: the failure is swallowed by the broad
+    `except Exception` at the bottom of the record loop, which logs a
+    warning and drops the record — WITHOUT incrementing any of the
+    n_skipped_* counters. So the loud end-of-run summary
+    ("skipped: archived=... spanish=... no_date=...") does not account
+    for those rows at all, and its arithmetic silently fails to close.
+    Worse, the first _strip_html call sits BEFORE the pathogen scan (it
+    builds the haystack), so a record that dies here is dropped before
+    anything has established whether it was in scope. Four records were
+    discarded on 13 Aug with no way to tell from the log whether any of
+    them were pathogen recalls.
+
+    Lists are JOINED, not indexed [0] — taking the first element would
+    drop the remaining values from the haystack and could hide the very
+    keyword that puts the record in scope.
+    """
+    if v is None:
+        return ""
+    if isinstance(v, str):
+        return v
+    if isinstance(v, (list, tuple)):
+        return " ".join(_as_text(x) for x in v if x not in (None, ""))
+    if isinstance(v, dict):
+        # Drupal sometimes wraps a field as {"value": "...", "format": ...}
+        for k in ("value", "processed", "target_id", "name"):
+            if k in v:
+                return _as_text(v[k])
+        return " ".join(_as_text(x) for x in v.values() if x not in (None, ""))
+    return str(v)
+
+
+def _strip_html(s) -> str:
     """Strip HTML tags + collapse whitespace. FSIS field_summary is HTML."""
+    s = _as_text(s)
     if not s:
         return ""
     s = re.sub(r"<[^>]+>", " ", s)
@@ -187,8 +233,12 @@ def _strip_html(s: str) -> str:
     return s
 
 
-def _parse_date_any(s: str) -> Optional[datetime]:
+def _parse_date_any(s) -> Optional[datetime]:
     """Parse FSIS date strings — they ship in several formats across fields."""
+    # Same array-vs-scalar hazard as _strip_html (audit 2026-08-13): a
+    # multi-value date field arrives as a list and .strip() would raise
+    # AttributeError, killing the record inside the broad except.
+    s = _as_text(s)
     if not s:
         return None
     s = s.strip()
@@ -382,10 +432,14 @@ class USDAFSISScraper(BaseScraper):
         n_skipped_no_pathogen = 0
         n_skipped_bad_url = 0
         n_skipped_no_url = 0
+        # Records lost to an exception in the parse body (audit 2026-08-13).
+        # NOT a skip category — a skip is a decision, this is data loss.
+        n_parse_failed = 0
 
         # Actual offending values behind bad_url / no_url, so a schema
         # change is visible in the run log instead of being a silent zero.
         bad_url_samples: List[str] = []
+        parse_fail_samples: List[str] = []
 
         # Track which date-field actually held parseable dates this run
         date_field_hits: dict = {}
@@ -459,7 +513,7 @@ class USDAFSISScraper(BaseScraper):
                 # surviving rejection LOUD — log the offending value so a
                 # future schema change is diagnosable from one run log
                 # instead of another month of silent zeros.
-                url = (
+                url = _as_text(
                     rec.get("field_recall_url")
                     or rec.get("url")
                     or rec.get("field_url")
@@ -480,10 +534,10 @@ class USDAFSISScraper(BaseScraper):
                     continue
 
                 # Pathogen scan over title + cleaned summary + products.
-                title = rec.get("field_title") or rec.get("title") or ""
+                title = _as_text(rec.get("field_title") or rec.get("title") or "")
                 summary_html = rec.get("field_summary") or ""
                 summary = _strip_html(summary_html)
-                products = rec.get("field_product_items") or ""
+                products = _as_text(rec.get("field_product_items") or "")
                 haystack = (title + " " + summary + " " + products).lower()
 
                 matched_kw = _matched_pathogen_keyword(
@@ -513,7 +567,8 @@ class USDAFSISScraper(BaseScraper):
                     pathogen_value = reason_field
 
                 # Outbreak — prefer authoritative API field, fall back to text.
-                api_outbreak = (rec.get("field_related_to_outbreak") or "").lower()
+                api_outbreak = _as_text(
+                    rec.get("field_related_to_outbreak") or "").strip().lower()
                 if api_outbreak == "true":
                     outbreak = 1
                 elif api_outbreak == "false":
@@ -524,22 +579,22 @@ class USDAFSISScraper(BaseScraper):
                 # Class — keep API value if present (FSIS uses
                 # "Class I" / "Class II" / "Class III"; some PHAs have
                 # blank classification).
-                cls = (
+                cls = _as_text(
                     rec.get("field_recall_classification")
                     or rec.get("field_recall_type")
                     or "Recall"
                 )
 
                 # Company / establishment.
-                company = (
+                company = _as_text(
                     rec.get("field_establishment")
                     or rec.get("field_recall_company")
                     or ""
                 )
 
                 # Notes — preserve recall number + states for downstream context.
-                recall_no = rec.get("field_recall_number") or ""
-                states = rec.get("field_states") or ""
+                recall_no = _as_text(rec.get("field_recall_number") or "")
+                states = _as_text(rec.get("field_states") or "")
                 notes_parts = ["FSIS API"]
                 if recall_no:
                     notes_parts.append(f"#{recall_no}")
@@ -561,19 +616,42 @@ class USDAFSISScraper(BaseScraper):
                 ))
                 seen_urls.add(url)
             except Exception as e:
+                # AUDIT 2026-08-13 — count it. Before this, a record that
+                # died here was dropped without incrementing ANY counter, so
+                # the summary below claimed a complete accounting of every
+                # scanned record while silently losing rows. On 13 Aug four
+                # records died here and the summary still read as clean.
+                n_parse_failed += 1
+                if len(parse_fail_samples) < 5:
+                    parse_fail_samples.append(
+                        f"{type(e).__name__}: {e} | id={rec.get('field_recall_number') or rec.get('nid') or '?'}"
+                    )
                 log.warning("USDA FSIS row parse failed: %s", e)
 
         # Loud summary — covers all four (a)–(d) ambiguity scenarios.
         log.info(
             "USDA FSIS: %d pathogen recalls in %d-day window (%d records scanned, "
             "skipped: archived=%d spanish=%d no_date=%d old=%d "
-            "no_pathogen=%d no_url=%d bad_url=%d). Date-field usage: %s",
+            "no_pathogen=%d no_url=%d bad_url=%d parse_failed=%d). "
+            "Date-field usage: %s",
             len(out), since_days, n_total,
             n_skipped_archived, n_skipped_spanish, n_skipped_no_date,
             n_skipped_old, n_skipped_no_pathogen, n_skipped_no_url,
-            n_skipped_bad_url,
+            n_skipped_bad_url, n_parse_failed,
             date_field_hits or "n/a",
         )
+
+        # A parse failure is data loss, not a skip: the record was never
+        # judged in or out of scope, it just vanished. Never let it sit at
+        # WARNING buried among 2000 debug lines.
+        if n_parse_failed:
+            log.error(
+                "USDA FSIS: %d record(s) LOST to parse failures — these were "
+                "dropped before the pathogen scan could decide whether they "
+                "were in scope, so this count is potential missed recalls, "
+                "not filtered noise. Samples: %s",
+                n_parse_failed, parse_fail_samples,
+            )
 
         # A bad_url drop is never routine: the API is supposed to emit
         # canonical recall links and _canonicalise_fsis_url() already
