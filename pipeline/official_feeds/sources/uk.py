@@ -21,7 +21,7 @@ from __future__ import annotations
 from ..base import Record, FeedSource, register
 from ..fetch import get_json, parse_iso
 
-API = "https://data.food.gov.uk/food-alerts/id"
+API = "https://data.food.gov.uk/food-alerts/id.json"
 
 _TYPE_MAP = {
     "PRIN": "recall",
@@ -172,70 +172,82 @@ def fetch(limit: int = 50, include_scotland: bool = False,
     # ---------------------------------------------------------------------
     #
     # ---------------------------------------------------------------------
-    # THE PAGE SIZE IS CAPPED — PAGINATE, DO NOT ENLARGE (fix 2026-08-13).
+    # THE PAGE SIZE IS CAPPED AND `_page` IS IGNORED — SLICE BY DATE
+    # (fix 2026-08-15, replacing the 2026-08-13 `_page` attempt).
     #
-    # On 2026-08-11 a 90-day window came back with exactly 50 items, the page
-    # size. The collection is served OLDEST-FIRST, so a full page means the
-    # newest alerts fell off the end: a real truncation risk, and the same
-    # shape as the July failure — right query, wrong slice, no error.
+    # History of three wrong answers to the same question:
     #
-    # The fix attempted then was to raise _pageSize 50 -> 250. That was
-    # WRONG. Epimorphics caps _pageSize server-side, and the request is
-    # rejected outright:
+    #   1. `_sort=-created`      ignored by the API; served 2018 alerts.
+    #   2. `_pageSize=250`       400 Client Error. Took out UK AND Scotland
+    #                            (scotland.py delegates here) on every run.
+    #   3. `_page=<n>`           ALSO 400 from GitHub Actions, and useless
+    #                            anyway. Both established by measurement on
+    #                            2026-08-15:
     #
-    #     GET .../food-alerts/id?min-created=2026-05-15&_pageSize=250
-    #     -> 400 Client Error
+    #        _pageSize=200  -> 200 accepted, metadata "limit": 50.
+    #                          The server CLAMPS to 50; it does not error.
+    #        _pageSize=250  -> 400.
+    #        _page=0 vs _page=1 -> identical first item (FSA-PRIN-23-2026),
+    #                          and the payload carries no page/next/prev
+    #                          metadata at all. `_page` does nothing.
     #
-    # which took out UK *and* Scotland (scotland.py delegates here) for every
-    # run until it was noticed. A bigger page was never the answer; the API
-    # pages, so the collector must page too.
+    # So: at most 50 records per request, and no pagination parameter that
+    # works. The ONLY lever that changes the result set is the date window,
+    # and `min-created` + `max-created` are both honoured (verified: the
+    # window 2026-04-27..2026-06-15 returns exactly 15 alerts).
     #
-    # `_page` is 0-based. Each page is requested until a SHORT page arrives,
-    # which is the only reliable end-of-collection signal on this API.
+    # Therefore the lookback is walked in DATE SLICES. A slice that comes
+    # back full (50) is ambiguous — it may have been truncated — so it is
+    # SPLIT IN HALF and re-fetched until every slice returns short. That
+    # makes truncation impossible rather than merely unlikely, which is the
+    # failure mode that cost a month of UK recalls twice already.
     #
-    # Because this endpoint ignores unknown parameters instead of rejecting
-    # them, `_page` being honoured is verified from the DATA: if a page
-    # returns nothing we have not already seen, it is being ignored and we
-    # stop rather than loop forever on page 0. `max_pages` is a hard backstop.
+    # `_page` is not sent. It is inert on this API and it is the only
+    # parameter that changed between the version that worked and the
+    # version that started returning 400 from Actions runners, so it goes.
     # ---------------------------------------------------------------------
-    from datetime import date, timedelta
-    since = (date.today() - timedelta(days=lookback_days)).isoformat()
-
+    PAGE_CAP = 50          # server-side clamp, measured
     items: list[dict] = []
     seen_ids: set[str] = set()
+    slices: list[tuple[date, date]] = [(date.fromisoformat(since),
+                                        date.today())]
+    n_req = 0
 
-    for page in range(max_pages):
-        data = get_json(API, params={"min-created": since,
-                                     "_pageSize": limit,
-                                     "_page": page})
-        batch = data.get("items", []) or []
-
-        fresh = []
+    def _add(batch) -> int:
+        added = 0
         for it in batch:
             key = str(it.get("@id") or it.get("notation") or "")
             if key and key in seen_ids:
                 continue
             if key:
                 seen_ids.add(key)
-            fresh.append(it)
+            items.append(it)
+            added += 1
+        return added
 
-        if batch and not fresh:
-            # Every item on this page was already collected: `_page` is being
-            # ignored and the API is re-serving page 0. Keep what we have —
-            # it is a valid first page — and stop, loudly.
-            print(f"  [WARN] FSA food-alerts appears to ignore _page "
-                  f"(page {page} repeated page {page - 1}). Stopping with "
-                  f"{len(items)} items; coverage may be incomplete.")
+    while slices:
+        if n_req >= max_pages:
+            print(f"  [WARN] FSA food-alerts: hit the {max_pages}-request "
+                  f"backstop with {len(slices)} date slice(s) unfetched. "
+                  f"Coverage may be incomplete.")
             break
+        lo, hi = slices.pop(0)
+        n_req += 1
+        data = get_json(API, params={"min-created": lo.isoformat(),
+                                     "max-created": hi.isoformat(),
+                                     "_pageSize": min(limit, PAGE_CAP)})
+        batch = data.get("items", []) or []
+        _add(batch)
 
-        items.extend(fresh)
-
-        if len(batch) < limit:
-            break          # short page = end of the collection
-    else:
-        print(f"  [WARN] FSA food-alerts hit the {max_pages}-page backstop "
-              f"({len(items)} items). Raise max_pages or shorten "
-              f"lookback_days.")
+        if len(batch) >= min(limit, PAGE_CAP) and (hi - lo).days > 1:
+            # Full page: the slice may be truncated. Halve it and redo.
+            mid = lo + (hi - lo) / 2
+            slices.append((lo, mid))
+            slices.append((mid, hi))
+        elif len(batch) >= min(limit, PAGE_CAP):
+            print(f"  [WARN] FSA food-alerts: {lo}..{hi} is a single day and "
+                  f"still returned a full page ({len(batch)}). Cannot narrow "
+                  f"further; that day may be truncated.")
 
     # A window this wide is never legitimately empty — the FSA publishes
     # several alerts a week. Empty means the query stopped working again,
