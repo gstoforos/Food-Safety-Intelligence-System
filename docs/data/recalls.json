@@ -86,14 +86,14 @@
   "Brand": "Naturalia",
   "Product": "nat truite fumee 2/3tr kg",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Detection of la bactérie Listeria monocytogenese dans le produit",
+  "Reason": "Detection of Listeria monocytogenes bacteria in the product",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23167/interne",
-  "Notes": "naturalia"
+  "Notes": "naturalia [language 2026-08-14: Reason rendered in English per the English-output rule, which exempts brand and product names only. Verified against the live fiche at rappel.conso.gouv.fr/fiche-rappel/23167/Interne on 2026-08-14 — not machine-translated and not pattern-swept. Entreprise at source: NATURALIA. Source motif verbatim: « Détection de la bactérie Listeria monocytogenese dans le produit ». 'DLC' = date limite de consommation, rendered as 'use-by date'. Nothing added to or removed from the hazard.]"
  },
  {
   "Date": "2026-08-14",
@@ -102,14 +102,14 @@
   "Brand": "Intermarché",
   "Product": "crevettes cuites entières 60/80 asc 300g itm",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria monocytogenes à dlc",
+  "Reason": "Presence of Listeria monocytogenes at the use-by date",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23162/interne",
-  "Notes": "intermarche"
+  "Notes": "intermarche [language 2026-08-14: Reason rendered in English per the English-output rule, which exempts brand and product names only. Verified against the live fiche at rappel.conso.gouv.fr/fiche-rappel/23162/Interne on 2026-08-14 — not machine-translated and not pattern-swept. Entreprise at source: INTERMARCHÉ. Source motif verbatim: « Présence de Listéria Monocytogenes à DLC ». 'DLC' = date limite de consommation, rendered as 'use-by date'. Nothing added to or removed from the hazard.]"
  },
  {
   "Date": "2026-08-14",
