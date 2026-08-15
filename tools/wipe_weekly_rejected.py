@@ -145,29 +145,43 @@ def main() -> int:
         else:
             arch_hdr = [c.value for c in archive[1]]
 
-        try:
-            iu, idt = arch_hdr.index("URL"), arch_hdr.index("Date")
-        except ValueError:
-            iu = idt = None
+        # KEY ON CONTENT WHEN THERE IS NO URL.
+        # A plain (URL, Date) key collapses every URL-less row sharing a
+        # date into one, and the URL-guardian BLANKS the URL of any row
+        # whose link errors — so those rows are exactly the ones that
+        # collide. Measured on the first run of this fix: 68 rows in,
+        # 55 archived, 13 silently dropped. That is the same failure this
+        # whole change exists to stop, reproduced inside the fix for it.
+        # (weekly_rejected_capture._content_key solves it the same way.)
+        def _key(row_map):
+            u = str(row_map.get("URL") or "").strip().lower()
+            d = str(row_map.get("Date") or "")[:10]
+            if u:
+                return (u, d)
+            def f(name, n=None):
+                v = row_map.get(name)
+                if v in (None, ""):
+                    return ""
+                v = str(v).strip().lower()
+                return v[:n] if n else v
+            return ("", d, f("Source"), f("Company", 60), f("Product", 60),
+                    f("Pathogen", 40), f("Reason", 60))
+
         seen = set()
-        if iu is not None:
-            for t in archive.iter_rows(min_row=2, values_only=True):
-                if t and not all(v in (None, "") for v in t):
-                    seen.add((str(t[iu] or "").strip().lower(),
-                              str(t[idt] or "")[:10]))
+        for t in archive.iter_rows(min_row=2, values_only=True):
+            if t and not all(v in (None, "") for v in t):
+                seen.add(_key(dict(zip(arch_hdr, t))))
 
         moved = already = 0
         for t in ws.iter_rows(min_row=2, values_only=True):
             if all(v in (None, "") for v in t):
                 continue
             row_map = dict(zip(hdr, t))
-            if iu is not None:
-                key = (str(row_map.get("URL") or "").strip().lower(),
-                       str(row_map.get("Date") or "")[:10])
-                if key in seen:
-                    already += 1
-                    continue
-                seen.add(key)
+            key = _key(row_map)
+            if key in seen:
+                already += 1
+                continue
+            seen.add(key)
             archive.append([row_map.get(h, "") for h in arch_hdr])
             moved += 1
 
