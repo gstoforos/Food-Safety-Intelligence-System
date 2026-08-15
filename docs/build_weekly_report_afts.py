@@ -741,7 +741,32 @@ def render_top5_row(rank, r):
 
 
 def compute_stats(wr, pr):
-    total = len(wr)
+    # ── Total counts INCIDENTS, not notices (audit 2026-08-15) ─────────
+    # A single event can produce many regulator notices. E.Leclerc Dinan's
+    # suspected refrigeration failure on 15 Aug generated TWENTY DGCCRF
+    # fiches, one per supplier whose chilled stock was in the store, all
+    # with the identical motif and the same distributeur. Counted as rows
+    # that one broken chiller would have tripled the week and made
+    # Listeria its dominant pathogen.
+    #
+    # pipeline/_incident_id only collapses rows a human has explicitly
+    # tagged [incident:<id>]; anything untagged counts as itself. So
+    # count_incidents(rows) == len(rows) for every week that predates the
+    # tagging, and no historical figure moves.
+    #
+    # Fails OPEN to the row count: an inflated total is visible and
+    # arguable, a crashed build ships nothing.
+    try:
+        from pipeline._incident_id import count_incidents, group_sizes
+        total = count_incidents(wr)
+        _groups = group_sizes(wr)
+        if _groups:
+            log.info("incident grouping: %s (%d notices -> %d incidents)",
+                     _groups, len(wr), total)
+    except Exception as _ie:                                  # noqa: BLE001
+        log.warning("incident grouping unavailable (%s) — counting notices, "
+                    "which OVERSTATES multi-notice events", _ie)
+        total = len(wr)
     tier1 = sum(1 for r in wr if _safe_int(r.get("Tier")) == 1)
 
     # ── Outbreaks are counted as EVENTS, not rows (audit 2026-08-14) ────
