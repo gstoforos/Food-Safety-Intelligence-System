@@ -39,13 +39,47 @@ DEFAULT_HEADERS = {
 TIMEOUT = 30
 
 
+# ── Hosts that must NOT be impersonated (audit 2026-08-16) ────────────
+# data.food.gov.uk is an Epimorphics Linked Data API, not a browser site.
+# It has now returned HTTP 400 from GitHub Actions to THREE different query
+# shapes that each succeed from a different client against the identical
+# URL:
+#     _pageSize=250                      400 in Actions
+#     _pageSize=50 & _page=0             400 in Actions
+#     min-created & max-created          400 in Actions
+# Three parameters blamed, three fixes shipped, same failure. The variable
+# that never changed is the CLIENT: every request goes out with a spoofed
+# Chrome-131 TLS fingerprint and a Chrome User-Agent, from a datacentre IP,
+# with none of the other headers a real Chrome sends. That is a WAF
+# signature, and a WAF is entitled to answer it with 400.
+#
+# TLS impersonation exists here for fsis.usda.gov, which sits behind Akamai
+# and 403s plain requests. It was never needed for the FSA, and applying it
+# by default made an honest API request look like a liar.
+_NO_IMPERSONATE = ("data.food.gov.uk",)
+
+# An honest identifying UA for API endpoints. A contactable string is also
+# what an operator of a public data API expects to see.
+API_UA = ("AFTS-FSIS/1.0 (Food Safety Intelligence System; "
+          "+https://fsis.advfood.tech; contact info@advfood.tech)")
+
+
 def _get(url: str, params: Optional[dict] = None, *, want: str = "json"):
-    """Single HTTP GET. Tries curl_cffi (Chrome-131 TLS) first when available,
-    then falls back to plain requests. Returns the response object."""
+    """Single HTTP GET.
+
+    Uses curl_cffi Chrome-TLS impersonation where it is needed (Akamai-
+    fronted regulator endpoints), and a plain, honestly-identified request
+    for API hosts listed in _NO_IMPERSONATE.
+    """
     accept = ("application/json, */*;q=0.5" if want == "json"
               else "application/rss+xml, application/xml, text/xml, */*;q=0.5")
-    headers = {**DEFAULT_HEADERS, "Accept": accept}
-    if _cffi is not None:
+    plain_api = any(h in url for h in _NO_IMPERSONATE)
+    if plain_api:
+        headers = {"User-Agent": API_UA, "Accept": accept}
+    else:
+        headers = {**DEFAULT_HEADERS, "Accept": accept}
+
+    if _cffi is not None and not plain_api:
         try:
             r = _cffi.get(url, params=params, headers=headers,
                           timeout=TIMEOUT, impersonate=_IMPERSONATE)
@@ -54,8 +88,45 @@ def _get(url: str, params: Optional[dict] = None, *, want: str = "json"):
         except Exception:  # noqa: BLE001 — fall back to plain requests
             pass
     r = requests.get(url, params=params, headers=headers, timeout=TIMEOUT)
-    r.raise_for_status()
+    _raise_with_body(r)
     return r
+
+
+def _raise_with_body(r) -> None:
+    """raise_for_status(), but put the response BODY in the message.
+
+    THIS IS THE REAL LESSON OF THE FSA EPISODE. Three wrong diagnoses were
+    shipped because the only evidence available was
+        "400 Client Error:  for url: ..."
+    with an empty reason phrase and no body. Epimorphics returns a
+    descriptive explanation in the body of a 400 — which parameter it
+    objected to, or that it objected to none of them. That text would have
+    ended the guessing on day one. It costs one line to keep.
+    """
+    if r.status_code < 400:
+        return
+    body = ""
+    try:
+        body = (r.text or "")[:600].replace("\n", " ").strip()
+    except Exception:  # noqa: BLE001
+        pass
+    raise requests.HTTPError(
+        f"{r.status_code} {r.reason or ''} for {r.url} — response body: "
+        f"{body!r}", response=r)
+
+
+def _is_deterministic_client_error(exc) -> bool:
+    """True for a 4xx the server will answer identically next time.
+
+    Audit 2026-08-16: a 400 was retried three times, 45 seconds apart, and
+    produced three identical workflow annotations. Retrying a malformed or
+    refused request cannot help — the only thing it changes is how long the
+    run takes to tell you. 429 and 408 ARE worth retrying; the rest are the
+    server stating a settled opinion.
+    """
+    r = getattr(exc, "response", None)
+    code = getattr(r, "status_code", None)
+    return isinstance(code, int) and 400 <= code < 500 and code not in (408, 429)
 
 
 def get_json(url: str, params: Optional[dict] = None, retries: int = 3) -> dict:
@@ -66,6 +137,10 @@ def get_json(url: str, params: Optional[dict] = None, retries: int = 3) -> dict:
         except Exception as e:  # noqa: BLE001
             last = e
             print(f"  [WARN] json fetch failed ({i+1}/{retries}): {url} — {e}")
+            if _is_deterministic_client_error(e):
+                print("  [WARN] that is a deterministic client error — not "
+                      "retrying; the server will say the same thing again.")
+                break
             time.sleep(2 * (i + 1))
     raise RuntimeError(f"get_json exhausted retries for {url}: {last}")
 
