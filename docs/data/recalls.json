@@ -347,9 +347,9 @@
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 0,
+  "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/naturebest-precut-produce-llc-voluntarily-recalls-products-containing-jalapenos-due-potential",
-  "Notes": "FDA listing HTML (Layer 1)"
+  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-16: FDA's notice names the event outright: 'The FDA and CDC, in collaboration with state and local partners, are investigating illnesses in a multistate outbreak of Salmonella Javiana infections linked to jalapeno peppers from Sinaloa, Mexico and distributed by Coast Citrus Distributors', with 'a total of 345 people infected with the outbreak strain of Salmonella reported from 27 states'. Flagged and given the shared event id so this counts ONCE with the other rows of the Salmonella Javiana jalapeno event, not as a separate outbreak. Evidence strength: high.]"
  },
  {
   "Date": "2026-08-14",
@@ -475,9 +475,9 @@
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 0,
+  "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/recall-jalapeno-avocado-dressing-because-possible-health-risk",
-  "Notes": "FDA listing HTML (Layer 1)"
+  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-16: FDA's notice is weaker but still ties it in: the supplier 'notified that diced jalapenos used in the affected products may have been contaminated with Salmonella and possibly associated with a multistate outbreak that FDA is currently investigating'. It adds that no illnesses have been reported in connection with the products affected in this recall — which is ALSO true of the already-flagged Whole Foods row, so absence of illness from a downstream product is not the test for whether a recall belongs to an event. The accuracy brief argued for leaving this one unflagged; that draws the line in a different place than the register already does for its siblings. Flagged and given the shared event id so this counts ONCE with the other rows of the Salmonella Javiana jalapeno event, not as a separate outbreak. Evidence strength: hedged.]"
  },
  {
   "Date": "2026-08-14",
