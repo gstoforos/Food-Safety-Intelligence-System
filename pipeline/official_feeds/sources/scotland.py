@@ -21,8 +21,11 @@ def fetch(limit: int = 50) -> list[Record]:
     #     GET .../food-alerts/id?min-created=...&_pageSize=250 -> 400
     # which killed Scotland as well as the UK, because this delegates.
     #
-    # Truncation is now handled the way the API intends — uk.fetch pages with
-    # _page at a page size the server accepts. Do NOT raise this number.
+    # Truncation is now handled by DATE SLICING in uk.fetch, not by paging:
+    # the endpoint clamps _pageSize to 50 and ignores _page entirely (both
+    # measured 2026-08-15). Do NOT raise this number — 250 returns 400 and
+    # takes Scotland down with the UK, which is what happened between
+    # 2026-08-11 and 2026-08-13.
     return _uk.fetch(limit=limit, include_scotland=True)
 
 
