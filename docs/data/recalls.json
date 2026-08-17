@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-08-17",
+  "Source": "RappelConso (FR)",
+  "Company": "Jardin Bio Étic",
+  "Brand": "Jardin Bio Étic",
+  "Product": "pot 350 g",
+  "Pathogen": "Salmonella",
+  "Reason": "Détection salmonelle",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23178/Interne",
+  "Notes": "intermarché, franprix, auchan, leclerc, monoprix, systeme u, casino, carrefour [url-gate 2026-08-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...]"
+ },
+ {
   "Date": "2026-08-15",
   "Source": "RappelConso (FR)",
   "Company": "Pêcheries Sétoises",
