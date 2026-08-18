@@ -16,6 +16,8 @@ RASFF "unauthorized substance" notifications) are now in scope.
 """
 from __future__ import annotations
 
+import re as _re2
+
 TIER1_KEYWORDS = (
     # Bacterial
     "listeria", "salmonella",
@@ -281,6 +283,58 @@ def is_always_tier1(pathogen: str) -> bool:
     return any(t in s for t in ALWAYS_TIER1_KEYWORDS)
 
 
+# ── Non-pathogenic / generic E. coli ──────────────────────────────────
+# Word-boundary anchored throughout. The recurring defect in this file has
+# been substring matching ("cholera" inside "cholerae", "O1" inside
+# "non-O1", "salmon" inside "Salmonella"), so every token below is bounded
+# and the pathogenic-strain check runs FIRST — a row naming STEC is
+# pathogenic no matter what other words appear near it.
+_ECOLI_RE = _re2.compile(r"\b(?:e\.?\s*coli|escherichia\s+coli)\b", _re2.I)
+
+# Any of these means a pathogenic strain WAS identified — never suppress.
+_ECOLI_PATHOGENIC_RE = _re2.compile(
+    r"\b(?:stec|vtec|etec|epec|eaec|eiec|ehec"
+    r"|shiga[\s\-]*toxin|vero[\s\-]*toxin|verocytotoxin"
+    r"|o1\s*57|o157|o26|o45|o103|o111|o121|o145"
+    r"|enterohaemorrhagic|enterohemorrhagic|enterotoxigenic"
+    r"|enteropathogenic|enteroinvasive)\b", _re2.I)
+
+# The regulator's own wording for an indicator finding.
+# Operator rule 2026-08-18: an E. coli finding the source itself calls
+# non-pathogenic or generic is a hygiene INDICATOR, and indicators are
+# Tier 2 — not Tier 1 (that is for pathogenic strains) and not Tier 3
+# (a national regulator issued a recall over it).
+_NON_PATHOGENIC_ECOLI_TIER = 2
+
+# Bracketed stamps written by this pipeline — never source evidence.
+_AUDIT_STAMP_RE = _re2.compile(r"\[[^\]]*\]")
+
+_NON_PATHOGENIC_RE = _re2.compile(
+    r"non[\s\-]?pathogenic|non[\s\-]?patho?g[eè]ne|nicht[\s\-]?pathogen"
+    r"|no[\s\-]?pat[oó]geno|non[\s\-]?patogeno"
+    r"|\bgeneric\s+(?:e\.?\s*coli|escherichia)"
+    r"|\bindicator\s+organism", _re2.I)
+
+
+def _is_declared_non_pathogenic_ecoli(pathogen, row) -> bool:
+    """True when the row is an E. coli finding the source calls
+    non-pathogenic or generic, with no pathogenic strain named."""
+    p = str(pathogen or "")
+    if not _ECOLI_RE.search(p):
+        return False
+    blob = " ".join(str(row.get(f) or "") for f in
+                    ("Pathogen", "Reason", "Product", "Notes", "Class"))
+    # Strip this pipeline's own bracketed audit stamps before matching.
+    # Notes is an audit trail: it quotes gate messages, reviewer verdicts
+    # and prior tier decisions, any of which may name a pathogenic strain
+    # while SAYING IT WAS RULED OUT. Reading our own commentary as source
+    # evidence is how a stamp became its own contradiction.
+    blob = _AUDIT_STAMP_RE.sub(" ", blob)
+    if _ECOLI_PATHOGENIC_RE.search(blob):
+        return False          # a pathogenic strain IS named — escalate
+    return bool(_NON_PATHOGENIC_RE.search(blob))
+
+
 def enforce_tier1(row: dict) -> dict:
     """Force Tier=1 in-place when the row's Pathogen is always-Tier-1.
 
@@ -332,6 +386,60 @@ def enforce_tier1(row: dict) -> dict:
             return row
     except Exception:
         pass
+
+    # ── Do not escalate an organism the REGULATOR calls non-pathogenic ──
+    # Audit 2026-08-18. CFIA RA-82493 (Importation Mini Italia, various
+    # cheese and burrata) states its own hazard as
+    #     "Food - Microbial contamination - E. Coli - non-pathogenic"
+    # and the always-Tier-1 list contains bare "e. coli" because that string
+    # normally means STEC. Escalating here published a Class 2 recall of an
+    # INDICATOR ORGANISM, with no illnesses and no pathogenic strain
+    # identified, as a Tier-1 critical event — a straight overstatement of
+    # severity, stamped by the tier-guard's own note so it read as reviewed.
+    #
+    # Deliberately narrow. It fires ONLY when the pathogen is in the E. coli
+    # family AND the row itself carries the regulator's non-pathogenic /
+    # generic wording AND no pathogenic strain (STEC, VTEC, O157, O26, ...)
+    # is named anywhere. Listeria and Salmonella are never reported as
+    # "generic" indicators, so they are out of reach of this by construction.
+    if _is_declared_non_pathogenic_ecoli(pathogen, row):
+        # OPERATOR RULE 2026-08-18: "E. Coli non pathogenic tier 2".
+        #
+        # This SETS the tier, it does not merely decline to raise it. The
+        # first version of this guard only skipped the escalation and left
+        # whatever tier the row arrived with, which meant:
+        #     arrives T1 -> stays T1   (the overstatement it was written to stop)
+        #     arrives T3 -> stays T3   (understated, and inconsistent)
+        #     arrives unset -> stays unset
+        # A hygiene-indicator finding from a national regulator has ONE
+        # correct severity regardless of which scraper or gap-finder path
+        # admitted it, so it is normalised here — up from 3, down from 1.
+        try:
+            cur = int(row.get("Tier") or 0)
+        except (ValueError, TypeError):
+            cur = 0
+        row["Tier"] = _NON_PATHOGENIC_ECOLI_TIER
+        note = str(row.get("Notes") or "")
+        # NOTE: this wording must not contain the name of any pathogenic
+        # strain. The first draft read "...indicator organism, not STEC",
+        # and because the blob below scans Notes, the guard's own stamp
+        # made the row look like a pathogenic finding on the very next
+        # call — enforce_tier1 stopped being idempotent and re-escalated
+        # the row to Tier 1 on save. Caught by
+        # tests/test_non_pathogenic_ecoli.py::test_it_is_idempotent.
+        stamp = ("[tier-guard 2026-08-18: escalation SKIPPED — the source "
+                 "describes this E. coli as non-pathogenic / generic, i.e. a "
+                 "hygiene INDICATOR organism rather than a pathogenic "
+                 "strain. The always-Tier-1 rule for 'e. coli' exists for "
+                 "pathogenic strains; applying it here would publish an "
+                 "indicator finding as a critical event. Operator rule "
+                 "2026-08-18: non-pathogenic E. coli is Tier %s"
+                 "%s.]" % (_NON_PATHOGENIC_ECOLI_TIER,
+                           f"; set from Tier {cur or 'unset'}"
+                           if cur != _NON_PATHOGENIC_ECOLI_TIER else ""))
+        if "tier-guard 2026-08-18" not in note:
+            row["Notes"] = (note + " " + stamp).strip() if note else stamp
+        return row
 
     force = is_always_tier1(pathogen)
     reason_tag = "is always Tier 1"

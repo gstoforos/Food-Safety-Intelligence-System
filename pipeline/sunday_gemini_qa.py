@@ -1082,10 +1082,19 @@ def audit(days: int = DEFAULT_AUDIT_DAYS, dry_run: bool = False,
         # rebalances, /Interne appends, etc.) — every affected date's
         # brief must be regenerated so the dashboard's rolling 7-day
         # display + DAILY tab don't go stale.
+        # NOTE (2026-08-18): this block read `len(api_fixes)` and
+        # `len(gemini_url_fixes)`. Neither name exists anywhere in this
+        # module — the counter is `api_fixes_count` (an int, so len() would
+        # be wrong even if the name resolved), and the Gemini figure is only
+        # computed later, when `summary` is built. So every non-dry-run
+        # Sunday QA raised NameError immediately after saving the xlsx,
+        # meaning no daily brief was ever rebuilt from a Sunday fix.
+        n_gemini_url_fixes = sum(1 for f in findings
+                                 if f.get("kind") == "gemini-verified")
         any_fix = (
             sum(det_fixes.values()) > 0
-            or len(api_fixes) > 0
-            or len(gemini_url_fixes) > 0
+            or api_fixes_count > 0
+            or n_gemini_url_fixes > 0
             or len(duplicate_urls) > 0
             or len(dead_urls) > 0
         )

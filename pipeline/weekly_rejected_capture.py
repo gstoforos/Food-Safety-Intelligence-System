@@ -101,18 +101,93 @@ def review_thursday_for(now_utc: Optional[datetime] = None) -> date:
 # ---------------------------------------------------------------------------
 # Sheet I/O helpers
 # ---------------------------------------------------------------------------
+def _sheet_headers(ws) -> List[str]:
+    """The header row actually on the sheet, in order."""
+    if ws.max_row < 1:
+        return []
+    return [str(c.value or "").strip() for c in ws[1]]
+
+
 def _ensure_sheet(wb: Workbook):
-    if SHEET_NAME in wb.sheetnames:
-        return wb[SHEET_NAME]
-    ws = wb.create_sheet(SHEET_NAME)
-    # Header row — distinct light-red fill so the tab visually
-    # contrasts with Weekly_Review's blue header.
-    fill = PatternFill(start_color="FEE2E2", end_color="FEE2E2", fill_type="solid")
-    for i, h in enumerate(SHEET_COLS, 1):
-        c = ws.cell(row=1, column=i, value=h)
+    """Return the Weekly_Rejected sheet, creating it or WIDENING it so that
+    every column this module writes has a header of its own.
+
+    THE BUG THIS REPLACES (found 2026-08-18)
+    ========================================
+    This function used to `return wb[SHEET_NAME]` untouched when the sheet
+    already existed, and record_rejections then wrote rows with
+    `ws.append(row_out)` — which lays values down BY POSITION.
+
+    Three modules define a schema for this one sheet and they do not agree:
+
+        pipeline/extractor.py      REJECTED_COLUMNS      19 cols
+        pipeline/merge_master.py   REJECTED_SCHEMA       (legacy)
+        this module                SHEET_COLS            21 cols
+
+    The live workbook carries the 19-column extractor header:
+
+        ... Notes | ScrapedAt | Status | RejectedBy | RejectedAt | RejectReason
+
+    while row_out is RECALLS_COLS + [week_end, rejected_by, reason, "N"],
+    i.e. 21 values whose 15th onward are DateAdded, LastUpdated,
+    LastChecked, Week_Added, RejectedBy, RejectionReason, Reviewed. Appended
+    positionally against that header, the next archived rejection would have
+    landed as:
+
+        ScrapedAt    <- DateAdded
+        Status       <- LastUpdated
+        RejectedBy   <- LastChecked        (so: always blank or a date)
+        RejectedAt   <- Week_Added         (a FUTURE Thursday, not a stamp)
+        RejectReason <- rejected_by        (the reviewer's name, not a reason)
+        (no header)  <- the actual reason
+        (no header)  <- "N"
+
+    Every one of those is silently plausible — a date under a date header,
+    a name under a text header — which is why nothing caught it. The 19
+    columns already on disk show the same shift, so the reason a row was
+    rejected is not readable anywhere in the archive today.
+
+    Writing by NAME instead of position makes the three schemas irrelevant:
+    whatever headers the sheet has, each value goes under its own, and any
+    header this module needs but the sheet lacks is appended once.
+    """
+    fill = PatternFill(start_color="FEE2E2", end_color="FEE2E2",
+                       fill_type="solid")
+    if SHEET_NAME not in wb.sheetnames:
+        ws = wb.create_sheet(SHEET_NAME)
+        # Header row — distinct light-red fill so the tab visually
+        # contrasts with Weekly_Review's blue header.
+        for i, h in enumerate(SHEET_COLS, 1):
+            c = ws.cell(row=1, column=i, value=h)
+            c.font = Font(bold=True)
+            c.fill = fill
+        ws.freeze_panes = "A2"
+        return ws
+
+    ws = wb[SHEET_NAME]
+    headers = _sheet_headers(ws)
+    # Historic SPELLINGS of the same column, so a widened sheet does not end
+    # up with two reason columns. Note what is NOT aliased: Week_Added is not
+    # RejectedAt. The old positional write put the review Thursday into
+    # RejectedAt, which is why archived rows carry a rejection timestamp
+    # dated in the future. They are different facts — Week_Added is which
+    # Thursday review the row belongs to, RejectedAt is when it was rejected
+    # — and each gets its own column.
+    ALIAS = {"RejectionReason": ("RejectReason", "RejectedReason")}
+    have = set(headers)
+    for want in SHEET_COLS:
+        if want in have:
+            continue
+        if any(a in have for a in ALIAS.get(want, ())):
+            continue
+        col = len(headers) + 1
+        c = ws.cell(row=1, column=col, value=want)
         c.font = Font(bold=True)
         c.fill = fill
-    ws.freeze_panes = "A2"
+        headers.append(want)
+        have.add(want)
+        log.info("Weekly_Rejected: added missing column %r at position %d",
+                 want, col)
     return ws
 
 
@@ -297,14 +372,45 @@ def record_rejections(
         except Exception:                                      # noqa: BLE001
             def _us(v):                                        # type: ignore
                 return v
-        _vals = []
+        payload = {}
         for c in RECALLS_COLS:
             _v = r.get(c, "")
             if c in ("Pathogen", "Reason", "Class") and isinstance(_v, str):
                 _v = _us(_v)
-            _vals.append(_v)
-        row_out = _vals + [week_end, rejected_by, reason, "N"]
-        ws.append(row_out)
+            payload[c] = _v
+        payload["Week_Added"] = week_end
+        payload["RejectedBy"] = rejected_by
+        payload["RejectionReason"] = reason
+        payload["Reviewed"] = "N"
+        # Fill the columns the older extractor schema defines but this
+        # module does not, so a widened sheet has no ragged gaps.
+        payload.setdefault("ScrapedAt", r.get("ScrapedAt", ""))
+        payload.setdefault("Status", r.get("Status", "") or "rejected")
+        # The moment of rejection, not the Thursday it will be reviewed on.
+        payload.setdefault("RejectedAt",
+                           r.get("RejectedAt")
+                           or datetime.now(timezone.utc).date().isoformat())
+        payload.setdefault("RejectReason", reason)
+
+        # BY NAME, NOT BY POSITION — see _ensure_sheet for what positional
+        # appends did to this sheet.
+        headers = _sheet_headers(ws)
+        missing = [h for h in ("Date", "URL") if h not in headers]
+        if missing:
+            # Refuse BEFORE writing anything: an archived rejection whose
+            # identity columns have nowhere to go could never be matched
+            # against a re-ingestion, and a half-written row is worse than
+            # a loud failure.
+            log.error("Weekly_Rejected: sheet header has no %s column — "
+                      "refusing to archive a rejection that could never be "
+                      "matched against a re-ingestion",
+                      " or ".join(missing))
+            dropped_no_identity += 1
+            continue
+        row_idx = ws.max_row + 1
+        for col, h in enumerate(headers, 1):
+            if h and h in payload:
+                ws.cell(row=row_idx, column=col, value=payload[h])
         appended += 1
 
     if dropped_no_identity:

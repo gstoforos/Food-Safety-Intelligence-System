@@ -1327,11 +1327,40 @@ def cleanup_orphan_rejected(pending: List[Dict[str, Any]],
 _REJECTED_URL_CACHE: Dict[str, Tuple[float, Dict[str, str]]] = {}
 
 
+# Sheets consulted, in order of precedence. "Rejected" is the PERMANENT
+# archive written by tools/wipe_weekly_rejected.py; "Weekly_Rejected" is the
+# rolling sheet the Thursday wipe empties.
+#
+# TWO DEFECTS FIXED HERE, 2026-08-18
+# ---------------------------------
+# 1. THE REASON COLUMN WAS NEVER READ. This function looked for a header
+#    called "RejectionReason". The sheet's actual header — see
+#    REJECTED_SCHEMA — is "RejectReason". `hdr.index` was guarded by an
+#    `in hdr` test, so the mismatch did not raise; i_why was simply None on
+#    every call and every entry came out as "a reviewer:" or
+#    "gap_finder/za/rules.py:" with the explanation dropped. The guard still
+#    blocked the URL, so it looked like it worked, but a human asking "why
+#    was this rejected before?" got a colon. Both spellings are accepted now
+#    rather than one being renamed, because the sheet is written by several
+#    tools and is on disk in the operator's workbook.
+#
+# 2. ONLY THE ROLLING SHEET WAS READ. The Thursday wipe empties
+#    Weekly_Rejected, so every rejection older than one cycle was forgotten
+#    and the gap-finders re-found it. wipe_weekly_rejected.py was changed to
+#    MOVE rows into a permanent "Rejected" sheet instead of deleting them —
+#    but nothing ever read that sheet, so the archive was write-only and the
+#    re-ingestion continued. Measured 2026-08-18: five Pending rows were
+#    decisions a human had already made, two of them for the fifth time.
+_REJECT_SHEETS = ("Rejected", "Weekly_Rejected")
+_REJECT_REASON_HEADERS = ("RejectReason", "RejectionReason", "RejectedReason")
+
+
 def load_rejected_urls(xlsx_path: Optional[Path] = None) -> Dict[str, str]:
     """Map normalised URL -> short description of the recorded rejection.
 
-    Reads the Weekly_Rejected sheet. Returns {} on any problem: this guard
-    must never be the reason a pipeline run dies.
+    Reads the permanent Rejected sheet AND the rolling Weekly_Rejected
+    sheet. Returns {} on any problem: this guard must never be the reason a
+    pipeline run dies.
     """
     if xlsx_path is None:
         xlsx_path = Path(__file__).resolve().parent.parent / "docs" / "data" / "recalls.xlsx"
@@ -1345,31 +1374,53 @@ def load_rejected_urls(xlsx_path: Optional[Path] = None) -> Dict[str, str]:
     if cached and cached[0] == stamp:
         return cached[1]
     out: Dict[str, str] = {}
+    no_url = 0
     try:
         wb = load_workbook(xlsx_path, read_only=True, data_only=True)
-        if "Weekly_Rejected" in wb.sheetnames:
-            rows = list(wb["Weekly_Rejected"].values)
-            if rows:
-                hdr = [str(h) for h in rows[0]]
-                i_url = hdr.index("URL") if "URL" in hdr else None
-                i_by = hdr.index("RejectedBy") if "RejectedBy" in hdr else None
-                i_why = (hdr.index("RejectionReason")
-                         if "RejectionReason" in hdr else None)
-                if i_url is not None:
-                    for r in rows[1:]:
-                        if not r or i_url >= len(r):
-                            continue
-                        u = _normalize_url_for_dedup(str(r[i_url] or ""))
-                        if not u:
-                            continue
-                        by = str(r[i_by] or "") if i_by is not None and i_by < len(r) else ""
-                        why = str(r[i_why] or "") if i_why is not None and i_why < len(r) else ""
-                        out[u] = f"{by or 'a reviewer'}: {why[:160]}".strip()
+        for sheet in _REJECT_SHEETS:
+            if sheet not in wb.sheetnames:
+                continue
+            rows = list(wb[sheet].values)
+            if not rows:
+                continue
+            hdr = [str(h) for h in rows[0]]
+            if "URL" not in hdr:
+                log.warning("%s has no URL column; re-promotion guard cannot "
+                            "use it", sheet)
+                continue
+            i_url = hdr.index("URL")
+            i_by = hdr.index("RejectedBy") if "RejectedBy" in hdr else None
+            i_why = next((hdr.index(h) for h in _REJECT_REASON_HEADERS
+                          if h in hdr), None)
+            if i_why is None:
+                log.warning("%s carries none of %s — rejection reasons will "
+                            "not be shown to the next reviewer",
+                            sheet, ", ".join(_REJECT_REASON_HEADERS))
+            for r in rows[1:]:
+                if not r or i_url >= len(r):
+                    continue
+                u = _normalize_url_for_dedup(str(r[i_url] or ""))
+                if not u:
+                    # A rejection with no URL cannot be matched against a
+                    # future row. Counted and logged rather than dropped in
+                    # silence — silent drops in this exact place are why
+                    # Weekly_Rejected lost rows for months.
+                    no_url += 1
+                    continue
+                by = str(r[i_by] or "") if i_by is not None and i_by < len(r) else ""
+                why = str(r[i_why] or "") if i_why is not None and i_why < len(r) else ""
+                desc = f"{by or 'a reviewer'}: {why[:160]}".strip().rstrip(":").strip()
+                # Rejected (permanent) is read first and wins: a row that was
+                # archived permanently carries the older, binding verdict.
+                out.setdefault(u, desc or f"{sheet} (no reason recorded)")
         wb.close()
     except Exception as exc:  # pragma: no cover - defensive
-        log.warning("Weekly_Rejected re-promotion guard unavailable (%s: %s)",
+        log.warning("Rejection re-promotion guard unavailable (%s: %s)",
                     type(exc).__name__, str(exc)[:80])
         return {}
+    if no_url:
+        log.warning("re-promotion guard: %d archived rejection(s) carry no "
+                    "URL and cannot block a re-ingestion", no_url)
     _REJECTED_URL_CACHE[key] = (stamp, out)
     return out
 
