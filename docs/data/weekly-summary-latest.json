@@ -8,18 +8,18 @@
   "week_end": "2026-08-13",
   "week_start_display": "7 Aug",
   "week_end_display": "13 Aug 2026",
-  "generated_utc": "2026-08-16T08:25:57.002151+00:00",
+  "generated_utc": "2026-08-18T18:35:28.252454+00:00",
   "stats": {
-    "total": 61,
+    "total": 62,
     "tier1": 51,
     "outbreaks": 1,
-    "delta": -1,
-    "delta_pct": -2
+    "delta": 0,
+    "delta_pct": 0
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
     "cases": 30,
-    "pct": 49
+    "pct": 48
   },
   "ai_lead_paragraph": "",
   "top_threats": [
