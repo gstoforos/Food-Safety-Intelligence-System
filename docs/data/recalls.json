@@ -1,19 +1,35 @@
 [
  {
+  "Date": "2026-08-18",
+  "Source": "RappelConso (FR)",
+  "Company": "La Fourche",
+  "Brand": "La Fourche",
+  "Product": "figues calabacita bio en sachet kraft  500g - la fourche",
+  "Pathogen": "Ochratoxin A",
+  "Reason": "Ochratoxin A above the regulatory limit",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23217/interne",
+  "Notes": "la fourche [promoted 2026-08-18: fiche 23217 motif verbatim: \"Presence d'Ochratoxine A a un niveau superieur a la limite reglementaire\"; categorie Alimentation / Fruits et legumes; volontaire; publie 18/08/2026. Pathogen was empty, which is what the publish gate blocked on. Tier 2 matches all 70 published ochratoxin rows. CHANGED - Pathogen: '' -> 'Ochratoxin A'; Tier: 3 -> 2; Reason: \"Une analyse de contrôle a révélé la présence d'ochratoxine a à un niveau supérieur à la limite réglementaire.\" -> 'Ochratoxin A above the regulatory limit'.]"
+ },
+ {
   "Date": "2026-08-17",
   "Source": "RappelConso (FR)",
   "Company": "Jardin Bio Étic",
   "Brand": "Jardin Bio Étic",
-  "Product": "pot 350 g",
+  "Product": "Purée de Sésame Tahin (pot 350 g)",
   "Pathogen": "Salmonella",
-  "Reason": "Détection salmonelle",
+  "Reason": "Salmonella detected",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23178/Interne",
-  "Notes": "intermarché, franprix, auchan, leclerc, monoprix, systeme u, casino, carrefour [url-gate 2026-08-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...]"
+  "Notes": "intermarché, franprix, auchan, leclerc, monoprix, systeme u, casino, carrefour [url-gate 2026-08-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [fix 2026-08-18: Reason was the French motif 'détection salmonelle' — translated per the English-output rule. Product was 'pot 350 g', the fiche's reference field, not a product; replaced with the fiche title 'Purée de Sésame Tahin' (kept in French per the brand/product-name exception) with the 350 g reference retained. Both verified verbatim against fiche 23178.]"
  },
  {
   "Date": "2026-08-17",
@@ -30,6 +46,102 @@
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/hardies-fresh-foods-recalls-jalapenos-because-possible-health-risk",
   "Notes": "FDA listing HTML (Layer 1)"
+ },
+ {
+  "Date": "2026-08-17",
+  "Source": "RappelConso (FR)",
+  "Company": "Sfb Laboratoires",
+  "Brand": "Sfb Laboratoires",
+  "Product": "carbo 1000 (150g et 2kg); carbo 2000 (300g)",
+  "Pathogen": "Copper, cadmium and molybdenum (heavy metals)",
+  "Reason": "Copper, cadmium and molybdenum above the regulatory limit",
+  "Class": "Mandatory",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23220/Interne",
+  "Notes": "vente sur internet et dans des boutiques spécialisées. [url-gate 2026-08-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [promoted 2026-08-18: fiche 23220 motif verbatim: \"Depassement de la teneur reglementaire en cuivre, cadmium et molybdene\"; risque \"Elements traces metalliques (metaux lourds)\"; categorie Alimentation / Aliments dietetiques et nutrition (human food, not feed); impose par arrete prefectoral; publie 17/08/2026. Tier 3 matches the six published heavy-metal rows (Cadmium/Mercury/Lead (heavy metal)). CHANGED - Pathogen: '' -> 'Copper, cadmium and molybdenum (heavy metals)'; Reason: 'Dépassement de la teneur réglementaire en cuivre, cadmium et molybdène.' -> 'Copper, cadmium and molybdenum above the regulatory limit'.]"
+ },
+ {
+  "Date": "2026-08-17",
+  "Source": "RappelConso (FR)",
+  "Company": "Carrefour Vichy",
+  "Brand": "Unbranded",
+  "Product": "saucisse au fromage comtesse de vichy",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23177/Interne",
+  "Notes": "carrefour vichy uniquement [url-gate 2026-08-17: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [safety-hold: reviewed but not approved this run; not promoted] [promoted 2026-08-18: fiche 23177: marque \"sans marque\", distributeur Carrefour Vichy (vente exclusive), departement Allier, commercialise 4-8 aout 2026, motif \"Presence de Listeria monocytogenes\". Company was empty, which the publish gate blocked on; the distributor is the only legal entity the fiche names. CHANGED - Company: '' -> 'Carrefour Vichy'.]"
+ },
+ {
+  "Date": "2026-08-17",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Brazil | Notifying: Latvia",
+  "Brand": "—",
+  "Product": "Salmonella spp., group O:21 (in 2 out of 5 units) in frozen chicken fillet.",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella spp., group O:21 (in 2 out of 5 units) in frozen chicken fillet.; risk: not serious; category: poultry meat and poultry meat products",
+  "Class": "Information",
+  "Country": "Brazil",
+  "Region": "Latin America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/866806",
+  "Notes": "[RASFF #2026.7282; classification: information notification for follow-up; category: poultry meat and poultry meat products; notifId=866806] [promoted 2026-08-18: RASFF #2026.7282 - Salmonella spp. group O:21 (2 of 5 units), frozen chicken fillet, origin Brazil, notified by Latvia] [verified 2026-08-18: RASFF Window is a JavaScript application and returns an empty shell to any server-side fetch, so the notification page could NOT be read from the audit environment. Checked instead: the row matches all 484 published RASFF rows in shape (Company 'Origin: X | Notifying: Y', Brand em-dash, Country=origin, URL=/notification/<id>), and the notifId recorded in Notes agrees with the URL. Promoted on structural consistency, not on an independent read of the source.]"
+ },
+ {
+  "Date": "2026-08-17",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Greece | Notifying: France",
+  "Brand": "—",
+  "Product": "Presence of salmonella in organic sesame paste",
+  "Pathogen": "Salmonella",
+  "Reason": "Presence of salmonella in organic sesame paste; risk: serious; category: nuts, nut products and seeds",
+  "Class": "Information",
+  "Country": "Greece",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/866675",
+  "Notes": "[RASFF #2026.7260; classification: information notification for attention; category: nuts, nut products and seeds; notifId=866675] [promoted 2026-08-18: RASFF #2026.7260 - Salmonella in organic sesame paste, origin Greece, notified by France] [verified 2026-08-18: RASFF Window is a JavaScript application and returns an empty shell to any server-side fetch, so the notification page could NOT be read from the audit environment. Checked instead: the row matches all 484 published RASFF rows in shape (Company 'Origin: X | Notifying: Y', Brand em-dash, Country=origin, URL=/notification/<id>), and the notifId recorded in Notes agrees with the URL. Promoted on structural consistency, not on an independent read of the source.]"
+ },
+ {
+  "Date": "2026-08-17",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Argentina | Notifying: Italy",
+  "Brand": "—",
+  "Product": "Aflatoxins in peanuts from Argentina",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Aflatoxins in peanuts from Argentina; risk: serious; category: fruits and vegetables",
+  "Class": "Border Rejection",
+  "Country": "Argentina",
+  "Region": "Latin America",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/866596",
+  "Notes": "[RASFF #2026.7259; classification: border rejection notification; category: fruits and vegetables; notifId=866596] [promoted 2026-08-18: RASFF #2026.7259 - aflatoxins in peanuts, origin Argentina, notified by Italy (border rejection)] [verified 2026-08-18: RASFF Window is a JavaScript application and returns an empty shell to any server-side fetch, so the notification page could NOT be read from the audit environment. Checked instead: the row matches all 484 published RASFF rows in shape (Company 'Origin: X | Notifying: Y', Brand em-dash, Country=origin, URL=/notification/<id>), and the notifId recorded in Notes agrees with the URL. Promoted on structural consistency, not on an independent read of the source.]"
+ },
+ {
+  "Date": "2026-08-17",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Türkiye | Notifying: France",
+  "Brand": "—",
+  "Product": "Aflatoxins and ochratoxin A in dried figs from Turkiye",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Aflatoxins and ochratoxin A in dried figs from Turkiye; risk: serious; category: fruits and vegetables",
+  "Class": "Border Rejection",
+  "Country": "Turkey",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/866654",
+  "Notes": "[RASFF #2026.7250; classification: border rejection notification; category: fruits and vegetables; notifId=866654] [promoted 2026-08-18: RASFF #2026.7250 - aflatoxins and ochratoxin A in dried figs, origin Turkiye, notified by France (border rejection)] [verified 2026-08-18: RASFF Window is a JavaScript application and returns an empty shell to any server-side fetch, so the notification page could NOT be read from the audit environment. Checked instead: the row matches all 484 published RASFF rows in shape (Company 'Origin: X | Notifying: Y', Brand em-dash, Country=origin, URL=/notification/<id>), and the notifId recorded in Notes agrees with the URL. Promoted on structural consistency, not on an independent read of the source.]"
  },
  {
   "Date": "2026-08-15",
@@ -1648,6 +1760,22 @@
   "Notes": "leclerc checy [safety-hold: not approved this run; not promoted] [url-gate 2026-08-09: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-10: Company ''→'CHECY DISTRIBUTION E.Leclerc'] [approved 2026-08-13: RappelConso fiche, L. monocytogenes in cooked ham] [audit 2026-08-13: Reason rendered in English per the English-output rule, which exempts brand and product names only. The French source text is preserved in this note: 'Analyse non conforme sur le critère listéria monocytogenes'. Translation is literal — no hazard, serotype or qualifier was added or dropped.]"
  },
  {
+  "Date": "2026-08-07",
+  "Source": "CFIA",
+  "Company": "Importation Mini Italia",
+  "Brand": "Bianca Murgia, Longo's Curato, Sapori Coratini",
+  "Product": "Various brands of cheese products recalled due to generic E. coli",
+  "Pathogen": "E. coli",
+  "Reason": "Various brands of cheese products recalled due to generic E. coli",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-cheese-products-recalled-due-generic-e-coli",
+  "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/various-brands-cheese-products-recalled-due-generic-e-coli [via official-feed collector] [gemini-enrich 2026-08-18: Company ''→'Importation Mini Italia'] [gemini-enrich 2026-08-18: Brand ''→\"Bianca Murgia, Longo's Curato, Sapori Coratini\"] [gap-gate 2026-08-18: pending_gap → pending_gap_v1] [promoted 2026-08-18: CFIA RA-82493 / NID 17487, Class 2, recalling firm Importation Mini Italia, hazard verbatim \"Food - Microbial contamination - E. Coli - non-pathogenic\", no illnesses. Row carried Date 2026-08-17; CFIA gives 2026-08-07. Operator decision 2026-08-18: in scope, Tier 2. CHANGED - Date: '2026-08-17' -> '2026-08-07'.] [tier-guard 2026-08-18: escalation SKIPPED — the source describes this E. coli as non-pathogenic / generic, i.e. a hygiene INDICATOR organism rather than a pathogenic strain. The always-Tier-1 rule for 'e. coli' exists for pathogenic strains; applying it here would publish an indicator finding as a critical event. Operator rule 2026-08-18: non-pathogenic E. coli is Tier 2.]"
+ },
+ {
   "Date": "2026-08-06",
   "Source": "RASFF (EU)",
   "Company": "Origin: United States | Notifying: Netherlands",
@@ -2573,7 +2701,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23016/Interne",
-  "Notes": "[promoted 2026-08-06: every field read back from the DGCCRF open-data record for fiche 23016 (tabular-api.data.gouv.fr resource 5a4e7174-657c-4920-af1f-3440a996837c, id__exact=23016). motif_rappel: « rappel pour raison sanitaire » ; risques_encourus: « escherichia coli shiga toxinogene (stec) » ; distributeurs: liste ci jointe.] [tier-guard: Shiga toxin-producing E. coli (STEC) is always Tier 1; forced from Tier 2]"
+  "Notes": "[promoted 2026-08-06: every field read back from the DGCCRF open-data record for fiche 23016 (tabular-api.data.gouv.fr resource 5a4e7174-657c-4920-af1f-3440a996837c, id__exact=23016). motif_rappel: « rappel pour raison sanitaire » ; risques_encourus: « escherichia coli shiga toxinogene (stec) » ; distributeurs: liste ci jointe.]"
  },
  {
   "Date": "2026-07-31",
@@ -2637,7 +2765,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.6859",
-  "Notes": "[RASFF #2026.6859; classification: information notification for attention; category: fruits and vegetables; notifId=862983] [safety-hold: not approved this run; not promoted] [gemini-enrich 2026-08-02: Brand '—'→'DEU'] [url-gate 2026-08-03: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [approved 2026-08-13: RASFF notification; Company follows the Origin/Notifying convention and Brand carries the notifying-state code] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [audit 2026-08-13: Pathogen corrected from 'Escherichia coli (generic)' to 'Shiga toxin-producing E. coli (STEC)'. The row's own Reason reads 'Verotoxin-producing Escherichia coli in a ready-to-eat salad and vegetable mix from Belgium'. VTEC is the European name for STEC — the same organism class this register already records 68 times as 'Shiga toxin-producing E. coli (STEC)'. 'Generic' understated a Tier-1 hazard on evidence present in the row itself. Tier was already 1 and is unchanged; no serogroup is claimed because the notification does not name one.] [url-defect 2026-08-14: this RASFF URL cites the notification REFERENCE (2026.6859) instead of the numeric notifId that webgate.ec.europa.eu/rasff-window/screen/notification/<id> resolves, so the page does not load. Every other RASFF row in this register uses the numeric form. NOT corrected: RASFF Window is a JS application that returns an empty shell to server-side fetch, and a guessed numeric id would be a fabricated citation. The row's data is unaffected; only the link is unusable.]"
+  "Notes": "[RASFF #2026.6859; classification: information notification for attention; category: fruits and vegetables; notifId=862983] [safety-hold: not approved this run; not promoted] [gemini-enrich 2026-08-02: Brand '—'→'DEU'] [url-gate 2026-08-03: Gemini fixed https://webgate.ec.europa.eu/rasff-windo... -> https://webgate.ec.europa.eu/rasff-windo...] [approved 2026-08-13: RASFF notification; Company follows the Origin/Notifying convention and Brand carries the notifying-state code] [audit 2026-08-13: Pathogen corrected from 'Escherichia coli (generic)' to 'Shiga toxin-producing E. coli (STEC)'. The row's own Reason reads 'Verotoxin-producing Escherichia coli in a ready-to-eat salad and vegetable mix from Belgium'. VTEC is the European name for STEC — the same organism class this register already records 68 times as 'Shiga toxin-producing E. coli (STEC)'. 'Generic' understated a Tier-1 hazard on evidence present in the row itself. Tier was already 1 and is unchanged; no serogroup is claimed because the notification does not name one.] [url-defect 2026-08-14: this RASFF URL cites the notification REFERENCE (2026.6859) instead of the numeric notifId that webgate.ec.europa.eu/rasff-window/screen/notification/<id> resolves, so the page does not load. Every other RASFF row in this register uses the numeric form. NOT corrected: RASFF Window is a JS application that returns an empty shell to server-side fetch, and a guessed numeric id would be a fabricated citation. The row's data is unaffected; only the link is unusable.]"
  },
  {
   "Date": "2026-07-30",
@@ -3546,10 +3674,10 @@
   "Class": "Recall",
   "Country": "Canada",
   "Region": "North America",
-  "Tier": 1,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/fromagerie-p-jacquin-fils-brand-valencay-aop-fromage-chevre-au-lait-cru-recalled-due",
-  "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/fromagerie-p-jacquin-fils-brand-valencay-aop-fromage-chevre-au-lait-cru-recalled-due [via official-feed collector] [gemini-check 2026-07-28: fix; corrections: Company→106978 Canada Ltée (Yannick Fromagerie), Brand→Fromagerie P. Jacquin & Fils, Product→Valençay AOP \"fromage de chèvre au lait , Pathogen→E. coli; placeholder_company_filled_from_page | fix; company mismatch; product mismatch | Company, Brand, and Product fields were] [gap-gate 2026-07-28: pending_gap → pending_gap_v1] [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_gap_v1'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [tier-guard: E. coli is always Tier 1; forced from Tier 2]"
+  "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/fromagerie-p-jacquin-fils-brand-valencay-aop-fromage-chevre-au-lait-cru-recalled-due [via official-feed collector] [gemini-check 2026-07-28: fix; corrections: Company→106978 Canada Ltée (Yannick Fromagerie), Brand→Fromagerie P. Jacquin & Fils, Product→Valençay AOP \"fromage de chèvre au lait , Pathogen→E. coli; placeholder_company_filled_from_page | fix; company mismatch; product mismatch | Company, Brand, and Product fields were] [gap-gate 2026-07-28: pending_gap → pending_gap_v1] [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_gap_v1'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [tier-guard 2026-08-18: escalation SKIPPED — the source describes this E. coli as non-pathogenic / generic, i.e. a hygiene INDICATOR organism rather than a pathogenic strain. The always-Tier-1 rule for 'e. coli' exists for pathogenic strains; applying it here would publish an indicator finding as a critical event. Operator rule 2026-08-18: non-pathogenic E. coli is Tier 2; set from Tier 1.]"
  },
  {
   "Date": "2026-07-27",
@@ -5495,13 +5623,13 @@
   "Product": "Uova fresche di categoria A (Fresh eggs category A), 6 or 30 eggs",
   "Pathogen": "Salmonella",
   "Reason": "Presence of Salmonella Typhimurium",
-  "Class": "Richiamo precauzionale",
+  "Class": "Precautionary recall",
   "Country": "Italy",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843",
-  "Notes": "Lots: 50/26 (exp 2026-07-19), 51/26 (exp 2026-07-23), 52/26 (exp 2026-07-26), 53/26 (exp 2026-07-30). Produced in Corlo di Formigine, Modena.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-20: pending_gap → pending_gap_v1] [gemini-enrich 2026-07-20: Brand '—'→'UOVA FRESCHE CAT:A'] [gap-gate 2026-07-20: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-21: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-21: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "Lots: 50/26 (exp 2026-07-19), 51/26 (exp 2026-07-23), 52/26 (exp 2026-07-26), 53/26 (exp 2026-07-30). Produced in Corlo di Formigine, Modena.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-20: pending_gap → pending_gap_v1] [gemini-enrich 2026-07-20: Brand '—'→'UOVA FRESCHE CAT:A'] [gap-gate 2026-07-20: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-21: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-21: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [fix 2026-08-18: Class was the Italian source term 'Richiamo precauzionale'; translated per the English-output rule. Source term retained here. salute.gov.it could not be re-fetched for confirmation (JS browser-validation WAF) — the translation is literal and the row's citation is unchanged.]"
  },
  {
   "Date": "2026-07-14",
@@ -9629,7 +9757,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851286",
-  "Notes": "[RASFF #2026.5247; classification: alert notification; category: meat and meat products (other than poultry); notifId=851286] [gemini-enrich 2026-06-13: Brand '—'→'DEU'] [gemini-check 2026-06-13: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [audit 2026-08-13: Pathogen 'Escherichia coli (generic)' -> 'Shiga toxin-producing E. coli (STEC)'. The row's own Reason reads 'Verotoxin producing Escherichia coli in salami from Germany'. Verotoxin/verocytotoxin (VTEC) and Shiga toxin (STEC) are two naming traditions for the same organism group — ECDC and EFSA publish jointly as 'STEC/VTEC'. In food microbiology 'generic' E. coli is a FAECAL INDICATOR, a hygiene marker; STEC is a pathogen causing bloody diarrhoea and HUS. Labelling a toxin-producing isolate 'generic' understated a Tier-1 pathogen as a hygiene result. Reclassified ONLY because the row's own text names the toxin — the eight remaining '(generic)' rows say only 'E. coli' and were left untouched.]"
+  "Notes": "[RASFF #2026.5247; classification: alert notification; category: meat and meat products (other than poultry); notifId=851286] [gemini-enrich 2026-06-13: Brand '—'→'DEU'] [gemini-check 2026-06-13: pass; clean-row shortcut (gemini-enriched + all fields valid)] [audit 2026-08-13: Pathogen 'Escherichia coli (generic)' -> 'Shiga toxin-producing E. coli (STEC)'. The row's own Reason reads 'Verotoxin producing Escherichia coli in salami from Germany'. Verotoxin/verocytotoxin (VTEC) and Shiga toxin (STEC) are two naming traditions for the same organism group — ECDC and EFSA publish jointly as 'STEC/VTEC'. In food microbiology 'generic' E. coli is a FAECAL INDICATOR, a hygiene marker; STEC is a pathogen causing bloody diarrhoea and HUS. Labelling a toxin-producing isolate 'generic' understated a Tier-1 pathogen as a hygiene result. Reclassified ONLY because the row's own text names the toxin — the eight remaining '(generic)' rows say only 'E. coli' and were left untouched.]"
  },
  {
   "Date": "2026-06-12",
@@ -11597,7 +11725,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847272",
-  "Notes": "[RASFF #2026.4669; classification: information notification for attention; category: meat and meat products (other than poultry); notifId=847272] [gemini-enrich 2026-05-30: Brand '—'→'NLD'] [claude-check 2026-05-30: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard 2026-07-14: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [audit 2026-08-13: Pathogen 'Escherichia coli (generic)' -> 'Shiga toxin-producing E. coli (STEC)'. The row's own Reason reads 'Shigatoxine producing Escherichia coli in beef tartare from Romania'. Verotoxin/verocytotoxin (VTEC) and Shiga toxin (STEC) are two naming traditions for the same organism group — ECDC and EFSA publish jointly as 'STEC/VTEC'. In food microbiology 'generic' E. coli is a FAECAL INDICATOR, a hygiene marker; STEC is a pathogen causing bloody diarrhoea and HUS. Labelling a toxin-producing isolate 'generic' understated a Tier-1 pathogen as a hygiene result. Reclassified ONLY because the row's own text names the toxin — the eight remaining '(generic)' rows say only 'E. coli' and were left untouched.]"
+  "Notes": "[RASFF #2026.4669; classification: information notification for attention; category: meat and meat products (other than poultry); notifId=847272] [gemini-enrich 2026-05-30: Brand '—'→'NLD'] [claude-check 2026-05-30: pass; clean-row shortcut (gemini-enriched + all fields valid)] [audit 2026-08-13: Pathogen 'Escherichia coli (generic)' -> 'Shiga toxin-producing E. coli (STEC)'. The row's own Reason reads 'Shigatoxine producing Escherichia coli in beef tartare from Romania'. Verotoxin/verocytotoxin (VTEC) and Shiga toxin (STEC) are two naming traditions for the same organism group — ECDC and EFSA publish jointly as 'STEC/VTEC'. In food microbiology 'generic' E. coli is a FAECAL INDICATOR, a hygiene marker; STEC is a pathogen causing bloody diarrhoea and HUS. Labelling a toxin-producing isolate 'generic' understated a Tier-1 pathogen as a hygiene result. Reclassified ONLY because the row's own text names the toxin — the eight remaining '(generic)' rows say only 'E. coli' and were left untouched.]"
  },
  {
   "Date": "2026-05-28",
@@ -13447,13 +13575,13 @@
   "Product": "Kip cordon bleu (diepvries) — frozen chicken cordon bleu",
   "Pathogen": "Salmonella",
   "Reason": "Possible Salmonella contamination — consumer warning",
-  "Class": "Veiligheidswaarschuwing (Safety Warning)",
+  "Class": "Safety warning",
   "Country": "Netherlands",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.nvwa.nl/documenten/2026/05/16/veiligheidswaarschuwing-kip-cordon-bleu-diepvries",
-  "Notes": "NVWA consumer warning. ALDI waarschuwt voor Kip cordon bleu (diepvries) — het product bevat mogelijk salmonella. Date inferred from URL path /2026/05/16/. [manual-promote 2026-05-21: gap-finder Date field was empty]"
+  "Notes": "NVWA consumer warning. ALDI waarschuwt voor Kip cordon bleu (diepvries) — het product bevat mogelijk salmonella. Date inferred from URL path /2026/05/16/. [manual-promote 2026-05-21: gap-finder Date field was empty] [fix 2026-08-18: Class was the Dutch source term 'Veiligheidswaarschuwing' with an inline English gloss; reduced to the English term per the English-output rule. The Dutch term is confirmed by the NVWA URL slug itself and retained here.]"
  },
  {
   "Date": "2026-05-15",
@@ -18205,7 +18333,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260416_17_BW_Salami_1A/260416_17_BW_Salami_1A_Meldung.html",
-  "Notes": "[distributed via Kaufland; specific E. coli strain not specified on regulator page; URL repaired from produktwarnung.eu news mirror to lebensmittelwarnung.de regulator] [tier-guard 2026-07-14: E. coli is always Tier 1; forced from Tier 2]"
+  "Notes": "[distributed via Kaufland; specific E. coli strain not specified on regulator page; URL repaired from produktwarnung.eu news mirror to lebensmittelwarnung.de regulator]"
  },
  {
   "Date": "2026-04-15",
@@ -22605,7 +22733,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/la-vera-group-pty-ltd-trading-la-vera-cheese-la-vera-fresh-ricotta-500g",
-  "Notes": "[FSANZ AU; SA/VIC/NSW/WA distribution] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tier-guard 2026-07-14: E. coli is always Tier 1; forced from Tier 2]"
+  "Notes": "[FSANZ AU; SA/VIC/NSW/WA distribution] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
  },
  {
   "Date": "2026-02-12",
