@@ -1,0 +1,85 @@
+name: FSIS Publication Watchdog
+
+# GOES RED WHEN NOTHING HAS BEEN PUBLISHED.
+#
+# WHY THIS EXISTS (2026-08-18)
+# ============================
+# Between 16 and 18 August the register published two rows while Pending
+# grew to 24, and nothing anywhere went red. Every scraper, enricher,
+# validator and reviewer ran and committed. merge-master reported
+# "+0 approved" fifteen times, which is its correct documented behaviour —
+# the hourly CLI is a janitor and is not allowed to publish.
+#
+# The register has two publication paths and both terminate at a workflow
+# that has never once appeared in 400 commits:
+#
+#     url-gate -> claude-check -> merge-master     claude-check:  0 runs
+#     review-agent (banks v3) -> confirm-agent     confirm-agent: 0 runs
+#
+# Every workflow in this repo is `workflow_dispatch` only and is fired by
+# an external Google Apps Script (FsisScheduler.gs) that is not version
+# controlled and has no watchdog of its own. A workflow simply missing
+# from that script never runs, and nothing in GitHub notices.
+#
+# THIS WORKFLOW IS DELIBERATELY `schedule:`-TRIGGERED, NOT DISPATCHED.
+# It must not depend on the scheduler it exists to check.
+#
+# It asserts one thing: the Recalls sheet has grown in the last N days.
+# That is the only end-to-end statement that cannot be satisfied by a
+# broken pipeline running green.
+
+on:
+  schedule:
+    - cron: "0 6 * * *"      # 06:00 UTC daily — after the morning chain
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Fail if no row has been published in N days"
+        required: false
+        default: "2"
+
+permissions:
+  contents: read
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 400        # the diagnostic reads commit history
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openpyxl
+
+      - name: Has anything been published?
+        run: |
+          DAYS="${{ github.event.inputs.days || '2' }}"
+          python tools/why_no_acceptance.py --days "$DAYS"
+
+      - name: What a failure here means
+        if: failure()
+        run: |
+          echo "The register has not published a row in the configured window."
+          echo ""
+          echo "This is almost never a scraping problem — check the report"
+          echo "above for which reviewer stage owns the stalled rows, and"
+          echo "whether that stage's workflow has committed recently."
+          echo ""
+          echo "Most likely causes, in order:"
+          echo "  1. A publishing workflow is missing from FsisScheduler.gs"
+          echo "     (claude-check / openrouter-check / recall-confirm-agent)."
+          echo "  2. The Qwen VPS is unreachable, so reviewer 2 returns"
+          echo "     'retry' for every row and approves nothing."
+          echo "  3. Rows are cycling pending -> pending_gap_v2 -> pending"
+          echo "     under the safety-hold without ever being approved."
