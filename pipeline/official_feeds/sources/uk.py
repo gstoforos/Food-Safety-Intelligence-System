@@ -18,6 +18,8 @@ JSON item shape (from API reference + CSV export):
 
 from __future__ import annotations
 
+from datetime import date, timedelta
+
 from ..base import Record, FeedSource, register
 from ..fetch import get_json, parse_iso
 
@@ -207,10 +209,12 @@ def fetch(limit: int = 50, include_scotland: bool = False,
     # version that started returning 400 from Actions runners, so it goes.
     # ---------------------------------------------------------------------
     PAGE_CAP = 50          # server-side clamp, measured
+    today = date.today()
+    start = today - timedelta(days=lookback_days)
+    since = start.isoformat()      # used in the log lines and the guards below
     items: list[dict] = []
     seen_ids: set[str] = set()
-    slices: list[tuple[date, date]] = [(date.fromisoformat(since),
-                                        date.today())]
+    slices: list[tuple[date, date]] = [(start, today)]
     n_req = 0
 
     def _add(batch) -> int:
