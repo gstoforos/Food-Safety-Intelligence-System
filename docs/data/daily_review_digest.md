@@ -1,17 +1,17 @@
-# FSIS Daily Review — 2026-08-18 (Athens)
+# FSIS Daily Review — 2026-08-19 (Athens)
 
-Mode: **live** · generated 2026-08-18T09:23:04+03:00
-Recalls rows reviewed: **1462** · in-progress week (never published): **W34**
+Mode: **live** · generated 2026-08-19T09:24:16+03:00
+Recalls rows reviewed: **1470** · in-progress week (never published): **W34**
 
 ## 1. Integrity
 - Duplicate URL groups: **0**
 - Non-specific URLs shared by different recalls: **0**
 - Rows with blank required fields: **0**
-- Mis-tiered (always-Tier-1) rows: **0**
+- Mis-tiered (always-Tier-1) rows: **2**
 - Date-sanity issues: **0**
 
 ## 2. Lane A — safe auto-fixes (APPLIED)
-- none
+- tier1_enforce: **2**
 
 ## 3. Lane B — proposed deletions (QUEUED, nothing deleted)
 - **[cfs_foreign_repost · high]** 2026-03-23 · MOMA Foods · Mouse contamination (physical/biological hazard) — https://www.cfs.gov.hk/english/rc/subject/files/20260323_1.pdf

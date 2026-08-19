@@ -1,16 +1,16 @@
 {
-  "generated": "2026-08-18T09:23:04+03:00",
-  "date": "2026-08-18",
+  "generated": "2026-08-19T09:24:16+03:00",
+  "date": "2026-08-19",
   "mode": "live",
   "in_progress_week": "W34",
   "counts": {
-    "recalls_rows": 1462,
+    "recalls_rows": 1470,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
-    "mistiered_rows": 0,
+    "mistiered_rows": 2,
     "date_issue_rows": 0,
-    "lane_a_changes": 0,
+    "lane_a_changes": 2,
     "proposed_deletions": 16,
     "ledger_resolved": 0,
     "asset_issues": 1
@@ -19,7 +19,30 @@
     "duplicate_urls": [],
     "shared_nonspecific_urls": [],
     "blank_fields": [],
-    "mistiered": [],
+    "mistiered": [
+      {
+        "Date": "2026-08-07",
+        "Source": "CFIA",
+        "Company": "Importation Mini Italia",
+        "Product": "Various brands of cheese products recalled due to generic E. coli",
+        "Pathogen": "E. coli",
+        "Country": "Canada",
+        "Tier": 2,
+        "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-cheese-products-recalled-due-generic-e-coli",
+        "current_tier": 2
+      },
+      {
+        "Date": "2026-07-27",
+        "Source": "CFIA",
+        "Company": "106978 Canada Ltée (Yannick Fromagerie)",
+        "Product": "Valençay AOP \"fromage de chèvre au lait cru\"",
+        "Pathogen": "E. coli",
+        "Country": "Canada",
+        "Tier": 2,
+        "URL": "https://recalls-rappels.canada.ca/en/alert-recall/fromagerie-p-jacquin-fils-brand-valencay-aop-fromage-chevre-au-lait-cru-recalled-due",
+        "current_tier": 2
+      }
+    ],
     "date_issues": []
   },
   "asset_issues": [
@@ -31,8 +54,27 @@
   ],
   "lane_a": {
     "applied": true,
-    "summary": {},
-    "changes": []
+    "summary": {
+      "tier1_enforce": 2
+    },
+    "changes": [
+      {
+        "row": 110,
+        "field": "Tier",
+        "fix": "tier1_enforce",
+        "before": 2,
+        "after": 1,
+        "reason": "E. coli is always Tier 1"
+      },
+      {
+        "row": 229,
+        "field": "Tier",
+        "fix": "tier1_enforce",
+        "before": 2,
+        "after": 1,
+        "reason": "E. coli is always Tier 1"
+      }
+    ]
   },
   "lane_b": {
     "proposed_deletions": [
