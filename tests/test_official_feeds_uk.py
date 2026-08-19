@@ -62,32 +62,57 @@ def _alert(n: int, created: date, countries=("GB-ENG",), notation=None):
     }
 
 
-class FakeAPI:
-    """Stands in for get_json. Honours min-created / max-created and
-    reproduces the server's hard clamp to 50 items per response."""
+# Parameters this API rejects with 400. Verified from the server's own
+# error body on 2026-08-19:
+#     "message": "These parameters haven\'t been recognized: _pageSize"
+# The service is "Updated beta-service, API backward compatible" v2.0.1 and
+# it REJECTS unrecognised parameters rather than ignoring them. There is no
+# recognised paging parameter — the cap is a server default in meta.limit.
+REJECTED_PARAMS = ("_pageSize", "_page", "_limit", "_sort", "_offset",
+                   "page", "pageSize", "limit")
 
-    def __init__(self, corpus):
+
+class FakeAPI:
+    """Stands in for get_json.
+
+    Reproduces three things the live API actually does:
+      1. honours min-created / max-created,
+      2. caps every response at `limit` and REPORTS that cap in meta,
+      3. raises on any unrecognised parameter, exactly as the real service
+         does — so a test cannot pass while sending something that would
+         400 in production. That is the failure this file exists for: four
+         wrong fixes shipped green because nothing here modelled the
+         parameter contract.
+    """
+
+    def __init__(self, corpus, limit=PAGE_CAP):
         self.corpus = corpus
-        self.calls = []          # [(min, max, pageSize)]
+        self.limit = limit
+        self.calls = []          # [(min, max, full_params)]
 
     def __call__(self, url, params=None, **kw):
         params = params or {}
+        bad = [k for k in params if k in REJECTED_PARAMS]
+        if bad:
+            raise AssertionError(
+                f"sent {bad} — the FSA rejects unrecognised parameters with "
+                f"400 Bad Request: \"These parameters haven't been "
+                f"recognized: {bad[0]}\"")
         lo = params.get("min-created")
         hi = params.get("max-created")
-        size = int(params.get("_pageSize", PAGE_CAP))
-        assert "_page" not in params, "_page is inert on this API and 400s"
-        assert size <= PAGE_CAP, f"_pageSize={size} would 400"
-        self.calls.append((lo, hi, size))
+        self.calls.append((lo, hi, dict(params)))
         hits = [i for i in self.corpus
                 if (lo is None or i["created"][:10] >= lo)
                 and (hi is None or i["created"][:10] <= hi)]
-        return {"items": hits[:min(size, PAGE_CAP)]}
+        return {"items": hits[:self.limit],
+                "meta": {"limit": self.limit, "version": "2.0.1",
+                         "publisher": "Food Standards Agency"}}
 
 
 @pytest.fixture
 def patch_api(monkeypatch):
-    def _install(corpus):
-        api = FakeAPI(corpus)
+    def _install(corpus, limit=PAGE_CAP):
+        api = FakeAPI(corpus, limit=limit)
         monkeypatch.setattr(uk_src, "get_json", api)
         return api
     return _install
@@ -139,13 +164,45 @@ def test_full_page_is_split_until_nothing_is_truncated(patch_api):
     assert len(api.calls) > 1, "never split — truncation would go unnoticed"
 
 
-def test_page_size_never_exceeds_the_server_clamp(patch_api):
-    """_pageSize=250 was a 400. FakeAPI asserts on it; this test pins the
-    contract even when the caller passes a larger limit."""
+def test_no_paging_parameter_is_ever_sent(patch_api):
+    """The whole 2026-08-13 -> 2026-08-19 outage in one assertion.
+
+    `_pageSize` is not a parameter this API recognises, and the service
+    now 400s on unrecognised parameters. Only the two date bounds may be
+    sent — even when the caller passes a limit, as scotland.py and
+    main.py both do."""
     today = date.today()
     api = patch_api([_alert(1, today - timedelta(days=1))])
     uk_src.fetch(limit=250)
-    assert all(size <= PAGE_CAP for _, _, size in api.calls)
+    for _, _, params in api.calls:
+        assert set(params) == {"min-created", "max-created"}, params
+
+
+def test_the_limit_argument_is_inert(patch_api):
+    """It is kept only for callers. It must not reach the wire and must
+    not change the result."""
+    today = date.today()
+    corpus = [_alert(n, today - timedelta(days=n % 20)) for n in range(30)]
+    a = patch_api(list(corpus))
+    got_default = len(uk_src.fetch(lookback_days=30))
+    b = patch_api(list(corpus))
+    got_big = len(uk_src.fetch(lookback_days=30, limit=9999))
+    assert got_default == got_big == 30
+    for _, _, params in a.calls + b.calls:
+        assert set(params) == {"min-created", "max-created"}
+
+
+def test_the_cap_is_read_from_meta_not_hardcoded(patch_api):
+    """If the FSA changes its server-side limit, the slicing must follow
+    it. Hardcoding 50 would silently under-split (missing rows) or
+    over-split (hammering the API) the day it moves."""
+    today = date.today()
+    corpus = [_alert(n, today - timedelta(days=n % 60)) for n in range(80)]
+    patch_api(corpus, limit=10)
+    recs = uk_src.fetch(lookback_days=60)
+    ids = [r.source_id for r in recs]
+    assert len(ids) == len(set(ids))
+    assert len(ids) == 80, f"cap of 10 lost rows: got {len(ids)}"
 
 
 def test_request_backstop_is_honoured(patch_api):
@@ -175,9 +232,9 @@ def test_ignored_date_filter_raises(monkeypatch):
     class IgnoresDates(FakeAPI):
         def __call__(self, url, params=None, **kw):
             self.calls.append((params.get("min-created"),
-                               params.get("max-created"),
-                               int(params.get("_pageSize", PAGE_CAP))))
-            return {"items": self.corpus}      # date filter ignored
+                               params.get("max-created"), dict(params)))
+            return {"items": self.corpus,      # date filter ignored
+                    "meta": {"limit": self.limit}}
 
     api = IgnoresDates([_alert(n, date(2018, 3, 1)) for n in range(3)])
     monkeypatch.setattr(uk_src, "get_json", api)
