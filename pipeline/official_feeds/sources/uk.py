@@ -140,8 +140,12 @@ def fetch(limit: int = 50, include_scotland: bool = False,
     (those are emitted by scotland.py). An alert tagged for multiple
     countries including England/Wales/NI is kept here.
 
-    `limit` is the API's _pageSize. It is NOT a cap on how many alerts we
-    want — see the pagination note below. Leave it at 50.
+    `limit` IS NO LONGER SENT TO THE API and is retained only so existing
+    callers (scotland.py, main.py, the tests) keep working. This endpoint
+    rejects unrecognised query parameters and has no recognised paging
+    parameter at all; the page cap is a server-side default reported in
+    meta.limit. Passing a different value here changes nothing. See the
+    note in the body.
     """
     # ---------------------------------------------------------------------
     # SILENT SCRAPER FAILURE (found 2026-08-07).
@@ -204,11 +208,49 @@ def fetch(limit: int = 50, include_scotland: bool = False,
     # makes truncation impossible rather than merely unlikely, which is the
     # failure mode that cost a month of UK recalls twice already.
     #
-    # `_page` is not sent. It is inert on this API and it is the only
-    # parameter that changed between the version that worked and the
-    # version that started returning 400 from Actions runners, so it goes.
+    # ── THE ANSWER, 2026-08-19: `_pageSize` IS NOT A PARAMETER AT ALL ────
+    #
+    # Four wrong diagnoses preceded this one, and every one of them was a
+    # guess made without the server's own explanation, because get_json
+    # discarded the response body and all anyone ever saw was
+    #     400 Client Error:  for url: ...
+    # with an empty reason. Once _raise_with_body() started printing the
+    # body, the FSA answered in one line:
+    #
+    #     "message": "These parameters haven't been recognized: _pageSize"
+    #
+    # Not the page size. Not `_page`. Not the date window. Not the TLS
+    # fingerprint or the User-Agent. The parameter itself is unknown to
+    # this API, and the service now REJECTS unknown parameters instead of
+    # ignoring them. From the response metadata:
+    #
+    #     "comment": "Updated beta-service, API backward compatible",
+    #     "version": "2.0.1",
+    #     "limit": 50
+    #
+    # `limit: 50` is returned when NOTHING is asked for. The cap is a
+    # server-side default that no query parameter controls — which is why
+    # `_pageSize=200` was silently clamped to 50 back when unknown
+    # parameters were still ignored, and why `_pageSize=250` looked like a
+    # size problem when it was a recognition problem all along.
+    #
+    # So the parameter is simply dropped. Sending nothing is valid against
+    # the strict service AND against any lenient deployment, which the
+    # earlier "fixes" were not.
+    #
+    # The cap is READ FROM THE RESPONSE (`meta.limit`) rather than
+    # hardcoded, so if the FSA raises or lowers it the slicing adapts
+    # instead of silently over- or under-fetching. PAGE_CAP_DEFAULT is only
+    # the value used before the first response comes back.
+    #
+    # Date slicing stays and is still load-bearing: the window
+    # 2025-01-01..2026-08-19 returns exactly 50 items with limit 50, i.e.
+    # truncated with no indication in the payload. Nothing about this API
+    # tells you a result set was cut short — the slicing is the only thing
+    # that makes truncation impossible.
     # ---------------------------------------------------------------------
-    PAGE_CAP = 50          # server-side clamp, measured
+    PAGE_CAP_DEFAULT = 50  # meta.limit as served on 2026-08-19
+    page_cap = PAGE_CAP_DEFAULT
     today = date.today()
     start = today - timedelta(days=lookback_days)
     since = start.isoformat()      # used in the log lines and the guards below
@@ -237,18 +279,30 @@ def fetch(limit: int = 50, include_scotland: bool = False,
             break
         lo, hi = slices.pop(0)
         n_req += 1
+        # NO PAGING PARAMETER IS SENT. See the note above: this API
+        # rejects unrecognised parameters, and there is no recognised one.
         data = get_json(API, params={"min-created": lo.isoformat(),
-                                     "max-created": hi.isoformat(),
-                                     "_pageSize": min(limit, PAGE_CAP)})
+                                     "max-created": hi.isoformat()})
         batch = data.get("items", []) or []
         _add(batch)
 
-        if len(batch) >= min(limit, PAGE_CAP) and (hi - lo).days > 1:
+        # Take the cap from the server rather than trusting a constant.
+        served = data.get("meta") or {}
+        try:
+            served_limit = int(served.get("limit") or 0)
+        except (TypeError, ValueError):
+            served_limit = 0
+        if served_limit > 0 and served_limit != page_cap:
+            print(f"  [FSA] page cap is {served_limit} (was assuming "
+                  f"{page_cap}) — adapting")
+            page_cap = served_limit
+
+        if len(batch) >= page_cap and (hi - lo).days > 1:
             # Full page: the slice may be truncated. Halve it and redo.
             mid = lo + (hi - lo) / 2
             slices.append((lo, mid))
             slices.append((mid, hi))
-        elif len(batch) >= min(limit, PAGE_CAP):
+        elif len(batch) >= page_cap:
             print(f"  [WARN] FSA food-alerts: {lo}..{hi} is a single day and "
                   f"still returned a full page ({len(batch)}). Cannot narrow "
                   f"further; that day may be truncated.")
@@ -258,8 +312,8 @@ def fetch(limit: int = 50, include_scotland: bool = False,
     # and that has to be loud rather than green.
     if not items:
         raise RuntimeError(
-            f"FSA food-alerts returned 0 items for min-created={since} "
-            f"(_pageSize={limit}). The FSA publishes several alerts a week, "
+            f"FSA food-alerts returned 0 items for min-created={since}. "
+            f"The FSA publishes several alerts a week, "
             f"so an empty {lookback_days}-day window means the query is "
             f"being ignored — which is exactly how a month of UK recalls was "
             f"lost in July 2026. Check the parameter names against "
@@ -277,7 +331,7 @@ def fetch(limit: int = 50, include_scotland: bool = False,
             f"success.")
 
     print(f"  [FSA] {len(items)} alerts since {since} "
-          f"across {min(max_pages, (len(items) // limit) + 1)} page(s); "
+          f"across {n_req} request(s), page cap {page_cap}; "
           f"newest {newest[:10] or '?'}")
 
     records: list[Record] = []
