@@ -767,7 +767,38 @@ def compute_stats(wr, pr):
         log.warning("incident grouping unavailable (%s) — counting notices, "
                     "which OVERSTATES multi-notice events", _ie)
         total = len(wr)
-    tier1 = sum(1 for r in wr if _safe_int(r.get("Tier")) == 1)
+    # ── Tier 1 must count the SAME UNIT as `total` (audit 2026-08-20) ───
+    # `total` became an INCIDENT count above while this line kept counting
+    # ROWS, and the two units met on the dashboard card as
+    #     W34   total 43   Tier-1 51
+    # — more critical items than items. The Leclerc Dinan cluster is 20
+    # Listeria rows collapsing to one incident, so it added 1 to `total`
+    # and 20 to `tier1`.
+    #
+    # An incident is Tier 1 if ANY of its notices is: the cluster's severity
+    # is the worst hazard in it, not an average. Untagged rows are their own
+    # incident, so this is identical to the row count for every week that
+    # predates incident tagging — no historical figure moves, exactly as
+    # with count_incidents.
+    #
+    # Fails OPEN to the row count for the same reason as above.
+    try:
+        from pipeline._incident_id import derive as _incident_of
+        _t1_untagged = 0
+        _t1_groups = set()
+        for r in wr:
+            if _safe_int(r.get("Tier")) != 1:
+                continue
+            iid = _incident_of(r)
+            if iid:
+                _t1_groups.add(iid)
+            else:
+                _t1_untagged += 1
+        tier1 = len(_t1_groups) + _t1_untagged
+    except Exception as _te:                                  # noqa: BLE001
+        log.warning("incident grouping unavailable for tier1 (%s) — counting "
+                    "notices, which OVERSTATES multi-notice events", _te)
+        tier1 = sum(1 for r in wr if _safe_int(r.get("Tier")) == 1)
 
     # ── Outbreaks are counted as EVENTS, not rows (audit 2026-08-14) ────
     # `Outbreak` is a per-ROW boolean, but one outbreak produces several
@@ -3063,7 +3094,23 @@ def update_dashboard_data(week_end, stats, all_recalls=None):
         # Find every distinct ISO week represented in the recall set, snap
         # each to its Friday end, build an entry. Only keep weeks whose
         # Friday is on or before today (no future weeks).
-        today = date.today()
+        # ── THE WEEK BEING BUILT IS NEVER A "FUTURE" WEEK (2026-08-20) ──
+        # This guard exists to keep weeks with no data yet out of the index.
+        # It read `if fri <= today`, and that quietly broke the operator's
+        # actual cadence: the AFTS week closes THURSDAY and the report is
+        # built with --week-end set to the FOLLOWING Friday. Building W34 on
+        # Thursday 20 Aug with --week-end 2026-08-21 therefore produced
+        #     docs/2026-W34.html                     written
+        #     docs/data/weekly-summary-latest.json   points at W34
+        #     docs/data/weekly-index.json            newest entry W33
+        # — the report existed, the pointer named it, and the dashboard's
+        # own list did not contain it. Every week, for one day, and it
+        # self-heals only if something rebuilds the index on the Friday.
+        #
+        # The week this run was invoked for is by definition not a future
+        # week: it has data, it has just been rendered. Everything after it
+        # is still excluded.
+        today = max(date.today(), week_end)
         week_ends_seen = set()
         for r in all_recalls:
             d = r.get("Date", "")
