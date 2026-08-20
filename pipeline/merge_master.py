@@ -2215,14 +2215,18 @@ def save_xlsx_with_pending(
     Sheet order: Recalls (0), Pending (1), (auxiliary — Weekly_Review,
     Weekly_Rejected, etc.), NEWS (last).
 
-    Audit 2026-05-08: optional `newly_rejected_rows` arg. Originally these
-    rows were written to a separate "Rejected" sheet. As of 2026-05-11
-    that sheet is removed — rejections live in Weekly_Rejected only,
-    populated by the caller via weekly_rejected_capture.record_rejections.
-    The kwarg is preserved for API compatibility but no longer drives
-    a sheet write in this function. Callers should pass the rows here
-    AND to record_rejections; the former is now a no-op, the latter is
-    the authoritative path.
+    Audit 2026-05-08: optional `newly_rejected_rows` arg. These rows are
+    not written here — callers mirror them into Weekly_Rejected via
+    weekly_rejected_capture.record_rejections immediately after this
+    returns. The kwarg is kept for API compatibility and is a no-op.
+
+    Two rejection sheets exist and BOTH are preserved untouched by this
+    function (see the note in the body, 2026-08-20):
+        Weekly_Rejected   rolling; emptied every Thursday after the email
+        Rejected          permanent; append-only; never wiped
+    An earlier version of this docstring said the "Rejected" sheet "is
+    removed". It was, by a line right below — which deleted 138 archived
+    rejections the Thursday wipe had just written there.
     """
     if xlsx_path.exists():
         wb = load_workbook(xlsx_path)
@@ -2251,14 +2255,40 @@ def save_xlsx_with_pending(
     # pipeline.gemini_check invoke weekly_rejected_capture.record_rejections
     # immediately after this function returns). No sheet write here.
     #
-    # One-shot cleanup: if a legacy "Rejected" sheet exists in the
-    # workbook from before this patch, remove it so the xlsx converges
-    # on the new schema. Idempotent — once removed, subsequent saves
-    # don't touch it.
+    # ── THE "Rejected" SHEET IS NO LONGER LEGACY — DO NOT DELETE IT ─────
+    # REVERSED 2026-08-20. This block used to read:
+    #
+    #     if "Rejected" in wb.sheetnames:
+    #         del wb["Rejected"]
+    #
+    # a one-shot cleanup added on 2026-05-11 when "Rejected" really was
+    # duplicate audit infrastructure. It is not any more, and the two
+    # designs had started destroying each other:
+    #
+    #   * tools/wipe_weekly_rejected.py (2026-08-15) MOVES rows into a
+    #     permanent "Rejected" sheet on the Thursday reset instead of
+    #     deleting them, because the wipe was erasing the pipeline's only
+    #     memory of what had been rejected and the gap-finders re-found
+    #     every one of those rows within a cycle.
+    #   * load_rejected_urls() (2026-08-18) reads BOTH sheets, so a
+    #     rejection stays sticky past the Thursday reset.
+    #   * This line then deleted the sheet on the very next save.
+    #
+    # Measured on the live workbook: the 2026-08-20 wipe archived 138 rows
+    # into "Rejected" at 14:51, and the next save_xlsx_with_pending call
+    # removed all 138 without a word. The rolling sheet had already been
+    # emptied, so that is the whole rejection history gone in one step.
+    #
+    # The 2026-05-11 concern — two sheets drifting apart — no longer
+    # applies: the sheets now have distinct, documented roles.
+    #     Weekly_Rejected  rolling; emptied every Thursday after the email
+    #     Rejected         permanent; append-only; never wiped
+    #
+    # The sheet is left exactly as found. This function writes Recalls and
+    # Pending; it has no business editing the audit trail.
     if "Rejected" in wb.sheetnames:
-        del wb["Rejected"]
-        log.info("Removed legacy Rejected sheet (deprecated 2026-05-11; "
-                 "rejections live in Weekly_Rejected only)")
+        log.debug("Preserving permanent Rejected sheet (%d rows)",
+                  wb["Rejected"].max_row - 1)
 
     # Ensure NEWS sheet exists (empty if it wasn't there before)
     if "NEWS" not in wb.sheetnames:

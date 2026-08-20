@@ -242,6 +242,38 @@ _LOW_MOISTURE_KEYWORDS = (
 )
 
 
+import unicodedata as _ud
+
+
+def _strip_accents(t: str) -> str:
+    """'Purée de Sésame' -> 'puree de sesame'. NFD-decompose, drop the
+    combining marks, recompose. Leaves ASCII untouched."""
+    return "".join(c for c in _ud.normalize("NFD", t)
+                   if not _ud.combining(c))
+
+
+# Wet / chilled matrices. B. cereus in these is not a cereulide-in-dry-food
+# case, so a flavour word like "chocolate" or "vanilla" must not drag them
+# into the always-Tier-1 rule. Word-boundary anchored — this module's
+# recurring defect is unbounded substring matching.
+# DELIBERATELY NARROW. The first draft of this list also held "paste",
+# "spread", "dip", "sauce" and "soup" — and every one of those was wrong.
+# Tahini, sesame paste, chocolate spread and peanut butter are LOW-moisture
+# matrices and classic Salmonella vehicles; sesame paste is the vehicle in
+# the very cluster this register was tracking the week this was written.
+# Vetoing them would have quietly demoted exactly the rows the cereulide
+# and low-moisture rules exist to catch. Bare "cream" is out too — it
+# matches "cream cracker", which is dry.
+#
+# Only unambiguous chilled/liquid matrices belong here.
+_HIGH_MOISTURE_RE = _re2.compile(
+    r"\b(?:pudding|yoghurt|yogurt|yaourt|joghurt|dessert|mousse|custard|"
+    r"ice[\s\-]*cream|milkshake|smoothie|juice|beverage|"
+    r"chilled|refrigerat\w*|r[ée]frig[ée]r\w*|gek[oö]eld|"
+    r"fromage[\s\-]*blanc|skyr|kefir|quark|flan|panna[\s\-]*cotta)\b",
+    _re2.I)
+
+
 def _is_low_moisture_product(row: dict) -> bool:
     """True if the row's product looks like a low-moisture / dried matrix.
 
@@ -254,7 +286,37 @@ def _is_low_moisture_product(row: dict) -> bool:
             (row.get("Reason") or "")).lower()
     if not text.strip():
         return False
+    # Strip accents before matching. Found 2026-08-20: the keyword list is
+    # ASCII ("sesame", "tahini"), so the French fiche title
+    #     "Puree de Sesame Tahin"  — written "Purée de Sésame Tahin"
+    # matched NOTHING, because "sésame" is not "sesame" to a \b-anchored
+    # regex. Every accented product name in the register — French, Spanish,
+    # Portuguese, German — was invisible to this classifier. Folding here
+    # rather than widening each keyword keeps one rule instead of thirty-six.
+    text = _strip_accents(text)
     if "fresh" in text:
+        return False
+    # ── HIGH-MOISTURE VETO, CHECKED FIRST (audit 2026-08-20) ───────────
+    # The NVWA row
+    #     "Milbona High Protein Pudding Chocolate Flavour, 200 g"
+    #     Bacillus cereus, chilled dairy dessert, THT 14-09-2026
+    # was forced to Tier 1 because "chocolate" is in _LOW_MOISTURE_KEYWORDS
+    # — a correct entry for chocolate bars, cocoa and chocolate powder, and
+    # completely wrong here, where the word is a FLAVOUR DESCRIPTOR on a
+    # refrigerated pudding.
+    #
+    # This is the same shape as "salmon" inside "Salmonella" and "cholera"
+    # inside "cholerae": a keyword matching a word that describes something
+    # other than what the rule is about. The cereulide rule exists because
+    # B. cereus spores survive in DRY matrices and germinate on rehydration;
+    # a chilled wet dessert is the opposite case and is tiered on its own
+    # merits.
+    #
+    # Vetoed first, like the "fresh" rule above, so a flavour word can never
+    # outvote the matrix. A genuinely dry chocolate product ("chocolate
+    # powder", "chocolate biscuit") still matches, because none of these
+    # veto words appear in it.
+    if _HIGH_MOISTURE_RE.search(text):
         return False
     return any(_re.search(r"\b" + _re.escape(k), text)
                for k in _LOW_MOISTURE_KEYWORDS)
