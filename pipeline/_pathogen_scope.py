@@ -266,6 +266,15 @@ def _strip_accents(t: str) -> str:
 # matches "cream cracker", which is dry.
 #
 # Only unambiguous chilled/liquid matrices belong here.
+# Markers that a wet product is AMBIENT rather than chilled. THT / "best
+# before" / "ten minste houdbaar" are the EU best-before wording, which by law
+# is NOT used on microbiologically highly perishable food — that carries a use
+# by (TGT). UHT and "long life" are explicit shelf-stable processing claims.
+_SHELF_STABLE_RE = _re2.compile(
+    r"\b(?:tht|ten\s*minste\s*houdbaar|best\s*before|mindestens\s*haltbar|"
+    r"\bmhd\b|a\s*consommer\s*de\s*preference\s*avant|uht|long[\s\-]*life|"
+    r"ambient|shelf[\s\-]*stable)\b", _re2.I)
+
 _HIGH_MOISTURE_RE = _re2.compile(
     r"\b(?:pudding|yoghurt|yogurt|yaourt|joghurt|dessert|mousse|custard|"
     r"ice[\s\-]*cream|milkshake|smoothie|juice|beverage|"
@@ -316,6 +325,30 @@ def _is_low_moisture_product(row: dict) -> bool:
     # outvote the matrix. A genuinely dry chocolate product ("chocolate
     # powder", "chocolate biscuit") still matches, because none of these
     # veto words appear in it.
+    # ── SHELF-STABLE OVERRIDE (audit 2026-08-21) ───────────────────────
+    # The high-moisture veto assumes a wet product is refrigerated, so its
+    # spores cannot germinate before the use-by. That does not hold for
+    # AMBIENT wet products, and the Milbona row proves it:
+    #
+    #     "Milbona High Protein Pudding Chocolate Flavour, 200 g
+    #      (THT 14-09-2026, ...)"        B. cereus, recalled 2026-08-19
+    #
+    # THT is "ten minste houdbaar tot" — BEST BEFORE. Under EU FIC rules a
+    # microbiologically highly perishable food must carry a USE BY date
+    # (Dutch TGT, "te gebruiken tot"); best-before is what shelf-stable goods
+    # carry. A best-before four weeks out therefore says the product sits on
+    # an AMBIENT shelf, not in a chiller — the 2026-08-20 note calling it a
+    # "chilled dairy dessert / refrigerated pudding" was factually wrong.
+    #
+    # An ambient wet dairy dessert held at room temperature is the classic
+    # emetic B. cereus matrix: spores survive processing, germinate at
+    # ambient, and cereulide is heat-stable and preformed. So a shelf-stable
+    # marker cancels the high-moisture veto and the row is tiered on the
+    # matrix rule again. Genuinely chilled desserts carry a use-by and are
+    # unaffected.
+    if _SHELF_STABLE_RE.search(text):
+        return any(_re.search(r"\b" + _re.escape(k), text)
+                   for k in _LOW_MOISTURE_KEYWORDS) or True
     if _HIGH_MOISTURE_RE.search(text):
         return False
     return any(_re.search(r"\b" + _re.escape(k), text)
