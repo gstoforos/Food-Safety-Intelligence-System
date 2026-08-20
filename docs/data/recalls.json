@@ -90,10 +90,10 @@
   "Class": "Recall",
   "Country": "Netherlands",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.nvwa.nl/actueel/nieuws/2026/08/19/veiligheidswaarschuwing-milbona-high-protein-pudding-chocolate-flavour-200-gram",
-  "Notes": "Veiligheidswaarschuwing Milbona High Protein Pudding Chocolate Flavour 200 gram | NVWA\n\nNieuwsbericht19-08-2026 | 18:26\n\nLidl Nederland waarschuwt voor Milbona High Protein Pudding Chocolate Flavour 200 gram. De pudding bevat de bacterie Bacillus cereus. Deze bacterie kan leiden tot maag- en darmkla  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [promoted 2026-08-20: NVWA veiligheidswaarschuwing 19/08/2026. Bacillus cereus named explicitly. Retailer Lidl Nederland. Company, Brand, Product and Notes all held the same scraped page HEADLINE ('Veiligheidswaarschuwing Milbona ... | NVWA / Nieuwsbericht19-08-2026') — replaced with the actual entities. Source label normalised 'NVWA' -> 'NVWA (NL)' to match the 35 rows already published under that label. Tier 2 stands: the always-Tier-1 rule for bare Bacillus cereus applies to LOW-MOISTURE products (cereulide risk); a chilled pudding is not one. CHANGED — Company: 'Veiligheidswaarschuwing Milb'->'Lidl Nederland'; Brand: 'Veiligheidswaarschuwing Milb'->'Milbona'; Product: 'Veiligheidswaarschuwing Milb'->'Milbona High Protein Pudding'; Reason: 'Bacillus cereus'->'Bacillus cereus detected'; Source: 'NVWA'->'NVWA (NL)'.]"
+  "Notes": "Veiligheidswaarschuwing Milbona High Protein Pudding Chocolate Flavour 200 gram | NVWA\n\nNieuwsbericht19-08-2026 | 18:26\n\nLidl Nederland waarschuwt voor Milbona High Protein Pudding Chocolate Flavour 200 gram. De pudding bevat de bacterie Bacillus cereus. Deze bacterie kan leiden tot maag- en darmkla  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [promoted 2026-08-20: NVWA veiligheidswaarschuwing 19/08/2026. Bacillus cereus named explicitly. Retailer Lidl Nederland. Company, Brand, Product and Notes all held the same scraped page HEADLINE ('Veiligheidswaarschuwing Milbona ... | NVWA / Nieuwsbericht19-08-2026') — replaced with the actual entities. Source label normalised 'NVWA' -> 'NVWA (NL)' to match the 35 rows already published under that label. Tier 2 stands: the always-Tier-1 rule for bare Bacillus cereus applies to LOW-MOISTURE products (cereulide risk); a chilled pudding is not one. CHANGED — Company: 'Veiligheidswaarschuwing Milb'->'Lidl Nederland'; Brand: 'Veiligheidswaarschuwing Milb'->'Milbona'; Product: 'Veiligheidswaarschuwing Milb'->'Milbona High Protein Pudding'; Reason: 'Bacillus cereus'->'Bacillus cereus detected'; Source: 'NVWA'->'NVWA (NL)'.] [tier-guard: Bacillus cereus is a named pathogen; operator rule 2026-08-20 — Bacillus cereus is always Tier 1 regardless of product matrix; forced from Tier 2]"
  },
  {
   "Date": "2026-08-19",
@@ -5674,10 +5674,10 @@
   "Class": "Information",
   "Country": "Morocco",
   "Region": "Africa",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859148",
-  "Notes": "[RASFF #2026.6309; classification: information notification for follow-up; category: herbs and spices; notifId=859148] [gemini-enrich 2026-07-16: Brand '—'→'NLD, FIN'] [claude-check 2026-07-17: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
+  "Notes": "[RASFF #2026.6309; classification: information notification for follow-up; category: herbs and spices; notifId=859148] [gemini-enrich 2026-07-16: Brand '—'→'NLD, FIN'] [claude-check 2026-07-17: pass; clean-row shortcut (gemini-enriched + all fields valid)] [tier-guard: Bacillus cereus is a named pathogen; operator rule 2026-08-20 — Bacillus cereus is always Tier 1 regardless of product matrix; forced from Tier 2]"
  },
  {
   "Date": "2026-07-15",
@@ -7594,10 +7594,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22695/Interne",
-  "Notes": "e.leclerc marly, e.leclerc metz muse [url-gate 2026-07-01: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-01: fix; corrections: Company→MARLY DISTRIBUTION Centre Leclerc Marly, Brand→Fabriqué sur place; fix; company mismatch | Company in row is the brand; corrected to recalling firm from page. Brand corrected.]"
+  "Notes": "e.leclerc marly, e.leclerc metz muse [url-gate 2026-07-01: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-01: fix; corrections: Company→MARLY DISTRIBUTION Centre Leclerc Marly, Brand→Fabriqué sur place; fix; company mismatch | Company in row is the brand; corrected to recalling firm from page. Brand corrected.] [tier-guard: Bacillus cereus is a named pathogen; operator rule 2026-08-20 — Bacillus cereus is always Tier 1 regardless of product matrix; forced from Tier 2]"
  },
  {
   "Date": "2026-07-01",
@@ -16826,10 +16826,10 @@
   "Class": "Information",
   "Country": "Turkey",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/838854",
-  "Notes": "[RASFF #2026.3542; classification: information notification for attention; category: fruits and vegetables; notifId=838854]"
+  "Notes": "[RASFF #2026.3542; classification: information notification for attention; category: fruits and vegetables; notifId=838854] [tier-guard: Bacillus cereus is a named pathogen; operator rule 2026-08-20 — Bacillus cereus is always Tier 1 regardless of product matrix; forced from Tier 2]"
  },
  {
   "Date": "2026-04-23",
@@ -19722,10 +19722,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21882/Interne",
-  "Notes": "[fiche 21882 / ref. 2026-04-0054 / 2026-04-07; REPAIRED from broken row — Notes had \"e.leclerc\" leak; URL slug normalised /Interne; B. cereus is in Tier-1 scope, kept at Tier 3 per your data]"
+  "Notes": "[fiche 21882 / ref. 2026-04-0054 / 2026-04-07; REPAIRED from broken row — Notes had \"e.leclerc\" leak; URL slug normalised /Interne; B. cereus is in Tier-1 scope, kept at Tier 3 per your data] [tier-guard: Bacillus cereus is a named pathogen; operator rule 2026-08-20 — Bacillus cereus is always Tier 1 regardless of product matrix; forced from Tier 3]"
  },
  {
   "Date": "2026-04-07",
