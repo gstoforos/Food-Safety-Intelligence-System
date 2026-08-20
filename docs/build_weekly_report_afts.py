@@ -740,6 +740,29 @@ def render_top5_row(rank, r):
     )
 
 
+def _incident_note(rows):
+    """One sentence naming each collapsed cluster, or "" when there are none.
+
+    Added 2026-08-20. The report previously showed a headline incident
+    count and an appendix of notices with no statement of which notices
+    had been grouped, so the two numbers looked like a contradiction
+    rather than two units. A reader must be able to see WHERE the
+    difference comes from, not just be told that it exists.
+    """
+    try:
+        from pipeline._incident_id import group_sizes
+    except Exception:                                          # noqa: BLE001
+        return ""
+    groups = group_sizes(rows)
+    if not groups:
+        return ""
+    parts = []
+    for gid, n in sorted(groups.items(), key=lambda kv: -kv[1]):
+        label = gid.split(":")[-1].replace("-", " ")
+        parts.append("{} notices from {}".format(n, label))
+    return ("This week that applies to: " + "; ".join(parts) + ".")
+
+
 def compute_stats(wr, pr):
     # ── Total counts INCIDENTS, not notices (audit 2026-08-15) ─────────
     # A single event can produce many regulator notices. E.Leclerc Dinan's
@@ -832,7 +855,43 @@ def compute_stats(wr, pr):
              # 2026-06-12: countries like Türkiye, India, Uganda, Egypt
              # appear only because RASFF (EU) notified about imports from
              # them — they should NOT be labeled "National Authority".
-    for r in wr:
+    # ── §03 MUST COUNT THE SAME UNIT THE KPIs COUNT (fix 2026-08-20) ────
+    # `total`, `tier1` and `outbreaks` above are INCIDENT/EVENT counts.
+    # This loop used to run over `wr` — the raw NOTICES — so §03 and §04
+    # published notice counts against an incident denominator. In W34 that
+    # printed "Listeria monocytogenes 36 — 84%": 36 is the notice count,
+    # 84% is 36/43 where 43 is the incident total. The table was internally
+    # impossible, because Listeria 36 + Salmonella 14 = 50 already exceeded
+    # its own denominator of 43. An external reviewer caught it on exactly
+    # that arithmetic.
+    #
+    # The cause is the E.Leclerc Dinan cluster: 20 DGCCRF fiches for one
+    # suspected cold-chain failure, all coded Listeria. Counted as notices
+    # they made Listeria look like 84% of the week; counted as incidents
+    # Listeria is 17 of 43 (40%) and Salmonella 14 (33%).
+    #
+    # One representative row per tagged incident, every untagged row as
+    # itself — the same collapse count_incidents() applies, so the table
+    # and the KPI banner can no longer disagree.
+    try:
+        from pipeline._incident_id import derive as _incident_of
+    except Exception:                                          # noqa: BLE001
+        def _incident_of(_row):                                # type: ignore
+            return None
+    _dist_rows, _seen_incidents = [], set()
+    for _r in wr:
+        _iid = _incident_of(_r)
+        if _iid:
+            if _iid in _seen_incidents:
+                continue
+            _seen_incidents.add(_iid)
+        _dist_rows.append(_r)
+    if len(_dist_rows) != total:
+        log.warning("distribution rows (%d) != incident total (%d) — §03 "
+                    "percentages may not sum as expected",
+                    len(_dist_rows), total)
+
+    for r in _dist_rows:
         p = (r.get("Pathogen") or "").strip()
         # Audit 2026-05-15: previously this site did
         #   pc[p.split("(")[0].strip()] += 1
@@ -2756,9 +2815,9 @@ __CSS_PLACEHOLDER__
 </div>
 <div class="dist-grid">
   <div>
-    <h3>Pathogen Profile</h3>
+    <h3>Hazard Profile</h3>
     <table class="data">
-      <thead><tr><th>Pathogen</th><th class="num">Cases</th><th class="num">%</th><th>Share</th></tr></thead>
+      <thead><tr><th>Hazard</th><th class="num">Incidents</th><th class="num">%</th><th>Share</th></tr></thead>
       <tbody>
 {pathogen_rows}
       </tbody>
@@ -2767,7 +2826,7 @@ __CSS_PLACEHOLDER__
   <div>
     <h3>Geographic &middot; Regulatory</h3>
     <table class="data">
-      <thead><tr><th>Country</th><th>Authority</th><th class="num">Cases</th><th class="num">%</th></tr></thead>
+      <thead><tr><th>Origin country</th><th>Notifying authority</th><th class="num">Incidents</th><th class="num">%</th></tr></thead>
       <tbody>
 {country_rows}
       </tbody>
@@ -2785,15 +2844,19 @@ __CSS_PLACEHOLDER__
 
 <div id="all-recalls" class="sec-head">
   <span class="sec-num">&sect; 04</span>
-  <h2 class="sec-title">All {total} Regulatory Incidents &middot; {period}</h2>
+  <h2 class="sec-title">{n_notices} Regulatory Notices &middot; {total} Distinct Incidents &middot; {period}</h2>
   <span class="sec-rule"></span>
 </div>
 <p class="sec-caption">
-  Complete record for the reporting period. Sorted by pathogen severity, outbreak status, and tier classification.
-  Each row links to the originating regulatory notice. &ldquo;Incident&rdquo; covers every regulatory food-safety
-  action captured in the window &mdash; consumer recalls, public-health alerts, withdrawals and RASFF
-  notifications alike. A RASFF notification is a border or market-control notification between competent
-  authorities and does not necessarily correspond to a consumer recall.
+  <strong>This table is the regulatory-notice register: every notice is listed individually.</strong>
+  The KPIs and the distributions in &sect; 03 count DISTINCT INCIDENTS, which is why
+  {n_notices} rows appear below against a headline figure of {total}. Where one event produced
+  several notices &mdash; a single cold-chain failure recalling many suppliers&rsquo; products from one
+  store, for example &mdash; each notice stays individually searchable here and is counted once there.
+  {incident_note}
+  Sorted by pathogen severity, outbreak status, and tier classification. Each row links to the
+  originating regulatory notice. A RASFF notification is a border or market-control notification
+  between competent authorities and does not necessarily correspond to a consumer recall.
 </p>
 <table class="data top5">
   <thead><tr><th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction &amp; Source</th></tr></thead>
@@ -3032,6 +3095,7 @@ def build_html(week_end, recalls, prev_week, original_published=None):
         wnum=wnum, year=year, period=period,
         published=pub, published_label=published_label, total=total,
         n_jurisdictions=len(stats["country_counts"]), delta_html=dh,
+        n_notices=len(recalls), incident_note=_incident_note(recalls),
         tier1=stats["tier1"], outbreaks=stats["outbreaks"],
         top_pathogen_name=esc(tp), top_cnt=tc, top_pct=tpct, co_dom_note=co_dom_note,
         analysis_html=analysis, top5_rows=t5rows, pathogen_rows=prows,
