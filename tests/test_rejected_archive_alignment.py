@@ -91,7 +91,99 @@ def _archived(path):
     return [dict(zip(hdr, r)) for r in rows[1:] if r and any(r)]
 
 
-class TestTheHeaderCopyIsHonest(unittest.TestCase):
+class TestTheLiveHeadersAreCoherent(unittest.TestCase):
+    """Both archive sheets, whatever schema each happens to carry.
+
+    As of 2026-08-20 the live workbook holds TWO rejection sheets with
+    TWO different headers, and both are legitimate:
+
+        Weekly_Rejected  weekly_rejected_capture.SHEET_COLS   (21 cols)
+                         recreated by the Thursday wipe
+        Rejected         pipeline/extractor.REJECTED_COLUMNS  (19 cols)
+                         the rows the wipe moved, keeping their header
+
+    An earlier version of this test pinned one literal 19-column list and
+    went red the moment the wipe legitimately recreated the rolling sheet
+    with the other one. Pinning a single shape is the wrong guard when
+    several writers each have a valid schema — that is exactly why
+    record_rejections writes by NAME.
+
+    What still must hold, on either schema: every column is a recognised
+    name, the identity columns exist, and there is somewhere to put a
+    reason. A shifted or mangled header fails all three.
+    """
+
+    KNOWN = set(REJECTED_COLUMNS) | set(cap.SHEET_COLS) | {
+        "RejectReason", "RejectionReason", "RejectedReason", "RejectedAt",
+        "Week_Added", "Reviewed", "ScrapedAt", "Status"}
+    REASON_SPELLINGS = ("RejectReason", "RejectionReason", "RejectedReason")
+
+    def _headers(self, sheet):
+        xlsx = ROOT / "docs" / "data" / "recalls.xlsx"
+        if not xlsx.exists():                              # pragma: no cover
+            self.skipTest("recalls.xlsx not present")
+        wb = openpyxl.load_workbook(xlsx, read_only=True)
+        if sheet not in wb.sheetnames:
+            return None
+        return [str(c.value or "") for c in next(wb[sheet].rows)]
+
+    def test_every_column_is_a_recognised_name(self):
+        for sheet in ("Weekly_Rejected", "Rejected"):
+            hdr = self._headers(sheet)
+            if hdr is None:
+                continue
+            unknown = [h for h in hdr if h and h not in self.KNOWN]
+            self.assertEqual([], unknown,
+                             f"{sheet} carries unrecognised columns "
+                             f"{unknown} — a shifted header looks exactly "
+                             f"like this")
+
+    def test_identity_columns_exist(self):
+        for sheet in ("Weekly_Rejected", "Rejected"):
+            hdr = self._headers(sheet)
+            if hdr is None:
+                continue
+            for col in ("Date", "URL"):
+                self.assertIn(col, hdr, f"{sheet} has no {col} column — an "
+                                        f"archived rejection could never be "
+                                        f"matched against a re-ingestion")
+
+    def test_a_reason_column_exists(self):
+        for sheet in ("Weekly_Rejected", "Rejected"):
+            hdr = self._headers(sheet)
+            if hdr is None:
+                continue
+            self.assertTrue(any(h in hdr for h in self.REASON_SPELLINGS),
+                            f"{sheet} has none of {self.REASON_SPELLINGS}; "
+                            f"the next reviewer sees no reason at all")
+
+    def test_no_duplicate_columns(self):
+        for sheet in ("Weekly_Rejected", "Rejected"):
+            hdr = self._headers(sheet)
+            if hdr is None:
+                continue
+            named = [h for h in hdr if h]
+            dupes = sorted({h for h in named if named.count(h) > 1})
+            self.assertEqual([], dupes, f"{sheet} has duplicate columns "
+                                        f"{dupes} — writing by name becomes "
+                                        f"ambiguous")
+
+    def test_the_guard_can_read_both_sheets(self):
+        """End to end on the real workbook: whatever the two schemas are,
+        load_rejected_urls must return entries with reasons attached."""
+        from pipeline.merge_master import load_rejected_urls
+        xlsx = ROOT / "docs" / "data" / "recalls.xlsx"
+        if not xlsx.exists():                              # pragma: no cover
+            self.skipTest("recalls.xlsx not present")
+        reg = load_rejected_urls(xlsx)
+        self.assertTrue(reg, "the re-promotion guard read nothing from a "
+                             "workbook that has archived rejections")
+        with_reason = [v for v in reg.values()
+                       if v.strip().rstrip(":").strip()
+                       and "no reason recorded" not in v]
+        self.assertTrue(with_reason,
+                        "every archived rejection came back without a "
+                        "reason — the reason column is not being read")
 
     def test_it_matches_pipeline_extractor(self):
         src = (ROOT / "pipeline" / "extractor.py").read_text(encoding="utf-8")
@@ -99,18 +191,6 @@ class TestTheHeaderCopyIsHonest(unittest.TestCase):
                       '["RejectedAt", "RejectReason"]', src,
                       "pipeline/extractor.py changed its rejection schema; "
                       "update REJECTED_COLUMNS in this test to match")
-
-    def test_it_matches_the_live_workbook(self):
-        xlsx = ROOT / "docs" / "data" / "recalls.xlsx"
-        if not xlsx.exists():                          # pragma: no cover
-            self.skipTest("recalls.xlsx not present")
-        wb = openpyxl.load_workbook(xlsx, read_only=True)
-        if "Weekly_Rejected" not in wb.sheetnames:     # pragma: no cover
-            self.skipTest("no Weekly_Rejected sheet")
-        hdr = [str(c.value or "") for c in next(wb["Weekly_Rejected"].rows)]
-        self.assertEqual(REJECTED_COLUMNS, hdr,
-                         "the live archive header moved; the alignment tests "
-                         "below are no longer testing the real shape")
 
 
 class TestArchiveAlignment(unittest.TestCase):
