@@ -144,6 +144,22 @@
   "Notes": "[RASFF #2026.7336; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=866951] [promoted 2026-08-20: RASFF — Salmonella Heidelberg in frozen chicken fillet, origin Brazil, notified by Lithuania] [verified 2026-08-20: RASFF Window is a JavaScript app and returns an empty shell to any server-side fetch, so the notification page could not be read from the audit environment. Checked instead: the row matches the 488 published RASFF rows in shape and its notifId agrees with its URL. Promoted on structural consistency, not an independent read.]"
  },
  {
+  "Date": "2026-08-19",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Ukraine | Notifying: Czechia",
+  "Brand": "—",
+  "Product": "Salmonella infantis in chicken meat from Ukraine",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella infantis in chicken meat from Ukraine; risk: potential risk; category: poultry meat and poultry meat products",
+  "Class": "Information",
+  "Country": "Ukraine",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867367",
+  "Notes": "[RASFF #2026.7361; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=867367]"
+ },
+ {
   "Date": "2026-08-18",
   "Source": "RappelConso (FR)",
   "Company": "La Fourche",
