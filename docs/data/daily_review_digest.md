@@ -1,6 +1,6 @@
-# FSIS Daily Review — 2026-08-21 (Athens)
+# FSIS Daily Review — 2026-08-22 (Athens)
 
-Mode: **live** · generated 2026-08-21T09:26:00+03:00
+Mode: **live** · generated 2026-08-22T09:20:25+03:00
 Recalls rows reviewed: **1484** · in-progress week (never published): **W35**
 
 ## 1. Integrity
