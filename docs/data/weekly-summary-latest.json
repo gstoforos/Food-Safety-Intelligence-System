@@ -5,21 +5,21 @@
   "week_num": 34,
   "year": 2026,
   "week_start": "2026-08-14",
-  "week_end": "2026-08-19",
+  "week_end": "2026-08-20",
   "week_start_display": "14 Aug",
-  "week_end_display": "19 Aug 2026",
-  "generated_utc": "2026-08-22T06:20:26.452801+00:00",
+  "week_end_display": "20 Aug 2026",
+  "generated_utc": "2026-08-22T08:38:29.405902+00:00",
   "stats": {
-    "total": 44,
-    "tier1": 34,
+    "total": 52,
+    "tier1": 36,
     "outbreaks": 1,
-    "delta": -18,
-    "delta_pct": -29
+    "delta": -11,
+    "delta_pct": -17
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
     "cases": 17,
-    "pct": 39
+    "pct": 33
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -94,5 +94,5 @@
       "url": "https://recalls-rappels.canada.ca/en/alert-recall/clement-gourmand-brand-meat-products-recalled-due-listeria-monocytogenes"
     }
   ],
-  "country_count": 13
+  "country_count": 18
 }
