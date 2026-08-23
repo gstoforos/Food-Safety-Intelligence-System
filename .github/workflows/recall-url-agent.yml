@@ -60,7 +60,15 @@ jobs:
           tags: tag:ci
           version: latest
 
+      # continue-on-error (2026-08-22): a VPS outage must not be reported as a
+      # workflow failure. It was — "All jobs failed" at 05:43 with no clue that
+      # the cause was an unreachable box rather than broken code, and that cost
+      # real diagnosis time. The agent already tells the truth on its own: if
+      # every row comes back retry it prints "NO REVIEW PERFORMED" and exits 3,
+      # so a red run still means "nothing was reviewed" — but now the log names
+      # the reason instead of dying at a curl.
       - name: Health-check llama-server on VPS
+        continue-on-error: true
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
         run: |
@@ -71,7 +79,7 @@ jobs:
             fi
             echo "Attempt $i/5 failed, retrying in 5s..."; sleep 5
           done
-          echo "✗ llama-server unreachable after 5 attempts"; exit 1
+          echo "✗ llama-server unreachable after 5 attempts — the agent will\n                run, find the model unreachable, and exit 3 with a clear reason."
 
       - name: Install review agent
         run: |
