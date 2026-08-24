@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-08-23",
+  "Source": "RappelConso (FR)",
+  "Company": "Le Baron",
+  "Brand": "Le Baron",
+  "Product": "brie 3 kg 60% le baron",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Retrait préventif suite à détection Listeria dans d'autre lot du même jour de fabrication",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23143/Interne",
+  "Notes": "établissements de restauration [url-gate 2026-08-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...]"
+ },
+ {
   "Date": "2026-08-21",
   "Source": "RappelConso (FR)",
   "Company": "Boutique d'usine des Salaisons Dijonnaises",
@@ -142,6 +158,22 @@
   "Outbreak": 0,
   "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-40-2026",
   "Notes": "source_id=FSA-PRIN-40-2026 [via official-feed collector] [promoted 2026-08-22: FSA-PRIN-40-2026, issued 21 August 2026: 'Summit Foods is recalling various filled wraps' for 'the possible presence of Shiga toxin-producing E. coli (STEC)'. Company was empty. The sibling row citing data.food.gov.uk/food-alerts/id/FSA-PRIN-40-2026 is the machine-readable metadata endpoint and is archived separately. CHANGED - Company: '' -> 'Summit Foods'; Pathogen: 'STEC' -> 'Shiga toxin-producing E. coli (STEC)'; Reason: \"['Possible contamination of product with E. coli', 'Possible contamination of product with E. coli']\" -> 'Possible presence of Shiga toxin-producing E. coli (STEC)'.]"
+ },
+ {
+  "Date": "2026-08-21",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Poland | Notifying: Netherlands",
+  "Brand": "FRA, DEU, ITA, BEL, ESP, GRC, SWE, DNK, AUT, CZE, SVN, SVK, HUN, ROU, BGR, CYP, MLT, IRL, LTU, LVA, EST, FIN, PRT, LUX, HRV",
+  "Product": "Salmonella Typhimurium in chicken breast filet from Poland",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella Typhimurium in chicken breast filet from Poland; risk: potentially serious; category: poultry meat and poultry meat products",
+  "Class": "Information",
+  "Country": "Poland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867212",
+  "Notes": "[RASFF #2026.7416; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=867212] [gemini-enrich 2026-08-23: Brand '—'→'FRA, DEU, ITA, BEL, ESP, GRC, SWE, DNK, AUT, CZE, SVN, SVK, ']"
  },
  {
   "Date": "2026-08-20",
