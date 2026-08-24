@@ -5,7 +5,15 @@ name: Recall Confirm Agent — Reviewer 3 (deterministic)
 # field to 100% against the source, and decides approve → Recalls /
 # reject → Weekly_Rejected / needs_human → stays in Pending.
 #
-# Runs on the AFTS Qwen VPS via Tailscale + LLAMA_BASE_URL — the SAME
+# DETERMINISTIC — no model, no VPS, no network. It re-checks reviewer 2's
+# banked work with the code-level guards and publishes.
+#
+# The Tailscale step and llama health check were removed on 2026-08-24.
+# They were inherited by copying recall-review-agent.yml and were killing
+# this job with 'llama-server unreachable ... exit 1' whenever the VPS was
+# down — blocking the ONLY promoter in the A2->A3 chain for a service it
+# never calls. Publication must not depend on the model being up.
+# (was: Runs on the AFTS Qwen VPS via Tailscale + LLAMA_BASE_URL — the SAME
 # proven pattern as greek_gap_finder.yml. No Claude/Gemini key. When the
 # VPS moves to a Mac, only the LLAMA_BASE_URL secret changes.
 
@@ -52,26 +60,6 @@ jobs:
           pip install -r requirements.txt
           # Page fetch + parse (the agent's tools)
           pip install --quiet curl_cffi beautifulsoup4 openpyxl requests
-
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v3
-        with:
-          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
-          tags: tag:ci
-          version: latest
-
-      - name: Health-check llama-server on VPS
-        env:
-          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
-        run: |
-          echo "Pinging $LLAMA_BASE_URL/models..."
-          for i in 1 2 3 4 5; do
-            if curl -sf --max-time 10 "$LLAMA_BASE_URL/models" > /dev/null; then
-              echo "✓ llama-server is reachable"; exit 0
-            fi
-            echo "Attempt $i/5 failed, retrying in 5s..."; sleep 5
-          done
-          echo "✗ llama-server unreachable after 5 attempts"; exit 1
 
       - name: Install review agent
         run: |
@@ -289,7 +277,6 @@ jobs:
 
       - name: Run review agent
         env:
-          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
           SEARX_URL: ${{ secrets.SEARX_URL }}
         run: |
           ARGS=""

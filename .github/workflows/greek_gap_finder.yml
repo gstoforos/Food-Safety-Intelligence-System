@@ -84,7 +84,12 @@ jobs:
           tags: tag:ci
           version: latest
 
+      # continue-on-error (2026-08-24): a VPS outage is not a workflow
+      # failure. Every regional finder hard-exited here, so one unreachable
+      # box turned the whole fleet red and buried the real cause. The
+      # finder itself reports honestly when the model is unavailable.
       - name: Health-check llama-server on VPS
+        continue-on-error: true
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
         run: |
@@ -97,8 +102,7 @@ jobs:
             echo "Attempt $i/5 failed, retrying in 5s..."
             sleep 5
           done
-          echo "✗ llama-server unreachable after 5 attempts"
-          exit 1
+          echo "✗ llama-server unreachable — finder will report and exit cleanly"
 
       - name: Run Greek gap finder pipeline
         env:
