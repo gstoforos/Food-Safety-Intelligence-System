@@ -110,12 +110,45 @@ class TestAccentFolding(unittest.TestCase):
 
 class TestTheTierOutcome(unittest.TestCase):
 
-    def test_pudding_is_not_forced_to_tier_1(self):
+    def test_chilled_pudding_is_tier_1_too(self):
+        """Superseded 2026-08-24: the moisture gate is gone entirely.
+
+        This test previously asserted Tier 2 for a chilled pudding. That
+        distinction no longer exists — bare B. cereus is Tier 1 in every
+        matrix, wet or dry. See tests/test_bacillus_cereus_tier.py, which
+        is the authority for this rule.
+        """
         row = {"Pathogen": "Bacillus cereus", "Tier": 2,
                "Product": "Milbona High Protein Pudding Chocolate Flavour",
+               "Reason": "Bacillus cereus detected, use by 25-08-2026"}
+        enforce_tier1(row)
+        self.assertEqual(1, int(row["Tier"]))
+
+    def test_ambient_pudding_IS_forced_to_tier_1(self):
+        """Operator decision 2026-08-24: the NVWA Milbona row is Tier 1.
+
+        The earlier rule read the product as a "chilled dairy dessert" and
+        held it at Tier 2. The row itself contradicts that:
+
+            Milbona High Protein Pudding Chocolate Flavour, 200 g
+            (THT 14-09-2026, barcode 4056489216162)
+
+        THT is "ten minste houdbaar tot" — BEST BEFORE. Under EU FIC rules a
+        microbiologically highly perishable food must carry a USE BY date
+        (Dutch TGT); best-before is what shelf-stable goods carry, and this
+        one is four weeks out. The product sits on an ambient shelf.
+
+        An ambient wet dairy dessert is the classic emetic B. cereus matrix:
+        spores survive processing, germinate at room temperature, and
+        cereulide is heat-stable and preformed. So a shelf-stable marker
+        cancels the high-moisture veto.
+        """
+        row = {"Pathogen": "Bacillus cereus", "Tier": 2,
+               "Product": ("Milbona High Protein Pudding Chocolate Flavour, "
+                           "200 g (THT 14-09-2026)"),
                "Reason": "Bacillus cereus detected"}
         enforce_tier1(row)
-        self.assertEqual(2, int(row["Tier"]))
+        self.assertEqual(1, int(row["Tier"]))
 
     def test_dry_matrix_is_still_forced_to_tier_1(self):
         row = {"Pathogen": "Bacillus cereus", "Tier": 3,
@@ -136,8 +169,9 @@ class TestTheTierOutcome(unittest.TestCase):
                 in str(dict(zip(hdr, r)).get("URL") or "")]
         if not hits:                                       # pragma: no cover
             self.skipTest("row not in the register")
-        self.assertEqual(2, int(hits[0]["Tier"]),
-                         "the chilled pudding is published as Tier 1 again")
+        self.assertEqual(1, int(hits[0]["Tier"]),
+                         "the ambient (THT) pudding must be published as "
+                         "Tier 1 — operator decision 2026-08-24")
 
 
 if __name__ == "__main__":
