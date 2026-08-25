@@ -16,6 +16,22 @@
   "Notes": "établissements de restauration [url-gate 2026-08-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...]"
  },
  {
+  "Date": "2026-08-22",
+  "Source": "FDA",
+  "Company": "Everything Sprouts, LLC",
+  "Brand": "Everything Sprouts, Calco",
+  "Product": "Alfalfa Sprouts",
+  "Pathogen": "Salmonella",
+  "Reason": "Potential to be contaminated with Salmonella and Shiga toxin-producing Escherichia coli (STEC)",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-recalls-alfalfa-sprouts-due-potential-e-coli-and-salmonella-risk",
+  "Notes": "FDA listing HTML (Layer 1)"
+ },
+ {
   "Date": "2026-08-21",
   "Source": "RappelConso (FR)",
   "Company": "Boutique d'usine des Salaisons Dijonnaises",
