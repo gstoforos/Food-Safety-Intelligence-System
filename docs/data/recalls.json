@@ -17629,7 +17629,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-pistachios-and-pistachio-containing-products-made-kunafa-s-recalled-due",
-  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by test results.\n\nThere have been reported illnesses that may be associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a food safety investigation, which may   [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-18: pending_gap → pending_gap_v1] [claude-check 2026-05-19: fix; corrections: Date→2026-04-21; fix; date on page=2026-04-21 | Row Date field is empty but page shows 2026-04-21 (meta-dcterms.issued and Last updated);] [gap-gate 2026-05-19: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [audit 2026-08-13: publish-gate rule 6f. Company, Brand and Product all held pieces of the CFIA page headline — Product read 'due to Salmonella - Canada.ca', including the site name. Repaired from the notice itself: the recalling firm is Kunafa's Inc. and the recall covers 25 pistachio items. Hazard unchanged (possible Salmonella contamination); the Pathogen field was already correct.]"
+  "Notes": "## Additional information\n\nBackground\n\nThis recall was triggered by test results.\n\nThere have been reported illnesses that may be associated with the consumption of these products.\n\n  What is being done\n\nThe Canadian Food Inspection Agency (CFIA) is conducting a food safety investigation, which may   [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-05-18: pending_gap → pending_gap_v1] [claude-check 2026-05-19: fix; corrections: Date→2026-04-21; fix; date on page=2026-04-21 | Row Date field is empty but page shows 2026-04-21 (meta-dcterms.issued and Last updated);] [gap-gate 2026-05-19: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [audit 2026-08-13: publish-gate rule 6f. Company, Brand and Product all held pieces of the CFIA page headline — Product read 'due to Salmonella - Canada.ca', including the site name. Repaired from the notice itself: the recalling firm is Kunafa's Inc. and the recall covers 25 pistachio items. Hazard unchanged (possible Salmonella contamination); the Pathogen field was already correct.] [outbreak:ca:cfia-kunafa-pistachio-2026-04] [fix 2026-08-26: both CFIA notices for this recall were verified against the source and BOTH name the same recalling firm, Kunafa's Inc., RA-81920, Class 2, 2026-04-21, possible Salmonella. One row carried the notice headline 'Various pistachios and pistachio-containing products' in the Company field instead of a company; corrected. Both rows tagged [outbreak:ca:cfia-kunafa-pistachio-2026-04] so the two notices count as ONE event — a high-confidence operator override, not the low-confidence pathogen+month inference, which count_events correctly refuses to merge on.]"
  },
  {
   "Date": "2026-04-21",
@@ -17794,7 +17794,7 @@
  {
   "Date": "2026-04-21",
   "Source": "CFIA",
-  "Company": "Various pistachios and pistachio-containing products",
+  "Company": "Kunafa's Inc.",
   "Brand": "Various pistachios and pistachio-containing products",
   "Product": "Various pistachios and pistachio-containing products",
   "Pathogen": "Salmonella",
@@ -17805,7 +17805,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-pistachios-and-pistachio-containing-products-recalled-due-salmonella-6",
-  "Notes": "[ongoing CFIA pistachio investigation; outbreak=1 — PHAC reports 189 illnesses, 26 hospitalisations across 6 provinces (April 2026 update); related to Heeva Fine Foods recall in Batch 2]"
+  "Notes": "[ongoing CFIA pistachio investigation; outbreak=1 — PHAC reports 189 illnesses, 26 hospitalisations across 6 provinces (April 2026 update); related to Heeva Fine Foods recall in Batch 2] [outbreak:ca:cfia-kunafa-pistachio-2026-04] [fix 2026-08-26: both CFIA notices for this recall were verified against the source and BOTH name the same recalling firm, Kunafa's Inc., RA-81920, Class 2, 2026-04-21, possible Salmonella. One row carried the notice headline 'Various pistachios and pistachio-containing products' in the Company field instead of a company; corrected. Both rows tagged [outbreak:ca:cfia-kunafa-pistachio-2026-04] so the two notices count as ONE event — a high-confidence operator override, not the low-confidence pathogen+month inference, which count_events correctly refuses to merge on.]"
  },
  {
   "Date": "2026-04-21",
@@ -22733,7 +22733,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-pistachios-and-pistachio-containing-products-recalled-due-salmonella-5",
-  "Notes": "Outbreak: 166 ill, 25 hosp, 6 provinces [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "Outbreak: 166 ill, 25 hosp, 6 provinces [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [tag REVERTED 2026-08-26: this row was tagged as part of the Kunafa's Inc. event on a URL-pattern match and the tag was WRONG. The notice at this URL is a different and much broader CFIA action — many firms including Phidelia Premium Products, Alzahraa Halal Meat Inc. and Baklawa King Inc., published November-December 2025, not Kunafa's Inc. of 2026-04-21. Verified against the source after tagging. The row's own Date should also be checked against that notice.]"
  },
  {
   "Date": "2026-03-16",
