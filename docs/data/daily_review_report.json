@@ -1,10 +1,10 @@
 {
-  "generated": "2026-08-25T09:25:28+03:00",
-  "date": "2026-08-25",
+  "generated": "2026-08-26T09:27:56+03:00",
+  "date": "2026-08-26",
   "mode": "live",
   "in_progress_week": "W35",
   "counts": {
-    "recalls_rows": 1505,
+    "recalls_rows": 1512,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
@@ -59,7 +59,7 @@
     },
     "changes": [
       {
-        "row": 145,
+        "row": 152,
         "field": "Tier",
         "fix": "tier1_enforce",
         "before": 2,
@@ -67,7 +67,7 @@
         "reason": "E. coli is always Tier 1"
       },
       {
-        "row": 264,
+        "row": 271,
         "field": "Tier",
         "fix": "tier1_enforce",
         "before": 2,
