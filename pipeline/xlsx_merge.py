@@ -367,6 +367,30 @@ def merge_xlsx_with_remote(
     wj_merged = _merge_unique(wj_remote, wj_ours, _wr_dedup_key)
     _assert_no_shrink("Weekly_Rejected", wj_remote, wj_ours, wj_merged, _wr_dedup_key)
 
+    # ── THE PERMANENT "Rejected" ARCHIVE (added 2026-08-26) ─────────────
+    # This function rebuilds the workbook from scratch and creates only the
+    # sheets named below it. "Rejected" was never in that list, so every
+    # row-merge silently dropped the entire permanent rejection archive.
+    #
+    # Traced on the live repo: the archive was restored (138 rows) at
+    # 2026-08-22 11:44 and was gone at the very next writer. The commits
+    # that killed it say "(retry 1, row-merged)" — that is this code path.
+    # It had already destroyed the same 138 rows twice before, and each
+    # time the loss was invisible: the sheet simply was not in the output.
+    #
+    # Merged with the same no-shrink assertion as the other audit sheets.
+    # "Rejected" is append-only by design — it is where the Thursday wipe
+    # moves rows so a rejection survives the reset — so a merge that
+    # produces fewer rows than either input is always a bug.
+    rj_headers, rj_remote = _read_sheet(remote_path, "Rejected")
+    _, rj_ours = _read_sheet(ours_path, "Rejected")
+    if not rj_headers:
+        rj_headers_local, _ = _read_sheet(ours_path, "Rejected")
+        rj_headers = rj_headers_local or (rec_headers + [
+            "ScrapedAt", "Status", "RejectedBy", "RejectedAt", "RejectReason"])
+    rj_merged = _merge_unique(rj_remote, rj_ours, _wr_dedup_key)
+    _assert_no_shrink("Rejected", rj_remote, rj_ours, rj_merged, _wr_dedup_key)
+
     wb = Workbook()
     rec_ws = wb.active
     rec_ws.title = "Recalls"
@@ -386,8 +410,40 @@ def merge_xlsx_with_remote(
         # are recreated by weekly_rejected_capture.record_rejections.
         wj_ws = wb.create_sheet("Weekly_Rejected")
         _write_sheet(wj_ws, wj_headers, wj_merged)
+    if rj_merged or rj_remote or rj_ours:
+        rj_ws = wb.create_sheet("Rejected")
+        _write_sheet(rj_ws, rj_headers, rj_merged)
     news_ws = wb.create_sheet("NEWS")
     _write_sheet(news_ws, news_headers, news_merged)
+
+    # ── BACKSTOP: never drop a sheet this function has not heard of ─────
+    # The Rejected loss happened because the output sheet list is
+    # hardcoded, so a sheet added anywhere else in the pipeline is deleted
+    # by the next merge without a word. Copy across anything present in
+    # either input that is not already written, and say so — a new sheet
+    # surviving with a log line is recoverable, a new sheet vanishing
+    # silently is the bug we just spent three days on.
+    _known = set(wb.sheetnames)
+    for _src in (remote_path, ours_path):
+        try:
+            _in = load_workbook(_src, read_only=True, data_only=True)
+        except Exception:                                     # noqa: BLE001
+            continue
+        for _name in _in.sheetnames:
+            if _name in _known:
+                continue
+            _hdr, _rows = _read_sheet(_src, _name)
+            if not _hdr:
+                continue
+            print(f"  [xlsx_merge] carrying over unrecognised sheet "
+                  f"{_name!r} ({len(_rows)} rows) from {_src.name} — it is "
+                  f"not in this function's output list and would otherwise "
+                  f"have been dropped")
+            _ws = wb.create_sheet(_name)
+            _write_sheet(_ws, _hdr, _rows)
+            _known.add(_name)
+        _in.close()
+
     wb.save(out_path)
 
     counts = {
