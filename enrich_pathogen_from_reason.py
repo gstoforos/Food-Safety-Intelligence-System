@@ -74,6 +74,40 @@ CANON = [
 ]
 
 
+# Hazards that are DEFINITIVELY NOT a pathogen. A row whose Reason says one of
+# these will NEVER acquire a Pathogen, so leaving it at pending_enrichment is a
+# permanent dead end — it waits forever for reviewer 1 to fill a field the
+# regulator never wrote.
+#
+# Measured 2026-08-24: 18 rows sat in enrichment and 11 said "Rupture de la
+# chaine de froid par le transporteur" — a transport temperature failure with
+# no organism detected. That one phrase was the entire publication-lag tail.
+#
+# Rejected with the regulator's own wording recorded, never silently deleted.
+_NOT_A_PATHOGEN = (
+    ("rupture de la chaine de froid", "cold chain break in transport"),
+    ("chaine du froid", "cold chain break"),
+    ("cold chain", "cold chain break"),
+    ("erreur d etiquetage", "labelling error"),
+    ("etiquetage", "labelling error"),
+    ("teneur en plomb", "lead content above the regulatory limit"),
+    ("fermentation spontanee", "spontaneous fermentation risk"),
+    ("peuvent basculer", "tip-over hazard (non-food product)"),
+)
+
+
+def classify_non_pathogen(reason: str):
+    """Return a reason string if the Reason is definitively NOT a pathogen
+    hazard, else None. Conservative: anything not listed is left alone."""
+    n = _norm(reason)
+    if not n:
+        return None
+    for term, label in _NOT_A_PATHOGEN:
+        if _norm(term) in n:
+            return label
+    return None
+
+
 def _norm(s: str) -> str:
     s = unicodedata.normalize("NFKD", str(s or ""))
     s = "".join(c for c in s if not unicodedata.combining(c))
@@ -115,7 +149,7 @@ def main() -> int:
     pr = H.index("Product") + 1 if "Product" in H else ri
     so = H.index("Source") + 1 if "Source" in H else ri
 
-    filled, skipped = [], []
+    filled, skipped, dead = [], [], []
     for row in range(2, ws.max_row + 1):
         if str(ws.cell(row, si).value or "").strip() != "pending_enrichment":
             continue
@@ -128,11 +162,19 @@ def main() -> int:
         if canon:
             filled.append((row, canon, term, label))
         else:
-            skipped.append((label, reason[:64]))
+            np = classify_non_pathogen(reason)
+            if np:
+                dead.append((row, np, label))
+            else:
+                skipped.append((label, reason[:64]))
 
     print(f"pending_enrichment rows with a recoverable Pathogen: {len(filled)}\n")
     for _r, canon, term, label in filled:
         print(f"  {label} -> {canon}   (matched {term!r})")
+    print(f"\npermanently stuck — NOT a pathogen hazard, will be REJECTED: "
+          f"{len(dead)}")
+    for _r, np, label in dead:
+        print(f"  {label} -> reject: {np}")
     print(f"\nleft untouched (no keyword — needs the page, or out of scope): "
           f"{len(skipped)}")
     for label, reason in skipped:
@@ -141,7 +183,7 @@ def main() -> int:
     if not commit:
         print("\nDRY RUN — nothing written. Re-run with --commit true.")
         return 0
-    if not filled:
+    if not filled and not dead:
         return 0
 
     today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
@@ -155,9 +197,19 @@ def main() -> int:
                 f"regulator's own Reason text (matched {term!r}); "
                 f"pending_enrichment -> pending]").strip()[:2000]
 
+    for row, np, _label in dead:
+        ws.cell(row, si).value = "rejected"
+        if ni:
+            prev = str(ws.cell(row, ni).value or "")
+            ws.cell(row, ni).value = (
+                prev + f" [enrich {today}: REJECTED — the Reason describes "
+                f"{np}, not a microbial pathogen, so no Pathogen will ever be "
+                f"filled and the row cannot leave pending_enrichment]"
+            ).strip()[:2000]
+
     wb.save(args.xlsx)
     print(f"\n✓ Filled {len(filled)} Pathogen field(s) and advanced them to "
-          f"'pending'.")
+          f"'pending'; rejected {len(dead)} dead-end row(s).")
     try:
         sys.path.insert(0, ".")
         from pipeline.merge_master import mirror_json_from_xlsx
