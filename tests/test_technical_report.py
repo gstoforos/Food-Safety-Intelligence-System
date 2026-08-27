@@ -98,7 +98,11 @@ def test_out_of_window_signals_are_kept_in_a_separate_ledger(built):
 
 def test_findings_table_holds_only_in_window_rows(built):
     d, page = built
-    findings = page.split("<h3>5.2", 1)[1].split("Table 1.", 1)[0]
+    # Scope to the table BODY: §5.2's prose legitimately names the
+    # baseline span, which is made of pre-window weeks.
+    findings = (page.split("<h3>5.2", 1)[1]
+                    .split("<tbody>", 1)[1]
+                    .split("</tbody>", 1)[0])
     for r in d["replay"]:
         if r["in_window"]:
             continue
@@ -182,3 +186,76 @@ def test_figure_has_a_table_view(built):
     fig = page.split('<figure class="fig"', 1)[1].split("</figure>", 1)[0]
     assert "<details>" in fig and "<table>" in fig, (
         "a chart must ship an accessible table view of its own data")
+
+
+# ---------------------------------------------------------------------------
+# Corrections applied 27 August 2026 after external review
+# ---------------------------------------------------------------------------
+
+def test_analytical_digest_excludes_the_clock(built):
+    """Two builds of the same corpus must agree on the digest."""
+    d, _page = built
+    first = btr.analytical_digest(d)
+    second = btr.analytical_digest(btr.gather())
+    assert first == second, (
+        "the digest moved between two builds of the same corpus — it is "
+        "picking up the clock or some other unpinned input")
+    assert len(first) == 64
+
+
+def test_report_does_not_claim_byte_for_byte_reproducibility(built):
+    _d, page = built
+    low = page.lower()
+    assert "byte for byte" not in low or "not</strong> byte-for-byte" in low
+    assert "reproduces the reported analytical results" in low
+
+
+def test_share_and_count_are_counted_separately(built):
+    d, page = built
+    n_share = sum(1 for r in d["replay"]
+                  if r["in_window"] and r["channel"] == "proportion")
+    n_count = sum(1 for r in d["replay"]
+                  if r["in_window"] and r["channel"] != "proportion")
+    kpis = page.split('<div class="kpis">', 1)[1].split("</div>\n</div>", 1)[0]
+    assert "FDR-controlled share signals" in kpis
+    assert "count-channel diagnostics" in kpis
+    assert f'<div class="v">{n_share}</div>' in kpis
+    assert f'<div class="v">{n_count}</div>' in kpis
+    # The combined figure must not be presented as a signal count.
+    assert f'<div class="v">{n_share + n_count}</div>\n    <div class="l">signals' not in page
+
+
+def test_the_output_cap_claim_matches_the_detector(built):
+    """§2.5 states the cap has never bound. Verify it, do not trust it."""
+    d, page = built
+    assert d["cap_bound_weeks"] == 0, (
+        f"the cap bound on {d['cap_bound_weeks']} weeks; §2.5 says it never "
+        f"has and must be corrected")
+    assert d["max_out"] <= btr.sd.MAX_SIGNALS
+    assert f"<strong>{d['max_out']}</strong> rows" in page
+
+
+def test_ranking_never_compares_a_share_ratio_to_a_count_ratio(built):
+    """The claim in §2.5 is about the sort key. Exercise it directly."""
+    import pipeline.signal_detector as sd
+    corpus = sd.load_corpus()
+    strata = sd.build_strata(corpus)
+    need = sd.BASELINE_WEEKS + sd.GUARD_WEEKS + sd.C3_SPAN
+    for w in corpus.weeks[need:]:
+        sigs, _m = sd.detect(corpus, strata, asof=w)
+        chans = [s.channel for s in sigs]
+        # every share row precedes every count-only row: one block boundary
+        assert chans == sorted(chans, key=lambda c: c != "proportion"), w
+        for a, b in zip(sigs, sigs[1:]):
+            if a.channel == b.channel:
+                assert a.effect >= b.effect, (w, a.label, b.label)
+
+
+def test_turkey_is_displayed_as_turkiye(built):
+    d, page = built
+    if not any("Turkey" in r["label"] for r in d["replay"]):
+        pytest.skip("no Turkish row in the ledger")
+    assert "T\u00fcrkiye" in page
+    body = page.split("<h3>5.2", 1)[1]
+    assert "\u00b7 Turkey<" not in body, (
+        "display alias did not reach the ledger tables")
