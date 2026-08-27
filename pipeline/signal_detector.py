@@ -409,6 +409,11 @@ class Signal:
     dominant_source: Optional[str]
     dominant_share: float
     note: str
+    # Carried alongside `effect`, which follows the channel. Keeping both
+    # means a table can show the channel-appropriate number without the
+    # other becoming unrecoverable.
+    effect_share: float = 0.0
+    effect_count: float = 0.0
 
 
 def _dominant_source(corpus: Corpus, s: Stratum, week: pd.Period) -> Tuple[Optional[str], float]:
@@ -429,8 +434,76 @@ def _dominant_source(corpus: Corpus, s: Stratum, week: pd.Period) -> Tuple[Optio
     return str(vc.index[0]), float(vc.iloc[0]) / float(len(sub))
 
 
+# =============================================================================
+# COVERAGE GATE
+# =============================================================================
+# TR-2026-01 §2.2 states that signals are reported only where the entire
+# detection baseline falls after the latest maturity date among continuously
+# collected sources. Until 2026-08-27 this module contained no reference to
+# source_coverage at all — the claim was true only because the window had
+# been applied by hand when the report was written.
+#
+# The gate below makes it a property of the code. It is ADDITIVE: when the
+# register is missing or unreadable, behaviour is exactly as before, and
+# signals outside the window are FLAGGED rather than dropped unless the
+# caller asks for enforcement. Silently changing what the detector reports
+# would be a worse cure than the disease.
+
+def coverage_window_start(register=None) -> Optional[str]:
+    """First week whose full detection baseline lies after mature coverage.
+
+    Returns a W-SUN period string, or None when no register is available.
+    The offset is BASELINE_WEEKS + GUARD_WEEKS: a test week is only
+    defensible once nothing in its baseline predates mature collection.
+    """
+    try:
+        from pipeline.source_coverage import load_register
+    except Exception:                                          # noqa: BLE001
+        return None
+    reg = register if register is not None else load_register()
+    if not reg:
+        return None
+    mats = [sc.mature_week for sc in reg.values()
+            if sc.coverage_class == "continuous" and sc.mature_week]
+    if not mats:
+        return None
+    latest = max(mats)
+    try:
+        start = pd.Period(latest.split("/")[0], freq="W-SUN")
+    except Exception:                                          # noqa: BLE001
+        return None
+    return str(start + (BASELINE_WEEKS + GUARD_WEEKS))
+
+
+def coverage_status(asof: pd.Period, register=None) -> Dict:
+    """Whether `asof` sits inside the defensible analytical window."""
+    ws = coverage_window_start(register)
+    if ws is None:
+        return {"coverage_register": "absent",
+                "coverage_window_start": None,
+                "within_coverage_window": None,
+                "coverage_note": ("No source-coverage register found. Build it "
+                                  "with `python -m pipeline.source_coverage "
+                                  "--build`. Without it, signals cannot be "
+                                  "distinguished from collection artefacts.")}
+    inside = str(asof) >= ws
+    return {
+        "coverage_register": "present",
+        "coverage_window_start": ws,
+        "within_coverage_window": bool(inside),
+        "coverage_note": ("Baseline lies wholly after mature collection."
+                          if inside else
+                          "PART OF THIS WEEK'S BASELINE PREDATES MATURE "
+                          "COLLECTION. Any elevation here may be the scraper "
+                          "fleet coming online rather than a change in the "
+                          "food supply. Reported for the audit ledger; not "
+                          "publishable as a finding."),
+    }
+
+
 def detect(corpus: Corpus, strata: Dict[str, Stratum],
-           asof: Optional[pd.Period] = None) -> Tuple[List[Signal], Dict]:
+           asof: Optional[pd.Period] = None,
+           enforce_coverage: bool = False) -> Tuple[List[Signal], Dict]:
     """Run one detection pass for the week `asof` (default: latest complete)."""
     weeks = corpus.weeks
     if asof is None:
@@ -531,7 +604,26 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
         if src_share >= PUBLISHER_DOMINANCE and src:
             note += f" {int(round(src_share * 100))}% of this week's records in this stratum come from {src}."
 
-        effect = (share_obs / share_base) if share_base > 0 else float(observed)
+        # ── EFFECT MUST MATCH THE CHANNEL (fix 2026-08-27) ────────────────
+        # This computed the SHARE ratio for every signal, including
+        # count-only ones, and the published table labelled it as observed
+        # over baseline. Both cannot be true, and on the 20 signals inside
+        # the analytical window the two disagree on 8.
+        #
+        # One of those disagreements is disqualifying rather than merely
+        # mislabelled: Listeria monocytogenes / France, week of 27 July, is
+        # a COUNT-only signal whose share ratio is 0.85 — below one. A
+        # signals table reporting an effect of 0.85 tells the reader the
+        # stratum went DOWN in the same row that says it alarmed. The
+        # count ratio for that row is 1.24.
+        #
+        # Both are now carried. `effect` follows the channel, so the number
+        # beside a COUNT signal is a count ratio and the number beside a
+        # SHARE signal is a share ratio. The other value stays on the
+        # record, so nothing that was published becomes unrecoverable.
+        eff_share = (share_obs / share_base) if share_base > 0 else float(observed)
+        eff_count = (observed / m2) if m2 > 0 else float(observed)
+        effect = eff_share if channel == "proportion" else eff_count
 
         candidates.append(Signal(
             label=s.label(), stratum_key=key, level=s.level,
@@ -543,6 +635,7 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
             share_baseline=round(share_base, 4),
             p_value=p, fdr_pass=False, effect=round(effect, 2),
             channel=channel, dominant_source=src,
+            effect_share=round(eff_share, 3), effect_count=round(eff_count, 3),
             dominant_share=round(src_share, 2), note=note,
         ))
 
@@ -574,6 +667,10 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
     deduped.sort(key=lambda c: (c.channel != "proportion", -c.effect))
     final = deduped[:MAX_SIGNALS]
 
+    cov = coverage_status(asof)
+    if enforce_coverage and cov.get("within_coverage_window") is False:
+        final = []
+
     meta = {
         "status": "ok",
         "week": str(asof),
@@ -591,8 +688,13 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
         "fdr_q": FDR_Q,
         "min_absolute_count": MIN_ABSOLUTE_COUNT,
         "advisory_only": True,
+        "coverage_enforced": bool(enforce_coverage),
         "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
+    meta.update(cov)
+    if cov.get("within_coverage_window") is False and not enforce_coverage:
+        meta["reported"] = len(final)
+        meta["status"] = "ok_outside_coverage_window"
     return final, meta
 
 
@@ -657,6 +759,14 @@ def render_console(signals: List[Signal], meta: Dict) -> str:
     lines = []
     lines.append(f"FSIS signal scan — week {meta.get('week', '?')} "
                  f"({meta.get('week_start')} to {meta.get('week_end')})")
+    if meta.get("within_coverage_window") is False:
+        lines.append("*** OUTSIDE THE MATURE-COVERAGE WINDOW — this week's "
+                     "baseline predates full collection ***")
+        lines.append(f"    window opens {meta.get('coverage_window_start')}; "
+                     f"signals below are audit-ledger only, not publishable.")
+    elif meta.get("coverage_register") == "absent":
+        lines.append("*** NO COVERAGE REGISTER — run "
+                     "`python -m pipeline.source_coverage --build` ***")
     lines.append(f"corpus this week: {meta.get('corpus_week_total', 0)} records · "
                  f"strata tested: {meta.get('strata_tested', 0)} · "
                  f"sparse-suppressed: {meta.get('strata_suppressed_sparse', 0)}")
@@ -690,6 +800,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     ap.add_argument("--xlsx", default=XLSX_PATH)
     ap.add_argument("--asof", default=None,
                     help="ISO date inside the target week (default: latest complete)")
+    ap.add_argument("--enforce-coverage", action="store_true",
+                    help="suppress signals whose baseline predates mature "
+                         "collection, instead of flagging them (see "
+                         "pipeline/source_coverage.py)")
     ap.add_argument("--dry-run", action="store_true",
                     help="print only, write nothing")
     ap.add_argument("--backtest", action="store_true",
@@ -717,7 +831,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     if args.asof:
         asof = pd.Timestamp(args.asof).to_period("W-SUN")
 
-    signals, meta = detect(corpus, strata, asof=asof)
+    signals, meta = detect(corpus, strata, asof=asof,
+                           enforce_coverage=args.enforce_coverage)
     print(render_console(signals, meta))
     write_outputs(signals, meta, dry_run=args.dry_run)
     if not args.dry_run:

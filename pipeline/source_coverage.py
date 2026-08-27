@@ -648,6 +648,27 @@ def stable_baseline_weeks(weeks: List[str],
     a detector should use instead of "all history": comparing today against
     a period when half the scrapers did not exist produces an inflation
     signal that reflects AFTS, not the food supply.
+
+    WHAT `min_stability` ACTUALLY DOES (measured 2026-08-27)
+    -------------------------------------------------------
+    It is a three-level step function on this corpus, not a dial:
+
+        <= 0.55        24 of 35 weeks qualify
+        0.60 .. 0.95   22 weeks   <- flat across the whole usable range
+        >= 0.99        14 weeks
+
+    The cause is concentration. Within the reference fleet the weights are
+    RappelConso 47.9%, RASFF 37.5%, FDA 5.8%, CFIA 4.1%, FSAI 3.2%,
+    FSA 1.6% — the two dominant publishers are 85.4% between them. Losing
+    the smallest source leaves 98.4%; losing either dominant one drops
+    below 60%. So every threshold from 0.60 to 0.95 asks one question:
+    "were both dominant publishers live?"
+
+    The parameter is therefore not calibrating anything. It is expressing a
+    binary rule, and it should be read that way rather than tuned. Values
+    outside 0.60-0.95 change behaviour, but in ways that are hard to
+    justify: 0.99 additionally requires every minor source, and <=0.55
+    admits weeks missing one of the big two.
     """
     reg = register if register is not None else load_register()
     if not reg or not weeks:
