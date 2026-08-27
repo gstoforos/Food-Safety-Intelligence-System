@@ -1,13 +1,14 @@
 {
   "week_end": "2026-08-27",
-  "generated_utc": "2026-08-26T06:11:29+00:00",
-  "row_count": 60,
-  "tier1_count": 31,
+  "generated_utc": "2026-08-27T05:33:12+00:00",
+  "row_count": 63,
+  "tier1_count": 32,
   "outbreak_count": 10,
   "by_reviewer": {
     "operator review 2026-08-22": 23,
     "operator review 2026-08-20": 23,
-    "operator review 2026-08-26": 14
+    "operator review 2026-08-26": 14,
+    "operator review 2026-08-27": 3
   },
   "rows": [
     {
@@ -31,6 +32,29 @@
       "Week_Added": "2026-08-27",
       "RejectedBy": "operator review 2026-08-26",
       "RejectionReason": "http_error | source_id=FSA-PRIN-41-2026 [via official-feed collector",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-08-25",
+      "Source": "FSA (UK)",
+      "Company": "Tesco",
+      "Brand": "Tesco",
+      "Product": "Tesco Finest Mozzarella Pearls & Pesto Orzo ...",
+      "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+      "Reason": "E. coli STEC",
+      "Class": "Recall",
+      "Country": "United Kingdom",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://alerts.food.gov.uk/article/6841/Tesco-recalls-Tesco-Finest-Mozzarella-Pearls--Pesto-Orzo-Salad-because-of-possible-contamination-with-E.-coli-STEC",
+      "Notes": "REJECTED: http_error | 2 days ago · Tesco recalls Tesco Finest Mozzarella Pearls & Pesto Orzo Salad because of possible contamination with E. coli (STEC). Food Alert , 25 August 2026 ...  [via DDGS gap-finder, deterministic extract] [rejected 2026-08-27: duplicate_already_approved — Tesco Finest Mozzarella Pearls & Pesto Orzo Salad, STEC. Already in Recalls dated 2026-08-25 as FSA-PRIN-41-2026 with the alerts.food.gov.uk/news-alerts/alert/ citation. This is the /article/ URL form of the same notice.]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-08-27",
+      "RejectedBy": "operator review 2026-08-27",
+      "RejectionReason": "http_error | 2 days ago · Tesco recalls Tesco Finest Mozzarella Pearls & Pesto Orzo Salad because of possible contamination with E. coli (STEC). Food Alert , 25 August 2026 ...  [via DDGS gap-finder, ",
       "Reviewed": "N"
     },
     {
@@ -724,6 +748,29 @@
       "Reviewed": "N"
     },
     {
+      "Date": "2026-08-26",
+      "Source": "USDA FSIS",
+      "Company": "",
+      "Brand": "—",
+      "Product": "Cardboard boxes containing 100 pieces of “BUFFALO CHICKEN RANGOON” and “Sell By” dates from July 8, 2026, to June 29, 2027, represented on the label. Cardboard boxes containing 120 pieces of “BENEDETTO’S BUFFALO CHICKEN MOZZARELLA STICK” and “Sell By” dates from July 8, 2026, to June 29, 2027, repre",
+      "Pathogen": "Hepatitis A virus",
+      "Reason": "WASHINGTON, Aug. 26, 2026 – Shanghai Ravioli Corporation, in Boston, Mass., is recalling approximately 24,900 pounds of frozen, not ready-to-eat (NRTE) Buffalo chicken products that were produced without the benefit of inspection, the U.S. Department of Agriculture’s Food Safety and Inspection Service (FSIS) announced today. The frozen NRTE Buffalo chicken products were produced on various dates f",
+      "Class": "Class I",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 2,
+      "Outbreak": 0,
+      "URL": "https://www.fsis.usda.gov/recalls-alerts/shanghai-ravioli-corporation-recalls-not-ready-eat-frozen-buffalo-chicken-products",
+      "Notes": "FSIS API; #018-2026; Maine Massachusetts New Hampshire Rhode Island Vermont [rejected 2026-08-27: fabricated_pathogen_and_out_of_scope — Shanghai Ravioli Corporation, Buffalo Chicken Rangoon, 26 Aug 2026. The row carries Pathogen 'Hepatitis A virus'. The actual recall is for LACK OF FEDERAL INSPECTION — the FSIS permalink reads 'recalls-not-ready-eat-frozen-buffalo-chicken-rangoon' and the trade press reports 'Boston company recalls more than 12 tons of buffalo chicken products because of lack of inspection'. fsis.usda.gov returns 403 to the audit environment so the notice itself could not be read directly. An inspection-eligibility violation names no pathogen, biotoxin, mycotoxin, foreign body, pest or chemical hazard, so it is out of scope — and the Hepatitis A value is fabricated either way. This is the THIRD USDA row this month with a fabricated Hepatitis A on an uninspected-product recall (Indus Foods/Gangothri and Asian America Trading were the other two), which points at the USDA scraper's pathogen classifier rather than at three separate accidents.]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-08-27",
+      "RejectedBy": "operator review 2026-08-27",
+      "RejectionReason": "2026-08-27: fabricated_pathogen_and_out_of_scope — Shanghai Ravioli Corporation, Buffalo Chicken Rangoon, 26 Aug 2026. The row carries Pathogen 'Hepatitis A virus'. The actual recall is for LACK OF FE",
+      "Reviewed": "N"
+    },
+    {
       "Date": "2026-08-25",
       "Source": "FSA (UK)",
       "Company": "Tesco recalls Tesco Finest Mozzarella Pearls & Pesto Orzo Salad because of possi",
@@ -1388,6 +1435,29 @@
       "Week_Added": "2026-08-27",
       "RejectedBy": "operator review 2026-08-26",
       "RejectionReason": "http_error | FDA HTML fallback — claude-check needs to enrich Date+Pathogen [rejected 2026-08-26: allergen_only — Grand Central Bakery Seattle potato sourdough bread — the FDA permalink itself ends 'd",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "",
+      "Source": "FDA",
+      "Company": "Baxter Issues Voluntary Nationwide Recall One Lot Anticoagulant Sodium Citrate Solution Due",
+      "Brand": "—",
+      "Product": "Baxter Issues Voluntary Nationwide Recall One Lot Anticoagulant Sodium Citrate Solution Due",
+      "Pathogen": "",
+      "Reason": "Baxter Issues Voluntary Nationwide Recall One Lot Anticoagulant Sodium Citrate Solution Due",
+      "Class": "Recall",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 3,
+      "Outbreak": 0,
+      "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/baxter-issues-voluntary-nationwide-recall-one-lot-anticoagulant-sodium-citrate-solution-due",
+      "Notes": "REJECTED: http_error | FDA HTML fallback — claude-check needs to enrich Date+Pathogen [rejected 2026-08-27: not_food — Baxter voluntary nationwide recall of one lot of Anticoagulant Sodium Citrate solution — a medical/pharmaceutical product, not food. Row also has no Date and no Pathogen.]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-08-27",
+      "RejectedBy": "operator review 2026-08-27",
+      "RejectionReason": "http_error | FDA HTML fallback — claude-check needs to enrich Date+Pathogen [rejected 2026-08-27: not_food — Baxter voluntary nationwide recall of one lot of Anticoagulant Sodium Citrate solution — a ",
       "Reviewed": "N"
     }
   ]
