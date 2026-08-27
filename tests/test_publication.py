@@ -134,3 +134,111 @@ def test_valid_document_shell(built):
                 "</head>", "<body>", "</body>", "</html>"):
         assert tag in page
     assert "src=\"http" not in page
+
+
+# ---------------------------------------------------------------------------
+# Baseline indexing — the review of 27 August 2026
+# ---------------------------------------------------------------------------
+
+def test_stated_baseline_span_matches_the_code(built):
+    """§5.2 names a concrete baseline span. Derive it from the module.
+
+    An earlier draft quoted the SHARE channel's window while calling it the
+    C2 baseline. The two channels disagree by a week (see §2.3), so the
+    stated span must be pinned to the channel it claims to describe.
+    """
+    import pipeline.signal_detector as sd
+    d, page = built
+    corpus = sd.load_corpus()
+    i = [k for k, w in enumerate(corpus.weeks) if str(w) == d["window"]][0]
+    lo = i - sd.GUARD_WEEKS - sd.BASELINE_WEEKS
+    hi = i - sd.GUARD_WEEKS - 1
+    span = sd._window(
+        {w: 1 for w in corpus.weeks}, corpus.weeks, i,
+        sd.BASELINE_WEEKS, sd.GUARD_WEEKS)
+    assert len(span) == sd.BASELINE_WEEKS
+    assert f"{btr._wk(str(corpus.weeks[lo]))} to " \
+           f"{btr._wk(str(corpus.weeks[hi]))}" in page
+    # and every week held out as guard is named
+    for k in range(hi + 1, i):
+        assert btr._wk(str(corpus.weeks[k])) in page
+
+
+def test_the_two_channels_now_read_the_same_baseline(built):
+    """Derive both windows from the module; never assume the offset.
+
+    An earlier version of this test hardcoded `share_lo = count_lo + 1`,
+    which was the defect it was written to describe. When the defect was
+    corrected the test failed for the wrong reason: it was asserting the
+    bug. Both windows are now derived.
+    """
+    import pipeline.signal_detector as sd
+    _d, page = built
+    idx = 30
+    hi = idx - sd.GUARD_WEEKS
+    count = list(range(hi - sd.BASELINE_WEEKS, hi))
+    share = sorted(idx - b for b in range(sd.GUARD_WEEKS + 1,
+                                          sd.GUARD_WEEKS + 1 + sd.BASELINE_WEEKS))
+    assert share == count, "the guard-band defect has been reintroduced"
+    assert "Open defect" not in page, (
+        "the channels agree; the open-defect disclosure must not ship")
+    assert "Guard band aligned across channels" in page, (
+        "a correction that moved published results must appear in the "
+        "revision history")
+
+
+def test_revision_history_records_whether_results_moved(built):
+    _d, page = built
+    assert "Revision history" in page
+    hist = page.split("Revision history", 1)[1].split("</table>", 1)[0]
+    assert hist.count("<tr>") >= 4
+    assert "Results moved" in hist
+    for entry in ("Guard band aligned across channels",
+                  "Effect follows the channel",
+                  "Coverage window enforced in code",
+                  "Reproducibility restated"):
+        assert entry in hist, f"missing revision-history entry: {entry}"
+
+
+def test_leading_week_count_is_labelled_as_implementation_not_method(built):
+    import pipeline.signal_detector as sd
+    _d, page = built
+    need = sd.BASELINE_WEEKS + sd.GUARD_WEEKS + sd.C3_SPAN
+    assert f"<strong>{need}</strong>" in page
+    assert f"<strong>{need - 1}</strong>" in page, (
+        "the arithmetic minimum must be stated alongside the implemented one")
+    assert "implementation requirement, not an" in page
+
+
+def test_lead_does_not_imply_prospective_detection(built):
+    _d, page = built
+    lead = page.split('<span class="num">1</span>', 1)[0].lower()
+    for banned in ("flagged in the week it began", "in real time",
+                   "as it happened", "alerted"):
+        assert banned not in lead, f"implies prospective detection: {banned}"
+    assert "walk-forward replay" in lead
+
+
+def test_lead_does_not_overstate_scope_or_certainty(built):
+    _d, page = built
+    lead = page.split('<span class="num">1</span>', 1)[0]
+    assert "world's regulatory attention" not in lead
+    assert "monitored regulatory corpus" in lead
+    assert "Nothing happened to the food supply" not in lead
+    assert "strongly consistent with a publisher-volume event" in lead
+
+
+def test_effect_change_count_is_meaningful_not_tautological(built):
+    """Guard against the "61 of 61" bug.
+
+    Share and count ratios are almost never numerically equal, so counting
+    rows where they differ returns every row and reports nothing. The
+    figure that matters is how many DISPLAYED effects changed, which is
+    the count-only rows.
+    """
+    d, page = built
+    inw = [r for r in d["replay"] if r["in_window"]]
+    changed = sum(1 for r in inw if r["channel"] != "proportion")
+    assert 0 < changed < len(inw), "the statistic has gone degenerate"
+    assert f"<strong>{changed} of {len(inw)}</strong> rows" in page
+    assert f"{len(d['replay'])} of {len(d['replay'])}" not in page
