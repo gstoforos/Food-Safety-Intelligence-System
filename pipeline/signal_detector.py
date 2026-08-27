@@ -32,13 +32,19 @@ TWO CHANNELS
   count       raw weekly count vs baseline mean/sd. Diagnostic only.
   proportion  stratum's SHARE of that week's total corpus, exact binomial
               vs pooled baseline share. THIS is the alarming channel.
+              It PARTIALLY normalises changes in total weekly volume. It
+              does not eliminate publisher effects: it stays sensitive to
+              a change in publisher MIX, and to a publisher whose hazard
+              composition differs from the corpus average. Do not describe
+              shares as invariant to publisher volume.
 
 Rationale: RappelConso (FR) and RASFF (EU) together supply ~75% of all
 records. When a publisher dumps a backlog, every raw count in the corpus
 rises simultaneously and a count-only detector alarms on all of them at
-once. Shares are invariant to publisher volume. A count-channel signal
-with no matching proportion signal is treated as a publication artifact
-and reported as such.
+once. Working in shares removes most of that, but not all of it. A
+count-channel signal with no matching proportion signal is therefore
+reported as a potentially volume-driven publication event requiring
+publisher-level review — a diagnostic record, not a finding.
 
 SPARSITY LADDER
 ---------------
@@ -564,7 +570,21 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
         # --- proportion channel ---------------------------------------------
         base_stratum = 0
         base_total = 0
-        for back in range(GUARD_WEEKS, GUARD_WEEKS + BASELINE_WEEKS):
+        # Guard band, corrected 2026-08-27.
+        #
+        # This previously read `range(GUARD_WEEKS, ...)`, which INCLUDES the
+        # week at offset GUARD_WEEKS and therefore excluded only the single
+        # week immediately preceding the test week. The count channel, which
+        # uses `_window(..., offset=GUARD_WEEKS)` (hi = idx - offset, range
+        # lo..hi-1), excludes both. The two channels drew baselines shifted
+        # by one week, and the share channel — the channel that alarms —
+        # was the one that did not match the documented method.
+        #
+        # `GUARD_WEEKS + 1` as the start makes the share baseline
+        # idx-9 .. idx-3, identical to the count baseline. Asserted in
+        # tests/test_guard_band.py: if these two ever diverge again the
+        # suite fails rather than a reader noticing in a published table.
+        for back in range(GUARD_WEEKS + 1, GUARD_WEEKS + 1 + BASELINE_WEEKS):
             j = idx - back
             if j < 0:
                 break
@@ -664,6 +684,11 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
                 drop.add(pk)
     deduped = [c for c in surviving if c.stratum_key not in drop]
 
+    # The primary sort key SEPARATES the channels: share rows (False) come
+    # before count-only rows (True), and `-c.effect` orders within a block.
+    # A share ratio is therefore never ranked against a count ratio. This
+    # is load-bearing for the warning in TR-2026-01 §5.1 and is asserted in
+    # tests/test_technical_report.py rather than left to a reader's trust.
     deduped.sort(key=lambda c: (c.channel != "proportion", -c.effect))
     final = deduped[:MAX_SIGNALS]
 
@@ -681,6 +706,12 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
         "strata_suppressed_sparse": suppressed_sparse,
         "candidates": len(candidates),
         "after_fdr": len(surviving),
+        # `after_fdr` is pre-dedup. Without `after_dedup` a reader comparing
+        # after_fdr to reported would conclude MAX_SIGNALS truncated the
+        # run, when the parent/child collapse did. Record both, and say
+        # outright whether the cap actually bound.
+        "after_dedup": len(deduped),
+        "cap_binding": bool(len(deduped) > MAX_SIGNALS),
         "reported": len(final),
         "method": "EARS C1/C2/C3 + exact binomial proportion channel",
         "baseline_weeks": BASELINE_WEEKS,
