@@ -132,6 +132,49 @@ def make_session(
     return session
 
 
+# ── API hosts that must get an HONEST User-Agent (audit 2026-08-26) ────
+# DEFAULT_HEADERS claims to be Chrome 127, but scraper requests go out over
+# plain `requests` TLS. A WAF sees a Chrome User-Agent carried on a Python TLS
+# fingerprint — an inconsistency no real browser produces — and 403 is a fair
+# answer to it.
+#
+# recalls-rappels.canada.ca refuses all THREE CFIA layers this way:
+#     L1 open-data JSON  403      L2 RSS en/fr  403      L3 HTML  fail
+# The three-layer fallback from the 2026-05-06 audit works exactly as designed
+# and still returns 0 rows, because the problem is the client, not the code.
+#
+# Same lesson as data.food.gov.uk (audit 2026-08-16), inverted: there a
+# spoofed Chrome TLS fingerprint made an honest API request look like a liar;
+# here a spoofed Chrome UA does. Open-data endpoints are not browser pages.
+_HONEST_UA_HOSTS = (
+    "recalls-rappels.canada.ca",
+    "inspection.canada.ca",
+)
+
+API_UA = ("AFTS-FSIS/1.0 (Food Safety Intelligence System; "
+          "+https://fsis.advfood.tech; contact info@advfood.tech)")
+
+
+def log_block_reason(resp, url: str) -> None:
+    """On 400/401/403/429, log what the server ACTUALLY said.
+
+    A bare "HTTP 403" cost three wrong fixes on data.food.gov.uk before the
+    response body revealed the cause. WAFs normally name the rule that fired.
+    One line of body text turns guesswork into a diagnosis.
+    """
+    if resp is None:
+        return
+    try:
+        code = getattr(resp, "status_code", None)
+        if code not in (400, 401, 403, 429):
+            return
+        body = (getattr(resp, "text", "") or "")[:300].replace("\n", " ")
+        log.warning("%s -> HTTP %s. Server said: %s", url, code,
+                    body or "(empty body)")
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def fetch(
     session: Optional[requests.Session],
     url: str,
@@ -153,6 +196,14 @@ def fetch(
     """
     if session is None:
         session = make_session()
+
+    # Honest UA for open-data/API hosts — see _HONEST_UA_HOSTS above.
+    if any(h in url for h in _HONEST_UA_HOSTS):
+        _h = dict(kwargs.pop("headers", None) or {})
+        _h["User-Agent"] = API_UA
+        _h.setdefault("Accept", "application/json, application/xml, "
+                                "text/xml, text/html;q=0.9, */*;q=0.8")
+        kwargs["headers"] = _h
     if timeout is None:
         timeout = getattr(session, "request_timeout", DEFAULT_TIMEOUT)
     # Per-host routing: Akamai-protected gov sites need curl_cffi TLS
@@ -319,6 +370,135 @@ def _openai_api_keys() -> List[str]:
     return list(dict.fromkeys(k for k in keys if k))
 
 
+# ---------------------------------------------------------------------------
+# Self-hosted Qwen extraction (PRIMARY as of 2026-08-14)
+# ---------------------------------------------------------------------------
+# WHY THIS IS PRIMARY, NOT A FALLBACK
+#   Measured on the live register: of the 66 scrapers run_all executes,
+#       non-Gemini   7 producing rows, 0 with zero rows
+#       Gemini      21 producing rows, 38 with ZERO rows
+#   Every single zero-row agency is Gemini-backed; no non-Gemini scraper has
+#   failed. With the free tier exhausted and no paid key, those 38 stay dead
+#   for good. The self-hosted Qwen on the AFTS VPS has no quota.
+#
+# THE CONTEXT PROBLEM, AND HOW THIS HANDLES IT HONESTLY
+#   Gemini is fed up to GEMINI_MAX_HTML_CHARS = 120,000 characters of raw
+#   HTML (~30k tokens). The VPS runs Qwen at n_ctx 4096. A naive swap would
+#   see ~11% of a page and silently return three recalls where twelve exist —
+#   the worst possible failure, because it looks like success.
+#
+#   So this does NOT feed raw HTML. It strips to visible text first (markup is
+#   the bulk of a government page), then splits what remains into
+#   context-sized chunks and extracts from each, merging the results. Nothing
+#   is dropped without being counted, and every call logs the input size so
+#   the first production run produces REAL per-source numbers instead of an
+#   estimate. If a page needs more chunks than LLAMA_MAX_CHUNKS, the shortfall
+#   is logged as an explicit WARNING naming the source — never swallowed.
+LLAMA_TEXT_BUDGET_CHARS = int(os.getenv("LLAMA_TEXT_BUDGET_CHARS", "9000"))
+LLAMA_MAX_CHUNKS = int(os.getenv("LLAMA_MAX_CHUNKS", "6"))
+
+
+def _html_to_text(html: str) -> str:
+    """Strip a page to visible text. Markup, scripts, styles and chrome are
+    pure cost in a context window and carry no recall data."""
+    try:
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(html, "html.parser")
+        for tag in soup(["script", "style", "noscript", "svg", "head",
+                         "nav", "footer", "header", "form"]):
+            tag.decompose()
+        return " ".join(soup.get_text(" ", strip=True).split())
+    except Exception:  # noqa: BLE001
+        return html
+
+
+def _chunks(text: str, size: int):
+    """Split on whitespace near the boundary so a recall is not cut in half."""
+    i, n = 0, len(text)
+    while i < n:
+        end = min(i + size, n)
+        if end < n:
+            sp = text.rfind(" ", i + int(size * 0.8), end)
+            if sp > i:
+                end = sp
+        yield text[i:end]
+        i = end
+
+
+def _call_llama(prompt: str, html: str, language: str = "en") -> str:
+    """Self-hosted Qwen extraction. Same signature and return contract as
+    _call_gemini: returns raw text the caller parses as JSON."""
+    from pipeline.official_feeds.agents import llama_client
+
+    if not llama_client.is_configured():
+        raise RuntimeError("LLAMA_BASE_URL not set — self-hosted extraction "
+                           "unavailable")
+    if llama_client.is_open():
+        raise RuntimeError("llama circuit breaker open")
+
+    text = _html_to_text(html)
+    log.info("llama extract: html=%d chars -> text=%d chars (~%d tokens)",
+             len(html), len(text), len(text) // 4)
+
+    parts = list(_chunks(text, LLAMA_TEXT_BUDGET_CHARS))
+    if len(parts) > LLAMA_MAX_CHUNKS:
+        log.warning("llama extract: page needs %d chunks, cap is %d — "
+                    "%d chars (~%.0f%% of the page) NOT examined. Raise "
+                    "LLAMA_MAX_CHUNKS or narrow the scraper's INDEX_URLS.",
+                    len(parts), LLAMA_MAX_CHUNKS,
+                    sum(len(p) for p in parts[LLAMA_MAX_CHUNKS:]),
+                    100.0 * (len(parts) - LLAMA_MAX_CHUNKS) / len(parts))
+        parts = parts[:LLAMA_MAX_CHUNKS]
+
+    merged: list = []
+    for idx, part in enumerate(parts, 1):
+        out = llama_client.chat(
+            messages=[
+                {"role": "system",
+                 "content": "You extract food-recall records from page text. "
+                            "Reply with ONLY a JSON array. No prose, no "
+                            "markdown fences. Use [] when the text contains "
+                            "no recall."},
+                {"role": "user",
+                 "content": f"{prompt}\n\nPage language: {language}\n"
+                            f"Part {idx} of {len(parts)}.\n\n{part}"},
+            ],
+            temperature=0.0,
+            max_tokens=1200,
+        )
+        if not out:
+            log.warning("llama extract: empty response on chunk %d/%d",
+                        idx, len(parts))
+            continue
+        s = out.strip()
+        if s.startswith("```"):
+            s = s.strip("`")
+            if s[:4].lower() == "json":
+                s = s[4:]
+        try:
+            data = json.loads(s)
+        except json.JSONDecodeError:
+            m = re.search(r"\[.*\]", s, re.DOTALL)
+            if not m:
+                log.warning("llama extract: unparseable chunk %d/%d",
+                            idx, len(parts))
+                continue
+            try:
+                data = json.loads(m.group(0))
+            except json.JSONDecodeError:
+                log.warning("llama extract: bad JSON chunk %d/%d",
+                            idx, len(parts))
+                continue
+        if isinstance(data, dict):
+            data = [data]
+        if isinstance(data, list):
+            merged.extend(data)
+
+    log.info("llama extract: %d record(s) from %d chunk(s)",
+             len(merged), len(parts))
+    return json.dumps(merged)
+
+
 def _call_openai(prompt: str, html: str, language: str = "en") -> str:
     """OpenAI fallback for HTML extraction. Mirrors _call_gemini's
     signature and return contract so it's a drop-in replacement.
@@ -435,6 +615,16 @@ def _call_llm(prompt: str, html: str, language: str = "en") -> str:
     see a single text return as before. Logs make the choice explicit so
     operators can spot when fallback engages without parsing JSON.
     """
+    # QWEN FIRST (2026-08-14). Gemini is kept as the fallback, not removed:
+    # it still works for the 21 agencies currently producing, and dropping it
+    # outright would trade one single point of failure for another. But it can
+    # no longer be the thing 38 dead scrapers are waiting on.
+    try:
+        return _call_llama(prompt, html, language)
+    except Exception as llama_exc:  # noqa: BLE001
+        log.info("Self-hosted extraction unavailable (%s: %s) — falling back "
+                 "to Gemini.", type(llama_exc).__name__, str(llama_exc)[:120])
+
     try:
         text = _call_gemini(prompt, html, language)
         return text
