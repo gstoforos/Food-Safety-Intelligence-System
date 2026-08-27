@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How FSIS tells a food-safety signal from a publisher dump</title>
+<meta name="description" content="How the Food Safety Intelligence System
+separates a genuine elevation in recall notices from a publisher clearing
+its backlog &mdash; and why it names the publisher either way.">
+<style>
+:root{
+  --ink:#12161c; --ink-2:#3d4654; --ink-3:#6b7585; --rule:#e2e6ec;
+  --bg:#ffffff; --bg-2:#f7f9fb; --accent:#0b6b5e; --accent-2:#e8f3f1;
+  --warn-bg:#fff8e6; --warn-line:#e0b44a; --warn-ink:#6b4e08;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --viz:#0f9c86;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.65 Charter,"Iowan Old Style","Source Serif Pro",Georgia,serif;
+  -webkit-text-size-adjust:100%}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px 96px}
+header.masthead{border-bottom:3px solid var(--ink);margin-bottom:38px;
+  padding:44px 0 22px}
+.eyebrow{font:600 11px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:16px}
+h1{font-size:33px;line-height:1.2;margin:0 0 10px;letter-spacing:-.015em}
+.sub{color:var(--ink-2);font-size:18px;margin:0 0 20px}
+.byline{font:13px/1.6 ui-sans-serif,system-ui,sans-serif;color:var(--ink-3)}
+.byline a{color:var(--accent);text-decoration:none}
+h2{font-size:22px;margin:52px 0 14px;padding-top:14px;
+  border-top:1px solid var(--rule);letter-spacing:-.01em}
+h2 .num{color:var(--ink-3);font-weight:400;margin-right:10px}
+h3{font-size:16.5px;margin:28px 0 8px;color:var(--ink-2)}
+p{margin:0 0 15px}
+ul,ol{margin:0 0 15px;padding-left:22px}
+li{margin:0 0 7px}
+code,.mono{font-family:var(--mono);font-size:.88em;
+  background:var(--bg-2);padding:1px 5px;border-radius:3px}
+.lede{font-size:17.5px;color:var(--ink-2);border-left:3px solid var(--accent);
+  padding-left:18px;margin:0 0 30px}
+.tw{overflow-x:auto;margin:20px 0 24px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font:13.5px/1.5 ui-sans-serif,
+  system-ui,sans-serif;min-width:640px}
+th{text-align:left;padding:9px 10px;border-bottom:2px solid var(--ink);
+  font-weight:600;white-space:nowrap;vertical-align:bottom}
+td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+td.d,th.d{white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;
+  font-family:var(--mono);font-size:12.5px}
+tbody tr:hover{background:var(--bg-2)}
+caption{caption-side:bottom;text-align:left;padding-top:10px;font:13px/1.6
+  ui-sans-serif,system-ui,sans-serif;color:var(--ink-3)}
+.chan{display:inline-block;font:600 10px/1.5 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.06em;padding:1px 6px;border-radius:3px;text-transform:uppercase;
+  white-space:nowrap}
+.chan.proportion{background:var(--accent-2);color:var(--accent)}
+.chan.count{background:#eef0f3;color:var(--ink-2)}
+.note{background:var(--bg-2);border:1px solid var(--rule);border-left:3px solid
+  var(--accent);padding:15px 18px;margin:22px 0;font-size:15px}
+.note .h{font:600 11px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:9px}
+.warn{background:var(--warn-bg);border:1px solid var(--warn-line);
+  border-left:3px solid var(--warn-line);padding:15px 18px;margin:22px 0;
+  font-size:15px;color:var(--warn-ink)}
+.warn .h{font:600 11px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:9px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin:26px 0}
+.kpi{background:var(--bg);padding:16px 18px}
+.kpi .v{font:600 26px/1.1 ui-sans-serif,system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi .l{font:12px/1.4 ui-sans-serif,system-ui,sans-serif;color:var(--ink-3);
+  margin-top:5px}
+
+/* ── Figure 1 ─────────────────────────────────────────────────────────── */
+.fig{margin:26px 0 28px}
+.fig .svgwrap{position:relative;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;padding-top:4px}
+.fig svg{display:block;min-width:660px}
+.fig .bar{fill:var(--viz);shape-rendering:crispEdges}
+.fig .bar:hover{fill:var(--ink)}
+.fig .grid{stroke:var(--rule);stroke-width:1;shape-rendering:crispEdges}
+.fig .excl{fill:var(--bg-2)}
+.fig .cut{stroke:var(--ink-2);stroke-width:1.5;stroke-dasharray:4 3}
+.fig text{font-family:ui-sans-serif,system-ui,sans-serif}
+.fig .ax{font-size:10px;fill:var(--ink-3)}
+.fig .ptitle{font-size:11.5px;font-weight:600;fill:var(--ink-2);
+  letter-spacing:.02em}
+.fig .vlab{font-size:10px;font-weight:600;fill:var(--ink-2);text-anchor:middle}
+.fig .cutlab{font-size:10.5px;font-weight:600;fill:var(--ink-2)}
+.fig .cutlab.dim{font-weight:400;fill:var(--ink-3)}
+.fig .tip{position:absolute;pointer-events:none;background:var(--ink);
+  color:var(--bg);padding:6px 9px;border-radius:4px;font:12px/1.4
+  ui-sans-serif,system-ui,sans-serif;white-space:nowrap;z-index:5;
+  transform:translate(-50%,-118%)}
+.fig figcaption{font:13px/1.6 ui-sans-serif,system-ui,sans-serif;
+  color:var(--ink-3);margin-top:12px}
+.fig details{margin-top:10px}
+.fig summary{cursor:pointer;color:var(--accent);font-weight:600}
+.fig details table{min-width:420px}
+.sub-cta{border:2px solid var(--accent);padding:26px 28px;margin:56px 0 0;
+  background:var(--accent-2)}
+.sub-cta h3{margin:0 0 10px;color:var(--accent);font-size:19px}
+.sub-cta p{margin:0 0 14px;font-size:15.5px;color:var(--ink-2)}
+.sub-cta a.btn{display:inline-block;background:var(--accent);color:#fff;
+  text-decoration:none;padding:11px 22px;font:600 14px/1 ui-sans-serif,
+  system-ui,sans-serif;border-radius:3px}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+  font:13px/1.7 ui-sans-serif,system-ui,sans-serif;color:var(--ink-3)}
+footer a{color:var(--accent)}
+@media (max-width:640px){
+  .wrap{padding:0 16px 64px} h1{font-size:26px} .sub{font-size:16px}
+  h2{font-size:19px} body{font-size:15.5px}
+}
+@media print{
+  body{font-size:10.5pt} .wrap{max-width:none;padding:0}
+  h2{page-break-after:avoid} table{page-break-inside:avoid}
+  .sub-cta{border-color:#999}
+}
+:root[data-theme="dark"]{
+  --ink:#e8ecf1; --ink-2:#b3bcc9; --ink-3:#828d9c; --rule:#2b323c;
+  --bg:#12161c; --bg-2:#1a2028; --accent:#5fd0bd; --accent-2:#12302c;
+  --warn-bg:#2e2610; --warn-line:#8a6d1f; --warn-ink:#e8ce88;
+  --viz:#17a08c;
+}
+:root[data-theme="dark"] .chan.count{background:#232a34;color:var(--ink-2)}
+:root[data-theme="dark"] .sub-cta a.btn{color:#0d1418}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#e8ecf1; --ink-2:#b3bcc9; --ink-3:#828d9c; --rule:#2b323c;
+    --bg:#12161c; --bg-2:#1a2028; --accent:#5fd0bd; --accent-2:#12302c;
+    --warn-bg:#2e2610; --warn-line:#8a6d1f; --warn-ink:#e8ce88;
+    --viz:#17a08c;
+  }
+  :root:not([data-theme="light"]) .chan.count{background:#232a34;color:var(--ink-2)}
+  :root:not([data-theme="light"]) .sub-cta a.btn{color:#0d1418}
+}
+
+.hero{padding:52px 0 30px;border-bottom:3px solid var(--ink);margin-bottom:36px}
+.hero .eyebrow{font:600 11px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:16px}
+.hero h1{font-size:36px;line-height:1.15;margin:0 0 16px;letter-spacing:-.02em}
+.hero .deck{font-size:19px;line-height:1.55;color:var(--ink-2);margin:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:16px;margin:26px 0 30px}
+.card{border:1px solid var(--rule);border-top:3px solid var(--accent);
+  padding:18px 18px 20px;background:var(--bg)}
+.card .big{font:600 30px/1 ui-sans-serif,system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--accent)}
+.card .who{font:600 14px/1.35 ui-sans-serif,system-ui,sans-serif;
+  margin:10px 0 6px}
+.card .det{font:13px/1.55 ui-sans-serif,system-ui,sans-serif;color:var(--ink-3)}
+.pull{font-size:20px;line-height:1.5;color:var(--ink);border-left:3px solid
+  var(--accent);padding:4px 0 4px 20px;margin:30px 0;font-style:italic}
+.honest{border:1px solid var(--rule);background:var(--bg-2);padding:20px 22px;
+  margin:30px 0}
+.honest h3{margin:0 0 12px;font-size:15px;color:var(--ink-2)}
+.honest ul{margin:0;padding-left:20px;font-size:15px}
+.annex{display:block;border:1px solid var(--rule);border-left:3px solid
+  var(--ink-3);padding:16px 20px;margin:30px 0;text-decoration:none;
+  color:inherit}
+.annex:hover{border-left-color:var(--accent);background:var(--bg-2)}
+.annex .k{font:600 10.5px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  margin-bottom:8px}
+.annex .t{font-weight:600;font-size:16px;margin-bottom:4px}
+.annex .s{font:13.5px/1.55 ui-sans-serif,system-ui,sans-serif;color:var(--ink-3)}
+@media (max-width:640px){.hero h1{font-size:27px}.hero .deck{font-size:17px}
+  .pull{font-size:17px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Food Safety Intelligence System</div>
+  <h1>How FSIS tells a food-safety signal from a publisher dump</h1>
+  <p class="deck">Recall volume goes up for two very different reasons. One
+  of them matters. Over 22 weeks of monitored output we
+  found 12 statistically controlled elevations &mdash; and named
+  the publisher behind every one of them.</p>
+</header>
+
+<p>FSIS reads recall and alert notices from 35 regulatory
+publishers, normalises them into one schema, and screens them for
+pathogens, biotoxins, mycotoxins, foreign material, pest and chemical
+hazards. Across the analysable window that is 1,506 notices
+and about 62 a week.</p>
+
+<p>Nobody reads 62 notices a week across 35
+publishers and spots that one pathogen in one country has quietly doubled
+against its own recent baseline. That is the job the detector does.</p>
+
+<h2>What it caught</h2>
+
+<p>Three of the 12, chosen by a rule rather than by which reads
+best: strongest statistical evidence first, one per stratum.</p>
+
+<div class="cards"><div class="card"><div class="big">&times;2.61</div><div class="who">Listeria monocytogenes · France</div><div class="det">Week of 13 Jul 2026 &middot; 37 notices against a baseline of 12.0. Share of corpus output, exact binomial p&nbsp;&lt;&nbsp;0.00001.<br><strong>Attributed:</strong> 97% RappelConso (FR).</div></div><div class="card"><div class="big">&times;9.67</div><div class="who">Tier 3 · Europe</div><div class="det">Week of 29 Jun 2026 &middot; 11 notices against a baseline of 1.3. Share of corpus output, exact binomial p&nbsp;&lt;&nbsp;0.00001.<br><strong>Attributed:</strong> 100% RappelConso (FR).</div></div><div class="card"><div class="big">&times;3.77</div><div class="who">Shiga toxin-producing E. coli (STEC) · Europe</div><div class="det">Week of 27 Jul 2026 &middot; 12 notices against a baseline of 4.1. Share of corpus output, exact binomial p&nbsp;=&nbsp;0.00007.<br><strong>Attributed:</strong> 67% RappelConso (FR).</div></div></div>
+
+<p>The clearest example is Listeria monocytogenes in France, which cleared the threshold in 3 separate weeks (13 Jul 2026, 20 Jul 2026, 10 Aug 2026) &mdash; 37 notices against a baseline of 12.0 in the first of them. A sustained elevation in one country, flagged in the week it began, inside a stream averaging 62 notices a week that nobody reads end to end.</p>
+
+<h2>Why counting is not enough</h2>
+
+<p>Here is the trap. The single largest weekly jump in this corpus is the week of 6 Apr 2026: <strong>+63 notices</strong>, of which 43 came from RappelConso (FR) alone. Any tool that watches raw counts alarms on that, and on every hazard class inside it, simultaneously. Nothing happened to the food supply that week. A publisher cleared a backlog.</p>
+
+<p>FSIS scores each stratum on its <strong>share</strong> of the week's
+total output rather than its raw count. When a publisher doubles
+everything it files, every share stays roughly where it was and the
+detector stays quiet. When one pathogen in one country rises against a
+flat total, the share moves and the detector does not stay quiet.</p>
+
+<p class="pull">The question is never &ldquo;are there more notices this
+week?&rdquo; It is &ldquo;is this hazard taking a larger share of the
+world's regulatory attention than it did a month ago?&rdquo;</p>
+
+<h2>Detect, then attribute</h2>
+
+<p>A share signal is not automatically a food-safety event either, and
+this is where most tools stop and FSIS does not.
+7 of the 12 elevations above came predominantly from a
+single publisher &mdash; and every one of those carries that fact in the
+record, with the publisher named and its percentage stated. The
+8 further rows that moved on count but <em>not</em> on share are
+kept in a separate ledger and labelled as what they are: publisher-review
+items, not findings.</p>
+
+<p>You get the signal and the reason to doubt it in the same row. An
+analyst can act on one and dismiss the other in seconds, which is the
+difference between a feed that gets read every morning and one that gets
+muted in week three.</p>
+
+<div class="honest">
+  <h3>What we do not claim</h3>
+  <ul>
+    <li><strong>This is not prediction.</strong> The corpus has no
+        denominator &mdash; no production volumes, no negative examples.
+        Nothing here forecasts which product will be recalled next.</li>
+    <li><strong>Notice counts are not incidence.</strong> A diligent
+        regulator looks worse than a quiet one. Every stratum is compared
+        only against itself.</li>
+    <li><strong>No outcome linkage.</strong> We do not claim any of these
+        signals predicted a confirmed outbreak. They are elevations in the
+        regulatory record, detected and attributed.</li>
+    <li><strong>Some events are invisible to us.</strong> An outbreak
+        identified through clinical surveillance may generate no notice
+        until the investigation closes. Nothing in the corpus can
+        anticipate that.</li>
+  </ul>
+</div>
+
+<h2>The method, in full</h2>
+
+<p>Every number on this page is generated from the corpus at build time,
+and the method behind it is published rather than described &mdash;
+including the parameters we swept and found to do nothing, the weeks we
+refuse to draw conclusions from, and a defect we found in our own maturity
+calculation and fixed.</p>
+
+<a class="annex" href="TR-2026-01.html">
+  <div class="k">Technical annex</div>
+  <div class="t">TR-2026-01 &mdash; Aberration detection over a
+  multi-jurisdiction food recall corpus</div>
+  <div class="s">EARS C1/C2/C3 over 34 weeks and
+  434 strata, the coverage register, threshold sensitivity, a
+  full walk-forward replay, and the SHA-256 digest that pins the
+  analysis.</div>
+</a>
+
+<div class="sub-cta">
+  <h3>Get the signal feed</h3>
+  <p>Daily briefs, weekly and monthly digests, and the aberration scan
+  described here &mdash; across 35 regulatory publishers in
+  Europe, North America, Asia-Pacific and beyond.</p>
+  <p style="margin-bottom:18px">Subscribe for the daily brief and weekly
+  digest, or request access to the full corpus and the signal feed.</p>
+  <a class="btn" href="https://www.advfood.tech/fsis-recalls">Subscribe to FSIS</a>
+</div>
+
+<footer>
+  <p>Advanced Food-Tech Solutions (AFTS), Athens &middot; Food Safety
+  Intelligence System<br>
+  Figures generated from the corpus at build time
+  (1,506 notices, 34 complete weeks, to
+  17 Aug 2026). Advisory only; the originating regulator's
+  notice remains the authoritative record in every case.</p>
+  <p><a href="https://fsis.advfood.tech">fsis.advfood.tech</a> &middot;
+  <a href="TR-2026-01.html">TR-2026-01</a></p>
+</footer>
+
+</div>
+</body>
+</html>

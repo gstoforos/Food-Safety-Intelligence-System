@@ -1,5 +1,11 @@
-<title>TR-2026-01 &middot; Aberration Detection</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TR-2026-01 &middot; Aberration Detection</title>
+<meta name="author" content="Advanced Food-Tech Solutions (AFTS), Athens">
+<meta name="description" content="Method, coverage constraints and a walk-forward replay of 34 weeks of regulatory notices">
 <style>
 :root{
   --ink:#12161c; --ink-2:#3d4654; --ink-3:#6b7585; --rule:#e2e6ec;
@@ -131,6 +137,8 @@ footer a{color:var(--accent)}
   :root:not([data-theme="light"]) .sub-cta a.btn{color:#0d1418}
 }
 </style>
+</head>
+<body>
 <div class="wrap">
 
 <header class="masthead">
@@ -139,16 +147,18 @@ footer a{color:var(--accent)}
   <p class="sub">Method, coverage constraints and a walk-forward replay of 34 weeks of regulatory notices</p>
   <div class="byline">
     Advanced Food-Tech Solutions (AFTS), Athens &middot; Food Safety Intelligence System<br>
-    Built 27 August 2026 at 07:23 UTC from corpus revision
+    Built 27 August 2026 at 07:43 UTC from corpus revision
     <span class="mono">94d1421</span> &middot;
     <a href="https://fsis.advfood.tech">fsis.advfood.tech</a>
   </div>
 </header>
 
-<p class="lede">Every figure in this report is generated at build time from
-the corpus and the detector source. No table is transcribed by hand. The
-command that produced this page is given in &sect;7, and running it against
-the same corpus revision reproduces the page byte for byte.</p>
+<p class="lede">Every figure in this report is generated at build time
+from the corpus and the detector source. No table is transcribed by hand.
+The command that produced this page is given in &sect;7: running the
+documented build against the same corpus, source-code revision and
+configuration reproduces the reported analytical results, verifiable
+against the digest printed there.</p>
 
 <div class="kpis">
   <div class="kpi"><div class="v">1,506</div>
@@ -157,8 +167,10 @@ the same corpus revision reproduces the page byte for byte.</p>
     <div class="l">complete weeks</div></div>
   <div class="kpi"><div class="v">434</div>
     <div class="l">strata evaluated</div></div>
-  <div class="kpi"><div class="v">20</div>
-    <div class="l">signals in window</div></div>
+  <div class="kpi"><div class="v">12</div>
+    <div class="l">FDR-controlled share signals</div></div>
+  <div class="kpi"><div class="v">8</div>
+    <div class="l">count-channel diagnostics</div></div>
   <div class="kpi"><div class="v">6</div>
     <div class="l">continuous sources</div></div>
 </div>
@@ -187,9 +199,10 @@ it later enters.</p>
 
 <h3>2.1 Detector</h3>
 
-<p>CDC EARS C1/C2/C3 (Hutwagner et al.), chosen over Farrington and
-Noufaily because those need three to five years of history for their
-seasonal terms and this corpus holds 34 weeks. The stratum
+<p>CDC EARS C1/C2/C3 (Hutwagner et al., 2003), chosen over Farrington
+(1996) and Noufaily (2013) because those generally require multiple years
+of stable historical data to model seasonality reliably, and this corpus
+holds 34 weeks. The stratum
 contract is designed to survive a migration to Farrington without changing
 callers, once the history exists.</p>
 
@@ -199,10 +212,20 @@ callers, once the history exists.</p>
   <li><strong>C2</strong> &mdash; same width, offset by a
       2-week guard band, so a slow-onset event cannot
       quietly raise the baseline it is being measured against.</li>
-  <li><strong>C3</strong> &mdash; the sum of the last 3 C2
-      excesses, which catches sustained low-grade drift that no single
-      week would trip.</li>
+  <li><strong>C3</strong> &mdash; thresholded excess accumulated over the
+      last 3 weeks, which catches sustained low-grade drift that
+      no single week would trip. The implementation is exactly
+      <span class="mono">C3<sub>t</sub> = &Sigma;<sub>i=0..2</sub>
+      max(0, C2<sub>t-i</sub> &minus; 1)</span>, each C2 recomputed against
+      its own baseline window &mdash; not a plain sum of C2 values.</li>
 </ul>
+
+<p>A stratum therefore needs 7 baseline weeks,
+2 guard weeks and 3 further weeks of C3 history
+before it can be scored at all:
+7&nbsp;+&nbsp;2&nbsp;+&nbsp;3&nbsp;=&nbsp;<strong>12</strong>.
+That is the number of leading weeks in the corpus that produce no output,
+and it is why the replay below starts where it does.</p>
 
 <h3>2.2 Two channels, and why the share channel is the one that alarms</h3>
 
@@ -216,9 +239,18 @@ wearing the costume of a food-safety event.</p>
 compares the raw weekly count against its baseline mean and standard
 deviation; it is diagnostic. The <strong>share</strong> channel compares
 the stratum's proportion of that week's whole corpus against the pooled
-baseline share, by exact binomial test; shares are invariant to publisher
-volume, and this is the channel that alarms. A count signal with no
-matching share signal is reported as a probable publication artefact.</p>
+baseline share, by exact binomial test; this is the channel that
+alarms.</p>
+
+<p>It is tempting to say shares are invariant to publisher volume, and an
+earlier draft of this report did. That is too strong. The share channel <strong>partially normalises
+changes in total weekly volume, although it remains sensitive to changes
+in publisher mix and to publisher-specific hazard composition</strong> - a
+publisher whose output skews towards one hazard class moves that class's
+share when it moves its volume. A count signal with no matching share
+signal is therefore reported as a <strong>potentially volume-driven
+publication event requiring publisher-level review</strong>, not as a
+finding.</p>
 
 <div class="note">
   <div class="h">Effect follows the channel</div>
@@ -245,13 +277,38 @@ region &rarr; global.</p>
 <h3>2.4 Multiplicity</h3>
 
 <p>434 strata are evaluated per run. At
-&alpha;&nbsp;=&nbsp;0.01 that yields several false positives every
-week, which trains a reader to ignore the feed &mdash; the failure mode
+&alpha;&nbsp;=&nbsp;0.01 that could produce approximately
+<strong>4.3 nominal positives per run under an
+all-null approximation</strong> with independent tests &mdash; the strata
+are not independent, since a child and its parent share records, so treat
+that as an order of magnitude rather than an expectation. Either way it is
+enough to train a reader to ignore the feed, which is the failure mode
 that matters most for an operational product. Benjamini&ndash;Hochberg FDR
 at q&nbsp;=&nbsp;0.10 is applied across all strata within a run, and
 the output is capped at 12 signals ranked by effect.</p>
 
-<h3>2.5 Constants</h3>
+<h3>2.5 Ranking, and what the output cap actually does</h3>
+
+<p>&sect;5.1 warns against reading the two channels as one scale, which
+raises a fair question about the cap: if output is limited to
+12 rows &ldquo;ranked by effect&rdquo;, are share ratios and
+count ratios being ranked against each other? They are not. The sort key
+is <code>(channel != "proportion", -effect)</code>: the first element
+<em>separates</em> the channels into blocks, and the effect ordering
+applies only within a block. A share ratio is never compared to a count
+ratio.</p>
+
+<p>Two further facts, both measurable rather than asserted. The cap has
+never bound on this corpus: across all 22 scored weeks,
+the largest post-deduplication output was <strong>6</strong> rows
+against a cap of 12. And the gap a reader may notice between
+&ldquo;survived FDR&rdquo; and &ldquo;reported&rdquo; in the run metadata
+is <em>not</em> the cap &mdash; it is the parent/child collapse, which
+drops a parent stratum when a child accounts for 80% or more of it. The
+run metadata now carries <code>after_dedup</code> and
+<code>cap_binding</code> so the two cannot be confused.</p>
+
+<h3>2.6 Constants</h3>
 
 <div class="tw"><table>
 <thead><tr><th>Constant</th><th class="n">Value</th><th>Role</th></tr></thead>
@@ -268,8 +325,12 @@ the output is capped at 12 signals ranked by effect.</p>
 <tr><td><code>PUBLISHER_DOMINANCE</code></td><td class="n">0.70</td><td>Above this share from one publisher, the signal is annotated as such.</td></tr>
 </tbody>
 <caption>Read directly from <code>pipeline/signal_detector.py</code> at
-build time. These are judgement calls, not fitted values; &sect;4 reports
-which of them actually move an output.</caption>
+build time, and included in the digest in &sect;7.1. These are judgement
+calls, not fitted values. <strong>They have not been swept.</strong>
+&sect;4 reports a sensitivity analysis of the <em>coverage register's</em>
+constants, which is a different set; the detector's own thresholds are an
+open item, and the honest statement today is that their influence on the
+ledger is undocumented.</caption>
 </table></div>
 
 <h2><span class="num">3</span>Coverage: which history is analysable at all</h2>
@@ -450,7 +511,9 @@ cross-validation &mdash; random folds on surveillance time series leak the
 future into the baseline and produce beautiful, meaningless numbers.
 22 weeks were scored; the first
 12 are consumed by the
-baseline and guard band and cannot be scored at all.</p>
+baseline, the guard band and the C3 accumulation window
+(7&nbsp;+&nbsp;2&nbsp;+&nbsp;3;
+see &sect;2.1) and cannot be scored at all.</p>
 
 <p>There is no labelled anomaly set, so these tables are not an accuracy
 measurement. They are the alarm ledger: each row is reviewed by hand and
@@ -465,10 +528,15 @@ Benjamini&ndash;Hochberg at q&nbsp;=&nbsp;0.10 across every stratum
 tested that week. A <strong>count-only</strong> row is admitted by the
 EARS statistic alone &mdash; C1 or C2 at 3.0, or C3 at 2.0, with the
 observed count at least 20% above baseline &mdash; and <em>bypasses FDR by
-design</em>, because it is not being offered as a discovery. It is being
-logged as a probable publisher artefact, and suppressing those by
-multiplicity control would hide exactly the rows an operator needs to see
-in order to recognise a backlog dump.</p>
+design</em>, because it is not being offered as a discovery. It is logged
+as a potentially volume-driven publication event requiring publisher-level
+review, and suppressing those by multiplicity control would hide exactly
+the rows an operator needs in order to recognise a backlog dump.</p>
+
+<p>Because they are not multiplicity-controlled, count-channel rows carry
+no false-discovery guarantee of any kind, and no count of them should be
+reported as a number of signals. Every summary figure in this report
+separates the two.</p>
 
 <div class="warn">
   <div class="h">Do not read the two channels as one scale</div>
@@ -482,11 +550,28 @@ in order to recognise a backlog dump.</p>
   the other channel's.</p>
 </div>
 
-<h3>5.2 Findings inside the coverage window</h3>
+<h3>5.2 Alert ledger inside the coverage window</h3>
 
-<p>These 20 rows sit wholly after mature collection: every week in
-each row's baseline post-dates 8 Jun 2026. These are the only rows in
-this report that carry an interpretation.</p>
+<p>These 20 rows fall within the approved analytical window: for every
+row, the complete baseline falls after the latest applicable
+source-maturity date of
+<strong>6 Apr 2026</strong>.
+The earliest row here is the week commencing 8 Jun 2026, whose baseline
+runs 13 Apr 2026 to 25 May 2026 &mdash; the window opens where it does
+precisely so that this is true of the first row as well as the last.</p>
+
+<p>The 20 rows are not one kind of object, and the distinction is the
+most important thing on this page:</p>
+
+<ul>
+  <li><strong>12 share-channel signals</strong>, each admitted by an
+      exact binomial test and surviving Benjamini&ndash;Hochberg at
+      q&nbsp;=&nbsp;0.10. These are the FDR-controlled findings.</li>
+  <li><strong>8 count-channel diagnostics</strong>, admitted on the
+      EARS statistic alone and <em>not</em> multiplicity-controlled. These
+      are publisher-review items. They are not statistical findings and
+      must not be counted as such.</li>
+</ul>
 
 <div class="tw"><table>
 <thead><tr>
@@ -499,7 +584,7 @@ this report that carry an interpretation.</p>
 <tr><td class="d">15 Jun 2026</td><td>Aflatoxin · Europe</td><td><span class="chan proportion">share</span></td><td class="n">9</td><td class="n">2.71</td><td class="n"><strong>3.10</strong></td><td class="n">3.32</td><td class="n">p&nbsp;0.0024</td></tr>
 <tr><td class="d">15 Jun 2026</td><td>Tier 2 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">14</td><td class="n">7.00</td><td class="n"><strong>2.23</strong></td><td class="n">2.00</td><td class="n">p&nbsp;0.0033</td></tr>
 <tr><td class="d">15 Jun 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan proportion">share</span></td><td class="n">29</td><td class="n">14.14</td><td class="n"><strong>1.86</strong></td><td class="n">2.05</td><td class="n">p&nbsp;0.0002</td></tr>
-<tr><td class="d">15 Jun 2026</td><td>Ochratoxin · Turkey</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.57</td><td class="n"><strong>2.33</strong></td><td class="n">3.27</td><td class="n">C1&nbsp;5.3</td></tr>
+<tr><td class="d">15 Jun 2026</td><td>Ochratoxin · Türkiye</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.57</td><td class="n"><strong>2.33</strong></td><td class="n">3.27</td><td class="n">C1&nbsp;5.3</td></tr>
 <tr><td class="d">29 Jun 2026</td><td>Tier 3 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">11</td><td class="n">1.29</td><td class="n"><strong>9.67</strong></td><td class="n">8.56</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
 <tr><td class="d">29 Jun 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan count">count-only</span></td><td class="n">23</td><td class="n">14.14</td><td class="n"><strong>1.63</strong></td><td class="n">1.36</td><td class="n">C3&nbsp;2.7</td></tr>
 <tr><td class="d">6 Jul 2026</td><td>Salmonella · Poland</td><td><span class="chan proportion">share</span></td><td class="n">8</td><td class="n">1.43</td><td class="n"><strong>5.63</strong></td><td class="n">5.60</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
@@ -520,8 +605,13 @@ this report that carry an interpretation.</p>
 show observed share over baseline share, count-only rows show observed
 over baseline mean. &ldquo;Other ratio&rdquo; is the value on the channel
 not used, retained so that nothing is unrecoverable. &ldquo;Admitted
-by&rdquo; is each row's own criterion &mdash; a post-FDR p-value for share
-rows, the governing EARS statistic for count-only rows.</caption>
+by&rdquo; is each row's own criterion: for share rows the <strong>raw
+exact binomial p, which survived Benjamini&ndash;Hochberg at
+q&nbsp;=&nbsp;0.10</strong> (BH here returns a rejection mask,
+not adjusted p-values, so no adjusted p exists to display); for
+count-channel rows the governing EARS statistic, which is what admitted
+them. The two columns are not comparable and are not ranked against each
+other &mdash; see &sect;5.1 and &sect;2.6.</caption>
 </table></div>
 
 <h3>5.3 Audit ledger: rows outside the coverage window</h3>
@@ -532,8 +622,9 @@ deleted, because a detector that quietly drops its own output cannot be
 audited &mdash; but <strong>none of them is a finding</strong>. Any
 elevation here is at least as likely to be the scraper fleet coming online
 as a change in the food supply, and several are visibly that: a stratum
-going from a baseline of 1.00 to 41 in one week is a source switching on,
-not an outbreak.</p>
+going from a baseline of 1.00 to 41 in one week is strongly consistent
+with source activation rather than an underlying outbreak, though only
+publisher-level review of those rows can confirm it.</p>
 
 <div class="tw"><table>
 <thead><tr>
@@ -617,8 +708,8 @@ only against itself.</p>
 
 <p><strong>Short history.</strong> 34 weeks supports EARS and
 nothing seasonal. Any pattern with an annual period is invisible, and a
-genuine seasonal rise will be read as an aberration until at least three
-years of history exists.</p>
+genuine seasonal rise will be read as an aberration until multiple years
+of stable history exist.</p>
 
 <p><strong>Publisher events dominate the count channel.</strong> Mitigated
 by the share channel, not eliminated. A backlog clearance concentrated in
@@ -656,7 +747,80 @@ style="background:none;padding:0">python -m tools.build_technical_report</code><
   <li><code>python -m pipeline.source_coverage --verify-stability</code> &mdash; exits 2 if any cutoff would move</li>
   <li><code>python -m tools.coverage_sensitivity</code> &mdash; reproduce &sect;4</li>
   <li><code>python -m pipeline.signal_detector --backtest</code> &mdash; reproduce Table 1 as CSV</li>
+  <li><code>python -m tools.build_technical_report --print-digest</code> &mdash; recompute the digest below without writing the page</li>
 </ul>
+
+<h3>7.1 What reproducibility means here, precisely</h3>
+
+<p>The page is <strong>not</strong> byte-for-byte reproducible, and it
+would be dishonest to claim otherwise: it stamps its own build time, so
+two builds always differ. Corpus revision alone would not be sufficient
+even without that, because the result also depends on the detector's
+source revision, its constants, the coverage register, and the runtime.</p>
+
+<p>What is pinned is the analysis. The digest below is SHA-256 over the
+analytical payload with the clock excluded &mdash; corpus shape, coverage
+window, every constant in &sect;2.6, and every replay row with its
+observed count, baseline, both effect ratios and p-value:</p>
+
+<pre style="background:var(--bg-2);border:1px solid var(--rule);padding:14px 16px;
+overflow-x:auto;font-family:var(--mono);font-size:12.5px;margin:0 0 16px;
+word-break:break-all;white-space:pre-wrap"><code
+style="background:none;padding:0">analytical-digest sha256
+411eb05994c126656c269e8818ef8fe9edbe0da5e1fb38753ded19c126081b96</code></pre>
+
+<div class="tw"><table>
+<thead><tr><th>Input</th><th>Pinned as</th></tr></thead>
+<tbody>
+<tr><td>Corpus (<code>docs/data/recalls.xlsx</code>)</td>
+<td><span class="mono">94d1421</span> &middot; 1,506 notices,
+34 complete weeks, 29 Dec 2025 to 17 Aug 2026</td></tr>
+<tr><td>Detector source &amp; constants</td>
+<td>Same revision; every constant listed in &sect;2.6 and included in the digest</td></tr>
+<tr><td>Coverage register</td>
+<td><code>docs/data/source-coverage.json</code>; maturity dates frozen, window
+8 Jun 2026</td></tr>
+<tr><td>Runtime</td>
+<td>Python 3 with pandas; no fitted model, no random seed, no network access
+at build time</td></tr>
+<tr><td>Build clock</td>
+<td><strong>Not pinned</strong> &mdash; excluded from the digest by construction</td></tr>
+</tbody>
+<caption>A rebuild that reports this digest has reproduced the analysis. A
+rebuild that reports a different one has changed an input, and the table
+above is the list of places to look.</caption>
+</table></div>
+
+<h2><span class="num">8</span>References</h2>
+
+<ol style="font-size:14.5px">
+  <li>Hutwagner L, Thompson W, Seeman GM, Treadwell T. The bioterrorism
+      preparedness and response Early Aberration Reporting System (EARS).
+      <em>Journal of Urban Health</em> 2003;80(2 Suppl 1):i89&ndash;i96.
+      <span style="color:var(--ink-3)">&mdash; C1/C2/C3 as implemented in
+      &sect;2.1.</span></li>
+  <li>Farrington CP, Andrews NJ, Beale AD, Catchpole MA. A statistical
+      algorithm for the early detection of outbreaks of infectious disease.
+      <em>Journal of the Royal Statistical Society: Series A</em>
+      1996;159(3):547&ndash;563.
+      <span style="color:var(--ink-3)">&mdash; the method this corpus is
+      not yet long enough to support.</span></li>
+  <li>Noufaily A, Enki DG, Farrington P, Garthwaite P, Andrews N, Charlett A.
+      An improved algorithm for outbreak detection in multiple surveillance
+      systems. <em>Statistics in Medicine</em> 2013;32(7):1206&ndash;1222.
+      <span style="color:var(--ink-3)">&mdash; the migration target once
+      multiple years of stable history exist.</span></li>
+  <li>Benjamini Y, Hochberg Y. Controlling the false discovery rate: a
+      practical and powerful approach to multiple testing. <em>Journal of
+      the Royal Statistical Society: Series B</em> 1995;57(1):289&ndash;300.
+      <span style="color:var(--ink-3)">&mdash; the step-up procedure in
+      &sect;2.4, applied to the share channel only.</span></li>
+  <li>Clopper CJ, Pearson ES. The use of confidence or fiducial limits
+      illustrated in the case of the binomial. <em>Biometrika</em>
+      1934;26(4):404&ndash;413.
+      <span style="color:var(--ink-3)">&mdash; the exact binomial basis of
+      the share channel.</span></li>
+</ol>
 
 <div class="sub-cta">
   <h3>Food Safety Intelligence System</h3>
@@ -673,7 +837,7 @@ style="background:none;padding:0">python -m tools.build_technical_report</code><
 
 <footer>
   <p>TR-2026-01 &middot; Advanced Food-Tech Solutions (AFTS), Athens<br>
-  Generated 27 August 2026 07:23 UTC &middot; corpus revision
+  Generated 27 August 2026 07:43 UTC &middot; corpus revision
   <span class="mono">94d1421</span> &middot;
   1,506 notices over 34 complete weeks.</p>
   <p>Advisory only. Nothing in this report is a substitute for the
@@ -706,3 +870,5 @@ style="background:none;padding:0">python -m tools.build_technical_report</code><
   svg.addEventListener('pointerleave', function(){ tip.hidden = true; });
 })();
 </script>
+</body>
+</html>
