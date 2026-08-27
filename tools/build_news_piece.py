@@ -75,7 +75,7 @@ def _p(p: float) -> str:
             else f"p&nbsp;=&nbsp;{p:.5f}")
 
 
-def build(d: dict) -> str:
+def _facts(d: dict) -> dict:
     inw = [r for r in d["replay"] if r["in_window"]]
     share = [r for r in inw if r["channel"] == "proportion"]
     count = [r for r in inw if r["channel"] != "proportion"]
@@ -134,29 +134,32 @@ def build(d: dict) -> str:
             f'hazard class inside it, simultaneously. Nothing happened to '
             f'the food supply that week. A publisher cleared a backlog.</p>')
 
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{TITLE}</title>
-<meta name="description" content="How the Food Safety Intelligence System
-separates a genuine elevation in recall notices from a publisher clearing
-its backlog &mdash; and why it names the publisher either way.">
-<style>{REPORT_CSS}{EXTRA_CSS}</style>
-</head>
-<body>
-<div class="wrap">
+    return {"share": share, "count": count, "conc": conc,
+            "per_week": per_week, "publishers": publishers,
+            "cards": cards, "fr_txt": fr_txt, "step_txt": step_txt}
 
-<header class="hero">
-  <div class="eyebrow">Food Safety Intelligence System</div>
-  <h1>{TITLE}</h1>
-  <p class="deck">Recall volume goes up for two very different reasons. One
-  of them matters. Over {d['weeks_scanned']} weeks of monitored output we
-  found {len(share)} statistically controlled elevations &mdash; and named
-  the publisher behind every one of them.</p>
-</header>
 
+def deck(d: dict) -> str:
+    """One-sentence promise, built from the numbers it promises."""
+    f = _facts(d)
+    return (f"Recall volume goes up for two very different reasons. One of "
+            f"them matters. Over {d['weeks_scanned']} weeks of monitored "
+            f"output FSIS found {len(f['share'])} statistically controlled "
+            f"elevations \u2014 and named the publisher behind every one.")
+
+
+def front_matter(d: dict) -> str:
+    """The capability lead, with no document shell and no hero.
+
+    Kept separate so the same prose can open the single published report
+    without duplicating a masthead, and so its figures come from the same
+    `gather()` the method sections use.
+    """
+    f = _facts(d)
+    share, count, conc = f["share"], f["count"], f["conc"]
+    per_week, publishers = f["per_week"], f["publishers"]
+    cards, fr_txt, step_txt = f["cards"], f["fr_txt"], f["step_txt"]
+    return f"""
 <p>FSIS reads recall and alert notices from {publishers} regulatory
 publishers, normalises them into one schema, and screens them for
 pathogens, biotoxins, mycotoxins, foreign material, pest and chemical
@@ -224,66 +227,21 @@ muted in week three.</p>
         anticipate that.</li>
   </ul>
 </div>
-
-<h2>The method, in full</h2>
-
-<p>Every number on this page is generated from the corpus at build time,
-and the method behind it is published rather than described &mdash;
-including the parameters we swept and found to do nothing, the weeks we
-refuse to draw conclusions from, and a defect we found in our own maturity
-calculation and fixed.</p>
-
-<a class="annex" href="{ANNEX_HREF}">
-  <div class="k">Technical annex</div>
-  <div class="t">{ANNEX_LABEL} &mdash; Aberration detection over a
-  multi-jurisdiction food recall corpus</div>
-  <div class="s">EARS C1/C2/C3 over {d['n_weeks']} weeks and
-  {d['n_strata']} strata, the coverage register, threshold sensitivity, a
-  full walk-forward replay, and the SHA-256 digest that pins the
-  analysis.</div>
-</a>
-
-<div class="sub-cta">
-  <h3>Get the signal feed</h3>
-  <p>Daily briefs, weekly and monthly digests, and the aberration scan
-  described here &mdash; across {publishers} regulatory publishers in
-  Europe, North America, Asia-Pacific and beyond.</p>
-  <p style="margin-bottom:18px">Subscribe for the daily brief and weekly
-  digest, or request access to the full corpus and the signal feed.</p>
-  <a class="btn" href="{PUBLIC}">Subscribe to FSIS</a>
-</div>
-
-<footer>
-  <p>Advanced Food-Tech Solutions (AFTS), Athens &middot; Food Safety
-  Intelligence System<br>
-  Figures generated from the corpus at build time
-  ({d['n_records']:,} notices, {d['n_weeks']} complete weeks, to
-  {_wk(d['last_week'])}). Advisory only; the originating regulator's
-  notice remains the authoritative record in every case.</p>
-  <p><a href="{SITE}">{SITE.replace('https://','')}</a> &middot;
-  <a href="{ANNEX_HREF}">{ANNEX_LABEL}</a></p>
-</footer>
-
-</div>
-</body>
-</html>
 """
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--out", default=str(ROOT / "docs" / "reports" /
-                                         "fsis-signal-detection.html"))
-    a = ap.parse_args(argv)
-    d = gather()
-    out = Path(a.out)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(build(d), encoding="utf-8")
-    inw = [r for r in d["replay"] if r["in_window"]]
-    share = sum(1 for r in inw if r["channel"] == "proportion")
-    print(f"news piece: {out}  ({share} share signals, "
-          f"{len(inw) - share} diagnostics, {d['n_records']:,} notices)")
-    return 0
+    """The News piece is no longer a separate page.
+
+    It was briefly published as its own file with the technical report as
+    an annex. That is two URLs to keep in step and two places for a number
+    to drift, so the two were merged: the capability lead is now the front
+    matter of the single published report. This module keeps the lead as a
+    function; `tools.build_publication` renders the document.
+    """
+    print("build_news_piece is a component, not a page. "
+          "Run: python -m tools.build_publication")
+    return 1
 
 
 if __name__ == "__main__":

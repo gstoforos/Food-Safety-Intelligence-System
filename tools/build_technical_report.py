@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
+import hashlib
 import html
 import json
 import subprocess
@@ -60,6 +61,22 @@ def _git_sha() -> str:
         return "unversioned"
 
 
+# Display-only naming. The corpus stores the value each regulator
+# published; rewriting 1,506 rows to change a rendered label would be a
+# bulk edit with no upside and a real chance of collateral damage. The map
+# is applied at render time and nowhere else, and it is deliberately
+# exact-match: no substring rules, so "Turkey" cannot catch a brand name.
+DISPLAY_NAMES = {"Turkey": "T\u00fcrkiye"}
+
+
+def _display(label: str) -> str:
+    """Apply DISPLAY_NAMES to the country half of 'Pathogen \u00b7 Country'."""
+    if " \u00b7 " not in label:
+        return DISPLAY_NAMES.get(label, label)
+    head, _, tail = label.rpartition(" \u00b7 ")
+    return f"{head} \u00b7 {DISPLAY_NAMES.get(tail, tail)}"
+
+
 def _wk(period_str: str) -> str:
     """'2026-06-08/2026-06-14' -> '8 Jun 2026'."""
     try:
@@ -81,11 +98,14 @@ def gather() -> dict:
 
     need = sd.BASELINE_WEEKS + sd.GUARD_WEEKS + sd.C3_SPAN
     replay, scanned = [], 0
+    max_out, cap_bound = 0, 0
     for i, w in enumerate(corpus.weeks):
         if i < need:
             continue
         scanned += 1
         sigs, _meta = sd.detect(corpus, strata, asof=w)
+        max_out = max(max_out, int(_meta.get("after_dedup", len(sigs))))
+        cap_bound += 1 if _meta.get("cap_binding") else 0
         for s in sigs:
             replay.append({
                 "week": str(w), "week_label": _wk(str(w)), "label": s.label,
@@ -158,6 +178,8 @@ def gather() -> dict:
         "window": window,
         "replay": replay,
         "weeks_scanned": scanned,
+        "max_out": max_out,
+        "cap_bound_weeks": cap_bound,
         "top_sources": top_sources,
         "weekly": weekly,
         "steps": steps,
@@ -228,8 +250,11 @@ caption{caption-side:bottom;text-align:left;padding-top:10px;font:13px/1.6
   font-size:15px;color:var(--warn-ink)}
 .warn .h{font:600 11px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.12em;
   text-transform:uppercase;margin-bottom:9px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));
+/* Six tiles: an auto-fit track leaves a stranded empty cell at most
+   widths, which reads as a rendering fault. Fixed 3x2 / 2x3 instead. */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);
   gap:1px;background:var(--rule);border:1px solid var(--rule);margin:26px 0}
+@media (min-width:700px){.kpis{grid-template-columns:repeat(3,1fr)}}
 .kpi{background:var(--bg);padding:16px 18px}
 .kpi .v{font:600 26px/1.1 ui-sans-serif,system-ui,sans-serif;
   font-variant-numeric:tabular-nums;letter-spacing:-.02em}
@@ -322,7 +347,7 @@ def _signal_rows(replay) -> str:
         out.append(
             f'<tr>'
             f'<td class="d">{_esc(r["week_label"])}</td>'
-            f'<td>{_esc(r["label"])}</td>'
+            f'<td>{_esc(_display(r["label"]))}</td>'
             f'<td><span class="chan {cls}">{chan}</span></td>'
             f'<td class="n">{r["observed"]}</td>'
             f'<td class="n">{r["baseline_mean"]:.2f}</td>'
@@ -505,12 +530,65 @@ findings in &sect;5.2.
 </figure>'''
 
 
-def render(d: dict) -> str:
+def analytical_digest(d: dict) -> str:
+    """SHA-256 over the analytical content, deliberately excluding the clock.
+
+    The page carries a build timestamp, so two builds are never byte-equal
+    and an earlier draft's claim of byte-for-byte reproducibility was
+    simply false. What can be pinned is the result set: corpus shape, the
+    coverage window, every replay row, and the constants that produced
+    them. If this digest matches, the analysis matches, whatever the clock
+    said.
+    """
+    payload = {
+        "records": d["n_records"], "weeks": d["n_weeks"],
+        "first_week": d["first_week"], "last_week": d["last_week"],
+        "strata": d["n_strata"], "window": d["window"],
+        "constants": {k: getattr(sd, k) for k in (
+            "BASELINE_WEEKS", "GUARD_WEEKS", "C3_SPAN", "MIN_ABSOLUTE_COUNT",
+            "MIN_BASELINE_MEAN", "MIN_BASELINE_NONZERO", "ALPHA", "FDR_Q",
+            "MAX_SIGNALS", "PUBLISHER_DOMINANCE")},
+        "replay": [[r["week"], r["label"], r["channel"], r["observed"],
+                    r["baseline_mean"], r["effect"], r["effect_share"],
+                    r["effect_count"], round(r["p_value"], 10)]
+                   for r in d["replay"]],
+        "weekly": [[r["week"], r["total"], r["sources"]] for r in d["weekly"]],
+    }
+    blob = json.dumps(payload, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()
+
+
+def render(d: dict, lead_html: str = "", eyebrow: str = None,
+           title: str = None, deck: str = None, extra_css: str = "") -> str:
+    """Render the page.
+
+    `lead_html` is unnumbered front matter inserted between the summary
+    tiles and §1. It exists so that ONE document can open with what the
+    system found and still carry the full method underneath, rather than
+    the reader needing two files. The numbered sections are untouched by
+    it, so nothing that cites "§5.2" goes stale.
+    """
     win = d["window"]
     win_label = _wk(win) if win else "not established"
     n_sig = len(d["replay"])
     n_in = sum(1 for r in d["replay"] if r["in_window"])
     n_out = n_sig - n_in
+    n_share = sum(1 for r in d["replay"]
+                  if r["in_window"] and r["channel"] == "proportion")
+    n_count = n_in - n_share
+    # Baseline span of the earliest in-window row, stated rather than
+    # implied: the §5.2 claim is about baselines, not about test weeks.
+    base_lo = base_hi = "&mdash;"
+    if d["window"]:
+        wks = [w["week"] for w in d["weekly"]]
+        if d["window"] in wks:
+            i = wks.index(d["window"])
+            lo = i - (sd.GUARD_WEEKS + sd.BASELINE_WEEKS - 1)
+            hi = i - sd.GUARD_WEEKS
+            if lo >= 0:
+                base_lo = _wk(wks[lo])
+                base_hi = _wk(wks[hi])
     n_disagree = sum(1 for r in d["replay"]
                      if abs(r["effect_share"] - r["effect_count"]) >= 0.005)
     cont = d["by_class"].get("continuous", [])
@@ -525,6 +603,9 @@ def render(d: dict) -> str:
     pk = max(d["weekly"], key=lambda r: r["sources"]) if d["weekly"] else None
     peak_src = (pk["label"], pk["sources"]) if pk else None
     gen = d["generated"]
+    digest = analytical_digest(d)
+    lede = "" if lead_html else ""
+    max_out = d["max_out"]
 
     src_rows = "\n".join(
         f'<tr><td>{_esc(n)}</td><td class="n">{c}</td>'
@@ -552,15 +633,23 @@ def render(d: dict) -> str:
              "Above this share from one publisher, the signal is annotated as such."),
         ])
 
-    return f"""<title>{REPORT_ID} &middot; Aberration Detection</title>
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<style>{CSS}</style>
+<title>{title or (REPORT_ID + " &middot; Aberration Detection")}</title>
+<meta name="author" content="{AUTHOR}">
+<meta name="description" content="{deck or SUBTITLE.format(n_weeks=d['n_weeks'])}">
+<style>{CSS}{extra_css}</style>
+</head>
+<body>
 <div class="wrap">
 
 <header class="masthead">
-  <div class="eyebrow">Technical Report {REPORT_ID}</div>
-  <h1>{TITLE}</h1>
-  <p class="sub">{SUBTITLE.format(n_weeks=d["n_weeks"])}</p>
+  <div class="eyebrow">{eyebrow or f"Technical Report {REPORT_ID}"}</div>
+  <h1>{title or TITLE}</h1>
+  <p class="sub">{deck or SUBTITLE.format(n_weeks=d["n_weeks"])}</p>
   <div class="byline">
     {AUTHOR} &middot; Food Safety Intelligence System<br>
     Built {gen:%d %B %Y} at {gen:%H:%M} UTC from corpus revision
@@ -569,10 +658,12 @@ def render(d: dict) -> str:
   </div>
 </header>
 
-<p class="lede">Every figure in this report is generated at build time from
-the corpus and the detector source. No table is transcribed by hand. The
-command that produced this page is given in &sect;7, and running it against
-the same corpus revision reproduces the page byte for byte.</p>
+<p class="lede">{lede}Every figure in this report is generated at build
+time from the corpus and the detector source. No table is transcribed by
+hand. The command that produced this page is given in &sect;7: running the
+documented build against the same corpus, source-code revision and
+configuration reproduces the reported analytical results, verifiable
+against the digest printed there.</p>
 
 <div class="kpis">
   <div class="kpi"><div class="v">{d['n_records']:,}</div>
@@ -581,12 +672,15 @@ the same corpus revision reproduces the page byte for byte.</p>
     <div class="l">complete weeks</div></div>
   <div class="kpi"><div class="v">{d['n_strata']}</div>
     <div class="l">strata evaluated</div></div>
-  <div class="kpi"><div class="v">{n_in}</div>
-    <div class="l">signals in window</div></div>
+  <div class="kpi"><div class="v">{n_share}</div>
+    <div class="l">FDR-controlled share signals</div></div>
+  <div class="kpi"><div class="v">{n_count}</div>
+    <div class="l">count-channel diagnostics</div></div>
   <div class="kpi"><div class="v">{len(cont)}</div>
     <div class="l">continuous sources</div></div>
 </div>
 
+{lead_html}
 <h2><span class="num">1</span>What this is, and what it is not</h2>
 
 <p>This is a <strong>retrospective aberration detector</strong> over
@@ -611,9 +705,10 @@ it later enters.</p>
 
 <h3>2.1 Detector</h3>
 
-<p>CDC EARS C1/C2/C3 (Hutwagner et al.), chosen over Farrington and
-Noufaily because those need three to five years of history for their
-seasonal terms and this corpus holds {d['n_weeks']} weeks. The stratum
+<p>CDC EARS C1/C2/C3 (Hutwagner et al., 2003), chosen over Farrington
+(1996) and Noufaily (2013) because those generally require multiple years
+of stable historical data to model seasonality reliably, and this corpus
+holds {d['n_weeks']} weeks. The stratum
 contract is designed to survive a migration to Farrington without changing
 callers, once the history exists.</p>
 
@@ -623,10 +718,20 @@ callers, once the history exists.</p>
   <li><strong>C2</strong> &mdash; same width, offset by a
       {sd.GUARD_WEEKS}-week guard band, so a slow-onset event cannot
       quietly raise the baseline it is being measured against.</li>
-  <li><strong>C3</strong> &mdash; the sum of the last {sd.C3_SPAN} C2
-      excesses, which catches sustained low-grade drift that no single
-      week would trip.</li>
+  <li><strong>C3</strong> &mdash; thresholded excess accumulated over the
+      last {sd.C3_SPAN} weeks, which catches sustained low-grade drift that
+      no single week would trip. The implementation is exactly
+      <span class="mono">C3<sub>t</sub> = &Sigma;<sub>i=0..{sd.C3_SPAN - 1}</sub>
+      max(0, C2<sub>t-i</sub> &minus; 1)</span>, each C2 recomputed against
+      its own baseline window &mdash; not a plain sum of C2 values.</li>
 </ul>
+
+<p>A stratum therefore needs {sd.BASELINE_WEEKS} baseline weeks,
+{sd.GUARD_WEEKS} guard weeks and {sd.C3_SPAN} further weeks of C3 history
+before it can be scored at all:
+{sd.BASELINE_WEEKS}&nbsp;+&nbsp;{sd.GUARD_WEEKS}&nbsp;+&nbsp;{sd.C3_SPAN}&nbsp;=&nbsp;<strong>{sd.BASELINE_WEEKS + sd.GUARD_WEEKS + sd.C3_SPAN}</strong>.
+That is the number of leading weeks in the corpus that produce no output,
+and it is why the replay below starts where it does.</p>
 
 <h3>2.2 Two channels, and why the share channel is the one that alarms</h3>
 
@@ -640,9 +745,18 @@ wearing the costume of a food-safety event.</p>
 compares the raw weekly count against its baseline mean and standard
 deviation; it is diagnostic. The <strong>share</strong> channel compares
 the stratum's proportion of that week's whole corpus against the pooled
-baseline share, by exact binomial test; shares are invariant to publisher
-volume, and this is the channel that alarms. A count signal with no
-matching share signal is reported as a probable publication artefact.</p>
+baseline share, by exact binomial test; this is the channel that
+alarms.</p>
+
+<p>It is tempting to say shares are invariant to publisher volume, and an
+earlier draft of this report did. That is too strong. The share channel <strong>partially normalises
+changes in total weekly volume, although it remains sensitive to changes
+in publisher mix and to publisher-specific hazard composition</strong> - a
+publisher whose output skews towards one hazard class moves that class's
+share when it moves its volume. A count signal with no matching share
+signal is therefore reported as a <strong>potentially volume-driven
+publication event requiring publisher-level review</strong>, not as a
+finding.</p>
 
 <div class="note">
   <div class="h">Effect follows the channel</div>
@@ -669,13 +783,38 @@ region &rarr; global.</p>
 <h3>2.4 Multiplicity</h3>
 
 <p>{d['n_strata']} strata are evaluated per run. At
-&alpha;&nbsp;=&nbsp;{sd.ALPHA} that yields several false positives every
-week, which trains a reader to ignore the feed &mdash; the failure mode
+&alpha;&nbsp;=&nbsp;{sd.ALPHA:.2f} that could produce approximately
+<strong>{d['n_strata'] * sd.ALPHA:.1f} nominal positives per run under an
+all-null approximation</strong> with independent tests &mdash; the strata
+are not independent, since a child and its parent share records, so treat
+that as an order of magnitude rather than an expectation. Either way it is
+enough to train a reader to ignore the feed, which is the failure mode
 that matters most for an operational product. Benjamini&ndash;Hochberg FDR
 at q&nbsp;=&nbsp;{sd.FDR_Q:.2f} is applied across all strata within a run, and
 the output is capped at {sd.MAX_SIGNALS} signals ranked by effect.</p>
 
-<h3>2.5 Constants</h3>
+<h3>2.5 Ranking, and what the output cap actually does</h3>
+
+<p>&sect;5.1 warns against reading the two channels as one scale, which
+raises a fair question about the cap: if output is limited to
+{sd.MAX_SIGNALS} rows &ldquo;ranked by effect&rdquo;, are share ratios and
+count ratios being ranked against each other? They are not. The sort key
+is <code>(channel != "proportion", -effect)</code>: the first element
+<em>separates</em> the channels into blocks, and the effect ordering
+applies only within a block. A share ratio is never compared to a count
+ratio.</p>
+
+<p>Two further facts, both measurable rather than asserted. The cap has
+never bound on this corpus: across all {d['weeks_scanned']} scored weeks,
+the largest post-deduplication output was <strong>{max_out}</strong> rows
+against a cap of {sd.MAX_SIGNALS}. And the gap a reader may notice between
+&ldquo;survived FDR&rdquo; and &ldquo;reported&rdquo; in the run metadata
+is <em>not</em> the cap &mdash; it is the parent/child collapse, which
+drops a parent stratum when a child accounts for 80% or more of it. The
+run metadata now carries <code>after_dedup</code> and
+<code>cap_binding</code> so the two cannot be confused.</p>
+
+<h3>2.6 Constants</h3>
 
 <div class="tw"><table>
 <thead><tr><th>Constant</th><th class="n">Value</th><th>Role</th></tr></thead>
@@ -683,8 +822,12 @@ the output is capped at {sd.MAX_SIGNALS} signals ranked by effect.</p>
 {const_rows}
 </tbody>
 <caption>Read directly from <code>pipeline/signal_detector.py</code> at
-build time. These are judgement calls, not fitted values; &sect;4 reports
-which of them actually move an output.</caption>
+build time, and included in the digest in &sect;7.1. These are judgement
+calls, not fitted values. <strong>They have not been swept.</strong>
+&sect;4 reports a sensitivity analysis of the <em>coverage register's</em>
+constants, which is a different set; the detector's own thresholds are an
+open item, and the honest statement today is that their influence on the
+ledger is undocumented.</caption>
 </table></div>
 
 <h2><span class="num">3</span>Coverage: which history is analysable at all</h2>
@@ -792,7 +935,9 @@ cross-validation &mdash; random folds on surveillance time series leak the
 future into the baseline and produce beautiful, meaningless numbers.
 {d['weeks_scanned']} weeks were scored; the first
 {sd.BASELINE_WEEKS + sd.GUARD_WEEKS + sd.C3_SPAN} are consumed by the
-baseline and guard band and cannot be scored at all.</p>
+baseline, the guard band and the C3 accumulation window
+({sd.BASELINE_WEEKS}&nbsp;+&nbsp;{sd.GUARD_WEEKS}&nbsp;+&nbsp;{sd.C3_SPAN};
+see &sect;2.1) and cannot be scored at all.</p>
 
 <p>There is no labelled anomaly set, so these tables are not an accuracy
 measurement. They are the alarm ledger: each row is reviewed by hand and
@@ -807,10 +952,15 @@ Benjamini&ndash;Hochberg at q&nbsp;=&nbsp;{sd.FDR_Q:.2f} across every stratum
 tested that week. A <strong>count-only</strong> row is admitted by the
 EARS statistic alone &mdash; C1 or C2 at 3.0, or C3 at 2.0, with the
 observed count at least 20% above baseline &mdash; and <em>bypasses FDR by
-design</em>, because it is not being offered as a discovery. It is being
-logged as a probable publisher artefact, and suppressing those by
-multiplicity control would hide exactly the rows an operator needs to see
-in order to recognise a backlog dump.</p>
+design</em>, because it is not being offered as a discovery. It is logged
+as a potentially volume-driven publication event requiring publisher-level
+review, and suppressing those by multiplicity control would hide exactly
+the rows an operator needs in order to recognise a backlog dump.</p>
+
+<p>Because they are not multiplicity-controlled, count-channel rows carry
+no false-discovery guarantee of any kind, and no count of them should be
+reported as a number of signals. Every summary figure in this report
+separates the two.</p>
 
 <div class="warn">
   <div class="h">Do not read the two channels as one scale</div>
@@ -824,11 +974,28 @@ in order to recognise a backlog dump.</p>
   the other channel's.</p>
 </div>
 
-<h3>5.2 Findings inside the coverage window</h3>
+<h3>5.2 Alert ledger inside the coverage window</h3>
 
-<p>These {n_in} rows sit wholly after mature collection: every week in
-each row's baseline post-dates {win_label}. These are the only rows in
-this report that carry an interpretation.</p>
+<p>These {n_in} rows fall within the approved analytical window: for every
+row, the complete baseline falls after the latest applicable
+source-maturity date of
+<strong>{_wk(latest_mat) if latest_mat else 'not established'}</strong>.
+The earliest row here is the week commencing {win_label}, whose baseline
+runs {base_lo} to {base_hi} &mdash; the window opens where it does
+precisely so that this is true of the first row as well as the last.</p>
+
+<p>The {n_in} rows are not one kind of object, and the distinction is the
+most important thing on this page:</p>
+
+<ul>
+  <li><strong>{n_share} share-channel signals</strong>, each admitted by an
+      exact binomial test and surviving Benjamini&ndash;Hochberg at
+      q&nbsp;=&nbsp;{sd.FDR_Q:.2f}. These are the FDR-controlled findings.</li>
+  <li><strong>{n_count} count-channel diagnostics</strong>, admitted on the
+      EARS statistic alone and <em>not</em> multiplicity-controlled. These
+      are publisher-review items. They are not statistical findings and
+      must not be counted as such.</li>
+</ul>
 
 <div class="tw"><table>
 <thead><tr>
@@ -843,8 +1010,13 @@ this report that carry an interpretation.</p>
 show observed share over baseline share, count-only rows show observed
 over baseline mean. &ldquo;Other ratio&rdquo; is the value on the channel
 not used, retained so that nothing is unrecoverable. &ldquo;Admitted
-by&rdquo; is each row's own criterion &mdash; a post-FDR p-value for share
-rows, the governing EARS statistic for count-only rows.</caption>
+by&rdquo; is each row's own criterion: for share rows the <strong>raw
+exact binomial p, which survived Benjamini&ndash;Hochberg at
+q&nbsp;=&nbsp;{sd.FDR_Q:.2f}</strong> (BH here returns a rejection mask,
+not adjusted p-values, so no adjusted p exists to display); for
+count-channel rows the governing EARS statistic, which is what admitted
+them. The two columns are not comparable and are not ranked against each
+other &mdash; see &sect;5.1 and &sect;2.6.</caption>
 </table></div>
 
 <h3>5.3 Audit ledger: rows outside the coverage window</h3>
@@ -855,8 +1027,9 @@ deleted, because a detector that quietly drops its own output cannot be
 audited &mdash; but <strong>none of them is a finding</strong>. Any
 elevation here is at least as likely to be the scraper fleet coming online
 as a change in the food supply, and several are visibly that: a stratum
-going from a baseline of 1.00 to 41 in one week is a source switching on,
-not an outbreak.</p>
+going from a baseline of 1.00 to 41 in one week is strongly consistent
+with source activation rather than an underlying outbreak, though only
+publisher-level review of those rows can confirm it.</p>
 
 <div class="tw"><table>
 <thead><tr>
@@ -893,8 +1066,8 @@ only against itself.</p>
 
 <p><strong>Short history.</strong> {d['n_weeks']} weeks supports EARS and
 nothing seasonal. Any pattern with an annual period is invisible, and a
-genuine seasonal rise will be read as an aberration until at least three
-years of history exists.</p>
+genuine seasonal rise will be read as an aberration until multiple years
+of stable history exist.</p>
 
 <p><strong>Publisher events dominate the count channel.</strong> Mitigated
 by the share channel, not eliminated. A backlog clearance concentrated in
@@ -932,7 +1105,80 @@ style="background:none;padding:0">python -m tools.build_technical_report</code><
   <li><code>python -m pipeline.source_coverage --verify-stability</code> &mdash; exits 2 if any cutoff would move</li>
   <li><code>python -m tools.coverage_sensitivity</code> &mdash; reproduce &sect;4</li>
   <li><code>python -m pipeline.signal_detector --backtest</code> &mdash; reproduce Table 1 as CSV</li>
+  <li><code>python -m tools.build_technical_report --print-digest</code> &mdash; recompute the digest below without writing the page</li>
 </ul>
+
+<h3>7.1 What reproducibility means here, precisely</h3>
+
+<p>The page is <strong>not</strong> byte-for-byte reproducible, and it
+would be dishonest to claim otherwise: it stamps its own build time, so
+two builds always differ. Corpus revision alone would not be sufficient
+even without that, because the result also depends on the detector's
+source revision, its constants, the coverage register, and the runtime.</p>
+
+<p>What is pinned is the analysis. The digest below is SHA-256 over the
+analytical payload with the clock excluded &mdash; corpus shape, coverage
+window, every constant in &sect;2.6, and every replay row with its
+observed count, baseline, both effect ratios and p-value:</p>
+
+<pre style="background:var(--bg-2);border:1px solid var(--rule);padding:14px 16px;
+overflow-x:auto;font-family:var(--mono);font-size:12.5px;margin:0 0 16px;
+word-break:break-all;white-space:pre-wrap"><code
+style="background:none;padding:0">analytical-digest sha256
+{digest}</code></pre>
+
+<div class="tw"><table>
+<thead><tr><th>Input</th><th>Pinned as</th></tr></thead>
+<tbody>
+<tr><td>Corpus (<code>docs/data/recalls.xlsx</code>)</td>
+<td><span class="mono">{_esc(d['sha'])}</span> &middot; {d['n_records']:,} notices,
+{d['n_weeks']} complete weeks, {_wk(d['first_week'])} to {_wk(d['last_week'])}</td></tr>
+<tr><td>Detector source &amp; constants</td>
+<td>Same revision; every constant listed in &sect;2.6 and included in the digest</td></tr>
+<tr><td>Coverage register</td>
+<td><code>docs/data/source-coverage.json</code>; maturity dates frozen, window
+{_esc(win_label)}</td></tr>
+<tr><td>Runtime</td>
+<td>Python 3 with pandas; no fitted model, no random seed, no network access
+at build time</td></tr>
+<tr><td>Build clock</td>
+<td><strong>Not pinned</strong> &mdash; excluded from the digest by construction</td></tr>
+</tbody>
+<caption>A rebuild that reports this digest has reproduced the analysis. A
+rebuild that reports a different one has changed an input, and the table
+above is the list of places to look.</caption>
+</table></div>
+
+<h2><span class="num">8</span>References</h2>
+
+<ol style="font-size:14.5px">
+  <li>Hutwagner L, Thompson W, Seeman GM, Treadwell T. The bioterrorism
+      preparedness and response Early Aberration Reporting System (EARS).
+      <em>Journal of Urban Health</em> 2003;80(2 Suppl 1):i89&ndash;i96.
+      <span style="color:var(--ink-3)">&mdash; C1/C2/C3 as implemented in
+      &sect;2.1.</span></li>
+  <li>Farrington CP, Andrews NJ, Beale AD, Catchpole MA. A statistical
+      algorithm for the early detection of outbreaks of infectious disease.
+      <em>Journal of the Royal Statistical Society: Series A</em>
+      1996;159(3):547&ndash;563.
+      <span style="color:var(--ink-3)">&mdash; the method this corpus is
+      not yet long enough to support.</span></li>
+  <li>Noufaily A, Enki DG, Farrington P, Garthwaite P, Andrews N, Charlett A.
+      An improved algorithm for outbreak detection in multiple surveillance
+      systems. <em>Statistics in Medicine</em> 2013;32(7):1206&ndash;1222.
+      <span style="color:var(--ink-3)">&mdash; the migration target once
+      multiple years of stable history exist.</span></li>
+  <li>Benjamini Y, Hochberg Y. Controlling the false discovery rate: a
+      practical and powerful approach to multiple testing. <em>Journal of
+      the Royal Statistical Society: Series B</em> 1995;57(1):289&ndash;300.
+      <span style="color:var(--ink-3)">&mdash; the step-up procedure in
+      &sect;2.4, applied to the share channel only.</span></li>
+  <li>Clopper CJ, Pearson ES. The use of confidence or fiducial limits
+      illustrated in the case of the binomial. <em>Biometrika</em>
+      1934;26(4):404&ndash;413.
+      <span style="color:var(--ink-3)">&mdash; the exact binomial basis of
+      the share channel.</span></li>
+</ol>
 
 <div class="sub-cta">
   <h3>Food Safety Intelligence System</h3>
@@ -982,6 +1228,8 @@ style="background:none;padding:0">python -m tools.build_technical_report</code><
   svg.addEventListener('pointerleave', function(){{ tip.hidden = true; }});
 }})();
 </script>
+</body>
+</html>
 """
 
 
@@ -990,9 +1238,15 @@ def main(argv=None) -> int:
     ap.add_argument("--out", default=str(ROOT / "docs" / "reports" / f"{REPORT_ID}.html"))
     ap.add_argument("--json", default=None,
                     help="also write the gathered figures as JSON")
+    ap.add_argument("--print-digest", action="store_true",
+                    help="print the analytical digest and exit without "
+                         "writing the page")
     a = ap.parse_args(argv)
 
     d = gather()
+    if a.print_digest:
+        print(analytical_digest(d))
+        return 0
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(render(d), encoding="utf-8")
@@ -1006,7 +1260,8 @@ def main(argv=None) -> int:
 
     print(f"{REPORT_ID}: {out}  "
           f"({d['n_records']:,} notices / {d['n_weeks']} weeks / "
-          f"{len(d['replay'])} signals, window opens {d['window']})")
+          f"{len(d['replay'])} ledger rows, window opens {d['window']})")
+    print(f"analytical-digest sha256 {analytical_digest(d)}")
     return 0
 
 
