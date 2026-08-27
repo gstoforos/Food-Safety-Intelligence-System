@@ -119,9 +119,10 @@ def _facts(d: dict) -> dict:
             f'which cleared the threshold in {len(fr)} separate weeks '
             f'({wk_list}) &mdash; {fr[0]["observed"]} notices against a '
             f'baseline of {fr[0]["baseline_mean"]:.1f} in the first of them. '
-            f'A sustained elevation in one country, flagged in the week it '
-            f'began, inside a stream averaging {per_week:.0f} notices a week '
-            f'that nobody reads end to end.</p>')
+            f'A sustained elevation in one country, identified in the '
+            f'walk-forward replay for the week in which the elevation '
+            f'began, inside a stream averaging {per_week:.0f} notices a '
+            f'week that nobody reads end to end.</p>')
 
     step_txt = ""
     if step:
@@ -131,8 +132,10 @@ def _facts(d: dict) -> dict:
             f'<strong>+{step["delta"]} notices</strong>, of which '
             f'{step["src_delta"]} came from {_esc(step["source"])} alone. '
             f'Any tool that watches raw counts alarms on that, and on every '
-            f'hazard class inside it, simultaneously. Nothing happened to '
-            f'the food supply that week. A publisher cleared a backlog.</p>')
+            f'hazard class inside it, simultaneously. The pattern is '
+            f'strongly consistent with a publisher-volume event rather '
+            f'than evidence of a comparable change across the food '
+            f'supply.</p>')
 
     return {"share": share, "count": count, "conc": conc,
             "per_week": per_week, "publishers": publishers,
@@ -143,9 +146,10 @@ def deck(d: dict) -> str:
     """One-sentence promise, built from the numbers it promises."""
     f = _facts(d)
     return (f"Recall volume goes up for two very different reasons. One of "
-            f"them matters. Over {d['weeks_scanned']} weeks of monitored "
-            f"output FSIS found {len(f['share'])} statistically controlled "
-            f"elevations \u2014 and named the publisher behind every one.")
+            f"them matters. Across {d['weeks_scanned']} scored weeks of "
+            f"walk-forward replay FSIS found {len(f['share'])} "
+            f"statistically controlled elevations \u2014 and named the "
+            f"publisher behind every one.")
 
 
 def front_matter(d: dict) -> str:
@@ -191,7 +195,7 @@ flat total, the share moves and the detector does not stay quiet.</p>
 
 <p class="pull">The question is never &ldquo;are there more notices this
 week?&rdquo; It is &ldquo;is this hazard taking a larger share of the
-world's regulatory attention than it did a month ago?&rdquo;</p>
+monitored regulatory corpus than it did a month ago?&rdquo;</p>
 
 <h2>Detect, then attribute</h2>
 

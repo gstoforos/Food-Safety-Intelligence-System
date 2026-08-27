@@ -579,17 +579,29 @@ def render(d: dict, lead_html: str = "", eyebrow: str = None,
     n_count = n_in - n_share
     # Baseline span of the earliest in-window row, stated rather than
     # implied: the §5.2 claim is about baselines, not about test weeks.
-    base_lo = base_hi = "&mdash;"
+    # Both channels, because they do not agree — see the note in §2.3.
+    # Derived from the code's own indexing, not from the prose description:
+    #   count : _window(offset=GUARD_WEEKS) -> idx-9 .. idx-3   (2-week gap)
+    #   share : range(GUARD_WEEKS, ...)     -> idx-8 .. idx-2    (1-week gap)
+    c_lo = c_hi = s_lo = s_hi = "&mdash;"
+    guard_wks = "&mdash;"
     if d["window"]:
         wks = [w["week"] for w in d["weekly"]]
         if d["window"] in wks:
             i = wks.index(d["window"])
-            lo = i - (sd.GUARD_WEEKS + sd.BASELINE_WEEKS - 1)
-            hi = i - sd.GUARD_WEEKS
-            if lo >= 0:
-                base_lo = _wk(wks[lo])
-                base_hi = _wk(wks[hi])
-    n_disagree = sum(1 for r in d["replay"]
+            cl, ch = i - sd.GUARD_WEEKS - sd.BASELINE_WEEKS, i - sd.GUARD_WEEKS - 1
+            sl, sh = i - sd.GUARD_WEEKS - sd.BASELINE_WEEKS + 1, i - sd.GUARD_WEEKS
+            if cl >= 0:
+                c_lo, c_hi = _wk(wks[cl]), _wk(wks[ch])
+                s_lo, s_hi = _wk(wks[sl]), _wk(wks[sh])
+                guard_wks = " and ".join(_wk(wks[k]) for k in range(ch + 1, i))
+    # How many rows the DISPLAYED effect actually changed on. Comparing the
+    # two ratios for inequality answers a different and useless question:
+    # a share ratio and a count ratio are almost never equal, so that test
+    # returns "every row" and tells a reader nothing.
+    n_changed = sum(1 for r in d["replay"]
+                    if r["in_window"] and r["channel"] != "proportion")
+    _unused_disagree = sum(1 for r in d["replay"]
                      if abs(r["effect_share"] - r["effect_count"]) >= 0.005)
     cont = d["by_class"].get("continuous", [])
     mats = [s.mature_week for s in cont if s.mature_week]
@@ -717,7 +729,10 @@ callers, once the history exists.</p>
       immediately preceding the test week.</li>
   <li><strong>C2</strong> &mdash; same width, offset by a
       {sd.GUARD_WEEKS}-week guard band, so a slow-onset event cannot
-      quietly raise the baseline it is being measured against.</li>
+      quietly raise the baseline it is being measured against. Both
+      channels read this same window: for the week commencing {win_label}
+      the baseline is <span class="mono">{c_lo}&ndash;{c_hi}</span>, with
+      {guard_wks} held out.</li>
   <li><strong>C3</strong> &mdash; thresholded excess accumulated over the
       last {sd.C3_SPAN} weeks, which catches sustained low-grade drift that
       no single week would trip. The implementation is exactly
@@ -726,12 +741,20 @@ callers, once the history exists.</p>
       its own baseline window &mdash; not a plain sum of C2 values.</li>
 </ul>
 
-<p>A stratum therefore needs {sd.BASELINE_WEEKS} baseline weeks,
-{sd.GUARD_WEEKS} guard weeks and {sd.C3_SPAN} further weeks of C3 history
-before it can be scored at all:
-{sd.BASELINE_WEEKS}&nbsp;+&nbsp;{sd.GUARD_WEEKS}&nbsp;+&nbsp;{sd.C3_SPAN}&nbsp;=&nbsp;<strong>{sd.BASELINE_WEEKS + sd.GUARD_WEEKS + sd.C3_SPAN}</strong>.
-That is the number of leading weeks in the corpus that produce no output,
-and it is why the replay below starts where it does.</p>
+<p>The corpus's first
+<strong>{sd.BASELINE_WEEKS + sd.GUARD_WEEKS + sd.C3_SPAN}</strong> weeks
+therefore produce no output, which is why the replay below starts where it
+does. <strong>That figure is an implementation requirement, not an
+inherent property of EARS.</strong> The code guards with
+<code>{sd.BASELINE_WEEKS}&nbsp;+&nbsp;{sd.GUARD_WEEKS}&nbsp;+&nbsp;{sd.C3_SPAN}</code>,
+a readable expression that is one week conservative: the binding
+constraint is the earliest week the oldest C2 in the C3 sum can reach,
+which is
+t&nbsp;&minus;&nbsp;{sd.C3_SPAN - 1}&nbsp;&minus;&nbsp;({sd.BASELINE_WEEKS}&nbsp;+&nbsp;{sd.GUARD_WEEKS}),
+making <strong>{sd.BASELINE_WEEKS + sd.GUARD_WEEKS + sd.C3_SPAN - 1}</strong>
+leading weeks the arithmetic minimum. One further week of history is
+discarded than strictly necessary. Nothing is wrong with the scored weeks;
+there is simply one fewer of them than there could be.</p>
 
 <h3>2.2 Two channels, and why the share channel is the one that alarms</h3>
 
@@ -761,9 +784,10 @@ finding.</p>
 <div class="note">
   <div class="h">Effect follows the channel</div>
   <p style="margin:0">Until 27 August 2026 the effect column carried the
-  <em>share</em> ratio for every signal, including count-only ones. On the
-  signals in this report the two ratios disagree on
-  <strong>{n_disagree} of {n_sig}</strong>. One disagreement was
+  <em>share</em> ratio for every signal, including count-only ones. Share
+  rows were unaffected; the count-only rows were not, so inside the
+  analytical window the reported effect changes on
+  <strong>{n_changed} of {n_in}</strong> rows. One of those changes was
   disqualifying rather than cosmetic: a count-only Listeria signal for
   France carried a share ratio of 0.85 &mdash; below one &mdash; telling
   the reader the stratum fell in the same row that said it alarmed.
@@ -856,8 +880,8 @@ complete-week figures in &sect;5.4.</caption>
 
 <h3>3.1 Maturity dates are frozen once determined</h3>
 
-<div class="warn">
-  <div class="h">Defect found and fixed, 27 August 2026</div>
+<div class="note">
+  <div class="h">Why maturity is frozen</div>
   <p style="margin:0 0 10px">Maturity was originally computed against the
   most recent eight weeks &mdash; a <em>moving</em> reference. The
   consequence was not drift but oscillation: one source's maturity moved
@@ -977,12 +1001,15 @@ separates the two.</p>
 <h3>5.2 Alert ledger inside the coverage window</h3>
 
 <p>These {n_in} rows fall within the approved analytical window: for every
-row, the complete baseline falls after the latest applicable
-source-maturity date of
+row, the complete baseline lies within mature collection, beginning no
+earlier than the maturity week of
 <strong>{_wk(latest_mat) if latest_mat else 'not established'}</strong>.
-The earliest row here is the week commencing {win_label}, whose baseline
-runs {base_lo} to {base_hi} &mdash; the window opens where it does
-precisely so that this is true of the first row as well as the last.</p>
+Taking the earliest row here, the week commencing {win_label}: its
+count-channel (C2) baseline runs <strong>{c_lo} to {c_hi}</strong>, with
+{guard_wks} held out as the guard band. The window opens exactly
+{sd.BASELINE_WEEKS}&nbsp;+&nbsp;{sd.GUARD_WEEKS} weeks after maturity so
+that the first baseline week coincides with the maturity week and no
+earlier &mdash; true of the first row as well as the last.</p>
 
 <p>The {n_in} rows are not one kind of object, and the distinction is the
 most important thing on this page:</p>
@@ -1149,7 +1176,54 @@ rebuild that reports a different one has changed an input, and the table
 above is the list of places to look.</caption>
 </table></div>
 
-<h2><span class="num">8</span>References</h2>
+<h2><span class="num">8</span>Revision history</h2>
+
+<p>The method is versioned, and corrections to it are listed rather than
+absorbed. Each entry names what changed and whether reported results moved,
+so a figure quoted from an earlier build can be placed.</p>
+
+<div class="tw"><table>
+<thead><tr><th class="d">Date</th><th>Change</th><th>Results moved</th></tr></thead>
+<tbody>
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Guard band aligned across channels.</strong> The share channel
+built its baseline with <code>range(GUARD_WEEKS, &hellip;)</code>, which
+includes the week at offset {sd.GUARD_WEEKS}: only the immediately
+preceding week was excluded, and the second preceding week entered the
+share-channel baseline. The count channel, using
+<code>_window(&hellip;, offset=GUARD_WEEKS)</code>, excluded both. Both
+channels now read the same {sd.BASELINE_WEEKS}-week window, and
+<code>tests/test_guard_band.py</code> fails if they ever diverge
+again.</td>
+<td>Yes &mdash; regenerated in full for this edition.</td></tr>
+
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Effect follows the channel.</strong> The effect column carried
+the share ratio for every row, including count-only ones, where it could
+fall below 1. Both ratios are now retained on every record and the
+displayed value matches the channel.</td>
+<td>Yes &mdash; count-channel rows only.</td></tr>
+
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Coverage window enforced in code.</strong>
+<code>coverage_window_start()</code> derives the window from the register;
+previously it was applied by hand. Maturity dates are frozen at first
+determination, ending an oscillation that could have moved the window by
+eight weeks.</td>
+<td>No &mdash; the derived window matches the one previously applied.</td></tr>
+
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Reproducibility restated.</strong> A byte-for-byte claim was
+replaced by the analytical digest in &sect;7.1, which excludes the build
+clock and pins the result set.</td>
+<td>No.</td></tr>
+</tbody>
+<caption>Corrections found by external statistical review and by the
+project's own test suite. Every entry is covered by a regression test;
+none can recur silently.</caption>
+</table></div>
+
+<h2><span class="num">9</span>References</h2>
 
 <ol style="font-size:14.5px">
   <li>Hutwagner L, Thompson W, Seeman GM, Treadwell T. The bioterrorism
