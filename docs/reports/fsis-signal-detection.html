@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>How FSIS tells a food-safety signal from a publisher dump</title>
 <meta name="author" content="Advanced Food-Tech Solutions (AFTS), Athens">
-<meta name="description" content="Recall volume goes up for two very different reasons. One of them matters. Over 22 weeks of monitored output FSIS found 12 statistically controlled elevations — and named the publisher behind every one.">
+<meta name="description" content="Recall volume goes up for two very different reasons. One of them matters. Across 22 scored weeks of walk-forward replay FSIS found 11 statistically controlled elevations — and named the publisher behind every one.">
 <style>
 :root{
   --ink:#12161c; --ink-2:#3d4654; --ink-3:#6b7585; --rule:#e2e6ec;
@@ -180,10 +180,10 @@ footer a{color:var(--accent)}
 <header class="masthead">
   <div class="eyebrow">Food Safety Intelligence System</div>
   <h1>How FSIS tells a food-safety signal from a publisher dump</h1>
-  <p class="sub">Recall volume goes up for two very different reasons. One of them matters. Over 22 weeks of monitored output FSIS found 12 statistically controlled elevations — and named the publisher behind every one.</p>
+  <p class="sub">Recall volume goes up for two very different reasons. One of them matters. Across 22 scored weeks of walk-forward replay FSIS found 11 statistically controlled elevations — and named the publisher behind every one.</p>
   <div class="byline">
     Advanced Food-Tech Solutions (AFTS), Athens &middot; Food Safety Intelligence System<br>
-    Built 27 August 2026 at 11:51 UTC from corpus revision
+    Built 27 August 2026 at 12:41 UTC from corpus revision
     <span class="mono">94d1421</span> &middot;
     <a href="https://fsis.advfood.tech">fsis.advfood.tech</a>
   </div>
@@ -203,9 +203,9 @@ against the digest printed there.</p>
     <div class="l">complete weeks</div></div>
   <div class="kpi"><div class="v">434</div>
     <div class="l">strata evaluated</div></div>
-  <div class="kpi"><div class="v">12</div>
+  <div class="kpi"><div class="v">11</div>
     <div class="l">FDR-controlled share signals</div></div>
-  <div class="kpi"><div class="v">8</div>
+  <div class="kpi"><div class="v">10</div>
     <div class="l">count-channel diagnostics</div></div>
   <div class="kpi"><div class="v">6</div>
     <div class="l">continuous sources</div></div>
@@ -224,16 +224,16 @@ against its own recent baseline. That is the job the detector does.</p>
 
 <h2>What it caught</h2>
 
-<p>Three of the 12, chosen by a rule rather than by which reads
+<p>Three of the 11, chosen by a rule rather than by which reads
 best: strongest statistical evidence first, one per stratum.</p>
 
-<div class="cards"><div class="card"><div class="big">&times;2.61</div><div class="who">Listeria monocytogenes · France</div><div class="det">Week of 13 Jul 2026 &middot; 37 notices against a baseline of 12.0. Share of corpus output, exact binomial p&nbsp;&lt;&nbsp;0.00001.<br><strong>Attributed:</strong> 97% RappelConso (FR).</div></div><div class="card"><div class="big">&times;9.67</div><div class="who">Tier 3 · Europe</div><div class="det">Week of 29 Jun 2026 &middot; 11 notices against a baseline of 1.3. Share of corpus output, exact binomial p&nbsp;&lt;&nbsp;0.00001.<br><strong>Attributed:</strong> 100% RappelConso (FR).</div></div><div class="card"><div class="big">&times;3.77</div><div class="who">Shiga toxin-producing E. coli (STEC) · Europe</div><div class="det">Week of 27 Jul 2026 &middot; 12 notices against a baseline of 4.1. Share of corpus output, exact binomial p&nbsp;=&nbsp;0.00007.<br><strong>Attributed:</strong> 67% RappelConso (FR).</div></div></div>
+<div class="cards"><div class="card"><div class="big">&times;2.66</div><div class="who">Listeria monocytogenes · France</div><div class="det">Week of 13 Jul 2026 &middot; 37 notices against a baseline of 12.0. Share of corpus output, exact binomial p&nbsp;&lt;&nbsp;0.00001.<br><strong>Attributed:</strong> 97% RappelConso (FR).</div></div><div class="card"><div class="big">&times;8.38</div><div class="who">Tier 3 · Europe</div><div class="det">Week of 29 Jun 2026 &middot; 11 notices against a baseline of 1.3. Share of corpus output, exact binomial p&nbsp;&lt;&nbsp;0.00001.<br><strong>Attributed:</strong> 100% RappelConso (FR).</div></div><div class="card"><div class="big">&times;5.72</div><div class="who">Salmonella · Poland</div><div class="det">Week of 6 Jul 2026 &middot; 8 notices against a baseline of 1.4. Share of corpus output, exact binomial p&nbsp;=&nbsp;0.00008.<br><strong>Attributed:</strong> 100% RASFF (EU).</div></div></div>
 
-<p>The clearest example is Listeria monocytogenes in France, which cleared the threshold in 3 separate weeks (13 Jul 2026, 20 Jul 2026, 10 Aug 2026) &mdash; 37 notices against a baseline of 12.0 in the first of them. A sustained elevation in one country, flagged in the week it began, inside a stream averaging 62 notices a week that nobody reads end to end.</p>
+<p>The clearest example is Listeria monocytogenes in France, which cleared the threshold in 3 separate weeks (13 Jul 2026, 20 Jul 2026, 10 Aug 2026) &mdash; 37 notices against a baseline of 12.0 in the first of them. A sustained elevation in one country, identified in the walk-forward replay for the week in which the elevation began, inside a stream averaging 62 notices a week that nobody reads end to end.</p>
 
 <h2>Why counting is not enough</h2>
 
-<p>Here is the trap. The single largest weekly jump in this corpus is the week of 6 Apr 2026: <strong>+63 notices</strong>, of which 43 came from RappelConso (FR) alone. Any tool that watches raw counts alarms on that, and on every hazard class inside it, simultaneously. Nothing happened to the food supply that week. A publisher cleared a backlog.</p>
+<p>Here is the trap. The single largest weekly jump in this corpus is the week of 6 Apr 2026: <strong>+63 notices</strong>, of which 43 came from RappelConso (FR) alone. Any tool that watches raw counts alarms on that, and on every hazard class inside it, simultaneously. The pattern is strongly consistent with a publisher-volume event rather than evidence of a comparable change across the food supply.</p>
 
 <p>FSIS scores each stratum on its <strong>share</strong> of the week's
 total output rather than its raw count. When a publisher doubles
@@ -243,16 +243,16 @@ flat total, the share moves and the detector does not stay quiet.</p>
 
 <p class="pull">The question is never &ldquo;are there more notices this
 week?&rdquo; It is &ldquo;is this hazard taking a larger share of the
-world's regulatory attention than it did a month ago?&rdquo;</p>
+monitored regulatory corpus than it did a month ago?&rdquo;</p>
 
 <h2>Detect, then attribute</h2>
 
 <p>A share signal is not automatically a food-safety event either, and
 this is where most tools stop and FSIS does not.
-7 of the 12 elevations above came predominantly from a
+7 of the 11 elevations above came predominantly from a
 single publisher &mdash; and every one of those carries that fact in the
 record, with the publisher named and its percentage stated. The
-8 further rows that moved on count but <em>not</em> on share are
+10 further rows that moved on count but <em>not</em> on share are
 kept in a separate ledger and labelled as what they are: publisher-review
 items, not findings.</p>
 
@@ -316,7 +316,10 @@ callers, once the history exists.</p>
       immediately preceding the test week.</li>
   <li><strong>C2</strong> &mdash; same width, offset by a
       2-week guard band, so a slow-onset event cannot
-      quietly raise the baseline it is being measured against.</li>
+      quietly raise the baseline it is being measured against. Both
+      channels read this same window: for the week commencing 8 Jun 2026
+      the baseline is <span class="mono">6 Apr 2026&ndash;18 May 2026</span>, with
+      25 May 2026 and 1 Jun 2026 held out.</li>
   <li><strong>C3</strong> &mdash; thresholded excess accumulated over the
       last 3 weeks, which catches sustained low-grade drift that
       no single week would trip. The implementation is exactly
@@ -325,12 +328,20 @@ callers, once the history exists.</p>
       its own baseline window &mdash; not a plain sum of C2 values.</li>
 </ul>
 
-<p>A stratum therefore needs 7 baseline weeks,
-2 guard weeks and 3 further weeks of C3 history
-before it can be scored at all:
-7&nbsp;+&nbsp;2&nbsp;+&nbsp;3&nbsp;=&nbsp;<strong>12</strong>.
-That is the number of leading weeks in the corpus that produce no output,
-and it is why the replay below starts where it does.</p>
+<p>The corpus's first
+<strong>12</strong> weeks
+therefore produce no output, which is why the replay below starts where it
+does. <strong>That figure is an implementation requirement, not an
+inherent property of EARS.</strong> The code guards with
+<code>7&nbsp;+&nbsp;2&nbsp;+&nbsp;3</code>,
+a readable expression that is one week conservative: the binding
+constraint is the earliest week the oldest C2 in the C3 sum can reach,
+which is
+t&nbsp;&minus;&nbsp;2&nbsp;&minus;&nbsp;(7&nbsp;+&nbsp;2),
+making <strong>11</strong>
+leading weeks the arithmetic minimum. One further week of history is
+discarded than strictly necessary. Nothing is wrong with the scored weeks;
+there is simply one fewer of them than there could be.</p>
 
 <h3>2.2 Two channels, and why the share channel is the one that alarms</h3>
 
@@ -360,9 +371,10 @@ finding.</p>
 <div class="note">
   <div class="h">Effect follows the channel</div>
   <p style="margin:0">Until 27 August 2026 the effect column carried the
-  <em>share</em> ratio for every signal, including count-only ones. On the
-  signals in this report the two ratios disagree on
-  <strong>61 of 61</strong>. One disagreement was
+  <em>share</em> ratio for every signal, including count-only ones. Share
+  rows were unaffected; the count-only rows were not, so inside the
+  analytical window the reported effect changes on
+  <strong>10 of 21</strong> rows. One of those changes was
   disqualifying rather than cosmetic: a count-only Listeria signal for
   France carried a share ratio of 0.85 &mdash; below one &mdash; telling
   the reader the stratum fell in the same row that said it alarmed.
@@ -537,8 +549,8 @@ complete-week figures in &sect;5.4.</caption>
 
 <h3>3.1 Maturity dates are frozen once determined</h3>
 
-<div class="warn">
-  <div class="h">Defect found and fixed, 27 August 2026</div>
+<div class="note">
+  <div class="h">Why maturity is frozen</div>
   <p style="margin:0 0 10px">Maturity was originally computed against the
   most recent eight weeks &mdash; a <em>moving</em> reference. The
   consequence was not drift but oscillation: one source's maturity moved
@@ -657,22 +669,25 @@ separates the two.</p>
 
 <h3>5.2 Alert ledger inside the coverage window</h3>
 
-<p>These 20 rows fall within the approved analytical window: for every
-row, the complete baseline falls after the latest applicable
-source-maturity date of
+<p>These 21 rows fall within the approved analytical window: for every
+row, the complete baseline lies within mature collection, beginning no
+earlier than the maturity week of
 <strong>6 Apr 2026</strong>.
-The earliest row here is the week commencing 8 Jun 2026, whose baseline
-runs 13 Apr 2026 to 25 May 2026 &mdash; the window opens where it does
-precisely so that this is true of the first row as well as the last.</p>
+Taking the earliest row here, the week commencing 8 Jun 2026: its
+count-channel (C2) baseline runs <strong>6 Apr 2026 to 18 May 2026</strong>, with
+25 May 2026 and 1 Jun 2026 held out as the guard band. The window opens exactly
+7&nbsp;+&nbsp;2 weeks after maturity so
+that the first baseline week coincides with the maturity week and no
+earlier &mdash; true of the first row as well as the last.</p>
 
-<p>The 20 rows are not one kind of object, and the distinction is the
+<p>The 21 rows are not one kind of object, and the distinction is the
 most important thing on this page:</p>
 
 <ul>
-  <li><strong>12 share-channel signals</strong>, each admitted by an
+  <li><strong>11 share-channel signals</strong>, each admitted by an
       exact binomial test and surviving Benjamini&ndash;Hochberg at
       q&nbsp;=&nbsp;0.10. These are the FDR-controlled findings.</li>
-  <li><strong>8 count-channel diagnostics</strong>, admitted on the
+  <li><strong>10 count-channel diagnostics</strong>, admitted on the
       EARS statistic alone and <em>not</em> multiplicity-controlled. These
       are publisher-review items. They are not statistical findings and
       must not be counted as such.</li>
@@ -685,26 +700,27 @@ most important thing on this page:</p>
 <th class="n">Effect</th><th class="n">Other ratio</th><th class="n">Admitted by</th>
 </tr></thead>
 <tbody>
-<tr><td class="d">8 Jun 2026</td><td>Shiga toxin-producing E. coli (STEC) · Europe</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">3.86</td><td class="n"><strong>1.30</strong></td><td class="n">1.31</td><td class="n">C3&nbsp;4.8</td></tr>
-<tr><td class="d">15 Jun 2026</td><td>Aflatoxin · Europe</td><td><span class="chan proportion">share</span></td><td class="n">9</td><td class="n">2.71</td><td class="n"><strong>3.10</strong></td><td class="n">3.32</td><td class="n">p&nbsp;0.0024</td></tr>
-<tr><td class="d">15 Jun 2026</td><td>Tier 2 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">14</td><td class="n">7.00</td><td class="n"><strong>2.23</strong></td><td class="n">2.00</td><td class="n">p&nbsp;0.0033</td></tr>
-<tr><td class="d">15 Jun 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan proportion">share</span></td><td class="n">29</td><td class="n">14.14</td><td class="n"><strong>1.86</strong></td><td class="n">2.05</td><td class="n">p&nbsp;0.0002</td></tr>
-<tr><td class="d">15 Jun 2026</td><td>Ochratoxin · Türkiye</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.57</td><td class="n"><strong>2.33</strong></td><td class="n">3.27</td><td class="n">C1&nbsp;5.3</td></tr>
-<tr><td class="d">29 Jun 2026</td><td>Tier 3 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">11</td><td class="n">1.29</td><td class="n"><strong>9.67</strong></td><td class="n">8.56</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">29 Jun 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan count">count-only</span></td><td class="n">23</td><td class="n">14.14</td><td class="n"><strong>1.63</strong></td><td class="n">1.36</td><td class="n">C3&nbsp;2.7</td></tr>
-<tr><td class="d">6 Jul 2026</td><td>Salmonella · Poland</td><td><span class="chan proportion">share</span></td><td class="n">8</td><td class="n">1.43</td><td class="n"><strong>5.63</strong></td><td class="n">5.60</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">13 Jul 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan proportion">share</span></td><td class="n">37</td><td class="n">12.00</td><td class="n"><strong>2.61</strong></td><td class="n">3.08</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">20 Jul 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan proportion">share</span></td><td class="n">26</td><td class="n">12.29</td><td class="n"><strong>2.08</strong></td><td class="n">2.12</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">27 Jul 2026</td><td>Shiga toxin-producing E. coli (STEC) · France</td><td><span class="chan proportion">share</span></td><td class="n">9</td><td class="n">3.43</td><td class="n"><strong>4.25</strong></td><td class="n">2.62</td><td class="n">p&nbsp;0.0003</td></tr>
-<tr><td class="d">27 Jul 2026</td><td>Tier 1 · Latin America</td><td><span class="chan proportion">share</span></td><td class="n">5</td><td class="n">1.00</td><td class="n"><strong>4.04</strong></td><td class="n">5.00</td><td class="n">p&nbsp;0.0081</td></tr>
-<tr><td class="d">27 Jul 2026</td><td>Shiga toxin-producing E. coli (STEC) · Europe</td><td><span class="chan proportion">share</span></td><td class="n">12</td><td class="n">4.14</td><td class="n"><strong>3.77</strong></td><td class="n">2.90</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">27 Jul 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan count">count-only</span></td><td class="n">16</td><td class="n">12.86</td><td class="n"><strong>1.24</strong></td><td class="n">0.85</td><td class="n">C3&nbsp;5.4</td></tr>
-<tr><td class="d">10 Aug 2026</td><td>Tier 1 · North America</td><td><span class="chan proportion">share</span></td><td class="n">10</td><td class="n">3.71</td><td class="n"><strong>2.38</strong></td><td class="n">2.69</td><td class="n">p&nbsp;0.0093</td></tr>
-<tr><td class="d">10 Aug 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan proportion">share</span></td><td class="n">39</td><td class="n">17.43</td><td class="n"><strong>1.54</strong></td><td class="n">2.24</td><td class="n">p&nbsp;0.0012</td></tr>
-<tr><td class="d">10 Aug 2026</td><td>Listeria monocytogenes · North America</td><td><span class="chan count">count-only</span></td><td class="n">4</td><td class="n">1.00</td><td class="n"><strong>4.00</strong></td><td class="n">2.99</td><td class="n">C2&nbsp;3.0</td></tr>
-<tr><td class="d">10 Aug 2026</td><td>Salmonella · United States</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">1.43</td><td class="n"><strong>3.50</strong></td><td class="n">3.27</td><td class="n">C2&nbsp;2.4</td></tr>
-<tr><td class="d">10 Aug 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">60</td><td class="n">39.57</td><td class="n"><strong>1.52</strong></td><td class="n">1.08</td><td class="n">C1&nbsp;3.0</td></tr>
-<tr><td class="d">10 Aug 2026</td><td>Salmonella · global</td><td><span class="chan count">count-only</span></td><td class="n">26</td><td class="n">17.29</td><td class="n"><strong>1.50</strong></td><td class="n">1.18</td><td class="n">C3&nbsp;3.7</td></tr>
+<tr><td class="d">8 Jun 2026</td><td>Salmonella · France</td><td><span class="chan proportion">share</span></td><td class="n">10</td><td class="n">5.00</td><td class="n"><strong>2.84</strong></td><td class="n">2.00</td><td class="n">p&nbsp;0.0023</td></tr>
+<tr><td class="d">8 Jun 2026</td><td>Shiga toxin-producing E. coli (STEC) · Europe</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">3.86</td><td class="n"><strong>1.30</strong></td><td class="n">1.84</td><td class="n">C3&nbsp;4.8</td></tr>
+<tr><td class="d">15 Jun 2026</td><td>Aflatoxin · Europe</td><td><span class="chan proportion">share</span></td><td class="n">9</td><td class="n">2.71</td><td class="n"><strong>3.18</strong></td><td class="n">3.32</td><td class="n">p&nbsp;0.0020</td></tr>
+<tr><td class="d">15 Jun 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan proportion">share</span></td><td class="n">29</td><td class="n">14.14</td><td class="n"><strong>1.96</strong></td><td class="n">2.05</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">15 Jun 2026</td><td>Ochratoxin · Türkiye</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.57</td><td class="n"><strong>2.33</strong></td><td class="n">2.23</td><td class="n">C1&nbsp;5.3</td></tr>
+<tr><td class="d">15 Jun 2026</td><td>Tier 2 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">14</td><td class="n">7.00</td><td class="n"><strong>2.00</strong></td><td class="n">1.92</td><td class="n">C1&nbsp;3.8</td></tr>
+<tr><td class="d">29 Jun 2026</td><td>Tier 3 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">11</td><td class="n">1.29</td><td class="n"><strong>8.38</strong></td><td class="n">8.56</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">29 Jun 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan proportion">share</span></td><td class="n">23</td><td class="n">14.14</td><td class="n"><strong>1.59</strong></td><td class="n">1.63</td><td class="n">p&nbsp;0.0100</td></tr>
+<tr><td class="d">6 Jul 2026</td><td>Salmonella · Poland</td><td><span class="chan proportion">share</span></td><td class="n">8</td><td class="n">1.43</td><td class="n"><strong>5.72</strong></td><td class="n">5.60</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">13 Jul 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan proportion">share</span></td><td class="n">37</td><td class="n">12.00</td><td class="n"><strong>2.66</strong></td><td class="n">3.08</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">20 Jul 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan proportion">share</span></td><td class="n">26</td><td class="n">12.29</td><td class="n"><strong>2.22</strong></td><td class="n">2.12</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">27 Jul 2026</td><td>Tier 1 · Latin America</td><td><span class="chan proportion">share</span></td><td class="n">5</td><td class="n">1.00</td><td class="n"><strong>4.03</strong></td><td class="n">5.00</td><td class="n">p&nbsp;0.0082</td></tr>
+<tr><td class="d">27 Jul 2026</td><td>Shiga toxin-producing E. coli (STEC) · Europe</td><td><span class="chan proportion">share</span></td><td class="n">12</td><td class="n">4.14</td><td class="n"><strong>2.34</strong></td><td class="n">2.90</td><td class="n">p&nbsp;0.0048</td></tr>
+<tr><td class="d">27 Jul 2026</td><td>Shiga toxin-producing E. coli (STEC) · France</td><td><span class="chan count">count-only</span></td><td class="n">9</td><td class="n">3.43</td><td class="n"><strong>2.62</strong></td><td class="n">2.12</td><td class="n">C1&nbsp;6.7</td></tr>
+<tr><td class="d">27 Jul 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan count">count-only</span></td><td class="n">16</td><td class="n">12.86</td><td class="n"><strong>1.24</strong></td><td class="n">1.00</td><td class="n">C3&nbsp;5.4</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan proportion">share</span></td><td class="n">39</td><td class="n">17.43</td><td class="n"><strong>1.58</strong></td><td class="n">2.24</td><td class="n">p&nbsp;0.0007</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Listeria monocytogenes · North America</td><td><span class="chan count">count-only</span></td><td class="n">4</td><td class="n">1.00</td><td class="n"><strong>4.00</strong></td><td class="n">2.83</td><td class="n">C2&nbsp;3.0</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Salmonella · United States</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">1.43</td><td class="n"><strong>3.50</strong></td><td class="n">2.48</td><td class="n">C2&nbsp;2.4</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">10</td><td class="n">3.71</td><td class="n"><strong>2.69</strong></td><td class="n">1.91</td><td class="n">C2&nbsp;3.2</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">60</td><td class="n">39.57</td><td class="n"><strong>1.52</strong></td><td class="n">1.07</td><td class="n">C1&nbsp;3.0</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Salmonella · global</td><td><span class="chan count">count-only</span></td><td class="n">26</td><td class="n">17.29</td><td class="n"><strong>1.50</strong></td><td class="n">1.06</td><td class="n">C3&nbsp;3.7</td></tr>
 </tbody>
 <caption><strong>Table 1.</strong> Effect follows the channel: share rows
 show observed share over baseline share, count-only rows show observed
@@ -721,7 +737,7 @@ other &mdash; see &sect;5.1 and &sect;2.6.</caption>
 
 <h3>5.3 Audit ledger: rows outside the coverage window</h3>
 
-<p>The remaining 41 rows were produced by the same detector on weeks
+<p>The remaining 40 rows were produced by the same detector on weeks
 whose baseline predates mature collection. They are retained rather than
 deleted, because a detector that quietly drops its own output cannot be
 audited &mdash; but <strong>none of them is a finding</strong>. Any
@@ -738,47 +754,46 @@ publisher-level review of those rows can confirm it.</p>
 <th class="n">Effect</th><th class="n">Other ratio</th><th class="n">Admitted by</th>
 </tr></thead>
 <tbody>
-<tr><td class="d">23 Mar 2026</td><td>Salmonella · France</td><td><span class="chan count">count-only</span></td><td class="n">10</td><td class="n">1.57</td><td class="n"><strong>6.36</strong></td><td class="n">1.67</td><td class="n">C3&nbsp;4.4</td></tr>
-<tr><td class="d">23 Mar 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">14</td><td class="n">3.71</td><td class="n"><strong>3.77</strong></td><td class="n">1.25</td><td class="n">C3&nbsp;3.9</td></tr>
-<tr><td class="d">30 Mar 2026</td><td>Listeria monocytogenes · global</td><td><span class="chan proportion">share</span></td><td class="n">41</td><td class="n">1.00</td><td class="n"><strong>3.82</strong></td><td class="n">41.00</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">30 Mar 2026</td><td>Tier 1 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">42</td><td class="n">4.00</td><td class="n"><strong>1.34</strong></td><td class="n">10.50</td><td class="n">p&nbsp;0.0030</td></tr>
-<tr><td class="d">30 Mar 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.00</td><td class="n"><strong>3.00</strong></td><td class="n">0.48</td><td class="n">C1&nbsp;3.9</td></tr>
-<tr><td class="d">6 Apr 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan proportion">share</span></td><td class="n">80</td><td class="n">1.14</td><td class="n"><strong>6.00</strong></td><td class="n">70.00</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">6 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">93</td><td class="n">5.43</td><td class="n"><strong>1.31</strong></td><td class="n">17.13</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">6 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.14</td><td class="n"><strong>2.80</strong></td><td class="n">0.34</td><td class="n">C3&nbsp;3.7</td></tr>
-<tr><td class="d">13 Apr 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan count">count-only</span></td><td class="n">12</td><td class="n">1.29</td><td class="n"><strong>9.33</strong></td><td class="n">0.48</td><td class="n">C3&nbsp;90.7</td></tr>
-<tr><td class="d">13 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">27</td><td class="n">6.86</td><td class="n"><strong>3.94</strong></td><td class="n">0.55</td><td class="n">C3&nbsp;31.0</td></tr>
-<tr><td class="d">13 Apr 2026</td><td>Salmonella · global</td><td><span class="chan count">count-only</span></td><td class="n">17</td><td class="n">5.71</td><td class="n"><strong>2.98</strong></td><td class="n">0.72</td><td class="n">C3&nbsp;2.6</td></tr>
-<tr><td class="d">13 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">4</td><td class="n">1.71</td><td class="n"><strong>2.33</strong></td><td class="n">0.52</td><td class="n">C3&nbsp;4.8</td></tr>
-<tr><td class="d">20 Apr 2026</td><td>Tier 2 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">13</td><td class="n">1.00</td><td class="n"><strong>2.43</strong></td><td class="n">13.00</td><td class="n">p&nbsp;0.0024</td></tr>
-<tr><td class="d">20 Apr 2026</td><td>Salmonella · global</td><td><span class="chan count">count-only</span></td><td class="n">25</td><td class="n">6.14</td><td class="n"><strong>4.07</strong></td><td class="n">1.50</td><td class="n">C3&nbsp;6.5</td></tr>
-<tr><td class="d">20 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.00</td><td class="n"><strong>3.00</strong></td><td class="n">1.06</td><td class="n">C3&nbsp;4.1</td></tr>
-<tr><td class="d">20 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">36</td><td class="n">12.86</td><td class="n"><strong>2.80</strong></td><td class="n">0.63</td><td class="n">C3&nbsp;23.4</td></tr>
-<tr><td class="d">20 Apr 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan count">count-only</span></td><td class="n">13</td><td class="n">6.57</td><td class="n"><strong>1.98</strong></td><td class="n">0.33</td><td class="n">C3&nbsp;55.3</td></tr>
-<tr><td class="d">20 Apr 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan count">count-only</span></td><td class="n">10</td><td class="n">5.43</td><td class="n"><strong>1.84</strong></td><td class="n">0.28</td><td class="n">C3&nbsp;71.3</td></tr>
-<tr><td class="d">27 Apr 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">19</td><td class="n">5.86</td><td class="n"><strong>2.62</strong></td><td class="n">3.24</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">27 Apr 2026</td><td>Salmonella · global</td><td><span class="chan proportion">share</span></td><td class="n">24</td><td class="n">7.57</td><td class="n"><strong>2.23</strong></td><td class="n">3.17</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">27 Apr 2026</td><td>Aflatoxin · global</td><td><span class="chan count">count-only</span></td><td class="n">8</td><td class="n">1.14</td><td class="n"><strong>7.00</strong></td><td class="n">2.27</td><td class="n">C3&nbsp;28.1</td></tr>
-<tr><td class="d">27 Apr 2026</td><td>Shiga toxin-producing E. coli (STEC) · global</td><td><span class="chan count">count-only</span></td><td class="n">4</td><td class="n">1.43</td><td class="n"><strong>2.80</strong></td><td class="n">1.79</td><td class="n">C3&nbsp;4.2</td></tr>
-<tr><td class="d">27 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">2.57</td><td class="n"><strong>1.94</strong></td><td class="n">1.28</td><td class="n">C3&nbsp;2.3</td></tr>
-<tr><td class="d">27 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">34</td><td class="n">26.00</td><td class="n"><strong>1.31</strong></td><td class="n">0.93</td><td class="n">C3&nbsp;3.6</td></tr>
-<tr><td class="d">4 May 2026</td><td>Tier 1 · North America</td><td><span class="chan proportion">share</span></td><td class="n">13</td><td class="n">3.00</td><td class="n"><strong>3.43</strong></td><td class="n">4.33</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">4 May 2026</td><td>Salmonella · France</td><td><span class="chan proportion">share</span></td><td class="n">10</td><td class="n">3.57</td><td class="n"><strong>2.45</strong></td><td class="n">2.80</td><td class="n">p&nbsp;0.0068</td></tr>
-<tr><td class="d">4 May 2026</td><td>Salmonella · global</td><td><span class="chan proportion">share</span></td><td class="n">27</td><td class="n">8.29</td><td class="n"><strong>2.31</strong></td><td class="n">3.26</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">4 May 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">15</td><td class="n">5.57</td><td class="n"><strong>1.98</strong></td><td class="n">2.69</td><td class="n">p&nbsp;0.0063</td></tr>
-<tr><td class="d">4 May 2026</td><td>Aflatoxin · Europe</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">1.29</td><td class="n"><strong>4.67</strong></td><td class="n">2.57</td><td class="n">C3&nbsp;7.7</td></tr>
-<tr><td class="d">4 May 2026</td><td>Tier 2 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">7</td><td class="n">4.29</td><td class="n"><strong>1.63</strong></td><td class="n">1.12</td><td class="n">C3&nbsp;6.9</td></tr>
-<tr><td class="d">11 May 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">18</td><td class="n">7.43</td><td class="n"><strong>1.95</strong></td><td class="n">2.42</td><td class="n">p&nbsp;0.0030</td></tr>
-<tr><td class="d">11 May 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">7</td><td class="n">3.71</td><td class="n"><strong>1.88</strong></td><td class="n">1.70</td><td class="n">C3&nbsp;3.8</td></tr>
-<tr><td class="d">18 May 2026</td><td>Salmonella · France</td><td><span class="chan proportion">share</span></td><td class="n">11</td><td class="n">4.00</td><td class="n"><strong>2.23</strong></td><td class="n">2.75</td><td class="n">p&nbsp;0.0096</td></tr>
-<tr><td class="d">18 May 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">22</td><td class="n">9.57</td><td class="n"><strong>1.94</strong></td><td class="n">2.30</td><td class="n">p&nbsp;0.0011</td></tr>
-<tr><td class="d">18 May 2026</td><td>Salmonella · global</td><td><span class="chan proportion">share</span></td><td class="n">30</td><td class="n">14.14</td><td class="n"><strong>1.72</strong></td><td class="n">2.12</td><td class="n">p&nbsp;0.0007</td></tr>
-<tr><td class="d">18 May 2026</td><td>Salmonella · North America</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">2.00</td><td class="n"><strong>2.50</strong></td><td class="n">1.56</td><td class="n">C3&nbsp;6.9</td></tr>
-<tr><td class="d">18 May 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">8</td><td class="n">4.29</td><td class="n"><strong>1.87</strong></td><td class="n">1.34</td><td class="n">C3&nbsp;4.5</td></tr>
-<tr><td class="d">25 May 2026</td><td>Shiga toxin-producing E. coli (STEC) · France</td><td><span class="chan proportion">share</span></td><td class="n">12</td><td class="n">1.71</td><td class="n"><strong>6.17</strong></td><td class="n">7.00</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
-<tr><td class="d">25 May 2026</td><td>Salmonella · United States</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">1.86</td><td class="n"><strong>3.23</strong></td><td class="n">3.09</td><td class="n">C3&nbsp;2.0</td></tr>
-<tr><td class="d">25 May 2026</td><td>Salmonella · Europe</td><td><span class="chan count">count-only</span></td><td class="n">14</td><td class="n">11.14</td><td class="n"><strong>1.26</strong></td><td class="n">1.19</td><td class="n">C3&nbsp;2.6</td></tr>
-<tr><td class="d">1 Jun 2026</td><td>Shiga toxin-producing E. coli (STEC) · France</td><td><span class="chan proportion">share</span></td><td class="n">6</td><td class="n">2.00</td><td class="n"><strong>3.56</strong></td><td class="n">3.00</td><td class="n">p&nbsp;0.0067</td></tr>
+<tr><td class="d">23 Mar 2026</td><td>Salmonella · France</td><td><span class="chan proportion">share</span></td><td class="n">10</td><td class="n">1.57</td><td class="n"><strong>2.40</strong></td><td class="n">6.36</td><td class="n">p&nbsp;0.0041</td></tr>
+<tr><td class="d">23 Mar 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">14</td><td class="n">3.71</td><td class="n"><strong>3.77</strong></td><td class="n">1.42</td><td class="n">C3&nbsp;3.9</td></tr>
+<tr><td class="d">30 Mar 2026</td><td>Listeria monocytogenes · global</td><td><span class="chan proportion">share</span></td><td class="n">41</td><td class="n">1.00</td><td class="n"><strong>5.65</strong></td><td class="n">41.00</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">30 Mar 2026</td><td>Tier 1 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">42</td><td class="n">4.00</td><td class="n"><strong>1.45</strong></td><td class="n">10.50</td><td class="n">p&nbsp;0.0004</td></tr>
+<tr><td class="d">30 Mar 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.00</td><td class="n"><strong>3.00</strong></td><td class="n">0.41</td><td class="n">C1&nbsp;3.9</td></tr>
+<tr><td class="d">6 Apr 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan proportion">share</span></td><td class="n">80</td><td class="n">1.14</td><td class="n"><strong>5.75</strong></td><td class="n">70.00</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">6 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">93</td><td class="n">5.43</td><td class="n"><strong>1.41</strong></td><td class="n">17.13</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">6 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.14</td><td class="n"><strong>2.80</strong></td><td class="n">0.23</td><td class="n">C3&nbsp;3.7</td></tr>
+<tr><td class="d">13 Apr 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan count">count-only</span></td><td class="n">12</td><td class="n">1.29</td><td class="n"><strong>9.33</strong></td><td class="n">1.50</td><td class="n">C3&nbsp;90.7</td></tr>
+<tr><td class="d">13 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">27</td><td class="n">6.86</td><td class="n"><strong>3.94</strong></td><td class="n">0.63</td><td class="n">C3&nbsp;31.0</td></tr>
+<tr><td class="d">13 Apr 2026</td><td>Salmonella · global</td><td><span class="chan count">count-only</span></td><td class="n">17</td><td class="n">5.71</td><td class="n"><strong>2.98</strong></td><td class="n">0.48</td><td class="n">C3&nbsp;2.6</td></tr>
+<tr><td class="d">13 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">4</td><td class="n">1.71</td><td class="n"><strong>2.33</strong></td><td class="n">0.38</td><td class="n">C3&nbsp;4.8</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Tier 2 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">13</td><td class="n">1.00</td><td class="n"><strong>3.14</strong></td><td class="n">13.00</td><td class="n">p&nbsp;0.0002</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Salmonella · global</td><td><span class="chan count">count-only</span></td><td class="n">25</td><td class="n">6.14</td><td class="n"><strong>4.07</strong></td><td class="n">0.98</td><td class="n">C3&nbsp;6.5</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.00</td><td class="n"><strong>3.00</strong></td><td class="n">0.72</td><td class="n">C3&nbsp;4.1</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">36</td><td class="n">12.86</td><td class="n"><strong>2.80</strong></td><td class="n">0.68</td><td class="n">C3&nbsp;23.4</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan count">count-only</span></td><td class="n">13</td><td class="n">6.57</td><td class="n"><strong>1.98</strong></td><td class="n">0.48</td><td class="n">C3&nbsp;55.3</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan count">count-only</span></td><td class="n">10</td><td class="n">5.43</td><td class="n"><strong>1.84</strong></td><td class="n">0.45</td><td class="n">C3&nbsp;71.3</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Aflatoxin · global</td><td><span class="chan proportion">share</span></td><td class="n">8</td><td class="n">1.14</td><td class="n"><strong>4.35</strong></td><td class="n">7.00</td><td class="n">p&nbsp;0.0005</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">19</td><td class="n">5.86</td><td class="n"><strong>2.02</strong></td><td class="n">3.24</td><td class="n">p&nbsp;0.0015</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Salmonella · global</td><td><span class="chan proportion">share</span></td><td class="n">24</td><td class="n">7.57</td><td class="n"><strong>1.97</strong></td><td class="n">3.17</td><td class="n">p&nbsp;0.0003</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Shiga toxin-producing E. coli (STEC) · global</td><td><span class="chan count">count-only</span></td><td class="n">4</td><td class="n">1.43</td><td class="n"><strong>2.80</strong></td><td class="n">1.74</td><td class="n">C3&nbsp;4.2</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">2.57</td><td class="n"><strong>1.94</strong></td><td class="n">1.21</td><td class="n">C3&nbsp;2.3</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">34</td><td class="n">26.00</td><td class="n"><strong>1.31</strong></td><td class="n">0.81</td><td class="n">C3&nbsp;3.6</td></tr>
+<tr><td class="d">4 May 2026</td><td>Aflatoxin · Europe</td><td><span class="chan proportion">share</span></td><td class="n">6</td><td class="n">1.29</td><td class="n"><strong>3.72</strong></td><td class="n">4.67</td><td class="n">p&nbsp;0.0054</td></tr>
+<tr><td class="d">4 May 2026</td><td>Tier 1 · North America</td><td><span class="chan proportion">share</span></td><td class="n">13</td><td class="n">3.00</td><td class="n"><strong>3.46</strong></td><td class="n">4.33</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">4 May 2026</td><td>Salmonella · global</td><td><span class="chan proportion">share</span></td><td class="n">27</td><td class="n">8.29</td><td class="n"><strong>2.60</strong></td><td class="n">3.26</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">4 May 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">15</td><td class="n">5.57</td><td class="n"><strong>2.15</strong></td><td class="n">2.69</td><td class="n">p&nbsp;0.0029</td></tr>
+<tr><td class="d">4 May 2026</td><td>Tier 2 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">7</td><td class="n">4.29</td><td class="n"><strong>1.63</strong></td><td class="n">1.30</td><td class="n">C3&nbsp;6.9</td></tr>
+<tr><td class="d">11 May 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">18</td><td class="n">7.43</td><td class="n"><strong>2.25</strong></td><td class="n">2.42</td><td class="n">p&nbsp;0.0006</td></tr>
+<tr><td class="d">11 May 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">7</td><td class="n">3.71</td><td class="n"><strong>1.88</strong></td><td class="n">1.75</td><td class="n">C3&nbsp;3.8</td></tr>
+<tr><td class="d">18 May 2026</td><td>Salmonella · France</td><td><span class="chan proportion">share</span></td><td class="n">11</td><td class="n">4.00</td><td class="n"><strong>2.47</strong></td><td class="n">2.75</td><td class="n">p&nbsp;0.0044</td></tr>
+<tr><td class="d">18 May 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">22</td><td class="n">9.57</td><td class="n"><strong>2.07</strong></td><td class="n">2.30</td><td class="n">p&nbsp;0.0005</td></tr>
+<tr><td class="d">18 May 2026</td><td>Salmonella · global</td><td><span class="chan proportion">share</span></td><td class="n">30</td><td class="n">14.14</td><td class="n"><strong>1.91</strong></td><td class="n">2.12</td><td class="n">p&nbsp;0.0001</td></tr>
+<tr><td class="d">18 May 2026</td><td>Salmonella · North America</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">2.00</td><td class="n"><strong>2.50</strong></td><td class="n">2.25</td><td class="n">C3&nbsp;6.9</td></tr>
+<tr><td class="d">18 May 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">8</td><td class="n">4.29</td><td class="n"><strong>1.87</strong></td><td class="n">1.68</td><td class="n">C3&nbsp;4.5</td></tr>
+<tr><td class="d">25 May 2026</td><td>Shiga toxin-producing E. coli (STEC) · France</td><td><span class="chan proportion">share</span></td><td class="n">12</td><td class="n">1.71</td><td class="n"><strong>6.68</strong></td><td class="n">7.00</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">25 May 2026</td><td>Salmonella · United States</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">1.86</td><td class="n"><strong>3.23</strong></td><td class="n">3.08</td><td class="n">C3&nbsp;2.0</td></tr>
+<tr><td class="d">25 May 2026</td><td>Salmonella · Europe</td><td><span class="chan count">count-only</span></td><td class="n">14</td><td class="n">11.14</td><td class="n"><strong>1.26</strong></td><td class="n">1.20</td><td class="n">C3&nbsp;2.6</td></tr>
+<tr><td class="d">1 Jun 2026</td><td>Shiga toxin-producing E. coli (STEC) · France</td><td><span class="chan proportion">share</span></td><td class="n">6</td><td class="n">2.00</td><td class="n"><strong>3.49</strong></td><td class="n">3.00</td><td class="n">p&nbsp;0.0074</td></tr>
 </tbody>
 <caption><strong>Table 2.</strong> Not findings. Reported for
 completeness of the ledger only, and excluded from every count in this
@@ -872,7 +887,7 @@ observed count, baseline, both effect ratios and p-value:</p>
 overflow-x:auto;font-family:var(--mono);font-size:12.5px;margin:0 0 16px;
 word-break:break-all;white-space:pre-wrap"><code
 style="background:none;padding:0">analytical-digest sha256
-411eb05994c126656c269e8818ef8fe9edbe0da5e1fb38753ded19c126081b96</code></pre>
+b760a8ca1f937a897ba97b52a86d9a29b295139c96b4934fd22595ba344e9732</code></pre>
 
 <div class="tw"><table>
 <thead><tr><th>Input</th><th>Pinned as</th></tr></thead>
@@ -896,7 +911,54 @@ rebuild that reports a different one has changed an input, and the table
 above is the list of places to look.</caption>
 </table></div>
 
-<h2><span class="num">8</span>References</h2>
+<h2><span class="num">8</span>Revision history</h2>
+
+<p>The method is versioned, and corrections to it are listed rather than
+absorbed. Each entry names what changed and whether reported results moved,
+so a figure quoted from an earlier build can be placed.</p>
+
+<div class="tw"><table>
+<thead><tr><th class="d">Date</th><th>Change</th><th>Results moved</th></tr></thead>
+<tbody>
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Guard band aligned across channels.</strong> The share channel
+built its baseline with <code>range(GUARD_WEEKS, &hellip;)</code>, which
+includes the week at offset 2: only the immediately
+preceding week was excluded, and the second preceding week entered the
+share-channel baseline. The count channel, using
+<code>_window(&hellip;, offset=GUARD_WEEKS)</code>, excluded both. Both
+channels now read the same 7-week window, and
+<code>tests/test_guard_band.py</code> fails if they ever diverge
+again.</td>
+<td>Yes &mdash; regenerated in full for this edition.</td></tr>
+
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Effect follows the channel.</strong> The effect column carried
+the share ratio for every row, including count-only ones, where it could
+fall below 1. Both ratios are now retained on every record and the
+displayed value matches the channel.</td>
+<td>Yes &mdash; count-channel rows only.</td></tr>
+
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Coverage window enforced in code.</strong>
+<code>coverage_window_start()</code> derives the window from the register;
+previously it was applied by hand. Maturity dates are frozen at first
+determination, ending an oscillation that could have moved the window by
+eight weeks.</td>
+<td>No &mdash; the derived window matches the one previously applied.</td></tr>
+
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Reproducibility restated.</strong> A byte-for-byte claim was
+replaced by the analytical digest in &sect;7.1, which excludes the build
+clock and pins the result set.</td>
+<td>No.</td></tr>
+</tbody>
+<caption>Corrections found by external statistical review and by the
+project's own test suite. Every entry is covered by a regression test;
+none can recur silently.</caption>
+</table></div>
+
+<h2><span class="num">9</span>References</h2>
 
 <ol style="font-size:14.5px">
   <li>Hutwagner L, Thompson W, Seeman GM, Treadwell T. The bioterrorism
@@ -942,7 +1004,7 @@ above is the list of places to look.</caption>
 
 <footer>
   <p>TR-2026-01 &middot; Advanced Food-Tech Solutions (AFTS), Athens<br>
-  Generated 27 August 2026 11:51 UTC &middot; corpus revision
+  Generated 27 August 2026 12:41 UTC &middot; corpus revision
   <span class="mono">94d1421</span> &middot;
   1,506 notices over 34 complete weeks.</p>
   <p>Advisory only. Nothing in this report is a substitute for the
