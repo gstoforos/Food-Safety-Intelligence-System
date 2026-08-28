@@ -69,3 +69,13 @@ def test_a_message_that_merely_contains_the_phrase_does_not_count(monkeypatch):
     ]))
     got = {r["label"]: r for r in DW.check()}
     assert got["weekly report"]["overdue"] is True
+
+
+def test_the_never_run_workflows_found_by_the_2026_08_28_audit_are_watched():
+    """Three things had gone quiet for months with nothing noticing: the
+    monthly report build (no commit since May, across three Day-1
+    dispatches), the AI synthesis writers (never scheduled, never run), and
+    the analytical schema sweep (written but wired to nothing)."""
+    labels = [w[0] for w in DW.WATCHED]
+    for want in ("monthly report", "ai synthesis", "analytical schema sweep"):
+        assert want in labels, want
