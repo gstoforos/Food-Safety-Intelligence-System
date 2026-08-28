@@ -242,3 +242,50 @@ def test_effect_change_count_is_meaningful_not_tautological(built):
     assert 0 < changed < len(inw), "the statistic has gone degenerate"
     assert f"<strong>{changed} of {len(inw)}</strong> rows" in page
     assert f"{len(d['replay'])} of {len(d['replay'])}" not in page
+
+
+# ── Branding: AFTS-FSIS, never bare "FSIS" ───────────────────────────────
+# Operator rule, 2026-08-28. This regressed once already: an earlier build
+# on main carried the pre-rule title and eleven bare self-references, and
+# nothing caught it because nothing was checking. These tests are the check.
+
+def _visible(page: str) -> str:
+    """Rendered text only — comments and attributes are not what a reader sees."""
+    body = re.sub(r"<!--.*?-->", " ", page, flags=re.S)
+    body = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", body, flags=re.S | re.I)
+    body = re.sub(r"<[^>]+>", " ", body)
+    return re.sub(r"\s+", " ", body)
+
+
+def test_the_page_never_says_bare_fsis(built):
+    """USDA's Food Safety and Inspection Service is itself a Source in the
+    corpus this report analyses, and is named in the results. A reader who
+    meets "FSIS found 11 signals" cannot tell whose system is meant."""
+    _d, page = built
+    text = _visible(page)
+    bare = [m.start() for m in re.finditer(r"FSIS", text)
+            if not text[max(0, m.start() - 5):m.start()].endswith("AFTS-")
+            and not text[max(0, m.start() - 5):m.start()].endswith("USDA ")]
+    context = [text[max(0, i - 60):i + 40] for i in bare[:5]]
+    assert not bare, f"{len(bare)} bare 'FSIS' in rendered text: {context}"
+
+
+def test_the_page_brands_itself_at_least_once(built):
+    _d, page = built
+    assert "AFTS-FSIS" in _visible(page)
+
+
+def test_the_title_names_the_finding_not_the_machinery(built):
+    """Operator instruction 2026-08-27: retitle to the data. The previous
+    title described the tool — "How FSIS tells a food-safety signal from a
+    publisher dump" — and led with the ambiguous bare name."""
+    _d, page = built
+    title = re.search(r"<title>(.*?)</title>", page, re.S).group(1).strip()
+    assert title == "Anomalies in the global food recall record", title
+    assert not title.startswith("How "), "title describes the mechanism, not the result"
+
+
+def test_the_two_builders_agree_on_the_title():
+    """build_news_piece and build_publication each hold a TITLE. They are
+    the front and the back of one document; two titles is two documents."""
+    assert news.TITLE == pub.TITLE

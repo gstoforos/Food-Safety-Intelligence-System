@@ -48,19 +48,45 @@ def test_nothing_added_reaches_recalls_json():
     assert not leaked, f"leaked into the public JSON: {leaked}"
 
 
-def test_a_hard_field_is_never_reported_at_100_percent():
+def test_a_category_from_wording_is_never_labelled_as_a_regulators():
     """FoodCategory read 100% once because split_cfia_category was handed the
     row instead of the category string, and stringified the whole dict.
 
-    A perfect score on a field known to be hard is the tell, not the win.
+    The guard that caught it used to assert that a RappelConso row must come
+    back "unknown". That was right while FoodCategory had no keyword path at
+    all, and wrong once it got one on 2026-08-28 — it forbade the fix rather
+    than the fault. Rewritten to hold the thing actually worth holding: a
+    category derived from the product name is allowed, and must never be
+    stamped tier1-regulator, because tier is what tells an analyst whether a
+    notifying authority said this or a keyword did.
     """
     row = {"Product": "roti de boeuf", "Reason": "Presence of listeria",
            "Class": "Voluntary", "Pathogen": "Listeria monocytogenes",
            "Notes": "", "Source": "RappelConso (FR)"}
-    vals, _tier = ES.derive(row)
-    assert vals["FoodCategory"] == "unknown", (
-        "a RappelConso row carries no regulator category; anything but "
-        "unknown here means the category is being manufactured")
+    vals, tier = ES.derive(row)
+    assert vals["FoodCategory"] == "meat-other", vals["FoodCategory"]
+    assert tier != "tier1-regulator", (
+        "no regulator classified this row — a keyword did, and the tier must "
+        "say so")
+
+
+def test_a_category_is_never_invented_from_nothing():
+    """The original fault in one line: no text, no category."""
+    vals, _t = ES.derive({"Product": "", "Reason": "", "Notes": "",
+                          "Class": "", "Pathogen": ""})
+    assert vals["FoodCategory"] == "unknown"
+
+
+def test_the_regulators_category_always_wins_over_the_keyword():
+    """A RASFF row names its own family. The keyword path must not be able to
+    talk it out of it — the whole point of the tier ladder."""
+    row = {"Product": "Chicken Caesar Wrap",
+           "Reason": ("Listeria monocytogenes; risk: serious; "
+                      "category: prepared dishes and snacks"),
+           "Class": "Alert", "Pathogen": "Listeria monocytogenes", "Notes": ""}
+    vals, tier = ES.derive(row)
+    assert vals["FoodCategory"] == "prepared-meals"
+    assert tier == "tier1-regulator"
 
 
 def test_unknown_is_a_permitted_answer_on_every_axis():
