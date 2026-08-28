@@ -1,0 +1,131 @@
+name: AFTS Outbreak Intel Agent
+
+# ==========================================================================
+# Reads the NEWS feed, proposes work, and WRITES NOTHING to the register.
+#
+# The apply step is deliberately a SEPARATE, manually dispatched job. An
+# agent that researches and writes in one unattended pass is the failure
+# this repo has already had: the gap-finder produced correct-looking rows
+# attached to fiche numbers describing a plush toy, a vitamin supplement
+# and a mackerel recall, and the publish gate passed all three because the
+# URLs resolved.
+#
+# So: this workflow commits proposals. A human dispatches `apply: true`
+# after reading them, and even then the curator re-verifies every one
+# against the live source before writing.
+#
+# It carries its OWN cron. Every scrape workflow in this repo is dispatched
+# by Apps Script, and when that stopped in August nothing noticed because
+# nothing ran.
+# ==========================================================================
+
+on:
+  schedule:
+    - cron: "30 6 * * *"      # 09:30 Athens EEST
+    - cron: "30 7 * * *"      # 09:30 Athens EET (winter)
+  workflow_dispatch:
+    inputs:
+      since_days:
+        description: "NEWS lookback window in days"
+        required: false
+        default: "2"
+      url:
+        description: "One article URL instead of the feed"
+        required: false
+      apply:
+        description: "true = let the curator write. Read the proposals first."
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  intel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Athens-hour guard (one fire per day across DST)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$HOUR" = "09" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with: { fetch-depth: 1 }
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Investigate (writes proposals only)
+        if: steps.guard.outputs.run == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          set -o pipefail
+          ARGS="--since ${{ github.event.inputs.since_days || '2' }}"
+          if [ -n "${{ github.event.inputs.url }}" ]; then
+            ARGS="--url ${{ github.event.inputs.url }}"
+          fi
+          python -m pipeline.agents.outbreak_intel $ARGS | tee /tmp/intel.txt
+
+      - name: Curate (dry run — always)
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          LATEST=$(ls -t docs/data/agent-proposals/*-outbreak-intel.json 2>/dev/null | head -1)
+          if [ -z "$LATEST" ]; then echo "no proposals this run"; exit 0; fi
+          python -m pipeline.agents.curator --proposals "$LATEST" | tee /tmp/dry.txt
+
+      - name: Curate (apply — only when explicitly dispatched)
+        if: steps.guard.outputs.run == 'true' && github.event.inputs.apply == 'true'
+        run: |
+          LATEST=$(ls -t docs/data/agent-proposals/*-outbreak-intel.json | head -1)
+          python -m pipeline.agents.curator --proposals "$LATEST" --apply | tee /tmp/apply.txt
+
+      - name: Commit proposals and verdicts
+        if: steps.guard.outputs.run == 'true'
+        env:
+          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
+          GIT_USER_NAME:  "AFTS Intelligence System"
+        run: |
+          git config user.email "$GIT_USER_EMAIL"
+          git config user.name  "$GIT_USER_NAME"
+          # recalls.xlsx and recalls.json are staged too: without them an
+          # applied change is computed on the runner and thrown away, which
+          # is exactly how weekly-review-latest.json stayed frozen for two
+          # weeks. See tests/test_workflow_staging.py.
+          git add docs/data/agent-proposals docs/data/recalls.xlsx \
+                  docs/data/recalls.json || true
+          if git diff --staged --quiet; then
+            echo "nothing to commit"; exit 0
+          fi
+          git commit -m "Outbreak intel agent $(TZ=Europe/Athens date +%Y-%m-%d): proposals + verdicts"
+          for i in 1 2 3; do git push && exit 0; git pull --rebase --autostash || true; done
+          exit 1
+
+      - name: Summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          { echo "### Outbreak intel"; echo '```'; cat /tmp/intel.txt 2>/dev/null;
+            echo '```'; echo "### Curator (dry run)"; echo '```';
+            cat /tmp/dry.txt 2>/dev/null; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
