@@ -103,16 +103,41 @@ def test_the_publisher_concentration_figure_is_computed(built):
         "using the detector's own threshold")
 
 
-def test_links_to_the_annex(built):
+# The two tests that used to live here asserted that the News piece was a
+# STANDALONE HTML DOCUMENT: it began with <!DOCTYPE html>, carried a full
+# head/body shell, and linked to the technical report as an annex.
+#
+# That design was deliberately retired. tools/build_news_piece.main() records
+# why: the piece was "briefly published as its own file with the technical
+# report as an annex. That is two URLs to keep in step and two places for a
+# number to drift, so the two were merged." The News piece is now the front
+# matter of the single published report, and tools.build_publication renders
+# the document shell.
+#
+# Re-asserting a DOCTYPE here would force build() to emit a second complete
+# page and recreate exactly the drift the merge removed. So the shell and
+# annex assertions move to where the shell now lives, and what remains here
+# is what this module is still responsible for: the prose fragment.
+
+def test_is_a_fragment_not_a_page(built):
+    """build() returns a component, not a document.
+
+    The shell is build_publication's job. If this ever starts with a DOCTYPE
+    again, the two-URL split has been reintroduced.
+    """
     _d, page = built
-    assert news.ANNEX_HREF in page
-    assert news.ANNEX_LABEL in page
+    assert not page.lstrip().startswith("<!DOCTYPE"), (
+        "the News piece must remain a fragment — the document shell belongs "
+        "to tools.build_publication")
+    for tag in ("<html", "<head>", "</html>"):
+        assert tag not in page, f"{tag} means a second page shell crept back"
 
 
-def test_valid_document_shell(built):
+def test_no_remote_assets(built):
+    """No externally hosted scripts or images.
+
+    Carried over from the retired shell test and still worth enforcing: the
+    published report must render from the repo alone.
+    """
     _d, page = built
-    assert page.startswith("<!DOCTYPE html>")
-    for tag in ('<html lang="en">', "<head>", '<meta charset="UTF-8">',
-                "</head>", "<body>", "</body>", "</html>"):
-        assert tag in page
-    assert "src=\"http" not in page
+    assert 'src="http' not in page
