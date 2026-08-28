@@ -605,6 +605,23 @@ _RAW_TRANSLATIONS = {
     # ── RappelConso (FR), remainder ───────────────────────────────────────
     "Taux d'alcaloïdes d'ergot supérieur au seuil réglementaire.":
         "Ergot alkaloid level above the regulatory limit",
+
+    # ── added 2026-08-28 ────────────────────────────────────────────────
+    # Four strings the writer split leaves non-English. Three are simply
+    # French/Italian; the first is HALF translated — an English head with the
+    # French risk parenthetical still attached, which is why a whole-string
+    # language test catches it but a token check on the organism name does
+    # not. "agent responsable de la salmonellose" is the standard DGCCRF
+    # risk phrasing and adds nothing the Pathogen column does not already
+    # carry, so it is dropped rather than translated.
+    "Presence of Salmonella spp. (agent responsable de la salmonellose)":
+        "Presence of Salmonella spp.",
+    "Présence possible de Listeria monocytogenes":
+        "Possible presence of Listeria monocytogenes",
+    "Présence possible de Listeria":
+        "Possible presence of Listeria",
+    "Possibile presenza di Listeria monocytogenes":
+        "Possible presence of Listeria monocytogenes",
     # Fiche 23052 (2026-08-07). A precautionary recall: the trigger was a
     # non-conforming analysis on an INGREDIENT, not on the finished product,
     # so "concerning an ingredient used in making these products" is kept
