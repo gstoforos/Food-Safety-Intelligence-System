@@ -111,15 +111,127 @@ def _fetch(url: str) -> str:
     return re.sub(r"\s+", " ", txt)[:18000]
 
 
-def extract(url: str, text: str) -> Optional[Dict[str, Any]]:
-    from review.claude_client import _call_claude, _strip_fences
-    raw = _call_claude(EXTRACT_PROMPT + text, max_tokens=1500)
+# The self-hosted Qwen on the AFTS VPS runs at n_ctx 4096. The prompt is
+# ~250 tokens and an 18,000-char article is ~4,500, so a straight swap would
+# hand the model 4,750 tokens and silently truncate the article mid-way. For
+# an agent whose only job is reading a news page accurately, a silent
+# truncation is worse than a refusal: it would extract "55 cases" from an
+# article that says 155 and every downstream check would pass it.
+#
+# So the page is chunked to fit, each chunk is extracted separately, and the
+# results are merged. The number-vs-quote check then runs on the merged
+# result exactly as before.
+LLAMA_CHUNK_CHARS = int(os.getenv("INTEL_CHUNK_CHARS", "9000"))
+LLAMA_MAX_CHUNKS = int(os.getenv("INTEL_MAX_CHUNKS", "4"))
+
+
+def _chunks(text: str, size: int):
+    i, n = 0, len(text)
+    while i < n:
+        end = min(i + size, n)
+        if end < n:
+            sp = text.rfind(" ", i + int(size * 0.8), end)
+            if sp > i:
+                end = sp
+        yield text[i:end]
+        i = end
+
+
+def _merge(parts: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Merge per-chunk extractions.
+
+    Numbers take the MAXIMUM seen, never a sum: an article that repeats
+    "155 cases" in two chunks describes one outbreak of 155, not 310.
+    Quotes accumulate so the number-vs-quote check still has its evidence.
+    """
+    out: Dict[str, Any] = {}
+    quotes: List[str] = []
+    for p in parts:
+        if not isinstance(p, dict):
+            continue
+        for k, v in p.items():
+            if k == "quotes":
+                quotes.extend(v or [])
+            elif k in ("cases", "deaths", "hospitalisations"):
+                try:
+                    out[k] = max(int(out.get(k) or 0), int(v or 0))
+                except (TypeError, ValueError):
+                    pass
+            elif v not in (None, "", [], {}) and not out.get(k):
+                out[k] = v
+    if quotes:
+        seen, uniq = set(), []
+        for q in quotes:
+            if q not in seen:
+                seen.add(q)
+                uniq.append(q)
+        out["quotes"] = uniq
+    return out
+
+
+def _call_model(prompt: str, max_tokens: int = 1200) -> Optional[str]:
+    """Self-hosted Qwen first; Claude only if the VPS is unreachable.
+
+    Every other model call in this repo moved off external APIs after the
+    Gemini free tier expired and left 38 scrapers dead. This agent should not
+    reintroduce that dependency: a quota that runs out is an outage.
+    """
+    try:
+        from pipeline.official_feeds.agents import llama_client
+        if llama_client.is_configured() and not llama_client.is_open():
+            return llama_client.chat(
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.0, max_tokens=max_tokens)
+    except Exception as exc:                                # noqa: BLE001
+        print(f"  self-hosted model unavailable ({type(exc).__name__}) — "
+              f"falling back to Claude")
+    try:
+        from review.claude_client import _call_claude
+        return _call_claude(prompt, max_tokens=max_tokens)
+    except Exception as exc:                                # noqa: BLE001
+        print(f"  no model available: {type(exc).__name__}")
+        return None
+
+
+def _parse(raw: str) -> Optional[Dict[str, Any]]:
     if not raw:
         return None
+    s = raw.strip()
+    if s.startswith("```"):
+        s = s.strip("`")
+        if s[:4].lower() == "json":
+            s = s[4:]
     try:
-        return json.loads(_strip_fences(raw))
+        return json.loads(s)
     except Exception:                                       # noqa: BLE001
+        m = re.search(r"\{.*\}", s, re.S)
+        if not m:
+            return None
+        try:
+            return json.loads(m.group(0))
+        except Exception:                                   # noqa: BLE001
+            return None
+
+
+def extract(url: str, text: str) -> Optional[Dict[str, Any]]:
+    parts = list(_chunks(text, LLAMA_CHUNK_CHARS))
+    if len(parts) > LLAMA_MAX_CHUNKS:
+        print(f"  article needs {len(parts)} chunks, cap {LLAMA_MAX_CHUNKS} — "
+              f"{100 * (len(parts) - LLAMA_MAX_CHUNKS) / len(parts):.0f}% "
+              f"NOT read. Raise INTEL_MAX_CHUNKS if this recurs.")
+        parts = parts[:LLAMA_MAX_CHUNKS]
+
+    got: List[Dict[str, Any]] = []
+    for i, part in enumerate(parts, 1):
+        raw = _call_model(
+            f"{EXTRACT_PROMPT}\n\n(Part {i} of {len(parts)} of the article.)"
+            f"\n\n{part}")
+        d = _parse(raw or "")
+        if d:
+            got.append(d)
+    if not got:
         return None
+    return got[0] if len(got) == 1 else _merge(got)
 
 
 def _quotes_support_numbers(f: Dict[str, Any]) -> List[str]:
