@@ -77,9 +77,38 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # The intel agent runs on the AFTS Qwen VPS. Tailscale is required to
+      # reach it; both steps are continue-on-error so that a VPS outage
+      # degrades to the Claude fallback rather than failing the workflow —
+      # the same lesson as the agent workflows that turned red for a week
+      # when the box went down.
+      - name: Connect to Tailscale
+        continue-on-error: true
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          tags: tag:ci
+          version: latest
+
+      - name: Health-check llama-server
+        continue-on-error: true
+        env:
+          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
+        run: |
+          if [ -z "$LLAMA_BASE_URL" ]; then
+            echo "LLAMA_BASE_URL not set — will fall back to Claude"; exit 0
+          fi
+          if curl -sf --max-time 10 "$LLAMA_BASE_URL/models" >/dev/null; then
+            echo "✓ self-hosted Qwen reachable"
+          else
+            echo "⚠ Qwen unreachable — the agent will fall back to Claude"
+          fi
+
       - name: Investigate (writes proposals only)
         if: steps.guard.outputs.run == 'true'
         env:
+          LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
+          LLAMA_MODEL: ${{ vars.LLAMA_MODEL || 'qwen2.5-7b-instruct' }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           set -o pipefail
