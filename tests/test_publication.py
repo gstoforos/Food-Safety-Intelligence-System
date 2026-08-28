@@ -27,7 +27,10 @@ def test_counts_match_the_annex(built):
     inw = [r for r in d["replay"] if r["in_window"]]
     share = sum(1 for r in inw if r["channel"] == "proportion")
     count = len(inw) - share
-    assert f"{share} statistically controlled elevations" in page
+    # Wording changed 2026-08-28: "scored weeks" was replaced by the
+    # analytical-window count, because the replay scores 22 weeks and only
+    # the 11 inside the mature-coverage window are reportable.
+    assert f"{share} FDR-controlled share elevations" in page
     assert f"Three of the {share}" in page
     assert f"The\n{count} further rows" in page or f"{count} further rows" in page
     assert f"{d['n_records']:,} notices" in page
@@ -281,11 +284,76 @@ def test_the_title_names_the_finding_not_the_machinery(built):
     publisher dump" — and led with the ambiguous bare name."""
     _d, page = built
     title = re.search(r"<title>(.*?)</title>", page, re.S).group(1).strip()
-    assert title == "Anomalies in the global food recall record", title
+    assert title == "Anomalies in a multi-jurisdiction food recall corpus", title
     assert not title.startswith("How "), "title describes the mechanism, not the result"
+    assert "global" not in title.lower(), (
+        "48 publishers is extensive and is not the complete global regulatory "
+        "record — the title must not claim it is")
 
 
 def test_the_two_builders_agree_on_the_title():
     """build_news_piece and build_publication each hold a TITLE. They are
     the front and the back of one document; two titles is two documents."""
     assert news.TITLE == pub.TITLE
+
+
+def test_the_corpus_and_the_window_are_never_one_number(built):
+    """The lead said "Across the analysable window that is N notices and about
+    M a week", where N was the whole 34-week corpus and M was the mean over
+    the 11 analytical weeks. Two denominators in one sentence: the corpus
+    total divided by the window's week count describes nothing.
+
+    Both figures must appear, each attached to its own week count.
+    """
+    d, page = built
+    inw = [w for w in d["weekly"] if w["in_window"]]
+    win_n, win_wk = sum(w["total"] for w in inw), len(inw)
+    text = re.sub(r"<[^>]+>", " ", page)
+    text = re.sub(r"\s+", " ", text)
+    assert f"complete {d['n_weeks']}-week corpus contains {d['n_records']:,} notices" in text, text[:400]
+    assert f"approved {win_wk}-week analytical window contains {win_n:,}" in text
+    assert "analysable window that is" not in text, (
+        "the conflated sentence is back")
+
+
+def test_the_deck_does_not_quote_the_scored_week_count(built):
+    """22 weeks are scored; 11 are reportable. Quoting the scored count beside
+    the finding count implies the findings came from all of them."""
+    d, page = built
+    inw = [w for w in d["weekly"] if w["in_window"]]
+    text = re.sub(r"<[^>]+>", " ", page)
+    assert f"approved {len(inw)}-week analytical window" in re.sub(r"\s+", " ", text)
+    assert f"Across {d['weeks_scanned']} scored weeks" not in text
+
+
+# ── Carried over from tests/test_news_piece.py, retired 2026-08-28 ───────
+# That file held nine tests, seven of which duplicated this one. Every
+# wording change therefore broke two files, and on 2026-08-28 a title change
+# did exactly that. These two were the only ones with no counterpart here,
+# so they moved rather than being lost with the file.
+
+@pytest.fixture(scope="module")
+def lead_fragment():
+    d = btr.gather()
+    return d, news.build(d)
+
+
+def test_the_lead_is_a_fragment_not_a_page(lead_fragment):
+    """build() returns a component, not a document.
+
+    The shell is build_publication's job. If this ever starts with a DOCTYPE
+    again, the two-URL split has been reintroduced.
+    """
+    _d, page = lead_fragment
+    assert not page.lstrip().startswith("<!DOCTYPE"), (
+        "the News piece must remain a fragment — the document shell belongs "
+        "to tools.build_publication")
+    for tag in ("<html", "<head>", "</html>"):
+        assert tag not in page, f"{tag} means a second page shell crept back"
+
+
+def test_no_remote_assets(lead_fragment):
+    """No externally hosted scripts or images — the published report must
+    render from the repo alone."""
+    _d, page = lead_fragment
+    assert 'src="http' not in page
