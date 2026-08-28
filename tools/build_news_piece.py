@@ -33,7 +33,9 @@ from tools.build_technical_report import (  # noqa: E402
 # 2026-08-27: "retitle to the data"). The previous title — "How FSIS tells a
 # food-safety signal from a publisher dump" — described the tool and buried
 # the result, and led with the ambiguous bare "FSIS".
-TITLE = "Anomalies in the global food recall record"
+# "global food recall record" overclaims: 48 publishers is extensive and is
+# not the complete global regulatory record. Corrected 2026-08-28.
+TITLE = "Anomalies in a multi-jurisdiction food recall corpus"
 ANNEX_HREF = "TR-2026-01.html"
 ANNEX_LABEL = "TR-2026-01"
 
@@ -85,10 +87,30 @@ def _facts(d: dict) -> dict:
     count = [r for r in inw if r["channel"] != "proportion"]
     conc = [r for r in share if r["dominant_share"] >= sd.PUBLISHER_DOMINANCE]
 
+    # TWO WINDOWS, NEVER CONFLATED (review 2026-08-28).
+    #
+    # The page previously read "Across the analysable window that is N
+    # notices and about M a week", where N was the WHOLE 34-week corpus and
+    # M was the mean over the 11 analytical weeks only. Two different
+    # denominators in one sentence: the corpus total divided by the window's
+    # week count is a number describing nothing.
+    #
+    # They are now separate figures with separate names, and both are
+    # computed here so the sentence cannot drift from them again.
     in_weeks = [w for w in d["weekly"] if w["in_window"]]
-    per_week = sum(w["total"] for w in in_weeks) / max(len(in_weeks), 1)
-    publishers = sum(1 for s in d["register"].values()
-                     if s.coverage_class != "excluded")
+    window_weeks = len(in_weeks)
+    window_notices = sum(w["total"] for w in in_weeks)
+    per_week = window_notices / max(window_weeks, 1)
+
+    # PUBLISHER COUNT. This counted only sources with a coverage class other
+    # than "excluded" and reported ~35, which understates the collection:
+    # the register carries every source the corpus has ever seen, and a
+    # source excluded from ANALYSIS is still a source being read. Both
+    # numbers are now available and the prose says which is which.
+    publishers_read = len(d["register"])
+    publishers_classified = sum(1 for s in d["register"].values()
+                                if s.coverage_class != "excluded")
+    publishers = publishers_classified  # kept for callers
     step = d["steps"][0] if d["steps"] else None
 
     # Three headline catches. The rule is stated on the page and applied
@@ -141,19 +163,28 @@ def _facts(d: dict) -> dict:
             f'than evidence of a comparable change across the food '
             f'supply.</p>')
 
-    return {"share": share, "count": count, "conc": conc,
-            "per_week": per_week, "publishers": publishers,
+        return {"share": share, "count": count, "conc": conc, "per_week": per_week,
+            "publishers": publishers, "publishers_read": publishers_read,
+            "publishers_classified": publishers_classified,
+            "window_weeks": window_weeks, "window_notices": window_notices,
+            "countries": d.get("n_countries"),
             "cards": cards, "fr_txt": fr_txt, "step_txt": step_txt}
 
 
 def deck(d: dict) -> str:
     """One-sentence promise, built from the numbers it promises."""
     f = _facts(d)
+    # SCORED WEEKS ARE NOT REPORTED WEEKS (review 2026-08-28).
+    # The replay scores every week it can reach — 22 — but only the weeks
+    # inside the mature-coverage window are reportable, and the outputs of
+    # the other scored weeks are explicitly excluded as findings. Quoting
+    # the scored count next to the finding count implies the findings were
+    # drawn from all of them.
     return (f"Recall volume goes up for two very different reasons. One of "
-            f"them matters. Across {d['weeks_scanned']} scored weeks of "
-            f"walk-forward replay AFTS-FSIS found {len(f['share'])} "
-            f"statistically controlled elevations \u2014 and named the "
-            f"publisher behind every one.")
+            f"them matters. Within the approved {f['window_weeks']}-week "
+            f"analytical window, AFTS-FSIS identified {len(f['share'])} "
+            f"FDR-controlled share elevations and attributed the dominant "
+            f"publisher for each.")
 
 
 def front_matter(d: dict) -> str:
@@ -165,16 +196,26 @@ def front_matter(d: dict) -> str:
     """
     f = _facts(d)
     share, count, conc = f["share"], f["count"], f["conc"]
-    per_week, publishers = f["per_week"], f["publishers"]
+    per_week = f["per_week"]
+    p_read, p_cls = f["publishers_read"], f["publishers_classified"]
+    win_wk, win_n = f["window_weeks"], f["window_notices"]
     cards, fr_txt, step_txt = f["cards"], f["fr_txt"], f["step_txt"]
+    countries = f["countries"]
+    where = f" in {countries} countries" if countries else ""
     return f"""
-<p>AFTS-FSIS reads recall and alert notices from {publishers} regulatory
-publishers, normalises them into one schema, and screens them for
-pathogens, biotoxins, mycotoxins, foreign material, pest and chemical
-hazards. Across the analysable window that is {d['n_records']:,} notices
-and about {per_week:.0f} a week.</p>
+<p>AFTS-FSIS reads recall and alert notices from {p_read} official and
+regulatory publishers{where}, normalises them into one schema, and screens
+them for pathogens, biotoxins, mycotoxins, foreign material, pest and
+chemical hazards.</p>
 
-<p>Nobody reads {per_week:.0f} notices a week across {publishers}
+<p>The complete {d['n_weeks']}-week corpus contains
+{d['n_records']:,} notices. The approved {win_wk}-week analytical window
+contains {win_n:,} — about {per_week:.0f} a week. Those are two
+different denominators and the rest of this page keeps them apart:
+{p_cls} of the {p_read} publishers carry a coverage class at all, and only
+the six that publish continuously enough to hold a baseline are analysed.</p>
+
+<p>Nobody reads {per_week:.0f} notices a week across {p_read}
 publishers and spots that one pathogen in one country has quietly doubled
 against its own recent baseline. That is the job the detector does.</p>
 

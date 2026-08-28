@@ -180,6 +180,12 @@ def gather() -> dict:
         "generated": _dt.datetime.now(_dt.timezone.utc),
         "sha": _git_sha(),
         "n_records": total,
+        # Reach, for the lead. 48 publishers across 86 countries is the
+        # honest description of this collection; "the global food recall
+        # record" was not, which is why the title changed on 2026-08-28.
+        "n_countries": int(corpus.frame["Country"].astype(str).str.strip()
+                           .replace("", None).dropna().nunique())
+                       if "Country" in corpus.frame.columns else None,
         "n_weeks": len(corpus.weeks),
         "first_week": str(corpus.weeks[0]),
         "last_week": str(corpus.weeks[-1]),
@@ -289,6 +295,13 @@ caption{caption-side:bottom;text-align:left;padding-top:10px;font:13px/1.6
 .fig .vlab{font-size:10px;font-weight:600;fill:var(--ink-2);text-anchor:middle}
 .fig .cutlab{font-size:10.5px;font-weight:600;fill:var(--ink-2)}
 .fig .cutlab.dim{font-weight:400;fill:var(--ink-3)}
+/* Figure 2. Text wears text tokens, never the series colour — the swatch
+   beside a label is what carries identity. */
+.fig .figlab{font-size:11px;fill:var(--ink-2)}
+.fig .figval{font-size:10.5px;font-weight:600;fill:var(--ink-3)}
+.fig .key{font-size:12px;color:var(--ink-2)}
+.fig .sw{display:inline-block;width:11px;height:11px;border-radius:3px;
+  vertical-align:-1px;margin-right:4px}
 .fig .tip{position:absolute;pointer-events:none;background:var(--ink);
   color:var(--bg);padding:6px 9px;border-radius:4px;font:12px/1.4
   ui-sans-serif,system-ui,sans-serif;white-space:nowrap;z-index:5;
@@ -568,6 +581,94 @@ def analytical_digest(d: dict) -> str:
     blob = json.dumps(payload, sort_keys=True, separators=(",", ":"),
                       ensure_ascii=False).encode("utf-8")
     return hashlib.sha256(blob).hexdigest()
+
+
+# ── Figure 2 · every in-window finding, as one picture ──────────────────
+# WHY A CHART AND NOT ANOTHER TABLE (2026-08-28)
+#
+# The replay's result lived only in a numbered table. A table answers "what
+# was the effect for Salmonella in Poland"; it does not answer "how big is
+# the biggest one, and how many are near the threshold" without the reader
+# doing the sorting in their head. That second question is the one an
+# operator actually has.
+#
+# Form: magnitude comparison across a labelled set -> horizontal bars,
+# sorted descending. Not a line (no time order along the axis), not a pie
+# (21 parts, and the parts are not shares of one whole).
+#
+# Colour: two categories, and the categorical job is IDENTITY, so two hues
+# rather than two steps of one. Validated before use, on the light surface:
+#   #2a78d6 (share, the reportable finding) and #eb6834 (count-only
+#   diagnostic) — lightness band PASS, chroma floor PASS, CVD separation
+#   ΔE 24.7 protan (target ≥8), normal-vision ΔE 33.6 (floor ≥15),
+#   contrast ≥3:1 PASS. Both channels are ALSO direct-labelled and legended,
+#   so identity never rests on colour alone.
+SERIES_SHARE = "#2a78d6"
+SERIES_COUNT = "#eb6834"
+
+
+def figure_signals(replay) -> str:
+    """Every in-window replay row, sorted by effect. One bar each."""
+    rows = sorted([r for r in replay if r["in_window"]],
+                  key=lambda r: -r["effect"])
+    if not rows:
+        return ""
+    # PAD_L is the label gutter. Sized to the longest stratum name the
+    # corpus actually produces — "Shiga toxin-producing E. coli (STEC) ·
+    # Europe", 45 characters ≈ 252px at 11px — not guessed. Caught by
+    # measuring before rendering: at 232 the labels collided with the bars.
+    W, PAD_L, PAD_R = 880, 274, 54
+    plot_w = W - PAD_L - PAD_R
+    bh, gap = 15.0, 6.0          # 2px surface gap is the minimum; 6 reads better
+    top = 30.0
+    H = top + len(rows) * (bh + gap) + 34
+    hi = max(r["effect"] for r in rows)
+    ticks = [1, 2, 4, 6, 8]
+    ticks = [v for v in ticks if v <= hi * 1.06] or [1]
+    scale = plot_w / (hi * 1.06)
+
+    out = [f'<figure class="fig"><svg viewBox="0 0 {W} {H:.0f}" '
+           f'role="img" width="100%" '
+           f'aria-label="Effect size of every finding inside the analytical '
+           f'window, sorted from largest.">']
+    # baseline of 1.00 = no elevation; the grid is recessive
+    for v in ticks:
+        x = PAD_L + v * scale
+        out.append(f'<line class="grid" x1="{x:.1f}" x2="{x:.1f}" '
+                   f'y1="{top - 8:.1f}" y2="{H - 30:.1f}"/>')
+        out.append(f'<text class="ax" x="{x:.1f}" y="{H - 16:.0f}" '
+                   f'text-anchor="middle">&times;{v}</text>')
+    for i, r in enumerate(rows):
+        y = top + i * (bh + gap)
+        share = r["channel"] == "proportion"
+        col = SERIES_SHARE if share else SERIES_COUNT
+        w = max(r["effect"] * scale, 2.0)
+        out.append(f'<rect x="{PAD_L}" y="{y:.1f}" width="{w:.1f}" '
+                   f'height="{bh}" rx="4" fill="{col}"><title>'
+                   f'{_esc(_display(r["label"]))} &middot; week of '
+                   f'{_esc(r["week_label"])} &middot; &times;{r["effect"]:.2f} '
+                   f'&middot; {r["observed"]} observed against a baseline of '
+                   f'{r["baseline_mean"]:.1f}</title></rect>')
+        out.append(f'<text class="figlab" x="{PAD_L - 9}" y="{y + bh - 3:.1f}" '
+                   f'text-anchor="end">{_esc(_display(r["label"]))}</text>')
+        out.append(f'<text class="figval" x="{PAD_L + w + 7:.1f}" '
+                   f'y="{y + bh - 3:.1f}">&times;{r["effect"]:.2f}</text>')
+    out.append('</svg>')
+    n_share = sum(1 for r in rows if r["channel"] == "proportion")
+    out.append(
+        f'<figcaption><span class="key">'
+        f'<span class="sw" style="background:{SERIES_SHARE}"></span>'
+        f'share elevation ({n_share}) &nbsp; '
+        f'<span class="sw" style="background:{SERIES_COUNT}"></span>'
+        f'count-only diagnostic ({len(rows) - n_share})</span><br>'
+        f'<strong>Figure 2.</strong> Every finding inside the analytical '
+        f'window, by effect size. Share elevations are the reportable result; '
+        f'count-only rows are carried as diagnostics because a rise in a '
+        f'stratum\u2019s count that its share does not follow is usually the '
+        f'publisher, not the food supply. Hover any bar for the observed '
+        f'count and its baseline. Section 5.2 lists the same rows with '
+        f'p-values.</figcaption></figure>')
+    return "".join(out)
 
 
 def render(d: dict, lead_html: str = "", eyebrow: str = None,
@@ -964,6 +1065,7 @@ Publishing that is more useful than defending all seven.</caption>
 </table></div>
 
 <h2><span class="num">5</span>Results: walk-forward replay</h2>
+{figure_signals(d['replay'])}
 
 <p>Every week is scored using only weeks strictly before it. This is not
 cross-validation &mdash; random folds on surveillance time series leak the

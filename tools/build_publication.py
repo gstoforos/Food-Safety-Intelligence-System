@@ -30,7 +30,7 @@ from tools import build_news_piece as lead              # noqa: E402
 from tools import build_technical_report as tr          # noqa: E402
 
 # Kept in step with build_news_piece.TITLE — see the note there.
-TITLE = "Anomalies in the global food recall record"
+TITLE = "Anomalies in a multi-jurisdiction food recall corpus"
 EYEBROW = "AFTS-FSIS \u00b7 Food Safety Intelligence System"
 OUT = ROOT / "docs" / "reports" / "fsis-signal-detection.html"
 
