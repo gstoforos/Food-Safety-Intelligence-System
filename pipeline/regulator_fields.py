@@ -93,6 +93,13 @@ CATEGORY_MAP: Dict[str, str] = {
     "cocoa and cocoa preparations, coffee and tea": "beverages",
     "dietetic foods, food supplements and fortified foods": "supplements",
     "ices and desserts": "confectionery-snacks",
+    # 21st observed category, seen 2026-08-27 on a Croatian border rejection
+    # of biscuit with fig filling from Bosnia and Herzegovina (RASFF
+    # #2026.7556). test_corpus_coverage_has_not_regressed caught it the
+    # moment the row was promoted — an unmapped category returns None rather
+    # than "other", so a new RASFF term shows up as a gap instead of being
+    # silently absorbed. That is the check working as designed.
+    "confectionery": "confectionery-snacks",
     "soups, broths, sauces and condiments": "sauces-condiments",
     "other food product / mixed": "other",
 }
