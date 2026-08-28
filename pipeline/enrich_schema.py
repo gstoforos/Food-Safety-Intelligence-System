@@ -250,8 +250,22 @@ def run(xlsx: Path, write: bool) -> Dict[str, Any]:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--xlsx", default=str(XLSX))
-    ap.add_argument("--write", action="store_true")
+    ap.add_argument("--write", action="store_true",
+                    help="apply the derivation to the workbook")
+    # --dry-run is the documented default (see the module docstring, and the
+    # first step of .github/workflows/enrich-schema.yml). It did not exist:
+    # argparse rejected it with exit code 2, which would have failed the
+    # scheduled sweep on its very first run, before it wrote anything.
+    # Accepted explicitly now, and mutually exclusive with --write so
+    # "--dry-run --write" is an error rather than a silent write.
+    ap.add_argument("--dry-run", action="store_true",
+                    help="report coverage without touching the workbook "
+                         "(the default; accepted so it can be passed "
+                         "explicitly by callers and CI)")
     a = ap.parse_args(argv)
+
+    if a.dry_run and a.write:
+        ap.error("--dry-run and --write are mutually exclusive")
 
     res = run(Path(a.xlsx), a.write)
     n = res["rows"]
