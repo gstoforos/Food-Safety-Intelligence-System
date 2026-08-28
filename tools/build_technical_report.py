@@ -46,6 +46,17 @@ AUTHOR = "Advanced Food-Tech Solutions (AFTS), Athens"
 SITE = "https://fsis.advfood.tech"
 PUBLIC = "https://www.advfood.tech/fsis-recalls"
 
+# BRAND — AFTS-FSIS, never bare "FSIS" (operator rule, 2026-08-28).
+#
+# "FSIS" alone is ambiguous in this document and dangerously so: the USDA
+# Food Safety and Inspection Service is itself a Source in the corpus this
+# report analyses, and appears by name in the results. A reader meeting
+# "FSIS found 11 signals" has no way to tell whose system is being
+# described. Every self-reference is AFTS-FSIS; every reference to the US
+# agency stays "USDA FSIS".
+BRAND = "AFTS-FSIS"
+
+
 
 def _esc(x) -> str:
     return html.escape(str(x), quote=True)
@@ -1104,7 +1115,7 @@ one hazard class will still move a share.</p>
 Some outbreaks surface through clinical surveillance rather than product
 testing, and the implicated commodity is identified only after case
 interviews converge. A recent multi-state Cyclospora cluster is the clean
-example: FSIS observes the regulatory record, and where no notice is
+example: AFTS-FSIS observes the regulatory record, and where no notice is
 issued until an investigation concludes, there is nothing in the corpus
 for the detector to see. This is a structural limit of recall-derived
 signal, not a tuning failure, and no amount of threshold work addresses
@@ -1256,7 +1267,7 @@ none can recur silently.</caption>
 
 <div class="sub-cta">
   <h3>Food Safety Intelligence System</h3>
-  <p>FSIS aggregates food recall and alert notices from
+  <p>AFTS-FSIS aggregates food recall and alert notices from
   {n_publishers} regulatory publishers across Europe, North America,
   Asia-Pacific and beyond, normalises them into one schema, and screens
   them for pathogens, biotoxins, mycotoxins, foreign material, pest and
@@ -1264,7 +1275,7 @@ none can recur silently.</caption>
   aberration scan described in this report.</p>
   <p style="margin-bottom:18px">Subscribe for the daily brief and weekly
   digest, or request access to the full corpus and the signal feed.</p>
-  <a class="btn" href="{PUBLIC}">Subscribe to FSIS</a>
+  <a class="btn" href="{PUBLIC}">Subscribe to AFTS-FSIS</a>
 </div>
 
 <footer>
@@ -1274,7 +1285,7 @@ none can recur silently.</caption>
   {d['n_records']:,} notices over {d['n_weeks']} complete weeks.</p>
   <p>Advisory only. Nothing in this report is a substitute for the
   originating regulator's notice, which remains the authoritative record
-  in every case. Source links are carried on every row in the FSIS corpus.</p>
+  in every case. Source links are carried on every row in the AFTS-FSIS corpus.</p>
   <p><a href="{SITE}">{SITE.replace('https://','')}</a> &middot;
   <a href="{PUBLIC}">{PUBLIC.replace('https://','')}</a></p>
 </footer>

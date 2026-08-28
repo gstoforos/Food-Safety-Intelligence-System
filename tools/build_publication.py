@@ -29,8 +29,9 @@ sys.path.insert(0, str(ROOT))
 from tools import build_news_piece as lead              # noqa: E402
 from tools import build_technical_report as tr          # noqa: E402
 
-TITLE = "How FSIS tells a food-safety signal from a publisher dump"
-EYEBROW = "Food Safety Intelligence System"
+# Kept in step with build_news_piece.TITLE — see the note there.
+TITLE = "Anomalies in the global food recall record"
+EYEBROW = "AFTS-FSIS \u00b7 Food Safety Intelligence System"
 OUT = ROOT / "docs" / "reports" / "fsis-signal-detection.html"
 
 

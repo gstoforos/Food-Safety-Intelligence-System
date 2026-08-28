@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the FSIS News piece that fronts TR-2026-01.
+"""Build the AFTS-FSIS News piece that fronts TR-2026-01.
 
 WHY A GENERATOR AND NOT A DOCUMENT
 ----------------------------------
@@ -29,7 +29,11 @@ from tools.build_technical_report import (  # noqa: E402
     CSS as REPORT_CSS, PUBLIC, SITE, _display, _esc, _wk, gather, sd,
 )
 
-TITLE = "How FSIS tells a food-safety signal from a publisher dump"
+# TITLE names the FINDING, not the machinery (operator instruction,
+# 2026-08-27: "retitle to the data"). The previous title — "How FSIS tells a
+# food-safety signal from a publisher dump" — described the tool and buried
+# the result, and led with the ambiguous bare "FSIS".
+TITLE = "Anomalies in the global food recall record"
 ANNEX_HREF = "TR-2026-01.html"
 ANNEX_LABEL = "TR-2026-01"
 
@@ -147,7 +151,7 @@ def deck(d: dict) -> str:
     f = _facts(d)
     return (f"Recall volume goes up for two very different reasons. One of "
             f"them matters. Across {d['weeks_scanned']} scored weeks of "
-            f"walk-forward replay FSIS found {len(f['share'])} "
+            f"walk-forward replay AFTS-FSIS found {len(f['share'])} "
             f"statistically controlled elevations \u2014 and named the "
             f"publisher behind every one.")
 
@@ -164,7 +168,7 @@ def front_matter(d: dict) -> str:
     per_week, publishers = f["per_week"], f["publishers"]
     cards, fr_txt, step_txt = f["cards"], f["fr_txt"], f["step_txt"]
     return f"""
-<p>FSIS reads recall and alert notices from {publishers} regulatory
+<p>AFTS-FSIS reads recall and alert notices from {publishers} regulatory
 publishers, normalises them into one schema, and screens them for
 pathogens, biotoxins, mycotoxins, foreign material, pest and chemical
 hazards. Across the analysable window that is {d['n_records']:,} notices
@@ -187,7 +191,7 @@ best: strongest statistical evidence first, one per stratum.</p>
 
 {step_txt}
 
-<p>FSIS scores each stratum on its <strong>share</strong> of the week's
+<p>AFTS-FSIS scores each stratum on its <strong>share</strong> of the week's
 total output rather than its raw count. When a publisher doubles
 everything it files, every share stays roughly where it was and the
 detector stays quiet. When one pathogen in one country rises against a
@@ -200,7 +204,7 @@ monitored regulatory corpus than it did a month ago?&rdquo;</p>
 <h2>Detect, then attribute</h2>
 
 <p>A share signal is not automatically a food-safety event either, and
-this is where most tools stop and FSIS does not.
+this is where most tools stop and AFTS-FSIS does not.
 {len(conc)} of the {len(share)} elevations above came predominantly from a
 single publisher &mdash; and every one of those carries that fact in the
 record, with the publisher named and its percentage stated. The
