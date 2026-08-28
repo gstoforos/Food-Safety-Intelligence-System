@@ -10,18 +10,23 @@ name: Recall Review Agent (self-hosted Qwen)
 # VPS moves to a Mac, only the LLAMA_BASE_URL secret changes.
 
 on:
-  # OWN CRON (2026-08-28). These three were workflow_dispatch-only and fired
-  # solely from FsisScheduler.gs, a Google Apps Script that is not in version
-  # control and has no watchdog. recall-confirm-agent — the ONLY step in the
-  # A2->A3 chain that can publish — went 400 commits without a single run
-  # because it was never added to that script, and nothing went red.
-  #
   # reviewer 2 — deep review, banks to pending_gap_v3
   #
-  # Two crons per slot with an Athens-hour guard below: one fires in EEST
-  # (UTC+3), the other in EET (UTC+2), and the guard ensures exactly one
-  # takes effect. Remove these three from FsisScheduler.gs after pushing, or
-  # each slot runs twice.
+  # NO CRON HERE — dispatched by FsisScheduler.gs only (audit 2026-08-28).
+  #
+  # This workflow briefly carried its own `schedule:` block as well as a
+  # slot in FsisScheduler.gs, so every slot fired twice: once from GitHub,
+  # once from Apps Script, both into the fsis-data-writers lane.
+  #
+  # The cron was added for a good reason — Apps Script is outside version
+  # control, and recall-confirm-agent went 400 commits without a run
+  # because it was missing from that script and nothing went red. Removing
+  # the cron without replacing that safety net would recreate the failure.
+  # It is replaced, by something better than a duplicate trigger:
+  # .github/workflows/scheduler-watchdog.yml runs on GitHub's OWN cron,
+  # reads the commit record, and fails loudly when a workflow the scheduler
+  # is supposed to dispatch has gone quiet past its threshold. One
+  # dispatcher, one independent auditor.
   workflow_dispatch:
     inputs:
       skip_commit:
@@ -49,18 +54,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
+      # DISPATCH-ONLY: this guard can no longer block. The workflow's only
+      # trigger is workflow_dispatch, so github.event_name is always
+      # "workflow_dispatch" and the first branch always wins. It is kept
+      # because every later step keys its `if:` off steps.guard.outputs.run,
+      # and because the echoed Athens hour is the one record of WHEN the
+      # Apps Script scheduler actually fired — which is the diagnostic that
+      # was missing when the fleet went quiet. Do not read it as a guard.
       - name: Athens-hour guard (one fire per slot across DST)
         id: guard
         run: |
-          # NOTE (2026-08-28): the schedule: block was removed from this
-          # workflow — FsisScheduler.gs is the single dispatcher, and having
-          # both fire meant every slot ran twice. So github.event_name is
-          # always workflow_dispatch here and this guard always passes.
-          #
-          # It is kept, not deleted: if a cron is ever added back, the hour
-          # test immediately does its job again and stops the DST twin from
-          # double-firing. Deleting it would remove that safety net silently.
           HOUR=$(TZ=Europe/Athens date +%H)
+          echo "dispatched at Athens ${HOUR}:$(TZ=Europe/Athens date +%M)"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] \
              || [ "$HOUR" = "06" ] || [ "$HOUR" = "22" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"

@@ -1,0 +1,149 @@
+# =============================================================================
+# Analytical Schema Sweep — daily 08:15 Athens
+# =============================================================================
+# Re-derives the fourteen analytical columns on the Recalls sheet:
+#
+#   FoodCategory  ProcessType  ConsumptionState  StorageCondition
+#   PackagingType PackagingForm HazardGroup  HazardCertainty
+#   NoticeType    SeverityClass EventID
+#   EnrichedBy    EnrichedAt   EnrichmentTier
+#
+# WHY THIS WORKFLOW EXISTS (audit 2026-08-28)
+# ------------------------------------------
+# pipeline/enrich_schema.py was written, tested and registered in
+# merge_master.RECALLS_INTERNAL_COLUMNS — and then invoked by nothing. The
+# 1,532 rows enriched by hand on 2026-08-28 would have been the last
+# enriched rows in the register: the corpus would have kept growing while
+# the statistical schema stopped, and every anomaly analysis built on those
+# columns would have been silently working on a frozen subset.
+#
+# Two things now fill the columns, and they do not overlap:
+#
+#   promote time   pipeline/merge_master.promote_approved() calls
+#                  enrich_schema.derive() on each newly promoted row, so a
+#                  row is never written to Recalls with the columns blank.
+#   this sweep     re-derives EVERY row, because rows are edited in place
+#                  after promotion — the url-gate rewrites Notes, the review
+#                  agents rewrite Reason, operators correct Product — and a
+#                  value derived from text that has since changed is stale.
+#                  It is also how a vocabulary correction reaches the rows
+#                  already in the register.
+#
+# It skips any row whose EnrichedBy reads "human": an operator's judgement
+# is never overwritten by a keyword.
+#
+# WHAT IT CANNOT LEAK
+# -------------------
+# Every column it writes is named in merge_master.RECALLS_INTERNAL_COLUMNS,
+# so mirror_json_from_xlsx strips them from recalls.json, and both public
+# xlsx builders use allow-lists that do not name them. Verified by
+# tests/test_enrich_schema.py. Nothing here changes what the dashboard,
+# the public download or any report publishes.
+#
+# No network. No model call. No API key. Pure text derivation, ~2s for the
+# whole register.
+#
+# SCHEDULING
+# ----------
+# Apps Script (FsisScheduler.gs) is the single source of truth — no cron
+# block here. Slot 08:15 Athens, chosen to land after the 07:30 merge and
+# before the 08:30 gap-finder wave, inside the fsis-data-writers lane.
+# =============================================================================
+
+name: Analytical Schema Sweep (Daily 08:15 Athens)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "true = report coverage without writing the workbook"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+# Shares the writer lane with merge-master, the scrapers and the url-gate
+# so two jobs never save docs/data/recalls.xlsx at the same time.
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Coverage before
+        run: python -m pipeline.enrich_schema --dry-run
+
+      - name: Write the schema
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: python -m pipeline.enrich_schema --write
+
+      # The sweep touches only the fourteen internal columns, but the
+      # workbook is the single source of truth for recalls.json, so the
+      # mirror is regenerated from the saved file rather than left to drift.
+      - name: Re-mirror recalls.json from the workbook
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from pipeline.merge_master import mirror_json_from_xlsx
+          mirror_json_from_xlsx(Path("docs/data/recalls.xlsx"),
+                                Path("docs/data/recalls.json"))
+          print("recalls.json re-mirrored")
+          PY
+
+      # Fail loudly if an internal column ever reaches the public mirror.
+      # The deny-list in mirror_json_from_xlsx fails open by design, so this
+      # is the check that would catch a column added without registering it.
+      - name: Assert no internal column leaked into recalls.json
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          python - <<'PY'
+          import json, sys
+          from pipeline.merge_master import RECALLS_INTERNAL_COLUMNS
+          d = json.load(open("docs/data/recalls.json", encoding="utf-8"))
+          rows = d["recalls"] if isinstance(d, dict) and "recalls" in d else d
+          keys = set()
+          for r in rows:
+              keys |= set(r.keys())
+          leaked = sorted(k for k in RECALLS_INTERNAL_COLUMNS if k in keys)
+          if leaked:
+              sys.exit(f"internal columns leaked into recalls.json: {leaked}")
+          print(f"clean — {len(rows)} rows, {len(keys)} public fields")
+          PY
+
+      - name: Commit and push if changed
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name  "AFTS Intelligence System"
+          git config user.email "fsis-bot@advfood.tech"
+          if git diff --quiet -- docs/data/recalls.xlsx docs/data/recalls.json; then
+            echo "Schema unchanged — nothing to commit."
+            exit 0
+          fi
+          STAMP=$(TZ=Europe/Athens date +%Y-%m-%d)
+          git add docs/data/recalls.xlsx docs/data/recalls.json
+          git commit -m "Analytical schema sweep ${STAMP} (14 internal columns)"
+          git pull --rebase --autostash origin main || true
+          git push origin HEAD:main

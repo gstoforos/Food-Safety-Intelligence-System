@@ -26,15 +26,21 @@ on:
         description: "Dry run? (true|false)"
         required: false
         default: "false"
-  schedule:
-    # 08:00 Athens — winter (EET, UTC+2)  → 06:00 UTC
-    - cron: '0 6 * 1,2,3,11,12 *'
-    # 08:00 Athens — summer (EEST, UTC+3) → 05:00 UTC
-    - cron: '0 5 * 4,5,6,7,8,9,10 *'
-    # 17:00 Athens — winter             → 15:00 UTC
-    - cron: '0 15 * 1,2,3,11,12 *'
-    # 17:00 Athens — summer             → 14:00 UTC
-    - cron: '0 14 * 4,5,6,7,8,9,10 *'
+  # NO CRON HERE — dispatched by FsisScheduler.gs only (audit 2026-08-28).
+  #
+  # This workflow briefly carried its own `schedule:` block as well as a
+  # slot in FsisScheduler.gs, so every slot fired twice: once from GitHub,
+  # once from Apps Script, both into the fsis-data-writers lane.
+  #
+  # The cron was added for a good reason — Apps Script is outside version
+  # control, and recall-confirm-agent went 400 commits without a run
+  # because it was missing from that script and nothing went red. Removing
+  # the cron without replacing that safety net would recreate the failure.
+  # It is replaced, by something better than a duplicate trigger:
+  # .github/workflows/scheduler-watchdog.yml runs on GitHub's OWN cron,
+  # reads the commit record, and fails loudly when a workflow the scheduler
+  # is supposed to dispatch has gone quiet past its threshold. One
+  # dispatcher, one independent auditor.
 
 concurrency:
   group: fsis-data-writers

@@ -1,0 +1,104 @@
+name: AFTS Scheduler Watchdog
+
+# ==========================================================================
+# THIS WORKFLOW HAS ITS OWN CRON, DELIBERATELY — AND MUST KEEP IT.
+#
+# Do not add this workflow to FsisScheduler.gs. It exists to check that
+# FsisScheduler.gs is dispatching, and a watchdog dispatched by the thing it
+# watches is not a watchdog.
+#
+# Every collecting, reviewing and publishing workflow in this repository is
+# workflow_dispatch-only and fired by that Apps Script, which is outside
+# version control and has no alarm of its own. When it stops dispatching,
+# GitHub shows nothing at all: no run fails, because no run happens. The
+# Actions tab is green and empty, which is the most expensive kind of green.
+#
+# It has cost this project twice already — collection at 33% of trailing
+# median in the week of 2026-08-21, found by a human reading the weekly
+# report; and recall-confirm-agent, the only step in the review chain that
+# can publish a row, going 400 commits without a run because it was never
+# added to the script.
+#
+# The alternative fix — give every workflow a GitHub cron as well — was
+# tried on 2026-08-28 and removed the same day: it double-fires each slot
+# and puts two jobs into the same fsis-data-writers lane. One dispatcher,
+# one independent auditor.
+# ==========================================================================
+
+on:
+  schedule:
+    - cron: "0 9 * * *"       # 12:00 Athens EEST
+    - cron: "0 10 * * *"      # 12:00 Athens EET (winter)
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "How far back to read the commit log"
+        required: false
+        default: "21"
+      warn_only:
+        description: "true = report without failing the run"
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Athens-hour guard (one fire per day across DST)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$HOUR" = "12" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Athens hour $HOUR — the DST twin will fire. Skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout with history
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          # The watchdog reads the commit record, so a shallow clone would
+          # make every workflow look like it had never run.
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Audit the dispatch record
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          ARGS="--days ${{ github.event.inputs.days || '21' }}"
+          if [ "${{ github.event.inputs.warn_only }}" = "true" ]; then
+            ARGS="$ARGS --warn-only"
+          fi
+          python -m tools.dispatch_watchdog $ARGS | tee /tmp/watchdog.txt
+        continue-on-error: true
+
+      - name: Job summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          {
+            echo "## Scheduler watchdog — $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M') Athens"
+            echo
+            echo '```'
+            cat /tmp/watchdog.txt 2>/dev/null || echo "(no output)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail the run if anything is overdue
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          ARGS="--days ${{ github.event.inputs.days || '21' }}"
+          if [ "${{ github.event.inputs.warn_only }}" = "true" ]; then
+            exit 0
+          fi
+          python -m tools.dispatch_watchdog $ARGS > /dev/null

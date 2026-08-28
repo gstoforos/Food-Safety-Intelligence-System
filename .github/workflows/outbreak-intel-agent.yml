@@ -14,12 +14,27 @@ name: AFTS Outbreak Intel Agent
 # after reading them, and even then the curator re-verifies every one
 # against the live source before writing.
 #
-# It carries its OWN cron. Every scrape workflow in this repo is dispatched
-# by Apps Script, and when that stopped in August nothing noticed because
-# nothing ran.
+# Dispatched by FsisScheduler.gs at 09:30 Athens. It briefly carried its own
+# cron as well, which meant it ran twice a day; scheduler-watchdog.yml now
+# provides the independent check that the dispatch actually happened.
 # ==========================================================================
 
 on:
+  # NO CRON HERE — dispatched by FsisScheduler.gs only (audit 2026-08-28).
+  #
+  # This workflow briefly carried its own `schedule:` block as well as a
+  # slot in FsisScheduler.gs, so every slot fired twice: once from GitHub,
+  # once from Apps Script, both into the fsis-data-writers lane.
+  #
+  # The cron was added for a good reason — Apps Script is outside version
+  # control, and recall-confirm-agent went 400 commits without a run
+  # because it was missing from that script and nothing went red. Removing
+  # the cron without replacing that safety net would recreate the failure.
+  # It is replaced, by something better than a duplicate trigger:
+  # .github/workflows/scheduler-watchdog.yml runs on GitHub's OWN cron,
+  # reads the commit record, and fails loudly when a workflow the scheduler
+  # is supposed to dispatch has gone quiet past its threshold. One
+  # dispatcher, one independent auditor.
   workflow_dispatch:
     inputs:
       since_days:
@@ -49,14 +64,6 @@ jobs:
       - name: Athens-hour guard (one fire per day across DST)
         id: guard
         run: |
-          # NOTE (2026-08-28): the schedule: block was removed from this
-          # workflow — FsisScheduler.gs is the single dispatcher, and having
-          # both fire meant every slot ran twice. So github.event_name is
-          # always workflow_dispatch here and this guard always passes.
-          #
-          # It is kept, not deleted: if a cron is ever added back, the hour
-          # test immediately does its job again and stops the DST twin from
-          # double-firing. Deleting it would remove that safety net silently.
           HOUR=$(TZ=Europe/Athens date +%H)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$HOUR" = "09" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
