@@ -158,6 +158,14 @@ def _consolidate_pathogen_label(label):
     """
     if not label:
         return label
+    # A compound multi-pathogen OUTBREAK category is already canonical and
+    # must survive re-consolidation. Without this guard the STEC catch-all
+    # in step 3 collapses "STEC + Salmonella Agona" back into
+    # "E. coli STEC", and the Hazard Profile loses the separate row while
+    # the register still shows the compound name — the two disagreeing
+    # about the same event. See co_pathogen_label(). (Audit 2026-08-28.)
+    if " + " in str(label):
+        return str(label)
     s = str(label).strip()
     # 1) Direct exact match
     if s in _PATHOGEN_SYNONYMS:
@@ -175,6 +183,49 @@ def _consolidate_pathogen_label(label):
         return "Salmonella spp."
     # 5) Best-effort: bare base form
     return base if base else s
+
+
+_CO_PATHOGEN_RE = re.compile(
+    r"\bSalmonella\s+([A-Z][a-z]+)\b|\b(Shiga toxin-producing|STEC)\b",
+    re.I)
+
+
+def co_pathogen_label(row):
+    """Second hazard on a multi-pathogen OUTBREAK row, or None.
+
+    Audit 2026-08-28. The W35 sprout event is officially a STEC AND
+    Salmonella Agona outbreak: of 55 cases, 46 STEC only, 7 Salmonella
+    Agona only, 2 coinfected. Displaying it under either genus alone is
+    wrong, and splitting the row across both double-counts a register
+    whose whole contract is one row per notice.
+
+    So it gets its own mutually exclusive category. The second pathogen is
+    read from the row's Reason — the operator-verified statement already in
+    the corpus — NOT hardcoded here and NOT written into the Pathogen
+    column, which is a controlled vocabulary the detector strata depend on.
+    A compound value there would create a label of exactly one record,
+    below every sparsity floor, and it would vanish from the analysis.
+
+    Only OUTBREAK rows qualify. A routine recall mentioning two hazards in
+    its Reason is not a coinfection event and must not gain a category.
+    """
+    if str(row.get("Outbreak") or "").strip() not in ("1", "1.0"):
+        return None
+    reason = str(row.get("Reason") or "")
+    base = _consolidate_pathogen_label(str(row.get("Pathogen") or "").strip())
+    has_stec = bool(re.search(r"shiga toxin-producing|\bSTEC\b", reason, re.I))
+    m = re.search(r"\bSalmonella\s+([A-Z][a-z]{2,})\b", reason)
+    if base.startswith("E. coli") and m:
+        return "STEC + Salmonella {}".format(m.group(1))
+    if base.startswith("Salmonella") and has_stec:
+        return "STEC + {}".format(base)
+    return None
+
+
+def hazard_label(row):
+    """The category a row is counted and displayed under."""
+    return (co_pathogen_label(row)
+            or _consolidate_pathogen_label(str(row.get("Pathogen") or "").strip()))
 
 
 def _consolidate_counter(c):
@@ -676,6 +727,10 @@ def render_top5_row(rank, r):
     """
     canon_name = severity_score(r.get("Pathogen") or "")[1]
     badge_color = pathogen_badge_color(canon_name)
+    # Top 5 must name the same category as the register and the Hazard
+    # Profile. The badge colour still keys off the canonical single
+    # pathogen — a compound label has no colour of its own.
+    canon_name = co_pathogen_label(r) or canon_name
     date_str = str(r.get("Date") or "")[:10] or "—"
     country  = _country_display(r.get("Country") or "—")
     source   = AUTHORITY_DISPLAY.get(
@@ -902,7 +957,11 @@ def compute_stats(wr, pr):
         # rows in §03 Pathogen Profile. Now the consolidator owns all
         # paren-stripping logic and runs once, here.
         if p:
-            pc[_consolidate_pathogen_label(p)] += 1
+            # hazard_label() returns the compound category for a
+            # multi-pathogen outbreak row and the ordinary consolidated
+            # label otherwise, so the profile stays mutually exclusive and
+            # the column still totals the notice count.
+            pc[hazard_label(r)] += 1
         country = _country_display(r.get("Country","") or "Unknown")
         cc[country] += 1
         # Track every source label that reported this country in the window —
@@ -2225,7 +2284,10 @@ def _recall_row(rank, r, top_n=5):
     country = _country_display(r.get("Country","") or "Unknown")
     source = r.get("Source","") or ""; url = r.get("URL","") or ""
     dt = _fmt_date(r.get("Date",""))
-    dot = _dot_color(pathogen); ps = pathogen.split("(")[0].strip()
+    dot = _dot_color(pathogen)
+    # Multi-pathogen outbreak rows display their compound category, so the
+    # register and the Hazard Profile name the same thing (audit 2026-08-28).
+    ps = co_pathogen_label(r) or pathogen.split("(")[0].strip()
     # AUDIT 2026-07-30 — this was a binary if/else over a THREE-valued field:
     #     'T1' if tier==1 else 'T2'
     # so every Tier-3 recall was labelled "T2" in every weekly report. 45 rows
