@@ -93,6 +93,28 @@ _NOT_A_PATHOGEN = (
     ("teneur en plomb", "lead content above the regulatory limit"),
     ("fermentation spontanee", "spontaneous fermentation risk"),
     ("peuvent basculer", "tip-over hazard (non-food product)"),
+    # ── added 2026-08-28 after auditing the 19 rows still stuck ──────────
+    # Each phrase below is the REGULATOR'S OWN WORDING on a row that had sat
+    # in pending_enrichment waiting for a Pathogen that cannot exist. None of
+    # these is a guess about the product; it is what the notice says the
+    # hazard is.
+    ("moisissure", "mould (out of scope — not a pathogen)"),
+    ("mould", "mould (out of scope — not a pathogen)"),
+    # non-food items that reached the food feed
+    ("cable d alimentation", "electrical hazard (non-food product)"),
+    ("isolation et le maintien", "electrical hazard (non-food product)"),
+    ("assiettes decorees", "lead in ceramic tableware (non-food product)"),
+    # pharmaceutical / medical, not food
+    ("sodium citrate", "pharmaceutical product, not food"),
+    ("anticoagulant", "pharmaceutical product, not food"),
+    ("injection", "pharmaceutical product, not food"),
+    # pet food — a real recall, but out of scope for a human-food register
+    ("wet food dogs", "pet food (out of scope)"),
+    ("wet food for dogs", "pet food (out of scope)"),
+    ("dog food", "pet food (out of scope)"),
+    ("cat food", "pet food (out of scope)"),
+    ("pet food", "pet food (out of scope)"),
+    ("aliment pour chien", "pet food (out of scope)"),
 )
 
 
