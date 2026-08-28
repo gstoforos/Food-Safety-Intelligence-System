@@ -1,0 +1,97 @@
+name: AFTS Collection Watchdog
+
+# ==========================================================================
+# THIS WORKFLOW HAS ITS OWN CRON, DELIBERATELY.
+#
+# Every scrape workflow in this repo (daily-scrape, rasff-scrape,
+# morning-critical-scrape, *_feeds_collector) carries NO cron block and is
+# dispatched by Apps Script (FsisScheduler.gs). Apps Script is outside the
+# repository, has no version control and no watchdog of its own, so when it
+# stops dispatching there is nothing in GitHub that notices: no workflow
+# fails, because no workflow runs.
+#
+# That is exactly what happened in the week of 2026-08-21. Collection fell
+# to 33% of its trailing median — RappelConso 41->13, RASFF 21->6, CFIA
+# 3->0 — and the first sign of it was a human reading the weekly report and
+# asking why it said 22.
+#
+# A watchdog dispatched by the thing it watches is not a watchdog. This one
+# is scheduled by GitHub itself and must stay that way.
+# ==========================================================================
+
+on:
+  schedule:
+    - cron: "0 15 * * 4"      # Thursday 15:00 UTC (18:00 Athens EEST)
+    - cron: "0 16 * * 4"      # Thursday 16:00 UTC (18:00 Athens EET, winter)
+  workflow_dispatch:
+    inputs:
+      week_end:
+        description: "Closing Thursday (ISO). Blank = most recent."
+        required: false
+      fail_under:
+        description: "Fraction of trailing median below which we fail."
+        required: false
+        default: "0.60"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Athens-hour guard (one fire per Thursday across DST)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$HOUR" = "18" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Athens hour $HOUR — the other cron will fire. Skipping."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with: { fetch-depth: 1 }
+
+      - name: Set up Python 3.11
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Collection health
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          set -o pipefail
+          ARGS=""
+          if [ -n "${{ github.event.inputs.week_end }}" ]; then
+            ARGS="--week-end ${{ github.event.inputs.week_end }}"
+          fi
+          python -m tools.collection_health \
+            --fail-under "${{ github.event.inputs.fail_under || '0.60' }}" \
+            $ARGS | tee /tmp/health.txt
+
+      - name: Publish to the run summary
+        if: steps.guard.outputs.run == 'true' && always()
+        run: |
+          {
+            echo "### Collection health"
+            echo ""
+            echo '```'
+            cat /tmp/health.txt 2>/dev/null || echo "(no output — the check itself failed)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # A red X on this workflow means the fleet stopped collecting, NOT
+      # that this check is broken. Do not disable it to clear the failure.

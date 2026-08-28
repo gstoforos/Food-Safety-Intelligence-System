@@ -55,7 +55,17 @@ jobs:
         run: |
           git config --local user.email "fsis-bot@advfood.tech"
           git config --local user.name  "AFTS Intelligence System"
-          git add docs/data/recalls.xlsx docs/data/recalls.json || true
+          # The Thursday 17:00 mailer fetches weekly-review-latest.json and
+          # weekly-rejected-latest.json. merge_master REGENERATES both on every
+          # run - but until 2026-08-27 neither was staged here, so the runner
+          # rewrote them and then threw them away. The only workflow that ever
+          # committed them was the Thursday wipe, whose job is to empty them,
+          # so the published slice could only ever be empty. The 2026-08-27
+          # email reported "0 recalls added" for a week with 32.
+          # Asserted by tests/test_workflow_staging.py.
+          git add docs/data/recalls.xlsx docs/data/recalls.json \
+                  docs/data/weekly-review-latest.json \
+                  docs/data/weekly-rejected-latest.json || true
           if git diff --staged --quiet; then
             echo "No merge changes this hour."
             exit 0
@@ -85,7 +95,9 @@ jobs:
                        mirror_json_from_xlsx(Path('docs/data/recalls.xlsx'), \
                                               Path('docs/data/recalls.json'))" \
               || echo "(json regen warning; continuing)"
-            git add docs/data/recalls.xlsx docs/data/recalls.json || true
+            git add docs/data/recalls.xlsx docs/data/recalls.json \
+                    docs/data/weekly-review-latest.json \
+                    docs/data/weekly-rejected-latest.json || true
             if ! git diff --staged --quiet; then
               git commit -m "$COMMIT_MSG (retry $attempt, row-merged)"
             fi
