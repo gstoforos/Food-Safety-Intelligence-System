@@ -28,6 +28,8 @@ never applied "with a warning".
 """
 from __future__ import annotations
 
+import logging
+
 import argparse
 import json
 import re
@@ -41,16 +43,20 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 from pipeline.agents._contract import Proposal, read_proposals  # noqa: E402
+from pipeline.agents._vocabulary import (  # noqa: E402
+    AGENT_WRITABLE, validate_changes)
 
 XLSX = ROOT / "docs" / "data" / "recalls.xlsx"
+log = logging.getLogger("curator")
 AGENT = "curator"
 TODAY = datetime.now(timezone.utc).date().isoformat()
 
 # Fields the curator may write. Anything else is refused — an agent must not
 # be able to reach Tier, Outbreak or report_week, which drive published
 # statistics and are set by dedicated code paths.
-WRITABLE = {"Pathogen", "Reason", "Product", "Company", "Brand", "Country",
-            "Region", "Class", "URL", "Notes", "Date"}
+# Kept as the write filter. The decision about whether a change is ALLOWED
+# now lives in _vocabulary.validate_changes, which also checks the value.
+WRITABLE = set(AGENT_WRITABLE)
 
 
 @dataclass
@@ -197,12 +203,15 @@ def apply_one(p: Proposal, apply: bool, offline: bool = False) -> Verdict:
         return Verdict(p.proposal_id, p.action, False,
                        [f"no row found for {url!r} in Pending or Recalls"])
 
-    bad = [k for k in p.changes if k not in WRITABLE]
-    if bad and p.action in ("promote", "enrich"):
-        return Verdict(p.proposal_id, p.action, False,
-                       [f"proposal touches protected field(s) {bad} — Tier, "
-                        f"Outbreak and report_week are set by the pipeline, "
-                        f"not by an agent"])
+    # Vocabulary gate (audit 2026-08-28). The old check only asked whether a
+    # field was writable. It could not see a proposal that wrote a LEGAL field
+    # with an ILLEGAL value — "ConsumptionState: refrigerated-RTE" — which is
+    # how a model widens a schema one stratum at a time without ever failing.
+    # _vocabulary refuses three distinct mistakes separately and names the
+    # closest legal term, so the refusal teaches rather than just blocks.
+    vocab_refusals = validate_changes(p.changes)
+    if vocab_refusals and p.action in ("promote", "enrich"):
+        return Verdict(p.proposal_id, p.action, False, vocab_refusals)
 
     merged = dict(row)
     merged.update({k: v for k, v in p.changes.items() if k in WRITABLE})
@@ -240,6 +249,41 @@ def apply_one(p: Proposal, apply: bool, offline: bool = False) -> Verdict:
                 value=(cur + " " + stamp).strip())
     if "LastUpdated" in hdr:
         ws.cell(row=rownum, column=hdr.index("LastUpdated") + 1, value=TODAY)
+
+    # ── Re-derive the analytical columns for this row ─────────────────────
+    # The agent just rewrote Product, Reason or Class. Every analytical
+    # column is derived FROM those, so the moment the wording changes the
+    # derived values are stale — and they are stale in the direction that
+    # matters, because an agent corrects rows precisely when the original
+    # wording was wrong.
+    #
+    # Before this, only the 08:15 daily sweep rebuilt them, so a row could sit
+    # for up to a day describing itself with a classification taken from text
+    # that no longer existed. Doing it here costs a pure function call and
+    # makes the agent's write self-consistent.
+    #
+    # It is derived, never proposed: the agent cannot reach these columns
+    # (validate_changes refuses them), and it does not get to influence them
+    # except through the wording it corrected, which a human evidence quote
+    # already had to support.
+    if sheet == "Recalls":
+        try:
+            from pipeline.enrich_schema import derive as _derive
+            fresh = {h: ws.cell(row=rownum, column=i + 1).value
+                     for i, h in enumerate(hdr) if h}
+            values, tier = _derive(fresh)
+            for col, val in values.items():
+                if col in hdr:
+                    ws.cell(row=rownum, column=hdr.index(col) + 1, value=val)
+            for col, val in (("EnrichedBy", "enrich-schema/1"),
+                             ("EnrichedAt", TODAY), ("EnrichmentTier", tier)):
+                if col in hdr:
+                    ws.cell(row=rownum, column=hdr.index(col) + 1, value=val)
+        except Exception as exc:                            # noqa: BLE001
+            # Never let the schema refresh undo a verified correction.
+            log.warning("schema refresh skipped for row %d: %s: %s",
+                        rownum, type(exc).__name__, str(exc)[:80])
+
     wb.save(XLSX)
     return Verdict(p.proposal_id, p.action, True, [], f"{sheet} row {rownum}")
 
