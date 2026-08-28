@@ -62,7 +62,20 @@ SCHEMA = ["Date", "Source", "Company", "Brand", "Product", "Pathogen", "Reason",
 #               Thursday) correctly land in the right week's report.
 #               See compute_report_week() below for the rule.
 #               Introduced 2026-05-10 per operator instruction.
-RECALLS_INTERNAL_COLUMNS = ["DateAdded", "LastUpdated", "LastChecked", "report_week"]
+# Analytical columns written by pipeline/enrich_schema.py. They exist for
+# statistical stratification and are NOT part of what FSIS publishes:
+# mirror_json_from_xlsx strips every name in this list from recalls.json,
+# and the two public-xlsx builders use allow-lists that do not name them.
+# Adding a column here is the ONLY thing that keeps it out of the dashboard.
+_ENRICHMENT_COLUMNS = [
+    "FoodCategory", "ProcessType", "ConsumptionState", "StorageCondition",
+    "PackagingType", "PackagingForm", "HazardGroup", "HazardCertainty",
+    "NoticeType", "SeverityClass", "EventID",
+    "EnrichedBy", "EnrichedAt", "EnrichmentTier",
+]
+
+RECALLS_INTERNAL_COLUMNS = ["DateAdded", "LastUpdated", "LastChecked",
+                            "report_week"] + _ENRICHMENT_COLUMNS
 RECALLS_SCHEMA = SCHEMA + RECALLS_INTERNAL_COLUMNS
 
 # Pending sheet has the same columns plus three tracking columns.

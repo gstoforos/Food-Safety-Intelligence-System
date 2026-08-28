@@ -159,7 +159,17 @@ PROCESS_TERMS: Dict[str, Tuple[str, ...]] = {
         "nut kernel", "kernel", "nutmeg", "spice", "spices", "pepper corn",
         "herb", "herbs", "moringa", "capsule", "powder", "poudre",
         "supplement", "complement alimentaire", "protein powder",
-        "tea", "the", "infusion", "coffee", "cafe", "cacao", "cocoa",
+        # "the" was here as the French "the" (the) with its accent already
+        # stripped. _n() strips accents from the TEXT too, so the term became
+        # indistinguishable from the English article and matched every Reason
+        # containing it - "Ochratoxin A above the regulatory limit" was
+        # classified as a dried product. 118 rows, 29% of the whole "dried"
+        # bucket, assigned by a definite article (measured 2026-08-28).
+        # Accent-stripping cannot be undone at match time, so the term is
+        # replaced by forms that cannot collide. Guarded by
+        # test_no_term_collides_with_a_stopword.
+        "tea", "the vert", "the noir", "the glace", "sachet de the",
+        "tisane", "infusion", "coffee", "cafe", "cacao", "cocoa",
         "flour", "farine", "semoule", "couscous", "rice", "riz", "pasta",
         "pates", "noodle", "cereal", "muesli", "granola", "biscuit",
     ),
@@ -403,19 +413,42 @@ PACKAGING_TERMS: Dict[str, Tuple[str, ...]] = {
             "atmosfera protettiva", "beschermende atmosfeer"),
     "canned": ("canned", "boite de conserve", "conserve", "appertise",
                "lata", "scatoletta", "dose", "blik", "retort pouch",
-               "tinned"),
+               "tinned", "tin", "puszka", "lattina",
+               # NOT bare "can" — it is the English modal verb. It matched
+               # "symptoms can include severe and bloody diarrhea" and
+               # "hydrocyanic acid can release cyanide".
+               "in a can", "g can", "oz can", "canned"),
     "glass": ("glass jar", "glass bottle", "bocal", "pot en verre",
               "bouteille en verre", "verrine", "vaso de vidrio",
-              "glasflasche", "glazen pot"),
+              "glasflasche", "glazen pot", "jar",
+              # NOT bare "glass". Hand review of the 30 most recent rows,
+              # 2026-08-28: all four rows it matched were foreign-material
+              # glass, not glass packaging — "contamination with glass",
+              # "small glass fragments in the jam", "a shard of brown glass".
+              # It classified a glass-in-food hazard as glass packaging.
+              "in glass", "glass container"),
     "rigid-plastic": ("barquette", "tray", "tub", "punnet", "pot plastique",
-                      "gobelet", "bandeja", "vaschetta", "becher", "kuipje"),
+                      "gobelet", "bandeja", "vaschetta", "becher", "kuipje",
+                      # mined from the corpus 2026-08-28: tokens actually
+                      # present in rows the vocabulary was missing.
+                      "pot", "alveole", "plastic container", "plastic tray",
+                      "clamshell", "bak", "tarrina"),
     "flexible": ("sachet", "pouch", "flowpack", "doypack", "sous film",
+                 # NOT bare "wrap": "chicken fajita wrap" is a food, not a
+                 # package. Only the participle and explicit forms.
+                 "wrapped", "plastic wrap", "shrink wrap", "flow wrap",
+                 "sleeve",
+                 "paquet", "opakowanie",
                  "poche", "beutel", "zakje", "busta", "bag", "film",
                  "sachet fraicheur", "packet", "wrapper", "bagged",
                  "in bags", "en sachet", "stand-up pouch", "sac"),
     "carton": ("carton", "brique", "tetra", "boite carton", "cardboard",
                "karton", "cartone", "cardboard box", "boite en carton",
-               "case of", "caisse"),
+               "case of", "caisse", "boite", "caja",
+               # NOT bare "box" or "case". "box" matched the brand "Green Box
+               # Limited" on every row; "case" matched illness counts —
+               # "55 reported cases", "1,644 laboratory-confirmed cases".
+               "cardboard box", "box of", "in boxes", "carton box"),
     "loose": ("vrac", "en vrac", "loose", "unpackaged", "a la coupe",
               "rayon traditionnel", "self-service", "non emballe",
               "poids variable", "granel", "sfuso", "lose", "counter"),
@@ -424,6 +457,66 @@ PACKAGING_TERMS: Dict[str, Tuple[str, ...]] = {
 # vacuum, not rigid-plastic.
 PACKAGING_ORDER = ("vacuum", "map", "canned", "glass", "loose",
                    "rigid-plastic", "flexible", "carton")
+
+
+# ── PackagingForm ───────────────────────────────────────────────────────
+# A SECOND, COARSER axis, and the honest answer to "packaging coverage must
+# be higher".
+#
+# Measured on the register 2026-08-28: only 86 of the 1,383 rows that
+# packaging_type cannot place contain ANY container word, in any of the
+# eight languages the vocabulary covers. The hard ceiling for a seven-value
+# packaging axis from Product + Reason text is 15.3%. No amount of
+# vocabulary work moves it, because the text does not say.
+#
+# What the text DOES carry often enough to be useful is whether the product
+# was sold as a sealed unit or off a counter. That distinction is not
+# cosmetic: an unpackaged product cut and handled at the point of sale has a
+# different Listeria cross-contamination profile from a sealed pack, which
+# is exactly the kind of thing the register exists to stratify on.
+#
+# A declared net weight or a multi-unit format ("4 tranches 80G", "x20") is
+# treated as evidence of a pre-packed unit. That is an inference, and it is
+# labelled "low" confidence so it can be excluded from any stratum that
+# needs certainty.
+_LOOSE_TERMS = (
+    "vrac", "en vrac", "loose", "unpackaged", "non emballe", "non conditionne",
+    "a la coupe", "vendu a la coupe", "rayon traditionnel", "a la demande",
+    "self-service", "granel", "sfuso", "lose", "poids variable", "bulk",
+    "sold loose", "deli counter", "counter",
+)
+_PACKED_TERMS = (
+    "sachet", "pouch", "bag", "sac", "busta", "bolsa", "zak", "beutel",
+    "barquette", "tray", "punnet", "tub", "pot", "gobelet", "vaschetta",
+    "bandeja", "kuipje", "becher", "boite", "carton", "brique",
+    "tetra", "karton", "cartone", "caja", "bocal", "jar", "bottle",
+    "bouteille", "botella", "flasche", "fles", "flacon", "tin",
+    "lattina", "puszka", "conserve", "lata", "blik", "dose", "film",
+    "flowpack", "doypack", "sous vide", "sottovuoto", "vakuum", "vacuum",
+    "modified atmosphere", "confezione", "envase", "emballage",
+    "verpakking", "pack", "packet", "alveole", "multipack", "sleeve",
+    "wrapper", "sachet fraicheur", "wrapped", "case of", "cardboard box",
+)
+_NET_WEIGHT = re.compile(r"(?<![a-z0-9])\d+[.,]?\d*\s?(g|gr|kg|ml|cl|l)(?![a-z])")
+_MULTI_UNIT = re.compile(
+    r"(?<![a-z0-9])x\s?\d+(?![a-z0-9])"
+    r"|(?<![a-z0-9])\d+\s?(tranches|pieces|units|pcs|sachets|pots|bouteilles)(?![a-z])")
+
+
+def packaging_form(row: Dict) -> Result:
+    """packaged | unpackaged | unknown — the axis the text can actually support."""
+    t = _text(row)
+    hit = _find(t, _LOOSE_TERMS)
+    if hit:
+        return "unpackaged", "high", hit
+    hit = _find(t, _PACKED_TERMS)
+    if hit:
+        return "packaged", "high", hit
+    if _MULTI_UNIT.search(t):
+        return "packaged", "low", "multi-unit format"
+    if _NET_WEIGHT.search(t):
+        return "packaged", "low", "declared net weight"
+    return "unknown", "none", None
 
 
 def packaging_type(row: Dict) -> Result:
