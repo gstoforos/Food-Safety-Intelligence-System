@@ -1,6 +1,6 @@
 {
   "week_end": "2026-08-27",
-  "generated_utc": "2026-08-28T04:57:36+00:00",
+  "generated_utc": "2026-08-28T05:09:04+00:00",
   "row_count": 32,
   "tier1_count": 23,
   "outbreak_count": 1,
@@ -86,7 +86,7 @@
       "Notes": "e.leclerc de larmor-plage [url-gate 2026-08-25: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-25: Company ''→'LOUSSOUARN'] [promoted 2026-08-26: fiche 23324, LOUSSOUARN, riz au crabe vendu au stand traiteur, motif 'Presence de listeria monocytogenes', publie 25/08/2026. A separate fiche from the two Andre Loussouarn rows of 2026-07-28 already published. CHANGED - Reason: 'Presence of listéria monocytogenes' -> 'Presence of Listeria monocytogenes'.]",
       "DateAdded": "2026-08-26",
       "LastUpdated": "2026-08-26",
-      "LastChecked": "",
+      "LastChecked": "2026-08-28",
       "Week_Added": "2026-08-27",
       "Reviewed": "N"
     },
@@ -149,7 +149,7 @@
       "Notes": "[RASFF #2026.7464; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=868268] [gemini-enrich 2026-08-25: Brand '—'→'ROU'] [promoted 2026-08-26: RASFF - Salmonella spp. in frozen boneless skinless chicken breast, origin Ukraine, notified by Romania] [RASFF Window is a JavaScript application and returns an empty shell to any server-side fetch, so the notification page could not be read from the audit environment. Promoted on structural consistency with the published RASFF corpus and on the notifId agreeing with the URL.]",
       "DateAdded": "2026-08-26",
       "LastUpdated": "2026-08-26",
-      "LastChecked": "",
+      "LastChecked": "2026-08-28",
       "Week_Added": "2026-08-27",
       "Reviewed": "N"
     },
@@ -202,7 +202,7 @@
       "Brand": "Everything Sprouts, Calco",
       "Product": "Alfalfa Sprouts",
       "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-      "Reason": "Multistate outbreak of Shiga toxin-producing Escherichia coli (serotypes O26:H11, O103:H25 and O168:H8) and Salmonella Agona linked to alfalfa sprouts distributed by Everything Sprouts, LLC. As of 24 August 2026, 55 illnesses across 15 U.S. states had been reported, including four hospitalisations and no deaths; 46 people were infected with STEC, seven with Salmonella Agona, and two with both",
+      "Reason": "Multistate outbreak of Shiga toxin-producing Escherichia coli (serotypes O26:H11, O103:H25 and O168:H8) and Salmonella Agona linked to alfalfa sprouts distributed by Everything Sprouts, LLC. As of 24 August 2026, 55 illnesses across 15 U.S. states had been reported, including four hospitalisations and no deaths. Of the 55 reported cases, 46 involved STEC only, seven involved Salmonella Agona only, and two involved coinfection with both pathogens",
       "Class": "Recall",
       "Country": "United States",
       "Region": "North America",
@@ -359,7 +359,7 @@
       "Notes": "carrefour hypermarchés, supermarchés et proximité [url-gate 2026-08-21: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [promoted 2026-08-22: fiche 23297, Carrefour Le Marche sandwich focaccia jambon serrano 160g. CHANGED - Reason: 'Suspicion de Listeria monocytogenes' -> 'Suspected presence of Listeria monocytogenes'.]",
       "DateAdded": "2026-08-22",
       "LastUpdated": "2026-08-22",
-      "LastChecked": "",
+      "LastChecked": "2026-08-28",
       "Week_Added": "2026-08-27",
       "Reviewed": "N"
     },
