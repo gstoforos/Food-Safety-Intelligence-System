@@ -8,18 +8,18 @@
   "week_end": "2026-08-27",
   "week_start_display": "21 Aug",
   "week_end_display": "27 Aug 2026",
-  "generated_utc": "2026-08-28T19:07:50.569178+00:00",
+  "generated_utc": "2026-08-28T19:55:17.599448+00:00",
   "stats": {
-    "total": 40,
-    "tier1": 35,
+    "total": 35,
+    "tier1": 30,
     "outbreaks": 1,
-    "delta": -32,
-    "delta_pct": -44
+    "delta": -37,
+    "delta_pct": -51
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 20,
-    "pct": 50
+    "cases": 18,
+    "pct": 51
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -44,43 +44,15 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Monoprix",
-      "brand": "CASA AZZURRA",
-      "product": "GORGONZOLA DOLCE",
-      "country": "Belgium",
-      "source": "AFSCA",
-      "url": "https://www.favv-afsca.be/consommateurs/denreesalimentaires/rappels/2026/2026-08-27_Monoprix_Gorgonzola_Listeria.asp"
-    },
-    {
-      "rank": 3,
-      "date": "2026-08-27",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Jumbo",
-      "brand": "Jumbo",
-      "product": "Biologische brie",
-      "country": "Belgium",
-      "source": "AFSCA",
-      "url": "https://www.favv-afsca.be/consommateurs/denreesalimentaires/rappels/2026/2026-08-27_Jumbo_Biologische_Brie_Listeria.asp"
-    },
-    {
-      "rank": 4,
-      "date": "2026-08-27",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "CARREFOUR FRANCE CARREFOUR",
+      "company": "Carrefour Market Gometz-la-Ville",
       "brand": "Unbranded",
-      "product": "rôti de boeuf - vendu au rayon traditionnel",
+      "product": "Rôti de boeuf cuit — sold unbranded at the traditional counter",
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23343/Interne"
     },
     {
-      "rank": 5,
+      "rank": 3,
       "date": "2026-08-27",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -92,6 +64,34 @@
       "country": "Italy",
       "source": "RASFF (EU)",
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869015"
+    },
+    {
+      "rank": 4,
+      "date": "2026-08-27",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Jumbo",
+      "brand": "Jumbo",
+      "product": "Jumbo Biologische brie",
+      "country": "Netherlands",
+      "source": "NVWA (NL)",
+      "url": "https://www.nvwa.nl/actueel/nieuws/2026/08/27/veiligheidswaarschuwing-biologische-brie-van-jumbo"
+    },
+    {
+      "rank": 5,
+      "date": "2026-08-26",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Origin: Cyprus | Notifying: Germany",
+      "brand": "DEU",
+      "product": "Listeria monocytogenes in halloumi from Cyprus",
+      "country": "Cyprus",
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868574"
     }
   ],
   "country_count": 16

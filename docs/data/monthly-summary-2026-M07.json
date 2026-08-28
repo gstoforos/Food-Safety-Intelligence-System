@@ -8,15 +8,15 @@
   "window_end": "2026-07-31",
   "month_end": "2026-07-31",
   "stats": {
-    "total": 304,
-    "tier1": 232,
+    "total": 303,
+    "tier1": 231,
     "outbreaks": 4,
-    "delta": 55,
-    "delta_pct": 22
+    "delta": 56,
+    "delta_pct": 23
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 134,
+    "cases": 133,
     "pct": 44
   },
   "top_threats": [
@@ -81,14 +81,14 @@
       "outbreak": 0
     }
   ],
-  "total": 304,
-  "tier1": 232,
+  "total": 303,
+  "tier1": 231,
   "outbreaks": 4,
-  "delta": 55,
-  "delta_pct": 22,
+  "delta": 56,
+  "delta_pct": 23,
   "top_pathogen": [
     "Listeria monocytogenes",
-    134
+    133
   ],
   "top_countries": [
     [
@@ -158,14 +158,14 @@
       ],
       [
         "2026-06",
-        249
+        247
       ],
       [
         "2026-07",
-        304
+        303
       ]
     ],
-    "delta_pct": 22,
+    "delta_pct": 23,
     "direction": "up",
     "z_score": 1.0,
     "z_score_raw": 1.0,
@@ -173,7 +173,7 @@
     "baseline_n": 7,
     "baseline_too_narrow": false,
     "rolling_mean": 168.0,
-    "rolling_std": 140.4
+    "rolling_std": 140.1
   },
   "hotspots": [
     {
@@ -211,23 +211,23 @@
   ],
   "clusters": [],
   "concentration": {
-    "hhi_source": 3909.0,
+    "hhi_source": 3934.0,
     "hhi_bucket": "highly concentrated",
-    "gini_country": 0.717,
+    "gini_country": 0.718,
     "gini_bucket": "highly concentrated",
-    "tier1_share": 0.763,
+    "tier1_share": 0.762,
     "baseline_tier1_share": 0.86,
     "tier1_intensity_ratio": 0.89,
     "n_countries": 43,
     "n_sources": 16,
-    "top_country_share": 0.516
+    "top_country_share": 0.518
   },
   "severity": {
     "score": 46.3,
     "bucket": "elevated",
-    "tier1_count": 232,
+    "tier1_count": 231,
     "outbreak_count": 4,
-    "tier1_share": 0.763,
+    "tier1_share": 0.762,
     "outbreak_share": 0.013
   },
   "emerging": [],
@@ -235,20 +235,20 @@
     "status": "active",
     "n": 7,
     "n_dof": 5,
-    "slope_per_month": 50.89,
-    "intercept": 34.89,
-    "r_squared": 0.634,
-    "slope_se": 17.283,
-    "t_stat": 2.94,
+    "slope_per_month": 50.64,
+    "intercept": 35.21,
+    "r_squared": 0.631,
+    "slope_se": 17.332,
+    "t_stat": 2.92,
     "slope_significant": false,
-    "next_month_point": 391,
+    "next_month_point": 390,
     "next_month_ci95": [
-      156,
-      626
+      154,
+      625
     ],
-    "note": "Direction: rising (slope +50.9/month, r²=0.63). Estimate is exploratory — only 7 monthly observations available; a formal significance test requires n ≥ 12 (critical t at α=0.05 is approximately 2.45 with the current n−2 = 5 degrees of freedom)."
+    "note": "Direction: rising (slope +50.6/month, r²=0.63). Estimate is exploratory — only 7 monthly observations available; a formal significance test requires n ≥ 12 (critical t at α=0.05 is approximately 2.45 with the current n−2 = 5 degrees of freedom)."
   },
-  "narrative": "July 2026 produced 304 food-safety hazard recall incidents across the AFTS monitoring network, a 22% move above the prior month, a +1.0-sigma anomaly vs the prior-month baseline. Listeria monocytogenes dominated with 134 of 304 incidents (44%). The composite severity index closed at 46.3/100 (elevated), with 232 Tier-1 critical events and 4 outbreak-associated events (no temporal clustering) on record. The standout hotspot was Turkey × Ochratoxin A, with 4 recalls against an independence-baseline expectation of 0.33 (stdres +6.44).\n\nStructurally, the month reads as strongly concentrated in a few jurisdictions with mixed signal concentration (Source HHI 3909.0, Geographic Gini 0.717). For a Listeria monocytogenes-dominated month, the relevant failure modes are Listeria persistence on food-contact surfaces and in associated equipment niches, followed by post-process contamination of RTE foods, together with sanitation SOP drift and cold-chain lapses. These are the leading hypotheses for a Listeria monocytogenes-dominated month; inadequate process delivery or other control failures cannot be excluded without event-specific evidence. The Tier-1 intensity ratio of 0.89× vs the rolling baseline indicates severity is below baseline.\n\nLooking forward, operators in Listeria monocytogenes-relevant commodity categories should re-verify the single highest-leverage control this month: environmental monitoring swab frequency on RTE deli and dairy lines, or product-specific thermal lethality validation for low-moisture commodities — measured under the actual water activity, formulation and process conditions rather than a generic D-value — whichever matches their product mix. The linear-trend projection for next month stands at 391 recalls (95% CI [156, 626]), with r²=0.634, slope 50.89/month and t=2.94 on 5 degrees of freedom. The estimate is exploratory because the series is short — only 7 monthly observation(s) — and the slope is not statistically significant at α=0.05. Documentation packages should be ready for rapid regulatory response given continued inspection intensity.\n\nProcess Authority Note: This window includes Clostridium botulinum or botulism-relevant recalls. The control review for such events is product-specific. For shelf-stable low-acid, acidified, aseptic, or commercially sterile products, scheduled-process adequacy under a qualified process authority is the central control. For refrigerated anaerobic products — peeled garlic, sous-vide, vacuum or modified-atmosphere packs, smoked or fermented fish — the operative controls are validated refrigeration discipline, water-activity, pH, salt content, oxygen barrier integrity, and shelf-life qualification, with or without a thermal step. Across global jurisdictions the regulatory architecture differs but the engineering principle converges. In the United States, FDA 21 CFR 113 (thermally processed low-acid canned foods) and 21 CFR 114 (acidified foods) require a scheduled process established by a qualified process authority. In the European Union, Regulation 852/2004 imposes general hygiene and HACCP obligations on food-business operators, and Regulation 2073/2005 fixes microbiological criteria — neither is a direct equivalent of US LACF/acidified-food filing, but both presuppose process control validated against a documented hazard analysis, with national LACF/acidified-food rules layered on top in some Member States. Canada's Safe Food for Canadians Regulations, FSA / FSS in the UK, FSANZ in Australia and New Zealand, and Japan's MHLW each impose comparable preventive-control obligations. The common engineering principle: low-acid, aseptic, and commercially sterile products require a scheduled process established by a qualified process authority and executed under documented GMP oversight. Recall events in this category most commonly trace to one of: an unfiled or outdated scheduled process; a deviation resolved without qualified review; a formulation or packaging change introduced without process re-evaluation; a temperature-abuse event in the cold chain; or seal-integrity loss in anaerobic packaging. Manufacturers producing low-acid canned, acidified, fermented, or anaerobically packaged products — including refrigerated anaerobic products — should confirm with a qualified process authority that filings, multi-hurdle controls, GMP programmes, and deviation handling remain current before any production change.",
+  "narrative": "July 2026 produced 303 food-safety hazard recall incidents across the AFTS monitoring network, a 23% move above the prior month, a +1.0-sigma anomaly vs the prior-month baseline. Listeria monocytogenes dominated with 133 of 303 incidents (44%). The composite severity index closed at 46.3/100 (elevated), with 231 Tier-1 critical events and 4 outbreak-associated events (no temporal clustering) on record. The standout hotspot was Turkey × Ochratoxin A, with 4 recalls against an independence-baseline expectation of 0.33 (stdres +6.44).\n\nStructurally, the month reads as strongly concentrated in a few jurisdictions with mixed signal concentration (Source HHI 3934.0, Geographic Gini 0.718). For a Listeria monocytogenes-dominated month, the relevant failure modes are Listeria persistence on food-contact surfaces and in associated equipment niches, followed by post-process contamination of RTE foods, together with sanitation SOP drift and cold-chain lapses. These are the leading hypotheses for a Listeria monocytogenes-dominated month; inadequate process delivery or other control failures cannot be excluded without event-specific evidence. The Tier-1 intensity ratio of 0.89× vs the rolling baseline indicates severity is below baseline.\n\nLooking forward, operators in Listeria monocytogenes-relevant commodity categories should re-verify the single highest-leverage control this month: environmental monitoring swab frequency on RTE deli and dairy lines, or product-specific thermal lethality validation for low-moisture commodities — measured under the actual water activity, formulation and process conditions rather than a generic D-value — whichever matches their product mix. The linear-trend projection for next month stands at 390 recalls (95% CI [154, 625]), with r²=0.631, slope 50.64/month and t=2.92 on 5 degrees of freedom. The estimate is exploratory because the series is short — only 7 monthly observation(s) — and the slope is not statistically significant at α=0.05. Documentation packages should be ready for rapid regulatory response given continued inspection intensity.\n\nProcess Authority Note: This window includes Clostridium botulinum or botulism-relevant recalls. The control review for such events is product-specific. For shelf-stable low-acid, acidified, aseptic, or commercially sterile products, scheduled-process adequacy under a qualified process authority is the central control. For refrigerated anaerobic products — peeled garlic, sous-vide, vacuum or modified-atmosphere packs, smoked or fermented fish — the operative controls are validated refrigeration discipline, water-activity, pH, salt content, oxygen barrier integrity, and shelf-life qualification, with or without a thermal step. Across global jurisdictions the regulatory architecture differs but the engineering principle converges. In the United States, FDA 21 CFR 113 (thermally processed low-acid canned foods) and 21 CFR 114 (acidified foods) require a scheduled process established by a qualified process authority. In the European Union, Regulation 852/2004 imposes general hygiene and HACCP obligations on food-business operators, and Regulation 2073/2005 fixes microbiological criteria — neither is a direct equivalent of US LACF/acidified-food filing, but both presuppose process control validated against a documented hazard analysis, with national LACF/acidified-food rules layered on top in some Member States. Canada's Safe Food for Canadians Regulations, FSA / FSS in the UK, FSANZ in Australia and New Zealand, and Japan's MHLW each impose comparable preventive-control obligations. The common engineering principle: low-acid, aseptic, and commercially sterile products require a scheduled process established by a qualified process authority and executed under documented GMP oversight. Recall events in this category most commonly trace to one of: an unfiled or outdated scheduled process; a deviation resolved without qualified review; a formulation or packaging change introduced without process re-evaluation; a temperature-abuse event in the cold chain; or seal-integrity loss in anaerobic packaging. Manufacturers producing low-acid canned, acidified, fermented, or anaerobically packaged products — including refrigerated anaerobic products — should confirm with a qualified process authority that filings, multi-hurdle controls, GMP programmes, and deviation handling remain current before any production change.",
   "report_url": "https://fsis.advfood.tech/2026-M07.html",
   "all_month_url": "https://fsis.advfood.tech/2026-M07-all.html",
   "dashboard_url": "https://www.advfood.tech/fsis-recalls",
@@ -404,7 +404,7 @@
       "url_ok": true
     }
   ],
-  "email_html": "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937\">\n<div style=\"max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb\">\n\n<div style=\"background:#0a0e1a;color:#fff;padding:20px 24px\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em\">\nAdvanced Food-Tech Solutions <span style=\"color:#E8601A\">·</span> AFTS</div>\n<div style=\"font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px\">\nMonthly Briefing · July 2026</div>\n</div>\n\n<div style=\"padding:28px 24px 16px\">\n<h1 style=\"font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:#0a0e1a\">Hazard &amp; Pathogen Surveillance · July 2026</h1>\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px\">\n01 Jul – 31 Jul 2026 · 304 recalls · 232 Tier-1 · 4 outbreaks\n</div>\n\n<table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;border-collapse:collapse;margin-bottom:20px\">\n<tr>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#0a0e1a\">304</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Total</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#dc2626\">232</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Tier-1</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#7c3aed\">4</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Outbreaks</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:18px;color:#E8601A;font-style:italic\">Listeria monocytogenes</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Leading</div>\n</td>\n</tr>\n</table>\n\n<div style=\"background:#f9fafb;border-left:3px solid #E8601A;padding:14px 18px;margin-bottom:20px\">\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px\">Month signal</div>\n<div style=\"font-size:14px;line-height:1.55\"><strong>22%</strong> vs prior month\n\n· severity index <strong>46.3/100</strong> (elevated).</div>\n<div style=\"font-size:13px;margin-top:8px\"><strong>Top hotspot:</strong> Turkey × <em>Ochratoxin A</em> (4 recalls, 12.3× expected).</div><div style=\"font-size:13px;margin-top:8px\"><strong>Next-month forecast:</strong> 391 recalls (95% CI [156, 626]).</div>\n</div>\n\n<div style=\"text-align:center;margin:28px 0 12px\">\n<a href=\"https://fsis.advfood.tech/2026-M07.html\" target=\"_blank\" style=\"display:inline-block;background:#0a0e1a;color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px\">View Full Monthly Report →</a>\n</div>\n\n<div style=\"font-size:11px;color:#94a3b8;text-align:center;margin-top:20px\">\nAdvanced Food-Tech Solutions · advfood.tech · info@advfood.tech\n</div>\n</div>\n</div>\n</body></html>",
-  "generated_utc": "2026-08-28T18:36:05.702809+00:00",
-  "generated_at": "2026-08-28T18:36:05.702822+00:00"
+  "email_html": "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937\">\n<div style=\"max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb\">\n\n<div style=\"background:#0a0e1a;color:#fff;padding:20px 24px\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em\">\nAdvanced Food-Tech Solutions <span style=\"color:#E8601A\">·</span> AFTS</div>\n<div style=\"font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px\">\nMonthly Briefing · July 2026</div>\n</div>\n\n<div style=\"padding:28px 24px 16px\">\n<h1 style=\"font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:#0a0e1a\">Hazard &amp; Pathogen Surveillance · July 2026</h1>\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px\">\n01 Jul – 31 Jul 2026 · 303 recalls · 231 Tier-1 · 4 outbreaks\n</div>\n\n<table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;border-collapse:collapse;margin-bottom:20px\">\n<tr>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#0a0e1a\">303</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Total</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#dc2626\">231</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Tier-1</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#7c3aed\">4</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Outbreaks</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:18px;color:#E8601A;font-style:italic\">Listeria monocytogenes</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Leading</div>\n</td>\n</tr>\n</table>\n\n<div style=\"background:#f9fafb;border-left:3px solid #E8601A;padding:14px 18px;margin-bottom:20px\">\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px\">Month signal</div>\n<div style=\"font-size:14px;line-height:1.55\"><strong>23%</strong> vs prior month\n\n· severity index <strong>46.3/100</strong> (elevated).</div>\n<div style=\"font-size:13px;margin-top:8px\"><strong>Top hotspot:</strong> Turkey × <em>Ochratoxin A</em> (4 recalls, 12.3× expected).</div><div style=\"font-size:13px;margin-top:8px\"><strong>Next-month forecast:</strong> 390 recalls (95% CI [154, 625]).</div>\n</div>\n\n<div style=\"text-align:center;margin:28px 0 12px\">\n<a href=\"https://fsis.advfood.tech/2026-M07.html\" target=\"_blank\" style=\"display:inline-block;background:#0a0e1a;color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px\">View Full Monthly Report →</a>\n</div>\n\n<div style=\"font-size:11px;color:#94a3b8;text-align:center;margin-top:20px\">\nAdvanced Food-Tech Solutions · advfood.tech · info@advfood.tech\n</div>\n</div>\n</div>\n</body></html>",
+  "generated_utc": "2026-08-28T19:55:19.579302+00:00",
+  "generated_at": "2026-08-28T19:55:19.579318+00:00"
 }

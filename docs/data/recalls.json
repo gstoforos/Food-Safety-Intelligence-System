@@ -50,18 +50,18 @@
  {
   "Date": "2026-08-27",
   "Source": "RappelConso (FR)",
-  "Company": "CARREFOUR FRANCE CARREFOUR",
+  "Company": "Carrefour Market Gometz-la-Ville",
   "Brand": "Unbranded",
-  "Product": "rôti de boeuf - vendu au rayon traditionnel",
+  "Product": "Rôti de boeuf cuit — sold unbranded at the traditional counter",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria monocytogènes",
+  "Reason": "Presence of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23343/Interne",
-  "Notes": "carrefour market gometz la ville uniquement [url-gate 2026-08-27: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-27: Company ''→'CARREFOUR FRANCE CARREFOUR'] [verified 2026-08-28: rappel.conso fiche 23343 - Rôti de boeuf cuit, sans marque, Carrefour Market Gometz La Ville, Listeria monocytogenes, 27/08/2026]"
+  "Notes": "carrefour market gometz la ville uniquement [url-gate 2026-08-27: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-27: Company ''→'CARREFOUR FRANCE CARREFOUR'] [verified 2026-08-28: rappel.conso fiche 23343 - Rôti de boeuf cuit, sans marque, Carrefour Market Gometz La Ville, Listeria monocytogenes, 27/08/2026] [operator review 2026-08-28: verified vs RappelConso fiche 23343. Reason was 'Presence of listéria monocytogènes' — French spelling in an English field, breaking the English-output rule. Company was the doubled scraper string 'CARREFOUR FRANCE CARREFOUR'; the fiche names the distributor as Carrefour Market Gometz La Ville.]"
  },
  {
   "Date": "2026-08-27",
@@ -81,35 +81,19 @@
  },
  {
   "Date": "2026-08-27",
-  "Source": "AFSCA",
-  "Company": "Monoprix",
-  "Brand": "CASA AZZURRA",
-  "Product": "GORGONZOLA DOLCE",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Possible presence of Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Belgium",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.favv-afsca.be/consommateurs/denreesalimentaires/rappels/2026/2026-08-27_Monoprix_Gorgonzola_Listeria.asp",
-  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: AFSCA official domain, gate-clean. favv-afsca.be is not reachable from the review sandbox (robots/connect timeout) so the notice could not be opened; flagged for url_guardian to confirm from CI.] [en 2026-08-28: Reason translated from the regulator wording \"Présence possible de Listeria monocytogenes\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
- },
- {
-  "Date": "2026-08-27",
-  "Source": "AFSCA",
+  "Source": "NVWA (NL)",
   "Company": "Jumbo",
   "Brand": "Jumbo",
-  "Product": "Biologische brie",
+  "Product": "Jumbo Biologische brie",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Possible presence of Listeria",
   "Class": "Recall",
-  "Country": "Belgium",
+  "Country": "Netherlands",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.favv-afsca.be/consommateurs/denreesalimentaires/rappels/2026/2026-08-27_Jumbo_Biologische_Brie_Listeria.asp",
-  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.] [en 2026-08-28: Reason translated from the regulator wording \"Présence possible Listeria\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
+  "URL": "https://www.nvwa.nl/actueel/nieuws/2026/08/27/veiligheidswaarschuwing-biologische-brie-van-jumbo",
+  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.] [en 2026-08-28: Reason translated from the regulator wording \"Présence possible Listeria\" - operator rule is English everywhere except brand and product name. Meaning unchanged.] [operator review 2026-08-28: regulator and country corrected. The row was filed as AFSCA / Belgium on a favv-afsca.be URL built to a slug pattern no verified AFSCA row in this register uses. Jumbo is a Dutch retailer and the notice is the NVWA safety warning of 2026-08-27, verified live at the URL now stored.]"
  },
  {
   "Date": "2026-08-27",
@@ -225,22 +209,6 @@
  },
  {
   "Date": "2026-08-26",
-  "Source": "USDA FSIS",
-  "Company": "Shanghai Ravioli Corporation",
-  "Brand": "—",
-  "Product": "Cardboard boxes containing 100 pieces of “BUFFALO CHICKEN RANGOON” and “Sell By” dates from July 8, 2026, to June 29, 2027, represented on the label. Cardboard boxes containing 120 pieces of “BENEDETTO’S BUFFALO CHICKEN MOZZARELLA STICK” and “Sell By” dates from July 8, 2026, to June 29, 2027, repre",
-  "Pathogen": "Hepatitis A virus",
-  "Reason": "WASHINGTON, Aug. 26, 2026 – Shanghai Ravioli Corporation, in Boston, Mass., is recalling approximately 24,900 pounds of frozen, not ready-to-eat (NRTE) Buffalo chicken products that were produced without the benefit of inspection, the U.S. Department of Agriculture’s Food Safety and Inspection Service (FSIS) announced today. The frozen NRTE Buffalo chicken products were produced on various dates f",
-  "Class": "Class I",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsis.usda.gov/recalls-alerts/shanghai-ravioli-corporation-recalls-not-ready-eat-frozen-buffalo-chicken-products",
-  "Notes": "FSIS API; #018-2026; Maine Massachusetts New Hampshire Rhode Island Vermont [gemini-enrich 2026-08-27: Company ''→'Shanghai Ravioli Corporation'] [promoted 2026-08-28: official USDA FSIS scrape, Class I. Source page not reachable from the review sandbox (proxy blocks fsis.usda.gov); gate-clean, no contradiction found.] [tier-guard: Hepatitis A virus is always Tier 1; forced from Tier 2]"
- },
- {
-  "Date": "2026-08-26",
   "Source": "RASFF (EU)",
   "Company": "Origin: Cyprus | Notifying: Germany",
   "Brand": "DEU",
@@ -289,19 +257,19 @@
  },
  {
   "Date": "2026-08-26",
-  "Source": "AFSCA",
+  "Source": "NVWA (NL)",
   "Company": "Jumbo",
   "Brand": "Jumbo",
-  "Product": "Gorgonzola Dolce",
+  "Product": "Jumbo Gorgonzola Dolce (EAN 8718452637508; best-before 03/08/10-09-2026)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Possible presence of Listeria",
   "Class": "Recall",
-  "Country": "Belgium",
+  "Country": "Netherlands",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.favv-afsca.be/consommateurs/denreesalimentaires/rappels/2026/2026-08-26_Jumbo_Gorgonzola_Dolce_Listeria.asp",
-  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.] [en 2026-08-28: Reason translated from the regulator wording \"Présence possible de Listeria\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
+  "URL": "https://www.nvwa.nl/actueel/nieuws/2026/08/26/veiligheidswaarschuwing-gorgonzola-dolce-van-jumbo",
+  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.] [en 2026-08-28: Reason translated from the regulator wording \"Présence possible de Listeria\" - operator rule is English everywhere except brand and product name. Meaning unchanged.] [operator review 2026-08-28: regulator and country corrected. The row was filed as AFSCA / Belgium on a favv-afsca.be URL built to a slug pattern no verified AFSCA row in this register uses. Jumbo is a Dutch retailer and the notice is the NVWA safety warning of 2026-08-26, verified live at the URL now stored.]"
  },
  {
   "Date": "2026-08-26",
@@ -398,22 +366,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868430",
   "Notes": "[RASFF #2026.7499; classification: information notification for follow-up; category: prepared dishes and snacks; notifId=868430] [promoted 2026-08-27: RASFF - ochratoxin A in raw material for oat chips, origin Latvia, notified by Lithuania] [RASFF Window is a JavaScript application and returns an empty shell to any server-side fetch, so the notification page could not be read from the audit environment. Promoted on structural consistency with the published RASFF corpus and on the notifId agreeing with the URL.]"
- },
- {
-  "Date": "2026-08-25",
-  "Source": "FSA (UK)",
-  "Company": "Tesco",
-  "Brand": "Tesco",
-  "Product": "Tesco Finest Mozzarella Pearls & Pesto Orzo ...",
-  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "E. coli STEC",
-  "Class": "Recall",
-  "Country": "United Kingdom",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://alerts.food.gov.uk/article/6841/Tesco-recalls-Tesco-Finest-Mozzarella-Pearls--Pesto-Orzo-Salad-because-of-possible-contamination-with-E.-coli-STEC",
-  "Notes": "3 days ago · Tesco recalls Tesco Finest Mozzarella Pearls & Pesto Orzo Salad because of possible contamination with E. coli (STEC). Food Alert , 25 August 2026 ...  [via DDGS gap-finder, deterministic extract] [verified 2026-08-28: FSA-PRIN-41-2026 via data.food.gov.uk - hazard is Shiga toxin-producing E. coli (STEC), Tesco Finest Mozzarella Pearls & Pesto Orzo Salad 215g, 25/08/2026]"
  },
  {
   "Date": "2026-08-24",
@@ -654,38 +606,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867212",
   "Notes": "[RASFF #2026.7416; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=867212] [gemini-enrich 2026-08-23: Brand '—'→'FRA, DEU, ITA, BEL, ESP, GRC, SWE, DNK, AUT, CZE, SVN, SVK, ']"
- },
- {
-  "Date": "2026-08-21",
-  "Source": "FSA (UK)",
-  "Company": "Summit Foods",
-  "Brand": "Snacksters, East Street Deli, Target a Snack",
-  "Product": "Snacksters Chicken Fajita Wrap; Snacksters Hoi Sin Wrap; East Street Deli Sweet Chilli Chicken Wrap; Target a Snack Chicken Fajita Wrap",
-  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "Possible presence of Shiga toxin-producing E. coli (STEC)",
-  "Class": "Alert",
-  "Country": "United Kingdom",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://alerts.food.gov.uk/article/6837/Summit-Foods-is-recalling-various-products-because-of-possible-contamination-with-Shiga-toxin-producing-E-coli-STEC",
-  "Notes": "PRIN-40-2026 [gemini-enrich 2026-08-27: Brand '—'→'Snacksters, East Street Deli, Target a Snack'] [url-gate 2026-08-27: Gemini fixed http://data.food.gov.uk/food-alerts/id/F... -> https://www.food.gov.uk/news-alerts/aler...] [enhanced 2026-08-28: verified against FSA-PRIN-40-2026 via data.food.gov.uk (min-created 2026-08-18..24) and alerts.food.gov.uk. Stored URL was fsa-prn-40-2026 (404 at www.food.gov.uk, data.food.gov.uk and alerts.food.gov.uk) - the reference is PRIN, not PRN. Pathogen corrected from \"Escherichia coli (generic)\": the alert names Shiga toxin-producing E. coli (STEC). Company/Product were the notice headline. Tier 1 per STEC.]"
- },
- {
-  "Date": "2026-08-21",
-  "Source": "AFSCA",
-  "Company": "Meat & More",
-  "Brand": "Buurtslagers – Bon'Ap",
-  "Product": "Yorkham",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Possible presence of Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Belgium",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.favv-afsca.be/consommateurs/denreesalimentaires/rappels/2026/2026-08-21_MeatMore_Yorkham_Listeria.asp",
-  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.] [en 2026-08-28: Reason translated from the regulator wording \"Présence possible de Listeria monocytogenes\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
  },
  {
   "Date": "2026-08-20",
@@ -8480,22 +8400,6 @@
   "Notes": "cf liste jointe [url-gate 2026-07-01: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-01: fix; corrections: Company→TERRES DE MOULIN MADAME, Pathogen→Mycotoxins (T-2 toxin, HT-2 toxin); fix; company mismatch; pathogen mismatch | Company and Pathogen corrected based on page content.] [enrich-gate 2026-07-01: pending_enrichment → pending (Claude verified)] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
  },
  {
-  "Date": "2026-07-01",
-  "Source": "FSA (UK)",
-  "Company": "O'Brien Fine Foods",
-  "Brand": "O'Brien Fine Foods",
-  "Product": "ham products",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "United Kingdom",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://alerts.food.gov.uk/article/3176/OBrien-Fine-Foods-recalls-ham-products-because-of-possible-contamination-with-Listeria-monocytogenes",
-  "Notes": "O'Brien Fine Foods recalls ham products because of possible contamination with Listeria monocytogenes. Food Alert , 1 July 2026  [via Tavily gap-finder, deterministic extract] [verified 2026-08-28: alerts.food.gov.uk/article/3176 - FSA-PRIN-32-2026, O'Brien Fine Foods, Listeria monocytogenes, 01/07/2026]"
- },
- {
   "Date": "2026-06-30",
   "Source": "FSAI (IE)",
   "Company": "Brady Family; Deluxe; Tesco",
@@ -9472,22 +9376,6 @@
   "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-23: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-23: pass; pass] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
-  "Date": "2026-06-23",
-  "Source": "FSA (UK)",
-  "Company": "Prepworld",
-  "Brand": "Prepworld",
-  "Product": "fruit products",
-  "Pathogen": "Salmonella",
-  "Reason": "Possible presence of Salmonella",
-  "Class": "Recall",
-  "Country": "United Kingdom",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://alerts.food.gov.uk/article/3133/Prepworld-recalls-fruit-products-because-of-possible-contamination-with-Salmonella",
-  "Notes": "Prepworld is recalling several fruit packs after testing identified Salmonella in apple and kiwi used in the products.  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-08-27: pending_gap → pending_gap_v1] [gap-gate 2026-08-27: pending_gap_v1 → pending_gap_v2] [enhanced+verified 2026-08-28: alerts.food.gov.uk/article/3133 = FSA-PRIN-29-2026, Prepworld fruit packs, \"possible presence of Salmonella\", published 23 June 2026. Date was empty.]"
- },
- {
   "Date": "2026-06-22",
   "Source": "FDA",
   "Company": "Morningstar Farms (Kellanova)",
@@ -10046,22 +9934,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22600/Interne",
   "Notes": "leclerc - systeme u - intermarche - gemma [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→STOEFFLER Stoeffler; fix; company mismatch | Company mismatch, corrected to recalling firm from page.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [name-clean 2026-08-01: Company 'STOEFFLER Stoeffler'->'STOEFFLER'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
- },
- {
-  "Date": "2026-06-19",
-  "Source": "FSA (UK)",
-  "Company": "Traditional Cheese Company",
-  "Brand": "Traditional Cheese Company",
-  "Product": "French Bries",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "United Kingdom",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://alerts.food.gov.uk/article/3122/Traditional-Cheese-Company-recalls-French-Bries-because-of-contamination-with-Listeria-monocytogenes",
-  "Notes": "Traditional Cheese Company recalls French Bries because of contamination with Listeria monocytogenes. Food Alert , 19 June 2026  [via Tavily gap-finder, deterministic extract] [promoted 2026-08-28: FSA alerts.food.gov.uk article URL, same form as the two FSA rows verified this run.]"
  },
  {
   "Date": "2026-06-18",
