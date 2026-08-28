@@ -102,8 +102,8 @@ def test_hazard_group_places_the_real_families():
 def test_class_splits_into_two_variables():
     """Class holds an action and a severity. Reading it as one made
     'Class I' and 'Class 1' separate values of a categorical."""
-    for cls, sev in (("Class I", "i"), ("Class 1", "i"),
-                     ("Class II", "ii"), ("Class 2", "ii")):
+    for cls, sev in (("Class I", "class-i"), ("Class 1", "class-i"),
+                     ("Class II", "class-ii"), ("Class 2", "class-ii")):
         v, _t = ES.derive({"Class": cls, "Product": "", "Reason": "",
                            "Notes": "", "Pathogen": "Salmonella"})
         assert v["SeverityClass"] == sev, cls

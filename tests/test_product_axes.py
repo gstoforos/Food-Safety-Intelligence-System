@@ -253,3 +253,71 @@ class TestAmbiguousEnglishTerms(unittest.TestCase):
         self.assertEqual("flexible", packaging_type(
             R("chicken caesar — clear plastic wrapped package"))[0])
         self.assertEqual("canned", packaging_type(R("infant formula 31.7oz tin"))[0])
+
+
+# ── Regression: the regulator's category text is not product wording ─────
+# Audit 2026-08-28. _text() fed the whole Reason to the keyword matchers,
+# so the RASFF commodity family "meat and meat products (other than
+# poultry)" put the bare token "meat" in front of every matcher, and
+# "meat" sat in CONSUMPTION_TERMS["cook-before-eating"]. Every RASFF meat
+# row was cook-before-eating on the strength of a category label — 475
+# rows carried that label, 261 decided by a bare commodity word, 113 of
+# them naming a ready-to-eat food, 42 of those Listeria monocytogenes.
+
+def test_regulator_metadata_is_stripped_before_keywords_run():
+    reason = ("Listeria monocytogenes in halloumi from Cyprus; "
+              "risk: serious; category: milk and milk products")
+    kept = PA._strip_regulator_metadata(reason)
+    assert "category:" not in kept and "risk:" not in kept
+    assert "halloumi" in kept, "free text must survive untouched"
+
+
+def test_a_reason_without_metadata_is_returned_unchanged():
+    reason = "Salmonella in chicken; sold nationwide; recall notice"
+    assert PA._strip_regulator_metadata(reason) == reason
+
+
+def test_cooked_ham_under_the_rasff_meat_family_is_ready_to_eat():
+    row = {"Product": "chilled sliced cooked ham, vacuum packed 200 g",
+           "Reason": ("Listeria monocytogenes; risk: serious; "
+                      "category: meat and meat products (other than poultry)")}
+    state, _c, ev = PA.consumption_state(row)
+    assert state == "ready-to-eat", (state, ev)
+
+
+def test_a_bare_species_name_decides_nothing():
+    for word in ("meat", "pork", "chicken", "beef", "duck", "veal",
+                 "viande", "porc", "boeuf", "poulet", "dinde", "turkey",
+                 "egg", "rice", "pasta", "mushroom", "huitre"):
+        assert word not in PA.CONSUMPTION_TERMS["cook-before-eating"], word
+
+
+def test_packaging_and_sales_channel_decide_nothing():
+    for word in ("tray", "sachet", "pack", "counter", "deli",
+                 "deli counter", "rayon traditionnel", "sliced",
+                 "tranche", "date", "milk", "salmon", "herb"):
+        assert word not in PA.CONSUMPTION_TERMS["ready-to-eat"], word
+
+
+def test_a_use_by_date_does_not_make_a_food_ready_to_eat():
+    row = {"Product": "ailes de poulet jaune 800g", "Reason": "use by date 2026-08-01"}
+    state, _c, _e = PA.consumption_state(row)
+    assert state != "ready-to-eat", state
+
+
+def test_raw_poultry_at_the_deli_counter_is_cook_before_eating():
+    row = {"Product": "filet de dinde cru vendu au rayon traditionnel",
+           "Reason": "Salmonella"}
+    assert PA.consumption_state(row)[0] == "cook-before-eating"
+
+
+def test_a_flour_made_from_a_ready_to_eat_commodity_is_an_ingredient():
+    row = {"Product": "", "Reason": "Aflatoxin B1 in Groundnut flours from China"}
+    assert PA.consumption_state(row)[0] == "ingredient"
+
+
+def test_cured_raw_ham_is_still_ready_to_eat():
+    """Bare "cru" is deliberately not a cook-before-eating term: jambon cru
+    is prosciutto and is eaten exactly as sold."""
+    row = {"Product": "Sliced unsmoked raw ham (GTIN 220725903)", "Reason": "Listeria"}
+    assert PA.consumption_state(row)[0] == "ready-to-eat"

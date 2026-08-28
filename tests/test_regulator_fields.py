@@ -67,7 +67,7 @@ def test_an_unknown_risk_grade_is_rejected():
 
 def test_trailing_prose_after_a_category_is_tolerated():
     f = parse_rasff("", "[category: poultry meat. RASFF notification 852690.]")
-    assert f.food_category == "meat-raw"
+    assert f.food_category == "meat-poultry"
 
 
 def test_empty_input_is_empty_output():
@@ -77,7 +77,7 @@ def test_empty_input_is_empty_output():
 
 
 def test_every_mapped_category_targets_the_documented_vocabulary():
-    allowed = {"meat-rte", "meat-raw", "fish-seafood", "dairy-soft-cheese",
+    allowed = {"meat-poultry", "meat-other", "fish-seafood", "dairy-soft-cheese",
                "dairy-other", "eggs-egg-products", "bakery-cereal",
                "nuts-seeds", "dried-fruit", "fresh-produce", "frozen-produce",
                "herbs-spices", "confectionery-snacks", "prepared-meals",
