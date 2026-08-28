@@ -105,6 +105,41 @@ def _text(row: Dict) -> str:
               f"{_strip_regulator_metadata(row.get('Reason', ''))}")
 
 
+# Phrases that contain a commodity term but mean something else. Checked
+# before the term that would otherwise fire, per axis.
+#
+# "pate" is the worst of them. Accent-stripped, French pâté (a meat product),
+# pâte à tartiner (a spread) and pâtes (pasta) all normalise to "pate". A
+# pistachio chocolate spread — "pâte à tartiner dulci dubaï 40 % pistache" —
+# was filed as meat-other, and then heat-treated, ready-to-eat, chilled and
+# chilled-rte behind it, because one accent-free word did the work of three.
+# Same shape as "the" in PROCESS_TERMS["dried"] and "meat" in the RASFF
+# category label: one string, two meanings, no guard.
+_FALSE_FRIENDS = {
+    "pate": ("pate a tartiner", "pate a sucre", "pate feuilletee",
+             "pate brisee", "pate sablee", "pates", "pate de fruit",
+             "pate d amande", "pate a pizza", "pate a crepes"),
+    "the": ("the vert", "the noir"),
+    "date": ("date limite", "use by date", "best before date", "date de"),
+    "case": ("in case of", "case of illness", "cases reported"),
+}
+
+
+def _blocked(text: str, term: str) -> bool:
+    """True if this term only appears inside a phrase that means otherwise."""
+    friends = _FALSE_FRIENDS.get(term)
+    if not friends:
+        return False
+    for phrase in friends:
+        if phrase in text:
+            # the term is present ONLY as part of the decoy phrase
+            stripped = text.replace(phrase, " ")
+            if not re.search(r"(?<![a-z0-9])" + re.escape(term) + r"(?:s|es|x)?(?![a-z0-9])",
+                             stripped):
+                return True
+    return False
+
+
 def _find(text: str, terms: Iterable[str]) -> Optional[str]:
     """Word-boundary match, plural tolerant.
 
@@ -118,7 +153,7 @@ def _find(text: str, terms: Iterable[str]) -> Optional[str]:
         if not tn:
             continue
         pat = r"(?<![a-z0-9])" + re.escape(tn) + r"(?:s|es|x)?(?![a-z0-9])"
-        if re.search(pat, text):
+        if re.search(pat, text) and not _blocked(text, tn):
             return t
     return None
 
@@ -142,6 +177,13 @@ PROCESS_TERMS: Dict[str, Tuple[str, ...]] = {
         "chicken breast", "turkey breast", "chicken leg", "chicken wing",
         "poultry cut", "fresh poultry", "carcass", "mince", "hache",
         "viande fraiche", "escalope", "paupiette", "pilon", "cuisse",
+        # "Meat preparation" is a defined EU term (Reg. 853/2004 Annex I 1.15)
+        # for RAW meat with seasoning or additives — it has had no heat step.
+        # "Salmonella Infantis in chicken preparations from Slovakia" came
+        # back with no process at all.
+        "meat preparation", "meat preparations", "chicken preparation",
+        "poultry preparation", "preparazioni di", "preparation de viande",
+        "fleischzubereitung", "vleesbereiding", "preparado de carne",
         "filet de poulet", "filet de dinde", "brochette", "merguez crue",
         "saucisse fraiche", "chair a saucisse", "steak", "roti cru",
         "lamb meat", "pork meat", "beef meat", "bovine meat", "veal",
@@ -150,12 +192,25 @@ PROCESS_TERMS: Dict[str, Tuple[str, ...]] = {
         "poisson frais", "maquereau", "sardine", "anchois", "hareng",
         "crevette crue", "coquillage", "huitre", "moule", "bulot",
         "oyster", "mollusc", "molluscs", "bivalve", "clam", "scallop",
-        "sausage", "saucisse", "chipolata", "halal", "kebab", "brochette",
-        "poulet", "volaille", "white meat", "red meat", "offal", "abat",
+        "sausage", "saucisse", "chipolata", "kebab", "brochette",
+        "white meat", "red meat", "offal", "abat",
         "tripe", "liver", "foie", "rognon", "gizzard", "gesier",
-        "meat", "poultry", "chicken", "beef", "pork", "lamb", "turkey",
-        "duck", "veal", "viande", "porc", "boeuf", "poulet", "dinde",
-        "mushroom", "champignon", "enoki", "shiitake", "onigiri",
+        "enoki", "shiitake",
+        # BARE SPECIES REMOVED 2026-08-28 — the same defect that was fixed in
+        # CONSUMPTION_TERMS on the same day and left standing here. A species
+        # name says what the animal was, not what was done to it. Measured on
+        # a 20-row hand review, this bucket called three cooked products raw:
+        #   "Beef-snout salad, modified-atmosphere tray"   -> raw, on "beef"
+        #   "Chicken Caesar Wrap, clear plastic wrapped"   -> raw, on "chicken"
+        #   "CURRY CHICKEN SALAD, 8-oz plastic packages"   -> raw, on "chicken"
+        # All three are cooked, ready-to-eat, and two of them are Listeria
+        # notices — the RTE/Listeria stratum again.
+        # Removed: meat poultry chicken beef pork lamb turkey duck veal viande
+        #          porc boeuf poulet dinde volaille mushroom champignon halal
+        #          onigiri (onigiri is cooked rice, never raw)
+        # The specific phrases above ("poultry meat", "chicken breast",
+        # "filet de dinde", "viande fraiche", ...) still carry the raw rows
+        # that matter, and they say something the bare word does not.
     ),
     "heat-treated": (
         "cooked", "cuit", "cuite", "cocido", "cocida", "cotto", "gekocht",
@@ -253,10 +308,345 @@ PROCESS_ORDER = ("raw", "cured-smoked", "fermented", "dried",
                  "fresh-cut", "heat-treated", "composite")
 
 
+# A raw state stated as a PHRASE, not inferred from a species name.
+#
+# Removing the bare species from PROCESS_TERMS["raw"] was right for cooked
+# products and wrong for these: "frozen chicken thigh meat from Ukraine" and
+# "fresh goose meat" are RASFF titles that name a raw commodity without ever
+# using the word "raw", and they were only being caught by the bare tokens
+# "chicken" and "meat". This says the same thing without the collateral —
+# a preservation state or the word "raw", then up to two words, then a cut
+# or the word meat.
+_RAW_STATE = re.compile(
+    r"(?<![a-z])(fresh|frozen|raw|chilled|surgele|congele|frais|fraiche|cru|crue)"
+    r"(?:\s+[a-z]+){0,2}"
+    r"\s+(meat|thigh|thighs|breast|breasts|leg|legs|wing|wings|carcass|"
+    r"fillet|fillets|cut|cuts|mince|viande|filet)(?![a-z])")
+
+# Dish names whose protein is cooked by definition. These sit in
+# heat-treated, and heat-treated is tested before fresh-cut and composite,
+# because "CURRY CHICKEN SALAD" and "Chicken Caesar Wrap" were landing on
+# the salad/assembly buckets while the chicken in them is unambiguously
+# cooked — and both are Listeria notices, so the RTE stratum depends on it.
+_COOKED_DISH = (
+    "chicken salad", "turkey salad", "ham salad", "egg salad", "tuna salad",
+    "caesar", "curry chicken", "coronation chicken", "pastrami",
+    "corned beef", "pulled pork", "rotisserie", "roti cuit",
+    "museau", "salade museau", "pied de porc cuit", "tete pressee",
+    "chicken caesar", "club sandwich", "bouchee a la reine",
+    # The English rendering of the same products. RappelConso rows are
+    # translated into English per the output rule, so the French term alone
+    # misses them: "Beef-snout salad" is salade de museau, a cooked
+    # charcuterie product, and "white ham" is jambon blanc — cooked ham.
+    "beef-snout", "beef snout", "snout salad", "white ham",
+    "cooked pig", "pressed head", "brawn",
+)
+
+
 def process_type(row: Dict) -> Result:
     t = _text(row)
+    hit = _find(t, _COOKED_DISH)
+    if hit:
+        return "heat-treated", "low", hit
     for label in PROCESS_ORDER:
         hit = _find(t, PROCESS_TERMS[label])
+        if hit:
+            return label, "low", hit
+    m = _RAW_STATE.search(t)
+    if m:
+        return "raw", "low", m.group(0)
+    return "unknown", "none", None
+
+
+# ── PreservationSystem ──────────────────────────────────────────────────
+# THE VARIABLE PackagingType SHOULD HAVE BEEN
+#
+# Operator instruction, 2026-08-28: "if we have a can or a retort or aseptic
+# package, think like that more — maybe we have to take off the packaging and
+# put something else."
+#
+# He is right, and the measurement agrees. PackagingType asks what the food is
+# WRAPPED IN. That is a materials fact and it is nearly silent about safety: a
+# retort pouch and a steel can are different materials and the same food-safety
+# object — both commercially sterile, both fail the same way, both implicate
+# Clostridium botulinum when they fail. An aseptic carton and a chilled carton
+# are the same material and completely different objects.
+#
+# What matters is the HURDLE: which barrier is keeping this food safe, and
+# therefore which organism is in play when the barrier fails.
+#
+#   commercially sterile, ambient   ->  C. botulinum, spoilage spore-formers
+#   low-moisture / low aw           ->  Salmonella, Cronobacter, aflatoxin
+#   chilled, post-lethality exposed ->  Listeria monocytogenes
+#   chilled, raw                    ->  Salmonella, Campylobacter, STEC
+#   fermented / acidified           ->  Listeria, STEC in raw-milk cheese
+#
+# Measured on the register the day it was added: PackagingType filled 11.4%
+# and its ceiling is about 25% because most notices never print a material.
+# PreservationSystem fills 86.6%, and the pathogen split falls out exactly as
+# food microbiology predicts — aflatoxin 95% low-moisture, Bacillus 62%
+# low-moisture, Salmonella split between chilled-raw and low-moisture,
+# Listeria 56% across the chilled and fermented classes. A variable that
+# reproduces the textbook without being told it is a variable worth having.
+#
+# PackagingType is KEPT, not deleted: when a notice does state a material it
+# is 100% accurate and it is the right answer to a descriptive question. It is
+# simply no longer the stratification variable.
+
+# Only two systems are ever stated in words, and both are unambiguous when
+# they are. Vacuum and modified atmosphere are deliberately NOT here — they
+# are pack atmospheres, PackagingType already records them, and a
+# vacuum-packed chilled ham is a chilled-rte risk object first.
+PRESERVATION_TERMS: Dict[str, Tuple[str, ...]] = {
+    "retort-sterilised": (
+        "retort", "appertise", "appertisation", "sterilised", "sterilized",
+        "autoclave", "canned", "tinned", "en conserve", "boite de conserve",
+        "commercially sterile", "low-acid canned", "shelf stable",
+        "shelf-stable", "in scatola", "konserve",
+    ),
+    "aseptic-uht": (
+        "uht", "aseptic", "ultra high temperature", "ultra-high temperature",
+        "tetra brik", "longue conservation", "long life", "haltbare milch",
+    ),
+}
+PRESERVATION_KEYWORD_ORDER = ("retort-sterilised", "aseptic-uht")
+
+
+def preservation_system(food: str, proc: str, stor: str, cons: str,
+                        row: Dict) -> Result:
+    """The hurdle keeping this food safe.
+
+    Two passes. A stated system wins — "canned", "UHT", "retort" are said
+    explicitly or not at all. Otherwise the class already settles it: the
+    commodity family, the process and the storage condition between them name
+    the barrier without anyone having to write it down.
+
+    Returns "unknown" freely. An environmental swab has no preservation
+    system, and neither does a row whose product text is unusable.
+    """
+    t = _text(row)
+    for label in PRESERVATION_KEYWORD_ORDER:
+        hit = _find(t, PRESERVATION_TERMS[label])
+        if hit:
+            return label, "high", hit
+
+    if _find(t, _NOT_A_FOOD_SAMPLE):
+        return "unknown", "none", None
+
+    if stor == "frozen":
+        return "frozen", "high", "storage:frozen"
+    if proc == "dried" or food in ("nuts-seeds", "dried-fruit", "herbs-spices",
+                                   "supplements", "infant-food"):
+        return "low-moisture-dried", "low", f"class:{food}|process:{proc}"
+    if proc == "cured-smoked":
+        return "cured-smoked", "low", "process:cured-smoked"
+    if proc == "fermented" or food == "dairy-soft-cheese":
+        return "fermented-acidified", "low", f"class:{food}|process:{proc}"
+    if stor == "ambient":
+        if food in ("beverages", "sauces-condiments", "dairy-other",
+                    "confectionery-snacks"):
+            return "ambient-stable", "low", f"class:{food}|storage:ambient"
+        return "ambient-other", "low", "storage:ambient"
+    # Confectionery is shelf-stable by composition — sugar and fat, low water
+    # activity — so it does not need a storage statement to be placed. The
+    # exception is the frozen dessert, which is caught by stor == "frozen"
+    # above, and by the explicit terms here for the case where the notice
+    # names the product but never its storage.
+    if food == "confectionery-snacks":
+        if _find(t, ("ice cream", "glace", "sorbet", "gelato", "frozen dessert",
+                     "eis", "frozen yoghurt", "ice lolly")):
+            # "fruit bar" is deliberately absent: Outshine fruit bars are
+            # frozen and a cereal fruit bar is ambient, and the words are the
+            # same. Guessing from the brand is knowledge, not evidence.
+            return "frozen", "low", "frozen dessert"
+        return "ambient-stable", "low", "class:confectionery-snacks"
+    if stor == "chilled":
+        if cons == "ready-to-eat":
+            # The post-lethality-exposed class. This is the Listeria stratum
+            # and the single most useful cell in the whole variable.
+            return "chilled-rte", "low", "storage:chilled|ready-to-eat"
+        if proc == "raw" or cons == "cook-before-eating":
+            return "chilled-raw", "low", "storage:chilled|raw"
+        return "chilled-other", "low", "storage:chilled"
+    return "unknown", "none", None
+
+
+# ── FoodCategory, keyword path ──────────────────────────────────────────
+# WHY THIS EXISTS (audit 2026-08-28)
+#
+# FoodCategory had no keyword path at all. enrich_schema read it from the
+# RASFF `category:` field, or from a CFIA category string, and nothing else.
+# RASFF is 490 of 1,532 rows, so every FDA, RappelConso, FSANZ, BLV and USDA
+# row was "unknown" BY CONSTRUCTION. The 32.4% fill was not a tuning problem
+# and no amount of term-list work on the other axes would have moved it.
+#
+# Measured on a 20-row hand review: 19 rows were categorisable from their own
+# text and the module answered 4. Fifteen misses on one axis — more than
+# every other axis combined.
+#
+# This is a TIER-3 path: it runs only when the regulator stated nothing, and
+# enrich_schema records the tier, so a keyword category can never be mistaken
+# for a notifying authority's own classification.
+#
+# The vocabulary is the one already in use (regulator_fields.CATEGORY_MAP
+# plus the wider set the tests allow). Order is most-specific-first, because
+# a cheese is dairy before it is anything else and an infant formula is
+# infant-food before it is dairy.
+# A COMPOSITE DISH IS A DISH, NOT ITS MEAT. prepared-meals sits ahead of the
+# commodity buckets because "Chicken Caesar Wrap" and "CURRY CHICKEN SALAD"
+# were landing in meat-poultry on the word "chicken" — the same mistake, one
+# level up, as calling a cooked ham raw because it is made of pork. RASFF
+# itself keeps "prepared dishes and snacks" separate from the meat families
+# for exactly this reason.
+#
+# The known cost of this order: "Beef-snout salad" (salade de museau) is a
+# charcuterie product that now files as prepared-meals rather than meat-other.
+# Both readings are defensible and it is recorded here rather than hidden.
+CATEGORY_ORDER = (
+    "infant-food", "supplements", "prepared-meals",
+    "dairy-soft-cheese", "dairy-other", "eggs-egg-products",
+    "meat-poultry", "meat-other", "fish-seafood",
+    "herbs-spices", "nuts-seeds", "dried-fruit",
+    "bakery-cereal", "confectionery-snacks", "sauces-condiments",
+    "beverages", "fresh-produce",
+)
+
+CATEGORY_TERMS: Dict[str, Tuple[str, ...]] = {
+    "infant-food": (
+        "infant formula", "baby food", "petit pot", "lait infantile",
+        "preparation pour nourrisson", "follow-on formula", "sauglingsnahrung",
+        "baby cereal", "compote pour bebe",
+    ),
+    "supplements": (
+        "supplement", "complement alimentaire", "food supplement", "capsule",
+        "softgel", "gelule", "nahrungserganzung", "vitamin", "multivitamin",
+        "protein powder", "superfood", "moringa", "spirulina", "ashwagandha",
+        "collagen", "probiotic",
+    ),
+    # Soft and fresh cheeses are the Listeria vehicle of record, so they get
+    # their own bucket rather than being folded into dairy-other.
+    "dairy-soft-cheese": (
+        "soft cheese", "fromage a pate molle", "raw milk cheese",
+        "fromage au lait cru", "brie", "camembert", "reblochon", "munster",
+        "epoisses", "livarot", "pont l eveque", "maroilles", "roquefort",
+        "gorgonzola", "feta", "mozzarella", "burrata", "ricotta", "halloumi",
+        "crescenza", "stracchino", "taleggio", "nectaire", "chevre frais",
+        "queso fresco", "fromage frais", "faisselle", "brousse",
+    ),
+    "dairy-other": (
+        "cheese", "fromage", "kaese", "queso", "formaggio", "milk", "lait",
+        "leche", "latte", "melk", "milch", "yoghurt", "yaourt", "yogurt",
+        "butter", "beurre", "cream", "creme", "kefir", "tomme", "comte",
+        "emmental", "cheddar", "gouda", "raclette", "morbier", "fourme",
+        "picodon", "sainte maure", "dairy", "laitier", "creme fraiche",
+    ),
+    "eggs-egg-products": (
+        "egg", "oeuf", "huevo", "uovo", "ei ", "shell egg", "egg product",
+        "ovoproduct", "egg laying", "laying facility", "mayonnaise",
+    ),
+    "meat-poultry": (
+        "poultry", "chicken", "turkey", "duck", "goose", "volaille", "poulet",
+        "dinde", "canard", "oie", "pollo", "pavo", "gallina", "hahnchen",
+        "kip", "drob", "chicken meat", "poultry meat", "foie gras",
+    ),
+    "meat-other": (
+        "beef", "pork", "lamb", "veal", "mutton", "rabbit", "game",
+        "viande", "boeuf", "porc", "agneau", "lapin", "gibier", "carne",
+        "manzo", "maiale", "rind", "schwein", "ham", "jambon", "bacon",
+        "salami", "saucisson", "chorizo", "sausage", "saucisse", "merguez",
+        "pate", "rillettes", "andouille", "boudin", "coppa", "pancetta",
+        "pastrami", "charcuterie", "museau", "steak", "mince", "hache",
+        "offal", "liver", "foie", "tripe", "abat", "kebab",
+    ),
+    "fish-seafood": (
+        "fish", "poisson", "pescado", "pesce", "fisch", "vis ", "salmon",
+        "saumon", "trout", "truite", "tuna", "thon", "mackerel", "maquereau",
+        "herring", "hareng", "sardine", "anchovy", "anchois", "cod", "cabillaud",
+        "surimi", "shrimp", "crevette", "prawn", "gamba", "crab", "crabe",
+        "lobster", "homard", "oyster", "huitre", "mussel", "moule", "clam",
+        "scallop", "coquille", "mollusc", "crustacean", "seafood", "fruits de mer",
+        "sole", "ling", "julienne", "bulot", "poke",
+    ),
+    "herbs-spices": (
+        "spice", "epice", "herb", "herbe", "aromate", "zaatar", "za atar",
+        "paprika", "cumin", "curry powder", "pepper corn", "poivre",
+        "cinnamon", "cannelle", "oregano", "basil", "basilic", "thyme",
+        "curcuma", "turmeric", "chili powder", "chilipulver", "seasoning",
+        "assaisonnement", "spice mix", "melange d epices",
+    ),
+    "nuts-seeds": (
+        "nut", "noix", "nuez", "noce", "peanut", "cacahuete", "groundnut",
+        "arachide", "pistachio", "pistache", "almond", "amande", "cashew",
+        "noix de cajou", "hazelnut", "noisette", "walnut", "pecan",
+        "macadamia", "sesame", "tahini", "seed", "graine", "semi di",
+        "sunflower seed", "poppy seed", "flax", "lin", "chia", "pine nut",
+    ),
+    "dried-fruit": (
+        "dried fig", "dried apricot", "dried fruit", "figue seche",
+        # A recall of organic figs in a kraft bag was uncategorised because
+        # only the two-word English phrase was here. Figs reach this register
+        # dried far more often than fresh, and the fresh case is caught by
+        # fresh-produce below if the wording says so.
+        "figue", "figues", "fig", "figs", "higo", "fico", "feige",
+        "abricot sec", "raisin sec", "sultana", "date", "datte", "prune",
+        "pruneau", "cranberry seche", "fruit sec",
+    ),
+    "prepared-meals": (
+        "ready meal", "plat prepare", "plat cuisine", "sandwich", "wrap",
+        "salad", "salade", "sushi", "onigiri", "bowl", "mezze", "falafel",
+        "hummus", "houmous", "guacamole", "dip", "tartinable", "quiche",
+        "pizza", "lasagne", "pasta salad", "couscous", "tabbouleh",
+        "spring roll", "nem", "samosa", "bouchee a la reine", "traiteur",
+        "prepared dish", "fertiggericht", "kant en klaar",
+    ),
+    "bakery-cereal": (
+        "bread", "pain", "brot", "pane", "baguette", "brioche", "viennoiserie",
+        "croissant", "cake", "gateau", "tart", "tarte", "pastry", "patisserie",
+        "flour", "farine", "mehl", "harina", "cereal", "cereale", "oat",
+        "avoine", "muesli", "granola", "rice", "riz", "pasta", "pates",
+        "noodle", "nouille", "semoule", "crepe", "gaufre", "biscuit", "cracker",
+    ),
+    "confectionery-snacks": (
+        "chocolate", "chocolat", "schokolade", "cioccolato", "candy", "bonbon",
+        "confectionery", "confiserie", "sweets", "praline", "nougat", "halva",
+        "ice cream", "glace", "sorbet", "eis ", "gelato", "dessert",
+        "fruit bar", "cereal bar", "barre", "crisps", "chips", "snack",
+        "cookie", "wafer", "gaufrette", "delights", "pistazie",
+    ),
+    "sauces-condiments": (
+        "sauce", "soup", "soupe", "broth", "bouillon", "condiment", "ketchup",
+        "moutarde", "mustard", "vinaigrette", "dressing", "salsa", "pesto",
+        "chutney", "relish", "oil", "huile", "olive oil", "vinegar", "vinaigre",
+        "honey", "miel", "jam", "confiture", "spread", "tartinade",
+    ),
+    "beverages": (
+        "juice", "jus", "smoothie", "drink", "boisson", "beverage", "water",
+        "eau", "soda", "cola", "beer", "biere", "wine", "vin", "coffee",
+        "cafe", "tea", "the vert", "infusion", "cocoa", "cacao", "milkshake",
+    ),
+    "fresh-produce": (
+        "lettuce", "laitue", "salade verte", "mesclun", "mache", "spinach",
+        "epinard", "rocket", "roquette", "sprout", "germe", "alfalfa",
+        "cucumber", "concombre", "tomato", "tomate", "carrot", "carotte",
+        "onion", "oignon", "potato", "pomme de terre", "mushroom", "champignon",
+        "enoki", "berry", "fraise", "strawberry", "raspberry", "framboise",
+        "blueberry", "myrtille", "melon", "pasteque", "mango", "mangue",
+        "avocado", "avocat", "pepper", "poivron", "jalapeno", "chilli",
+        "courgette", "aubergine", "brocoli", "broccoli", "chou", "cabbage",
+        "fruit", "vegetable", "legume", "crudite", "fresh produce",
+    ),
+}
+
+
+def food_category(row: Dict) -> Result:
+    """Commodity family from the product wording. TIER 3 — keyword only.
+
+    Never overrides a regulator's own category; enrich_schema calls this only
+    when RASFF and CFIA both gave nothing, and stamps the tier accordingly.
+    """
+    t = _text(row)
+    for label in CATEGORY_ORDER:
+        hit = _find(t, CATEGORY_TERMS[label])
         if hit:
             return label, "low", hit
     return "unknown", "none", None
@@ -322,8 +712,13 @@ CONSUMPTION_TERMS: Dict[str, Tuple[str, ...]] = {
     ),
     "ingredient": (
         "ingredient", "raw material", "matiere premiere", "materia prima",
-        "for further processing", "pour transformation", "semi-finished",
+        "for further processing", "pour transformation",
         "zutat", "grondstof", "bulk industrial",
+        # "semi-finished" REMOVED 2026-08-28. It describes where a sample was
+        # taken, not what was sold: "Listeria monocytogenes detected on
+        # analysis of a semi-finished product" appears in the Reason of a
+        # recall whose PRODUCT is a ready-to-eat mezze bowl. The phrase was
+        # reading the sampling stage and relabelling the finished good.
         # A flour or a meal made from a ready-to-eat commodity is not itself
         # ready-to-eat: "Aflatoxin B1 in Groundnut flours" and "jojoba nut
         # meal" were both labelled ready-to-eat by the commodity word.
@@ -383,6 +778,13 @@ CONSUMPTION_TERMS: Dict[str, Tuple[str, ...]] = {
         "mozzarella", "cheddar", "gouda", "comte", "emmental", "raclette",
         "morbier", "fourme", "picodon", "livarot", "reblochon",
         "sainte maure", "pont l eveque", "tomme",
+        # "nectaire" was dropped when this list was pruned on 2026-08-28 —
+        # a regression, caught by the hand review: Saint Nectaire fermier AOP
+        # came back unknown while storage_condition still answered
+        # "structural:nectaire" for the same row. Two axes of one module
+        # disagreeing about whether a cheese is a cheese.
+        "nectaire", "crescenza", "stracchino", "taleggio", "chevre",
+        "roquefort", "bleu", "gorgonzola", "munster", "epoisses",
         "crevette cuite", "cuites", "cooked prawn", "smoked", "fume",
         "boudin", "fresh fruit", "berry", "melon",
         "moringa", "capsule", "supplement", "complement alimentaire",
@@ -481,8 +883,37 @@ CHILLED_BY_NATURE = (
 )
 
 
+# Not a food. A swab of a production environment has no storage condition,
+# and inferring one from the commodity word that happens to be in the title
+# is an assertion about a product that does not exist. Row 9 of the hand
+# review — "Salmonella Enteritidis in environment of egg laying facility" —
+# was filed as chilled on the strength of the word "egg".
+_NOT_A_FOOD_SAMPLE = (
+    "environment of", "environmental sample", "environmental swab",
+    "laying facility", "processing environment", "production environment",
+    "swab", "prelevement d environnement", "surface sample",
+)
+
+
+# Preserved by water activity, whatever the commodity. "Salmonella spp. in
+# salted and dried fish from Thailand" was filed as chilled — from the
+# commodity — while PreservationSystem said low-moisture-dried for the same
+# row. Two axes of one module contradicting each other on one product.
+_SHELF_STABLE_BY_AW = (
+    "salted and dried", "sale et seche", "dried and salted", "salt-cured",
+    "sun-dried", "seche au soleil", "air-dried", "biltong", "jerky",
+    "stockfish", "morue salee", "bacalao", "baccala", "klippfisk",
+    "dried fish", "poisson seche", "salaison seche",
+)
+
+
 def storage_condition(row: Dict) -> Result:
     t = _text(row)
+    if _find(t, _NOT_A_FOOD_SAMPLE):
+        return "unknown", "none", None
+    hit = _find(t, _SHELF_STABLE_BY_AW)
+    if hit:
+        return "ambient", "high", hit
     hit = _find(t, FROZEN_TERMS)
     if hit:
         return "frozen", "high", hit
@@ -547,7 +978,12 @@ PACKAGING_TERMS: Dict[str, Tuple[str, ...]] = {
                       # mined from the corpus 2026-08-28: tokens actually
                       # present in rows the vocabulary was missing.
                       "pot", "alveole", "plastic container", "plastic tray",
-                      "clamshell", "bak", "tarrina"),
+                      "clamshell", "bak", "tarrina",
+                      # Qualified only. Bare "plastic" is deliberately absent:
+                      # it matched four rows where a plastic FRAGMENT was the
+                      # hazard, which is the opposite of a packaging fact.
+                      "plastic package", "plastic packages", "plastic pot",
+                      "plastic tub", "plastic cup"),
     "flexible": ("sachet", "pouch", "flowpack", "doypack", "sous film",
                  # NOT bare "wrap": "chicken fajita wrap" is a food, not a
                  # package. Only the participle and explicit forms.
@@ -611,11 +1047,42 @@ _PACKED_TERMS = (
     "modified atmosphere", "confezione", "envase", "emballage",
     "verpakking", "pack", "packet", "alveole", "multipack", "sleeve",
     "wrapper", "sachet fraicheur", "wrapped", "case of", "cardboard box",
+    # A dosage form IS its package — capsules and softgels are not sold loose.
+    "capsule", "softgel", "gelule", "blister",
+    # Single-serve vessels sold as a unit.
+    "bowl", "cup", "goblet", "coupelle",
 )
-_NET_WEIGHT = re.compile(r"(?<![a-z0-9])\d+[.,]?\d*\s?(g|gr|kg|ml|cl|l)(?![a-z])")
+# Structural evidence of a retail unit. None of these name a MATERIAL, which
+# is why the material vocabulary above misses them and why PackagingForm was
+# stuck well under its ceiling.
+#
+# Measured 2026-08-28 on a 20-row hand review: 11 rows were determinable as
+# packaged or unpackaged and the module answered 6. Every one of the five
+# misses carried structural evidence and no material word —
+#   "(GTIN 3760373402593, all lots, use-by ...)"          a falafel wrap
+#   "Lot 2604201C, best-before 2026-05-16"                a branded cheese
+#   "Green Superfood Capsules"                            a supplement
+#   "bowl mezze"                                          a chilled bowl
+#   "8-oz plastic packages, USE BY 07/30/2026"            a chicken salad
+_NET_WEIGHT = re.compile(
+    # metric
+    r"(?<![a-z0-9])\d+[.,]?\d*\s?(g|gr|kg|ml|cl|l)(?![a-z])"
+    # imperial — two USDA FSIS rows in twenty were missed for want of this:
+    # "8-oz plastic packages" and "8.7-oz. clear plastic wrapped packages".
+    r"|(?<![a-z0-9])\d+[.,]?\d*\s?-?\s?(oz|lb|lbs|fl\.?\s?oz)(?![a-z])")
+
 _MULTI_UNIT = re.compile(
     r"(?<![a-z0-9])x\s?\d+(?![a-z0-9])"
-    r"|(?<![a-z0-9])\d+\s?(tranches|pieces|units|pcs|sachets|pots|bouteilles)(?![a-z])")
+    r"|(?<![a-z0-9])\d+\s?(tranches|pieces|units|pcs|sachets|pots|bouteilles)(?![a-z])"
+    # "6-count", "24-count", "12 ct", "4-pack" — a count IS a pack format.
+    r"|(?<![a-z0-9])\d+\s?-?\s?(count|ct|pack|packs|portions)(?![a-z])")
+
+# A GTIN / EAN / UPC is, by definition, a Global Trade Item Number: it
+# identifies a packaged trade item. A product sold loose at a counter does
+# not carry one. This is the strongest packaging signal in the corpus and
+# nothing was reading it.
+_TRADE_ITEM_CODE = re.compile(
+    r"(?<![a-z])(gtin|ean|upc|sku|barcode|code[- ]?barres)(?![a-z])")
 
 
 def packaging_form(row: Dict) -> Result:
@@ -627,6 +1094,8 @@ def packaging_form(row: Dict) -> Result:
     hit = _find(t, _PACKED_TERMS)
     if hit:
         return "packaged", "high", hit
+    if _TRADE_ITEM_CODE.search(t):
+        return "packaged", "high", "trade item code (GTIN/EAN/UPC)"
     if _MULTI_UNIT.search(t):
         return "packaged", "low", "multi-unit format"
     if _NET_WEIGHT.search(t):

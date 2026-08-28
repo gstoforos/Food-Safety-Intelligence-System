@@ -59,7 +59,7 @@ VERSION = "enrich-schema/1"
 # Order matters: this is the order they are appended to the sheet.
 COLUMNS: Tuple[str, ...] = (
     "FoodCategory", "ProcessType", "ConsumptionState", "StorageCondition",
-    "PackagingType", "PackagingForm", "HazardGroup", "HazardCertainty",
+    "PackagingType", "PackagingForm", "PreservationSystem", "HazardGroup", "HazardCertainty",
     "NoticeType", "SeverityClass", "EventID",
     "EnrichedBy", "EnrichedAt", "EnrichmentTier",
 )
@@ -71,6 +71,13 @@ COLUMNS: Tuple[str, ...] = (
 # severity rather than as action.
 _NOTICE_FROM_CLASS = {
     "border rejection": "border-rejection",
+    # FDA and CFIA state a SEVERITY class where other sources state an action.
+    # "Class I" carried a severity but no notice type at all, so an FDA
+    # Class I recall — the most serious category there is — had a blank in
+    # the field that says what kind of notice it was.
+    "class i": "consumer-recall", "class ii": "consumer-recall",
+    "class iii": "consumer-recall", "class 1": "consumer-recall",
+    "class 2": "consumer-recall", "class 3": "consumer-recall",
     "voluntary": "consumer-recall",
     "mandatory": "consumer-recall",
     "recall": "consumer-recall",
@@ -118,10 +125,59 @@ _NOT_A_HAZARD = ("unspecified hazard", "none (", "organoleptic",
                  "incomplete pasteurization", "labeling", "labelling")
 
 
+# Organisms whose NAME contains a hazard word that belongs to another group.
+# Checked before the rule table, because the table matches substrings and
+# "Shiga toxin-producing E. coli" contains "toxin".
+#
+# Measured 2026-08-28 on a 20-row hand review: rows 2 and 15 were filed as
+# "biotoxin". Worse than simply wrong — bare "STEC" fell through to
+# pathogen-bacterial, so the SAME organism landed in two different hazard
+# groups depending on which of its names the notifying authority used, and
+# any stratification on HazardGroup silently split it in half.
+_ORGANISM_OVERRIDES = (
+    ("shiga toxin", "pathogen-bacterial"),
+    ("shigatoxin", "pathogen-bacterial"),
+    ("verotoxin", "pathogen-bacterial"),
+    ("vtec", "pathogen-bacterial"),
+    ("stec", "pathogen-bacterial"),
+    ("toxin-producing", "pathogen-bacterial"),
+    ("toxigenic", "pathogen-bacterial"),
+)
+
+
+def _notice_from_class(cls: str) -> str:
+    """Map a source's Class string to a controlled notice type.
+
+    SUBSTRING, not exact match (audit 2026-08-28). The lookup was
+    `_NOTICE_FROM_CLASS.get(cls)`, which requires the Class cell to equal a
+    key exactly. Two of the six continuous sources never do:
+
+        CFIA        "Food recall warning"   -> unknown
+        USDA FSIS   "Public Health Alert"   -> unknown
+
+    Three rows in a twenty-row sample lost their notice type to this, and
+    both sources publish every one of their notices under those exact words,
+    so the loss is systematic rather than incidental.
+
+    Longest key first, so "border rejection" is not shadowed by a shorter
+    key that also appears in the string.
+    """
+    c = (cls or "").strip().lower()
+    if not c:
+        return ""
+    for needle in sorted(_NOTICE_FROM_CLASS, key=len, reverse=True):
+        if needle in c:
+            return _NOTICE_FROM_CLASS[needle]
+    return ""
+
+
 def _hazard_group(pathogen: str) -> str:
     p = (pathogen or "").strip().lower()
     if not p:
         return "unknown"
+    for needle, group in _ORGANISM_OVERRIDES:
+        if needle in p:
+            return group
     for needle, group in _HAZARD_GROUP_RULES:
         if needle in p:
             return group
@@ -141,6 +197,69 @@ def _first(*vals: str) -> str:
         if v and v not in ("unknown", ""):
             return v
     return "unknown"
+
+
+
+# ── Structural fallback: what the commodity class already settles ────────
+#
+# Runs ONLY when the keyword pass returned "unknown", and only from two axes
+# that have themselves been derived — never from raw text a second time. The
+# evidence string records which pair decided it, so a structural answer is
+# always separable from a term match in an audit.
+#
+# WHY. After the keyword fixes of 2026-08-28, ConsumptionState was still the
+# weakest axis at 44% on the hand-reviewed sample: ten of twenty rows were
+# answerable and came back unknown. Every one of them was answerable from
+# the commodity class rather than from any word in the product name — a bag
+# of dried figs, a chocolate snack, a spice mix, frozen chicken thigh meat.
+# Naming the pair is not a guess; "a spice mix is added to food" and "raw
+# poultry is cooked before eating" are facts about the class, not readings
+# of the string.
+#
+# Deliberately NOT covered: bakery-cereal (flour and dry pasta are cooked,
+# biscuits are not — the class does not settle it), fish-seafood (oysters
+# raw, cod cooked), dairy-other (raw milk vs cheese), eggs, fresh-produce.
+# Those stay unknown, which is the correct answer.
+_CONSUMPTION_FROM_CLASS = {
+    ("herbs-spices",         None):            "ingredient",
+    ("supplements",          None):            "ready-to-eat",
+    ("confectionery-snacks", None):            "ready-to-eat",
+    ("dried-fruit",          None):            "ready-to-eat",
+    ("nuts-seeds",           None):            "ready-to-eat",
+    ("beverages",            None):            "ready-to-eat",
+    ("dairy-soft-cheese",    None):            "ready-to-eat",
+    ("prepared-meals",       "heat-treated"):  "ready-to-eat",
+    ("prepared-meals",       "composite"):     "ready-to-eat",
+    ("prepared-meals",       "fresh-cut"):     "ready-to-eat",
+    ("prepared-meals",       "unknown"):       "ready-to-eat",
+    ("meat-poultry",         "raw"):           "cook-before-eating",
+    ("meat-other",           "raw"):           "cook-before-eating",
+    ("fresh-produce",        "dried"):         "ready-to-eat",
+}
+
+# A dried commodity that is eaten as sold keeps at ambient. Confined to the
+# classes where "dried" means shelf-stable, not "flour waiting to be baked".
+_STORAGE_FROM_CLASS = {
+    ("nuts-seeds",           "dried"): "ambient",
+    ("dried-fruit",          "dried"): "ambient",
+    ("dried-fruit",          None):    "ambient",
+    ("herbs-spices",         "dried"): "ambient",
+    ("herbs-spices",         None):    "ambient",
+    ("fresh-produce",        "dried"): "ambient",
+    ("supplements",          "dried"): "ambient",
+    ("confectionery-snacks", "dried"): "ambient",
+    ("dairy-soft-cheese",    None):    "chilled",
+}
+
+
+def _from_class(table, food: str, proc: str, current: str) -> tuple:
+    """(value, evidence) — leaves a known value alone."""
+    if current and current != "unknown":
+        return current, ""
+    for key in ((food, proc), (food, None)):
+        if key in table:
+            return table[key], f"class:{food}" + (f"+{proc}" if key[1] else "")
+    return current, ""
 
 
 def derive(row: Dict[str, Any]) -> Tuple[Dict[str, str], str]:
@@ -166,13 +285,23 @@ def derive(row: Dict[str, Any]) -> Tuple[Dict[str, str], str]:
                 from pipeline.regulator_fields import CATEGORY_MAP
                 food = CATEGORY_MAP.get(commodity.strip().lower(), "")
 
+    # TIER 3 — the regulator said nothing. RASFF is 490 of 1,532 rows, so
+    # without this every FDA, RappelConso, FSANZ, BLV and USDA row was
+    # "unknown" by construction and no term-list work could have moved it.
+    # Runs last, never overrides a regulator, and the tier is recorded.
+    food_from_text = ""
+    if not food:
+        food_from_text = PA.food_category(row)[0]
+        if food_from_text != "unknown":
+            food = food_from_text
+
     proc = PA.process_type(row)
     cons = PA.consumption_state(row)
     stor = PA.storage_condition(row)
     ptyp = PA.packaging_type(row)
     pfrm = PA.packaging_form(row)
 
-    notice = rasff.notice_type or _NOTICE_FROM_CLASS.get(cls, "")
+    notice = rasff.notice_type or _notice_from_class(cls)
     severity = _SEVERITY_FROM_CLASS.get(cls, "not-classified" if cls else "unknown")
 
     event = ""
@@ -191,13 +320,20 @@ def derive(row: Dict[str, Any]) -> Tuple[Dict[str, str], str]:
                                   or rasff.classification_raw)
             else ("tier2-structured" if event or notice != "" else "tier3-keyword"))
 
+    # Structural fallback, applied after every keyword pass has had its turn.
+    _food = food or "unknown"
+    _cons, _cev = _from_class(_CONSUMPTION_FROM_CLASS, _food, proc[0], cons[0])
+    _stor, _sev = _from_class(_STORAGE_FROM_CLASS, _food, proc[0], stor[0])
+
     return {
-        "FoodCategory": food or "unknown",
+        "FoodCategory": _food,
         "ProcessType": proc[0],
-        "ConsumptionState": cons[0],
-        "StorageCondition": stor[0],
+        "ConsumptionState": _cons,
+        "StorageCondition": _stor,
         "PackagingType": ptyp[0],
         "PackagingForm": pfrm[0],
+        "PreservationSystem": PA.preservation_system(
+            _food, proc[0], _stor, _cons, row)[0],
         "HazardGroup": _hazard_group(str(row.get("Pathogen", ""))),
         "HazardCertainty": rasff.risk or "unknown",
         "NoticeType": notice or "unknown",

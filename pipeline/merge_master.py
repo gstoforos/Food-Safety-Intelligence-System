@@ -69,7 +69,8 @@ SCHEMA = ["Date", "Source", "Company", "Brand", "Product", "Pathogen", "Reason",
 # Adding a column here is the ONLY thing that keeps it out of the dashboard.
 _ENRICHMENT_COLUMNS = [
     "FoodCategory", "ProcessType", "ConsumptionState", "StorageCondition",
-    "PackagingType", "PackagingForm", "HazardGroup", "HazardCertainty",
+    "PackagingType", "PackagingForm", "PreservationSystem",
+    "HazardGroup", "HazardCertainty",
     "NoticeType", "SeverityClass", "EventID",
     "EnrichedBy", "EnrichedAt", "EnrichmentTier",
 ]
