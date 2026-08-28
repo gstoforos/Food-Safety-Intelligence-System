@@ -234,6 +234,21 @@ muted in week three.</p>
 """
 
 
+def build(d: dict) -> str:
+    """The News piece as one string: deck followed by front matter.
+
+    Kept because tests/test_news_piece.py asserts against the whole piece,
+    and because the two halves have to stay consistent with each other — a
+    figure quoted in the deck and contradicted in the front matter is exactly
+    the drift the merge into a single published page was meant to end.
+
+    This is a composition of the two functions above, not a second renderer:
+    tools.build_publication remains the thing that produces the page. Nothing
+    here should ever grow logic of its own.
+    """
+    return deck(d) + "\n\n" + front_matter(d)
+
+
 def main(argv=None) -> int:
     """The News piece is no longer a separate page.
 
