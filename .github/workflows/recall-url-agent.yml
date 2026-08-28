@@ -10,6 +10,23 @@ name: Recall URL Agent — Reviewer 1 (self-hosted Qwen)
 # VPS moves to a Mac, only the LLAMA_BASE_URL secret changes.
 
 on:
+  # OWN CRON (2026-08-28). These three were workflow_dispatch-only and fired
+  # solely from FsisScheduler.gs, a Google Apps Script that is not in version
+  # control and has no watchdog. recall-confirm-agent — the ONLY step in the
+  # A2->A3 chain that can publish — went 400 commits without a single run
+  # because it was never added to that script, and nothing went red.
+  #
+  # reviewer 1 — confirms the URL
+  #
+  # Two crons per slot with an Athens-hour guard below: one fires in EEST
+  # (UTC+3), the other in EET (UTC+2), and the guard ensures exactly one
+  # takes effect. Remove these three from FsisScheduler.gs after pushing, or
+  # each slot runs twice.
+  schedule:
+    - cron: "15 2 * * *"    # 05:15 Athens, EEST
+    - cron: "15 3 * * *"    # 05:15 Athens, EET
+    - cron: "15 19 * * *"    # 22:15 Athens, EEST
+    - cron: "15 20 * * *"    # 22:15 Athens, EET
   workflow_dispatch:
     inputs:
       skip_commit:
@@ -37,16 +54,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
+      - name: Athens-hour guard (one fire per slot across DST)
+        id: guard
+        run: |
+          HOUR=$(TZ=Europe/Athens date +%H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] \
+             || [ "$HOUR" = "05" ] || [ "$HOUR" = "22" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "scheduled at a non-Athens hour (DST twin) — skipping"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout repository
+        if: steps.guard.outputs.run == 'true'
         uses: actions/checkout@v4
 
       - name: Setup Python
+        if: steps.guard.outputs.run == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: "pip"
 
       - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
@@ -54,6 +86,7 @@ jobs:
           pip install --quiet curl_cffi beautifulsoup4 openpyxl requests
 
       - name: Connect to Tailscale
+        if: steps.guard.outputs.run == 'true'
         uses: tailscale/github-action@v3
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
@@ -68,6 +101,7 @@ jobs:
       # so a red run still means "nothing was reviewed" — but now the log names
       # the reason instead of dying at a curl.
       - name: Health-check llama-server on VPS
+        if: steps.guard.outputs.run == 'true'
         continue-on-error: true
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
@@ -82,6 +116,7 @@ jobs:
           echo "✗ llama-server unreachable after 5 attempts — the agent will\n                run, find the model unreachable, and exit 3 with a clear reason."
 
       - name: Install review agent
+        if: steps.guard.outputs.run == 'true'
         run: |
           cat > pipeline/recall_url_agent.py <<'PYEOF_A1'
           #!/usr/bin/env python3
@@ -568,6 +603,7 @@ jobs:
           echo "Installed pipeline/recall_url_agent.py"
 
       - name: Run review agent
+        if: steps.guard.outputs.run == 'true'
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
           SEARX_URL: ${{ secrets.SEARX_URL }}
