@@ -79,6 +79,26 @@ WATCHED: tuple[tuple[str, str, int], ...] = (
     # Weekly / monthly cadence.
     ("weekly report",                 r"^AFTS Weekly Report build ",             8 * 24),
     ("weekly review wipe",            r"^Weekly_Review \+ Weekly_Rejected wipe",  9 * 24),
+
+    # Monthly report. Added 2026-08-28 after the audit found that
+    # afts-monthly-report.yml has produced no commit since May, across three
+    # Day-1 dispatches (June, July, August) — while
+    # scraper-health-monthly.yml, dispatched from the SAME inline block one
+    # hour earlier, committed on all three. The build itself is not dead:
+    # monthly-index.json carries July. What is stale is
+    # docs/data/monthly-summary-latest.json, still pinned at 2026-M05.
+    ("monthly report",                r"^AFTS Monthly Report build ",           34 * 24),
+    ("monthly updates check",         r"^Monthly updates check ",               34 * 24),
+
+    # The AI synthesis that fills ai_lead_paragraph. It has NEVER committed:
+    # both synthesis writers carry a comment telling the operator to add them
+    # to FsisScheduler.gs, and neither was ever added, so the Intelligence
+    # Summary block has been empty in every weekly and monthly email.
+    #
+    # Note the writer swallows a failed commit and returns 0 — it logs
+    # "synthesis written locally" and the run goes green with nothing
+    # pushed. A green run is therefore not evidence; this line is.
+    ("ai synthesis",                  r"^AI synthesis \(",                       8 * 24),
 )
 
 
