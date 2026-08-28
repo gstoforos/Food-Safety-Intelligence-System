@@ -40,8 +40,55 @@ def _n(s) -> str:
     return re.sub(r"\s+", " ", s.lower())
 
 
+# Trailing regulator metadata inside Reason. RASFF rows carry the notifying
+# authority's own taxonomy appended to the free text:
+#
+#   "Listeria monocytogenes in halloumi from Cyprus; risk: serious;
+#    category: milk and milk products"
+#
+# 490 of the 1,532 published rows carry it. It is already parsed, correctly,
+# by pipeline/regulator_fields.py — this module must not read it a second
+# time as if it were product wording. See _strip_regulator_metadata().
+_META_LABEL = re.compile(
+    r"^\s*(?:risk|category|classification|hazard category|product category)\s*:",
+    re.I,
+)
+_RASFF_ID = re.compile(r"^\s*rasff\s*#", re.I)
+
+
+def _strip_regulator_metadata(reason: str) -> str:
+    """Drop the `; risk: … ; category: …` tail from a Reason string.
+
+    WHY (audit 2026-08-28). `_text()` fed the whole Reason to the keyword
+    matchers, so the regulator's COMMODITY FAMILY label was treated as
+    product wording. The RASFF family "meat and meat products (other than
+    poultry)" contains the bare token "meat", which sat in
+    CONSUMPTION_TERMS["cook-before-eating"] — so every RASFF meat row was
+    labelled cook-before-eating on the strength of a category name, cooked
+    ham and cold-smoked salami included.
+
+    Measured on the live register before this change: 475 rows labelled
+    cook-before-eating, 261 of them matched on a bare commodity word, and
+    113 of those name a ready-to-eat food in the Product field — 42 of the
+    113 carrying Listeria monocytogenes, which is precisely the RTE/Listeria
+    stratum the schema exists to isolate.
+
+    Only segments whose leading label is a known regulator field are
+    removed. Free text is never touched, and a Reason with no metadata is
+    returned unchanged.
+    """
+    if not reason:
+        return ""
+    kept = []
+    for seg in str(reason).split(";"):
+        if _META_LABEL.match(seg) or _RASFF_ID.match(seg):
+            continue
+        kept.append(seg)
+    return ";".join(kept)
+
+
 def _text(row: Dict) -> str:
-    """Product + Reason ONLY.
+    """Product + Reason free text ONLY.
 
     Notes is the pipeline's audit trail — "gemini check pass", "gate",
     "enrich", "shortcut", "claude" — not product data. Including it swamped
@@ -49,8 +96,13 @@ def _text(row: Dict) -> str:
     words) and risks false matches on words like "clean" or "fixed". The
     structured RASFF fields that DO live in Notes are parsed by
     pipeline/regulator_fields.py, which is where that belongs.
+
+    The same rule now applies to Reason: its trailing `risk:` / `category:`
+    segments are regulator metadata, not wording, and are stripped before
+    any keyword runs over the text.
     """
-    return _n(f"{row.get('Product','')} {row.get('Reason','')}")
+    return _n(f"{row.get('Product','')} "
+              f"{_strip_regulator_metadata(row.get('Reason', ''))}")
 
 
 def _find(text: str, terms: Iterable[str]) -> Optional[str]:
@@ -212,6 +264,28 @@ def process_type(row: Dict) -> Result:
 
 # ── ConsumptionState ────────────────────────────────────────────────────
 CONSUMPTION_TERMS: Dict[str, Tuple[str, ...]] = {
+    # BARE SPECIES NAMES ARE NOT IN THIS LIST — audit 2026-08-28.
+    #
+    # This tuple used to end with "meat", "poultry", "chicken", "beef",
+    # "pork", "lamb", "turkey", "duck", "veal", "viande", "porc", "boeuf",
+    # "poulet", "dinde", "egg", "rice", "pasta", "mushroom", "flour" and
+    # the bare fish names. A species name states what the animal was, not
+    # how the food is eaten: cooked ham, cold-smoked salami, pork pâté,
+    # pastrami and duck liver mousse are all ready-to-eat, and all of them
+    # were being labelled cook-before-eating by the word "pork" or "duck".
+    # Oysters are the sharpest case — "huitre" was here, and an oyster is
+    # the archetypal raw-consumption food.
+    #
+    # Measured on the 1,532 published rows before the change: 475 labelled
+    # cook-before-eating, 261 on a bare commodity token, 113 of those
+    # naming a ready-to-eat food in Product, 42 of the 113 Listeria
+    # monocytogenes. Same failure shape as the definite article "the" in
+    # PROCESS_TERMS["dried"], which classified 118 rows before it was found.
+    #
+    # Every term below states a process, a form, or a legally reserved
+    # instruction. "unknown" is the correct answer for a bare species name;
+    # this module's rule is that unknown is always permitted and the modal
+    # value is never used to fill a gap.
     "cook-before-eating": (
         "cook before", "cook thoroughly", "a cuire", "cuire avant",
         "bien cuire", "cocinar antes", "cuocere prima", "durchgaren",
@@ -221,16 +295,25 @@ CONSUMPTION_TERMS: Dict[str, Tuple[str, ...]] = {
         "poultry meat", "chicken meat", "turkey meat", "chicken breast",
         "turkey breast", "chicken leg", "chicken wing", "poultry cut",
         "carcass", "fresh poultry", "raw beef", "raw pork", "raw lamb",
+        "raw meat", "viande crue", "fresh meat", "viande fraiche",
         "escalope", "paupiette", "pilon", "cuisse", "brochette crue",
-        "saucisse fraiche", "merguez", "chair a saucisse", "steak hache",
-        "lardon cru", "flour", "farine", "raw flour", "dough", "pate crue",
-        "porc cru", "boeuf cru", "agneau", "veal", "carcass", "sprout",
-        "alfalfa", "germe", "egg", "oeuf", "shell egg", "rice", "riz",
-        "pasta", "pates", "noodle", "semoule", "couscous", "poisson frais",
-        "maquereau", "sardine", "anchois", "coquillage", "huitre", "moule",
-        "meat", "poultry", "chicken", "beef", "pork", "lamb", "turkey",
-        "duck", "veal", "viande", "porc", "boeuf", "poulet", "dinde",
-        "mushroom", "champignon", "enoki", "shiitake",
+        "saucisse fraiche", "merguez", "chair a saucisse",
+        # Restored as SPECIFIC phrases after the bare species names came
+        # out. Bare "cru" is deliberately absent: jambon cru is prosciutto,
+        # eaten exactly as sold, and cook-before-eating is tested first, so
+        # a bare "cru" would relabel every cured raw ham in the register.
+        "viande hache", "hache de boeuf", "boeuf hache",
+        "dinde cru", "dinde crue", "poulet cru", "volaille crue",
+        "filet de dinde", "filet de poulet", "blanc de poulet",
+        "saucisse de poulet", "saucisses de poulet",
+        "chicken sausage", "raw sausage",
+        "aile de poulet", "cuisse de poulet", "pilon de poulet",
+        "escalope de dinde", "escalope de poulet", "souvlaki",
+        "lardon cru", "raw flour", "wheat flour", "farine de ble",
+        "plain flour", "self-raising flour", "dough", "pate crue",
+        "porc cru", "boeuf cru", "sprout", "alfalfa", "germe",
+        "shell egg", "oeuf coquille", "poisson frais",
+        "enoki", "shiitake",
     ),
     "ready-to-heat": (
         "ready-to-heat", "rechauffer", "reheat", "a rechauffer",
@@ -241,41 +324,73 @@ CONSUMPTION_TERMS: Dict[str, Tuple[str, ...]] = {
         "ingredient", "raw material", "matiere premiere", "materia prima",
         "for further processing", "pour transformation", "semi-finished",
         "zutat", "grondstof", "bulk industrial",
+        # A flour or a meal made from a ready-to-eat commodity is not itself
+        # ready-to-eat: "Aflatoxin B1 in Groundnut flours" and "jojoba nut
+        # meal" were both labelled ready-to-eat by the commodity word.
+        # "ingredient" is tested before "ready-to-eat", so these win.
+        "groundnut flour", "nut flour", "nut meal", "almond powder",
+        "amandes en poudre", "poudre d amande", "farine de", "seed meal",
     ),
+    # WHAT IS NOT IN THIS LIST, AND WHY — audit 2026-08-28.
+    #
+    # A consumption state is a claim about whether the food gets a kill step
+    # before it is eaten. Three kinds of word were in here that make no such
+    # claim, and each was deciding rows on its own:
+    #
+    #   packaging   "tray", "sachet", "pack" — raw chicken comes in a tray.
+    #               That axis is PackagingForm's, and it already answers it.
+    #   sales channel "rayon traditionnel", "counter", "deli", "deli counter"
+    #               — a delicatessen counter sells raw turkey fillet and
+    #               cooked ham side by side. "filet de dinde CRU vendu au
+    #               rayon traditionnel" was labelled ready-to-eat by the
+    #               words after the comma.
+    #   form/species "sliced", "tranche", "salmon", "truite", "milk", "nut",
+    #               "seeds", "herb", "meal", "date" — "Sliced unsmoked RAW
+    #               ham", "raw bovine milk", "Cook at Home Chicken Fillets",
+    #               "Brocoli Calabrese SEEDS" (planting seed), "7 herb-
+    #               flavoured sausages". "date" was the worst: it matched
+    #               the word inside "use-by date" and "best-before date",
+    #               so fourteen rows — raw chicken wings, iceberg lettuce,
+    #               infant formula — were ready-to-eat because they carried
+    #               a date field.
+    #
+    # Every term kept below names a food that reaches the consumer without a
+    # kill step, or a legally reserved phrase that says so. Specific nut and
+    # cheese names stay; the bare category words do not. Smoked and cooked
+    # markers stay and already carry the smoked-trout and cooked-prawn rows
+    # that "truite" and "tranche" were claiming.
     "ready-to-eat": (
         "ready-to-eat", "ready to eat", "rte", "pret a consommer",
         "pret a manger", "consommer en l etat", "listo para consumir",
         "pronto al consumo", "verzehrfertig", "kant-en-klaar",
-        "metka", "a tartiner", "spreadable", "deli", "charcuterie",
-        "tranche", "sliced", "smoked salmon", "saumon fume", "salad",
-        "salade", "dessert", "snack", "cheese", "fromage", "yoghurt",
+        "metka", "a tartiner", "spreadable", "charcuterie",
+        "smoked salmon", "saumon fume", "salad", "salade",
+        "dessert", "snack", "cheese", "fromage", "yoghurt",
         "sandwich", "pate", "rillettes", "mousse",
         # mined: the nuts/seeds/dried-fruit bucket (238 rows) is eaten
         # without a kill step, and so are cheeses and cured meats.
-        "nut", "peanut", "groundnut", "pistachio", "almond", "cashew",
+        "peanut", "groundnut", "pistachio", "almond", "cashew",
         "walnut", "hazelnut", "pecan", "macadamia", "sesame", "tahini",
-        "dried fig", "dried apricot", "raisin", "sultana", "date",
+        "brazil nut", "nut butter", "pine nut",
+        "dried fig", "dried apricot", "raisin", "sultana",
         "seed mix", "trail mix", "granola", "muesli", "cereal bar",
         "chocolate", "biscuit", "cookie", "crisps", "chips", "confectionery",
         "ice cream", "glace", "sorbet", "juice", "jus", "smoothie",
         "drink", "boisson", "water", "eau", "yaourt", "fromage frais",
         "ham", "jambon", "salami", "saucisson", "chorizo", "bacon cooked",
-        "olive", "hummus", "houmous", "dip", "spread", "tartinade",
+        "coppa", "olive", "hummus", "houmous", "dip", "spread", "tartinade",
         "gorgonzola", "brie", "camembert", "roquefort", "feta", "halloumi",
         "mozzarella", "cheddar", "gouda", "comte", "emmental", "raclette",
-        "fromage", "cheese", "milk", "lait", "yoghurt", "creme",
-        "rayon traditionnel", "a la demande", "counter", "deli counter",
+        "morbier", "fourme", "picodon", "livarot", "reblochon",
+        "sainte maure", "pont l eveque", "tomme",
         "crevette cuite", "cuites", "cooked prawn", "smoked", "fume",
-        "boudin", "fruits and vegetables", "fresh fruit", "berry", "melon",
+        "boudin", "fresh fruit", "berry", "melon",
         "moringa", "capsule", "supplement", "complement alimentaire",
-        "herb", "spice", "spices", "tea", "infusion", "coffee",
         "infant formula", "baby food", "petit pot", "compote",
-        "reblochon", "nectaire", "fermier", "savoie", "aop", "igp",
         "saucisson sec", "fuet", "pancetta", "guanciale", "oyster",
-        "mollusc", "molluscs", "bivalve", "clam", "scallop", "truite",
-        "salmon", "saumon", "smoked fish", "poisson fume", "surimi",
-        "ready meal", "meal", "plat", "tray", "sachet", "pack",
-        "onigiri", "charcuterie", "seeds", "nuts",
+        "mollusc", "molluscs", "bivalve", "clam", "scallop",
+        "smoked fish", "poisson fume", "surimi",
+        "onigiri",
     ),
 }
 # Specific instructions beat generic product nouns: a "raw chicken" that also

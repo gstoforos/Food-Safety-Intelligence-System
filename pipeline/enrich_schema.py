@@ -78,10 +78,15 @@ _NOTICE_FROM_CLASS = {
     "information": "information",
     "withdrawal": "withdrawal",
 }
+# Controlled terms. "i" / "ii" / "iii" were bare roman numerals — a value
+# that reads as a footnote marker in a spreadsheet cell and sorts next to
+# nothing. Corrected 2026-08-28 to the full controlled term, matching the
+# every-other-column convention of a lowercase hyphenated word.
 _SEVERITY_FROM_CLASS = {
-    "class i": "i", "class 1": "i", "food recall warning (class 1)": "i",
-    "class ii": "ii", "class 2": "ii",
-    "class iii": "iii", "class 3": "iii",
+    "class i": "class-i", "class 1": "class-i",
+    "food recall warning (class 1)": "class-i",
+    "class ii": "class-ii", "class 2": "class-ii",
+    "class iii": "class-iii", "class 3": "class-iii",
 }
 
 _HAZARD_GROUP_RULES = (

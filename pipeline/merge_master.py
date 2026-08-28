@@ -1764,6 +1764,41 @@ def promote_approved(
         approved_row["LastUpdated"] = _today
         approved_row["LastChecked"] = ""
         approved_row["report_week"] = compute_report_week(approved_row.get("Date", ""))
+
+        # ── Analytical schema, filled at promote time (audit 2026-08-28) ──
+        # RECALLS_SCHEMA carries fourteen analytical columns, but
+        # `approved_row` above is built from SCHEMA alone, so a newly
+        # promoted row reached the Recalls sheet with all fourteen blank.
+        # Nothing else filled them: pipeline/enrich_schema.py was written,
+        # tested and registered, and then not invoked by any workflow. The
+        # 1,532 rows enriched by hand on 2026-08-28 would therefore have
+        # been the last enriched rows in the register — the corpus would
+        # have kept growing while the statistical schema stopped.
+        #
+        # enrich_schema.derive() is pure: no network, no workbook, no model
+        # call. It reads Reason/Notes/Class/Product/Pathogen off the row and
+        # returns the RASFF taxonomy fields plus the four product axes. It
+        # is cheap enough to run per row at promote time, which is the only
+        # place guaranteed to see every row exactly once.
+        #
+        # The daily sweep (.github/workflows/enrich-schema.yml) is still
+        # needed and does NOT duplicate this: it re-derives rows whose text
+        # was edited after promotion by the url-gate, the review agents or
+        # an operator. It skips any row whose EnrichedBy reads "human".
+        try:
+            from pipeline.enrich_schema import derive as _derive_schema
+            _values, _tier = _derive_schema(approved_row)
+            approved_row.update(_values)
+            approved_row["EnrichedBy"] = "enrich-schema/1"
+            approved_row["EnrichedAt"] = _today
+            approved_row["EnrichmentTier"] = _tier
+        except Exception as exc:  # never let enrichment block a promotion
+            log.warning("Schema enrichment skipped for %s: %s: %s",
+                        approved_row.get("URL", "<no-url>"),
+                        type(exc).__name__, str(exc)[:80])
+            for _col in _ENRICHMENT_COLUMNS:
+                approved_row.setdefault(_col, "")
+
         new_approved.append(approved_row)
 
     rejected_kept = sum(1 for r in kept_in_pending if r.get("Status") == STATUS_REJECTED)

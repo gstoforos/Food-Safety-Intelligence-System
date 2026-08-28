@@ -67,9 +67,17 @@ _RE_NOTIF = re.compile(r"notifId\s*=\s*(\d+)", re.I)
 # and all 20 are mapped. An unmapped category returns None rather than
 # "other", so a new RASFF vocabulary term shows up as a gap instead of
 # being silently absorbed.
+# FoodCategory is a COMMODITY vocabulary. Every other term in it names what
+# the food is — dairy-other, fish-seafood, fresh-produce — and none of them
+# claim a process. The two meat families were the exception: both mapped to
+# "meat-raw", which asserted rawness the notifying authority never stated,
+# on families whose own names read "meat AND MEAT PRODUCTS". A vacuum-packed
+# cooked ham recalled for Listeria was filed as meat-raw. Corrected
+# 2026-08-28; process now lives only in ProcessType, where it belongs, and
+# RASFF's poultry / non-poultry split is preserved instead of flattened.
 CATEGORY_MAP: Dict[str, str] = {
-    "poultry meat and poultry meat products": "meat-raw",
-    "meat and meat products (other than poultry)": "meat-raw",
+    "poultry meat and poultry meat products": "meat-poultry",
+    "meat and meat products (other than poultry)": "meat-other",
     "nuts, nut products and seeds": "nuts-seeds",
     "fruits and vegetables": "fresh-produce",
     "vegetables and vegetable products": "fresh-produce",
@@ -88,10 +96,13 @@ CATEGORY_MAP: Dict[str, str] = {
     "soups, broths, sauces and condiments": "sauces-condiments",
     "other food product / mixed": "other",
 }
-# NOTE on meat: RASFF's "poultry meat" says nothing about whether the
-# product is raw or ready-to-eat, and mapping it to meat-rte would assert
-# a processing state the notice does not carry. meat-raw is the honest
-# default for a commodity category; ProcessType stays unknown.
+# NOTE on meat: RASFF's "poultry meat and poultry meat products" says
+# nothing about whether the product is raw or ready-to-eat. Mapping it to
+# meat-rte would assert a processing state the notice does not carry — and
+# so did the previous target, meat-raw, in the opposite direction. Both
+# families now map to a plain commodity term. Whether a given row is raw or
+# ready-to-eat is ProcessType's and ConsumptionState's answer to give, from
+# the product wording, and "unknown" is an allowed answer there.
 
 CLASSIFICATION_MAP: Dict[str, str] = {
     "alert notification": "consumer-recall",
