@@ -22,14 +22,14 @@
   "Brand": "Auchan",
   "Product": "viande haché de boeuf à la demande",
   "Pathogen": "Salmonella",
-  "Reason": "Presence of Salmonella spp. (agent responsable de la salmonellose)",
+  "Reason": "Presence of Salmonella spp.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23344/interne",
-  "Notes": "uniquement l'hypermarche de auchan perols [verified 2026-08-28: rappel.conso fiche 23344 - Viande hachée de boeuf, AUCHAN, hypermarché Pérols, Salmonella spp., 27/08/2026]"
+  "Notes": "uniquement l'hypermarche de auchan perols [verified 2026-08-28: rappel.conso fiche 23344 - Viande hachée de boeuf, AUCHAN, hypermarché Pérols, Salmonella spp., 27/08/2026] [en 2026-08-28: Reason translated from the regulator wording \"Presence of Salmonella spp. (agent responsable de la salmonellose)\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
  },
  {
   "Date": "2026-08-27",
@@ -38,14 +38,14 @@
   "Brand": "CASA AZZURRA",
   "Product": "GORGONZOLA DOLCE",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Présence possible de Listeria monocytogenes",
+  "Reason": "Possible presence of Listeria monocytogenes",
   "Class": "Recall",
   "Country": "Belgium",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.favv-afsca.be/consommateurs/denreesalimentaires/rappels/2026/2026-08-27_Monoprix_Gorgonzola_Listeria.asp",
-  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: AFSCA official domain, gate-clean. favv-afsca.be is not reachable from the review sandbox (robots/connect timeout) so the notice could not be opened; flagged for url_guardian to confirm from CI.]"
+  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: AFSCA official domain, gate-clean. favv-afsca.be is not reachable from the review sandbox (robots/connect timeout) so the notice could not be opened; flagged for url_guardian to confirm from CI.] [en 2026-08-28: Reason translated from the regulator wording \"Présence possible de Listeria monocytogenes\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
  },
  {
   "Date": "2026-08-27",
@@ -54,14 +54,14 @@
   "Brand": "Jumbo",
   "Product": "Biologische brie",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Présence possible Listeria",
+  "Reason": "Possible presence of Listeria",
   "Class": "Recall",
   "Country": "Belgium",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.favv-afsca.be/consommateurs/denreesalimentaires/rappels/2026/2026-08-27_Jumbo_Biologische_Brie_Listeria.asp",
-  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.]"
+  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.] [en 2026-08-28: Reason translated from the regulator wording \"Présence possible Listeria\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
  },
  {
   "Date": "2026-08-26",
@@ -166,14 +166,14 @@
   "Brand": "Jumbo",
   "Product": "Gorgonzola Dolce",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Présence possible de Listeria",
+  "Reason": "Possible presence of Listeria",
   "Class": "Recall",
   "Country": "Belgium",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.favv-afsca.be/consommateurs/denreesalimentaires/rappels/2026/2026-08-26_Jumbo_Gorgonzola_Dolce_Listeria.asp",
-  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.]"
+  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.] [en 2026-08-28: Reason translated from the regulator wording \"Présence possible de Listeria\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
  },
  {
   "Date": "2026-08-26",
@@ -182,14 +182,14 @@
   "Brand": "Tapporosso – Centrale del Latte di Torino",
   "Product": "Gorgonzola DOP 200g",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Possibile presenza di Listeria monocytogenes",
+  "Reason": "Possible presence of Listeria monocytogenes",
   "Class": "Recall",
   "Country": "Italy",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/portale/richiami/dettaglioRichiamo.jsp?id=23769",
-  "Notes": "Lotto: L126G22. Scadenza: 05/09/2026. Nessun caso di listeriosi associato segnalato. Stabilimento IT T616G UE.  [via Gemini gap-finder + Google Search] [held 2026-08-28: salute.gov.it is behind a JS WAF and could not be fetched; same gap-finder batch as the failed RappelConso URLs. Unverified, not wrong.] [promoted 2026-08-28: Ministero della Salute official richiamo id=23769, gate-clean. salute.gov.it sits behind a JS WAF and could not be fetched here; flagged for url_guardian. Part of the same week's BE/FR/IT gorgonzola Listeria cluster.]"
+  "Notes": "Lotto: L126G22. Scadenza: 05/09/2026. Nessun caso di listeriosi associato segnalato. Stabilimento IT T616G UE.  [via Gemini gap-finder + Google Search] [held 2026-08-28: salute.gov.it is behind a JS WAF and could not be fetched; same gap-finder batch as the failed RappelConso URLs. Unverified, not wrong.] [promoted 2026-08-28: Ministero della Salute official richiamo id=23769, gate-clean. salute.gov.it sits behind a JS WAF and could not be fetched here; flagged for url_guardian. Part of the same week's BE/FR/IT gorgonzola Listeria cluster.] [en 2026-08-28: Reason translated from the regulator wording \"Possibile presenza di Listeria monocytogenes\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
  },
  {
   "Date": "2026-08-25",
@@ -550,14 +550,14 @@
   "Brand": "Buurtslagers – Bon'Ap",
   "Product": "Yorkham",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Présence possible de Listeria monocytogenes",
+  "Reason": "Possible presence of Listeria monocytogenes",
   "Class": "Recall",
   "Country": "Belgium",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.favv-afsca.be/consommateurs/denreesalimentaires/rappels/2026/2026-08-21_MeatMore_Yorkham_Listeria.asp",
-  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.]"
+  "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.] [en 2026-08-28: Reason translated from the regulator wording \"Présence possible de Listeria monocytogenes\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
  },
  {
   "Date": "2026-08-20",
