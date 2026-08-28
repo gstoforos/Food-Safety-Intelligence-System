@@ -140,3 +140,20 @@ def test_a_human_value_is_never_overwritten(tmp_path):
             for i, h in enumerate([c.value for c in got[1]])}
     assert row2["FoodCategory"] == "dairy-soft-cheese"
     assert row2["EnrichedBy"] == "human"
+
+
+def test_dry_run_is_accepted_on_the_command_line():
+    """The module docstring and the first step of enrich-schema.yml both
+    call `--dry-run`. argparse did not define it, so it exited 2 — the
+    scheduled sweep would have failed on its first run, before writing
+    anything, and the failure would have looked like a broken workflow
+    rather than a missing flag."""
+    assert ES.main(["--dry-run", "--xlsx", str(ES.XLSX)]) == 0
+
+
+def test_dry_run_and_write_together_are_refused(capsys):
+    """Not silently one-or-the-other: a caller that passes both has a bug,
+    and the safe reading of the pair is ambiguous."""
+    import pytest
+    with pytest.raises(SystemExit):
+        ES.main(["--dry-run", "--write", "--xlsx", str(ES.XLSX)])
