@@ -2447,14 +2447,48 @@ def rebuild_daily_briefs_for_promoted(
     _today_iso = _today_athens.isoformat()
 
     # Group newly-promoted rows by Date, deferring today/future dates.
+    # ------------------------------------------------------------------
+    # Audit 2026-08-28: the window has a FAR side too.
+    #
+    # The guard above defers today/future. Nothing guarded the other end,
+    # and update_daily_index computes its retention cutoff from the
+    # target_date it is handed, not from today:
+    #
+    #     cutoff = target_date - (KEEP_DAYS - 1)
+    #
+    # So promoting a back-dated row — a gap-finder catching a June notice
+    # in August — called update_daily_index(2026-06-19), which set the
+    # cutoff to 2026-06-13 and RETAINED every entry after it. The rolling
+    # 7-day feed grew to 9 entries, with stray briefs from June and July
+    # on the dashboard beside the current week. Nothing errored; the index
+    # was written successfully every time.
+    #
+    # Back-dated rows still land in Recalls and recalls.json — they are
+    # real data. They have no place in a feed whose contract is "the last
+    # seven days". Asserted in tests/test_daily_brief_window.py.
+    #
+    # The feed is anchored to YESTERDAY: the brief for date D is rendered
+    # on D+1, so the visible span is [target .. target-6] with
+    # target = today-1, making today-7 the oldest date still on screen.
+    # Using today-6 here would skip rebuilding the oldest visible day and
+    # leave it stale.
+    # ------------------------------------------------------------------
+    from datetime import timedelta as _timedelta  # noqa: WPS433
+    _WINDOW_DAYS = 7
+    _oldest_iso = (_today_athens - _timedelta(days=_WINDOW_DAYS)).isoformat()
+
     by_date: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     _deferred: Dict[str, int] = {}
+    _too_old: Dict[str, int] = {}
     for r in new_approved:
         d = str(r.get("Date") or "").strip()[:10]
         if not d:
             continue
         if d >= _today_iso:
             _deferred[d] = _deferred.get(d, 0) + 1
+            continue
+        if d < _oldest_iso:
+            _too_old[d] = _too_old.get(d, 0) + 1
             continue
         by_date[d].append(r)
 
@@ -2464,6 +2498,13 @@ def rebuild_daily_briefs_for_promoted(
                      "Athens — will be rendered by tomorrow's 10:00 "
                      "daily-recall-search run (today_athens=%s)",
                      d_iso, n, _today_iso)
+
+    if _too_old:
+        for d_iso, n in sorted(_too_old.items()):
+            log.info("Skip brief rebuild for %s (%d row(s)): older than the "
+                     "%d-day daily window (oldest=%s). The row is in Recalls "
+                     "and recalls.json; only the daily feed excludes it.",
+                     d_iso, n, _WINDOW_DAYS, _oldest_iso)
 
     # Fast-lookup of ALL Recalls by date so we render the full day, not
     # only the newly-promoted rows.
