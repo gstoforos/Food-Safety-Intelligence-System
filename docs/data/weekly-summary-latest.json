@@ -8,31 +8,31 @@
   "week_end": "2026-08-27",
   "week_start_display": "21 Aug",
   "week_end_display": "27 Aug 2026",
-  "generated_utc": "2026-08-28T05:09:15.878433+00:00",
+  "generated_utc": "2026-08-28T19:07:50.569178+00:00",
   "stats": {
-    "total": 35,
-    "tier1": 32,
+    "total": 40,
+    "tier1": 35,
     "outbreaks": 1,
-    "delta": -37,
-    "delta_pct": -51
+    "delta": -32,
+    "delta_pct": -44
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 19,
-    "pct": 54
+    "cases": 20,
+    "pct": 50
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
       "date": "2026-08-22",
-      "pathogen": "Shiga toxin-producing E. coli (STEC)",
-      "pathogen_raw": "Shiga toxin-producing E. coli (STEC)",
+      "pathogen": "Salmonella + Shiga toxin-producing E. coli (STEC)",
+      "pathogen_raw": "Salmonella + Shiga toxin-producing E. coli (STEC)",
       "tier": 1,
       "outbreak": true,
       "company": "Everything Sprouts, LLC",
       "brand": "Everything Sprouts, Calco",
-      "product": "Alfalfa Sprouts",
+      "product": "Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lots 222, 223, 225, 226, 230)",
       "country": "United States",
       "source": "FDA",
       "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
@@ -81,18 +81,18 @@
     },
     {
       "rank": 5,
-      "date": "2026-08-26",
+      "date": "2026-08-27",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Origin: Cyprus | Notifying: Germany",
-      "brand": "DEU",
-      "product": "Listeria monocytogenes in halloumi from Cyprus",
-      "country": "Cyprus",
+      "company": "Origin: Italy | Notifying: Italy",
+      "brand": "—",
+      "product": "Listeria monocytogenes in sweet gorgonzola",
+      "country": "Italy",
       "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868574"
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869015"
     }
   ],
-  "country_count": 13
+  "country_count": 16
 }

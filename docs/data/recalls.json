@@ -1,5 +1,53 @@
 [
  {
+  "Date": "2026-08-28",
+  "Source": "FSA (UK)",
+  "Company": "Macroom Buffalo Cheese Products",
+  "Brand": "Macroom Buffalo Cheese",
+  "Product": "Macroom Buffalo Cheese Mozzarella 125 g; Macroom Buffalo Cheese Bocconcini 160 g",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Contamination with Listeria monocytogenes",
+  "Class": "Alert",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-42-2026",
+  "Notes": "PRIN-42-2026 [operator review 2026-08-28: verified vs data.food.gov.uk FSA-PRIN-42-2026. Company and Product both held the truncated alert headline; rebuilt from the alert body.] [url-fix 2026-08-28: cited the FSA metadata endpoint (data.food.gov.uk/food-alerts/id/...), which serves JSON-LD to a reader who clicks it. Replaced with the citizen-facing alert page. Verified: the page resolves and carries the same recall.]"
+ },
+ {
+  "Date": "2026-08-28",
+  "Source": "RappelConso (FR)",
+  "Company": "Cosme",
+  "Brand": "Cosme",
+  "Product": "Pâté sarthois — terrine sold at the delicatessen counter (GTIN 0203565000000, lot 2262310, best-before 2026-09-03)",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23351/interne",
+  "Notes": "e. leclerc le mans [operator review 2026-08-28: verified vs RappelConso fiche 23351: motif LISTERIA, risque 'Listeria monocytogenes (agent responsable de la listériose)'. Sold 17–21 Aug at E. Leclerc Le Mans (Sarthe).]"
+ },
+ {
+  "Date": "2026-08-28",
+  "Source": "RappelConso (FR)",
+  "Company": "Suntat",
+  "Brand": "Suntat",
+  "Product": "Paprika powder 450 g (GTIN 8690804027079, lot L250206, best-before 2028-05-30)",
+  "Pathogen": "Aflatoxin B1 + Ochratoxin A",
+  "Reason": "Aflatoxin B1 and ochratoxin A above the regulatory limit",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23354/interne",
+  "Notes": "gms [operator review 2026-08-28: verified vs RappelConso fiche 23354: motif names BOTH mycotoxins; Pathogen carried only ochratoxin. Risk class 'autres contaminants chimiques'.]"
+ },
+ {
   "Date": "2026-08-27",
   "Source": "RappelConso (FR)",
   "Company": "CARREFOUR FRANCE CARREFOUR",
@@ -62,6 +110,86 @@
   "Outbreak": 0,
   "URL": "https://www.favv-afsca.be/consommateurs/denreesalimentaires/rappels/2026/2026-08-27_Jumbo_Biologische_Brie_Listeria.asp",
   "Notes": "Not specific lot mentioned in the snippet.  [via Gemini gap-finder + Google Search] [held 2026-08-28: AFSCA source not reachable from the review sandbox (robots/connect timeout), and this row comes from the same gap-finder batch whose RappelConso URLs failed verification. Not rejected - unverified, not wrong.] [promoted 2026-08-28: as above — AFSCA source unreachable from the review sandbox, gate-clean, flagged for url_guardian.] [en 2026-08-28: Reason translated from the regulator wording \"Présence possible Listeria\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
+ },
+ {
+  "Date": "2026-08-27",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Iran | Notifying: Italy",
+  "Brand": "—",
+  "Product": "Shelled pistachios",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Aflatoxins in shelled pistachios from Iran; risk: serious; category: nuts, nut products and seeds",
+  "Class": "Border Rejection",
+  "Country": "Iran",
+  "Region": "Middle East",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869140",
+  "Notes": "[RASFF #2026.7560; classification: border rejection notification; category: nuts, nut products and seeds; notifId=869140] [operator review 2026-08-28: Product was the ALL-CAPS notification title; normalised to the commodity. RASFF fields unchanged.]"
+ },
+ {
+  "Date": "2026-08-27",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Bosnia and Herzegovina | Notifying: Croatia",
+  "Brand": "—",
+  "Product": "Ochratoxin A in biscuit with fig filling from Bosnia and Herzegovina",
+  "Pathogen": "Ochratoxin",
+  "Reason": "Ochratoxin A in biscuit with fig filling from Bosnia and Herzegovina; risk: potentially serious; category: confectionery",
+  "Class": "Border Rejection",
+  "Country": "Bosnia and Herzegovina",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869190",
+  "Notes": "[RASFF #2026.7556; classification: border rejection notification; category: confectionery; notifId=869190]"
+ },
+ {
+  "Date": "2026-08-27",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Türkiye | Notifying: Germany",
+  "Brand": "—",
+  "Product": "Salmonella spp. in hazelnut paste from Turkey via Bulgaria",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella spp. in hazelnut paste from Turkey via Bulgaria; risk: serious; category: nuts, nut products and seeds",
+  "Class": "Alert",
+  "Country": "Turkey",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869304",
+  "Notes": "[RASFF #2026.7583; classification: alert notification; category: nuts, nut products and seeds; notifId=869304]"
+ },
+ {
+  "Date": "2026-08-27",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: United Kingdom | Notifying: Netherlands",
+  "Brand": "—",
+  "Product": "Patulin in Chips from United Kingdom",
+  "Pathogen": "Patulin",
+  "Reason": "Patulin in Chips from United Kingdom; risk: serious; category: fruits and vegetables",
+  "Class": "Alert",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869213",
+  "Notes": "[RASFF #2026.7581; classification: alert notification; category: fruits and vegetables; notifId=869213] [operator review 2026-08-28: Pathogen read 'Mycotoxin', a group not an agent. RASFF title names patulin; every other mycotoxin row in the register names the toxin.]"
+ },
+ {
+  "Date": "2026-08-27",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Italy | Notifying: Italy",
+  "Brand": "—",
+  "Product": "Listeria monocytogenes in sweet gorgonzola",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes in sweet gorgonzola; risk: serious; category: milk and milk products",
+  "Class": "Alert",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869015",
+  "Notes": "[RASFF #2026.7576; classification: alert notification; category: milk and milk products; notifId=869015]"
  },
  {
   "Date": "2026-08-26",
@@ -356,8 +484,8 @@
   "Source": "FDA",
   "Company": "Everything Sprouts, LLC",
   "Brand": "Everything Sprouts, Calco",
-  "Product": "Alfalfa Sprouts",
-  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Product": "Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lots 222, 223, 225, 226, 230)",
+  "Pathogen": "Salmonella + Shiga toxin-producing E. coli (STEC)",
   "Reason": "Multistate outbreak of Shiga toxin-producing Escherichia coli (serotypes O26:H11, O103:H25 and O168:H8) and Salmonella Agona linked to alfalfa sprouts distributed by Everything Sprouts, LLC. As of 24 August 2026, 55 illnesses across 15 U.S. states had been reported, including four hospitalisations and no deaths. Of the 55 reported cases, 46 involved STEC only, seven involved Salmonella Agona only, and two involved coinfection with both pathogens",
   "Class": "Recall",
   "Country": "United States",
@@ -365,7 +493,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
-  "Notes": "FDA listing HTML (Layer 1) [outbreak flag corrected 2026-08-26: FDA's recall notice of 22 August 2026 states '55 reports of illnesses have been received by federal and state partners related to alfalfa sprouts', and FDA runs a matching investigation page, 'Outbreak Investigation of Shiga Toxin-producing E. coli & Salmonella: Sprouts (August 2026)'. The row was published with the outbreak flag unset; it is set on 2026-08-26 on the strength of the illness count in FDA's own notice.] [corrected 2026-08-28, verified against the FDA outbreak investigation page (as of 08/24/2026): 55 illnesses across 15 states (FL, IN, IA, KS, MI, MN, NH, NY, NC, ND, PA, SC, SD, WA, WI), 4 hospitalisations, 0 deaths; 46 infected with E. coli, 7 with Salmonella, 2 with both. Serotypes O26:H11, O103:H25, O168:H8 plus Salmonella Agona. Firm Everything Sprouts, LLC; brands Calco and Everything Sprouts; direct distribution MN and WI only. Pathogen set to STEC as the dominant hazard (46 of 55 cases) to keep the column canonical - the co-pathogen is named in Reason, not compounded into the controlled vocabulary. URL repointed from the company recall notice to the FDA outbreak investigation, which carries the epidemiology; the recall notice was https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-recalls-alfalfa-sprouts-due-potential-e-coli-and-salmonella-risk]"
+  "Notes": "FDA listing HTML (Layer 1) [outbreak flag corrected 2026-08-26: FDA's recall notice of 22 August 2026 states '55 reports of illnesses have been received by federal and state partners related to alfalfa sprouts', and FDA runs a matching investigation page, 'Outbreak Investigation of Shiga Toxin-producing E. coli & Salmonella: Sprouts (August 2026)'. The row was published with the outbreak flag unset; it is set on 2026-08-26 on the strength of the illness count in FDA's own notice.] [corrected 2026-08-28, verified against the FDA outbreak investigation page (as of 08/24/2026): 55 illnesses across 15 states (FL, IN, IA, KS, MI, MN, NH, NY, NC, ND, PA, SC, SD, WA, WI), 4 hospitalisations, 0 deaths; 46 infected with E. coli, 7 with Salmonella, 2 with both. Serotypes O26:H11, O103:H25, O168:H8 plus Salmonella Agona. Firm Everything Sprouts, LLC; brands Calco and Everything Sprouts; direct distribution MN and WI only. Pathogen set to STEC as the dominant hazard (46 of 55 cases) to keep the column canonical - the co-pathogen is named in Reason, not compounded into the controlled vocabulary. URL repointed from the company recall notice to the FDA outbreak investigation, which carries the epidemiology; the recall notice was https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-recalls-alfalfa-sprouts-due-potential-e-coli-and-salmonella-risk] [operator review 2026-08-28: pack sizes, sub-products and lot numbers merged in from a duplicate Pending row for the same recall (FDA recall notice everything-sprouts-llc-recalls-alfalfa-sprouts...). Pathogen widened to name both agents — the recall notice states Salmonella AND STEC; this row carried STEC only. The duplicate was archived, not published: one recall, one row.]"
  },
  {
   "Date": "2026-08-21",
@@ -1419,9 +1547,9 @@
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/naturebest-precut-produce-llc-voluntarily-recalls-products-containing-jalapenos-due-potential",
-  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-16: FDA's notice names the event outright: 'The FDA and CDC, in collaboration with state and local partners, are investigating illnesses in a multistate outbreak of Salmonella Javiana infections linked to jalapeno peppers from Sinaloa, Mexico and distributed by Coast Citrus Distributors', with 'a total of 345 people infected with the outbreak strain of Salmonella reported from 27 states'. Flagged and given the shared event id so this counts ONCE with the other rows of the Salmonella Javiana jalapeno event, not as a separate outbreak. Evidence strength: high.]"
+  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-16: FDA's notice names the event outright: 'The FDA and CDC, in collaboration with state and local partners, are investigating illnesses in a multistate outbreak of Salmonella Javiana infections linked to jalapeno peppers from Sinaloa, Mexico and distributed by Coast Citrus Distributors', with 'a total of 345 people infected with the outbreak strain of Salmonella reported from 27 states'. Flagged and given the shared event id so this counts ONCE with the other rows of the Salmonella Javiana jalapeno event, not as a separate outbreak. Evidence strength: high.] [outbreak-dedupe 2026-08-28: Outbreak 1→0; event fda:salmonella-jalapeno-august-2026 is already flagged on the FDA row — one event, one flag]"
  },
  {
   "Date": "2026-08-14",
@@ -1547,9 +1675,9 @@
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/recall-jalapeno-avocado-dressing-because-possible-health-risk",
-  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-16: FDA's notice is weaker but still ties it in: the supplier 'notified that diced jalapenos used in the affected products may have been contaminated with Salmonella and possibly associated with a multistate outbreak that FDA is currently investigating'. It adds that no illnesses have been reported in connection with the products affected in this recall — which is ALSO true of the already-flagged Whole Foods row, so absence of illness from a downstream product is not the test for whether a recall belongs to an event. The accuracy brief argued for leaving this one unflagged; that draws the line in a different place than the register already does for its siblings. Flagged and given the shared event id so this counts ONCE with the other rows of the Salmonella Javiana jalapeno event, not as a separate outbreak. Evidence strength: hedged.]"
+  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-16: FDA's notice is weaker but still ties it in: the supplier 'notified that diced jalapenos used in the affected products may have been contaminated with Salmonella and possibly associated with a multistate outbreak that FDA is currently investigating'. It adds that no illnesses have been reported in connection with the products affected in this recall — which is ALSO true of the already-flagged Whole Foods row, so absence of illness from a downstream product is not the test for whether a recall belongs to an event. The accuracy brief argued for leaving this one unflagged; that draws the line in a different place than the register already does for its siblings. Flagged and given the shared event id so this counts ONCE with the other rows of the Salmonella Javiana jalapeno event, not as a separate outbreak. Evidence strength: hedged.] [outbreak-dedupe 2026-08-28: Outbreak 1→0; event fda:salmonella-jalapeno-august-2026 is already flagged on the FDA row — one event, one flag]"
  },
  {
   "Date": "2026-08-14",
@@ -1787,9 +1915,9 @@
   "Country": "Canada",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/certain-whole-foods-market-brand-guacamoles-pico-gallos-salsas-and-prepared-foods",
-  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] [added 2026-08-14: CFIA recall RA-82480, published 13 Aug 2026, transcribed from the CFIA notice at recalls-rappels.canada.ca. CFIA states the recall is 'associated with Outbreak Investigation of Salmonella: Jalapeño (August 2026)' and that 'There have been no reported illnesses associated with the consumption of these products in Canada'. Added by hand because the CFIA open-data export (HCRSAMOpenData.json), which the scraper's preferred L1 layer reads, does not contain this record — its newest CFIA entry on 2026-08-14 was dated 2026-08-08. The export lags the website, and the scraper's L2/L3 fallbacks only fire when L1 FAILS, not when it is stale.]"
+  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] [added 2026-08-14: CFIA recall RA-82480, published 13 Aug 2026, transcribed from the CFIA notice at recalls-rappels.canada.ca. CFIA states the recall is 'associated with Outbreak Investigation of Salmonella: Jalapeño (August 2026)' and that 'There have been no reported illnesses associated with the consumption of these products in Canada'. Added by hand because the CFIA open-data export (HCRSAMOpenData.json), which the scraper's preferred L1 layer reads, does not contain this record — its newest CFIA entry on 2026-08-14 was dated 2026-08-08. The export lags the website, and the scraper's L2/L3 fallbacks only fire when L1 FAILS, not when it is stale.] [outbreak-dedupe 2026-08-28: Outbreak 1→0; event fda:salmonella-jalapeno-august-2026 is already flagged on the FDA row — one event, one flag]"
  },
  {
   "Date": "2026-08-13",
@@ -1931,9 +2059,9 @@
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/whole-foods-market-announces-recall-select-salsas-guacamole-pico-de-gallo-and-prepared-foods",
-  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-14: FDA recall of Whole Foods Market salsas, guacamole, pico de gallo and prepared foods, 2026-08-12. FDA's own notice states the FDA and CDC 'are investigating illnesses in a multistate outbreak of Salmonella infections linked to fresh jalapeños supplied by Coast Citrus Distributors'. CDC records the Salmonella Javiana investigation as Open with 345 illnesses, 36 hospitalisations across 27 states. The explicit event id matches the one the lead investigation row (Coast Citrus, 2026-08-05) already derives from its FDA investigation slug, so all rows of this event count ONCE. Without the override derive() only reaches 'inferred:salmonella:2026-08' at low confidence, which count_events() refuses to merge on by design.]"
+  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-14: FDA recall of Whole Foods Market salsas, guacamole, pico de gallo and prepared foods, 2026-08-12. FDA's own notice states the FDA and CDC 'are investigating illnesses in a multistate outbreak of Salmonella infections linked to fresh jalapeños supplied by Coast Citrus Distributors'. CDC records the Salmonella Javiana investigation as Open with 345 illnesses, 36 hospitalisations across 27 states. The explicit event id matches the one the lead investigation row (Coast Citrus, 2026-08-05) already derives from its FDA investigation slug, so all rows of this event count ONCE. Without the override derive() only reaches 'inferred:salmonella:2026-08' at low confidence, which count_events() refuses to merge on by design.] [outbreak-dedupe 2026-08-28: Outbreak 1→0; event fda:salmonella-jalapeno-august-2026 is already flagged on the FDA row — one event, one flag]"
  },
  {
   "Date": "2026-08-12",
@@ -2427,9 +2555,9 @@
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-products-made-jalapeno-peppers-because-possible-health-risk",
-  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-14: FDA recall of Taylor Fresh Foods products made with jalapeño peppers, 2026-08-09. FDA's own notice states the FDA and CDC 'are investigating illnesses in a multistate outbreak of Salmonella infections linked to fresh jalapeños supplied by Coast Citrus Distributors'. CDC records the Salmonella Javiana investigation as Open with 345 illnesses, 36 hospitalisations across 27 states. The explicit event id matches the one the lead investigation row (Coast Citrus, 2026-08-05) already derives from its FDA investigation slug, so all rows of this event count ONCE. Without the override derive() only reaches 'inferred:salmonella:2026-08' at low confidence, which count_events() refuses to merge on by design.]"
+  "Notes": "[outbreak:fda:salmonella-jalapeno-august-2026] FDA listing HTML (Layer 1) [outbreak-linked 2026-08-14: FDA recall of Taylor Fresh Foods products made with jalapeño peppers, 2026-08-09. FDA's own notice states the FDA and CDC 'are investigating illnesses in a multistate outbreak of Salmonella infections linked to fresh jalapeños supplied by Coast Citrus Distributors'. CDC records the Salmonella Javiana investigation as Open with 345 illnesses, 36 hospitalisations across 27 states. The explicit event id matches the one the lead investigation row (Coast Citrus, 2026-08-05) already derives from its FDA investigation slug, so all rows of this event count ONCE. Without the override derive() only reaches 'inferred:salmonella:2026-08' at low confidence, which count_events() refuses to merge on by design.] [outbreak-dedupe 2026-08-28: Outbreak 1→0; event fda:salmonella-jalapeno-august-2026 is already flagged on the FDA row — one event, one flag]"
  },
  {
   "Date": "2026-08-08",
@@ -12987,9 +13115,9 @@
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html",
-  "Notes": "# Salmonella Outbreak Linked to Moringa Capsules | Salmonella Infection | CDC\n\nPublished: 2026-05-27T19:00:13+00:00\nSource: cdc.gov (cdc.gov)\nLanguage: en\n\n## Story\n\nSalmonella Outbreak Linked to Moringa Capsules | Salmonella Infection | CDC\n\n# Salmonella Outbreak Linked to Moringa Capsules\n\nFor Eve  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-05-29: pending_gap → pending_gap_v1] [gemini-check 2026-05-29: fix; corrections: Company→Mogo Moringa LLC, Brand→Mogo, Product→Pure Moringa Oleifera Capsules, Pathogen→Salmonella; fix; company mismatch; product mismatch | Company, Brand, and Product fields contained extraction garbage and have been ] [gap-gate 2026-05-29: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "# Salmonella Outbreak Linked to Moringa Capsules | Salmonella Infection | CDC\n\nPublished: 2026-05-27T19:00:13+00:00\nSource: cdc.gov (cdc.gov)\nLanguage: en\n\n## Story\n\nSalmonella Outbreak Linked to Moringa Capsules | Salmonella Infection | CDC\n\n# Salmonella Outbreak Linked to Moringa Capsules\n\nFor Eve  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-05-29: pending_gap → pending_gap_v1] [gemini-check 2026-05-29: fix; corrections: Company→Mogo Moringa LLC, Brand→Mogo, Product→Pure Moringa Oleifera Capsules, Pathogen→Salmonella; fix; company mismatch; product mismatch | Company, Brand, and Product fields contained extraction garbage and have been ] [gap-gate 2026-05-29: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [outbreak-dedupe 2026-08-28: Outbreak 1→0; event cdc:moringa-05-26 is already flagged on the CDC row — one event, one flag]"
  },
  {
   "Date": "2026-05-27",
@@ -17931,9 +18059,9 @@
   "Country": "Ireland",
   "Region": "Europe",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-batches-of-good4u-super-sprouts-super-gr",
-  "Notes": "[product of UK; retailers requested to remove from sale and display point-of-sale recall notices; matching FSA UK alert same day; OUTBREAK CONFIRMED via UKHSA/THL/HPSC investigations: 48 cases of S. Bovismorbificans across UK (15 in England/Wales since Jan 2026), Finland (32 cases Mar-Apr 2026, 23 women, ages 17-77), Ireland; ≥5 hospitalised; epidemiological investigations in all 3 countries point to sprouted seeds; 4 other EU countries report 10 additional related cases; UPGRADED Tier 2→1 + Outbreak 0→1 per news 2026-04-30]"
+  "Notes": "[product of UK; retailers requested to remove from sale and display point-of-sale recall notices; matching FSA UK alert same day; OUTBREAK CONFIRMED via UKHSA/THL/HPSC investigations: 48 cases of S. Bovismorbificans across UK (15 in England/Wales since Jan 2026), Finland (32 cases Mar-Apr 2026, 23 women, ages 17-77), Ireland; ≥5 hospitalised; epidemiological investigations in all 3 countries point to sprouted seeds; 4 other EU countries report 10 additional related cases; UPGRADED Tier 2→1 + Outbreak 0→1 per news 2026-04-30] [outbreak-dedupe 2026-08-28: Outbreak 1→0; event xs:salmonella:sprout:2026-04 is already flagged on the FSA (UK) row — one event, one flag]"
  },
  {
   "Date": "2026-04-21",
@@ -18123,9 +18251,9 @@
   "Country": "Canada",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 1,
+  "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-pistachios-and-pistachio-containing-products-recalled-due-salmonella-6",
-  "Notes": "[ongoing CFIA pistachio investigation; outbreak=1 — PHAC reports 189 illnesses, 26 hospitalisations across 6 provinces (April 2026 update); related to Heeva Fine Foods recall in Batch 2] [outbreak:ca:cfia-kunafa-pistachio-2026-04] [fix 2026-08-26: both CFIA notices for this recall were verified against the source and BOTH name the same recalling firm, Kunafa's Inc., RA-81920, Class 2, 2026-04-21, possible Salmonella. One row carried the notice headline 'Various pistachios and pistachio-containing products' in the Company field instead of a company; corrected. Both rows tagged [outbreak:ca:cfia-kunafa-pistachio-2026-04] so the two notices count as ONE event — a high-confidence operator override, not the low-confidence pathogen+month inference, which count_events correctly refuses to merge on.]"
+  "Notes": "[ongoing CFIA pistachio investigation; outbreak=1 — PHAC reports 189 illnesses, 26 hospitalisations across 6 provinces (April 2026 update); related to Heeva Fine Foods recall in Batch 2] [outbreak:ca:cfia-kunafa-pistachio-2026-04] [fix 2026-08-26: both CFIA notices for this recall were verified against the source and BOTH name the same recalling firm, Kunafa's Inc., RA-81920, Class 2, 2026-04-21, possible Salmonella. One row carried the notice headline 'Various pistachios and pistachio-containing products' in the Company field instead of a company; corrected. Both rows tagged [outbreak:ca:cfia-kunafa-pistachio-2026-04] so the two notices count as ONE event — a high-confidence operator override, not the low-confidence pathogen+month inference, which count_events correctly refuses to merge on.] [outbreak-dedupe 2026-08-28: Outbreak 1→0; event ca:cfia-kunafa-pistachio-2026-04 is already flagged on the CFIA row — one event, one flag]"
  },
  {
   "Date": "2026-04-21",
