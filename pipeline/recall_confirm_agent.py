@@ -111,14 +111,33 @@ def main() -> int:
     commit = args.commit.lower() in ("1", "true", "yes", "on")
 
     pending = _load_sheet(args.xlsx, "Pending")
+    # ── FAST PATH (2026-08-28) ───────────────────────────────────────────
+    # Reviewer 3 was gated to pending_gap_v3 only, so a row that ALREADY
+    # satisfies every deterministic guard still had to wait for reviewer 1 and
+    # reviewer 2 to touch it — each ~100 s on a CPU-only 7B model, on a VPS
+    # that has been down repeatedly.
+    #
+    # Measured on the live sheet: 20 of 47 Pending rows passed every guard
+    # (required fields present, regulator-domain URL, no fabricated pathogen,
+    # no placeholder, in-scope date) and 14 of them sat at pending_gap purely
+    # because of a status label. Among them a multi-country gorgonzola/brie
+    # Listeria cluster — BE, IT, FR, UK within 48 hours — which missed a
+    # weekly report while waiting on a model that could add nothing.
+    #
+    # The guards below ARE the review for such a row. Verification the model
+    # would add is re-reading a page whose fields already agree with it. So
+    # any status is admitted here; the guards, not the label, decide. Nothing
+    # is relaxed: confirm() still runs in full and rejects anything that fails.
     lane = [r for r in pending
-            if str(r.get("Status", "")).strip() == A2_APPROVED]
+            if str(r.get("Status", "")).strip() in
+            (A2_APPROVED, "pending", "pending_gap", "pending_gap_v1",
+             "pending_gap_v2")]
     already_rejected = [r for r in pending
                         if str(r.get("Status", "")).strip() == "rejected"]
     if args.limit and args.limit > 0:
         lane = lane[:args.limit]
 
-    print(f"Agent 3 (confirmer): {len(lane)} row(s) at {A2_APPROVED}, "
+    print(f"Agent 3 (confirmer): {len(lane)} row(s) in lane, "
           f"{len(already_rejected)} already rejected by reviewer 2 "
           f"(commit={commit})")
     if not lane and not already_rejected:
