@@ -5,29 +5,29 @@
   "week_num": 35,
   "year": 2026,
   "week_start": "2026-08-21",
-  "week_end": "2026-08-26",
+  "week_end": "2026-08-27",
   "week_start_display": "21 Aug",
-  "week_end_display": "26 Aug 2026",
-  "generated_utc": "2026-08-28T01:10:56.811578+00:00",
+  "week_end_display": "27 Aug 2026",
+  "generated_utc": "2026-08-28T04:57:19.970847+00:00",
   "stats": {
-    "total": 22,
-    "tier1": 20,
+    "total": 30,
+    "tier1": 27,
     "outbreaks": 1,
-    "delta": -50,
-    "delta_pct": -69
+    "delta": -42,
+    "delta_pct": -58
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 12,
-    "pct": 55
+    "cases": 14,
+    "pct": 47
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
       "date": "2026-08-22",
-      "pathogen": "Salmonella",
-      "pathogen_raw": "Salmonella",
+      "pathogen": "Shiga toxin-producing E. coli (STEC)",
+      "pathogen_raw": "Shiga toxin-producing E. coli (STEC)",
       "tier": 1,
       "outbreak": true,
       "company": "Everything Sprouts, LLC",
@@ -35,10 +35,38 @@
       "product": "Alfalfa Sprouts",
       "country": "United States",
       "source": "FDA",
-      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-recalls-alfalfa-sprouts-due-potential-e-coli-and-salmonella-risk"
+      "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
     },
     {
       "rank": 2,
+      "date": "2026-08-27",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "CARREFOUR FRANCE CARREFOUR",
+      "brand": "Unbranded",
+      "product": "rôti de boeuf - vendu au rayon traditionnel",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23343/Interne"
+    },
+    {
+      "rank": 3,
+      "date": "2026-08-26",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Origin: Cyprus | Notifying: Germany",
+      "brand": "DEU",
+      "product": "Listeria monocytogenes in halloumi from Cyprus",
+      "country": "Cyprus",
+      "source": "RASFF (EU)",
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868574"
+    },
+    {
+      "rank": 4,
       "date": "2026-08-26",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -52,21 +80,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23330/interne"
     },
     {
-      "rank": 3,
-      "date": "2026-08-26",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Les Fromagers de Saint Omer (CIPF CODIPAL)",
-      "brand": "Casa Azzurra",
-      "product": "gorgonzola aop doux; casa azzurra",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23340/interne"
-    },
-    {
-      "rank": 4,
+      "rank": 5,
       "date": "2026-08-25",
       "pathogen": "Shiga toxin-producing E. coli (STEC)",
       "pathogen_raw": "Shiga toxin-producing E. coli (STEC)",
@@ -78,21 +92,7 @@
       "country": "United Kingdom",
       "source": "FSA (UK)",
       "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-41-2026"
-    },
-    {
-      "rank": 5,
-      "date": "2026-08-21",
-      "pathogen": "Shiga toxin-producing E. coli (STEC)",
-      "pathogen_raw": "Shiga toxin-producing E. coli (STEC)",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Summit Foods",
-      "brand": "",
-      "product": "Snacksters Chicken Fajita Wrap; Snacksters Hoi Sin Wrap; East Street Deli Sweet Chilli Chicken Wrap; Target a Snack Chicken Fajita Wrap",
-      "country": "United Kingdom",
-      "source": "FSA (UK)",
-      "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-40-2026"
     }
   ],
-  "country_count": 9
+  "country_count": 12
 }
