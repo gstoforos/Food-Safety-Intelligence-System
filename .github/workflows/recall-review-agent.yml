@@ -22,11 +22,6 @@ on:
   # (UTC+3), the other in EET (UTC+2), and the guard ensures exactly one
   # takes effect. Remove these three from FsisScheduler.gs after pushing, or
   # each slot runs twice.
-  schedule:
-    - cron: "30 3 * * *"    # 06:30 Athens, EEST
-    - cron: "30 4 * * *"    # 06:30 Athens, EET
-    - cron: "40 19 * * *"    # 22:40 Athens, EEST
-    - cron: "40 20 * * *"    # 22:40 Athens, EET
   workflow_dispatch:
     inputs:
       skip_commit:
@@ -57,6 +52,14 @@ jobs:
       - name: Athens-hour guard (one fire per slot across DST)
         id: guard
         run: |
+          # NOTE (2026-08-28): the schedule: block was removed from this
+          # workflow — FsisScheduler.gs is the single dispatcher, and having
+          # both fire meant every slot ran twice. So github.event_name is
+          # always workflow_dispatch here and this guard always passes.
+          #
+          # It is kept, not deleted: if a cron is ever added back, the hour
+          # test immediately does its job again and stops the DST twin from
+          # double-firing. Deleting it would remove that safety net silently.
           HOUR=$(TZ=Europe/Athens date +%H)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] \
              || [ "$HOUR" = "06" ] || [ "$HOUR" = "22" ]; then

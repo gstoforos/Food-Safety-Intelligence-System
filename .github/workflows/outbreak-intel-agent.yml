@@ -20,9 +20,6 @@ name: AFTS Outbreak Intel Agent
 # ==========================================================================
 
 on:
-  schedule:
-    - cron: "30 6 * * *"      # 09:30 Athens EEST
-    - cron: "30 7 * * *"      # 09:30 Athens EET (winter)
   workflow_dispatch:
     inputs:
       since_days:
@@ -52,6 +49,14 @@ jobs:
       - name: Athens-hour guard (one fire per day across DST)
         id: guard
         run: |
+          # NOTE (2026-08-28): the schedule: block was removed from this
+          # workflow — FsisScheduler.gs is the single dispatcher, and having
+          # both fire meant every slot ran twice. So github.event_name is
+          # always workflow_dispatch here and this guard always passes.
+          #
+          # It is kept, not deleted: if a cron is ever added back, the hour
+          # test immediately does its job again and stops the DST twin from
+          # double-firing. Deleting it would remove that safety net silently.
           HOUR=$(TZ=Europe/Athens date +%H)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$HOUR" = "09" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
