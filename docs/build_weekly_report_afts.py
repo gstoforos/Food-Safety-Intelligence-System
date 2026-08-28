@@ -1181,6 +1181,27 @@ def _fallback_p1_to_p3(stats, recalls):
         for r in ob_recalls:
             path = str(r.get("Pathogen") or "").strip()
             prod = str(r.get("Product") or r.get("Company") or "").strip()
+
+            # ── Audit 2026-08-28 ──────────────────────────────────────────
+            # "{Pathogen} linked to {Product}" is a fair description of a
+            # single-hazard recall and a poor one of an outbreak. The W35
+            # sprout event involved three STEC serotypes AND Salmonella
+            # Agona across 15 states; rendered from Pathogen alone it read
+            # "Salmonella linked to alfalfa sprouts", which named the wrong
+            # dominant pathogen and dropped the epidemiology entirely.
+            #
+            # The Pathogen column is a controlled vocabulary and must stay
+            # one canonical value per row, so the multi-hazard description
+            # cannot live there. Where an outbreak row's Reason is written
+            # as a full outbreak description, use it verbatim: it is the
+            # operator-verified statement, and it is in the corpus rather
+            # than hardcoded here.
+            _reason = str(r.get("Reason") or "").strip()
+            if _reason.lower().lstrip().startswith(("multistate outbreak",
+                                                    "multi-state outbreak",
+                                                    "outbreak of")):
+                descs.append(_reason.rstrip(" .") )
+                continue
             # REVIEW 2026-08-07 — this was a hard prod[:60], which cut the
             # jalapeno product mid-word and published:
             #   "linked to Fresh jalapeno peppers grown in Sinaloa, Mexico
@@ -1221,8 +1242,17 @@ def _fallback_p1_to_p3(stats, recalls):
             f"Outbreak watch: {_count_phrase(n_ob, 'confirmed cluster event')} "
             f"tracked this week \u2014 {joined}. Although {tp} remained the leading "
             f"incident driver, {'this outbreak' if n_ob == 1 else 'these outbreaks'} "
-            f"should remain under active monitoring given cross-border exposure "
-            f"potential.")
+            f"should remain under active monitoring. "
+            # Audit 2026-08-28: this sentence used to close with "given
+            # cross-border exposure potential". That asserted international
+            # distribution for every outbreak, whatever the source said. The
+            # W35 sprout outbreak was distributed directly in two US states
+            # only; illnesses appearing in fifteen states is case
+            # geography, not distribution geography, and the two are not
+            # the same claim. Nothing here may state a distribution scope
+            # the corpus does not carry.
+            f"Distribution scope is as stated by the notifying authority; "
+            f"case geography is not distribution geography.")
     auths = _jurisdictions_from_recalls(recalls or [])
     if auths:
         auth_clause = ("Regulatory activity this week spanned multiple jurisdictions "
@@ -2771,9 +2801,9 @@ __CSS_PLACEHOLDER__
     <div class="kpi-delta" style="color:var(--muted)">Immediate public-health risk</div>
   </div>
   <div class="kpi">
-    <div class="kpi-label">Active Outbreaks</div>
+    <div class="kpi-label">New Outbreak Events</div>
     <div class="kpi-value violet">{outbreaks}</div>
-    <div class="kpi-delta" style="color:var(--muted)">Confirmed cluster events</div>
+    <div class="kpi-delta" style="color:var(--muted)">Distinct events in this week's register</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">Leading Pathogen</div>
