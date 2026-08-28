@@ -2294,6 +2294,72 @@ def write_monthly_summary_json(month_start: date, month_end: date,
         "generated_at":     datetime.now(timezone.utc).isoformat(),
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # ── Per-month summary, written ALWAYS ─────────────────────────────────
+    # afts-monthly-report.yml has staged `docs/data/monthly-summary-20*.json`
+    # since it was written, and no such file has ever existed: only the
+    # single "latest" pointer was emitted. The consequence is that a closed
+    # month cannot be rebuilt as a unit — pipeline.build_monthly_marketing
+    # takes --summary, and the only summary on disk is whichever month last
+    # won the pointer. So after a retro-rebuild the HTML said one thing and
+    # the marketing PDF on hub.html said another, with no way to re-render
+    # the PDF short of dragging the pointer backwards, which is exactly what
+    # the guard above now forbids.
+    #
+    # Writing it here, before the guard can return, means every month has a
+    # summary of its own and `--summary docs/data/monthly-summary-2026-M04.json`
+    # rebuilds April's one-pager without touching what subscribers receive.
+    per_month = out_path.parent / f"monthly-summary-{year_m}.json"
+    per_month.write_text(json.dumps(payload, indent=2, ensure_ascii=False),
+                         encoding="utf-8")
+    log.info("Per-month summary written: %s", per_month)
+
+    # ── Latest-pointer guard (audit 2026-08-28) ───────────────────────────
+    # The weekly builder has had this guard since the 2026-08-07 incident,
+    # when a retro-rebuild of W27 took the weekly pointer and a five-week-old
+    # briefing went to every subscriber. The monthly builder never got it,
+    # and the same thing has been happening quietly ever since.
+    #
+    # EVIDENCE. On 2026-08-28 this file's pointer read 2026-M05 — three
+    # months stale — while monthly-index.json carried July at 306 recalls.
+    # afts-monthly-report.yml was dispatched on 1 June, 1 July and 1 August
+    # (scraper-health-monthly.yml, fired from the same block one hour
+    # earlier, committed on all three), so the workflow was running. What it
+    # runs first is `build_missing_monthly_reports`, a gap-filler that
+    # rebuilds months whose counts have drifted — in month order, oldest
+    # last written wins. Every one of those retro-builds overwrote this
+    # pointer with an older month, and nothing said so. The mailer then read
+    # May, and the "monthly report has not built since May" symptom is
+    # actually "the pointer keeps being dragged backwards".
+    #
+    # RULE, identical to the weekly one: a build of a month that is NOT the
+    # newest on record writes its own HTML, its marketing PDF and its
+    # monthly-index.json row, and leaves this pointer alone. That is what
+    # monthly-updates-pending.json and the Day-8 notification exist for.
+    if out_path.exists():
+        try:
+            prior = json.loads(out_path.read_text(encoding="utf-8"))
+            prior_key = (int(prior.get("year") or 0),
+                         int(prior.get("month_num") or 0))
+            if prior_key > (year, month_start.month):
+                log.warning(
+                    "REFUSING to move the monthly latest-pointer backwards: "
+                    "%s already points at %04d-M%02d and this build is "
+                    "%04d-M%02d. Retro-rebuild of a closed month — the HTML, "
+                    "the marketing PDF and monthly-index.json are updated, "
+                    "the subscriber pointer is not. (The weekly builder has "
+                    "carried this guard since the 2026-08-07 W27 incident; "
+                    "the monthly one did not, and its pointer sat on "
+                    "2026-M05 for three months.)",
+                    out_path.name, prior_key[0], prior_key[1],
+                    year, month_start.month)
+                return
+        except Exception as exc:                       # pragma: no cover
+            # A corrupt pointer must not block a legitimate build — but say so.
+            log.warning("monthly latest-pointer unreadable (%s: %s) — writing "
+                        "%04d-M%02d", type(exc).__name__, exc,
+                        year, month_start.month)
+
     out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     log.info("Monthly summary JSON written: %s", out_path)
 
