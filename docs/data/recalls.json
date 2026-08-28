@@ -106,10 +106,10 @@
   "Class": "Class I",
   "Country": "United States",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsis.usda.gov/recalls-alerts/shanghai-ravioli-corporation-recalls-not-ready-eat-frozen-buffalo-chicken-products",
-  "Notes": "FSIS API; #018-2026; Maine Massachusetts New Hampshire Rhode Island Vermont [gemini-enrich 2026-08-27: Company ''→'Shanghai Ravioli Corporation'] [promoted 2026-08-28: official USDA FSIS scrape, Class I. Source page not reachable from the review sandbox (proxy blocks fsis.usda.gov); gate-clean, no contradiction found.]"
+  "Notes": "FSIS API; #018-2026; Maine Massachusetts New Hampshire Rhode Island Vermont [gemini-enrich 2026-08-27: Company ''→'Shanghai Ravioli Corporation'] [promoted 2026-08-28: official USDA FSIS scrape, Class I. Source page not reachable from the review sandbox (proxy blocks fsis.usda.gov); gate-clean, no contradiction found.] [tier-guard: Hepatitis A virus is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-08-26",
