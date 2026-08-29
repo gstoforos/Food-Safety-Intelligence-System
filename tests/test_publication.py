@@ -357,3 +357,58 @@ def test_no_remote_assets(lead_fragment):
     render from the repo alone."""
     _d, page = lead_fragment
     assert 'src="http' not in page
+
+
+# ── Review round 3, 2026-08-28 ──────────────────────────────────────────
+
+def test_no_printed_p_value_can_be_read_as_failing_its_threshold(built):
+    """The 29 June Listeria/Europe signal has p = 0.009988. At four decimals
+    that prints 0.0100, which a reader compares against alpha = 0.01 and
+    concludes did not clear it — while the row sits in the admitted table.
+    Rounding is a display choice and must never invert the finding it shows.
+    """
+    d, page = built
+    text = re.sub(r"&nbsp;", " ", re.sub(r"<[^>]+>", " ", page))
+    for r in d["replay"]:
+        if not r["in_window"] or r["channel"] != "proportion":
+            continue
+        p = r["p_value"]
+        for alpha in (0.05, 0.01, 0.001):
+            if p < alpha:
+                bad = f"p {alpha:.4f}"
+                assert bad not in text, (
+                    f"p={p!r} is below {alpha} but prints as {bad}, which reads "
+                    f"as failing")
+
+
+def test_the_lead_separates_labels_publishers_and_jurisdictions(built):
+    """Three different counts that the lead had been collapsing into one
+    phrase: source LABELS in the register, the subset that are official or
+    regulatory PUBLISHERS, and the JURISDICTIONS the notices cover. "43
+    publishers in 84 countries" was wrong twice — eight of the labels are
+    aggregators or non-regulatory, and 84 counts jurisdictions covered, not
+    places publishers sit."""
+    d, page = built
+    text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", page))
+    reg = d["register"]
+    labels = len(reg)
+    classified = sum(1 for s in reg.values() if s.coverage_class != "excluded")
+    assert f"{d['n_countries']} jurisdictions and {labels} source labels" in text
+    assert "aggregator or non-regulatory labels are excluded" in text
+    assert f"{labels} publishers" not in text, "the collapsed phrase is back"
+    assert f"{labels} official and regulatory publishers" not in text
+    assert classified + (labels - classified) == labels
+
+
+def test_figure_two_does_not_call_diagnostics_findings(built):
+    """Ten of the twenty-one rows are diagnostics, not statistical findings.
+    A caption that calls all of them findings overstates the result by
+    ninety per cent."""
+    _d, page = built
+    text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", page))
+    assert "Every alert-ledger row inside the analytical window" in text
+    assert "Every finding inside the analytical window" not in text
+    assert "carried as diagnostics, not findings" in text
+    assert "is usually the publisher, not the food supply" not in text, (
+        "the causal claim is back; publisher activity may explain a "
+        "count-only rise, it is not established that it does")
