@@ -81,6 +81,15 @@ def _p(p: float) -> str:
             else f"p&nbsp;=&nbsp;{p:.5f}")
 
 
+_NUM_WORDS = {6: "six", 8: "eight", 35: "thirty-five", 43: "forty-three"}
+
+
+def _num_word(n: int) -> str:
+    """Spell small counts that open a sentence; leave the rest as digits."""
+    return _NUM_WORDS.get(n, str(n))
+
+
+
 def _facts(d: dict) -> dict:
     inw = [r for r in d["replay"] if r["in_window"]]
     share = [r for r in inw if r["channel"] == "proportion"]
@@ -107,9 +116,21 @@ def _facts(d: dict) -> dict:
     # the register carries every source the corpus has ever seen, and a
     # source excluded from ANALYSIS is still a source being read. Both
     # numbers are now available and the prose says which is which.
-    publishers_read = len(d["register"])
+    # Three different things, and the lead had been collapsing them:
+    #   * SOURCE LABELS in the register (43) — not all of them publishers;
+    #   * labels with a coverage class (35) — the official and regulatory
+    #     ones, the only sense in which "publisher" is accurate;
+    #   * EXCLUDED labels (8) — aggregators that re-publish another
+    #     authority's notice (six CFS Hong Kong feeds) plus two
+    #     non-regulatory sources, Food Safety News and BeaconBio.
+    # And 84 is a count of JURISDICTIONS the notices cover, not of places
+    # publishers sit in. "43 publishers in 84 countries" was wrong twice.
+    labels = len(d["register"])
     publishers_classified = sum(1 for s in d["register"].values()
                                 if s.coverage_class != "excluded")
+    labels_excluded = labels - publishers_classified
+    continuous = sum(1 for s in d["register"].values()
+                     if s.coverage_class == "continuous")
     publishers = publishers_classified  # kept for callers
     step = d["steps"][0] if d["steps"] else None
 
@@ -164,8 +185,9 @@ def _facts(d: dict) -> dict:
             f'supply.</p>')
 
         return {"share": share, "count": count, "conc": conc, "per_week": per_week,
-            "publishers": publishers, "publishers_read": publishers_read,
+            "publishers": publishers, "labels": labels,
             "publishers_classified": publishers_classified,
+            "labels_excluded": labels_excluded, "continuous": continuous,
             "window_weeks": window_weeks, "window_notices": window_notices,
             "countries": d.get("n_countries"),
             "cards": cards, "fr_txt": fr_txt, "step_txt": step_txt}
@@ -197,27 +219,29 @@ def front_matter(d: dict) -> str:
     f = _facts(d)
     share, count, conc = f["share"], f["count"], f["conc"]
     per_week = f["per_week"]
-    p_read, p_cls = f["publishers_read"], f["publishers_classified"]
+    labels, p_cls = f["labels"], f["publishers_classified"]
+    excl, cont = f["labels_excluded"], f["continuous"]
     win_wk, win_n = f["window_weeks"], f["window_notices"]
     cards, fr_txt, step_txt = f["cards"], f["fr_txt"], f["step_txt"]
-    countries = f["countries"]
-    where = f" in {countries} countries" if countries else ""
+    jur = f["countries"]
     return f"""
-<p>AFTS-FSIS reads recall and alert notices from {p_read} official and
-regulatory publishers{where}, normalises them into one schema, and screens
-them for pathogens, biotoxins, mycotoxins, foreign material, pest and
-chemical hazards.</p>
+<p>AFTS-FSIS contains notices spanning {jur} jurisdictions and {labels}
+source labels. {_num_word(p_cls).capitalize()} labels represent official or
+regulatory publishers assigned a coverage class; {_num_word(excl)}
+aggregator or non-regulatory labels are excluded. {_num_word(cont).capitalize()}
+continuously collected publishers determine the analytical coverage window.
+Every notice is normalised into one schema and screened for pathogens,
+biotoxins, mycotoxins, foreign material, pest and chemical hazards.</p>
 
 <p>The complete {d['n_weeks']}-week corpus contains
 {d['n_records']:,} notices. The approved {win_wk}-week analytical window
-contains {win_n:,} — about {per_week:.0f} a week. Those are two
-different denominators and the rest of this page keeps them apart:
-{p_cls} of the {p_read} publishers carry a coverage class at all, and only
-the six that publish continuously enough to hold a baseline are analysed.</p>
+contains {win_n:,} — about {per_week:.0f} a week. Those are two different
+denominators, and the rest of this page keeps them apart.</p>
 
-<p>Nobody reads {per_week:.0f} notices a week across {p_read}
-publishers and spots that one pathogen in one country has quietly doubled
-against its own recent baseline. That is the job the detector does.</p>
+<p>Nobody reads approximately {per_week:.0f} notices a week across the
+monitored feeds and spots that one pathogen in one country has quietly
+doubled against its own recent baseline. That is the job the detector
+does.</p>
 
 <h2>What it caught</h2>
 
