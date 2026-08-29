@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anomalies in a multi-jurisdiction food recall corpus</title>
+<meta name="author" content="Advanced Food-Tech Solutions (AFTS), Athens">
+<meta name="description" content="Recall volume goes up for two very different reasons. One of them matters. Within the approved 11-week analytical window, AFTS-FSIS identified 11 FDR-controlled share elevations and attributed the dominant publisher for each.">
+<style>
+:root{
+  --ink:#12161c; --ink-2:#3d4654; --ink-3:#6b7585; --rule:#e2e6ec;
+  --bg:#ffffff; --bg-2:#f7f9fb; --accent:#0b6b5e; --accent-2:#e8f3f1;
+  --warn-bg:#fff8e6; --warn-line:#e0b44a; --warn-ink:#6b4e08;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --viz:#0f9c86;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.65 Charter,"Iowan Old Style","Source Serif Pro",Georgia,serif;
+  -webkit-text-size-adjust:100%}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px 96px}
+header.masthead{border-bottom:3px solid var(--ink);margin-bottom:38px;
+  padding:44px 0 22px}
+.eyebrow{font:600 11px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:16px}
+h1{font-size:33px;line-height:1.2;margin:0 0 10px;letter-spacing:-.015em}
+.sub{color:var(--ink-2);font-size:18px;margin:0 0 20px}
+.byline{font:13px/1.6 ui-sans-serif,system-ui,sans-serif;color:var(--ink-3)}
+.byline a{color:var(--accent);text-decoration:none}
+h2{font-size:22px;margin:52px 0 14px;padding-top:14px;
+  border-top:1px solid var(--rule);letter-spacing:-.01em}
+h2 .num{color:var(--ink-3);font-weight:400;margin-right:10px}
+h3{font-size:16.5px;margin:28px 0 8px;color:var(--ink-2)}
+p{margin:0 0 15px}
+ul,ol{margin:0 0 15px;padding-left:22px}
+li{margin:0 0 7px}
+code,.mono{font-family:var(--mono);font-size:.88em;
+  background:var(--bg-2);padding:1px 5px;border-radius:3px}
+.lede{font-size:17.5px;color:var(--ink-2);border-left:3px solid var(--accent);
+  padding-left:18px;margin:0 0 30px}
+.tw{overflow-x:auto;margin:20px 0 24px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font:13.5px/1.5 ui-sans-serif,
+  system-ui,sans-serif;min-width:640px}
+th{text-align:left;padding:9px 10px;border-bottom:2px solid var(--ink);
+  font-weight:600;white-space:nowrap;vertical-align:bottom}
+td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+td.d,th.d{white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;
+  font-family:var(--mono);font-size:12.5px}
+tbody tr:hover{background:var(--bg-2)}
+caption{caption-side:bottom;text-align:left;padding-top:10px;font:13px/1.6
+  ui-sans-serif,system-ui,sans-serif;color:var(--ink-3)}
+.chan{display:inline-block;font:600 10px/1.5 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.06em;padding:1px 6px;border-radius:3px;text-transform:uppercase;
+  white-space:nowrap}
+.chan.proportion{background:var(--accent-2);color:var(--accent)}
+.chan.count{background:#eef0f3;color:var(--ink-2)}
+.note{background:var(--bg-2);border:1px solid var(--rule);border-left:3px solid
+  var(--accent);padding:15px 18px;margin:22px 0;font-size:15px}
+.note .h{font:600 11px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:9px}
+.warn{background:var(--warn-bg);border:1px solid var(--warn-line);
+  border-left:3px solid var(--warn-line);padding:15px 18px;margin:22px 0;
+  font-size:15px;color:var(--warn-ink)}
+.warn .h{font:600 11px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:9px}
+/* Six tiles: an auto-fit track leaves a stranded empty cell at most
+   widths, which reads as a rendering fault. Fixed 3x2 / 2x3 instead. */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin:26px 0}
+@media (min-width:700px){.kpis{grid-template-columns:repeat(3,1fr)}}
+.kpi{background:var(--bg);padding:16px 18px}
+.kpi .v{font:600 26px/1.1 ui-sans-serif,system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi .l{font:12px/1.4 ui-sans-serif,system-ui,sans-serif;color:var(--ink-3);
+  margin-top:5px}
+
+/* ── Figure 1 ─────────────────────────────────────────────────────────── */
+.fig{margin:26px 0 28px}
+.fig .svgwrap{position:relative;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;padding-top:4px}
+.fig svg{display:block;min-width:660px}
+.fig .bar{fill:var(--viz);shape-rendering:crispEdges}
+.fig .bar:hover{fill:var(--ink)}
+.fig .grid{stroke:var(--rule);stroke-width:1;shape-rendering:crispEdges}
+.fig .excl{fill:var(--bg-2)}
+.fig .cut{stroke:var(--ink-2);stroke-width:1.5;stroke-dasharray:4 3}
+.fig text{font-family:ui-sans-serif,system-ui,sans-serif}
+.fig .ax{font-size:10px;fill:var(--ink-3)}
+.fig .ptitle{font-size:11.5px;font-weight:600;fill:var(--ink-2);
+  letter-spacing:.02em}
+.fig .vlab{font-size:10px;font-weight:600;fill:var(--ink-2);text-anchor:middle}
+.fig .cutlab{font-size:10.5px;font-weight:600;fill:var(--ink-2)}
+.fig .cutlab.dim{font-weight:400;fill:var(--ink-3)}
+/* Figure 2. Text wears text tokens, never the series colour — the swatch
+   beside a label is what carries identity. */
+.fig .figlab{font-size:11px;fill:var(--ink-2)}
+.fig .figval{font-size:10.5px;font-weight:600;fill:var(--ink-3)}
+.fig .key{font-size:12px;color:var(--ink-2)}
+.fig .sw{display:inline-block;width:11px;height:11px;border-radius:3px;
+  vertical-align:-1px;margin-right:4px}
+.fig .tip{position:absolute;pointer-events:none;background:var(--ink);
+  color:var(--bg);padding:6px 9px;border-radius:4px;font:12px/1.4
+  ui-sans-serif,system-ui,sans-serif;white-space:nowrap;z-index:5;
+  transform:translate(-50%,-118%)}
+.fig figcaption{font:13px/1.6 ui-sans-serif,system-ui,sans-serif;
+  color:var(--ink-3);margin-top:12px}
+.fig details{margin-top:10px}
+.fig summary{cursor:pointer;color:var(--accent);font-weight:600}
+.fig details table{min-width:420px}
+.sub-cta{border:2px solid var(--accent);padding:26px 28px;margin:56px 0 0;
+  background:var(--accent-2)}
+.sub-cta h3{margin:0 0 10px;color:var(--accent);font-size:19px}
+.sub-cta p{margin:0 0 14px;font-size:15.5px;color:var(--ink-2)}
+.sub-cta a.btn{display:inline-block;background:var(--accent);color:#fff;
+  text-decoration:none;padding:11px 22px;font:600 14px/1 ui-sans-serif,
+  system-ui,sans-serif;border-radius:3px}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--rule);
+  font:13px/1.7 ui-sans-serif,system-ui,sans-serif;color:var(--ink-3)}
+footer a{color:var(--accent)}
+@media (max-width:640px){
+  .wrap{padding:0 16px 64px} h1{font-size:26px} .sub{font-size:16px}
+  h2{font-size:19px} body{font-size:15.5px}
+}
+@media print{
+  body{font-size:10.5pt} .wrap{max-width:none;padding:0}
+  h2{page-break-after:avoid} table{page-break-inside:avoid}
+  .sub-cta{border-color:#999}
+}
+:root[data-theme="dark"]{
+  --ink:#e8ecf1; --ink-2:#b3bcc9; --ink-3:#828d9c; --rule:#2b323c;
+  --bg:#12161c; --bg-2:#1a2028; --accent:#5fd0bd; --accent-2:#12302c;
+  --warn-bg:#2e2610; --warn-line:#8a6d1f; --warn-ink:#e8ce88;
+  --viz:#17a08c;
+}
+:root[data-theme="dark"] .chan.count{background:#232a34;color:var(--ink-2)}
+:root[data-theme="dark"] .sub-cta a.btn{color:#0d1418}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#e8ecf1; --ink-2:#b3bcc9; --ink-3:#828d9c; --rule:#2b323c;
+    --bg:#12161c; --bg-2:#1a2028; --accent:#5fd0bd; --accent-2:#12302c;
+    --warn-bg:#2e2610; --warn-line:#8a6d1f; --warn-ink:#e8ce88;
+    --viz:#17a08c;
+  }
+  :root:not([data-theme="light"]) .chan.count{background:#232a34;color:var(--ink-2)}
+  :root:not([data-theme="light"]) .sub-cta a.btn{color:#0d1418}
+}
+
+.hero{padding:52px 0 30px;border-bottom:3px solid var(--ink);margin-bottom:36px}
+.hero .eyebrow{font:600 11px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:16px}
+.hero h1{font-size:36px;line-height:1.15;margin:0 0 16px;letter-spacing:-.02em}
+.hero .deck{font-size:19px;line-height:1.55;color:var(--ink-2);margin:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:16px;margin:26px 0 30px}
+.card{border:1px solid var(--rule);border-top:3px solid var(--accent);
+  padding:18px 18px 20px;background:var(--bg)}
+.card .big{font:600 30px/1 ui-sans-serif,system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--accent)}
+.card .who{font:600 14px/1.35 ui-sans-serif,system-ui,sans-serif;
+  margin:10px 0 6px}
+.card .det{font:13px/1.55 ui-sans-serif,system-ui,sans-serif;color:var(--ink-3)}
+.pull{font-size:20px;line-height:1.5;color:var(--ink);border-left:3px solid
+  var(--accent);padding:4px 0 4px 20px;margin:30px 0;font-style:italic}
+.honest{border:1px solid var(--rule);background:var(--bg-2);padding:20px 22px;
+  margin:30px 0}
+.honest h3{margin:0 0 12px;font-size:15px;color:var(--ink-2)}
+.honest ul{margin:0;padding-left:20px;font-size:15px}
+.annex{display:block;border:1px solid var(--rule);border-left:3px solid
+  var(--ink-3);padding:16px 20px;margin:30px 0;text-decoration:none;
+  color:inherit}
+.annex:hover{border-left-color:var(--accent);background:var(--bg-2)}
+.annex .k{font:600 10.5px/1 ui-sans-serif,system-ui,sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  margin-bottom:8px}
+.annex .t{font-weight:600;font-size:16px;margin-bottom:4px}
+.annex .s{font:13.5px/1.55 ui-sans-serif,system-ui,sans-serif;color:var(--ink-3)}
+@media (max-width:640px){.hero h1{font-size:27px}.hero .deck{font-size:17px}
+  .pull{font-size:17px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">AFTS-FSIS · Food Safety Intelligence System</div>
+  <h1>Anomalies in a multi-jurisdiction food recall corpus</h1>
+  <p class="sub">Recall volume goes up for two very different reasons. One of them matters. Within the approved 11-week analytical window, AFTS-FSIS identified 11 FDR-controlled share elevations and attributed the dominant publisher for each.</p>
+  <div class="byline">
+    Advanced Food-Tech Solutions (AFTS), Athens &middot; Food Safety Intelligence System<br>
+    Built 28 August 2026 at 20:38 UTC from corpus revision
+    <span class="mono">48682f70</span> &middot;
+    <a href="https://fsis.advfood.tech">fsis.advfood.tech</a>
+  </div>
+</header>
+
+<p class="lede">Every figure in this report is generated at build
+time from the corpus and the detector source. No table is transcribed by
+hand. The command that produced this page is given in &sect;7: running the
+documented build against the same corpus, source-code revision and
+configuration reproduces the reported analytical results, verifiable
+against the digest printed there.</p>
+
+<div class="kpis">
+  <div class="kpi"><div class="v">1,506</div>
+    <div class="l">notices, complete weeks</div></div>
+  <div class="kpi"><div class="v">34</div>
+    <div class="l">complete weeks</div></div>
+  <div class="kpi"><div class="v">434</div>
+    <div class="l">strata evaluated</div></div>
+  <div class="kpi"><div class="v">11</div>
+    <div class="l">FDR-controlled share signals</div></div>
+  <div class="kpi"><div class="v">10</div>
+    <div class="l">count-channel diagnostics</div></div>
+  <div class="kpi"><div class="v">6</div>
+    <div class="l">continuous sources</div></div>
+</div>
+
+
+<p>AFTS-FSIS contains notices spanning 84 jurisdictions and 43
+source labels. Thirty-five labels represent official or
+regulatory publishers assigned a coverage class; eight
+aggregator or non-regulatory labels are excluded. Six
+continuously collected publishers determine the analytical coverage window.
+Every notice is normalised into one schema and screened for pathogens,
+biotoxins, mycotoxins, foreign material, pest and chemical hazards.</p>
+
+<p>The complete 34-week corpus contains
+1,506 notices. The approved 11-week analytical window
+contains 685 — about 62 a week. Those are two different
+denominators, and the rest of this page keeps them apart.</p>
+
+<p>Nobody reads approximately 62 notices a week across the
+monitored feeds and spots that one pathogen in one country has quietly
+doubled against its own recent baseline. That is the job the detector
+does.</p>
+
+<h2>What it caught</h2>
+
+<p>Three of the 11, chosen by a rule rather than by which reads
+best: strongest statistical evidence first, one per stratum.</p>
+
+<div class="cards"><div class="card"><div class="big">&times;2.66</div><div class="who">Listeria monocytogenes · France</div><div class="det">Week of 13 Jul 2026 &middot; 37 notices against a baseline of 12.0. Share of corpus output, exact binomial p&nbsp;&lt;&nbsp;0.00001.<br><strong>Attributed:</strong> 97% RappelConso (FR).</div></div><div class="card"><div class="big">&times;8.38</div><div class="who">Tier 3 · Europe</div><div class="det">Week of 29 Jun 2026 &middot; 11 notices against a baseline of 1.3. Share of corpus output, exact binomial p&nbsp;&lt;&nbsp;0.00001.<br><strong>Attributed:</strong> 100% RappelConso (FR).</div></div><div class="card"><div class="big">&times;5.72</div><div class="who">Salmonella · Poland</div><div class="det">Week of 6 Jul 2026 &middot; 8 notices against a baseline of 1.4. Share of corpus output, exact binomial p&nbsp;=&nbsp;0.00008.<br><strong>Attributed:</strong> 100% RASFF (EU).</div></div></div>
+
+<p>The clearest example is Listeria monocytogenes in France, which cleared the threshold in 3 separate weeks (13 Jul 2026, 20 Jul 2026, 10 Aug 2026) &mdash; 37 notices against a baseline of 12.0 in the first of them. A sustained elevation in one country, identified in the walk-forward replay for the week in which the elevation began, inside a stream averaging 62 notices a week that nobody reads end to end.</p>
+
+<h2>Why counting is not enough</h2>
+
+<p>Here is the trap. The single largest weekly jump in this corpus is the week of 6 Apr 2026: <strong>+63 notices</strong>, of which 43 came from RappelConso (FR) alone. Any tool that watches raw counts alarms on that, and on every hazard class inside it, simultaneously. The pattern is strongly consistent with a publisher-volume event rather than evidence of a comparable change across the food supply.</p>
+
+<p>AFTS-FSIS scores each stratum on its <strong>share</strong> of the week's
+total output rather than its raw count. When a publisher doubles
+everything it files, every share stays roughly where it was and the
+detector stays quiet. When one pathogen in one country rises against a
+flat total, the share moves and the detector does not stay quiet.</p>
+
+<p class="pull">The question is never &ldquo;are there more notices this
+week?&rdquo; It is &ldquo;is this hazard taking a larger share of the
+monitored regulatory corpus than it did a month ago?&rdquo;</p>
+
+<h2>Detect, then attribute</h2>
+
+<p>A share signal is not automatically a food-safety event either, and
+this is where most tools stop and AFTS-FSIS does not.
+7 of the 11 elevations above came predominantly from a
+single publisher &mdash; and every one of those carries that fact in the
+record, with the publisher named and its percentage stated. The
+10 further rows that moved on count but <em>not</em> on share are
+kept in a separate ledger and labelled as what they are: publisher-review
+items, not findings.</p>
+
+<p>You get the signal and the reason to doubt it in the same row. An
+analyst can act on one and dismiss the other in seconds, which is the
+difference between a feed that gets read every morning and one that gets
+muted in week three.</p>
+
+<div class="honest">
+  <h3>What we do not claim</h3>
+  <ul>
+    <li><strong>This is not prediction.</strong> The corpus has no
+        denominator &mdash; no production volumes, no negative examples.
+        Nothing here forecasts which product will be recalled next.</li>
+    <li><strong>Notice counts are not incidence.</strong> A diligent
+        regulator looks worse than a quiet one. Every stratum is compared
+        only against itself.</li>
+    <li><strong>No outcome linkage.</strong> We do not claim any of these
+        signals predicted a confirmed outbreak. They are elevations in the
+        regulatory record, detected and attributed.</li>
+    <li><strong>Some events are invisible to us.</strong> An outbreak
+        identified through clinical surveillance may generate no notice
+        until the investigation closes. Nothing in the corpus can
+        anticipate that.</li>
+  </ul>
+</div>
+
+<h2><span class="num">1</span>What this is, and what it is not</h2>
+
+<p>This is a <strong>retrospective aberration detector</strong> over
+regulatory recall notices. It answers one question: is a given stratum
+&mdash; a pathogen, a country, a hazard tier, or a combination &mdash;
+running above its own recent baseline this week?</p>
+
+<p>It does not forecast. The corpus has no denominator: no production
+volumes, no consumption data, no negative examples. Nothing here supports
+a statement of the form &ldquo;product X is likely to be recalled&rdquo;,
+and no output string in the module makes one. A rise in notices is first
+a fact about publishers and only second a fact about food.</p>
+
+<p>The corpus covers 34 complete weeks,
+29 Dec 2025 to 17 Aug 2026,
+holding 1,506 notices. The trailing partial week is dropped
+at load: a week still being populated always looks like a decline, and
+including it would both suppress genuine signals and poison every baseline
+it later enters.</p>
+
+<h2><span class="num">2</span>Method</h2>
+
+<h3>2.1 Detector</h3>
+
+<p>CDC EARS C1/C2/C3 (Hutwagner et al., 2003), chosen over Farrington
+(1996) and Noufaily (2013) because those generally require multiple years
+of stable historical data to model seasonality reliably, and this corpus
+holds 34 weeks. The stratum
+contract is designed to survive a migration to Farrington without changing
+callers, once the history exists.</p>
+
+<ul>
+  <li><strong>C1</strong> &mdash; baseline is the 7 weeks
+      immediately preceding the test week.</li>
+  <li><strong>C2</strong> &mdash; same width, offset by a
+      2-week guard band, so a slow-onset event cannot
+      quietly raise the baseline it is being measured against. Both
+      channels read this same window: for the week commencing 8 Jun 2026
+      the baseline is <span class="mono">6 Apr 2026&ndash;18 May 2026</span>, with
+      25 May 2026 and 1 Jun 2026 held out.</li>
+  <li><strong>C3</strong> &mdash; thresholded excess accumulated over the
+      last 3 weeks, which catches sustained low-grade drift that
+      no single week would trip. The implementation is exactly
+      <span class="mono">C3<sub>t</sub> = &Sigma;<sub>i=0..2</sub>
+      max(0, C2<sub>t-i</sub> &minus; 1)</span>, each C2 recomputed against
+      its own baseline window &mdash; not a plain sum of C2 values.</li>
+</ul>
+
+<p>The corpus's first
+<strong>12</strong> weeks
+therefore produce no output, which is why the replay below starts where it
+does. <strong>That figure is an implementation requirement, not an
+inherent property of EARS.</strong> The code guards with
+<code>7&nbsp;+&nbsp;2&nbsp;+&nbsp;3</code>,
+a readable expression that is one week conservative: the binding
+constraint is the earliest week the oldest C2 in the C3 sum can reach,
+which is
+t&nbsp;&minus;&nbsp;2&nbsp;&minus;&nbsp;(7&nbsp;+&nbsp;2),
+making <strong>11</strong>
+leading weeks the arithmetic minimum. One further week of history is
+discarded than strictly necessary. Nothing is wrong with the scored weeks;
+there is simply one fewer of them than there could be.</p>
+
+<h3>2.2 Two channels, and why the share channel is the one that alarms</h3>
+
+<p>RappelConso (FR) and RASFF (EU) together supply
+76% of all records. When one of them clears a
+backlog, every raw count in the corpus rises at once, and a count-only
+detector alarms on all of them simultaneously &mdash; a publisher event
+wearing the costume of a food-safety event.</p>
+
+<p>So two channels are computed. The <strong>count</strong> channel
+compares the raw weekly count against its baseline mean and standard
+deviation; it is diagnostic. The <strong>share</strong> channel compares
+the stratum's proportion of that week's whole corpus against the pooled
+baseline share, by exact binomial test; this is the channel that
+alarms.</p>
+
+<p>It is tempting to say shares are invariant to publisher volume, and an
+earlier draft of this report did. That is too strong. The share channel <strong>partially normalises
+changes in total weekly volume, although it remains sensitive to changes
+in publisher mix and to publisher-specific hazard composition</strong> - a
+publisher whose output skews towards one hazard class moves that class's
+share when it moves its volume. A count signal with no matching share
+signal is therefore reported as a <strong>potentially volume-driven
+publication event requiring publisher-level review</strong>, not as a
+finding.</p>
+
+<div class="note">
+  <div class="h">Effect follows the channel</div>
+  <p style="margin:0">Until 27 August 2026 the effect column carried the
+  <em>share</em> ratio for every signal, including count-only ones. Share
+  rows were unaffected; the count-only rows were not, so inside the
+  analytical window the reported effect changes on
+  <strong>10 of 21</strong> rows. One of those changes was
+  disqualifying rather than cosmetic: a count-only Listeria signal for
+  France carried a share ratio of 0.85 &mdash; below one &mdash; telling
+  the reader the stratum fell in the same row that said it alarmed.
+  The effect column now follows the channel. Both ratios are retained on
+  every record, so no previously published figure becomes unrecoverable.</p>
+</div>
+
+<h3>2.3 Sparsity ladder</h3>
+
+<p>Most pathogen &times; country cells hold under one record a week.
+Testing them directly turns 1&rarr;3 into a &ldquo;threefold jump&rdquo;.
+Each stratum is therefore tested only at the finest level whose baseline
+mean clears <code>MIN_BASELINE_MEAN</code> and whose observed count clears
+<code>MIN_ABSOLUTE_COUNT</code>; otherwise it rolls up, country &rarr;
+region &rarr; global.</p>
+
+<h3>2.4 Multiplicity</h3>
+
+<p>434 strata are evaluated per run. At
+&alpha;&nbsp;=&nbsp;0.01 that could produce approximately
+<strong>4.3 nominal positives per run under an
+all-null approximation</strong> with independent tests &mdash; the strata
+are not independent, since a child and its parent share records, so treat
+that as an order of magnitude rather than an expectation. Either way it is
+enough to train a reader to ignore the feed, which is the failure mode
+that matters most for an operational product. Benjamini&ndash;Hochberg FDR
+at q&nbsp;=&nbsp;0.10 is applied across all strata within a run, and
+the output is capped at 12 signals ranked by effect.</p>
+
+<h3>2.5 Ranking, and what the output cap actually does</h3>
+
+<p>&sect;5.1 warns against reading the two channels as one scale, which
+raises a fair question about the cap: if output is limited to
+12 rows &ldquo;ranked by effect&rdquo;, are share ratios and
+count ratios being ranked against each other? They are not. The sort key
+is <code>(channel != "proportion", -effect)</code>: the first element
+<em>separates</em> the channels into blocks, and the effect ordering
+applies only within a block. A share ratio is never compared to a count
+ratio.</p>
+
+<p>Two further facts, both measurable rather than asserted. The cap has
+never bound on this corpus: across all 22 scored weeks,
+the largest post-deduplication output was <strong>6</strong> rows
+against a cap of 12. And the gap a reader may notice between
+&ldquo;survived FDR&rdquo; and &ldquo;reported&rdquo; in the run metadata
+is <em>not</em> the cap &mdash; it is the parent/child collapse, which
+drops a parent stratum when a child accounts for 80% or more of it. The
+run metadata now carries <code>after_dedup</code> and
+<code>cap_binding</code> so the two cannot be confused.</p>
+
+<h3>2.6 Constants</h3>
+
+<div class="tw"><table>
+<thead><tr><th>Constant</th><th class="n">Value</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td><code>BASELINE_WEEKS</code></td><td class="n">7</td><td>EARS standard. Seven weeks is short; it is what the corpus supports.</td></tr>
+<tr><td><code>GUARD_WEEKS</code></td><td class="n">2</td><td>C2/C3 guard band, keeping a slow-onset event out of its own baseline.</td></tr>
+<tr><td><code>C3_SPAN</code></td><td class="n">3</td><td>Weeks of C2 excess summed for the C3 statistic.</td></tr>
+<tr><td><code>MIN_ABSOLUTE_COUNT</code></td><td class="n">4</td><td>Floor on the observed week. Below this, 1&rarr;3 is not a finding.</td></tr>
+<tr><td><code>MIN_BASELINE_MEAN</code></td><td class="n">1.0</td><td>A stratum averaging under one record a week rolls up a level.</td></tr>
+<tr><td><code>MIN_BASELINE_NONZERO</code></td><td class="n">3</td><td>Non-zero weeks required in the baseline before a stratum is testable.</td></tr>
+<tr><td><code>ALPHA</code></td><td class="n">0.01</td><td>Per-test, before multiplicity correction.</td></tr>
+<tr><td><code>FDR_Q</code></td><td class="n">0.10</td><td>Benjamini&ndash;Hochberg, applied across all strata in a run.</td></tr>
+<tr><td><code>MAX_SIGNALS</code></td><td class="n">12</td><td>Hard cap per run, ranked by effect.</td></tr>
+<tr><td><code>PUBLISHER_DOMINANCE</code></td><td class="n">0.70</td><td>Above this share from one publisher, the signal is annotated as such.</td></tr>
+</tbody>
+<caption>Read directly from <code>pipeline/signal_detector.py</code> at
+build time, and included in the digest in &sect;7.1. These are judgement
+calls, not fitted values. <strong>They have not been swept.</strong>
+&sect;4 reports a sensitivity analysis of the <em>coverage register's</em>
+constants, which is a different set; the detector's own thresholds are an
+open item, and the honest statement today is that their influence on the
+ledger is undocumented.</caption>
+</table></div>
+
+<h2><span class="num">3</span>Coverage: which history is analysable at all</h2>
+
+<p>The corpus is assembled by a scraper fleet that came online source by
+source. A source's first weeks of records are a fact about the scraper,
+not about the food supply, and a baseline drawn from them will read any
+subsequent normal week as an increase. The coverage register classifies
+every source and records when its collection matured.</p>
+
+
+<figure class="fig">
+<div class="svgwrap">
+<svg viewBox="0 0 840 318" role="img" width="100%"
+     aria-label="Weekly notice volume and the number of distinct sources
+     publishing each week, with the analytical window marked">
+  <rect class="excl" x="32" y="16.0" width="539.6" height="268.0"/>
+  <text class="ptitle" x="34" y="12.0">Notices per week</text>
+  <line class="grid" x1="34" x2="828" y1="156.0" y2="156.0"/><text class="ax" x="27" y="159.5" text-anchor="end">0</text><line class="grid" x1="34" x2="828" y1="112.0" y2="112.0"/><text class="ax" x="27" y="115.5" text-anchor="end">40</text><line class="grid" x1="34" x2="828" y1="68.0" y2="68.0"/><text class="ax" x="27" y="71.5" text-anchor="end">80</text><line class="grid" x1="34" x2="828" y1="24.0" y2="24.0"/><text class="ax" x="27" y="27.5" text-anchor="end">120</text>
+  <g class="series"><rect class="bar" x="34.0" y="153.8" width="20.4" height="2.2" rx="2" data-l="29 Dec 2025" data-v="2"/><text class="vlab" x="44.2" y="148.8">2</text><rect class="bar" x="57.4" y="148.3" width="20.4" height="7.7" rx="2" data-l="5 Jan 2026" data-v="7"/><rect class="bar" x="80.9" y="145.0" width="20.4" height="11.0" rx="2" data-l="12 Jan 2026" data-v="10"/><rect class="bar" x="104.3" y="139.5" width="20.4" height="16.5" rx="2" data-l="19 Jan 2026" data-v="15"/><rect class="bar" x="127.8" y="153.8" width="20.4" height="2.2" rx="2" data-l="26 Jan 2026" data-v="2"/><rect class="bar" x="151.2" y="145.0" width="20.4" height="11.0" rx="2" data-l="2 Feb 2026" data-v="10"/><rect class="bar" x="174.6" y="149.4" width="20.4" height="6.6" rx="2" data-l="9 Feb 2026" data-v="6"/><rect class="bar" x="198.1" y="151.6" width="20.4" height="4.4" rx="2" data-l="16 Feb 2026" data-v="4"/><rect class="bar" x="221.5" y="141.7" width="20.4" height="14.3" rx="2" data-l="23 Feb 2026" data-v="13"/><rect class="bar" x="245.0" y="147.2" width="20.4" height="8.8" rx="2" data-l="2 Mar 2026" data-v="8"/><rect class="bar" x="268.4" y="142.8" width="20.4" height="13.2" rx="2" data-l="9 Mar 2026" data-v="12"/><rect class="bar" x="291.9" y="138.4" width="20.4" height="17.6" rx="2" data-l="16 Mar 2026" data-v="16"/><rect class="bar" x="315.3" y="131.8" width="20.4" height="24.2" rx="2" data-l="23 Mar 2026" data-v="22"/><rect class="bar" x="338.7" y="93.3" width="20.4" height="62.7" rx="2" data-l="30 Mar 2026" data-v="57"/><rect class="bar" x="362.2" y="24.0" width="20.4" height="132.0" rx="2" data-l="6 Apr 2026" data-v="120"/><text class="vlab" x="372.4" y="19.0">120</text><rect class="bar" x="385.6" y="76.8" width="20.4" height="79.2" rx="2" data-l="13 Apr 2026" data-v="72"/><rect class="bar" x="409.1" y="70.2" width="20.4" height="85.8" rx="2" data-l="20 Apr 2026" data-v="78"/><rect class="bar" x="432.5" y="93.3" width="20.4" height="62.7" rx="2" data-l="27 Apr 2026" data-v="57"/><rect class="bar" x="455.9" y="95.5" width="20.4" height="60.5" rx="2" data-l="4 May 2026" data-v="55"/><rect class="bar" x="479.4" y="92.2" width="20.4" height="63.8" rx="2" data-l="11 May 2026" data-v="58"/><rect class="bar" x="502.8" y="82.3" width="20.4" height="73.7" rx="2" data-l="18 May 2026" data-v="67"/><rect class="bar" x="526.3" y="80.1" width="20.4" height="75.9" rx="2" data-l="25 May 2026" data-v="69"/><rect class="bar" x="549.7" y="88.9" width="20.4" height="67.1" rx="2" data-l="1 Jun 2026" data-v="61"/><rect class="bar" x="573.1" y="99.9" width="20.4" height="56.1" rx="2" data-l="8 Jun 2026" data-v="51"/><rect class="bar" x="596.6" y="81.2" width="20.4" height="74.8" rx="2" data-l="15 Jun 2026" data-v="68"/><rect class="bar" x="620.0" y="103.2" width="20.4" height="52.8" rx="2" data-l="22 Jun 2026" data-v="48"/><rect class="bar" x="643.5" y="88.9" width="20.4" height="67.1" rx="2" data-l="29 Jun 2026" data-v="61"/><rect class="bar" x="666.9" y="90.0" width="20.4" height="66.0" rx="2" data-l="6 Jul 2026" data-v="60"/><rect class="bar" x="690.4" y="79.0" width="20.4" height="77.0" rx="2" data-l="13 Jul 2026" data-v="70"/><rect class="bar" x="713.8" y="92.2" width="20.4" height="63.8" rx="2" data-l="20 Jul 2026" data-v="58"/><rect class="bar" x="737.2" y="74.6" width="20.4" height="81.4" rx="2" data-l="27 Jul 2026" data-v="74"/><rect class="bar" x="760.7" y="82.3" width="20.4" height="73.7" rx="2" data-l="3 Aug 2026" data-v="67"/><rect class="bar" x="784.1" y="63.6" width="20.4" height="92.4" rx="2" data-l="10 Aug 2026" data-v="84"/><rect class="bar" x="807.6" y="107.6" width="20.4" height="48.4" rx="2" data-l="17 Aug 2026" data-v="44"/><text class="vlab" x="817.8" y="102.6">44</text></g>
+  <text class="ptitle" x="34" y="198.0">Distinct sources publishing that week</text>
+  <line class="grid" x1="34" x2="828" y1="284.0" y2="284.0"/><text class="ax" x="27" y="287.5" text-anchor="end">0</text><line class="grid" x1="34" x2="828" y1="257.6" y2="257.6"/><text class="ax" x="27" y="261.1" text-anchor="end">5</text><line class="grid" x1="34" x2="828" y1="231.1" y2="231.1"/><text class="ax" x="27" y="234.6" text-anchor="end">10</text>
+  <g class="series"><rect class="bar" x="34.0" y="273.4" width="20.4" height="10.6" rx="2" data-l="29 Dec 2025" data-v="2"/><text class="vlab" x="44.2" y="268.4">2</text><rect class="bar" x="57.4" y="247.0" width="20.4" height="37.0" rx="2" data-l="5 Jan 2026" data-v="7"/><rect class="bar" x="80.9" y="247.0" width="20.4" height="37.0" rx="2" data-l="12 Jan 2026" data-v="7"/><rect class="bar" x="104.3" y="231.1" width="20.4" height="52.9" rx="2" data-l="19 Jan 2026" data-v="10"/><rect class="bar" x="127.8" y="273.4" width="20.4" height="10.6" rx="2" data-l="26 Jan 2026" data-v="2"/><rect class="bar" x="151.2" y="257.6" width="20.4" height="26.4" rx="2" data-l="2 Feb 2026" data-v="5"/><rect class="bar" x="174.6" y="257.6" width="20.4" height="26.4" rx="2" data-l="9 Feb 2026" data-v="5"/><rect class="bar" x="198.1" y="262.9" width="20.4" height="21.1" rx="2" data-l="16 Feb 2026" data-v="4"/><rect class="bar" x="221.5" y="268.1" width="20.4" height="15.9" rx="2" data-l="23 Feb 2026" data-v="3"/><rect class="bar" x="245.0" y="247.0" width="20.4" height="37.0" rx="2" data-l="2 Mar 2026" data-v="7"/><rect class="bar" x="268.4" y="247.0" width="20.4" height="37.0" rx="2" data-l="9 Mar 2026" data-v="7"/><rect class="bar" x="291.9" y="247.0" width="20.4" height="37.0" rx="2" data-l="16 Mar 2026" data-v="7"/><rect class="bar" x="315.3" y="225.9" width="20.4" height="58.1" rx="2" data-l="23 Mar 2026" data-v="11"/><rect class="bar" x="338.7" y="236.4" width="20.4" height="47.6" rx="2" data-l="30 Mar 2026" data-v="9"/><rect class="bar" x="362.2" y="220.6" width="20.4" height="63.4" rx="2" data-l="6 Apr 2026" data-v="12"/><rect class="bar" x="385.6" y="210.0" width="20.4" height="74.0" rx="2" data-l="13 Apr 2026" data-v="14"/><text class="vlab" x="395.8" y="205.0">14</text><rect class="bar" x="409.1" y="236.4" width="20.4" height="47.6" rx="2" data-l="20 Apr 2026" data-v="9"/><rect class="bar" x="432.5" y="241.7" width="20.4" height="42.3" rx="2" data-l="27 Apr 2026" data-v="8"/><rect class="bar" x="455.9" y="252.3" width="20.4" height="31.7" rx="2" data-l="4 May 2026" data-v="6"/><rect class="bar" x="479.4" y="236.4" width="20.4" height="47.6" rx="2" data-l="11 May 2026" data-v="9"/><rect class="bar" x="502.8" y="231.1" width="20.4" height="52.9" rx="2" data-l="18 May 2026" data-v="10"/><rect class="bar" x="526.3" y="225.9" width="20.4" height="58.1" rx="2" data-l="25 May 2026" data-v="11"/><rect class="bar" x="549.7" y="225.9" width="20.4" height="58.1" rx="2" data-l="1 Jun 2026" data-v="11"/><rect class="bar" x="573.1" y="236.4" width="20.4" height="47.6" rx="2" data-l="8 Jun 2026" data-v="9"/><rect class="bar" x="596.6" y="236.4" width="20.4" height="47.6" rx="2" data-l="15 Jun 2026" data-v="9"/><rect class="bar" x="620.0" y="231.1" width="20.4" height="52.9" rx="2" data-l="22 Jun 2026" data-v="10"/><rect class="bar" x="643.5" y="241.7" width="20.4" height="42.3" rx="2" data-l="29 Jun 2026" data-v="8"/><rect class="bar" x="666.9" y="236.4" width="20.4" height="47.6" rx="2" data-l="6 Jul 2026" data-v="9"/><rect class="bar" x="690.4" y="252.3" width="20.4" height="31.7" rx="2" data-l="13 Jul 2026" data-v="6"/><rect class="bar" x="713.8" y="252.3" width="20.4" height="31.7" rx="2" data-l="20 Jul 2026" data-v="6"/><rect class="bar" x="737.2" y="236.4" width="20.4" height="47.6" rx="2" data-l="27 Jul 2026" data-v="9"/><rect class="bar" x="760.7" y="241.7" width="20.4" height="42.3" rx="2" data-l="3 Aug 2026" data-v="8"/><rect class="bar" x="784.1" y="252.3" width="20.4" height="31.7" rx="2" data-l="10 Aug 2026" data-v="6"/><rect class="bar" x="807.6" y="247.0" width="20.4" height="37.0" rx="2" data-l="17 Aug 2026" data-v="7"/><text class="vlab" x="817.8" y="242.0">7</text></g>
+  <line class="cut" x1="571.6" x2="571.6" y1="16.0" y2="284.0"/><text class="cutlab" x="577.6" y="12.0">analytical window opens 8 Jun 2026</text><text class="cutlab dim" x="565.6" y="12.0" text-anchor="end">not analysable</text>
+  <text class="ax" x="44.2" y="306.0" text-anchor="middle">29 Dec</text><text class="ax" x="138.0" y="306.0" text-anchor="middle">26 Jan</text><text class="ax" x="231.8" y="306.0" text-anchor="middle">23 Feb</text><text class="ax" x="325.5" y="306.0" text-anchor="middle">23 Mar</text><text class="ax" x="419.3" y="306.0" text-anchor="middle">20 Apr</text><text class="ax" x="513.0" y="306.0" text-anchor="middle">18 May</text><text class="ax" x="606.8" y="306.0" text-anchor="middle">15 Jun</text><text class="ax" x="700.6" y="306.0" text-anchor="middle">13 Jul</text><text class="ax" x="794.3" y="306.0" text-anchor="middle">10 Aug</text>
+</svg>
+<div class="tip" hidden></div>
+</div>
+<figcaption><strong>Figure 1.</strong> The lower panel is the reason the
+upper panel cannot be read as a food-safety trend. The two largest weekly increases in the corpus are the week of 6 Apr 2026 (+63, of which 43 from <strong>RappelConso (FR)</strong>) and the week of 30 Mar 2026 (+35, of which 30 from <strong>RappelConso (FR)</strong>). Both are publication events, not changes in the food supply — which is precisely what the share channel in &sect;2.2 exists to survive. A baseline drawn from the shaded region would read every later normal week
+as an increase, so everything left of the rule is excluded from the
+findings in &sect;5.2.
+<br><span style="color:var(--warn-ink)">Note the lower panel after 13 Apr 2026:</span> the number of publishing sources peaks at 14 and settles at 7. That decline is scraper attrition, not regulators falling quiet, and it is tracked as outages in the coverage register rather than being smoothed away here.
+<details><summary>Data table</summary>
+<div class="tw"><table><thead><tr><th class="d">Week commencing</th>
+<th class="n">Notices</th><th class="n">Sources</th><th>Status</th></tr></thead>
+<tbody><tr><td class="d">29 Dec 2025</td><td class="n">2</td><td class="n">2</td><td>pre-window</td></tr><tr><td class="d">5 Jan 2026</td><td class="n">7</td><td class="n">7</td><td>pre-window</td></tr><tr><td class="d">12 Jan 2026</td><td class="n">10</td><td class="n">7</td><td>pre-window</td></tr><tr><td class="d">19 Jan 2026</td><td class="n">15</td><td class="n">10</td><td>pre-window</td></tr><tr><td class="d">26 Jan 2026</td><td class="n">2</td><td class="n">2</td><td>pre-window</td></tr><tr><td class="d">2 Feb 2026</td><td class="n">10</td><td class="n">5</td><td>pre-window</td></tr><tr><td class="d">9 Feb 2026</td><td class="n">6</td><td class="n">5</td><td>pre-window</td></tr><tr><td class="d">16 Feb 2026</td><td class="n">4</td><td class="n">4</td><td>pre-window</td></tr><tr><td class="d">23 Feb 2026</td><td class="n">13</td><td class="n">3</td><td>pre-window</td></tr><tr><td class="d">2 Mar 2026</td><td class="n">8</td><td class="n">7</td><td>pre-window</td></tr><tr><td class="d">9 Mar 2026</td><td class="n">12</td><td class="n">7</td><td>pre-window</td></tr><tr><td class="d">16 Mar 2026</td><td class="n">16</td><td class="n">7</td><td>pre-window</td></tr><tr><td class="d">23 Mar 2026</td><td class="n">22</td><td class="n">11</td><td>pre-window</td></tr><tr><td class="d">30 Mar 2026</td><td class="n">57</td><td class="n">9</td><td>pre-window</td></tr><tr><td class="d">6 Apr 2026</td><td class="n">120</td><td class="n">12</td><td>pre-window</td></tr><tr><td class="d">13 Apr 2026</td><td class="n">72</td><td class="n">14</td><td>pre-window</td></tr><tr><td class="d">20 Apr 2026</td><td class="n">78</td><td class="n">9</td><td>pre-window</td></tr><tr><td class="d">27 Apr 2026</td><td class="n">57</td><td class="n">8</td><td>pre-window</td></tr><tr><td class="d">4 May 2026</td><td class="n">55</td><td class="n">6</td><td>pre-window</td></tr><tr><td class="d">11 May 2026</td><td class="n">58</td><td class="n">9</td><td>pre-window</td></tr><tr><td class="d">18 May 2026</td><td class="n">67</td><td class="n">10</td><td>pre-window</td></tr><tr><td class="d">25 May 2026</td><td class="n">69</td><td class="n">11</td><td>pre-window</td></tr><tr><td class="d">1 Jun 2026</td><td class="n">61</td><td class="n">11</td><td>pre-window</td></tr><tr><td class="d">8 Jun 2026</td><td class="n">51</td><td class="n">9</td><td>analysable</td></tr><tr><td class="d">15 Jun 2026</td><td class="n">68</td><td class="n">9</td><td>analysable</td></tr><tr><td class="d">22 Jun 2026</td><td class="n">48</td><td class="n">10</td><td>analysable</td></tr><tr><td class="d">29 Jun 2026</td><td class="n">61</td><td class="n">8</td><td>analysable</td></tr><tr><td class="d">6 Jul 2026</td><td class="n">60</td><td class="n">9</td><td>analysable</td></tr><tr><td class="d">13 Jul 2026</td><td class="n">70</td><td class="n">6</td><td>analysable</td></tr><tr><td class="d">20 Jul 2026</td><td class="n">58</td><td class="n">6</td><td>analysable</td></tr><tr><td class="d">27 Jul 2026</td><td class="n">74</td><td class="n">9</td><td>analysable</td></tr><tr><td class="d">3 Aug 2026</td><td class="n">67</td><td class="n">8</td><td>analysable</td></tr><tr><td class="d">10 Aug 2026</td><td class="n">84</td><td class="n">6</td><td>analysable</td></tr><tr><td class="d">17 Aug 2026</td><td class="n">44</td><td class="n">7</td><td>analysable</td></tr></tbody></table></div></details></figcaption>
+</figure>
+
+<div class="tw"><table>
+<thead><tr><th>Source</th><th class="n">Records</th><th class="n">Active rate</th>
+<th class="d">Onset</th><th class="d">Mature</th><th>Basis</th></tr></thead>
+<tbody>
+<tr><td colspan="6" style="background:var(--bg-2);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase">continuous &middot; 6 sources</td></tr>
+<tr><td>RappelConso (FR)</td><td class="n">648</td><td class="n">0.93</td><td class="d">2 Feb 2026</td><td class="d">16 Mar 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td>RASFF (EU)</td><td class="n">507</td><td class="n">0.90</td><td class="d">9 Feb 2026</td><td class="d">30 Mar 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td>FDA (US)</td><td class="n">79</td><td class="n">0.85</td><td class="d">5 Jan 2026</td><td class="d">5 Jan 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td>CFIA (CA)</td><td class="n">55</td><td class="n">0.74</td><td class="d">29 Dec 2025</td><td class="d">12 Jan 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td>FSAI (IE)</td><td class="n">43</td><td class="n">0.71</td><td class="d">6 Apr 2026</td><td class="d">6 Apr 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td>FSA (UK)</td><td class="n">21</td><td class="n">0.81</td><td class="d">23 Mar 2026</td><td class="d">23 Mar 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td colspan="6" style="background:var(--bg-2);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase">intermittent &middot; 5 sources</td></tr>
+<tr><td>BVL (DE)</td><td class="n">22</td><td class="n">0.50</td><td class="d">30 Mar 2026</td><td class="d">30 Mar 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td>AESAN (ES)</td><td class="n">16</td><td class="n">0.53</td><td class="d">27 Apr 2026</td><td class="d">27 Apr 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td>BLV (CH)</td><td class="n">12</td><td class="n">0.60</td><td class="d">23 Mar 2026</td><td class="d">23 Mar 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td>EFET (GR)</td><td class="n">11</td><td class="n">0.39</td><td class="d">1 Jun 2026</td><td class="d">1 Jun 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td>USDA FSIS (US)</td><td class="n">10</td><td class="n">0.57</td><td class="d">27 Apr 2026</td><td class="d">27 Apr 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td colspan="6" style="background:var(--bg-2);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase">sporadic &middot; 24 sources</td></tr>
+<tr><td>FSANZ (AU)</td><td class="n">12</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>FAVV/AFSCA (BE)</td><td class="n">11</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>CDC (US)</td><td class="n">7</td><td class="n">0.27</td><td class="d">18 May 2026</td><td class="d">18 May 2026</td><td style="font-size:12px;color:var(--ink-3)">frozen</td></tr>
+<tr><td>CFS (HK)</td><td class="n">7</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>Min. Salute (IT)</td><td class="n">5</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>NCC (ZA)</td><td class="n">4</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>NVWA (NL)</td><td class="n">4</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>COFEPRIS (MX)</td><td class="n">3</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>AGES (AT)</td><td class="n">2</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>ANVISA (BR)</td><td class="n">2</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>FDA (PH)</td><td class="n">2</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>MAPAQ (QC)</td><td class="n">2</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>MFDS (KR)</td><td class="n">2</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>MPI (NZ)</td><td class="n">2</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>SFA (SG)</td><td class="n">2</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>ANMAT (AR)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>COMESA</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>ECDC (EU)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>EFSA (EU)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>GIS (PL)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>INVIMA (CO)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>MSP (UY)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>SZPI (CZ)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>VFA (VN)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td colspan="6" style="background:var(--bg-2);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase">excluded &middot; 8 sources</td></tr>
+<tr><td>CFS (HK) - aggregator (RappelConso FR)</td><td class="n">8</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>CFS (HK) - aggregator (MPI NZ)</td><td class="n">2</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>BeaconBio (TW)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>CFS (HK) - aggregator (Czech)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>CFS (HK) - aggregator (MHLW Japan)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>CFS (HK) - aggregator (SFA SG)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>CFS (HK) - aggregator (UK FSA)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+<tr><td>Food Safety News (citing EODY / Region of Central Greece)</td><td class="n">1</td><td class="n">0.00</td><td class="d">&mdash;</td><td class="d">&mdash;</td><td style="font-size:12px;color:var(--ink-3)">inferred</td></tr>
+</tbody>
+<caption>From <code>docs/data/source-coverage.json</code>. Active rate is
+the fraction of observable weeks in which the source produced at least one
+record. &ldquo;Basis&rdquo; distinguishes an inferred date from one frozen
+at first determination. Record counts here span the full history
+including the trailing partial week, so they run slightly above the
+complete-week figures in &sect;5.4.</caption>
+</table></div>
+
+<h3>3.1 Maturity dates are frozen once determined</h3>
+
+<div class="note">
+  <div class="h">Why maturity is frozen</div>
+  <p style="margin:0 0 10px">Maturity was originally computed against the
+  most recent eight weeks &mdash; a <em>moving</em> reference. The
+  consequence was not drift but oscillation: one source's maturity moved
+  five times across roughly eleven weeks, and another alternated between
+  two dates eight weeks apart. Because the analytical window opens
+  9 weeks after the latest maturity
+  among continuous sources, a single source flipping could have moved the
+  window forward by eight weeks and silently excluded six of the seven
+  signal weeks in this report.</p>
+  <p style="margin:0">Maturity is now frozen at first determination and
+  carries its basis. A determination made on an unripe window is marked
+  <code>provisional</code> and is not frozen.
+  <code>--verify-stability</code> exits non-zero if a rebuild would move
+  any cutoff, so this cannot regress unobserved.</p>
+</div>
+
+<h3>3.2 The analytical window</h3>
+
+<p>The latest maturity among continuously collected sources is
+<strong>6 Apr 2026</strong>.
+A test week is only defensible once its <em>entire</em> baseline lies
+after that date, which is 7 baseline weeks plus
+2 guard weeks later. The window therefore opens
+<strong>8 Jun 2026</strong>.</p>
+
+<p>Two things about that date are worth stating plainly. It is derived by
+code, not asserted: <code>signal_detector.coverage_window_start()</code>
+returns it from the register. And until 27 August 2026 the detector
+contained no reference to the coverage register at all &mdash; the window
+in the first draft of this report had been applied by hand. The gate is
+now a property of the code. It is deliberately additive: signals outside
+the window are <em>flagged</em>, not dropped, unless a caller asks for
+enforcement, because silently changing what a detector reports is a worse
+cure than the disease.</p>
+
+<h2><span class="num">4</span>Threshold sensitivity</h2>
+
+<p>The coverage register has seven judgement-set constants. Rather than
+defend them by argument, each was swept across a plausible range with the
+others held at default, measuring whether it moves the analytical cutoff.
+The result is uncomfortable and worth publishing:</p>
+
+<div class="tw"><table>
+<thead><tr><th>Constant</th><th>Swept</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td><code>CONTINUOUS_ACTIVE_RATE</code></td><td class="n">0.50 &ndash; 0.90</td>
+<td><strong>Load-bearing.</strong> 0.50 gives 10 continuous sources and a
+27 Apr cutoff; 0.90 gives one source and 16 Mar. This parameter silently
+decides how much history is analysable.</td></tr>
+<tr><td><code>ONSET_WINDOW</code></td><td class="n">4 &ndash; 10</td>
+<td><strong>Load-bearing.</strong> At 4 the cutoff jumps ten weeks, to 15 Jun.</td></tr>
+<tr><td><code>ONSET_MIN_ACTIVE</code></td><td class="n">2 &ndash; 5</td>
+<td><strong>Load-bearing.</strong> At 5 the cutoff jumps to 15 Jun.</td></tr>
+<tr><td><code>MATURITY_REF_WEEKS</code></td><td class="n">4 &ndash; 16</td>
+<td><strong>Load-bearing at one end only.</strong> 4 gives 13 Apr;
+6, 8, 12 and 16 are identical.</td></tr>
+<tr><td><code>MATURITY_RATIO</code></td><td class="n">0.30 &ndash; 0.90</td>
+<td><strong>Inert.</strong> A threefold range with no output change
+anywhere. The parameter that reads as most consequential does the least.</td></tr>
+<tr><td><code>OUTAGE_MIN_WEEKS</code></td><td class="n">2 &ndash; 6</td>
+<td><strong>Inert.</strong> All values identical.</td></tr>
+<tr><td><code>SPORADIC_MIN_RECORDS</code></td><td class="n">4 &ndash; 20</td>
+<td><strong>Cosmetic.</strong> Shifts the sporadic tally between 23 and 28;
+never moves the cutoff.</td></tr>
+</tbody>
+<caption>Reproduce with <code>python -m tools.coverage_sensitivity</code>.
+Three of seven constants do not affect any decision this report depends on.
+Publishing that is more useful than defending all seven.</caption>
+</table></div>
+
+<h2><span class="num">5</span>Results: walk-forward replay</h2>
+<figure class="fig"><svg viewBox="0 0 880 505" role="img" width="100%" aria-label="Effect size of every alert-ledger row inside the analytical window, sorted from largest."><line class="grid" x1="336.1" x2="336.1" y1="22.0" y2="475.0"/><text class="ax" x="336.1" y="489" text-anchor="middle">&times;1</text><line class="grid" x1="398.3" x2="398.3" y1="22.0" y2="475.0"/><text class="ax" x="398.3" y="489" text-anchor="middle">&times;2</text><line class="grid" x1="522.6" x2="522.6" y1="22.0" y2="475.0"/><text class="ax" x="522.6" y="489" text-anchor="middle">&times;4</text><line class="grid" x1="646.9" x2="646.9" y1="22.0" y2="475.0"/><text class="ax" x="646.9" y="489" text-anchor="middle">&times;6</text><line class="grid" x1="771.1" x2="771.1" y1="22.0" y2="475.0"/><text class="ax" x="771.1" y="489" text-anchor="middle">&times;8</text><rect x="274" y="30.0" width="520.8" height="15.0" rx="4" fill="#2a78d6"><title>Tier 3 · Europe &middot; week of 29 Jun 2026 &middot; &times;8.38 &middot; 11 observed against a baseline of 1.3</title></rect><text class="figlab" x="265" y="42.0" text-anchor="end">Tier 3 · Europe</text><text class="figval" x="801.8" y="42.0">&times;8.38</text><rect x="274" y="51.0" width="355.5" height="15.0" rx="4" fill="#2a78d6"><title>Salmonella · Poland &middot; week of 6 Jul 2026 &middot; &times;5.72 &middot; 8 observed against a baseline of 1.4</title></rect><text class="figlab" x="265" y="63.0" text-anchor="end">Salmonella · Poland</text><text class="figval" x="636.5" y="63.0">&times;5.72</text><rect x="274" y="72.0" width="250.4" height="15.0" rx="4" fill="#2a78d6"><title>Tier 1 · Latin America &middot; week of 27 Jul 2026 &middot; &times;4.03 &middot; 5 observed against a baseline of 1.0</title></rect><text class="figlab" x="265" y="84.0" text-anchor="end">Tier 1 · Latin America</text><text class="figval" x="531.4" y="84.0">&times;4.03</text><rect x="274" y="93.0" width="248.6" height="15.0" rx="4" fill="#eb6834"><title>Listeria monocytogenes · North America &middot; week of 10 Aug 2026 &middot; &times;4.00 &middot; 4 observed against a baseline of 1.0</title></rect><text class="figlab" x="265" y="105.0" text-anchor="end">Listeria monocytogenes · North America</text><text class="figval" x="529.6" y="105.0">&times;4.00</text><rect x="274" y="114.0" width="217.5" height="15.0" rx="4" fill="#eb6834"><title>Salmonella · United States &middot; week of 10 Aug 2026 &middot; &times;3.50 &middot; 5 observed against a baseline of 1.4</title></rect><text class="figlab" x="265" y="126.0" text-anchor="end">Salmonella · United States</text><text class="figval" x="498.5" y="126.0">&times;3.50</text><rect x="274" y="135.0" width="197.6" height="15.0" rx="4" fill="#2a78d6"><title>Aflatoxin · Europe &middot; week of 15 Jun 2026 &middot; &times;3.18 &middot; 9 observed against a baseline of 2.7</title></rect><text class="figlab" x="265" y="147.0" text-anchor="end">Aflatoxin · Europe</text><text class="figval" x="478.6" y="147.0">&times;3.18</text><rect x="274" y="156.0" width="176.5" height="15.0" rx="4" fill="#2a78d6"><title>Salmonella · France &middot; week of 8 Jun 2026 &middot; &times;2.84 &middot; 10 observed against a baseline of 5.0</title></rect><text class="figlab" x="265" y="168.0" text-anchor="end">Salmonella · France</text><text class="figval" x="457.5" y="168.0">&times;2.84</text><rect x="274" y="177.0" width="167.2" height="15.0" rx="4" fill="#eb6834"><title>Tier 1 · North America &middot; week of 10 Aug 2026 &middot; &times;2.69 &middot; 10 observed against a baseline of 3.7</title></rect><text class="figlab" x="265" y="189.0" text-anchor="end">Tier 1 · North America</text><text class="figval" x="448.2" y="189.0">&times;2.69</text><rect x="274" y="198.0" width="165.3" height="15.0" rx="4" fill="#2a78d6"><title>Listeria monocytogenes · France &middot; week of 13 Jul 2026 &middot; &times;2.66 &middot; 37 observed against a baseline of 12.0</title></rect><text class="figlab" x="265" y="210.0" text-anchor="end">Listeria monocytogenes · France</text><text class="figval" x="446.3" y="210.0">&times;2.66</text><rect x="274" y="219.0" width="162.8" height="15.0" rx="4" fill="#eb6834"><title>Shiga toxin-producing E. coli (STEC) · France &middot; week of 27 Jul 2026 &middot; &times;2.62 &middot; 9 observed against a baseline of 3.4</title></rect><text class="figlab" x="265" y="231.0" text-anchor="end">Shiga toxin-producing E. coli (STEC) · France</text><text class="figval" x="443.8" y="231.0">&times;2.62</text><rect x="274" y="240.0" width="145.4" height="15.0" rx="4" fill="#2a78d6"><title>Shiga toxin-producing E. coli (STEC) · Europe &middot; week of 27 Jul 2026 &middot; &times;2.34 &middot; 12 observed against a baseline of 4.1</title></rect><text class="figlab" x="265" y="252.0" text-anchor="end">Shiga toxin-producing E. coli (STEC) · Europe</text><text class="figval" x="426.4" y="252.0">&times;2.34</text><rect x="274" y="261.0" width="144.8" height="15.0" rx="4" fill="#eb6834"><title>Ochratoxin · Türkiye &middot; week of 15 Jun 2026 &middot; &times;2.33 &middot; 6 observed against a baseline of 2.6</title></rect><text class="figlab" x="265" y="273.0" text-anchor="end">Ochratoxin · Türkiye</text><text class="figval" x="425.8" y="273.0">&times;2.33</text><rect x="274" y="282.0" width="138.0" height="15.0" rx="4" fill="#2a78d6"><title>Listeria monocytogenes · France &middot; week of 20 Jul 2026 &middot; &times;2.22 &middot; 26 observed against a baseline of 12.3</title></rect><text class="figlab" x="265" y="294.0" text-anchor="end">Listeria monocytogenes · France</text><text class="figval" x="419.0" y="294.0">&times;2.22</text><rect x="274" y="303.0" width="124.3" height="15.0" rx="4" fill="#eb6834"><title>Tier 2 · Europe &middot; week of 15 Jun 2026 &middot; &times;2.00 &middot; 14 observed against a baseline of 7.0</title></rect><text class="figlab" x="265" y="315.0" text-anchor="end">Tier 2 · Europe</text><text class="figval" x="405.3" y="315.0">&times;2.00</text><rect x="274" y="324.0" width="121.8" height="15.0" rx="4" fill="#2a78d6"><title>Listeria monocytogenes · Europe &middot; week of 15 Jun 2026 &middot; &times;1.96 &middot; 29 observed against a baseline of 14.1</title></rect><text class="figlab" x="265" y="336.0" text-anchor="end">Listeria monocytogenes · Europe</text><text class="figval" x="402.8" y="336.0">&times;1.96</text><rect x="274" y="345.0" width="98.8" height="15.0" rx="4" fill="#2a78d6"><title>Listeria monocytogenes · Europe &middot; week of 29 Jun 2026 &middot; &times;1.59 &middot; 23 observed against a baseline of 14.1</title></rect><text class="figlab" x="265" y="357.0" text-anchor="end">Listeria monocytogenes · Europe</text><text class="figval" x="379.8" y="357.0">&times;1.59</text><rect x="274" y="366.0" width="98.2" height="15.0" rx="4" fill="#2a78d6"><title>Listeria monocytogenes · France &middot; week of 10 Aug 2026 &middot; &times;1.58 &middot; 39 observed against a baseline of 17.4</title></rect><text class="figlab" x="265" y="378.0" text-anchor="end">Listeria monocytogenes · France</text><text class="figval" x="379.2" y="378.0">&times;1.58</text><rect x="274" y="387.0" width="94.5" height="15.0" rx="4" fill="#eb6834"><title>Tier 1 · Europe &middot; week of 10 Aug 2026 &middot; &times;1.52 &middot; 60 observed against a baseline of 39.6</title></rect><text class="figlab" x="265" y="399.0" text-anchor="end">Tier 1 · Europe</text><text class="figval" x="375.5" y="399.0">&times;1.52</text><rect x="274" y="408.0" width="93.2" height="15.0" rx="4" fill="#eb6834"><title>Salmonella · global &middot; week of 10 Aug 2026 &middot; &times;1.50 &middot; 26 observed against a baseline of 17.3</title></rect><text class="figlab" x="265" y="420.0" text-anchor="end">Salmonella · global</text><text class="figval" x="374.2" y="420.0">&times;1.50</text><rect x="274" y="429.0" width="80.8" height="15.0" rx="4" fill="#eb6834"><title>Shiga toxin-producing E. coli (STEC) · Europe &middot; week of 8 Jun 2026 &middot; &times;1.30 &middot; 5 observed against a baseline of 3.9</title></rect><text class="figlab" x="265" y="441.0" text-anchor="end">Shiga toxin-producing E. coli (STEC) · Europe</text><text class="figval" x="361.8" y="441.0">&times;1.30</text><rect x="274" y="450.0" width="77.1" height="15.0" rx="4" fill="#eb6834"><title>Listeria monocytogenes · France &middot; week of 27 Jul 2026 &middot; &times;1.24 &middot; 16 observed against a baseline of 12.9</title></rect><text class="figlab" x="265" y="462.0" text-anchor="end">Listeria monocytogenes · France</text><text class="figval" x="358.1" y="462.0">&times;1.24</text></svg><figcaption><span class="key"><span class="sw" style="background:#2a78d6"></span>share elevation (11) &nbsp; <span class="sw" style="background:#eb6834"></span>count-only diagnostic (10)</span><br><strong>Figure 2.</strong> Every alert-ledger row inside the analytical window, by effect size. Share elevations are the reportable result; count-only rows are carried as diagnostics, not findings, because a rise in a stratum’s count that its share does not follow may reflect publisher activity rather than a corresponding change in the food supply. Hover any bar for the observed count and its baseline. Section 5.2 lists the same rows with p-values.</figcaption></figure>
+
+<p>Every week is scored using only weeks strictly before it. This is not
+cross-validation &mdash; random folds on surveillance time series leak the
+future into the baseline and produce beautiful, meaningless numbers.
+22 weeks were scored; the first
+12 are consumed by the
+baseline, the guard band and the C3 accumulation window
+(7&nbsp;+&nbsp;2&nbsp;+&nbsp;3;
+see &sect;2.1) and cannot be scored at all.</p>
+
+<p>There is no labelled anomaly set, so these tables are not an accuracy
+measurement. They are the alarm ledger: each row is reviewed by hand and
+marked genuine or artefact, and that log becomes the calibration record.</p>
+
+<h3>5.1 How a row is admitted &mdash; the two channels differ</h3>
+
+<p>This matters for reading the last column, and it is not symmetric.
+A <strong>share</strong> row is admitted by an exact binomial test at
+&alpha;&nbsp;=&nbsp;0.01 and must then survive
+Benjamini&ndash;Hochberg at q&nbsp;=&nbsp;0.10 across every stratum
+tested that week. A <strong>count-only</strong> row is admitted by the
+EARS statistic alone &mdash; C1 or C2 at 3.0, or C3 at 2.0, with the
+observed count at least 20% above baseline &mdash; and <em>bypasses FDR by
+design</em>, because it is not being offered as a discovery. It is logged
+as a potentially volume-driven publication event requiring publisher-level
+review, and suppressing those by multiplicity control would hide exactly
+the rows an operator needs in order to recognise a backlog dump.</p>
+
+<p>Because they are not multiplicity-controlled, count-channel rows carry
+no false-discovery guarantee of any kind, and no count of them should be
+reported as a number of signals. Every summary figure in this report
+separates the two.</p>
+
+<div class="warn">
+  <div class="h">Do not read the two channels as one scale</div>
+  <p style="margin:0">A count-only row carries a binomial p-value in the
+  underlying record, and that number is frequently near 1.0 &mdash; which
+  is the point: the count rose while the <em>share</em> did not, so the
+  share test correctly declines to alarm. Reporting that p-value beside a
+  count-only row would invite the reader to conclude the row is
+  meaningless, when what it actually documents is a publication event. The
+  column below therefore shows each row's own admission criterion, never
+  the other channel's.</p>
+</div>
+
+<h3>5.2 Alert ledger inside the coverage window</h3>
+
+<p>These 21 rows fall within the approved analytical window: for every
+row, the complete baseline lies within mature collection, beginning no
+earlier than the maturity week of
+<strong>6 Apr 2026</strong>.
+Taking the earliest row here, the week commencing 8 Jun 2026: its
+count-channel (C2) baseline runs <strong>6 Apr 2026 to 18 May 2026</strong>, with
+25 May 2026 and 1 Jun 2026 held out as the guard band. The window opens exactly
+7&nbsp;+&nbsp;2 weeks after maturity so
+that the first baseline week coincides with the maturity week and no
+earlier &mdash; true of the first row as well as the last.</p>
+
+<p>The 21 rows are not one kind of object, and the distinction is the
+most important thing on this page:</p>
+
+<ul>
+  <li><strong>11 share-channel signals</strong>, each admitted by an
+      exact binomial test and surviving Benjamini&ndash;Hochberg at
+      q&nbsp;=&nbsp;0.10. These are the FDR-controlled findings.</li>
+  <li><strong>10 count-channel diagnostics</strong>, admitted on the
+      EARS statistic alone and <em>not</em> multiplicity-controlled. These
+      are publisher-review items. They are not statistical findings and
+      must not be counted as such.</li>
+</ul>
+
+<div class="tw"><table>
+<thead><tr>
+<th class="d">Week commencing</th><th>Stratum</th><th>Channel</th>
+<th class="n">Obs.</th><th class="n">Baseline</th>
+<th class="n">Effect</th><th class="n">Other ratio</th><th class="n">Admitted by</th>
+</tr></thead>
+<tbody>
+<tr><td class="d">8 Jun 2026</td><td>Salmonella · France</td><td><span class="chan proportion">share</span></td><td class="n">10</td><td class="n">5.00</td><td class="n"><strong>2.84</strong></td><td class="n">2.00</td><td class="n">p&nbsp;0.0023</td></tr>
+<tr><td class="d">8 Jun 2026</td><td>Shiga toxin-producing E. coli (STEC) · Europe</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">3.86</td><td class="n"><strong>1.30</strong></td><td class="n">1.84</td><td class="n">C3&nbsp;4.8</td></tr>
+<tr><td class="d">15 Jun 2026</td><td>Aflatoxin · Europe</td><td><span class="chan proportion">share</span></td><td class="n">9</td><td class="n">2.71</td><td class="n"><strong>3.18</strong></td><td class="n">3.32</td><td class="n">p&nbsp;0.0020</td></tr>
+<tr><td class="d">15 Jun 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan proportion">share</span></td><td class="n">29</td><td class="n">14.14</td><td class="n"><strong>1.96</strong></td><td class="n">2.05</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">15 Jun 2026</td><td>Ochratoxin · Türkiye</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.57</td><td class="n"><strong>2.33</strong></td><td class="n">2.23</td><td class="n">C1&nbsp;5.3</td></tr>
+<tr><td class="d">15 Jun 2026</td><td>Tier 2 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">14</td><td class="n">7.00</td><td class="n"><strong>2.00</strong></td><td class="n">1.92</td><td class="n">C1&nbsp;3.8</td></tr>
+<tr><td class="d">29 Jun 2026</td><td>Tier 3 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">11</td><td class="n">1.29</td><td class="n"><strong>8.38</strong></td><td class="n">8.56</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">29 Jun 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan proportion">share</span></td><td class="n">23</td><td class="n">14.14</td><td class="n"><strong>1.59</strong></td><td class="n">1.63</td><td class="n">p&nbsp;0.00999</td></tr>
+<tr><td class="d">6 Jul 2026</td><td>Salmonella · Poland</td><td><span class="chan proportion">share</span></td><td class="n">8</td><td class="n">1.43</td><td class="n"><strong>5.72</strong></td><td class="n">5.60</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">13 Jul 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan proportion">share</span></td><td class="n">37</td><td class="n">12.00</td><td class="n"><strong>2.66</strong></td><td class="n">3.08</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">20 Jul 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan proportion">share</span></td><td class="n">26</td><td class="n">12.29</td><td class="n"><strong>2.22</strong></td><td class="n">2.12</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">27 Jul 2026</td><td>Tier 1 · Latin America</td><td><span class="chan proportion">share</span></td><td class="n">5</td><td class="n">1.00</td><td class="n"><strong>4.03</strong></td><td class="n">5.00</td><td class="n">p&nbsp;0.0082</td></tr>
+<tr><td class="d">27 Jul 2026</td><td>Shiga toxin-producing E. coli (STEC) · Europe</td><td><span class="chan proportion">share</span></td><td class="n">12</td><td class="n">4.14</td><td class="n"><strong>2.34</strong></td><td class="n">2.90</td><td class="n">p&nbsp;0.0048</td></tr>
+<tr><td class="d">27 Jul 2026</td><td>Shiga toxin-producing E. coli (STEC) · France</td><td><span class="chan count">count-only</span></td><td class="n">9</td><td class="n">3.43</td><td class="n"><strong>2.62</strong></td><td class="n">2.12</td><td class="n">C1&nbsp;6.7</td></tr>
+<tr><td class="d">27 Jul 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan count">count-only</span></td><td class="n">16</td><td class="n">12.86</td><td class="n"><strong>1.24</strong></td><td class="n">1.00</td><td class="n">C3&nbsp;5.4</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan proportion">share</span></td><td class="n">39</td><td class="n">17.43</td><td class="n"><strong>1.58</strong></td><td class="n">2.24</td><td class="n">p&nbsp;0.0007</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Listeria monocytogenes · North America</td><td><span class="chan count">count-only</span></td><td class="n">4</td><td class="n">1.00</td><td class="n"><strong>4.00</strong></td><td class="n">2.83</td><td class="n">C2&nbsp;3.0</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Salmonella · United States</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">1.43</td><td class="n"><strong>3.50</strong></td><td class="n">2.48</td><td class="n">C2&nbsp;2.4</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">10</td><td class="n">3.71</td><td class="n"><strong>2.69</strong></td><td class="n">1.91</td><td class="n">C2&nbsp;3.2</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">60</td><td class="n">39.57</td><td class="n"><strong>1.52</strong></td><td class="n">1.07</td><td class="n">C1&nbsp;3.0</td></tr>
+<tr><td class="d">10 Aug 2026</td><td>Salmonella · global</td><td><span class="chan count">count-only</span></td><td class="n">26</td><td class="n">17.29</td><td class="n"><strong>1.50</strong></td><td class="n">1.06</td><td class="n">C3&nbsp;3.7</td></tr>
+</tbody>
+<caption><strong>Table 1.</strong> Effect follows the channel: share rows
+show observed share over baseline share, count-only rows show observed
+over baseline mean. &ldquo;Other ratio&rdquo; is the value on the channel
+not used, retained so that nothing is unrecoverable. &ldquo;Admitted
+by&rdquo; is each row's own criterion: for share rows the <strong>raw
+exact binomial p, which survived Benjamini&ndash;Hochberg at
+q&nbsp;=&nbsp;0.10</strong> (BH here returns a rejection mask,
+not adjusted p-values, so no adjusted p exists to display); for
+count-channel rows the governing EARS statistic, which is what admitted
+them. The two columns are not comparable and are not ranked against each
+other &mdash; see &sect;5.1 and &sect;2.6.</caption>
+</table></div>
+
+<h3>5.3 Audit ledger: rows outside the coverage window</h3>
+
+<p>The remaining 40 rows were produced by the same detector on weeks
+whose baseline predates mature collection. They are retained rather than
+deleted, because a detector that quietly drops its own output cannot be
+audited &mdash; but <strong>none of them is a finding</strong>. Any
+elevation here is at least as likely to be the scraper fleet coming online
+as a change in the food supply, and several are visibly that: a stratum
+going from a baseline of 1.00 to 41 in one week is strongly consistent
+with source activation rather than an underlying outbreak, though only
+publisher-level review of those rows can confirm it.</p>
+
+<div class="tw"><table>
+<thead><tr>
+<th class="d">Week commencing</th><th>Stratum</th><th>Channel</th>
+<th class="n">Obs.</th><th class="n">Baseline</th>
+<th class="n">Effect</th><th class="n">Other ratio</th><th class="n">Admitted by</th>
+</tr></thead>
+<tbody>
+<tr><td class="d">23 Mar 2026</td><td>Salmonella · France</td><td><span class="chan proportion">share</span></td><td class="n">10</td><td class="n">1.57</td><td class="n"><strong>2.40</strong></td><td class="n">6.36</td><td class="n">p&nbsp;0.0041</td></tr>
+<tr><td class="d">23 Mar 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">14</td><td class="n">3.71</td><td class="n"><strong>3.77</strong></td><td class="n">1.42</td><td class="n">C3&nbsp;3.9</td></tr>
+<tr><td class="d">30 Mar 2026</td><td>Listeria monocytogenes · global</td><td><span class="chan proportion">share</span></td><td class="n">41</td><td class="n">1.00</td><td class="n"><strong>5.65</strong></td><td class="n">41.00</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">30 Mar 2026</td><td>Tier 1 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">42</td><td class="n">4.00</td><td class="n"><strong>1.45</strong></td><td class="n">10.50</td><td class="n">p&nbsp;0.0004</td></tr>
+<tr><td class="d">30 Mar 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.00</td><td class="n"><strong>3.00</strong></td><td class="n">0.41</td><td class="n">C1&nbsp;3.9</td></tr>
+<tr><td class="d">6 Apr 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan proportion">share</span></td><td class="n">80</td><td class="n">1.14</td><td class="n"><strong>5.75</strong></td><td class="n">70.00</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">6 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">93</td><td class="n">5.43</td><td class="n"><strong>1.41</strong></td><td class="n">17.13</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">6 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.14</td><td class="n"><strong>2.80</strong></td><td class="n">0.23</td><td class="n">C3&nbsp;3.7</td></tr>
+<tr><td class="d">13 Apr 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan count">count-only</span></td><td class="n">12</td><td class="n">1.29</td><td class="n"><strong>9.33</strong></td><td class="n">1.50</td><td class="n">C3&nbsp;90.7</td></tr>
+<tr><td class="d">13 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">27</td><td class="n">6.86</td><td class="n"><strong>3.94</strong></td><td class="n">0.63</td><td class="n">C3&nbsp;31.0</td></tr>
+<tr><td class="d">13 Apr 2026</td><td>Salmonella · global</td><td><span class="chan count">count-only</span></td><td class="n">17</td><td class="n">5.71</td><td class="n"><strong>2.98</strong></td><td class="n">0.48</td><td class="n">C3&nbsp;2.6</td></tr>
+<tr><td class="d">13 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">4</td><td class="n">1.71</td><td class="n"><strong>2.33</strong></td><td class="n">0.38</td><td class="n">C3&nbsp;4.8</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Tier 2 · Europe</td><td><span class="chan proportion">share</span></td><td class="n">13</td><td class="n">1.00</td><td class="n"><strong>3.14</strong></td><td class="n">13.00</td><td class="n">p&nbsp;0.0002</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Salmonella · global</td><td><span class="chan count">count-only</span></td><td class="n">25</td><td class="n">6.14</td><td class="n"><strong>4.07</strong></td><td class="n">0.98</td><td class="n">C3&nbsp;6.5</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">2.00</td><td class="n"><strong>3.00</strong></td><td class="n">0.72</td><td class="n">C3&nbsp;4.1</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">36</td><td class="n">12.86</td><td class="n"><strong>2.80</strong></td><td class="n">0.68</td><td class="n">C3&nbsp;23.4</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Listeria monocytogenes · Europe</td><td><span class="chan count">count-only</span></td><td class="n">13</td><td class="n">6.57</td><td class="n"><strong>1.98</strong></td><td class="n">0.48</td><td class="n">C3&nbsp;55.3</td></tr>
+<tr><td class="d">20 Apr 2026</td><td>Listeria monocytogenes · France</td><td><span class="chan count">count-only</span></td><td class="n">10</td><td class="n">5.43</td><td class="n"><strong>1.84</strong></td><td class="n">0.45</td><td class="n">C3&nbsp;71.3</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Aflatoxin · global</td><td><span class="chan proportion">share</span></td><td class="n">8</td><td class="n">1.14</td><td class="n"><strong>4.35</strong></td><td class="n">7.00</td><td class="n">p&nbsp;0.0005</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">19</td><td class="n">5.86</td><td class="n"><strong>2.02</strong></td><td class="n">3.24</td><td class="n">p&nbsp;0.0015</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Salmonella · global</td><td><span class="chan proportion">share</span></td><td class="n">24</td><td class="n">7.57</td><td class="n"><strong>1.97</strong></td><td class="n">3.17</td><td class="n">p&nbsp;0.0003</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Shiga toxin-producing E. coli (STEC) · global</td><td><span class="chan count">count-only</span></td><td class="n">4</td><td class="n">1.43</td><td class="n"><strong>2.80</strong></td><td class="n">1.74</td><td class="n">C3&nbsp;4.2</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">2.57</td><td class="n"><strong>1.94</strong></td><td class="n">1.21</td><td class="n">C3&nbsp;2.3</td></tr>
+<tr><td class="d">27 Apr 2026</td><td>Tier 1 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">34</td><td class="n">26.00</td><td class="n"><strong>1.31</strong></td><td class="n">0.81</td><td class="n">C3&nbsp;3.6</td></tr>
+<tr><td class="d">4 May 2026</td><td>Aflatoxin · Europe</td><td><span class="chan proportion">share</span></td><td class="n">6</td><td class="n">1.29</td><td class="n"><strong>3.72</strong></td><td class="n">4.67</td><td class="n">p&nbsp;0.0054</td></tr>
+<tr><td class="d">4 May 2026</td><td>Tier 1 · North America</td><td><span class="chan proportion">share</span></td><td class="n">13</td><td class="n">3.00</td><td class="n"><strong>3.46</strong></td><td class="n">4.33</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">4 May 2026</td><td>Salmonella · global</td><td><span class="chan proportion">share</span></td><td class="n">27</td><td class="n">8.29</td><td class="n"><strong>2.60</strong></td><td class="n">3.26</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">4 May 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">15</td><td class="n">5.57</td><td class="n"><strong>2.15</strong></td><td class="n">2.69</td><td class="n">p&nbsp;0.0029</td></tr>
+<tr><td class="d">4 May 2026</td><td>Tier 2 · Europe</td><td><span class="chan count">count-only</span></td><td class="n">7</td><td class="n">4.29</td><td class="n"><strong>1.63</strong></td><td class="n">1.30</td><td class="n">C3&nbsp;6.9</td></tr>
+<tr><td class="d">11 May 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">18</td><td class="n">7.43</td><td class="n"><strong>2.25</strong></td><td class="n">2.42</td><td class="n">p&nbsp;0.0006</td></tr>
+<tr><td class="d">11 May 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">7</td><td class="n">3.71</td><td class="n"><strong>1.88</strong></td><td class="n">1.75</td><td class="n">C3&nbsp;3.8</td></tr>
+<tr><td class="d">18 May 2026</td><td>Salmonella · France</td><td><span class="chan proportion">share</span></td><td class="n">11</td><td class="n">4.00</td><td class="n"><strong>2.47</strong></td><td class="n">2.75</td><td class="n">p&nbsp;0.0044</td></tr>
+<tr><td class="d">18 May 2026</td><td>Salmonella · Europe</td><td><span class="chan proportion">share</span></td><td class="n">22</td><td class="n">9.57</td><td class="n"><strong>2.07</strong></td><td class="n">2.30</td><td class="n">p&nbsp;0.0005</td></tr>
+<tr><td class="d">18 May 2026</td><td>Salmonella · global</td><td><span class="chan proportion">share</span></td><td class="n">30</td><td class="n">14.14</td><td class="n"><strong>1.91</strong></td><td class="n">2.12</td><td class="n">p&nbsp;0.0001</td></tr>
+<tr><td class="d">18 May 2026</td><td>Salmonella · North America</td><td><span class="chan count">count-only</span></td><td class="n">5</td><td class="n">2.00</td><td class="n"><strong>2.50</strong></td><td class="n">2.25</td><td class="n">C3&nbsp;6.9</td></tr>
+<tr><td class="d">18 May 2026</td><td>Tier 1 · North America</td><td><span class="chan count">count-only</span></td><td class="n">8</td><td class="n">4.29</td><td class="n"><strong>1.87</strong></td><td class="n">1.68</td><td class="n">C3&nbsp;4.5</td></tr>
+<tr><td class="d">25 May 2026</td><td>Shiga toxin-producing E. coli (STEC) · France</td><td><span class="chan proportion">share</span></td><td class="n">12</td><td class="n">1.71</td><td class="n"><strong>6.68</strong></td><td class="n">7.00</td><td class="n">p&nbsp;&lt;0.0001</td></tr>
+<tr><td class="d">25 May 2026</td><td>Salmonella · United States</td><td><span class="chan count">count-only</span></td><td class="n">6</td><td class="n">1.86</td><td class="n"><strong>3.23</strong></td><td class="n">3.08</td><td class="n">C3&nbsp;2.0</td></tr>
+<tr><td class="d">25 May 2026</td><td>Salmonella · Europe</td><td><span class="chan count">count-only</span></td><td class="n">14</td><td class="n">11.14</td><td class="n"><strong>1.26</strong></td><td class="n">1.20</td><td class="n">C3&nbsp;2.6</td></tr>
+<tr><td class="d">1 Jun 2026</td><td>Shiga toxin-producing E. coli (STEC) · France</td><td><span class="chan proportion">share</span></td><td class="n">6</td><td class="n">2.00</td><td class="n"><strong>3.49</strong></td><td class="n">3.00</td><td class="n">p&nbsp;0.0074</td></tr>
+</tbody>
+<caption><strong>Table 2.</strong> Not findings. Reported for
+completeness of the ledger only, and excluded from every count in this
+report's summary. The coverage window opens 8 Jun 2026; see
+&sect;3.2.</caption>
+</table></div>
+
+<h3>5.4 Corpus concentration</h3>
+
+<div class="tw"><table>
+<thead><tr><th>Source</th><th class="n">Records</th><th class="n">Share</th></tr></thead>
+<tbody>
+<tr><td>RappelConso (FR)</td><td class="n">644</td><td class="n">42.8%</td></tr>
+<tr><td>RASFF (EU)</td><td class="n">502</td><td class="n">33.3%</td></tr>
+<tr><td>FDA</td><td class="n">79</td><td class="n">5.2%</td></tr>
+<tr><td>CFIA</td><td class="n">55</td><td class="n">3.7%</td></tr>
+<tr><td>FSAI (IE)</td><td class="n">43</td><td class="n">2.9%</td></tr>
+<tr><td>FSA (UK)</td><td class="n">20</td><td class="n">1.3%</td></tr>
+<tr><td>BVL (DE)</td><td class="n">19</td><td class="n">1.3%</td></tr>
+<tr><td>AESAN (ES)</td><td class="n">16</td><td class="n">1.1%</td></tr>
+</tbody>
+<caption>Top eight publishers by volume. This concentration is the reason
+the share channel exists.</caption>
+</table></div>
+
+<h2><span class="num">6</span>Limitations</h2>
+
+<p><strong>No denominator.</strong> Notice counts are not incidence. A
+country that publishes diligently will look worse than one that does not,
+and this detector cannot distinguish the two. Every stratum is compared
+only against itself.</p>
+
+<p><strong>Short history.</strong> 34 weeks supports EARS and
+nothing seasonal. Any pattern with an annual period is invisible, and a
+genuine seasonal rise will be read as an aberration until multiple years
+of stable history exist.</p>
+
+<p><strong>Publisher events dominate the count channel.</strong> Mitigated
+by the share channel, not eliminated. A backlog clearance concentrated in
+one hazard class will still move a share.</p>
+
+<p><strong>Outbreaks that never generate a notice are invisible.</strong>
+Some outbreaks surface through clinical surveillance rather than product
+testing, and the implicated commodity is identified only after case
+interviews converge. A recent multi-state Cyclospora cluster is the clean
+example: AFTS-FSIS observes the regulatory record, and where no notice is
+issued until an investigation concludes, there is nothing in the corpus
+for the detector to see. This is a structural limit of recall-derived
+signal, not a tuning failure, and no amount of threshold work addresses
+it.</p>
+
+<p><strong>Coverage inference is not ground truth.</strong> Onset and
+maturity are inferred from publication behaviour because no regulator
+publishes a machine-readable statement of when its own feed became
+complete. &sect;4 shows how much the inference depends on constants that
+were chosen by judgement.</p>
+
+<h2><span class="num">7</span>Reproducibility</h2>
+
+<p>This page was generated from corpus revision
+<span class="mono">48682f70</span> by:</p>
+
+<pre style="background:var(--bg-2);border:1px solid var(--rule);padding:14px 16px;
+overflow-x:auto;font-family:var(--mono);font-size:13px;margin:0 0 16px"><code
+style="background:none;padding:0">python -m tools.build_technical_report</code></pre>
+
+<p>Supporting commands:</p>
+
+<ul>
+  <li><code>python -m pipeline.source_coverage --build</code> &mdash; rebuild the register</li>
+  <li><code>python -m pipeline.source_coverage --verify-stability</code> &mdash; exits 2 if any cutoff would move</li>
+  <li><code>python -m tools.coverage_sensitivity</code> &mdash; reproduce &sect;4</li>
+  <li><code>python -m pipeline.signal_detector --backtest</code> &mdash; reproduce Table 1 as CSV</li>
+  <li><code>python -m tools.build_technical_report --print-digest</code> &mdash; recompute the digest below without writing the page</li>
+</ul>
+
+<h3>7.1 What reproducibility means here, precisely</h3>
+
+<p>The page is <strong>not</strong> byte-for-byte reproducible, and it
+would be dishonest to claim otherwise: it stamps its own build time, so
+two builds always differ. Corpus revision alone would not be sufficient
+even without that, because the result also depends on the detector's
+source revision, its constants, the coverage register, and the runtime.</p>
+
+<p>What is pinned is the analysis. The digest below is SHA-256 over the
+analytical payload with the clock excluded &mdash; corpus shape, coverage
+window, every constant in &sect;2.6, and every replay row with its
+observed count, baseline, both effect ratios and p-value:</p>
+
+<pre style="background:var(--bg-2);border:1px solid var(--rule);padding:14px 16px;
+overflow-x:auto;font-family:var(--mono);font-size:12.5px;margin:0 0 16px;
+word-break:break-all;white-space:pre-wrap"><code
+style="background:none;padding:0">analytical-digest sha256
+b760a8ca1f937a897ba97b52a86d9a29b295139c96b4934fd22595ba344e9732</code></pre>
+
+<div class="tw"><table>
+<thead><tr><th>Input</th><th>Pinned as</th></tr></thead>
+<tbody>
+<tr><td>Corpus (<code>docs/data/recalls.xlsx</code>)</td>
+<td><span class="mono">48682f70</span> &middot; 1,506 notices,
+34 complete weeks, 29 Dec 2025 to 17 Aug 2026</td></tr>
+<tr><td>Detector source &amp; constants</td>
+<td>Same revision; every constant listed in &sect;2.6 and included in the digest</td></tr>
+<tr><td>Coverage register</td>
+<td><code>docs/data/source-coverage.json</code>; maturity dates frozen, window
+8 Jun 2026</td></tr>
+<tr><td>Runtime</td>
+<td>Python 3 with pandas; no fitted model, no random seed, no network access
+at build time</td></tr>
+<tr><td>Build clock</td>
+<td><strong>Not pinned</strong> &mdash; excluded from the digest by construction</td></tr>
+</tbody>
+<caption>A rebuild that reports this digest has reproduced the analysis. A
+rebuild that reports a different one has changed an input, and the table
+above is the list of places to look.</caption>
+</table></div>
+
+<h2><span class="num">8</span>Revision history</h2>
+
+<p>The method is versioned, and corrections to it are listed rather than
+absorbed. Each entry names what changed and whether reported results moved,
+so a figure quoted from an earlier build can be placed.</p>
+
+<div class="tw"><table>
+<thead><tr><th class="d">Date</th><th>Change</th><th>Results moved</th></tr></thead>
+<tbody>
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Guard band aligned across channels.</strong> The share channel
+built its baseline with <code>range(GUARD_WEEKS, &hellip;)</code>, which
+includes the week at offset 2: only the immediately
+preceding week was excluded, and the second preceding week entered the
+share-channel baseline. The count channel, using
+<code>_window(&hellip;, offset=GUARD_WEEKS)</code>, excluded both. Both
+channels now read the same 7-week window, and
+<code>tests/test_guard_band.py</code> fails if they ever diverge
+again.</td>
+<td>Yes &mdash; regenerated in full for this edition.</td></tr>
+
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Effect follows the channel.</strong> The effect column carried
+the share ratio for every row, including count-only ones, where it could
+fall below 1. Both ratios are now retained on every record and the
+displayed value matches the channel.</td>
+<td>Yes &mdash; count-channel rows only.</td></tr>
+
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Coverage window enforced in code.</strong>
+<code>coverage_window_start()</code> derives the window from the register;
+previously it was applied by hand. Maturity dates are frozen at first
+determination, ending an oscillation that could have moved the window by
+eight weeks.</td>
+<td>No &mdash; the derived window matches the one previously applied.</td></tr>
+
+<tr><td class="d">27 Aug 2026</td>
+<td><strong>Reproducibility restated.</strong> A byte-for-byte claim was
+replaced by the analytical digest in &sect;7.1, which excludes the build
+clock and pins the result set.</td>
+<td>No.</td></tr>
+</tbody>
+<caption>Corrections found by external statistical review and by the
+project's own test suite. Every entry is covered by a regression test;
+none can recur silently.</caption>
+</table></div>
+
+<h2><span class="num">9</span>References</h2>
+
+<ol style="font-size:14.5px">
+  <li>Hutwagner L, Thompson W, Seeman GM, Treadwell T. The bioterrorism
+      preparedness and response Early Aberration Reporting System (EARS).
+      <em>Journal of Urban Health</em> 2003;80(2 Suppl 1):i89&ndash;i96.
+      <span style="color:var(--ink-3)">&mdash; C1/C2/C3 as implemented in
+      &sect;2.1.</span></li>
+  <li>Farrington CP, Andrews NJ, Beale AD, Catchpole MA. A statistical
+      algorithm for the early detection of outbreaks of infectious disease.
+      <em>Journal of the Royal Statistical Society: Series A</em>
+      1996;159(3):547&ndash;563.
+      <span style="color:var(--ink-3)">&mdash; the method this corpus is
+      not yet long enough to support.</span></li>
+  <li>Noufaily A, Enki DG, Farrington P, Garthwaite P, Andrews N, Charlett A.
+      An improved algorithm for outbreak detection in multiple surveillance
+      systems. <em>Statistics in Medicine</em> 2013;32(7):1206&ndash;1222.
+      <span style="color:var(--ink-3)">&mdash; the migration target once
+      multiple years of stable history exist.</span></li>
+  <li>Benjamini Y, Hochberg Y. Controlling the false discovery rate: a
+      practical and powerful approach to multiple testing. <em>Journal of
+      the Royal Statistical Society: Series B</em> 1995;57(1):289&ndash;300.
+      <span style="color:var(--ink-3)">&mdash; the step-up procedure in
+      &sect;2.4, applied to the share channel only.</span></li>
+  <li>Clopper CJ, Pearson ES. The use of confidence or fiducial limits
+      illustrated in the case of the binomial. <em>Biometrika</em>
+      1934;26(4):404&ndash;413.
+      <span style="color:var(--ink-3)">&mdash; the exact binomial basis of
+      the share channel.</span></li>
+</ol>
+
+<div class="sub-cta">
+  <h3>Food Safety Intelligence System</h3>
+  <p>AFTS-FSIS aggregates food recall and alert notices from
+  35 regulatory publishers across Europe, North America,
+  Asia-Pacific and beyond, normalises them into one schema, and screens
+  them for pathogens, biotoxins, mycotoxins, foreign material, pest and
+  chemical hazards. Daily briefs, weekly and monthly digests, and the
+  aberration scan described in this report.</p>
+  <p style="margin-bottom:18px">Subscribe for the daily brief and weekly
+  digest, or request access to the full corpus and the signal feed.</p>
+  <a class="btn" href="https://www.advfood.tech/fsis-recalls">Subscribe to AFTS-FSIS</a>
+</div>
+
+<footer>
+  <p>TR-2026-01 &middot; Advanced Food-Tech Solutions (AFTS), Athens<br>
+  Generated 28 August 2026 20:38 UTC &middot; corpus revision
+  <span class="mono">48682f70</span> &middot;
+  1,506 notices over 34 complete weeks.</p>
+  <p>Advisory only. Nothing in this report is a substitute for the
+  originating regulator's notice, which remains the authoritative record
+  in every case. Source links are carried on every row in the AFTS-FSIS corpus.</p>
+  <p><a href="https://fsis.advfood.tech">fsis.advfood.tech</a> &middot;
+  <a href="https://www.advfood.tech/fsis-recalls">www.advfood.tech/fsis-recalls</a></p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  /* Hover layer. The chart is legible without it - every bar carries its
+     week in the data table below the figure - so failure here is silent. */
+  var fig = document.querySelector('.fig .svgwrap');
+  if (!fig) return;
+  var tip = fig.querySelector('.tip');
+  var svg = fig.querySelector('svg');
+  function show(e){
+    var b = e.target.closest('.bar'); if (!b) return;
+    var r = fig.getBoundingClientRect(), br = b.getBoundingClientRect();
+    tip.textContent = b.dataset.l + ' — ' + b.dataset.v;
+    tip.hidden = false;
+    tip.style.left = (br.left - r.left + br.width/2) + 'px';
+    tip.style.top  = (br.top - r.top) + 'px';
+  }
+  svg.addEventListener('pointerover', show);
+  svg.addEventListener('pointermove', show);
+  svg.addEventListener('pointerleave', function(){ tip.hidden = true; });
+})();
+</script>
+</body>
+</html>
