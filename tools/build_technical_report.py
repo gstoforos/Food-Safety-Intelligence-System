@@ -351,11 +351,40 @@ footer a{color:var(--accent)}
 """
 
 
+# Thresholds a printed p-value must never appear to sit exactly on.
+_ALPHAS = (0.05, 0.01, 0.001)
+
+
+def _fmt_p(p: float) -> str:
+    """A p-value, at enough precision that it cannot be read as failing.
+
+    The 29 June Listeria/Europe signal has p = 0.009988. At four decimals
+    that prints as 0.0100, which a reader compares against alpha = 0.01 and
+    reasonably concludes did not clear it — the row is admitted, so the page
+    contradicts itself. Rounding is a display choice; it must not be able to
+    invert the finding it is displaying.
+
+    So: when four decimals would land the value exactly on a threshold it is
+    actually below, print the digits that resolve it. Everything else is
+    unchanged, and a value genuinely at or above a threshold still shows as
+    such — this widens precision, it never nudges a number the safe way.
+    """
+    if p < 0.0001:
+        return "p&nbsp;&lt;0.0001"
+    for places in range(4, 9):
+        shown = float(f"{p:.{places}f}")
+        # Resolved once no threshold sits between the true value and the
+        # printed one. A fixed +1 digit is not enough: p = 0.049996 prints
+        # as 0.05000 at five places and still reads as equal to alpha.
+        if not any(p < a <= shown for a in _ALPHAS):
+            return f"p&nbsp;{p:.{places}f}"
+    return f"p&nbsp;&lt;{min(a for a in _ALPHAS if p < a):g}"
+
+
 def _admission(r) -> str:
     """How this row got in — the two channels are admitted differently."""
     if r["channel"] == "proportion":
-        p = r["p_value"]
-        return ("p&nbsp;&lt;0.0001" if p < 0.0001 else f"p&nbsp;{p:.4f}")
+        return _fmt_p(r["p_value"])
     stat, name = max(((r["c1"], "C1"), (r["c2"], "C2"), (r["c3"], "C3")),
                      key=lambda t: t[0])
     return f"{name}&nbsp;{stat:.1f}"
@@ -629,8 +658,8 @@ def figure_signals(replay) -> str:
 
     out = [f'<figure class="fig"><svg viewBox="0 0 {W} {H:.0f}" '
            f'role="img" width="100%" '
-           f'aria-label="Effect size of every finding inside the analytical '
-           f'window, sorted from largest.">']
+           f'aria-label="Effect size of every alert-ledger row inside the '
+           f'analytical window, sorted from largest.">']
     # baseline of 1.00 = no elevation; the grid is recessive
     for v in ticks:
         x = PAD_L + v * scale
@@ -661,11 +690,12 @@ def figure_signals(replay) -> str:
         f'share elevation ({n_share}) &nbsp; '
         f'<span class="sw" style="background:{SERIES_COUNT}"></span>'
         f'count-only diagnostic ({len(rows) - n_share})</span><br>'
-        f'<strong>Figure 2.</strong> Every finding inside the analytical '
-        f'window, by effect size. Share elevations are the reportable result; '
-        f'count-only rows are carried as diagnostics because a rise in a '
-        f'stratum\u2019s count that its share does not follow is usually the '
-        f'publisher, not the food supply. Hover any bar for the observed '
+        f'<strong>Figure 2.</strong> Every alert-ledger row inside the '
+        f'analytical window, by effect size. Share elevations are the '
+        f'reportable result; count-only rows are carried as diagnostics, not '
+        f'findings, because a rise in a stratum\u2019s count that its share '
+        f'does not follow may reflect publisher activity rather than a '
+        f'corresponding change in the food supply. Hover any bar for the observed '
         f'count and its baseline. Section 5.2 lists the same rows with '
         f'p-values.</figcaption></figure>')
     return "".join(out)
