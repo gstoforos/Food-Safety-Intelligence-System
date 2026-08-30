@@ -86,14 +86,14 @@
   "Brand": "Monique Ranou",
   "Product": "saucisson sec petites tranches 32 tranches - monique ranou - 100g",
   "Pathogen": "Salmonella",
-  "Reason": "Presence of salmonelle",
+  "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23350/interne",
-  "Notes": "intermarché [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "intermarché [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator proposal 9b2d6c04a9c30a5b applied 2026-08-30: Reason carried the French 'Presence of salmonelle' against the English-output rule.]"
  },
  {
   "Date": "2026-08-28",
@@ -214,14 +214,14 @@
   "Brand": "Unbranded",
   "Product": "graines de courge",
   "Pathogen": "Salmonella",
-  "Reason": "Détection salmonelle",
+  "Reason": "Salmonella detected",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23359/Interne",
-  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator proposal b084deb1f0113fad applied 2026-08-30: Reason carried the French 'Détection salmonelle' against the English-output rule.]"
  },
  {
   "Date": "2026-08-28",
@@ -230,14 +230,14 @@
   "Brand": "Unbranded",
   "Product": "mélanges contenant graines de courge; mélange sportif; mélange babylone; mélange spécial salade estivale",
   "Pathogen": "Salmonella",
-  "Reason": "Détection salmonelle",
+  "Reason": "Salmonella detected",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23360/Interne",
-  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator proposal 4dbbe132c1b661ad applied 2026-08-30: Reason carried the French 'Détection salmonelle' against the English-output rule.]"
  },
  {
   "Date": "2026-08-28",
@@ -286,22 +286,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869612",
   "Notes": "[RASFF #2026.7638; classification: information notification for attention; category: fruits and vegetables; notifId=869612] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
- },
- {
-  "Date": "2026-08-28",
-  "Source": "FDA",
-  "Company": "Northwest Naturals",
-  "Brand": "Northwest Naturals",
-  "Product": "Chicken Recipe",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Potential contamination with Salmonella and/or Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/northwest-naturals-voluntarily-recalls-two-raw-pet-food-products-because-possible-salmonella",
-  "Notes": "FDA listing HTML (Layer 1) [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
  },
  {
   "Date": "2026-08-27",
@@ -462,22 +446,6 @@
   "Outbreak": 0,
   "URL": "https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-biologische-brie-van-plus",
   "Notes": "Barcode 2398141000000 (last digits may vary).  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
- },
- {
-  "Date": "2026-08-27",
-  "Source": "CDC",
-  "Company": "Salmonella Outbreaks Linked to Backyard Poultry",
-  "Brand": "Salmonella Outbreaks Linked to Backyard Poultry",
-  "Product": "Salmonella Outbreaks Linked to Backyard Poultry | Salmonella Infection | CDC\n\n# Salmonella Outbreaks Linked to Backyard Poultry\n\nFor Everyone\n\nAug",
-  "Pathogen": "Salmonella",
-  "Reason": "Salmonella — outbreak",
-  "Class": "Recall",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://www.cdc.gov/salmonella/outbreaks/saintpaul-04-26/index.html",
-  "Notes": "Salmonella Outbreaks Linked to Backyard Poultry | Salmonella Infection | CDC\n\n# Salmonella Outbreaks Linked to Backyard Poultry\n\nFor Everyone\n\nAug. 27, 2026\n\n## Investigation notice\n\nInvestigation status: Open\n\n- Public health officials in several states are investigating 10 multistate outbreaks of   [via Exa gap-finder, deterministic extract] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
  },
  {
   "Date": "2026-08-26",
