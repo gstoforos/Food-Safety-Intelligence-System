@@ -5,21 +5,21 @@
   "week_num": 35,
   "year": 2026,
   "week_start": "2026-08-21",
-  "week_end": "2026-08-27",
+  "week_end": "2026-08-26",
   "week_start_display": "21 Aug",
-  "week_end_display": "27 Aug 2026",
-  "generated_utc": "2026-08-28T19:55:17.599448+00:00",
+  "week_end_display": "26 Aug 2026",
+  "generated_utc": "2026-08-30T20:12:59.031398+00:00",
   "stats": {
-    "total": 35,
-    "tier1": 30,
+    "total": 38,
+    "tier1": 33,
     "outbreaks": 1,
-    "delta": -37,
-    "delta_pct": -51
+    "delta": -34,
+    "delta_pct": -47
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 18,
-    "pct": 51
+    "cases": 21,
+    "pct": 55
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -81,17 +81,17 @@
     },
     {
       "rank": 5,
-      "date": "2026-08-26",
+      "date": "2026-08-27",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Origin: Cyprus | Notifying: Germany",
-      "brand": "DEU",
-      "product": "Listeria monocytogenes in halloumi from Cyprus",
-      "country": "Cyprus",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868574"
+      "company": "Jumbo Supermarkten",
+      "brand": "Jumbo",
+      "product": "Jumbo Biologische brie (organic brie), with THT 01-09-2026",
+      "country": "Netherlands",
+      "source": "NVWA",
+      "url": "https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-biologische-brie-van-jumbo"
     }
   ],
   "country_count": 16
