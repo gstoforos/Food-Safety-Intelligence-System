@@ -11,6 +11,11 @@ name: FSIS Gemini URL Gate
 
 on:
   workflow_dispatch:
+    inputs:
+      force_run:
+        description: "Break-glass: run the retired Gemini URL gate anyway"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -25,8 +30,40 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      # ── RETIRED 2026-08-30 ───────────────────────────────────────────
+      # This workflow is superseded by pipeline/recall_url_agent.py
+      # (reviewer 1, self-hosted Qwen). Both act on the SAME lane —
+      # pending_gap -> v1 -> v2 — and this one ALSO calls promote_approved,
+      # so whichever runs first empties the queue and the other finds
+      # nothing. That is why the Qwen reviewers show 6 approvals in a month
+      # while the register kept filling: they were not failing, they were
+      # arriving to an empty lane.
+      #
+      # It is retired HERE, in the job itself, rather than by removing a
+      # schedule: block, because it has no cron and is not in
+      # FsisScheduler.gs — yet it ran at 19:41 UTC on 2026-08-30, outside
+      # its own 06-08 Athens window. Something still dispatches it. A guard
+      # inside the job stops it whatever the caller is; deleting a trigger
+      # that was already absent would not have.
+      #
+      # To bring it back as a break-glass (e.g. the VPS is down for days),
+      # dispatch with force_run: true.
+      - name: Retired — reviewer 1 owns this lane
+        id: retired
+        run: |
+          if [ "${{ github.event.inputs.force_run }}" = "true" ]; then
+            echo "force_run set — proceeding as break-glass"
+            echo "retired=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::gemini-url-gate is retired. Reviewer 1"
+            echo "::notice::(recall-url-agent.yml) owns pending_gap -> v1 -> v2."
+            echo "::notice::Dispatch with force_run=true to override."
+            echo "retired=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Athens-time guard (06-08:xx window)
         id: guard
+        if: steps.retired.outputs.retired != 'true'
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
           echo "athens_hour=$HOUR"
