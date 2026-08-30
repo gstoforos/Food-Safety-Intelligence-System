@@ -86,14 +86,14 @@
   "Brand": "Monique Ranou",
   "Product": "saucisson sec petites tranches 32 tranches - monique ranou - 100g",
   "Pathogen": "Salmonella",
-  "Reason": "Presence of salmonelle",
+  "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23350/interne",
-  "Notes": "intermarché [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "intermarché [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed] [nightly-operator 2026-08-30: Reason 'Presence of salmonelle' -> 'Presence of Salmonella' (non-English wording)]"
  },
  {
   "Date": "2026-08-28",
@@ -214,14 +214,14 @@
   "Brand": "Unbranded",
   "Product": "graines de courge",
   "Pathogen": "Salmonella",
-  "Reason": "Détection salmonelle",
+  "Reason": "Detection of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23359/Interne",
-  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed] [nightly-operator 2026-08-30: Reason 'Détection salmonelle' -> 'Detection of Salmonella' (non-English wording)]"
  },
  {
   "Date": "2026-08-28",
@@ -230,14 +230,14 @@
   "Brand": "Unbranded",
   "Product": "mélanges contenant graines de courge; mélange sportif; mélange babylone; mélange spécial salade estivale",
   "Pathogen": "Salmonella",
-  "Reason": "Détection salmonelle",
+  "Reason": "Detection of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23360/Interne",
-  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed] [nightly-operator 2026-08-30: Reason 'Détection salmonelle' -> 'Detection of Salmonella' (non-English wording)]"
  },
  {
   "Date": "2026-08-28",
@@ -286,22 +286,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869612",
   "Notes": "[RASFF #2026.7638; classification: information notification for attention; category: fruits and vegetables; notifId=869612] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
- },
- {
-  "Date": "2026-08-28",
-  "Source": "FDA",
-  "Company": "Northwest Naturals",
-  "Brand": "Northwest Naturals",
-  "Product": "Chicken Recipe",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Potential contamination with Salmonella and/or Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/northwest-naturals-voluntarily-recalls-two-raw-pet-food-products-because-possible-salmonella",
-  "Notes": "FDA listing HTML (Layer 1) [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
  },
  {
   "Date": "2026-08-27",
@@ -434,50 +418,18 @@
  {
   "Date": "2026-08-27",
   "Source": "NVWA",
-  "Company": "Jumbo Supermarkten",
-  "Brand": "Jumbo",
-  "Product": "Jumbo Biologische brie (organic brie), with THT 01-09-2026",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Possible presence of Listeria bacteria",
-  "Class": "Veiligheidswaarschuwing",
-  "Country": "Netherlands",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-biologische-brie-van-jumbo",
-  "Notes": "Barcode 2308084xxxxxxx. Also confirmed by Jumbo on their website.  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
- },
- {
-  "Date": "2026-08-27",
-  "Source": "NVWA",
   "Company": "PLUS",
   "Brand": "PLUS",
   "Product": "Biologisch PLUS Brie 150 gram, with THT 31-08-2026 and 03-09-2026",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Possible presence of Listeria bacteria",
-  "Class": "Veiligheidswaarschuwing",
+  "Class": "Safety warning",
   "Country": "Netherlands",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-biologische-brie-van-plus",
-  "Notes": "Barcode 2398141000000 (last digits may vary).  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
- },
- {
-  "Date": "2026-08-27",
-  "Source": "CDC",
-  "Company": "Salmonella Outbreaks Linked to Backyard Poultry",
-  "Brand": "Salmonella Outbreaks Linked to Backyard Poultry",
-  "Product": "Salmonella Outbreaks Linked to Backyard Poultry | Salmonella Infection | CDC\n\n# Salmonella Outbreaks Linked to Backyard Poultry\n\nFor Everyone\n\nAug",
-  "Pathogen": "Salmonella",
-  "Reason": "Salmonella — outbreak",
-  "Class": "Recall",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://www.cdc.gov/salmonella/outbreaks/saintpaul-04-26/index.html",
-  "Notes": "Salmonella Outbreaks Linked to Backyard Poultry | Salmonella Infection | CDC\n\n# Salmonella Outbreaks Linked to Backyard Poultry\n\nFor Everyone\n\nAug. 27, 2026\n\n## Investigation notice\n\nInvestigation status: Open\n\n- Public health officials in several states are investigating 10 multistate outbreaks of   [via Exa gap-finder, deterministic extract] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "Barcode 2398141000000 (last digits may vary).  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed] [nightly-operator 2026-08-30: Class 'Veiligheidswaarschuwing' -> 'Safety warning' (non-English wording)]"
  },
  {
   "Date": "2026-08-26",
@@ -590,22 +542,6 @@
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/portale/richiami/dettaglioRichiamo.jsp?id=23769",
   "Notes": "Lotto: L126G22. Scadenza: 05/09/2026. Nessun caso di listeriosi associato segnalato. Stabilimento IT T616G UE.  [via Gemini gap-finder + Google Search] [held 2026-08-28: salute.gov.it is behind a JS WAF and could not be fetched; same gap-finder batch as the failed RappelConso URLs. Unverified, not wrong.] [promoted 2026-08-28: Ministero della Salute official richiamo id=23769, gate-clean. salute.gov.it sits behind a JS WAF and could not be fetched here; flagged for url_guardian. Part of the same week's BE/FR/IT gorgonzola Listeria cluster.] [en 2026-08-28: Reason translated from the regulator wording \"Possibile presenza di Listeria monocytogenes\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
- },
- {
-  "Date": "2026-08-26",
-  "Source": "NVWA",
-  "Company": "Jumbo Supermarkten",
-  "Brand": "Jumbo",
-  "Product": "Jumbo Gorgonzola Dolce, with THT 03-09-2026, 08-09-2026, and 10-09-2026",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Possible presence of Listeria bacteria",
-  "Class": "Veiligheidswaarschuwing",
-  "Country": "Netherlands",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-gorgonzola-dolce-van-jumbo",
-  "Notes": "EAN-code 8718452637508. Also confirmed by Jumbo and FAVV.  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
  },
  {
   "Date": "2026-08-25",
@@ -2262,14 +2198,14 @@
   "Brand": "—",
   "Product": "Salmonella typhimurium in chicken meat from Brazil",
   "Pathogen": "Salmonella",
-  "Reason": "Salmonella typhimurium en carne pollo de Brasil // Salmonella typhimurium in chicken meat from Brazil; risk: serious; category: poultry meat and poultry meat products",
+  "Reason": "Salmonella typhimurium in chicken meat from Brazil; risk: serious; category: poultry meat and poultry meat products",
   "Class": "Border Rejection",
   "Country": "Brazil",
   "Region": "Latin America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865622",
-  "Notes": "[RASFF #2026.7178; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=865622]"
+  "Notes": "[RASFF #2026.7178; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=865622] [lang 2026-08-30: RASFF bilingual subject split; non-English half dropped, published English half kept verbatim]"
  },
  {
   "Date": "2026-08-13",
@@ -2534,14 +2470,14 @@
   "Brand": "—",
   "Product": "Aflatoxins in unshelled peanuts from China",
   "Pathogen": "Aflatoxin",
-  "Reason": "Aflatoxinas en cacahuetes con cáscara de China // Aflatoxins in unshelled peanuts from China; risk: serious; category: nuts, nut products and seeds",
+  "Reason": "Aflatoxins in unshelled peanuts from China; risk: serious; category: nuts, nut products and seeds",
   "Class": "Border Rejection",
   "Country": "China",
   "Region": "Asia",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847056",
-  "Notes": "[RASFF #2026.7126; classification: border rejection notification; category: nuts, nut products and seeds; notifId=847056] [url-suspect 2026-08-14: notifId 847056 on a row dated 2026-08-11. Every other August RASFF row falls in 861073..865741 and this row's same-day siblings are 865271..865534, so a value ~18k lower almost certainly points at a notification from weeks earlier. NOT changed: RASFF Window cannot be fetched server-side, and replacing a citation with a guess is worse than flagging it. Verify before this row is cited externally.]"
+  "Notes": "[RASFF #2026.7126; classification: border rejection notification; category: nuts, nut products and seeds; notifId=847056] [url-suspect 2026-08-14: notifId 847056 on a row dated 2026-08-11. Every other August RASFF row falls in 861073..865741 and this row's same-day siblings are 865271..865534, so a value ~18k lower almost certainly points at a notification from weeks earlier. NOT changed: RASFF Window cannot be fetched server-side, and replacing a citation with a guess is worse than flagging it. Verify before this row is cited externally.] [lang 2026-08-30: RASFF bilingual subject split; non-English half dropped, published English half kept verbatim]"
  },
  {
   "Date": "2026-08-11",
@@ -6593,22 +6529,6 @@
  },
  {
   "Date": "2026-07-16",
-  "Source": "FSAI (IE)",
-  "Company": "K O'Connell Fishmongers",
-  "Brand": "K O'Connell Fishmongers",
-  "Product": "Smoked Salmon Slices (Update 1 to FSAI recall)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Update to recall of K O'Connell Fishmongers Smoked Salmon Slices (Update 1)",
-  "Class": "Alert",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/update-to-recall-of-k-o-connell-fishmongers-smoked",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-07-16: Brand '—'→\"K O'Connell Fishmongers\"] [gemini-enrich 2026-07-16: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-17: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-17: pending_enrichment → pending (Claude verified)] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3] [fix 2026-07-17: Company was 'Update to' scrape artifact; corrected to K O'Connell Fishmongers; Product cleaned from 'Update to recall of...' prefix]"
- },
- {
-  "Date": "2026-07-16",
   "Source": "RappelConso (FR)",
   "Company": "SOCIETE NOUVELLE SALAISONS VOSGIENNES",
   "Brand": "Oztat",
@@ -8358,14 +8278,14 @@
   "Brand": "GRAND FRAIS / FRESH",
   "Product": "Eminces de truite aneth 100g",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Détection Listeria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22688/Interne",
-  "Notes": "grand frais / fresh [url-gate 2026-07-02: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-03: fix; corrections: Company→WORLDMARECHAL, Brand→GRAND FRAIS / FRESH, Product→Eminces de truite aneth 100g, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains distributor name 'Grand Frais / Fresh' instead of recalling firm 'WORLDMA]"
+  "Notes": "grand frais / fresh [url-gate 2026-07-02: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-03: fix; corrections: Company→WORLDMARECHAL, Brand→GRAND FRAIS / FRESH, Product→Eminces de truite aneth 100g, Pathogen→Listeria monocytogenes; fix; company mismatch | Company field contains distributor name 'Grand Frais / Fresh' instead of recalling firm 'WORLDMA] [lang 2026-08-30: Reason englishified via verified translation table]"
  },
  {
   "Date": "2026-07-02",
@@ -8449,6 +8369,22 @@
  },
  {
   "Date": "2026-07-01",
+  "Source": "FSAI (IE)",
+  "Company": "K O'Connell Fishmongers",
+  "Brand": "K O'Connell Fishmongers",
+  "Product": "Smoked Salmon Slices (Update 1 to FSAI recall)",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Update to recall of K O'Connell Fishmongers Smoked Salmon Slices (Update 1)",
+  "Class": "Alert",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/update-to-recall-of-k-o-connell-fishmongers-smoked",
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-07-16: Brand '—'→\"K O'Connell Fishmongers\"] [gemini-enrich 2026-07-16: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-17: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-17: pending_enrichment → pending (Claude verified)] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3] [fix 2026-07-17: Company was 'Update to' scrape artifact; corrected to K O'Connell Fishmongers; Product cleaned from 'Update to recall of...' prefix] [date 2026-08-30: was 2026-07-16; FSAI page for alert 2026.38 Update 1 reads 'Wednesday, 01 July 2026']"
+ },
+ {
+  "Date": "2026-07-01",
   "Source": "RappelConso (FR)",
   "Company": "TERRES DE MOULIN MADAME",
   "Brand": "Les Moulinettes",
@@ -8462,22 +8398,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22696/Interne",
   "Notes": "cf liste jointe [url-gate 2026-07-07: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-07: fix; corrections: Company→TERRES DE MOULIN MADAME, Pathogen→Mycotoxins (T-2 and HT-2 toxin); fix; company mismatch; pathogen mismatch | Company and Pathogen corrected based on page content.] [enrich-gate 2026-07-07: pending_enrichment → pending (Claude verified)] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
- },
- {
-  "Date": "2026-07-01",
-  "Source": "FSAI (IE)",
-  "Company": "K O'Connell Fishmongers",
-  "Brand": "K O'Connell Fishmongers",
-  "Product": "Smoked Salmon Slices (100g, 150g & 320g)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Possible presence of Listeria monocytogenes (additional use-by date)",
-  "Class": "Recall",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-centre/food-alerts/update-to-recall-of-k-o-connell-fishmongers-smoked-salmon-slices-update-1",
-  "Notes": "Batch code SS16726, Use by 17/07/2026. No confirmed illnesses.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-05: pending_gap → pending_gap_v1] [claude-check 2026-07-05: pass; pass | All fields verified: date 2026-07-01 matches page listing; company K O'Connell Fishmongers and product Smoked Sal] [gap-gate 2026-07-05: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-07-01",
@@ -8780,8 +8700,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-cooked-ham-products",
-  "Notes": "[fix 2026-07-01: Date was empty (FSAI HTML fallback) → 2026-06-30 per FSAI page \"Tuesday, 30 June 2026\". Alert 2026.40.] [fix 2026-07-03: FSAI URL was truncated (...cooked-ham-p) → full ...cooked-ham-products, verified live.]"
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-cooked-ham-p",
+  "Notes": "[fix 2026-07-01: Date was empty (FSAI HTML fallback) → 2026-06-30 per FSAI page \"Tuesday, 30 June 2026\". Alert 2026.40.] [fix 2026-07-03: FSAI URL was truncated (...cooked-ham-p) → full ...cooked-ham-products, verified live.] [url 2026-08-30: slug restored to FSAI's 50-char cap - alert 2026.40, 30 Jun 2026, Listeria, same 5 ham SKUs; the 2026-07-03 automated 'fix' LENGTHENED this correct 50-char slug into a non-existent one. A non-existent FSAI slug serves the generic listing page, not a 404, which is why this passed every resolve check.]"
  },
  {
   "Date": "2026-06-30",
@@ -9054,22 +8974,6 @@
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-k-o-connell-fishmongers-smoke",
   "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-07-05: Brand '—'→\"K O'Connell Fishmongers\"] [gemini-check 2026-07-05: fix; corrections: Date→2026-06-27, Company→K O'Connell Fishmongers, Pathogen→Listeria monocytogenes, Tier→1; fix; company mismatch; pathogen mismatch; date on page=2026-06-27 | Date, company, and pathogen fields require correctio] [enrich-gate 2026-07-05: pending_enrichment → pending (Claude verified)]"
- },
- {
-  "Date": "2026-06-27",
-  "Source": "FSAI (IE)",
-  "Company": "K O'Connell Fishmongers",
-  "Brand": "K O'Connell Fishmongers",
-  "Product": "Smoked Salmon Slices (100g, 150g & 320g pack sizes, Batch code SS16726, Use by 16/07/2026 or 17/07/2026)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Possible presence of Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-k-o-connell-fishmongers-smoked-salmon-slices",
-  "Notes": "Additional use-by date added in an update on 2026-07-01. Original publication date is 2026-06-27.  [via Gemini gap-finder + Google Search] [claude-check 2026-07-02: pass; pass | All fields verified against FSAI page dated 2026-06-27. Company (K O'Connell Fishmongers), product (Smoked Salmon] [gap-gate 2026-07-02: pending_gap → pending_gap_v1] [gemini-check 2026-07-02: pass; corrections: Date→2026-06-27, Company→K O'Connell Fishmongers, Brand→K O'Connell Fishmongers, Product→Smoked Salmon Slices, Pathogen→Listeria monocytogenes; pass; date on page=2026-06-27] [gap-gate 2026-07-02: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-06-27",
@@ -9686,14 +9590,14 @@
   "Brand": "Grand Frais / Fresh / Mon-Marché.Fr",
   "Product": "brisures de saumon fumé 150g (RappelConso fiche 22623)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Détection Listeria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22623/Interne",
-  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-23: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-23: pass; pass] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-23: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-23: pass; pass] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [lang 2026-08-30: Reason englishified via verified translation table]"
  },
  {
   "Date": "2026-06-22",
@@ -10150,14 +10054,14 @@
   "Brand": "Demarne",
   "Product": "filet cabillaud 100/200 demarne ane  5kg",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Detection of Listeria monocytogenes (<10ufc/g)",
+  "Reason": "Detection of Listeria monocytogenes (<10 CFU/g)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22597/Interne",
-  "Notes": "poissonniers; restaurateurs; négociants [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: pass; pass]"
+  "Notes": "poissonniers; restaurateurs; négociants [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: pass; pass] [lang 2026-08-30: Reason englishified via verified translation table]"
  },
  {
   "Date": "2026-06-19",
@@ -10790,14 +10694,14 @@
   "Brand": "Unbranded",
   "Product": "BIFSTECK HACHE",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Detection of Listeria monocytogenes <10 ufc/g",
+  "Reason": "Detection of Listeria monocytogenes at <10 CFU/g",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22556/Interne",
-  "Notes": "leclerc trélissac [url-gate 2026-06-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-06-16: fix; corrections: Company→TRELIDIS E.LECLERC, Brand→Unbranded, Product→BIFSTECK HACHE, Pathogen→Listeria monocytogenes, Tier→1; placeholder_company_filled_from_page | fix; company mismatch | Company field contains distributor name (Leclerc Trélissa] [enrich-gate 2026-06-16: pending_enrichment → pending (Claude verified)] [language 2026-08-15: Reason organism name rendered in English. Was 'Detection of listéria monocytogènese <10 ufc/g'. The species name is not exempt from the English-output rule — only brand and product names are — and this row's own Pathogen field already read 'Listeria monocytogenes', which is where the target came from. Only the organism token was rewritten; any quantitative qualifier is byte-identical.]"
+  "Notes": "leclerc trélissac [url-gate 2026-06-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-06-16: fix; corrections: Company→TRELIDIS E.LECLERC, Brand→Unbranded, Product→BIFSTECK HACHE, Pathogen→Listeria monocytogenes, Tier→1; placeholder_company_filled_from_page | fix; company mismatch | Company field contains distributor name (Leclerc Trélissa] [enrich-gate 2026-06-16: pending_enrichment → pending (Claude verified)] [language 2026-08-15: Reason organism name rendered in English. Was 'Detection of listéria monocytogènese <10 ufc/g'. The species name is not exempt from the English-output rule — only brand and product names are — and this row's own Pathogen field already read 'Listeria monocytogenes', which is where the target came from. Only the organism token was rewritten; any quantitative qualifier is byte-identical.] [lang 2026-08-30: Reason englishified via verified translation table]"
  },
  {
   "Date": "2026-06-15",
@@ -12342,14 +12246,14 @@
   "Brand": "Grand Frais / Fresh / Mon-Marché.Fr",
   "Product": "brisures de saumon fumé 150g (RappelConso fiche 22435)",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Détection Listeria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22435/Interne",
-  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-03: fix; corrections: Company→WORLDMARECHAL GRAND-FRAIS, FRESH, Mon-ma; fix; company mismatch | Company name on row does not exactly match 'Origine de la fiche' on the page.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "grand frais/ fresh/mon-marché [url-gate 2026-06-03: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-03: fix; corrections: Company→WORLDMARECHAL GRAND-FRAIS, FRESH, Mon-ma; fix; company mismatch | Company name on row does not exactly match 'Origine de la fiche' on the page.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [lang 2026-08-30: Reason englishified via verified translation table]"
  },
  {
   "Date": "2026-06-02",
@@ -16684,8 +16588,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-green-box-limited-enoki-mushrooms",
-  "Notes": "[manual-promote 2026-05-08: Company corrected from FSAI HTML-fallback garbage] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-green-box-limited-en",
+  "Notes": "[manual-promote 2026-05-08: Company corrected from FSAI HTML-fallback garbage] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [url 2026-08-30: slug restored to FSAI's 50-char cap - alert 2026.19, 02 May 2026, Listeria, batch G22030. A non-existent FSAI slug serves the generic listing page, not a 404, which is why this passed every resolve check.]"
  },
  {
   "Date": "2026-05-02",
@@ -23841,22 +23745,6 @@
  },
  {
   "Date": "2026-02-24",
-  "Source": "FDA",
-  "Company": "Elite Treats, LLC",
-  "Brand": "Elite Treats",
-  "Product": "Chicken Chips for Dogs (6 oz, lot 24045) - PET FOOD",
-  "Pathogen": "Salmonella",
-  "Reason": "Pathogen contamination",
-  "Class": "Class II",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/elite-treats-llc-recalls-single-lot-chicken-chips-due-salmonella-contamination",
-  "Notes": "Pet food; AL/FL/GA/NC/SC [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
- },
- {
-  "Date": "2026-02-24",
   "Source": "RappelConso (FR)",
   "Company": "Etablissements Monfort",
   "Brand": "Monfort Viandes",
@@ -23916,8 +23804,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-rosabella-moringa-capsules",
-  "Notes": "[manual-promote 2026-05-08: Company/Brand cleaned] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-rosabella-moringa-ca",
+  "Notes": "[manual-promote 2026-05-08: Company/Brand cleaned] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [url 2026-08-30: slug restored to FSAI's 50-char cap - alert 2026.10, 23 Feb 2026, Salmonella, 48 batches. A non-existent FSAI slug serves the generic listing page, not a 404, which is why this passed every resolve check.]"
  },
  {
   "Date": "2026-02-23",

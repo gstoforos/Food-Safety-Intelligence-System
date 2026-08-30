@@ -8,18 +8,18 @@
   "week_end": "2026-08-27",
   "week_start_display": "21 Aug",
   "week_end_display": "27 Aug 2026",
-  "generated_utc": "2026-08-28T19:55:17.599448+00:00",
+  "generated_utc": "2026-08-30T21:16:57.975927+00:00",
   "stats": {
-    "total": 35,
-    "tier1": 30,
+    "total": 36,
+    "tier1": 31,
     "outbreaks": 1,
-    "delta": -37,
-    "delta_pct": -51
+    "delta": -36,
+    "delta_pct": -50
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 18,
-    "pct": 51
+    "cases": 19,
+    "pct": 53
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -81,17 +81,17 @@
     },
     {
       "rank": 5,
-      "date": "2026-08-26",
+      "date": "2026-08-27",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Origin: Cyprus | Notifying: Germany",
-      "brand": "DEU",
-      "product": "Listeria monocytogenes in halloumi from Cyprus",
-      "country": "Cyprus",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868574"
+      "company": "PLUS",
+      "brand": "PLUS",
+      "product": "Biologisch PLUS Brie 150 gram, with THT 31-08-2026 and 03-09-2026",
+      "country": "Netherlands",
+      "source": "NVWA",
+      "url": "https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-biologische-brie-van-plus"
     }
   ],
   "country_count": 16
