@@ -761,6 +761,7 @@ def validate_pending_row(
             is_in_scope as _is_tier1_pathogen,
             is_empty_pathogen as _is_empty_pathogen,
             is_pet_food_product as _is_pet_food,
+            is_pet_food_url as _is_pet_food_url,
         )
         from pipeline._news_mirror_blocklist import is_news_mirror as _is_news_mirror
         from pipeline._cfs_aggregator_guard import is_foreign_cfs_repost as _is_foreign_cfs
@@ -770,6 +771,7 @@ def validate_pending_row(
         _is_empty_pathogen = None
         _is_news_mirror = None
         _is_pet_food = None
+        _is_pet_food_url = None
         _is_foreign_cfs = None
 
     if _is_news_mirror is not None and _is_news_mirror(url):
@@ -837,6 +839,13 @@ def validate_pending_row(
         row.get("Reason", ""),
     ):
         return False, "pet_food_out_of_scope: pet / animal food not in AFTS-FSIS human-food scope"
+
+    # The four fields above are what the SCRAPER extracted. When it extracts
+    # only "Chicken Recipe" from a page titled "Two Raw Pet Food Products",
+    # every one of them is silent and the regulator's own URL is the only
+    # place the truth survives. Read it too. (audit 2026-08-30)
+    if _is_pet_food_url is not None and _is_pet_food_url(url):
+        return False, "pet_food_out_of_scope: regulator URL identifies this as pet / animal food"
 
     if is_year_mismatch is not None:
         try:

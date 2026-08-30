@@ -658,6 +658,25 @@ _RAW_TRANSLATIONS = {
         "Presence of Salmonella Typhimurium",
     "Salmonelle entéritidis": "Salmonella Enteritidis",
 
+    # ── AUDIT 2026-08-30 ──────────────────────────────────────────────────
+    # The 2026-08-09 table caught "Presence of salmonelle" but not the
+    # bare-verb form the same RappelConso field also emits. "Détection …"
+    # keeps BOTH the French verb and the French organism, so it was never a
+    # near-miss of any existing key and no prefix rule would reach it. Each
+    # string below is transcribed from the fiche it was published from.
+    "Détection salmonelle": "Detection of Salmonella",
+    "Detection salmonelle": "Detection of Salmonella",
+    "Détection Listeria monocytogenes": "Detection of Listeria monocytogenes",
+    "Detection Listeria monocytogenes": "Detection of Listeria monocytogenes",
+
+    # "ufc/g" is unités formant colonie — the French rendering of CFU/g. The
+    # 2026-08-09 entry translated the one long form then in the workbook; two
+    # shorter forms have appeared since and neither is a prefix of it.
+    "Detection of Listeria monocytogenes (<10ufc/g)":
+        "Detection of Listeria monocytogenes (<10 CFU/g)",
+    "Detection of Listeria monocytogenes <10 ufc/g":
+        "Detection of Listeria monocytogenes at <10 CFU/g",
+
     # Same half-translation shape, caught by the test above once the 26
     # salmonelle rows stopped masking it: the count was translated, the
     # phrase after it was not. "ufc/g" is the French rendering of CFU/g.

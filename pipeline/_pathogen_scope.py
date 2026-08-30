@@ -655,6 +655,35 @@ _PET_FOOD_RE = _re.compile(
 )
 
 
+def _slug_to_text(url: str) -> str:
+    """A URL slug is prose with the spaces knocked out. Restore them so the
+    same vocabulary that reads "raw pet food" also reads
+    "raw-pet-food-products". Host and scheme are dropped first: a domain
+    like `catfood.example` is not a statement about the recalled product,
+    only the path is."""
+    path = _re.sub(r"^https?://[^/]+", "", str(url or ""))
+    return _re.sub(r"[-_/+.]", " ", path)
+
+
+def is_pet_food_url(url: str) -> bool:
+    """True if the regulator's own URL slug says pet / animal food.
+
+    AUDIT 2026-08-30. Northwest Naturals "Chicken Recipe" (2026-08-28) was
+    published as a human-food recall. Its Product, Company, Brand and Reason
+    say only "Chicken Recipe" - nothing animal about it. The FDA page title
+    says the rest, and the slug carries it verbatim:
+        .../northwest-naturals-voluntarily-recalls-two-raw-pet-food-products-...
+    is_pet_food_product() reads four text fields and never saw it, because
+    the gate at merge_master.py never passed the URL. The row was removed by
+    hand; this stops the next one.
+
+    Checked against every row in the workbook: this signal fires on exactly
+    one row and none in Pending, Weekly_Rejected or Rejected, so it adds the
+    catch without widening the net.
+    """
+    return bool(url) and bool(_PET_FOOD_RE.search(_slug_to_text(url)))
+
+
 def is_pet_food_product(*fields: str) -> bool:
     """True if any of the given product-context fields indicates pet,
     veterinary, or animal-feed product. Pass Product, Company, Brand,
