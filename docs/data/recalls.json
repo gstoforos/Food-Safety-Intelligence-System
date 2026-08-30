@@ -86,14 +86,14 @@
   "Brand": "Monique Ranou",
   "Product": "saucisson sec petites tranches 32 tranches - monique ranou - 100g",
   "Pathogen": "Salmonella",
-  "Reason": "Presence of salmonelle",
+  "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23350/interne",
-  "Notes": "intermarché [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "intermarché [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed] [nightly-operator 2026-08-30: Reason 'Presence of salmonelle' -> 'Presence of Salmonella' (non-English wording)]"
  },
  {
   "Date": "2026-08-28",
@@ -214,14 +214,14 @@
   "Brand": "Unbranded",
   "Product": "graines de courge",
   "Pathogen": "Salmonella",
-  "Reason": "Détection salmonelle",
+  "Reason": "Detection of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23359/Interne",
-  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed] [nightly-operator 2026-08-30: Reason 'Détection salmonelle' -> 'Detection of Salmonella' (non-English wording)]"
  },
  {
   "Date": "2026-08-28",
@@ -230,14 +230,14 @@
   "Brand": "Unbranded",
   "Product": "mélanges contenant graines de courge; mélange sportif; mélange babylone; mélange spécial salade estivale",
   "Pathogen": "Salmonella",
-  "Reason": "Détection salmonelle",
+  "Reason": "Detection of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23360/Interne",
-  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "agidra; grand frais [url-gate 2026-08-29: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-08-29: Company ''→'ALIMENTATION GROS IMPORT DIFFUS RHONE-A EPICERIE'] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed] [nightly-operator 2026-08-30: Reason 'Détection salmonelle' -> 'Detection of Salmonella' (non-English wording)]"
  },
  {
   "Date": "2026-08-28",
@@ -286,22 +286,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869612",
   "Notes": "[RASFF #2026.7638; classification: information notification for attention; category: fruits and vegetables; notifId=869612] [confirm-agent 2026-08-29: pending_gap_v3 → pending; independent checks passed]"
- },
- {
-  "Date": "2026-08-28",
-  "Source": "FDA",
-  "Company": "Northwest Naturals",
-  "Brand": "Northwest Naturals",
-  "Product": "Chicken Recipe",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Potential contamination with Salmonella and/or Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/northwest-naturals-voluntarily-recalls-two-raw-pet-food-products-because-possible-salmonella",
-  "Notes": "FDA listing HTML (Layer 1) [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
  },
  {
   "Date": "2026-08-27",
@@ -434,50 +418,18 @@
  {
   "Date": "2026-08-27",
   "Source": "NVWA",
-  "Company": "Jumbo Supermarkten",
-  "Brand": "Jumbo",
-  "Product": "Jumbo Biologische brie (organic brie), with THT 01-09-2026",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Possible presence of Listeria bacteria",
-  "Class": "Veiligheidswaarschuwing",
-  "Country": "Netherlands",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-biologische-brie-van-jumbo",
-  "Notes": "Barcode 2308084xxxxxxx. Also confirmed by Jumbo on their website.  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
- },
- {
-  "Date": "2026-08-27",
-  "Source": "NVWA",
   "Company": "PLUS",
   "Brand": "PLUS",
   "Product": "Biologisch PLUS Brie 150 gram, with THT 31-08-2026 and 03-09-2026",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Possible presence of Listeria bacteria",
-  "Class": "Veiligheidswaarschuwing",
+  "Class": "Safety warning",
   "Country": "Netherlands",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-biologische-brie-van-plus",
-  "Notes": "Barcode 2398141000000 (last digits may vary).  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
- },
- {
-  "Date": "2026-08-27",
-  "Source": "CDC",
-  "Company": "Salmonella Outbreaks Linked to Backyard Poultry",
-  "Brand": "Salmonella Outbreaks Linked to Backyard Poultry",
-  "Product": "Salmonella Outbreaks Linked to Backyard Poultry | Salmonella Infection | CDC\n\n# Salmonella Outbreaks Linked to Backyard Poultry\n\nFor Everyone\n\nAug",
-  "Pathogen": "Salmonella",
-  "Reason": "Salmonella — outbreak",
-  "Class": "Recall",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://www.cdc.gov/salmonella/outbreaks/saintpaul-04-26/index.html",
-  "Notes": "Salmonella Outbreaks Linked to Backyard Poultry | Salmonella Infection | CDC\n\n# Salmonella Outbreaks Linked to Backyard Poultry\n\nFor Everyone\n\nAug. 27, 2026\n\n## Investigation notice\n\nInvestigation status: Open\n\n- Public health officials in several states are investigating 10 multistate outbreaks of   [via Exa gap-finder, deterministic extract] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "Barcode 2398141000000 (last digits may vary).  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed] [nightly-operator 2026-08-30: Class 'Veiligheidswaarschuwing' -> 'Safety warning' (non-English wording)]"
  },
  {
   "Date": "2026-08-26",
@@ -590,22 +542,6 @@
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/portale/richiami/dettaglioRichiamo.jsp?id=23769",
   "Notes": "Lotto: L126G22. Scadenza: 05/09/2026. Nessun caso di listeriosi associato segnalato. Stabilimento IT T616G UE.  [via Gemini gap-finder + Google Search] [held 2026-08-28: salute.gov.it is behind a JS WAF and could not be fetched; same gap-finder batch as the failed RappelConso URLs. Unverified, not wrong.] [promoted 2026-08-28: Ministero della Salute official richiamo id=23769, gate-clean. salute.gov.it sits behind a JS WAF and could not be fetched here; flagged for url_guardian. Part of the same week's BE/FR/IT gorgonzola Listeria cluster.] [en 2026-08-28: Reason translated from the regulator wording \"Possibile presenza di Listeria monocytogenes\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
- },
- {
-  "Date": "2026-08-26",
-  "Source": "NVWA",
-  "Company": "Jumbo Supermarkten",
-  "Brand": "Jumbo",
-  "Product": "Jumbo Gorgonzola Dolce, with THT 03-09-2026, 08-09-2026, and 10-09-2026",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Possible presence of Listeria bacteria",
-  "Class": "Veiligheidswaarschuwing",
-  "Country": "Netherlands",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-gorgonzola-dolce-van-jumbo",
-  "Notes": "EAN-code 8718452637508. Also confirmed by Jumbo and FAVV.  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
  },
  {
   "Date": "2026-08-25",

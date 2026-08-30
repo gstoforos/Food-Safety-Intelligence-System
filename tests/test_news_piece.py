@@ -26,7 +26,7 @@ def test_counts_match_the_annex(built):
     inw = [r for r in d["replay"] if r["in_window"]]
     share = sum(1 for r in inw if r["channel"] == "proportion")
     count = len(inw) - share
-    assert f"{share} statistically controlled elevations" in page
+    assert f"{share} FDR-controlled share elevations" in page
     assert f"Three of the {share}" in page
     assert f"The\n{count} further rows" in page or f"{count} further rows" in page
     assert f"{d['n_records']:,} notices" in page
