@@ -81,6 +81,53 @@ ARTICLE:
 """
 
 
+def _news_published_at(val) -> Optional[datetime]:
+    """Parse a NEWS-sheet 'Published (UTC)' value into an aware datetime.
+
+    AUDIT 2026-08-31 — this agent used to inline its own parser:
+
+        datetime.fromisoformat(str(r[col])[:19].replace(" ", "T"))
+
+    That assumed the column held ISO timestamps. It does not. The NEWS sheet
+    is written by pipeline/daily_recall_search.py with
+    strftime("%Y-%m-%d %H:%M UTC"), producing e.g. "2026-08-31 04:06 UTC".
+    On that string the old expression evaluated to:
+
+        [:19]                  -> "2026-08-31 04:06 UT"   (cuts mid-"UTC")
+        .replace(" ", "T")     -> "2026-08-31T04:06TUT"   (BOTH spaces)
+        fromisoformat(...)     -> ValueError
+
+    and the bare `except Exception: continue` swallowed it. Every row failed,
+    so _load_news() returned [] on a fully-populated sheet and the agent
+    printed "no news items in window" and proposed nothing — silently, on
+    every run, for as long as that column format has been in place.
+
+    pipeline/purge_old_news._parse_dt already handles this format correctly
+    and has done all along, so it is the single source of truth here rather
+    than a second private parser that can drift again.
+    """
+    try:
+        from pipeline.purge_old_news import _parse_dt
+    except Exception:                                       # noqa: BLE001
+        _parse_dt = None
+    if _parse_dt is not None:
+        return _parse_dt(val)
+    # Local fallback, same accepted formats, used only if the import breaks.
+    if val is None or val == "":
+        return None
+    if isinstance(val, datetime):
+        return val if val.tzinfo else val.replace(tzinfo=timezone.utc)
+    s = re.sub(r"\s*UTC\s*$", "", str(val).strip())
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M",
+                "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%SZ",
+                "%Y-%m-%dT%H:%M:%S.%f", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+    return None
+
+
 def _load_news(since_days: int) -> List[Dict[str, Any]]:
     import pandas as pd
     if not XLSX.exists():
@@ -88,15 +135,25 @@ def _load_news(since_days: int) -> List[Dict[str, Any]]:
     n = pd.read_excel(XLSX, "NEWS").fillna("")
     col = "Published (UTC)" if "Published (UTC)" in n.columns else n.columns[0]
     cutoff = datetime.now(timezone.utc) - timedelta(days=since_days)
-    out = []
+    out: List[Dict[str, Any]] = []
+    unparsed: List[str] = []
     for _, r in n.iterrows():
-        try:
-            pub = datetime.fromisoformat(str(r[col])[:19].replace(" ", "T"))
-            pub = pub.replace(tzinfo=timezone.utc)
-        except Exception:                                   # noqa: BLE001
+        pub = _news_published_at(r[col])
+        if pub is None:
+            unparsed.append(str(r[col])[:40])
             continue
         if pub >= cutoff:
             out.append(r.to_dict())
+    # An unreadable timestamp column is the failure mode that hid the bug
+    # above for weeks. Never let it pass quietly again: if rows exist and
+    # NONE of them parsed, that is a format change, not an empty window.
+    if unparsed:
+        print(f"WARNING: {len(unparsed)} NEWS row(s) had an unparseable "
+              f"'{col}' value, e.g. {unparsed[:3]}", file=sys.stderr)
+    if len(n) and not out and len(unparsed) == len(n):
+        print(f"WARNING: ALL {len(n)} NEWS rows failed to parse — the "
+              f"'{col}' format has changed. This is a bug, not an empty "
+              f"window.", file=sys.stderr)
     return out
 
 
