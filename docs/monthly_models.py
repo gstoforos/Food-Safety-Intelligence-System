@@ -108,6 +108,49 @@ def build_pathogen_history(
 # ──────────────────────────────────────────────────────────────────────
 # Linear trend (OLS on total monthly counts)
 # ──────────────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────
+# Student-t two-sided 5% critical values, keyed by DEGREES OF FREEDOM.
+#
+# AUDIT 2026-08-31. The previous inline ternary chain was keyed by n but
+# populated with values for df, so from n=7 upward it was shifted by two:
+#     n=7  (df=5)  printed 2.45   correct 2.571
+#     n=8  (df=6)  printed 2.31   correct 2.447
+#     n=9  (df=7)  printed 2.23   correct 2.365
+# August 2026 ran at n=8 with |t|=2.56. Against the printed 2.31 that is
+# significant; against the correct 2.447 it is ALSO significant — but the
+# report said "not statistically significant at α=0.05" because the verdict
+# came from a separate hardcoded `|t| >= 2.0 and n >= 12` rule rather than
+# from the table at all. Both are fixed: one table, used for the test and
+# for the printed critical value.
+# ──────────────────────────────────────────────────────────────────────
+_T_CRIT_05 = {
+    1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447,
+    7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228, 11: 2.201, 12: 2.179,
+    13: 2.160, 14: 2.145, 15: 2.131, 16: 2.120, 17: 2.110, 18: 2.101,
+    19: 2.093, 20: 2.086, 21: 2.080, 22: 2.074, 23: 2.069, 24: 2.064,
+    25: 2.060, 26: 2.056, 27: 2.052, 28: 2.048, 29: 2.045, 30: 2.042,
+    40: 2.021, 60: 2.000, 120: 1.980,
+}
+
+
+def _t_critical_two_sided_05(dof: int) -> float:
+    """Two-sided critical t at alpha = 0.05 for `dof` degrees of freedom.
+
+    Exact for dof <= 30 and for the tabulated 40/60/120 rows; between those
+    it steps to the next tabulated value at or below `dof`, which is the
+    CONSERVATIVE direction (a slightly larger critical value, so a slightly
+    harder test). Returns 0.0 for dof < 1, which the caller reads as
+    "no test possible" rather than "significant".
+    """
+    if dof < 1:
+        return 0.0
+    if dof in _T_CRIT_05:
+        return _T_CRIT_05[dof]
+    if dof > 120:
+        return 1.960
+    return _T_CRIT_05[max(k for k in _T_CRIT_05 if k <= dof)]
+
+
 def _linear_trend(monthly_counts: Sequence[Tuple[str, int]]) -> Dict[str, Any]:
     """Simple OLS regression of count on month-index.
 
@@ -160,32 +203,70 @@ def _linear_trend(monthly_counts: Sequence[Tuple[str, int]]) -> Dict[str, Any]:
         sigma2 = 0.0
         slope_se = 0.0
     t_stat = slope / slope_se if slope_se > 0 else 0.0
-    MIN_N_FOR_SIGNIFICANCE = 12   # ~dof=10, where t-crit ≈ 2.23 ≈ "≥ 2"
-    slope_significant = (n >= MIN_N_FOR_SIGNIFICANCE) and (abs(t_stat) >= 2.0)
+    dof = max(0, n - 2)
+    t_crit = _t_critical_two_sided_05(dof)
 
-    # Next-month forecast + 95% CI (point ± 1.96 × prediction-SE)
+    # Two separate things, kept separate on purpose (audit 2026-08-31).
+    #
+    #   slope_significant   the actual hypothesis test: |t| >= the two-sided
+    #                       5% critical value for THIS dof.
+    #   MIN_N_FOR_REPORTING an AFTS house rule about when we are willing to
+    #                       PRINT a significance claim at all. It is a
+    #                       model-maturity gate, not a statistical definition.
+    #
+    # These were previously conflated: significance was `n >= 12 and |t| >= 2.0`,
+    # so a genuinely significant slope on a short series was reported as "not
+    # statistically significant at α=0.05" — a false statement about the test,
+    # when what we meant was that we decline to lean on it yet.
+    MIN_N_FOR_REPORTING = 12
+    slope_significant = (t_crit > 0) and (abs(t_stat) >= t_crit)
+    report_significance = n >= MIN_N_FOR_REPORTING
+
+    # Next-month forecast + 95% PREDICTION interval.
+    #
+    # AUDIT 2026-08-31 — this was labelled a "confidence interval" everywhere
+    # it was printed, and it never was one. The `1 +` inside the square root
+    # is the variance of a NEW OBSERVATION; a confidence interval for the mean
+    # response omits it. That is why the printed range looked implausibly wide
+    # for a CI (125–603 recalls in August): it was a prediction interval all
+    # along, and a prediction interval is exactly the right thing for
+    # "how many recalls next month". Only the label was wrong.
+    #
+    # The multiplier was also wrong: 1.96 is the NORMAL quantile. With the
+    # residual variance estimated from the same short series, the multiplier
+    # is Student-t on n−2 dof. At n=8 that is 2.447, not 1.96, so every
+    # interval this model has ever printed was about 25% too NARROW.
     x_next = n  # next index after last
     point = intercept + slope * x_next
-    # Prediction interval SE for a new observation, simplified:
     if n > 2 and sxx > 0:
         pred_se = math.sqrt(sigma2 * (1 + 1 / n + (x_next - mean_x) ** 2 / sxx))
     else:
         pred_se = 0.0
-    ci_lo = point - 1.96 * pred_se
-    ci_hi = point + 1.96 * pred_se
+    mult = t_crit if t_crit > 0 else 1.96
+    ci_lo = point - mult * pred_se
+    ci_hi = point + mult * pred_se
 
     direction = "rising" if slope > 0 else "falling" if slope < 0 else "flat"
-    if n < MIN_N_FOR_SIGNIFICANCE:
-        note = (f"Direction: {direction} (slope {slope:+.1f}/month, r²={r2:.2f}). "
-                f"Estimate is exploratory — only {n} monthly observations available; "
-                f"a formal significance test requires n ≥ {MIN_N_FOR_SIGNIFICANCE} "
-                f"(critical t at α=0.05 is approximately {2.0 if n >= 12 else 4.30 if n == 4 else 3.18 if n == 5 else 2.78 if n == 6 else 2.45 if n == 7 else 2.31 if n == 8 else 2.23 if n == 9 else 2.18:.2f} "
-                f"with the current n−2 = {n-2} degrees of freedom).")
+    verdict = ("nominally significant at the 5% level"
+               if slope_significant else
+               "not significant at the 5% level")
+    if not report_significance:
+        # Short series: state the test result honestly, THEN state that we
+        # decline to lean on it. Previously this branch asserted the slope
+        # was not significant regardless of what the test said.
+        note = (f"Direction: {direction} (slope {slope:+.1f}/month, r²={r2:.2f}, "
+                f"t={t_stat:.2f}, df={dof}). The estimated slope is {verdict} "
+                f"(two-sided critical t at α=0.05 is approximately {t_crit:.3f} "
+                f"for df={dof}), but the result remains highly uncertain and "
+                f"should be treated as exploratory: it rests on only {n} monthly "
+                f"observations and may be sensitive to individual months. AFTS "
+                f"does not lean on a trend claim below n ≥ {MIN_N_FOR_REPORTING} "
+                f"monthly observations — a house reporting rule, not a property "
+                f"of the test.")
     else:
         note = (f"Direction: {direction} (slope {slope:+.1f}/month, r²={r2:.2f}, "
-                f"t={t_stat:.2f}); slope "
-                f"{'is statistically significant at α=0.05' if slope_significant else 'is NOT statistically significant at α=0.05'} "
-                f"with n-2 = {n-2} degrees of freedom.")
+                f"t={t_stat:.2f}, df={dof}); the slope is {verdict} "
+                f"(two-sided critical t ≈ {t_crit:.3f} for df={dof}).")
 
     return {
         "status":            "active",
@@ -196,9 +277,15 @@ def _linear_trend(monthly_counts: Sequence[Tuple[str, int]]) -> Dict[str, Any]:
         "r_squared":         _round(r2, 3) or 0.0,
         "slope_se":          _round(slope_se, 3) or 0.0,
         "t_stat":            _round(t_stat, 2) or 0.0,
-        "slope_significant": slope_significant,
+        "slope_significant":   slope_significant,
+        "report_significance": report_significance,
+        "t_critical_05":       _round(t_crit, 3) or 0.0,
         "next_month_point":  int(round(max(0, point))),
+        # Kept under the old key so nothing downstream breaks, but it is and
+        # always was a PREDICTION interval. next_month_pi95 is the name to
+        # use; the renderers print "95% prediction interval".
         "next_month_ci95":   [int(round(max(0, ci_lo))), int(round(max(0, ci_hi)))],
+        "next_month_pi95":   [int(round(max(0, ci_lo))), int(round(max(0, ci_hi)))],
         "note":              note,
     }
 

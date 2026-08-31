@@ -133,17 +133,30 @@ def _is_outbreak(r: Dict[str, Any]) -> bool:
         v = r.get(k)
         if v in (True, 1, "1", "TRUE", "True", "true", "Y", "Yes", "yes"):
             return True
-    # Free-text fallback — any of these tokens in the description column
-    # the builders use as `body`.
-    body = " ".join(
-        str(r.get(k) or "")
-        for k in ("Description", "Hazard", "Reason", "Issue")
-    ).lower()
-    if not body:
-        return False
-    return any(t in body for t in (
-        "illness", "hospital", "death", "outbreak", "fatal", "ill people",
-    ))
+    return False
+
+    # ── REMOVED 2026-08-31: the free-text fallback ─────────────────────
+    # It read Description/Hazard/Reason/Issue and returned True on any of
+    # "illness", "hospital", "death", "outbreak", "fatal", "ill people".
+    #
+    # The sign was inverted. A recall notice's most common sentence about
+    # illness is that there ISN'T any, and both August false positives were
+    # caught on exactly that:
+    #
+    #   A.Vogel STEC sprouting seeds   "...no illnesses reported in the alert."
+    #   Highline Mushrooms Listeria    "...no illnesses reported at the time of..."
+    #
+    # So the strongest available evidence that a recall is NOT an outbreak
+    # was what classified it as one. The August timeline drew four outbreak
+    # markers while the KPI, the narrative and the severity index all said
+    # two — the KPI reads the Outbreak flag, this function did not.
+    #
+    # The operator rule is unambiguous: Outbreak=1 requires CONFIRMED HUMAN
+    # CASES named in the source. That is a promote-time judgement recorded in
+    # the flag, and re-deriving it from prose at render time can only
+    # disagree with it. The flag is the single definition; this function now
+    # reads nothing else, which also makes it agree with
+    # pipeline._outbreak_id.count_events(high_confidence_only=True).
 
 
 def _is_tier1(r: Dict[str, Any]) -> bool:

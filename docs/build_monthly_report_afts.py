@@ -472,7 +472,7 @@ def generate_monthly_narrative(stats: Dict[str, Any],
 
     lt_block = (
         f"  Active: next-month point forecast={lt['next_month_point']}, "
-        f"95% CI=[{lt['next_month_ci95'][0]}, {lt['next_month_ci95'][1]}], "
+        f"95% PI=[{lt['next_month_ci95'][0]}, {lt['next_month_ci95'][1]}], "
         f"slope={lt['slope_per_month']:+.1f}/mo, r²={lt['r_squared']}, "
         f"slope_significant={lt['slope_significant']}"
         if lt.get("status") == "active"
@@ -588,16 +588,19 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
                 " — the rolling baseline is too narrow for a Z estimate this early in the series")
 
     cluster_count = cl.get("cluster_count", 0)
+    # "incident", not "event", everywhere (2026-08-31). The KPI strip, the
+    # timeline and this sentence used two different nouns for one number,
+    # which read as two different quantities on the same page.
     if stats['outbreaks'] and cluster_count:
-        outbreak_phrase = (f"{_count_phrase(stats['outbreaks'], 'outbreak-associated event')}, "
+        outbreak_phrase = (f"{_count_phrase(stats['outbreaks'], 'outbreak-associated incident')}, "
                            f"forming {_count_phrase(cluster_count, 'same-pathogen temporal cluster')}")
     elif stats['outbreaks']:
-        outbreak_phrase = (f"{_count_phrase(stats['outbreaks'], 'outbreak-associated event')} "
+        outbreak_phrase = (f"{_count_phrase(stats['outbreaks'], 'outbreak-associated incident')} "
                            f"(no temporal clustering)")
     elif cluster_count:
         outbreak_phrase = f"{_count_phrase(cluster_count, 'temporal cluster')} (no outbreak label)"
     else:
-        outbreak_phrase = "no outbreak-associated events"
+        outbreak_phrase = "no outbreak-associated incidents"
 
     p1 = (f"{month_name} {year} produced {stats['total']} food-safety hazard recall incidents "
           f"across the AFTS monitoring network, a {mom.get('delta_pct')}% move "
@@ -652,20 +655,33 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
     lt_txt = ""
     if lt.get("status") == "active":
         n_obs = lt.get("n", 0)
-        if n_obs < 12 or not lt.get("slope_significant"):
-            lt_txt = (f" The linear-trend projection for next month stands at "
-                      f"{lt.get('next_month_point')} recalls (95% CI "
-                      f"{lt.get('next_month_ci95')}), with r²={lt.get('r_squared')}, "
-                      f"slope {lt.get('slope_per_month')}/month and t={lt.get('t_stat')} "
-                      f"on {lt.get('n_dof', max(0, n_obs-2))} degrees of freedom. The estimate "
-                      f"is exploratory because the series is short — only {n_obs} monthly "
-                      f"observation(s) — and the slope is not statistically significant at α=0.05.")
+        dof   = lt.get('n_dof', max(0, n_obs - 2))
+        tcrit = lt.get('t_critical_05') or 0.0
+        sig   = bool(lt.get('slope_significant'))
+        # AUDIT 2026-08-31. This used to assert "not statistically significant
+        # at α=0.05" on every short series regardless of the test result, and
+        # August ran |t|=2.56 on df=6 against a critical value of 2.447 — a
+        # nominally significant slope reported as insignificant. The test
+        # result and our willingness to lean on it are now stated separately,
+        # because they are different claims.
+        verdict = ("is nominally significant at the 5% level"
+                   if sig else "is not significant at the 5% level")
+        head = (f" The linear-trend projection for next month stands at "
+                f"{lt.get('next_month_point')} recalls (95% prediction interval "
+                f"{lt.get('next_month_pi95', lt.get('next_month_ci95'))}), with "
+                f"r²={lt.get('r_squared')}, slope {lt.get('slope_per_month')}/month "
+                f"and t={lt.get('t_stat')} on {dof} degrees of freedom. The estimated "
+                f"slope {verdict} (two-sided critical t at α=0.05 is approximately "
+                f"{tcrit:.3f} for df={dof})")
+        if not lt.get("report_significance", n_obs >= 12):
+            lt_txt = (head + f", but the result remains highly uncertain and should be "
+                      f"treated as exploratory: it rests on only {n_obs} monthly "
+                      f"observations and may be sensitive to individual months. AFTS "
+                      f"withholds trend claims below twelve monthly observations as a "
+                      f"model-maturity reporting rule, which is a house convention "
+                      f"rather than a statistical definition of significance.")
         else:
-            lt_txt = (f" The linear-trend projection for next month stands at "
-                      f"{lt.get('next_month_point')} recalls (95% CI "
-                      f"{lt.get('next_month_ci95')}), with r²={lt.get('r_squared')}, "
-                      f"slope {lt.get('slope_per_month')}/month and t={lt.get('t_stat')} "
-                      f"on {lt.get('n_dof', n_obs-2)} degrees of freedom — significant at α=0.05.")
+            lt_txt = head + "."
 
     p3 = (f"Looking forward, operators in {top_name}-relevant commodity categories should "
           f"re-verify the single highest-leverage control this month: environmental "
@@ -1438,7 +1454,14 @@ def build_monthly_html(month_start: date, month_end: date,
         top_pathogen_name = stats["top_pathogen"][0] or "–"
     top_pathogen_pct  = round(stats["top_pathogen"][1] / total_safe * 100) if total_safe else 0
     mom_delta_label   = (f"{mom.get('delta_pct'):+.0f}%" if mom.get("delta_pct") is not None else "—")
-    z_label           = (f"Z = {mom.get('z_score'):+.1f}" if mom.get("z_score") is not None else "Z = n/a")
+    # AUDIT 2026-08-31 — this sat under a "MoM Change" heading beside the
+    # month-over-month percentage, which read as though it were the Z-score
+    # OF that change. It is not: it places THIS MONTH'S LEVEL against the
+    # rolling distribution of prior months. August was −21% MoM with Z=+0.4
+    # — a fall, at a level still slightly above the historical mean — and
+    # the two numbers looked contradictory only because of the label.
+    z_label           = (f"Historical Z = {mom.get('z_score'):+.1f}" if mom.get("z_score") is not None
+                         else "Historical Z = n/a")
 
     # MoM direction arrow / colour
     mom_colour = TIER1_RED if mom.get("direction") == "up" and (mom.get("delta_pct") or 0) > 20 \
@@ -1865,7 +1888,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 
 <h1 class="r-title">Food Safety Hazard &amp; Pathogen Surveillance <span class="accent">·</span> {escape(month_name)} {year}</h1>
 <div class="sub">{month_start.strftime('%d %b %Y')} – {month_end.strftime('%d %b %Y')}
- &middot; {stats['total']} recall incidents across {co.get('n_countries', len(stats.get('country_counts', [])))} jurisdictions
+ &middot; {stats['total']} records involving {co.get('n_countries', len(stats.get('country_counts', [])))} reported countries or territories and {len(stats.get('source_counts', []) or stats.get('agency_counts', []))} regulatory-source labels
  &middot; {co.get('n_sources', len(stats.get('source_counts', [])))} regulatory sources</div>
 
 <div class="kpi-strip">
@@ -1882,7 +1905,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   <div class="kpi">
     <div class="kpi-label">Outbreaks</div>
     <div class="kpi-value vio">{stats['outbreaks']}</div>
-    <div class="kpi-top">{_count_phrase(cl.get('cluster_count',0), 'cluster')} across {cl.get('event_count',0)} outbreak-associated events</div>
+    <div class="kpi-top">{_count_phrase(cl.get('cluster_count',0), 'cluster')} across {_count_phrase(cl.get('event_count',0), 'outbreak-associated incident')}</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">Leading Pathogen</div>
@@ -2014,11 +2037,11 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 <!-- § 08 Top 10 -->
 <div class="sec-head">
   <span class="sec-num">§ 08</span>
-  <h2 class="sec-title">Top 10 Critical Incidents</h2>
+  <h2 class="sec-title">Top 10 Critical Regulatory Records</h2>
   <span class="sec-rule"></span>
   <a class="sec-link" href="{year_m}-all.html" target="_blank">View all {stats['total']} &rarr;</a>
 </div>
-<p class="sec-caption">Ranked by pathogen severity, outbreak status, and tier. For editorial clarity, where a single event appears both as a primary regulator recall and as a CDC outbreak page (Nara Organics, Clover Hill Dairy), only the FDA recall is shown here; the full severity-ranked list — including every regulator record — is in the companion appendix below.</p>
+<p class="sec-caption">Ranked by hazard severity, outbreak association and assigned tier. Rankings apply to regulator-published <em>records</em>: where one underlying contamination event produced several notices — a primary recall plus a downstream alert, or two regulators publishing separately — each is a record here, and more than one record can belong to the same event. The complete severity-ranked incident register is in the companion appendix, <a href="{year_m}-all.html">{year_m}-all.html</a>.</p>
 <table class="top5"><thead><tr>
 <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th>
 <th>Product</th><th>Jurisdiction &amp; Source</th>
@@ -2031,7 +2054,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 
   <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, hazard classification, and the engineering interpretation of each recall are developed by the AFTS process-authority practice, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP.</p>
 
-  <p><strong>Statistical methods.</strong> Month-over-month <em>Z-scores</em> use the rolling-prior-months mean and sample standard deviation; the score is suppressed (n/a) when the baseline contains fewer than six months. The <em>hotspot matrix</em> uses standardised chi-square residuals against an independence-baseline expected count; cells with σ&gt;2 are flagged as over-represented but are screening signals only (no multiple-comparison correction; small expected counts in many cells). <em>Source concentration</em> uses the Herfindahl-Hirschman Index on agency counts (HHI = Σ s²ᵢ × 10000, where sᵢ is each agency's share; &lt;1500 diverse, 1500–2500 moderate, &gt;2500 concentrated). <em>Geographic distribution</em> uses the Gini coefficient on country counts (0 = perfectly even, 1 = single-country regime; &lt;0.4 even, 0.4–0.6 moderate, &gt;0.6 uneven). <em>Outbreak clusters</em> are detected via a sliding 14-day window over same-pathogen outbreak events (cluster threshold: ≥3 events). The <em>composite severity index</em> (0–100) is a transparent two-component blend: <strong>100 × (0.60 × Tier-1 share + 0.40 × outbreak rate)</strong>, where Tier-1 share = Tier-1 incidents ÷ total incidents and outbreak rate = outbreak-flagged incidents ÷ total incidents (using the same criterion as the headline outbreaks KPI). For {escape(month_name)} {month_start.year} this evaluates to 100 × (0.60 × {stats['tier1']}/{stats['total']} + 0.40 × {stats['outbreaks']}/{stats['total']}) = {round(100*(0.60*stats['tier1']/total_safe + 0.40*stats['outbreaks']/total_safe), 1)}. Buckets: ≥65 critical, ≥45 elevated, ≥25 moderate, &lt;25 low. Predictive models are gated to activate only when data history meets the minimum size required for valid estimation; the linear-trend OLS reports a 95% CI but does not claim slope significance until n ≥ 12 monthly observations (so dof ≥ 10, where the t-critical at α = 0.05 falls below 2.23).</p>
+  <p><strong>Statistical methods.</strong> Month-over-month <em>Z-scores</em> use the rolling-prior-months mean and sample standard deviation; the score is suppressed (n/a) when the baseline contains fewer than six months. The <em>hotspot matrix</em> uses standardised chi-square residuals against an independence-baseline expected count; cells with σ&gt;2 are flagged as over-represented but are screening signals only (no multiple-comparison correction; small expected counts in many cells). <em>Source concentration</em> uses the Herfindahl-Hirschman Index on agency counts (HHI = Σ s²ᵢ × 10000, where sᵢ is each agency's share; &lt;1500 diverse, 1500–2500 moderate, &gt;2500 concentrated). <em>Geographic distribution</em> uses the Gini coefficient on country counts (0 = perfectly even, 1 = single-country regime; &lt;0.4 even, 0.4–0.6 moderate, &gt;0.6 uneven). <em>Outbreak clusters</em> are detected via a sliding 14-day window over same-pathogen outbreak events (cluster threshold: ≥3 events). The <em>composite severity index</em> (0–100) is a transparent two-component blend: <strong>100 × (0.60 × Tier-1 share + 0.40 × outbreak rate)</strong>, where Tier-1 share = Tier-1 incidents ÷ total incidents and outbreak rate = outbreak-flagged incidents ÷ total incidents (using the same criterion as the headline outbreaks KPI). For {escape(month_name)} {month_start.year} this evaluates to 100 × (0.60 × {stats['tier1']}/{stats['total']} + 0.40 × {stats['outbreaks']}/{stats['total']}) = {round(100*(0.60*stats['tier1']/total_safe + 0.40*stats['outbreaks']/total_safe), 1)}. Buckets: ≥65 critical, ≥45 elevated, ≥25 moderate, &lt;25 low. Predictive models activate only when the history meets the minimum size for estimation. The linear-trend OLS reports a <strong>95% prediction interval</strong> for next month's observed count — not a confidence interval for the mean response; the interval includes the variance of a new observation, which is why it is wide — using the Student-t multiplier on n−2 degrees of freedom. Slope significance is tested against the two-sided critical t for the actual degrees of freedom. Separately, AFTS withholds trend <em>claims</em> below n ≥ 12 monthly observations: that is an <strong>AFTS model-maturity reporting rule</strong>, a house convention about what we are willing to lean on, and not a statistical definition of significance. Both are stated. <em>Country</em> is reported as published by the source and is not uniform across sources: for RASFF records it is generally the product's country of ORIGIN, while for national notices it is generally the notifying regulator's jurisdiction. Counts of "countries or territories" therefore mix the two and should not be read as a count of jurisdictions.</p>
 
   <p><strong>Reporting-system caveats.</strong> National recall-publication regimes differ in granularity. France's RappelConso publishes one fiche per identified product/lot configuration, often producing several fiches per single root-cause event; the headline French count therefore reflects a transparent, item-level reporting practice rather than a higher true incidence. EU member-state counts likewise reflect both the actual hazard signal and each authority's publication discipline. Treat country totals as a recall-publication signal, not as a direct food-safety league table.</p>
 
@@ -2105,7 +2128,7 @@ def build_monthly_email_html(stats: Dict[str, Any], signals: Dict[str, Any],
         forecast_line = (
             f'<div style="font-size:13px;margin-top:8px">'
             f'<strong>Next-month forecast:</strong> {lt.get("next_month_point")} '
-            f'recalls (95% CI {lt.get("next_month_ci95")}).</div>'
+            f'recalls (95% prediction interval {lt.get("next_month_pi95", lt.get("next_month_ci95"))}).</div>'
         )
 
     return f"""<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937">

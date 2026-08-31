@@ -399,9 +399,15 @@ def _fallback_anaerobic(trigger: Dict[str, Any]) -> str:
         f"atmosphere, reduced-oxygen, sous-vide, fermented or smoked "
         f"fish). {_GLOBAL_FRAMING} Anaerobic packaging removes the oxygen "
         f"barrier that would otherwise suppress C. botulinum growth, so "
-        f"product safety depends entirely on water-activity, pH, salt "
-        f"content, refrigeration discipline, or thermal-process control "
-        f"— individually or in combination. Operators should confirm "
+        # AUDIT 2026-08-31 — "depends entirely" overstates it. Anaerobic
+        # packaging removes one barrier; it does not make the remaining
+        # hurdles the ONLY thing standing between the product and hazard,
+        # and the sentence read as though nothing else in the system
+        # mattered. Softened to the accurate claim without weakening the
+        # warning.
+        f"safety therefore depends on one or more validated hurdles, "
+        f"including water activity, pH, salt content, refrigeration and "
+        f"thermal-process control. Operators should confirm "
         f"with a qualified process authority that the multi-hurdle "
         f"approach in use is documented, validated, and consistent with "
         f"the current regulatory framework before extending shelf life "
