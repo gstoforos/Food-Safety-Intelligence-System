@@ -92,7 +92,16 @@ HOST_FOR_SOURCE: Dict[str, tuple] = {
     "CFIA":                     ("recalls-rappels.canada.ca", "inspection.canada.ca"),
     "CDC":                      ("cdc.gov",),
     "Ministero della Salute":   ("salute.gov.it",),
-    "CFS (HK)":                 ("cfs.gov.hk",),
+    # info.gov.hk added 2026-08-31. The Hong Kong Centre for Food Safety
+    # publishes some of its notices as Government Information Services press
+    # releases on info.gov.hk rather than on its own cfs.gov.hk pages — same
+    # regulator, same authority, second official channel. One August row
+    # (Ktipiti feta, 2026-08-18) sits on that host. It only surfaced when the
+    # Source label was corrected from "CFS (HK) - aggregator (RappelConso FR)"
+    # to "CFS (HK)": the aggregator label was absent from this map, so the
+    # host check never ran on those rows at all. Correcting the label turned
+    # the check ON, which is the point of the label being correct.
+    "CFS (HK)":                 ("cfs.gov.hk", "info.gov.hk"),
     "MPI (NZ)":                 ("mpi.govt.nz",),
 }
 
