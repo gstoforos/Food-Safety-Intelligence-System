@@ -158,9 +158,17 @@ jobs:
           # is the canonical deliverable; subscribers print-to-PDF in
           # their browser if needed. Marketing one-pager PDF stays as
           # the public lead magnet on hub.html.
+          # 2026-08-31: social PNG + caption added. build_monthly_social now
+          # writes a PNG per card (Instagram and X accept images only, never
+          # PDF) and <tag>-caption.txt carrying the ten source links for the
+          # image posts. Staging only the PDFs meant both were generated on
+          # the runner and discarded — the same "computed and thrown away"
+          # failure tests/test_workflow_staging.py exists to catch.
           git add 'docs/20*-M*.html' \
                   'docs/marketing/20*-M*.pdf' \
                   'docs/social/20*-M*.pdf' \
+                  'docs/social/20*-M*.png' \
+                  'docs/social/20*-M*-caption.txt' \
                   'docs/marketing/20*-M*.html' \
                   docs/data/monthly-summary-latest.json \
                   docs/data/monthly-summary-20*.json \
