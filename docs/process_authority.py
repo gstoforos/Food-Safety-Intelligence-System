@@ -327,9 +327,18 @@ _GLOBAL_FRAMING = (
     "States. Canada's Safe Food for Canadians Regulations, FSA / FSS in the "
     "UK, FSANZ in Australia and New Zealand, and Japan's MHLW each impose "
     "comparable preventive-control obligations. The common engineering "
-    "principle: low-acid, aseptic, and commercially sterile products "
-    "require a scheduled process established by a qualified process "
-    "authority and executed under documented GMP oversight."
+    # AUDIT 2026-08-31 — the closing sentence asserted a scheduled process
+    # under a qualified process authority as a universal requirement. That
+    # is the US LACF/acidified rule (21 CFR 113/114) and good practice
+    # everywhere, but it is not the literal legal instrument in the EU, UK,
+    # Canada, Australia/New Zealand or Japan — which the paragraph above
+    # has just finished explaining. The claim is now scoped.
+    "principle: shelf-stable low-acid, aseptic and commercially sterile "
+    "products require a scientifically established and validated process, "
+    "executed under documented GMP oversight. In the United States that "
+    "process must be established by a qualified process authority under "
+    "the LACF and acidified-food rules; other jurisdictions apply their own "
+    "validation, HACCP and preventive-control requirements to the same end."
 )
 
 
@@ -397,8 +406,16 @@ def _fallback_anaerobic(trigger: Dict[str, Any]) -> str:
         f"{PROCESS_AUTHORITY_LABEL}: This window includes recalls in "
         f"anaerobic-packaging product categories (vacuum, modified-"
         f"atmosphere, reduced-oxygen, sous-vide, fermented or smoked "
-        f"fish). {_GLOBAL_FRAMING} Anaerobic packaging removes the oxygen "
-        f"barrier that would otherwise suppress C. botulinum growth, so "
+        f"fish). {_GLOBAL_FRAMING} "
+        # AUDIT 2026-08-31 — "removes the oxygen barrier" was wrong twice
+        # over: oxygen is not a barrier in the hurdle sense, and the pack
+        # does not "remove" it so much as reduce or exclude it. Corrected
+        # to the accurate mechanism — atmospheric oxygen is inhibitory to
+        # proteolytic C. botulinum, and reduced-oxygen packaging withdraws
+        # that inhibition.
+        f"Reduced-oxygen packaging withdraws the inhibitory effect that "
+        f"atmospheric oxygen would otherwise exert on the growth of "
+        f"proteolytic C. botulinum, so "
         # AUDIT 2026-08-31 — "depends entirely" overstates it. Anaerobic
         # packaging removes one barrier; it does not make the remaining
         # hurdles the ONLY thing standing between the product and hazard,

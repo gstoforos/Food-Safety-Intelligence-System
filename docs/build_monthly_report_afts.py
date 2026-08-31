@@ -463,7 +463,8 @@ def generate_monthly_narrative(stats: Dict[str, Any],
 
     cluster_lines = "\n".join(
         f"  - {c['pathogen']}: {c['size']} events in {c['span_days']}d "
-        f"across {len(c['countries'])} countries ({', '.join(c['countries'][:3])})"
+        f"across {len(c['countries'])} values of the reported geographic "
+        f"field ({', '.join(c['countries'][:3])})"
         for c in cl.get("clusters", [])[:3]
     ) or "  (no same-pathogen temporal clusters this month)"
 
@@ -1925,7 +1926,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
     <div class="kpi-top">{round(stats['tier1']/total_safe*100)}% of total</div>
   </div>
   <div class="kpi">
-    <div class="kpi-label">Outbreaks</div>
+    <div class="kpi-label">Outbreak-associated records</div>
     <div class="kpi-value vio">{stats['outbreaks']}</div>
     <div class="kpi-top">{_count_phrase(cl.get('cluster_count',0), 'cluster')} across {_count_phrase(cl.get('event_count',0), 'outbreak-associated incident')}</div>
   </div>
@@ -2018,7 +2019,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
   <div class="conc-card {escape(gini_bucket)}">
     <div class="conc-lbl">Geographic Gini</div>
     <div class="conc-val">{co.get('gini_country','—')}</div>
-    <div class="conc-note">{co.get('n_countries','–')} countries · <strong>{escape(gini_bucket)}</strong> (&lt;0.4 even · 0.4–0.6 moderate · &gt;0.6 uneven)</div>
+    <div class="conc-note">{co.get('n_countries','–')} values in the reported geographic field · <strong>{escape(gini_bucket)}</strong> (&lt;0.4 even · 0.4–0.6 moderate · &gt;0.6 uneven)</div>
   </div>
   <div class="conc-card">
     <div class="conc-lbl">Tier-1 Intensity</div>
@@ -2072,7 +2073,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 <!-- § 09 Methodology -->
 <div class="sec-head"><span class="sec-num">§ 09</span><h2 class="sec-title">Methodology &amp; Sources</h2><span class="sec-rule"></span></div>
 <div class="meth">
-  <p><strong>Definitions.</strong> A <em>recall incident</em> is a single regulator-published recall fiche / notice covering one identified product or product family. Where a single multi-country event is reported by two regulators (for example FSAI in Ireland plus FSA in the United Kingdom), each regulator's notice counts as one incident — the incident table accordingly shows the multi-jurisdictional footprint rather than de-duplicating to a single row. <em>Tier-1</em> indicates an immediate public-health risk (Listeria, Salmonella, STEC, Campylobacter, Cronobacter, Vibrio, Hepatitis A, marine biotoxins, mycotoxins above regulatory limits, undeclared major allergens). <em>Outbreak-associated</em> means the regulator's notice cites confirmed human cases or epidemiologically-linked illnesses, not merely a positive product test.</p>
+  <p><strong>Definitions.</strong> A <em>recall incident</em> is a single regulator-published recall fiche / notice covering one identified product or product family. Where a single multi-country event is reported by two regulators (for example FSAI in Ireland plus FSA in the United Kingdom), each regulator's notice counts as one incident — the incident table accordingly shows the multi-jurisdictional footprint rather than de-duplicating to a single row. <em>Tier-1</em> indicates an immediate public-health risk from a high-severity pathogenic or acute-toxin hazard: Listeria monocytogenes, Salmonella, STEC, Campylobacter, Cronobacter, Vibrio, Hepatitis A, Clostridium botulinum and marine biotoxins. Chronic-exposure chemical hazards — mycotoxins including aflatoxin and ochratoxin, and heavy metals — are classified Tier 2 unless the notice documents an acute-risk threshold. <em>Outbreak-associated</em> means the regulator's notice cites confirmed human cases or epidemiologically-linked illnesses, not merely a positive product test.</p>
 
   <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, hazard classification, and the engineering interpretation of each recall are developed by the AFTS process-authority practice, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP.</p>
 
@@ -2181,7 +2182,7 @@ Monthly Briefing · {escape(month_name)}</div>
 </td>
 <td style="width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center">
 <div style="font-family:Georgia,serif;font-weight:800;font-size:26px;color:{OUTBREAK_VIO}">{stats['outbreaks']}</div>
-<div style="font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px">Outbreaks</div>
+<div style="font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px">Outbreak-assoc. records</div>
 </td>
 <td style="width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center">
 <div style="font-family:Georgia,serif;font-weight:800;font-size:18px;color:{BRAND_ORANGE};font-style:italic">{escape(str(stats['top_pathogen'][0]))}</div>
