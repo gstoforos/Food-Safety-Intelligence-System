@@ -477,12 +477,14 @@ def _concentration(month_recalls: List[Dict[str, Any]],
                             agency owns 100% of recalls; 0+ when many agencies
                             contribute roughly evenly).  Reported on the 0-10000
                             scale (squared-share-percent sum).
-      hhi_bucket            "diverse" (<1500) / "moderate" (1500-2500) /
-                            "concentrated" (>2500).
+      hhi_bucket            "competitive / diffuse" (<1500) /
+                            "moderately concentrated" (1500-2500) /
+                            "highly concentrated" (>2500).
       gini_country          Gini coefficient on COUNTRY counts (0 = perfectly
                             even across countries, 1 = single-country regime).
-      gini_bucket           "even" (<0.4) / "moderate" (0.4-0.6) /
-                            "very_uneven" (>0.6).
+      gini_bucket           "highly diffuse" (<0.25) / "moderately diffuse"
+                            (0.25-0.4) / "concentrated" (0.4-0.6) /
+                            "highly concentrated" (>=0.6).
       tier1_share           Tier-1 fraction of THIS month's recalls.
       baseline_tier1_share  Average Tier-1 fraction across prior_months
                             (None if no prior data).
