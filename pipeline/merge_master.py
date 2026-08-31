@@ -1018,6 +1018,39 @@ def load_pending(xlsx_path: Path) -> List[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 # Merge scraped rows into Pending
 # ---------------------------------------------------------------------------
+# ── TERMINAL REJECTION REASONS (audit 2026-08-31) ──────────────────────────
+# A rejection is either TERMINAL (a property of the item that will never
+# change: it is not food, it is out of AFTS scope, it duplicates a published
+# row) or TRANSIENT (a property of the fetch: the URL 404'd, the page timed
+# out, a field was missing). Only terminal verdicts may block a re-ingestion.
+#
+# WHY THIS EXISTS. load_rejected_urls() has always been consulted by
+# promote_approved — but promote_approved only ever sees rows a REVIEWER
+# reached. A scraped row lands in Pending at status 'pending_enrichment',
+# reviewers skip that status until the row is enriched, and so a permanently
+# rejected item re-entered Pending on every single scrape and parked there
+# forever. Measured 2026-08-31: of 9 rows in Pending, FIVE were re-ingestions
+# of items already carrying a permanent verdict — Baxter Anticoagulant Sodium
+# Citrate (not_food, rejected 2026-08-27), Kosilum lighting (not_food),
+# Capri-Sun (labelling), Yopokki (spoilage), Racines (spoilage).
+#
+# The guard is deliberately narrow. A transient rejection MUST still be
+# retryable: giving a source the chance to fix a broken link is the whole
+# point of the retry path documented in append_to_pending's docstring.
+_TERMINAL_REJECTION_MARKERS = (
+    "not_food",
+    "not a food",
+    "out_of_scope",
+    "duplicate_of_published",
+    "operator_decision_one_outbreak_one_source",
+)
+
+
+def _is_terminal_rejection(desc: str) -> bool:
+    """True when a recorded rejection is a permanent property of the item."""
+    return any(m in (desc or "").lower() for m in _TERMINAL_REJECTION_MARKERS)
+
+
 def append_to_pending(
     existing_pending: List[Dict[str, Any]],
     approved: List[Dict[str, Any]],
@@ -1095,6 +1128,14 @@ def append_to_pending(
     already_pending = 0
     already_approved = 0
     rejected_by_gate = 0
+    blocked_terminal = 0
+
+    # Permanent verdicts, keyed by normalised URL. Loaded once per call.
+    try:
+        _terminal = {u: d for u, d in load_rejected_urls().items()
+                     if _is_terminal_rejection(d)}
+    except Exception:                                   # pragma: no cover
+        _terminal = {}
 
     for r in new_recalls:
         d = r.to_dict() if isinstance(r, Recall) else dict(r)
@@ -1123,6 +1164,18 @@ def append_to_pending(
 
         if k in keys_in_approved:
             already_approved += 1
+            continue
+
+        # ── TERMINAL-REJECTION GUARD (audit 2026-08-31) ─────────────────
+        # Do not re-ingest an item that already carries a permanent verdict.
+        # Logged per row, never silent: a guard that drops rows quietly is
+        # indistinguishable from a scraper that stopped working.
+        _u_term = _normalize_url_for_dedup(str(d.get("URL", "") or ""))
+        if _u_term and _u_term in _terminal:
+            log.info("Re-ingestion blocked (terminal rejection on file): "
+                     "%s | %s", str(d.get("URL", ""))[:100],
+                     _terminal[_u_term][:120])
+            blocked_terminal += 1
             continue
 
         # ── Near-duplicate check (audit 2026-04-29) ─────────────────────
@@ -1177,9 +1230,11 @@ def append_to_pending(
     log.info(
         "Pending: kept %d (dropped %d rejected for retry), +%d new, "
         "+%d new awaiting enrichment, +%d retried "
-        "(skipped: %d already-pending, %d already-approved, %d gate-rejected) = %d total",
+        "(skipped: %d already-pending, %d already-approved, %d gate-rejected, "
+        "%d blocked by a terminal rejection) = %d total",
         len(kept), len(indices_to_drop), appended, appended_enrichment, retried,
-        already_pending, already_approved, rejected_by_gate, len(out),
+        already_pending, already_approved, rejected_by_gate, blocked_terminal,
+        len(out),
     )
     return out
 
