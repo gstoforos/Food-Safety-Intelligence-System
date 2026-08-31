@@ -230,6 +230,24 @@ NON_PROMOTABLE_STATUSES = GAP_GATING_STATUSES | frozenset({
 # and get stamped from their own Date (not the scrape time), so a
 # previously-stuck row published 2026-05-05 stamps as W19 even if the
 # unlock happens in week 21.
+# ─── The reporting week ────────────────────────────────────────────────────
+# "thursday"  the original rule: report_week is the ISO week of the smallest
+#             Friday STRICTLY AFTER the row date, so the week runs Fri->Thu
+#             and the report ships Friday morning.
+# "iso"       from 2026-09: report_week is the plain ISO week of the row's own
+#             date. The week runs Mon->Sun and the report ships Monday.
+#
+# Why it changed: a Friday-morning build cannot see Friday's own recalls, and
+# Thursday's have had less than a day to be confirmed, so late rows kept
+# landing in the following week's report. Monday gives Thursday four days and
+# Friday three, across a weekend when almost nothing is published.
+#
+# The stamp is written ONCE at promote time and never rewritten, so rows
+# published under either rule keep the stamp they were given. Do not migrate
+# historical rows: that would silently rewrite months of published weeks.
+WEEK_RULE = "iso"
+
+
 def compute_report_week(date_str: str) -> str:
     """Return the report_week stamp for a given row date.
 
@@ -246,6 +264,13 @@ def compute_report_week(date_str: str) -> str:
         d = datetime.strptime(str(date_str)[:10], "%Y-%m-%d").date()
     except (ValueError, TypeError):
         return ""
+    if WEEK_RULE == "iso":
+        # ISO week of the row's own date. The week runs Monday 00:00 to
+        # Sunday 23:59 and the report is built on the Monday after it
+        # closes, so a Friday-dated row belongs to the week it happened in
+        # and the builder can still see it.
+        return f"W{d.isocalendar()[1]:02d}"
+
     from datetime import timedelta as _td
     # Mon=0 .. Fri=4 .. Sun=6
     days_until_next_friday = (4 - d.weekday()) % 7

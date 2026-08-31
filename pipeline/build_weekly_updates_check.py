@@ -25,7 +25,7 @@ docs/data/weekly-updates-pending.json with shape:
   {
     "generated_utc": "2026-05-13T07:00:00+00:00",
     "checked_back_weeks": 4,
-    "anchor_friday": "2026-05-08",
+    "anchor_week_end": "2026-09-06",
     "updated_weeks": [
       {
         "year": 2026,
@@ -86,10 +86,15 @@ LOOKBACK_WEEKS = 4
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(message)s")
+try:
+    from pipeline.merge_master import WEEK_RULE
+except Exception:  # pragma: no cover
+    WEEK_RULE = "iso"
+
 log = logging.getLogger("weekly-updates-check")
 
 
-def _last_friday(today: "date | None" = None):
+def _last_week_end(today: "date | None" = None):
     """Return the most recent Friday strictly before today.
 
     On Wednesday: returns the Friday 5 days ago (last week's published Friday).
@@ -98,6 +103,15 @@ def _last_friday(today: "date | None" = None):
     if today is None:
         today = datetime.now(timezone.utc).date()
     # Monday=0, ..., Friday=4, ..., Sunday=6
+    if WEEK_RULE == "iso":
+        # The published week now ends on SUNDAY and ships the Monday after.
+        # On any weekday, the most recent closed week is the one ending on
+        # the last Sunday strictly before today. On Sunday itself that week
+        # has not shipped yet, so step back a further seven days.
+        days_back = (today.weekday() - 6) % 7
+        if days_back == 0:
+            days_back = 7
+        return today - timedelta(days=days_back)
     days_back = (today.weekday() - 4) % 7
     if days_back == 0:
         # today IS Friday — we want the previous Friday's report, not today's
@@ -115,8 +129,8 @@ def main() -> int:
     all_recalls = load_recalls(XLSX)
     log.info("Loaded %d recalls from %s", len(all_recalls), XLSX)
 
-    anchor_friday = _last_friday()
-    log.info("Anchor Friday (most recent published week): %s", anchor_friday)
+    anchor_week_end = _last_week_end()
+    log.info("Anchor week-end (most recent published week): %s", anchor_week_end)
 
     updated: list[dict] = []
 
@@ -124,7 +138,7 @@ def main() -> int:
     # The anchor week was just built on Friday — but it can also pick up
     # late promotions over the weekend, so we include it in the check.
     for offset in range(0, LOOKBACK_WEEKS):
-        week_end = anchor_friday - timedelta(days=7 * offset)
+        week_end = anchor_week_end - timedelta(days=7 * offset)
         wnum = week_end.isocalendar()[1]
         year = week_end.year
         week_start = week_end - timedelta(days=6)
@@ -237,7 +251,7 @@ def main() -> int:
         most_recent_we = (
             max(datetime.strptime(w["week_end"], "%Y-%m-%d").date()
                 for w in updated)
-            if updated else anchor_friday
+            if updated else anchor_week_end
         )
         update_dashboard_data(most_recent_we, stats={}, all_recalls=all_recalls)
         log.info("Dashboard JSON refreshed: docs/data/weekly-index.json")
@@ -246,22 +260,22 @@ def main() -> int:
 
     try:
         # Anchor-week summary — what the Friday weekly mailer reads.
-        # Always emit for anchor_friday (most recent Friday-ending week)
+        # Always emit for anchor_week_end (most recent closed week)
         # using the CURRENT dataset, so the mailer's Friday digest sees
         # late-promoted recalls even when the W##.html hasn't itself
         # been rebuilt this run.
-        anchor_recalls = filter_week(all_recalls, anchor_friday)
+        anchor_recalls = filter_week(all_recalls, anchor_week_end)
         prev_anchor_recalls = filter_week(
-            all_recalls, anchor_friday - timedelta(days=7)
+            all_recalls, anchor_week_end - timedelta(days=7)
         )
         anchor_stats = compute_stats(anchor_recalls, prev_anchor_recalls)
         write_weekly_summary_json(
-            anchor_friday, anchor_recalls, anchor_stats,
+            anchor_week_end, anchor_recalls, anchor_stats,
             ROOT / "docs" / "data",
         )
         log.info("Summary JSON refreshed: docs/data/weekly-summary-latest.json "
                  "(anchor=%s, total=%d)",
-                 anchor_friday, len(anchor_recalls))
+                 anchor_week_end, len(anchor_recalls))
     except Exception as e:
         log.warning("weekly-summary-latest.json refresh failed (non-fatal): %s", e)
 
@@ -292,7 +306,9 @@ def main() -> int:
     manifest = {
         "generated_utc": datetime.now(timezone.utc).isoformat(),
         "checked_back_weeks": LOOKBACK_WEEKS,
-        "anchor_friday": anchor_friday.isoformat(),
+        "anchor_week_end": anchor_week_end.isoformat(),
+        # alias kept until FsisWeeklyUpdates.gs reads anchor_week_end
+        "anchor_friday": anchor_week_end.isoformat(),
         "updated_weeks": updated,
         "primary_cta": primary_cta,
     }
