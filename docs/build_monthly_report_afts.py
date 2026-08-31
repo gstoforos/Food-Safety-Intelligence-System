@@ -2050,8 +2050,8 @@ letter-spacing:0.08em;text-transform:uppercase;}}
     AFTS runs on the monthly series. Active cards publish a forecast with its
     confidence envelope; dormant cards show the data threshold required to
     activate — an honest roadmap as the dataset grows. When <em>n</em> reaches
-    12 months, STL decomposition unlocks; 24 months unlocks Holt-Winters,
-    SARIMA, and Prophet. All models run on the same Recalls sheet you already
+    24 months, STL decomposition, Holt-Winters, SARIMA and Prophet all
+    become eligible for activation. All models run on the same Recalls sheet you already
     subscribe to — no secondary data required.
   </div>
 </div>
@@ -2073,7 +2073,8 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 <!-- § 09 Methodology -->
 <div class="sec-head"><span class="sec-num">§ 09</span><h2 class="sec-title">Methodology &amp; Sources</h2><span class="sec-rule"></span></div>
 <div class="meth">
-  <p><strong>Definitions.</strong> A <em>recall incident</em> is a single regulator-published recall fiche / notice covering one identified product or product family. Where a single multi-country event is reported by two regulators (for example FSAI in Ireland plus FSA in the United Kingdom), each regulator's notice counts as one incident — the incident table accordingly shows the multi-jurisdictional footprint rather than de-duplicating to a single row. <em>Tier-1</em> indicates an immediate public-health risk from a high-severity pathogenic or acute-toxin hazard: Listeria monocytogenes, Salmonella, STEC, Campylobacter, Cronobacter, Vibrio, Hepatitis A, Clostridium botulinum and marine biotoxins. Chronic-exposure chemical hazards — mycotoxins including aflatoxin and ochratoxin, and heavy metals — are classified Tier 2 unless the notice documents an acute-risk threshold. <em>Outbreak-associated</em> means the regulator's notice cites confirmed human cases or epidemiologically-linked illnesses, not merely a positive product test.</p>
+  <p><strong>Definitions.</strong> A <em>recall incident</em> is a single regulator-published recall fiche / notice covering one identified product or product family. Where a single multi-country event is reported by two regulators (for example FSAI in Ireland plus FSA in the United Kingdom), each regulator's notice counts as one incident — the incident table accordingly shows the multi-jurisdictional footprint rather than de-duplicating to a single row. <em>Tier-1</em> indicates an immediate public-health risk from a high-severity pathogenic or acute-toxin hazard: Listeria monocytogenes, Salmonella, STEC, Campylobacter, Cronobacter, Vibrio vulnificus and epidemic-cholera serogroups of V. cholerae (O1/O139), Hepatitis A, Clostridium botulinum and marine biotoxins. A V. cholerae notice that states no serogroup is classified Tier 2: FDA guidance splits on serogroup and the register does not infer one the source did not give. Chronic-exposure chemical hazards — mycotoxins including aflatoxin and ochratoxin, and heavy metals — are classified Tier 2 unless the notice documents an acute-risk threshold. <em>Outbreak-associated</em> means the regulator's notice cites confirmed human cases or epidemiologically-linked illnesses, not merely a positive product test.</p>
+  <p><strong>Capture cutoff and revision.</strong> This edition covers notices published by the monitored regulators and captured into the register up to <strong>{(month_end + timedelta(days=1)).strftime('%d %B %Y')}</strong>, the generation date shown in the masthead. Regulators routinely publish or amend notices after a month closes, so a monthly figure is a point-in-time count, not a closed ledger: July 2026 moved from 294 to 307 records in the twelve days after publication. AFTS re-checks every prior month on day 8 and reissues any month whose count has drifted, so the figures here are superseded by the latest edition of the same month rather than corrected in place.</p>
 
   <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, hazard classification, and the engineering interpretation of each recall are developed by the AFTS process-authority practice, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP.</p>
 
@@ -2086,7 +2087,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 
 <!-- §09a — HHI / Gini reproducibility table -->
 <div class="sec-head"><span class="sec-num">§ 09a</span><h2 class="sec-title">Concentration Reproducibility</h2><span class="sec-rule"></span></div>
-<p class="sec-caption">Per review-1 audit guidance — the source-count table reproduces Source HHI = {co.get('hhi_source')} on agency shares, and the country-count table reproduces Geographic Gini = {co.get('gini_country')} on country counts. Top 12 of each are shown; the residual rows behave identically and contribute proportionally smaller s².</p>
+<p class="sec-caption">Per review-1 audit guidance — the source-count table reproduces Source HHI = {co.get('hhi_source')} on agency shares, and the country-count table reproduces Geographic Gini = {co.get('gini_country')} on country counts. All {min(len(stats.get('source_counts', [])), 12)} source {'agencies are' if min(len(stats.get('source_counts', [])), 12) != 1 else 'agency is'} shown, alongside the top {min(len(stats.get('country_counts', [])), 12)} reported geographic values; any residual rows behave identically and contribute proportionally smaller s².</p>
 <div class="conc-grid">
   <div class="conc-card">
     <div class="conc-lbl">Source / Agency &middot; share &middot; HHI s²ᵢ contribution</div>

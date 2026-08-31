@@ -413,9 +413,9 @@ def _fallback_anaerobic(trigger: Dict[str, Any]) -> str:
         # to the accurate mechanism — atmospheric oxygen is inhibitory to
         # proteolytic C. botulinum, and reduced-oxygen packaging withdraws
         # that inhibition.
-        f"Reduced-oxygen packaging withdraws the inhibitory effect that "
-        f"atmospheric oxygen would otherwise exert on the growth of "
-        f"proteolytic C. botulinum, so "
+        f"Reduced-oxygen packaging reduces or removes the inhibitory effect "
+        f"that atmospheric oxygen may exert on the growth of proteolytic "
+        f"C. botulinum, so "
         # AUDIT 2026-08-31 — "depends entirely" overstates it. Anaerobic
         # packaging removes one barrier; it does not make the remaining
         # hurdles the ONLY thing standing between the product and hazard,
