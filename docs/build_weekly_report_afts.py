@@ -279,6 +279,14 @@ def load_recalls(xlsx_path):
     return [{h:(v if v is not None else "") for h,v in zip(hdr, row)}
             for row in ws.iter_rows(min_row=2, values_only=True)]
 
+# The reporting-week rule lives in one place. See the WEEK_RULE block in
+# pipeline/merge_master.py for what each value means and why it changed.
+try:
+    from pipeline.merge_master import WEEK_RULE
+except Exception:          # pragma: no cover - builder run outside the package
+    WEEK_RULE = "iso"
+
+
 def filter_week(recalls, week_end):
     """Return rows belonging to the weekly report ending Friday `week_end`.
 
@@ -327,6 +335,11 @@ def filter_week(recalls, week_end):
             rd = datetime.strptime(str(d)[:10], "%Y-%m-%d").date()
         except (ValueError, TypeError):
             return expected_year          # unparseable -> don't drop the row
+        if WEEK_RULE == "iso":
+            # ISO rule: the row's own ISO year. Handles the Dec/Jan
+            # boundary natively — a 29 Dec Monday already belongs to
+            # W01 of the following ISO year.
+            return rd.isocalendar()[0]
         days = (4 - rd.weekday()) % 7 or 7   # smallest Friday strictly after
         return (rd + timedelta(days=days)).isocalendar()[0]
 
@@ -386,9 +399,29 @@ def _display_window(week_end, filtered_recalls):
     """
     any_stamp = any((r.get("report_week") or "").strip() for r in filtered_recalls)
     if any_stamp:
-        # New-rule window: Friday (week_end − 7) through Thursday (week_end − 1).
-        rule_start = week_end - timedelta(days=7)
-        rule_end = week_end - timedelta(days=1)
+        # Which window applies is decided by the ANCHOR DAY, not by the
+        # global WEEK_RULE. A report anchored on a Friday is a Friday-rule
+        # week and must keep the Fri→Thu header it was published with, even
+        # when it is rebuilt long after the switch to ISO. Reading the flag
+        # here instead would rewrite the header of every already-published
+        # week the moment a retro-rebuild touched it.
+        if week_end.weekday() == 6:          # Sunday anchor → ISO week
+            # ISO window: Monday (week_end − 6) through Sunday (week_end).
+            # The ship day is the FOLLOWING Monday, so unlike the Friday
+            # rule the last data day IS week_end — nothing is deferred out
+            # of it.
+            #
+            # The one-off 10-day bridge report (28 Aug → 6 Sep 2026) is
+            # WIDER than this rule: it also holds rows dated 28-30 Aug,
+            # stamped W36 under the Friday rule before the switch. The
+            # data-span widening below is what lets its header say the ten
+            # days it really covers instead of a rule-derived seven.
+            rule_start = week_end - timedelta(days=6)
+            rule_end = week_end
+        else:                                # Friday anchor → Friday rule
+            # Friday rule: Friday (week_end − 7) through Thursday (week_end − 1).
+            rule_start = week_end - timedelta(days=7)
+            rule_end = week_end - timedelta(days=1)
         # Tighten to actual data span — only for new-rule weeks. Handles the
         # transitional W19 case where the rule window starts at Fri May 1
         # but the migration left May 1 blank-stamped, so its earliest
@@ -405,8 +438,18 @@ def _display_window(week_end, filtered_recalls):
                 continue
         if parsed_dates:
             ds = min(parsed_dates); de = max(parsed_dates)
-            display_start = max(rule_start, ds)
-            display_end = min(rule_end, de)
+            if week_end.weekday() == 6:
+                # WIDEN, don't clamp. Under ISO a report may legitimately
+                # hold rows outside its seven-day rule window — the 10-day
+                # bridge is exactly that case — and a header that clamped
+                # to the rule would understate what the reader is looking
+                # at. Clamping was right under the Friday rule, where a row
+                # outside the window meant a stamping fault.
+                display_start = min(rule_start, ds)
+                display_end = max(rule_end, de)
+            else:
+                display_start = max(rule_start, ds)
+                display_end = min(rule_end, de)
             if display_start > display_end:
                 display_start, display_end = rule_start, rule_end
         else:
