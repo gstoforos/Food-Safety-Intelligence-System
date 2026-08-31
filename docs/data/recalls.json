@@ -417,7 +417,7 @@
  },
  {
   "Date": "2026-08-27",
-  "Source": "NVWA",
+  "Source": "NVWA (NL)",
   "Company": "PLUS",
   "Brand": "PLUS",
   "Product": "Biologisch PLUS Brie 150 gram, with THT 31-08-2026 and 03-09-2026",
@@ -429,7 +429,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-biologische-brie-van-plus",
-  "Notes": "Barcode 2398141000000 (last digits may vary).  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed] [nightly-operator 2026-08-30: Class 'Veiligheidswaarschuwing' -> 'Safety warning' (non-English wording)]"
+  "Notes": "Barcode 2398141000000 (last digits may vary).  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed] [nightly-operator 2026-08-30: Class 'Veiligheidswaarschuwing' -> 'Safety warning' (non-English wording)] [source-label normalised 2026-08-31: 'NVWA' -> 'NVWA (NL)'. The Dutch authority was carried under two labels, inflating the distinct-source count and splitting its share in the Herfindahl index. Majority form kept.]"
  },
  {
   "Date": "2026-08-26",
@@ -693,7 +693,7 @@
   "Company": "Everything Sprouts, LLC",
   "Brand": "Everything Sprouts, Calco",
   "Product": "Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lots 222, 223, 225, 226, 230)",
-  "Pathogen": "Salmonella + Shiga toxin-producing E. coli (STEC)",
+  "Pathogen": "STEC (E. coli O26:H11 · O103:H25 · O168:H8) + Salmonella Agona",
   "Reason": "Multistate outbreak of Shiga toxin-producing Escherichia coli (serotypes O26:H11, O103:H25 and O168:H8) and Salmonella Agona linked to alfalfa sprouts distributed by Everything Sprouts, LLC. As of 24 August 2026, 55 illnesses across 15 U.S. states had been reported, including four hospitalisations and no deaths. Of the 55 reported cases, 46 involved STEC only, seven involved Salmonella Agona only, and two involved coinfection with both pathogens",
   "Class": "Recall",
   "Country": "United States",
@@ -701,7 +701,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
-  "Notes": "FDA listing HTML (Layer 1) [outbreak flag corrected 2026-08-26: FDA's recall notice of 22 August 2026 states '55 reports of illnesses have been received by federal and state partners related to alfalfa sprouts', and FDA runs a matching investigation page, 'Outbreak Investigation of Shiga Toxin-producing E. coli & Salmonella: Sprouts (August 2026)'. The row was published with the outbreak flag unset; it is set on 2026-08-26 on the strength of the illness count in FDA's own notice.] [corrected 2026-08-28, verified against the FDA outbreak investigation page (as of 08/24/2026): 55 illnesses across 15 states (FL, IN, IA, KS, MI, MN, NH, NY, NC, ND, PA, SC, SD, WA, WI), 4 hospitalisations, 0 deaths; 46 infected with E. coli, 7 with Salmonella, 2 with both. Serotypes O26:H11, O103:H25, O168:H8 plus Salmonella Agona. Firm Everything Sprouts, LLC; brands Calco and Everything Sprouts; direct distribution MN and WI only. Pathogen set to STEC as the dominant hazard (46 of 55 cases) to keep the column canonical - the co-pathogen is named in Reason, not compounded into the controlled vocabulary. URL repointed from the company recall notice to the FDA outbreak investigation, which carries the epidemiology; the recall notice was https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-recalls-alfalfa-sprouts-due-potential-e-coli-and-salmonella-risk] [operator review 2026-08-28: pack sizes, sub-products and lot numbers merged in from a duplicate Pending row for the same recall (FDA recall notice everything-sprouts-llc-recalls-alfalfa-sprouts...). Pathogen widened to name both agents — the recall notice states Salmonella AND STEC; this row carried STEC only. The duplicate was archived, not published: one recall, one row.]"
+  "Notes": "FDA listing HTML (Layer 1) [outbreak flag corrected 2026-08-26: FDA's recall notice of 22 August 2026 states '55 reports of illnesses have been received by federal and state partners related to alfalfa sprouts', and FDA runs a matching investigation page, 'Outbreak Investigation of Shiga Toxin-producing E. coli & Salmonella: Sprouts (August 2026)'. The row was published with the outbreak flag unset; it is set on 2026-08-26 on the strength of the illness count in FDA's own notice.] [corrected 2026-08-28, verified against the FDA outbreak investigation page (as of 08/24/2026): 55 illnesses across 15 states (FL, IN, IA, KS, MI, MN, NH, NY, NC, ND, PA, SC, SD, WA, WI), 4 hospitalisations, 0 deaths; 46 infected with E. coli, 7 with Salmonella, 2 with both. Serotypes O26:H11, O103:H25, O168:H8 plus Salmonella Agona. Firm Everything Sprouts, LLC; brands Calco and Everything Sprouts; direct distribution MN and WI only. Pathogen set to STEC as the dominant hazard (46 of 55 cases) to keep the co"
  },
  {
   "Date": "2026-08-21",
