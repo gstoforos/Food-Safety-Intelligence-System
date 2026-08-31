@@ -4,9 +4,25 @@ tests/test_report_week.py
 Tests for merge_master.compute_report_week — the sticky-stamp rule that
 decides which weekly report a recall belongs to.
 
-RULE (locked):
+TWO RULES, ONE SWITCH — merge_master.WEEK_RULE
+
+WEEK_RULE = "thursday"  (in force to 2026-08-30)
     A row's "report_week" is W{nn} where nn is the ISO week number of
     the SMALLEST Friday STRICTLY AFTER the row's Date.
+
+WEEK_RULE = "iso"  (in force from 2026-08-31)
+    A row's "report_week" is the plain ISO week of the row's own Date.
+    The week runs Monday->Sunday and the report ships the Monday after
+    it closes, so a Friday-dated row belongs to the week it happened in
+    and the builder can still see it.
+
+The Friday-rule cases below are NOT deleted. Every row promoted before
+2026-08-31 carries a stamp written under that rule and the stamp is
+never rewritten, so the rule still has to be readable and still has to
+be tested — it explains what those stamps mean. Each rule's cases are
+guarded on WEEK_RULE so the suite passes whichever is live.
+
+The original rationale for the Friday rule, kept for the record:
 
     Equivalently:
       - Mon-Thu → next Friday's week
@@ -32,7 +48,14 @@ from __future__ import annotations
 
 import pytest
 
-from pipeline.merge_master import compute_report_week
+from pipeline.merge_master import compute_report_week, WEEK_RULE
+
+friday_rule_only = pytest.mark.skipif(
+    WEEK_RULE != "thursday",
+    reason="Friday-rule stamp behaviour; WEEK_RULE is now 'iso'. The rule still"
+           " governs every row promoted before 2026-08-31, so the cases stay.")
+iso_rule_only = pytest.mark.skipif(
+    WEEK_RULE != "iso", reason="ISO-rule stamp behaviour; WEEK_RULE is 'thursday'")
 
 
 # ───────────────────────────────────────────────────────────────────────
@@ -92,15 +115,18 @@ class TestStickyStampRule:
         # Thu May 7, 2026 — next Friday is May 8 (week 19)
         assert compute_report_week("2026-05-07") == "W19"
 
+    @friday_rule_only
     def test_friday_rolls_to_next_friday(self):
         # Fri May 8, 2026 — STRICT next Friday is May 15 (week 20)
         # This is THE rule that produces the sticky-stamping behavior.
         assert compute_report_week("2026-05-08") == "W20"
 
+    @friday_rule_only
     def test_saturday_in_next_friday_week(self):
         # Sat May 9, 2026 — next Friday is May 15 (week 20)
         assert compute_report_week("2026-05-09") == "W20"
 
+    @friday_rule_only
     def test_sunday_in_next_friday_week(self):
         # Sun May 10, 2026 — next Friday is May 15 (week 20)
         assert compute_report_week("2026-05-10") == "W20"
@@ -171,6 +197,7 @@ class TestDatetimeInput:
         # 2026-05-04T08:00:00Z is Monday — should stamp W19
         assert compute_report_week("2026-05-04T08:00:00Z") == "W19"
 
+    @friday_rule_only
     def test_iso_datetime_with_microseconds_handled(self):
         assert compute_report_week("2026-05-08T08:00:00.000Z") == "W20"
 
@@ -325,3 +352,64 @@ class TestLatestPointerNeverMovesBackwards:
             f"closed week ends {newest_allowed}. The subscriber mailer "
             f"sends whatever this file names, so it must never name a week "
             f"that is still open.")
+
+
+# ===========================================================================
+# WEEK_RULE = "iso" — from 2026-08-31
+# ===========================================================================
+# The change subscribers were told about on 2026-08-31: the week becomes the
+# ISO week and the report ships Monday. What this buys is visible in the
+# Friday case below — under the old rule a Friday recall was deferred a full
+# week because the Friday-morning build could not see it. Under ISO it stays
+# in its own week, and the Monday build has had three days to confirm it.
+class TestIsoStampRule:
+
+    @iso_rule_only
+    def test_monday_starts_its_own_week(self):
+        # Mon 31 Aug 2026 is the first day of ISO week 36.
+        assert compute_report_week("2026-08-31") == "W36"
+
+    @iso_rule_only
+    def test_sunday_closes_its_own_week(self):
+        # Sun 6 Sep 2026 is the last day of ISO week 36 — the day the
+        # 10-day bridge report closes on.
+        assert compute_report_week("2026-09-06") == "W36"
+
+    @iso_rule_only
+    def test_friday_stays_in_its_own_week(self):
+        # THE case the change was made for. Under the Friday rule this
+        # returned W37 and the recall waited a week to be reported.
+        assert compute_report_week("2026-09-04") == "W36"
+
+    @iso_rule_only
+    def test_the_whole_bridge_window_lands_on_one_stamp(self):
+        """The 10-day report, 28 Aug -> 6 Sep, must be a single stamp.
+
+        Rows dated 28-30 Aug were promoted under the Friday rule and are
+        already stamped W36 (their next-Friday was 4 Sep, ISO week 36).
+        Rows from 31 Aug onward are stamped by the ISO rule and must land
+        on W36 too, or the bridge report splits in two.
+        """
+        import datetime as dt
+        d = dt.date(2026, 8, 31)          # first day stamped under ISO
+        while d <= dt.date(2026, 9, 6):
+            assert compute_report_week(d.isoformat()) == "W36", d
+            d += dt.timedelta(days=1)
+
+    @iso_rule_only
+    def test_next_week_is_clean(self):
+        # Mon 7 Sep opens W37 — the first ordinary ISO week.
+        assert compute_report_week("2026-09-07") == "W37"
+        assert compute_report_week("2026-09-13") == "W37"
+
+    @iso_rule_only
+    def test_datetime_input_still_parsed(self):
+        assert compute_report_week("2026-09-04T08:00:00.000Z") == "W36"
+
+    @iso_rule_only
+    def test_year_boundary_uses_iso_year_not_calendar_year(self):
+        # Mon 28 Dec 2026 is already ISO week 53 of 2026; Fri 1 Jan 2027
+        # is still in that same ISO week, not W01.
+        assert compute_report_week("2026-12-28") == "W53"
+        assert compute_report_week("2027-01-01") == "W53"
+        assert compute_report_week("2027-01-04") == "W01"
