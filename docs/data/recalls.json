@@ -1217,7 +1217,7 @@
  },
  {
   "Date": "2026-08-18",
-  "Source": "CFS (HK) - aggregator (RappelConso FR)",
+  "Source": "CFS (HK)",
   "Company": "City Super Limited (Importer)",
   "Brand": "L'atelier Blini",
   "Product": "Ktipiti Extra Red Pepper & Feta Cheese Spread, 175g",
@@ -1229,7 +1229,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.info.gov.hk/gia/general/202608/18/P2026081800747.htm",
-  "Notes": "Batch number: 12262661. Use-by date: August 30, 2026. CFS advised public not to consume and trade to stop using/selling. Importer initiated recall as a precautionary measure. No illnesses reported locally.  [via Gemini gap-finder + Google Search] [promoted 2026-08-20: CFS Hong Kong alert 18/08/2026: Ktipiti Extra Red Pepper & Feta Cheese Spread 175 g, brand L'atelier Blini, batch 12262661, use-by 30/08/2026, importer City Super Limited. The CFS notice states the product originated in FRANCE and that the alert follows the French RappelConso system — so it is a RE-REPORT, not an independent observation, and the Source label carries the aggregator form per the 2026-08-14 source audit. Country/Region set to the ORIGIN (France/Europe) rather than Hong Kong, matching the RASFF origin convention. No matching RappelConso fiche could be located from the audit environment; the 2018 Atelier Blini Listeria recall on agriculture.gouv.fr is a different, unrelated event. CHANGED — Source: 'CFS Hong Kong'->'CFS (HK) - aggregator (Rappe'; Country: 'Hong Kong'->'France'; Region: 'Asia'->'Europe'; Reason: 'Suspected cold chain issue a'->'Potential Listeria monocytog'.]"
+  "Notes": "Batch number: 12262661. Use-by date: August 30, 2026. CFS advised public not to consume and trade to stop using/selling. Importer initiated recall as a precautionary measure. No illnesses reported locally.  [via Gemini gap-finder + Google Search] [promoted 2026-08-20: CFS Hong Kong alert 18/08/2026: Ktipiti Extra Red Pepper & Feta Cheese Spread 175 g, brand L'atelier Blini, batch 12262661, use-by 30/08/2026, importer City Super Limited. The CFS notice states the product originated in FRANCE and that the alert follows the French RappelConso system — so it is a RE-REPORT, not an independent observation, and the Source label carries the aggregator form per the 2026-08-14 source audit. Country/Region set to the ORIGIN (France/Europe) rather than Hong Kong, matching the RASFF origin convention. No matching RappelConso fiche could be located from the audit environment; the 2018 Atelier Blini Listeria recall on agriculture.gouv.fr is a different, unrelated event. CHANGED — Source: 'CFS Hong Kong'->'CFS (HK) - aggregator (Rappe'; Country: 'Hong Kong'->'France'; Region: 'Asia'->'Europe'; Reason: 'Suspected cold chain issue a'->'Potential Listeria monocytog'.] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-08-18",
@@ -23009,7 +23009,7 @@
  },
  {
   "Date": "2026-03-23",
-  "Source": "CFS (HK) - aggregator (UK FSA)",
+  "Source": "CFS (HK)",
   "Company": "MOMA Foods",
   "Brand": "MOMA Foods",
   "Product": "Various porridge pots and sachet products",
@@ -23021,7 +23021,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260323_1.pdf",
-  "Notes": "[HK CFS FISS aggregator notification of UK FSA recall; physical/rodent hazard IS in pathogen scope per locked rules] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[HK CFS FISS aggregator notification of UK FSA recall; physical/rodent hazard IS in pathogen scope per locked rules] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-23",
@@ -23073,7 +23073,7 @@
  },
  {
   "Date": "2026-03-20",
-  "Source": "CFS (HK) - aggregator (RappelConso FR)",
+  "Source": "CFS (HK)",
   "Company": "AMBROSI",
   "Brand": "AMBROSI",
   "Product": "GORGONZOLA DOP 1-8 1.5 kg env x 4 — AMBROSI cheese",
@@ -23085,11 +23085,11 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260320_1.pdf",
-  "Notes": "[HK CFS FISS notification of RappelConso recall] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W12->W13; Thursday-to-Thursday rule — week runs 2026-03-20 Fri -> 2026-03-26 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[HK CFS FISS notification of RappelConso recall] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W12->W13; Thursday-to-Thursday rule — week runs 2026-03-20 Fri -> 2026-03-26 Thu, labelled by ISO week of the closing Thursday] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-19",
-  "Source": "CFS (HK) - aggregator (RappelConso FR)",
+  "Source": "CFS (HK)",
   "Company": "Metro Chef",
   "Brand": "Metro Chef",
   "Product": "Bloc Serrano 2.2 kg env Metro Chef ham",
@@ -23101,7 +23101,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260319_1.pdf",
-  "Notes": "[HK CFS FISS notification of RappelConso recall] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[HK CFS FISS notification of RappelConso recall] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-19",
@@ -23137,7 +23137,7 @@
  },
  {
   "Date": "2026-03-17",
-  "Source": "CFS (HK) - aggregator (RappelConso FR)",
+  "Source": "CFS (HK)",
   "Company": "Ets Guittonneau",
   "Brand": "Ets Guittonneau",
   "Product": "HUITRES CREUSES oyster products",
@@ -23149,11 +23149,11 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_3.pdf",
-  "Notes": "[HK CFS FISS notification; norovirus in Tier-1 scope] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[HK CFS FISS notification; norovirus in Tier-1 scope] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-17",
-  "Source": "CFS (HK) - aggregator (RappelConso FR)",
+  "Source": "CFS (HK)",
   "Company": "HUITRE DE DIANA",
   "Brand": "HUITRE DE DIANA",
   "Product": "Oyster products from Étang de Diana",
@@ -23165,11 +23165,11 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_2.pdf",
-  "Notes": "[HK CFS FISS notification; SCOPE FLAG: phytoplankton/marine biotoxins NOT explicitly in or out of locked _pathogen_scope.py — review needed; sister to row 27 (Étang de Diana DSP) — same harvest area] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[HK CFS FISS notification; SCOPE FLAG: phytoplankton/marine biotoxins NOT explicitly in or out of locked _pathogen_scope.py — review needed; sister to row 27 (Étang de Diana DSP) — same harvest area] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-17",
-  "Source": "CFS (HK) - aggregator (RappelConso FR)",
+  "Source": "CFS (HK)",
   "Company": "Étang de Diana producers",
   "Brand": "Unbranded",
   "Product": "Oysters and mussel products from Étang de Diana (harvested 2026-02-24 to 2026-03-05)",
@@ -23181,7 +23181,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_1.pdf",
-  "Notes": "[HK CFS FISS notification; SCOPE FLAG: DSP marine biotoxins NOT explicitly in/out of scope per _pathogen_scope.py — recommend pathogen scope review and explicit decision; Corsican Étang de Diana shellfish-area closure event (sister to row 26)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[HK CFS FISS notification; SCOPE FLAG: DSP marine biotoxins NOT explicitly in/out of scope per _pathogen_scope.py — recommend pathogen scope review and explicit decision; Corsican Étang de Diana shellfish-area closure event (sister to row 26)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-17",
@@ -23233,7 +23233,7 @@
  },
  {
   "Date": "2026-03-16",
-  "Source": "CFS (HK) - aggregator (SFA SG)",
+  "Source": "CFS (HK)",
   "Company": "Nestlé / Nature One Dairy",
   "Brand": "NAN HA2 / Nature One Premium Toddler Step 3",
   "Product": "Nestle NAN HA2 + Nature One Premium Toddler Step 3 infant/toddler formulas",
@@ -23245,11 +23245,11 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260316_4.pdf",
-  "Notes": "SFA Singapore via HK CFS aggregator | global cereulide crisis [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Singapore]"
+  "Notes": "SFA Singapore via HK CFS aggregator | global cereulide crisis [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Singapore] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-16",
-  "Source": "CFS (HK) - aggregator (RappelConso FR)",
+  "Source": "CFS (HK)",
   "Company": "AOSTE",
   "Brand": "AOSTE",
   "Product": "Cooked ham products",
@@ -23261,7 +23261,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260316_1.pdf",
-  "Notes": "HK CFS FISS notification of RappelConso recall [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "HK CFS FISS notification of RappelConso recall [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-16",
@@ -23313,7 +23313,7 @@
  },
  {
   "Date": "2026-03-13",
-  "Source": "CFS (HK) - aggregator (MPI NZ)",
+  "Source": "CFS (HK)",
   "Company": "Banks Peninsula shellfish harvesters",
   "Brand": "—",
   "Product": "Banks Peninsula shellfish (mussels, oysters, scallops, paua, cockles)",
@@ -23325,11 +23325,11 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260313_2.pdf",
-  "Notes": "MPI NZ via HK CFS aggregator | marine biotoxin [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W11->W12; Thursday-to-Thursday rule — week runs 2026-03-13 Fri -> 2026-03-19 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "MPI NZ via HK CFS aggregator | marine biotoxin [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W11->W12; Thursday-to-Thursday rule — week runs 2026-03-13 Fri -> 2026-03-19 Thu, labelled by ISO week of the closing Thursday] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-13",
-  "Source": "CFS (HK) - aggregator (MPI NZ)",
+  "Source": "CFS (HK)",
   "Company": "— (Banks Peninsula shellfish)",
   "Brand": "—",
   "Product": "Shellfish gathered from northern side of Banks Peninsula",
@@ -23341,7 +23341,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260313_1.pdf",
-  "Notes": "MPI NZ shellfish biotoxin warning [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W11->W12; Thursday-to-Thursday rule — week runs 2026-03-13 Fri -> 2026-03-19 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "MPI NZ shellfish biotoxin warning [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W11->W12; Thursday-to-Thursday rule — week runs 2026-03-13 Fri -> 2026-03-19 Thu, labelled by ISO week of the closing Thursday] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-13",
@@ -23457,7 +23457,7 @@
  },
  {
   "Date": "2026-03-09",
-  "Source": "CFS (HK) - aggregator (RappelConso FR)",
+  "Source": "CFS (HK)",
   "Company": "AOSTE",
   "Brand": "AOSTE",
   "Product": "Cooked ham products",
@@ -23469,11 +23469,11 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260309_1.pdf",
-  "Notes": "HK CFS FISS notification of RappelConso recall"
+  "Notes": "HK CFS FISS notification of RappelConso recall [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-09",
-  "Source": "CFS (HK) - aggregator (MHLW Japan)",
+  "Source": "CFS (HK)",
   "Company": "UCC Ueshima Coffee",
   "Brand": "UCC BEANS&ROASTERS",
   "Product": "UCC BEANS&ROASTERS Cafe Latte リキャップ缶 375g",
@@ -23485,7 +23485,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260309_2.pdf",
-  "Notes": "MHLW Japan recall via HK CFS [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Japan]"
+  "Notes": "MHLW Japan recall via HK CFS [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Japan] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-09",
@@ -23601,7 +23601,7 @@
  },
  {
   "Date": "2026-03-02",
-  "Source": "CFS (HK) - aggregator (Czech)",
+  "Source": "CFS (HK)",
   "Company": "Czech Agriculture & Food Inspection",
   "Brand": "Happy Mimi 1",
   "Product": "Happy Mimi 1 infant formula (single batch)",
@@ -23613,7 +23613,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260302_1.pdf",
-  "Notes": "[HK CFS FISS notification of Czech Agriculture & Food Inspection Authority recall; part of GLOBAL CEREULIDE INFANT FORMULA CRISIS] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[HK CFS FISS notification of Czech Agriculture & Food Inspection Authority recall; part of GLOBAL CEREULIDE INFANT FORMULA CRISIS] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
  },
  {
   "Date": "2026-03-02",
