@@ -1,13 +1,36 @@
 {
   "week_end": "2026-09-06",
-  "generated_utc": "2026-08-31T18:24:31+00:00",
-  "row_count": 7,
-  "tier1_count": 1,
+  "generated_utc": "2026-08-31T18:35:59+00:00",
+  "row_count": 8,
+  "tier1_count": 2,
   "outbreak_count": 0,
   "by_reviewer": {
-    "unknown": 7
+    "unknown": 8
   },
   "rows": [
+    {
+      "Date": "2026-08-31",
+      "Source": "FDA",
+      "Company": "Ana Salazar Modela Tu Cuerpo Inc",
+      "Brand": "Lipofit",
+      "Product": "Lipofit Extreme Fat Burner 2.0, lot 25M12F (exp. 09/2027)",
+      "Pathogen": "Undeclared drug ingredients (DNP and fluoxetine) — chemical hazard",
+      "Reason": "Tainted with undeclared fluoxetine in the AM tablets and undeclared 2,4-dinitrophenol (DNP) in the PM tablets. FDA: may cause dangerous heart rhythm problems, rapid heart rate and cardiac arrest, which can result in sudden death.",
+      "Class": "Recall",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/ana-salazar-modela-tu-cuerpo-inc-issues-nationwide-voluntary-recall-lipofit-extreme-fat-burner-20",
+      "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [operator review 2026-08-31: APPROVED — verified at fda.gov, published 31 Aug 2026. Sold and marketed as a dietary supplement; supplements are in scope (31 published rows incl. FDA Total Nutrition, Mogo Moringa, Trafa Pharmaceutical). Hazard is CHEMICAL, which is in scope (380 published chemical/biotoxin/mycotoxin rows incl. 'Hydrocyanic acid — chemical hazard' and 'Nitrofurazone (SEM) — veterinary chemical residue'). Tier 1 by the acute-fatal-chemical precedent (Nitrofurazone Tier 1, Amanita mushroom toxins Tier 1); chronic heavy-metal exposure sits at Tier 3 and is not comparable. Date recovered from the FDA page — the HTML fallback leaves Date empty by design. FIRST undeclared-pharmaceutical row in the register: precedent-setting, flag to operator.] [pathogen-format fix: the Pathogen cell is a COMMA-SEPARATED multi-hazard list (merge_master normalises each comma part), so '2,4-dinitrophenol...' split into a bogus pathoge",
+      "DateAdded": "2026-08-31",
+      "LastUpdated": "2026-08-31",
+      "LastChecked": "",
+      "Week_Added": "2026-09-06",
+      "RejectedBy": "",
+      "RejectionReason": "",
+      "Reviewed": "N"
+    },
     {
       "Date": "2026-08-28",
       "Source": "FSA (UK)",
