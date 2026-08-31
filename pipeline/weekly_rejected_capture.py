@@ -3,7 +3,7 @@ pipeline/weekly_rejected_capture.py
 
 Mirrors every claude-check / openrouter-check rejection into a new
 "Weekly_Rejected" sheet of docs/data/recalls.xlsx, tagged with the
-Thursday end-date of the review window in which George will see it
+Sunday end-date of the review window in which George will see it
 (Thu 17:00 Athens cutoff).
 
 Architectural twin of pipeline/weekly_review_capture.py: same Thursday
@@ -24,22 +24,22 @@ operator had no Thursday-window view of "what got rejected this week,
 do I want to dispute any of these?"
 
 This module captures rejections at the moment they happen, into a
-Thursday-rolling sheet that gets emailed Thursday 17:00 Athens and
+Thursday-rolling sheet that gets emailed Sunday 17:00 Athens and
 wiped Thursday 17:30 Athens (alongside Weekly_Review). The operator's
 review window now sees BOTH passes and rejects — full triage.
 
 Sheet schema (Weekly_Rejected):
-    Recalls columns + Week_Added (ISO date of the Thursday on which
+    Recalls columns + Week_Added (ISO date of the Sunday on which
     the row gets reviewed) + RejectedBy (which reviewer flagged it)
     + RejectionReason (short verdict text from the reviewer's audit
     stamp) + Reviewed (Y/N — manual operator stamp; reserved for
     future filtering).
 
-Cutoff rule (matches the Thursday 17:00 Athens email):
-    A row rejected strictly BEFORE Thursday 17:00 Athens belongs to
-    that Thursday's review. A row rejected at or after that boundary
-    rolls over to the following Thursday. Each rejection lands in
-    exactly one Thursday email.
+Cutoff rule (matches the Sunday 17:00 Athens email):
+    A row rejected strictly BEFORE Sunday 17:00 Athens belongs to
+    that Sunday's review. A row rejected at or after that boundary
+    rolls over to the following Sunday. Each rejection lands in
+    exactly one Sunday email.
 
 Author: AFTS / G. Stoforos
 """
@@ -65,7 +65,7 @@ JSON_DEFAULT = ROOT / "docs" / "data" / "weekly-rejected-latest.json"
 
 SHEET_NAME = "Weekly_Rejected"
 ATHENS = ZoneInfo("Europe/Athens")
-REVIEW_HOUR_LOCAL = 17  # Thursday 17:00 Athens cutoff (matches Weekly_Review)
+REVIEW_HOUR_LOCAL = 17  # Sunday 17:00 Athens cutoff (matches Weekly_Review)
 
 # Mirror the Recalls schema (must stay in sync with merge_master.RECALLS_SCHEMA).
 RECALLS_COLS: List[str] = [
@@ -82,17 +82,17 @@ SHEET_COLS: List[str] = RECALLS_COLS + EXTRA_COLS
 # ---------------------------------------------------------------------------
 # Date math (verbatim from weekly_review_capture.py — same Thursday cutoff)
 # ---------------------------------------------------------------------------
-def review_thursday_for(now_utc: Optional[datetime] = None) -> date:
+def review_day_for(now_utc: Optional[datetime] = None) -> date:
     """
     The next Thursday review date — i.e. the Thursday email a row
     rejected RIGHT NOW will appear in. Rows rejected at/after Thursday
-    17:00 Athens roll over to the following Thursday.
+    17:00 Athens roll over to the following Sunday.
     """
     if now_utc is None:
         now_utc = datetime.now(timezone.utc)
     local = now_utc.astimezone(ATHENS)
     d = local.date()
-    days_until_thu = (3 - d.weekday()) % 7  # Mon=0 .. Thu=3 .. Sun=6
+    days_until_thu = (6 - d.weekday()) % 7  # Mon=0 .. Sun=6  (2026-08-31: Thu=3 -> Sun=6)
     if days_until_thu == 0 and local.hour >= REVIEW_HOUR_LOCAL:
         days_until_thu = 7
     return d + timedelta(days=days_until_thu)
@@ -337,7 +337,7 @@ def record_rejections(
         export_week_slice(xlsx_path=xlsx_path, json_path=json_path)
         return 0
 
-    week_end = review_thursday_for().isoformat()
+    week_end = review_day_for().isoformat()
 
     wb = openpyxl.load_workbook(xlsx_path)
     ws = _ensure_sheet(wb)
@@ -458,7 +458,7 @@ def export_week_slice(
               the next rejection would land in (i.e. the upcoming review).
     """
     if week_end is None:
-        week_end = review_thursday_for().isoformat()
+        week_end = review_day_for().isoformat()
 
     rows: List[Dict[str, Any]] = []
     if xlsx_path.exists():
@@ -538,8 +538,15 @@ if __name__ == "__main__":
               f"by_reviewer={result['by_reviewer']}) "
               f"for week ending {result['week_end']}")
     elif cmd == "thursday":
-        print(review_thursday_for().isoformat())
+        print(review_day_for().isoformat())
     else:
         print("Usage: python -m pipeline.weekly_rejected_capture [export|thursday]",
               file=sys.stderr)
         sys.exit(2)
+
+
+# Back-compat alias. The review day moved Thursday -> Sunday on 2026-08-31
+# when the reporting week became the ISO week; the function was renamed to
+# stop the name asserting a day it no longer returns. Anything still calling
+# the old name keeps working and gets the Sunday answer.
+review_thursday_for = review_day_for

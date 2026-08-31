@@ -2,23 +2,23 @@
 pipeline/weekly_review_capture.py
 
 Mirrors every Pending → Recalls promotion into a new "Weekly_Review"
-sheet of docs/data/recalls.xlsx, tagged with the Thursday end-date of
+sheet of docs/data/recalls.xlsx, tagged with the Sunday end-date of
 the review window in which George will see it (Thu 17:00 Athens cutoff).
 
 Also emits docs/data/weekly-review-latest.json — a slice of the
-upcoming/current Thu→Thu window, fetched by the Apps Script Thursday
-mailer (sendThursdayManualReview).
+upcoming/current Sun→Sun window, fetched by the Apps Script Sunday
+mailer (sendSundayManualReview).
 
 Sheet schema (Weekly_Review):
-    Recalls columns + Week_Added (ISO date of the Thursday on which
+    Recalls columns + Week_Added (ISO date of the Sunday on which
     the row gets reviewed) + Reviewed (Y/N — manual stamp; not used
     by the mailer in v1, reserved for future filtering).
 
-Cutoff rule (matches the Thursday 17:00 Athens email):
-    A row promoted strictly BEFORE Thursday 17:00 Athens belongs to
-    that Thursday's review. A row promoted at or after that boundary
-    rolls over to the following Thursday. Each promotion lands in
-    exactly one Thursday email.
+Cutoff rule (matches the Sunday 17:00 Athens email):
+    A row promoted strictly BEFORE Sunday 17:00 Athens belongs to
+    that Sunday's review. A row promoted at or after that boundary
+    rolls over to the following Sunday. Each promotion lands in
+    exactly one Sunday email.
 
 Author: AFTS / G. Stoforos
 """
@@ -40,7 +40,7 @@ JSON_DEFAULT = ROOT / "docs" / "data" / "weekly-review-latest.json"
 
 SHEET_NAME = "Weekly_Review"
 ATHENS = ZoneInfo("Europe/Athens")
-REVIEW_HOUR_LOCAL = 17  # Thursday 17:00 Athens cutoff
+REVIEW_HOUR_LOCAL = 17  # Sunday 17:00 Athens cutoff
 
 # Mirror the Recalls schema (must stay in sync with merge_master.RECALLS_SCHEMA).
 RECALLS_COLS: List[str] = [
@@ -55,17 +55,17 @@ SHEET_COLS: List[str] = RECALLS_COLS + EXTRA_COLS
 # ---------------------------------------------------------------------------
 # Date math
 # ---------------------------------------------------------------------------
-def review_thursday_for(now_utc: Optional[datetime] = None) -> date:
+def review_day_for(now_utc: Optional[datetime] = None) -> date:
     """
     The next Thursday review date — i.e. the Thursday email a row
     promoted RIGHT NOW will appear in. Rows promoted at/after Thursday
-    17:00 Athens roll over to the following Thursday.
+    17:00 Athens roll over to the following Sunday.
     """
     if now_utc is None:
         now_utc = datetime.now(timezone.utc)
     local = now_utc.astimezone(ATHENS)
     d = local.date()
-    days_until_thu = (3 - d.weekday()) % 7  # Mon=0 .. Thu=3 .. Sun=6
+    days_until_thu = (6 - d.weekday()) % 7  # Mon=0 .. Sun=6  (2026-08-31: Thu=3 -> Sun=6)
     if days_until_thu == 0 and local.hour >= REVIEW_HOUR_LOCAL:
         days_until_thu = 7
     return d + timedelta(days=days_until_thu)
@@ -126,7 +126,7 @@ def record_promotions(
     if not xlsx_path.exists():
         return 0
 
-    week_end = review_thursday_for().isoformat()
+    week_end = review_day_for().isoformat()
 
     wb = openpyxl.load_workbook(xlsx_path)
     ws = _ensure_sheet(wb)
@@ -179,7 +179,7 @@ def export_week_slice(
               the next promotion would land in (i.e. the upcoming review).
     """
     if week_end is None:
-        week_end = review_thursday_for().isoformat()
+        week_end = review_day_for().isoformat()
 
     rows: List[Dict[str, Any]] = []
     if xlsx_path.exists():
@@ -256,8 +256,15 @@ if __name__ == "__main__":
               f"Dissent={result['dissent_count']}) "
               f"for week ending {result['week_end']}")
     elif cmd == "thursday":
-        print(review_thursday_for().isoformat())
+        print(review_day_for().isoformat())
     else:
         print("Usage: python -m pipeline.weekly_review_capture [export|thursday]",
               file=sys.stderr)
         sys.exit(2)
+
+
+# Back-compat alias. The review day moved Thursday -> Sunday on 2026-08-31
+# when the reporting week became the ISO week; the function was renamed to
+# stop the name asserting a day it no longer returns. Anything still calling
+# the old name keeps working and gets the Sunday answer.
+review_thursday_for = review_day_for
