@@ -1,5 +1,18 @@
 [
   {
+    "filename": "2026-M08.html",
+    "year": 2026,
+    "month_num": 8,
+    "month_name": "August 2026",
+    "month_start": "2026-08-01",
+    "month_end": "2026-08-31",
+    "total": 238,
+    "tier1": 189,
+    "outbreaks": 2,
+    "top_pathogen": "Listeria monocytogenes",
+    "summary": "August 2026: 238 recalls, 189 Tier-1, 2 outbreak(s). Leading pathogen: Listeria monocytogenes."
+  },
+  {
     "filename": "2026-M07.html",
     "year": 2026,
     "month_num": 7,
