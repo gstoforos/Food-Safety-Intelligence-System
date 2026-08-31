@@ -145,7 +145,20 @@ def _apply_baseline_size_guard(signals: Dict[str, Any]) -> None:
     Idempotent — safe to call more than once."""
     mom = signals.get("mom_trend") or {}
     series = mom.get("values") or []
-    n_baseline = len(series)
+    # AUDIT 2026-08-31 — this read `n_baseline = len(series)`. `series` is
+    # mom["values"], the FULL history INCLUDING the current month, so this
+    # clobbered the correct baseline_n that _mom_trend() had already set
+    # (which excludes the current month) with a value one too high. Two
+    # consequences, both live in every monthly report published to date:
+    #   1. the trend caption read "Rolling 8-month mean" for August when
+    #      the mean and sigma were computed from the SEVEN prior months
+    #      (186.7 -> 187.0, sigma 137.7, Z=+0.37). Same off-by-one in
+    #      M03..M07. Verified against docs/data/recalls.json.
+    #   2. the Z-suppression guard below compared the wrong n against
+    #      _MIN_BASELINE_MONTHS_FOR_Z, so it fired one month later than
+    #      intended and let June 2026 publish a Z off a 5-month baseline.
+    # The baseline is every month EXCEPT the current one.
+    n_baseline = max(0, len(series) - 1)
     mom["baseline_n"] = n_baseline
     if n_baseline < _MIN_BASELINE_MONTHS_FOR_Z and mom.get("z_score") is not None:
         mom["z_score_raw"] = mom["z_score"]   # preserved for diagnostics / logs
@@ -610,14 +623,25 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
           f"{sv.get('score')}/100 ({sv.get('bucket')}), with {stats['tier1']} Tier-1 "
           f"critical events and {outbreak_phrase} on record.{hotspot_txt}")
 
-    bucket_phrase = {"diverse": "signal diversity consistent with broad regulatory engagement",
-                     "moderate": "moderate source concentration",
-                     "concentrated": "a signal driven by one or two agencies"}.get(
+    # AUDIT 2026-08-31 — these keys did not match what _bucket_hhi() returns.
+    # It returns "highly concentrated" / "moderately concentrated" /
+    # "competitive / diffuse"; this dict keyed on "diverse" / "moderate" /
+    # "concentrated", so NO month ever matched and every report published to
+    # date fell through to "mixed signal concentration". August 2026 has a
+    # source HHI of 3392 — highly concentrated — and was described as mixed.
+    # The old keys came from the stale docstring in monthly_stats.py, not the
+    # implementation. Keyed on the real return values now.
+    bucket_phrase = {"competitive / diffuse": "signal diversity consistent with broad regulatory engagement",
+                     "moderately concentrated": "moderate source concentration",
+                     "highly concentrated": "a signal driven by one or two agencies"}.get(
         co.get("hhi_bucket"), "mixed signal concentration")
+    # "jurisdictions" was wrong for the same reason the table heading was:
+    # the Country field mixes RASFF product ORIGIN with the notifying
+    # regulator's territory, so this axis is not a count of jurisdictions.
     gini_phrase = {"highly diffuse": "geographically even",
                    "moderately diffuse": "moderately uneven geographically",
                    "concentrated": "geographically concentrated",
-                   "highly concentrated": "strongly concentrated in a few jurisdictions"}.get(
+                   "highly concentrated": "strongly concentrated across a limited number of reported countries or origins"}.get(
         co.get("gini_bucket"), "geographically mixed")
 
     intensity = co.get("tier1_intensity_ratio")
@@ -633,7 +657,7 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
             f"{'elevated' if intensity > 1.1 else 'in line' if 0.9 <= intensity <= 1.1 else 'below baseline'}."
         )
 
-    p2 = (f"Structurally, the month reads as {gini_phrase} with {bucket_phrase} "
+    p2 = (f"Structurally, the month is {gini_phrase} with {bucket_phrase} "
           f"(Source HHI {co.get('hhi_source')}, Geographic Gini {co.get('gini_country')}). "
           f"For a {top_name}-dominated month, the relevant failure modes are "
           # AUDIT 2026-08-01 — this read "environmental harbourage in Zone 1
@@ -1030,12 +1054,15 @@ def render_models_panel(models: Dict[str, Any]) -> str:
 def _model_active_detail(key: str, m: Dict[str, Any]) -> str:
     if key == "linear_trend":
         point = m.get("next_month_point")
-        ci    = m.get("next_month_ci95", [None, None])
+        # 2026-08-31: prefer next_month_pi95 — the OLS interval always was a
+        # PREDICTION interval for a new observation, never a confidence
+        # interval for the mean response. ci95 kept as a fallback only.
+        ci    = m.get("next_month_pi95") or m.get("next_month_ci95", [None, None])
         slope = m.get("slope_per_month")
         r2    = m.get("r_squared")
         note  = m.get("note", "")
         return (f"Next-month forecast: <strong>{point}</strong> recalls "
-                f"(95% CI [{ci[0]}, {ci[1]}]); "
+                f"(95% prediction interval [{ci[0]}, {ci[1]}]); "
                 f"slope <strong>{slope:+.1f}/month</strong>; "
                 f"r²={r2}. {escape(note)}")
     if key == "cusum":
@@ -1128,7 +1155,7 @@ font-weight:700;padding:2px 6px;border-radius:2px;letter-spacing:0.06em;margin-l
 <a class="back" href="{escape(back_href)}">← Back to monthly report</a>
 <table class="data top5"><thead><tr>
 <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th>
-<th>Product</th><th>Jurisdiction &amp; Source</th>
+<th>Product</th><th>Reported Country / Territory &amp; Source</th>
 </tr></thead><tbody>{body_rows}</tbody></table>
 </div></body></html>"""
 
@@ -1258,17 +1285,13 @@ def build_monthly_html(month_start: date, month_end: date,
     #     "UPDATED · {today}" — the actual rebuild date.
     # The label change is the visible signal that the user is looking
     # at a revised version of a previously-published monthly briefing.
-    def _ordinal(n: int) -> str:
-        if 10 <= n % 100 <= 20:
-            suf = "th"
-        else:
-            suf = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
-        return f"{n}{suf}"
-
     if original_published:
         published_label = "UPDATED"
         _now = datetime.now(timezone.utc)
-        pub_date = f"{_now.strftime('%B')} {_ordinal(_now.day)}, {_now.year}"
+        # 2026-08-31: was "August 31st, 2026" (ordinal + US comma order).
+        # Now "31 August 2026" — matches the PUBLISHED branch's day-first
+        # order and reads as a professional document date.
+        pub_date = _now.strftime("%-d %B %Y")
     else:
         published_label = "PUBLISHED"
         pub_date = (month_end + timedelta(days=1)).strftime("%-d %b %Y")
@@ -1888,8 +1911,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 
 <h1 class="r-title">Food Safety Hazard &amp; Pathogen Surveillance <span class="accent">·</span> {escape(month_name)} {year}</h1>
 <div class="sub">{month_start.strftime('%d %b %Y')} – {month_end.strftime('%d %b %Y')}
- &middot; {stats['total']} records involving {co.get('n_countries', len(stats.get('country_counts', [])))} reported countries or territories and {len(stats.get('source_counts', []) or stats.get('agency_counts', []))} regulatory-source labels
- &middot; {co.get('n_sources', len(stats.get('source_counts', [])))} regulatory sources</div>
+ &middot; {stats['total']} records involving {co.get('n_countries', len(stats.get('country_counts', [])))} reported countries or territories &middot; {co.get('n_sources', len(stats.get('source_counts', [])))} regulatory sources</div>
 
 <div class="kpi-strip">
   <div class="kpi">
@@ -1944,7 +1966,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
     </div>
     {svg_mom_sparkline(mom)}
     <div style="font-size:12px;color:var(--muted);margin-top:8px">
-      Rolling {mom.get('baseline_n', 3)}-month mean: <strong>{mom.get('rolling_mean', '—')}</strong>
+      Prior {mom.get('baseline_n', 3)}-month baseline mean: <strong>{mom.get('rolling_mean', '—')}</strong>
       &nbsp;·&nbsp; σ: <strong>{mom.get('rolling_std', '—')}</strong>
       {f'&nbsp;·&nbsp; <span style="color:var(--orange)">baseline too narrow for Z (n &lt; {_MIN_BASELINE_MONTHS_FOR_Z})</span>' if mom.get('baseline_too_narrow') else ''}
     </div>
@@ -2044,7 +2066,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 <p class="sec-caption">Ranked by hazard severity, outbreak association and assigned tier. Rankings apply to regulator-published <em>records</em>: where one underlying contamination event produced several notices — a primary recall plus a downstream alert, or two regulators publishing separately — each is a record here, and more than one record can belong to the same event. The complete severity-ranked incident register is in the companion appendix, <a href="{year_m}-all.html">{year_m}-all.html</a>.</p>
 <table class="top5"><thead><tr>
 <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th>
-<th>Product</th><th>Jurisdiction &amp; Source</th>
+<th>Product</th><th>Reported Country / Territory &amp; Source</th>
 </tr></thead><tbody>{top_rows_html}</tbody></table>
 
 <!-- § 09 Methodology -->
@@ -2089,7 +2111,7 @@ letter-spacing:0.08em;text-transform:uppercase;}}
 <p class="sec-caption">Every food-safety hazard recall recorded in {escape(month_name)} {year}, ranked by severity. This appendix replaces the companion page for subscriber convenience.</p>
 <table class="top5"><thead><tr>
 <th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th>
-<th>Product</th><th>Jurisdiction &amp; Source</th>
+<th>Product</th><th>Reported Country / Territory &amp; Source</th>
 </tr></thead><tbody>{all_rows_html}</tbody></table>
 
 <div class="footer">

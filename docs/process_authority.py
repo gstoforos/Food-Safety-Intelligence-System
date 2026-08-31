@@ -405,7 +405,7 @@ def _fallback_anaerobic(trigger: Dict[str, Any]) -> str:
         # and the sentence read as though nothing else in the system
         # mattered. Softened to the accurate claim without weakening the
         # warning.
-        f"safety therefore depends on one or more validated hurdles, "
+        f"safety depends on one or more validated hurdles, "
         f"including water activity, pH, salt content, refrigeration and "
         f"thermal-process control. Operators should confirm "
         f"with a qualified process authority that the multi-hurdle "
