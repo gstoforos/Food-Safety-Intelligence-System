@@ -1616,7 +1616,12 @@ def _pathogen_narrative(pathogen, pct, commodity_mix=""):
                 "hot-hold / chill-hold regime. The relevant frameworks are 21 CFR 117 time-"
                 "temperature critical limits and FDA Food Code cooling provisions.").format(intensity=intensity)
 
-    if "norovirus" in p or "hepatitis a" in p or "hav" in p:
+    # Seventh and last copy of the bare-"hav" needle (audit 2026-08-31).
+    # `p` is the lower-cased Pathogen field, so the blast radius here is
+    # smaller than in the classifiers — but a Pathogen naming a "shaved"
+    # or "Havarti" product would still print a viral-transmission
+    # commentary under a bacterial recall. Spaced like the rest.
+    if "norovirus" in p or "hepatitis a" in p or " hav " in p or "hav virus" in p:
         return ("Norovirus / Hepatitis A {intensity} is most consistent with contamination by "
                 "an infected food handler or with contaminated raw molluscan shellfish or "
                 "ready-to-eat soft fruit. The likely failure modes are sick-worker exclusion "
