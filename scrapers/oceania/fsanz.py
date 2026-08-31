@@ -63,7 +63,8 @@ log = logging.getLogger(__name__)
 # ─── Hazard keyword gate ──────────────────────────────────────────────
 _HAZARD_GATE = (
     "listeria", "salmonella", "e. coli", "stec", "o157", "shiga",
-    "botulin", "hepatitis", "hav", "norovirus", "campylobacter",
+    # bare "hav" spaced 2026-08-31 — it matched the word "have".
+    "botulin", "hepatitis", " hav ", "norovirus", "campylobacter",
     "cyclospora", "vibrio", "cronobacter", "cereulide", "bacillus cereus",
     "biotoxin", "histamine", "shellfish", "aflatoxin", "ochratoxin",
     "patulin", "yersinia", "shigella", "mycotoxin",
