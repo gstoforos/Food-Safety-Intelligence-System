@@ -120,6 +120,10 @@ def test_hazard_group_places_the_real_families():
         "Cadmium (heavy metal)": "heavy-metal",
         "PFOA / PFAS": "chemical",
         "Cyclospora": "pathogen-parasitic",
+        # Audit 2026-08-31: a generic "chemical hazard" description naming no
+        # specific chemical from the list above (undeclared-drug adulteration)
+        # fell through to the pathogen-bacterial catch-all.
+        "Undeclared drug ingredients (DNP and fluoxetine) — chemical hazard": "chemical",
     }
     for label, want in cases.items():
         assert ES._hazard_group(label) == want, (label, ES._hazard_group(label))

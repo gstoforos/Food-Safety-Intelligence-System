@@ -109,12 +109,12 @@
     "year": 2026,
     "week_start": "2026-06-26",
     "week_end": "2026-07-02",
-    "generated": "2026-08-31T12:52:47.964444+00:00",
-    "total": 58,
-    "tier1": 40,
+    "generated": "2026-08-31T20:30:55.357854+00:00",
+    "total": 57,
+    "tier1": 39,
     "outbreaks": 1,
-    "top_pathogen": "Listeria monocytogenes",
-    "summary": "Week 27 saw 58 pathogen recalls with Listeria monocytogenes as primary concern."
+    "top_pathogen": "Salmonella spp.",
+    "summary": "Week 27 saw 57 pathogen recalls with Salmonella spp. as primary concern."
   },
   {
     "filename": "2026-W26.html",
@@ -343,12 +343,12 @@
     "year": 2026,
     "week_start": "2026-02-20",
     "week_end": "2026-02-26",
-    "generated": "2026-08-31T12:52:47.989547+00:00",
-    "total": 11,
-    "tier1": 10,
+    "generated": "2026-08-31T20:30:55.379444+00:00",
+    "total": 10,
+    "tier1": 9,
     "outbreaks": 0,
     "top_pathogen": "Salmonella spp.",
-    "summary": "Week 9 saw 11 pathogen recalls with Salmonella spp. as primary concern."
+    "summary": "Week 9 saw 10 pathogen recalls with Salmonella spp. as primary concern."
   },
   {
     "filename": "2026-W08.html",
