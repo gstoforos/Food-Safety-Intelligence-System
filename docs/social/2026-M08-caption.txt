@@ -1,0 +1,30 @@
+AFTS Food Safety Intelligence System — AUGUST 2026
+Top 10 critical incidents · 01 AUG – 31 AUG 2026
+
+Every incident below links to the originating regulatory notice.
+
+1. 05 AUG · Salmonella · Coast Citrus Distributors — United States · FDA
+   https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-salmonella-jalapeno-august-2026
+2. 22 AUG · E. coli / STEC · Everything Sprouts, LLC — United States · FDA
+   https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026
+3. 28 AUG · Listeria · Cosme — France · RappelConso (FR)
+   https://rappel.conso.gouv.fr/fiche-rappel/23351/interne
+4. 28 AUG · Listeria · RASFF notification — France · RASFF (EU)
+   https://webgate.ec.europa.eu/rasff-window/screen/notification/869161
+5. 28 AUG · Listeria · RASFF notification — Lithuania · RASFF (EU)
+   https://webgate.ec.europa.eu/rasff-window/screen/notification/869105
+6. 28 AUG · Listeria · Macroom Buffalo Cheese Products — United Kingdom · FSA (UK)
+   https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-42-2026
+7. 27 AUG · Listeria · Retailer-level recall — no brand named — France · RappelConso (FR)
+   https://rappel.conso.gouv.fr/fiche-rappel/23343/Interne
+8. 27 AUG · Listeria · RASFF notification — Italy · RASFF (EU)
+   https://webgate.ec.europa.eu/rasff-window/screen/notification/869015
+9. 27 AUG · Listeria · Jumbo — Netherlands · NVWA (NL)
+   https://www.nvwa.nl/actueel/nieuws/2026/08/27/veiligheidswaarschuwing-biologische-brie-van-jumbo
+10. 27 AUG · Listeria · PLUS — Netherlands · NVWA
+   https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-biologische-brie-van-plus
+
+Full month, all records and methodology:
+https://fsis.advfood.tech
+
+#foodsafety #foodrecall #HACCP #foodmanufacturing #qualityassurance
