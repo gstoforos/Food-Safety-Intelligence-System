@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-08-31",
+  "Source": "FDA",
+  "Company": "Ana Salazar Modela Tu Cuerpo Inc",
+  "Brand": "Lipofit",
+  "Product": "Lipofit Extreme Fat Burner 2.0, lot 25M12F (exp. 09/2027)",
+  "Pathogen": "Undeclared drug ingredients (DNP and fluoxetine) — chemical hazard",
+  "Reason": "Tainted with undeclared fluoxetine in the AM tablets and undeclared 2,4-dinitrophenol (DNP) in the PM tablets. FDA: may cause dangerous heart rhythm problems, rapid heart rate and cardiac arrest, which can result in sudden death.",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/ana-salazar-modela-tu-cuerpo-inc-issues-nationwide-voluntary-recall-lipofit-extreme-fat-burner-20",
+  "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [operator review 2026-08-31: APPROVED — verified at fda.gov, published 31 Aug 2026. Sold and marketed as a dietary supplement; supplements are in scope (31 published rows incl. FDA Total Nutrition, Mogo Moringa, Trafa Pharmaceutical). Hazard is CHEMICAL, which is in scope (380 published chemical/biotoxin/mycotoxin rows incl. 'Hydrocyanic acid — chemical hazard' and 'Nitrofurazone (SEM) — veterinary chemical residue'). Tier 1 by the acute-fatal-chemical precedent (Nitrofurazone Tier 1, Amanita mushroom toxins Tier 1); chronic heavy-metal exposure sits at Tier 3 and is not comparable. Date recovered from the FDA page — the HTML fallback leaves Date empty by design. FIRST undeclared-pharmaceutical row in the register: precedent-setting, flag to operator.] [pathogen-format fix: the Pathogen cell is a COMMA-SEPARATED multi-hazard list (merge_master normalises each comma part), so '2,4-dinitrophenol...' split into a bogus pathoge [nightly-operator 2026-08-31: restored to Recalls — this row was reviewed and APPROVED (see Notes) but a prior write misfiled it into Weekly_Rejected with no RejectedBy/RejectionReason, so it never published. Re-verified independently against fda.gov: page confirms Ana Salazar Modela Tu Cuerpo Inc, Lipofit Extreme Fat Burner 2.0 (lot 25M12F, exp 09/2027), undeclared fluoxetine (AM) and 2,4-dinitrophenol/DNP (PM), FDA publish date 31 Aug 2026. Not a duplicate of any existing Recalls row.]"
+ },
+ {
   "Date": "2026-08-29",
   "Source": "FDA",
   "Company": "Panorama Produce",
@@ -8638,22 +8654,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22700/Interne",
   "Notes": "cf liste jointe [url-gate 2026-07-01: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-01: fix; corrections: Company→TERRES DE MOULIN MADAME, Pathogen→Mycotoxins (T-2 toxin, HT-2 toxin); fix; company mismatch; pathogen mismatch | Company and Pathogen corrected based on page content.] [enrich-gate 2026-07-01: pending_enrichment → pending (Claude verified)] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
- },
- {
-  "Date": "2026-06-30",
-  "Source": "FSAI (IE)",
-  "Company": "Brady Family; Deluxe; Tesco",
-  "Brand": "Brady Family; Deluxe; Tesco Finest",
-  "Product": "Brady Family Wood Smoked Real Irish Ham 6 Slices (80g), Brady Family Hand Crumbed Real Irish Ham 6 Slices (80g), Deluxe Triple Oak Smoked Carved Irish Ham 5 Slices (130g), Deluxe Honey Roast Carved Irish Ham 5 Slices (130g), Tesco Finest Crumbed Shaved Ham 16 Slices (120g)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "various cooked ham products",
-  "Class": "Alert",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-cooked-ham-p",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-07-05: Brand '—'→'Various Cooked Ham Products'] [claude-check 2026-07-06: fix; corrections: Date→2026-06-30, Company→Brady Family; Deluxe; Tesco, Brand→Brady Family; Deluxe; Tesco Finest, Product→Brady Family Wood Smoked Real Irish Ham , Pathogen→Listeria monocytogenes, Tier→1; fix; company mismatch; product mismatch; pathogen mismatch; date on page=2026-06-30 | Date is 2026-06-30 (not 2026-07-05] [enrich-gate 2026-07-06: pending_enrichment → pending (Claude verified)]"
  },
  {
   "Date": "2026-06-30",
@@ -23806,22 +23806,6 @@
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-rosabella-moringa-ca",
   "Notes": "[manual-promote 2026-05-08: Company/Brand cleaned] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [url 2026-08-30: slug restored to FSAI's 50-char cap - alert 2026.10, 23 Feb 2026, Salmonella, 48 batches. A non-existent FSAI slug serves the generic listing page, not a 404, which is why this passed every resolve check.]"
- },
- {
-  "Date": "2026-02-23",
-  "Source": "FSAI (IE)",
-  "Company": "Ambrosia Brands, LLC",
-  "Brand": "Rosabella Moringa",
-  "Product": "Rosabella Moringa 100% Pure capsules",
-  "Pathogen": "Salmonella",
-  "Reason": "Container of Rosabella Moringa capsules",
-  "Class": "Alert",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-rosabella-moringa-ca",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [rebuild 2026-05-11: applied 17:23 claude-check FIX corrections] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
  },
  {
   "Date": "2026-02-20",

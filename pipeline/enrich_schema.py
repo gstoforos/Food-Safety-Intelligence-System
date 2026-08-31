@@ -114,6 +114,12 @@ _HAZARD_GROUP_RULES = (
     ("ethylene oxide", "chemical"), ("hydrocyanic", "chemical"),
     ("pfoa", "chemical"), ("pfas", "chemical"), ("residue", "chemical"),
     ("veterinary", "chemical"), ("nitrofurazone", "chemical"),
+    # Generic "chemical hazard" wording (audit 2026-08-31): an undeclared-drug
+    # adulteration row (DNP/fluoxetine in a weight-loss supplement) named no
+    # specific chemical from the list above and fell through to the
+    # pathogen-bacterial catch-all below — wrong hazard group for a row with
+    # no organism at all. "chemical"/"undeclared drug" are unambiguous.
+    ("chemical", "chemical"), ("undeclared drug", "chemical"),
 )
 
 # Labels that name no hazard at all. They must not fall through to the
