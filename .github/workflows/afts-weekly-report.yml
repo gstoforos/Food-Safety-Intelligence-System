@@ -4,7 +4,7 @@ name: AFTS Weekly Report
 # Runs every FRIDAY at 08:00 ATHENS TIME (not UTC).
 # Two DST crons + hour guard — identical pattern to afts-monthly-report.yml.
 #
-# Timeline each Friday (all Athens time):
+# Timeline each Monday (all Athens time):
 #   08:00  this workflow fires → builds HTML, PDF, updates index
 #   ~08:15 committed + pushed → GitHub Pages rebuilds
 #   10:00  report is live on dashboard index (as the new W<nn> card)
@@ -13,8 +13,10 @@ name: AFTS Weekly Report
 #          sends the email to subscribers
 #
 # Authoritative template: docs/2026-W16.html
-# Each weekly report covers 7 days ENDING on Friday (Sat..Fri span),
-# matching the W16 gold standard. Builder's --week-end flag expects a Friday.
+# Each weekly report covers one ISO week, Monday..SUNDAY (2026-08-31).
+# The builder's --week-end flag now expects a SUNDAY. A Friday anchor still
+# builds a Friday-rule week, which is how already-published weeks are
+# rebuilt without rewriting their headers.
 # Builder reads docs/data/recalls.xlsx Recalls sheet ONLY — never Pending,
 # never News. News is displayed separately on the dashboard but NOT in
 # the weekly report (recalls only, per George's spec).
@@ -50,12 +52,12 @@ jobs:
           echo "athens_hour=$HOUR dow=$DOW"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" -ge "06" ] && [ "$HOUR" -le "12" ] && [ "$DOW" = "5" ]; then
+          elif [ "$HOUR" -ge "06" ] && [ "$HOUR" -le "12" ] && [ "$DOW" = "1" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "Athens Friday 08:xx — running."
+            echo "Athens Monday 08:xx — running."
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Not Athens Friday 08:xx (now DOW=$DOW hour=$HOUR). Skipping."
+            echo "Not Athens Monday 08:xx (now DOW=$DOW hour=$HOUR). Skipping."
           fi
 
       - name: Checkout

@@ -1,12 +1,12 @@
 name: AFTS Synthesis Writer — Weekly
 
 # ==========================================================================
-# Friday 08:30 ATHENS — runs ~30 min after the weekly builder commits at 08:00.
+# Monday 08:30 ATHENS — runs ~30 min after the weekly builder commits at 08:00.
 # That window covers: builder build (~5 min) + commit (~30s) + Pages deploy
 # (~10 min) + buffer. By 08:30 the new weekly-summary-latest.json is on
 # Pages with ai_lead_paragraph="" ready to be filled.
 #
-# Timeline each Friday (all Athens time):
+# Timeline each Monday (all Athens time):
 #   08:00  AFTS Weekly Report builds + commits weekly-summary-latest.json
 #          (ai_lead_paragraph="")
 #   08:30  THIS WORKFLOW → reads the JSON, generates synthesis via LLM,
@@ -17,7 +17,7 @@ name: AFTS Synthesis Writer — Weekly
 #          section populated.
 #
 # Dispatched by FsisScheduler.gs — add halfHourly slot "08:30": ["synthesis-writer-weekly.yml"]
-# guarded to Friday only.
+# guarded to Monday only.
 #
 # Failure posture: if synthesis fails (LLM down, rate-limited, deterministic
 # fallback also crashes), the field stays "" and the mailer cleanly skips
@@ -57,7 +57,7 @@ jobs:
             echo "run=1" >> "$GITHUB_OUTPUT"
           else
             # Must be Friday between 08:00 and 11:59 Athens
-            if [ "$DOW" = "5" ] && [ "$HOUR" -ge "08" ] && [ "$HOUR" -lt "12" ]; then
+            if [ "$DOW" = "1" ] && [ "$HOUR" -ge "08" ] && [ "$HOUR" -lt "12" ]; then
               echo "run=1" >> "$GITHUB_OUTPUT"
             else
               echo "run=0" >> "$GITHUB_OUTPUT"

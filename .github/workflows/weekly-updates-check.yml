@@ -3,7 +3,8 @@ name: AFTS Weekly Updates Check
 # ==========================================================================
 # Runs every WEDNESDAY at 09:00 ATHENS TIME.
 #
-# Walks the last 4 Friday-ending weeks. If any week's recall count in the
+# Walks the last 4 SUNDAY-ending weeks (2026-08-31: was Friday-ending).
+# If any week's recall count in the
 # current dataset differs from the count baked into the existing HTML
 # report, that week is rebuilt and listed in
 # docs/data/weekly-updates-pending.json.

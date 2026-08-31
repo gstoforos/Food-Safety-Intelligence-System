@@ -1,8 +1,12 @@
 name: AFTS Weekly_Review + Weekly_Rejected Wipe
 
 # ==========================================================================
-# Runs every THURSDAY at 17:30 ATHENS TIME (not UTC).
-# 30 minutes after the Apps Script `sendThursdayManualReview` mailer fires
+# Runs every SUNDAY at 17:30 ATHENS TIME (not UTC).
+# Moved from Thursday on 2026-08-31, in lockstep with the reporting
+# week becoming the ISO week (Mon->Sun, built Monday). The review
+# window has to close on the same day the week does, or the wipe
+# clears rows the Monday build has not reported yet.
+# 30 minutes after the Apps Script `sendSundayManualReview` mailer fires
 # at 17:00 Athens — gives the email time to send before we wipe the source.
 #
 # What this does:
@@ -20,20 +24,23 @@ name: AFTS Weekly_Review + Weekly_Rejected Wipe
 #
 # Two DST crons + Athens hour-guard, identical pattern to the rest of
 # AFTS. Athens 17:30 = UTC 14:30 (summer EEST) / 15:30 (winter EET).
-# Cron uses min/hour/dom/mon/dow with Sunday=0, so Thursday=4.
+# Cron uses min/hour/dom/mon/dow with Sunday=0, so Sunday=0.
+# The Athens guard below uses `date +%u`, where Sunday=7 — the two
+# numbering schemes disagree and that is a real trap; the guard is
+# the one that runs, so it tests 7.
 #
-# Authoritative cutoff: Thursday 17:00 Athens (see weekly_review_capture.py
+# Authoritative cutoff: Sunday 17:00 Athens (see weekly_review_capture.py
 # and weekly_rejected_capture.py REVIEW_HOUR_LOCAL = 17). This workflow
 # runs 30 minutes after — i.e. by the time it fires, every promotion +
 # rejection eligible for the Thursday 17:00 email has already been
 # mirrored into the rolling sheets and the email has been sent. Wiping
-# at 17:30 means rows arriving 17:00→17:30 land in NEXT Thursday's
+# at 17:30 means rows arriving 17:00→17:30 land in NEXT Sunday's
 # window, which is the desired behavior per the cutoff math.
 # ==========================================================================
 
 on:
   # Scheduling is centralized in Apps Script (FsisScheduler.gs) which
-  # dispatches this workflow every Thursday at 17:30 Athens.
+  # dispatches this workflow every Sunday at 17:30 Athens.
   # No internal cron block — Apps Script is the single source of truth.
   workflow_dispatch:        # manual run / catch-up + Apps Script dispatch
 
@@ -50,7 +57,7 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Athens-time guard (Thursday 17:xx Athens)
+      - name: Athens-time guard (Sunday 17:xx Athens)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
@@ -59,12 +66,12 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Manually dispatched — running."
-          elif [ "$HOUR" = "17" ] && [ "$DOW" = "4" ]; then
+          elif [ "$HOUR" = "17" ] && [ "$DOW" = "7" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "Athens Thursday 17:xx — running."
+            echo "Athens Sunday 17:xx — running."
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Not Athens Thursday 17:xx (now DOW=$DOW hour=$HOUR). Skipping."
+            echo "Not Athens Sunday 17:xx (now DOW=$DOW hour=$HOUR). Skipping."
           fi
 
       - name: Checkout
@@ -116,7 +123,7 @@ jobs:
             exit 0
           fi
           git add docs/data/recalls.xlsx docs/data/weekly-review-latest.json docs/data/weekly-rejected-latest.json
-          git commit -m "Weekly_Review + Weekly_Rejected wipe — $(TZ=Europe/Athens date +%Y-%m-%d) (post-Thursday-email reset)"
+          git commit -m "Weekly_Review + Weekly_Rejected wipe — $(TZ=Europe/Athens date +%Y-%m-%d) (post-Sunday-email reset)"
           # Use commit_github retry if available (handles concurrent pushes)
           for i in 1 2 3; do
             if git push; then
