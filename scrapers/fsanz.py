@@ -34,7 +34,8 @@ log = logging.getLogger(__name__)
 # bother extracting. Mirrors the canonical taxonomy's key terms.
 _HAZARD_GATE = (
     "listeria", "salmonella", "e. coli", "stec", "o157", "shiga",
-    "botulin", "hepatitis", "hav", "norovirus", "campylobacter",
+    "botulin", "hepatitis", " hav ", "norovirus", "campylobacter",
+    # bare "hav" removed 2026-08-31 — it matched the word "have".
     "cyclospora", "vibrio", "cronobacter", "cereulide", "bacillus cereus",
     "biotoxin", "histamine", "shellfish", "aflatoxin", "ochratoxin",
     "patulin", "yersinia", "shigella", "mycotoxin",

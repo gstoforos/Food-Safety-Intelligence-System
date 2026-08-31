@@ -90,7 +90,12 @@ PATHOGENS: Tuple[str, ...] = (
     "shiga", "shigatoxin", "shigatox",
     "clostridium botulinum", "botulin", "botulism",
     "norovirus", "norwalk",
-    "hepatitis a", "hepatitis e", "hav", "hev",
+    # NOT bare "hav" / "hev". Audit 2026-08-31 — the sixth and last copy of
+    # the 2026-08-04 bug. Matched with substring containment, so "hav" hit
+    # the word "have"; every USDA FSIS notice carries "consumers who HAVe
+    # purchased these products", so every FSIS recall read as Hepatitis A.
+    "hepatitis a", "hepatitis e", " hav ", "(hav)", "hav virus",
+    " hev ", "(hev)", "hev virus",
     "campylobacter", "campylobacter jejuni",
     "cyclospora", "cyclospora cayetanensis",
     "vibrio", "vibrio parahaemolyticus", "vibrio cholerae",
