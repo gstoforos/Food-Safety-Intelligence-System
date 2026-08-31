@@ -5,25 +5,35 @@ Tests for pipeline.weekly_review_capture.
 
 Two functions under test:
 
-    review_thursday_for(now_utc) → date
-        Returns the Thursday date a row promoted at `now_utc` belongs to.
-        Cutoff: Thursday 17:00 Athens local time.
-          - Promoted at Wed 23:59 → THIS Thursday
-          - Promoted at Thu 16:59 → THIS Thursday (still in window)
-          - Promoted at Thu 17:00 → NEXT Thursday (rollover, strict ≥)
-          - Promoted at Fri 09:00 → NEXT Thursday
-          - Promoted at Sun 12:00 → NEXT Thursday
+    review_day_for(now_utc) → date
+        Returns the review date a row promoted at `now_utc` belongs to.
+        Cutoff: SUNDAY 17:00 Athens local time (2026-08-31; was Thursday).
+          - Promoted at Sat 23:59 → THIS Sunday
+          - Promoted at Sun 16:59 → THIS Sunday (still in window)
+          - Promoted at Sun 17:00 → NEXT Sunday (rollover, strict ≥)
+          - Promoted at Mon 09:00 → NEXT Sunday
+          - Promoted at Thu 12:00 → NEXT Sunday
+
+        The old name review_day_for is kept as an alias and returns
+        the same Sunday. Nothing calls it for a Thursday any more.
 
     record_promotions(promoted_rows, xlsx_path, json_path) → int
         Appends each row to the Weekly_Review sheet, tagged with the
-        appropriate Thursday review date. Returns count of newly-appended
+        appropriate Sunday review date. Returns count of newly-appended
         rows. Idempotent: calling twice with the same rows is a no-op.
 
-The Thursday-17:00 cutoff matters because that's when the operator's
-Thursday review email fires (sendThursdayManualReview). A row promoted
-at 17:01 must NOT appear in that day's email — it goes to next week.
-If the cutoff drifts (e.g. someone changes REVIEW_HOUR_LOCAL), the
-Thursday email shows phantom rows that the operator didn't approve yet.
+The Sunday-17:00 cutoff matters because that's when the operator's
+review email fires (sendSundayManualReview). A row promoted at 17:01
+must NOT appear in that day's email — it goes to next week. If the
+cutoff drifts (e.g. someone changes REVIEW_HOUR_LOCAL), the email shows
+phantom rows that the operator didn't approve yet.
+
+2026-08-31: the review day moved Thursday → Sunday together with the
+reporting week becoming the ISO week. The two are the same decision.
+The wipe clears the rolling review sheets and the MONDAY build reports
+them; a Thursday cutoff would close the window three days before the
+week it belongs to and silently drop every Friday and Saturday
+promotion.
 
 The idempotency invariant matters because weekly_review_capture is
 called from inside merge_master.append_to_recalls — which runs hourly
@@ -46,7 +56,7 @@ from freezegun import freeze_time
 from openpyxl import load_workbook
 
 from pipeline.weekly_review_capture import (
-    review_thursday_for,
+    review_day_for,
     record_promotions,
     SHEET_NAME,
     SHEET_COLS,
@@ -55,9 +65,9 @@ from tests.conftest import RECALLS_COLS, PENDING_COLS, NEWS_COLS
 
 
 # ───────────────────────────────────────────────────────────────────────
-# review_thursday_for() — cutoff math
+# review_day_for() — cutoff math
 # ───────────────────────────────────────────────────────────────────────
-class TestReviewThursdayFor:
+class TestReviewDayFor:
     """
     Cutoff rule: Thursday 17:00 Athens local. Time arithmetic uses
     Europe/Athens which switches between EEST (UTC+3, summer) and EET
@@ -72,46 +82,46 @@ class TestReviewThursdayFor:
         Fri May 15, 2026  UTC 09:00 → Athens 12:00 Fri  (next week)
     """
 
-    def test_wednesday_promotion_lands_in_this_thursday(self):
-        # Wed May 13, 2026 09:00 Athens (UTC 06:00). Next Thursday is May 14.
+    def test_wednesday_promotion_lands_in_this_sunday(self):
+        """Wed 13 May 09:00 Athens — well inside the window closing Sun 17 May."""
         now = datetime(2026, 5, 13, 6, 0, tzinfo=timezone.utc)
-        assert review_thursday_for(now) == date(2026, 5, 14)
+        assert review_day_for(now) == date(2026, 5, 17)
 
-    def test_thursday_before_1700_lands_in_today(self):
-        # Thu May 14, 2026 16:59 Athens (UTC 13:59) — JUST inside the window.
-        now = datetime(2026, 5, 14, 13, 59, tzinfo=timezone.utc)
-        assert review_thursday_for(now) == date(2026, 5, 14)
+    def test_sunday_before_1700_lands_in_today(self):
+        """Sun 17 May 16:59 Athens — one minute inside the cutoff."""
+        now = datetime(2026, 5, 17, 13, 59, tzinfo=timezone.utc)
+        assert review_day_for(now) == date(2026, 5, 17)
 
-    def test_thursday_at_1700_rolls_to_next_week(self):
-        # Thu May 14, 2026 17:00 Athens (UTC 14:00) — rollover boundary,
-        # STRICT ≥ (i.e. 17:00:00 already counts as past cutoff).
-        now = datetime(2026, 5, 14, 14, 0, tzinfo=timezone.utc)
-        assert review_thursday_for(now) == date(2026, 5, 21)
+    def test_sunday_at_1700_rolls_to_next_week(self):
+        """Sun 17 May 17:00 Athens exactly — strict >=, so it rolls."""
+        now = datetime(2026, 5, 17, 14, 0, tzinfo=timezone.utc)
+        assert review_day_for(now) == date(2026, 5, 24)
 
-    def test_thursday_after_1700_rolls_to_next_week(self):
-        # Thu May 14, 2026 17:30 Athens (UTC 14:30)
-        now = datetime(2026, 5, 14, 14, 30, tzinfo=timezone.utc)
-        assert review_thursday_for(now) == date(2026, 5, 21)
+    def test_sunday_after_1700_rolls_to_next_week(self):
+        """Sun 17 May 17:30 Athens — the moment the wipe runs."""
+        now = datetime(2026, 5, 17, 14, 30, tzinfo=timezone.utc)
+        assert review_day_for(now) == date(2026, 5, 24)
 
-    def test_friday_lands_in_next_thursday(self):
-        # Fri May 15, 2026 09:00 Athens (UTC 06:00)
-        now = datetime(2026, 5, 15, 6, 0, tzinfo=timezone.utc)
-        assert review_thursday_for(now) == date(2026, 5, 21)
+    def test_monday_lands_in_next_sunday(self):
+        """Mon 18 May — first day of the new ISO week."""
+        now = datetime(2026, 5, 18, 6, 0, tzinfo=timezone.utc)
+        assert review_day_for(now) == date(2026, 5, 24)
 
-    def test_saturday_lands_in_next_thursday(self):
-        # Sat May 16, 2026 — next Thursday is May 21.
-        now = datetime(2026, 5, 16, 12, 0, tzinfo=timezone.utc)
-        assert review_thursday_for(now) == date(2026, 5, 21)
+    def test_friday_lands_in_the_same_sunday(self):
+        """Fri 22 May. THE case the move was made for: under the Thursday
+        cutoff this promotion waited a week to be reviewed."""
+        now = datetime(2026, 5, 22, 12, 0, tzinfo=timezone.utc)
+        assert review_day_for(now) == date(2026, 5, 24)
 
-    def test_sunday_lands_in_next_thursday(self):
-        # Sun May 17, 2026 — next Thursday is May 21.
-        now = datetime(2026, 5, 17, 12, 0, tzinfo=timezone.utc)
-        assert review_thursday_for(now) == date(2026, 5, 21)
+    def test_saturday_lands_in_the_same_sunday(self):
+        """Sat 23 May — the day before the cutoff."""
+        now = datetime(2026, 5, 23, 12, 0, tzinfo=timezone.utc)
+        assert review_day_for(now) == date(2026, 5, 24)
 
-    def test_monday_lands_in_this_thursday(self):
-        # Mon May 18, 2026 — next Thursday is May 21.
-        now = datetime(2026, 5, 18, 9, 0, tzinfo=timezone.utc)
-        assert review_thursday_for(now) == date(2026, 5, 21)
+    def test_thursday_lands_in_the_same_sunday(self):
+        """Thu 21 May — used to be the cutoff day itself."""
+        now = datetime(2026, 5, 21, 9, 0, tzinfo=timezone.utc)
+        assert review_day_for(now) == date(2026, 5, 24)
 
     def test_winter_dst_cutoff_eet(self):
         """
@@ -122,19 +132,19 @@ class TestReviewThursdayFor:
         Tests that the cutoff respects DST — using EET offsets, not EEST.
         """
         # In window
-        now = datetime(2026, 2, 5, 14, 59, tzinfo=timezone.utc)
-        assert review_thursday_for(now) == date(2026, 2, 5)
+        now = datetime(2026, 2, 8, 14, 59, tzinfo=timezone.utc)
+        assert review_day_for(now) == date(2026, 2, 8)
         # Rolled over
-        now = datetime(2026, 2, 5, 15, 0, tzinfo=timezone.utc)
-        assert review_thursday_for(now) == date(2026, 2, 12)
+        now = datetime(2026, 2, 8, 15, 0, tzinfo=timezone.utc)
+        assert review_day_for(now) == date(2026, 2, 15)
 
-    def test_default_now_utc_returns_some_thursday(self):
+    def test_default_now_utc_returns_some_sunday(self):
         """Calling with no argument uses current UTC. The result must
         be a Thursday in the future (or today if before 17:00 Athens
         and it's Thursday)."""
-        result = review_thursday_for()
+        result = review_day_for()
         # 3 = Thursday in Python's weekday() (Mon=0..Sun=6)
-        assert result.weekday() == 3
+        assert result.weekday() == 6   # Sunday
 
 
 # ───────────────────────────────────────────────────────────────────────
@@ -196,8 +206,8 @@ class TestRecordPromotions:
     def test_week_added_column_set_correctly(
         self, tmp_xlsx_factory, tmp_path, sample_recall_row
     ):
-        """The Week_Added column must be set to the Thursday review date,
-        matching review_thursday_for(). Lock by freezing time."""
+        """The Week_Added column must be set to the SUNDAY review date,
+        matching review_day_for(). Lock by freezing time."""
         xlsx = tmp_xlsx_factory("recalls.xlsx", {
             "Recalls": (RECALLS_COLS, []),
             "Pending": (PENDING_COLS, []),
@@ -206,7 +216,8 @@ class TestRecordPromotions:
         json_out = tmp_path / "wr.json"
 
         # Freeze at Wed May 13, 2026 06:00 UTC (= 09:00 Athens Wed).
-        # Next Thursday is May 14, 2026.
+        # The review window closes Sunday 17 May 2026 (2026-08-31: the
+        # cutoff day moved Thursday -> Sunday with the ISO week).
         with freeze_time("2026-05-13 06:00:00"):
             record_promotions([sample_recall_row], xlsx_path=xlsx,
                               json_path=json_out)
@@ -216,8 +227,8 @@ class TestRecordPromotions:
         headers = [c.value for c in ws[1]]
         week_added_idx = headers.index("Week_Added")
         appended_value = ws.cell(row=2, column=week_added_idx + 1).value
-        assert appended_value == "2026-05-14", \
-            f"Expected Week_Added=2026-05-14, got {appended_value}"
+        assert appended_value == "2026-05-17", \
+            f"Expected Week_Added=2026-05-17, got {appended_value}"
 
     def test_reviewed_column_starts_as_N(
         self, tmp_xlsx_factory, tmp_path, sample_recall_row
