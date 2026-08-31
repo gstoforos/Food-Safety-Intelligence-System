@@ -712,15 +712,14 @@ def _load_summary_json(summary_path: str):
             "url":      it.get("url") or "",
         })
 
-    def _ordinal(n: int) -> str:
-        if 10 <= n % 100 <= 20:
-            suf = "th"
-        else:
-            suf = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
-        return f"{n}{suf}"
+    # 2026-08-31: was "UPDATED · August 31st, 2026" (ordinal + US comma
+    # order). Now "UPDATED · 31 August 2026". The month ships as a unit —
+    # report, marketing one-pager and social cards — and all three built
+    # this stamp from their own private copy of the same _ordinal helper,
+    # so changing it in the report alone made the three disagree on the
+    # same date. Changed in all three; the helper is gone from each.
     _today = date.today()
-    updated_stamp = (f"UPDATED · {_today.strftime('%B')} "
-                     f"{_ordinal(_today.day)}, {_today.year}")
+    updated_stamp = f"UPDATED · {_today.strftime('%-d %B %Y')}"
 
     md: MonthData = {
         "month_tag":        pretty_tag,

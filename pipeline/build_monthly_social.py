@@ -46,7 +46,15 @@ FORMATS
     x           1600 x  900   16:9         — X / Twitter in-timeline card
 
 Sizes are in POINTS so the PDF's aspect ratio matches the platform's pixel
-spec exactly; export to PNG at any scale and the framing is already right.
+spec exactly. Each card is written TWICE: a PDF and a PNG.
+
+    PDF   LinkedIn document post; keeps a clickable link annotation on every
+          incident row. Also the archival copy.
+    PNG   what you actually upload to Instagram and X — neither accepts a
+          PDF. Rendered at --png-scale (default 2x → 2160px on a 1080pt card).
+
+A PNG cannot hold a clickable link, so <month>-caption.txt is written
+alongside carrying all ten source URLs for pasting into the post body.
 
 Brand primitives (colours, embedded font family, pathogen abbreviation) are
 IMPORTED from build_monthly_marketing rather than copied. A second private
@@ -56,13 +64,14 @@ USAGE
     python -m pipeline.build_monthly_social \\
         --summary docs/data/monthly-summary-latest.json \\
         --out-dir docs/social
-    # writes 2026-M07-linkedin.pdf, -instagram.pdf, -x.pdf
+    # writes <tag>-{linkedin,instagram,x}.{pdf,png} + <tag>-caption.txt
 """
 from __future__ import annotations
 
 import argparse
 import json
 import os
+import sys
 from datetime import date
 from typing import Any, Dict, List, Tuple
 
@@ -208,9 +217,80 @@ def _draw_header(c, W: float, H: float, margin: float, s: float,
     return y - band_h - 26 * s
 
 
+# Column geometry for the one-line row. Fractions apply to the width left
+# over after the fixed-width rank / date / flag columns are taken out.
+_RANK_W  = 26.0      # right-aligned numeral
+_DATE_W  = 58.0      # "18 JUL"
+_FLAG_W  = 38.0      # OUTBREAK dot + T1 marker
+_TAIL_W  = 178.0     # "United Kingdom · RappelConso (FR)" needs the room
+_VIEW_W  = 46.0      # "view →"
+_GAP     = 8.0
+# Product is the column a reader actually scans, so it gets the largest
+# share. The first cut gave pathogen and company 30% each and clipped
+# "Fresh jalapeno peppers grown in Sin..." on a 1080pt-wide card.
+_FR_PATHOGEN = 0.23
+_FR_COMPANY  = 0.31
+_FR_PRODUCT  = 0.46
+
+
+def _row_columns(x: float, col_w: float, s: float):
+    """Left edges + widths for one incident row, all on a single baseline.
+
+    2026-08-31 — this replaced a FOUR-LINE block per incident (date+pathogen,
+    company, product, country·source stacked over 82pt). Ten incidents that
+    way is forty lines of ragged left edges with nothing aligning down the
+    card, and it cost the whole height of the 4:5 portrait. One incident is
+    now one row of aligned columns, which is what a register looks like.
+    """
+    rank_x = x
+    date_x = x + _RANK_W + _GAP
+    flag_x = date_x + _DATE_W + _GAP
+    body_x = flag_x + _FLAG_W + _GAP
+    right  = x + col_w
+    view_x = right - _VIEW_W * s
+    tail_x = view_x - _GAP * s - _TAIL_W * s
+    body_w = tail_x - body_x - _GAP * s
+    return {
+        "rank": (rank_x, _RANK_W * s),
+        "date": (date_x, _DATE_W * s),
+        "flag": (flag_x, _FLAG_W * s),
+        "pathogen": (body_x, body_w * _FR_PATHOGEN),
+        "company":  (body_x + body_w * _FR_PATHOGEN, body_w * _FR_COMPANY),
+        "product":  (body_x + body_w * (_FR_PATHOGEN + _FR_COMPANY),
+                     body_w * _FR_PRODUCT),
+        "tail": (tail_x, _TAIL_W * s),
+        "view": (view_x, _VIEW_W * s),
+        "right": right,
+    }
+
+
+def _draw_col_headers(c, x: float, y: float, col_w: float, s: float) -> float:
+    """Thin column key above the rows, so the aligned columns read as a table."""
+    cols = _row_columns(x, col_w, s)
+    c.setFont(H_MONO, 8.5 * s)
+    c.setFillColor(MUTED)
+    for key, label in (("date", "DATE"), ("pathogen", "HAZARD"),
+                       ("company", "COMPANY"), ("product", "PRODUCT"),
+                       ("tail", "COUNTRY · SOURCE")):
+        cx, cw = cols[key]
+        c.drawString(cx, y, _clip(label, H_MONO, 8.5 * s, cw))
+    c.setStrokeColor(LINE)
+    c.setLineWidth(0.9 * s)
+    c.line(x, y - 7 * s, x + col_w, y - 7 * s)
+    return y - 7 * s
+
+
 def _draw_row(c, x: float, y: float, col_w: float, s: float,
-              n: int, row: Dict[str, Any], rule: bool = True) -> float:
-    """One incident. Returns the y cursor below it."""
+              n: int, row: Dict[str, Any], rule: bool = True,
+              pitch: float = 0.0) -> float:
+    """ONE incident on ONE row. Returns the y cursor below it.
+
+    The whole row is a link to the source notice — see the annotation at the
+    bottom. Every incident on this card is a real regulatory action and the
+    reader has to be able to get to the notice itself; a card that names a
+    company and a pathogen with no way through to the source is an assertion,
+    not intelligence.
+    """
     pathogen = abbreviate_pathogen(row.get("pathogen_raw")
                                    or row.get("pathogen") or "")
     company = display_company(row)
@@ -219,64 +299,88 @@ def _draw_row(c, x: float, y: float, col_w: float, s: float,
     source = str(row.get("source") or "")
     outbreak = bool(row.get("outbreak"))
     tier1 = str(row.get("tier") or "") == "1"
+    url = str(row.get("url") or "").strip()
 
-    rank_w = 46 * s
-    tx = x + rank_w
+    cols = _row_columns(x, col_w, s)
+    band = pitch if pitch > 0 else 34.0 * s
+    base = y - band * 0.55          # single shared baseline
+    fs = 12.5 * s                   # one body size for the whole row
 
-    # Rank numeral — the marketing PDF's orange serif-weight figure
-    c.setFont(H_BOLD, 34 * s)
-    c.setFillColor(ORANGE)
-    c.drawRightString(x + rank_w - 14 * s, y - 26 * s, str(n))
-
-    # Line 1 — date · pathogen · chips
-    c.setFont(H_MONO, 12 * s)
-    c.setFillColor(MUTED)
-    dstr = _fmt_date(row.get("date"))
-    c.drawString(tx, y - 12 * s, dstr)
-    dx = tx + _text_w(dstr, H_MONO, 12 * s) + 12 * s
-
+    # Rank
+    rx, rw = cols["rank"]
     c.setFont(H_BOLD, 15 * s)
-    c.setFillColor(NAVY)
-    c.drawString(dx, y - 13 * s, pathogen)
-    dx += _text_w(pathogen, H_BOLD, 15 * s) + 10 * s
+    c.setFillColor(ORANGE)
+    c.drawRightString(rx + rw, base, str(n))
 
-    for label, bg in ((("OUTBREAK", ORANGE) if outbreak else (None, None)),
-                      (("T1", NAVY) if tier1 else (None, None))):
-        if not label:
-            continue
-        cw = _text_w(label, H_BOLD, 10 * s) + 14 * s
-        c.setFillColor(bg)
-        c.rect(dx, y - 17 * s, cw, 16 * s, fill=1, stroke=0)
-        c.setFillColor(WHITE)
-        c.setFont(H_BOLD, 10 * s)
-        c.drawString(dx + 7 * s, y - 13 * s, label)
-        dx += cw + 7 * s
-
-    # Line 2 — company
-    c.setFont(H_BOLD, 16 * s)
-    c.setFillColor(INK)
-    c.drawString(tx, y - 34 * s, _clip(company, H_BOLD, 16 * s,
-                                       col_w - rank_w - 8 * s))
-
-    # Line 3 — product
-    c.setFont(H_REG, 13 * s)
+    # Date
+    dx, dw = cols["date"]
+    c.setFont(H_MONO, 10.5 * s)
     c.setFillColor(MUTED)
-    c.drawString(tx, y - 52 * s, _clip(product, H_REG, 13 * s,
-                                       col_w - rank_w - 8 * s))
+    c.drawString(dx, base, _clip(_fmt_date(row.get("date")), H_MONO, 10.5 * s, dw))
 
-    # Line 4 — country · source
-    tail = " · ".join([p for p in (country, source) if p])
-    c.setFont(H_MONO, 11 * s)
+    # Flags — compact markers, not full pills; a pill per row on ten rows
+    # eats the width the product name needs.
+    fx, fw = cols["flag"]
+    gx = fx
+    if outbreak:
+        c.setFillColor(ORANGE)
+        c.circle(gx + 4 * s, base + 3.5 * s, 4 * s, fill=1, stroke=0)
+        gx += 13 * s
+    if tier1:
+        c.setFillColor(NAVY)
+        cw = _text_w("T1", H_BOLD, 8.5 * s) + 8 * s
+        c.rect(gx, base - 2 * s, cw, 13 * s, fill=1, stroke=0)
+        c.setFillColor(WHITE)
+        c.setFont(H_BOLD, 8.5 * s)
+        c.drawString(gx + 4 * s, base + 1.5 * s, "T1")
+
+    # Hazard
+    px, pw = cols["pathogen"]
+    c.setFont(H_BOLD, fs)
     c.setFillColor(NAVY)
-    c.drawString(tx, y - 68 * s, _clip(tail, H_MONO, 11 * s,
-                                       col_w - rank_w - 8 * s))
+    c.drawString(px, base, _clip(pathogen, H_BOLD, fs, pw - _GAP * s))
 
-    y -= 82 * s
+    # Company
+    cx, cw2 = cols["company"]
+    c.setFont(H_BOLD, fs)
+    c.setFillColor(INK)
+    c.drawString(cx, base, _clip(company, H_BOLD, fs, cw2 - _GAP * s))
+
+    # Product
+    prx, prw = cols["product"]
+    c.setFont(H_REG, fs)
+    c.setFillColor(MUTED)
+    c.drawString(prx, base, _clip(product, H_REG, fs, prw - _GAP * s))
+
+    # Country · source
+    tx, tw = cols["tail"]
+    tail = " · ".join([p for p in (country, source) if p])
+    c.setFont(H_MONO, 10 * s)
+    c.setFillColor(NAVY)
+    c.drawString(tx, base, _clip(tail, H_MONO, 10 * s, tw))
+
+    # "view →" affordance + underline, mirroring the marketing one-pager.
+    if url:
+        vx, vw = cols["view"]
+        c.setFont(H_REG, 9.5 * s)
+        c.setFillColor(ORANGE)
+        vtext = "view →"
+        c.drawString(vx, base, vtext)
+        c.setStrokeColor(ORANGE)
+        c.setLineWidth(0.6 * s)
+        w = _text_w(vtext, H_REG, 9.5 * s)
+        c.line(vx, base - 2 * s, vx + w, base - 2 * s)
+
+    y_bottom = y - band
+    # Clickable annotation across the ENTIRE row.
+    if url:
+        c.linkURL(url, (x, y_bottom, cols["right"], y), relative=0, thickness=0)
+
     if rule:
         c.setStrokeColor(LINE)
-        c.setLineWidth(0.9 * s)
-        c.line(x, y + 12 * s, x + col_w, y + 12 * s)
-    return y
+        c.setLineWidth(0.7 * s)
+        c.line(x, y_bottom, x + col_w, y_bottom)
+    return y_bottom
 
 
 def _draw_footer(c, W: float, H: float, margin: float, s: float) -> float:
@@ -332,42 +436,46 @@ def render_social_pdf(out_path: str, fmt: str, data: Dict[str, Any]) -> str:
     y0 = _draw_header(c, W, H, margin, s, data["month_label"], data["period"],
                       data.get("updated_stamp", ""))
 
+    # Row pitch for a ONE-LINE row. The old block row was 82pt deep and the
+    # pitch floor was 94pt; a single line needs a fraction of that. Clamped at
+    # both ends and the block centred in the space left over, so the table
+    # neither crushes nor floats to the top of a tall card.
+    def _pitch(avail: float, n: int) -> float:
+        # Fill the height. A 58pt cap left a 320pt dead band under the column
+        # headers on the 4:5 portrait and an equal one above the footer, which
+        # reads as a broken render rather than a spacious one. Text is centred
+        # inside each band, so a tall band is airy, not empty.
+        return min(max(avail / max(n, 1), 30.0 * s), 130.0 * s)
+
+    foot_h = min(46.0 * s * 1.8, H * 0.075)
+
     if cols == 1:
-        # Fill the card. A fixed row pitch left a quarter of the 4:5 portrait
-        # blank, which reads as "we ran out of content" rather than "designed".
         col_w = W - 2 * margin
-        foot_h = min(46.0 * s * 1.8, H * 0.075)
-        avail = y0 - (foot_h + 34 * s)
-        pitch = max(94.0 * s, avail / max(len(rows), 1))
-        y = y0
+        hdr_y = _draw_col_headers(c, margin, y0 - 12 * s, col_w, s)
+        avail = hdr_y - (foot_h + 30 * s)
+        pitch = _pitch(avail, len(rows))
+        # Start directly under the headers. Centring the block split the
+        # leftover height into a gap above AND below, which is what made the
+        # 16:9 card look like a failed render.
+        y = hdr_y - 4 * s
         for i, r in enumerate(rows, 1):
-            _draw_row(c, margin, y, col_w, s, i, r, rule=False)
-            # Anchor the divider to the ROW's own depth. Deriving it from the
-            # pitch put the rule through the source line whenever the pitch
-            # was tighter than the row — which is exactly the square card.
-            c.setStrokeColor(LINE)
-            c.setLineWidth(0.9 * s)
-            c.line(margin, y - 78 * s, margin + col_w, y - 78 * s)
-            y -= pitch
+            y = _draw_row(c, margin, y, col_w, s, i, r, rule=True, pitch=pitch)
     else:
         gutter = 40 * s
         col_w = (W - 2 * margin - gutter) / 2.0
         half = (len(rows) + 1) // 2
-        # Same fill logic as the single-column path — a 16:9 card with five
-        # rows bunched at the top and half the height empty reads as broken
-        # rather than airy.
-        foot_h = min(46.0 * s * 1.8, H * 0.075)
-        avail = y0 - (foot_h + 34 * s)
-        pitch = max(94.0 * s, avail / max(half, 1))
+        hdr_ys = []
+        for ci in range(2):
+            x = margin + ci * (col_w + gutter)
+            hdr_ys.append(_draw_col_headers(c, x, y0 - 12 * s, col_w, s))
+        avail = hdr_ys[0] - (foot_h + 30 * s)
+        pitch = _pitch(avail, half)
         for ci, chunk in enumerate((rows[:half], rows[half:])):
             x = margin + ci * (col_w + gutter)
-            y = y0
+            y = hdr_ys[ci] - 4 * s
             for j, r in enumerate(chunk):
-                _draw_row(c, x, y, col_w, s, ci * half + j + 1, r, rule=False)
-                c.setStrokeColor(LINE)
-                c.setLineWidth(0.9 * s)
-                c.line(x, y - 78 * s, x + col_w, y - 78 * s)
-                y -= pitch
+                y = _draw_row(c, x, y, col_w, s, ci * half + j + 1, r,
+                              rule=True, pitch=pitch)
 
     _draw_footer(c, W, H, margin, s)
     c.showPage()
@@ -396,19 +504,94 @@ def load(summary_path: str) -> Tuple[Dict[str, Any], str]:
         label = f"{label} {s['year']}"
 
     from datetime import date as _d
-    def _ordinal(n: int) -> str:
-        suf = "th" if 10 <= n % 100 <= 20 else {1:"st",2:"nd",3:"rd"}.get(n % 10,"th")
-        return f"{n}{suf}"
     _t = _d.today()
 
     return ({
         "month_label": label,
-        # Same stamp string the marketing one-pager builds.
-        "updated_stamp": (f"UPDATED · {_t.strftime('%B')} "
-                          f"{_ordinal(_t.day)}, {_t.year}"),
+        # Same stamp string the marketing one-pager builds — see the note
+        # there. 2026-08-31: ordinal form dropped for "31 August 2026".
+        "updated_stamp": f"UPDATED · {_t.strftime('%-d %B %Y')}",
         "period": f"{ws.day:02d} {abbr} – {we.day:02d} {we.strftime('%b').upper()} {we.year}",
         "rows": top10,
     }, str(s.get("month") or "month"))
+
+
+def rasterise_png(pdf_path: str, png_path: str, scale: float = 2.0) -> str:
+    """Render page 1 of the card PDF to PNG.
+
+    2026-08-31 — this did not exist. The module docstring said "export to PNG
+    at any scale and the framing is already right", but nothing exported
+    anything: the builder emitted three PDFs and stopped. A PDF is a valid
+    LinkedIn document post, so that one was postable by luck. Instagram feed
+    posts accept image/video ONLY, and X will not render a PDF in-timeline,
+    so two of the three cards could not actually be posted as delivered.
+
+    pypdfium2 is preferred: it is a self-contained wheel, so CI needs no
+    poppler/apt step. pdf2image is the fallback for environments that already
+    have poppler. If neither is present we warn and leave the PDF — a missing
+    PNG must never fail the monthly build.
+    """
+    try:
+        import pypdfium2 as pdfium
+        pdf = pdfium.PdfDocument(pdf_path)
+        page = pdf[0]
+        page.render(scale=scale).to_pil().save(png_path)
+        return png_path
+    except ImportError:
+        pass
+    except Exception as e:                                   # noqa: BLE001
+        print(f"  pypdfium2 render failed ({e}) — trying pdf2image",
+              file=sys.stderr)
+    try:
+        from pdf2image import convert_from_path
+        imgs = convert_from_path(pdf_path, dpi=int(72 * scale))
+        if imgs:
+            imgs[0].save(png_path)
+            return png_path
+    except Exception as e:                                   # noqa: BLE001
+        print(f"  PNG export unavailable ({e}); PDF written, PNG skipped",
+              file=sys.stderr)
+    return ""
+
+
+def write_caption(path: str, data: Dict[str, Any], tag: str) -> str:
+    """Ready-to-paste post caption carrying the ten source URLs.
+
+    Instagram and X posts are images. An image cannot hold a clickable link,
+    so the only place the source notices can live for those two platforms is
+    the caption. The LinkedIn PDF keeps its per-row annotations as well; this
+    file is the fallback that makes every card's sources reachable.
+    """
+    rows = data["rows"][:10]
+    out = [
+        f"AFTS Food Safety Intelligence System — {data['month_label']}",
+        f"Top 10 critical incidents · {data['period']}",
+        "",
+        "Every incident below links to the originating regulatory notice.",
+        "",
+    ]
+    for i, r in enumerate(rows, 1):
+        company = display_company(r)
+        pathogen = abbreviate_pathogen(r.get("pathogen_raw")
+                                       or r.get("pathogen") or "")
+        tail = " · ".join([p for p in (str(r.get("country") or ""),
+                                       str(r.get("source") or "")) if p])
+        out.append(f"{i}. {_fmt_date(r.get('date'))} · {pathogen} · "
+                   f"{company} — {tail}")
+        url = str(r.get("url") or "").strip()
+        if url:
+            out.append(f"   {url}")
+    out += [
+        "",
+        "Full month, all records and methodology:",
+        "https://fsis.advfood.tech",
+        "",
+        "#foodsafety #foodrecall #HACCP #foodmanufacturing #qualityassurance",
+    ]
+    text = "\n".join(out) + "\n"
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(text)
+    return path
 
 
 def main() -> int:
@@ -420,12 +603,17 @@ def main() -> int:
                     help="Directory to write <month>-<platform>.pdf into")
     ap.add_argument("--formats", default="linkedin,instagram,x",
                     help="Comma-separated subset of: linkedin, instagram, x")
+    ap.add_argument("--png-scale", type=float, default=2.0,
+                    help="PNG raster scale (2.0 = 2160px wide for a 1080pt "
+                         "card). 0 disables PNG export.")
+    ap.add_argument("--no-caption", action="store_true",
+                    help="Skip the <month>-caption.txt source-link file.")
     args = ap.parse_args()
 
     data, tag = load(args.summary)
     os.makedirs(args.out_dir, exist_ok=True)
 
-    written = []
+    written, pngs = [], []
     for fmt in [f.strip() for f in args.formats.split(",") if f.strip()]:
         if fmt not in FORMATS:
             raise SystemExit(f"unknown format {fmt!r}; "
@@ -436,8 +624,23 @@ def main() -> int:
         written.append(out)
         print(f"wrote {out}  ({int(w)}x{int(h)} pt, "
               f"{FORMATS[fmt]['cols']} column(s))")
+        # PNG is what actually gets posted to Instagram and X; the PDF is the
+        # LinkedIn document post and the archival copy with live links.
+        if args.png_scale > 0:
+            png = os.path.join(args.out_dir, f"{tag}-{fmt}.png")
+            if rasterise_png(out, png, args.png_scale):
+                pngs.append(png)
+                print(f"wrote {png}  ({int(w * args.png_scale)}x"
+                      f"{int(h * args.png_scale)} px)")
 
-    print(f"\n{len(written)} card(s) · {len(data['rows'][:10])} incidents · "
+    cap = ""
+    if not args.no_caption:
+        cap = write_caption(os.path.join(args.out_dir, f"{tag}-caption.txt"),
+                            data, tag)
+        print(f"wrote {cap}  (10 source links for the image posts)")
+
+    print(f"\n{len(written)} card(s) + {len(pngs)} PNG(s) · "
+          f"{len(data['rows'][:10])} incidents · "
           f"no counts rendered (by design)")
     return 0
 
