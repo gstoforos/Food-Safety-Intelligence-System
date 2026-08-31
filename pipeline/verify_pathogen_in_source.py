@@ -289,7 +289,16 @@ PATHOGEN_ALIASES: Dict[str, List[str]] = {
 
     # ── Variant aliases for production canonicals seen in xlsx ────────
     "Hepatitis A": [
-        "hepatitis a", "hav", "hepatitis-a", "hépatite a",
+        # NOT a bare "hav" / "hev". Audit 2026-08-31: the 2026-08-04 fix
+        # spaced these in _publish_gate.py and in the block above, and
+        # missed this copy. Every USDA FSIS notice carries the sentence
+        # "consumers who HAVe purchased these products", so a bare "hav"
+        # matched literally every FSIS recall and stamped Hepatitis A on
+        # three of them in August alone — Shanghai Ravioli, Gangothri
+        # Foods and Asian America Trading, none of which names any
+        # organism at all. Spaced so it only matches the token.
+        "hepatitis a", " hav ", "(hav)", "hav virus", "hepatitis-a",
+        "hépatite a",
     ],
     "Patulin": ["patulin"],
     "rat poison": [

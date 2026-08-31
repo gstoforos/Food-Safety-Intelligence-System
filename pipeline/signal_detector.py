@@ -145,7 +145,9 @@ PATHOGEN_RULES: Tuple[Tuple[Tuple[str, ...], str], ...] = (
     (("cronobacter", "sakazakii"), "Cronobacter sakazakii"),
     (("staphyloc", "enterotox", "entérotox"), "Staphylococcus aureus / enterotoxin"),
     (("campylobact",), "Campylobacter"),
-    (("hepatitis a", "hépatite a", "hav"), "Hepatitis A"),
+    # bare "hav" spaced 2026-08-31 — it matched the word "have", so every
+    # USDA FSIS notice ("consumers who HAVe purchased") read as Hepatitis A.
+    (("hepatitis a", "hépatite a", " hav ", "(hav)", "hav virus"), "Hepatitis A"),
     (("norovirus", "norwalk"), "Norovirus"),
     (("aflatox",), "Aflatoxin"),
     (("ochratox",), "Ochratoxin"),
