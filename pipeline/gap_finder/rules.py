@@ -67,15 +67,21 @@ PATHOGENS_TIER_2 = {
     "norovirus", "νοροϊός", "νοροιος", "norwalk virus",
     # Hepatitis A & E — foodborne viruses
     "hepatitis a", "ηπατίτιδα α", "ηπατιτιδα α",
-    "hepatitis a virus", "hav",
+    # NOT a bare "hav" / "hev". Audit 2026-08-31. This set is matched with
+    # `needle in haystack` (line ~633), so "hav" matched the word "have".
+    # Every USDA FSIS notice ends "consumers who HAVe purchased these
+    # products", which made every FSIS recall look like Hepatitis A. Three
+    # were stamped that way in August. Spaced so it only matches the token.
+    "hepatitis a virus", " hav ", "(hav)", "hav virus",
     "epatite a", "virus dell'epatite a", "virus dell epatite a",
-    "hepatitis a-virus", "hav",                                  # German same
+    "hepatitis a-virus",                                         # German same
     "hepatitis a", "hepatitis a-virus",                          # Dutch
     "hépatite a", "virus de l'hépatite a", "virus de l hepatite a",  # French
     "wirusowe zapalenie wątroby typu a", "wzw a",                # Polish
     "hepatitis a", "a típusú hepatitis", "hav vírus",            # Hungarian
     "hepatitis e", "ηπατίτιδα ε", "ηπατιτιδα ε",
-    "hepatitis e virus", "hev",
+    # "hev" gets the same treatment for the same reason.
+    "hepatitis e virus", " hev ", "(hev)", "hev virus",
     "epatite e", "virus dell'epatite e", "virus dell epatite e",
     "hepatitis e-virus",                                         # German same
     "hépatite e", "virus de l'hépatite e", "virus de l hepatite e",  # French
