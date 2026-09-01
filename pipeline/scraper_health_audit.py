@@ -13,7 +13,11 @@ This module fixes the visibility gap. It:
   1. Parses the orchestrator's stderr/stdout log
   2. Buckets each scraper into one of seven states:
        OK              — scraper ran, returned >0 recalls
-       OK_EMPTY        — scraper ran, returned 0 (legitimately empty window)
+       OK_EMPTY        — returned 0, and this source HAS produced rows
+                         within its own historical publication cadence
+       SILENT_STALE    — returned 0, has produced before, but has been
+                         silent far beyond its own p90 gap
+       NEVER_PRODUCED  — returned 0, and has never produced a single row
        FAIL_404        — regulator URL is dead (URL changed)
        FAIL_403        — regulator is blocking us (User-Agent issue)
        FAIL_DNS        — DNS resolution failed (regulator site down or transient)
@@ -47,9 +51,9 @@ import logging
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 ROOT = Path(__file__).resolve().parent.parent
 HEALTH_PATH = ROOT / "docs" / "data" / "scraper-health.json"
@@ -172,12 +176,144 @@ def categorize_run(log_text: str) -> Tuple[Dict[str, str], Dict[str, int]]:
     return per_scraper, summary
 
 
+# ── REGISTER CROSS-CHECK (audit 2026-09-01) ────────────────────────────────
+# This module was written because 36 of 66 scrapers were failing silently and
+# the orchestrator's summary line masked it. It fixed that for HARD failures.
+# It then created a softer blind spot of its own: any scraper reporting
+# "[DONE] ... 0" that could not be matched to a failure line was bucketed
+# OK_EMPTY and DESCRIBED IN THE DOCSTRING as a "legitimately empty window".
+# That description is an assumption, not a measurement. A scraper whose parser
+# silently returns [] is indistinguishable from a regulator that published
+# nothing.
+#
+# Measured on 2026-09-01: 40 of 55 scrapers were OK_EMPTY on the same day, and
+# 36 of 55 have never written a single row to the register under their own
+# Source label in its entire history. "Legitimately empty" cannot describe
+# that.
+#
+# The register itself is the evidence. For each source we already know how
+# often it has historically produced rows, so silence can be judged against
+# that source's OWN cadence rather than against a guessed global threshold.
+# A source needs at least two dated rows before an inter-row gap exists.
+_MIN_ROWS_FOR_CADENCE = 2
+# Never flag a source quiet for less than this, whatever its cadence says.
+_STALE_FLOOR_DAYS = 21
+# Fallback for sources too thin to have a cadence of their own: the POOLED
+# p99 inter-row gap measured across every source in the register. Computed at
+# runtime, not hardcoded, so it tracks the corpus. On 2026-09-01 the pooled
+# distribution over 491 gaps was p50=2, p75=6, p90=15, p95=27, p99=91, max=113
+# days — so a thin-history source silent beyond ~91 days has exceeded almost
+# anything the register has ever seen, which is evidence rather than a guess.
+_POOLED_FALLBACK_QUANTILE = 0.99
+
+
+def _display_to_source_key(display_name: str) -> str:
+    """'AESAN (ES)/Spain' -> 'AESAN (ES)';  'FDA/USA' -> 'FDA'.
+
+    Exact prefix before the country suffix. Deliberately NOT fuzzy: an
+    earlier ad-hoc substring match in analysis collapsed FDA (PH), FDA (GH),
+    NAFDAC (NG) and TFDA (TW) onto the US FDA's 80 rows and produced four
+    confidently wrong numbers. An unmatched name stays unmatched.
+    """
+    return display_name.split("/")[0].strip()
+
+
+def register_activity(recalls_json: Path) -> Dict[str, Dict[str, Any]]:
+    """Per Source label: row count, last row date, and p90 inter-row gap."""
+    try:
+        rows = json.loads(Path(recalls_json).read_text(encoding="utf-8"))
+    except Exception as exc:                                # noqa: BLE001
+        log.warning("Register cross-check unavailable (%s: %s)",
+                    type(exc).__name__, str(exc)[:80])
+        return {}
+    by_src: Dict[str, list] = {}
+    for r in rows:
+        src = str(r.get("Source") or "").strip()
+        d = str(r.get("Date") or "")[:10]
+        if not src or len(d) != 10:
+            continue
+        by_src.setdefault(src, []).append(d)
+    today = datetime.now(timezone.utc).date()
+    out: Dict[str, Dict[str, Any]] = {}
+    pooled: list = []
+    for src, dates in by_src.items():
+        ds = sorted({d for d in dates})
+        try:
+            parsed = [date.fromisoformat(d) for d in ds]
+        except ValueError:
+            continue
+        gaps = [(b - a).days for a, b in zip(parsed, parsed[1:])]
+        pooled.extend(gaps)
+        gaps.sort()
+        p90 = gaps[int(len(gaps) * 0.9)] if gaps else None
+        out[src] = {
+            "rows": len(dates),
+            "last_row": ds[-1],
+            "days_since_last_row": (today - parsed[-1]).days,
+            "p90_gap_days": p90,
+        }
+    pooled.sort()
+    fallback = (pooled[int(len(pooled) * _POOLED_FALLBACK_QUANTILE)]
+                if pooled else None)
+    for v in out.values():
+        v["pooled_p99_gap_days"] = fallback
+    return out
+
+
+def refine_empty_states(per_scraper: Dict[str, str],
+                        activity: Dict[str, Dict[str, Any]]
+                        ) -> tuple:
+    """Split OK_EMPTY into OK_EMPTY / SILENT_STALE / NEVER_PRODUCED.
+
+    Only OK_EMPTY entries are touched. A hard failure keeps its state.
+    Returns (refined_states, per_scraper_evidence).
+    """
+    refined = dict(per_scraper)
+    evidence: Dict[str, Dict[str, Any]] = {}
+    for display, state in per_scraper.items():
+        if state != "OK_EMPTY":
+            continue
+        key = _display_to_source_key(display)
+        act = activity.get(key)
+        if act is None:
+            refined[display] = "NEVER_PRODUCED"
+            evidence[display] = {"source_key": key, "rows": 0,
+                                 "note": "no rows under this Source label"}
+            continue
+        ev = dict(act); ev["source_key"] = key
+        evidence[display] = ev
+        # Thin history: judge against the pooled corpus gap rather than
+        # skipping. Skipping is what hid AGES Austria — 113 days silent on a
+        # 23-day cadence — behind an OK_EMPTY on 2026-09-01.
+        if act["rows"] < _MIN_ROWS_FOR_CADENCE or act["p90_gap_days"] is None:
+            fb = act.get("pooled_p99_gap_days")
+            if fb is None:
+                continue
+            ev["stale_threshold_days"] = fb
+            ev["threshold_basis"] = "pooled p99 (thin history)"
+            if act["days_since_last_row"] > fb:
+                refined[display] = "SILENT_STALE"
+            continue
+        threshold = max(_STALE_FLOOR_DAYS, 2 * act["p90_gap_days"])
+        ev["threshold_basis"] = "2x this source's own p90 gap"
+        ev["stale_threshold_days"] = threshold
+        if act["days_since_last_row"] > threshold:
+            refined[display] = "SILENT_STALE"
+    return refined, evidence
+
+
 def write_health_report(per_scraper: Dict[str, str],
                         summary: Dict[str, int],
-                        out_path: Path = HEALTH_PATH) -> None:
+                        out_path: Path = HEALTH_PATH,
+                        evidence: Optional[Dict[str, Dict[str, Any]]] = None
+                        ) -> None:
     total = sum(summary.values())
     failed = sum(v for k, v in summary.items() if k.startswith("FAIL_"))
+    # A scraper that has never produced a row, or has gone silent well past
+    # its own cadence, is not "ok". Counting it as ok is what let 40 of 55
+    # read as healthy on 2026-09-01.
     ok = summary.get("OK", 0) + summary.get("OK_EMPTY", 0)
+    silent = summary.get("SILENT_STALE", 0) + summary.get("NEVER_PRODUCED", 0)
     fail_pct = (100.0 * failed / total) if total else 0.0
 
     report = {
@@ -187,11 +323,16 @@ def write_health_report(per_scraper: Dict[str, str],
             "ok": ok,
             "ok_returning_data": summary.get("OK", 0),
             "ok_empty_window": summary.get("OK_EMPTY", 0),
+            # 2026-09-01: silence is now reported, not absorbed into "ok".
+            "silent_stale": summary.get("SILENT_STALE", 0),
+            "never_produced": summary.get("NEVER_PRODUCED", 0),
             "failed": failed,
             "fail_pct": round(fail_pct, 1),
         },
+        "silent": silent,
         "by_state": summary,
         "per_scraper": per_scraper,
+        "silence_evidence": evidence or {},
         "fail_threshold_pct": DEFAULT_FAIL_PCT,
         "exceeded_threshold": fail_pct > DEFAULT_FAIL_PCT,
     }
@@ -247,7 +388,14 @@ def main() -> int:
         return 1
 
     per_scraper, summary = categorize_run(log_text)
-    write_health_report(per_scraper, summary)
+    # Cross-check every "empty" scraper against the register's own history
+    # before calling it healthy — see refine_empty_states().
+    activity = register_activity(HEALTH_PATH.parent / "recalls.json")
+    per_scraper, evidence = refine_empty_states(per_scraper, activity)
+    summary = {}
+    for st in per_scraper.values():
+        summary[st] = summary.get(st, 0) + 1
+    write_health_report(per_scraper, summary, evidence=evidence)
     print_summary(per_scraper, summary)
 
     total = sum(summary.values())
