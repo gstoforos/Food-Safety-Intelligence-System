@@ -1,0 +1,23 @@
+[
+  {
+    "proposal_id": "9e620ffd69b85706",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "1e6fa597651e8a12",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "4ef1770665be2e23",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  }
+]

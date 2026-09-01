@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20260901T065100Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/everything-sprouts-recalls-recall-to-include-robust-radish-mix"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: country named in the article; serotype e. coli o26:h11; food terms alfalfa, sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/everything-sprouts-recalls-recall-to-include-robust-radish-mix",
+          "quote": "at least 55 people in 15 states | E. coli O26:H11, E. coli O103:H25, E. coli O168:H8, and Salmonella Agona",
+          "retrieved_utc": "2026-09-01T06:50:29+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
+          "quote": "2026-08-22 FDA Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lo",
+          "retrieved_utc": "2026-09-01T06:50:29+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "9e620ffd69b85706"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/everything-sprouts-recalls-recall-to-include-robust-radish-mix"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/everything-sprouts-recalls-recall-to-include-robust-radish-mix",
+          "quote": "at least 55 people in 15 states | E. coli O26:H11, E. coli O103:H25, E. coli O168:H8, and Salmonella Agona",
+          "retrieved_utc": "2026-09-01T06:50:29+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due",
+          "quote": "2026-07-06 FDA Organic IQF Frozen Blueberries 10 oz",
+          "retrieved_utc": "2026-09-01T06:50:29+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1e6fa597651e8a12"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/everything-sprouts-recalls-recall-to-include-robust-radish-mix"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/everything-sprouts-recalls-recall-to-include-robust-radish-mix",
+          "quote": "at least 55 people in 15 states | E. coli O26:H11, E. coli O103:H25, E. coli O168:H8, and Salmonella Agona",
+          "retrieved_utc": "2026-09-01T06:50:29+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e",
+          "quote": "2026-07-30 FDA Organic IQF Frozen Blueberries and Whole Mixed Berries, 10 oz and 48 oz",
+          "retrieved_utc": "2026-09-01T06:50:29+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4ef1770665be2e23"
+    }
+  ]
+}
