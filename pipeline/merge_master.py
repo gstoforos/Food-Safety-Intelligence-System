@@ -1070,18 +1070,63 @@ _NON_TERMINAL_MARKERS = (
 )
 
 
+# An explicit operator verdict stamped into Notes, e.g.
+#   [operator review 2026-09-01: REJECTED — out_of_scope_no_hazard_named — ...]
+#   [operator review 2026-08-31: UNPUBLISHED — not_food — ...]
+_OPERATOR_VERDICT_RE = _re_verdict = None  # bound below
+
+
+def _latest_operator_verdict(desc: str):
+    """Return (verdict, code) of the LAST operator stamp in desc, or None.
+
+    AUDIT 2026-09-01 — needed because descriptions are concatenations of a
+    reason column plus the whole Notes history. Kofinas' note carries an old
+    "REJECTED: http_error" AND the operator's scope verdict; the transient
+    veto matched the historical http_error and cancelled the current verdict,
+    so the row was read as retryable and re-entered Pending after being
+    explicitly rejected. Twice. An explicit operator stamp is a decision, not
+    a symptom, and the most recent one is the standing one.
+    """
+    import re as _re
+    global _OPERATOR_VERDICT_RE
+    if _OPERATOR_VERDICT_RE is None:
+        _OPERATOR_VERDICT_RE = _re.compile(
+            r"operator\s+review[^:]*:\s*"
+            r"(REJECTED|UNPUBLISHED|APPROVED)\s*[\u2014\u2013-]\s*"
+            r"([A-Za-z0-9_]+)",
+            _re.IGNORECASE)
+    hits = _OPERATOR_VERDICT_RE.findall(desc or "")
+    if not hits:
+        return None
+    verdict, code = hits[-1]
+    return verdict.upper(), code.lower()
+
+
 def _is_terminal_rejection(desc: str) -> bool:
     """True when a recorded rejection is a permanent property of the item.
 
-    Transient reasons are checked first and always win, so a row rejected
-    for a dead link is re-ingested and re-reviewed once the link works.
+    Order of authority:
+      1. the LAST explicit operator verdict, if any — a human decision
+         outranks any keyword heuristic, and outranks stale transient
+         markers left in the same Notes field by earlier automated passes;
+      2. otherwise a transient marker vetoes, so a row rejected for a dead
+         link is re-ingested and re-reviewed once the link works;
+      3. otherwise the terminal vocabulary decides.
     """
-    d = (desc or "").lower()
+    d = (desc or "")
     if not d.strip():
         return False
-    if any(m in d for m in _NON_TERMINAL_MARKERS):
+    verdict = _latest_operator_verdict(d)
+    if verdict is not None:
+        kind, code = verdict
+        if kind == "APPROVED":
+            return False
+        return any(m in code for m in _TERMINAL_REJECTION_MARKERS) or \
+            code.startswith("out_of_scope") or code in ("not_food", "pet_food")
+    dl = d.lower()
+    if any(m in dl for m in _NON_TERMINAL_MARKERS):
         return False
-    return any(m in d for m in _TERMINAL_REJECTION_MARKERS)
+    return any(m in dl for m in _TERMINAL_REJECTION_MARKERS)
 
 
 def append_to_pending(
@@ -1559,9 +1604,27 @@ def load_rejected_urls(xlsx_path: Optional[Path] = None) -> Dict[str, str]:
                          if i_notes is not None and i_notes < len(r) else "")
                 desc = f"{by or 'a reviewer'}: {why[:160]} | {notes[:400]}"
                 desc = desc.strip().rstrip("|").rstrip(":").strip()
-                # Rejected (permanent) is read first and wins: a row that was
-                # archived permanently carries the older, binding verdict.
-                out.setdefault(u, desc or f"{sheet} (no reason recorded)")
+                # PRECEDENCE — AUDIT 2026-09-01.
+                # This used to be a plain setdefault: the permanent Rejected
+                # sheet is read first, so the FIRST verdict found won and any
+                # newer verdict in Weekly_Rejected was discarded. That inverted
+                # the intent whenever the older entry was TRANSIENT. Both
+                # Lipofit and Kofinas carried a stale "REJECTED: http_error" in
+                # Rejected; the operator's scope verdict landed in
+                # Weekly_Rejected and lost to it, so the guard read them as
+                # retryable and both rows re-entered Pending — twice — after
+                # being explicitly rejected. That is the "we rejected them and
+                # they keep coming back" loop.
+                #
+                # Rule: a TERMINAL verdict outranks a transient one wherever it
+                # is recorded. Between two verdicts of the same kind, the first
+                # (permanent sheet) still wins.
+                cand = desc or f"{sheet} (no reason recorded)"
+                prev = out.get(u)
+                if prev is None:
+                    out[u] = cand
+                elif _is_terminal_rejection(cand) and not _is_terminal_rejection(prev):
+                    out[u] = cand
         wb.close()
     except Exception as exc:  # pragma: no cover - defensive
         log.warning("Rejection re-promotion guard unavailable (%s: %s)",
