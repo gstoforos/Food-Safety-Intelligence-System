@@ -102,7 +102,20 @@ jobs:
           GIT_USER_EMAIL: "fsis-bot@advfood.tech"
           GIT_USER_NAME: "FSIS Bot"
         run: |
-          python -m pipeline.url_gate_gemini
+          # ── Gemini URL gate removed from this chain (2026-08-31) ──────
+          # url_gate_gemini works the SAME lane as reviewer 1
+          # (pipeline/recall_url_agent.py): pending_gap -> v1 -> v2. It also
+          # calls promote_approved, so running it here gated and published
+          # this finder's rows seconds after they were written — reviewer 1
+          # arrived to an empty lane every time.
+          #
+          # That is why the Qwen reviewers showed 6 approvals in a month
+          # while 736 rows in the register carry a Gemini gate stamp. The
+          # agents were never failing; they were never given the rows.
+          #
+          # The finder still writes to Pending and merge_master still runs
+          # its janitor pass. Promotion now belongs to reviewer 1 -> 2 -> 3.
+          # python -m pipeline.url_gate_gemini   # retired — see above
           python -m pipeline.merge_master
 
       - name: Summary
