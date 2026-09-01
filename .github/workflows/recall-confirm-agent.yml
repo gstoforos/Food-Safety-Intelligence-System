@@ -185,6 +185,18 @@ jobs:
               Deterministic only — no model, no network."""
               problems: List[str] = []
 
+              # PROVENANCE (2026-09-01). Reviewer 3 did not fetch anything: it trusted
+              # that reviewer 2 had read the page. Reviewer 2 did not check the page
+              # CONTENT either — only the URL's shape. So a row whose URL described a
+              # different recall entirely (fiche 22230, a SHEIN plush toy filed as a
+              # Brie/Listeria recall) passed both stages. This is the last gate before
+              # publication and the cheapest place to catch it.
+              try:
+                  from pipeline import _provenance
+                  problems += _provenance.check(row, treat_unreachable_as_problem=False)
+              except Exception:                                        # noqa: BLE001
+                  pass
+
               # Reuse reviewer 2's own guards so the two stages apply one rule set.
               try:
                   from pipeline.recall_review_agent import (
