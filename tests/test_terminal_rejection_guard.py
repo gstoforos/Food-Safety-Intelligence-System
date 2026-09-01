@@ -133,3 +133,75 @@ def test_guard_reads_notes_not_only_the_reason_column():
     assert "Notes" in src, (
         "load_rejected_urls must fold Notes into the description; the "
         "reason column alone is 'unknown' on 73 archived rows")
+
+
+# ── 2026-09-01, second follow-up ─────────────────────────────────────────
+# Descriptions are a concatenation of the reason column and the WHOLE Notes
+# history. Kofinas' note carried an old "REJECTED: http_error" alongside the
+# operator's scope verdict; the transient veto matched the historical
+# http_error and cancelled the current verdict, so the row read as retryable
+# and re-entered Pending after being explicitly rejected — twice.
+from pipeline.merge_master import _latest_operator_verdict
+
+
+def test_operator_verdict_outranks_stale_transient_marker():
+    desc = ("unknown: http_error | FDA HTML fallback — claude-check needs to "
+            "enrich Date+Pathogen [operator review 2026-09-01: REJECTED — "
+            "out_of_scope_no_hazard_named — VERIFIED at fda.gov]")
+    assert _is_terminal_rejection(desc) is True
+
+
+def test_latest_verdict_wins_over_an_earlier_approval():
+    """Lipofit was APPROVED on 08-31 then reversed the same day."""
+    desc = ("[operator review 2026-08-31: APPROVED — verified at fda.gov] "
+            "[operator review 2026-08-31: UNPUBLISHED — not_food — FDA "
+            "classifies it an unapproved drug]")
+    assert _latest_operator_verdict(desc) == ("UNPUBLISHED", "not_food")
+    assert _is_terminal_rejection(desc) is True
+
+
+def test_a_standing_approval_is_not_terminal():
+    desc = "[operator review 2026-08-31: APPROVED — in scope, verified]"
+    assert _is_terminal_rejection(desc) is False
+
+
+def test_no_operator_stamp_falls_back_to_markers():
+    assert _is_terminal_rejection("REJECTED: http_error") is False
+    assert _is_terminal_rejection("labelling — mislabelled pack") is True
+
+
+def test_terminal_beats_transient_across_sheets(tmp_path):
+    """Precedence, exercised end to end on a real workbook.
+
+    The permanent Rejected sheet is read FIRST. If it holds a stale transient
+    verdict for a URL and Weekly_Rejected holds the operator's newer terminal
+    verdict for the same URL, the terminal one must win — otherwise the row is
+    read as retryable and re-enters Pending after being explicitly rejected,
+    which is exactly what happened to Lipofit and Kofinas on 2026-09-01.
+    """
+    import openpyxl
+    from pipeline.merge_master import load_rejected_urls
+
+    url = "https://example.org/safety/recall-widget"
+    hdr = ["Date", "Source", "Company", "URL", "Notes", "RejectionReason"]
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Rejected"
+    ws.append(hdr)
+    # older, permanent, TRANSIENT
+    ws.append(["2026-08-01", "FDA", "Widget Co", url,
+               "REJECTED: http_error", "unknown"])
+    wr = wb.create_sheet("Weekly_Rejected")
+    wr.append(hdr)
+    # newer, rolling, TERMINAL operator verdict
+    wr.append(["2026-09-01", "FDA", "Widget Co", url,
+               "[operator review 2026-09-01: REJECTED — not_food — a drug]",
+               "not a food"])
+    x = tmp_path / "recalls.xlsx"
+    wb.save(x)
+
+    m = load_rejected_urls(x)
+    key = next(k for k in m if "recall-widget" in k)
+    assert _is_terminal_rejection(m[key]) is True, (
+        f"stale transient verdict won over the newer terminal one: {m[key]!r}")
