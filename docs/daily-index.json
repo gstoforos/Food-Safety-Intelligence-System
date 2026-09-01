@@ -7,7 +7,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-09-01T07:14:03Z"
+      "generated": "BACKFILLED 2026-09-01"
     },
     {
       "date": "2026-08-30",
@@ -16,7 +16,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-09-01T07:14:04Z"
+      "generated": "BACKFILLED 2026-09-01"
     },
     {
       "date": "2026-08-29",
@@ -27,7 +27,7 @@
       "by_region": {
         "North America": 2
       },
-      "generated": "2026-09-01T07:14:05Z"
+      "generated": "BACKFILLED 2026-09-01"
     },
     {
       "date": "2026-08-28",
@@ -40,7 +40,7 @@
         "North America": 1,
         "Latin America": 3
       },
-      "generated": "2026-09-01T07:14:06Z"
+      "generated": "BACKFILLED 2026-09-01"
     },
     {
       "date": "2026-08-27",
