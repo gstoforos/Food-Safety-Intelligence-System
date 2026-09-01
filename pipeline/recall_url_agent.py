@@ -272,6 +272,20 @@ Return ONLY this JSON:
 
 # ─── Agent core ──────────────────────────────────────────────────────────
 
+def _provenance_ok(row: Dict[str, Any], url: str) -> List[str]:
+    """Reviewer 1's job is to CONFIRM a URL. Confirming that a URL resolves
+    on the right domain is not the same as confirming it is the notice for
+    this row — fiche 22230 resolved perfectly and was a plush toy. Advancing
+    a row on a URL nobody has read just moves the error downstream."""
+    try:
+        from pipeline import _provenance
+        probe = dict(row)
+        probe["URL"] = url
+        return _provenance.check(probe, treat_unreachable_as_problem=False)
+    except Exception:                                        # noqa: BLE001
+        return []
+
+
 def review_url(row: Dict[str, Any]) -> Dict[str, Any]:
     infra = {"decision": "retry", "official_url": row.get("URL", ""),
              "pathogen_if_found": "", "identity_matches": False}
@@ -308,6 +322,17 @@ def review_url(row: Dict[str, Any]) -> Dict[str, Any]:
         except json.JSONDecodeError:
             return {**infra, "reason": "INFRA: json parse fail (retry)"}
     # Valid JSON: only confirm/reject accepted; any other → reject (no human).
+    # PROVENANCE GATE (2026-09-01). Before accepting the model's decision,
+    # read the page it is about to confirm. A URL that resolves on the right
+    # domain is not necessarily the notice for this row.
+    _u = str(parsed.get("official_url") or row.get("URL") or "").strip()
+    _dec = str(parsed.get("decision", "")).strip().lower()
+    if _u and _dec in ("confirm", "approve", "accept"):
+        _pp = _provenance_ok(row, _u)
+        if _pp:
+            parsed["decision"] = "reject"
+            parsed["reason"] = "provenance: " + _pp[0][:180]
+
     _d = str(parsed.get("decision", "")).strip().lower()
     if _d not in ("confirm", "reject"):
         parsed["decision"] = "reject"

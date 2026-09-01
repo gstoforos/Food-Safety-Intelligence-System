@@ -455,7 +455,7 @@ def review_row(row: Dict[str, Any]) -> Dict[str, Any]:
         for _k, _v in (parsed.get("fields") or {}).items():
             if _v:
                 _m[_k] = _v
-        _probs = _field_integrity_flags(_m)
+        _probs = _field_integrity_flags(_m) + _provenance_flags(_m)
         _blocking = [p for p in _probs if _is_blocking(p)]
         _warnings = [p for p in _probs if not _is_blocking(p)]
         if _blocking:
@@ -703,6 +703,27 @@ _WARNING_ONLY = ("not in English", "formatting debris")
 
 def _is_blocking(problem: str) -> bool:
     return not any(w in problem for w in _WARNING_ONLY)
+
+
+def _provenance_flags(merged: Dict[str, Any],
+                      page_text: str = None) -> List[str]:
+    """Does the cited page describe THIS row?
+
+    Added 2026-09-01. Every other guard here checks the SHAPE of a URL —
+    well-formed, regulator domain, resolves. None checked what the page says.
+    RappelConso fiche 22230 passed all of them as a Brie/Listeria row; the
+    fiche is a SHEIN plush toy. Only reading the page catches that.
+
+    Unreachable is not a defect: several regulators refuse datacentre traffic
+    and rejecting on that would discard real recalls for an infrastructure
+    reason. Silence is the honest answer when we cannot read the page.
+    """
+    try:
+        from pipeline import _provenance
+        return _provenance.check(merged, page_text=page_text,
+                                 treat_unreachable_as_problem=False)
+    except Exception:                                        # noqa: BLE001
+        return []
 
 
 def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
