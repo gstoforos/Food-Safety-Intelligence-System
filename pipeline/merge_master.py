@@ -1038,17 +1038,50 @@ def load_pending(xlsx_path: Path) -> List[Dict[str, Any]]:
 # retryable: giving a source the chance to fix a broken link is the whole
 # point of the retry path documented in append_to_pending's docstring.
 _TERMINAL_REJECTION_MARKERS = (
-    "not_food",
-    "not a food",
-    "out_of_scope",
-    "duplicate_of_published",
-    "operator_decision_one_outbreak_one_source",
+    # Explicit machine codes written by the operator-review path.
+    "not_food", "not a food", "out_of_scope", "duplicate_of_published",
+    "operator_decision_one_outbreak_one_source", "pet_food",
+    # Bare category words. AUDIT 2026-09-01 — the first cut of this list held
+    # only the machine codes above and blocked NOTHING, because
+    # weekly_rejected_capture stores a SHORTENED reason in RejectionReason:
+    # the Capri-Sun verdict "out_of_scope_labelling — ..." is stored as
+    # "labelling — Capri-Sun Orange multipacks...". Four permanently-rejected
+    # items (Capri-Sun, Yopokki, Racines, Kosilum) were therefore re-ingested
+    # again on 2026-09-01, one day after the guard shipped. This list is now
+    # built from the reason strings ACTUALLY present in the two rejection
+    # sheets, not from the codes the writer was assumed to emit.
+    "labelling", "spoilage", "quality/spoilage", "pet food", "allergen",
+    "duplicate", "outside afts scope", "not a recall notice",
+)
+
+# Checked FIRST. A reason that is transient, ambiguous, or explicitly not a
+# rejection must stay retryable no matter what else it contains — giving a
+# source the chance to fix a broken link is the documented purpose of the
+# retry path in append_to_pending.
+_NON_TERMINAL_MARKERS = (
+    "unknown",              # 73 rows carry this; it decides nothing
+    "not rejected",         # "verification. not rejected - unverified..."
+    "http_error",
+    "hazard not established",
+    "broken provenance",
+    "timeout",
+    "did not resolve",
+    "unreachable",
 )
 
 
 def _is_terminal_rejection(desc: str) -> bool:
-    """True when a recorded rejection is a permanent property of the item."""
-    return any(m in (desc or "").lower() for m in _TERMINAL_REJECTION_MARKERS)
+    """True when a recorded rejection is a permanent property of the item.
+
+    Transient reasons are checked first and always win, so a row rejected
+    for a dead link is re-ingested and re-reviewed once the link works.
+    """
+    d = (desc or "").lower()
+    if not d.strip():
+        return False
+    if any(m in d for m in _NON_TERMINAL_MARKERS):
+        return False
+    return any(m in d for m in _TERMINAL_REJECTION_MARKERS)
 
 
 def append_to_pending(
@@ -1495,6 +1528,16 @@ def load_rejected_urls(xlsx_path: Optional[Path] = None) -> Dict[str, str]:
             i_by = hdr.index("RejectedBy") if "RejectedBy" in hdr else None
             i_why = next((hdr.index(h) for h in _REJECT_REASON_HEADERS
                           if h in hdr), None)
+            # AUDIT 2026-09-01 — the reason COLUMN is frequently uninformative:
+            # in the permanent Rejected sheet 73 rows read "unknown" and many
+            # others carry only a bare stamp like "operator review 2026-08-14".
+            # The actual verdict ("REJECTED: labelling — Capri-Sun Orange
+            # multipacks...") lives in Notes. Reading the column alone made the
+            # terminal-rejection guard blind: Capri-Sun, Yopokki and Kosilum
+            # were re-ingested on 2026-09-01 with a permanent verdict on file.
+            # Notes is folded into the description so the guard sees the verdict
+            # wherever the writer happened to put it.
+            i_notes = hdr.index("Notes") if "Notes" in hdr else None
             if i_why is None:
                 log.warning("%s carries none of %s — rejection reasons will "
                             "not be shown to the next reviewer",
@@ -1512,7 +1555,10 @@ def load_rejected_urls(xlsx_path: Optional[Path] = None) -> Dict[str, str]:
                     continue
                 by = str(r[i_by] or "") if i_by is not None and i_by < len(r) else ""
                 why = str(r[i_why] or "") if i_why is not None and i_why < len(r) else ""
-                desc = f"{by or 'a reviewer'}: {why[:160]}".strip().rstrip(":").strip()
+                notes = (str(r[i_notes] or "")
+                         if i_notes is not None and i_notes < len(r) else "")
+                desc = f"{by or 'a reviewer'}: {why[:160]} | {notes[:400]}"
+                desc = desc.strip().rstrip("|").rstrip(":").strip()
                 # Rejected (permanent) is read first and wins: a row that was
                 # archived permanently carries the older, binding verdict.
                 out.setdefault(u, desc or f"{sheet} (no reason recorded)")
