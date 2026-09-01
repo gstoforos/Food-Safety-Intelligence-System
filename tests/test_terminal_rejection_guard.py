@@ -74,3 +74,62 @@ def test_guard_is_wired_into_append_to_pending():
         "append_to_pending must consult the terminal-rejection map; "
         "without it the guard only protects promotion, which is the "
         "exact gap this test exists for")
+
+
+# ── 2026-09-01 follow-up ─────────────────────────────────────────────────
+# The first version of the vocabulary held only machine codes
+# ("not_food", "out_of_scope_labelling", ...) and blocked NOTHING, because
+# weekly_rejected_capture stores a SHORTENED reason: the Capri-Sun verdict
+# "out_of_scope_labelling — ..." lands in RejectionReason as
+# "labelling — Capri-Sun Orange multipacks...". Worse, the permanent
+# Rejected sheet often stores only a bare stamp ("operator review
+# 2026-08-14") or the literal word "unknown" (73 rows), with the real
+# verdict in Notes. Four permanently-rejected items were re-ingested on
+# 2026-09-01, one day after the guard shipped.
+
+STORED_TERMINAL = [
+    "labelling — Capri-Sun Orange multipacks mislabelled as Orange Zero",
+    "quality/spoilage — possible spoilage, no pathogen named",
+    "spoilage — RappelConso motif moisissures",
+    "pet food — AFTS-FSIS is a human-food register",
+    "duplicate of the Summit Foods FSA-PRIN-40-2026 notice",
+    "Outside AFTS scope. The register monitors pathogens",
+    "not a food product recall",
+    "allergen — undeclared milk, labelling only",
+    "not a recall notice. product/company hold raised",
+]
+
+STORED_TRANSIENT = [
+    "unknown",
+    "REJECTED: http_error",
+    "verification. not rejected - unverified, not refuted",
+    "hazard not established — the detail URL does not resolve",
+    "broken provenance. the stored url is truncated",
+]
+
+
+@pytest.mark.parametrize("desc", STORED_TERMINAL)
+def test_reason_strings_actually_stored_block(desc):
+    assert _is_terminal_rejection(desc) is True, f"should block: {desc!r}"
+
+
+@pytest.mark.parametrize("desc", STORED_TRANSIENT)
+def test_reason_strings_actually_stored_stay_retryable(desc):
+    assert _is_terminal_rejection(desc) is False, f"must retry: {desc!r}"
+
+
+def test_transient_wins_over_terminal_when_both_present():
+    """A row rejected for a dead link must retry even if the note also
+    mentions a scope word — the link may start working."""
+    assert _is_terminal_rejection(
+        "http_error | possible labelling issue, unverified") is False
+
+
+def test_guard_reads_notes_not_only_the_reason_column():
+    """The verdict is frequently in Notes, not RejectionReason."""
+    import inspect
+    from pipeline import merge_master
+    src = inspect.getsource(merge_master.load_rejected_urls)
+    assert "Notes" in src, (
+        "load_rejected_urls must fold Notes into the description; the "
+        "reason column alone is 'unknown' on 73 archived rows")
