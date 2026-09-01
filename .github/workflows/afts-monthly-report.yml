@@ -164,15 +164,24 @@ jobs:
           # image posts. Staging only the PDFs meant both were generated on
           # the runner and discarded — the same "computed and thrown away"
           # failure tests/test_workflow_staging.py exists to catch.
-          git add 'docs/20*-M*.html' \
-                  'docs/marketing/20*-M*.pdf' \
-                  'docs/social/20*-M*.pdf' \
-                  'docs/social/20*-M*.png' \
-                  'docs/social/20*-M*-caption.txt' \
-                  'docs/marketing/20*-M*.html' \
-                  docs/data/monthly-summary-latest.json \
-                  docs/data/monthly-summary-20*.json \
-                  docs/data/monthly-index.json || true
+          # AUDIT 2026-09-01 — these were one `git add` with nine pathspecs and
+          # a trailing `|| true`. git add is ATOMIC over its pathspec list: one
+          # non-matching glob aborts the whole call and stages NOTHING, and the
+          # `|| true` then swallowed the error. 'docs/marketing/20*-M*.html'
+          # has never matched a file, so on a normal run this staged zero files
+          # and the step reported "No monthly-report changes to commit" — the
+          # month was rebuilt on the runner and thrown away. Adding each
+          # pathspec on its own means a miss costs only that one pattern.
+          for _p in 'docs/20*-M*.html' \
+                    'docs/marketing/20*-M*.pdf' \
+                    'docs/social/20*-M*.pdf' \
+                    'docs/social/20*-M*.png' \
+                    'docs/social/20*-M*-caption.txt' \
+                    'docs/data/monthly-summary-latest.json' \
+                    'docs/data/monthly-summary-20*.json' \
+                    'docs/data/monthly-index.json'; do
+            git add $_p 2>/dev/null || echo "  (no match: $_p)"
+          done
           if git diff --staged --quiet; then
             echo "No monthly-report changes to commit."
             exit 0
