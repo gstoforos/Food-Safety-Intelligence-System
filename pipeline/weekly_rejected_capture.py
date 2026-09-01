@@ -271,6 +271,23 @@ _VERDICT_REASON_RE = re.compile(
     r"(?:fail|reject)[^;]*;\s*([^\]]+)\]",
     re.IGNORECASE,
 )
+# Operator stamps, e.g.
+#   [operator review 2026-09-01: REJECTED — out_of_scope_no_hazard_named — ...]
+_OPERATOR_VERDICT_RE = re.compile(
+    r"\[operator[- ]review[^:\]]*:\s*(?:REJECTED|UNPUBLISHED)\s*[\u2014\u2013-]\s*"
+    r"([^\]]+)\]",
+    re.IGNORECASE,
+)
+# Bracketed rejection stamps, e.g. "[rejected 2026-08-22: citation_mismatch — ...]"
+_BRACKET_REJECT_RE = re.compile(
+    r"\[rejected\s+\d{4}-\d{2}-\d{2}:\s*([^\]]+)\]",
+    re.IGNORECASE,
+)
+# Bare inline verdicts, e.g. "REJECTED: not a food — ..."
+_PLAIN_REJECT_RE = re.compile(
+    r"REJECTED:\s*([^\[\]|]+)",
+    re.IGNORECASE,
+)
 _FALLBACK_REASON_RE = re.compile(
     r"(?:rejected|failed|out_of_scope|garbage)[:\s]+([^\]]+)",
     re.IGNORECASE,
@@ -296,13 +313,41 @@ def _extract_rejection_metadata(row: Dict[str, Any]) -> Tuple[str, str]:
             rejected_by = m.group(1).lower()
 
     reason = ""
-    rm = _VERDICT_REASON_RE.search(notes)
-    if rm:
-        reason = rm.group(1).strip()
-    else:
-        rm = _FALLBACK_REASON_RE.search(notes)
+    # AUDIT 2026-09-01 — MANDATORY REASON.
+    # Measured on the live workbook: 142 of 222 archived rejections (64%)
+    # carried no usable reason — 73 literal "unknown", 69 blank. A rejection
+    # you cannot read is a rejection you cannot audit, and it cost a full
+    # manual review to establish that 221 of them were in fact correct. It
+    # also produced a false alarm: fiche 22894 was reported as a "genuine
+    # loss" because its reason had been read in truncated form, when the
+    # full note (and an independent fetch of the fiche) shows it was a
+    # gap-finder fabrication — CARREFOUR "demi poitrine cuite fumee",
+    # not Madrange merguez.
+    #
+    # The two patterns below were tried in order and then the function
+    # simply returned "". Now every known stamp shape is tried, and if
+    # nothing parses the row is labelled explicitly rather than silently
+    # blanked, so "why" is always answerable from the sheet alone.
+    for rx in (_VERDICT_REASON_RE, _OPERATOR_VERDICT_RE, _BRACKET_REJECT_RE,
+               _PLAIN_REJECT_RE, _FALLBACK_REASON_RE):
+        rm = rx.search(notes)
         if rm:
-            reason = rm.group(1).strip()[:200]
+            reason = " ".join(rm.group(1).split()).strip()[:300]
+            if reason:
+                break
+
+    if not reason:
+        # Never write an empty verdict. Name the provenance so the row can
+        # still be triaged, and mark it clearly as unexplained.
+        src = str(row.get("Source", "") or "").strip() or "unknown source"
+        status = str(row.get("Status", "") or "").strip()
+        who = rejected_by or "an unnamed reviewer"
+        tail = f", status {status}" if status else ""
+        reason = ("NO_REASON_RECORDED — rejected by " + who + " from " + src
+                  + tail
+                  + ". The writer supplied no verdict and none could be "
+                    "parsed from Notes; treat as UNAUDITED, not as a "
+                    "confirmed rejection.")
 
     return rejected_by[:80], reason[:300]
 
