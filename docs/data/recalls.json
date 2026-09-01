@@ -11616,6 +11616,22 @@
   "Notes": "e.leclerc de guérande [url-gate 2026-06-08: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-enrich 2026-06-08: Company ''→'Non communiqué'] [gemini-enrich 2026-06-08: Brand 'Unbranded'→'Non communiqué'] [gemini-check 2026-06-08: pass; clean-row shortcut (gemini-enriched + all fields valid)] [r4-annotate 2026-06-09: Company=\"Non communiqué\" is the literal RappelConso Origine field (manufacturer/distributor undisclosed). Not a scraper bug — this is the official RappelConso response when the recalling entity declines disclosure (typically small producers). Web-search verified fiche 22491 shows Brand=\"Sans marque\" (unbranded), category \"Céréales et produits de boulangerie\", Listeria monocytogenes detection.] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
  },
  {
+  "Date": "2026-06-08",
+  "Source": "Min. Salute",
+  "Company": "Ministero della Salute",
+  "Brand": "Ministero della Salute",
+  "Product": "Sistema di controllo della sicurezza alimentare",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "E. coli STEC",
+  "Class": "Recall",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/new/it/tema/sistema-di-controllo-della-sicurezza-alimentare",
+  "Notes": "Notizia NAS17/11/2025\n\n  NAS Carabinieri Cosenza, Sicurezza sanitaria ed alimentare. Macellazione clandestina di cavalli, 1 arresto e 5 deferiti in stato di libertà\n\n Latte crudo\n\n  06/08/2026\n\n  Latte crudo e prodotti derivati: online le Linee guida e le FAQ per prevenire le infezioni da STEC\n Patè  [via Tavily gap-finder, deterministic extract] [confirm-agent 2026-09-01: pending_gap_v3 → pending; independent checks passed]"
+ },
+ {
   "Date": "2026-06-06",
   "Source": "RappelConso (FR)",
   "Company": "Laetitia Gaborit Mof",
