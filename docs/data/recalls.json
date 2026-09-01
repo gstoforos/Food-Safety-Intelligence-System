@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-09-01",
+  "Source": "RappelConso (FR)",
+  "Company": "Tendriade",
+  "Brand": "Tendriade",
+  "Product": "Saucisse au veau (5x66g, 10x66g, Saucisse de Toulouse, assortiment veau/merguez)",
+  "Pathogen": "Salmonella",
+  "Reason": "Presence of Salmonella spp.",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23362/interne",
+  "Notes": "auchan, leclerc, système u, carrefour, un destockeur grigny [operator review 2026-09-01: APPROVED — VERIFIED at rappel.conso.gouv.fr fiche 23362 on 2026-09-01: marque Tendriade, saucisse au veau, motif salmonelle, risques 'Salmonella spp (agent responsable de la salmonellose)', publie 01/09/2026, categorie Alimentation/Viandes. In scope, Tier 1. Dated 01 Sep so it lands in SEPTEMBER — August is unaffected.]"
+ },
+ {
   "Date": "2026-08-29",
   "Source": "FDA",
   "Company": "Panorama Produce",
@@ -529,7 +545,7 @@
  },
  {
   "Date": "2026-08-26",
-  "Source": "Ministero della Salute",
+  "Source": "Ministero della Salute (IT)",
   "Company": "Granarolo Spa (for Centrale del Latte d'Italia Spa)",
   "Brand": "Tapporosso – Centrale del Latte di Torino",
   "Product": "Gorgonzola DOP 200g",
@@ -541,7 +557,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/portale/richiami/dettaglioRichiamo.jsp?id=23769",
-  "Notes": "Lotto: L126G22. Scadenza: 05/09/2026. Nessun caso di listeriosi associato segnalato. Stabilimento IT T616G UE.  [via Gemini gap-finder + Google Search] [held 2026-08-28: salute.gov.it is behind a JS WAF and could not be fetched; same gap-finder batch as the failed RappelConso URLs. Unverified, not wrong.] [promoted 2026-08-28: Ministero della Salute official richiamo id=23769, gate-clean. salute.gov.it sits behind a JS WAF and could not be fetched here; flagged for url_guardian. Part of the same week's BE/FR/IT gorgonzola Listeria cluster.] [en 2026-08-28: Reason translated from the regulator wording \"Possibile presenza di Listeria monocytogenes\" - operator rule is English everywhere except brand and product name. Meaning unchanged.]"
+  "Notes": "Lotto: L126G22. Scadenza: 05/09/2026. Nessun caso di listeriosi associato segnalato. Stabilimento IT T616G UE.  [via Gemini gap-finder + Google Search] [held 2026-08-28: salute.gov.it is behind a JS WAF and could not be fetched; same gap-finder batch as the failed RappelConso URLs. Unverified, not wrong.] [promoted 2026-08-28: Ministero della Salute official richiamo id=23769, gate-clean. salute.gov.it sits behind a JS WAF and could not be fetched here; flagged for url_guardian. Part of the same week's BE/FR/IT gorgonzola Listeria cluster.] [en 2026-08-28: Reason translated from the regulator wording \"Possibile presenza di Listeria monocytogenes\" - operator rule is English everywhere except brand and product name. Meaning unchanged.] [source-label canonicalised 2026-09-01: 'Ministero della Salute' -> 'Ministero della Salute (IT)'; host salute.gov.it confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-08-25",
@@ -4209,7 +4225,7 @@
  },
  {
   "Date": "2026-07-30",
-  "Source": "AFSCA",
+  "Source": "AFSCA (BE)",
   "Company": "Bio-Planet",
   "Brand": "Noberasco",
   "Product": "Figues BIO 200g (Organic Figs 200g)",
@@ -4221,7 +4237,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.favv-afsca.be/fr/produits/rappel-de-bio-planet-2",
-  "Notes": "Date de durabilité minimale (DDM): 03/2027, Lot code: L6075A. Sold from 13/04/2026 to 29/07/2026.  [via Gemini gap-finder + Google Search] [gap-gate 2026-08-05: pending_gap → pending_gap_v1] [url-agent 2026-08-05: pending_gap_v1→pending_gap_v2 URL confirmed] [approved 2026-08-13: AFSCA notice, ochratoxin A above limit in organic figs. Class was the French 'Rappel'; the English-output rule exempts brand and product names only, and Class is neither]"
+  "Notes": "Date de durabilité minimale (DDM): 03/2027, Lot code: L6075A. Sold from 13/04/2026 to 29/07/2026.  [via Gemini gap-finder + Google Search] [gap-gate 2026-08-05: pending_gap → pending_gap_v1] [url-agent 2026-08-05: pending_gap_v1→pending_gap_v2 URL confirmed] [approved 2026-08-13: AFSCA notice, ochratoxin A above limit in organic figs. Class was the French 'Rappel'; the English-output rule exempts brand and product names only, and Class is neither] [source-label canonicalised 2026-09-01: 'AFSCA' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-07-29",
@@ -4465,7 +4481,7 @@
  },
  {
   "Date": "2026-07-29",
-  "Source": "AFSCA",
+  "Source": "AFSCA (BE)",
   "Company": "Biofresh Belgium",
   "Brand": "Picoreur",
   "Product": "Bio escalope de dinde (Organic turkey escalope), 2 x 165g",
@@ -4477,7 +4493,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.favv-afsca.be/fr/produits/rappel-de-biofresh-belgium-4",
-  "Notes": "Lot number: 198 60 128, Date de péremption (DLC): 05/08/2026. Sold from 24/07/2026 to 27/07/2026.  [via Gemini gap-finder + Google Search] [gap-gate 2026-08-04: pending_gap → pending_gap_v1] [gap-gate 2026-08-05: pending_gap_v1 → pending_gap_v2] [approved 2026-08-13: AFSCA notice, Salmonella in organic turkey escalope. Class 'Rappel' -> 'Recall' for the same reason]"
+  "Notes": "Lot number: 198 60 128, Date de péremption (DLC): 05/08/2026. Sold from 24/07/2026 to 27/07/2026.  [via Gemini gap-finder + Google Search] [gap-gate 2026-08-04: pending_gap → pending_gap_v1] [gap-gate 2026-08-05: pending_gap_v1 → pending_gap_v2] [approved 2026-08-13: AFSCA notice, Salmonella in organic turkey escalope. Class 'Rappel' -> 'Recall' for the same reason] [source-label canonicalised 2026-09-01: 'AFSCA' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-07-28",
@@ -5057,7 +5073,7 @@
  },
  {
   "Date": "2026-07-24",
-  "Source": "Lebensmittelwarnung.de",
+  "Source": "BVL (DE)",
   "Company": "Jütro Tiefkühlkost GmbH & Co. KG",
   "Brand": "Freshona Bio",
   "Product": "Beerenmischung erntefrisch tiefgefroren, 300g",
@@ -6849,7 +6865,7 @@
  },
  {
   "Date": "2026-07-14",
-  "Source": "Ministero della Salute",
+  "Source": "Ministero della Salute (IT)",
   "Company": "Avicola Emiliana di Bertoni Alberto e C. Società Agricola S.S.",
   "Brand": "UOVA FRESCHE CAT:A",
   "Product": "Uova fresche di categoria A (Fresh eggs category A), 6 or 30 eggs",
@@ -6861,7 +6877,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843",
-  "Notes": "Lots: 50/26 (exp 2026-07-19), 51/26 (exp 2026-07-23), 52/26 (exp 2026-07-26), 53/26 (exp 2026-07-30). Produced in Corlo di Formigine, Modena.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-20: pending_gap → pending_gap_v1] [gemini-enrich 2026-07-20: Brand '—'→'UOVA FRESCHE CAT:A'] [gap-gate 2026-07-20: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-21: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-21: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [fix 2026-08-18: Class was the Italian source term 'Richiamo precauzionale'; translated per the English-output rule. Source term retained here. salute.gov.it could not be re-fetched for confirmation (JS browser-validation WAF) — the translation is literal and the row's citation is unchanged.]"
+  "Notes": "Lots: 50/26 (exp 2026-07-19), 51/26 (exp 2026-07-23), 52/26 (exp 2026-07-26), 53/26 (exp 2026-07-30). Produced in Corlo di Formigine, Modena.  [via Gemini gap-finder + Google Search] [gap-gate 2026-07-20: pending_gap → pending_gap_v1] [gemini-enrich 2026-07-20: Brand '—'→'UOVA FRESCHE CAT:A'] [gap-gate 2026-07-20: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-21: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-21: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [fix 2026-08-18: Class was the Italian source term 'Richiamo precauzionale'; translated per the English-output rule. Source term retained here. salute.gov.it could not be re-fetched for confirmation (JS browser-validation WAF) — the translation is literal and the row's citation is unchanged.] [source-label canonicalised 2026-09-01: 'Ministero della Salute' -> 'Ministero della Salute (IT)'; host salute.gov.it confirms the same agency. One form per agency — the split inflate"
  },
  {
   "Date": "2026-07-14",
@@ -7585,7 +7601,7 @@
  },
  {
   "Date": "2026-07-07",
-  "Source": "BVL",
+  "Source": "BVL (DE)",
   "Company": "lebensmittelwarnung.de",
   "Brand": "lebensmittelwarnung.de",
   "Product": "Salatkäse Kräuter",
@@ -7597,7 +7613,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/07_Juli/260707_11_SH_Salatkaese/260707_11_SH_Salatkaese.html",
-  "Notes": "5 days ago · Mögliche Folgen: Eine EHEC - (Synonyme: STEC, VTEC) Erkrankung äußert sich meist innerhalb einer Woche nach Infektion mit Durchfall und Bauchkrämpfen. Insbesondere Säuglinge, Kleinkinder, Senioren und Menschen mit geschwächtem Abwehrsystem können schwerere Krankheitsverläufe mit blutige  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [claude-check 2026-07-14: pass; pass | All fields verified: date 2026-07-07 matches page; Company (Hof Dannwisch) and Product (Salatkäse Kräuter) confir] [gap-gate 2026-07-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [date-fix 2026-07-14: Date was blank; recovered 2026-07-07 from URL slug; stripped \"Homepage -\" scrape artifact from Product]"
+  "Notes": "5 days ago · Mögliche Folgen: Eine EHEC - (Synonyme: STEC, VTEC) Erkrankung äußert sich meist innerhalb einer Woche nach Infektion mit Durchfall und Bauchkrämpfen. Insbesondere Säuglinge, Kleinkinder, Senioren und Menschen mit geschwächtem Abwehrsystem können schwerere Krankheitsverläufe mit blutige  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [claude-check 2026-07-14: pass; pass | All fields verified: date 2026-07-07 matches page; Company (Hof Dannwisch) and Product (Salatkäse Kräuter) confir] [gap-gate 2026-07-14: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [date-fix 2026-07-14: Date was blank; recovered 2026-07-07 from URL slug; stripped \"Homepage -\" scrape artifact from Product] [source-label canonicalised 2026-09-01: 'BVL' -> 'BVL (DE)'; host lebensmittelwarnung.de confirms the same agency. One form per agency — the split inflated distinct-source counts and fragm"
  },
  {
   "Date": "2026-07-07",
@@ -9409,7 +9425,7 @@
  },
  {
   "Date": "2026-06-24",
-  "Source": "FAVV (BE)",
+  "Source": "AFSCA (BE)",
   "Company": "Bestar Europe",
   "Brand": "Bestar Europe | Agence fédérale pour la sécurité de ...",
   "Product": "Bestar Europe product — aflatoxin contamination (see FAVV notice).",
@@ -9421,11 +9437,11 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/fr/produits/rappel-de-bestar-europe",
-  "Notes": "Promoted 2026-06-30. In scope: mycotoxin (aflatoxin). Company cleaned from regulator-boilerplate."
+  "Notes": "Promoted 2026-06-30. In scope: mycotoxin (aflatoxin). Company cleaned from regulator-boilerplate. [source-label canonicalised 2026-09-01: 'FAVV (BE)' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-06-24",
-  "Source": "FAVV (BE)",
+  "Source": "AFSCA (BE)",
   "Company": "Splendid Foods SA",
   "Brand": "El Ángel",
   "Product": "Fuet Extra",
@@ -9437,7 +9453,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/nl/producten/terugroeping-van-splendid-foods-sa",
-  "Notes": "Terugroeping van Splendid Foods SA | Federaal Agentschap voor de veiligheid van de voedselketen\n\n# Terugroeping van Splendid Foods SA\n\nFuet Extra van het merk El Ángel\n\nBij microbiologische controles door de leverancier werd de mogelijke aanwezigheid van salmonella vastgesteld in een staal van het p  [via Exa gap-finder, deterministic extract] [gemini-check 2026-06-27: fix; corrections: Company→Splendid Foods SA, Brand→El Ángel, Product→Fuet Extra; fix; company mismatch; product mismatch | Company, brand, and product fields corrected based on page content.] [gap-gate 2026-06-27: pending_gap → pending_gap_v1] [gap-gate 2026-06-28: pending_gap_v1 → pending_gap_v2] [claude-check 2026-06-28: pass; pass | All fields verified: date 2026-06-24 matches page metadata; Company (Splendid Foods SA), Brand (El Ángel), Produc] [gap-gate 2026-06-28: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "Terugroeping van Splendid Foods SA | Federaal Agentschap voor de veiligheid van de voedselketen\n\n# Terugroeping van Splendid Foods SA\n\nFuet Extra van het merk El Ángel\n\nBij microbiologische controles door de leverancier werd de mogelijke aanwezigheid van salmonella vastgesteld in een staal van het p  [via Exa gap-finder, deterministic extract] [gemini-check 2026-06-27: fix; corrections: Company→Splendid Foods SA, Brand→El Ángel, Product→Fuet Extra; fix; company mismatch; product mismatch | Company, brand, and product fields corrected based on page content.] [gap-gate 2026-06-27: pending_gap → pending_gap_v1] [gap-gate 2026-06-28: pending_gap_v1 → pending_gap_v2] [claude-check 2026-06-28: pass; pass | All fields verified: date 2026-06-24 matches page metadata; Company (Splendid Foods SA), Brand (El Ángel), Produc] [gap-gate 2026-06-28: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [source-label canonicalised 2026-09-01: 'FAVV (BE)' -> 'AFSCA (BE)'; host favv-afsca.be co"
  },
  {
   "Date": "2026-06-24",
@@ -9713,7 +9729,7 @@
  },
  {
   "Date": "2026-06-19",
-  "Source": "FAVV (BE)",
+  "Source": "AFSCA (BE)",
   "Company": "DFM Saveurs",
   "Brand": "Vendsyssel",
   "Product": "Cœur de saumon fumé norvégien",
@@ -9725,7 +9741,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/fr/produits/rappel-de-dfm-saveurs",
-  "Notes": "Promoted from Pending 2026-06-26. NL-language duplicate (terugroeping-van-dfm-saveurs) collapsed into this row."
+  "Notes": "Promoted from Pending 2026-06-26. NL-language duplicate (terugroeping-van-dfm-saveurs) collapsed into this row. [source-label canonicalised 2026-09-01: 'FAVV (BE)' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-06-19",
@@ -9841,7 +9857,7 @@
  },
  {
   "Date": "2026-06-19",
-  "Source": "FAVV (BE)",
+  "Source": "AFSCA (BE)",
   "Company": "(not specified in FAVV notice)",
   "Brand": "Biona Organic",
   "Product": "Noix du Brésil / Paranoten (Brazil nuts)",
@@ -9853,7 +9869,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/nl/producten/terugroeping-van-het-favv-139",
-  "Notes": "Manual fix 2026-06-25: Company field contained the regulator boilerplate \"Terugroeping van het FAVV | Federaal Agentschap...\". FAVV public recall notices often do not name the firm."
+  "Notes": "Manual fix 2026-06-25: Company field contained the regulator boilerplate \"Terugroeping van het FAVV | Federaal Agentschap...\". FAVV public recall notices often do not name the firm. [source-label canonicalised 2026-09-01: 'FAVV (BE)' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-06-19",
@@ -10161,7 +10177,7 @@
  },
  {
   "Date": "2026-06-18",
-  "Source": "FAVV (BE)",
+  "Source": "AFSCA (BE)",
   "Company": "(not specified in AFSCA notice)",
   "Brand": "Les Créations de Pierre",
   "Product": "Crottin de Chavignol (raw-milk goat cheese)",
@@ -10173,7 +10189,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/fr/produits/rappel-de-lafsca-133",
-  "Notes": "Manual fix 2026-06-25: Company field contained regulator boilerplate \"l'AFSCA | Agence fédérale pour la sécurité de la chaîne alimentaire\"."
+  "Notes": "Manual fix 2026-06-25: Company field contained regulator boilerplate \"l'AFSCA | Agence fédérale pour la sécurité de la chaîne alimentaire\". [source-label canonicalised 2026-09-01: 'FAVV (BE)' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-06-18",
@@ -10849,7 +10865,7 @@
  },
  {
   "Date": "2026-06-12",
-  "Source": "Salute (IT)",
+  "Source": "Ministero della Salute (IT)",
   "Company": "Fresh Tropical by Jawad (packer); produced Marcallo con Casone, Milano",
   "Brand": "ApnaBaba",
   "Product": "Semi di lino (flax seeds) — 400 g, TMC/best-before 20/06/2027",
@@ -10861,11 +10877,11 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/cartello%20richiamo_1781203550.pdf",
-  "Notes": "Manual split 2026-06-18 from merged Salute row (gap-finder could not parse the bulletin PDF — pypdf missing — and Gemini collapsed two unrelated Italian recalls into one row). This is the flax-seed CHEMICAL recall (hydrocyanic acid). Verified via ilfattoalimentare.it + canaledieci.it: packer Fresh Tropical by Jawad, production site Marcallo con Casone (Milano)."
+  "Notes": "Manual split 2026-06-18 from merged Salute row (gap-finder could not parse the bulletin PDF — pypdf missing — and Gemini collapsed two unrelated Italian recalls into one row). This is the flax-seed CHEMICAL recall (hydrocyanic acid). Verified via ilfattoalimentare.it + canaledieci.it: packer Fresh Tropical by Jawad, production site Marcallo con Casone (Milano). [source-label canonicalised 2026-09-01: 'Salute (IT)' -> 'Ministero della Salute (IT)'; host salute.gov.it confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-06-12",
-  "Source": "Salute (IT)",
+  "Source": "Ministero della Salute (IT)",
   "Company": "Azienda Agricola Marcello Gatto; produced Murazzano (Cuneo), EU mark IT R5T4Q",
   "Brand": "Tuma San Giorz",
   "Product": "Formaggio di pura pecora (pure sheep cheese) — whole forms 150 g to 250 g, all lots",
@@ -10877,7 +10893,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/cartello%20richiamo_1781203550.pdf#tuma-san-giorz",
-  "Notes": "Manual split 2026-06-18 from merged Salute row. This is the sheep-cheese LISTERIA recall. Verified via ilfattoalimentare.it + microbiologiaitalia.it: producer Azienda Agricola Marcello Gatto, Murazzano (CN), EU id mark IT R5T4Q. Salmonella/Listeria always Tier 1. NOTE: shares the same source bulletin URL as the flax-seed chemical recall; appended #tuma-san-giorz fragment to keep URL-dedup from collapsing the two split rows back together."
+  "Notes": "Manual split 2026-06-18 from merged Salute row. This is the sheep-cheese LISTERIA recall. Verified via ilfattoalimentare.it + microbiologiaitalia.it: producer Azienda Agricola Marcello Gatto, Murazzano (CN), EU id mark IT R5T4Q. Salmonella/Listeria always Tier 1. NOTE: shares the same source bulletin URL as the flax-seed chemical recall; appended #tuma-san-giorz fragment to keep URL-dedup from collapsing the two split rows back together. [source-label canonicalised 2026-09-01: 'Salute (IT)' -> 'Ministero della Salute (IT)'; host salute.gov.it confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-06-12",
@@ -11649,7 +11665,7 @@
  },
  {
   "Date": "2026-06-05",
-  "Source": "FAVV (BE)",
+  "Source": "AFSCA (BE)",
   "Company": "PASKESZ INTERNATIONAL BVBA",
   "Brand": "PASKESZ",
   "Product": "Ultra-thin Spelt Squares Original",
@@ -11661,7 +11677,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/nl/producten/terugroeping-van-paskesz-international-bvba",
-  "Notes": "Terugroeping van Paskesz International Bvba | Federaal Agentschap voor de veiligheid van de voedselketen\n\n# Terugroeping van Paskesz International Bvba\n\nUltra-thin Spelt Squares Original van het merk PASKESZ\n\nVanwege een te hoog gehalte aan ochratoxine A in het product “Ultra-thin Spelt Squares Orig  [via Exa gap-finder, deterministic extract] [gap-gate 2026-06-08: pending_gap → pending_gap_v1] [gemini-check 2026-06-08: fix; corrections: Company→PASKESZ INTERNATIONAL BVBA, Brand→PASKESZ, Product→Ultra-thin Spelt Squares Original, Pathogen→Ochratoxin A; fix; company mismatch; product mismatch | Row's Company, Brand, and Product are extraction garbage; corrected from page.] [gap-gate 2026-06-08: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "Terugroeping van Paskesz International Bvba | Federaal Agentschap voor de veiligheid van de voedselketen\n\n# Terugroeping van Paskesz International Bvba\n\nUltra-thin Spelt Squares Original van het merk PASKESZ\n\nVanwege een te hoog gehalte aan ochratoxine A in het product “Ultra-thin Spelt Squares Orig  [via Exa gap-finder, deterministic extract] [gap-gate 2026-06-08: pending_gap → pending_gap_v1] [gemini-check 2026-06-08: fix; corrections: Company→PASKESZ INTERNATIONAL BVBA, Brand→PASKESZ, Product→Ultra-thin Spelt Squares Original, Pathogen→Ochratoxin A; fix; company mismatch; product mismatch | Row's Company, Brand, and Product are extraction garbage; corrected from page.] [gap-gate 2026-06-08: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [source-label canonicalised 2026-09-01: 'FAVV (BE)' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-06-05",
@@ -11905,7 +11921,7 @@
  },
  {
   "Date": "2026-06-04",
-  "Source": "FAVV (BE)",
+  "Source": "AFSCA (BE)",
   "Company": "Delhaize",
   "Brand": "Delhaize",
   "Product": "Noix du Brésil BIO",
@@ -11917,7 +11933,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/fr/produits/rappel-de-delhaize-27",
-  "Notes": "4 days ago · 05/06/2026(mise à jour du rappel du 04/06/2026) Delhaize a décidé de retirer le produit « Noix du Brésil BIO » de la marque Delhaize de la vente et de le rappeler auprès des consommateurs en raison d’une teneur trop élevée en aflatoxines.  [via DDGS gap-finder, deterministic extract] [claude-check 2026-06-09: skip; fetch failed (fetch error: ConnectionError: HTTPSConnectionPool(host='favv-afsca.be', port=443): Max retries exceeded wi] [gap-gate 2026-06-09: pending_gap → pending_gap_v1] [gemini-check 2026-06-09: fix; corrections: Date→2026-06-04, Company→Delhaize, Brand→Delhaize, Product→Noix du Brésil BIO, Pathogen→Aflatoxin; fix; company mismatch; product mismatch; date on page=2026-06-04 | Date, Company, Brand, and Product corrected.] [gap-gate 2026-06-09: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "4 days ago · 05/06/2026(mise à jour du rappel du 04/06/2026) Delhaize a décidé de retirer le produit « Noix du Brésil BIO » de la marque Delhaize de la vente et de le rappeler auprès des consommateurs en raison d’une teneur trop élevée en aflatoxines.  [via DDGS gap-finder, deterministic extract] [claude-check 2026-06-09: skip; fetch failed (fetch error: ConnectionError: HTTPSConnectionPool(host='favv-afsca.be', port=443): Max retries exceeded wi] [gap-gate 2026-06-09: pending_gap → pending_gap_v1] [gemini-check 2026-06-09: fix; corrections: Date→2026-06-04, Company→Delhaize, Brand→Delhaize, Product→Noix du Brésil BIO, Pathogen→Aflatoxin; fix; company mismatch; product mismatch; date on page=2026-06-04 | Date, Company, Brand, and Product corrected.] [gap-gate 2026-06-09: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [source-label canonicalised 2026-09-01: 'FAVV (BE)' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated "
  },
  {
   "Date": "2026-06-04",
@@ -13153,7 +13169,7 @@
  },
  {
   "Date": "2026-05-27",
-  "Source": "Lebensmittelwarnung.de",
+  "Source": "BVL (DE)",
   "Company": "Bio Company GmbH",
   "Brand": "Bio Pesto Rosso",
   "Product": "Bio Pesto Rosso",
@@ -13165,7 +13181,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/bvl-blv-fcm-de/detail/lebensmittel/66212",
-  "Notes": "—  [via Gemini gap-finder + Google Search] [gemini-enrich 2026-05-30: Company '—'→'Bio Company GmbH'] [gap-gate 2026-05-30: pending_gap → pending_gap_v1] [claude-check 2026-05-30: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-05-30: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "—  [via Gemini gap-finder + Google Search] [gemini-enrich 2026-05-30: Company '—'→'Bio Company GmbH'] [gap-gate 2026-05-30: pending_gap → pending_gap_v1] [claude-check 2026-05-30: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-05-30: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [source-label canonicalised 2026-09-01: 'Lebensmittelwarnung.de' -> 'BVL (DE)'; host lebensmittelwarnung.de confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-05-27",
@@ -15425,7 +15441,7 @@
  },
  {
   "Date": "2026-05-11",
-  "Source": "FAVV (BE)",
+  "Source": "AFSCA (BE)",
   "Company": "Laerco BV",
   "Brand": "Laerco",
   "Product": "Eieren / scharreleieren (free-range eggs)",
@@ -15437,7 +15453,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/nl/producten/terugroeping-van-laerco-bv",
-  "Notes": "[fix 2026-07-01: cleaned FAVV news-listing artifact (\"5 days ago · In overleg met het FAVV...\") from Company/Brand/Product/Notes.] [week-fix 2026-07-25: report_week W19->W20; Thursday-to-Thursday rule — week runs 2026-05-08 Fri -> 2026-05-14 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[fix 2026-07-01: cleaned FAVV news-listing artifact (\"5 days ago · In overleg met het FAVV...\") from Company/Brand/Product/Notes.] [week-fix 2026-07-25: report_week W19->W20; Thursday-to-Thursday rule — week runs 2026-05-08 Fri -> 2026-05-14 Thu, labelled by ISO week of the closing Thursday] [source-label canonicalised 2026-09-01: 'FAVV (BE)' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-05-11",
@@ -18689,7 +18705,7 @@
  },
  {
   "Date": "2026-04-20",
-  "Source": "VFA",
+  "Source": "VFA (VN)",
   "Company": "HiPP",
   "Brand": "HiPP",
   "Product": "Mixed Vegetable Jar — Carrot and Potato 190 g",
@@ -18701,7 +18717,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://vietnam.vnanet.vn/english/tin-van/vietnam-warns-of-hipp-baby-food-after-austrias-recall-441522.html",
-  "Notes": "[VFA Vietnam alert following Austrian recall; URL is news service (vietnam.vnanet.vn) — no direct VFA regulator URL located; same Austrian tampering case as AGES (AT) and SZPI (CZ)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Vietnam]"
+  "Notes": "[VFA Vietnam alert following Austrian recall; URL is news service (vietnam.vnanet.vn) — no direct VFA regulator URL located; same Austrian tampering case as AGES (AT) and SZPI (CZ)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Vietnam] [source-label canonicalised 2026-09-01: 'VFA' -> 'VFA (VN)'; host vietnam.vnanet.vn confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-04-20",
@@ -19569,7 +19585,7 @@
  },
  {
   "Date": "2026-04-14",
-  "Source": "Min. Salute (IT)",
+  "Source": "Ministero della Salute (IT)",
   "Company": "La Vacje Salumerie Snc",
   "Brand": "La Vecje Salumerie",
   "Product": "Salame Nostrano (~800 g, lot L6CCTD)",
@@ -19581,7 +19597,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/new/it/avvisi/avvisi-e-richiami-di-prodotti-alimentari",
-  "Notes": "[Ministero della Salute richiamo / 2026-04-14; product: Salame Nostrano ~800 g, lot L6CCTD, production date 2026-03-04; producer La Vacje Salumerie Snc, plant FR-equivalent ID UE IT 1499 L at via Strada Vecchia per Rivignano 9/11, Rivignano Teor (Udine); URL FIX 2026-05-01: replaced ilfattoalimentare.it (news-mirror blocklist) with official Ministero della Salute avvisi-e-richiami portal index — specific avviso PDF not directly surfaced in search; pipeline should have rejected ilfattoalimentare.it at the gate] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[Ministero della Salute richiamo / 2026-04-14; product: Salame Nostrano ~800 g, lot L6CCTD, production date 2026-03-04; producer La Vacje Salumerie Snc, plant FR-equivalent ID UE IT 1499 L at via Strada Vecchia per Rivignano 9/11, Rivignano Teor (Udine); URL FIX 2026-05-01: replaced ilfattoalimentare.it (news-mirror blocklist) with official Ministero della Salute avvisi-e-richiami portal index — specific avviso PDF not directly surfaced in search; pipeline should have rejected ilfattoalimentare.it at the gate] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label canonicalised 2026-09-01: 'Min. Salute (IT)' -> 'Ministero della Salute (IT)'; host salute.gov.it confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-04-14",
@@ -19745,7 +19761,7 @@
  },
  {
   "Date": "2026-04-14",
-  "Source": "Min. Salute (IT)",
+  "Source": "Ministero della Salute (IT)",
   "Company": "La Vacje Salumerie Snc",
   "Brand": "La Vecje Salumerie",
   "Product": "Salame Nostrano (~800g; lot L6CCTD)",
@@ -19757,7 +19773,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://ilfattoalimentare.it/richiamo-salame-nostrano-2.html",
-  "Notes": "Ministero della Salute richiamo [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "Ministero della Salute richiamo [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label canonicalised 2026-09-01: 'Min. Salute (IT)' -> 'Ministero della Salute (IT)'; host ilfattoalimentare.it confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-04-13",
@@ -20513,7 +20529,7 @@
  },
  {
   "Date": "2026-04-08",
-  "Source": "FDA PH",
+  "Source": "FDA (PH)",
   "Company": "Ambrosia Brands LLC",
   "Brand": "ROSABELLA",
   "Product": "Moringa Dietary Supplement",
@@ -20525,7 +20541,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fda.gov.ph/fda-advisory-no-2026-0436-public-health-advisory-on-us-fda-announcement-on-extensively-drug-resistant-salmonella-in-moringa-powder/",
-  "Notes": "FDA Advisory No.2026-0436 || PUBLIC HEALTH ADVISORY ON US-FDA ANNOUNCEMENT ON EXTENSIVELY DRUG-RESISTANT SALMONELLA IN MORINGA POWDER - Food and Drug Administration\n\nMenu\n\nPhilippine Standard Time\n\nPhilippine Standard Time\n\n--:--:--\n\n--\n\nPhilippine Standard Time\n\nPhilippine Standard Time\n\n--:--:--\n\n  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-06-08: pending_gap → pending_gap_v1] [gemini-check 2026-06-08: fix; corrections: Date→2026-04-08, Company→Ambrosia Brands LLC, Brand→ROSABELLA, Product→Moringa Dietary Supplement, Pathogen→Salmonella; fix; company mismatch; product mismatch; date on page=2026-04-08 | Date mismatch: page publication date is 2026-04-08, n] [gap-gate 2026-06-08: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "FDA Advisory No.2026-0436 || PUBLIC HEALTH ADVISORY ON US-FDA ANNOUNCEMENT ON EXTENSIVELY DRUG-RESISTANT SALMONELLA IN MORINGA POWDER - Food and Drug Administration\n\nMenu\n\nPhilippine Standard Time\n\nPhilippine Standard Time\n\n--:--:--\n\n--\n\nPhilippine Standard Time\n\nPhilippine Standard Time\n\n--:--:--\n\n  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-06-08: pending_gap → pending_gap_v1] [gemini-check 2026-06-08: fix; corrections: Date→2026-04-08, Company→Ambrosia Brands LLC, Brand→ROSABELLA, Product→Moringa Dietary Supplement, Pathogen→Salmonella; fix; company mismatch; product mismatch; date on page=2026-04-08 | Date mismatch: page publication date is 2026-04-08, n] [gap-gate 2026-06-08: pending_gap_v1 → pending (Claude verified, 2nd reviewer pass)] [source-label canonicalised 2026-09-01: 'FDA PH' -> 'FDA (PH)'; host fda.gov.ph confirms the same agency. One form per agency — the split inflated distinct-source counts and fragment"
  },
  {
   "Date": "2026-04-08",
@@ -24209,7 +24225,7 @@
  },
  {
   "Date": "2026-01-23",
-  "Source": "FAVV (BE)",
+  "Source": "AFSCA (BE)",
   "Company": "Danone",
   "Brand": "Nutrilon",
   "Product": "Various Nutrilon infant formula",
@@ -24221,7 +24237,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/nl/producten/terugroeping-van-danone-0",
-  "Notes": "[manual-promote 2026-05-08: claude-check PASS] [week-fix 2026-07-25: report_week W04->W05; Thursday-to-Thursday rule — week runs 2026-01-23 Fri -> 2026-01-29 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "[manual-promote 2026-05-08: claude-check PASS] [week-fix 2026-07-25: report_week W04->W05; Thursday-to-Thursday rule — week runs 2026-01-23 Fri -> 2026-01-29 Thu, labelled by ISO week of the closing Thursday] [source-label canonicalised 2026-09-01: 'FAVV (BE)' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
  },
  {
   "Date": "2026-01-23",
@@ -24529,7 +24545,7 @@
  },
  {
   "Date": "2026-01-13",
-  "Source": "FDA PH",
+  "Source": "FDA (PH)",
   "Company": "Nestlé Philippines, Inc.",
   "Brand": "NAN OPTIPRO, NANKID OPTIPRO",
   "Product": "NAN OPTIPRO Infant Formula (0-6 months, 6-12 months) and NAN OPTI Milk Supplement (1-3 years) and NANKID OPTIPRO (3+ years) — multiple batch numbers",
@@ -24541,7 +24557,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov.ph/fda-advisory-no-2026-0030-voluntary-recall-of-nan-optipro-and-nankid-optipro-products/",
-  "Notes": "FDA Advisory No.2026-0030 || VOLUNTARY RECALL OF NAN OPTIPRO AND NANKID OPTIPRO PRODUCTS - Food and Drug Administration\n\nMenu\n\nPhilippine Standard Time\n\nPhilippine Standard Time\n\n--:--:--\n\n--\n\nPhilippine Standard Time\n\nPhilippine Standard Time\n\n--:--:--\n\n--\n\nMenu\n\nSearch\n\n###### Share this Post!\n\nTh  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-06-13: pending_gap → pending_gap_v1] [gemini-check 2026-06-13: skip; fetch failed (HTTP 403)] [gap-gate 2026-06-14: pending_gap_v1 → pending_gap_v2] [claude-check 2026-06-14: fix; corrections: Date→2026-01-13, Company→Nestlé Philippines, Inc., Brand→NAN OPTIPRO, NANKID OPTIPRO, Product→NAN OPTIPRO Infant Formula (0-6 months, , Pathogen→Cereulide; fix; company mismatch; product mismatch; date on page=2026-01-13 | Date is 2026-01-13 (not 2026-06-12); Company should b] [gap-gate 2026-06-14: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "FDA Advisory No.2026-0030 || VOLUNTARY RECALL OF NAN OPTIPRO AND NANKID OPTIPRO PRODUCTS - Food and Drug Administration\n\nMenu\n\nPhilippine Standard Time\n\nPhilippine Standard Time\n\n--:--:--\n\n--\n\nPhilippine Standard Time\n\nPhilippine Standard Time\n\n--:--:--\n\n--\n\nMenu\n\nSearch\n\n###### Share this Post!\n\nTh  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [gap-gate 2026-06-13: pending_gap → pending_gap_v1] [gemini-check 2026-06-13: skip; fetch failed (HTTP 403)] [gap-gate 2026-06-14: pending_gap_v1 → pending_gap_v2] [claude-check 2026-06-14: fix; corrections: Date→2026-01-13, Company→Nestlé Philippines, Inc., Brand→NAN OPTIPRO, NANKID OPTIPRO, Product→NAN OPTIPRO Infant Formula (0-6 months, , Pathogen→Cereulide; fix; company mismatch; product mismatch; date on page=2026-01-13 | Date is 2026-01-13 (not 2026-06-12); Company should b] [gap-gate 2026-06-14: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [source-label canonicalised 2026-0"
  },
  {
   "Date": "2026-01-12",

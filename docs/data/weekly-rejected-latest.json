@@ -1,11 +1,11 @@
 {
   "week_end": "2026-09-06",
-  "generated_utc": "2026-09-01T06:00:08+00:00",
-  "row_count": 12,
+  "generated_utc": "2026-09-01T16:24:05+00:00",
+  "row_count": 13,
   "tier1_count": 2,
   "outbreak_count": 0,
   "by_reviewer": {
-    "unknown": 12
+    "unknown": 13
   },
   "rows": [
     {
@@ -98,6 +98,29 @@
       "Week_Added": "2026-09-06",
       "RejectedBy": "unknown",
       "RejectionReason": "out_of_scope_quality_spoilage — Third ingestion of a permanently-rejected item. FSAI alert 08 Jul 2026 — 'possible spoilage', no pathogen named. | FSAI HTML listing fallback — claude-check please enri",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-01",
+      "Source": "FSAI (IE)",
+      "Company": "Macroom Buffalo Cheese Mozzarella, Bocconcini and Burrata products",
+      "Brand": "—",
+      "Product": "Macroom Buffalo Cheese Mozzarella, Bocconcini and Burrata products",
+      "Pathogen": "",
+      "Reason": "Macroom Buffalo Cheese Mozzarella, Bocconcini and Burrata products",
+      "Class": "Alert",
+      "Country": "Ireland",
+      "Region": "Europe",
+      "Tier": 3,
+      "Outbreak": 0,
+      "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batch-of-various-macroom-buffal",
+      "Notes": "REJECTED: duplicate_of_published — FSAI listing fallback for the Macroom Listeria recall. Same event already published as FSA (UK) FSA-PRIN-42-2026, 2026-08-28, Tier 1. | FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [operator review 2026-09-01: REJECTED — duplicate_of_published — FSAI listing fallback for the Macroom Listeria recall. Same event already published as FSA (UK) FSA-PRIN-42-2026, 2026-08-28, Tier 1.]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-06",
+      "RejectedBy": "unknown",
+      "RejectionReason": "duplicate_of_published — FSAI listing fallback for the Macroom Listeria recall. Same event already published as FSA (UK) FSA-PRIN-42-2026, 2026-08-28, Tier 1. | FSAI HTML listing fallback — claude-che",
       "Reviewed": "N"
     },
     {
