@@ -71,7 +71,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .verif-tagline{grid-column:1/-1;width:100%;text-align:center;margin-top:6px;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:12px;color:var(--muted);letter-spacing:.01em;font-weight:400;}
 
 /* AI Synthesis panel — pulls ai_lead_paragraph from weekly-summary-latest.json.
-   The LLM writes this paragraph for the Friday digest anyway; surfacing it at
+   The LLM writes this paragraph for the Monday digest anyway; surfacing it at
    the top of the dashboard puts AI-generated analytical synthesis in front of
    every visitor without doubling the inference cost. */
 .insights{background:linear-gradient(135deg,var(--s1) 0%,var(--s2) 100%);border:1px solid var(--brd);border-left:3px solid var(--ai);border-radius:3px;padding:16px 20px;margin:14px 24px 0;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;}
@@ -249,7 +249,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 }
 </style></head><body>
 
-<div class="hdr"><div class="brand"><a href="https://www.advfood.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</a><small>// AI-Reviewed · AI-Analyzed Food Recall Intelligence · under AFTS process authority · 66 sources · 60+ countries</small><small style="margin-top:3px;color:var(--muted);font-weight:500;letter-spacing:.10em">✓ Verified by 2 independent AI reviewers + Thursday human checkpoint</small></div><div class="hdr-right"><span class="live-pill">LIVE MONITORING</span><div class="hdr-meta" id="meta">Loading…</div></div></div>
+<div class="hdr"><div class="brand"><a href="https://www.advfood.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</a><small>// AI-Reviewed · AI-Analyzed Food Recall Intelligence · under AFTS process authority · 66 sources · 60+ countries</small><small style="margin-top:3px;color:var(--muted);font-weight:500;letter-spacing:.10em">✓ Verified by 2 independent AI reviewers + weekly human checkpoint</small></div><div class="hdr-right"><span class="live-pill">LIVE MONITORING</span><div class="hdr-meta" id="meta">Loading…</div></div></div>
 
 <div class="verif-strip">
   <div class="verif-status"><span class="verif-pulse"></span><span class="verif-label">AI Verification Engine · Active</span></div>
@@ -311,7 +311,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 </div>
 
 <div id="panel-reports" style="display:none">
-<div class="wrap"><div class="panel"><div class="sec">Weekly Pathogen Recall Reports · sent every Friday 10am</div>
+<div class="wrap"><div class="panel"><div class="sec">Weekly Pathogen Recall Reports · sent every Monday 11:00 Athens</div>
 <div id="reports-list"><p class="loading">Loading reports/index.json…</p></div>
 </div></div>
 </div>
@@ -541,7 +541,7 @@ function init(){
 function renderLastVerified(){
   // Writes a single populated line into #verif-meta-line, labelled with an
   // explicit rolling-window phrase so it cannot be confused with the
-  // AFTS Week-N synthesis below (which uses Friday-Thursday calendar weeks).
+  // AFTS Week-N synthesis below (which uses ISO weeks, Monday-Sunday).
   // Output shapes:
   //   default:           "45 verified · last 7 days · latest May 15"
   //   today has activity: "3 verified today · 45 last 7 days · latest May 15"
@@ -611,7 +611,7 @@ function _clientSideSynthesis(j){
   // is empty/stale; pre-fix the prose cited the recall count, prior-week
   // delta, share-of-mix percent, and case count — which would silently go
   // stale against the live KPI tiles whenever upstream recall counts shifted
-  // between Friday cron runs. New prose references qualitative patterns only
+  // between Monday cron runs. New prose references qualitative patterns only
   // (Tier-1 status, outbreak status, leading-pathogen descriptor) so the
   // synthesis stays accurate across re-runs; the numerical truth lives in
   // the KPI tiles and the at-publication caption row.
@@ -697,7 +697,7 @@ async function loadAiInsights(){
     body.innerHTML='<em>'+esc(wk)+' synthesis:</em> '+esc(paragraph);
     meta.textContent=(bits?bits+period:'').trim()+' · AFTS AI synthesis · dual-reviewer verified';
   }catch(e){
-    body.innerHTML='<em>Verification posture:</em> Every recall in the feed below has passed two independent AI reviewers plus a Thursday human checkpoint before publication. Most food-safety feeds publish whatever a bot finds. AFTS publishes what survives review.';
+    body.innerHTML='<em>Verification posture:</em> Every recall in the feed below has passed two independent AI reviewers plus a weekly human checkpoint before publication. Most food-safety feeds publish whatever a bot finds. AFTS publishes what survives review.';
     meta.textContent='';
   }
 }
@@ -766,7 +766,7 @@ function render(){
     const tierCol=r.tier===1?'var(--red)':'var(--orange)';
     const tl=r.tier===1?'TIER-1':'TIER-2';
     const ob=r.is_outbreak===1?' <span style="background:rgba(239,68,68,.1);color:var(--red);font-size:7px;padding:1px 5px;border-radius:2px;font-family:DM Mono,monospace;font-weight:700;letter-spacing:.08em;border:1px solid rgba(239,68,68,.25)">OUTBREAK</span>':'';
-    return`<tr class="${tc}"><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(r.date)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.05em;background:rgba(52,211,153,.08);color:var(--ai);border:1px solid rgba(52,211,153,.25)">${esc(r.source)}</span></td><td class="firm" title="${esc(r.company)}">${esc(r.company||r.brand||'—')}</td><td class="prod" title="${esc(r.product)}">${esc((r.product||'').substring(0,80))}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pColor(r.pathogen)}">${esc(r.pathogen)}${ob}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.08em;background:${tierBg};color:${tierCol};border:1px solid ${tierCol}40">${tl}</span></td><td style="font-size:10px;color:var(--muted)">${esc(r.country)}</td><td>${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--ai);font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;letter-spacing:.02em" title="${esc(r.url)}">${urlHost(r.url)}</a>`:''}</td></tr>`;
+    return`<tr class="${tc}"><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(r.date)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.05em;background:rgba(52,211,153,.08);color:var(--ai);border:1px solid rgba(52,211,153,.25)">${esc(r.source)}</span></td><td class="firm" title="${esc(r.company)}">${esc(r.company||r.brand||'—')}</td><td class="prod" title="${esc(r.product)}">${esc((r.product||'').substring(0,80))}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pColor(r.pathogen)}">${esc(r.pathogen)}${ob}</td><td style="white-space:nowrap"><span style="display:inline-block;white-space:nowrap;font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.08em;background:${tierBg};color:${tierCol};border:1px solid ${tierCol}40">${tl}</span></td><td style="font-size:10px;color:var(--muted)">${esc(r.country)}</td><td>${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--ai);font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;letter-spacing:.02em" title="${esc(r.url)}">${urlHost(r.url)}</a>`:''}</td></tr>`;
   }).join('');}
   const total=filtered.length,maxP=Math.max(1,Math.ceil(total/perPage));
   document.getElementById('pinfo').textContent=`Page ${page} of ${maxP} · ${total} records`;
@@ -844,7 +844,7 @@ function renderNews(){
 }
 
 // ===== WEEKLY REPORTS =====
-// Fetches data/weekly-index.json (committed by the Friday weekly-report
+// Fetches data/weekly-index.json (committed by the Monday weekly-report
 // workflow) on first tab click. The JSON is the single source of truth;
 // the embedded FALLBACK_REPORTS only renders if the fetch fails (cache,
 // offline, or a fresh-deploy race condition). Mirrors the monthly loader.
@@ -926,7 +926,7 @@ async function loadReports(){
   const published = reports.filter(r => (r.week_end || '') <= todayISO);
   document.getElementById('rep-count').textContent = published.length ? '· '+published.length : '';
   if(!published.length){
-    document.getElementById('reports-list').innerHTML='<p class="loading">No reports yet. First report ships Friday.</p>';
+    document.getElementById('reports-list').innerHTML='<p class="loading">No reports yet. First report ships Monday.</p>';
     return;
   }
 
