@@ -1,0 +1,1295 @@
+#!/usr/bin/env python3
+"""
+recall_review_agent.py
+======================
+
+Self-hosted Qwen 2.5 7B review agent. Takes a candidate recall row (from
+any gap-finder), visits its regulator/news page, and verifies + fills +
+corrects EVERY field against the page text until it is 100% faithful to
+the source — then decides APPROVE (→ Recalls) or REJECT (→ Weekly_Rejected).
+
+Runs entirely on the AFTS Qwen VPS via LlamaClient (Tailscale, no API
+key). Nothing here depends on Claude/Gemini. Future-proof: when the VPS
+moves to a Mac, only LLAMA_BASE_URL changes.
+
+Design — mirrors the existing official_feeds extractor contract:
+  - Same PENDING_COLUMNS schema.
+  - Same "be faithful, never invent, empty string if not stated" rules.
+  - Same LlamaClient.chat() tool-calling loop.
+  - Reuses article_fetcher.fetch_html for the TLS-impersonated page fetch
+    and searx_search when a field needs corroboration or a better URL.
+
+The agent's job per row:
+  1. Fetch the row's URL. If dead/soft-404, use web_search to find the
+     correct official page for THIS recall (company + product + hazard).
+  2. Read the page text. For each field (Date, Company, Brand, Product,
+     Pathogen, Reason, Country, Region) confirm it matches the page, or
+     correct it. Fill any blank the page supports. Never invent.
+  3. Verify the recall is real, in-scope (2026+, food, Tier-1 hazard
+     universe), and not a duplicate.
+  4. Return a corrected row + verdict {approve|reject} (retry only on infra
+     per-field provenance note.
+
+Verdicts:
+  approve       — every required field verified against the page, in scope
+  reject        — not a recall / out of scope / pre-2026 / dead URL / dup
+  retry         — INFRA failure only (llama down); row left in Pending
+
+CLI:
+  python -m pipeline.recall_review_agent --xlsx docs/data/recalls.xlsx \\
+      --commit false            # dry run prints verdicts
+  --commit true                 # writes approvals→Recalls, rejects→Weekly_Rejected
+  --source-filter "EFET"        # review only rows from one source
+  --limit N                     # cap rows this run
+
+Env:
+  LLAMA_BASE_URL, LLAMA_MODEL     (from llama_client)
+  REVIEW_MAX_PAGE_CHARS  default 12000
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+import re
+import sys
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+# ── Reuse the existing pipeline infrastructure ───────────────────────────
+# These imports match the official_feeds subsystem. If run outside that
+# package context, the try/except keeps the module importable for testing.
+try:
+    from pipeline.official_feeds.agents import llama_client
+except Exception:  # pragma: no cover
+    llama_client = None
+try:
+    from pipeline.official_feeds.agents import searx_search
+except Exception:  # pragma: no cover
+    searx_search = None
+try:
+    from pipeline.official_feeds import article_fetcher
+except Exception:  # pragma: no cover
+    article_fetcher = None
+
+
+PENDING_COLUMNS = [
+    "Date", "Source", "Company", "Brand", "Product", "Pathogen", "Reason",
+    "Class", "Country", "Region", "Tier", "Outbreak", "URL", "Notes",
+    "ScrapedAt", "Status", "RejectedBy",
+]
+
+# Agent 2 is REVIEWER 2. Its lane is what reviewer 1 has already cleared, plus
+# anything already promotable:
+#     pending_gap_v2  — reviewer 1 confirmed the URL; awaiting final review
+#     pending         — promotable, must be verified before it goes
+#
+# It must NOT spend its budget on reviewer 1's lane (pending_gap,
+# pending_gap_v1, pending_enrichment). Reviewing those cannot produce a
+# promotion — pending_gap is not even in the advance set — and on CPU-only
+# inference each wasted row costs ~109 s. Measured on the live sheet, 53 of 96
+# rows sat outside the lane: 55% of every run produced nothing.
+AGENT2_STATUSES = {"pending_gap_v2", "pending"}
+
+MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "5000"))
+
+
+# ─── Tool-calling schema for the agent ───────────────────────────────────
+
+def _tool_schema() -> List[Dict[str, Any]]:
+    return [
+        {
+            "type": "function",
+            "function": {
+                "name": "fetch_page",
+                "description": "Fetch the readable text of a web page by URL. "
+                               "Use this to read the recall page before "
+                               "judging any field.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "url": {"type": "string",
+                                "description": "Full http(s) URL to fetch."},
+                    },
+                    "required": ["url"],
+                },
+            },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "web_search",
+                "description": "Search the web for the official regulator "
+                               "page for a recall. Use ONLY if the row's URL "
+                               "is dead or wrong. Query with company + product "
+                               "+ hazard.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"},
+                    },
+                    "required": ["query"],
+                },
+            },
+        },
+    ]
+
+
+def _fetch_page_text(url: str) -> Tuple[str, str]:
+    """Fetch a page's readable text. Self-contained (no CountryConfig).
+
+    Tries curl_cffi with Chrome TLS impersonation first (matches the
+    pipeline's article_fetcher / _akamai_fetch approach for sites that
+    fingerprint Python's TLS), falls back to stdlib requests. Returns
+    (text, status).
+    """
+    html = ""
+    status = "ok"
+    headers = {
+        "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                       "AppleWebKit/537.36 (KHTML, like Gecko) "
+                       "Chrome/131.0 Safari/537.36"),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    }
+    try:
+        from curl_cffi import requests as cffi_requests  # type: ignore
+        resp = cffi_requests.get(url, headers=headers, timeout=30,
+                                 impersonate="chrome131",
+                                 allow_redirects=True)
+        html = resp.text or ""
+        if resp.status_code >= 400:
+            return "", f"http_{resp.status_code}"
+    except Exception:
+        try:
+            import requests as _requests
+            resp = _requests.get(url, headers=headers, timeout=30,
+                                 allow_redirects=True)
+            html = resp.text or ""
+            if resp.status_code >= 400:
+                return "", f"http_{resp.status_code}"
+        except Exception as e:  # noqa: BLE001
+            return "", f"error_{type(e).__name__}"
+
+    # Strip HTML to readable text
+    try:
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(html, "html.parser")
+        for tag in soup(["script", "style", "nav", "header", "footer"]):
+            tag.decompose()
+        text = soup.get_text(separator="\n")
+        text = "\n".join(ln.strip() for ln in text.splitlines() if ln.strip())
+    except Exception:
+        text = html
+    return text[:MAX_PAGE_CHARS], status
+
+
+def _make_tool_executor(seen_urls: set) -> Callable[[str, dict], str]:
+    def execute(name: str, args: dict) -> str:
+        if name == "fetch_page":
+            url = (args or {}).get("url", "").strip()
+            if not url:
+                return json.dumps({"error": "no url"})
+            text, status = _fetch_page_text(url)
+            seen_urls.add(url)
+            return json.dumps({"url": url, "status": status, "text": text})
+        if name == "web_search":
+            q = (args or {}).get("query", "").strip()
+            if searx_search is None:
+                return json.dumps({"error": "searx unavailable"})
+            try:
+                results = searx_search.search(q)
+                slim = [{"title": r.get("title", ""), "url": r.get("url", ""),
+                         "content": (r.get("content", "") or "")[:200]}
+                        for r in (results or [])[:6]]
+                return json.dumps({"query": q, "results": slim})
+            except Exception as e:  # noqa: BLE001
+                return json.dumps({"error": f"{type(e).__name__}: {e}"})
+        return json.dumps({"error": f"unknown tool {name}"})
+    return execute
+
+
+# ─── Prompts ─────────────────────────────────────────────────────────────
+
+REVIEW_SYSTEM = (
+    "You are a senior food-safety analyst performing FINAL verification of "
+    "a recall record before it is published on a public dashboard. You have "
+    "two tools: fetch_page (read a URL) and web_search (find the official "
+    "page if the given URL is dead). You MUST read the actual regulator page "
+    "before judging any field. You never invent facts: if the page does not "
+    "state something, leave that field an empty string. You answer ONLY with "
+    "the final JSON object described by the user — no prose, no markdown."
+)
+
+def build_review_prompt(row: Dict[str, Any]) -> str:
+    """COMPACT prompt sized for a 4096-token context.
+
+    Rules already enforced deterministically in code are NOT repeated here —
+    they are applied after the model answers, so spending context on them is
+    waste:
+      * pre-2026 publication date        -> hard guard in review_row()
+      * language / placeholder / headline / regulator-as-product
+                                         -> _field_integrity_flags()
+      * USA -> "United States", USDA FSIS source
+                                         -> _normalize_country_source()
+    What remains here is only what the model alone can judge: reading the
+    page, correcting fields, hazard scope, and outbreak evidence.
+    """
+    def g(k):
+        return row.get(k, "") or ""
+
+    is_rasff = "rasff" in str(g("Source")).lower()
+    rasff_note = ("\nRASFF row: its Company/Brand/Country format is already "
+                  "correct — keep it, never write 'Unbranded'.\n"
+                  if is_rasff else "")
+
+    return (
+        "Verify this recall against its source page.\n\n"
+        f"Date {g('Date')} | Source {g('Source')} | Country {g('Country')}\n"
+        f"Company {g('Company')} | Brand {g('Brand')}\n"
+        f"Product {g('Product')}\n"
+        f"Pathogen {g('Pathogen')} | Reason {g('Reason')} | "
+        f"Outbreak {g('Outbreak')}\n"
+        f"URL {g('URL')}\n"
+        f"{rasff_note}\n"
+        "1. fetch_page the URL. If it is dead or the wrong recall, web_search\n"
+        "   for the official regulator page and fetch that instead.\n"
+        "2. Correct EVERY field to what the page says. Date = the regulator's\n"
+        "   ORIGINAL publication date, not an update.\n"
+        "   LANGUAGE POLICY (pipeline/_language.py, operator 2026-08-02):\n"
+        "   Company, Brand and Product are NAMES — keep them EXACTLY as\n"
+        "   published, in the original language ('brie a l'ail' stays).\n"
+        "   Translating them breaks matching against the regulator page.\n"
+        "   Reason, Class, Pathogen, Country and Region are DESCRIPTIONS\n"
+        "   and must read in ENGLISH.\n"
+        "   Product must still be the food item itself, never the alert\n"
+        "   headline and never the agency's name.\n"
+        "3. Company and Brand must appear verbatim on the page. If no brand is\n"
+        "   named (sold loose / a la coupe / sans marque), use \"Unbranded\".\n"
+        "   Never invent one, and never trust a value already on the row\n"
+        "   without seeing it on the page.\n"
+        "4. SCOPE — the in-scope hazard vocabulary is defined in\n"
+        "   pipeline/_pathogen_scope.py (locked 2026-04-30). It covers:\n"
+        "     bacteria/viruses: Listeria, Salmonella, E. coli/STEC,\n"
+        "       Cronobacter, botulinum, B. cereus/cereulide, staph\n"
+        "       enterotoxin, Campylobacter, norovirus, hepatitis A;\n"
+        "     mycotoxins: aflatoxin, ochratoxin, fumonisin, patulin,\n"
+        "       zearalenone, deoxynivalenol;\n"
+        "     undeclared pharmaceutical adulteration (sildenafil etc.);\n"
+        "     other chemical/toxic-metal exceedances treated as food-safety\n"
+        "       hazards (histamine/scombrotoxin, cadmium, methylmercury).\n"
+        "   Approve a 2026+ FOOD recall whose hazard is in that vocabulary.\n"
+        "   REJECT anything else and name the real hazard:\n"
+        "     \"undeclared allergen (X)\" only for the 14 legal allergens —\n"
+        "       SUGAR IS NOT AN ALLERGEN;\n"
+        "     \"labelling error\" for wrong or swapped labels, or a wrong sugar\n"
+        "       or nutrition declaration;\n"
+        "     \"foreign body (X)\", \"labelling error\",\n"
+        "     \"non-food product\" (toys, vehicles, cosmetics, lamp oil),\n"
+        "     \"pet/animal food\" — a human-pathogen outbreak traced to PET\n"
+        "       animals or pet food (e.g. Salmonella from pet turtles) is NOT\n"
+        "       a food recall; reject it.\n"
+        "   Also reject a duplicate, or an UPDATED re-issue of a recall that\n"
+        "   is already in the register (put the original URL in duplicate_of).\n"
+        "5. OUTBREAK. Ignore standard risk boilerplate (\"may cause severe\n"
+        "   illness in pregnant women...\", \"no reported illnesses\") and\n"
+        "   RASFF's \"risk: serious\", which is only a severity label present on\n"
+        "   every notification. Set 1 ONLY for a stated case count, an\n"
+        "   epidemiological investigation opened because people fell ill,\n"
+        "   attributed deaths, or a linked CDC / FDA / PHAC / UKHSA outbreak\n"
+        "   notice for THIS product. The outbreak page is often separate from\n"
+        "   the recall notice, so run ONE web_search for it before settling on\n"
+        "   0. Contamination findings and routine or environmental sampling\n"
+        "   are 0. Default 0.\n"
+        "6. If a required field (Date, Company or Brand, Product, Pathogen,\n"
+        "   URL) cannot be confirmed from the page, REJECT — there is no\n"
+        "   human to defer to.\n\n"
+        "Reply with ONLY this JSON:\n"
+        '{"verdict":"approve"|"reject","reason":"<one line>",'
+        '"verified_url":"","duplicate_of":"","outbreak":0,'
+        '"outbreak_evidence":"","fields":{"Date":"","Company":"","Brand":"",'
+        '"Product":"","Pathogen":"","Reason":"","Country":"","Region":""},'
+        '"provenance":""}'
+    )
+
+# ─── The agent ───────────────────────────────────────────────────────────
+
+def review_row(row: Dict[str, Any]) -> Dict[str, Any]:
+    """Run the Qwen review agent on one row. Verdict is one of:
+       - "approve" : verified + complete + in-scope 2026+ pathogen recall
+       - "reject"  : the model READ the page and it is invalid / out of scope
+                     / incomplete / cannot be verified. There is NO human, so
+                     an unverifiable row is rejected, not held.
+       - "retry"   : INFRASTRUCTURE failure only (llama down / no response /
+                     unparseable). NOT the row's fault → leave it untouched in
+                     Pending so the next scheduled run tries again.
+    """
+    infra = {"verdict": "retry", "fields": {},
+             "verified_url": row.get("URL", ""), "provenance": "",
+             "outbreak": row.get("Outbreak", 0), "outbreak_evidence": ""}
+    if llama_client is None or not llama_client.is_configured():
+        return {**infra, "reason": "INFRA: llama not configured (retry next run)"}
+    if llama_client.is_open():
+        return {**infra, "reason": "INFRA: llama circuit breaker open (retry)"}
+
+    seen: set = set()
+    messages = [
+        {"role": "system", "content": REVIEW_SYSTEM},
+        {"role": "user", "content": build_review_prompt(row)},
+    ]
+    out = llama_client.chat(
+        messages=messages,
+        tools=_tool_schema(),
+        tool_executor=_make_tool_executor(seen),
+        temperature=0.0,
+        # Full response contract is ~137 tokens; 700 only bounded a rambling
+        # answer, and on CPU inference that worst case dominated the measured
+        # 109 s/row. 300 keeps >2x headroom over any real answer.
+        max_tokens=300,
+    )
+    if not out:
+        return {**infra, "reason": "INFRA: no response from llama (retry)"}
+    # Parse the JSON (strip any accidental fences)
+    txt = out.strip()
+    if txt.startswith("```"):
+        txt = txt.strip("`")
+        if txt.lower().startswith("json"):
+            txt = txt[4:]
+    try:
+        parsed = json.loads(txt)
+    except json.JSONDecodeError:
+        import re
+        m = re.search(r"\{.*\}", txt, re.DOTALL)
+        if not m:
+            return {**infra, "reason": f"INFRA: unparseable output (retry): {txt[:80]}"}
+        try:
+            parsed = json.loads(m.group(0))
+        except json.JSONDecodeError:
+            return {**infra, "reason": "INFRA: json parse failed (retry)"}
+    # Valid JSON → the model's verdict is authoritative, but only approve /
+    # reject are accepted. Anything else (including a stray 'needs_human')
+    # collapses to REJECT: the model read the page and did not verify it.
+    v = str(parsed.get("verdict", "")).strip().lower()
+    if v not in ("approve", "reject"):
+        parsed["verdict"] = "reject"
+        parsed["reason"] = ("could not verify as valid in-scope recall: "
+                            + str(parsed.get("reason", ""))[:200])
+    parsed.setdefault("fields", {})
+    parsed.setdefault("verified_url", row.get("URL", ""))
+    parsed.setdefault("outbreak", row.get("Outbreak", 0))
+    parsed.setdefault("outbreak_evidence", "")
+    # ── EVIDENCE GATE FOR Outbreak=1 ──
+    # An outbreak flag drives the tier, so it may never rest on a keyword.
+    # Rows have arrived with Reason = "<pathogen> — outbreak" and nothing else,
+    # which trips a naive keyword match; 10 such rows reached the register.
+    # If the model claims outbreak=1 it MUST cite what it saw (a case count, a
+    # named investigation, a linked health-agency notice). No evidence -> 0,
+    # matching the documented "default 0" policy. This never forces a genuine
+    # outbreak to 0, because a genuine one comes with evidence.
+    try:
+        _ob = int(str(parsed.get("outbreak", 0)).strip() or 0)
+    except (TypeError, ValueError):
+        _ob = 0
+    if _ob == 1:
+        _ev = str(parsed.get("outbreak_evidence", "") or "").strip()
+        _bare = _ev.lower().rstrip(".")
+        if len(_ev) < 12 or _bare in ("outbreak", "yes", "true", "n/a", "none"):
+            parsed["outbreak"] = 0
+            parsed["outbreak_evidence"] = ""
+            parsed["provenance"] = (
+                str(parsed.get("provenance", "")) +
+                " [outbreak=1 dropped to 0: no evidence cited]").strip()
+    # ── DETERMINISTIC SCOPE GUARD (does not rely on the model) ──
+    # A pre-2026 publication date is out of scope, period. If the model
+    # approved a row whose verified Date is before 2026, override to reject.
+    # This is the backstop for the stale-recall class (2024 statements and
+    # Dec-2025 recalls that arrived stamped with a fresh scrape date).
+    if parsed.get("verdict") == "approve":
+        # ── CANONICAL SCOPE + PET-FOOD BACKSTOP ──
+        # Defer to pipeline/_pathogen_scope.py (locked 2026-04-30) rather than
+        # any list held here, so the agent can never disagree with the module
+        # that governs the rest of the pipeline. Also rejects pet/animal-food
+        # rows (e.g. a Salmonella outbreak traced to pet turtles is a real
+        # outbreak but not a food recall).
+        try:
+            from pipeline._pathogen_scope import (  # noqa: WPS433
+                is_in_scope as _in_scope, is_pet_food_product as _is_pet)
+            _f = parsed.get("fields") or {}
+            # NOTE: hazard-vocabulary enforcement is deliberately NOT done here.
+            # _pathogen_scope.TIER1_KEYWORDS omits histamine, cadmium and
+            # methylmercury, yet the published register carries 7 histamine and
+            # 4 cadmium rows and the operator asked for a methylmercury recall
+            # to be included (2026-08-06). Rejecting on that list would delete
+            # legitimate rows, so scope stays with the prompt and the existing
+            # pipeline enforcement. Only the pet/animal check runs here, because
+            # it is unambiguous.
+            # Live-animal contact outbreaks (pet turtles, backyard poultry,
+            # reptiles, hedgehogs) are real human-Salmonella outbreaks but are
+            # NOT food recalls. _PET_FOOD_RE targets pet FOOD, so it does not
+            # match these; this narrow addition does.
+            _blob = " ".join(str(x or "").lower() for x in (
+                _f.get("Product") or row.get("Product"),
+                _f.get("Company") or row.get("Company"),
+                _f.get("Reason") or row.get("Reason"),
+                row.get("URL")))
+            import re as _re2
+            if _re2.search(r"\b(pet|backyard|live)\s+(turtle|tortoise|reptile|"
+                           r"poultry|chick|duckling|bird|hedgehog|frog|lizard|"
+                           r"snake)s?\b|\bturtles?-\d|\bsmall\s+turtles?\b",
+                           _blob):
+                parsed["verdict"] = "reject"
+                parsed["reason"] = ("out of scope: outbreak linked to live "
+                                    "animal contact, not a food product")
+                return parsed
+            if _is_pet(str(_f.get("Product") or row.get("Product") or ""),
+                       str(_f.get("Company") or row.get("Company") or ""),
+                       str(_f.get("Reason") or row.get("Reason") or "")):
+                parsed["verdict"] = "reject"
+                parsed["reason"] = "out of scope: pet/animal product, not a food recall"
+                return parsed
+        except Exception:
+            pass
+        # Field-integrity backstop: untranslated text, placeholder strings,
+        # headline-as-product and regulator-as-product are all disqualifying.
+        _m = dict(row)
+        for _k, _v in (parsed.get("fields") or {}).items():
+            if _v:
+                _m[_k] = _v
+        _probs = _field_integrity_flags(_m) + _provenance_flags(_m)
+        _blocking = [p for p in _probs if _is_blocking(p)]
+        _warnings = [p for p in _probs if not _is_blocking(p)]
+        if _blocking:
+            parsed["verdict"] = "reject"
+            parsed["reason"] = "field integrity: " + "; ".join(_blocking[:3])
+            return parsed
+        if _warnings:
+            parsed["provenance"] = (
+                str(parsed.get("provenance", "")) +
+                " [needs cleanup: " + "; ".join(_warnings[:2]) + "]").strip()
+        d = str((parsed.get("fields") or {}).get("Date")
+                or row.get("Date") or "").strip()[:10]
+        if len(d) >= 4 and d[:4].isdigit() and int(d[:4]) < 2026:
+            parsed["verdict"] = "reject"
+            parsed["reason"] = (f"out of scope: original publication date {d} "
+                                f"is before 2026")
+    return parsed
+
+
+# Words that betray an untranslated / half-translated field. Deliberately
+# short and unambiguous — these are not English and appear in real rows.
+_NON_ENGLISH_TOKENS = (
+    " dans le ", " du produit", "presencia", "procedente", "procedentes",
+    "presence de", "présence", " et de ", " avec ", " sur place",
+    " nella ", " nel prodotto", " im produkt", " en el producto",
+    " a l'ail", "seche", "sèche", "fabriquees", "fabriquées",
+    "salmonelle", "salmonela", "salmonellose", "salmonelose",
+    "listerie", "listérie", "listeriose", "listériose",
+    "colibacille", "botulisme", "hepatite", "hépatite",
+)
+# Strings that are explanations, not values.
+_PLACEHOLDER_MARKERS = (
+    "not specified", "non spécifié", "no especificado", "not stated",
+    "unknown", "n/a", "see notice", "see the notice", "aucune information",
+)
+
+
+# Hazard words that describe something OTHER than a microbial pathogen. If the
+# Reason is about one of these while the Pathogen field names an organism, the
+# pathogen was almost certainly fabricated (the LGM "Listeria"/peanuts and the
+# Ukrops "Hepatitis A"/aluminium-slivers incidents both look exactly like this).
+_NON_PATHOGEN_HAZARDS = (
+    "foreign body", "foreign material", "aluminium", "aluminum", "metal sliver",
+    "metal fragment", "glass", "plastic fragment", "wood fragment",
+    "undeclared allergen", "undeclared milk", "undeclared peanut",
+    "undeclared soy", "undeclared gluten", "undeclared sulphite",
+    "labelling error", "labeling error", "incorrect label", "mislabel",
+    "sugar content", "nutrition declaration",
+)
+_PATHOGEN_NAMES = (
+    "listeria", "salmonella", "escherichia", "e. coli", "e.coli", "stec",
+    "cronobacter", "botulinum", "norovirus", "hepatitis", "staphylococc",
+    "campylobacter", "bacillus cereus", "vibrio", "shigella",
+)
+# Non-English function words. Checked on Reason only — Reason should always be
+# English prose, whereas a Product may legitimately carry a foreign proper name
+# (e.g. "Brie de Meaux"), so a function-word test there would false-positive.
+_NON_ENGLISH_FUNCTION_WORDS = (
+    " a la ", " à la ", " de la ", " du ", " des ", " dans ", " avec ",
+    " sur ", " pour ", " en el ", " de los ", " nel ", " nella ", " im ",
+    " und ", " para ", " procedente", " presencia", " présence", " aux ",
+)
+
+
+# Official domain for each Source. A verified URL MUST live on the regulator's
+# own site — a news aggregator that merely reports the recall is not the source
+# of record. (City Foods 015-2026 was approved on a usatoday.com link.)
+_SOURCE_DOMAINS = {
+    "usda fsis": ("fsis.usda.gov",),
+    "fda": ("fda.gov", "accessdata.fda.gov"),
+    "cdc": ("cdc.gov",),
+    "cfia": ("recalls-rappels.canada.ca", "inspection.canada.ca"),
+    "rappelconso": ("rappel.conso.gouv.fr",),
+    "rasff": ("webgate.ec.europa.eu",),
+    "fsa (uk)": ("food.gov.uk",),
+    "fsai": ("fsai.ie",),
+    "fsanz": ("foodstandards.gov.au",),
+    "aesan": ("aesan.gob.es",),
+    "efet": ("efet.gr",),
+    "bvl": ("bvl.bund.de", "lebensmittelwarnung.de"),
+    "blv": ("blv.admin.ch", "recallswiss.admin.ch"),
+    "favv": ("favv-afsca.be", "favv.be", "afsca.be"),
+    "afsca": ("favv-afsca.be", "favv.be", "afsca.be"),
+    "nvwa": ("nvwa.nl",),
+    "ages": ("ages.at",),
+    "mfds": ("mfds.go.kr", "foodsafetykorea.go.kr"),
+    "anvisa": ("gov.br",),
+    "sfa": ("sfa.gov.sg",),
+    "cfs": ("cfs.gov.hk",),
+    "ncc": ("thencc.org.za",),
+    "livsmedelsverket": ("livsmedelsverket.se",),
+    "salute": ("salute.gov.it",),
+}
+# Aggregators / news sites that must never be a row's URL.
+_NON_OFFICIAL_DOMAINS = (
+    "usatoday.com", "recalltracker", "vigiproduit", "60millions",
+    "foodsafetynews", "thenightly", "culturacolectiva", "freedom.fr",
+    "newsweek", "cnn.com", "bbc.co", "reuters.com", "yahoo.",
+    "facebook.", "twitter.", "x.com", "reddit.",
+)
+
+
+# Some regulators publish a machine-readable record at one URL and the human
+# notice at another. Storing the API record gives metadata, not a page a reader
+# can open, so canonicalise to the public alert page.
+#   FSA (UK): data.food.gov.uk/food-alerts/id/FSA-PRIN-38-2026
+#             -> www.food.gov.uk/news-alerts/alert/fsa-prin-38-2026
+# (The FSA's own linked-data record carries this as its "alertURL" field.)
+_FSA_API_RE = re.compile(
+    r"https?://data\.food\.gov\.uk/food-alerts/id/([A-Za-z0-9\-]+)", re.I)
+
+
+def canonical_url(url: str) -> str:
+    """Rewrite a known API/metadata URL to its public page. Returns the URL
+    unchanged when no rule applies."""
+    u = str(url or "").strip()
+    m = _FSA_API_RE.match(u)
+    if m:
+        return ("https://www.food.gov.uk/news-alerts/alert/"
+                + m.group(1).lower())
+    return u
+
+
+def _url_source_mismatch(merged: Dict[str, Any]) -> Optional[str]:
+    """The URL must be on the regulator's own domain for its Source.
+
+    Honours the register's "X - aggregator (Y)" convention: when a source is
+    labelled e.g. "CFS (HK) - aggregator (RappelConso FR)", CFS is the
+    publisher and RappelConso is only the original notice being republished.
+    The URL must therefore match CFS, not RappelConso. Reading the whole label
+    wrongly flagged 8 correctly-recorded CFS rows whose URLs are genuine
+    cfs.gov.hk PDFs.
+    """
+    url = str(merged.get("URL", "") or "").lower()
+    src = str(merged.get("Source", "") or "").lower()
+    # Keep only the publishing agency — drop the "(original source)" part.
+    src = re.split(r"\s*-\s*aggregator\b", src)[0].strip()
+    if not url:
+        return "URL is empty"
+    if "data.food.gov.uk" in url:
+        return ("URL is the FSA linked-data record (metadata), not the public "
+                "alert page — use www.food.gov.uk/news-alerts/alert/...")
+    for bad in _NON_OFFICIAL_DOMAINS:
+        if bad in url:
+            return (f"URL is a news/aggregator site ({bad}), not the "
+                    f"regulator's own notice")
+    for key, domains in _SOURCE_DOMAINS.items():
+        if key in src:
+            if not any(d in url for d in domains):
+                return (f"URL domain does not match Source {merged.get('Source')!r} "
+                        f"(expected {domains[0]})")
+            return None
+    return None
+
+
+# Bare genus names that must carry their species, matching the register's own
+# vocabulary (494 rows use "Listeria monocytogenes"; only 2 said "Listeria").
+_PATHOGEN_CANON = {
+    "listeria": "Listeria monocytogenes",
+    "listeria spp": "Listeria monocytogenes",
+    "listeria spp.": "Listeria monocytogenes",
+    "l. monocytogenes": "Listeria monocytogenes",
+    "e. coli": "Escherichia coli",
+    "e.coli": "Escherichia coli",
+    "hepatitis a": "Hepatitis A virus",
+}
+
+
+def _canonical_pathogen(value: str) -> str:
+    v = str(value or "").strip()
+    return _PATHOGEN_CANON.get(v.lower(), v)
+
+
+def _pathogen_reason_contradiction(merged: Dict[str, Any]) -> Optional[str]:
+    """Pathogen names an organism but the Reason describes a different class
+    of hazard.
+
+    DELEGATES TO THE CANONICAL CLASSIFIER (audit 2026-08-09).
+    ========================================================
+    This used to walk `_NON_PATHOGEN_HAZARDS` above — a private copy of a
+    table that already exists, maintained, in pipeline/_publish_gate.py. On
+    2026-08-05 the FSANZ Key-Sun Kids lozenge arrived with
+
+        Pathogen  Listeria monocytogenes
+        Reason    "There is a risk of the presence of foreign matter (metal)."
+
+    and this function returned None, because the private copy knows
+    "foreign body" and "foreign material" but not "foreign MATTER". The
+    canonical table has carried "foreign matter" all along, so _publish_gate
+    blocked the row and the fabricated pathogen never reached Recalls — the
+    deterministic gate covered for the reviewer.
+
+    That is the third time a duplicated hazard table has drifted (LGM
+    Listeria/peanuts, Ukrops Hepatitis A/aluminium, now this). The
+    _publish_gate docstring already records the decision that claude_check
+    must import rather than copy; this module was never brought into line.
+    Adding "foreign matter" to the copy would fix this one row and leave the
+    next divergence to be found by the next incident.
+
+    The private tuples are kept ONLY as an offline fallback for the case
+    where _publish_gate cannot be imported at all. They are no longer the
+    primary path, so they can no longer silently disagree with it.
+    """
+    patho = str(merged.get("Pathogen", "") or "")
+    reason = str(merged.get("Reason", "") or "")
+    if not patho.strip() or not reason.strip():
+        return None
+
+    try:
+        from pipeline._publish_gate import (
+            pathogen_reason_class_mismatch, classify_hazard,
+        )
+    except ImportError:                                # pragma: no cover
+        pl, rl = patho.lower(), reason.lower()
+        if not any(p in pl for p in _PATHOGEN_NAMES):
+            return None
+        if any(p in rl for p in _PATHOGEN_NAMES):
+            return None
+        for hz in _NON_PATHOGEN_HAZARDS:
+            if hz in rl:
+                return (f"Pathogen {patho!r} contradicts Reason "
+                        f"(describes {hz!r}) — pathogen likely fabricated")
+        return None
+
+    if pathogen_reason_class_mismatch(patho, reason):
+        return (f"Pathogen {patho!r} contradicts Reason "
+                f"({sorted(classify_hazard(patho))} vs "
+                f"{sorted(classify_hazard(reason))}) — one of the two fields "
+                f"is not what the source page says")
+    return None
+
+
+# DEFECTS OF FACT — the row asserts something its source does not support.
+# These block publication:
+#   fabricated pathogen · placeholder instead of a value · wrong regulator
+#   domain · authority name in Product · headline as Product
+#
+# Everything else is a defect of PRESENTATION. A RappelConso recall with the
+# right date, company, product, pathogen and URL is a true, publishable record
+# even if its Reason still reads in French. Rejecting it would discard a real
+# food-safety alert over a formatting nit — that is what stalled the French
+# feed while 8 of 11 rows were rejected on language alone.
+_WARNING_ONLY = ("not in English", "formatting debris")
+
+
+def _is_blocking(problem: str) -> bool:
+    return not any(w in problem for w in _WARNING_ONLY)
+
+
+def _provenance_flags(merged: Dict[str, Any],
+                      page_text: str = None) -> List[str]:
+    """Does the cited page describe THIS row?
+
+    Added 2026-09-01. Every other guard here checks the SHAPE of a URL —
+    well-formed, regulator domain, resolves. None checked what the page says.
+    RappelConso fiche 22230 passed all of them as a Brie/Listeria row; the
+    fiche is a SHEIN plush toy. Only reading the page catches that.
+
+    Unreachable is not a defect: several regulators refuse datacentre traffic
+    and rejecting on that would discard real recalls for an infrastructure
+    reason. Silence is the honest answer when we cannot read the page.
+    """
+    try:
+        from pipeline import _provenance
+        return _provenance.check(merged, page_text=page_text,
+                                 treat_unreachable_as_problem=False)
+    except Exception:                                        # noqa: BLE001
+        return []
+
+
+def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
+    """Deterministic checks the model cannot skip. Returns a list of problems;
+    an approved row with any problem is downgraded to reject.
+
+    RASFF EXEMPTION: RASFF rows are correct by design — the notification
+    subject line IS the Product, it stays in the notifier's language, Brand
+    is the notifying-country ISO code (or a dash), and Company is the fixed
+    "Origin: X | Notifying: Y" string. Applying the language / headline /
+    placeholder heuristics to them produces false positives, so RASFF rows
+    are checked only for outright emptiness.
+    """
+    probs = []
+    # RASFF exemption FIRST — its format is correct by design.
+    if "rasff" in str(merged.get("Source", "")).lower():
+        for fld in ("Product", "URL"):
+            if not str(merged.get(fld, "") or "").strip():
+                probs.append(f"{fld} is empty")
+        return probs
+    _mismatch = _url_source_mismatch(merged)
+    if _mismatch:
+        probs.append(_mismatch)
+    _contra = _pathogen_reason_contradiction(merged)
+    if _contra:
+        probs.append(_contra)
+    _reason_raw = str(merged.get("Reason", "") or "")
+    _flagged_reason = False
+    try:  # canonical detector — same one merge_master uses
+        from pipeline._language import looks_non_english as _lne
+        if _reason_raw and _lne(_reason_raw):
+            probs.append("Reason not in English (pipeline._language)")
+            _flagged_reason = True
+    except Exception:
+        pass
+    if not _flagged_reason:
+        _reason = " " + _reason_raw.lower() + " "
+        for _w in _NON_ENGLISH_FUNCTION_WORDS:
+            if _w in _reason:
+                probs.append(f"Reason not in English ({_w.strip()!r})")
+                break
+    # Per pipeline/_language.py (operator rule 2026-08-02) Company, Brand and
+    # Product are NAMES and stay in the original language — they are NOT
+    # language-checked. Only DESCRIPTION fields must read in English.
+    for fld in ("Reason", "Region"):
+        v = str(merged.get(fld, "") or "").lower()
+        if not v:
+            continue
+        for tok in _NON_ENGLISH_TOKENS:
+            if tok in v:
+                probs.append(f"{fld} not in English ({tok.strip()!r})")
+                break
+    for fld in ("Company", "Brand", "Product", "Reason"):
+        v = str(merged.get(fld, "") or "").lower()
+        if any(m in v for m in _PLACEHOLDER_MARKERS):
+            probs.append(f"{fld} holds a placeholder string, not a value")
+    # Product must not be the regulator / an alert headline.
+    prod = str(merged.get("Product", "") or "")
+    if prod.lstrip().startswith("#") or "\n" in prod:
+        probs.append("Product contains formatting debris (# or newline)")
+    if len(prod) > 160:
+        probs.append("Product looks like a headline, not a product name")
+    # The regulator's own name must not appear in Product, Company or Brand.
+    #
+    # Company/Brand were added 2026-09-02. The check used to read Product
+    # only, and a salute.gov.it /tema/ landing page reached the register as an
+    # Italian recall on the strength of it: Product was "Sistema di controllo
+    # della sicurezza alimentare" (a control system, not a food) while Company
+    # AND Brand both held "Ministero della Salute" — the regulator itself. The
+    # sibling "Company == Brand and longer than 60 chars" test missed it too,
+    # because that string is 22 characters.
+    #
+    # Measured against the live 1550-row register before shipping: this rule,
+    # applied to all three fields, flags ZERO published rows. A firm is never
+    # named after the agency that regulates it, so there is no legitimate row
+    # to lose here.
+    _AGENCY_NAMES = ("Agencia Española", "Agencia Espanola", "Food Standards",
+                     "Autorité", "Bundesamt", "Ministero della Salute",
+                     "Ministry of Health", "Food Safety Authority",
+                     "Federal Agency", "Health Canada",
+                     "Food and Drug Administration")
+    for _fld in ("Product", "Company", "Brand"):
+        _v = str(merged.get(_fld, "") or "").lower()
+        if not _v:
+            continue
+        if any(_a.lower() in _v for _a in _AGENCY_NAMES):
+            probs.append(f"{_fld} contains the regulator's name")
+            break
+    # Company and Brand identical AND long => both are the headline.
+    c = str(merged.get("Company", "") or "")
+    b = str(merged.get("Brand", "") or "")
+    if c and c == b and len(c) > 60:
+        probs.append("Company and Brand are the same long headline string")
+    return probs
+
+
+def _normalize_country_source(merged: Dict[str, Any]) -> None:
+    """Enforce dataset conventions (from the repo's own canonical usage):
+       - Country: the United States is written "United States", never "USA"
+         (82 rows + gap_finder_tavily/regulator_apis/gap_finder_claude agree).
+       - Source: US meat/poultry recalls are "USDA FSIS" (consistent form).
+    """
+    c = str(merged.get("Country", "")).strip()
+    if c.upper() in ("USA", "U.S.A.", "US", "U.S.", "UNITED STATES OF AMERICA",
+                     "AMERICA"):
+        merged["Country"] = "United States"
+    u = canonical_url(merged.get("URL", ""))
+    if u:
+        merged["URL"] = u
+    p = _canonical_pathogen(merged.get("Pathogen", ""))
+    if p:
+        merged["Pathogen"] = p
+    s = str(merged.get("Source", "")).strip()
+    # Normalise any FSIS/USDA source label to the canonical "USDA FSIS".
+    sl = s.lower()
+    if ("fsis" in sl or "usda" in sl) and s != "USDA FSIS":
+        merged["Source"] = "USDA FSIS"
+
+
+def apply_review(row: Dict[str, Any], review: Dict[str, Any]) -> Dict[str, Any]:
+    """Merge the agent's verified fields back into the row (corrections win,
+    but never blank a field the row already had unless the agent explicitly
+    says the page contradicts it — here we take non-empty agent values)."""
+    merged = dict(row)
+    fields = review.get("fields") or {}
+    for k in ("Date", "Company", "Brand", "Product", "Pathogen", "Reason",
+              "Country", "Region"):
+        v = fields.get(k)
+        if v:  # only overwrite with a non-empty verified value
+            merged[k] = v
+    vu = review.get("verified_url")
+    if vu:
+        merged["URL"] = vu
+    _normalize_country_source(merged)
+    return merged
+
+
+# ─── Sheet I/O ───────────────────────────────────────────────────────────
+
+def load_pending(xlsx: Path) -> Tuple[List[Dict[str, Any]], List[str]]:
+    return _load_sheet(xlsx, "Pending"), _sheet_headers(xlsx, "Pending")
+
+
+def _load_sheet(xlsx: Path, sheet: str) -> List[Dict[str, Any]]:
+    import openpyxl
+    wb = openpyxl.load_workbook(xlsx, read_only=True, data_only=True)
+    if sheet not in wb.sheetnames:
+        return []
+    ws = wb[sheet]
+    headers = [c.value for c in ws[1]]
+    rows = []
+    for r in ws.iter_rows(min_row=2, values_only=True):
+        row = {h: ("" if v is None else v) for h, v in zip(headers, r) if h}
+        if any(str(v).strip() for v in row.values()):
+            rows.append(row)
+    return rows
+
+
+def _sheet_headers(xlsx: Path, sheet: str) -> List[str]:
+    import openpyxl
+    wb = openpyxl.load_workbook(xlsx, read_only=True, data_only=True)
+    if sheet not in wb.sheetnames:
+        return []
+    return [c.value for c in wb[sheet][1] if c.value]
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--xlsx", type=Path, default=Path("docs/data/recalls.xlsx"))
+    ap.add_argument("--commit", type=str, default="false")
+    ap.add_argument("--source-filter", type=str, default=None)
+    ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--all-statuses", action="store_true",
+                    help="Review every Pending row, not just reviewer 2's lane. "
+                         "Slower; use only for a deliberate full sweep.")
+    ap.add_argument("--time-budget-min", type=int, default=40,
+                    help="Stop reviewing after N minutes and SAVE what has "
+                         "been done, so a workflow timeout cannot discard the "
+                         "run. Remaining rows are picked up next run.")
+    ap.add_argument("--max-removals", type=int, default=10,
+                    help="Audit mode safety cap: abort without writing if the "
+                         "model wants to remove more than N rows from Recalls.")
+    ap.add_argument("--audit-recalls", type=str, default="false",
+                    help="Re-verify rows ALREADY in Recalls (audit mode). "
+                         "Corrects fields in place; moves out-of-scope / "
+                         "duplicate / unverifiable rows to Weekly_Rejected.")
+    args = ap.parse_args()
+    commit = args.commit.lower() in ("1", "true", "yes", "on")
+    if args.audit_recalls.lower() in ("1", "true", "yes", "on"):
+        return audit_recalls(args, commit)
+
+    rows, _ = load_pending(args.xlsx)
+    if not args.all_statuses:
+        _before = len(rows)
+        rows = [r for r in rows
+                if str(r.get("Status", "")).strip() in AGENT2_STATUSES]
+        _skipped = _before - len(rows)
+        if _skipped:
+            print(f"Lane filter: {len(rows)} row(s) in "
+                  f"{sorted(AGENT2_STATUSES)}; skipped {_skipped} row(s) "
+                  f"belonging to reviewer 1 (--all-statuses to override).")
+    if args.source_filter:
+        sf = args.source_filter.lower()
+        rows = [r for r in rows if sf in str(r.get("Source", "")).lower()]
+    if args.limit and args.limit > 0:
+        rows = rows[:args.limit]
+
+    print(f"Reviewing {len(rows)} Pending rows "
+          f"(commit={commit}, source_filter={args.source_filter})")
+    if not rows:
+        print("Nothing to review.")
+        return 0
+
+    results = {"approve": [], "reject": [], "retry": []}
+    _deadline = (dt.datetime.now(dt.timezone.utc)
+                 + dt.timedelta(minutes=max(1, args.time_budget_min)))
+    _stopped_early = 0
+    for i, row in enumerate(rows, 1):
+        if dt.datetime.now(dt.timezone.utc) >= _deadline:
+            _stopped_early = len(rows) - i + 1
+            print(f"\n  [time budget {args.time_budget_min}m reached] "
+                  f"stopping after {i-1} rows; {_stopped_early} left for the "
+                  f"next run. Saving progress now.")
+            break
+        review = review_row(row)
+        review["_orig_url"] = str(row.get("URL", "")).strip()
+        verdict = review.get("verdict", "retry")
+        merged = apply_review(row, review)
+        results[verdict if verdict in results else "retry"].append(
+            (merged, review))
+        print(f"  [{i}/{len(rows)}] {verdict.upper():8s} "
+              f"{str(row.get('Source',''))[:14]:14s} "
+              f"{str(merged.get('Product',''))[:44]:44s} "
+              f"| {review.get('reason','')[:60]}")
+
+    if _stopped_early:
+        print(f"NOTE: {_stopped_early} rows not reviewed this run (time budget).")
+    print(f"\n{'='*60}")
+    print(f"approve: {len(results['approve'])}  "
+          f"reject: {len(results['reject'])}  "
+          f"retry (infra, left in Pending): {len(results['retry'])}")
+    print(f"{'='*60}")
+
+    # ── VISIBLE FAILURE ON A TOTAL INFRA WASHOUT ──
+    # A run where EVERY row came back "retry" did no reviewing at all: llama was
+    # unreachable or the context was exceeded. Exiting 0 there paints the run
+    # green in the Actions tab and hides the outage for days. Make it loud.
+    _n = len(rows)
+    _retry = len(results["retry"])
+    if _n and _retry == _n:
+        print("\n" + "=" * 60)
+        print(f"*** NO REVIEW PERFORMED — all {_n} rows returned retry. ***")
+        print("The model was unreachable for every row (llama down, context")
+        print("exceeded, or circuit breaker open). Nothing was written.")
+        print("Check: curl $LLAMA_BASE_URL/models on the VPS.")
+        print("=" * 60)
+        return 3
+    if _n and _retry > _n * 0.8:
+        print(f"\n*** WARNING: {_retry}/{_n} rows returned retry — the model is "
+              f"mostly unreachable. Review coverage this run was minimal. ***")
+
+    if not commit:
+        print("\nDRY RUN — no writes. Set --commit true to apply:")
+        print("  approvals → Recalls (corrected fields), "
+              "rejects → Weekly_Rejected, retry → untouched in Pending.")
+        return 0
+
+    # ── Write-back: mirror claude_check.py's final-reviewer sequence ──
+    # The review agent IS "Reviewer 2 — final verdict", so promote_approved
+    # is called with archive_immediately=True, exactly as claude_check does.
+    try:
+        from pipeline.merge_master import (  # type: ignore
+            promote_approved, sort_rows, save_xlsx_with_pending,
+            mirror_json_from_xlsx)
+    except Exception as e:
+        print(f"ERROR importing merge_master helpers: {e}", file=sys.stderr)
+        return 1
+
+    XLSX_PATH = Path(args.xlsx)
+
+    # Recalls (approved_existing) + FULL Pending, so indices line up.
+    approved_existing = _load_sheet(args.xlsx, "Recalls")
+    full_pending = _load_sheet(args.xlsx, "Pending")
+
+    url_to_idx: Dict[str, int] = {}
+    for i, pr in enumerate(full_pending):
+        u = str(pr.get("URL", "")).strip()
+        if u:
+            url_to_idx[u] = i
+
+    rejected_flags: Dict[int, str] = {}
+    applied_corrections = 0
+
+    # Approvals — write corrected fields IN PLACE; leave out of rejected_flags
+    # Also advance gap-gating / enrichment statuses to plain 'pending' so
+    # promote_approved will actually promote them (it skips pending_gap* and
+    # pending_enrichment). This replicates claude_check.py's documented
+    # state-machine advance (audit 2026-04-29 / 2026-05-11) — the review
+    # agent is the 2nd/final reviewer, so an approval flips the gate.
+    # REVIEWER 2 DOES NOT PROMOTE. An approved row is parked at
+    # pending_gap_v3 — merge_master skips every pending_gap* status, so this
+    # stage physically cannot reach Recalls until reviewer 3 confirms it and
+    # flips it to "pending". That is what makes a mid-run timeout harmless:
+    # whatever this agent finished is banked, and reviewer 3 publishes it in
+    # seconds without needing the model at all.
+    _ADVANCE_FROM = {"pending_gap_v1", "pending_gap_v2", "pending_retry",
+                     "pending_enrichment"}
+    _A2_APPROVED_STATUS = "pending_gap_v3"
+    today_iso = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+    gap_advanced = 0
+    for merged, review in results["approve"]:
+        idx = url_to_idx.get(str(merged.get("URL", "")).strip())
+        if idx is None:
+            idx = url_to_idx.get(str(review.get("_orig_url", "")).strip())
+        if idx is not None:
+            for k in ("Date", "Company", "Brand", "Product", "Pathogen",
+                      "Reason", "Country", "Region", "URL"):
+                if merged.get(k):
+                    full_pending[idx][k] = merged[k]
+            # Pathogen may be intentionally CLEARED by the agent when the
+            # hazard is an allergen / foreign body / chemical (not a pathogen).
+            # merged only carries non-empty values, so consult the raw review
+            # fields dict: if it explicitly returned Pathogen == "" we honor it.
+            rfields = review.get("fields") or {}
+            if "Pathogen" in rfields and not str(rfields.get("Pathogen")).strip():
+                full_pending[idx]["Pathogen"] = ""
+            # Company/Brand: honor an explicit correction to empty (a
+            # fabricated value the page doesn't support). "Unbranded" is a
+            # normal non-empty value and is written via the loop above.
+            for fld in ("Company", "Brand"):
+                if fld in rfields and not str(rfields.get(fld)).strip():
+                    full_pending[idx][fld] = ""
+            # Outbreak is verified explicitly (0 or 1) — always apply it,
+            # including a correction from 1→0, since it drives the tier bump.
+            ob = review.get("outbreak")
+            if ob in (0, 1, "0", "1"):
+                full_pending[idx]["Outbreak"] = int(ob)
+            applied_corrections += 1
+            cur = str(full_pending[idx].get("Status", "")).strip()
+            if cur in _ADVANCE_FROM:
+                full_pending[idx]["Status"] = _A2_APPROVED_STATUS
+                notes = str(full_pending[idx].get("Notes", "")).strip()
+                tag = (f"[review-agent {today_iso}: {cur} → "
+                       f"{_A2_APPROVED_STATUS} (Qwen verified; awaiting "
+                       f"reviewer 3 confirmation)]")
+                full_pending[idx]["Notes"] = (notes + " " + tag).strip()[:1000]
+                gap_advanced += 1
+
+    # Rejects → rejected_flags (index → reason)
+    for merged, review in results["reject"]:
+        idx = url_to_idx.get(str(merged.get("URL", "")).strip())
+        if idx is not None:
+            rejected_flags[idx] = f"Review agent: {review.get('reason','')[:280]}"
+
+    # retry (infra failure) → leave the row COMPLETELY untouched in Pending.
+    # Do not change status, do not reject. The next scheduled run retries it.
+
+    # ── HARD SAFETY GUARD (no-assumptions rule) ──
+    # Only rows the agent EXPLICITLY approved this run may promote. Any row at
+    # promotable status 'pending' that is NOT in the approved set is demoted so
+    # a server failure / retry can never leak an unverified row into Recalls.
+    # (Fixes the incident where rows already at 'pending' promoted during a
+    # total llama outage.)
+    approved_urls = set()
+    for merged, review in results["approve"]:
+        for key in ("URL", "_orig_url"):
+            u = str((merged.get(key) if key == "URL" else review.get(key)) or "").strip()
+            if u:
+                approved_urls.add(u)
+    # SCOPE OF THE GUARD — this matters. It applies ONLY to rows this run
+    # actually reviewed. A row the agent never looked at (outside its lane,
+    # past --limit, past the time budget, or written after the sheet was read)
+    # is not the agent's to demote: holding it back would silently stall the
+    # register whenever the model is unavailable, which is what stranded the
+    # French RappelConso rows for four days. The original incident this guard
+    # exists for — 16 rows promoting during a total outage — is still covered,
+    # because those rows WERE in the reviewed set and all came back unverified.
+    reviewed_urls = set()
+    for _r in rows:
+        _u = str(_r.get("URL", "")).strip()
+        if _u:
+            reviewed_urls.add(_u)
+    # (Reviewer 2 no longer writes "pending" at all, so this guard now only
+    # protects rows that arrived promotable from elsewhere.)
+    for prow in full_pending:
+        if str(prow.get("Status", "")).strip() != "pending":
+            continue
+        u = str(prow.get("URL", "")).strip()
+        if u not in reviewed_urls:
+            continue          # never reviewed this run — leave it alone
+        if u not in approved_urls:
+            prow["Status"] = "pending_gap_v2"  # reviewed, not approved: hold
+            note = str(prow.get("Notes", "")).strip()
+            prow["Notes"] = (note + " [safety-hold: reviewed but not approved "
+                             "this run; not promoted]").strip()[:1000]
+
+    # ── REVIEWER 2 DOES NOT PUBLISH ──
+    # It records its verdicts and saves. Reviewer 3 (recall_confirm_agent)
+    # re-checks and publishes. This is what makes a mid-run timeout harmless:
+    # everything finished so far is already banked on disk, and publication
+    # does not depend on this agent completing, or on the model at all.
+    from pipeline.merge_master import (  # type: ignore
+        sort_rows, save_xlsx_with_pending)
+    for idx, reason in rejected_flags.items():
+        full_pending[idx]["Status"] = "rejected"
+        _n = str(full_pending[idx].get("Notes", "")).strip()
+        full_pending[idx]["Notes"] = (
+            _n + f" [review-agent {today_iso}: REJECTED — {reason}]"
+        ).strip()[:1000]
+
+    save_xlsx_with_pending(sort_rows(approved_existing),
+                           sort_rows(full_pending), XLSX_PATH)
+    try:
+        from pipeline.merge_master import mirror_json_from_xlsx
+        mirror_json_from_xlsx(XLSX_PATH, XLSX_PATH.parent / "recalls.json")
+    except Exception:
+        pass
+
+    _v3 = sum(1 for r in full_pending
+              if str(r.get("Status", "")).strip() == _A2_APPROVED_STATUS)
+    print(f"\n✓ Reviewer 2 done. {applied_corrections} row(s) verified and "
+          f"banked at {_A2_APPROVED_STATUS} ({_v3} awaiting reviewer 3), "
+          f"{len(rejected_flags)} marked rejected. Nothing published here.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
+# ─── AUDIT MODE: re-verify rows ALREADY promoted to Recalls ──────────────
+
+def audit_recalls(args, commit: bool) -> int:
+    """Re-review rows already in Recalls against their source pages.
+
+    Exists because bad rows reach Recalls when an enricher fabricates a field
+    and a reviewer passes it on a 'clean-row shortcut' (documented FSANZ
+    Listeria default-tagging incident). The scheduled agents only see Pending,
+    so nothing ever re-checks a promoted row. This does.
+
+    approve → corrections applied in place (Pathogen, Company, Date, …)
+    reject  → row MOVED out of Recalls into Weekly_Rejected with the reason
+    retry   → row left exactly as-is (infra failure, not the row's fault)
+    """
+    import openpyxl
+    xlsx = Path(args.xlsx)
+    wb = openpyxl.load_workbook(xlsx)
+    ws = wb["Recalls"]
+    headers = [c.value for c in ws[1]]
+    hidx = {h: i for i, h in enumerate(headers) if h}
+
+    rows = []
+    for ridx in range(2, ws.max_row + 1):
+        row = {h: (ws.cell(ridx, i + 1).value or "") for h, i in hidx.items()}
+        if any(str(v).strip() for v in row.values()):
+            rows.append((ridx, row))
+
+    if args.source_filter:
+        sf = args.source_filter.lower()
+        rows = [(i, r) for i, r in rows
+                if sf in str(r.get("Source", "")).lower()]
+    if args.limit and args.limit > 0:
+        rows = rows[:args.limit]
+
+    print(f"AUDIT MODE — re-verifying {len(rows)} rows already in Recalls "
+          f"(commit={commit})")
+    if not rows:
+        print("Nothing to audit.")
+        return 0
+
+    fixed, to_remove, retried = [], [], 0
+    for n, (ridx, row) in enumerate(rows, 1):
+        review = review_row(row)
+        v = review.get("verdict", "retry")
+        if v == "retry":
+            retried += 1
+            print(f"  [{n}/{len(rows)}] RETRY    {str(row.get('Product',''))[:40]}")
+            continue
+        if v == "reject":
+            to_remove.append((ridx, row, review.get("reason", "")[:200]))
+            print(f"  [{n}/{len(rows)}] REMOVE   "
+                  f"{str(row.get('Product',''))[:40]:40s} | {review.get('reason','')[:45]}")
+            continue
+        merged = apply_review(row, review)
+        changes = {k: (row.get(k), merged.get(k))
+                   for k in ("Date", "Company", "Brand", "Product", "Pathogen",
+                             "Reason", "Country", "Region", "URL")
+                   if str(row.get(k, "")) != str(merged.get(k, ""))}
+        ob = review.get("outbreak")
+        if ob in (0, 1, "0", "1") and str(row.get("Outbreak", "")) != str(int(ob)):
+            changes["Outbreak"] = (row.get("Outbreak"), int(ob))
+        if changes:
+            fixed.append((ridx, changes))
+            print(f"  [{n}/{len(rows)}] FIX      "
+                  f"{str(row.get('Product',''))[:40]:40s} | "
+                  + ", ".join(f"{k}:{a!r}->{b!r}" for k, (a, b) in
+                              list(changes.items())[:2])[:60])
+        else:
+            print(f"  [{n}/{len(rows)}] OK       {str(row.get('Product',''))[:40]}")
+
+    print(f"\n{'='*60}")
+    print(f"fix: {len(fixed)}  remove: {len(to_remove)}  "
+          f"retry(infra): {retried}  ok: {len(rows)-len(fixed)-len(to_remove)-retried}")
+    print(f"{'='*60}")
+
+    # ── SAFETY CAP ──
+    # Audit mode deletes from the published register. A misbehaving or
+    # context-starved model that rejects everything must not be able to wipe
+    # good rows. Abort the whole run if removals exceed the cap.
+    cap = max(0, int(getattr(args, "max_removals", 10)))
+    if len(to_remove) > cap:
+        print(f"\n*** ABORTED — model wants to remove {len(to_remove)} rows, "
+              f"cap is {cap}. NOTHING WRITTEN. ***")
+        print("    This usually means the model is failing (context exceeded, "
+              "bad output) rather than the data being wrong.")
+        print(f"    Review the list above. If the removals are genuinely "
+              f"correct, re-run with --max-removals {len(to_remove)}.")
+        return 2
+    if to_remove and len(to_remove) > max(1, len(rows) // 2):
+        print(f"\n*** ABORTED — {len(to_remove)} of {len(rows)} reviewed rows "
+              f"would be removed (>50%). NOTHING WRITTEN. ***")
+        return 2
+
+    if not commit:
+        print("\nDRY RUN — nothing written. Re-run with --commit true.")
+        return 0
+
+    today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
+    # apply field fixes in place
+    for ridx, changes in fixed:
+        for k, (old, new) in changes.items():
+            if k in hidx:
+                ws.cell(ridx, hidx[k] + 1).value = new
+        if "Notes" in hidx:
+            cur = str(ws.cell(ridx, hidx["Notes"] + 1).value or "")
+            desc = "; ".join(f"{k} {old!r}->{new!r}"
+                             for k, (old, new) in changes.items())
+            ws.cell(ridx, hidx["Notes"] + 1).value = (
+                cur + f" [audit-agent {today}: {desc}]").strip()[:2000]
+
+    # move rejected rows to Weekly_Rejected, then delete bottom-up
+    if to_remove and "Weekly_Rejected" in wb.sheetnames:
+        wr = wb["Weekly_Rejected"]
+        wrh = [c.value for c in wr[1]]
+        for _ridx, row, reason in to_remove:
+            new = [""] * len(wrh)
+            for k, v in row.items():
+                if k in wrh:
+                    new[wrh.index(k)] = v
+            for rc in ("RejectionReason", "Reason"):
+                if rc in wrh:
+                    new[wrh.index(rc)] = f"audit-agent {today}: {reason}"
+                    break
+            if "RejectedBy" in wrh:
+                new[wrh.index("RejectedBy")] = "audit-agent"
+            wr.append(new)
+    for ridx, _row, _reason in sorted(to_remove, key=lambda x: -x[0]):
+        ws.delete_rows(ridx, 1)
+
+    wb.save(xlsx)
+    print(f"\n✓ Applied {len(fixed)} field corrections, "
+          f"removed {len(to_remove)} rows from Recalls.")
+    try:
+        from pipeline.merge_master import mirror_json_from_xlsx
+        mirror_json_from_xlsx(xlsx, xlsx.parent / "recalls.json")
+        print("✓ recalls.json mirrored.")
+    except Exception as e:
+        print(f"  (JSON mirror skipped: {e})")
+    return 0
