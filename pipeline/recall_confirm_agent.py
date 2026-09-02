@@ -234,13 +234,29 @@ def confirm(row: Dict[str, Any],
     # publication and the cheapest place to catch it.
     try:
         from pipeline import _provenance
-        # Fail-closed for a URL only a model has ever vouched for; tolerant
-        # for scraper / official-feed rows, whose regulators 403 datacentres.
-        strict = needs_strict_provenance(row)
-        probs = _provenance.check(row, treat_unreachable_as_problem=strict)
-        if strict and probs:
+        # DEAD vs BLOCKED (corrected 2026-09-02). _provenance.check() now
+        # blocks on 404/410 by itself, for every row, because that is the
+        # regulator asserting the notice does not exist.
+        #
+        # treat_unreachable_as_problem stays FALSE even for model-sourced
+        # rows. An earlier cut of this fix set it True when
+        # needs_strict_provenance() was True, reasoning that an unreadable
+        # page is the likeliest sign of an invented URL. That reasoning is
+        # wrong in this environment: fsis.usda.gov, the RASFF portal and
+        # salute.gov.it answer 403 to datacentre traffic for EVERY url they
+        # serve, so it would have rejected every gap-finder row on those
+        # three sources — real recalls included. Rule 3: 403 means we could
+        # not read it, and that is never by itself a defect of fact.
+        #
+        # The residual gap is real and deliberately left visible: a
+        # fabricated URL on a source that blanket-403s cannot be adjudicated
+        # from the page at all. needs_strict_provenance() marks those rows so
+        # the run log names them for a human instead of silently passing.
+        probs = _provenance.check(row, treat_unreachable_as_problem=False)
+        if probs and needs_strict_provenance(row):
             probs = [p + " (row has gap-finder provenance and no url-gate "
-                         "stamp, so an unconfirmed page blocks it)"
+                         "stamp — a model is the only thing that has ever "
+                         "vouched for this URL)"
                      for p in probs]
         problems += probs
     except Exception:                                        # noqa: BLE001

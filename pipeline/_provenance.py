@@ -61,6 +61,23 @@ _GENERIC = {
 _UA = "AFTS-FSIS/1.0 (Food Safety Intelligence System; +https://fsis.advfood.tech)"
 
 
+#: Statuses from fetch_text() that prove the regulator has no such page.
+#: 404 Not Found and 410 Gone are assertions by the server. Everything else
+#: fetch_text can return — http_403, http_5xx, unreachable:* — is a statement
+#: about our access, not about the page.
+_DEAD_STATUSES = ("http_404", "http_410")
+
+
+def is_dead_status(status: str) -> bool:
+    """True only when the server said the page does not exist.
+
+    Deliberately excludes 403 and every timeout/proxy failure. See the note
+    in check() — conflating the two rejects real recalls on the several
+    regulators that refuse datacentre traffic for all of their URLs.
+    """
+    return str(status or "") in _DEAD_STATUSES
+
+
 def _norm(s: str) -> str:
     s = unicodedata.normalize("NFKD", str(s or ""))
     s = "".join(c for c in s if not unicodedata.combining(c))
@@ -121,7 +138,29 @@ def check(row: Dict[str, Any], page_text: str = None,
     status = "ok"
     if page_text is None:
         page_text, status = fetch_text(url)
+
     if status != "ok" or not page_text:
+        # DEAD vs BLOCKED (audit 2026-09-02). These are not the same fact and
+        # must not share a branch.
+        #
+        #   404 / 410  the regulator has no such page. For a URL a model
+        #              proposed, that is the signature of an invented slug.
+        #              It is a defect of fact and always blocks.
+        #   403 / timeout / proxy error
+        #              WE could not read it. Says nothing about the row.
+        #              fsis.usda.gov, the RASFF portal and salute.gov.it
+        #              (Gcore) refuse datacentre traffic for every URL they
+        #              serve, valid ones included, so blocking here would
+        #              discard real recalls wholesale.
+        #
+        # An earlier version of this audit's fix passed
+        # treat_unreachable_as_problem=True for model-sourced rows and so
+        # rejected on 403 as well. That was wrong: it would have failed every
+        # gap-finder row on those three sources. The flag now governs ONLY
+        # the unreadable case; a dead page blocks regardless of it.
+        if is_dead_status(status):
+            return [f"the cited page does not exist ({status}) — the "
+                    f"regulator publishes no such notice at this URL"]
         if treat_unreachable_as_problem:
             return [f"could not read the cited page ({status}) — "
                     f"provenance unconfirmed"]
