@@ -925,10 +925,12 @@ jobs:
               # sibling "Company == Brand and longer than 60 chars" test missed it too,
               # because that string is 22 characters.
               #
-              # Measured against the live 1550-row register before shipping: this rule,
-              # applied to all three fields, flags ZERO published rows. A firm is never
-              # named after the agency that regulates it, so there is no legitimate row
-              # to lose here.
+              # Measured against the live 1550-row register (2026-09-02): applied to all
+              # three fields it flags TWO published rows, both scraper contamination of
+              # Product rather than a firm named after its regulator — FSANZ 2026-03-05
+              # ("... | Food Standards Australia ...") and FSAI 2026-01-23 ("| Food Safety
+              # Authority of Ireland"). Those two need their Product field cleaned; no
+              # legitimate row is lost by the rule itself.
               _AGENCY_NAMES = ("Agencia Española", "Agencia Espanola", "Food Standards",
                                "Autorité", "Bundesamt", "Ministero della Salute",
                                "Ministry of Health", "Food Safety Authority",
