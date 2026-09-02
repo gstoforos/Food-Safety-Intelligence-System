@@ -105,17 +105,59 @@ def anchors_for(row: Dict[str, Any], limit: int = 10) -> List[str]:
     return list(dict.fromkeys(out))[:limit]
 
 
-def fetch_text(url: str, timeout: int = 25) -> Tuple[str, str]:
-    """Return (visible_text, status). status is 'ok' or a reason string."""
+def _fetch_response(url: str, timeout: int):
+    """One GET, routed by host. Returns (response_or_None, failure_status).
+
+    AKAMAI HOSTS (audit 2026-09-02). www.fda.gov, www.fsis.usda.gov,
+    www.fda.gov.ph and www.gov.il sit behind Akamai bot detection, which
+    fingerprints the TLS handshake. Plain `requests` gets HTTP 404 from
+    them for EVERY page — real notices included (claude_check.py recorded
+    this on 2026-05-20; the real Mama Cozzi's FSIS PHA carries
+    "fetch failed (HTTP 404)" stamps from 2026-06-14; the URL guardian
+    blanked three real FDA URLs on 2026-09-01 the same way).
+
+    claude_check.py has routed those hosts through curl_cffi Chrome
+    impersonation since 2026-05-20. When the Qwen reviewers replaced it on
+    2026-08-01 this module kept plain `requests`, so for FDA and FSIS rows
+    the page check has been passing vacuously ever since — an invented slug
+    and a real notice both came back "unreadable", and unreadable is not a
+    defect. Three Gemini re-mints of already-published FDA recalls reached
+    the register on 2026-09-02 through exactly that hole. With the 404 guard
+    in check() now live, the same blindness would instead REJECT every real
+    FDA/FSIS row. Either way the fix is the same: read the page the way the
+    scrapers do.
+
+    Everything not on the Akamai list keeps the plain `requests` path.
+    """
+    try:
+        from scrapers._akamai_fetch import is_akamai_host, fetch_via_curl_cffi
+    except Exception:                                        # noqa: BLE001
+        is_akamai_host, fetch_via_curl_cffi = (lambda _u: False), None
+    if fetch_via_curl_cffi is not None and is_akamai_host(url):
+        try:
+            r = fetch_via_curl_cffi(url, timeout=timeout, allow_redirects=True)
+        except Exception as e:                               # noqa: BLE001
+            return None, f"unreachable:{type(e).__name__}"
+        if r is None:
+            return None, "unreachable:curl_cffi"
+        return r, ""
     try:
         import requests
     except Exception:                                        # noqa: BLE001
-        return "", "requests_unavailable"
+        return None, "requests_unavailable"
     try:
         r = requests.get(url, timeout=timeout, allow_redirects=True,
                          headers={"User-Agent": _UA})
     except Exception as e:                                   # noqa: BLE001
-        return "", f"unreachable:{type(e).__name__}"
+        return None, f"unreachable:{type(e).__name__}"
+    return r, ""
+
+
+def fetch_text(url: str, timeout: int = 25) -> Tuple[str, str]:
+    """Return (visible_text, status). status is 'ok' or a reason string."""
+    r, fail = _fetch_response(url, timeout)
+    if r is None:
+        return "", fail
     if r.status_code >= 400:
         return "", f"http_{r.status_code}"
     text = re.sub(r"<script.*?</script>", " ", r.text, flags=re.S | re.I)
