@@ -52,7 +52,7 @@ import argparse
 import datetime as dt
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 A2_APPROVED = "pending_gap_v3"
 REQUIRED = ("Date", "Product", "Pathogen", "URL")
@@ -73,10 +73,158 @@ def _load_sheet(xlsx: Path, sheet: str) -> List[Dict[str, Any]]:
     return out
 
 
-def confirm(row: Dict[str, Any]) -> List[str]:
+# ---------------------------------------------------------------------------
+# Duplicate + provenance-strictness guards (audit 2026-09-02)
+# ---------------------------------------------------------------------------
+# WHY THIS EXISTS
+#     On 2026-09-01/02 this agent published four rows that should never have
+#     reached the register, and one of them was emailed to subscribers as a
+#     new alert with a dead link:
+#
+#       * City Foods, Inc. dated 2026-09-01 — a re-mint of the SAME FSIS
+#         recall (015-2026) already published on 2026-08-08. The gap-finder
+#         used its own scrape date as the recall date and invented the slug
+#         "city-foods-inc-recalls-ready-to-eat-...". The real slug is
+#         "city-foods-inc--recalls-ready-eat-..." (DOUBLE hyphen, no "to")
+#         and was ALREADY recorded on the 08-08 row by the 2026-08-10 audit.
+#         The invented slug 404s. This was a regression of a fixed defect.
+#       * RappelConso fiche 22527 — duplicate of published fiche 23359.
+#       * RappelConso fiche 22529 — duplicate of published fiche 22472.
+#       * A salute.gov.it /tema/ landing page filed as an Italian recall.
+#
+#     Two independent holes let them through:
+#
+#     1. NO DUPLICATE CHECK. This agent never compared a candidate against the
+#        Recalls sheet, so re-minting an existing recall under a new date was
+#        invisible to every guard.
+#
+#     2. PROVENANCE FAILED OPEN. _provenance.check() is called with
+#        treat_unreachable_as_problem=False, so a URL that 404s, times out or
+#        is blocked returns "no problem" and the row publishes. That default
+#        is right for a scraper row off an official feed — several regulators
+#        403 datacentre traffic and rejecting on that would discard real
+#        recalls. It is exactly wrong for a row whose URL a language model
+#        guessed and no gate has since verified.
+#
+#     Strictness is therefore chosen per row, not globally: a row carrying
+#     gap-finder provenance and NO url-gate stamp must have its page actually
+#     corroborate it. Every other row keeps the tolerant default.
+
+_GAP_ORIGIN_MARKERS = (
+    "gap-finder", "gap finder", "gemini gap", "tavily gap", "openai gap",
+    "claude gap", "+ google search",
+)
+_URL_VERIFIED_MARKERS = ("url-gate", "url_gate", "official-feed", "api fixed")
+
+
+def _norm_txt(s: Any) -> str:
+    import re as _re
+    import unicodedata as _ud
+    s = _ud.normalize("NFKD", str(s or ""))
+    s = "".join(c for c in s if not _ud.combining(c))
+    return _re.sub(r"[^a-z0-9 ]+", " ", s.lower()).strip()
+
+
+def _norm_url(u: Any) -> str:
+    u = str(u or "").strip().lower().rstrip("/")
+    for p in ("https://", "http://", "www."):
+        if u.startswith(p):
+            u = u[len(p):]
+    return u
+
+
+def needs_strict_provenance(row: Dict[str, Any]) -> bool:
+    """True when this row's URL has never been checked by anything but a model.
+
+    A gap-finder proposes a URL from search snippets. Until url_gate_gemini
+    (date_match + brand_match + hazard_match) or an official feed has
+    confirmed it, an unreachable page is not "could not confirm" — it is the
+    likeliest sign the URL was invented.
+    """
+    notes = str(row.get("Notes", "") or "").lower()
+    if not any(m in notes for m in _GAP_ORIGIN_MARKERS):
+        return False
+    return not any(m in notes for m in _URL_VERIFIED_MARKERS)
+
+
+def _distinctive_tokens(row: Dict[str, Any]) -> set:
+    try:
+        from pipeline import _provenance
+        generic = _provenance._GENERIC
+    except Exception:                                        # noqa: BLE001
+        generic = set()
+    toks = set()
+    for f in ("Company", "Brand", "Product"):
+        for t in _norm_txt(row.get(f, "")).split():
+            if len(t) >= 5 and t not in generic:
+                toks.add(t)
+    return toks
+
+
+def duplicate_problems(row: Dict[str, Any],
+                       published: List[Dict[str, Any]]) -> List[str]:
+    """Is this candidate's URL already in the register?
+
+    ONE test, and deliberately only one: the normalised URL (scheme, "www."
+    and trailing slash removed) already appears in Recalls. That is certain,
+    and it is the whole rule.
+
+    WHY THERE IS NO FUZZY "SAME RECALL, DIFFERENT URL" RULE
+    -------------------------------------------------------
+    A content-similarity rule was written for this audit and MEASURED against
+    the live 1550-row register before being rejected. It would have blocked
+    good rows:
+
+      same Source + Pathogen + firm + >=2 shared product tokens, 45d window
+          -> 768 of 1550 rows flagged
+      ... tightened with a Jaccard floor (0.5-0.8, firm prefix 14-20)
+          -> 21-120 rows flagged AND it still MISSED the City Foods duplicate
+             at every setting, because the two rows' Product strings differ
+             enormously in length and Jaccard punishes that asymmetry
+      ... switched to containment (shared / smaller set), >=4 tokens, 1.0
+          -> catches City Foods, but flags 24 pairs that are NOT duplicates
+
+    Those 24 are the reason the idea is dead. RappelConso issues ONE FICHE PER
+    SKU, so a single incident legitimately produces several rows with near
+    identical text and distinct fiche IDs — E.Leclerc Outreau "paris-brest",
+    "paris-brest x2" and "paris-brest (vendu au rayon traditionnel)" are three
+    separate official notices, and the register's own disambig step exists to
+    keep them apart. A similarity rule cannot tell them from a re-mint.
+
+    What DOES separate them is not similarity but provenance: every one of
+    those RappelConso fiches resolves and corroborates its row, while the
+    City Foods duplicate cited a slug that 404s. So the re-mint case is
+    handled by needs_strict_provenance() above, which is a fact about the
+    cited page rather than a guess about text overlap.
+
+    If you are tempted to re-add a similarity rule: re-run the measurement
+    first. The numbers above are reproducible against the Recalls sheet.
+    """
+    if not published:
+        return []
+    u = _norm_url(row.get("URL"))
+    if not u:
+        return []
+    for p in published:
+        if _norm_url(p.get("URL")) == u:
+            return ["duplicate: this URL is already published on "
+                    f"{str(p.get('Date'))[:10]}"]
+    return []
+
+
+def confirm(row: Dict[str, Any],
+            published: Optional[List[Dict[str, Any]]] = None) -> List[str]:
     """Return the reasons this row must NOT be published. Empty list = publish.
-    Deterministic only — no model, no network."""
+    Deterministic only — no model."""
     problems: List[str] = []
+
+    # Already in the register under a different URL or a re-minted date?
+    try:
+        problems += duplicate_problems(row, published or [])
+    except Exception as e:                                   # noqa: BLE001
+        problems.append(f"duplicate check failed: {type(e).__name__}")
+    if problems:
+        return problems
 
     # PROVENANCE (2026-09-01). Reviewer 3 did not fetch anything: it trusted
     # that reviewer 2 had read the page. Reviewer 2 did not check the page
@@ -86,7 +234,15 @@ def confirm(row: Dict[str, Any]) -> List[str]:
     # publication and the cheapest place to catch it.
     try:
         from pipeline import _provenance
-        problems += _provenance.check(row, treat_unreachable_as_problem=False)
+        # Fail-closed for a URL only a model has ever vouched for; tolerant
+        # for scraper / official-feed rows, whose regulators 403 datacentres.
+        strict = needs_strict_provenance(row)
+        probs = _provenance.check(row, treat_unreachable_as_problem=strict)
+        if strict and probs:
+            probs = [p + " (row has gap-finder provenance and no url-gate "
+                         "stamp, so an unconfirmed page blocks it)"
+                     for p in probs]
+        problems += probs
     except Exception:                                        # noqa: BLE001
         pass
 
@@ -156,9 +312,16 @@ def main() -> int:
         print("Nothing to confirm.")
         return 0
 
+    # The duplicate guard needs the register to compare against, so it is
+    # loaded BEFORE the decision loop (it used to be read only after the dry
+    # run returned, which is why --commit false could never show a duplicate).
+    published_now = _load_sheet(args.xlsx, "Recalls")
+    print(f"  (duplicate guard: comparing against {len(published_now)} "
+          f"published rows)")
+
     confirmed, blocked = [], []
     for i, row in enumerate(lane, 1):
-        probs = confirm(row)
+        probs = confirm(row, published_now)
         if probs:
             blocked.append((row, probs))
             print(f"  [{i}/{len(lane)}] BLOCK   "
