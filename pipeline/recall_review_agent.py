@@ -786,10 +786,33 @@ def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
         probs.append("Product contains formatting debris (# or newline)")
     if len(prod) > 160:
         probs.append("Product looks like a headline, not a product name")
-    for agency in ("Agencia Española", "Agencia Espanola", "Food Standards",
-                   "Autorité", "Bundesamt", "Ministero della Salute"):
-        if agency.lower() in prod.lower():
-            probs.append("Product contains the regulator's name")
+    # The regulator's own name must not appear in Product, Company or Brand.
+    #
+    # Company/Brand were added 2026-09-02. The check used to read Product
+    # only, and a salute.gov.it /tema/ landing page reached the register as an
+    # Italian recall on the strength of it: Product was "Sistema di controllo
+    # della sicurezza alimentare" (a control system, not a food) while Company
+    # AND Brand both held "Ministero della Salute" — the regulator itself. The
+    # sibling "Company == Brand and longer than 60 chars" test missed it too,
+    # because that string is 22 characters.
+    #
+    # Measured against the live 1550-row register (2026-09-02): applied to all
+    # three fields it flags TWO published rows, both scraper contamination of
+    # Product rather than a firm named after its regulator — FSANZ 2026-03-05
+    # ("... | Food Standards Australia ...") and FSAI 2026-01-23 ("| Food Safety
+    # Authority of Ireland"). Those two need their Product field cleaned; no
+    # legitimate row is lost by the rule itself.
+    _AGENCY_NAMES = ("Agencia Española", "Agencia Espanola", "Food Standards",
+                     "Autorité", "Bundesamt", "Ministero della Salute",
+                     "Ministry of Health", "Food Safety Authority",
+                     "Federal Agency", "Health Canada",
+                     "Food and Drug Administration")
+    for _fld in ("Product", "Company", "Brand"):
+        _v = str(merged.get(_fld, "") or "").lower()
+        if not _v:
+            continue
+        if any(_a.lower() in _v for _a in _AGENCY_NAMES):
+            probs.append(f"{_fld} contains the regulator's name")
             break
     # Company and Brand identical AND long => both are the headline.
     c = str(merged.get("Company", "") or "")
