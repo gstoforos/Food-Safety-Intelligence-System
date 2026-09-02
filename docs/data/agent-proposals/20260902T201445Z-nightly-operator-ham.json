@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "2026-09-02T21:35:00Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {"url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-cooked-ham-p"},
+      "changes": {"Reason": "FSAI recall (Alert 2026.40, Category 1): possible presence of Listeria monocytogenes in specific batches of various cooked ham products."},
+      "reason": "Surviving row (fullest 5-SKU Product list, went through the full 2-reviewer pipeline) had a weak generic Reason ('various cooked ham products'); replacing with the FSAI alert detail already verified on its exact-URL duplicate before that duplicate is rejected.",
+      "evidence": [{"kind": "corpus_row", "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-cooked-ham-p", "quote": "FSAI recall (Alert 2026.40, Category 1): possible presence of Listeria monocytogenes in specific batches of various cooked ham products. Listeria always Tier 1.", "retrieved_utc": "2026-09-02T21:35:00Z"}],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    }
+  ]
+}

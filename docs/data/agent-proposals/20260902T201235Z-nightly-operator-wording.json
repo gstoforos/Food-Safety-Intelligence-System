@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "2026-09-02T21:15:00Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {"url": "https://rappel.conso.gouv.fr/fiche-rappel/23407/interne"},
+      "changes": {"Reason": "Presence of Listeria <10 CFU/g on a dry sausage"},
+      "reason": "Published Recalls row carries French wording ('sur un saucisson sec') in the English-only Reason field.",
+      "evidence": [{"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/23407/interne", "quote": "PRESENCE DE LISTERIA <10 UFC/g sur un saucisson sec", "retrieved_utc": "2026-09-02T21:15:00Z"}],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {"url": "https://rappel.conso.gouv.fr/fiche-rappel/23368/interne"},
+      "changes": {"Reason": "Listeria detected on a finished product during self-testing"},
+      "reason": "Published Recalls row carries French wording ('Présence Listeria ... analysé lors d'un autocontrôle') in the English-only Reason field.",
+      "evidence": [{"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/23368/interne", "quote": "Présence listeria sur un produit fini analysé lors d'un autocontrôle", "retrieved_utc": "2026-09-02T21:15:00Z"}],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    }
+  ]
+}

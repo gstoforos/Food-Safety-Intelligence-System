@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "2026-09-02T21:00:00Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {"url": "https://rappel.conso.gouv.fr/fiche-rappel/23402/interne"},
+      "changes": {"Pathogen": "Salmonella", "Reason": "Salmonella detected"},
+      "reason": "RappelConso fiche 23402 (Vertufood mélange sportif) names Salmonella spp as the hazard; translating French Reason to English and filling Pathogen.",
+      "evidence": [{"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/23402/interne", "quote": "Salmonella spp (agent responsable de la salmonellose)", "retrieved_utc": "2026-09-02T21:00:00Z"}],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    }
+  ]
+}

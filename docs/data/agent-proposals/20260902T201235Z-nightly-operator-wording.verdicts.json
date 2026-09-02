@@ -1,0 +1,16 @@
+[
+  {
+    "proposal_id": "88384e1a631abb2a",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2"
+  },
+  {
+    "proposal_id": "5ce29b9ef57a4c34",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 3"
+  }
+]
