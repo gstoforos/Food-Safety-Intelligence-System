@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "2026-09-02T21:25:00Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {"url": "https://rappel.conso.gouv.fr/fiche-rappel/23408/interne"},
+      "changes": {"Reason": "Presence of E. coli"},
+      "reason": "Published Recalls row carries French wording ('Présence e.coli') in the English-only Reason field.",
+      "evidence": [{"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/23408/interne", "quote": "Présence E.coli", "retrieved_utc": "2026-09-02T21:25:00Z"}],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    }
+  ]
+}

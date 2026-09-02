@@ -6,14 +6,14 @@
   "Brand": "Ravalec",
   "Product": "saucisson sec à la coupe maison",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of Listeria <10 ufc/g sur un saucisson sec",
+  "Reason": "Presence of Listeria <10 CFU/g on a dry sausage",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23407/interne",
-  "Notes": "nos magasins ravalec traiteur [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "nos magasins ravalec traiteur [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator proposal 88384e1a631abb2a applied 2026-09-02: Published Recalls row carries French wording ('sur un saucisson sec') in the English-only Reason field.]"
  },
  {
   "Date": "2026-09-02",
@@ -22,14 +22,14 @@
   "Brand": "Nature Oceane",
   "Product": "tarama brut msc 150g",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Présence Listeria sur un produit fini analysé lors d'un autocontrôle",
+  "Reason": "Listeria detected on a finished product during self-testing",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23368/interne",
-  "Notes": "voir pièce jointe [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "voir pièce jointe [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator proposal 5ce29b9ef57a4c34 applied 2026-09-02: Published Recalls row carries French wording ('Présence Listeria ... analysé lors d'un autocontrôle') in the English-only Reason field.]"
  },
  {
   "Date": "2026-09-02",
@@ -38,14 +38,14 @@
   "Brand": "Keraliou",
   "Product": "coque moyenne française",
   "Pathogen": "Escherichia coli (generic)",
-  "Reason": "Présence e.coli",
+  "Reason": "Presence of E. coli",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23408/interne",
-  "Notes": "restaurants, traiteur, supermarché [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "restaurants, traiteur, supermarché [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [agent nightly-operator proposal f6905dec9ce170ce applied 2026-09-02: Published Recalls row carries French wording ('Présence e.coli') in the English-only Reason field.]"
  },
  {
   "Date": "2026-09-02",
@@ -158,6 +158,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23416/interne",
   "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+ },
+ {
+  "Date": "2026-09-02",
+  "Source": "RappelConso (FR)",
+  "Company": "Vertufood",
+  "Brand": "Vertufood",
+  "Product": "mélange sportif - vertufood",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella detected",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23402/interne",
+  "Notes": "auchan, monoprix, carrefour, intermarché, super u, e.leclerc [agent nightly-operator proposal 5f1baaef537194ce applied 2026-09-02: RappelConso fiche 23402 (Vertufood mélange sportif) names Salmonella spp as the hazard; translating French Reason to English and filling Pathogen.] [nightly-operator 2026-09-02: pending_enrichment -> pending, Salmonella verified against RappelConso fiche 23402] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
  },
  {
   "Date": "2026-09-01",
@@ -8894,22 +8910,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/855027",
   "Notes": "[RASFF #2026.5785; classification: information notification for follow-up; category: fruits and vegetables; notifId=855027] [gemini-enrich 2026-07-02: Brand '—'→'IRL'] [claude-check 2026-07-03: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
- },
- {
-  "Date": "2026-06-30",
-  "Source": "FSAI (IE)",
-  "Company": "Brady Family / Deluxe / Tesco (FSAI recall)",
-  "Brand": "Brady Family; Deluxe; Tesco Finest",
-  "Product": "Various cooked ham products (Brady Family Wood Smoked / Hand Crumbed Real Irish Ham; Deluxe Triple Oak & Honey Roast Carved Irish Ham; Tesco Finest Crumbed Shaved Ham) — multiple batches",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "FSAI recall (Alert 2026.40, Category 1): possible presence of Listeria monocytogenes in specific batches of various cooked ham products. Listeria always Tier 1.",
-  "Class": "Recall",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-cooked-ham-p",
-  "Notes": "[fix 2026-07-01: Date was empty (FSAI HTML fallback) → 2026-06-30 per FSAI page \"Tuesday, 30 June 2026\". Alert 2026.40.] [fix 2026-07-03: FSAI URL was truncated (...cooked-ham-p) → full ...cooked-ham-products, verified live.] [url 2026-08-30: slug restored to FSAI's 50-char cap - alert 2026.40, 30 Jun 2026, Listeria, same 5 ham SKUs; the 2026-07-03 automated 'fix' LENGTHENED this correct 50-char slug into a non-existent one. A non-existent FSAI slug serves the generic listing page, not a 404, which is why this passed every resolve check.]"
  },
  {
   "Date": "2026-06-30",
@@ -23998,22 +23998,6 @@
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-rosabella-moringa-ca",
   "Notes": "[manual-promote 2026-05-08: Company/Brand cleaned] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [url 2026-08-30: slug restored to FSAI's 50-char cap - alert 2026.10, 23 Feb 2026, Salmonella, 48 batches. A non-existent FSAI slug serves the generic listing page, not a 404, which is why this passed every resolve check.]"
- },
- {
-  "Date": "2026-02-23",
-  "Source": "FSAI (IE)",
-  "Company": "Ambrosia Brands, LLC",
-  "Brand": "Rosabella Moringa",
-  "Product": "Rosabella Moringa 100% Pure capsules",
-  "Pathogen": "Salmonella",
-  "Reason": "Container of Rosabella Moringa capsules",
-  "Class": "Alert",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-rosabella-moringa-ca",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [rebuild 2026-05-11: applied 17:23 claude-check FIX corrections] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
  },
  {
   "Date": "2026-02-20",

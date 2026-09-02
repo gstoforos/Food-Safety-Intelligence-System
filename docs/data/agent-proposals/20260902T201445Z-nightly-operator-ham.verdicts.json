@@ -1,0 +1,11 @@
+[
+  {
+    "proposal_id": "9b91e4f54fc0f8f0",
+    "action": "enrich",
+    "applied": false,
+    "refusals": [
+      "URL unreachable (ProxyError) \u2014 cannot confirm provenance"
+    ],
+    "detail": ""
+  }
+]
