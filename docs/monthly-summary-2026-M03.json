@@ -1,0 +1,376 @@
+{
+  "month": "2026-M03",
+  "month_tag": "2026-M03",
+  "month_name": "March",
+  "year": 2026,
+  "month_num": 3,
+  "window_start": "2026-03-01",
+  "window_end": "2026-03-31",
+  "month_end": "2026-03-31",
+  "stats": {
+    "total": 69,
+    "tier1": 60,
+    "outbreaks": 3,
+    "delta": 37,
+    "delta_pct": 116
+  },
+  "leading_pathogen": {
+    "name": "Salmonella spp.",
+    "cases": 28,
+    "pct": 41
+  },
+  "top_threats": [
+    {
+      "rank": 1,
+      "date": "2026-03-16",
+      "country": "Canada",
+      "pathogen": "Salmonella spp.",
+      "company": "Multiple firms (Tootsi Impex et al.)",
+      "brand": "Various pistachios",
+      "product": "Pistachios + 300+ pistachio-containing products",
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-pistachios-and-pistachio-containing-products-recalled-due-salmonella-5",
+      "tier": 1,
+      "outbreak": 1
+    },
+    {
+      "rank": 2,
+      "date": "2026-03-03",
+      "country": "United Kingdom",
+      "pathogen": "Salmonella Typhimurium",
+      "company": "Sacor (Compleat Food Group)",
+      "brand": "Bastides",
+      "product": "Saucisson Sec 200 g — Tesco-exclusive",
+      "url": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-11-2026",
+      "tier": 1,
+      "outbreak": 1
+    },
+    {
+      "rank": 3,
+      "date": "2026-03-09",
+      "country": "United States",
+      "pathogen": "Norovirus",
+      "company": "Drayton Harbor Oyster Co. / Lummi Indian Business Council",
+      "brand": "Drayton Harbor",
+      "product": "Raw oysters (WA-1723-SS) + Manila clams (WA-0098-SS); harvest 2/13-3/3/2026",
+      "url": "https://www.fda.gov/food/alerts-advisories-safety-information/fda-advises-restaurants-and-retailers-not-serve-or-sell-and-consumers-not-eat-certain-oysters-and",
+      "tier": 1,
+      "outbreak": 1
+    },
+    {
+      "rank": 4,
+      "date": "2026-03-31",
+      "country": "France",
+      "pathogen": "Listeria monocytogenes",
+      "company": "Teba 44",
+      "brand": "Unbranded",
+      "product": "Pork rillettes (lots 040326076002, 050326077008, 050326077002, use-by 2026-04-14)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/21822/Interne",
+      "tier": 1,
+      "outbreak": 0
+    },
+    {
+      "rank": 5,
+      "date": "2026-03-31",
+      "country": "France",
+      "pathogen": "Listeria monocytogenes",
+      "company": "Gaec De La Sablonniere",
+      "brand": "ferme de la sablonniere",
+      "product": "Fresh whipped fromage blanc and country-style fromage blanc",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/21821/Interne",
+      "tier": 1,
+      "outbreak": 0
+    }
+  ],
+  "total": 69,
+  "tier1": 60,
+  "outbreaks": 3,
+  "delta": 37,
+  "delta_pct": 116,
+  "top_pathogen": [
+    "Salmonella spp.",
+    28
+  ],
+  "top_countries": [
+    [
+      "France",
+      36
+    ],
+    [
+      "Canada",
+      5
+    ],
+    [
+      "United Kingdom",
+      3
+    ],
+    [
+      "New Zealand",
+      3
+    ],
+    [
+      "Spain",
+      2
+    ]
+  ],
+  "top_sources": [
+    [
+      "RappelConso (FR)",
+      29
+    ],
+    [
+      "CFS (HK)",
+      15
+    ],
+    [
+      "CFIA",
+      5
+    ],
+    [
+      "RASFF (EU)",
+      4
+    ],
+    [
+      "AESAN (ES)",
+      2
+    ]
+  ],
+  "mom_trend": {
+    "values": [
+      [
+        "2026-01",
+        36
+      ],
+      [
+        "2026-02",
+        32
+      ],
+      [
+        "2026-03",
+        69
+      ]
+    ],
+    "delta_pct": 116,
+    "direction": "up",
+    "z_score": null,
+    "z_score_raw": 12.4,
+    "anomaly_flag": false,
+    "baseline_n": 2,
+    "baseline_too_narrow": true,
+    "rolling_mean": 34.0,
+    "rolling_std": 2.8
+  },
+  "hotspots": [],
+  "clusters": [],
+  "concentration": {
+    "hhi_source": 2384.0,
+    "hhi_bucket": "moderately concentrated",
+    "gini_country": 0.598,
+    "gini_bucket": "concentrated",
+    "tier1_share": 0.87,
+    "baseline_tier1_share": 0.955,
+    "tier1_intensity_ratio": 0.91,
+    "n_countries": 20,
+    "n_sources": 14,
+    "top_country_share": 0.522
+  },
+  "severity": {
+    "score": 53.9,
+    "bucket": "elevated",
+    "tier1_count": 60,
+    "outbreak_count": 3,
+    "tier1_share": 0.87,
+    "outbreak_share": 0.043
+  },
+  "emerging": [
+    {
+      "pathogen": "Listeria monocytogenes",
+      "count": 19,
+      "share_current": 0.275,
+      "share_hist_mean": 0.102,
+      "z_score": 14.1,
+      "growth_pct": 446
+    }
+  ],
+  "linear_trend": {
+    "status": "active",
+    "n": 3,
+    "n_dof": 1,
+    "slope_per_month": 16.5,
+    "intercept": 29.17,
+    "r_squared": 0.66,
+    "slope_se": 11.836,
+    "t_stat": 1.39,
+    "slope_significant": false,
+    "report_significance": false,
+    "t_critical_05": 12.706,
+    "next_month_point": 79,
+    "next_month_ci95": [
+      0,
+      467
+    ],
+    "next_month_pi95": [
+      0,
+      467
+    ],
+    "note": "Direction: rising (slope +16.5/month, r²=0.66, t=1.39, df=1). The estimated slope is not significant at the 5% level (two-sided critical t at α=0.05 is approximately 12.706 for df=1), but the result remains highly uncertain and should be treated as exploratory: it rests on only 3 monthly observations and may be sensitive to individual months. AFTS does not lean on a trend claim below n ≥ 12 monthly observations — a house reporting rule, not a property of the test."
+  },
+  "narrative": "March 2026 produced 69 food-safety hazard recall incidents across the AFTS monitoring network, a 116% move above the prior month — the rolling baseline is too narrow for a Z estimate this early in the series. Salmonella spp. dominated with 28 of 69 incidents (41%). The composite severity index closed at 53.9/100 (elevated), with 60 Tier-1 critical events and 3 outbreak-associated incidents (no temporal clustering) on record.\n\nStructurally, the month is geographically concentrated with moderate source concentration (Source HHI 2384.0, Geographic Gini 0.598). For a Salmonella spp.-dominated month, the relevant failure modes are Listeria persistence on food-contact surfaces and in associated equipment niches, followed by post-process contamination of RTE foods, together with sanitation SOP drift and cold-chain lapses. These are the leading hypotheses for a Salmonella spp.-dominated month; inadequate process delivery or other control failures cannot be excluded without event-specific evidence. The Tier-1 intensity ratio of 0.91× vs the rolling baseline indicates severity is in line.\n\nLooking forward, operators in Salmonella spp.-relevant commodity categories should re-verify the single highest-leverage control this month: environmental monitoring swab frequency on RTE deli and dairy lines, or product-specific thermal lethality validation for low-moisture commodities — measured under the actual water activity, formulation and process conditions rather than a generic D-value — whichever matches their product mix. The linear-trend projection for next month stands at 79 recalls (95% prediction interval [0, 467]), with r²=0.66, slope 16.5/month and t=1.39 on 1 degrees of freedom. The estimated slope is not significant at the 5% level (two-sided critical t at α=0.05 is approximately 12.706 for df=1), but the result remains highly uncertain and should be treated as exploratory: it rests on only 3 monthly observations and may be sensitive to individual months. AFTS withholds trend claims below twelve monthly observations as a model-maturity reporting rule, which is a house convention rather than a statistical definition of significance. Documentation packages should be ready for rapid regulatory response given continued inspection intensity.\n\nProcess Authority Note: This window includes low-acid canned-food (LACF) or scheduled-process-relevant hazards. Across global jurisdictions the regulatory architecture differs but the engineering principle converges. In the United States, FDA 21 CFR 113 (thermally processed low-acid canned foods) and 21 CFR 114 (acidified foods) require a scheduled process established by a qualified process authority. In the European Union, Regulation 852/2004 imposes general hygiene and HACCP obligations on food-business operators, and Regulation 2073/2005 fixes microbiological criteria — neither is a direct equivalent of US LACF/acidified-food filing, but both presuppose process control validated against a documented hazard analysis, with national LACF/acidified-food rules layered on top in some Member States. Canada's Safe Food for Canadians Regulations, FSA / FSS in the UK, FSANZ in Australia and New Zealand, and Japan's MHLW each impose comparable preventive-control obligations. The common engineering principle: shelf-stable low-acid, aseptic and commercially sterile products require a scientifically established and validated process, executed under documented GMP oversight. In the United States that process must be established by a qualified process authority under the LACF and acidified-food rules; other jurisdictions apply their own validation, HACCP and preventive-control requirements to the same end. For LACF and acidified products specifically, scheduled-process filings (e.g. FDA Form 2541), retort validation studies (temperature distribution and heat penetration), and 21 CFR 108 emergency-permit pathways are non-discretionary control points. Operators should confirm that filings reflect the current product, container, and equipment configuration, and that any process deviation has been evaluated by a qualified process authority before product release.",
+  "report_url": "https://fsis.advfood.tech/2026-M03.html",
+  "all_month_url": "https://fsis.advfood.tech/2026-M03-all.html",
+  "dashboard_url": "https://www.advfood.tech/fsis-recalls",
+  "top10": [
+    {
+      "rank": 1,
+      "date": "2026-03-16",
+      "pathogen": "Salmonella spp.",
+      "pathogen_raw": "Salmonella",
+      "company": "Multiple firms (Tootsi Impex et al.)",
+      "brand": "Various pistachios",
+      "product": "Pistachios + 300+ pistachio-containing products",
+      "country": "Canada",
+      "source": "CFIA",
+      "tier": 1,
+      "outbreak": 1,
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-pistachios-and-pistachio-containing-products-recalled-due-salmonella-5",
+      "url_ok": true
+    },
+    {
+      "rank": 2,
+      "date": "2026-03-03",
+      "pathogen": "Salmonella Typhimurium",
+      "pathogen_raw": "Salmonella Typhimurium",
+      "company": "Sacor (Compleat Food Group)",
+      "brand": "Bastides",
+      "product": "Saucisson Sec 200 g — Tesco-exclusive",
+      "country": "United Kingdom",
+      "source": "FSA (UK)",
+      "tier": 1,
+      "outbreak": 1,
+      "url": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-11-2026",
+      "url_ok": true
+    },
+    {
+      "rank": 3,
+      "date": "2026-03-09",
+      "pathogen": "Norovirus",
+      "pathogen_raw": "Norovirus",
+      "company": "Drayton Harbor Oyster Co. / Lummi Indian Business Council",
+      "brand": "Drayton Harbor",
+      "product": "Raw oysters (WA-1723-SS) + Manila clams (WA-0098-SS); harvest 2/13-3/3/2026",
+      "country": "United States",
+      "source": "FDA",
+      "tier": 1,
+      "outbreak": 1,
+      "url": "https://www.fda.gov/food/alerts-advisories-safety-information/fda-advises-restaurants-and-retailers-not-serve-or-sell-and-consumers-not-eat-certain-oysters-and",
+      "url_ok": true
+    },
+    {
+      "rank": 4,
+      "date": "2026-03-31",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "Teba 44",
+      "brand": "Unbranded",
+      "product": "Pork rillettes (lots 040326076002, 050326077008, 050326077002, use-by 2026-04-14)",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/21822/Interne",
+      "url_ok": true
+    },
+    {
+      "rank": 5,
+      "date": "2026-03-31",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "Gaec De La Sablonniere",
+      "brand": "ferme de la sablonniere",
+      "product": "Fresh whipped fromage blanc and country-style fromage blanc",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/21821/Interne",
+      "url_ok": true
+    },
+    {
+      "rank": 6,
+      "date": "2026-03-31",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "Skandia (initial)",
+      "brand": "Skandia",
+      "product": "Norwegian smoked salmon (lot 361214)",
+      "country": "Spain",
+      "source": "AESAN (ES)",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://www.aesan.gob.es/AECOSAN/web/seguridad_alimentaria/alertas_alimentarias/2026_26.htm",
+      "url_ok": true
+    },
+    {
+      "rank": 7,
+      "date": "2026-03-30",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "HelloFresh Canada",
+      "brand": "Hello Fresh",
+      "product": "Cheese ingredients in HelloFresh meal kits",
+      "country": "Canada",
+      "source": "CFIA",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/cheese-ingredients-included-certain-hello-fresh-brand-meal-kits-recalled-due-listeria",
+      "url_ok": true
+    },
+    {
+      "rank": 8,
+      "date": "2026-03-30",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "DECRE SAS systeme u",
+      "brand": "BRIENT SAS",
+      "product": "Rabbit pâté (GTIN 3346650206674, lot 000011500830, use-by 2026-04-15)",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/21806/Interne",
+      "url_ok": true
+    },
+    {
+      "rank": 9,
+      "date": "2026-03-30",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "CESARE FIORUCCI",
+      "brand": "Unbranded",
+      "product": "Italian cooked ham 120 g (GTIN 3294380019135, lot 627.006401.0, use-by 2026-04-07, sold 2026-03-06 to 2026-03-27)",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/21804/Interne",
+      "url_ok": true
+    },
+    {
+      "rank": 10,
+      "date": "2026-03-29",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "Auricchio",
+      "brand": "Auricchio",
+      "product": "Gorgonzola D.O.P dolce 200 g",
+      "country": "Canada",
+      "source": "CFIA",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/auricchio-brand-gorgonzola-dop-dolce-recalled-due-listeria-monocytogenes",
+      "url_ok": true
+    }
+  ],
+  "email_html": "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937\">\n<div style=\"max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb\">\n\n<div style=\"background:#0a0e1a;color:#fff;padding:20px 24px\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em\">\nAdvanced Food-Tech Solutions <span style=\"color:#E8601A\">·</span> AFTS</div>\n<div style=\"font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px\">\nMonthly Briefing · March 2026</div>\n</div>\n\n<div style=\"padding:28px 24px 16px\">\n<h1 style=\"font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:#0a0e1a\">Hazard &amp; Pathogen Surveillance · March 2026</h1>\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px\">\n01 Mar – 31 Mar 2026 · 69 recalls · 60 Tier-1 · 3 outbreaks\n</div>\n\n<table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;border-collapse:collapse;margin-bottom:20px\">\n<tr>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#0a0e1a\">69</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Total</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#dc2626\">60</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Tier-1</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#7c3aed\">3</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Outbreak-assoc. records</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:18px;color:#E8601A;font-style:italic\">Salmonella spp.</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Leading</div>\n</td>\n</tr>\n</table>\n\n<div style=\"background:#f9fafb;border-left:3px solid #E8601A;padding:14px 18px;margin-bottom:20px\">\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px\">Month signal</div>\n<div style=\"font-size:14px;line-height:1.55\"><strong>116%</strong> vs prior month\n\n· severity index <strong>53.9/100</strong> (elevated).</div>\n<div style=\"font-size:13px;margin-top:8px\"><strong>Next-month forecast:</strong> 79 recalls (95% prediction interval [0, 467]).</div>\n</div>\n\n<div style=\"text-align:center;margin:28px 0 12px\">\n<a href=\"https://fsis.advfood.tech/2026-M03.html\" target=\"_blank\" style=\"display:inline-block;background:#0a0e1a;color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px\">View Full Monthly Report →</a>\n</div>\n\n<div style=\"font-size:11px;color:#94a3b8;text-align:center;margin-top:20px\">\nAdvanced Food-Tech Solutions · advfood.tech · info@advfood.tech\n</div>\n</div>\n</div>\n</body></html>",
+  "generated_utc": "2026-09-02T16:18:49.154178+00:00",
+  "generated_at": "2026-09-02T16:18:49.154184+00:00"
+}

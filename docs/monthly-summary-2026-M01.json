@@ -1,0 +1,338 @@
+{
+  "month": "2026-M01",
+  "month_tag": "2026-M01",
+  "month_name": "January",
+  "year": 2026,
+  "month_num": 1,
+  "window_start": "2026-01-01",
+  "window_end": "2026-01-31",
+  "month_end": "2026-01-31",
+  "stats": {
+    "total": 36,
+    "tier1": 35,
+    "outbreaks": 4,
+    "delta": 36,
+    "delta_pct": null
+  },
+  "leading_pathogen": {
+    "name": "Bacillus cereus / Cereulide",
+    "cases": 16,
+    "pct": 44
+  },
+  "top_threats": [
+    {
+      "rank": 1,
+      "date": "2026-01-28",
+      "country": "United States",
+      "pathogen": "Salmonella Newport",
+      "company": "Art Monkey LLC (dba Why Not Natural)",
+      "brand": "Why Not Natural",
+      "product": "Pure Organic Moringa Green Superfood capsules",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/why-not-natural-houston-texas-recalling-its-why-not-natural-organic-moringa-green-superfood-because",
+      "tier": 1,
+      "outbreak": 1
+    },
+    {
+      "rank": 2,
+      "date": "2026-01-20",
+      "country": "United States",
+      "pathogen": "Salmonella Typhimurium",
+      "company": "Superfoods, Inc. (dba Live it Up)",
+      "brand": "Live it Up",
+      "product": "Super Greens dietary supplement powder (Original + Wild Berry)",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/superfoods-inc-dba-live-it-recalls-live-it-super-greens-because-possible-health-risk",
+      "tier": 1,
+      "outbreak": 1
+    },
+    {
+      "rank": 3,
+      "date": "2026-01-20",
+      "country": "Canada",
+      "pathogen": "E. coli STEC",
+      "company": "General Mills Canada / Pillsbury",
+      "brand": "Pillsbury",
+      "product": "Pizza Pops (full product line)",
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-pillsbury-brand-pizza-pops-recalled-due-e-coli-o26",
+      "tier": 1,
+      "outbreak": 1
+    },
+    {
+      "rank": 4,
+      "date": "2026-01-23",
+      "country": "Australia",
+      "pathogen": "Bacillus cereus / Cereulide",
+      "company": "Sanulac Nutritionals Australia Pty Ltd",
+      "brand": "Alula Gold",
+      "product": "Alula Gold Reflux infant formula 900g (0-12 months) and Alula Gold Premium infant formula 900g",
+      "url": "https://www.foodstandards.gov.au/news/cereulide-toxin-infant-formula-products",
+      "tier": 1,
+      "outbreak": 1
+    },
+    {
+      "rank": 5,
+      "date": "2026-01-19",
+      "country": "United States",
+      "pathogen": "Clostridium botulinum",
+      "company": "Tri-Union Seafoods",
+      "brand": "Genova",
+      "product": "Yellowfin Tuna in Olive Oil 5 oz 4-pack + 5 oz can EVOO",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/tri-union-seafoods-identifies-additional-quantities-recalled-genovar-tuna-limited-retailers-due",
+      "tier": 1,
+      "outbreak": 0
+    }
+  ],
+  "total": 36,
+  "tier1": 35,
+  "outbreaks": 4,
+  "delta": 36,
+  "delta_pct": null,
+  "top_pathogen": [
+    "Bacillus cereus / Cereulide",
+    16
+  ],
+  "top_countries": [
+    [
+      "United States",
+      10
+    ],
+    [
+      "Canada",
+      4
+    ],
+    [
+      "Mexico",
+      2
+    ],
+    [
+      "Netherlands",
+      2
+    ],
+    [
+      "Australia",
+      2
+    ]
+  ],
+  "top_sources": [
+    [
+      "FDA",
+      9
+    ],
+    [
+      "RASFF (EU)",
+      4
+    ],
+    [
+      "CFIA",
+      4
+    ],
+    [
+      "COFEPRIS (MX)",
+      2
+    ],
+    [
+      "NVWA (NL)",
+      2
+    ]
+  ],
+  "mom_trend": {
+    "values": [
+      [
+        "2026-01",
+        36
+      ]
+    ],
+    "delta_pct": null,
+    "direction": "flat",
+    "z_score": null,
+    "z_score_raw": null,
+    "anomaly_flag": false,
+    "baseline_n": 0,
+    "baseline_too_narrow": true
+  },
+  "hotspots": [],
+  "clusters": [],
+  "concentration": {
+    "hhi_source": 1065.0,
+    "hhi_bucket": "competitive / diffuse",
+    "gini_country": 0.38,
+    "gini_bucket": "moderately diffuse",
+    "tier1_share": 0.972,
+    "baseline_tier1_share": null,
+    "tier1_intensity_ratio": null,
+    "n_countries": 19,
+    "n_sources": 19,
+    "top_country_share": 0.278
+  },
+  "severity": {
+    "score": 62.8,
+    "bucket": "elevated",
+    "tier1_count": 35,
+    "outbreak_count": 4,
+    "tier1_share": 0.972,
+    "outbreak_share": 0.111
+  },
+  "emerging": [],
+  "linear_trend": {
+    "status": "insufficient_data",
+    "message": "Activates at n≥3 months (have 1)."
+  },
+  "narrative": "January 2026 produced 36 food-safety hazard recall incidents across the AFTS monitoring network, a None% move flat vs the prior month — the rolling baseline is too narrow for a Z estimate this early in the series. Bacillus cereus / Cereulide dominated with 16 of 36 incidents (44%). The composite severity index closed at 62.8/100 (elevated), with 35 Tier-1 critical events and 4 outbreak-associated incidents (no temporal clustering) on record.\n\nStructurally, the month is moderately uneven geographically with signal diversity consistent with broad regulatory engagement (Source HHI 1065.0, Geographic Gini 0.38). For a Bacillus cereus / Cereulide-dominated month, the relevant failure modes are Listeria persistence on food-contact surfaces and in associated equipment niches, followed by post-process contamination of RTE foods, together with sanitation SOP drift and cold-chain lapses. These are the leading hypotheses for a Bacillus cereus / Cereulide-dominated month; inadequate process delivery or other control failures cannot be excluded without event-specific evidence. The Tier-1 intensity ratio is not yet computable — the prior-month baseline has too few observations to anchor a stable ratio.\n\nLooking forward, operators in Bacillus cereus / Cereulide-relevant commodity categories should re-verify the single highest-leverage control this month: environmental monitoring swab frequency on RTE deli and dairy lines, or product-specific thermal lethality validation for low-moisture commodities — measured under the actual water activity, formulation and process conditions rather than a generic D-value — whichever matches their product mix. Documentation packages should be ready for rapid regulatory response given continued inspection intensity.\n\nProcess Authority Note: This window includes Clostridium botulinum or botulism-relevant recalls. The control review for such events is product-specific. For shelf-stable low-acid, acidified, aseptic, or commercially sterile products, scheduled-process adequacy under a qualified process authority is the central control. For refrigerated anaerobic products — peeled garlic, sous-vide, vacuum or modified-atmosphere packs, smoked or fermented fish — the operative controls are validated refrigeration discipline, water-activity, pH, salt content, oxygen barrier integrity, and shelf-life qualification, with or without a thermal step. Across global jurisdictions the regulatory architecture differs but the engineering principle converges. In the United States, FDA 21 CFR 113 (thermally processed low-acid canned foods) and 21 CFR 114 (acidified foods) require a scheduled process established by a qualified process authority. In the European Union, Regulation 852/2004 imposes general hygiene and HACCP obligations on food-business operators, and Regulation 2073/2005 fixes microbiological criteria — neither is a direct equivalent of US LACF/acidified-food filing, but both presuppose process control validated against a documented hazard analysis, with national LACF/acidified-food rules layered on top in some Member States. Canada's Safe Food for Canadians Regulations, FSA / FSS in the UK, FSANZ in Australia and New Zealand, and Japan's MHLW each impose comparable preventive-control obligations. The common engineering principle: shelf-stable low-acid, aseptic and commercially sterile products require a scientifically established and validated process, executed under documented GMP oversight. In the United States that process must be established by a qualified process authority under the LACF and acidified-food rules; other jurisdictions apply their own validation, HACCP and preventive-control requirements to the same end. Recall events in this category most commonly trace to one of: an unfiled or outdated scheduled process; a deviation resolved without qualified review; a formulation or packaging change introduced without process re-evaluation; a temperature-abuse event in the cold chain; or seal-integrity loss in anaerobic packaging. Manufacturers producing low-acid canned, acidified, fermented, or anaerobically packaged products — including refrigerated anaerobic products — should confirm with a qualified process authority that filings, multi-hurdle controls, GMP programmes, and deviation handling remain current before any production change.",
+  "report_url": "https://fsis.advfood.tech/2026-M01.html",
+  "all_month_url": "https://fsis.advfood.tech/2026-M01-all.html",
+  "dashboard_url": "https://www.advfood.tech/fsis-recalls",
+  "top10": [
+    {
+      "rank": 1,
+      "date": "2026-01-28",
+      "pathogen": "Salmonella Newport",
+      "pathogen_raw": "Salmonella Newport",
+      "company": "Art Monkey LLC (dba Why Not Natural)",
+      "brand": "Why Not Natural",
+      "product": "Pure Organic Moringa Green Superfood capsules",
+      "country": "United States",
+      "source": "FDA",
+      "tier": 1,
+      "outbreak": 1,
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/why-not-natural-houston-texas-recalling-its-why-not-natural-organic-moringa-green-superfood-because",
+      "url_ok": true
+    },
+    {
+      "rank": 2,
+      "date": "2026-01-20",
+      "pathogen": "Salmonella Typhimurium",
+      "pathogen_raw": "Salmonella Typhimurium",
+      "company": "Superfoods, Inc. (dba Live it Up)",
+      "brand": "Live it Up",
+      "product": "Super Greens dietary supplement powder (Original + Wild Berry)",
+      "country": "United States",
+      "source": "FDA",
+      "tier": 1,
+      "outbreak": 1,
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/superfoods-inc-dba-live-it-recalls-live-it-super-greens-because-possible-health-risk",
+      "url_ok": true
+    },
+    {
+      "rank": 3,
+      "date": "2026-01-20",
+      "pathogen": "E. coli STEC",
+      "pathogen_raw": "E. coli O26 (STEC)",
+      "company": "General Mills Canada / Pillsbury",
+      "brand": "Pillsbury",
+      "product": "Pizza Pops (full product line)",
+      "country": "Canada",
+      "source": "CFIA",
+      "tier": 1,
+      "outbreak": 1,
+      "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-pillsbury-brand-pizza-pops-recalled-due-e-coli-o26",
+      "url_ok": true
+    },
+    {
+      "rank": 4,
+      "date": "2026-01-23",
+      "pathogen": "Bacillus cereus / Cereulide",
+      "pathogen_raw": "Cereulide",
+      "company": "Sanulac Nutritionals Australia Pty Ltd",
+      "brand": "Alula Gold",
+      "product": "Alula Gold Reflux infant formula 900g (0-12 months) and Alula Gold Premium infant formula 900g",
+      "country": "Australia",
+      "source": "FSANZ (AU)",
+      "tier": 1,
+      "outbreak": 1,
+      "url": "https://www.foodstandards.gov.au/news/cereulide-toxin-infant-formula-products",
+      "url_ok": true
+    },
+    {
+      "rank": 5,
+      "date": "2026-01-19",
+      "pathogen": "Clostridium botulinum",
+      "pathogen_raw": "Clostridium botulinum",
+      "company": "Tri-Union Seafoods",
+      "brand": "Genova",
+      "product": "Yellowfin Tuna in Olive Oil 5 oz 4-pack + 5 oz can EVOO",
+      "country": "United States",
+      "source": "FDA",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/tri-union-seafoods-identifies-additional-quantities-recalled-genovar-tuna-limited-retailers-due",
+      "url_ok": true
+    },
+    {
+      "rank": 6,
+      "date": "2026-01-12",
+      "pathogen": "Clostridium botulinum",
+      "pathogen_raw": "Clostridium botulinum",
+      "company": "Diva Fam Inc.",
+      "brand": "True Sea Moss",
+      "product": "Sea Moss Gel Superfood, 16 fl oz",
+      "country": "United States",
+      "source": "FDA",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/diva-fam-inc-announces-voluntary-recall-sea-moss-gel-superfood-products-due-possible-health-risk",
+      "url_ok": true
+    },
+    {
+      "rank": 7,
+      "date": "2026-01-22",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "Origin: Italy | Notifying: Austria | Distributed: Austria, Belgium, France, Germany, Ireland, Liechtenstein, Slovenia, Spain, Switzerland, UK (Northern Ireland)",
+      "brand": "—",
+      "product": "Cheese",
+      "country": "Italy",
+      "source": "RASFF (EU)",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/818280",
+      "url_ok": true
+    },
+    {
+      "rank": 8,
+      "date": "2026-01-16",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "Suzanna's Kitchen, Inc. (Norcross, GA)",
+      "brand": "Suzanna's Kitchen",
+      "product": "Ready-to-eat grilled chicken breast fillet products, ~13,720 lbs (EST P-1382)",
+      "country": "United States",
+      "source": "USDA FSIS",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://www.fsis.usda.gov/recalls-alerts/suzannas-kitchen-recalls-ready-eat-grilled-chicken-breast-fillet-products-due",
+      "url_ok": true
+    },
+    {
+      "rank": 9,
+      "date": "2026-01-15",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "The Ambriola Company",
+      "brand": "Ambriola / Locatelli / Member's Mark / Pinna / Boar's Head",
+      "product": "11,530 cheese products: Pecorino Romano (multi-brand)",
+      "country": "United States",
+      "source": "FDA",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/ambriola-company-issues-recall-cheese-products-because-listeria-health-risk",
+      "url_ok": true
+    },
+    {
+      "rank": 10,
+      "date": "2026-01-07",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "company": "Primavera Nueva Inc.",
+      "brand": "Primavera Nueva",
+      "product": "4-count tamales",
+      "country": "United States",
+      "source": "FDA",
+      "tier": 1,
+      "outbreak": 0,
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/primavera-nueva-inc-issues-voluntary-recall-select-4-count-tamales-because-possible-health-risk-0",
+      "url_ok": true
+    }
+  ],
+  "email_html": "<!DOCTYPE html><html><body style=\"margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937\">\n<div style=\"max-width:600px;margin:20px auto;background:#fff;border:1px solid #e5e7eb\">\n\n<div style=\"background:#0a0e1a;color:#fff;padding:20px 24px\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:-0.01em\">\nAdvanced Food-Tech Solutions <span style=\"color:#E8601A\">·</span> AFTS</div>\n<div style=\"font-family:monospace;font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.14em;margin-top:3px\">\nMonthly Briefing · January 2026</div>\n</div>\n\n<div style=\"padding:28px 24px 16px\">\n<h1 style=\"font-family:Georgia,serif;font-weight:800;font-size:24px;margin:0 0 8px;color:#0a0e1a\">Hazard &amp; Pathogen Surveillance · January 2026</h1>\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px\">\n01 Jan – 31 Jan 2026 · 36 recalls · 35 Tier-1 · 4 outbreaks\n</div>\n\n<table cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;border-collapse:collapse;margin-bottom:20px\">\n<tr>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#0a0e1a\">36</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Total</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#dc2626\">35</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Tier-1</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:26px;color:#7c3aed\">4</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Outbreak-assoc. records</div>\n</td>\n<td style=\"width:25%;padding:14px 12px;background:#f9fafb;border:1px solid #e5e7eb;text-align:center\">\n<div style=\"font-family:Georgia,serif;font-weight:800;font-size:18px;color:#E8601A;font-style:italic\">Bacillus cereus / Cereulide</div>\n<div style=\"font-family:monospace;font-size:9px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;margin-top:4px\">Leading</div>\n</td>\n</tr>\n</table>\n\n<div style=\"background:#f9fafb;border-left:3px solid #E8601A;padding:14px 18px;margin-bottom:20px\">\n<div style=\"font-family:monospace;font-size:10px;color:#6b7280;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:6px\">Month signal</div>\n<div style=\"font-size:14px;line-height:1.55\"><strong>None%</strong> vs prior month\n\n· severity index <strong>62.8/100</strong> (elevated).</div>\n\n</div>\n\n<div style=\"text-align:center;margin:28px 0 12px\">\n<a href=\"https://fsis.advfood.tech/2026-M01.html\" target=\"_blank\" style=\"display:inline-block;background:#0a0e1a;color:#fff;padding:14px 28px;text-decoration:none;font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:3px\">View Full Monthly Report →</a>\n</div>\n\n<div style=\"font-size:11px;color:#94a3b8;text-align:center;margin-top:20px\">\nAdvanced Food-Tech Solutions · advfood.tech · info@advfood.tech\n</div>\n</div>\n</div>\n</body></html>",
+  "generated_utc": "2026-09-02T16:18:48.266037+00:00",
+  "generated_at": "2026-09-02T16:18:48.266044+00:00"
+}
