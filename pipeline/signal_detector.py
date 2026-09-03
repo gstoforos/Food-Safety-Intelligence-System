@@ -532,6 +532,11 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
     candidates: List[Signal] = []
     suppressed_sparse = 0
     rolled_up = set()
+    # Strata that clear the sparsity ladder and are actually scored. Before
+    # 2026-09-02 the meta field `strata_tested` reported len(candidates) —
+    # the number that ALARMED — so a quiet week printed "strata tested: 0"
+    # and read as a detector that had tested nothing.
+    tested = 0
 
     for key, s in strata.items():
         observed = int(s.series.get(asof, 0))
@@ -554,6 +559,7 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
         if observed < MIN_ABSOLUTE_COUNT:
             suppressed_sparse += 1
             continue
+        tested += 1
 
         c1, _, _ = ears_statistic(observed, b1)
         c2, m2, sd2 = ears_statistic(observed, b2)
@@ -704,7 +710,7 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
         "week_start": str(asof.start_time.date()),
         "week_end": str(asof.end_time.date()),
         "corpus_week_total": week_total,
-        "strata_tested": len(candidates),
+        "strata_tested": tested,
         "strata_suppressed_sparse": suppressed_sparse,
         "candidates": len(candidates),
         "after_fdr": len(surviving),
@@ -729,6 +735,221 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
         meta["reported"] = len(final)
         meta["status"] = "ok_outside_coverage_window"
     return final, meta
+
+
+# =============================================================================
+# LIVE BOARD (added 2026-09-02)
+# =============================================================================
+# The alarm list answers "what is elevated this week?". A live surveillance
+# page also has to answer "what is being watched, and where does each
+# stratum sit against its own baseline right now?" — otherwise a quiet week
+# renders as an empty page and the reader cannot tell a working detector
+# from a broken one. The board reports every stratum that clears the
+# sparsity ladder, alarming or not, using the SAME windows and the SAME
+# thresholds as detect(); it adds no statistic of its own.
+
+BOARD_SERIES_WEEKS = 12
+OUT_BOARD = os.path.join(REPO_ROOT, "docs", "data", "signals-board.json")
+
+
+def build_board(corpus: Corpus, strata: Dict[str, Stratum],
+                asof: pd.Period, signals: List[Signal]) -> List[Dict]:
+    weeks = corpus.weeks
+    idx = weeks.index(asof)
+    alarmed = {s.stratum_key: s for s in signals}
+    week_total = corpus.totals.get(asof, 0)
+    rows: List[Dict] = []
+    sparse: List[Dict] = []
+    for key, s in strata.items():
+        observed = int(s.series.get(asof, 0))
+        b2 = _window(s.series, weeks, idx, BASELINE_WEEKS, GUARD_WEEKS)
+        if not b2:
+            continue
+        mean2 = sum(b2) / len(b2)
+        nonzero = sum(1 for x in b2 if x > 0)
+        testable = (mean2 >= MIN_BASELINE_MEAN
+                    and nonzero >= MIN_BASELINE_NONZERO)
+        if not testable:
+            if observed > 0:
+                sparse.append({
+                    "label": s.label(), "stratum_key": key, "level": s.level,
+                    "pathogen": s.pathogen, "region": s.region,
+                    "country": s.country, "tier": s.tier,
+                    "observed": observed, "baseline_mean": round(mean2, 2),
+                    "baseline_nonzero": nonzero,
+                    "parent_key": s.parent_key(),
+                })
+            continue
+        c2, m2, sd2 = ears_statistic(observed, b2)
+        b1 = _window(s.series, weeks, idx, BASELINE_WEEKS, 0)
+        c1, m1, _ = ears_statistic(observed, b1) if b1 else (0.0, 0.0, 0.0)
+        c3 = 0.0
+        for back in range(C3_SPAN):
+            j = idx - back
+            if j < 0:
+                break
+            bj = _window(s.series, weeks, j, BASELINE_WEEKS, GUARD_WEEKS)
+            if not bj:
+                break
+            sj, _, _ = ears_statistic(float(s.series.get(weeks[j], 0)), bj)
+            c3 += max(sj - 1.0, 0.0)
+        base_stratum = base_total = 0
+        for back in range(GUARD_WEEKS + 1, GUARD_WEEKS + 1 + BASELINE_WEEKS):
+            j = idx - back
+            if j < 0:
+                break
+            base_stratum += int(s.series.get(weeks[j], 0))
+            base_total += int(corpus.totals.get(weeks[j], 0))
+        share_base = (base_stratum / base_total) if base_total else 0.0
+        share_obs = (observed / week_total) if week_total else 0.0
+        # The share-channel test, for EVERY scorable stratum — not only the
+        # alarms — so the page can show where each one sits against alpha.
+        p_share = (binom_sf(observed, week_total, share_base)
+                   if week_total and share_base > 0 else 1.0)
+        lo = max(0, idx - BOARD_SERIES_WEEKS + 1)
+        series = [int(s.series.get(weeks[j], 0)) for j in range(lo, idx + 1)]
+        sig = alarmed.get(key)
+        if sig is not None:
+            status = "elevated"
+        elif observed < MIN_ABSOLUTE_COUNT:
+            status = "below_floor"      # tested baseline, too few this week to score
+        elif c2 >= 2.0 and observed > mean2:
+            status = "watch"
+        elif observed > mean2:
+            status = "above"
+        elif c2 <= -2.0:
+            # A drop of two baseline sd is as informative as a rise. On a
+            # corpus fed by ~66 scrapers it is usually the fleet going
+            # quiet, not the food supply going quiet — and the difference
+            # matters, because a silent scraper also suppresses every
+            # alarm that week. Surfaced so a quiet board is read correctly.
+            status = "below"
+        else:
+            status = "normal"
+        src, src_share = _dominant_source(corpus, s, asof)
+        rows.append({
+            "label": s.label(), "stratum_key": key, "level": s.level,
+            "pathogen": s.pathogen, "region": s.region, "country": s.country,
+            "tier": s.tier, "observed": observed,
+            "baseline_mean": round(m2, 2), "baseline_sd": round(sd2, 2),
+            "baseline_values": [int(x) for x in b2],
+            "c1": round(c1, 2), "c2": round(c2, 2), "c3": round(c3, 2),
+            "share_observed": round(share_obs, 4),
+            "share_baseline": round(share_base, 4),
+            "p_share": round(p_share, 6),
+            "effect_count": round(observed / m2, 2) if m2 > 0 else None,
+            "effect_share": (round(share_obs / share_base, 2)
+                             if share_base > 0 else None),
+            "series": series, "status": status,
+            "channel": sig.channel if sig else None,
+            "p_value": sig.p_value if sig else None,
+            "fdr_pass": sig.fdr_pass if sig else None,
+            "dominant_source": src, "dominant_share": round(src_share, 2),
+            "parent_key": s.parent_key(),
+            "note": sig.note if sig else "",
+        })
+    order = {"elevated": 0, "watch": 1, "below": 2, "above": 3, "normal": 4,
+             "below_floor": 5}
+    rows.sort(key=lambda r: (order[r["status"]],
+                             -abs(r["c2"] or 0) if r["status"] == "below"
+                             else -(r["c2"] or 0)))
+    sparse.sort(key=lambda r: -r["observed"])
+    build_board.last_sparse = sparse       # picked up by main() for the payload
+    return rows
+
+
+def build_context(corpus: Corpus, asof: pd.Period) -> Dict:
+    """Corpus-level context the strata tests are conditioned on.
+
+    volume       every complete week's total, with the same EARS C2 applied
+                 to the TOTAL for the test week. A low C2 here is the
+                 collection-artefact warning: the share channel normalises
+                 volume only partially, and a silent scraper suppresses every
+                 stratum at once.
+    publishers   share of the corpus by source, this week vs the baseline
+                 window. The docstring at the top of this module says the
+                 share channel stays sensitive to a change in publisher MIX;
+                 this is that mix, made visible.
+    """
+    weeks = corpus.weeks
+    idx = weeks.index(asof)
+    tot_series = {w: int(corpus.totals.get(w, 0)) for w in weeks}
+    b2 = _window(tot_series, weeks, idx, BASELINE_WEEKS, GUARD_WEEKS)
+    c2, m2, sd2 = ears_statistic(float(tot_series[asof]), b2) if b2 else (0.0, 0.0, 0.0)
+    df = corpus.frame
+    base_weeks = [weeks[idx - back]
+                  for back in range(GUARD_WEEKS + 1, GUARD_WEEKS + 1 + BASELINE_WEEKS)
+                  if idx - back >= 0]
+    now = df[df["week"] == asof]["Source"].value_counts()
+    base = df[df["week"].isin(base_weeks)]["Source"].value_counts()
+    now_n = int(now.sum()) or 1
+    base_n = int(base.sum()) or 1
+    srcs = list(dict.fromkeys(list(now.index[:8]) + list(base.index[:8])))[:10]
+    publishers = []
+    for s in srcs:
+        n_now = int(now.get(s, 0))
+        n_base = int(base.get(s, 0))
+        publishers.append({
+            "source": str(s), "now": n_now,
+            "now_share": round(n_now / now_n, 4),
+            "base_mean": round(n_base / max(1, len(base_weeks)), 2),
+            "base_share": round(n_base / base_n, 4),
+        })
+    publishers.sort(key=lambda p: -p["base_share"])
+    return {
+        "volume": [{"week": str(w), "total": tot_series[w]} for w in weeks],
+        "volume_test": {"week": str(asof), "observed": tot_series[asof],
+                        "baseline_mean": round(m2, 2),
+                        "baseline_sd": round(sd2, 2), "c2": round(c2, 2),
+                        "baseline_values": [int(x) for x in b2]},
+        "publishers": publishers,
+        "baseline_weeks": [str(w) for w in base_weeks],
+    }
+
+
+def build_ledger(corpus: Corpus, strata: Dict[str, Stratum]) -> List[Dict]:
+    """Walk-forward alarm history for the page's timeline strip. Same code
+    path as backtest(); this only reshapes it to JSON."""
+    out: List[Dict] = []
+    need = BASELINE_WEEKS + GUARD_WEEKS + C3_SPAN
+    for i, w in enumerate(corpus.weeks):
+        if i < need:
+            continue
+        sigs, _ = detect(corpus, strata, asof=w)
+        out.append({
+            "week": str(w),
+            "week_start": str(w.start_time.date()),
+            "week_end": str(w.end_time.date()),
+            "corpus_total": int(corpus.totals.get(w, 0)),
+            "alarms": [{
+                "label": s.label, "channel": s.channel,
+                "observed": s.observed, "baseline_mean": s.baseline_mean,
+                "effect": s.effect, "p_value": round(s.p_value, 6),
+                "fdr_pass": s.fdr_pass, "dominant_source": s.dominant_source,
+            } for s in sigs],
+        })
+    return out
+
+
+def write_board(meta: Dict, signals: List[Signal], board: List[Dict],
+                ledger: List[Dict], series_weeks: List[str],
+                context: Optional[Dict] = None,
+                dry_run: bool = False) -> Dict:
+    payload = {
+        "meta": meta,
+        "series_weeks": series_weeks,
+        "signals": [asdict(s) for s in signals],
+        "board": board,
+        "sparse": getattr(build_board, "last_sparse", []),
+        "ledger": ledger,
+        "context": context or {},
+    }
+    if dry_run:
+        return payload
+    os.makedirs(os.path.dirname(OUT_BOARD), exist_ok=True)
+    with open(OUT_BOARD, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, ensure_ascii=False, indent=1)
+    return payload
 
 
 # =============================================================================
@@ -839,6 +1060,10 @@ def main(argv: Optional[List[str]] = None) -> int:
                          "pipeline/source_coverage.py)")
     ap.add_argument("--dry-run", action="store_true",
                     help="print only, write nothing")
+    ap.add_argument("--board", action="store_true",
+                    help="also write docs/data/signals-board.json: every "
+                         "tested stratum with its baseline position, plus the "
+                         "walk-forward alarm ledger, for the dashboard")
     ap.add_argument("--backtest", action="store_true",
                     help="walk-forward replay across all eligible weeks")
     ap.add_argument("--backtest-out", default=None,
@@ -870,6 +1095,24 @@ def main(argv: Optional[List[str]] = None) -> int:
     write_outputs(signals, meta, dry_run=args.dry_run)
     if not args.dry_run:
         print(f"\nwrote {OUT_LATEST}")
+    if args.board:
+        week = asof if asof is not None else corpus.weeks[-1]
+        board = build_board(corpus, strata, week, signals)
+        ledger = build_ledger(corpus, strata)
+        i = corpus.weeks.index(week)
+        lo = max(0, i - BOARD_SERIES_WEEKS + 1)
+        series_weeks = [str(w) for w in corpus.weeks[lo:i + 1]]
+        context = build_context(corpus, week)
+        write_board(meta, signals, board, ledger, series_weeks,
+                    context=context, dry_run=args.dry_run)
+        by = {}
+        for r in board:
+            by[r["status"]] = by.get(r["status"], 0) + 1
+        print(f"board: {len(board)} strata on watch · "
+              + " · ".join(f"{k} {v}" for k, v in by.items())
+              + f" · ledger {len(ledger)} weeks")
+        if not args.dry_run:
+            print(f"wrote {OUT_BOARD}")
     return 0
 
 
