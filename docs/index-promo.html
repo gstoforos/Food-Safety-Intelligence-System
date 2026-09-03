@@ -300,6 +300,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 body.promo-mode #tab-daily,
 body.promo-mode #tab-reports,
 body.promo-mode #tab-monthly,
+body.promo-mode #tab-signals,
 body.promo-mode .tab[onclick*="downloadRecallsXlsx"],
 body.promo-mode .tab[onclick*="alerts.html"]{
   opacity:.48;filter:saturate(.45);cursor:pointer;
@@ -308,6 +309,7 @@ body.promo-mode .tab[onclick*="alerts.html"]{
 body.promo-mode #tab-daily::after,
 body.promo-mode #tab-reports::after,
 body.promo-mode #tab-monthly::after,
+body.promo-mode #tab-signals::after,
 body.promo-mode .tab[onclick*="downloadRecallsXlsx"]::after,
 body.promo-mode .tab[onclick*="alerts.html"]::after{
   content:' \01F512';font-size:11px;margin-left:5px;opacity:.85;display:inline-block;vertical-align:1px;
@@ -315,6 +317,7 @@ body.promo-mode .tab[onclick*="alerts.html"]::after{
 body.promo-mode #tab-daily:hover,
 body.promo-mode #tab-reports:hover,
 body.promo-mode #tab-monthly:hover,
+body.promo-mode #tab-signals:hover,
 body.promo-mode .tab[onclick*="downloadRecallsXlsx"]:hover,
 body.promo-mode .tab[onclick*="alerts.html"]:hover{
   opacity:1;filter:saturate(1);color:var(--ai)!important;border-color:var(--ai)!important;
@@ -322,6 +325,7 @@ body.promo-mode .tab[onclick*="alerts.html"]:hover{
 body.promo-mode #tab-daily:hover::after,
 body.promo-mode #tab-reports:hover::after,
 body.promo-mode #tab-monthly:hover::after,
+body.promo-mode #tab-signals:hover::after,
 body.promo-mode .tab[onclick*="downloadRecallsXlsx"]:hover::after,
 body.promo-mode .tab[onclick*="alerts.html"]:hover::after{
   content:' \01F512 Subscribe';font-family:'DM Mono',monospace;font-size:9px;font-weight:700;
@@ -426,6 +430,7 @@ body.promo-mode .tab[onclick*="alerts.html"]:hover::after{
 <button class="tab" id="tab-daily" onclick="switchTab('daily')">📅 Daily <span id="daily-count" style="opacity:.55;font-weight:400"></span></button>
 <button class="tab" id="tab-reports" onclick="switchTab('reports')">📊 Weekly <span id="rep-count" style="opacity:.55;font-weight:400"></span></button>
 <button class="tab" id="tab-monthly" onclick="switchTab('monthly')">🗓 Monthly <span id="mon-count" style="opacity:.55;font-weight:400"></span></button>
+<button class="tab" id="tab-signals" onclick="return false" title="Subscribe to unlock">⚡ Live Signals</button>
 <button class="tab" id="tab-yearly" onclick="return false" aria-disabled="true" title="Yearly reports activate January 2027, after 12 months of data" style="opacity:.35;cursor:not-allowed;color:var(--dim)">📆 Yearly <span style="font-family:'DM Mono',monospace;font-size:8px;font-weight:400;opacity:.65;margin-left:4px">soon</span></button>
 <button class="tab" onclick="downloadRecallsXlsx()">↓ XLSX</button>
 <button class="tab" onclick="window.open('alerts.html','_blank','noopener,width=980,height=820')" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🔔 Alerts</button>
