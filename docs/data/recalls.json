@@ -2,7 +2,7 @@
  {
   "Date": "2026-09-03",
   "Source": "RappelConso (FR)",
-  "Company": "Neutre",
+  "Company": "Compagnie Montagne Noire",
   "Brand": "Neutre",
   "Product": "noix de jambon sec",
   "Pathogen": "Salmonella",
@@ -13,7 +13,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23404/interne",
-  "Notes": "coop saveurs - montagne noire mag usine albi [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "coop saveurs - montagne noire mag usine albi [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator proposal 7f8a3a50e2d0544d applied 2026-09-03: Company field held 'Neutre', which is the product's BRAND field value (unbranded), not the issuing company. Fiche 23404 names the recall's origin as Compagnie Montagne Noire, distributed via Coop Saveurs - Montagne Noire]"
  },
  {
   "Date": "2026-09-03",
@@ -22,14 +22,14 @@
   "Brand": "Noyeraies du Lander",
   "Product": "graines de courge - 1kg",
   "Pathogen": "Salmonella",
-  "Reason": "Détection salmonelle",
+  "Reason": "Salmonella detected.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23422/interne",
-  "Notes": "metro, promocash rodez [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "metro, promocash rodez [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator proposal 2e420dfd68d1afbf applied 2026-09-03: Reason field carried French text 'Détection salmonelle' in violation of the English-output rule.]"
  },
  {
   "Date": "2026-09-03",
@@ -38,14 +38,46 @@
   "Brand": "E.Leclerc Bellaing",
   "Product": "piémontaise de la mer",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Detection of listéria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23431/interne",
-  "Notes": "e.leclerc bellaing [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "e.leclerc bellaing [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator proposal bcd602c02e4ff7b1 applied 2026-09-03: Reason field carried the French-accented 'listéria' inside an otherwise-English sentence, in violation of the English-output rule.]"
+ },
+ {
+  "Date": "2026-09-03",
+  "Source": "RappelConso (FR)",
+  "Company": "Vieille Graine",
+  "Brand": "Vieille Graine",
+  "Product": "farine de sorgho (500g) vieille graine",
+  "Pathogen": "Mycotoxins (T-2 and HT-2 toxin)",
+  "Reason": "Contamination with T-2 and HT-2 toxins at 8.5 times the regulatory maximum level.",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23371/interne",
+  "Notes": "17 magasins et 2 distributeurs du réseau bio [agent nightly-operator proposal f4a3e0bace550727 applied 2026-09-03: RappelConso fiche 23371 (Vieille Graine sorghum flour) names T2/HT2 mycotoxin contamination at 8.5x the regulatory max.]"
+ },
+ {
+  "Date": "2026-09-03",
+  "Source": "RappelConso (FR)",
+  "Company": "Gers Boeuf",
+  "Brand": "Gers Boeuf",
+  "Product": "steack hache",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella contamination.",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23430/interne",
+  "Notes": "touron-ferme du choucou [agent nightly-operator proposal 545179a815cd6b60 applied 2026-09-03: RappelConso fiche 23430 (Gers Boeuf steak haché) names Salmonella spp as the hazard.] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
  },
  {
   "Date": "2026-09-02",
@@ -86,14 +118,14 @@
   "Brand": "Keraliou",
   "Product": "coque moyenne française",
   "Pathogen": "Escherichia coli (generic)",
-  "Reason": "Présence e.coli",
+  "Reason": "E. coli detected.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23408/interne",
-  "Notes": "restaurants, traiteur, supermarché [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "restaurants, traiteur, supermarché [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [agent nightly-operator proposal 0a4bf5e9cdfdf139 applied 2026-09-03: Reason field carried French text 'Présence e.coli' in violation of the English-output rule.]"
  },
  {
   "Date": "2026-09-02",
@@ -318,6 +350,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/870282",
   "Notes": "[RASFF #2026.7741; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=870282] [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
+ },
+ {
+  "Date": "2026-09-02",
+  "Source": "RappelConso (FR)",
+  "Company": "Vertufood",
+  "Brand": "Vertufood",
+  "Product": "mélange sportif - vertufood",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella detected.",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23402/interne",
+  "Notes": "auchan, monoprix, carrefour, intermarché, super u, e.leclerc [agent nightly-operator proposal 722647c265cf205a applied 2026-09-03: RappelConso fiche 23402 (Vertufood mélange sportif) names Salmonella spp as the hazard.] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
  },
  {
   "Date": "2026-09-01",
@@ -910,22 +958,6 @@
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/portale/richiami/dettaglioRichiamo.jsp?id=23769",
   "Notes": "Lotto: L126G22. Scadenza: 05/09/2026. Nessun caso di listeriosi associato segnalato. Stabilimento IT T616G UE.  [via Gemini gap-finder + Google Search] [held 2026-08-28: salute.gov.it is behind a JS WAF and could not be fetched; same gap-finder batch as the failed RappelConso URLs. Unverified, not wrong.] [promoted 2026-08-28: Ministero della Salute official richiamo id=23769, gate-clean. salute.gov.it sits behind a JS WAF and could not be fetched here; flagged for url_guardian. Part of the same week's BE/FR/IT gorgonzola Listeria cluster.] [en 2026-08-28: Reason translated from the regulator wording \"Possibile presenza di Listeria monocytogenes\" - operator rule is English everywhere except brand and product name. Meaning unchanged.] [source-label canonicalised 2026-09-01: 'Ministero della Salute' -> 'Ministero della Salute (IT)'; host salute.gov.it confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
- },
- {
-  "Date": "2026-08-26",
-  "Source": "BLV",
-  "Company": "Mises en garde et rappels",
-  "Brand": "Mises en garde et rappels",
-  "Product": "aliments",
-  "Pathogen": "Ochratoxin",
-  "Reason": "Ochratoxin",
-  "Class": "Recall",
-  "Country": "Switzerland",
-  "Region": "Europe",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.blv.admin.ch/fr/mises-en-garde-et-rappels-aliments",
-  "Notes": "## Rappels\n\n Léguriviera procède au rappel du produit «Figues sèches / Higos Secos» en raison d'une teneur en ochratoxine A supérieure à la limite maximale autorisée par la loi - 26.08.2026\n Importas GmbH procède au rappel du produit «Fennel Powder 100 g» en raison de la présence de résidus de pesti  [via Tavily gap-finder, deterministic extract] [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
  },
  {
   "Date": "2026-08-25",
