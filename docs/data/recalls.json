@@ -6,14 +6,14 @@
   "Brand": "Ravalec",
   "Product": "saucisson sec à la coupe maison",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of Listeria <10 ufc/g sur un saucisson sec",
+  "Reason": "Presence of Listeria (<10 cfu/g) in a dry sausage",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23407/interne",
-  "Notes": "nos magasins ravalec traiteur [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "nos magasins ravalec traiteur [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [audit 2026-09-03: Reason translated FR->EN per the English-output rule; source wording: \"Presence of Listeria <10 ufc/g sur un saucisson sec\"]"
  },
  {
   "Date": "2026-09-02",
@@ -22,14 +22,14 @@
   "Brand": "Nature Oceane",
   "Product": "tarama brut msc 150g",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Présence Listeria sur un produit fini analysé lors d'un autocontrôle",
+  "Reason": "Listeria detected in a finished product during an own-check analysis",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23368/interne",
-  "Notes": "voir pièce jointe [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "voir pièce jointe [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [audit 2026-09-03: Reason translated FR->EN per the English-output rule; source wording: \"Présence Listeria sur un produit fini analysé lors d'un autocontrôle\"]"
  },
  {
   "Date": "2026-09-02",
@@ -166,14 +166,14 @@
   "Brand": "Paturages Comtois",
   "Product": "pointe de brie paturages comtois - format 180 grammes",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Retrait préventif suite à détection Listeria dans un autre lot fabriqué le même jour",
+  "Reason": "Precautionary withdrawal following detection of Listeria in another batch made the same day",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23427/interne",
-  "Notes": "établissement de restauration   commerce de détail [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "établissement de restauration   commerce de détail [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed] [audit 2026-09-03: Reason translated FR->EN per the English-output rule; source wording: \"Retrait préventif suite à détection Listeria dans un autre lot fabriqué le même jour\"]"
  },
  {
   "Date": "2026-09-02",
@@ -182,14 +182,14 @@
   "Brand": "Regal des Moines",
   "Product": "fromage fleuri de format carré - 250 grammes",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Retrait préventif suite à détection Listeria dans un autre lot fabriqué le même jour",
+  "Reason": "Precautionary withdrawal following detection of Listeria in another batch made the same day",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23426/interne",
-  "Notes": "commerce de détail; intermarché; établissement de restauration [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "commerce de détail; intermarché; établissement de restauration [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed] [audit 2026-09-03: Reason translated FR->EN per the English-output rule; source wording: \"Retrait préventif suite à détection Listeria dans un autre lot fabriqué le même jour\"]"
  },
  {
   "Date": "2026-09-02",
@@ -198,14 +198,14 @@
   "Brand": "Paturages Comtois",
   "Product": "brie 500 grammes",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Retrait préventif suite à détection Listeria dans un autre lot fabriqué le même jour",
+  "Reason": "Precautionary withdrawal following detection of Listeria in another batch made the same day",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23425/interne",
-  "Notes": "commerce de détail; leclerc; intermarché [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "commerce de détail; leclerc; intermarché [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed] [audit 2026-09-03: Reason translated FR->EN per the English-output rule; source wording: \"Retrait préventif suite à détection Listeria dans un autre lot fabriqué le même jour\"]"
  },
  {
   "Date": "2026-09-02",
@@ -214,14 +214,14 @@
   "Brand": "Val de Saone",
   "Product": "camembert val de saone - produit de 240 grammes",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Retrait préventif suite à détection Listeria dans un autre lot fabriqué le même jour",
+  "Reason": "Precautionary withdrawal following detection of Listeria in another batch made the same day",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23424/interne",
-  "Notes": "établissement de restauration   commerce de détail [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "établissement de restauration   commerce de détail [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed] [audit 2026-09-03: Reason translated FR->EN per the English-output rule; source wording: \"Retrait préventif suite à détection Listeria dans un autre lot fabriqué le même jour\"]"
  },
  {
   "Date": "2026-09-02",
@@ -230,14 +230,14 @@
   "Brand": "Paturages Comtois",
   "Product": "brie kg 50%",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Rappel préventif suite à détection Listeria dans un autre lot fabriqué le même jour",
+  "Reason": "Precautionary recall following detection of Listeria in another batch made the same day",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23417/interne",
-  "Notes": "leclerc; restaurateurs [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "leclerc; restaurateurs [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed] [audit 2026-09-03: Reason translated FR->EN per the English-output rule; source wording: \"Rappel préventif suite à détection Listeria dans un autre lot fabriqué le même jour\"]"
  },
  {
   "Date": "2026-09-01",
