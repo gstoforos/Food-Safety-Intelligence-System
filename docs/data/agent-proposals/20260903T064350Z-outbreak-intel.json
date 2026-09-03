@@ -1,0 +1,1465 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20260903T064350Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/john-b-sanfilippo-son-inc-voluntarily-recalls-snack-mix-products-due-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/john-b-sanfilippo-son-inc-voluntarily-recalls-snack-mix-products-due-possible-health-risk",
+          "quote": "2026-05-06 FDA Snack mixes (8 SKUs): Fisher Tex Mex Trail Mix 30 oz; Southern Style Nuts Gourmet Hunter M",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "cc61c6c8abbe21be"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jcb-flavors-llc-issues-voluntary-recall-topical-seasonings-due-potential-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jcb-flavors-llc-issues-voluntary-recall-topical-seasonings-due-potential-health-risk",
+          "quote": "2026-05-07 FDA Topical popcorn seasonings (Watertown, WI)",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "83d40ec5ba3f3ea6"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/stoltzfus-family-dairy-recalls-sour-cream-and-onion-cheese-curds-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/stoltzfus-family-dairy-recalls-sour-cream-and-onion-cheese-curds-because-possible-health-risk",
+          "quote": "2026-05-07 FDA Sour Cream and Onion Cheese Curds 8 oz bag — Best By 03/25/2026, 04/23/2026, 04/29/2026, 0",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c6ef72bbc66b651f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/legacy-snack-solutions-voluntarily-recalls-giant-eagle-baked-pita-chips-parmesan-garlic-herb-because"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/legacy-snack-solutions-voluntarily-recalls-giant-eagle-baked-pita-chips-parmesan-garlic-herb-because",
+          "quote": "2026-05-08 FDA Giant Eagle Baked Pita Chips with Parmesan, Garlic & Herb 7.33 oz (UPC 0 3003496507 5, Bes",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0980a5cc7e09aa14"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jonco-industries-recalls-certain-consumer-sized-white-cheddar-seasoning-products-because-possible"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jonco-industries-recalls-certain-consumer-sized-white-cheddar-seasoning-products-because-possible",
+          "quote": "2026-05-08 FDA White Cheddar Seasoning — 3 SKUs: Williams Sonoma Popcorn Sampler Gift Box (lot 088594-2-1",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9e1af16ecdcae7b3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/spring-mulberry-expands-voluntary-recall-select-chocolate-bars-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/spring-mulberry-expands-voluntary-recall-select-chocolate-bars-because-possible-health-risk",
+          "quote": "2026-05-08 FDA Chocolate bars — 2nd expansion (12 flavors): Blood Orange, Coffee, Earl Grey, Lavender Ros",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d9c926f66ced9e62"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/blackstone-products-recalls-parmesan-ranch-seasoning-because-possible-salmonella-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/blackstone-products-recalls-parmesan-ranch-seasoning-because-possible-salmonella-health-risk",
+          "quote": "2026-05-15 FDA Parmesan Ranch Seasoning 7.3 oz. Lot codes: 2025-43282 (Best by 07/02/2027), 2025-46172 (B",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1a01d840f299db56"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sugar-foods-issues-recall-specific-lots-kroger-homestyle-cheese-garlic-croutons-due-possible-health"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sugar-foods-issues-recall-specific-lots-kroger-homestyle-cheese-garlic-croutons-due-possible-health",
+          "quote": "2026-05-18 FDA Kroger Homestyle Cheese Garlic Croutons, 5 oz pouches (UPC 0 11110 81353 4). Multiple Best",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "aed3b39f9fe5d5e2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nassar-investments-recalls-malazi-tahina-due-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nassar-investments-recalls-malazi-tahina-due-salmonella-contamination",
+          "quote": "2026-05-18 FDA Malazi Tahina, 1Kg plastic bottle (UPC 6 224011 088244, EXP 30/12/2026). Distributed Mar 1",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ede6d45cecb8e9e2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html",
+          "quote": "2026-05-20 CDC moringa capsules",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "33fd70bd737488ac"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk",
+          "quote": "2026-05-23 FDA Various specialty beverages",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d17f58361e9dd0c0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella",
+          "quote": "2026-05-26 FDA Mogo Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "922aa7f6fd38bd00"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood",
+          "quote": "2026-05-26 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor's Pride Complete Gree",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "b7b35e85a4b2873b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html",
+          "quote": "2026-05-27 CDC Moringa capsules (TNVitamins Ultra Potent Complete Green Superfood Moringa, Doctor's Pride",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "381c9403f6d18297"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html",
+          "quote": "2026-05-27 CDC Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "fef450e027db997c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html",
+          "quote": "2026-05-27 CDC Pure Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d07e8927b04d9efa"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643",
+          "quote": "2026-05-29 RASFF (EU) Shelled pistachios",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "38bde33cb027d01f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk",
+          "quote": "2026-06-01 FDA Motor City Pizza Co. 5 Cheese Bread — Single Pack (UPC 8 70375 00511 1) and 2 Pack (UPC 8 ",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0b1e6d9b86553d35"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated",
+          "quote": "2026-06-02 USDA FSIS Frozen pizzas, pork rinds, and other meat/poultry products containing FDA-regulated dairy ",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "a3c5f9453c2cccd2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016",
+          "quote": "2026-06-09 RASFF (EU) Salmonella spp. in natural almonds from the United States, via the Netherlands",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d2b4291aa94f7712"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0",
+          "quote": "2026-06-11 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor’s Pride Complete Gree",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "53af1c41dd50e2e0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026",
+          "quote": "2026-06-24 FDA Trafa Pharmaceuticals Inc. brand ORGANIC MORINGA LEAF POWDER; NET WEIGHT: 15 KGS; packaged",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9fb744b37d0783ca"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet, SKU 10150, Net wt. 5oz. Product is refrigerated. UPC 1",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "26ad60bc3e607d42"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet Deluxe with Bacon, SKU 10303, Net wt. 5.9oz. Product is",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "beb2f30e440c07b8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "sickened at least 21 people",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due",
+          "quote": "2026-06-27 FDA TNVitamins 100% Organic Moringa Capsules (1,200 mg) and 100% Organic Moringa Powder",
+          "retrieved_utc": "2026-09-03T06:43:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9407faccc2286c08"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-iceberg-lettuce-central-mexico-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/confusion-has-been-the-constant-in-the-cyclospora-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus cyclospora; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/confusion-has-been-the-constant-in-the-cyclospora-outbreak",
+          "quote": "a sample read positive on July 18 and was called a false positive a day later | Symptoms take about a week to appear, sometimes two",
+          "retrieved_utc": "2026-09-03T06:43:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-iceberg-lettuce-central-mexico-because-possible-health-risk",
+          "quote": "2026-07-18 FDA Iceberg lettuce from central Mexico (shredded/chopped/blend food-service & retail; multipl",
+          "retrieved_utc": "2026-09-03T06:43:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "37039d3eca5b684f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/john-b-sanfilippo-son-inc-voluntarily-recalls-snack-mix-products-due-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/john-b-sanfilippo-son-inc-voluntarily-recalls-snack-mix-products-due-possible-health-risk",
+          "quote": "2026-05-06 FDA Snack mixes (8 SKUs): Fisher Tex Mex Trail Mix 30 oz; Southern Style Nuts Gourmet Hunter M",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "16d69db94b022e25"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jcb-flavors-llc-issues-voluntary-recall-topical-seasonings-due-potential-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jcb-flavors-llc-issues-voluntary-recall-topical-seasonings-due-potential-health-risk",
+          "quote": "2026-05-07 FDA Topical popcorn seasonings (Watertown, WI)",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e1a5ba065a4284b7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/stoltzfus-family-dairy-recalls-sour-cream-and-onion-cheese-curds-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/stoltzfus-family-dairy-recalls-sour-cream-and-onion-cheese-curds-because-possible-health-risk",
+          "quote": "2026-05-07 FDA Sour Cream and Onion Cheese Curds 8 oz bag — Best By 03/25/2026, 04/23/2026, 04/29/2026, 0",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f388b1ec4bf49cd3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/legacy-snack-solutions-voluntarily-recalls-giant-eagle-baked-pita-chips-parmesan-garlic-herb-because"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/legacy-snack-solutions-voluntarily-recalls-giant-eagle-baked-pita-chips-parmesan-garlic-herb-because",
+          "quote": "2026-05-08 FDA Giant Eagle Baked Pita Chips with Parmesan, Garlic & Herb 7.33 oz (UPC 0 3003496507 5, Bes",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "aa322ee7bea3761a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jonco-industries-recalls-certain-consumer-sized-white-cheddar-seasoning-products-because-possible"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jonco-industries-recalls-certain-consumer-sized-white-cheddar-seasoning-products-because-possible",
+          "quote": "2026-05-08 FDA White Cheddar Seasoning — 3 SKUs: Williams Sonoma Popcorn Sampler Gift Box (lot 088594-2-1",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "04b72f226decbc04"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/spring-mulberry-expands-voluntary-recall-select-chocolate-bars-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/spring-mulberry-expands-voluntary-recall-select-chocolate-bars-because-possible-health-risk",
+          "quote": "2026-05-08 FDA Chocolate bars — 2nd expansion (12 flavors): Blood Orange, Coffee, Earl Grey, Lavender Ros",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "056e996d3fb10dfb"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/blackstone-products-recalls-parmesan-ranch-seasoning-because-possible-salmonella-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/blackstone-products-recalls-parmesan-ranch-seasoning-because-possible-salmonella-health-risk",
+          "quote": "2026-05-15 FDA Parmesan Ranch Seasoning 7.3 oz. Lot codes: 2025-43282 (Best by 07/02/2027), 2025-46172 (B",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "aabdfe8440223fc2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sugar-foods-issues-recall-specific-lots-kroger-homestyle-cheese-garlic-croutons-due-possible-health"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sugar-foods-issues-recall-specific-lots-kroger-homestyle-cheese-garlic-croutons-due-possible-health",
+          "quote": "2026-05-18 FDA Kroger Homestyle Cheese Garlic Croutons, 5 oz pouches (UPC 0 11110 81353 4). Multiple Best",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "45d8ae5c46688e25"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nassar-investments-recalls-malazi-tahina-due-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nassar-investments-recalls-malazi-tahina-due-salmonella-contamination",
+          "quote": "2026-05-18 FDA Malazi Tahina, 1Kg plastic bottle (UPC 6 224011 088244, EXP 30/12/2026). Distributed Mar 1",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "86ac7af308efd443"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html",
+          "quote": "2026-05-20 CDC moringa capsules",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "aee2f3324113fbe1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk",
+          "quote": "2026-05-23 FDA Various specialty beverages",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "813a602f9cacfbf4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella",
+          "quote": "2026-05-26 FDA Mogo Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "87907433f494be49"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood",
+          "quote": "2026-05-26 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor's Pride Complete Gree",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "774fe30b1ab26abc"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html",
+          "quote": "2026-05-27 CDC Moringa capsules (TNVitamins Ultra Potent Complete Green Superfood Moringa, Doctor's Pride",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "17ddfcfefb7f64e6"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html",
+          "quote": "2026-05-27 CDC Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "91d1953366a06614"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html",
+          "quote": "2026-05-27 CDC Pure Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "cb334a158b0fc264"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643",
+          "quote": "2026-05-29 RASFF (EU) Shelled pistachios",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0331a295337d7e53"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk",
+          "quote": "2026-06-01 FDA Motor City Pizza Co. 5 Cheese Bread — Single Pack (UPC 8 70375 00511 1) and 2 Pack (UPC 8 ",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "b2ef98e02d5b0948"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated",
+          "quote": "2026-06-02 USDA FSIS Frozen pizzas, pork rinds, and other meat/poultry products containing FDA-regulated dairy ",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "930ba54fbe2d064d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016",
+          "quote": "2026-06-09 RASFF (EU) Salmonella spp. in natural almonds from the United States, via the Netherlands",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "765059f48063e82c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0",
+          "quote": "2026-06-11 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor’s Pride Complete Gree",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "174de148809712f0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026",
+          "quote": "2026-06-24 FDA Trafa Pharmaceuticals Inc. brand ORGANIC MORINGA LEAF POWDER; NET WEIGHT: 15 KGS; packaged",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c411c5c9c0e04494"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet, SKU 10150, Net wt. 5oz. Product is refrigerated. UPC 1",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d2b2a46de39b313d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet Deluxe with Bacon, SKU 10303, Net wt. 5.9oz. Product is",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "95d317aae6500803"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/public-health-officials-investigating-salmonella-outbreak-in-utah",
+          "quote": "identifying 21 confirmed cases in Cache and Box Elder Counties in northern Utah",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due",
+          "quote": "2026-06-27 FDA TNVitamins 100% Organic Moringa Capsules (1,200 mg) and 100% Organic Moringa Powder",
+          "retrieved_utc": "2026-09-03T06:43:46+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "16476cf9be9500ed"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/fda-sent-everything-sprouts-a-warning-letter-in-2025"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: country named in the article; serotype e. coli o26:h11; food terms alfalfa, sprouts, alfalfa, sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/fda-sent-everything-sprouts-a-warning-letter-in-2025",
+          "quote": "sickened at least 55 people in 15 states | Forty-six people are sick with E. coli infections, seven are infected with Salmonella, and two are sick with both Salmonella and E. coli infections | Illness onset dates range from May 31, 2026 to August 8, 2026",
+          "retrieved_utc": "2026-09-03T06:43:50+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
+          "quote": "2026-08-22 FDA Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lo",
+          "retrieved_utc": "2026-09-03T06:43:50+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "60e5fa7238fa7962"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/fda-sent-everything-sprouts-a-warning-letter-in-2025"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/fda-sent-everything-sprouts-a-warning-letter-in-2025",
+          "quote": "sickened at least 55 people in 15 states | Forty-six people are sick with E. coli infections, seven are infected with Salmonella, and two are sick with both Salmonella and E. coli infections | Illness onset dates range from May 31, 2026 to August 8, 2026",
+          "retrieved_utc": "2026-09-03T06:43:50+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due",
+          "quote": "2026-07-06 FDA Organic IQF Frozen Blueberries 10 oz",
+          "retrieved_utc": "2026-09-03T06:43:50+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1d6a6a10cdf32db0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/fda-sent-everything-sprouts-a-warning-letter-in-2025"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/fda-sent-everything-sprouts-a-warning-letter-in-2025",
+          "quote": "sickened at least 55 people in 15 states | Forty-six people are sick with E. coli infections, seven are infected with Salmonella, and two are sick with both Salmonella and E. coli infections | Illness onset dates range from May 31, 2026 to August 8, 2026",
+          "retrieved_utc": "2026-09-03T06:43:50+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e",
+          "quote": "2026-07-30 FDA Organic IQF Frozen Blueberries and Whole Mixed Berries, 10 oz and 48 oz",
+          "retrieved_utc": "2026-09-03T06:43:50+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "dd46364549a973e5"
+    }
+  ]
+}
