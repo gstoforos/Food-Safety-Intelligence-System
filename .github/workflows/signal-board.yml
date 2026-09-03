@@ -1,0 +1,109 @@
+# =============================================================================
+# Signal Board — weekly aberration scan for the dashboard's LIVE SIGNALS tab
+# =============================================================================
+# Runs pipeline/signal_detector.py (CDC EARS C1/C2/C3 + exact binomial
+# proportion channel, Benjamini-Hochberg FDR) over the latest COMPLETE ISO
+# week and writes:
+#
+#   docs/data/signals-latest.json    alarms this week (unchanged contract)
+#   docs/data/signals-history.jsonl  append-only alarm history
+#   docs/data/signals-board.json     every tested stratum with its baseline
+#                                    position + 12-week series, corpus-level
+#                                    context (volume test, publisher mix) and
+#                                    the walk-forward alarm ledger. This is
+#                                    what index.html's Signals tab renders.
+#   docs/signals.html                full-page analysis; its inline JSON
+#                                    snapshot is refreshed each run
+#   (reads docs/data/source-coverage.json, the FROZEN coverage register —
+#    never rebuilt here; see the note above the detector step)
+#
+# WHEN. Monday, after the ISO week (Mon-Sun) has closed and the Monday
+# data refresh has landed. Scheduling is centralised in FsisScheduler.gs
+# (Apps Script), which is the single source of truth: add a Monday slot
+# for `signal-board.yml` there. No internal cron block, by repository rule
+# (see scheduler-watchdog.yml). tools/dispatch_watchdog.py watches for the
+# commit message prefix "Signal board " and flags silence past 9 days.
+#
+# ADVISORY ONLY. The detector is retrospective surveillance, not a
+# forecaster: it says "stratum X ran above its own recent baseline this
+# week", never "X will be recalled next". Every output string carries
+# advisory_only=true and the page repeats it.
+# =============================================================================
+
+name: Signal Board (weekly, Monday)
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # docs/data/source-coverage.json is deliberately NOT rebuilt here.
+      # It is a frozen register: tests/test_coverage_gate.py asserts that the
+      # committed file reproduces the analytical window published in
+      # TR-2026-01 (opens 2026-06-08). Rebuilding it on 2026-09-02 moved that
+      # window to 06-01 and failed the suite. Rebuild it only by hand, with
+      # the technical report updated in the same commit.
+
+      - name: Run detector and build the board
+        run: |
+          python -m pipeline.signal_detector --board | tee /tmp/signals.log
+          # refresh the inline snapshot in docs/signals.html so the full page
+          # also opens as a plain file (download, attachment, file://)
+          python -m pipeline.build_signals_page | tee -a /tmp/signals.log
+          {
+            echo "## Signal board — $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M') Athens"
+            echo ""
+            echo '```'
+            cat /tmp/signals.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          FILES="docs/data/signals-latest.json docs/data/signals-history.jsonl docs/data/signals-board.json docs/signals.html"
+          # git add is atomic over its pathspec list — stage one at a time so
+          # a file that does not exist yet cannot veto the others.
+          for f in $FILES; do
+            [ -f "$f" ] && git add "$f"
+          done
+          if git diff --cached --quiet; then
+            echo "No signal outputs changed — nothing to commit."
+            exit 0
+          fi
+          WEEK=$(python - <<'EOF'
+          import json
+          print(json.load(open("docs/data/signals-board.json"))["meta"]["week"])
+          EOF
+          )
+          git commit -m "Signal board ${WEEK} — weekly aberration scan"
+          git pull --rebase --autostash origin main || true
+          git push origin HEAD:main
