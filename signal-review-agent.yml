@@ -1,0 +1,104 @@
+# =============================================================================
+# Signal Review Agent — the fourth agent (deterministic, no model)
+# =============================================================================
+# Runs pipeline/signal_review_agent.py over the latest COMPLETE ISO week and
+# writes what the aberration detector cannot say on its own:
+#
+#   novelty channel      pathogens with an all-zero baseline that appear this
+#                        week — reported as NOVEL and UNTESTABLE (pi_hat = 0
+#                        makes the binomial degenerate), with Outbreak / Tier
+#                        severity read from the records. The Cyclospora case.
+#   outbreak channel     weekly Outbreak = 1 records vs their guarded 7-week
+#                        baseline, exact Poisson upper tail
+#   news corroboration   headlines per pathogen from the NEWS sheet, persisted
+#                        to docs/data/news-pulse.jsonl so a baseline accrues;
+#                        bursts with zero register records are called out
+#   alarm review         a verdict HINT + reason next to each detector alarm
+#                        (publication cluster / single publisher / volume
+#                        artefact / corroborated / unclear)
+#
+# Writes: docs/data/signals-review.json, signals-review.jsonl, news-pulse.jsonl
+#
+# WHEN. Monday, AFTER signal-board.yml (it reads docs/data/signals-board.json;
+# if the board is for another week it recomputes the alarms itself, so the
+# order is a preference, not a dependency). Scheduling is centralised in
+# FsisScheduler.gs — add a Monday slot for `signal-review-agent.yml` after the
+# signal-board slot. No internal cron, by repository rule.
+# tools/dispatch_watchdog.py watches the commit prefix "Signal review ".
+#
+# NOT EMBEDDED. The three recall agents install their .py from a heredoc
+# inside the .yml. This workflow deliberately checks the .py out of the repo
+# instead: on 2026-09-02 the embedded copies of two agents were found stale
+# against their .py files, so fixes that were on main never executed. A
+# checkout cannot drift from itself.
+#
+# ADVISORY ONLY. Annotates; never alarms, never predicts.
+# =============================================================================
+
+name: Signal Review Agent (weekly, Monday)
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run the signal review agent
+        run: |
+          python -m pipeline.signal_review_agent | tee /tmp/review.log
+          # the full page embeds a snapshot of the review as well
+          python -m pipeline.build_signals_page | tee -a /tmp/review.log
+          {
+            echo "## Signal review — $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M') Athens"
+            echo ""
+            echo '```'
+            cat /tmp/review.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          FILES="docs/data/signals-review.json docs/data/signals-review.jsonl docs/data/news-pulse.jsonl docs/signals.html"
+          for f in $FILES; do
+            [ -f "$f" ] && git add "$f"
+          done
+          if git diff --cached --quiet; then
+            echo "No review outputs changed — nothing to commit."
+            exit 0
+          fi
+          WEEK=$(python - <<'EOF'
+          import json
+          print(json.load(open("docs/data/signals-review.json"))["meta"]["week"])
+          EOF
+          )
+          git commit -m "Signal review ${WEEK} — novelty, outbreak, news, alarm hints"
+          git pull --rebase --autostash origin main || true
+          git push origin HEAD:main
