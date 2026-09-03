@@ -90,6 +90,15 @@ WATCHED: tuple[tuple[str, str, int], ...] = (
     ("monthly report",                r"^AFTS Monthly Report build ",           34 * 24),
     ("monthly updates check",         r"^Monthly updates check ",               34 * 24),
 
+    # Live signals tab. signal-board.yml scans the latest complete ISO week
+    # every Monday and the dashboard renders docs/data/signals-board.json.
+    # Added 2026-09-02 with the tab itself; before that the detector existed
+    # but nothing dispatched it and no output file had ever been written.
+    ("signal board",                  r"^Signal board ",                         9 * 24),
+    # The fourth agent: novelty / outbreak / news / alarm hints, Monday after
+    # the board. Added 2026-09-03 with the Cyclospora case as its reason.
+    ("signal review agent",           r"^Signal review ",                        9 * 24),
+
     # The AI synthesis that fills ai_lead_paragraph. It has NEVER committed:
     # both synthesis writers carry a comment telling the operator to add them
     # to FsisScheduler.gs, and neither was ever added, so the Intelligence
