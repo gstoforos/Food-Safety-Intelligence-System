@@ -366,6 +366,33 @@ def _is_bare_allergen(pathogen: str) -> bool:
     return p in _BARE_ALLERGEN_PATHOGENS
 
 
+def is_afts_in_scope(pathogen: str, reason: str = "") -> bool:
+    """True if Pathogen/Reason resolve to a hazard class AFTS covers.
+
+    Mirrors rule 8 of publish_blockers() below — the single definition of
+    AFTS scope (policy 2026-07-29: "pathogens, biotoxins, mycotoxins,
+    foreign material, pest and chemical hazards only; allergen-only,
+    labelling and quality recalls are excluded"). Kept as a standalone
+    predicate because pipeline.agents.curator.check_scope() needs a yes/no
+    answer, not a list of blockers for an otherwise-complete row.
+
+    This is NOT the same test as pipeline._pathogen_scope.is_in_scope(),
+    which asks a narrower question — "is this a Tier-1 PATHOGEN" (bacterial
+    /viral/mycotoxin/adulteration) — and says False for a genuine physical
+    hazard like "Foreign material (glass)" even though that hazard is in
+    AFTS scope. Callers that want the full scope answer should treat a row
+    as in scope when EITHER test says yes; see curator.check_scope().
+    """
+    if not pathogen and not reason:
+        return False
+    classes = classify_hazard(pathogen) | classify_hazard(reason)
+    if _is_bare_allergen(pathogen) and not classify_hazard(reason):
+        classes = {"allergen"}
+    if not classes:
+        return False
+    return not (classes <= {"allergen"})
+
+
 def pathogen_reason_class_mismatch(pathogen: str, reason: str) -> bool:
     """True if Pathogen and Reason describe DIFFERENT hazard classes.
 

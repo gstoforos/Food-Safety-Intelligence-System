@@ -159,15 +159,24 @@ def check_language(row: Dict[str, Any]) -> List[str]:
 
 def check_scope(row: Dict[str, Any]) -> List[str]:
     from pipeline._pathogen_scope import is_in_scope, is_empty_pathogen
+    from pipeline._publish_gate import is_afts_in_scope
     try:
         from pipeline._pathogen_scope import is_pet_food_product
     except Exception:                                       # noqa: BLE001
         is_pet_food_product = lambda *a: False              # noqa: E731
     p = str(row.get("Pathogen", "") or "")
+    r = str(row.get("Reason", "") or "")
     out = []
     if is_empty_pathogen(p):
         out.append("Pathogen empty — the register names its hazard")
-    elif not is_in_scope(p):
+    # is_in_scope() only recognizes Tier-1 PATHOGENS (bacterial/viral/
+    # mycotoxin/adulteration); is_afts_in_scope() recognizes the full AFTS
+    # scope, including physical (foreign material), chemical and biotoxin
+    # hazards that are real recalls but not "pathogens" in that narrow
+    # sense — see is_afts_in_scope()'s docstring for why the two disagree
+    # on e.g. "Foreign material (glass)". A row is in scope if either
+    # test accepts it.
+    elif not (is_in_scope(p) or is_afts_in_scope(p, r)):
         out.append(f"hazard {p!r} is outside the monitored scope")
     if is_pet_food_product(str(row.get("Product", "")), str(row.get("Company", "")),
                            str(row.get("Reason", ""))):
