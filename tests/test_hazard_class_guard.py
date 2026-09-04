@@ -319,5 +319,57 @@ class TestWholeWorkbookRegression(unittest.TestCase):
             f"sheet: {unexpected}")
 
 
+class TestAftsInScopeCoversNonPathogenHazards(unittest.TestCase):
+    """curator.check_scope() used pipeline._pathogen_scope.is_in_scope() as
+    the WHOLE AFTS-scope test (audit 2026-09-04). That function only knows
+    Tier-1 PATHOGENS (bacterial/viral/mycotoxin/adulteration), so a genuine
+    physical-hazard row — "Foreign material", the exact wording already
+    carried by rows published in Recalls — was refused by the curator with
+    "hazard 'Foreign material' is outside the monitored scope", even though
+    the AFTS policy footer on every daily brief and rule 8 of
+    pipeline._publish_gate.publish_blockers() both say foreign material,
+    pest and chemical hazards are in scope. Fixed by adding
+    is_afts_in_scope(), which curator.check_scope() now ORs against
+    is_in_scope(). This guards both halves of that fix.
+    """
+
+    def test_foreign_material_is_in_scope(self):
+        from pipeline._publish_gate import is_afts_in_scope
+        self.assertTrue(is_afts_in_scope("Foreign material"))
+        self.assertTrue(is_afts_in_scope("Foreign material (glass)"))
+        self.assertTrue(is_afts_in_scope(
+            "", "corps étranger dur de couleur noire"))
+
+    def test_chemical_and_pest_hazards_are_in_scope(self):
+        from pipeline._publish_gate import is_afts_in_scope
+        self.assertTrue(is_afts_in_scope("Pesticide residues"))
+        self.assertTrue(is_afts_in_scope("Cadmium (heavy metal)"))
+
+    def test_allergen_and_quality_only_stay_out_of_scope(self):
+        from pipeline._publish_gate import is_afts_in_scope
+        self.assertFalse(is_afts_in_scope("Undeclared allergen (Peanut)"))
+        self.assertFalse(is_afts_in_scope("Spoilage"))
+        self.assertFalse(is_afts_in_scope("Mould"))
+        self.assertFalse(is_afts_in_scope(""))
+
+    def test_curator_check_scope_accepts_foreign_material(self):
+        from pipeline.agents.curator import check_scope
+        row = {"Pathogen": "Foreign material",
+               "Reason": "Presence of foreign material (glass fragments)",
+               "Product": "Canned duck", "Company": "Test Co"}
+        self.assertEqual([], check_scope(row))
+
+    def test_curator_check_scope_still_rejects_pathogen_backward_compat(self):
+        from pipeline.agents.curator import check_scope
+        row = {"Pathogen": "Salmonella", "Reason": "Presence of Salmonella",
+               "Product": "Ground beef", "Company": "Test Co"}
+        self.assertEqual([], check_scope(row))
+        row2 = {"Pathogen": "Undeclared allergen (Peanut)",
+               "Reason": "Presence of undeclared peanut",
+               "Product": "Cookies", "Company": "Test Co"}
+        self.assertIn("outside the monitored scope",
+                     " ".join(check_scope(row2)))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
