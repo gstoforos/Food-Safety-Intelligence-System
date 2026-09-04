@@ -1,0 +1,1465 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20260904T064515Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; serotype enteritidis; food terms shell, eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
+          "quote": "2026-07-22 FDA White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, J",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d915facdcc2c7c9a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843742"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843742",
+          "quote": "2026-05-12 RASFF (EU) Salmonella Enteritidis in environment of egg laying facility from Northern Ireland",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "812b3195542e4eb9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552",
+          "quote": "2026-08-12 RASFF (EU) Salmonella Enteritidis in eggs from Belgium",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "61e9ff9d281a7feb"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387",
+          "quote": "2026-08-20 RASFF (EU) Salmonella Enteritidis in eggs",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d081620314668d2a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; food terms shell. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643",
+          "quote": "2026-05-29 RASFF (EU) Shelled pistachios",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "332641fb25492e70"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/844459"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/844459",
+          "quote": "2026-05-15 RASFF (EU) Obecność Salmonella Enteritidis w 2 z 5 próbek skórek z szyjek kurcząt // Salmonella Enter",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "1c188ffabe454efa"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847778"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847778",
+          "quote": "2026-05-29 RASFF (EU) Salmonella enteritidis in poultry meat",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "ce71b3b8ee5cba1c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22406/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22406/Interne",
+          "quote": "2026-06-01 RappelConso (FR) 10156-plh",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "39005ea37a2a2739"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/849398"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/849398",
+          "quote": "2026-06-08 RASFF (EU) Salmonella Enteritidis w mięsie z nogi kurczaka bez kości ze skórą/Salmonella Enteritidis ",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "8584b50c6f46326d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851868"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851868",
+          "quote": "2026-06-16 RASFF (EU) Salmonella Enteritidis in fresh chicken drumettes from Poland",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d0fa8b88688729e1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856904"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856904",
+          "quote": "2026-07-06 RASFF (EU) Salmonella enteritidis in frozen chicken pieces",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "ba7d7ecd25d0f157"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856821"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856821",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Enteritidis detected (4 out of 5 samples) in sliced chicken breast fillets, Pol",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "3e6646f28718e22f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856928"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856928",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Infantis (in 4 out of 5 units) and Salmonella Enteritidis (in 1 out of 5 units)",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "a7065878804c927e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856744"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856744",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Enteritidis detected (5 out of 5 samples) in chicken thighs from Poland.",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d2637bf6ac8ae77c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859223"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859223",
+          "quote": "2026-07-16 RASFF (EU) Salmonella Enteritidis detected (1 out of 5 samples) in chicken drumsticks",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d9985454e707884e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Œufs Frais x20",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "00cb9ee9b660e88b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Œufs Frais x30",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "05be98a00436a105"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865997"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865997",
+          "quote": "2026-08-13 RASFF (EU) Salmonella Enteritidis detected (5 out of 5 samples) in boneless, skinless chicken thighs.",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "4f45dc8c6c364a35"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359",
+          "quote": "2026-08-14 RASFF (EU) Salmonella enteritidis in gallina busto/Salmonella Enteritidis in frozen whole hens",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "ea918eeaa7a69f5f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865136"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865136",
+          "quote": "2026-08-18 RASFF (EU) Stwierdzenie obecności Salmonella Enteritidis w filecie  z piersi kurczaka,  pochodzącego ",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "4c592e05710556a0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869642"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869642",
+          "quote": "2026-08-28 RASFF (EU) Salmonella enteritidis and infantis in chicken meat originating in Romania",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d7d23de380cb6e08"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jcb-flavors-llc-issues-voluntary-recall-topical-seasonings-due-potential-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jcb-flavors-llc-issues-voluntary-recall-topical-seasonings-due-potential-health-risk",
+          "quote": "2026-05-07 FDA Topical popcorn seasonings (Watertown, WI)",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "bc1149c9e9f98024"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/stoltzfus-family-dairy-recalls-sour-cream-and-onion-cheese-curds-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/stoltzfus-family-dairy-recalls-sour-cream-and-onion-cheese-curds-because-possible-health-risk",
+          "quote": "2026-05-07 FDA Sour Cream and Onion Cheese Curds 8 oz bag — Best By 03/25/2026, 04/23/2026, 04/29/2026, 0",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "7d26c8170f3cb78f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/legacy-snack-solutions-voluntarily-recalls-giant-eagle-baked-pita-chips-parmesan-garlic-herb-because"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/legacy-snack-solutions-voluntarily-recalls-giant-eagle-baked-pita-chips-parmesan-garlic-herb-because",
+          "quote": "2026-05-08 FDA Giant Eagle Baked Pita Chips with Parmesan, Garlic & Herb 7.33 oz (UPC 0 3003496507 5, Bes",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ae596ae1c8e601eb"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jonco-industries-recalls-certain-consumer-sized-white-cheddar-seasoning-products-because-possible"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | shell eggs produced by Midwest Poultry Services L.P. in Texas were the likely source",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jonco-industries-recalls-certain-consumer-sized-white-cheddar-seasoning-products-because-possible",
+          "quote": "2026-05-08 FDA White Cheddar Seasoning — 3 SKUs: Williams Sonoma Popcorn Sampler Gift Box (lot 088594-2-1",
+          "retrieved_utc": "2026-09-04T06:44:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4288632927bbb56b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article; serotype o145:h28; food terms frozen, organic. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145",
+          "quote": "at least 17 patients in two states sick in that outbreak | E. coli O145:H28",
+          "retrieved_utc": "2026-09-04T06:44:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due",
+          "quote": "2026-07-06 FDA Organic IQF Frozen Blueberries 10 oz",
+          "retrieved_utc": "2026-09-04T06:44:49+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "c6493ac03df6c2c9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1181-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: country named in the article; serotype o145:h28; food terms frozen, organic. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145",
+          "quote": "at least 17 patients in two states sick in that outbreak | E. coli O145:H28",
+          "retrieved_utc": "2026-09-04T06:44:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1181-2026",
+          "quote": "2026-07-03 FDA Organic Whole Blueberries, Net Wt 10 oz (284g) plastic bag, packed in 8 bags per case of 1",
+          "retrieved_utc": "2026-09-04T06:44:49+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d7cb9939622f0c12"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article; food terms frozen, organic. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145",
+          "quote": "at least 17 patients in two states sick in that outbreak | E. coli O145:H28",
+          "retrieved_utc": "2026-09-04T06:44:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e",
+          "quote": "2026-07-30 FDA Organic IQF Frozen Blueberries and Whole Mixed Berries, 10 oz and 48 oz",
+          "retrieved_utc": "2026-09-04T06:44:49+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "4e41f166152cce17"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article; food terms organic. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145",
+          "quote": "at least 17 patients in two states sick in that outbreak | E. coli O145:H28",
+          "retrieved_utc": "2026-09-04T06:44:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple",
+          "quote": "2026-09-03 FDA Organic Triple Berry Blend",
+          "retrieved_utc": "2026-09-04T06:44:49+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "9342944c93ecc366"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jcb-flavors-llc-issues-voluntary-recall-topical-seasonings-due-potential-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jcb-flavors-llc-issues-voluntary-recall-topical-seasonings-due-potential-health-risk",
+          "quote": "2026-05-07 FDA Topical popcorn seasonings (Watertown, WI)",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "83d40ec5ba3f3ea6"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/stoltzfus-family-dairy-recalls-sour-cream-and-onion-cheese-curds-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/stoltzfus-family-dairy-recalls-sour-cream-and-onion-cheese-curds-because-possible-health-risk",
+          "quote": "2026-05-07 FDA Sour Cream and Onion Cheese Curds 8 oz bag — Best By 03/25/2026, 04/23/2026, 04/29/2026, 0",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c6ef72bbc66b651f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/legacy-snack-solutions-voluntarily-recalls-giant-eagle-baked-pita-chips-parmesan-garlic-herb-because"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/legacy-snack-solutions-voluntarily-recalls-giant-eagle-baked-pita-chips-parmesan-garlic-herb-because",
+          "quote": "2026-05-08 FDA Giant Eagle Baked Pita Chips with Parmesan, Garlic & Herb 7.33 oz (UPC 0 3003496507 5, Bes",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0980a5cc7e09aa14"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jonco-industries-recalls-certain-consumer-sized-white-cheddar-seasoning-products-because-possible"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jonco-industries-recalls-certain-consumer-sized-white-cheddar-seasoning-products-because-possible",
+          "quote": "2026-05-08 FDA White Cheddar Seasoning — 3 SKUs: Williams Sonoma Popcorn Sampler Gift Box (lot 088594-2-1",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9e1af16ecdcae7b3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/spring-mulberry-expands-voluntary-recall-select-chocolate-bars-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/spring-mulberry-expands-voluntary-recall-select-chocolate-bars-because-possible-health-risk",
+          "quote": "2026-05-08 FDA Chocolate bars — 2nd expansion (12 flavors): Blood Orange, Coffee, Earl Grey, Lavender Ros",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d9c926f66ced9e62"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/blackstone-products-recalls-parmesan-ranch-seasoning-because-possible-salmonella-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/blackstone-products-recalls-parmesan-ranch-seasoning-because-possible-salmonella-health-risk",
+          "quote": "2026-05-15 FDA Parmesan Ranch Seasoning 7.3 oz. Lot codes: 2025-43282 (Best by 07/02/2027), 2025-46172 (B",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1a01d840f299db56"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sugar-foods-issues-recall-specific-lots-kroger-homestyle-cheese-garlic-croutons-due-possible-health"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sugar-foods-issues-recall-specific-lots-kroger-homestyle-cheese-garlic-croutons-due-possible-health",
+          "quote": "2026-05-18 FDA Kroger Homestyle Cheese Garlic Croutons, 5 oz pouches (UPC 0 11110 81353 4). Multiple Best",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "aed3b39f9fe5d5e2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nassar-investments-recalls-malazi-tahina-due-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nassar-investments-recalls-malazi-tahina-due-salmonella-contamination",
+          "quote": "2026-05-18 FDA Malazi Tahina, 1Kg plastic bottle (UPC 6 224011 088244, EXP 30/12/2026). Distributed Mar 1",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ede6d45cecb8e9e2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html",
+          "quote": "2026-05-20 CDC moringa capsules",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "33fd70bd737488ac"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk",
+          "quote": "2026-05-23 FDA Various specialty beverages",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d17f58361e9dd0c0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella",
+          "quote": "2026-05-26 FDA Mogo Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "922aa7f6fd38bd00"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood",
+          "quote": "2026-05-26 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor's Pride Complete Gree",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "b7b35e85a4b2873b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html",
+          "quote": "2026-05-27 CDC Moringa capsules (TNVitamins Ultra Potent Complete Green Superfood Moringa, Doctor's Pride",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "381c9403f6d18297"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html",
+          "quote": "2026-05-27 CDC Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "fef450e027db997c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html",
+          "quote": "2026-05-27 CDC Pure Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d07e8927b04d9efa"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643",
+          "quote": "2026-05-29 RASFF (EU) Shelled pistachios",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "38bde33cb027d01f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk",
+          "quote": "2026-06-01 FDA Motor City Pizza Co. 5 Cheese Bread — Single Pack (UPC 8 70375 00511 1) and 2 Pack (UPC 8 ",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0b1e6d9b86553d35"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated",
+          "quote": "2026-06-02 USDA FSIS Frozen pizzas, pork rinds, and other meat/poultry products containing FDA-regulated dairy ",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "a3c5f9453c2cccd2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016",
+          "quote": "2026-06-09 RASFF (EU) Salmonella spp. in natural almonds from the United States, via the Netherlands",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d2b4291aa94f7712"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0",
+          "quote": "2026-06-11 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor’s Pride Complete Gree",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "53af1c41dd50e2e0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026",
+          "quote": "2026-06-24 FDA Trafa Pharmaceuticals Inc. brand ORGANIC MORINGA LEAF POWDER; NET WEIGHT: 15 KGS; packaged",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9fb744b37d0783ca"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet, SKU 10150, Net wt. 5oz. Product is refrigerated. UPC 1",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "26ad60bc3e607d42"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet Deluxe with Bacon, SKU 10303, Net wt. 5.9oz. Product is",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "beb2f30e440c07b8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due",
+          "quote": "2026-06-27 FDA TNVitamins 100% Organic Moringa Capsules (1,200 mg) and 100% Organic Moringa Powder",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9407faccc2286c08"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859413"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/cache-and-box-elder-county-salmonella-outbreak-in-utah-21-sick",
+          "quote": "at least 21 people",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859413",
+          "quote": "2026-07-17 RASFF (EU) Salmonella spp. in chopped pistachios from Italy, produced with raw material from the Unit",
+          "retrieved_utc": "2026-09-04T06:45:05+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c27da09f71f89715"
+    }
+  ]
+}
