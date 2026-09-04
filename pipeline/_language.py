@@ -296,6 +296,30 @@ def _norm_key(text) -> str:
 
 
 _RAW_TRANSLATIONS = {
+    # ── RappelConso (FR) — motifs that reached Recalls untranslated in the
+    #    week of 1–4 Sep 2026 (translated by hand in the register; kept here
+    #    so the confirm-agent handles the next occurrence itself) ───────────
+    "Détection salmonelle": "Salmonella detected",
+    "Presence of Listeria <10 ufc/g sur un saucisson sec":
+        "Presence of Listeria (<10 cfu/g) in a dry sausage",
+    "Présence Listeria sur un produit fini analysé lors d'un autocontrôle":
+        "Listeria detected in a finished product during an own-check analysis",
+    "Retrait préventif suite à détection Listeria dans un autre lot fabriqué "
+    "le même jour":
+        "Precautionary withdrawal following detection of Listeria in another "
+        "batch made the same day",
+    "Rappel préventif suite à détection Listeria dans un autre lot fabriqué "
+    "le même jour":
+        "Precautionary recall following detection of Listeria in another "
+        "batch made the same day",
+    "Presence of Listeria monocytogenes mise en évidence lors d'un "
+    "autocontrôle microbiologique sur une préparation hachée de bœuf":
+        "Listeria monocytogenes detected during a microbiological own-check "
+        "on a minced beef preparation",
+    "Une analyse a mis en évidence la présence d'E. coli producteurs de "
+    "shiga toxines (stec).":
+        "An analysis detected the presence of Shiga toxin-producing E. coli "
+        "(STEC)",
     # ── RappelConso (FR) — half-translated or untranslated motifs ──────────
     "Presence of salmonelle dans le produit":
         "Presence of Salmonella in the product",

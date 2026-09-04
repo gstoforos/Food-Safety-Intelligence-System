@@ -321,9 +321,34 @@ def main() -> int:
     if args.limit and args.limit > 0:
         lane = lane[:args.limit]
 
+    # HOLD, DO NOT EVICT (audit 2026-09-04). Replayed on the workbook
+    # history: between 2026-09-02 and 2026-09-04 the deterministic publish
+    # gate inside promote_approved() evicted RappelConso fiches 23420 and
+    # 23421 (rillettes d'oie / steak haché, Listeria and Salmonella, sold
+    # "sans marque" at one Carrefour) and CFIA RA-82581 (Coaticook aged
+    # cheddar, Listeria) on every run, for "Company is empty". None of the
+    # three was defective: the RappelConso API names only the distributor
+    # for an unbranded fiche and the CFIA open-data title only the brand.
+    # Reviewer 2 reads the notice and fills Company — but this agent admits
+    # plain "pending" rows and runs three times a day, so it reached them
+    # first and promote_approved() archived them before reviewer 2 ever saw
+    # them (and, until the record_rejections call below existed, without a
+    # trace). A missing Company beside a present Brand is a row that needs a
+    # reader, not a rejection: park it at pending_gap_v2, which is in
+    # reviewer 2's lane and which merge_master will not promote or evict.
+    held = [r for r in lane
+            if not str(r.get("Company", "") or "").strip()
+            and str(r.get("Brand", "") or "").strip() not in ("", "—")]
+    held_urls = {str(r.get("URL", "")).strip() for r in held}
+    lane = [r for r in lane if str(r.get("URL", "")).strip() not in held_urls]
+
     print(f"Agent 3 (confirmer): {len(lane)} row(s) in lane, "
+          f"{len(held)} held for reviewer 2 (Company empty, Brand set), "
           f"{len(already_rejected)} already rejected by reviewer 2 "
           f"(commit={commit})")
+    for r in held:
+        print(f"  HOLD    {str(r.get('Product',''))[:40]:40s} | Company empty; "
+              f"Brand={str(r.get('Brand',''))[:24]!r} — reviewer 2 to read the firm")
     if not lane and not already_rejected:
         print("Nothing to confirm.")
         return 0
@@ -378,9 +403,26 @@ def main() -> int:
             continue
         full_pending[idx]["Status"] = "pending"      # now promotable
         n = str(full_pending[idx].get("Notes", "")).strip()
-        full_pending[idx]["Notes"] = (
-            n + f" [confirm-agent {today}: {A2_APPROVED} → pending; "
-            f"independent checks passed]").strip()[:1000]
+        stamp = f" [confirm-agent {today}: {A2_APPROVED} → pending; independent checks passed]"
+        # ENGLISH-OUTPUT RULE AT THE LAST GATE (2026-09-04). Nine French
+        # Reasons reached Recalls in the first four days of September. The
+        # language check is a warning by policy (a real recall is never
+        # rejected over wording), but nothing on the publish path ever
+        # translated. pipeline._language.englishify_reason is a table of
+        # verified translations that never invents: apply it here, and when
+        # it has no entry, stamp the row so the weekly review sees it.
+        try:
+            from pipeline._language import englishify_reason, looks_non_english
+            before = str(full_pending[idx].get("Reason", "") or "")
+            after, changed = englishify_reason(before)
+            if changed:
+                full_pending[idx]["Reason"] = after
+                stamp += f" [reason translated: \"{before[:80]}\"]"
+            elif looks_non_english(before):
+                stamp += " [needs cleanup: Reason not in English and no verified translation on file]"
+        except Exception:                                    # noqa: BLE001
+            pass
+        full_pending[idx]["Notes"] = (n + stamp).strip()[:1000]
 
     for row, probs in blocked:
         idx = by_url.get(str(row.get("URL", "")).strip())
@@ -393,6 +435,23 @@ def main() -> int:
         idx = by_url.get(str(row.get("URL", "")).strip())
         if idx is not None and idx not in rejected_flags:
             rejected_flags[idx] = "Rejected by reviewer 2"
+
+    # Held rows: park at pending_gap_v2 so promote_approved() neither
+    # publishes them (Company empty would fail its gate) nor archives them.
+    # Stamped once; a row already carrying the hold stamp is left alone.
+    HOLD_MARK = "[confirm-agent hold:"
+    for row in held:
+        idx = by_url.get(str(row.get("URL", "")).strip())
+        if idx is None or idx in rejected_flags:
+            continue
+        full_pending[idx]["Status"] = "pending_gap_v2"
+        n = str(full_pending[idx].get("Notes", "")).strip()
+        if HOLD_MARK not in n:
+            full_pending[idx]["Notes"] = (
+                n + f" {HOLD_MARK} {today}: Company empty, Brand "
+                f"{str(row.get('Brand',''))[:40]!r}; not published and not "
+                "rejected — reviewer 2 to read the recalling firm from the "
+                "notice]").strip()[:1000]
 
     new_approved, remaining, archived = promote_approved(
         pending=full_pending,
@@ -409,15 +468,21 @@ def main() -> int:
     # NEVER SILENT-DELETE (audit 2026-09-04). save_xlsx_with_pending()
     # documents newly_rejected_rows as a NO-OP: the caller must mirror the
     # evicted rows into Weekly_Rejected itself, immediately after the save.
-    # This agent never did. Every row it blocked between 2026-08-31 and
-    # 2026-09-04 — 10-14 per run, every RASFF scraper row among them — left
-    # Pending with no record in Recalls, Weekly_Rejected or Rejected, and was
-    # re-scraped and deleted again the next day. A rejection without a
-    # recorded reason is not a rejection; it is data loss.
+    # This agent never did. Measured by replaying the workbook across the six
+    # agent commits of 2026-09-02..04: 50 evictions with no record in
+    # Recalls, Weekly_Rejected or Rejected — 18 distinct rows, 12 of them
+    # RASFF notifications (Listeria, Salmonella, STEC, ochratoxin, DON,
+    # aflatoxin), re-scraped and evicted again on every run. A rejection
+    # without a recorded reason is not a rejection; it is data loss.
     try:
         from pipeline.weekly_rejected_capture import record_rejections
+        # The JSON slice the Thursday mailer reads is
+        # docs/data/weekly-rejected-latest.json (weekly_rejected_capture's
+        # default). An earlier cut of this call named "weekly-rejected.json"
+        # — a file nothing reads — so the archive would have been written to
+        # the sheet but invisible to the operator's email.
         n_rec = record_rejections(archived, xlsx_path=xlsx,
-                                  json_path=xlsx.parent / "weekly-rejected.json")
+                                  json_path=xlsx.parent / "weekly-rejected-latest.json")
         print(f"  (archived {n_rec} rejection(s) to Weekly_Rejected)")
     except Exception as e:                                   # noqa: BLE001
         print(f"  !! could not record rejections: {type(e).__name__}: {e}")

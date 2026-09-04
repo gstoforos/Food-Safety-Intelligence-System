@@ -819,7 +819,39 @@ def _field_integrity_flags(merged: Dict[str, Any]) -> List[str]:
     b = str(merged.get("Brand", "") or "")
     if c and c == b and len(c) > 60:
         probs.append("Company and Brand are the same long headline string")
+    # A regulator's LISTING page is not a notice (2026-09-04). BLV's
+    # "Mises en garde et rappels — aliments" index reached Recalls with
+    # Company = Brand = the page title and Product = "aliments"; the real
+    # recall (Léguriviera, ochratoxin A) was quoted inside its own Notes.
+    # Two independent tells, either one blocks: the URL's last path segment
+    # is a known index slug, or Company/Brand IS a listing title. Measured
+    # against the 1574-row register before shipping: zero hits.
+    _u = str(merged.get("URL", "") or "").strip().lower().rstrip("/")
+    _tail = _u.rsplit("/", 1)[-1] if "/" in _u else _u
+    if _tail in _LISTING_SLUGS or _tail in ("recalls", "alerts", "rappels", "warnungen"):
+        probs.append("URL is a regulator listing/index page, not a notice")
+    _cb = {c.strip().lower(), b.strip().lower()} - {""}
+    if _cb & _LISTING_TITLES:
+        probs.append("Company/Brand is a listing-page title, not a firm")
     return probs
+
+
+# Exact last-path-segment slugs of regulator index pages that have been seen
+# (or are known) to be captured as if they were notices.
+_LISTING_SLUGS = frozenset({
+    "mises-en-garde-et-rappels-aliments",        # BLV (CH) fr
+    "warnungen-und-rueckrufe-lebensmittel",      # BLV (CH) de
+    "avvertenze-e-richiami-alimenti",            # BLV (CH) it
+    "recalls-market-withdrawals-safety-alerts",  # FDA index
+    "recalls-alerts",                            # FSIS index
+    "food-alerts", "news-alerts",                # FSA / FSAI indexes
+    "sistema-di-controllo-della-sicurezza-alimentare",  # salute.gov.it /tema/
+})
+_LISTING_TITLES = frozenset({
+    "mises en garde et rappels", "warnungen und rückrufe", "warnungen und rueckrufe",
+    "avvertenze e richiami", "recalls and alerts", "recalls, market withdrawals, & safety alerts",
+    "food alerts", "news alerts", "rappels de produits", "rappel conso",
+})
 
 
 def _normalize_country_source(merged: Dict[str, Any]) -> None:

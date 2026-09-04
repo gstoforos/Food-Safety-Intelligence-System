@@ -339,6 +339,12 @@ def _normalize_url_for_dedup(url: str) -> str:
     s = url.strip().lower()
     base, sep, frag = s.partition("#")
     keep_frag = bool(sep and frag and base.split("?", 1)[0].endswith(".pdf"))
+    # recallswiss.admin.ch (audit 2026-09-04) is a single-page application:
+    # every notice lives at .../customer-access/#Recalls/<id>, so the
+    # fragment IS the identity. Stripping it collapsed five distinct Swiss
+    # recalls to one key. Kept only for that host and only for a routed id.
+    if sep and frag and "recallswiss.admin.ch" in base and re.match(r"recalls/\d+", frag):
+        keep_frag = True
     s = base
     if s.startswith("https://"):
         s = s[8:]
