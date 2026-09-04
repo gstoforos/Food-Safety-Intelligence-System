@@ -66,6 +66,11 @@ WATCHED: tuple[tuple[str, str, int], ...] = (
     ("gemini url-gate",               r"^FSIS Gemini URL-gate ",                  48),
     ("merge-master",                  r"^chore\(data\): hourly Pending",          36),
     ("recall review agent",           r"^Recall review agent:",                   72),
+    # Until 2026-09-04 all three review-chain agents committed under the
+    # SAME "Recall review agent:" prefix, so this watchdog could not tell
+    # whether the one step that publishes had run at all. The confirm agent
+    # now signs its own commits; it runs three times a day.
+    ("recall confirm agent",          r"^Recall confirm agent:",                  30),
 
     # Publication surfaces.
     ("public xlsx (23:30 slot)",      r"^Rebuild public xlsx ",                   48),
