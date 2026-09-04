@@ -400,9 +400,27 @@ def main() -> int:
         rejected_flags=rejected_flags,
         archive_immediately=True,
     )
+    for r in archived:
+        if not str(r.get("RejectedBy") or "").strip():
+            r["RejectedBy"] = "confirm-agent"
     save_xlsx_with_pending(sort_rows(approved_existing + new_approved),
                            sort_rows(remaining), xlsx,
                            newly_rejected_rows=archived)
+    # NEVER SILENT-DELETE (audit 2026-09-04). save_xlsx_with_pending()
+    # documents newly_rejected_rows as a NO-OP: the caller must mirror the
+    # evicted rows into Weekly_Rejected itself, immediately after the save.
+    # This agent never did. Every row it blocked between 2026-08-31 and
+    # 2026-09-04 — 10-14 per run, every RASFF scraper row among them — left
+    # Pending with no record in Recalls, Weekly_Rejected or Rejected, and was
+    # re-scraped and deleted again the next day. A rejection without a
+    # recorded reason is not a rejection; it is data loss.
+    try:
+        from pipeline.weekly_rejected_capture import record_rejections
+        n_rec = record_rejections(archived, xlsx_path=xlsx,
+                                  json_path=xlsx.parent / "weekly-rejected.json")
+        print(f"  (archived {n_rec} rejection(s) to Weekly_Rejected)")
+    except Exception as e:                                   # noqa: BLE001
+        print(f"  !! could not record rejections: {type(e).__name__}: {e}")
     try:
         from pipeline.merge_master import mirror_json_from_xlsx
         mirror_json_from_xlsx(xlsx, xlsx.parent / "recalls.json")

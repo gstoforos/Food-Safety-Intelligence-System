@@ -67,6 +67,21 @@ _UA = "AFTS-FSIS/1.0 (Food Safety Intelligence System; +https://fsis.advfood.tec
 #: about our access, not about the page.
 _DEAD_STATUSES = ("http_404", "http_410")
 
+#: Hosts whose notice pages cannot be read by any fetcher we have and must
+#: not be fetched at all (operator rule 4, 2026-09-02). The RASFF portal
+#: serves an EMPTY JavaScript shell with HTTP 200 — no product, no country,
+#: no text — so a content match against it fails for every real
+#: notification. From 2026-09-01 to 2026-09-04 that blocked every RASFF
+#: scraper row at reviewer 3, and because the block was never archived the
+#: rows were silently deleted and re-scraped daily. Rows on these hosts are
+#: verified by their scraper's structured fields, not by this module.
+_NO_FETCH_HOSTS = ("webgate.ec.europa.eu",)
+
+#: Fewer visible characters than this after tag-stripping means the server
+#: sent an application shell, not a notice. That is "could not read", never
+#: "does not mention".
+_MIN_PAGE_CHARS = 300
+
 
 def is_dead_status(status: str) -> bool:
     """True only when the server said the page does not exist.
@@ -163,7 +178,10 @@ def fetch_text(url: str, timeout: int = 25) -> Tuple[str, str]:
     text = re.sub(r"<script.*?</script>", " ", r.text, flags=re.S | re.I)
     text = re.sub(r"<style.*?</style>", " ", text, flags=re.S | re.I)
     text = re.sub(r"<[^>]+>", " ", text)
-    return _norm(text), "ok"
+    text = _norm(text)
+    if len(text.strip()) < _MIN_PAGE_CHARS:
+        return "", "js_shell"          # readable HTTP, unreadable page
+    return text, "ok"
 
 
 def check(row: Dict[str, Any], page_text: str = None,
@@ -176,6 +194,8 @@ def check(row: Dict[str, Any], page_text: str = None,
     url = str(row.get("URL", "") or "").strip()
     if not url:
         return ["row has no URL — provenance cannot be established"]
+    if any(h in url.lower() for h in _NO_FETCH_HOSTS):
+        return []          # rule 4: never fetch; not adjudicable from the page
 
     status = "ok"
     if page_text is None:
