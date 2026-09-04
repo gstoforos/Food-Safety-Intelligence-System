@@ -38,14 +38,14 @@
   "Brand": "E.Leclerc Bellaing",
   "Product": "piémontaise de la mer",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Detection of listéria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23431/interne",
-  "Notes": "e.leclerc bellaing [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "e.leclerc bellaing [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed] [audit 2026-09-04: Reason \"Detection of listéria monocytogenes\" (half-translated) → \"Detection of Listeria monocytogenes\"]"
  },
  {
   "Date": "2026-09-03",
@@ -53,15 +53,15 @@
   "Company": "Frutas y Hortalizas del Sur S.A.",
   "Brand": "Great Value",
   "Product": "Organic Triple Berry Blend",
-  "Pathogen": "Escherichia coli (generic)",
-  "Reason": "Possible E. Coli Contamination",
+  "Pathogen": "Escherichia coli O145",
+  "Reason": "Possible E. coli O145:H28 contamination; expands the 3 July 2026 frozen organic IQF blueberries recall. Part of the confirmed multistate outbreak: FDA advisory updated 3 September 2026 reports 17 illnesses, 6 hospitalizations in FL and GA, and names this lot (6040 01-6). FDA notice: no illnesses associated with this specific lot to date.",
   "Class": "Recall",
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple",
-  "Notes": "FDA listing HTML (Layer 1) [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "[outbreak:fda:e-coli-o145h28-frozen-blueberries-july-2026] FDA listing HTML (Layer 1) [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [audit 2026-09-04: Pathogen \"Escherichia coli (generic)\"→\"Escherichia coli O145\" — the FDA company announcement (2 Sep 2026, listed 3 Sep) names E. coli O145:H28, and the FDA outbreak advisory https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-e-coli-o145h28-frozen-blueberries-july-2026 (updated 3 Sep 2026: 17 ill, 6 hospitalized, FL/GA) names this product and lot. Outbreak stays 0 BY RULE: the register flags ONE row per outbreak event — the earliest FDA row, here the 2026-07-06 GreenWise announcement (Outbreak=1) — and tags every later row of the same event with the outbreak id (same treatment as the five jalapeño downstream rows of August 2026). Flagging this expansion too would count the blueberries outbreak twice (pipeline/_outbreak_id.dedupe_outbreak_flags). The event membership is in the tag and the burden figures are in Reason.]"
  },
  {
   "Date": "2026-09-03",
@@ -8365,7 +8365,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due",
-  "Notes": "FDA listing HTML (Layer 1) [claude-check 2026-07-07: fix; corrections: Pathogen→Escherichia coli O145; fix; pathogen mismatch | Pathogen should be 'Escherichia coli O145' not generic 'Escherichia coli'; Tier should be 1 (ST] [tier-guard 2026-07-14: Escherichia coli O145 is always Tier 1; forced from Tier 2] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.] [audit 2026-08-02: Outbreak 0 -> 1. Verified against the CDC outbreak page (12 cases, 2 states, 4 hospitalisations, status OPEN) and the FDA outbreak investigation page. The row had been published as an ordinary recall, which kept a confirmed multistate outbreak out of Phase 0 of the ranker and off the outbreak sections of the weekly and monthly reports. CDC burden figures added to Reason so the burden-aware ranker can order it.]"
+  "Notes": "[outbreak:fda:e-coli-o145h28-frozen-blueberries-july-2026] FDA listing HTML (Layer 1) [claude-check 2026-07-07: fix; corrections: Pathogen→Escherichia coli O145; fix; pathogen mismatch | Pathogen should be 'Escherichia coli O145' not generic 'Escherichia coli'; Tier should be 1 (ST] [tier-guard 2026-07-14: Escherichia coli O145 is always Tier 1; forced from Tier 2] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.] [audit 2026-08-02: Outbreak 0 -> 1. Verified against the CDC outbreak page (12 cases, 2 states, 4 hospitalisations, status OPEN) and the FDA outbreak investigation page. The row had been published as an ordinary recall, which kept a confirmed multistate outbreak out of Phase 0 of the ranker and off the outbreak sections of the weekly and monthly reports. CDC burden figures added to Reason so the burden-aware ranker can order it.] [audit 2026-09-04: outbreak id tag added so the 2 Sep 2026 Great Value Triple Berry Blend expansion groups with this row] [audit 2026-09-04: FDA advisory updated 3 Sep 2026 — 17 illnesses, 6 hospitalizations, FL/GA; recall expanded 2 Sep to Great Value Organic Triple Berry Blend (see the 2026-09-03 row). Reason left as the July figures on purpose: the July report was published from them and this row is July's record; the current burden is carried by the September row.]"
  },
  {
   "Date": "2026-07-06",

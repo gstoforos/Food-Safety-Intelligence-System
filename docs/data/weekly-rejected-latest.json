@@ -1,11 +1,12 @@
 {
   "week_end": "2026-09-06",
-  "generated_utc": "2026-09-01T16:24:05+00:00",
-  "row_count": 13,
+  "generated_utc": "2026-09-04T08:22:43+00:00",
+  "row_count": 14,
   "tier1_count": 2,
   "outbreak_count": 0,
   "by_reviewer": {
-    "unknown": 13
+    "unknown": 13,
+    "operator-review": 1
   },
   "rows": [
     {
@@ -52,6 +53,29 @@
       "Week_Added": "2026-09-06",
       "RejectedBy": "unknown",
       "RejectionReason": "duplicate_of_published — FSA-PRIN-42-2026 is ALREADY in Recalls (2026-08-28, FSA (UK), Macroom Buffalo Cheese Products, Listeria monocytogenes, Tier 1). The URL dedup missed it because this row carrie",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-03",
+      "Source": "RappelConso (FR)",
+      "Company": "Fertiltech",
+      "Brand": "Fertiltech",
+      "Product": "sulfate de cuivre 750 g; sulfate de cuivre 1.5 kg; sulfate de cuivre 5 kg; sulfate de cuivre 25 kg",
+      "Pathogen": "",
+      "Reason": "Presence of sulfate de nickel à une concentration supérieure au seuil autorisé pour la vente au grand public",
+      "Class": "Voluntary",
+      "Country": "France",
+      "Region": "Europe",
+      "Tier": 3,
+      "Outbreak": 0,
+      "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23001/interne",
+      "Notes": "amazon [operator review 2026-09-04: REJECTED — out of scope: not a food product. RappelConso fiche 23001 is filed under \"Maison-Habitat > Produits chimiques\" (FertilTech copper sulphate, nickel sulphate above the permitted threshold; garden chemical sold via Amazon). AFTS scope is food hazards only. Scraper scope guard added the same day.]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-06",
+      "RejectedBy": "operator-review",
+      "RejectionReason": "out of scope: not a food product. RappelConso fiche 23001 is filed under \"Maison-Habitat > Produits chimiques\" (FertilTech copper sulphate, nickel sulphate above the permitted threshold; garden chemical sold via Amazon). AFTS scope is food hazards only. Scraper scope guard added the same day.",
       "Reviewed": "N"
     },
     {
