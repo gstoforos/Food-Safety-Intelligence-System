@@ -22,14 +22,14 @@
   "Brand": "Noyeraies du Lander",
   "Product": "graines de courge - 1kg",
   "Pathogen": "Salmonella",
-  "Reason": "Détection salmonelle",
+  "Reason": "Salmonella detection",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23422/interne",
-  "Notes": "metro, promocash rodez [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "metro, promocash rodez [confirm-agent 2026-09-03: pending_gap_v3 → pending; independent checks passed] [agent weekly-reviewer proposal ebbff8325cc411a9 applied 2026-09-04: Reason field was promoted verbatim in French ('Détection salmonelle') against the standing English-output rule; the source's own motif du rappel is 'Détection Salmonelle' (Salmonella detection) with Salmonella-contaminat]"
  },
  {
   "Date": "2026-09-03",
@@ -389,7 +389,7 @@
   "Company": "Everything Sprouts, LLC",
   "Brand": "Everything Sprouts",
   "Product": "Robust Radish Mix, 5oz Cups",
-  "Pathogen": "Salmonella",
+  "Pathogen": "Salmonella + Shiga toxin-producing E. coli (STEC)",
   "Reason": "Potential to be contaminated with Shiga toxin-producing Escherichia coli (STEC) or Salmonella.",
   "Class": "Recall",
   "Country": "United States",
@@ -397,7 +397,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and",
-  "Notes": "FDA listing HTML (Layer 1) [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "FDA listing HTML (Layer 1) [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed] [agent weekly-reviewer proposal f1509e480cc20cb3 applied 2026-09-04: Row's Reason field already says 'Potential to be contaminated with Shiga toxin-producing Escherichia coli (STEC) or Salmonella,' and the source page names both pathogens, but Pathogen carried Salmonella only, understatin]"
  },
  {
   "Date": "2026-08-28",

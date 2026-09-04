@@ -1090,8 +1090,14 @@ def _disambiguate_genus_labels(pathogen_counts):
             if not low.startswith(g) or rest:
                 continue
             # Is a named member of the same genus also in this table?
+            # Excludes compound multi-pathogen rows ("Salmonella + Shiga
+            # toxin-producing E. coli (STEC)") — those are a distinct
+            # co-infection category, not a named serovar of this genus, so
+            # they must not trigger the "Other {genus} spp." relabel this
+            # loop exists for (2026-09-04).
             named = [o for o in labels
-                     if o != label and o.lower().startswith(g)]
+                     if o != label and o.lower().startswith(g)
+                     and " + " not in o]
             if named:
                 label = "Other " + str(path)
             break
@@ -1513,8 +1519,14 @@ def _commodity_mix(recalls, pathogen, top_n=5):
     p = (pathogen or "").strip().lower()
     if not p:
         return ""
+    # Exclude compound multi-pathogen rows (hazard_label's own " + " guard,
+    # e.g. "Salmonella + Shiga toxin-producing E. coli (STEC)") — those are
+    # counted under their own compound bucket for the headline KPI, so a
+    # substring match here would pull one into a single-pathogen breakdown
+    # and give it a denominator the KPI total does not share (2026-09-04).
     rows = [r for r in (recalls or [])
-            if p.split()[0] in str(r.get("Pathogen") or "").lower()]
+            if p.split()[0] in str(r.get("Pathogen") or "").lower()
+            and " + " not in str(r.get("Pathogen") or "")]
     if not rows:
         return ""
     counts = Counter()
