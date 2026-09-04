@@ -3,8 +3,8 @@
   "week": "2026-08-24/2026-08-30",
   "week_start": "2026-08-24",
   "week_end": "2026-08-30",
-  "corpus_week_total": 42,
-  "generated_utc": "2026-09-03T04:30:52+00:00",
+  "corpus_week_total": 45,
+  "generated_utc": "2026-09-04T04:24:58+00:00",
   "agent": "signal_review_agent",
   "model": null,
   "advisory_only": true,
@@ -40,6 +40,37 @@
      "company": "Origin: United Kingdom | Notifying: Netherlands",
      "product": "Patulin in Chips from United Kingdom",
      "country": "United Kingdom",
+     "outbreak": false,
+     "tier": "2"
+    }
+   ],
+   "testable": false,
+   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
+  },
+  {
+   "pathogen": "Pesticide residues",
+   "stratum_key": "global::Pesticide residues",
+   "observed": 1,
+   "baseline": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_appearance_ever": true,
+   "outbreak_records": 0,
+   "tier1_records": 0,
+   "severity": "no severity flag",
+   "records": [
+    {
+     "date": "2026-08-25",
+     "source": "BLV (CH)",
+     "company": "Importas GmbH",
+     "product": "Fennel Powder 100 g",
+     "country": "Switzerland",
      "outbreak": false,
      "tier": "2"
     }
@@ -115,7 +146,7 @@
   "records": []
  },
  "news": {
-  "n_headlines": 40,
+  "n_headlines": 41,
   "burst_threshold": 3,
   "applies_to_week": true,
   "note": "rolling 7-day NEWS sheet read at run time; describes the latest complete week",
@@ -128,16 +159,16 @@
     "baseline_weeks": 0,
     "baseline_mean": null,
     "samples": [
+     "Food To Live Greens and Powders Recalled For Salmonella",
+     "Salmonella outbreak linked to Evergreen Sprouts",
      "FDA Focuses on Seed Supplier In Everything Sprouts Outbreak",
      "Cache and Box Elder County Salmonella Outbreak in Utah; 21 Sick",
-     "Public health officials investigating Salmonella outbreak in Utah",
-     "Northwest Naturals Raw Pet Food Recalled For Salmonella, Listeria",
-     "Martina Mangoes Recalled For Possible Salmonella"
+     "Public health officials investigating Salmonella outbreak in Utah"
     ]
    },
    {
     "pathogen": "Cyclospora",
-    "headlines": 7,
+    "headlines": 5,
     "burst": true,
     "baseline_weeks": 0,
     "baseline_mean": null,
@@ -162,25 +193,45 @@
     ]
    },
    {
+    "pathogen": "Coliform / total bacterial count",
+    "headlines": 2,
+    "burst": false,
+    "baseline_weeks": 0,
+    "baseline_mean": null,
+    "samples": [
+     "Cache and Box Elder County Salmonella Outbreak in Utah; 21 Sick",
+     "Asian countries rehearse food incident response"
+    ]
+   },
+   {
     "pathogen": "Clostridium botulinum",
-    "headlines": 3,
-    "burst": true,
+    "headlines": 2,
+    "burst": false,
     "baseline_weeks": 0,
     "baseline_mean": null,
     "samples": [
      "Nara Organics Infant Formula Botulism Outbreak Ends With 4 Sick",
-     "Federal officials close investigation into outbreak of infant botulism traced to formula",
-     "Nara Organics Infant Formula Botulism Outbreak Ends; WGS, Supply Chain Evidence Show Link to ByHeart"
+     "Federal officials close investigation into outbreak of infant botulism traced to formula"
     ]
    },
    {
-    "pathogen": "Coliform / total bacterial count",
+    "pathogen": "Bacillus cereus",
     "headlines": 1,
     "burst": false,
     "baseline_weeks": 0,
     "baseline_mean": null,
     "samples": [
-     "Cache and Box Elder County Salmonella Outbreak in Utah; 21 Sick"
+     "Fatal Bacillus cereus outbreak tied to restaurant"
+    ]
+   },
+   {
+    "pathogen": "Cereulide (B. cereus toxin)",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 0,
+    "baseline_mean": null,
+    "samples": [
+     "Fatal Bacillus cereus outbreak tied to restaurant"
     ]
    },
    {
@@ -214,20 +265,30 @@
     ]
    },
    {
-    "pathogen": "Unspecified hazard (supplement labeling/composition)",
+    "pathogen": "Pesticide residues",
     "headlines": 1,
     "burst": false,
     "baseline_weeks": 0,
     "baseline_mean": null,
     "samples": [
-     "Supplements dominate cross-border alerts in Europe"
+     "UK pesticide advisory group winds down"
+    ]
+   },
+   {
+    "pathogen": "Shiga toxin-producing E. coli (STEC)",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 0,
+    "baseline_mean": null,
+    "samples": [
+     "More people sick in outbreak traced to frozen imported berries"
     ]
    }
   ],
   "news_only": [
    {
     "pathogen": "Cyclospora",
-    "headlines": 7,
+    "headlines": 5,
     "register_records_this_week": 0,
     "samples": [
      "Confusion has been the constant in the Cyclospora outbreak",
@@ -235,16 +296,6 @@
      "News That USDA Cyclospora Research Was Defunded in 2026 Emerges as Nation’s Largest-Ever Cyclosporiasis Outbre",
      "Three More States Added to Taylor Farms Iceberg Lettuce Cyclospora Outbreak",
      "FDA Explains Recall Classifications to Get Ahead of Cyclospora Outbreak Panic"
-    ]
-   },
-   {
-    "pathogen": "Clostridium botulinum",
-    "headlines": 3,
-    "register_records_this_week": 0,
-    "samples": [
-     "Nara Organics Infant Formula Botulism Outbreak Ends With 4 Sick",
-     "Federal officials close investigation into outbreak of infant botulism traced to formula",
-     "Nara Organics Infant Formula Botulism Outbreak Ends; WGS, Supply Chain Evidence Show Link to ByHeart"
     ]
    }
   ]
