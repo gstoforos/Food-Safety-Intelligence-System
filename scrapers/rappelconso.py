@@ -9,6 +9,37 @@ from scrapers._models import Recall
 log = logging.getLogger(__name__)
 
 
+def _distributor_as_company(distributeurs: str) -> str:
+    """The firm for an unbranded fiche that names no responsible company.
+
+    Returns the single distributor named in the API's `distributeurs` field,
+    title-cased the way the register already writes it, with the trailing
+    "uniquement" ("only") removed. Returns "" — never a guess — when the
+    field is empty or lists several distributors.
+    """
+    import re
+    s = re.sub(r"\s+", " ", str(distributeurs or "")).strip(" .;,")
+    if not s or re.search(r"[;,/]| - |\bet\b", s):
+        return ""
+    # Phrases the field carries instead of a name (seen in the register:
+    # "liste ci jointe", "cf liste jointe", "gms", "voir pièce jointe",
+    # "vente directe", "établissements de restauration", "enseignes
+    # magasins biologiques", "magasins u"). None of these is a firm.
+    generic = ("liste", "jointe", "pièce", "piece", "voir ", "cf ", "gms",
+               "grandes", "surfaces", "vente directe", "restauration",
+               "commerce", "enseigne", "magasins", "national", "france",
+               "internet", "en ligne", "distributeurs", "divers", "toute",
+               "tous ", "toutes ")
+    if any(g in s.lower() for g in generic):
+        return ""
+    s = re.sub(r"^uniquement\s+|\s+uniquement$", "", s, flags=re.I).strip()
+    if not s or len(s) > 80:
+        return ""
+    from scrapers._company_normalise import normalise_company_brand
+    co, _ = normalise_company_brand(s, "—")
+    return co
+
+
 class RappelConsoScraper(BaseScraper):
     AGENCY = "RappelConso (FR)"
     COUNTRY = "France"
@@ -92,6 +123,21 @@ class RappelConsoScraper(BaseScraper):
                     rec.get("nom_de_la_societe_responsable_de_la_commercialisation", ""),
                     rec.get("nom_de_la_marque_du_produit", "—"),
                 )
+                # DISTRIBUTOR AS FIRM (audit 2026-09-04). A "sans marque"
+                # fiche sold at one shop's own counter names no responsible
+                # company in the API — only `distributeurs`. Fiches 23420 and
+                # 23421 (rillettes d'oie / steak haché at Carrefour Hyper Dax
+                # and Rambouillet, Listeria and Salmonella) arrived with
+                # Company empty and were evicted by the publish gate on every
+                # run. The register already carries this case as Company =
+                # the distributor ("Carrefour Market Gometz-la-Ville", "Super
+                # U Mirepoix", "Intermarché Hyper Annemasse"), so fill it the
+                # same way from the fiche's own field. Only a SINGLE named
+                # distributor qualifies — a list ("agidra; grand frais") is
+                # not a firm — and the trailing "uniquement" (= "only") is
+                # part of the sentence, not the name.
+                if not _co.strip():
+                    _co = _distributor_as_company(rec.get("distributeurs", "") or "")
                 out.append(self._new_recall(
                     Date=rec.get("date_publication", "")[:10],
                     Company=_co,
