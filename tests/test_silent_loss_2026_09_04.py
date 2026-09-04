@@ -77,5 +77,44 @@ class TestRappelConsoDistributorAsFirm(unittest.TestCase):
             self.assertEqual("", f(s), s)
 
 
+class TestRappelConsoScopeGuard(unittest.TestCase):
+    """Fiche 23001 (FertilTech copper sulphate, Maison-Habitat) reached Pending
+    from this scraper on 2026-09-03. The record's own category decides."""
+
+    def test_non_food_category_is_skipped_food_is_kept(self):
+        import scrapers.rappelconso as R
+
+        class _Resp:
+            def json(self):
+                return {"results": [
+                    {"categorie_de_produit": "Maison-Habitat",
+                     "sous_categorie_de_produit": "Produits chimiques",
+                     "motif_du_rappel": "Présence de sulfate de nickel — listeria (word planted to force the keyword match)",
+                     "risques_encourus_par_le_consommateur": "Cancérogène",
+                     "identifiant_unique_de_l_alerte": "23001",
+                     "date_publication": "2026-09-03",
+                     "nom_de_la_societe_responsable_de_la_commercialisation": "FertilTech",
+                     "nom_de_la_marque_du_produit": "FertilTech",
+                     "noms_des_modeles_ou_references": "sulfate de cuivre 750 g",
+                     "distributeurs": "amazon"},
+                    {"categorie_de_produit": "Alimentation",
+                     "motif_du_rappel": "Présence de Listeria monocytogenes",
+                     "risques_encourus_par_le_consommateur": "Listeria monocytogenes",
+                     "identifiant_unique_de_l_alerte": "23420",
+                     "date_publication": "2026-09-02",
+                     "nom_de_la_societe_responsable_de_la_commercialisation": "",
+                     "nom_de_la_marque_du_produit": "Sans marque",
+                     "noms_des_modeles_ou_references": "Rillettes d'oie vendues au rayon traditionnel",
+                     "distributeurs": "CARREFOUR HYPER DAX UNIQUEMENT"},
+                ]}
+
+        with mock.patch.object(R, "fetch", return_value=_Resp()):
+            with redirect_stdout(io.StringIO()):
+                out = R.RappelConsoScraper().scrape(since_days=30)
+        self.assertEqual(1, len(out))
+        self.assertIn("23420", out[0].URL)
+        self.assertEqual("Carrefour Hyper Dax", out[0].Company)
+
+
 if __name__ == "__main__":
     unittest.main()
