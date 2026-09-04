@@ -106,8 +106,20 @@ class RappelConsoScraper(BaseScraper):
         if not r:
             return []
         out: List[Recall] = []
+        skipped_scope = 0
         for rec in r.json().get("results", []):
             try:
+                # SCOPE GUARD ON THE RECORD ITSELF (audit 2026-09-04). Fiche
+                # 23001 — FertilTech copper sulphate, a garden chemical filed
+                # under "Maison-Habitat > Produits chimiques" — reached
+                # Pending from this scraper on 2026-09-03 despite the
+                # `categorie_de_produit = "Alimentation"` clause above. The
+                # API's own record says what category a fiche is in, so
+                # check it here rather than trust the query alone.
+                cat = (rec.get("categorie_de_produit") or "").strip()
+                if cat and cat.lower() != "alimentation":
+                    skipped_scope += 1
+                    continue
                 reason = (rec.get("motif_du_rappel") or "").lower() + " " + \
                          (rec.get("risques_encourus_par_le_consommateur") or "").lower()
                 if not any(p in reason for p in self.PATHOGEN_KEYWORDS):
@@ -153,5 +165,6 @@ class RappelConsoScraper(BaseScraper):
                 ))
             except Exception as e:
                 log.warning("RappelConso row parse failed: %s", e)
-        log.info("RappelConso: %d pathogen recalls", len(out))
+        log.info("RappelConso: %d pathogen recalls (%d non-food fiches skipped)",
+                 len(out), skipped_scope)
         return out
