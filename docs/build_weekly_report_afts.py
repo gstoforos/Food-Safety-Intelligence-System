@@ -113,6 +113,16 @@ _PATHOGEN_SYNONYMS = {
     "E. coli O26":                                         "E. coli STEC",
     "E. coli O145 (STEC)":                                 "E. coli STEC",
     "E. coli O145":                                        "E. coli STEC",
+    "E. coli O145:H28":                                    "E. coli STEC",
+    "E. coli O145:H28 (STEC)":                             "E. coli STEC",
+    "Escherichia coli O145":                               "E. coli STEC",
+    "Escherichia coli O145:H28":                           "E. coli STEC",
+    # Review 2026-09-05: "(generic)" was stripped as a parenthetical and the
+    # profile printed "Escherichia coli" beside "E. coli STEC", as if a
+    # second pathogenic finding. Say what the label means.
+    "Escherichia coli (generic)":                          "E. coli (generic, strain not specified)",
+    "E. coli (generic)":                                   "E. coli (generic, strain not specified)",
+    "E. coli (generic, strain not specified)":             "E. coli (generic, strain not specified)",
     "E. coli O103 (STEC)":                                 "E. coli STEC",
     "E. coli O111 (STEC)":                                 "E. coli STEC",
     "E. coli O121 (STEC)":                                 "E. coli STEC",
@@ -859,6 +869,50 @@ def render_top5_row(rank, r):
     )
 
 
+def _outbreak_kpi_sub(week_rows, all_rows, week_start):
+    """'Distinct investigations this week: N new, M ongoing' (review 2026-09-05).
+
+    The KPI used to say "New Outbreak Events", but a recall that expands an
+    investigation opened months earlier is not a new event — W36's only
+    outbreak-linked row is the September expansion of the July 2026 frozen-
+    blueberry E. coli O145:H28 investigation. An event is ONGOING when a row
+    carrying the same outbreak id is dated before the reporting window."""
+    try:
+        from pipeline._outbreak_id import derive as _oid
+    except Exception:                                          # noqa: BLE001
+        return "Distinct investigations touched this week"
+    earliest = {}
+    for r in all_rows or []:
+        oid, conf, _ = _oid(r)
+        if oid and conf == "high":
+            d = str(r.get("Date", ""))[:10]
+            if d and (oid not in earliest or d < earliest[oid]):
+                earliest[oid] = d
+    new_n, ongoing = 0, 0
+    seen = set()
+    for r in week_rows:
+        oid, conf, _ = _oid(r)
+        if not oid:
+            if _safe_int(r.get("Outbreak")) == 1:
+                new_n += 1
+            continue
+        if oid in seen:
+            continue
+        seen.add(oid)
+        if conf == "high" and earliest.get(oid, "9999") < week_start.isoformat():
+            ongoing += 1
+        else:
+            new_n += 1
+    if new_n + ongoing == 0:
+        return "No outbreak-linked recall this week"
+    bits = []
+    if new_n:
+        bits.append(f"{new_n} new")
+    if ongoing:
+        bits.append(f"{ongoing} ongoing investigation{'s' if ongoing > 1 else ''} updated")
+    return "Distinct investigations: " + ", ".join(bits)
+
+
 def _incident_note(rows):
     """One sentence naming each collapsed cluster, or "" when there are none.
 
@@ -877,9 +931,28 @@ def _incident_note(rows):
         return ""
     parts = []
     for gid, n in sorted(groups.items(), key=lambda kv: -kv[1]):
-        label = gid.split(":")[-1].replace("-", " ")
-        parts.append("{} notices from {}".format(n, label))
+        label = INCIDENT_LABELS.get(gid) or gid.split(":")[-1].replace("-", " ")
+        parts.append("{} notices &mdash; {}".format(n, esc(label)))
     return ("This week that applies to: " + "; ".join(parts) + ".")
+
+
+# Readable descriptions for operator-assigned incident ids, so the report
+# never prints a raw identifier such as "silve salads 2026 09 02"
+# (review 2026-09-05). An id without an entry falls back to the id text.
+INCIDENT_LABELS = {
+    "fr:leclerc-dinan-2026-08-15":
+        "E.Leclerc Dinan (Côtes-d'Armor), suspected cold-chain failure, one store, "
+        "twenty suppliers' chilled products (15 Aug 2026)",
+    "fr:silve-salads-2026-09-02":
+        "SILVE (Intermarché group) deli salads — hard black foreign bodies, one plant, "
+        "fifteen SKUs across Intermarché, Netto, Monique Ranou and Top Budget (2 Sep 2026)",
+    "fr:nollens-poultry-2026-09-02":
+        "Nollens poultry — Salmonella Typhimurium, one establishment, seven cuts (2 Sep 2026)",
+    "fr:4fermes-cheese-2026-09-04":
+        "Fromagerie les 4 Fermes — Listeria monocytogenes, one dairy, five cheese formats (4 Sep 2026)",
+    "fr:ravalec-saucisson-2026-09-02":
+        "Ravalec dry sausages — Listeria <10 cfu/g, one producer, two lots notified 2 and 4 Sep 2026",
+}
 
 
 def compute_stats(wr, pr):
@@ -1062,8 +1135,13 @@ def compute_stats(wr, pr):
     return {"total":total,"tier1":tier1,"outbreaks":outbreaks,
             "top_pathogen":top_pair,
             "co_dominant":co_dominant,
-            "pathogen_counts":pc_consolidated.most_common(20),"country_counts":cc.most_common(20),
+            # No cap (review 2026-09-05): most_common(20) silently dropped
+            # Romania, Bolivia and Slovakia from W36 and the geographic
+            # table summed to 80 against a headline of 83, while the intro
+            # called 23 countries "20 jurisdictions".
+            "pathogen_counts":pc_consolidated.most_common(),"country_counts":cc.most_common(),
             "country_sources":cs,
+            "dist_rows":_dist_rows,
             "prev_total":pt,"delta":delta,
             "delta_pct":round(delta/max(pt,1)*100) if pt else 0}
 
@@ -1160,6 +1238,49 @@ def _fmt_date_short(d):
     except Exception: return str(d)[:10]
 
 
+# The whole register, set by build_html() before the narrative is generated,
+# so the narrative can tell an ongoing investigation from a new one.
+_REGISTER_ROWS = None
+
+
+def _outbreak_status(row, all_rows, week_rows):
+    """('new'|'ongoing', first_date) for an outbreak-flagged row."""
+    try:
+        from pipeline._outbreak_id import derive as _oid
+    except Exception:                                          # noqa: BLE001
+        return "new", ""
+    oid, conf, _ = _oid(row)
+    if not oid or conf != "high":
+        return "new", ""
+    week_dates = [str(r.get("Date", ""))[:10] for r in week_rows if r.get("Date")]
+    wk_start = min(week_dates) if week_dates else "9999"
+    first = ""
+    for r in all_rows or []:
+        o2, c2, _ = _oid(r)
+        if o2 == oid and c2 == "high":
+            d = str(r.get("Date", ""))[:10]
+            if d and (not first or d < first):
+                first = d
+    if first and first < wk_start:
+        return "ongoing", first
+    return "new", first
+
+
+def _outbreak_context_lines(recalls):
+    """One line per outbreak-flagged row: status, first date, reason."""
+    out = []
+    for r in recalls or []:
+        if _safe_int(r.get("Outbreak")) != 1:
+            continue
+        status, first = _outbreak_status(r, _REGISTER_ROWS or recalls, recalls)
+        out.append("{} | {} | {} | {}{} | reason: {}".format(
+            str(r.get("Date", ""))[:10], str(r.get("Pathogen", "")),
+            str(r.get("Product", ""))[:80], status.upper(),
+            f" since {first}" if status == "ongoing" else "",
+            str(r.get("Reason", ""))[:300]))
+    return "\n".join(out)
+
+
 def generate_analysis_claude(stats, recalls):
     """Generate §01 Intelligence Analysis.
     P1-P3 come from Claude (or the fallback). P4 Process Authority Note is
@@ -1192,19 +1313,21 @@ def generate_analysis_claude(stats, recalls):
 
 DATA: Total={}, Tier-1={}, Outbreaks={} (DISTINCT EVENTS, not rows — several recalls can belong to one outbreak), Leading={} ({}, {}%)
 Pathogens: {}
-Countries: {}
+Countries (product ORIGIN, not notifying authority): {}
 Jurisdictions this week: {}
 Commodity mix for {} THIS WEEK (measured from the actual rows): {}
+Outbreak-linked rows this week, with status (NEW = first recorded this week; ONGOING = investigation already in the register before this week, so the row is a recall linked to it, not a new illness cluster): {}
 
 Generate EXACTLY these three paragraphs (plain text, no HTML, no headers, no paragraph numbers):
-1. Executive overview — total, tier-1, outbreaks, leading pathogen %, interpret as regulatory-pressure signal.
-2. Pathogen-specific process-engineering analysis for {} — describe the product categories USING THE MEASURED COMMODITY MIX GIVEN ABOVE. Do not name a commodity class that does not appear in that mix, and do not substitute textbook examples for it; if the mix is spread across several classes, say so and read it as multiple independent supply-chain events rather than one commodity-level failure. Then give the specific failure modes (e.g. Zone 1 environmental harbourage, sanitation SOP drift, post-lethality recontamination for Listeria) and cite only BINDING regulatory frameworks (21 CFR 117 Preventive Controls including environmental monitoring, 21 CFR 113/114 thermal lethality, 9 CFR 430 for post-lethality-exposed RTE meat and poultry, FDA Produce Safety Rule 21 CFR 112, Reg. (EC) 2073/2005 as amended by Reg. (EU) 2024/2895, etc. as applicable). Do NOT cite FDA CPG 555.320: FDA's own page marks it "Draft - Not for Implementation" containing "non-binding recommendations", and it does not set a blanket RTE zero-tolerance.
+1. Executive overview — total, tier-1, outbreak-linked events, leading pathogen %. An ONGOING outbreak must be described as a recall linked to an existing investigation (say when it opened and what the notifying agency reports), never as a new cluster, and a recall notice that states no illnesses are associated with that product must not be described as causing illness. Do not claim that a recall count shows "inspection intensity" or regulatory pressure: notices arise from official controls, company own-checks, supplier information and precautionary withdrawals alike, and the register cannot tell them apart.
+2. Pathogen-specific process-engineering analysis for {} — describe the product categories USING THE MEASURED COMMODITY MIX GIVEN ABOVE. Do not name a commodity class that does not appear in that mix, and do not substitute textbook examples for it; if the mix is spread across several classes, say so and read it as multiple independent supply-chain events rather than one commodity-level failure. Then discuss the failure modes such recalls typically prompt an operator to review (e.g. environmental harbourage, sanitation drift, post-lethality recontamination, raw-material entry for Listeria) — as HYPOTHESES FOR VERIFICATION, explicitly: recall notices do not establish the contamination route, and you must not assert that the pattern "points to" one route or excludes another. Cite only BINDING regulatory frameworks (21 CFR 117 Preventive Controls including environmental monitoring, 21 CFR 113/114 thermal lethality, 9 CFR 430 for post-lethality-exposed RTE meat and poultry, FDA Produce Safety Rule 21 CFR 112, Reg. (EC) 2073/2005 as amended by Reg. (EU) 2024/2895, etc. as applicable). Do NOT cite FDA CPG 555.320: FDA's own page marks it "Draft - Not for Implementation" containing "non-binding recommendations", and it does not set a blanket RTE zero-tolerance.
 3. Regulatory/geographic assessment — name the actual authorities active this week ({}). Close with AFTS recommendation to re-verify the single highest-leverage control for the commodity and confirm documentation packages are ready for rapid regulatory response.
 
 Tone: professional, process-engineering voice, no emojis, no bullets, no colons at paragraph starts. 3-5 sentences each. Preserve the word 'AFTS' exactly where referenced. Do NOT write a Process Authority Note — that is appended separately.""".format(
         t, stats["tier1"], stats["outbreaks"], tp, tc, pct,
         dict(stats["pathogen_counts"]), dict(stats["country_counts"]), auth_hint,
         tp, commodity_mix,
+        _outbreak_context_lines(recalls) or "none",
         tp, auth_hint)
 
     claude_out = None
@@ -1244,14 +1367,30 @@ def _fallback_p1_to_p3(stats, recalls):
     """P1-P3 only. The PA Note is always handled by _process_authority_note()."""
     tp, tc = stats["top_pathogen"]; t = stats["total"]
     pct = round(tc/max(t,1)*100)
+    # Review 2026-09-05: say whether the outbreak-linked rows are new events
+    # or recalls tied to investigations already open before this window.
+    _ob_rows_p1 = [r for r in recalls if _safe_int(r.get("Outbreak")) == 1]
+    _st_p1 = [_outbreak_status(r, _REGISTER_ROWS or recalls, recalls)[0] for r in _ob_rows_p1]
+    _n_new_p1 = sum(1 for x in _st_p1 if x == "new")
+    _n_ong_p1 = max(stats["outbreaks"] - _n_new_p1, 0) if _ob_rows_p1 else 0
+    if not _ob_rows_p1 or stats["outbreaks"] == 0:
+        ob_phrase = "no outbreak-linked recall"
+    elif _n_new_p1 and _n_ong_p1:
+        ob_phrase = (f"{_count_phrase(_n_new_p1, 'new outbreak event')} plus "
+                     f"{_n_ong_p1} recall{'s' if _n_ong_p1 > 1 else ''} tied to ongoing investigations")
+    elif _n_ong_p1:
+        ob_phrase = (f"{_n_ong_p1} recall{'s' if _n_ong_p1 > 1 else ''} tied to "
+                     f"{'an ' if _n_ong_p1 == 1 else ''}outbreak investigation{'s' if _n_ong_p1 > 1 else ''} "
+                     f"already open before this window")
+    else:
+        ob_phrase = _count_phrase(stats["outbreaks"], "new outbreak event")
     p1 = ("This week produced {} food-safety hazard recall incidents across the AFTS "
           "monitoring network, with {} classified as Tier-1 and {}. {} dominated the "
           "surveillance window, accounting for {} of {} "
           "incidents ({}%). Although total activity may vary week to week, the high "
           "Tier-1 share indicates that serious microbiological and chemical hazards "
           "continue to drive regulatory action.").format(t, stats["tier1"],
-                                 _count_phrase(stats["outbreaks"], "confirmed outbreak event",
-                                               zero="no confirmed outbreak events"),
+                                 ob_phrase,
                                  tp, tc, t, pct)
     p2 = (_pathogen_narrative(tp, pct, _commodity_mix(recalls, tp))
           + _framework_jurisdiction_qualifier(recalls))
@@ -1356,15 +1495,46 @@ def _fallback_p1_to_p3(stats, recalls):
             # a heading but sits mid-sentence here. Lower the first letter,
             # unless the opening looks like an acronym or proper noun run
             # (two capitals: "IQF", "EU").
-            if prod_short[:2].isalpha() and not prod_short[:2].isupper():
+            _words = prod_short.split()
+            _title_case = len(_words) >= 2 and _words[1][:1].isupper()
+            if prod_short[:2].isalpha() and not prod_short[:2].isupper() and not _title_case:
                 prod_short = prod_short[0].lower() + prod_short[1:]
-            descs.append(f"{path} linked to {prod_short}" if prod_short else path)
+            _st, _first = _outbreak_status(r, _REGISTER_ROWS or recalls, recalls)
+            _no_ill = bool(re.search(r"no (?:reports? of )?illness", str(r.get("Reason") or ""), re.I))
+            _tail = ""
+            if _st == "ongoing" and _first:
+                _tail = (f" (recall expansion; investigation open since "
+                         f"{_fmt_date(datetime.strptime(_first, '%Y-%m-%d').date())}"
+                         f"{'; no illness associated with this product to date' if _no_ill else ''})")
+            descs.append((f"{path} linked to {prod_short}" if prod_short else path) + _tail)
         joined = "; ".join(descs)
         n_ob = len(ob_recalls)
+        # Review 2026-09-05: an expansion of an investigation opened months
+        # earlier is not a "confirmed cluster event tracked this week". Say
+        # which events are new and which are recalls linked to an ongoing
+        # investigation, and never attribute illness to a product whose
+        # notice says none is associated with it.
+        _statuses = [_outbreak_status(r, _REGISTER_ROWS or recalls, recalls)
+                     for r in ob_recalls]
+        n_new = sum(1 for st, _ in _statuses if st == "new")
+        n_ong = n_ob - n_new
+        def _rl(n):
+            return (f"{n} recall{'s' if n > 1 else ''} linked to "
+                    f"{'an ' if n == 1 else ''}ongoing outbreak investigation{'s' if n > 1 else ''}")
+        if n_new and n_ong:
+            lead = (f"Outbreak watch: {_count_phrase(n_new, 'new outbreak event')} and "
+                    f"{_rl(n_ong)} this week \u2014 {joined}. ")
+        elif n_ong:
+            lead = (f"Outbreak watch: {_rl(n_ong)} this week \u2014 {joined}. "
+                    f"{'These notices are' if n_ong > 1 else 'The notice is'} recall expansion{'s' if n_ong > 1 else ''}; "
+                    f"the case counts belong to the investigations, not to the recalled lots. ")
+        else:
+            lead = (f"Outbreak watch: {_count_phrase(n_ob, 'new outbreak event')} "
+                    f"recorded this week \u2014 {joined}. ")
         p_outbreak = (
-            f"Outbreak watch: {_count_phrase(n_ob, 'confirmed cluster event')} "
-            f"tracked this week \u2014 {joined}. Although {tp} remained the leading "
-            f"incident driver, {'this outbreak' if n_ob == 1 else 'these outbreaks'} "
+            lead +
+            f"Although {tp} remained the leading incident driver, "
+            f"{'this investigation' if n_ob == 1 else 'these investigations'} "
             f"should remain under active monitoring. "
             # Audit 2026-08-28: this sentence used to close with "given
             # cross-border exposure potential". That asserted international
@@ -1377,14 +1547,20 @@ def _fallback_p1_to_p3(stats, recalls):
             f"Distribution scope is as stated by the notifying authority; "
             f"case geography is not distribution geography.")
     auths = _jurisdictions_from_recalls(recalls or [])
+    # Review 2026-09-05: a notice count does not measure inspection effort.
+    # Notices arise from official controls, company own-checks, supplier
+    # information and precautionary withdrawals alike, and the register
+    # does not distinguish them.
     if auths:
-        auth_clause = ("Regulatory activity this week spanned multiple jurisdictions "
-                       "({}{}), signalling continued inspection intensity. ").format(
+        auth_clause = ("Notices this week were published by {}{}. A recall count records "
+                       "published notices, not inspection effort: they arise from official "
+                       "controls, company own-checks, supplier information and precautionary "
+                       "withdrawals alike. ").format(
                            ", ".join(auths),
-                           ", and national authorities" if len(auths) >= 3 else "")
+                           " and other national authorities" if len(auths) >= 3 else "")
     else:
-        auth_clause = ("Regulatory activity this week spanned multiple jurisdictions, "
-                       "signalling continued inspection intensity. ")
+        auth_clause = ("Notices this week came from several authorities and platforms. A recall "
+                       "count records published notices, not inspection effort. ")
     p3 = (auth_clause +
           "AFTS recommends that food manufacturers use this briefing as a prompt to "
           "re-verify the single highest-leverage control for their commodity this week "
@@ -1573,14 +1749,21 @@ def _pathogen_narrative(pathogen, pct, commodity_mix=""):
     intensity = "at this concentration" if pct >= 30 else "at this prevalence"
 
     if "listeria" in p:
-        return ("Listeria monocytogenes {intensity} points to post-process recontamination "
-                "in ready-to-eat deli, dairy, and cooked-meat lines rather than thermal "
-                "underprocess. The likely failure modes are Zone 1 environmental harbourage, "
-                "sanitation SOP drift, and post-lethality recontamination. The relevant "
-                "frameworks for review are the environmental monitoring programme under "
-                "21 CFR 117 and the thermal-lethality validation applicable to the product "
-                "class (21 CFR 113 / 114 where applicable), supported by qualified process "
-                "authority oversight.").format(intensity=intensity)
+        # Review 2026-09-05: recall notices do not establish the route of
+        # contamination. Thirty notices cannot show Zone 1 harbourage or
+        # exclude under-processing; Listeria can enter with raw materials
+        # and contaminate at several stages. State what an operator should
+        # verify, not what the pattern "points to".
+        return ("Listeria monocytogenes {intensity} sits mainly in ready-to-eat categories "
+                "(deli, dairy and cooked-meat lines). The notices themselves do not establish "
+                "the contamination route: post-process recontamination from environmental "
+                "harbourage, sanitation drift, raw-material entry and inadequate lethality are "
+                "all hypotheses that only product and facility evidence can separate. The "
+                "controls an operator should re-verify against a signal like this are the "
+                "environmental monitoring programme and corrective-action triggers (21 CFR 117 "
+                "in the United States; Reg. (EC) 2073/2005 as amended by Reg. (EU) 2024/2895 "
+                "in the EU) together with the validated lethality step for the product class "
+                "\u2014 both, not one or the other.").format(intensity=intensity)
 
     if "salmonella" in p:
         # AUDIT 2026-08-14 \u2014 this branch used to assert a fixed commodity
@@ -2018,7 +2201,7 @@ def _process_authority_note(recalls, bot):
                 # Commission; food business operators do not notify RASFF.
                 # Their duty runs to the competent authority, and the
                 # authority then decides what enters RASFF.
-                "EU": "Regulation (EC) No 2073/2005 as amended by Reg. (EU) 2024/2895 (applicable from 1 July 2026): for RTE foods able to support growth of Listeria monocytogenes, operators must demonstrate compliance throughout shelf life; where a business cannot demonstrate to the competent authority that levels remain ≤100 CFU/g, the applicable criterion is not detected in 25 g. Regulation (EC) No 852/2004 HACCP requirements apply, and operators must notify and cooperate with the national competent authority, which is the body that issues any RASFF notification",
+                "EU": "Regulation (EC) No 2073/2005 as amended by Reg. (EU) 2024/2895 (applicable from 1 July 2026): for RTE foods able to support growth of Listeria monocytogenes, other than those intended for infants or for special medical purposes, the criterion applies to products placed on the market throughout their shelf life; the limit is 100 CFU/g only where the operator can demonstrate to the competent authority that the product will not exceed it during shelf life, and otherwise not detected in 25 g. Regulation (EC) No 852/2004 HACCP requirements apply, and operators must notify and cooperate with the national competent authority, which is the body that issues any RASFF notification",
                 "UK": "retained EU Reg. 2073/2005, UK Food Hygiene Regulations, and FSA listeria-in-RTE control guidance",
                 "CA": "CFIA Policy on Control of Listeria monocytogenes in Ready-to-Eat Foods and the SFCR Preventive Control Plan",
                 "AU_NZ": "FSANZ Food Standards Code Standard 1.6.1 (microbiological limits) and industry Listeria management guidelines",
@@ -2092,7 +2275,9 @@ def _process_authority_note(recalls, bot):
         # Regulator names for the closing sentence
         AUTHORITY_NAMES = {
             "US":"FDA and USDA FSIS", "EU":"the national competent authority (with RASFF notification)",
-            "UK":"the FSA", "CA":"CFIA", "AU_NZ":"FSANZ",
+            # FSANZ writes the Code; enforcement and follow-up inspection sit
+            # with the state and territory food authorities (review 2026-09-05).
+            "UK":"the FSA", "CA":"CFIA", "AU_NZ":"the Australian state and territory food authorities (FSANZ sets the Code, not the inspection)",
             "JP":"Japan MHLW", "KR":"MFDS",
         }
         authorities = [AUTHORITY_NAMES[k] for k in order]
@@ -2154,21 +2339,25 @@ def _process_authority_note(recalls, bot):
                 "milk cheese), charcuterie and cured-meat, smoked and cured "
                 "seafood, cooked-meat, refrigerated prepared salads, and cut "
                 "produce \u2014 should review their environmental monitoring "
-                "programme (EMP), Zone 1\u20134 sampling plan, and corrective-"
-                "action triggers under {primary}{parallels}. The process-"
-                "authority deliverable for this hazard class is a validated "
-                "lethality at the kill step (where one exists) or a documented "
-                "post-lethality control programme where "
-                "the organism cannot be eliminated in-pack. Typical compliance "
+                "programme (EMP) and corrective-action triggers under "
+                "{primary}{parallels}. A zoned (Zone 1\u20134) sampling plan is the "
+                "operational framework AFTS recommends for that review; the "
+                "regulations cited set the criteria and the duty to verify, not "
+                "the zoning itself. The process-authority deliverable for this "
+                "hazard class is BOTH a validated lethality at the kill step "
+                "(where one exists) AND a documented post-lethality control "
+                "programme; the second does not substitute for the first, and "
+                "where the organism cannot be eliminated in-pack the post-"
+                "lethality controls carry the hazard. Typical compliance "
                 "gaps: incomplete Zone 1 sampling, sanitation SOPs not validated "
                 "against worst-case soil load, equipment hollows harbouring "
                 "persistent strains, and post-lethality recontamination pathways "
                 "not mapped. Incidents of this severity, particularly "
                 "confirmed contamination of ready-to-eat product, "
                 "may result in targeted regulatory follow-up by {regulators}, "
-                "including environmental monitoring (EMP) audits, Zone 1\u20134 "
-                "sampling verification, and review of post-lethality control "
-                "programmes on the subsequent inspection."
+                "typically including review of the environmental monitoring "
+                "programme, its sampling plan and the post-lethality controls "
+                "at the next inspection."
                 ).format(ip=_count_phrase(_lm_count, "Listeria monocytogenes incident"),
                          co=_names(lst_strict or lst),
                          primary=regs["primary"], parallels=regs["parallels"],
@@ -2901,7 +3090,7 @@ __CSS_PLACEHOLDER__
 <h1 class="r-title">Food Safety Hazard &amp; Pathogen Surveillance <span class="accent">&middot;</span> Week {wnum}</h1>
 <p class="r-sub">
   AI-powered analysis of <strong>{total}</strong> regulatory food-safety incidents across
-  <strong>{n_jurisdictions}</strong> jurisdictions, aggregated from 66 primary sources
+  <strong>{n_jurisdictions}</strong> countries of product origin, aggregated from 66 primary sources
   monitored continuously by the AFTS intelligence platform.
 </p>
 <p class="r-sub" style="margin-top:6px">
@@ -2932,9 +3121,9 @@ __CSS_PLACEHOLDER__
     <div class="kpi-delta" style="color:var(--muted)">Immediate public-health risk</div>
   </div>
   <div class="kpi">
-    <div class="kpi-label">New Outbreak Events</div>
+    <div class="kpi-label">Outbreak-linked Events</div>
     <div class="kpi-value violet">{outbreaks}</div>
-    <div class="kpi-delta" style="color:var(--muted)">Distinct events in this week's register</div>
+    <div class="kpi-delta" style="color:var(--muted)">{outbreak_kpi_sub}</div>
   </div>
   <div class="kpi">
     <div class="kpi-label">Leading Pathogen</div>
@@ -3033,6 +3222,7 @@ __CSS_PLACEHOLDER__
 </div>
 <div class="meth">
   <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, pathogen classification, and the engineering interpretation of each recall are developed by the AFTS process-authority practice, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP. This is what the AFTS platform brings that pure data feeds do not &mdash; interpretation under engineering authority.</p>
+  <p><strong>Severity tiers.</strong> Tier 1 &mdash; pathogens and toxins that cause severe or life-threatening illness at the doses found in food (Listeria monocytogenes, Salmonella, STEC, Clostridium botulinum, cereulide, Cronobacter, hepatitis A, Vibrio vulnificus), always, whatever the regulator's own class. Tier 2 &mdash; hazards that cause acute but usually self-limiting illness or chronic-exposure harm (Campylobacter, Bacillus cereus, generic Vibrio, mycotoxins, heavy metals, pesticide residues, undeclared pharmacological ingredients). Tier 3 &mdash; hazards whose harm is injury or contamination rather than infection or toxicity (foreign bodies in food for the general population, pests), raised to Tier 1 only in products for infants and other vulnerable groups. A foreign body of unspecified material is Tier 3 even when the notice cites an injury risk; that risk is why the recall exists, not a reason to rank it beside a pathogen. Where a notice names two hazards the row carries both and the incident is counted once.</p>
   <p><strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from 66 primary sources across 60+ countries (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso, BVL, AESAN, EFET, and national authorities) and processes each record through Gemini (extraction), OpenAI GPT (normalisation), and Claude (Tier-1 validation). Records are de-duplicated and harmonised into the cumulative dataset.</p>
   <p><strong>This briefing.</strong> Statistical analysis filters the cumulative dataset to the reporting week ({period}). AI-generated narrative is produced against AFTS process-authority prompts and edited for publication. Figures and pathogen names are preserved verbatim from source data.</p>
 </div>
@@ -3042,14 +3232,14 @@ __CSS_PLACEHOLDER__
     <div class="foot-brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
     <div class="foot-meta">Food Safety Validation Intelligence<br>advfood.tech &middot; info@advfood.tech &middot; Athens, Greece<br>&copy; {year} Advanced Food-Tech Solutions</div>
   </div>
-  <div class="foot-legal">This briefing is provided for informational purposes only and does not constitute regulatory, legal, or medical advice. Subscribers should verify recall status with the originating regulatory authority before taking action. Next issue: Friday, {next_issue}.</div>
+  <div class="foot-legal">This briefing is provided for informational purposes only and does not constitute regulatory, legal, or medical advice. Subscribers should verify recall status with the originating regulatory authority before taking action. Next issue: {next_issue}.</div>
 </footer>
 
 </body>
 </html>"""
 
 
-def build_html(week_end, recalls, prev_week, original_published=None):
+def build_html(week_end, recalls, prev_week, original_published=None, all_rows=None):
     """Build a weekly report HTML.
 
     original_published:  None  → fresh publish; header reads
@@ -3067,6 +3257,8 @@ def build_html(week_end, recalls, prev_week, original_published=None):
     that the report had been revised. Now rebuilds carry an explicit
     UPDATED label with today's date.
     """
+    global _REGISTER_ROWS
+    _REGISTER_ROWS = all_rows
     stats = compute_stats(recalls, prev_week)
     # Display window (audit 2026-05-12): under the new-rule (any row in
     # `recalls` carries a report_week stamp), the period runs Fri→Thu
@@ -3206,35 +3398,38 @@ def build_html(week_end, recalls, prev_week, original_published=None):
 
     crows = ""
     country_sources = stats.get("country_sources") or {}
+    # NOTIFYING AUTHORITY = who actually published (review 2026-09-05).
+    # "Origin country" is the RASFF convention — the country the product
+    # came from — so a Mexican row notified by the Netherlands through
+    # RASFF must not be labelled COFEPRIS, and a country reported by both
+    # FDA and RASFF must show both. The column is built from the Source
+    # labels of the rows themselves; the GEO_AUTHORITY table is used only
+    # for a source label that does not name an agency.
+    _src_by_country = {}
+    _notifiers_by_country = {}
+    _dist_rows_for_geo = stats.get("dist_rows") or recalls
+    for _r in _dist_rows_for_geo:
+        _c = _country_display(_r.get("Country", "") or "Unknown")
+        _s = str(_r.get("Source") or "").strip() or "\u2014"
+        _src_by_country.setdefault(_c, Counter())[_s] += 1
+        if "rasff" in _s.lower():
+            _m = re.search(r"Notifying:\s*([^|]+)", str(_r.get("Company") or ""))
+            if _m:
+                _notifiers_by_country.setdefault(_c, set()).add(_m.group(1).strip())
     for country, cnt in stats["country_counts"]:
         pct = round(cnt/max(total,1)*100)
-        # Authority-column logic (audit 2026-06-12 — auditor flagged that
-        # third-country origins like Türkiye, India, Uganda, Egypt were
-        # mislabeled "National Authority" when the actual notifier was
-        # RASFF (EU) reporting on imports from those countries):
-        #
-        #   1. Country IS in GEO_AUTHORITY → use that label (the named
-        #      national/regional authority is the one that issued the
-        #      recall or notice for this country's product).
-        #   2. Country is NOT in GEO_AUTHORITY → look up which Source(s)
-        #      reported this country in the window:
-        #        - If ANY source mentions "rasff" → "RASFF (EU) — origin"
-        #          (the EU's Rapid Alert System for Food and Feed notified
-        #          about an import from this third country)
-        #        - Else if a single recognisable source dominates → use it
-        #          (e.g. CDC for a multi-state outbreak attributed to a
-        #          single origin country)
-        #        - Else "—" (em-dash; honest "no single notifying authority")
-        srcs = country_sources.get(country, set())
-        if country in GEO_AUTHORITY:
-            auth = GEO_AUTHORITY[country]
-        elif any("rasff" in s.lower() for s in srcs):
-            auth = "RASFF (EU) \u2014 origin"
-        elif len(srcs) == 1:
-            auth = next(iter(srcs))
-        else:
-            auth = "\u2014"
-        crows += '        <tr>\n          <td>{}</td>\n          <td>{}</td>\n          <td class="num">{}</td>\n          <td class="num">{}%</td>\n        </tr>\n'.format(esc(country), esc(auth), cnt, pct)
+        srcs = _src_by_country.get(country, Counter())
+        parts = []
+        for _s, _n in srcs.most_common():
+            label = _s
+            if "rasff" in _s.lower():
+                nots = sorted(_notifiers_by_country.get(country, ()))
+                label = "RASFF (EU), notified by " + ", ".join(nots) if nots else "RASFF (EU)"
+            elif _s.lower() in ("national authority", "official", "regulator", "\u2014", "-", ""):
+                label = GEO_AUTHORITY.get(country, _s)
+            parts.append(f"{label} ({_n})" if len(srcs) > 1 else label)
+        auth = " &middot; ".join(esc(x) for x in parts) if parts else "\u2014"
+        crows += '        <tr>\n          <td>{}</td>\n          <td>{}</td>\n          <td class="num">{}</td>\n          <td class="num">{}%</td>\n        </tr>\n'.format(esc(country), auth, cnt, pct)
     if not crows: crows = '        <tr><td class="empty" colspan="4">No geographic data</td></tr>\n'
 
     wsd = _fmt_date_short(ws); wed = _fmt_date(display_end_date)
@@ -3275,7 +3470,14 @@ def build_html(week_end, recalls, prev_week, original_published=None):
     else:
         published_label = "PUBLISHED"
     pub = today_str
-    nf = _fmt_date(week_end + timedelta(days=7))
+    # Next issue: for a Sunday-anchored week the following report ships on
+    # the Monday eight days later (W36 closes Sun 6 Sep -> next issue Mon
+    # 14 Sep); a Friday-anchored week shipped the next Friday. The footer
+    # used to say "Friday, 13 Sep 2026" — a Sunday.
+    if week_end.weekday() == 6:
+        nf = "Monday, " + _fmt_date(week_end + timedelta(days=8))
+    else:
+        nf = "Friday, " + _fmt_date(week_end + timedelta(days=7))
 
     html = HTML_TEMPLATE.format(
         wnum=wnum, year=year, period=period,
@@ -3283,6 +3485,7 @@ def build_html(week_end, recalls, prev_week, original_published=None):
         n_jurisdictions=len(stats["country_counts"]), delta_html=dh,
         n_notices=len(recalls), incident_note=_incident_note(recalls),
         bridge_note=bridge_note,
+        outbreak_kpi_sub=_outbreak_kpi_sub(recalls, all_rows or recalls, _ws_b),
         tier1=stats["tier1"], outbreaks=stats["outbreaks"],
         top_pathogen_name=esc(tp), top_cnt=tc, top_pct=tpct, co_dom_note=co_dom_note,
         analysis_html=analysis, top5_rows=t5rows, pathogen_rows=prows,
@@ -3613,7 +3816,7 @@ def refresh_stale_weeks(all_recalls, current_week_end, n_previous=1):
         # existing HTML doesn't carry a parseable PUBLISHED marker.
         orig_pub = _extract_published_from_html(report_path)
         html, stats = build_html(prev_end, dataset_recalls, prev_week_recalls,
-                                 original_published=orig_pub)
+                                 original_published=orig_pub, all_rows=all_recalls)
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(html, encoding="utf-8")
         log.info("W%02d refreshed -> %s (%d bytes, %d recalls, original_pub=%r)",
@@ -3662,7 +3865,7 @@ def main():
     # flip masthead to "UPDATED · {today}". Without this, manual/CLI rebuilds
     # silently re-stamped "PUBLISHED" (operator bug report 2026-07-13).
     orig_pub = _extract_published_from_html(out)
-    html, stats = build_html(week_end, wr, pr, original_published=orig_pub)
+    html, stats = build_html(week_end, wr, pr, original_published=orig_pub, all_rows=all_r)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
     log.info("Report -> %s (%d bytes)", out, len(html))
