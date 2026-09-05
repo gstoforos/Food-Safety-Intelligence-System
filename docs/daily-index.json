@@ -1,47 +1,64 @@
 {
   "entries": [
     {
+      "date": "2026-09-04",
+      "url": "daily/2026-09-04.html",
+      "total": 11,
+      "tier1": 11,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 9,
+        "Oceania": 1,
+        "North America": 1
+      },
+      "generated": "2026-09-05T07:08:22Z"
+    },
+    {
       "date": "2026-09-03",
       "url": "daily/2026-09-03.html",
-      "total": 5,
+      "total": 7,
       "tier1": 5,
       "outbreak": 0,
       "by_region": {
-        "Europe": 4,
-        "North America": 1
+        "Europe": 5,
+        "North America": 2
       },
-      "generated": "2026-09-04T07:08:09Z"
+      "generated": "2026-09-05T07:08:23Z"
     },
     {
       "date": "2026-09-02",
       "url": "daily/2026-09-02.html",
-      "total": 17,
-      "tier1": 17,
+      "total": 20,
+      "tier1": 19,
       "outbreak": 0,
       "by_region": {
-        "Europe": 17
+        "Europe": 19,
+        "Middle East": 1
       },
-      "generated": "2026-09-04T07:08:10Z"
+      "generated": "2026-09-05T07:08:24Z"
     },
     {
       "date": "2026-09-01",
       "url": "daily/2026-09-01.html",
-      "total": 4,
-      "tier1": 3,
+      "total": 8,
+      "tier1": 6,
       "outbreak": 0,
       "by_region": {
-        "Europe": 4
+        "Europe": 8
       },
-      "generated": "2026-09-04T07:08:11Z"
+      "generated": "2026-09-05T07:08:24Z"
     },
     {
       "date": "2026-08-31",
       "url": "daily/2026-08-31.html",
-      "total": 0,
-      "tier1": 0,
+      "total": 3,
+      "tier1": 1,
       "outbreak": 0,
-      "by_region": {},
-      "generated": "2026-09-04T07:08:12Z"
+      "by_region": {
+        "Europe": 2,
+        "North America": 1
+      },
+      "generated": "2026-09-05T07:08:25Z"
     },
     {
       "date": "2026-08-30",
@@ -50,7 +67,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-09-04T07:08:13Z"
+      "generated": "2026-09-05T07:08:26Z"
     },
     {
       "date": "2026-08-29",
@@ -61,20 +78,7 @@
       "by_region": {
         "North America": 2
       },
-      "generated": "2026-09-04T07:08:13Z"
-    },
-    {
-      "date": "2026-08-28",
-      "url": "daily/2026-08-28.html",
-      "total": 16,
-      "tier1": 9,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 12,
-        "North America": 1,
-        "Latin America": 3
-      },
-      "generated": "2026-09-04T07:08:14Z"
+      "generated": "2026-09-05T07:08:27Z"
     }
   ]
 }
