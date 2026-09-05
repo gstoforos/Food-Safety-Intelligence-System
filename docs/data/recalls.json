@@ -522,10 +522,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 1,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23408/interne",
-  "Notes": "restaurants, traiteur, supermarché [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [review 2026-09-05: Reason \"Présence e.coli\" translated; the fiche names no strain — a hygiene-indicator finding in live bivalves, which is why Pathogen reads \"(generic)\".]"
+  "Notes": "restaurants, traiteur, supermarché [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [review 2026-09-05: Reason \"Présence e.coli\" translated; the fiche names no strain — a hygiene-indicator finding in live bivalves, which is why Pathogen reads \"(generic)\".] [tier-guard 2026-08-18: escalation SKIPPED — the source describes this E. coli as non-pathogenic / generic, i.e. a hygiene INDICATOR organism rather than a pathogenic strain. The always-Tier-1 rule for 'e. coli' exists for pathogenic strains; applying it here would publish an indicator finding as a critical event. Operator rule 2026-08-18: non-pathogenic E. coli is Tier 2; set from Tier 1.]"
  },
  {
   "Date": "2026-09-02",

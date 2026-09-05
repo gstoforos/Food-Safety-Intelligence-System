@@ -1,11 +1,11 @@
 {
   "week_end": "2026-09-06",
-  "generated_utc": "2026-09-05T14:10:03+00:00",
-  "row_count": 29,
-  "tier1_count": 14,
-  "outbreak_count": 2,
+  "generated_utc": "2026-09-05T19:52:27+00:00",
+  "row_count": 30,
+  "tier1_count": 15,
+  "outbreak_count": 3,
   "by_reviewer": {
-    "unknown": 24,
+    "unknown": 25,
     "operator-review": 4,
     "confirm-agent": 1
   },
@@ -54,6 +54,29 @@
       "Week_Added": "2026-09-06",
       "RejectedBy": "unknown",
       "RejectionReason": "Confirmer: reviewer 2 approved but URL domain does not match Source 'BLV' (expected blv.admin.ch)",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-03",
+      "Source": "FDA",
+      "Company": "Outbreak Investigation of Salmonella: Eggs (July 2026)",
+      "Brand": "Outbreak Investigation of Salmonella: Eggs (July 2026)",
+      "Product": "Outbreak Investigation of Salmonella: Eggs (July 2026) | FDA\n\n# Outbreak Investigation of Salmonella: Eggs (July 2026)\n\nDo not eat, sell, or serve white shell eggs and brown cage-free shell eggs recal",
+      "Pathogen": "Salmonella",
+      "Reason": "Salmonella — outbreak",
+      "Class": "Recall",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 1,
+      "Outbreak": 1,
+      "URL": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-salmonella-eggs-july-2026",
+      "Notes": "REJECTED: Confirmer: reviewer 2 approved but Product looks like a headline, not a product name | Outbreak Investigation of Salmonella: Eggs (July 2026) | FDA\n\n# Outbreak Investigation of Salmonella: Eggs (July 2026)\n\nDo not eat, sell, or serve white shell eggs and brown cage-free shell eggs recalled by Midwest Poultry Services, L.P.\n\n \n\n## Product\n\nRecalled white shell eggs and brown cage-free   [via Exa gap-finder, deterministic extract]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-06",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Confirmer: reviewer 2 approved but Product looks like a headline, not a product name",
       "Reviewed": "N"
     },
     {
