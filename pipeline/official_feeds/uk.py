@@ -18,6 +18,8 @@ JSON item shape (from API reference + CSV export):
 
 from __future__ import annotations
 
+import re
+
 from ..base import Record, FeedSource, register
 from ..fetch import get_json, parse_iso
 
@@ -80,6 +82,30 @@ def _hazard_text(item: dict) -> str:
         if v:
             bits.append(str(v))
     return " ".join(bits)
+
+
+_TITLE_FIRM_RE = re.compile(
+    r"^(?P<firm>.+?)\s+(?:recalls?|is recalling|are recalling|has recalled|"
+    r"have recalled|withdraws?|is withdrawing)\b", re.I)
+
+
+def _firm(item: dict) -> str:
+    """Recalling firm from the record's own fields, else from the title head;
+    "" when nothing names one (never the headline itself)."""
+    for key in ("reportingBusiness", "business", "alertAuthor", "sender"):
+        v = item.get(key)
+        if isinstance(v, dict):
+            for k in ("commonName", "legalName", "name", "label"):
+                if v.get(k):
+                    return str(v[k]).strip()[:100]
+        elif isinstance(v, str) and v.strip():
+            return v.strip()[:100]
+    m = _TITLE_FIRM_RE.match(str(item.get("title") or "").strip())
+    if m:
+        firm = m.group("firm").strip(" \t-–—:")
+        if 2 <= len(firm) <= 80:
+            return firm
+    return ""
 
 
 def _product(item: dict) -> str:
@@ -276,9 +302,12 @@ def fetch(limit: int = 50, include_scotland: bool = False,
         if not keep:
             continue
 
-        company = item.get("alertAuthor") or item.get("sender") or ""
-        if isinstance(company, dict):
-            company = company.get("label", "") or company.get("name", "")
+        # THE FIRM (audit 2026-09-05). alertAuthor/sender are not carried by
+        # every record — FSA-PRIN-43-2026 (Sainsbury's olives, Listeria) had
+        # neither, arrived with Company empty, and reviewer 3 rejected it.
+        # The firm is in reportingBusiness when present and, always, at the
+        # head of the title ("Sainsbury's recalls ..."). Read those too.
+        company = _firm(item)
 
         cc, cname, auth = _derive_country(countries, include_scotland)
 
