@@ -319,6 +319,14 @@ jobs:
               return []
 
 
+          _FIRM_PROBLEMS = ("Company is empty", "neither Company nor Brand is set")
+
+
+          def _is_firm_problem(p: str) -> bool:
+              """A problem that says only that no firm is named — reviewer 2's job."""
+              return any(p.startswith(f) for f in _FIRM_PROBLEMS)
+
+
           def confirm(row: Dict[str, Any],
                       published: Optional[List[Dict[str, Any]]] = None) -> List[str]:
               """Return the reasons this row must NOT be published. Empty list = publish.
@@ -384,6 +392,12 @@ jobs:
               if not str(row.get("Company", "") or "").strip() and \
                  not str(row.get("Brand", "") or "").strip():
                   problems.append("neither Company nor Brand is set")
+              elif not str(row.get("Company", "") or "").strip():
+                  # The publish gate inside promote_approved() requires Company, so a
+                  # Brand-only row cannot publish; say so HERE, where main() can hold
+                  # it for reviewer 2 instead of letting the gate archive it.
+                  problems.append("Company is empty (Brand set) — the publish gate "
+                                  "requires the recalling firm")
 
               # Scope: a pre-2026 notice never publishes, whatever reviewer 2 said.
               d = str(row.get("Date", "") or "").strip()[:10]
@@ -443,19 +457,19 @@ jobs:
               # trace). A missing Company beside a present Brand is a row that needs a
               # reader, not a rejection: park it at pending_gap_v2, which is in
               # reviewer 2's lane and which merge_master will not promote or evict.
-              held = [r for r in lane
-                      if not str(r.get("Company", "") or "").strip()
-                      and str(r.get("Brand", "") or "").strip() not in ("", "—")]
-              held_urls = {str(r.get("URL", "")).strip() for r in held}
-              lane = [r for r in lane if str(r.get("URL", "")).strip() not in held_urls]
+              #
+              # Widened 2026-09-05: FSA-PRIN-43-2026 (Sainsbury's olives, Listeria)
+              # arrived from the official-feed collector with Company AND Brand empty
+              # and was rejected for "neither Company nor Brand is set" — the only
+              # thing wrong with a row whose title began "Sainsbury's recalls". So the
+              # hold is now decided AFTER confirm() runs, on the problems themselves:
+              # when every problem is a missing-firm problem the row is held; when
+              # anything else is wrong it is blocked as before, with all reasons.
+              held: List[Dict[str, Any]] = []
 
               print(f"Agent 3 (confirmer): {len(lane)} row(s) in lane, "
-                    f"{len(held)} held for reviewer 2 (Company empty, Brand set), "
                     f"{len(already_rejected)} already rejected by reviewer 2 "
                     f"(commit={commit})")
-              for r in held:
-                  print(f"  HOLD    {str(r.get('Product',''))[:40]:40s} | Company empty; "
-                        f"Brand={str(r.get('Brand',''))[:24]!r} — reviewer 2 to read the firm")
               if not lane and not already_rejected:
                   print("Nothing to confirm.")
                   return 0
@@ -470,7 +484,12 @@ jobs:
               confirmed, blocked = [], []
               for i, row in enumerate(lane, 1):
                   probs = confirm(row, published_now)
-                  if probs:
+                  if probs and all(_is_firm_problem(p) for p in probs):
+                      held.append(row)
+                      print(f"  [{i}/{len(lane)}] HOLD    "
+                            f"{str(row.get('Product',''))[:40]:40s} | {probs[0][:40]} "
+                            f"— reviewer 2 to read the firm from the notice")
+                  elif probs:
                       blocked.append((row, probs))
                       print(f"  [{i}/{len(lane)}] BLOCK   "
                             f"{str(row.get('Product',''))[:40]:40s} | {probs[0][:52]}")
@@ -555,9 +574,9 @@ jobs:
                   n = str(full_pending[idx].get("Notes", "")).strip()
                   if HOLD_MARK not in n:
                       full_pending[idx]["Notes"] = (
-                          n + f" {HOLD_MARK} {today}: Company empty, Brand "
-                          f"{str(row.get('Brand',''))[:40]!r}; not published and not "
-                          "rejected — reviewer 2 to read the recalling firm from the "
+                          n + f" {HOLD_MARK} {today}: no recalling firm on the row "
+                          f"(Brand {str(row.get('Brand',''))[:40]!r}); not published and "
+                          "not rejected — reviewer 2 to read the firm from the "
                           "notice]").strip()[:1000]
 
               new_approved, remaining, archived = promote_approved(
