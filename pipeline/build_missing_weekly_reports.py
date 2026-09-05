@@ -66,24 +66,41 @@ def _iso_year(d: date) -> int:
     return d.isocalendar().year
 
 
+# ─── Which day anchors a week (2026-09-05) ────────────────────────────────
+# Mirrors anchor_for() in docs/build_weekly_report_afts.py — keep the two in
+# step. Weeks up to 2026-W35 were published under the Friday rule and are
+# anchored on their Friday; from 2026-W36 a week is anchored on its Sunday
+# (Mon-Sun data, shipped Monday). W36 is the ten-day bridge, 28 Aug - 6 Sep.
+ISO_SWITCH = (2026, 36)
+
+
+def anchor_for(d: date) -> date:
+    """Anchor date of the ISO week containing d: Friday before ISO_SWITCH,
+    Sunday from ISO_SWITCH on."""
+    iso_year, iso_week, iso_dow = d.isocalendar()
+    monday = d - timedelta(days=iso_dow - 1)
+    if (iso_year, iso_week) < ISO_SWITCH:
+        return monday + timedelta(days=4)
+    return monday + timedelta(days=6)
+
+
 def _prev_friday(d: date) -> date:
-    """Return the Friday on or before d."""
+    """Return the Friday on or before d (Friday-rule weeks only)."""
     # Monday=0 .. Friday=4 .. Sunday=6
     days_since_friday = (d.weekday() - 4) % 7  # Friday->0, Sat->1, Sun->2, Mon->3, ...
     return d - timedelta(days=days_since_friday)
 
 
-def iter_week_ends(start_friday: date, end_friday: date) -> List[date]:
-    """Return every Friday from start_friday to end_friday inclusive."""
-    if start_friday.weekday() != 4:
-        start_friday = _prev_friday(start_friday)
-    if end_friday.weekday() != 4:
-        end_friday = _prev_friday(end_friday)
+def iter_week_ends(start: date, end: date) -> List[date]:
+    """Return the anchor date of every ISO week from the one containing
+    `start` to the one containing `end`, inclusive — Fridays up to W35,
+    Sundays from W36."""
     out = []
-    cur = start_friday
-    while cur <= end_friday:
+    cur = anchor_for(start)
+    last = anchor_for(end)
+    while cur <= last:
         out.append(cur)
-        cur += timedelta(days=7)
+        cur = anchor_for(cur + timedelta(days=7))
     return out
 
 
@@ -111,7 +128,8 @@ def run_builder(builder: Path, week_end: date, xlsx: Path, index_html: Path) -> 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--this-week-end", required=True, help="Friday of the week we're closing now (YYYY-MM-DD)")
+    ap.add_argument("--this-week-end", required=True,
+                    help="Any date in the week being closed (YYYY-MM-DD); snapped to that week's anchor — its Sunday from 2026-W36, its Friday before")
     ap.add_argument("--from", dest="from_date", default="",
                     help="Earliest week-ending Friday to consider (YYYY-MM-DD). "
                          "Empty -> default %s." % DEFAULT_FROM_WEEK_END.isoformat())
@@ -133,9 +151,12 @@ def main() -> int:
         log.error("docs/ not found at %s", docs_dir); return 2
 
     try:
-        this_week_end = date.fromisoformat(args.this_week_end)
+        this_week_end = anchor_for(date.fromisoformat(args.this_week_end))
     except ValueError:
         log.error("Invalid --this-week-end: %s", args.this_week_end); return 2
+    if this_week_end.isoformat() != args.this_week_end:
+        log.info("--this-week-end %s snapped to its week's anchor %s",
+                 args.this_week_end, this_week_end)
 
     if args.from_date.strip():
         try:
@@ -146,7 +167,7 @@ def main() -> int:
         from_week_end = DEFAULT_FROM_WEEK_END
 
     candidates = iter_week_ends(from_week_end, this_week_end)
-    log.info("Candidate week-end Fridays: %s",
+    log.info("Candidate week anchors: %s",
              ", ".join(d.isoformat() for d in candidates) or "(none)")
 
     have = existing_weeks(docs_dir)
@@ -165,10 +186,10 @@ def main() -> int:
     # If you change one, change the other.
     VISIBLE_WEEKS = int(os.getenv("FSIS_WEEKLY_VISIBLE", "4"))
     rebuild_window = {
-        this_week_end - timedelta(days=7 * i)
+        anchor_for(this_week_end - timedelta(days=7 * i))
         for i in range(VISIBLE_WEEKS)
     }
-    log.info("Rebuild window (most recent %d Fridays): %s",
+    log.info("Rebuild window (most recent %d weeks): %s",
              VISIBLE_WEEKS,
              ", ".join(d.isoformat() for d in sorted(rebuild_window, reverse=True)))
 
