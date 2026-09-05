@@ -1,0 +1,790 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20260905T064551Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; serotype enteritidis; food terms shell, eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
+          "quote": "2026-07-22 FDA White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, J",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d915facdcc2c7c9a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843742"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843742",
+          "quote": "2026-05-12 RASFF (EU) Salmonella Enteritidis in environment of egg laying facility from Northern Ireland",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "812b3195542e4eb9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552",
+          "quote": "2026-08-12 RASFF (EU) Salmonella Enteritidis in eggs from Belgium",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "61e9ff9d281a7feb"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387",
+          "quote": "2026-08-20 RASFF (EU) Salmonella Enteritidis in eggs",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d081620314668d2a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; food terms shell. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643",
+          "quote": "2026-05-29 RASFF (EU) Shelled pistachios",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "332641fb25492e70"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/844459"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/844459",
+          "quote": "2026-05-15 RASFF (EU) Obecność Salmonella Enteritidis w 2 z 5 próbek skórek z szyjek kurcząt // Salmonella Enter",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "1c188ffabe454efa"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847778"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847778",
+          "quote": "2026-05-29 RASFF (EU) Salmonella enteritidis in poultry meat",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "ce71b3b8ee5cba1c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22406/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22406/Interne",
+          "quote": "2026-06-01 RappelConso (FR) 10156-plh",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "39005ea37a2a2739"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/849398"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/849398",
+          "quote": "2026-06-08 RASFF (EU) Salmonella Enteritidis w mięsie z nogi kurczaka bez kości ze skórą/Salmonella Enteritidis ",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "8584b50c6f46326d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851868"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851868",
+          "quote": "2026-06-16 RASFF (EU) Salmonella Enteritidis in fresh chicken drumettes from Poland",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d0fa8b88688729e1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856904"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856904",
+          "quote": "2026-07-06 RASFF (EU) Salmonella enteritidis in frozen chicken pieces",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "ba7d7ecd25d0f157"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856821"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856821",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Enteritidis detected (4 out of 5 samples) in sliced chicken breast fillets, Pol",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "3e6646f28718e22f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856928"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856928",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Infantis (in 4 out of 5 units) and Salmonella Enteritidis (in 1 out of 5 units)",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "a7065878804c927e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856744"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856744",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Enteritidis detected (5 out of 5 samples) in chicken thighs from Poland.",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d2637bf6ac8ae77c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859223"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859223",
+          "quote": "2026-07-16 RASFF (EU) Salmonella Enteritidis detected (1 out of 5 samples) in chicken drumsticks",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d9985454e707884e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Œufs Frais x20",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "00cb9ee9b660e88b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Œufs Frais x30",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "05be98a00436a105"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865997"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865997",
+          "quote": "2026-08-13 RASFF (EU) Salmonella Enteritidis detected (5 out of 5 samples) in boneless, skinless chicken thighs.",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "4f45dc8c6c364a35"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359",
+          "quote": "2026-08-14 RASFF (EU) Salmonella enteritidis in gallina busto/Salmonella Enteritidis in frozen whole hens",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "ea918eeaa7a69f5f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865136"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865136",
+          "quote": "2026-08-18 RASFF (EU) Stwierdzenie obecności Salmonella Enteritidis w filecie  z piersi kurczaka,  pochodzącego ",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "4c592e05710556a0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869642"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869642",
+          "quote": "2026-08-28 RASFF (EU) Salmonella enteritidis and infantis in chicken meat originating in Romania",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d7d23de380cb6e08"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/870022"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/870022",
+          "quote": "2026-09-01 RASFF (EU) Presence of Salmonella enteritidis in pumpkin seeds from France",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "a48b63295614124a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/legacy-snack-solutions-voluntarily-recalls-giant-eagle-baked-pita-chips-parmesan-garlic-herb-because"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/legacy-snack-solutions-voluntarily-recalls-giant-eagle-baked-pita-chips-parmesan-garlic-herb-because",
+          "quote": "2026-05-08 FDA Giant Eagle Baked Pita Chips with Parmesan, Garlic & Herb 7.33 oz (UPC 0 3003496507 5, Bes",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ae596ae1c8e601eb"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jonco-industries-recalls-certain-consumer-sized-white-cheddar-seasoning-products-because-possible"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/jonco-industries-recalls-certain-consumer-sized-white-cheddar-seasoning-products-because-possible",
+          "quote": "2026-05-08 FDA White Cheddar Seasoning — 3 SKUs: Williams Sonoma Popcorn Sampler Gift Box (lot 088594-2-1",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4288632927bbb56b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/spring-mulberry-expands-voluntary-recall-select-chocolate-bars-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/salmonella-outbreak-traced-to-eggs-declared-over-with-more-than-130-patients",
+          "quote": "134 patients having been identified across 18 states | There have been 34 hospitalizations, and no deaths have been reported | first patient having become ill on Nov. 21, 2025",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/spring-mulberry-expands-voluntary-recall-select-chocolate-bars-because-possible-health-risk",
+          "quote": "2026-05-08 FDA Chocolate bars — 2nd expansion (12 flavors): Blood Orange, Coffee, Earl Grey, Lavender Ros",
+          "retrieved_utc": "2026-09-05T06:45:32+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "cba170d95ab4e356"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article; serotype o145:h28; food terms frozen, organic. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145",
+          "quote": "at least 17 patients in two states sick in that outbreak | E. coli O145:H28",
+          "retrieved_utc": "2026-09-05T06:45:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due",
+          "quote": "2026-07-06 FDA Organic IQF Frozen Blueberries 10 oz",
+          "retrieved_utc": "2026-09-05T06:45:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "c6493ac03df6c2c9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article; serotype o145:h28; food terms frozen, organic. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145",
+          "quote": "at least 17 patients in two states sick in that outbreak | E. coli O145:H28",
+          "retrieved_utc": "2026-09-05T06:45:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple",
+          "quote": "2026-09-03 FDA Organic Triple Berry Blend",
+          "retrieved_utc": "2026-09-05T06:45:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "9342944c93ecc366"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1181-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: country named in the article; serotype o145:h28; food terms frozen, organic. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145",
+          "quote": "at least 17 patients in two states sick in that outbreak | E. coli O145:H28",
+          "retrieved_utc": "2026-09-05T06:45:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1181-2026",
+          "quote": "2026-07-03 FDA Organic Whole Blueberries, Net Wt 10 oz (284g) plastic bag, packed in 8 bags per case of 1",
+          "retrieved_utc": "2026-09-05T06:45:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d7cb9939622f0c12"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article; food terms frozen, organic. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/great-value-frozen-organic-berry-blend-recalled-for-e-coli-o145",
+          "quote": "at least 17 patients in two states sick in that outbreak | E. coli O145:H28",
+          "retrieved_utc": "2026-09-05T06:45:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e",
+          "quote": "2026-07-30 FDA Organic IQF Frozen Blueberries and Whole Mixed Berries, 10 oz and 48 oz",
+          "retrieved_utc": "2026-09-05T06:45:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "4e41f166152cce17"
+    }
+  ]
+}
