@@ -294,6 +294,16 @@ _SENTENCE_STARTERS = {
     # Regulatory bodies and frameworks (treat as boilerplate, not firm)
     "DGCCRF", "Direction", "Préfecture", "Préfectoral", "Préfet",
     "Ministère", "République", "France", "Europe", "Européen", "Européenne",
+    # Hazard phrases (audit 2026-09-05). motif_rappel is one of the texts
+    # scanned, and "Présence de Listeria" / "Détection de Salmonella" are
+    # capitalised two-word phrases that this scanner accepted as a firm.
+    "Présence", "Presence", "Détection", "Detection", "Dépassement",
+    "Depassement", "Contamination", "Suspicion", "Teneur", "Absence",
+    "Résultat", "Résultats", "Analyse", "Analyses", "Autocontrôle",
+    "Possible", "Non", "Listeria", "Salmonella", "Salmonelle",
+    "Escherichia", "Bacillus", "Clostridium", "Campylobacter", "Norovirus",
+    "Aflatoxine", "Aflatoxines", "Ochratoxine", "Histamine", "Toxine",
+    "Toxines", "Mycotoxine", "Mycotoxines", "Corps", "Fragments",
 }
 
 
@@ -348,6 +358,39 @@ def _extract_firm_from_text(*texts: str) -> str:
     return ""
 
 
+def _distributor_as_company(distributeurs: str) -> str:
+    """The firm for an unbranded fiche that names no responsible company
+    (audit 2026-09-04/05).
+
+    V2 writes `distributeurs` in lower case ("carrefour hyper dax
+    uniquement"), so the capitalised-phrase recovery above never sees it,
+    and fiches 23420/23421 (rillettes d'oie / steak haché sold "sans
+    marque" at one Carrefour, Listeria and Salmonella) left here with
+    Company empty — and were evicted by the publish gate on every run.
+    The register already writes this case as Company = the distributor
+    ("Carrefour Market Gometz-la-Ville", "Super U Mirepoix", "Intermarché
+    Hyper Annemasse"). Only a SINGLE named distributor qualifies; a list,
+    or a phrase that stands in for a name ("liste ci jointe", "gms",
+    "vente directe"), returns "" — never a guess.
+    """
+    import re as _re
+    s = _re.sub(r"\s+", " ", str(distributeurs or "")).strip(" .;,")
+    if not s or _re.search(r"[;,/]| - |\bet\b", s):
+        return ""
+    generic = ("liste", "jointe", "pièce", "piece", "voir ", "cf ", "gms",
+               "grandes", "surfaces", "vente directe", "restauration",
+               "commerce", "enseigne", "magasins", "national", "france",
+               "internet", "en ligne", "distributeurs", "divers", "toute",
+               "tous ", "toutes ")
+    if any(g in s.lower() for g in generic):
+        return ""
+    s = _re.sub(r"^uniquement\s+|\s+uniquement$", "", s, flags=_re.I).strip()
+    if not s or len(s) > 80:
+        return ""
+    co, _ = normalise_company_brand(s, "—")
+    return co
+
+
 class RappelConsoScraper(BaseScraper):
     AGENCY = "RappelConso (FR)"
     COUNTRY = "France"
@@ -387,6 +430,19 @@ class RappelConsoScraper(BaseScraper):
         "sous_categorie_produit",
         "sous_categorie",
     )
+    # RappelConso's top-level categories other than "Alimentation", as the
+    # portal lists them (lower-cased). "Animaux" is pet food — out of AFTS
+    # scope by the operator rule. Matched on the category field only,
+    # never on the sub-category, and only as a skip list.
+    NON_FOOD_CATEGORIES = frozenset({
+        "maison-habitat", "maison habitat", "automobiles et moyens de déplacement",
+        "bébés-enfants", "bebes-enfants", "communication-médias",
+        "communication-medias", "hygiène-beauté", "hygiene-beaute",
+        "sports-loisirs", "vêtements-mode", "vetements-mode",
+        "appareils électriques", "appareils electriques",
+        "équipements de la maison", "equipements de la maison",
+        "animaux", "produits chimiques", "bricolage-jardinage",
+    })
     # BRAND — multiple historical names. Audit 2026-05-07 added the V2
     # canonical name (`marque_produit`) at the top — confirmed from the
     # orchestrator's first-record key dump on the L3 bulk JSON. With this
@@ -676,6 +732,7 @@ class RappelConsoScraper(BaseScraper):
         out: List[Recall] = []
         skipped_by_date = 0
         skipped_by_pathogen = 0
+        skipped_non_food = 0
         rows_with_empty_company = 0
         rows_with_synthesized_brand = 0
 
@@ -694,8 +751,22 @@ class RappelConsoScraper(BaseScraper):
                 # nutrition", etc. — never "Alimentation". The V2 datasets
                 # are food-only by definition, so no filter needed here.
                 cat, _ = self._first(rec, self.CATEGORY_FIELDS)
-                # cat is now collected for downstream use only (Notes
-                # enrichment, fallback Product) — not as a filter.
+                # cat is collected for downstream use (Notes enrichment,
+                # fallback Product) — and, since 2026-09-05, for ONE
+                # negative check. "Food-only by definition" above was not
+                # true: fiche 23001 (FertilTech copper sulphate, filed under
+                # "Maison-Habitat > Produits chimiques", nickel sulphate
+                # hazard) came through this scraper on 2026-09-03 AND again
+                # on 2026-09-04 after being archived out of scope. A record
+                # whose top-level category is one of RappelConso's non-food
+                # categories is skipped; anything else (Alimentation, or a
+                # V2 food sub-category surfacing in this field) still passes,
+                # so no food row can be lost to this check.
+                if cat and cat.strip().lower() in self.NON_FOOD_CATEGORIES:
+                    skipped_non_food += 1
+                    log.info("RappelConso: skipped non-food fiche %s (%s)",
+                             self._first(rec, self.FID_FIELDS)[0], cat)
+                    continue
 
                 reason, reason_field = self._first(rec, self.REASON_FIELDS)
                 risks, risks_field = self._first(rec, self.RISKS_FIELDS)
@@ -759,6 +830,11 @@ class RappelConsoScraper(BaseScraper):
                     if recovered_firm:
                         company_raw = recovered_firm
                         company_field = "(recovered from free text)"
+                    elif was_unbranded or not brand_raw:
+                        distributor = _distributor_as_company(distrib_text)
+                        if distributor:
+                            company_raw = distributor
+                            company_field = "(distributor, unbranded fiche)"
 
                 # If we still have no Company, fall back to Brand
                 # (single retailer's own-brand recalls). If we have no
@@ -842,10 +918,10 @@ class RappelConsoScraper(BaseScraper):
 
         log.info(
             "RappelConso: %d pathogen recalls (skipped: %d by date, "
-            "%d non-pathogen). Quality flags: %d empty Company, "
-            "%d brand synthesized.",
+            "%d non-pathogen, %d non-food category). Quality flags: "
+            "%d empty Company, %d brand synthesized.",
             len(out), skipped_by_date,
-            skipped_by_pathogen, rows_with_empty_company,
+            skipped_by_pathogen, skipped_non_food, rows_with_empty_company,
             rows_with_synthesized_brand,
         )
         return out
