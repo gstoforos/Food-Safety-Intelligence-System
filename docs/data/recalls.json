@@ -18,82 +18,82 @@
  {
   "Date": "2026-09-04",
   "Source": "RappelConso (FR)",
-  "Company": "Fromagerie les 4 Fermes",
+  "Company": "Fromagerie de Burdignes (Fromagerie les 4 Fermes)",
   "Brand": "Fromagerie les 4 Fermes",
-  "Product": "st martin entier - 1/6 - 1/4",
+  "Product": "St Martin (whole, 1/6, 1/4), lot 110626",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de Listeria monocytogenes",
+  "Reason": "Suspected Listeria monocytogenes contamination",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23448/interne",
-  "Notes": "carrefour bourg argental / intermarché davézieux / fromagerie du pont des chèvres / panier condriot/ intermarché péage d [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "carrefour bourg argental / intermarché davézieux / fromagerie du pont des chèvres / panier condriot/ intermarché péage d [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [incident:fr:4fermes-cheese-2026-09-04] [review 2026-09-05: verified on the fiche — origin \"FROMAGERIE DE BURDIGNES FROMAGERIE LES 4 FERMES\", motif \"Suspicion de Listeria monocytogenes\", published 04/09/2026; five cheeses from one dairy on one day are one incident. Product named from the fiche title (the four tomme rows all read \"tomme entière\"); Reason translated.]"
  },
  {
   "Date": "2026-09-04",
   "Source": "RappelConso (FR)",
-  "Company": "Fromagerie les 4 Fermes",
+  "Company": "Fromagerie de Burdignes (Fromagerie les 4 Fermes)",
   "Brand": "Fromagerie les 4 Fermes",
-  "Product": "tomme entière - 1/8 - 1/4",
+  "Product": "Tomme fenugrec (whole, 1/8, 1/4), lot 060726",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de Listeria monocytogenes",
+  "Reason": "Suspected Listeria monocytogenes contamination",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23449/interne",
-  "Notes": "intermarché annonay / jasserie / camping le cottet / le cabanon/ maison st joseph [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "intermarché annonay / jasserie / camping le cottet / le cabanon/ maison st joseph [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [incident:fr:4fermes-cheese-2026-09-04] [review 2026-09-05: verified on the fiche — origin \"FROMAGERIE DE BURDIGNES FROMAGERIE LES 4 FERMES\", motif \"Suspicion de Listeria monocytogenes\", published 04/09/2026; five cheeses from one dairy on one day are one incident. Product named from the fiche title (the four tomme rows all read \"tomme entière\"); Reason translated.]"
  },
  {
   "Date": "2026-09-04",
   "Source": "RappelConso (FR)",
-  "Company": "Fromagerie les 4 Fermes",
+  "Company": "Fromagerie de Burdignes (Fromagerie les 4 Fermes)",
   "Brand": "Fromagerie les 4 Fermes",
-  "Product": "tomme entière - 1/8 - 1/4",
+  "Product": "Tomme tomate & basilic (whole, 1/8, 1/4), lot 080626",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de Listeria monocytogenes",
+  "Reason": "Suspected Listeria monocytogenes contamination",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23450/interne",
-  "Notes": "intermarché annonay / fromagerie du pont des chèvres / leclerc st rambert d'albon/ camping le cottet/; jasserie/ maison s [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "intermarché annonay / fromagerie du pont des chèvres / leclerc st rambert d'albon/ camping le cottet/; jasserie/ maison s [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [incident:fr:4fermes-cheese-2026-09-04] [review 2026-09-05: verified on the fiche — origin \"FROMAGERIE DE BURDIGNES FROMAGERIE LES 4 FERMES\", motif \"Suspicion de Listeria monocytogenes\", published 04/09/2026; five cheeses from one dairy on one day are one incident. Product named from the fiche title (the four tomme rows all read \"tomme entière\"); Reason translated.]"
  },
  {
   "Date": "2026-09-04",
   "Source": "RappelConso (FR)",
-  "Company": "Fromagerie les 4 Fermes",
+  "Company": "Fromagerie de Burdignes (Fromagerie les 4 Fermes)",
   "Brand": "Fromagerie les 4 Fermes",
-  "Product": "tomme entière - 1/8 - 1/4",
+  "Product": "Tomme de Burdignes (whole, 1/8, 1/4), lot 150626",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de Listeria monocytogenes",
+  "Reason": "Suspected Listeria monocytogenes contamination",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23451/interne",
-  "Notes": "carrefour / intermarché / proxi [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "carrefour / intermarché / proxi [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [incident:fr:4fermes-cheese-2026-09-04] [review 2026-09-05: verified on the fiche — origin \"FROMAGERIE DE BURDIGNES FROMAGERIE LES 4 FERMES\", motif \"Suspicion de Listeria monocytogenes\", published 04/09/2026; five cheeses from one dairy on one day are one incident. Product named from the fiche title (the four tomme rows all read \"tomme entière\"); Reason translated.]"
  },
  {
   "Date": "2026-09-04",
   "Source": "RappelConso (FR)",
-  "Company": "Fromagerie les 4 Fermes",
+  "Company": "Fromagerie de Burdignes (Fromagerie les 4 Fermes)",
   "Brand": "Fromagerie les 4 Fermes",
-  "Product": "tomme entière - 1/8 - 1/4",
+  "Product": "Tomme poivre (whole, 1/8, 1/4), lot 160726",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Suspicion de Listeria monocytogenes",
+  "Reason": "Suspected Listeria monocytogenes contamination",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23453/interne",
-  "Notes": "auberge le vieux frêne/ auberge du sapt [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "auberge le vieux frêne/ auberge du sapt [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [incident:fr:4fermes-cheese-2026-09-04] [review 2026-09-05: verified on the fiche — origin \"FROMAGERIE DE BURDIGNES FROMAGERIE LES 4 FERMES\", motif \"Suspicion de Listeria monocytogenes\", published 04/09/2026; five cheeses from one dairy on one day are one incident. Product named from the fiche title (the four tomme rows all read \"tomme entière\"); Reason translated.]"
  },
  {
   "Date": "2026-09-04",
@@ -288,6 +288,22 @@
   "Notes": "scaso [operator review 2026-09-05: verified against fiche 23443 — Alimentation > Viandes, brand CASTEL ARTISAN CONSERVEUR, responsible company CASTEL FOIE GRAS, distributor SCASO, GTIN 3700028400925, published 04/09/2026. Tier 2 as the register tiers glass fragments (laceration risk).]"
  },
  {
+  "Date": "2026-09-04",
+  "Source": "RappelConso (FR)",
+  "Company": "Ravalec",
+  "Brand": "Ravalec",
+  "Product": "Le Petit Cornouaillais dry sausage — nature, au Comté, aux noisettes, au piment d'Espelette — lot 270626, best before 04/11/2026",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria (<10 cfu/g) on a dry sausage",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23446/interne",
+  "Notes": "[incident:fr:ravalec-saucisson-2026-09-02] [operator review 2026-09-05: added from fiche 23446 (ref. 2026-09-0073), published 04/09/2026 — motif \"PRESENCE DE LISTERIA <10 UFC/g sur un saucisson sec\", sold 04/08–25/08/2026 at Ravalec Traiteur Bénodet, Pont l'Abbé and Quimper. Missed by the scraper; found by the external review. Same producer, finding and shops as fiche 23407 (2 Sep, lot 120626) — one incident, so the distinct-incident count does not rise.]"
+ },
+ {
   "Date": "2026-09-03",
   "Source": "RappelConso (FR)",
   "Company": "Neutre",
@@ -341,7 +357,7 @@
   "Company": "Frutas y Hortalizas del Sur S.A.",
   "Brand": "Great Value",
   "Product": "Organic Triple Berry Blend",
-  "Pathogen": "Escherichia coli O145",
+  "Pathogen": "E. coli O145 (STEC)",
   "Reason": "Possible E. coli O145:H28 contamination; expands the 3 July 2026 frozen organic IQF blueberries recall. Part of the confirmed multistate outbreak: FDA advisory updated 3 September 2026 reports 17 illnesses, 6 hospitalizations in FL and GA, and names this lot (6040 01-6). FDA notice: no illnesses associated with this specific lot to date.",
   "Class": "Recall",
   "Country": "United States",
@@ -349,7 +365,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple",
-  "Notes": "[outbreak:fda:e-coli-o145h28-frozen-blueberries-july-2026] FDA listing HTML (Layer 1) [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [audit 2026-09-04: Pathogen \"Escherichia coli (generic)\"→\"Escherichia coli O145\" — the FDA company announcement (2 Sep 2026, listed 3 Sep) names E. coli O145:H28, and the FDA outbreak advisory https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-e-coli-o145h28-frozen-blueberries-july-2026 (updated 3 Sep 2026: 17 ill, 6 hospitalized, FL/GA) names this product and lot. Outbreak=1 with the same outbreak id as the 2026-07-06 GreenWise keeper row. Reports count outbreak EVENTS by id (_outbreak_id.count_events, wired into the weekly builder 2026-08-11), so flagging this expansion does not double-count the blueberries outbreak — it makes the September issue show the outbreak-linked recall it actually contains. [operator decision 2026-09-05, reversing the same-day note that had left it at 0 under the older one-flag-per-event rule.]]"
+  "Notes": "[outbreak:fda:e-coli-o145h28-frozen-blueberries-july-2026] FDA listing HTML (Layer 1) [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [audit 2026-09-04: Pathogen \"Escherichia coli (generic)\"→\"Escherichia coli O145\" — the FDA company announcement (2 Sep 2026, listed 3 Sep) names E. coli O145:H28, and the FDA outbreak advisory https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-e-coli-o145h28-frozen-blueberries-july-2026 (updated 3 Sep 2026: 17 ill, 6 hospitalized, FL/GA) names this product and lot. Outbreak=1 with the same outbreak id as the 2026-07-06 GreenWise keeper row. Reports count outbreak EVENTS by id (_outbreak_id.count_events, wired into the weekly builder 2026-08-11), so flagging this expansion does not double-count the blueberries outbreak — it makes the September issue show the outbreak-linked recall it actually contains. [operator decision 2026-09-05, reversing the same-day note that had left it at 0 under the older one-flag-per-event rule.]] [review 2026-09-05: Pathogen label \"Escherichia coli O145\" → \"E. coli O145 (STEC)\", the register's canonical form, so the hazard profile files it under STEC while keeping the serotype; O145:H28 is in Reason.]"
  },
  {
   "Date": "2026-09-03",
@@ -477,7 +493,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23407/interne",
-  "Notes": "nos magasins ravalec traiteur [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [audit 2026-09-03: Reason translated FR->EN per the English-output rule; source wording: \"Presence of Listeria <10 ufc/g sur un saucisson sec\"]"
+  "Notes": "nos magasins ravalec traiteur [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [audit 2026-09-03: Reason translated FR->EN per the English-output rule; source wording: \"Presence of Listeria <10 ufc/g sur un saucisson sec\"] [incident:fr:ravalec-saucisson-2026-09-02] [review 2026-09-05: fiche 23446 (4 Sep, Le Petit Cornouaillais, lot 270626) reports the same finding — Listeria <10 cfu/g on dry sausage — from the same producer and the same three Finistère shops; grouped as one incident.]"
  },
  {
   "Date": "2026-09-02",
@@ -502,14 +518,14 @@
   "Brand": "Keraliou",
   "Product": "coque moyenne française",
   "Pathogen": "Escherichia coli (generic)",
-  "Reason": "Présence e.coli",
+  "Reason": "Presence of E. coli (indicator organism, strain not specified)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23408/interne",
-  "Notes": "restaurants, traiteur, supermarché [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "restaurants, traiteur, supermarché [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [review 2026-09-05: Reason \"Présence e.coli\" translated; the fiche names no strain — a hygiene-indicator finding in live bivalves, which is why Pathogen reads \"(generic)\".]"
  },
  {
   "Date": "2026-09-02",
@@ -517,15 +533,15 @@
   "Company": "Nollens",
   "Brand": "Nollens",
   "Product": "pilon de cuisse de poulet brut et mariné",
-  "Pathogen": "Salmonella",
-  "Reason": "Detection of Salmonella typhimurium",
+  "Pathogen": "Salmonella Typhimurium",
+  "Reason": "Detection of Salmonella Typhimurium",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23410/interne",
-  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [incident:fr:nollens-poultry-2026-09-02] [review 2026-09-05: verified on fiches 23410 and 23416 — one establishment (BE-E100786-EG), one use-by date (22/08/2026), one finding (Salmonella Typhimurium), distributor Grand Frais; the seven cuts are one incident. Pathogen now names the serovar the notice gives.]"
  },
  {
   "Date": "2026-09-02",
@@ -533,15 +549,15 @@
   "Company": "Nollens",
   "Brand": "Nollens",
   "Product": "haut de cuisse de poulet brut et mariné",
-  "Pathogen": "Salmonella",
-  "Reason": "Detection of Salmonella typhimurium",
+  "Pathogen": "Salmonella Typhimurium",
+  "Reason": "Detection of Salmonella Typhimurium",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23411/interne",
-  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [incident:fr:nollens-poultry-2026-09-02] [review 2026-09-05: verified on fiches 23410 and 23416 — one establishment (BE-E100786-EG), one use-by date (22/08/2026), one finding (Salmonella Typhimurium), distributor Grand Frais; the seven cuts are one incident. Pathogen now names the serovar the notice gives.]"
  },
  {
   "Date": "2026-09-02",
@@ -549,15 +565,15 @@
   "Company": "Nollens",
   "Brand": "Nollens",
   "Product": "gésier de poulet",
-  "Pathogen": "Salmonella",
-  "Reason": "Detection of Salmonella typhimurium",
+  "Pathogen": "Salmonella Typhimurium",
+  "Reason": "Detection of Salmonella Typhimurium",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23412/interne",
-  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [incident:fr:nollens-poultry-2026-09-02] [review 2026-09-05: verified on fiches 23410 and 23416 — one establishment (BE-E100786-EG), one use-by date (22/08/2026), one finding (Salmonella Typhimurium), distributor Grand Frais; the seven cuts are one incident. Pathogen now names the serovar the notice gives.]"
  },
  {
   "Date": "2026-09-02",
@@ -565,15 +581,15 @@
   "Company": "Nollens",
   "Brand": "Nollens",
   "Product": "foie de poulet",
-  "Pathogen": "Salmonella",
-  "Reason": "Detection of Salmonella typhimurium",
+  "Pathogen": "Salmonella Typhimurium",
+  "Reason": "Detection of Salmonella Typhimurium",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23413/interne",
-  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [incident:fr:nollens-poultry-2026-09-02] [review 2026-09-05: verified on fiches 23410 and 23416 — one establishment (BE-E100786-EG), one use-by date (22/08/2026), one finding (Salmonella Typhimurium), distributor Grand Frais; the seven cuts are one incident. Pathogen now names the serovar the notice gives.]"
  },
  {
   "Date": "2026-09-02",
@@ -581,15 +597,15 @@
   "Company": "Nollens",
   "Brand": "Nollens",
   "Product": "cuisse de poulet brute et marinée",
-  "Pathogen": "Salmonella",
-  "Reason": "Detection of Salmonella typhimurium",
+  "Pathogen": "Salmonella Typhimurium",
+  "Reason": "Detection of Salmonella Typhimurium",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23414/interne",
-  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [incident:fr:nollens-poultry-2026-09-02] [review 2026-09-05: verified on fiches 23410 and 23416 — one establishment (BE-E100786-EG), one use-by date (22/08/2026), one finding (Salmonella Typhimurium), distributor Grand Frais; the seven cuts are one incident. Pathogen now names the serovar the notice gives.]"
  },
  {
   "Date": "2026-09-02",
@@ -597,15 +613,15 @@
   "Company": "Nollens",
   "Brand": "Nollens",
   "Product": "ailes de poulet brute et marinée",
-  "Pathogen": "Salmonella",
-  "Reason": "Detection of Salmonella typhimurium",
+  "Pathogen": "Salmonella Typhimurium",
+  "Reason": "Detection of Salmonella Typhimurium",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23415/interne",
-  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [incident:fr:nollens-poultry-2026-09-02] [review 2026-09-05: verified on fiches 23410 and 23416 — one establishment (BE-E100786-EG), one use-by date (22/08/2026), one finding (Salmonella Typhimurium), distributor Grand Frais; the seven cuts are one incident. Pathogen now names the serovar the notice gives.]"
  },
  {
   "Date": "2026-09-02",
@@ -613,15 +629,15 @@
   "Company": "Nollens",
   "Brand": "Nollens",
   "Product": "aiguillettes de poulet 500g",
-  "Pathogen": "Salmonella",
-  "Reason": "Detection of Salmonella typhimurium",
+  "Pathogen": "Salmonella Typhimurium",
+  "Reason": "Detection of Salmonella Typhimurium",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23416/interne",
-  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "grand frais [confirm-agent 2026-09-02: pending_gap_v3 → pending; independent checks passed] [incident:fr:nollens-poultry-2026-09-02] [review 2026-09-05: verified on fiches 23410 and 23416 — one establishment (BE-E100786-EG), one use-by date (22/08/2026), one finding (Salmonella Typhimurium), distributor Grand Frais; the seven cuts are one incident. Pathogen now names the serovar the notice gives.]"
  },
  {
   "Date": "2026-09-02",
@@ -1237,7 +1253,7 @@
   "Company": "Origin: Czechia | Notifying: Germany",
   "Brand": "—",
   "Product": "Deoxynivalenol (DON) in wheat from Czechia",
-  "Pathogen": "Mycotoxin",
+  "Pathogen": "Deoxynivalenol (DON)",
   "Reason": "Deoxynivalenol (DON) in wheat from Czechia; risk: serious; category: cereals and bakery products",
   "Class": "Alert",
   "Country": "Czechia",
@@ -1245,7 +1261,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869769",
-  "Notes": "[RASFF #2026.7679; classification: alert notification; category: cereals and bakery products; notifId=869769] [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "[RASFF #2026.7679; classification: alert notification; category: cereals and bakery products; notifId=869769] [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [review 2026-09-05: Pathogen \"Mycotoxin\" → \"Deoxynivalenol (DON)\" — the notification names the toxin.]"
  },
  {
   "Date": "2026-08-31",
@@ -1285,15 +1301,15 @@
   "Company": "Everything Sprouts, LLC",
   "Brand": "Everything Sprouts",
   "Product": "Robust Radish Mix, 5oz Cups",
-  "Pathogen": "Salmonella",
-  "Reason": "Potential to be contaminated with Shiga toxin-producing Escherichia coli (STEC) or Salmonella.",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC) + Salmonella",
+  "Reason": "May be contaminated with Shiga toxin-producing E. coli (STEC) or Salmonella; expansion (28 Aug 2026) of the recall tied to the FDA STEC and Salmonella sprouts outbreak investigation (55 illnesses, 4 hospitalizations, 15 states as of 31 Aug 2026); no illnesses reported for this product to date",
   "Class": "Recall",
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
-  "Outbreak": 0,
+  "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and",
-  "Notes": "FDA listing HTML (Layer 1) [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "FDA listing HTML (Layer 1) [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed] [outbreak:fda:shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026] [review 2026-09-05: the FDA outbreak advisory (updated 31 Aug 2026) names this Robust Radish Mix expansion; Outbreak 0→1 with the same outbreak id as the 22 Aug keeper row so it counts as one event, and Pathogen keeps BOTH hazards the notice names, as the reviewer asked.]"
  },
  {
   "Date": "2026-08-28",
