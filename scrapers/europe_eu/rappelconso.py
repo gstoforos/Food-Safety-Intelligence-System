@@ -391,6 +391,15 @@ def _distributor_as_company(distributeurs: str) -> str:
     return co
 
 
+def _is_non_food_category(cat: str) -> bool:
+    """True when the record's top-level category starts with one of the
+    portal's non-food categories (accent-insensitive)."""
+    import unicodedata as _ud
+    c = _ud.normalize("NFKD", str(cat or ""))
+    c = "".join(ch for ch in c if not _ud.combining(ch)).lower().strip()
+    return any(c.startswith(p) for p in RappelConsoScraper.NON_FOOD_PREFIXES)
+
+
 class RappelConsoScraper(BaseScraper):
     AGENCY = "RappelConso (FR)"
     COUNTRY = "France"
@@ -431,18 +440,19 @@ class RappelConsoScraper(BaseScraper):
         "sous_categorie",
     )
     # RappelConso's top-level categories other than "Alimentation", as the
-    # portal lists them (lower-cased). "Animaux" is pet food — out of AFTS
-    # scope by the operator rule. Matched on the category field only,
-    # never on the sub-category, and only as a skip list.
-    NON_FOOD_CATEGORIES = frozenset({
-        "maison-habitat", "maison habitat", "automobiles et moyens de déplacement",
-        "bébés-enfants", "bebes-enfants", "communication-médias",
-        "communication-medias", "hygiène-beauté", "hygiene-beaute",
-        "sports-loisirs", "vêtements-mode", "vetements-mode",
-        "appareils électriques", "appareils electriques",
-        "équipements de la maison", "equipements de la maison",
-        "animaux", "produits chimiques", "bricolage-jardinage",
-    })
+    # portal lists them ("Maison-Habitat", "Appareils électriques,
+    # électroménager", "Automobiles et moyens de déplacement", "Bébés-
+    # Enfants", "Hygiène-Beauté", "Sports-Loisirs", "Vêtements-Mode", ...).
+    # Matched as accent-stripped lower-case PREFIXES of the category field
+    # only, never on the sub-category, and only as a skip list: a food row
+    # cannot be lost to this check. "Animaux" is pet food — out of AFTS
+    # scope by the operator rule.
+    NON_FOOD_PREFIXES = (
+        "maison", "appareils", "automobile", "bebe", "communication",
+        "hygiene", "sports", "vetements", "equipements", "animaux",
+        "bricolage", "jardin", "produits chimiques", "jouets",
+        "puericulture", "sante", "materiel", "mobilier", "electro",
+    )
     # BRAND — multiple historical names. Audit 2026-05-07 added the V2
     # canonical name (`marque_produit`) at the top — confirmed from the
     # orchestrator's first-record key dump on the L3 bulk JSON. With this
@@ -762,7 +772,7 @@ class RappelConsoScraper(BaseScraper):
                 # categories is skipped; anything else (Alimentation, or a
                 # V2 food sub-category surfacing in this field) still passes,
                 # so no food row can be lost to this check.
-                if cat and cat.strip().lower() in self.NON_FOOD_CATEGORIES:
+                if cat and _is_non_food_category(cat):
                     skipped_non_food += 1
                     log.info("RappelConso: skipped non-food fiche %s (%s)",
                              self._first(rec, self.FID_FIELDS)[0], cat)
