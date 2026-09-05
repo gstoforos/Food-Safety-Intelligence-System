@@ -38,6 +38,49 @@ from scrapers._models import Recall
 log = logging.getLogger(__name__)
 
 
+_TITLE_FIRM_RE = re.compile(
+    r"^(?P<firm>.+?)\s+(?:recalls?|is recalling|are recalling|has recalled|"
+    r"have recalled|withdraws?|is withdrawing)\b", re.I)
+
+
+def _firm_from_item(item: dict) -> str:
+    """The recalling firm, from the record's own fields (audit 2026-09-05).
+
+    Order: reportingBusiness / business (dict or string) -> alertAuthor /
+    sender -> the firm named at the head of the title ("Sainsbury's recalls
+    ..."), which is how every FSA title is written. Returns "" when none of
+    them names a firm; never the headline.
+    """
+    for key in ("reportingBusiness", "business", "alertAuthor", "sender"):
+        v = item.get(key)
+        if isinstance(v, dict):
+            for k in ("commonName", "legalName", "name", "label"):
+                if v.get(k):
+                    return str(v[k]).strip()[:100]
+        elif isinstance(v, str) and v.strip():
+            return v.strip()[:100]
+    m = _TITLE_FIRM_RE.match(str(item.get("title") or "").strip())
+    if m:
+        firm = m.group("firm").strip(" \t-–—:")
+        if 2 <= len(firm) <= 80:
+            return firm
+    return ""
+
+
+def _products_from_item(item: dict) -> str:
+    """productDetails[].productName joined, or "" when absent."""
+    pd = item.get("productDetails", [])
+    if isinstance(pd, dict):
+        pd = [pd]
+    names = []
+    for p in pd or []:
+        if isinstance(p, dict) and p.get("productName"):
+            n = str(p["productName"]).strip()
+            size = str(p.get("packSizeDescription") or "").strip()
+            names.append(f"{n} {size}".strip() if size and size not in n else n)
+    return "; ".join(names)
+
+
 class FSAUKScraper(BaseScraper):
     AGENCY = "FSA (UK)"
     COUNTRY = "United Kingdom"
@@ -117,7 +160,14 @@ class FSAUKScraper(BaseScraper):
             # Every alert gets a diagnostic line. PRIN ID is extracted
             # from the @id URL (e.g. .../alert/fsa-prin-20-2026).
             pub_dict = item.get("publication") if isinstance(item.get("publication"), dict) else {}
-            url = item.get("@id") or pub_dict.get("@id", "") or ""
+            # THE PUBLIC PAGE IS alertURL (audit 2026-09-05). @id is the
+            # linked-data record (data.food.gov.uk/food-alerts/id/FSA-PRIN-
+            # 43-2026) — JSON, not a notice — and the confirm agent rightly
+            # rejects it. FSA-PRIN-43-2026 (Sainsbury's olives, Listeria) was
+            # lost that way on 2026-09-04. The @id stays as the LAST
+            # fallback only so the PRIN id can still be read from it.
+            url = (item.get("alertURL") or item.get("alerturl")
+                   or item.get("@id") or pub_dict.get("@id", "") or "")
             url = str(url)
             prin_match = re.search(r"fsa-prin-(\d+)-(\d{4})", url, re.I)
             prin_id = (f"PRIN-{int(prin_match.group(1)):02d}-{prin_match.group(2)}"
@@ -172,9 +222,7 @@ class FSAUKScraper(BaseScraper):
                     n_drop_pathogen += 1
                     continue
 
-                business = item.get("business", {})
-                company = (business.get("name", "")
-                           if isinstance(business, dict) else "")
+                company = _firm_from_item(item)
 
                 alert_type = item.get("alertType", {})
                 klass = (alert_type.get("notation", "Alert")
@@ -182,9 +230,13 @@ class FSAUKScraper(BaseScraper):
 
                 out.append(self._new_recall(
                     Date=d.strftime("%Y-%m-%d"),
-                    Company=company or item.get("title", "")[:80],
+                    # No firm -> Company stays EMPTY and reviewer 2 reads
+                    # it from the notice. The old fallback stored the first
+                    # 80 characters of the headline as the Company.
+                    Company=company,
                     Brand="—",
-                    Product=item.get("title", "")[:300],
+                    Product=(_products_from_item(item)
+                             or item.get("title", ""))[:300],
                     Pathogen=matched_kw,
                     Reason=item.get("description", "")[:300],
                     Class=klass,
