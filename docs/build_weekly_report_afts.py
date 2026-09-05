@@ -286,6 +286,27 @@ try:
 except Exception:          # pragma: no cover - builder run outside the package
     WEEK_RULE = "iso"
 
+# ─── Which day anchors a week ──────────────────────────────────────────────
+# Every week up to 2026-W35 was published under the Friday rule and is
+# anchored on its FRIDAY (2026-W35 = Fri 28 Aug, covering 21-27 Aug). From
+# 2026-W36 a week is anchored on its SUNDAY and covers Mon-Sun; W36 itself
+# is the one-off bridge (Fri 28 Aug -> Sun 6 Sep, ten days) because the rows
+# dated 28-30 Aug were stamped W36 under the Friday rule before the switch.
+# A rebuild of an old week must keep its Friday anchor or its header would be
+# rewritten (a Sunday anchor on W35 would display 21-30 Aug). Every path
+# that derives a week's anchor from another date goes through anchor_for().
+ISO_SWITCH = (2026, 36)
+
+
+def anchor_for(d):
+    """The anchor date of the ISO week containing `d`: its Friday for weeks
+    before ISO_SWITCH, its Sunday from ISO_SWITCH on."""
+    iso_year, iso_week, iso_dow = d.isocalendar()
+    monday = d - timedelta(days=iso_dow - 1)
+    if (iso_year, iso_week) < ISO_SWITCH:
+        return monday + timedelta(days=4)      # Friday
+    return monday + timedelta(days=6)          # Sunday
+
 
 def filter_week(recalls, week_end):
     """Return rows belonging to the weekly report ending Friday `week_end`.
@@ -2898,7 +2919,7 @@ __CSS_PLACEHOLDER__
   Outbreak figures count <strong>distinct events</strong>, not rows &mdash;
   several recalls arising from one investigation are counted once.
 </p>
-
+{bridge_note}
 <div class="kpi-strip">
   <div class="kpi">
     <div class="kpi-label">Total Incidents</div>
@@ -3136,7 +3157,32 @@ def build_html(week_end, recalls, prev_week, original_published=None):
     if not allrows: allrows = t5rows
 
     d = stats["delta"]; dp = stats["delta_pct"]
-    if d < 0:
+    # BRIDGE EDITION (2026-09-05). W36 covers ten days (Fri 28 Aug - Sun
+    # 6 Sep 2026) because the register moved from Friday-rule weeks to ISO
+    # weeks. A raw count against a seven-day prior week would read as a
+    # +149% surge that is mostly calendar, so on a span longer than seven
+    # days the comparison is made per day and the header says so.
+    _ws_b, _we_b = _display_window(week_end, recalls)
+    span_days = (_we_b - _ws_b).days + 1
+    bridge_note = ""
+    if span_days > 7:
+        pt = stats.get("prev_total", 0)
+        rate_now = total / span_days
+        rate_prev = pt / 7.0
+        rp = round((rate_now - rate_prev) / max(rate_prev, 1e-9) * 100) if pt else 0
+        arrow, col = ("&#9650; +", "#dc2626") if rp > 0 else ("&#9660; ", "#059669") if rp < 0 else ("", "var(--muted)")
+        dh = ('<div class="kpi-delta" style="color:{}">{}{}% per day vs prior week '
+              '<span style="color:var(--muted)">({} in {} days vs {} in 7)</span></div>'
+              ).format(col, arrow, rp, total, span_days, pt)
+        bridge_note = (
+            '<p class="r-sub" style="margin-top:6px;border-left:3px solid #E8601A;padding-left:10px">'
+            '<strong>{}-day bridge edition.</strong> From this issue the weekly briefing covers one '
+            'calendar week, Monday to Sunday, and is published the following Monday; earlier issues '
+            'ran Friday to Thursday and shipped on Fridays. This edition spans {} to {} &mdash; {} days '
+            'rather than seven &mdash; so that no day falls between the two calendars. Counts are '
+            'therefore larger than a normal week; the comparison with the prior week is shown per day.'
+            '</p>').format(span_days, _fmt_date_short(_ws_b), _fmt_date(_we_b), span_days)
+    elif d < 0:
         dh = '<div class="kpi-delta" style="color:#059669">&#9660; {} ({}%) vs prior week</div>'.format(d, dp)
     elif d > 0:
         dh = '<div class="kpi-delta" style="color:#dc2626">&#9650; +{} (+{}%) vs prior week</div>'.format(d, dp)
@@ -3236,6 +3282,7 @@ def build_html(week_end, recalls, prev_week, original_published=None):
         published=pub, published_label=published_label, total=total,
         n_jurisdictions=len(stats["country_counts"]), delta_html=dh,
         n_notices=len(recalls), incident_note=_incident_note(recalls),
+        bridge_note=bridge_note,
         tier1=stats["tier1"], outbreaks=stats["outbreaks"],
         top_pathogen_name=esc(tp), top_cnt=tc, top_pct=tpct, co_dom_note=co_dom_note,
         analysis_html=analysis, top5_rows=t5rows, pathogen_rows=prows,
@@ -3321,16 +3368,25 @@ def update_dashboard_data(week_end, stats, all_recalls=None):
             if not d: continue
             try: rd = datetime.strptime(str(d)[:10], "%Y-%m-%d").date()
             except ValueError: continue
-            # Snap rd's ISO week to that week's Friday (ISO weekday 5 = Fri)
-            iso_year, iso_week, iso_dow = rd.isocalendar()
-            # Friday of the same ISO week:
-            mon = rd - timedelta(days=iso_dow - 1)
-            fri = mon + timedelta(days=4)
-            if fri <= today:
-                week_ends_seen.add(fri)
+            # Snap rd's ISO week to that week's own anchor day: its Friday
+            # for weeks before the ISO switch, its Sunday from 2026-W36.
+            # (Snapping every week to a Friday — the previous code — wrote
+            # the W36 bridge card as "28 Aug – 3 Sep" while the summary the
+            # mailer reads said "28 Aug – 6 Sep".) A row dated 28-30 Aug is
+            # stamped W36 and lands in the Sunday-anchored week via the
+            # stamp filter, so its own Friday anchor (W35) is also listed;
+            # that week simply reads its stamped rows.
+            anchor = anchor_for(rd)
+            if anchor <= today:
+                week_ends_seen.add(anchor)
+            # The bridge: rows dated 28-30 Aug 2026 belong to W36, which is
+            # anchored on Sun 6 Sep. Make sure that anchor is listed even
+            # when no row dated 31 Aug - 6 Sep exists yet.
+            if date(2026, 8, 28) <= rd <= date(2026, 8, 30) and date(2026, 9, 6) <= today:
+                week_ends_seen.add(date(2026, 9, 6))
 
         for we in sorted(week_ends_seen, reverse=True):
-            prev_we = we - timedelta(days=7)
+            prev_we = anchor_for(we - timedelta(days=7))
             wr = filter_week(all_recalls, we)
             if not wr: continue
             pr = filter_week(all_recalls, prev_we)
@@ -3377,6 +3433,10 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir):
         "dashboard_url":"https://www.advfood.tech/fsis-recalls",
         "week_num":wnum,"year":year,"week_start":ws.isoformat(),"week_end":we_display.isoformat(),
         "week_start_display":ws.strftime("%-d %b"),"week_end_display":we_display.strftime("%-d %b %Y"),
+        # Days in the reporting window; 7 for a normal week, 10 for the
+        # 2026-W36 bridge. The mailer can say so in the subject line.
+        "span_days":(we_display - ws).days + 1,
+        "bridge_edition":((we_display - ws).days + 1) > 7,
         "generated_utc":datetime.now(timezone.utc).isoformat(),
         "stats":{"total":stats["total"],"tier1":stats["tier1"],"outbreaks":stats["outbreaks"],
                  "delta":stats.get("delta",0),"delta_pct":stats.get("delta_pct",0)},
@@ -3524,8 +3584,10 @@ def refresh_stale_weeks(all_recalls, current_week_end, n_previous=1):
     Returns list of rebuilt week-end dates."""
     rebuilt = []
     for offset in range(1, n_previous + 1):
-        prev_end = current_week_end - timedelta(days=7 * offset)
-        prev_prev_end = prev_end - timedelta(days=7)
+        # Step back by ISO weeks, then take that week's own anchor day, so
+        # a Sunday-anchored current week refreshes W35 on its Friday.
+        prev_end = anchor_for(current_week_end - timedelta(days=7 * offset))
+        prev_prev_end = anchor_for(prev_end - timedelta(days=7))
         wnum = prev_end.isocalendar()[1]
         year = prev_end.year
         report_path = ROOT / "docs" / "{}-W{:02d}.html".format(year, wnum)
@@ -3563,7 +3625,10 @@ def refresh_stale_weeks(all_recalls, current_week_end, n_previous=1):
 
 def main():
     ap = argparse.ArgumentParser(description="Build AFTS weekly report")
-    ap.add_argument("--week-end", required=True, help="Friday YYYY-MM-DD")
+    ap.add_argument("--week-end", required=True,
+                    help="Anchor date YYYY-MM-DD: the week's Sunday from 2026-W36, "
+                         "its Friday for earlier weeks (any date in the week is "
+                         "snapped to the right anchor)")
     ap.add_argument("--xlsx", default=str(ROOT/"docs"/"data"/"recalls.xlsx"))
     ap.add_argument("--output", default=None)
     ap.add_argument("--refresh-previous", type=int, default=1, metavar="N",
@@ -3571,7 +3636,10 @@ def main():
     ap.add_argument("--no-refresh", action="store_true",
                     help="Skip stale-week refresh (build current week only)")
     args = ap.parse_args()
-    week_end = datetime.strptime(args.week_end,"%Y-%m-%d").date()
+    week_end = anchor_for(datetime.strptime(args.week_end,"%Y-%m-%d").date())
+    if week_end.isoformat() != args.week_end:
+        log.info("Anchor %s snapped to %s (%s-rule week)", args.week_end, week_end,
+                 "ISO" if (week_end.isocalendar()[0], week_end.isocalendar()[1]) >= ISO_SWITCH else "Friday")
     log.info("Building report for %s", week_end)
     all_r = load_recalls(Path(args.xlsx))
     log.info("Loaded %d recalls", len(all_r))
@@ -3586,7 +3654,7 @@ def main():
 
     # --- Build current week ---
     wr = filter_week(all_r, week_end)
-    pr = filter_week(all_r, week_end - timedelta(days=7))
+    pr = filter_week(all_r, anchor_for(week_end - timedelta(days=7)))
     log.info("This week: %d  Prev: %d", len(wr), len(pr))
     wnum = week_end.isocalendar()[1]
     out = Path(args.output) if args.output else ROOT/"docs"/"{}-W{:02d}.html".format(week_end.year, wnum)

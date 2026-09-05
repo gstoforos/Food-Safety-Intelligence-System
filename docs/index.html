@@ -137,6 +137,10 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .flinks a{color:var(--dim);text-decoration:none;margin-right:14px;padding:8px 0;min-height:44px;display:inline-flex;align-items:center;}
 .flinks a:hover{color:var(--ai);}
 .report-card{background:var(--s2);border:1px solid var(--brd);border-radius:3px;padding:18px;margin-bottom:12px;cursor:pointer;transition:border-color .15s;}
+.cadence-note{background:var(--s1);border:1px solid var(--brd);border-left:3px solid var(--brand);border-radius:3px;padding:12px 14px;margin-bottom:14px;font-size:12px;line-height:1.55;color:var(--muted);}
+.cadence-note strong{color:var(--text);font-weight:600;}
+.cadence-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.12em;margin-right:8px;}
+.report-bridge{display:inline-block;margin-left:8px;padding:1px 6px;border:1px solid var(--brand);border-radius:2px;color:var(--brand);font-size:9px;letter-spacing:.08em;}
 .report-card:hover{border-color:var(--ai);}
 .report-week{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;}
 .report-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--white);margin:6px 0 10px;}
@@ -313,6 +317,8 @@ tr:hover td{background:rgba(255,255,255,.02);}
 
 <div id="panel-reports" style="display:none">
 <div class="wrap"><div class="panel"><div class="sec">Weekly Pathogen Recall Reports · sent every Monday 11:00 Athens</div>
+<div class="cadence-note"><span class="cadence-tag">Cadence change · 7 Sep 2026</span>
+The weekly report now covers one calendar week, <strong>Monday to Sunday</strong>, and is published the following <strong>Monday</strong> — giving Thursday and Friday notices the weekend to be confirmed instead of falling into the next edition. Reports up to Week 35 (21–27 Aug) were built Friday to Thursday and shipped on Fridays. The <strong>7 September edition is a one-off ten-day bridge, 28 August → 6 September</strong>, so no day is left uncovered between the two rules; from Week 37 (7–13 Sep) every report is a plain seven-day week.</div>
 <div id="reports-list"><p class="loading">Loading reports/index.json…</p></div>
 </div></div>
 </div>
@@ -1183,8 +1189,13 @@ async function loadReports(){
   const renderRich = r => {
     const wstart = new Date(r.week_start).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
     const wend   = new Date(r.week_end  ).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    // A span longer than seven days is the one-off bridge edition (W36,
+    // 28 Aug – 6 Sep 2026) that joined the Friday-rule and ISO-week
+    // calendars; label it so the reader knows why the count is larger.
+    const spanDays = Math.round((new Date(r.week_end) - new Date(r.week_start)) / 86400000) + 1;
+    const bridge = spanDays > 7 ? `<span class="report-bridge">${spanDays}-day bridge edition</span>` : '';
     return `<div class="report-card" onclick="window.open('${esc(r.filename)}','_blank')">
-      <div class="report-week">Week ${r.week_num} · ${wstart} – ${wend}</div>
+      <div class="report-week">Week ${r.week_num} · ${wstart} – ${wend}${bridge}</div>
       <div class="report-title">${r.total} pathogen recalls · ${r.top_pathogen||'—'}</div>
       <div class="report-stats">
         <span><strong>${r.total}</strong> total</span>
