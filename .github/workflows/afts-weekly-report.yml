@@ -1,8 +1,8 @@
 name: AFTS Weekly Report
 
 # ==========================================================================
-# Runs every FRIDAY at 08:00 ATHENS TIME (not UTC).
-# Two DST crons + hour guard — identical pattern to afts-monthly-report.yml.
+# Runs every MONDAY (dispatched by FsisScheduler.gs at 04:00 UTC; the Athens
+# hour guard below accepts 06:00-12:00 Athens on a Monday).
 #
 # Timeline each Monday (all Athens time):
 #   08:00  this workflow fires → builds HTML, PDF, updates index
@@ -26,10 +26,10 @@ on:
   workflow_dispatch:
     inputs:
       force_week_end:
-        description: "YYYY-MM-DD (a Friday): force-build this week"
+        description: "YYYY-MM-DD: force-build the week containing this date (anchored on its Sunday from 2026-W36, its Friday before)"
         required: false
       backfill_from:
-        description: "YYYY-MM-DD (a Friday): oldest week to check in gap-fill"
+        description: "YYYY-MM-DD: oldest week to check in gap-fill"
         required: false
 
 permissions:
@@ -77,21 +77,27 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Resolve this-week's end-date (Friday)
+      - name: Resolve this-week's end-date (Sunday)
         if: steps.guard.outputs.run == 'true' && github.event.inputs.force_week_end == ''
         id: week
         run: |
-          # Weekly reports cover 7 days ending on FRIDAY (Sat..Fri span, per W16 gold standard).
-          # Scheduled runs fire Friday 08:00 Athens, so today IS the week-end Friday.
-          # For manual workflow_dispatch on non-Fridays, snap back to the most recent Friday.
+          # From 2026-W36 a weekly report covers one ISO week, Monday..SUNDAY,
+          # and ships on the Monday after it closes — so the week being
+          # closed ends YESTERDAY. This step used to snap to the most recent
+          # FRIDAY, which on Monday 7 Sep 2026 would have anchored W36 on
+          # Fri 4 Sep and built it as a Friday-rule week (28 Aug - 3 Sep),
+          # dropping 4-6 Sep from the header and defeating the switch.
+          # The builders snap any date to its week's own anchor (Friday for
+          # weeks before W36), so old weeks in the refresh window keep the
+          # headers they were published with.
           WEEK_END=$(TZ=Europe/Athens python -c "
           from datetime import date, timedelta
           t = date.today()
-          days_since_friday = (t.weekday() - 4) % 7   # Monday=0, Friday=4; 0 if today is Friday
-          print((t - timedelta(days=days_since_friday)).isoformat())
+          days_since_sunday = (t.weekday() + 1) % 7   # Monday=0 -> 1 day back; Sunday=6 -> 0
+          print((t - timedelta(days=days_since_sunday)).isoformat())
           ")
           echo "week_end=$WEEK_END" >> "$GITHUB_OUTPUT"
-          echo "Week ending Friday: $WEEK_END"
+          echo "Week ending Sunday: $WEEK_END"
 
       - name: Gap-fill — build weeks missing from docs/
         if: steps.guard.outputs.run == 'true' && github.event.inputs.force_week_end == ''
