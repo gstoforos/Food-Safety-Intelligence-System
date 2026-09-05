@@ -302,6 +302,14 @@ _RAW_TRANSLATIONS = {
     "Détection salmonelle": "Salmonella detected",
     "Presence of Listeria <10 ufc/g sur un saucisson sec":
         "Presence of Listeria (<10 cfu/g) in a dry sausage",
+    # ── W36 review, 2026-09-05: reached Recalls untranslated on 4 Sep ──────
+    "Suspicion de Listeria monocytogenes": "Suspected Listeria monocytogenes contamination",
+    "Présence e.coli": "Presence of E. coli (strain not specified)",
+    "Présence de salmonelle": "Presence of Salmonella",
+    "Contamination salmonelle": "Salmonella contamination",
+    "Détection de Salmonella typhimurium": "Detection of Salmonella Typhimurium",
+    "Presence of Listeria <10 UFC/g sur un saucisson sec":
+        "Presence of Listeria (<10 cfu/g) on a dry sausage",
     "Présence Listeria sur un produit fini analysé lors d'un autocontrôle":
         "Listeria detected in a finished product during an own-check analysis",
     "Retrait préventif suite à détection Listeria dans un autre lot fabriqué "
