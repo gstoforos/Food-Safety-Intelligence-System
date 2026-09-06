@@ -304,6 +304,22 @@
   "Notes": "[incident:fr:ravalec-saucisson-2026-09-02] [operator review 2026-09-05: added from fiche 23446 (ref. 2026-09-0073), published 04/09/2026 — motif \"PRESENCE DE LISTERIA <10 UFC/g sur un saucisson sec\", sold 04/08–25/08/2026 at Ravalec Traiteur Bénodet, Pont l'Abbé and Quimper. Missed by the scraper; found by the external review. Same producer, finding and shops as fiche 23407 (2 Sep, lot 120626) — one incident, so the distinct-incident count does not rise.]"
  },
  {
+  "Date": "2026-09-04",
+  "Source": "FSA (UK)",
+  "Company": "Sainsbury's",
+  "Brand": "Sainsbury's",
+  "Product": "Inspired to Cook by Sainsbury's Pitted Black ...",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://alerts.food.gov.uk/article/6857/Sainsburys-recalls-Inspired-to-Cook-by-Sainsburys-Pitted-Black-Olives-because-of-contamination-with-Listeria-monocytogenes",
+  "Notes": "2 days ago · Sainsbury's recalls Inspired to Cook by Sainsbury's Pitted Black Olives because of contamination with Listeria monocytogenes. Food Alert , 4 September 2026 00: ...  [via DDGS gap-finder, deterministic extract] [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed]"
+ },
+ {
   "Date": "2026-09-03",
   "Source": "RappelConso (FR)",
   "Company": "Neutre",
