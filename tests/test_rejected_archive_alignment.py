@@ -289,7 +289,15 @@ class TestArchiveAlignment(unittest.TestCase):
                               json_path=self.json)
         got = _archived(self.xlsx)[0]
         self.assertIn("Week_Added", got)
-        self.assertNotEqual(got["Week_Added"], got["RejectedAt"])
+        # Week_Added is the upcoming review day, RejectedAt is today. On the
+        # review day itself the two coincide (first seen Sunday 2026-09-06),
+        # so the inequality is only asserted on other days; the column must
+        # still hold the review day's date on every day.
+        from datetime import date as _d
+        review_day = cap.review_day_for().isoformat()
+        self.assertEqual(str(got["Week_Added"])[:10], review_day)
+        if review_day != _d.today().isoformat():
+            self.assertNotEqual(got["Week_Added"], got["RejectedAt"])
 
     def test_the_guard_can_read_back_what_the_writer_wrote(self):
         """End to end: archive a rejection, then confirm
