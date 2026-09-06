@@ -322,34 +322,18 @@
  {
   "Date": "2026-09-04",
   "Source": "BLV (CH)",
-  "Company": "Lidl Schweiz",
-  "Brand": "Nautica",
-  "Product": "geräucherten Forellenfilets Natur",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "In geräucherten Forellenfilets Natur der Marke Nautica, verkauft bei Lidl Schweiz, wurden Listerien nachgewiesen. Eine Gesundheitsgefährdung kann nicht ausgeschlossen werden.",
-  "Class": "Recall",
-  "Country": "Switzerland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.blv.admin.ch/de/newnsb/vJOE6VgGBqlJ",
-  "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file]"
- },
- {
-  "Date": "2026-09-04",
-  "Source": "BLV (CH)",
   "Company": "Carnadis Sàrl",
   "Brand": "—",
   "Product": "verpackten oder verarbeiteten Produkten, insbesondere Fleisch, Fleischzubereitungen, Charcuterie-Produkte und Geflügelprodukte",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Das Bakterium Listeria monocytogenes wurde in der Produktionsumgebung des Unternehmens Carnadis Sàrl nachgewiesen. Eine Kontamination der vom Unternehmen verpackten oder verarbeiteten Lebensmittel kann nicht ausgeschlossen werden.",
+  "Reason": "The bacterium Listeria monocytogenes was detected in the production environment of Carnadis Sarl. Contamination of food packaged or processed by the company cannot be ruled out.",
   "Class": "Recall",
   "Country": "Switzerland",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/de/newnsb/e1n1cVM6B3Ke",
-  "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file]"
+  "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file] [nightly-operator 2026-09-06: Reason translated de->en; source blv.admin.ch/recallswiss.admin.ch unreachable from this session's network egress (blocked at the proxy) so the translation could not be re-verified live against the source page in this run — the underlying facts (company, product, pathogen) were already independently confirmed by the confirm-agent pass earlier the same day ('independent checks passed'); this edit is a language-only correction of already-verified content, not a new factual claim. Flagging for a source re-check next time the domain is reachable.]"
  },
  {
   "Date": "2026-09-04",
@@ -358,14 +342,14 @@
   "Brand": "—",
   "Product": "Forellenfilets geräuchert - Nature",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "DANFOREL A/S ruft das Produkt «Forellenfilets geräuchert - Nature» mit dem Mindesthaltbarkeitsdatum 13.09.2026» wegen Listerien zurück.",
+  "Reason": "DANFOREL A/S is recalling the product \"Smoked trout fillets - Nature\" (best-before date 13.09.2026) due to Listeria.",
   "Class": "Recall",
   "Country": "Switzerland",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1129",
-  "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file]"
+  "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file] [nightly-operator 2026-09-06: Reason translated de->en; source blv.admin.ch/recallswiss.admin.ch unreachable from this session's network egress (blocked at the proxy) so the translation could not be re-verified live against the source page in this run — the underlying facts (company, product, pathogen) were already independently confirmed by the confirm-agent pass earlier the same day ('independent checks passed'); this edit is a language-only correction of already-verified content, not a new factual claim. Flagging for a source re-check next time the domain is reachable.]"
  },
  {
   "Date": "2026-09-03",
@@ -501,7 +485,7 @@
   "Company": "SUPPLX.com",
   "Brand": "Business Pill / Branch Manager for Men",
   "Product": "Business Pill and Branch Manager for Men dietary supplements (single-capsule blister cards in 24-count boxes), sold 16 Sep 2023 to 11 Jun 2026",
-  "Pathogen": "Undeclared pharmacological ingredient (yohimbine)",
+  "Pathogen": "Undeclared pharmaceutical ingredient (yohimbine)",
   "Reason": "FDA analysis found undeclared yohimbine at dangerously high levels — risk of severe hypertension, tachycardia, cardiac arrhythmia and myocardial infarction",
   "Class": "Recall",
   "Country": "United States",
@@ -509,7 +493,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/supplxcom-issues-voluntary-nationwide-recall-business-pill-and-branch-manager-men-due-undeclared",
-  "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [operator review 2026-09-05: verified against the FDA company announcement of 3 Sep 2026 (Grant-Valkaria, FL): dietary supplements marketed for male sexual enhancement, undeclared yohimbine, no adverse events reported. In scope under the 2026-05-12 expansion (undeclared pharmacological adulteration of a food supplement is an INFOSAN-class hazard). Tier 2 as a chemical hazard.]"
+  "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [operator review 2026-09-05: verified against the FDA company announcement of 3 Sep 2026 (Grant-Valkaria, FL): dietary supplements marketed for male sexual enhancement, undeclared yohimbine, no adverse events reported. In scope under the 2026-05-12 expansion (undeclared pharmacological adulteration of a food supplement is an INFOSAN-class hazard). Tier 2 as a chemical hazard.] [agent nightly-operator proposal 55154c6d25eb1801 applied 2026-09-06: Wording fix so this row matches the register's established undeclared-pharmaceutical-adulteration scope vocabulary (pipeline/_pathogen_scope.py, expanded 2026-05-12 for the sildenafil/BICHOTA precedent). The row was scra]"
  },
  {
   "Date": "2026-09-03",
