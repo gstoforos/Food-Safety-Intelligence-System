@@ -305,19 +305,19 @@
  },
  {
   "Date": "2026-09-04",
-  "Source": "FSA (UK)",
-  "Company": "Sainsbury's",
-  "Brand": "Sainsbury's",
-  "Product": "Inspired to Cook by Sainsbury's Pitted Black ...",
+  "Source": "BLV (CH)",
+  "Company": "Lidl Schweiz AG",
+  "Brand": "Nautica",
+  "Product": "Smoked trout fillets, plain (Filets de truite fumée nature) 125 g, best before 13/09/2026",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "United Kingdom",
+  "Reason": "Listeria detected in the product; OSAV advises not to consume; Lidl Schweiz withdrew it from sale and ordered a recall",
+  "Class": "Public Health Alert",
+  "Country": "Switzerland",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://alerts.food.gov.uk/article/6857/Sainsburys-recalls-Inspired-to-Cook-by-Sainsburys-Pitted-Black-Olives-because-of-contamination-with-Listeria-monocytogenes",
-  "Notes": "2 days ago · Sainsbury's recalls Inspired to Cook by Sainsbury's Pitted Black Olives because of contamination with Listeria monocytogenes. Food Alert , 4 September 2026 00: ...  [via DDGS gap-finder, deterministic extract] [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed]"
+  "URL": "https://www.blv.admin.ch/fr/newnsb/vJOE6VgGBqlJ",
+  "Notes": "[operator review 2026-09-06: verified on the OSAV/BLV public warning of 4 Sep 2026 (\"Mise en garde publique : listérias dans des filets de truite fumée (nature) de la marque Nautica, vendus par Lidl Schweiz\"). Company had been the headline \"Mise en garde publique\"; URL moved from the vtg.admin.ch mirror to the same release on blv.admin.ch (the regulator's host). Source label BLV (CH) per one-label-per-agency.]"
  },
  {
   "Date": "2026-09-03",
@@ -494,6 +494,54 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23371/interne",
   "Notes": "17 magasins et 2 distributeurs du réseau bio [operator review 2026-09-05: verified against fiche 23371 — motif \"Contaminations en toxines T2 et HT2 8,5 fois la teneur maximale réglementaire\", responsible company OSTARA FOODS VIEILLE GRAINE, 17 organic shops and 2 distributors, published 03/09/2026. Tier 2 per the framework (mycotoxins are Tier 2; trichothecenes are immunosuppressive and this lot is 8.5× the limit). NB the ten earlier T-2/HT-2 rows in the register sit at Tier 3 — an inconsistency to settle.]"
+ },
+ {
+  "Date": "2026-09-03",
+  "Source": "CDC",
+  "Company": "La Serranita (importer/dealers in NJ and NY)",
+  "Brand": "La Serranita",
+  "Product": "Frozen concha negra (black shell) clam shell meat, imported",
+  "Pathogen": "Hepatitis A virus",
+  "Reason": "CDC multistate outbreak potentially linked to frozen clams: 37 illnesses, 30 hospitalizations (81%), no deaths in MA, MN, NY, PA; La Serranita concha negra shell meat recalled by dealers in New Jersey and New York; investigation open (updated 3 Sep 2026)",
+  "Class": "Public Health Alert",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.cdc.gov/hepatitis-a/outbreaks/clams-2026/index.html",
+  "Notes": "[outbreak-opened:2026-06-05] [outbreak:cdc:clams-2026] [operator review 2026-09-06: verified on the CDC main outbreak page (published 5 Jun 2026, updated 3 Sep 2026). The pending row cited the \"When People Got Sick\" timeline sub-page (last updated 21 Aug) with the page title as Company/Product; URL moved to the main page, fields rebuilt. No other row in the register carries this outbreak.]"
+ },
+ {
+  "Date": "2026-09-03",
+  "Source": "CDC",
+  "Company": "Midwest Poultry Services, L.P.",
+  "Brand": "Midwest Poultry Services",
+  "Product": "Shell eggs — white and brown cage-free (more than 1.5 million dozen recalled)",
+  "Pathogen": "Salmonella Enteritidis",
+  "Reason": "CDC investigation closed 3 September 2026: 134 illnesses, 34 hospitalizations, no deaths in 18 states, linked to shell eggs from Midwest Poultry Services, L.P.",
+  "Class": "Public Health Alert",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html",
+  "Notes": "[outbreak-opened:2026-07-24] [outbreak:cdc:shell-eggs-07-26] [operator review 2026-09-06: verified on the CDC page (published 24 Jul 2026, updated 3 Sep 2026, \"This outbreak investigation was closed on September 3, 2026\"). Row rebuilt from the page: Company/Brand/Product held the pasted headline and feed metadata. Same event as the FDA Midwest Poultry recall row of 2026-07-22; both carry the outbreak id and count once.]"
+ },
+ {
+  "Date": "2026-09-03",
+  "Source": "CDC",
+  "Company": "Frutas y Hortalizas del Sur S.A.",
+  "Brand": "GreenWise (Publix) / Great Value (Walmart)",
+  "Product": "Frozen berries — GreenWise Organic IQF Blueberries 10 oz, GreenWise Whole Mixed Berries, Great Value Organic Triple Berry Blend 10 oz",
+  "Pathogen": "E. coli O145 (STEC)",
+  "Reason": "CDC update 3 September 2026: 17 illnesses (5 newly identified), 6 hospitalizations, no deaths in 2 states; E. coli O145:H28 linked to frozen blueberries and berry blends; investigation open",
+  "Class": "Public Health Alert",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html",
+  "Notes": "[outbreak-opened:2026-07-06] [outbreak:fda:e-coli-o145h28-frozen-blueberries-july-2026] [operator review 2026-09-06: verified on the CDC page (published 6 Jul 2026, updated 3 Sep 2026). Row rebuilt: Brand had been truncated to \"E\" and Company held the headline. Same event as the FDA GreenWise (6 Jul) and Triple Berry Blend (3 Sep) rows — one outbreak id, counted once.]"
  },
  {
   "Date": "2026-09-02",
@@ -6893,7 +6941,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
-  "Notes": "[FDA company announcement + publish 2026-07-22; produced Texas, distributed 2026-06-06 to 2026-07-03; retail Kroger (TX,LA), Brookshire (TX,OK,AR,LA,NM,MS); company states NO illnesses linked -> Outbreak=0; Salmonella = always Tier 1; source-verified 2026-07-24] [region-normalise 2026-07-24: Region was 'TX, OK, LA, AR, NM, MS' (detail level); set to continent bucket 'North America' for daily/weekly region grouping — detail retained here] [outbreak-fix 2026-07-28: Outbreak 0->1. CDC shell-eggs investigation (updated 2026-07-24): 98 illnesses, 26 hospitalisations, 17 states; Midwest Poultry Services named as recalling firm. Confirmed human cases meet the Outbreak=1 bar; the original 'company states NO illnesses' basis is superseded. Source: cdc.gov/salmonella/outbreaks/shell-eggs-07-26/] [outbreak-fix 2026-08-01: Outbreak 1->0 — the row's own Notes state Outbreak=0 and 'source-verified'; the flag contradicted them. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.] [outbreak-RESTORE 2026-08-01: I cleared this flag on 2026-08-01 because the row's own stale note read 'Outbreak=0; source-verified' and its Reason said the finding came from 'environmental monitoring on two Texas farms'. That was wrong — I trusted an internal note over the world. CDC and FDA both run dedicated outbreak pages for it (cdc.gov/salmonella/outbreaks/shell-eggs-07-26/ and fda.gov Outbreak Investigation of Salmonella: Eggs (July 2026)): 98 cases / 17 states / 26 hospitalisations / 0 deaths, last updated 2026-07-24. Outbreak restored to 1 and Pathogen made serotype-specific.]"
+  "Notes": "[outbreak:cdc:shell-eggs-07-26] [FDA company announcement + publish 2026-07-22; produced Texas, distributed 2026-06-06 to 2026-07-03; retail Kroger (TX,LA), Brookshire (TX,OK,AR,LA,NM,MS); company states NO illnesses linked -> Outbreak=0; Salmonella = always Tier 1; source-verified 2026-07-24] [region-normalise 2026-07-24: Region was 'TX, OK, LA, AR, NM, MS' (detail level); set to continent bucket 'North America' for daily/weekly region grouping — detail retained here] [outbreak-fix 2026-07-28: Outbreak 0->1. CDC shell-eggs investigation (updated 2026-07-24): 98 illnesses, 26 hospitalisations, 17 states; Midwest Poultry Services named as recalling firm. Confirmed human cases meet the Outbreak=1 bar; the original 'company states NO illnesses' basis is superseded. Source: cdc.gov/salmonella/outbreaks/shell-eggs-07-26/] [outbreak-fix 2026-08-01: Outbreak 1->0 — the row's own Notes state Outbreak=0 and 'source-verified'; the flag contradicted them. An outbreak flag requires a cluster of human illness; hazard severity and environmental findings are not outbreaks. This flag drives Tier and the subscriber alert mailer.] [outbreak-RESTORE 2026-08-01: I cleared this flag on 2026-08-01 because the row's own stale note read 'Outbreak=0; source-verified' and its Reason said the finding came from 'environmental monitoring on two Texas farms'. That was wrong — I trusted an internal note over the world. CDC and FDA both run dedicated outbreak pages for it (cdc.gov/salmonella/outbreaks/shell-eggs-07-26/ and fda.gov Outbreak Investigation of Salmonella: Eggs (July 2026)): 98 cases / 17 states / 26 hospitalisations / 0 deaths, last updated 2026-07-24. Outbreak restored to 1 and Pathogen made serotype-specific.] [operator review 2026-09-06: outbreak id added so the CDC closure page (3 Sep 2026: 134 ill, 34 hospitalized, 18 states, investigation closed) groups with this recall as one event.]"
  },
  {
   "Date": "2026-07-22",
