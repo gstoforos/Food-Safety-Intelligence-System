@@ -1058,6 +1058,11 @@ _TERMINAL_REJECTION_MARKERS = (
     # sheets, not from the codes the writer was assumed to emit.
     "labelling", "spoilage", "quality/spoilage", "pet food", "allergen",
     "duplicate", "outside afts scope", "not a recall notice",
+    # 2026-09-06: the operator-review path writes "out of scope: ..." with
+    # spaces and "not a food product"; neither matched, so the merlan
+    # (TVB-N) and Jelly's (choking) rows archived on 2026-09-05 were
+    # re-ingested the next morning.
+    "out of scope", "not a food product", "choking hazard", "tvb-n",
 )
 
 # Checked FIRST. A reason that is transient, ambiguous, or explicitly not a

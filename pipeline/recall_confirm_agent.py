@@ -209,7 +209,37 @@ def duplicate_problems(row: Dict[str, Any],
         if _norm_url(p.get("URL")) == u:
             return ["duplicate: this URL is already published on "
                     f"{str(p.get('Date'))[:10]}"]
+
+    # TWO ADDRESSES FOR ONE ALERT (review 2026-09-06). FSA-PRIN-43-2026 was
+    # published twice: once at alerts.food.gov.uk/news-alerts/alert/fsa-
+    # prin-43-2026 (the Food Alerts API) and again, two days later, at
+    # alerts.food.gov.uk/article/6857/... (the same notice as the site's
+    # article page, found by a gap-finder). The URL rule above cannot see
+    # that. For hosts KNOWN to publish one alert under two URL forms, a
+    # second row with the same date, firm and pathogen is that alert. This
+    # is host-scoped on purpose: RappelConso files one fiche per SKU and a
+    # same-day/same-firm/same-pathogen rule there would reject real notices
+    # (the 15 SILVE fiches, the 7 Nollens cuts).
+    host = u.split("/")[0]
+    if any(host.endswith(h) for h in _TWO_URL_FORM_HOSTS):
+        key = (str(row.get("Date", ""))[:10], _norm_txt(row.get("Company", "")),
+               _norm_txt(row.get("Pathogen", "")).split(" ")[0])
+        if all(key):
+            for p in published:
+                pu = _norm_url(p.get("URL"))
+                if not any(pu.split("/")[0].endswith(h) for h in _TWO_URL_FORM_HOSTS):
+                    continue
+                pk = (str(p.get("Date", ""))[:10], _norm_txt(p.get("Company", "")),
+                      _norm_txt(p.get("Pathogen", "")).split(" ")[0])
+                if pk == key:
+                    return ["duplicate: the same alert (same date, firm and pathogen on "
+                            f"{host}) is already published at {str(p.get('URL'))[:90]}"]
     return []
+
+
+# Hosts that serve one alert at two addresses (API notation URL and article
+# URL). Scoped to the duplicate rule above; see its comment.
+_TWO_URL_FORM_HOSTS = ("alerts.food.gov.uk", "food.gov.uk", "food.gov.scot")
 
 
 _FIRM_PROBLEMS = ("Company is empty", "neither Company nor Brand is set")
