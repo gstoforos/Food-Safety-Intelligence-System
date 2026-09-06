@@ -1,9 +1,58 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-06T14:37:13+00:00",
-  "row_count": 0,
-  "tier1_count": 0,
-  "outbreak_count": 0,
-  "by_reviewer": {},
-  "rows": []
+  "generated_utc": "2026-09-06T19:52:13+00:00",
+  "row_count": 2,
+  "tier1_count": 2,
+  "outbreak_count": 1,
+  "by_reviewer": {
+    "unknown": 2
+  },
+  "rows": [
+    {
+      "Date": "2026-09-03",
+      "Source": "FDA",
+      "Company": "Outbreak Investigation of Salmonella: Eggs (July 2026)",
+      "Brand": "Outbreak Investigation of Salmonella: Eggs (July 2026)",
+      "Product": "Outbreak Investigation of Salmonella: Eggs (July 2026) | FDA\n\n# Outbreak Investigation of Salmonella: Eggs (July 2026)\n\nDo not eat, sell, or serve white shell eggs and brown cage-free shell eggs recal",
+      "Pathogen": "Salmonella",
+      "Reason": "Salmonella — outbreak",
+      "Class": "Recall",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 1,
+      "Outbreak": 1,
+      "URL": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-salmonella-eggs-july-2026",
+      "Notes": "REJECTED: Confirmer: reviewer 2 approved but Product looks like a headline, not a product name | Outbreak Investigation of Salmonella: Eggs (July 2026) | FDA\n\n# Outbreak Investigation of Salmonella: Eggs (July 2026)\n\nDo not eat, sell, or serve white shell eggs and brown cage-free shell eggs recalled by Midwest Poultry Services, L.P.\n\n \n\n## Product\n\nRecalled white shell eggs and brown cage-free   [via Exa gap-finder, deterministic extract]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Confirmer: reviewer 2 approved but Product looks like a headline, not a product name",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-02",
+      "Source": "NVWA",
+      "Company": "Veiligheidswaarschuwing Jumbo Lepelkaasje en Jumbo Kaasplateau Verrassend | NVWA",
+      "Brand": "Veiligheidswaarschuwing Jumbo Lepelkaasje en Jumbo Kaasplateau Verrassend | NVWA",
+      "Product": "Veiligheidswaarschuwing Jumbo Lepelkaasje en Jumbo Kaasplateau Verrassend | NVWA\n\n# Veiligheidswaarschuwing Jumbo Lepelkaasje en Jumbo Kaasplateau Verrassend\n\nNieuwsbericht 02-09-2026 | 08:50\n\nJumbo w",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "Listeria monocytogenes",
+      "Class": "Recall",
+      "Country": "Netherlands",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.nvwa.nl/actueel/nieuws/2026/09/02/veiligheidswaarschuwing-jumbo-lepelkaasje-en-jumbo-kaasplateau-verrassend",
+      "Notes": "REJECTED: Confirmer: reviewer 2 approved but Product looks like a headline, not a product name; Company and Brand are the same long headline string | Veiligheidswaarschuwing Jumbo Lepelkaasje en Jumbo Kaasplateau Verrassend | NVWA\n\n# Veiligheidswaarschuwing Jumbo Lepelkaasje en Jumbo Kaasplateau Verrassend\n\nNieuwsbericht 02-09-2026 | 08:50\n\nJumbo waarschuwt voor Jumbo Lepelkaasje en Jumbo Kaasplateau Verrassend. In deze producten kan listeria zit  [via Exa gap-finder, deterministic extract]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Confirmer: reviewer 2 approved but Product looks like a headline, not a product name; Company and Brand are the same long headline string",
+      "Reviewed": "N"
+    }
+  ]
 }
