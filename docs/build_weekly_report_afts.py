@@ -886,6 +886,9 @@ def _outbreak_kpi_sub(week_rows, all_rows, week_start):
         oid, conf, _ = _oid(r)
         if oid and conf == "high":
             d = str(r.get("Date", ""))[:10]
+            m = re.search(r"\[outbreak-opened:\s*(\d{4}-\d{2}-\d{2})\s*\]", str(r.get("Notes") or ""))
+            if m and m.group(1) < d:
+                d = m.group(1)
             if d and (oid not in earliest or d < earliest[oid]):
                 earliest[oid] = d
     new_n, ongoing = 0, 0
@@ -1254,13 +1257,20 @@ def _outbreak_status(row, all_rows, week_rows):
         return "new", ""
     week_dates = [str(r.get("Date", ""))[:10] for r in week_rows if r.get("Date")]
     wk_start = min(week_dates) if week_dates else "9999"
-    first = ""
+    # An agency page can enter the register months after the investigation
+    # opened (the CDC clams page: opened 5 Jun, first captured 3 Sep). The
+    # row may state the opening date itself as [outbreak-opened:YYYY-MM-DD].
+    m = re.search(r"\[outbreak-opened:\s*(\d{4}-\d{2}-\d{2})\s*\]", str(row.get("Notes") or ""))
+    first = m.group(1) if m else ""
     for r in all_rows or []:
         o2, c2, _ = _oid(r)
         if o2 == oid and c2 == "high":
             d = str(r.get("Date", ""))[:10]
             if d and (not first or d < first):
                 first = d
+        m2 = re.search(r"\[outbreak-opened:\s*(\d{4}-\d{2}-\d{2})\s*\]", str(r.get("Notes") or ""))
+        if o2 == oid and m2 and (not first or m2.group(1) < first):
+            first = m2.group(1)
     if first and first < wk_start:
         return "ongoing", first
     return "new", first
@@ -1379,8 +1389,9 @@ def _fallback_p1_to_p3(stats, recalls):
         ob_phrase = (f"{_count_phrase(_n_new_p1, 'new outbreak event')} plus "
                      f"{_n_ong_p1} recall{'s' if _n_ong_p1 > 1 else ''} tied to ongoing investigations")
     elif _n_ong_p1:
-        ob_phrase = (f"{_n_ong_p1} recall{'s' if _n_ong_p1 > 1 else ''} tied to "
-                     f"{'an ' if _n_ong_p1 == 1 else ''}outbreak investigation{'s' if _n_ong_p1 > 1 else ''} "
+        ob_phrase = (f"{_n_ong_p1} outbreak-linked notice{'s' if _n_ong_p1 > 1 else ''} "
+                     f"(recall expansions and agency updates) tied to "
+                     f"{'an ' if _n_ong_p1 == 1 else ''}investigation{'s' if _n_ong_p1 > 1 else ''} "
                      f"already open before this window")
     else:
         ob_phrase = _count_phrase(stats["outbreaks"], "new outbreak event")
@@ -1500,12 +1511,22 @@ def _fallback_p1_to_p3(stats, recalls):
             if prod_short[:2].isalpha() and not prod_short[:2].isupper() and not _title_case:
                 prod_short = prod_short[0].lower() + prod_short[1:]
             _st, _first = _outbreak_status(r, _REGISTER_ROWS or recalls, recalls)
-            _no_ill = bool(re.search(r"no (?:reports? of )?illness", str(r.get("Reason") or ""), re.I))
+            _reason_txt = str(r.get("Reason") or "")
+            _no_ill = bool(re.search(r"no (?:reports? of )?illness", _reason_txt, re.I))
+            _is_update = (str(r.get("Source") or "").upper().startswith("CDC")
+                          or "investigation" in str(r.get("Class") or "").lower()
+                          or "public health alert" in str(r.get("Class") or "").lower())
+            _closed = bool(re.search(r"\bclosed\b", _reason_txt, re.I))
             _tail = ""
             if _st == "ongoing" and _first:
-                _tail = (f" (recall expansion; investigation open since "
-                         f"{_fmt_date(datetime.strptime(_first, '%Y-%m-%d').date())}"
-                         f"{'; no illness associated with this product to date' if _no_ill else ''})")
+                _opened = _fmt_date(datetime.strptime(_first, '%Y-%m-%d').date())
+                if _is_update and _closed:
+                    _tail = f" (agency update: investigation opened {_opened}, now closed)"
+                elif _is_update:
+                    _tail = f" (agency update: investigation open since {_opened})"
+                else:
+                    _tail = (f" (recall expansion; investigation open since {_opened}"
+                             f"{'; no illness associated with this product to date' if _no_ill else ''})")
             descs.append((f"{path} linked to {prod_short}" if prod_short else path) + _tail)
         joined = "; ".join(descs)
         n_ob = len(ob_recalls)
@@ -1519,15 +1540,16 @@ def _fallback_p1_to_p3(stats, recalls):
         n_new = sum(1 for st, _ in _statuses if st == "new")
         n_ong = n_ob - n_new
         def _rl(n):
-            return (f"{n} recall{'s' if n > 1 else ''} linked to "
+            return (f"{n} notice{'s' if n > 1 else ''} linked to "
                     f"{'an ' if n == 1 else ''}ongoing outbreak investigation{'s' if n > 1 else ''}")
         if n_new and n_ong:
             lead = (f"Outbreak watch: {_count_phrase(n_new, 'new outbreak event')} and "
                     f"{_rl(n_ong)} this week \u2014 {joined}. ")
         elif n_ong:
             lead = (f"Outbreak watch: {_rl(n_ong)} this week \u2014 {joined}. "
-                    f"{'These notices are' if n_ong > 1 else 'The notice is'} recall expansion{'s' if n_ong > 1 else ''}; "
-                    f"the case counts belong to the investigations, not to the recalled lots. ")
+                    f"None of these is a new illness cluster: each notice is a recall expansion or an "
+                    f"agency update on an investigation already open, and the case counts belong to the "
+                    f"investigations, not to the recalled lots. ")
         else:
             lead = (f"Outbreak watch: {_count_phrase(n_ob, 'new outbreak event')} "
                     f"recorded this week \u2014 {joined}. ")
