@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20260906T064547Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-iceberg-lettuce-central-mexico-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.food-safety.com/articles/11793-study-finds-pfas-in-all-tested-commercially-available-plant-based-protein-supplements"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus cyclospora; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.food-safety.com/articles/11793-study-finds-pfas-in-all-tested-commercially-available-plant-based-protein-supplements",
+          "quote": "Nation's Largest-Ever Cyclosporiasis Outbreak Continues | USDA Cyclospora Research Was Defunded in 2026",
+          "retrieved_utc": "2026-09-06T06:45:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-iceberg-lettuce-central-mexico-because-possible-health-risk",
+          "quote": "2026-07-18 FDA Iceberg lettuce from central Mexico (shredded/chopped/blend food-service & retail; multipl",
+          "retrieved_utc": "2026-09-06T06:45:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f5151176cf279246"
+    }
+  ]
+}
