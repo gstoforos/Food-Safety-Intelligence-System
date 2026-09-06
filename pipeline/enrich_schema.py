@@ -112,6 +112,18 @@ _HAZARD_GROUP_RULES = (
     ("rodent", "pest-rodent"), ("mouse", "pest-rodent"), ("insect", "pest-rodent"),
     ("pesticide", "chemical"), ("nitrite", "chemical"), ("sulphite", "chemical"),
     ("ethylene oxide", "chemical"), ("hydrocyanic", "chemical"),
+    # Undeclared pharmaceutical adulteration (audit 2026-09-06): these match
+    # pipeline/_pathogen_scope.py's TIER1_KEYWORDS undeclared-adulteration
+    # vocabulary (expanded 2026-05-12 for the sildenafil/BICHOTA precedent),
+    # but nothing here mapped them off the bacterial catch-all — the first
+    # such row to reach Recalls (SUPPLX.com yohimbine) landed HazardGroup
+    # "pathogen-bacterial", which is wrong on its face for a chemical/drug
+    # adulterant and would corrupt any hazard-group stratification.
+    ("undeclared pharmaceutical", "chemical"), ("undeclared drug", "chemical"),
+    ("undeclared pharmacological", "chemical"), ("adulterat", "chemical"),
+    ("sildenafil", "chemical"), ("tadalafil", "chemical"),
+    ("vardenafil", "chemical"), ("sibutramine", "chemical"),
+    ("phenolphthalein", "chemical"), ("yohimbine", "chemical"),
     ("pfoa", "chemical"), ("pfas", "chemical"), ("residue", "chemical"),
     ("veterinary", "chemical"), ("nitrofurazone", "chemical"),
 )
