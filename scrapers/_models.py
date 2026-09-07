@@ -306,6 +306,17 @@ PATHOGEN_RULES: List[Tuple[str, str]] = [
         r"\bstaphylococcus\b|\bstaph\s*aureus\b|\bstaphylococcal\s*enterotoxin\b"),
     ("Shigella", r"\bshigella\b"),
     ("Histamine / scombrotoxin", r"\bhistamine\b|\bscombro(toxin|id)?\b"),
+    # Visible mould / fungal growth — in scope from 2026-09-07 (see the
+    # block in pipeline/_pathogen_scope.py). LAST in the list on purpose:
+    # a notice that also names a mycotoxin or a pathogen matches that rule
+    # first and keeps the more specific label. "Moulded"/"molded" (shaped)
+    # and "mould" as a piece of equipment are excluded by requiring the
+    # contamination sense in the surrounding rules, so the pattern stays on
+    # the noun and its non-English spellings.
+    ("Mould",
+        r"\bmould\b|\bmoulds\b|\bmouldy\b|\bmold\b(?!\s*(?:ing|ed))|"
+        r"\bmoldy\b|\bmoisissure\w*\b|\bmuffa\b|\bmoho\b|\bschimmel\b|"
+        r"\bmögel\b|ευρωτίασ\w*|μούχλα|\bfungal\s+(?:growth|contamination)\b"),
 ]
 
 _TIERS: Dict[str, int] = {
@@ -347,6 +358,7 @@ _TIERS: Dict[str, int] = {
     "T-2 / HT-2 toxin": 3,
     "Ergot alkaloids": 3,
     "Citrinin": 3,
+    "Mould": 2,
     "Cronobacter sakazakii": 3,
     "Staphylococcus enterotoxin": 3,
     "Shigella": 3,
@@ -619,6 +631,12 @@ def _fda_framework_tier(pathogen_canonical: str, product: Any) -> int:
         "Escherichia coli (generic)",
         "Aflatoxin", "Ochratoxin", "Mycotoxin", "Alternaria toxins",
         "T-2 / HT-2 toxin", "Ergot alkaloids", "Citrinin",
+        # Visible mould / fungal growth — in scope from 2026-09-07 (operator
+        # decision; see the block in pipeline/_pathogen_scope.py). Tier 2,
+        # beside the mycotoxins: a microbiological contamination that can
+        # carry them, not an acute severe pathogen. A notice that names a
+        # toxigenic species or a measured toxin keeps the mycotoxin handling.
+        "Mould",
     }
     if pathogen_canonical in tier_2_pathogens:
         return 2
