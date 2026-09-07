@@ -352,6 +352,16 @@ def _normalize_url_for_dedup(url: str) -> str:
         s = s[7:]
     if s.startswith("www."):
         s = s[4:]
+    # admin.ch newsroom (2026-09-07): one federal release is served at
+    # /de/, /fr/, /it/ (and mirrored on every department host) under the
+    # same message id, e.g. blv.admin.ch/de/newnsb/vJOE6VgGBqlJ and
+    # blv.admin.ch/fr/newnsb/vJOE6VgGBqlJ. The BLV scraper published the
+    # German page of the OSAV Nautica trout warning beside the French page
+    # already in Recalls. The language segment and the host are not
+    # identity; the message id is.
+    m = re.match(r"^[a-z0-9.-]*admin\.ch/(?:[a-z]{2}/)?newnsb/([a-z0-9]+)", s)
+    if m:
+        s = "admin.ch/newnsb/" + m.group(1)
     if "?" in s:
         path, _, query = s.partition("?")
         keepers = []
