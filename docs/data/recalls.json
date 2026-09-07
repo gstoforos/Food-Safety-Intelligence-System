@@ -1,11 +1,27 @@
 [
  {
   "Date": "2026-09-07",
+  "Source": "RappelConso (FR)",
+  "Company": "Filière Alliance Locale - Nos Éleveurs Charolais",
+  "Brand": "Filière Alliance Locale - Nos Éleveurs Charolais",
+  "Product": "viande hachée de race charolaise façon bouchère 12% mg conditionnement par 2 ou par 4 et format cheveux d'ange",
+  "Pathogen": "Escherichia coli (STEC)",
+  "Reason": "Microbiological risk - presence of Escherichia coli (Shiga toxin-producing / STEC)",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23463/interne",
+  "Notes": "leclerc [agent nightly-operator proposal 21c5457fe8bbcd39 applied 2026-09-07: Pathogen field was empty; source page states 'Risque microbiologique - Presence d'Escherichia coli' and names Escherichia coli shiga toxinogene (STEC). In scope (pathogenic contamination of ground beef). Confirmed live a] [agent nightly-operator proposal 19328796dab906be applied 2026-09-07: Reason field was in French ('Risque microbiologique - presence d'E. coli'); standing English-output policy requires Reason and Company in English (Brand/Product may stay in source language). Translated, meaning unchanged]"
+ },
+ {
+  "Date": "2026-09-07",
   "Source": "EFET (GR)",
   "Company": "ΒΙΤΟΜ ΑΒΕΕ (VITOM ABEE), Koufalia, Thessaloniki",
   "Brand": "Οικογένεια Χριστοδούλου (Oikogeneia Christodoulou)",
   "Product": "Natural juices — orange 100% (250 ml, 1 L, 1.5 L), nine fruits / 7 vitamins (250 ml, 1 L) and apple-orange-carrot (250 ml); lots 210.6, 211.6, 215.6, 217.6 and 223.6, best before 11–24/09/2026",
-  "Pathogen": "Mold",
+  "Pathogen": "Mould",
   "Reason": "Development of black mold inside the neck of the bottle; EFET ordered immediate recall and withdrawal",
   "Class": "Recall",
   "Country": "Greece",
@@ -13,7 +29,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5413-deltio-typou-anaklisi-mi-asfalon-trofimon",
-  "Notes": "[operator review 2026-09-07: EFET press release 5413 of 7 September 2026, hazard verbatim \"ανάπτυξη ευρωτίασης μαύρης χροιάς στο εσωτερικό του στομίου του μπουκαλιού\". PROVENANCE: efet.gr answers HTTP 409 to this environment, so the release itself was not read; company, brand, hazard wording and all five lot codes come from three Greek national outlets of 7 Sep 2026 (tovima.gr, naftemporiki.gr, sofokleousin.gr), which agree on every field. The EFET URL is cited because EFET is the publisher; the mirrors are evidence, not the source.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.]"
+  "Notes": "[operator review 2026-09-07: EFET press release 5413 of 7 September 2026, hazard verbatim \"ανάπτυξη ευρωτίασης μαύρης χροιάς στο εσωτερικό του στομίου του μπουκαλιού\". PROVENANCE: efet.gr answers HTTP 409 to this environment, so the release itself was not read; company, brand, hazard wording and all five lot codes come from three Greek national outlets of 7 Sep 2026 (tovima.gr, naftemporiki.gr, sofokleousin.gr), which agree on every field. The EFET URL is cited because EFET is the publisher; the mirrors are evidence, not the source.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.] [operator review 2026-09-07: Pathogen spelling normalized Mold->Mould per tests/test_mould_scope_2026_09_07.py canonical policy (mould in scope, operator decision 2026-09-07). Content already verified by an earlier confirm-agent pass today; foodstandards.gov.au / efet.gr are blocked by this session network egress so the live URL re-check could not run — spelling-only change to already-verified content, same precedent as the 2026-09-06 BLV German->English fix.]"
  },
  {
   "Date": "2026-09-07",
@@ -22,14 +38,14 @@
   "Brand": "Rannou-Metivier",
   "Product": "coffret 310 g (7 614 3196); sacs de 210 g (7 614 3199)",
   "Pathogen": "Salmonella",
-  "Reason": "Salmonelle sur les graines de courge de notre fournisseur",
+  "Reason": "Salmonella on pumpkin seeds from our supplier",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23457/interne",
-  "Notes": "rannou-métivier [confirm-agent 2026-09-07: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file]"
+  "Notes": "rannou-métivier [confirm-agent 2026-09-07: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file] [agent nightly-operator proposal 1b48343404b3bf22 applied 2026-09-07: Reason field was in French ('Salmonelle sur les graines de courge de notre fournisseur'); standing English-output policy requires Reason and Company in English. Flagged by tests/test_language_policy.py (test_every_descri]"
  },
  {
   "Date": "2026-09-04",
@@ -1861,7 +1877,7 @@
   "Company": "Racines",
   "Brand": "Racines",
   "Product": "Boisson gingembre (ginger drink) 75 cl, GTIN 3700019522049, best before 04/04/2028, 07/04/2028 and 08/04/2028, sold 25/06/2026–20/08/2026",
-  "Pathogen": "Mold",
+  "Pathogen": "Mould",
   "Reason": "Possible presence of mold in some bottles",
   "Class": "Recall",
   "Country": "France",
@@ -1869,7 +1885,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23336/Interne",
-  "Notes": "[operator review 2026-09-07: verified on fiche 23336: Alimentation > Boissons non alcoolisées, motif \"Présence possible de moisissures dans certaines bouteilles\", distributed through specialist shops nationwide. The fiche states the consumer risk as organoleptic; the row is Tier 2 under the uniform mould rule rather than tiered per notice.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.]"
+  "Notes": "[operator review 2026-09-07: verified on fiche 23336: Alimentation > Boissons non alcoolisées, motif \"Présence possible de moisissures dans certaines bouteilles\", distributed through specialist shops nationwide. The fiche states the consumer risk as organoleptic; the row is Tier 2 under the uniform mould rule rather than tiered per notice.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.] [agent nightly-operator proposal 98304230242003d9 applied 2026-09-07: Same spelling normalization as the EFET row: canonical scope-policy spelling is 'Mould', row had 'Mold'.]"
  },
  {
   "Date": "2026-08-26",
@@ -8453,7 +8469,7 @@
   "Company": "Tasmanian Mountain Waters Exp",
   "Brand": "Mt Ossa",
   "Product": "Mt Ossa Australian Spring Water 10 L (best before 15/06/2028)",
-  "Pathogen": "Mold",
+  "Pathogen": "Mould",
   "Reason": "Microbial (mold) contamination; the notice states that food contaminated with mold may cause illness if consumed",
   "Class": "Recall",
   "Country": "Australia",
@@ -8461,7 +8477,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/tasmanian-mountain-waters-exp-mt-ossa-australian-spring-water-10l",
-  "Notes": "[operator review 2026-09-07: verified on the FSANZ alert of 14 July 2026: sold at Woolworths in NSW and QLD only, consumers told not to consume and to return for a refund.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.]"
+  "Notes": "[operator review 2026-09-07: verified on the FSANZ alert of 14 July 2026: sold at Woolworths in NSW and QLD only, consumers told not to consume and to return for a refund.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.] [operator review 2026-09-07: Pathogen spelling normalized Mold->Mould per tests/test_mould_scope_2026_09_07.py canonical policy (mould in scope, operator decision 2026-09-07). Content already verified by an earlier confirm-agent pass today; foodstandards.gov.au / efet.gr are blocked by this session network egress so the live URL re-check could not run — spelling-only change to already-verified content, same precedent as the 2026-09-06 BLV German->English fix.]"
  },
  {
   "Date": "2026-07-13",
@@ -9493,7 +9509,7 @@
   "Company": "Bellevue Orchard Pty Ltd",
   "Brand": "Summer Snow",
   "Product": "Summer Snow Pink Lady Apple Juice 1 L (best before 12/03/2027, 08/03/2027) and Summer Snow Granny Smith Apple Juice 2 L (best before 29/03/2027)",
-  "Pathogen": "Mold",
+  "Pathogen": "Mould",
   "Reason": "Unsuccessful pasteurization resulting in microbial (mold) contamination",
   "Class": "Recall",
   "Country": "Australia",
@@ -9501,7 +9517,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/updated-07072026-bellevue-orchard-pty-ltd-summer-snow-pink-lady-apple",
-  "Notes": "[operator review 2026-09-07: verified on the FSANZ alert as UPDATED 07.07.2026, which supersedes the first notice of the same recall; sold through independent retailers including IGA nationally and online, and Farmers Pick in Victoria. The superseded first URL is NOT published: one notice, one row.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.]"
+  "Notes": "[operator review 2026-09-07: verified on the FSANZ alert as UPDATED 07.07.2026, which supersedes the first notice of the same recall; sold through independent retailers including IGA nationally and online, and Farmers Pick in Victoria. The superseded first URL is NOT published: one notice, one row.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.] [operator review 2026-09-07: Pathogen spelling normalized Mold->Mould per tests/test_mould_scope_2026_09_07.py canonical policy (mould in scope, operator decision 2026-09-07). Content already verified by an earlier confirm-agent pass today; foodstandards.gov.au / efet.gr are blocked by this session network egress so the live URL re-check could not run — spelling-only change to already-verified content, same precedent as the 2026-09-06 BLV German->English fix.]"
  },
  {
   "Date": "2026-07-05",
