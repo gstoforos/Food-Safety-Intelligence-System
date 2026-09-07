@@ -71,12 +71,20 @@ class TestAllergenIsClassifiable(unittest.TestCase):
             self.assertTrue(_classify_hazard(reason), reason)
 
     def test_mould_is_classifiable(self):
-        self.assertIn("spoilage", _classify_hazard("Microbial (Mould) contamination."))
+        # Mould left the "spoilage" bucket on 2026-09-07 and became its own
+        # in-scope hazard class (operator decision). What it must never be
+        # is unclassifiable — that is what let mould rows drift between
+        # reviewers before the class existed.
+        self.assertIn("mould", _classify_hazard("Microbial (Mould) contamination."))
         self.assertIn(
-            "spoilage",
+            "mould",
             _classify_hazard(
                 "Unsuccessful pasteurisation resulting in microbial "
                 "(Mould) contamination."))
+        self.assertIn("mould", _classify_hazard(
+            "Présence possible de moisissures dans certaines bouteilles"))
+        # and the quality vocabulary it used to share a class with stays put
+        self.assertIn("fermentation", _classify_hazard("possible spoilage"))
 
 
 class TestFabricatedPathogenIsCaught(unittest.TestCase):

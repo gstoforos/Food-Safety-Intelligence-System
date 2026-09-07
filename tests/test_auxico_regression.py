@@ -342,13 +342,29 @@ class TestTheWorkbookIsClean(unittest.TestCase):
         self.assertEqual([], hits, f"{len(hits)} Auxico row(s) still published")
 
     def test_no_allergen_only_row_is_published(self):
-        IN_SCOPE = {"biological", "biotoxin", "mycotoxin", "physical",
-                    "chemical", "fermentation", "spoilage"}
+        # "mould" added and "fermentation"/"spoilage" dropped, 2026-09-07:
+        # visible mould became an in-scope hazard class of its own on that
+        # date, and the quality vocabulary it used to share a bucket with is
+        # out of scope — the publish gate now blocks a row whose only class
+        # is quality/spoilage (the FSANZ "Drink Purple" unintended-
+        # fermentation row was archived the same day for exactly that).
+        IN_SCOPE = {"biological", "biotoxin", "mycotoxin", "mould",
+                    "physical", "chemical"}
+        # A row may sit outside the hazard classes ONLY when the operator
+        # wrote the exception onto the row itself. One such row exists: the
+        # MILBONA high-protein pudding (EFET, 26 Jun 2026, organoleptic
+        # spoilage), admitted by operator decision and saying so in Notes.
+        # An exception that is not written down is a defect.
+        EXCEPTION_MARKERS = ("one-off operator exception",
+                             "admitted by operator decision")
         bad = []
         for r in self._recalls():
             classes = (classify_hazard(str(r.get("Pathogen") or ""))
                        | classify_hazard(str(r.get("Reason") or "")))
             if classes and not (classes & IN_SCOPE):
+                notes = str(r.get("Notes") or "").lower()
+                if any(m in notes for m in EXCEPTION_MARKERS):
+                    continue
                 bad.append((r["Date"], str(r.get("Company"))[:32],
                             str(r.get("Pathogen"))[:32]))
         self.assertEqual([], bad,

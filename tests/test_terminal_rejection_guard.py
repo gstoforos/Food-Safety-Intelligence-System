@@ -87,10 +87,21 @@ def test_guard_is_wired_into_append_to_pending():
 # verdict in Notes. Four permanently-rejected items were re-ingested on
 # 2026-09-01, one day after the guard shipped.
 
+# REVERSED POLICY IS NOT A PERMANENT PROPERTY (2026-09-07). The stored
+# reason "spoilage — RappelConso motif moisissures" used to belong in the
+# list below. Visible mould moved INTO scope on 2026-09-07, so a rejection
+# whose reason names mould must now be retryable — otherwise the guard
+# would keep enforcing a policy the operator has withdrawn. Its case now
+# lives in STORED_REVERSED.
+STORED_REVERSED = [
+    "spoilage — RappelConso motif moisissures",
+    "out_of_scope_quality_spoilage — visible mould in the bottle neck",
+    "quality/spoilage — microbial (Mould) contamination",
+]
+
 STORED_TERMINAL = [
     "labelling — Capri-Sun Orange multipacks mislabelled as Orange Zero",
     "quality/spoilage — possible spoilage, no pathogen named",
-    "spoilage — RappelConso motif moisissures",
     "pet food — AFTS-FSIS is a human-food register",
     "duplicate of the Summit Foods FSA-PRIN-40-2026 notice",
     "Outside AFTS scope. The register monitors pathogens",
@@ -205,3 +216,10 @@ def test_terminal_beats_transient_across_sheets(tmp_path):
     key = next(k for k in m if "recall-widget" in k)
     assert _is_terminal_rejection(m[key]) is True, (
         f"stale transient verdict won over the newer terminal one: {m[key]!r}")
+
+
+@pytest.mark.parametrize("desc", STORED_REVERSED,
+                         ids=[d[:44] for d in STORED_REVERSED])
+def test_reversed_policy_rejections_are_retryable(desc):
+    """A rejection made under a policy since withdrawn must not block."""
+    assert _is_terminal_rejection(desc) is False, f"should not block: {desc!r}"
