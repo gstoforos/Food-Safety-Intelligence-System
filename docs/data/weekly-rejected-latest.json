@@ -1,15 +1,38 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-07T18:34:37+00:00",
-  "row_count": 9,
-  "tier1_count": 8,
+  "generated_utc": "2026-09-07T19:52:22+00:00",
+  "row_count": 10,
+  "tier1_count": 9,
   "outbreak_count": 2,
   "by_reviewer": {
-    "unknown": 5,
+    "unknown": 6,
     "operator-review": 3,
     "repromotion-guard": 1
   },
   "rows": [
+    {
+      "Date": "2026-09-06",
+      "Source": "USDA FSIS",
+      "Company": "",
+      "Brand": "—",
+      "Product": "•\tVarious weight cardboard cases containing two pieces of individually vacuumed packed “PRIME LINE DISTRIBUTORS, INC. GUANCIALE PORK JOWL PRODUCT OF ITALY” with “LOT: 263311US” and “BEST IF USE BY DATE: 05.16.27” printed on the label. •\tVarious weight individually vacuumed packaged “GUANCIALE PORK J",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "WASHINGTON, Sept. 06, 2026 – Prime Line Distributors, Inc., a Fort Lauderdale, Fla., firm, and Ferrarini USA, Inc., a Hoboken, N.J., firm, are recalling approximately 1,513 pounds of imported ready-to-eat (RTE) pork products that may be adulterated with Listeria monocytogenes ( Lm ), the U.S. Department of Agriculture’s Food Safety and Inspection Service (FSIS) announced today. The imported RTE dr",
+      "Class": "Class I",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.fsis.usda.gov/recalls-alerts/prime-line-distributors-inc--and-ferrarini-usa-inc--recall-imported-ready-eat-pork",
+      "Notes": "REJECTED: Confirmer: reviewer 2 approved but Product looks like a headline, not a product name; Company is empty (Brand set) — the publish gate requires the recalling firm | FSIS API; #019-020-2026; Texas Idaho New York New Jersey Florida Texas Illinois Mississippi California Florida",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Confirmer: reviewer 2 approved but Product looks like a headline, not a product name; Company is empty (Brand set) — the publish gate requires the recalling firm",
+      "Reviewed": "N"
+    },
     {
       "Date": "2026-09-04",
       "Source": "BLV (CH)",
