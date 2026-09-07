@@ -1075,6 +1075,14 @@ _TERMINAL_REJECTION_MARKERS = (
     "out of scope", "not a food product", "choking hazard", "tvb-n",
 )
 
+# Rejection reasons that look terminal but must NOT block a re-ingestion any
+# more, because the policy that produced them has since changed (2026-09-07:
+# visible mould moved INTO scope). A reason matching one of these is treated
+# as retryable even when it also matches a marker above.
+_REVERSED_REJECTION_MARKERS = (
+    "mould", "mold", "moisissure", "muffa", "moho", "schimmel",
+)
+
 # Checked FIRST. A reason that is transient, ambiguous, or explicitly not a
 # rejection must stay retryable no matter what else it contains — giving a
 # source the chance to fix a broken link is the documented purpose of the
@@ -1136,6 +1144,14 @@ def _is_terminal_rejection(desc: str) -> bool:
     """
     d = (desc or "")
     if not d.strip():
+        return False
+    # A rejection made under a policy that has since been REVERSED is not a
+    # permanent property of the item (2026-09-07: visible mould moved into
+    # scope). Checked before everything else, including an operator verdict:
+    # the operator changed the policy, so their own earlier verdict under the
+    # old one must not keep the row out.
+    dl_all = d.lower()
+    if any(m in dl_all for m in _REVERSED_REJECTION_MARKERS):
         return False
     verdict = _latest_operator_verdict(d)
     if verdict is not None:

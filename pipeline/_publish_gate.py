@@ -304,12 +304,22 @@ HAZARD_CLASS_KEYWORDS = {
         "niet-gedeclareerd allergeen", "niet gedeclareerd allergeen",
         "allergeen niet vermeld",
     ),
-    # Only explicit mould vocabulary — a bare "microbial contamination" must
-    # stay unclassifiable so the guard keeps failing safe on vague text.
-    "spoilage": (
+    # MOULD IS ITS OWN HAZARD CLASS, AND IT IS IN SCOPE (2026-09-07).
+    #
+    # It used to be the "spoilage" class, which is what made a mould recall
+    # read as a quality defect and get archived — FSANZ Mt Ossa spring water,
+    # FSANZ Summer Snow apple juice, RappelConso Racines ginger drink and
+    # EFET's Oikogeneia Christodoulou juices were all rejected that way.
+    # Operator decision: mould growth in a food is a microbiological
+    # contamination, so it classifies as "mould" and passes the scope test
+    # below on its own. Only explicit mould vocabulary — a bare "microbial
+    # contamination" must stay unclassifiable so the guard keeps failing safe
+    # on vague text.
+    "mould": (
         "mould", "moulds", "mould contamination", "mold contamination",
-        "moisissure", "muffa", "moho", "schimmel",
+        "moisissure", "muffa", "moho", "schimmel", "mögel",
         "visible mould", "visible mold", "mouldy", "moldy",
+        "ευρωτίασ", "μούχλα", "fungal growth", "fungal contamination",
     ),
 }
 
@@ -347,7 +357,9 @@ _BARE_ALLERGEN_PATHOGENS = frozenset({
     #   Yopokki cups       Pathogen "Spoilage"          — a quality defect
     # Neither is a hazard this database covers. Both had already been
     # rejected once by claude-check and had found their way back to Pending.
-    "undeclared sugar", "sugar", "spoilage", "mould", "mold",
+    # "mould"/"mold" REMOVED 2026-09-07: a Pathogen field of exactly
+    # "Mould" is now a hazard in its own right, not a quality term.
+    "undeclared sugar", "sugar", "spoilage",
     "off-odour", "off odour", "off-odor", "off odor",
     "quality", "quality defect", "labelling", "labeling",
     "mislabelling", "mislabeling", "undeclared ingredient",
@@ -715,13 +727,27 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
         # is untouched.
         if _is_bare_allergen(pathogen) and not classify_hazard(reason):
             _classes = {"allergen"}
-        if _classes and _classes <= {"allergen"}:
+        # OUT-OF-SCOPE CLASSES (widened 2026-09-07). "fermentation" — which
+        # holds the spoilage vocabulary — is now a blocker here too. It was
+        # not, and that is why the FSAI Yopokki row ("possible spoilage")
+        # passed every deterministic check four times and had to be rejected
+        # by hand on each pass: its class set was {"fermentation"}, which is
+        # not a subset of {"allergen"}, so this branch never fired. Mould
+        # left that bucket on the same day and has its own class, so the two
+        # changes belong together: what remains under "fermentation" is
+        # spoilage, wild yeast, alcohol and CO2 formation — quality defects
+        # the policy excludes.
+        if _classes and _classes <= {"allergen", "fermentation"}:
+            _named = "allergen/labelling" if _classes <= {"allergen"} else (
+                "quality/spoilage" if _classes <= {"fermentation"}
+                else "allergen/labelling and quality/spoilage")
             problems.append(
-                "Out of AFTS scope: allergen/labelling is the only hazard "
-                "class this row resolves to (policy 2026-07-29 — allergen-"
-                "only, labelling and quality recalls are excluded; pathogens, "
-                "biotoxins, mycotoxins, foreign material, pest and chemical "
-                "hazards only)")
+                f"Out of AFTS scope: {_named} is the only hazard "
+                "class this row resolves to (policy 2026-07-29, mould moved "
+                "into scope 2026-09-07 — allergen-only, labelling and quality "
+                "recalls are excluded; pathogens, biotoxins, mycotoxins, "
+                "visible mould, foreign material, pest and chemical hazards "
+                "only)")
 
     # 9. Company must not carry the page's status banner. FSANZ prepends
     #    "UPDATED DD.MM.YY | " to the <h1> of an amended alert, and a

@@ -78,6 +78,29 @@ TIER1_KEYWORDS = (
     "sibutramine", "phenolphthalein",
     "undeclared drug", "undeclared pharmaceutical",
     "adulteration", "adulterated",
+    # ── VISIBLE MOULD / FUNGAL GROWTH (operator decision 2026-09-07) ──────
+    # IN SCOPE from this date. Until now a recall whose only stated hazard
+    # was mould was treated as quality/spoilage and rejected: FSANZ Mt Ossa
+    # spring water (14 Jul 2026), FSANZ Summer Snow apple juice (6 Jul,
+    # failed pasteurisation), RappelConso Racines ginger drink (27 Aug) and
+    # EFET's recall of Oikogeneia Christodoulou juices (7 Sep, black mould
+    # in the bottle neck) were all archived. The operator reversed that:
+    # mould growth in a food is a microbiological contamination, not a
+    # cosmetic defect — it is the visible end of fungal growth that can
+    # carry mycotoxins, and every one of those notices ordered a recall.
+    #
+    # SCOPE ONLY, NOT SEVERITY. Mould is Tier 2 (scrapers/_models.py
+    # tier_2_pathogens), beside the mycotoxins. It is deliberately absent
+    # from ALWAYS_TIER1_KEYWORDS below.
+    #
+    # What this does NOT admit: fermentation, off-odour, texture or colour
+    # change, cold-chain breaks and "possible spoilage" with no organism —
+    # those stay out (RappelConso Pressoir du Pays Basque, the Madrange /
+    # Paul Prédault cold-chain cluster, the FSAI Yopokki alert).
+    "mould", "mold", "moisissure", "moisissures",       # EN / FR
+    "muffa", "moho", "schimmel", "mögel", "plesen",     # IT / ES / DE-NL / SE / CZ
+    "ευρωτίαση", "μούχλα",                              # EL
+    "fungal growth", "fungal contamination",
 )
 
 
