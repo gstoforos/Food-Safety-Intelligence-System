@@ -1,14 +1,38 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-07T03:22:18+00:00",
-  "row_count": 6,
-  "tier1_count": 6,
+  "generated_utc": "2026-09-07T08:52:27+00:00",
+  "row_count": 7,
+  "tier1_count": 7,
   "outbreak_count": 2,
   "by_reviewer": {
     "unknown": 5,
+    "operator-review": 1,
     "repromotion-guard": 1
   },
   "rows": [
+    {
+      "Date": "2026-09-04",
+      "Source": "BLV (CH)",
+      "Company": "Lidl Schweiz",
+      "Brand": "Nautica",
+      "Product": "geräucherten Forellenfilets Natur",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "In geräucherten Forellenfilets Natur der Marke Nautica, verkauft bei Lidl Schweiz, wurden Listerien nachgewiesen. Eine Gesundheitsgefährdung kann nicht ausgeschlossen werden.",
+      "Class": "Recall",
+      "Country": "Switzerland",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.blv.admin.ch/de/newnsb/vJOE6VgGBqlJ",
+      "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file] [operator review 2026-09-07: REJECTED — duplicate_of_published: the same OSAV public warning (4 Sep 2026, Nautica smoked trout, Lidl Schweiz) is published from its French page https://www.blv.admin.ch/fr/newnsb/vJOE6VgGBqlJ; this row is the German page of the same release.]",
+      "DateAdded": "2026-09-06",
+      "LastUpdated": "2026-09-06",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "operator-review",
+      "RejectionReason": "duplicate_of_published: the same OSAV public warning (4 Sep 2026, Nautica smoked trout, Lidl Schweiz) is published from its French page https://www.blv.admin.ch/fr/newnsb/vJOE6VgGBqlJ; this row is the German page of the same release.",
+      "Reviewed": "N"
+    },
     {
       "Date": "2026-09-03",
       "Source": "FDA",
