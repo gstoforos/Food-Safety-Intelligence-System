@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-09-07",
+  "Source": "EFET (GR)",
+  "Company": "ΒΙΤΟΜ ΑΒΕΕ (VITOM ABEE), Koufalia, Thessaloniki",
+  "Brand": "Οικογένεια Χριστοδούλου (Oikogeneia Christodoulou)",
+  "Product": "Natural juices — orange 100% (250 ml, 1 L, 1.5 L), nine fruits / 7 vitamins (250 ml, 1 L) and apple-orange-carrot (250 ml); lots 210.6, 211.6, 215.6, 217.6 and 223.6, best before 11–24/09/2026",
+  "Pathogen": "Mould",
+  "Reason": "Development of black mould inside the neck of the bottle; EFET ordered immediate recall and withdrawal",
+  "Class": "Recall",
+  "Country": "Greece",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5413-deltio-typou-anaklisi-mi-asfalon-trofimon",
+  "Notes": "[operator review 2026-09-07: EFET press release 5413 of 7 September 2026, hazard verbatim \"ανάπτυξη ευρωτίασης μαύρης χροιάς στο εσωτερικό του στομίου του μπουκαλιού\". PROVENANCE: efet.gr answers HTTP 409 to this environment, so the release itself was not read; company, brand, hazard wording and all five lot codes come from three Greek national outlets of 7 Sep 2026 (tovima.gr, naftemporiki.gr, sofokleousin.gr), which agree on every field. The EFET URL is cited because EFET is the publisher; the mirrors are evidence, not the source.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.]"
+ },
+ {
   "Date": "2026-09-04",
   "Source": "RappelConso (FR)",
   "Company": "Ms Decoupe et la Ferme de sous la Velle",
@@ -1822,6 +1838,22 @@
   "Outbreak": 0,
   "URL": "https://www.nvwa.nl/documenten/consument/productwaarschuwingen/voedsel/2026/veiligheidswaarschuwing-biologische-brie-van-plus",
   "Notes": "Barcode 2398141000000 (last digits may vary).  [via Gemini gap-finder + Google Search] [confirm-agent 2026-08-30: pending_gap_v3 → pending; independent checks passed] [nightly-operator 2026-08-30: Class 'Veiligheidswaarschuwing' -> 'Safety warning' (non-English wording)] [source-label normalised 2026-08-31: 'NVWA' -> 'NVWA (NL)'. The Dutch authority was carried under two labels, inflating the distinct-source count and splitting its share in the Herfindahl index. Majority form kept.]"
+ },
+ {
+  "Date": "2026-08-27",
+  "Source": "RappelConso (FR)",
+  "Company": "Racines",
+  "Brand": "Racines",
+  "Product": "Boisson gingembre (ginger drink) 75 cl, GTIN 3700019522049, best before 04/04/2028, 07/04/2028 and 08/04/2028, sold 25/06/2026–20/08/2026",
+  "Pathogen": "Mould",
+  "Reason": "Possible presence of mould in some bottles",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23336/Interne",
+  "Notes": "[operator review 2026-09-07: verified on fiche 23336: Alimentation > Boissons non alcoolisées, motif \"Présence possible de moisissures dans certaines bouteilles\", distributed through specialist shops nationwide. The fiche states the consumer risk as organoleptic; the row is Tier 2 under the uniform mould rule rather than tiered per notice.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.]"
  },
  {
   "Date": "2026-08-26",
@@ -8400,6 +8432,22 @@
   "Notes": "[RASFF #2026.6272; classification: alert notification; category: meat and meat products (other than poultry); notifId=858221] [gemini-enrich 2026-07-15: Brand '—'→'BELGIUM'] [gemini-check 2026-07-15: pass; clean-row shortcut (gemini-enriched + all fields valid)]"
  },
  {
+  "Date": "2026-07-14",
+  "Source": "FSANZ (AU)",
+  "Company": "Tasmanian Mountain Waters Exp",
+  "Brand": "Mt Ossa",
+  "Product": "Mt Ossa Australian Spring Water 10 L (best before 15/06/2028)",
+  "Pathogen": "Mould",
+  "Reason": "Microbial (mould) contamination; the notice states that food contaminated with mould may cause illness if consumed",
+  "Class": "Recall",
+  "Country": "Australia",
+  "Region": "Oceania",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/tasmanian-mountain-waters-exp-mt-ossa-australian-spring-water-10l",
+  "Notes": "[operator review 2026-09-07: verified on the FSANZ alert of 14 July 2026: sold at Woolworths in NSW and QLD only, consumers told not to consume and to return for a refund.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.]"
+ },
+ {
   "Date": "2026-07-13",
   "Source": "RASFF (EU)",
   "Company": "Origin: Nigeria | Notifying: Netherlands",
@@ -9422,6 +9470,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22730/Interne",
   "Notes": "super u - tinel - carrefour express [url-gate 2026-07-06: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-06: fix; corrections: Company→GIBAUD PHILIPPE; placeholder_company_filled_from_page | fix; company mismatch | Company was empty in the row but identified on the page a] [language 2026-08-15: Reason organism name rendered in English. Was 'Presence of listéria'. The species name is not exempt from the English-output rule — only brand and product names are — and this row's own Pathogen field already read 'Listeria monocytogenes', which is where the target came from. Only the organism token was rewritten; any quantitative qualifier is byte-identical.]"
+ },
+ {
+  "Date": "2026-07-06",
+  "Source": "FSANZ (AU)",
+  "Company": "Bellevue Orchard Pty Ltd",
+  "Brand": "Summer Snow",
+  "Product": "Summer Snow Pink Lady Apple Juice 1 L (best before 12/03/2027, 08/03/2027) and Summer Snow Granny Smith Apple Juice 2 L (best before 29/03/2027)",
+  "Pathogen": "Mould",
+  "Reason": "Unsuccessful pasteurisation resulting in microbial (mould) contamination",
+  "Class": "Recall",
+  "Country": "Australia",
+  "Region": "Oceania",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/updated-07072026-bellevue-orchard-pty-ltd-summer-snow-pink-lady-apple",
+  "Notes": "[operator review 2026-09-07: verified on the FSANZ alert as UPDATED 07.07.2026, which supersedes the first notice of the same recall; sold through independent retailers including IGA nationally and online, and Farmers Pick in Victoria. The superseded first URL is NOT published: one notice, one row.] [scope change 2026-09-07: visible mould is IN scope from this date (operator decision). Mould growth in a food is a microbiological contamination, not a cosmetic defect; Tier 2, beside the mycotoxins. Fermentation, off-odour, texture/colour change, cold-chain breaks and bare \"possible spoilage\" stay out of scope.] [previously archived as out_of_scope_quality_spoilage; that rejection is reversed by the scope change and its archive record removed so the re-promotion guard does not block the row.]"
  },
  {
   "Date": "2026-07-05",
@@ -12606,22 +12670,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22526/Interne",
   "Notes": "carrefour market vannes-tohannic uniquement [url-gate 2026-06-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-11: fix; corrections: Company→CARREFOUR FRANCE CARREFOUR, Brand→Unbranded; placeholder_company_filled_from_page | fix; company mismatch | Company was empty in the row but found on the page; Brand] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [name-clean 2026-08-01: Company 'CARREFOUR FRANCE CARREFOUR'->'CARREFOUR FRANCE'; concatenated/duplicated token removed. The claim that names are 'preserved verbatim from regulator data' is only true once these merge artifacts are gone.]"
- },
- {
-  "Date": "2026-06-11",
-  "Source": "FSANZ (AU)",
-  "Company": "Mama Nayture Pty Ltd",
-  "Brand": "Drink Purple",
-  "Product": "Drink Purple 60ml and 350ml",
-  "Pathogen": "Unintended fermentation (microbiological quality)",
-  "Reason": "Unintended Fermentation",
-  "Class": "Recall",
-  "Country": "Australia",
-  "Region": "Oceania",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/mama-nayture-pty-ltd-drink-purple-60ml-and-350ml",
-  "Notes": "[gemini-enrich 2026-06-11: Brand '—'→'Drink Purple'] [gemini-check 2026-06-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [mama-fix 2026-06-14: Pathogen \"Listeria monocytogenes\" → \"Unintended fermentation\" + Tier 1→2. Gemini default-tag; Reason field said \"Unintended Fermentation\" but Gemini passed Listeria. FSANZ source confirms unintended fermentation, no pathogen.]"
  },
  {
   "Date": "2026-06-10",

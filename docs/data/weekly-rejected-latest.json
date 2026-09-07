@@ -1,12 +1,12 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-07T08:52:27+00:00",
-  "row_count": 7,
-  "tier1_count": 7,
+  "generated_utc": "2026-09-07T18:34:37+00:00",
+  "row_count": 9,
+  "tier1_count": 8,
   "outbreak_count": 2,
   "by_reviewer": {
     "unknown": 5,
-    "operator-review": 1,
+    "operator-review": 3,
     "repromotion-guard": 1
   },
   "rows": [
@@ -31,6 +31,29 @@
       "Week_Added": "2026-09-13",
       "RejectedBy": "operator-review",
       "RejectionReason": "duplicate_of_published: the same OSAV public warning (4 Sep 2026, Nautica smoked trout, Lidl Schweiz) is published from its French page https://www.blv.admin.ch/fr/newnsb/vJOE6VgGBqlJ; this row is the German page of the same release.",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-04",
+      "Source": "BLV (CH)",
+      "Company": "Carnadis Sàrl",
+      "Brand": "—",
+      "Product": "verpackten oder verarbeiteten Produkten, insbesondere Fleisch, Fleischzubereitungen, Charcuterie-Produkte und Geflügelprodukte",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "Das Bakterium Listeria monocytogenes wurde in der Produktionsumgebung des Unternehmens Carnadis Sàrl nachgewiesen. Eine Kontamination der vom Unternehmen verpackten oder verarbeiteten Lebensmittel kann nicht ausgeschlossen werden.",
+      "Class": "Recall",
+      "Country": "Switzerland",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.blv.admin.ch/de/newnsb/e1n1cVM6B3Ke",
+      "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file] [operator review 2026-09-07: REJECTED — duplicate_of_published: this is the GERMAN page of the OSAV public warning on products packed or processed by Carnadis Sàrl, already published from its French page (same admin.ch message id). Archived once on 2026-09-07 and re-added at 19:33 by a run whose workbook snapshot predated that edit — a write race with the manual upload, not a dedup failure: pipeline/merge_master._normalize_url_for_dedup collapses /de/ and /fr/ to one key. Archived again.]",
+      "DateAdded": "2026-09-06",
+      "LastUpdated": "2026-09-06",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "operator-review",
+      "RejectionReason": "duplicate_of_published: this is the GERMAN page of the OSAV public warning on products packed or processed by Carnadis Sàrl, already published from its French page (same admin.ch message id). Archived once on 2026-09-07 and re-added at 19:33 by a run whose workbook snapshot predated that edit — a wr",
       "Reviewed": "N"
     },
     {
@@ -169,6 +192,29 @@
       "Week_Added": "2026-09-13",
       "RejectedBy": "unknown",
       "RejectionReason": "Confirmer: reviewer 2 approved but Date is empty",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-06-11",
+      "Source": "FSANZ (AU)",
+      "Company": "Mama Nayture Pty Ltd",
+      "Brand": "Drink Purple",
+      "Product": "Drink Purple 60ml and 350ml",
+      "Pathogen": "Unintended fermentation (microbiological quality)",
+      "Reason": "Unintended Fermentation",
+      "Class": "Recall",
+      "Country": "Australia",
+      "Region": "Oceania",
+      "Tier": 2,
+      "Outbreak": 0,
+      "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/mama-nayture-pty-ltd-drink-purple-60ml-and-350ml",
+      "Notes": "[gemini-enrich 2026-06-11: Brand '—'→'Drink Purple'] [gemini-check 2026-06-11: pass; clean-row shortcut (gemini-enriched + all fields valid)] [mama-fix 2026-06-14: Pathogen \"Listeria monocytogenes\" → \"Unintended fermentation\" + Tier 1→2. Gemini default-tag; Reason field said \"Unintended Fermentation\" but Gemini passed Listeria. FSANZ source confirms unintended fermentation, no pathogen.] [operator review 2026-09-07: REJECTED — out_of_scope_quality_spoilage: unintended fermentation with no pathogen, no toxin and no foreign body. Found by the publish gate on the day mould moved INTO scope: the gate now blocks a row whose only hazard class is quality/spoilage, and this row — published 2026-06-11, already corrected once on 06-14 from a mis-tagged \"Listeria monocytogenes\" — is the one row in the register that fails it. Same class as the RappelConso Pressoir du Pays Basque sparkling lemon-yuzu rejection (14 and 19 Aug 2026, \"risque de fermentation spontanée\"). Mould is now in scope; fermentation is not.]",
+      "DateAdded": "2026-06-11",
+      "LastUpdated": "2026-06-11",
+      "LastChecked": "2026-06-10",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "operator-review",
+      "RejectionReason": "out_of_scope_quality_spoilage: unintended fermentation with no pathogen, no toxin and no foreign body. Found by the publish gate on the day mould moved INTO scope: the gate now blocks a row whose only hazard class is quality/spoilage, and this row — published 2026-06-11, already corrected once on 06",
       "Reviewed": "N"
     }
   ]
