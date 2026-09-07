@@ -26142,5 +26142,21 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-09-04",
+  "Source": "FSA (UK)",
+  "Company": "Sainsbury's",
+  "Brand": "Sainsbury's",
+  "Product": "Inspired to Cook by Sainsbury's Pitted Black ...",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://alerts.food.gov.uk/article/6857/Sainsburys-recalls-Inspired-to-Cook-by-Sainsburys-Pitted-Black-Olives-because-of-contamination-with-Listeria-monocytogenes",
+  "Notes": "2 days ago · Sainsbury's recalls Inspired to Cook by Sainsbury's Pitted Black Olives because of contamination with Listeria monocytogenes. Food Alert , 4 September 2026 00: ...  [via DDGS gap-finder, deterministic extract] [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed]"
  }
 ]
