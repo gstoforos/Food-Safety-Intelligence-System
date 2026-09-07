@@ -518,8 +518,12 @@ def figure_one(weekly, window_label, steps=(), peak_sources=None) -> str:
                       f'text-anchor="middle">{_esc(weekly[i]["label"][:-5])}</text>')
 
     if steps:
-        parts = [f'the week of {_esc(x["label"])} (+{x["delta"]}, of which '
-                 f'{x["src_delta"]} from <strong>{_esc(x["source"])}</strong>)'
+        # A source can rise by more than the net step when others fall
+        # (W36: RappelConso +43 against a net +41), so the wording says
+        # "net" and "from", never "of which" (2026-09-07).
+        parts = [f'the week of {_esc(x["label"])} (net +{x["delta"]}; '
+                 f'<strong>{_esc(x["source"])}</strong> alone '
+                 f'{"+" if x["src_delta"] >= 0 else ""}{x["src_delta"]})'
                  for x in steps[:2]]
         dom_txt = ("The two largest weekly increases in the corpus are "
                    + " and ".join(parts)
