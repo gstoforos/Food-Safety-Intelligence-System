@@ -942,6 +942,23 @@ def _incident_note(rows):
 # Readable descriptions for operator-assigned incident ids, so the report
 # never prints a raw identifier such as "silve salads 2026 09 02"
 # (review 2026-09-05). An id without an entry falls back to the id text.
+# Published corrections, keyed "YYYY-Www". A weekly briefing is emailed at
+# 12:00 Athens from weekly-summary-latest.json; if the figures move after
+# that mail goes out, the page must SAY so rather than quietly disagree with
+# the subscriber's inbox (2026-09-07).
+CORRECTIONS = {
+    "2026-W36": (
+        "Correction. The subscriber email sent at 12:00 on 7 September quoted "
+        "80 incidents, from the 04:08 build of this page. Two counting errors "
+        "were corrected afterwards: the Swiss public warning on Nautica smoked "
+        "trout had been captured twice, from the German and the French page of "
+        "the same OSAV release, and that warning and the producer's own recall "
+        "of the same lot were counted as two events rather than one. One "
+        "RappelConso notice missing from the window (fiche 23460, Paturages "
+        "Comtois) has since been added. The figures on this page are the "
+        "corrected ones and supersede the email."),
+}
+
 INCIDENT_LABELS = {
     "fr:leclerc-dinan-2026-08-15":
         "E.Leclerc Dinan (Côtes-d'Armor), suspected cold-chain failure, one store, "
@@ -3136,7 +3153,7 @@ __CSS_PLACEHOLDER__
   Outbreak figures count <strong>distinct events</strong>, not rows &mdash;
   several recalls arising from one investigation are counted once.
 </p>
-{bridge_note}
+{bridge_note}{correction_note}
 <div class="kpi-strip">
   <div class="kpi">
     <div class="kpi-label">Total Incidents</div>
@@ -3525,6 +3542,11 @@ def build_html(week_end, recalls, prev_week, original_published=None, all_rows=N
         n_jurisdictions=len(stats["country_counts"]), delta_html=dh,
         n_notices=len(recalls), incident_note=_incident_note(recalls),
         bridge_note=bridge_note,
+        correction_note=(
+            '<p class="r-sub" style="margin-top:6px;border-left:3px solid #dc2626;'
+            'padding-left:10px"><strong>Correction.</strong>'
+            + esc(CORRECTIONS["{}-W{:02d}".format(year, wnum)]).split("Correction.", 1)[1]
+            + '</p>') if "{}-W{:02d}".format(year, wnum) in CORRECTIONS else "",
         outbreak_kpi_sub=_outbreak_kpi_sub(recalls, all_rows or recalls, _ws_b),
         tier1=stats["tier1"], outbreaks=stats["outbreaks"],
         top_pathogen_name=esc(tp), top_cnt=tc, top_pct=tpct, co_dom_note=co_dom_note,
