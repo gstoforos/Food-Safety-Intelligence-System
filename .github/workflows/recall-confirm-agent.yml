@@ -233,10 +233,20 @@ jobs:
 
 
           def _norm_url(u: Any) -> str:
+              import re as _re
               u = str(u or "").strip().lower().rstrip("/")
               for p in ("https://", "http://", "www."):
                   if u.startswith(p):
                       u = u[len(p):]
+              # admin.ch newsroom (2026-09-07): one federal release is served at /de/,
+              # /fr/ and /it/, and mirrored on every department host, under the same
+              # message id. The German page of the OSAV Nautica trout warning was
+              # published beside the French page already in Recalls. merge_master's
+              # dedup key already collapses these; this makes the confirmer's own
+              # duplicate test agree with it.
+              m = _re.match(r"^[a-z0-9.-]*admin\.ch/(?:[a-z]{2}/)?newnsb/([a-z0-9]+)", u)
+              if m:
+                  return "admin.ch/newnsb/" + m.group(1)
               return u
 
 
