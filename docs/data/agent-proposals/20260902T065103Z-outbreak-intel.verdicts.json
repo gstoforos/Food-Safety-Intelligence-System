@@ -59,7 +59,9 @@
     "proposal_id": "f1ec384555347a8a",
     "action": "link_event",
     "applied": false,
-    "refusals": [],
-    "detail": "would apply (dry run)"
+    "refusals": [
+      "no row found for 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-greenwise-organic-frozen-blueberries-and-mixed-berries-due-possible-e-coli' in Pending or Recalls"
+    ],
+    "detail": ""
   }
 ]
