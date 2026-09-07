@@ -1406,7 +1406,7 @@ none can recur silently.</caption>
   <p>AFTS-FSIS aggregates food recall and alert notices from
   {n_publishers} regulatory publishers across Europe, North America,
   Asia-Pacific and beyond, normalises them into one schema, and screens
-  them for pathogens, biotoxins, mycotoxins, foreign material, pest and
+  them for pathogens, biotoxins, mycotoxins, visible mould, foreign material, pest and
   chemical hazards. Daily briefs, weekly and monthly digests, and the
   aberration scan described in this report.</p>
   <p style="margin-bottom:18px">Subscribe for the daily brief and weekly

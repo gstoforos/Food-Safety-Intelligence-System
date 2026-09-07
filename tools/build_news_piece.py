@@ -231,7 +231,7 @@ regulatory publishers assigned a coverage class; {_num_word(excl)}
 aggregator or non-regulatory labels are excluded. {_num_word(cont).capitalize()}
 continuously collected publishers determine the analytical coverage window.
 Every notice is normalised into one schema and screened for pathogens,
-biotoxins, mycotoxins, foreign material, pest and chemical hazards.</p>
+biotoxins, mycotoxins, visible mould, foreign material, pest and chemical hazards.</p>
 
 <p>The complete {d['n_weeks']}-week corpus contains
 {d['n_records']:,} notices. The approved {win_wk}-week analytical window
