@@ -1,39 +1,48 @@
 {
   "entries": [
     {
+      "date": "2026-09-06",
+      "url": "daily/2026-09-06.html",
+      "total": 0,
+      "tier1": 0,
+      "outbreak": 0,
+      "by_region": {},
+      "generated": "2026-09-07T07:08:01Z"
+    },
+    {
       "date": "2026-09-05",
       "url": "daily/2026-09-05.html",
       "total": 0,
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-09-06T07:07:48Z"
+      "generated": "2026-09-07T07:08:02Z"
     },
     {
       "date": "2026-09-04",
       "url": "daily/2026-09-04.html",
-      "total": 20,
-      "tier1": 18,
+      "total": 23,
+      "tier1": 21,
       "outbreak": 0,
       "by_region": {
-        "Europe": 17,
+        "Europe": 20,
         "Oceania": 1,
         "North America": 1,
         "Middle East": 1
       },
-      "generated": "2026-09-06T07:07:49Z"
+      "generated": "2026-09-07T07:08:03Z"
     },
     {
       "date": "2026-09-03",
       "url": "daily/2026-09-03.html",
-      "total": 11,
-      "tier1": 7,
-      "outbreak": 1,
+      "total": 14,
+      "tier1": 10,
+      "outbreak": 4,
       "by_region": {
         "Europe": 8,
-        "North America": 3
+        "North America": 6
       },
-      "generated": "2026-09-06T07:07:50Z"
+      "generated": "2026-09-07T07:08:03Z"
     },
     {
       "date": "2026-09-02",
@@ -45,7 +54,7 @@
         "Europe": 37,
         "Middle East": 1
       },
-      "generated": "2026-09-06T07:07:51Z"
+      "generated": "2026-09-07T07:08:04Z"
     },
     {
       "date": "2026-09-01",
@@ -57,7 +66,7 @@
         "Europe": 8,
         "North America": 1
       },
-      "generated": "2026-09-06T07:07:52Z"
+      "generated": "2026-09-07T07:08:05Z"
     },
     {
       "date": "2026-08-31",
@@ -69,16 +78,7 @@
         "Europe": 2,
         "North America": 1
       },
-      "generated": "2026-09-06T07:07:53Z"
-    },
-    {
-      "date": "2026-08-30",
-      "url": "daily/2026-08-30.html",
-      "total": 0,
-      "tier1": 0,
-      "outbreak": 0,
-      "by_region": {},
-      "generated": "2026-09-06T07:07:53Z"
+      "generated": "2026-09-07T07:08:06Z"
     }
   ]
 }
