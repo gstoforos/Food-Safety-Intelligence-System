@@ -168,7 +168,8 @@ def test_figure_step_attribution_is_computed_not_asserted(built):
         now = int((f[(f["week"] == w) & (f["Source"] == st["source"])]).shape[0])
         was = int((f[(f["week"] == prev) & (f["Source"] == st["source"])]).shape[0])
         assert now - was == st["src_delta"], st
-        assert st["src_delta"] <= st["delta"], st
+        # No "src_delta <= delta" invariant: a source can rise by more than
+        # the net step when other sources fall in the same week.
         assert st["label"] in page
 
 

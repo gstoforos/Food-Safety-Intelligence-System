@@ -340,12 +340,18 @@ class TestLatestPointerNeverMovesBackwards:
         d = json.loads(ptr.read_text(encoding="utf-8"))
 
         today = date.today()
-        # Most recent Friday on or before today — the current ship day.
-        ship_friday = today - timedelta(days=(today.weekday() - 4) % 7)
-        # The week that ships on that Friday closed on the Thursday before.
-        newest_allowed = ship_friday - timedelta(days=1)
-
         week_end = date.fromisoformat(str(d["week_end"])[:10])
+        if week_end >= date(2026, 9, 6):
+            # ISO rule (from 2026-W36): a week closes on its Sunday and ships
+            # the Monday after, so the newest legitimate pointer is the most
+            # recent Sunday on or before today.
+            newest_allowed = today - timedelta(days=(today.weekday() + 1) % 7)
+        else:
+            # Friday rule: most recent Friday on or before today is the ship
+            # day; the week that ships then closed on the Thursday before.
+            ship_friday = today - timedelta(days=(today.weekday() - 4) % 7)
+            newest_allowed = ship_friday - timedelta(days=1)
+
         assert week_end <= newest_allowed, (
             f"weekly-summary-latest.json points at {d.get('filename')} "
             f"covering data through {week_end}, but the most recently "
