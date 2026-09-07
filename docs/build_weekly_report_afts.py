@@ -955,6 +955,8 @@ INCIDENT_LABELS = {
         "Fromagerie les 4 Fermes — Listeria monocytogenes, one dairy, five cheese formats (4 Sep 2026)",
     "fr:ravalec-saucisson-2026-09-02":
         "Ravalec dry sausages — Listeria <10 cfu/g, one producer, two lots notified 2 and 4 Sep 2026",
+    "ch:nautica-trout-2026-09-04":
+        "Nautica smoked trout fillets (Lidl Schweiz) — Listeria, OSAV public warning and the Danforel producer recall (4 Sep 2026)",
 }
 
 
@@ -1367,7 +1369,11 @@ Tone: professional, process-engineering voice, no emojis, no bullets, no colons 
     # 2026-08-07 review removed US process-authority language from the EU
     # branch of this note, the REAL note stopped matching and lost its label
     # to that impostor. The paragraph knows what it is; it now says so.
-    pa = _process_authority_note(recalls, bot)
+    # The note counts the SAME unit as the KPI (fix 2026-09-07): W36
+    # printed "35 Listeria monocytogenes incidents" in the note against
+    # "30 recall incidents" in the banner, because the note counted notices
+    # while the banner counted incidents. Pass the collapsed rows.
+    pa = _process_authority_note(stats.get("dist_rows") or recalls, bot)
     if pa:
         claude_out = claude_out.rstrip() + "\n\n" + PA_NOTE_MARKER + pa
     return claude_out
@@ -3293,7 +3299,19 @@ def build_html(week_end, recalls, prev_week, original_published=None, all_rows=N
     sr = sort_by_severity(recalls)
 
     raw = generate_analysis_claude(stats, recalls)
-    final = review_with_claude(raw)
+    # POLISH P1-P3 ONLY (fix 2026-09-07). The grammar pass used to receive
+    # the whole text, marker included, and W36 shipped with the Haiku
+    # output "**[[PA-NOTE]]**" printed inside the Process Authority Note
+    # and "**Outbreak watch:**" in P1. The marked paragraph is deterministic
+    # and never needs polishing; it is split off first and re-attached
+    # untouched, and any bold markers the polisher adds are removed.
+    _pa_paras = [p for p in raw.split("\n\n") if PA_NOTE_MARKER.strip() in p]
+    _body = "\n\n".join(p for p in raw.split("\n\n") if PA_NOTE_MARKER.strip() not in p)
+    final = review_with_claude(_body)
+    final = re.sub(r"\*\*", "", final)                      # no bold in the briefing
+    final = final.replace(PA_NOTE_MARKER.strip(), "")       # marker belongs to the note only
+    if _pa_paras:
+        final = final.rstrip() + "\n\n" + _pa_paras[-1].strip()
 
     paras = [p.strip() for p in final.strip().split("\n\n") if p.strip()]
 
