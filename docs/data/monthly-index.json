@@ -11,7 +11,8 @@
     "outbreaks": 3,
     "top_pathogen": "Listeria monocytogenes",
     "summary": "August 2026: 246 recalls, 192 Tier-1, 3 outbreak(s). Leading pathogen: Listeria monocytogenes.",
-    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M08-marketing.pdf"
+    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M08-marketing.pdf",
+    "notified_total": 246
   },
   {
     "filename": "2026-M07.html",
@@ -26,7 +27,7 @@
     "top_pathogen": "Listeria monocytogenes",
     "summary": "July 2026: 304 recalls, 230 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
     "pdf_url": "https://fsis.advfood.tech/marketing/2026-M07-marketing.pdf",
-    "notified_total": 302
+    "notified_total": 304
   },
   {
     "filename": "2026-M06.html",
@@ -41,7 +42,7 @@
     "top_pathogen": "Salmonella spp.",
     "summary": "June 2026: 244 recalls, 193 Tier-1, 4 outbreak(s). Leading pathogen: Salmonella spp..",
     "pdf_url": "https://fsis.advfood.tech/marketing/2026-M06-marketing.pdf",
-    "notified_total": 247
+    "notified_total": 244
   },
   {
     "filename": "2026-M05.html",
@@ -66,10 +67,10 @@
     "month_start": "2026-04-01",
     "month_end": "2026-04-30",
     "total": 364,
-    "tier1": 267,
-    "outbreaks": 9,
+    "tier1": 269,
+    "outbreaks": 7,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "April 2026: 364 recalls, 267 Tier-1, 9 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "summary": "April 2026: 364 recalls, 269 Tier-1, 7 outbreak(s). Leading pathogen: Listeria monocytogenes.",
     "pdf_url": "https://fsis.advfood.tech/marketing/2026-M04-marketing.pdf"
   },
   {
