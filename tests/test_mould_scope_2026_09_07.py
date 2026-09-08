@@ -6,6 +6,15 @@ Snow apple juice (6 Jul), RappelConso Racines ginger drink (27 Aug) and
 EFET's recall of Oikogeneia Christodoulou juices (7 Sep, black mould in the
 bottle neck). All four are now published. These tests pin the rule and its
 boundary: fermentation, off-odour and bare "possible spoilage" stay out.
+
+CANONICAL LABEL (fix 2026-09-08). These tests originally expected the
+Pathogen label "Mould". The register never stores that: merge_master runs
+the US spelling pass on Pathogen/Reason/Class at write time (operator:
+"mould must be mold to us US english"), so every published row reads
+"Mold". The canonical label in scrapers/_models.py is now "Mold" too, and
+"Mould" is kept as an alias in the tier maps. The scope vocabulary in
+pipeline/_pathogen_scope.py still carries both spellings, because that
+module reads notice text, which arrives in either.
 """
 import json, sys, unittest
 sys.path.insert(0, ".")
@@ -28,7 +37,11 @@ class TestScopeVocabulary(unittest.TestCase):
         from pipeline._pathogen_scope import ALWAYS_TIER1_KEYWORDS
         from scrapers._models import assign_tier, normalize_pathogen
         self.assertNotIn("mould", [k.lower() for k in ALWAYS_TIER1_KEYWORDS])
-        self.assertEqual("Mould", normalize_pathogen("black mould inside the bottle neck"))
+        self.assertEqual("Mold", normalize_pathogen("black mould inside the bottle neck"))
+        self.assertEqual("Mold", normalize_pathogen("black mold inside the bottle neck"))
+        self.assertEqual(2, assign_tier("Mold", 0, "Recall", "apple juice 1 L"))
+        # the British spelling still tiers, for rows written before the
+        # US spelling pass existed
         self.assertEqual(2, assign_tier("Mould", 0, "Recall", "apple juice 1 L"))
 
     def test_a_named_toxin_still_wins_over_the_mould_label(self):
@@ -43,7 +56,7 @@ class TestScopeVocabulary(unittest.TestCase):
 class TestPublishGate(unittest.TestCase):
     ROW = {"Date": "2026-09-07", "Source": "EFET (GR)", "Company": "VITOM ABEE",
            "Brand": "Oikogeneia Christodoulou", "Product": "Orange juice 250 ml",
-           "Pathogen": "Mould", "Class": "Recall", "Country": "Greece",
+           "Pathogen": "Mold", "Class": "Recall", "Country": "Greece",
            "Region": "Europe", "Tier": 2, "Outbreak": 0,
            "Reason": "Development of black mould inside the neck of the bottle",
            "URL": ("https://www.efet.gr/index.php/el/enimerosi/deltia-typou/"
@@ -52,6 +65,7 @@ class TestPublishGate(unittest.TestCase):
     def test_mould_has_its_own_hazard_class(self):
         from pipeline._publish_gate import classify_hazard
         self.assertEqual({"mould"}, classify_hazard("Mould"))
+        self.assertEqual({"mould"}, classify_hazard("Mold"))
         self.assertEqual({"fermentation"}, classify_hazard("possible spoilage"))
 
     def test_a_mould_row_publishes(self):
@@ -92,7 +106,7 @@ class TestRegister(unittest.TestCase):
             self.assertIn(url, by_url, url)
             r = by_url[url]
             self.assertEqual(date, str(r["Date"])[:10])
-            self.assertEqual("Mould", r["Pathogen"])
+            self.assertEqual("Mold", r["Pathogen"])
             self.assertEqual(2, int(r["Tier"]))
 
     def test_the_efet_row_cites_efet_not_a_news_mirror(self):
