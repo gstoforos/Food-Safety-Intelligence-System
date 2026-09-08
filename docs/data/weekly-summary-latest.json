@@ -10,18 +10,18 @@
   "week_end_display": "6 Sep 2026",
   "span_days": 10,
   "bridge_edition": true,
-  "generated_utc": "2026-09-07T17:31:18.341652+00:00",
+  "generated_utc": "2026-09-08T10:10:15.258248+00:00",
   "stats": {
-    "total": 79,
-    "tier1": 58,
+    "total": 81,
+    "tier1": 60,
     "outbreaks": 4,
-    "delta": 40,
-    "delta_pct": 103
+    "delta": 41,
+    "delta_pct": 102
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 29,
-    "pct": 37
+    "cases": 31,
+    "pct": 38
   },
   "ai_lead_paragraph": "",
   "top_threats": [
