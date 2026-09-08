@@ -2336,12 +2336,15 @@ def _write_sheet(wb: Workbook,
         # Australian or British recall arrives — FSANZ and the FSA write
         # British English and always will.
         #
-        # It is a SCOPE control as well as a style one. _publish_gate lists
-        # "mould"/"mold" among the out-of-scope hazard terms, yet three
-        # FSANZ rows with Pathogen "Mould" sat in Recalls until 2026-08-14:
-        # the British spelling did not resolve to the quality/spoilage
-        # class, the US spelling does. Normalising before the gate sees the
-        # row is what makes that check work.
+        # It WAS a scope control as well as a style one: _publish_gate used
+        # to list "mould"/"mold" among the out-of-scope hazard terms, and
+        # three FSANZ rows with Pathogen "Mould" sat in Recalls until
+        # 2026-08-14 because the British spelling did not resolve to the
+        # quality/spoilage class. That part is superseded — visible mould is
+        # in scope from 2026-09-07 and has its own hazard class. What the
+        # pass does now is fix the LABEL: the canonical Pathogen string is
+        # "Mold" (scrapers/_models.py) and this is what makes every row
+        # arriving from FSANZ or the FSA read that way.
         #
         # Pathogen / Reason / Class ONLY. Product and Brand are exempt
         # under the English-output rule and must match the pack — and

@@ -830,6 +830,14 @@ def englishify_reason(text) -> Tuple[str, bool]:
 # the British spelling was letting out-of-scope rows through a gate
 # written in US English. Normalising at write time closes that.
 #
+# SUPERSEDED IN PART, 2026-09-07/08. Visible mould is now IN scope
+# (operator decision) and _publish_gate gives it its own "mould" hazard
+# class instead of filing it under quality/spoilage. The scope argument
+# above no longer applies; the STYLE rule stands unchanged and is now
+# what fixes the canonical label. Both spellings are recognised by the
+# gate and by pipeline/_pathogen_scope.py, and the label written to the
+# register is "Mold".
+#
 # TWO GUARDS, BOTH LEARNED THE HARD WAY
 # --------------------------------------
 # 1. PROPER NOUNS. "Programme" is NOT converted. The register cites

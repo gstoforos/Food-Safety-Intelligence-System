@@ -316,19 +316,36 @@ HAZARD_CLASS_KEYWORDS = {
     # contamination" must stay unclassifiable so the guard keeps failing safe
     # on vague text.
     "mould": (
-        "mould", "moulds", "mould contamination", "mold contamination",
+        # BOTH spellings bare (fix 2026-09-08): the class listed "mould" on
+        # its own but only "mold contamination" / "visible mold" / "moldy"
+        # for the US spelling — and the US spelling is what the register
+        # actually stores, because merge_master americanizes Pathogen at
+        # write time. A row with Pathogen exactly "Mold" therefore had NO
+        # hazard class and failed the scope test the mould rule was written
+        # to let it pass.
+        "mould", "moulds", "mold", "molds",
+        "mould contamination", "mold contamination",
         "moisissure", "muffa", "moho", "schimmel", "mögel",
         "visible mould", "visible mold", "mouldy", "moldy",
         "ευρωτίασ", "μούχλα", "fungal growth", "fungal contamination",
     ),
 }
 
+# FALSE FRIEND. "moulded / demoulded / moulding" mean SHAPED IN A MOULD —
+# the charcuterie sense the register carries in "Pork-head brawn (parsleyed)
+# — both moulded and demoulded variants". Only Pathogen and Reason are ever
+# classified, never Product, so today the words cannot reach the matcher;
+# they are stripped anyway, because the keywords above match as substrings
+# and a Reason that describes how a terrine was formed must not acquire a
+# fungal hazard class.
+_SHAPED_MOULD_RE = re.compile(r"\b(?:de)?mou?ld(?:ed|ing)\b")
+
 
 def classify_hazard(text: str) -> Set[str]:
     """Return the set of hazard classes whose keywords appear in `text`."""
     if not text:
         return set()
-    s = " " + text.lower() + " "
+    s = " " + _SHAPED_MOULD_RE.sub(" ", text.lower()) + " "
     classes = set()
     for cls, kws in HAZARD_CLASS_KEYWORDS.items():
         for kw in kws:
