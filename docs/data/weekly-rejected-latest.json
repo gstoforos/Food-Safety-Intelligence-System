@@ -1,11 +1,11 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-08T03:22:18+00:00",
-  "row_count": 23,
-  "tier1_count": 22,
+  "generated_utc": "2026-09-08T13:22:30+00:00",
+  "row_count": 24,
+  "tier1_count": 23,
   "outbreak_count": 2,
   "by_reviewer": {
-    "unknown": 19,
+    "unknown": 20,
     "operator-review": 3,
     "repromotion-guard": 1
   },
@@ -31,6 +31,29 @@
       "Week_Added": "2026-09-13",
       "RejectedBy": "unknown",
       "RejectionReason": "Confirmer: reviewer 2 approved but Product looks like a headline, not a product name; Company is empty (Brand set) — the publish gate requires the recalling firm",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-06",
+      "Source": "USDA FSIS",
+      "Company": "",
+      "Brand": "",
+      "Product": "•\tVarious weight cardboard cases containing two pieces of individually vacuumed packed “PRIME LINE DISTRIBUTORS, INC. GUANCIALE PORK JOWL PRODUCT OF ITALY” with “LOT: 263311US” and “BEST IF USE BY DATE: 05.16.27” printed on the label. •\tVarious weight individually vacuumed packaged “GUANCIALE PORK J",
+      "Pathogen": "Listeria",
+      "Reason": "Prime Line Distributors, Inc. and Ferrarini USA, Inc. Recall Imported Ready-To-Eat Pork Guanciale Products Due to Possible Listeria Contamination Product Contamination",
+      "Class": "Class I",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.fsis.usda.gov/recalls-alerts?search=019-020-2026",
+      "Notes": "REJECTED: Confirmer: reviewer 2 approved but Product looks like a headline, not a product name; neither Company nor Brand is set | source_id=019-020-2026 [via official-feed collector]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Confirmer: reviewer 2 approved but Product looks like a headline, not a product name; neither Company nor Brand is set",
       "Reviewed": "N"
     },
     {
