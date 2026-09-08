@@ -313,7 +313,15 @@ PATHOGEN_RULES: List[Tuple[str, str]] = [
     # and "mould" as a piece of equipment are excluded by requiring the
     # contamination sense in the surrounding rules, so the pattern stays on
     # the noun and its non-English spellings.
-    ("Mould",
+    #
+    # LABEL IS "Mold", the US spelling (fix 2026-09-08). The canonical label
+    # was "Mould" when the rule was written on 2026-09-07; the writer's US
+    # spelling pass in merge_master (operator: "mould must be mold to us US
+    # english") rewrote every published row to "Mold", so the register and
+    # the tier maps keyed on "Mould" disagreed the moment a row was saved.
+    # The label matches what is stored. "Mould" is kept as an alias in the
+    # tier maps below for any row written before that pass.
+    ("Mold",
         r"\bmould\b|\bmoulds\b|\bmouldy\b|\bmold\b(?!\s*(?:ing|ed))|"
         r"\bmoldy\b|\bmoisissure\w*\b|\bmuffa\b|\bmoho\b|\bschimmel\b|"
         r"\bmögel\b|ευρωτίασ\w*|μούχλα|\bfungal\s+(?:growth|contamination)\b"),
@@ -358,7 +366,8 @@ _TIERS: Dict[str, int] = {
     "T-2 / HT-2 toxin": 3,
     "Ergot alkaloids": 3,
     "Citrinin": 3,
-    "Mould": 2,
+    "Mold": 2,
+    "Mould": 2,          # British spelling: alias, see the rule above
     "Cronobacter sakazakii": 3,
     "Staphylococcus enterotoxin": 3,
     "Shigella": 3,
@@ -636,7 +645,8 @@ def _fda_framework_tier(pathogen_canonical: str, product: Any) -> int:
         # beside the mycotoxins: a microbiological contamination that can
         # carry them, not an acute severe pathogen. A notice that names a
         # toxigenic species or a measured toxin keeps the mycotoxin handling.
-        "Mould",
+        # "Mould" is the pre-2026-09-08 spelling, kept as an alias.
+        "Mold", "Mould",
     }
     if pathogen_canonical in tier_2_pathogens:
         return 2
