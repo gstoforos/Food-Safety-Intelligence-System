@@ -949,14 +949,22 @@ def _incident_note(rows):
 CORRECTIONS = {
     "2026-W36": (
         "Correction. The subscriber email sent at 12:00 on 7 September quoted "
-        "80 incidents, from the 04:08 build of this page. Two counting errors "
-        "were corrected afterwards: the Swiss public warning on Nautica smoked "
-        "trout had been captured twice, from the German and the French page of "
-        "the same OSAV release, and that warning and the producer's own recall "
-        "of the same lot were counted as two events rather than one. One "
-        "RappelConso notice missing from the window (fiche 23460, Paturages "
-        "Comtois) has since been added. The figures on this page are the "
-        "corrected ones and supersede the email."),
+        "80 incidents, from the 04:08 build of this page. That figure was "
+        "wrong in both directions and the total has since moved again. Two "
+        "counting errors inflated it: the Swiss public warning on Nautica "
+        "smoked trout had been captured twice, from the German and the French "
+        "page of the same OSAV release, and that warning and the producer's "
+        "own recall of the same lot were counted as two events rather than "
+        "one. Three notices were missing from the window and have been added "
+        "since the email went out: RappelConso fiche 23460 (Paturages "
+        "Comtois), the USDA FSIS Class I recall of imported ready-to-eat "
+        "guanciale by Prime Line Distributors and Ferrarini USA, and the FDA "
+        "recall of deli salads and cream cheese by Made Fresh Salads Inc. The "
+        "two American notices were both published on 6 September, the last "
+        "day of the period, and reached the register after the email: the "
+        "FSIS one was held overnight in review because it arrived without a "
+        "firm name. The period stands at 81 incidents. The figures on this "
+        "page are the corrected ones and supersede the email."),
 }
 
 INCIDENT_LABELS = {
