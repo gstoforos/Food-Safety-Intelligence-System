@@ -223,3 +223,87 @@ def test_terminal_beats_transient_across_sheets(tmp_path):
 def test_reversed_policy_rejections_are_retryable(desc):
     """A rejection made under a policy since withdrawn must not block."""
     assert _is_terminal_rejection(desc) is False, f"should not block: {desc!r}"
+
+
+# ──────────────────────────────────────────────────────────────────────
+# AUDIT 2026-09-08 — the four-night resurrection
+# ──────────────────────────────────────────────────────────────────────
+# The merlan (TVB-N, RappelConso 23399) and Jelly's straws (choking hazard,
+# 23409) rows were archived by the operator on 2026-09-05 and re-entered
+# Pending on the 6th, 7th and 8th. The vocabulary was widened twice and did
+# not help, because the operator-verdict branch NEVER REACHED IT: the verdict
+# regex captured a single token, so
+#
+#   "[operator review 2026-09-05: REJECTED — out of scope: choking hazard …]"
+#
+# parsed to the code "out" — no marker matches "out", and "out" does not
+# start with "out_of_scope" — and the branch returned False for a deliberate
+# human rejection. Two fixes, both pinned here: the code is parsed as a
+# phrase, and an inconclusive code falls through to the terminal vocabulary
+# read against the whole note instead of returning "retryable".
+
+_MERLAN = ("e.leclerc [operator review 2026-09-05: REJECTED — out of scope: "
+           "exceedance of the TVB-N (ABVT, total volatile basic nitrogen) "
+           "limit in whiting is a spoilage/freshness indicator, the same "
+           "class as histamine, which the register excludes.]")
+_JELLYS = ("au comptoir des sorciers 2 rue maréchal joffre 35000 rennes "
+           "[operator review 2026-09-05: REJECTED — out of scope: choking "
+           "hazard from the product's own firm texture, a design property "
+           "and not a contamination.]")
+
+
+@pytest.mark.parametrize("desc", [_MERLAN, _JELLYS], ids=["merlan", "jellys"])
+def test_the_four_night_resurrection_is_blocked(desc):
+    assert _is_terminal_rejection(desc) is True, (
+        "an explicit operator rejection written in words must block a "
+        "re-ingestion")
+
+
+def test_a_spaced_verdict_code_is_parsed_as_a_phrase():
+    v = _latest_operator_verdict(
+        "[operator review 2026-09-05: REJECTED — out of scope: choking]")
+    assert v == ("REJECTED", "out of scope"), v
+
+
+def test_machine_codes_still_parse_exactly_as_before():
+    assert _latest_operator_verdict(
+        "[operator review 2026-08-31: UNPUBLISHED — not_food — lamps]"
+    ) == ("UNPUBLISHED", "not_food")
+    assert _latest_operator_verdict(
+        "[operator review 2026-09-06: REJECTED — duplicate_of_published: x]"
+    ) == ("REJECTED", "duplicate_of_published")
+
+
+def test_an_inconclusive_verdict_code_still_reads_the_whole_note():
+    """The code decides nothing; the note says 'labelling'. It must block."""
+    desc = ("[operator review 2026-09-05: REJECTED — see below] the defect is "
+            "a labelling error and nothing else")
+    assert _is_terminal_rejection(desc) is True
+
+
+def test_an_operator_rejection_is_not_cancelled_by_a_stale_transient_marker():
+    """The reason this branch skips the transient veto in the first place."""
+    desc = ("unknown: http_error [operator review 2026-09-05: REJECTED — out "
+            "of scope: choking hazard, a design property]")
+    assert _is_terminal_rejection(desc) is True
+
+
+# The mould reversal excuses decisions taken under the OLD rule, not the
+# subject matter for ever (audit 2026-09-08).
+def test_a_mould_rejection_made_before_the_reversal_is_retryable():
+    assert _is_terminal_rejection(
+        "[operator review 2026-08-14: REJECTED — out of scope: visible mould "
+        "is a quality defect]") is False
+
+
+def test_a_mould_rejection_made_after_the_reversal_sticks():
+    assert _is_terminal_rejection(
+        "[operator review 2026-09-10: REJECTED — duplicate_of_published: the "
+        "same mould recall is already published from the regulator's page]"
+    ) is True
+
+
+def test_an_undated_mould_rejection_stays_retryable():
+    """Undated notes predate the operator-review stamp, so they are old."""
+    assert _is_terminal_rejection(
+        "quality/spoilage — mould on the crust") is False
