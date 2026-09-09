@@ -18,18 +18,18 @@
  {
   "Date": "2026-09-08",
   "Source": "RappelConso (FR)",
-  "Company": "Intermarche Arques",
+  "Company": "Jamabel (Intermarche Arques)",
   "Brand": "Unbranded",
-  "Product": "merguez traditionnelles fabriquées sur place",
-  "Pathogen": "Salmonella",
-  "Reason": "Presence of Salmonella mises en évidence dans le cadre du plan d'autocontrôle microbiologique",
+  "Product": "Traditional merguez sausages, made in store and sold loose at the deli counter; produced 29/08/2026, use-by 03/09/2026, sold 29/08-03/09/2026",
+  "Pathogen": "Salmonella spp.",
+  "Reason": "Salmonella detected by the establishment's own microbiological monitoring plan; the fiche states the risk as Salmonella spp., the agent of salmonellosis",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23469/interne",
-  "Notes": "intermarche arques [confirm-agent 2026-09-08: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file]"
+  "Notes": "intermarche arques [confirm-agent 2026-09-08: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file] [operator review 2026-09-09: verified on fiche 23469 (ref. 2026-09-0095, published 08/09/2026). The Reason was half-translated and left the French clause in place (\"Presence of Salmonella mises en evidence dans le cadre du plan d'autocontrole microbiologique\"), which is the row that was failing test_every_description_field_is_english on main. Translated in full from the fiche motif \"Presence de Salmonelles mises en evidence dans le cadre du plan d'autocontrole microbiologique\"; Company set to the responsible establishment (JAMABEL INTERMARCHE) with the store named, Product described from the fiche. Sold throughout France at Intermarche Arques.]"
  },
  {
   "Date": "2026-09-08",
