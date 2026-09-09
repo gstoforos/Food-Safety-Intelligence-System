@@ -348,8 +348,11 @@ class TestTheWorkbookIsClean(unittest.TestCase):
         # out of scope — the publish gate now blocks a row whose only class
         # is quality/spoilage (the FSANZ "Drink Purple" unintended-
         # fermentation row was archived the same day for exactly that).
+        # "pest" added 2026-09-09: the scope statement has named pest
+        # contamination since 2026-07-29 but the gate had no such class, so
+        # the two published rodent rows classified as nothing at all.
         IN_SCOPE = {"biological", "biotoxin", "mycotoxin", "mould",
-                    "physical", "chemical"}
+                    "physical", "chemical", "pest"}
         # A row may sit outside the hazard classes ONLY when the operator
         # wrote the exception onto the row itself. One such row exists: the
         # MILBONA high-protein pudding (EFET, 26 Jun 2026, organoleptic
