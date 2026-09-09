@@ -158,17 +158,66 @@ def check_language(row: Dict[str, Any]) -> List[str]:
 
 
 def check_scope(row: Dict[str, Any]) -> List[str]:
+    """Is this row inside the AFTS monitored scope?
+
+    ASKS THE PUBLISH GATE, NOT THE TIER-1 PATHOGEN LIST (fix 2026-09-09).
+
+    This used to call `pipeline._pathogen_scope.is_in_scope`, which is a
+    list of TIER-1 PATHOGEN names — bacteria, viruses, mycotoxins, the
+    2026-05-12 adulteration vocabulary and, since 2026-09-07, mould. It has
+    never held a single foreign-material, heavy-metal, pest, biotoxin or
+    pesticide term, because it is not the monitored scope: it is the list
+    that decides Tier-1 severity (`is_tier1` is literally an alias for it).
+
+    The monitored scope is the policy printed on every daily brief and every
+    weekly report, and enforced in `pipeline/_publish_gate.py`:
+
+        Pathogens + biotoxins + mycotoxins + foreign material + pest +
+        chemical hazards only. Allergen-only, labeling, quality issues
+        excluded per AFTS scope.
+
+    Measured on the register of 2026-09-09, the old check refused the hazard
+    of 89 of 1,656 PUBLISHED rows — every "Foreign material (glass)", every
+    heavy metal, both rodent rows, the shellfish biotoxins, the pesticide and
+    rodenticide residues. Since `check_scope` gates `promote` and `enrich`
+    proposals alike, the curator could not correct a typo on any of them: the
+    row it was asked to fix was, by its own test, not a row the register
+    should hold. Two genuine RappelConso foreign-body recalls hit this on
+    2026-09-09 and were left unactioned for a human to decide.
+
+    The contradiction was internal, too: the curator's own vocabulary
+    (`pipeline/agents/_vocabulary.py`) offers "foreign-material", "pest",
+    "heavy-metal", "chemical-residue" and "pathogen-parasitic" as legal
+    HazardGroup values it may WRITE, while this function refused to admit
+    that any of them was a hazard.
+
+    A row is in scope when Pathogen and Reason together resolve to at least
+    one hazard class that is not purely allergen or quality/fermentation —
+    the same test `publish_blockers` applies. `is_in_scope` is still
+    consulted, but only as a positive signal: it can admit a row whose
+    Pathogen names a Tier-1 organism the class map has not learned yet, and
+    it can no longer refuse one on its own.
+    """
     from pipeline._pathogen_scope import is_in_scope, is_empty_pathogen
     try:
         from pipeline._pathogen_scope import is_pet_food_product
     except Exception:                                       # noqa: BLE001
         is_pet_food_product = lambda *a: False              # noqa: E731
+    from pipeline._publish_gate import classify_hazard
+
     p = str(row.get("Pathogen", "") or "")
+    reason = str(row.get("Reason", "") or "")
     out = []
     if is_empty_pathogen(p):
         out.append("Pathogen empty — the register names its hazard")
-    elif not is_in_scope(p):
-        out.append(f"hazard {p!r} is outside the monitored scope")
+    else:
+        classes = classify_hazard(p) | classify_hazard(reason)
+        in_scope = is_in_scope(p) or bool(
+            classes - {"allergen", "fermentation"})
+        if not in_scope:
+            out.append(
+                f"hazard {p!r} is outside the monitored scope "
+                f"(classes: {sorted(classes) or 'none'})")
     if is_pet_food_product(str(row.get("Product", "")), str(row.get("Company", "")),
                            str(row.get("Reason", ""))):
         out.append("pet food — human food only")
