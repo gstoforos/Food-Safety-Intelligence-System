@@ -207,6 +207,13 @@ HAZARD_CLASS_KEYWORDS = {
         "vulnificus", "parahaemolyticus", "cholerae", "cholera",
         "alginolyticus",
         "cronobacter", "enterobacter", "enterohaem",
+        # PARASITES (audit 2026-09-09). "Cyclospora" was published with no
+        # hazard class at all, which made the curator refuse to correct the
+        # row. Parasitic infection is a pathogen hazard by every definition
+        # the register uses — the curator's own HazardGroup vocabulary lists
+        # "pathogen-parasitic" — it was simply missing here.
+        "cyclospora", "cryptosporidium", "giardia", "trichinella",
+        "anisakis", "toxoplasma", "taenia", "echinococcus",
     ),
     "physical": (
         "foreign matter", "foreign material", "foreign body",
@@ -244,6 +251,11 @@ HAZARD_CLASS_KEYWORDS = {
         "fremdkoerper", "fremdkörper",        # BVL / BLV
         "corpo estraneo",                     # Ministero della Salute
         "cuerpo extrano", "cuerpo extraño",   # AESAN
+        # HYPHENATED FORMS (audit 2026-09-09). The class matched "foreign
+        # body" and "physical contamination" but not the register's own
+        # label "Physical/foreign-body contamination", which therefore
+        # classified as nothing at all on three published rows.
+        "foreign-body", "foreign-material", "foreign-object",
     ),
     "chemical": (
         "chemical contaminant", "chemical residue", "pesticide", "fungicide",
@@ -262,20 +274,73 @@ HAZARD_CLASS_KEYWORDS = {
         "plomb",
         "dioxin", "pcb", "acrylamide", "perchlorate", "melamine",
         "ethylene oxide", "chlorate",
+        # AUDIT 2026-09-09 — three groups the register already publishes and
+        # this class could not see.
+        # 1. Fluorinated contaminants.
+        "pfas", "pfoa", "pfos", "perfluoro", "polyfluoroalkyl",
+        # 2. Natural chemical toxicants of the food itself, as distinct from
+        #    a biotoxin produced by an organism.
+        "hydrocyanic", "cyanide", "cyanogenic",
+        # 3. Undeclared pharmaceutical adulteration — IN SCOPE since
+        #    2026-05-12 (see pipeline/_pathogen_scope.py) and notifiable to
+        #    INFOSAN, but it had no hazard class, so the SUPPLX yohimbine row
+        #    classified as nothing. "adulterant"/"adulterated" are the
+        #    framing words; the named drugs cover notices that skip them.
+        "undeclared drug", "undeclared pharmaceutical",
+        "undeclared pharmacological", "adulterant", "adulterated",
+        "sildenafil", "tadalafil", "vardenafil", "sibutramine",
+        "yohimbine", "phenolphthalein",
     ),
     "mycotoxin": (
         "aflatoxin", "ochratoxin", "patulin", "fumonisin",
         "deoxynivalenol", " don ", "zearalenone", "mycotoxin", "alternaria",
+        # AUDIT 2026-09-09. scrapers/_models.py tiers "T-2 / HT-2 toxin",
+        # "Citrinin" and "Ergot alkaloids" as mycotoxins and the register
+        # publishes eleven T-2/HT-2 rows, but this class named none of them.
+        "t-2 toxin", "ht-2", "t-2 /", "t-2/", "citrinin", "ergot alkaloid",
     ),
     "fermentation": (
         "unintended fermentation", "yeast contamination", "wild yeast",
         "spoilage", "alcohol formation", "co2 formation", "fermenting",
+    ),
+    # ── PEST / VERMIN (added 2026-09-09) ─────────────────────────────────
+    # The AFTS scope statement printed on every daily brief and every weekly
+    # report has named pest contamination since 2026-07-29 — "Pathogens +
+    # biotoxins + mycotoxins + foreign material + PEST + chemical hazards
+    # only" — and the curator's own HazardGroup vocabulary offers "pest" as
+    # a value it may write. There was no pest hazard class. Two published
+    # rows ("Rodent contamination (physical/microbial hazard)", "Mouse
+    # contamination (physical/biological hazard)") therefore classified as
+    # nothing at all, which is what makes the curator refuse to correct
+    # them.
+    #
+    # QUALIFIED FORMS ONLY, for the same reason the physical class uses
+    # them. A bare "insect" is a substring of "insecticide" and would file
+    # every pesticide recall as a pest infestation; a bare "rat" matches
+    # "ratio" and "concentrate". Each entry below carries its own context.
+    "pest": (
+        "rodent", "vermin", "infestation", "insect infestation",
+        "insect contamination", "insect fragment", "insect part",
+        "mouse contamination", "mice contamination", "rat contamination",
+        "rat droppings", "rodent droppings", "mouse droppings",
+        "droppings", "excrement", "gnaw", "weevil", "maggot", "larvae",
+        "nuisible", "nuisibles",              # RappelConso
+        "schaedling", "schädling",            # BVL / BLV
+        "infestazione",                       # Ministero della Salute
+        "plaga", "plagas",                    # AESAN
     ),
     "biotoxin": (
         "saxitoxin", "tetrodotoxin", "marine biotoxin", "ciguatoxin",
         "domoic acid", "okadaic acid", "azaspiracid", "palytoxin",
         "paralytic shellfish", "amnesic shellfish", "diarrhetic shellfish",
         "psp toxin", "asp toxin", "dsp toxin",
+        # AUDIT 2026-09-09 — published rows this class could not see:
+        # "Mushroom toxins (Amanita-class)", "Amanita muscaria toxin
+        # (muscimol)", "Phytoplankton biotoxins", "Lipophilic biotoxins
+        # (DSP)". A toxin made by a fungus or an alga is a biotoxin whether
+        # or not the notice names the specific molecule.
+        "amanita", "muscimol", "mushroom toxin", "phytoplankton",
+        "lipophilic biotoxin", "shellfish toxin",
     ),
     # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
     # "fish") must NOT appear here: RASFF Reason text routinely carries
