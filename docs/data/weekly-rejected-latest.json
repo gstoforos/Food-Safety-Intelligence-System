@@ -1,11 +1,11 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-09T19:52:39+00:00",
-  "row_count": 36,
+  "generated_utc": "2026-09-09T20:12:12+00:00",
+  "row_count": 37,
   "tier1_count": 30,
   "outbreak_count": 3,
   "by_reviewer": {
-    "unknown": 28,
+    "unknown": 29,
     "operator-review": 7,
     "repromotion-guard": 1
   },
@@ -767,6 +767,29 @@
       "Week_Added": "2026-09-13",
       "RejectedBy": "operator-review",
       "RejectionReason": "out of scope: spoilage. FSAI food alert 2026.54 of 08/09/2026 (SuperValu Taco Mayonnaise 420 g, best before 18/04/2027) gives the reason verbatim as \"spoilage caused by fermentation\". Fermentation is the documented boundary of the visible-mould rule adopted on 2026-09-07: mould growth is a microbiol",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-09",
+      "Source": "FSAI (IE)",
+      "Company": "Lidl's Batts Taco Mayonnaise",
+      "Brand": "—",
+      "Product": "Lidl's Batts Taco Mayonnaise",
+      "Pathogen": "",
+      "Reason": "Lidl's Batts Taco Mayonnaise",
+      "Class": "Alert",
+      "Country": "Ireland",
+      "Region": "Europe",
+      "Tier": 3,
+      "Outbreak": 0,
+      "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-batts-taco-mayonnais",
+      "Notes": "REJECTED: operator review 2026-09-09: out_of_scope_spoilage — FSAI notice is a recall of specific batches of Lidl's Batts Taco Mayonnaise due to spoilage caused by fermentation (best-before 21/22 Apr 2027, recall ref 2026.55). No pathogen, biotoxin, mycotoxin, foreign material, pest or chemical hazard is named anywhere in the notice or in independent secondary reporting (RTE, TheJournal.ie, corksafetyalerts.com) consulted because fsai.ie itself is blocked by this session's network egress. Quality/spoilage is explicitly out of AFTS-FSIS scope. | FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "unknown",
+      "RejectionReason": "operator review 2026-09-09: out_of_scope_spoilage — FSAI notice is a recall of specific batches of Lidl's Batts Taco Mayonnaise due to spoilage caused by fermentation (best-before 21/22 Apr 2027, recall ref 2026.55). No pathogen, biotoxin, mycotoxin, foreign material, pest or chemical hazard is name",
       "Reviewed": "N"
     },
     {
