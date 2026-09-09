@@ -1083,6 +1083,30 @@ _REVERSED_REJECTION_MARKERS = (
     "mould", "mold", "moisissure", "muffa", "moho", "schimmel",
 )
 
+# The date the mould policy changed. A rejection is only excused by the list
+# above when it was made BEFORE this date (audit 2026-09-08): as first
+# written, the list made ANY rejection whose text mentions mould retryable
+# for ever, including one an operator makes tomorrow with the new policy in
+# hand. A reversal excuses the decisions taken under the old rule, not the
+# subject matter.
+_POLICY_REVERSAL_DATE = "2026-09-07"
+
+
+def _rejection_predates_policy_reversal(desc: str) -> bool:
+    """True when no operator stamp in `desc` is dated on/after the reversal.
+
+    An undated note counts as older: every rejection carrying mould
+    vocabulary before the reversal was made under the old scope rule, and
+    the operator-review path has stamped its verdicts with a date since
+    2026-08-29.
+    """
+    import re as _re_rev
+    stamps = _re_rev.findall(r"operator\s+review\s+(\d{4}-\d{2}-\d{2})",
+                             desc or "", _re_rev.IGNORECASE)
+    if not stamps:
+        return True
+    return max(stamps) < _POLICY_REVERSAL_DATE
+
 # Checked FIRST. A reason that is transient, ambiguous, or explicitly not a
 # rejection must stay retryable no matter what else it contains — giving a
 # source the chance to fix a broken link is the documented purpose of the
@@ -1122,7 +1146,19 @@ def _latest_operator_verdict(desc: str):
         _OPERATOR_VERDICT_RE = _re.compile(
             r"operator\s+review[^:]*:\s*"
             r"(REJECTED|UNPUBLISHED|APPROVED)\s*[\u2014\u2013-]\s*"
-            r"([A-Za-z0-9_]+)",
+            # AUDIT 2026-09-08 — the code used to be a SINGLE token,
+            # ([A-Za-z0-9_]+). The operator-review path writes its verdict in
+            # words, not machine codes: "REJECTED - out of scope: choking
+            # hazard ..." parsed to the code "out", which matches no terminal
+            # marker and does not start with "out_of_scope", so the branch in
+            # _is_terminal_rejection below declared a deliberate human
+            # rejection retryable. The merlan (TVB-N, fiche 23399) and
+            # Jelly's straws (choking, fiche 23409) rows came back four
+            # nights running because of these three characters. Now up to
+            # five space-separated words, stopping at ":" / "]" / a dash /
+            # any punctuation, which leaves "not_food" and
+            # "duplicate_of_published" parsing exactly as before.
+            r"([A-Za-z0-9_]+(?: [A-Za-z0-9_]+){0,4})",
             _re.IGNORECASE)
     hits = _OPERATOR_VERDICT_RE.findall(desc or "")
     if not hits:
@@ -1151,15 +1187,33 @@ def _is_terminal_rejection(desc: str) -> bool:
     # the operator changed the policy, so their own earlier verdict under the
     # old one must not keep the row out.
     dl_all = d.lower()
-    if any(m in dl_all for m in _REVERSED_REJECTION_MARKERS):
+    if (any(m in dl_all for m in _REVERSED_REJECTION_MARKERS)
+            and _rejection_predates_policy_reversal(d)):
         return False
     verdict = _latest_operator_verdict(d)
     if verdict is not None:
         kind, code = verdict
         if kind == "APPROVED":
             return False
-        return any(m in code for m in _TERMINAL_REJECTION_MARKERS) or \
-            code.startswith("out_of_scope") or code in ("not_food", "pet_food")
+        # The code may be written with spaces ("out of scope") or with
+        # underscores ("out_of_scope"); the operator uses both. Compare on
+        # both spellings rather than asking the operator to remember one.
+        code_us = code.replace(" ", "_").replace("-", "_")
+        code_sp = code.replace("_", " ")
+        if (any(m in code_sp or m in code_us
+                for m in _TERMINAL_REJECTION_MARKERS)
+                or code_us.startswith("out_of_scope")
+                or code_us in ("not_food", "pet_food")):
+            return True
+        # AUDIT 2026-09-08. This branch used to RETURN the line above, so an
+        # operator verdict whose code was not conclusive on its own made the
+        # row retryable — the opposite of what an explicit human rejection
+        # means. Fall through to the terminal vocabulary read against the
+        # WHOLE note instead. The transient veto is still skipped: a human
+        # rejection must not be cancelled by a stale "http_error" that an
+        # earlier automated pass left in the same Notes field, which is the
+        # case this branch was written for.
+        return any(m in dl_all for m in _TERMINAL_REJECTION_MARKERS)
     dl = d.lower()
     if any(m in dl for m in _NON_TERMINAL_MARKERS):
         return False
