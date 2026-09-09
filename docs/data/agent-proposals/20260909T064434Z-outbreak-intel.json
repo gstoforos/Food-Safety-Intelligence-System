@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20260909T064434Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nara-organics-recalls-all-lots-nara-infant-formula-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.food-safety.com/articles/11801-recommendations-from-industry-led-reagan-udall-roundtable-on-controlling-c-botulinum-in-infant-formula"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus clostridium; country named in the article; food terms powdered, infant, formula. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.food-safety.com/articles/11801-recommendations-from-industry-led-reagan-udall-roundtable-on-controlling-c-botulinum-in-infant-formula",
+          "quote": "two unprecedented infant botulism outbreaks linked to ByHeart- and Nara Organics-brand powdered infant formula in 2025–2026 | The ByHeart and Nara outbreaks ended in February and August 2026, respectively",
+          "retrieved_utc": "2026-09-09T06:44:29+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nara-organics-recalls-all-lots-nara-infant-formula-because-possible-health-risk",
+          "quote": "2026-06-13 FDA Whole Milk Powdered Infant Formula — Nara Organics. TWO SKUs: (1) 700 g can, UPC 860013251",
+          "retrieved_utc": "2026-09-09T06:44:29+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "968dd25c64c5a47f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/botulism/outbreaks-investigations/infant-formula-june-2026/investigation.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.food-safety.com/articles/11801-recommendations-from-industry-led-reagan-udall-roundtable-on-controlling-c-botulinum-in-infant-formula"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus clostridium; country named in the article; food terms infant, formula. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.food-safety.com/articles/11801-recommendations-from-industry-led-reagan-udall-roundtable-on-controlling-c-botulinum-in-infant-formula",
+          "quote": "two unprecedented infant botulism outbreaks linked to ByHeart- and Nara Organics-brand powdered infant formula in 2025–2026 | The ByHeart and Nara outbreaks ended in February and August 2026, respectively",
+          "retrieved_utc": "2026-09-09T06:44:29+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/botulism/outbreaks-investigations/infant-formula-june-2026/investigation.html",
+          "quote": "2026-06-13 CDC Nara Organics Whole Milk Organic Infant Formula",
+          "retrieved_utc": "2026-09-09T06:44:29+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "e3d6c7a2385baa47"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/terra-medi-llc-recalls-karagounis-bros-hellas-meze-golden-smoked-whole-herring-due-improper"
+      },
+      "changes": {
+        "candidate_event": "https://www.food-safety.com/articles/11801-recommendations-from-industry-led-reagan-udall-roundtable-on-controlling-c-botulinum-in-infant-formula"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus clostridium; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.food-safety.com/articles/11801-recommendations-from-industry-led-reagan-udall-roundtable-on-controlling-c-botulinum-in-infant-formula",
+          "quote": "two unprecedented infant botulism outbreaks linked to ByHeart- and Nara Organics-brand powdered infant formula in 2025–2026 | The ByHeart and Nara outbreaks ended in February and August 2026, respectively",
+          "retrieved_utc": "2026-09-09T06:44:29+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/terra-medi-llc-recalls-karagounis-bros-hellas-meze-golden-smoked-whole-herring-due-improper",
+          "quote": "2026-05-14 FDA Hellas Meze Golden Smoked Whole Herring, vacuum-packaged, refrigerated; production date 4/",
+          "retrieved_utc": "2026-09-09T06:44:29+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c4006b8801e7e5b8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish"
+      },
+      "changes": {
+        "candidate_event": "https://www.food-safety.com/articles/11801-recommendations-from-industry-led-reagan-udall-roundtable-on-controlling-c-botulinum-in-infant-formula"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus clostridium; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.food-safety.com/articles/11801-recommendations-from-industry-led-reagan-udall-roundtable-on-controlling-c-botulinum-in-infant-formula",
+          "quote": "two unprecedented infant botulism outbreaks linked to ByHeart- and Nara Organics-brand powdered infant formula in 2025–2026 | The ByHeart and Nara outbreaks ended in February and August 2026, respectively",
+          "retrieved_utc": "2026-09-09T06:44:29+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish",
+          "quote": "2026-06-04 FDA Dried Herring Fish — Item #AF4110, Lot Code 26020, expiration 2028-12-06, 7 oz (198 g) cle",
+          "retrieved_utc": "2026-09-09T06:44:29+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4cd5f175b6271e43"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1179-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.food-safety.com/articles/11801-recommendations-from-industry-led-reagan-udall-roundtable-on-controlling-c-botulinum-in-infant-formula"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus clostridium; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.food-safety.com/articles/11801-recommendations-from-industry-led-reagan-udall-roundtable-on-controlling-c-botulinum-in-infant-formula",
+          "quote": "two unprecedented infant botulism outbreaks linked to ByHeart- and Nara Organics-brand powdered infant formula in 2025–2026 | The ByHeart and Nara outbreaks ended in February and August 2026, respectively",
+          "retrieved_utc": "2026-09-09T06:44:29+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1179-2026",
+          "quote": "2026-07-02 FDA Pasteurized Cold Brew Concentrate, 2.5 gal bag-in-box, distributed 2026-04-01 to 2026-06-2",
+          "retrieved_utc": "2026-09-09T06:44:29+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "b31d378e1eedfdcd"
+    }
+  ]
+}
