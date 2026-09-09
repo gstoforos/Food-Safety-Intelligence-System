@@ -22,14 +22,14 @@
   "Brand": "Campagne de France",
   "Product": "brie cdf fp 25gx100; brie cdf fp 30gx100",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Présence potentielle de Listeria monocytogenes",
+  "Reason": "Potential presence of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23464/interne",
-  "Notes": "filiales de distribution france frais; groupe pomona [confirm-agent 2026-09-09: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file]"
+  "Notes": "filiales de distribution france frais; groupe pomona [confirm-agent 2026-09-09: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file] [agent nightly-operator proposal cf4d83f454b4df27 applied 2026-09-09: RappelConso fiche 23464 (Campagne de France brie) was promoted today with a French-only Reason; confirm-agent itself flagged 'needs cleanup: Reason not in English'. Translating to English per the standing English-output ]"
  },
  {
   "Date": "2026-09-09",
@@ -10446,22 +10446,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22700/Interne",
   "Notes": "cf liste jointe [url-gate 2026-07-01: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-01: fix; corrections: Company→TERRES DE MOULIN MADAME, Pathogen→Mycotoxins (T-2 toxin, HT-2 toxin); fix; company mismatch; pathogen mismatch | Company and Pathogen corrected based on page content.] [enrich-gate 2026-07-01: pending_enrichment → pending (Claude verified)] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
- },
- {
-  "Date": "2026-06-30",
-  "Source": "FSAI (IE)",
-  "Company": "Brady Family; Deluxe; Tesco",
-  "Brand": "Brady Family; Deluxe; Tesco Finest",
-  "Product": "Brady Family Wood Smoked Real Irish Ham 6 Slices (80g), Brady Family Hand Crumbed Real Irish Ham 6 Slices (80g), Deluxe Triple Oak Smoked Carved Irish Ham 5 Slices (130g), Deluxe Honey Roast Carved Irish Ham 5 Slices (130g), Tesco Finest Crumbed Shaved Ham 16 Slices (120g)",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "various cooked ham products",
-  "Class": "Alert",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-cooked-ham-p",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-07-05: Brand '—'→'Various Cooked Ham Products'] [claude-check 2026-07-06: fix; corrections: Date→2026-06-30, Company→Brady Family; Deluxe; Tesco, Brand→Brady Family; Deluxe; Tesco Finest, Product→Brady Family Wood Smoked Real Irish Ham , Pathogen→Listeria monocytogenes, Tier→1; fix; company mismatch; product mismatch; pathogen mismatch; date on page=2026-06-30 | Date is 2026-06-30 (not 2026-07-05] [enrich-gate 2026-07-06: pending_enrichment → pending (Claude verified)]"
  },
  {
   "Date": "2026-06-30",
@@ -25566,22 +25550,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21391/Interne",
   "Notes": "[fiche 21391 / 2026-02-24; Monfort Viandes Feb 24 trio] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text]"
- },
- {
-  "Date": "2026-02-23",
-  "Source": "FSAI (IE)",
-  "Company": "Rosabella",
-  "Brand": "Rosabella",
-  "Product": "Moringa capsules",
-  "Pathogen": "Salmonella",
-  "Reason": "Possible presence of Salmonella",
-  "Class": "Recall",
-  "Country": "Ireland",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-rosabella-moringa-ca",
-  "Notes": "[manual-promote 2026-05-08: Company/Brand cleaned] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [url 2026-08-30: slug restored to FSAI's 50-char cap - alert 2026.10, 23 Feb 2026, Salmonella, 48 batches. A non-existent FSAI slug serves the generic listing page, not a 404, which is why this passed every resolve check.]"
  },
  {
   "Date": "2026-02-23",
