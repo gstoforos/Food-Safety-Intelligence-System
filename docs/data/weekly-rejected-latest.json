@@ -1,15 +1,38 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-09T13:22:33+00:00",
-  "row_count": 35,
-  "tier1_count": 29,
+  "generated_utc": "2026-09-09T19:52:39+00:00",
+  "row_count": 36,
+  "tier1_count": 30,
   "outbreak_count": 3,
   "by_reviewer": {
-    "unknown": 27,
+    "unknown": 28,
     "operator-review": 7,
     "repromotion-guard": 1
   },
   "rows": [
+    {
+      "Date": "2026-09-09",
+      "Source": "FSANZ (AU)",
+      "Company": "Greenstorm Foods t/a Austral Herbs",
+      "Brand": "—",
+      "Product": "Certified Organic Premium Peppermint Leaf (Mentha piperita) - 250g, 1Kg, 5Kg, 10Kg",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "The presence of foreign matter (metal).",
+      "Class": "Recall",
+      "Country": "Australia",
+      "Region": "Oceania",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/greenstorm-foods-ta-austral-herbs-certified-organic-premium-peppermint",
+      "Notes": "REJECTED: Confirmer: reviewer 2 approved but Pathogen 'Listeria monocytogenes' contradicts Reason (['biological'] vs ['physical']) — one of the two fields is not what the source page says",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Confirmer: reviewer 2 approved but Pathogen 'Listeria monocytogenes' contradicts Reason (",
+      "Reviewed": "N"
+    },
     {
       "Date": "2026-09-06",
       "Source": "USDA FSIS",
