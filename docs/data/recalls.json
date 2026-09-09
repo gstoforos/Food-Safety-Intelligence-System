@@ -32,6 +32,22 @@
   "Notes": "intermarche arques [confirm-agent 2026-09-08: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file]"
  },
  {
+  "Date": "2026-09-08",
+  "Source": "RappelConso (FR)",
+  "Company": "La Ferme du Bercail",
+  "Brand": "La Ferme du Bercail",
+  "Product": "lot 362627",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogene",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23465/interne",
+  "Notes": "délice des champs (saint simeon de bressieux); le panier des saveurs (moras en valloire); la ferme du bercail (gillonnay) [confirm-agent 2026-09-09: pending_gap_v3 → pending; independent checks passed]"
+ },
+ {
   "Date": "2026-09-07",
   "Source": "EFET (GR)",
   "Company": "ΒΙΤΟΜ ΑΒΕΕ (VITOM ABEE), Koufalia, Thessaloniki",
@@ -126,6 +142,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/866408",
   "Notes": "[RASFF #2026.7890; classification: alert notification; category: meat and meat products (other than poultry); notifId=866408] [confirm-agent 2026-09-08: pending_gap_v3 → pending; independent checks passed]"
+ },
+ {
+  "Date": "2026-09-07",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Italy | Notifying: Germany",
+  "Brand": "—",
+  "Product": "Excessive aflatoxin levels in organic fruit purée for infants from Italy",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Excessive aflatoxin levels in organic fruit purée for infants from Italy; risk: serious; category: fruits and vegetables",
+  "Class": "Alert",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/871025",
+  "Notes": "[RASFF #2026.7892; classification: alert notification; category: fruits and vegetables; notifId=871025] [confirm-agent 2026-09-09: pending_gap_v3 → pending; independent checks passed]"
  },
  {
   "Date": "2026-09-06",

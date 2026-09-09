@@ -1,11 +1,11 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-08T19:52:31+00:00",
-  "row_count": 30,
-  "tier1_count": 28,
+  "generated_utc": "2026-09-09T03:22:28+00:00",
+  "row_count": 31,
+  "tier1_count": 29,
   "outbreak_count": 3,
   "by_reviewer": {
-    "unknown": 26,
+    "unknown": 27,
     "operator-review": 3,
     "repromotion-guard": 1
   },
@@ -652,6 +652,29 @@
       "Week_Added": "2026-09-13",
       "RejectedBy": "unknown",
       "RejectionReason": "Confirmer: reviewer 2 approved but Company contains the regulator's name; Company and Brand are the same long headline string",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "",
+      "Source": "FDA",
+      "Company": "Fi",
+      "Brand": "—",
+      "Product": "Fi Recalls Supplements Dogs Because Possible Salmonella Contamination",
+      "Pathogen": "Salmonella",
+      "Reason": "Fi Recalls Supplements Dogs Because Possible Salmonella Contamination",
+      "Class": "Recall",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/fi-recalls-supplements-dogs-because-possible-salmonella-contamination",
+      "Notes": "REJECTED: Confirmer: reviewer 2 approved but Date is empty | FDA HTML fallback — claude-check needs to enrich Date+Pathogen",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Confirmer: reviewer 2 approved but Date is empty",
       "Reviewed": "N"
     },
     {
