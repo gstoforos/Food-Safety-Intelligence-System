@@ -1,15 +1,27 @@
 {
   "entries": [
     {
-      "date": "2026-09-08",
-      "url": "daily/2026-09-08.html",
-      "total": 3,
+      "date": "2026-09-09",
+      "url": "daily/2026-09-09.html",
+      "total": 5,
       "tier1": 3,
       "outbreak": 0,
       "by_region": {
-        "Europe": 3
+        "Europe": 5
       },
-      "generated": "2026-09-09T07:08:00Z"
+      "generated": "2026-09-10T07:07:55Z"
+    },
+    {
+      "date": "2026-09-08",
+      "url": "daily/2026-09-08.html",
+      "total": 8,
+      "tier1": 6,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 7,
+        "North America": 1
+      },
+      "generated": "2026-09-10T07:07:56Z"
     },
     {
       "date": "2026-09-07",
@@ -20,7 +32,7 @@
       "by_region": {
         "Europe": 7
       },
-      "generated": "2026-09-09T07:08:01Z"
+      "generated": "2026-09-10T07:07:56Z"
     },
     {
       "date": "2026-09-06",
@@ -31,7 +43,7 @@
       "by_region": {
         "North America": 2
       },
-      "generated": "2026-09-09T07:08:02Z"
+      "generated": "2026-09-10T07:07:57Z"
     },
     {
       "date": "2026-09-05",
@@ -40,21 +52,21 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-09-09T07:08:03Z"
+      "generated": "2026-09-10T07:07:58Z"
     },
     {
       "date": "2026-09-04",
       "url": "daily/2026-09-04.html",
-      "total": 23,
-      "tier1": 21,
+      "total": 24,
+      "tier1": 22,
       "outbreak": 0,
       "by_region": {
-        "Europe": 20,
+        "Europe": 21,
         "Oceania": 1,
         "North America": 1,
         "Middle East": 1
       },
-      "generated": "2026-09-09T07:08:04Z"
+      "generated": "2026-09-10T07:07:59Z"
     },
     {
       "date": "2026-09-03",
@@ -66,19 +78,7 @@
         "Europe": 8,
         "North America": 6
       },
-      "generated": "2026-09-09T07:08:05Z"
-    },
-    {
-      "date": "2026-09-02",
-      "url": "daily/2026-09-02.html",
-      "total": 38,
-      "tier1": 20,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 37,
-        "Middle East": 1
-      },
-      "generated": "2026-09-09T07:08:06Z"
+      "generated": "2026-09-10T07:08:00Z"
     }
   ]
 }
