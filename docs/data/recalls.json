@@ -192,6 +192,22 @@
   "Notes": "[RASFF #2026.7927; classification: information notification for follow-up; category: eggs and egg products; notifId=871653] [confirm-agent 2026-09-09: pending_gap_v3 → pending; independent checks passed]"
  },
  {
+  "Date": "2026-09-08",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Spain | Notifying: Portugal",
+  "Brand": "—",
+  "Product": "Aflatoxins in dried figs from Spain",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Aflatoxins in dried figs from Spain; risk: serious; category: fruits and vegetables",
+  "Class": "Information",
+  "Country": "Spain",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/871715",
+  "Notes": "[RASFF #2026.7938; classification: information notification for attention; category: fruits and vegetables; notifId=871715] [confirm-agent 2026-09-10: pending_gap_v3 → pending; independent checks passed]"
+ },
+ {
   "Date": "2026-09-07",
   "Source": "EFET (GR)",
   "Company": "ΒΙΤΟΜ ΑΒΕΕ (VITOM ABEE), Koufalia, Thessaloniki",
