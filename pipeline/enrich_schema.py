@@ -112,8 +112,29 @@ _HAZARD_GROUP_RULES = (
     ("rodent", "pest-rodent"), ("mouse", "pest-rodent"), ("insect", "pest-rodent"),
     ("pesticide", "chemical"), ("nitrite", "chemical"), ("sulphite", "chemical"),
     ("ethylene oxide", "chemical"), ("hydrocyanic", "chemical"),
+    # Undeclared pharmaceutical adulteration (audit 2026-09-06, salvaged from
+    # PR #11 on 2026-09-11): these match pipeline/_pathogen_scope.py's
+    # TIER1_KEYWORDS undeclared-adulteration vocabulary (expanded 2026-05-12
+    # for the sildenafil/BICHOTA precedent), but nothing here mapped them off
+    # the bacterial catch-all — the first such row to reach Recalls
+    # (SUPPLX.com yohimbine, 2026-09-03) landed HazardGroup
+    # "pathogen-bacterial", which is wrong on its face for a chemical/drug
+    # adulterant and would corrupt any hazard-group stratification.
+    ("undeclared pharmaceutical", "chemical"), ("undeclared drug", "chemical"),
+    ("undeclared pharmacological", "chemical"), ("adulterat", "chemical"),
+    ("sildenafil", "chemical"), ("tadalafil", "chemical"),
+    ("vardenafil", "chemical"), ("sibutramine", "chemical"),
+    ("phenolphthalein", "chemical"), ("yohimbine", "chemical"),
     ("pfoa", "chemical"), ("pfas", "chemical"), ("residue", "chemical"),
     ("veterinary", "chemical"), ("nitrofurazone", "chemical"),
+    # Generic "chemical hazard" wording (audit 2026-08-31, salvaged from PR #4
+    # on 2026-09-11): an undeclared-drug adulteration row (DNP/fluoxetine in a
+    # weight-loss supplement) named no specific chemical from the list above
+    # and fell through to the pathogen-bacterial catch-all below — wrong
+    # hazard group for a row with no organism at all. Kept LAST so that a
+    # label naming a specific hazard family still wins: "chemical" as a bare
+    # word is unambiguous only once everything more specific has been tried.
+    ("chemical", "chemical"),
 )
 
 # Labels that name no hazard at all. They must not fall through to the
