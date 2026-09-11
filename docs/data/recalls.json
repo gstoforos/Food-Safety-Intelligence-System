@@ -2,18 +2,18 @@
  {
   "Date": "2026-09-10",
   "Source": "RappelConso (FR)",
-  "Company": "Pas Concerné",
-  "Brand": "Pas Concerné",
+  "Company": "Ferme des Aubriais",
+  "Brand": "—",
   "Product": "jambon blanc",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23491/interne",
-  "Notes": "ferme des aubriais [confirm-agent 2026-09-10: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "ferme des aubriais [confirm-agent 2026-09-10: pending_gap_v3 → pending; independent checks passed] [operator review 2026-09-11: verified on fiche 23491 (ref. 2026-09-0116 v1, published 10/09/2026). Company and Brand both held 'Pas concerné', which is the fiche's own \"Nom de la marque du produit\" no-brand marker, not a company. Company set to the responsible establishment named on the fiche (Ferme des Aubriais, also its Distributeurs field and the source de l'alerte); Brand set to the register's no-brand marker. Reason carried the fiche's French spelling 'listéria' — translated per the English-output rule. Same finding as nightly PR #16, re-applied here against today's register because that PR is not mergeable.]"
  },
  {
   "Date": "2026-09-10",
@@ -30,6 +30,38 @@
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk",
   "Notes": "FDA listing HTML (Layer 1) [confirm-agent 2026-09-11: pending_gap_v3 → pending; independent checks passed]"
+ },
+ {
+  "Date": "2026-09-10",
+  "Source": "FSAI (IE)",
+  "Company": "De Bonte Weide",
+  "Brand": "De Bonte Weide",
+  "Product": "De Bonte Weide Biologische Kefir Van Rauwe Geitenmelk (raw goat milk kefir), 500 ml, best-before 14/09/2026",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Presence of Shiga toxin-producing Escherichia coli (STEC), also known as verocytotoxigenic E. coli (VTEC)",
+  "Class": "Alert",
+  "Country": "Netherlands",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-goats-milk-kefir",
+  "Notes": "[operator review 2026-09-11: adjudicated from Pending and published. Verified on the FSAI alert page, which this session CAN read — the 2026-09-10 nightly run reported fsai.ie blocked by egress; it answered normally today, and the stored slug 'recall-of-a-batch-of-goats-milk-kefir' is correct (FSAI truncates its own slugs, so a short-looking slug is not a defect). Alert Notification 2026.56, Category 1: For Action, published Thursday 10 September 2026, titled 'Recall of a batch of De Bonte Weide raw goat milk Kefir due to the presence of Shiga toxin-producing E. coli'. The row arrived with the alert headline in Company, Product AND Reason and no Pathogen at all; rebuilt from the regulator page. Country is the Netherlands, the origin the alert states, following the operator rule for a national regulator's alert on imported goods (precedent: the CFS rows). Class 'Alert' is the page's own 'Alert Notification' classification. In scope: STEC is a Tier-1 pathogen.]"
+ },
+ {
+  "Date": "2026-09-10",
+  "Source": "RappelConso (FR)",
+  "Company": "Super U Orgelet",
+  "Brand": "Unbranded",
+  "Product": "Longe de thon albacore, lot 28198W",
+  "Pathogen": "Histamine / scombrotoxin",
+  "Reason": "Presence of histamine at a level above the regulatory safety criterion: 425.2 mg/kg measured against a guide value of 200 mg/kg or less",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23486/interne",
+  "Notes": "[operator review 2026-09-11: adjudicated from Pending and published. Verified on fiche 23486 (ref. 2026-09-0111, published 10/09/2026). The row arrived with Company empty, no Pathogen and the Motif left in French. The fiche has NO \"Nom de la société / raison sociale\" field at all — its only company field is Distributeurs, \"SUPER U ORGELET - 2 rue de l'industrie - 39270 ORGELET\" — so Company is set to the retailer, which the reviewer rules allow. \"Nom de la marque du produit\" reads \"Sans marque\" -> Unbranded. Motif du rappel verbatim: \"Présence d'histamine à une teneur supérieure au critère de sécurité réglementaire : 425,2 mg/kg mesurés pour une valeur guide inférieur ou égal à 200 mg/kg\" — translated per the English-output rule. Zone de vente: Jura (39). In scope: histamine/scombrotoxin is a chemical hazard. Tier 3 matches the register's RappelConso histamine precedent. Same finding as nightly PR #16, re-applied here because that PR is not mergeable.]"
  },
  {
   "Date": "2026-09-09",
@@ -253,7 +285,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/871671",
-  "Notes": "[RASFF #2026.7933; classification: information notification for follow-up; category: eggs and egg products; notifId=871671] [confirm-agent 2026-09-09: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "[RASFF #2026.7933; classification: information notification for follow-up; category: eggs and egg products; notifId=871671] [confirm-agent 2026-09-09: pending_gap_v3 → pending; independent checks passed] [operator review 2026-09-11: reviewed as a suspected duplicate of RASFF 2026.7927 (notifId=871653), which carries an identical subject line, date, origin, notifying country, category and risk decision. PROVENANCE LIMITATION: the RASFF Window portal was NOT read — webgate.ec.europa.eu serves an empty JavaScript shell and is on the pipeline's no-fetch list, and no legitimate mirror of these two notifications could be found. Decided from the stored fields alone: this row's official reference is 2026.7933 and the other's is 2026.7927. Two distinct RASFF reference numbers are two distinct notifications, and the shared subject line is RASFF template wording rather than an identity, so neither row is deleted. Whether the two notifications describe one underlying event is a GROUPING question and grouping is operator-tagged — no [incident:] id applied. Referred to the operator.]"
  },
  {
   "Date": "2026-09-08",
@@ -285,7 +317,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/871653",
-  "Notes": "[RASFF #2026.7927; classification: information notification for follow-up; category: eggs and egg products; notifId=871653] [confirm-agent 2026-09-09: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "[RASFF #2026.7927; classification: information notification for follow-up; category: eggs and egg products; notifId=871653] [confirm-agent 2026-09-09: pending_gap_v3 → pending; independent checks passed] [operator review 2026-09-11: reviewed as a suspected duplicate of RASFF 2026.7933 (notifId=871671), which carries an identical subject line, date, origin, notifying country, category and risk decision. PROVENANCE LIMITATION: the RASFF Window portal was NOT read — webgate.ec.europa.eu serves an empty JavaScript shell and is on the pipeline's no-fetch list, and no legitimate mirror of these two notifications could be found. Decided from the stored fields alone: this row's official reference is 2026.7927 and the other's is 2026.7933. Two distinct RASFF reference numbers are two distinct notifications, and the shared subject line is RASFF template wording rather than an identity, so neither row is deleted. Whether the two notifications describe one underlying event is a GROUPING question and grouping is operator-tagged — no [incident:] id applied. Referred to the operator.]"
  },
  {
   "Date": "2026-09-08",
@@ -24533,15 +24565,15 @@
   "Company": "Belle & Bio",
   "Brand": "Belle & Bio",
   "Product": "ZINC LIPOSOMAL — 90-capsule pillbox (lots 024133-01, 039...)",
-  "Pathogen": "Unspecified hazard (supplement labeling/composition)",
-  "Reason": "Recall reason not in pathogen scope",
+  "Pathogen": "Lead (heavy metal)",
+  "Reason": "Detection of an abnormal quantity of lead in a raw material contained in this product",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21812/Interne",
-  "Notes": "[fiche 21812 / ref. 2026-03-0356 / 2026-03-30; SCOPE FLAG: dietary supplement with no pathogen contamination — likely a labelling/heavy-metal/excessive-content issue, OUT OF SCOPE per _pathogen_scope.py; RECOMMEND DROP; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'BELLE & BIO BELLE & BIO' -> 'Belle & Bio'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [us-english 2026-08-14: British spelling normalised to US English in this register's own analytical prose. Product and Brand untouched — the English-output rule exempts them and pack text must stay as printed. Hazard meaning unchanged.]"
+  "Notes": "[fiche 21812 / ref. 2026-03-0356 / 2026-03-30; SCOPE FLAG: dietary supplement with no pathogen contamination — likely a labelling/heavy-metal/excessive-content issue, OUT OF SCOPE per _pathogen_scope.py; RECOMMEND DROP; REPAIRED from broken row] [dedupe-fix 2026-05-04: 'BELLE & BIO BELLE & BIO' -> 'Belle & Bio'] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [us-english 2026-08-14: British spelling normalised to US English in this register's own analytical prose. Product and Brand untouched — the English-output rule exempts them and pack text must stay as printed. Hazard meaning unchanged.] [operator review 2026-09-11: verified on fiche 21812 (ref. 2026-03-0356, published 30/03/2026). The row was published with Pathogen 'Unspecified hazard (supplement labeling/composition)' and Reason 'Recall reason not in pathogen scope'. The fiche's \"Motif du rappel\" reads \"Détection d'une quantité anormale de plomb dans une matière première contenue dans ce produit\" and its \"Risques encourus\" field reads \"Eléments traces métalliques (métaux lourds : plomb, mercure, cadmium...)\". This is a lead contamination recall — a chemical hazard, squarely in AFTS scope — not a labelling matter. Reason translated per the English-output rule. Tier left at 3, matching the register's RappelConso heavy-metal precedent.]"
  },
  {
   "Date": "2026-03-30",
@@ -24549,15 +24581,15 @@
   "Company": "AUX SAVEURS DE LA FERME SARL Aux Saveurs de la Ferme",
   "Brand": "ferme CAZABONNE",
   "Product": "Mique (lot hou02032025, use-by 2026-03-23)",
-  "Pathogen": "Unspecified hazard",
-  "Reason": "Recall reason not specified in fiche header",
+  "Pathogen": "Listeria",
+  "Reason": "Presence of Listeria",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/21810/Interne",
-  "Notes": "[fiche 21810 / ref. 2026-03-0354 / 2026-03-30; pathogen not in fiche header — Tier 3 with unspecified hazard; consider re-fetch full fiche page for hazard details if needed; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[fiche 21810 / ref. 2026-03-0354 / 2026-03-30; pathogen not in fiche header — Tier 3 with unspecified hazard; consider re-fetch full fiche page for hazard details if needed; REPAIRED from broken row] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [operator review 2026-09-11: verified on fiche 21810 (ref. 2026-03-0354, published 30/03/2026). The row was published with Pathogen 'Unspecified hazard' and Reason 'Recall reason not specified in fiche header'; the fiche's own \"Motif du rappel\" field reads \"listeria\" and \"Risques encourus\" reads \"Risque microbiologique\". Pathogen set to 'Listeria' — the fiche names no species, so 'monocytogenes' is not written. Tier raised 3 -> 1 (Listeria is an always-Tier-1 hazard). This row is in scope and always was.]"
  },
  {
   "Date": "2026-03-30",
