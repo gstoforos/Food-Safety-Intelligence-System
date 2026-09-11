@@ -116,14 +116,26 @@ class TestTheRegister(unittest.TestCase):
     #
     #   "None (organoleptic spoilage)"     the MILBONA row, admitted by a
     #                                      documented operator exception
-    #   "Unspecified hazard" (x2)          published rows that name NO hazard
     #   "Coliform / total bacterial count" hygiene indicator, not an organism
     #   "Inadequate sterilization ..."     process deviation, hazard implied
     #   "Possible incomplete pasteuriz..." process deviation, hazard implied
+    #
+    # CLOSED by the operator review of 2026-09-11 — the two "Unspecified
+    # hazard" rows were never policy questions at all, only unread fiches.
+    # Both were chased to the regulator page and both name their hazard:
+    #
+    #   RappelConso 21810 (mique, ferme CAZABONNE)  "Motif du rappel"
+    #       reads "listeria" -> Pathogen "Listeria", Tier 3 -> 1
+    #   RappelConso 21812 (ZINC LIPOSOMAL, Belle & Bio)  "Motif du rappel"
+    #       reads "Détection d'une quantité anormale de plomb dans une
+    #       matière première contenue dans ce produit"
+    #       -> Pathogen "Lead (heavy metal)", a chemical hazard in scope
+    #
+    # Their entries are REMOVED from this set rather than left behind, so
+    # that a regression which puts either hazard back fails here instead of
+    # being silently tolerated. That is what this set is for.
     KNOWN_OPEN = {
         "None (organoleptic spoilage)",
-        "Unspecified hazard",
-        "Unspecified hazard (supplement labeling/composition)",
         "Coliform / total bacterial count",
         "Inadequate sterilization (microbiological hazard)",
         "Possible incomplete pasteurization (process deviation)",
