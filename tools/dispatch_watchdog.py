@@ -72,6 +72,20 @@ WATCHED: tuple[tuple[str, str, int], ...] = (
     # now signs its own commits; it runs three times a day.
     ("recall confirm agent",          r"^Recall confirm agent:",                  30),
 
+    # The daily accuracy brief. daily-review-agent.yml runs at 09:00 Athens
+    # and writes docs/data/daily_review_digest.md + daily_review_report.json
+    # on EVERY run — the report is written whether or not it found anything,
+    # so unlike the scrapers a quiet day still commits and silence here means
+    # the workflow did not run.
+    #
+    # Added 2026-09-11 by operator review. It was the only daily writer this
+    # table did not watch, and it had gone SIXTEEN DAYS without a commit
+    # (last: 2026-08-26) with nothing anywhere saying so. Two nightly runs
+    # went looking for the "Recalls Accuracy Brief" and reported it missing
+    # from the repo; it is not missing, it is stale, and the reason nobody
+    # noticed is this line's absence.
+    ("daily review agent",            r"^daily review agent:",                  4 * 24),
+
     # Publication surfaces.
     ("public xlsx (23:30 slot)",      r"^Rebuild public xlsx ",                   48),
 
