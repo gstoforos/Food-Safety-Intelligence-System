@@ -949,23 +949,22 @@ def _incident_note(rows):
 CORRECTIONS = {
     "2026-W36": (
         "Correction. The subscriber email sent at 12:00 on 7 September quoted "
-        "80 incidents, from the 04:08 build of this page. That figure was "
-        "wrong in both directions and the period has been amended twice since. "
-        "Two counting errors inflated the email: the Swiss public warning on "
-        "Nautica smoked trout had been captured twice, from the German and the "
-        "French page of the same OSAV release, and that warning and the "
-        "producer's own recall of the same lot were counted as two events "
-        "rather than one. Four notices were missing from the window and have "
-        "been added since: RappelConso fiche 23460 (Paturages Comtois); the "
-        "USDA FSIS Class I recall of imported ready-to-eat guanciale by Prime "
-        "Line Distributors and Ferrarini USA and the FDA recall of deli salads "
-        "and cream cheese by Made Fresh Salads Inc., both published on 6 "
-        "September, the last day of the period, and both reaching the register "
-        "after the email went out; and the Hong Kong Centre for Food Safety "
-        "alert of 4 September on three batches of French brie, which arrived "
-        "as a news headline and was rebuilt from the regulator's own page on "
-        "10 September. The period stands at 82 incidents. The figures on this "
-        "page are the corrected ones and supersede the email."),
+        "80 incidents. That figure was wrong in both directions and the "
+        "period has been amended since. Two counting errors inflated the "
+        "email: the Swiss public warning on Nautica smoked trout had been "
+        "captured twice, from the German and the French page of the same OSAV "
+        "release, and that warning and the producer's own recall of the same "
+        "lot were counted as two events rather than one. Five notices dated "
+        "inside the window were missing and have since been added \u2014 two "
+        "American recalls published on 6 September, the last day of the "
+        "period, which reached the register only after the email went out "
+        "(USDA FSIS on imported guanciale, FDA on Made Fresh Salads); "
+        "RappelConso fiche 23460; the Hong Kong Centre for Food Safety alert "
+        "of 4 September on three batches of French brie; and the New Zealand "
+        "MPI recall of Mon Sire brie of 4 September, which had been archived "
+        "unaudited and was recovered on 11 September. Every one was read at "
+        "its regulator's own page before being added. The period stands at "
+        "83 incidents, and the figures on this page supersede the email."),
 }
 
 INCIDENT_LABELS = {
