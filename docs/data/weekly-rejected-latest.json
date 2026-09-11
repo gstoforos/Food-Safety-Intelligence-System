@@ -1,13 +1,13 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-10T19:53:11+00:00",
-  "row_count": 51,
-  "tier1_count": 44,
+  "generated_utc": "2026-09-11T03:22:28+00:00",
+  "row_count": 52,
+  "tier1_count": 45,
   "outbreak_count": 8,
   "by_reviewer": {
     "unknown": 37,
     "operator-review": 10,
-    "confirm-agent": 2,
+    "confirm-agent": 3,
     "repromotion-guard": 2
   },
   "rows": [
@@ -32,6 +32,29 @@
       "Week_Added": "2026-09-13",
       "RejectedBy": "unknown",
       "RejectionReason": "Confirmer: reviewer 2 approved but Pathogen 'Listeria monocytogenes' contradicts Reason (",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-10",
+      "Source": "FSA (UK)",
+      "Company": "Waitrose",
+      "Brand": "—",
+      "Product": "Waitrose Essential Pitted Black Olives",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "",
+      "Class": "Alert",
+      "Country": "United Kingdom",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-44-2026",
+      "Notes": "PRIN-44-2026 [confirm-agent 2026-09-11: pending_gap_v3 → pending; independent checks passed] [publish-gate 2026-08-01: Reason is empty]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "confirm-agent",
+      "RejectionReason": "NO_REASON_RECORDED — rejected by confirm-agent from FSA (UK), status pending. The writer supplied no verdict and none could be parsed from Notes; treat as UNAUDITED, not as a confirmed rejection.",
       "Reviewed": "N"
     },
     {
