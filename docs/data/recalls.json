@@ -64,6 +64,22 @@
   "Notes": "[operator review 2026-09-11: adjudicated from Pending and published. Verified on fiche 23486 (ref. 2026-09-0111, published 10/09/2026). The row arrived with Company empty, no Pathogen and the Motif left in French. The fiche has NO \"Nom de la société / raison sociale\" field at all — its only company field is Distributeurs, \"SUPER U ORGELET - 2 rue de l'industrie - 39270 ORGELET\" — so Company is set to the retailer, which the reviewer rules allow. \"Nom de la marque du produit\" reads \"Sans marque\" -> Unbranded. Motif du rappel verbatim: \"Présence d'histamine à une teneur supérieure au critère de sécurité réglementaire : 425,2 mg/kg mesurés pour une valeur guide inférieur ou égal à 200 mg/kg\" — translated per the English-output rule. Zone de vente: Jura (39). In scope: histamine/scombrotoxin is a chemical hazard. Tier 3 matches the register's RappelConso histamine precedent. Same finding as nightly PR #16, re-applied here because that PR is not mergeable.]"
  },
  {
+  "Date": "2026-09-10",
+  "Source": "FSA (UK)",
+  "Company": "Waitrose",
+  "Brand": "Waitrose Essential",
+  "Product": "Waitrose Essential Pitted Black Olives, 120 g, use by 13, 18 and 27 September 2026",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes found in the product; consumers told not to eat it and to return it to a Waitrose store for a full refund",
+  "Class": "Product Recall Information Notice",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-44-2026",
+  "Notes": "[operator review 2026-09-11: RECOVERED FROM THE ARCHIVE. Verified today on the FSA alert page: FSA-PRIN-44-2026, Product Recall Information Notice, published 10 September 2026, hazard verbatim \"The presence of Listeria monocytogenes in the product listed above.\" The row had been archived by the confirm agent with RejectionReason \"NO_REASON_RECORDED - ... treat as UNAUDITED, not as a confirmed rejection\", after passing its independent checks; the only gate note was \"[publish-gate: Reason is empty]\". An empty Reason is a completeness defect that enrichment fixes, not grounds to drop a Tier-1 Listeria recall by a national retailer. Reason written from the alert. LIKELY RELATED, NOT GROUPED: FSA-PRIN-43-2026 (Sainsbury's Inspired to Cook Pitted Black Olives 120 g, Listeria, 4 Sep) is the same product type and pack size six days earlier at a different retailer, so one packer is very probable - but neither alert names a supplier, and grouping is operator-tagged, never inferred. They fall in different weeks, so no count depends on it.]"
+ },
+ {
   "Date": "2026-09-09",
   "Source": "RappelConso (FR)",
   "Company": "Le Petit Fume Dromois",
@@ -206,6 +222,38 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/871756",
   "Notes": "[RASFF #2026.7971; classification: alert notification; category: meat and meat products (other than poultry); notifId=871756] [confirm-agent 2026-09-10: pending_gap_v3 → pending; independent checks passed]"
+ },
+ {
+  "Date": "2026-09-09",
+  "Source": "CDC",
+  "Company": "Evergreen Fresh Sprouts, LLC",
+  "Brand": "Evergreen Fresh Sprouts",
+  "Product": "Broccoli sprouts, distributed mainly in Idaho, Montana and Washington and possibly further",
+  "Pathogen": "Salmonella",
+  "Reason": "CDC multistate outbreak investigation published 9 September 2026 and open: 22 illnesses, 2 hospitalizations, no deaths in 4 states, linked to broccoli sprouts from Evergreen Fresh Sprouts, LLC. Consumers told not to eat the recalled sprouts and to wash anything they touched",
+  "Class": "Outbreak investigation",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.cdc.gov/salmonella/outbreaks/broccoli-sprouts-09-26/index.html",
+  "Notes": "[outbreak:cdc:broccoli-sprouts-09-26] [operator review 2026-09-11: verified on the CDC outbreak page, published and last updated 9 September 2026: \"Cases: 22 / Hospitalizations: 2 / Deaths: 0 / States: 4\", food linked broccoli sprouts, company Evergreen Fresh Sprouts, LLC, investigation open. Both pending rows were the same event - this page and its /investigation.html sub-page - so the sub-page row is archived and this one carries the outbreak id; same handling as the CDC clams outbreak on 2026-09-06. The rows arrived with the page headline in Company, Brand, Product and Notes, and the sub-page row also carried Pathogen \"Escherichia coli (generic)\" and Reason \"E. coli - outbreak\" on a Salmonella outbreak page, which is a fabricated hazard: the gap-finder writer is putting an organism in the field that the page does not name. Rebuilt from the page. The CDC page does not give the serovar, so Pathogen stays the bare genus.] Class uses the register's existing literal \"Outbreak investigation\"; that the investigation is open is stated in Reason rather than by adding a near-duplicate Class value to the controlled vocabulary."
+ },
+ {
+  "Date": "2026-09-09",
+  "Source": "FSANZ (AU)",
+  "Company": "Greenstorm Foods t/a Austral Herbs",
+  "Brand": "Austral Herbs",
+  "Product": "Certified Organic Premium Peppermint Leaf (Mentha piperita), 250 g, 1 kg, 5 kg and 10 kg, best before 02/04/2029",
+  "Pathogen": "Foreign material (metal)",
+  "Reason": "The presence of foreign matter (metal). Sold through independent food retailers and online in NSW, QLD, VIC, TAS, SA and WA",
+  "Class": "Recall",
+  "Country": "Australia",
+  "Region": "Oceania",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/greenstorm-foods-ta-austral-herbs-certified-organic-premium-peppermint",
+  "Notes": "[operator review 2026-09-11: RECOVERED FROM THE ARCHIVE. Verified today on the FSANZ recall alert of 9 September 2026, reason verbatim \"The presence of foreign matter (metal)\"; the notice mentions NO pathogen. The row had been archived because the confirm agent's contradiction guard fired - \"reviewer 2 approved but Pathogen 'Listeria monocytogenes' contradicts Reason\" - and the guard was RIGHT: the scraper had written a Listeria that appears nowhere on the page. The right answer was to delete the fabricated pathogen, not the recall. Foreign material is in scope (physical hazard) and Tier 2.]"
  },
  {
   "Date": "2026-09-08",
@@ -862,6 +910,22 @@
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_628.html",
   "Notes": "[operator review 2026-09-09: verified on the CFS food alert page 2026_628 of 04/09/2026, which this environment CAN read (the nightly review reported cfs.gov.hk blocked; it answered normally today). The row arrived from Google News with a Dimsum Daily headline in Company, Product and Reason; rebuilt from the regulator page and the news URL dropped. Country is France, the origin, and the importers are the Company, following the CFS row of 2026-08-18 (City Super Limited (Importer), Country France). One alert, one row, all three importers named. NOT GROUPED, AND A QUESTION FOR THE OPERATOR: lot 000000BXCG here is one of the two lots on RappelConso fiche 23460 (SASU Paturages Comtois, 04/09/2026), and the register holds six more Paturages Comtois Listeria notices (fiches 23002, 23138, 23417, 23425, 23427, 23460) from 28/07 to 04/09, none of them carrying an incident id. These are very probably one producer event across two regulators. Grouping is operator-tagged and never inferred, so nothing was tagged here — but if you want them collapsed, all seven need the same id, not just this one.]"
+ },
+ {
+  "Date": "2026-09-04",
+  "Source": "MPI (NZ)",
+  "Company": "Sabato Limited",
+  "Brand": "Mon Sire",
+  "Product": "Mon Sire brand Brie, sold wrapped in paper or plastic film in various weights, best before 26 September 2026",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Possible presence of Listeria monocytogenes. Cheese imported from France and sold at Sabato Ltd, 57 Normanby Road, Mt Eden, Auckland and on the Sabato website. No illness reported",
+  "Class": "Recall",
+  "Country": "New Zealand",
+  "Region": "Oceania",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/mon-sire-brand-brie",
+  "Notes": "[operator review 2026-09-11: RECOVERED FROM THE ARCHIVE. Verified today on the MPI/NZFS recall page: recalled 4 September 2026 by Sabato Limited, Mon Sire brand Brie, best before 26 September 2026, \"possible presence of Listeria monocytogenes\", imported from France, no illness reported. Archived by the confirm agent as \"NO_REASON_RECORDED ... treat as UNAUDITED\" after passing its independent checks; the gate note was \"Product is a fragment of the headline\", which is true of the scraped row and is fixed by rebuilding it from the page, not by dropping it. Source label corrected to the agency's canonical form \"MPI (NZ)\" (scrapers/oceania/mpi_nz.py AGENCY) - the row said \"MPI NZ\". FIRST MPI ROW IN THE REGISTER: the scraper exists but has never produced a published row, which is worth checking against tools/dispatch_watchdog.py. Country is New Zealand, the recalling jurisdiction, with the French origin recorded here - the register is not consistent on origin-vs-notifying for national regulators and that is an open question for the operator, so nothing new was invented.]"
  },
  {
   "Date": "2026-09-03",

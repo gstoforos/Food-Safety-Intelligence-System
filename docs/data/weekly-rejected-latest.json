@@ -1,14 +1,14 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-11T03:22:28+00:00",
-  "row_count": 52,
-  "tier1_count": 45,
+  "generated_utc": "2026-09-11T08:59:18+00:00",
+  "row_count": 50,
+  "tier1_count": 43,
   "outbreak_count": 8,
   "by_reviewer": {
     "unknown": 37,
     "operator-review": 10,
-    "confirm-agent": 3,
-    "repromotion-guard": 2
+    "repromotion-guard": 2,
+    "confirm-agent": 1
   },
   "rows": [
     {
@@ -32,29 +32,6 @@
       "Week_Added": "2026-09-13",
       "RejectedBy": "unknown",
       "RejectionReason": "Confirmer: reviewer 2 approved but Pathogen 'Listeria monocytogenes' contradicts Reason (",
-      "Reviewed": "N"
-    },
-    {
-      "Date": "2026-09-10",
-      "Source": "FSA (UK)",
-      "Company": "Waitrose",
-      "Brand": "—",
-      "Product": "Waitrose Essential Pitted Black Olives",
-      "Pathogen": "Listeria monocytogenes",
-      "Reason": "",
-      "Class": "Alert",
-      "Country": "United Kingdom",
-      "Region": "Europe",
-      "Tier": 1,
-      "Outbreak": 0,
-      "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-44-2026",
-      "Notes": "PRIN-44-2026 [confirm-agent 2026-09-11: pending_gap_v3 → pending; independent checks passed] [publish-gate 2026-08-01: Reason is empty]",
-      "DateAdded": "",
-      "LastUpdated": "",
-      "LastChecked": "",
-      "Week_Added": "2026-09-13",
-      "RejectedBy": "confirm-agent",
-      "RejectionReason": "NO_REASON_RECORDED — rejected by confirm-agent from FSA (UK), status pending. The writer supplied no verdict and none could be parsed from Notes; treat as UNAUDITED, not as a confirmed rejection.",
       "Reviewed": "N"
     },
     {
@@ -243,29 +220,6 @@
     },
     {
       "Date": "2026-09-04",
-      "Source": "MPI NZ",
-      "Company": "Mon Sire brand Brie",
-      "Brand": "Mon Sire brand Brie",
-      "Product": "due to the possible presence of ...",
-      "Pathogen": "Listeria monocytogenes",
-      "Reason": "Listeria monocytogenes",
-      "Class": "Recall",
-      "Country": "New Zealand",
-      "Region": "Oceania",
-      "Tier": 1,
-      "Outbreak": 0,
-      "URL": "https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/mon-sire-brand-brie",
-      "Notes": "5 days ago · Recalled on 4 September 2026 by Sabato Limited. Food safety at home Food recalls and complaints Recalled food products list Mon Sire brand Brie recalled due to the possible presence of Listeria monocytogenes  [via DDGS gap-finder, deterministic extract] [confirm-agent 2026-09-10: pending_gap_v3 → pending; independent checks passed] [publish-gate 2026-08-01: Product is a fragment of the notice headline ('due to the possible presence of ...') — a product name does not begin with a causal connector]",
-      "DateAdded": "",
-      "LastUpdated": "",
-      "LastChecked": "",
-      "Week_Added": "2026-09-13",
-      "RejectedBy": "confirm-agent",
-      "RejectionReason": "NO_REASON_RECORDED — rejected by confirm-agent from MPI NZ, status pending. The writer supplied no verdict and none could be parsed from Notes; treat as UNAUDITED, not as a confirmed rejection.",
-      "Reviewed": "N"
-    },
-    {
-      "Date": "2026-09-04",
       "Source": "FDA",
       "Company": "Outbreak Investigation of Salmonella: Sprouts (September 2026)",
       "Brand": "Outbreak Investigation of Salmonella: Sprouts (September 2026)",
@@ -416,13 +370,13 @@
       "Tier": 1,
       "Outbreak": 0,
       "URL": "https://favv-afsca.be/nl/producten",
-      "Notes": "recall Alfiero. Terugroeping Terugroeping van Alfiero Chocolademousse van het merk Alfiero Mogelijke aanwezigheid van Listeria monocytogenes 08/09/2026 Lees  [via Tavily gap-finder, deterministic extract] [confirm-agent 2026-09-10: pending_gap_v3 → pending; independent checks passed] [publish-gate 2026-08-01: Company holds the notice headline, not a company name ('Terugroepingen en waarschuwingen van producten') — the scraper wrote a page title into a name field]",
+      "Notes": "recall Alfiero. Terugroeping Terugroeping van Alfiero Chocolademousse van het merk Alfiero Mogelijke aanwezigheid van Listeria monocytogenes 08/09/2026 Lees  [via Tavily gap-finder, deterministic extract] [confirm-agent 2026-09-10: pending_gap_v3 → pending; independent checks passed] [publish-gate 2026-08-01: Company holds the notice headline, not a company name ('Terugroepingen en waarschuwingen van producten') — the scraper wrote a page title into a name field] [operator review 2026-09-11: re-audited. Was \"NO_REASON_RECORDED ... treat as UNAUDITED\"; now carries a real verdict. Also note the Source label reads \"FAVV\" where the register's canonical Belgian label is \"AFSCA (BE)\" (11 rows).]",
       "DateAdded": "",
       "LastUpdated": "",
       "LastChecked": "",
       "Week_Added": "2026-09-13",
       "RejectedBy": "confirm-agent",
-      "RejectionReason": "NO_REASON_RECORDED — rejected by confirm-agent from FAVV, status pending. The writer supplied no verdict and none could be parsed from Notes; treat as UNAUDITED, not as a confirmed rejection.",
+      "RejectionReason": "REJECTED - no citable notice: the recall is real (Alfiero frozen chocolate mousse, possible Listeria monocytogenes, reported by VRT NWS and La Libre on 09/09/2026) but this row cites favv-afsca.be/nl/producten, the AGENCY LISTING PAGE, not the notice. AFSCA answers a CAPTCHA to this environment, so the specific terugroeping page could not be read and its URL could not be confirmed. The register cites the regulator, so the row cannot be published on a listing URL plus news reports alone. Re-open it the moment the specific AFSCA notice URL is known.",
       "Reviewed": "N"
     },
     {
