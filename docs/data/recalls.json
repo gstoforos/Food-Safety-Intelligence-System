@@ -80,6 +80,22 @@
   "Notes": "[operator review 2026-09-11: RECOVERED FROM THE ARCHIVE. Verified today on the FSA alert page: FSA-PRIN-44-2026, Product Recall Information Notice, published 10 September 2026, hazard verbatim \"The presence of Listeria monocytogenes in the product listed above.\" The row had been archived by the confirm agent with RejectionReason \"NO_REASON_RECORDED - ... treat as UNAUDITED, not as a confirmed rejection\", after passing its independent checks; the only gate note was \"[publish-gate: Reason is empty]\". An empty Reason is a completeness defect that enrichment fixes, not grounds to drop a Tier-1 Listeria recall by a national retailer. Reason written from the alert. LIKELY RELATED, NOT GROUPED: FSA-PRIN-43-2026 (Sainsbury's Inspired to Cook Pitted Black Olives 120 g, Listeria, 4 Sep) is the same product type and pack size six days earlier at a different retailer, so one packer is very probable - but neither alert names a supplier, and grouping is operator-tagged, never inferred. They fall in different weeks, so no count depends on it.]"
  },
  {
+  "Date": "2026-09-10",
+  "Source": "CFIA",
+  "Company": "Everest Traders Inc.",
+  "Brand": "PK",
+  "Product": "PK brand Roasted Lemon N' Chilli Peanuts, 65 g — UPC 6 28998 001245, best before 2027/JN/20, batch CN94",
+  "Pathogen": "Salmonella",
+  "Reason": "Possible Salmonella contamination. Distributed in Ontario and Quebec; no illnesses reported at the time of the notice",
+  "Class": "Class 2",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/pk-brand-roasted-lemon-n-chilli-peanuts-recalled-due-salmonella",
+  "Notes": "[operator review 2026-09-11: verified on the CFIA notice, recall RA-82611, posted 10 September 2026, Class 2, hazard verbatim \"possible Salmonella contamination\", recalling firm Everest Traders Inc., 65 g pack, UPC 6 28998 001245, best before 2027/JN/20, batch CN94, Ontario and Quebec, zero illnesses. The row reached Pending from the CFIA open-data feed (NID=82611) at 15:11Z on 11 September with COMPANY EMPTY and the headline as Reason; Company and the pack detail come from the notice. The empty firm is the same hold that caught the FSIS guanciale recall on 7 September - the gate is working, but a row parked on it needs a human to finish it or it ages out through the confirm agent.]"
+ },
+ {
   "Date": "2026-09-09",
   "Source": "RappelConso (FR)",
   "Company": "Le Petit Fume Dromois",
