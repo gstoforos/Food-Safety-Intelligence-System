@@ -39,20 +39,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          # 200, not 1: the hour-guard below greps recent commit messages for
+          # a same-day dedup marker, which a depth-1 shallow clone can never
+          # contain (only HEAD would be present).
+          fetch-depth: 200
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # DST hour-guard: only proceed if it is 09:xx in Athens right now.
+      # DST hour-guard. Originally an exact "H == 09" match, which silently
+      # discarded EVERY scheduled run from 2026-08-27 to 2026-09-12: GitHub's
+      # own schedule trigger dispatched this workflow 3-6 hours late on this
+      # account (confirmed via the Actions API — both DST cron lines fired
+      # daily and landed between Athens 12:xx and 15:xx, never 09:xx), and
+      # every single run showed green ("success") while every step after
+      # this guard was skipped. Nightly-operator review 2026-09-12 found it
+      # by comparing `git log --grep="daily review agent:"` (silent since
+      # 2026-08-26) against the Actions run list (green today). Widened to a
+      # tolerant window plus a same-day dedup so late dispatch still runs
+      # exactly once. See the identical, already-fixed pattern in
+      # tavily-gap-finder.yml / recall-confirm-agent.yml.
       - name: Athens hour guard
         id: guard
         run: |
           H=$(TZ=Europe/Athens date +%H)
+          TODAY=$(TZ=Europe/Athens date +%Y-%m-%d)
           echo "Athens hour = $H"
-          if [ "$H" != "09" ]; then
-            echo "Not 09:00 Athens — skipping this DST-offset run."
-            echo "run=false" >> "$GITHUB_OUTPUT"
-          else
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
+          elif git log --since="36 hours ago" --grep="^daily review agent: auto-fixes + report ($TODAY)" --format=%H | grep -q .; then
+            echo "Already ran today ($TODAY) — skipping duplicate DST-twin fire."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          elif [ "$H" -ge "09" ] && [ "$H" -le "21" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Athens hour $H outside the 09-21 catch-up window — skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Set up Python 3.11

@@ -1,17 +1,17 @@
 {
-  "generated": "2026-08-26T09:27:56+03:00",
-  "date": "2026-08-26",
+  "generated": "2026-09-12T23:32:55+03:00",
+  "date": "2026-09-12",
   "mode": "live",
-  "in_progress_week": "W35",
+  "in_progress_week": "W37",
   "counts": {
-    "recalls_rows": 1512,
+    "recalls_rows": 1688,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
-    "mistiered_rows": 2,
+    "mistiered_rows": 3,
     "date_issue_rows": 0,
-    "lane_a_changes": 2,
-    "proposed_deletions": 16,
+    "lane_a_changes": 3,
+    "proposed_deletions": 18,
     "ledger_resolved": 0,
     "asset_issues": 1
   },
@@ -20,6 +20,17 @@
     "shared_nonspecific_urls": [],
     "blank_fields": [],
     "mistiered": [
+      {
+        "Date": "2026-09-02",
+        "Source": "RappelConso (FR)",
+        "Company": "Keraliou",
+        "Product": "coque moyenne française",
+        "Pathogen": "Escherichia coli (generic)",
+        "Country": "France",
+        "Tier": 2,
+        "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23408/interne",
+        "current_tier": 2
+      },
       {
         "Date": "2026-08-07",
         "Source": "CFIA",
@@ -55,11 +66,19 @@
   "lane_a": {
     "applied": true,
     "summary": {
-      "tier1_enforce": 2
+      "tier1_enforce": 3
     },
     "changes": [
       {
-        "row": 152,
+        "row": 92,
+        "field": "Tier",
+        "fix": "tier1_enforce",
+        "before": 2,
+        "after": 1,
+        "reason": "Escherichia coli (generic) is always Tier 1"
+      },
+      {
+        "row": 333,
         "field": "Tier",
         "fix": "tier1_enforce",
         "before": 2,
@@ -67,7 +86,7 @@
         "reason": "E. coli is always Tier 1"
       },
       {
-        "row": 271,
+        "row": 452,
         "field": "Tier",
         "fix": "tier1_enforce",
         "before": 2,
@@ -79,13 +98,30 @@
   "lane_b": {
     "proposed_deletions": [
       {
+        "id": "c549d1ac3975ffdf",
+        "category": "cfs_foreign_repost",
+        "confidence": "high",
+        "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
+        "row": {
+          "Date": "2026-09-04",
+          "Source": "CFS (HK)",
+          "Company": "Noja Fine Trade Limited, Maxly Food Company Limited and King Rise (Asia) Limited (importers)",
+          "Product": "French brie in three batches — Brie 3 kg 50% lot 00000BPBY1 best before 01/10/2026; Brie 60% 1 kg Grand Export lot 00000BXCG1 best before 10/10/2026; Pointe de Brie 180 g lot 000000BXCG best before 30/08/2026",
+          "Pathogen": "Listeria monocytogenes",
+          "Country": "France",
+          "Tier": 1,
+          "URL": "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_628.html"
+        },
+        "duplicate_of": null
+      },
+      {
         "id": "1d09f80d00b75c39",
         "category": "cfs_foreign_repost",
         "confidence": "high",
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-23",
-          "Source": "CFS (HK) - aggregator (UK FSA)",
+          "Source": "CFS (HK)",
           "Company": "MOMA Foods",
           "Product": "Various porridge pots and sachet products",
           "Pathogen": "Mouse contamination (physical/biological hazard)",
@@ -102,7 +138,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-20",
-          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Source": "CFS (HK)",
           "Company": "AMBROSI",
           "Product": "GORGONZOLA DOP 1-8 1.5 kg env x 4 — AMBROSI cheese",
           "Pathogen": "Listeria monocytogenes",
@@ -119,7 +155,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-19",
-          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Source": "CFS (HK)",
           "Company": "Metro Chef",
           "Product": "Bloc Serrano 2.2 kg env Metro Chef ham",
           "Pathogen": "Listeria monocytogenes",
@@ -136,7 +172,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-17",
-          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Source": "CFS (HK)",
           "Company": "Ets Guittonneau",
           "Product": "HUITRES CREUSES oyster products",
           "Pathogen": "Norovirus",
@@ -153,7 +189,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-17",
-          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Source": "CFS (HK)",
           "Company": "HUITRE DE DIANA",
           "Product": "Oyster products from Étang de Diana",
           "Pathogen": "Phytoplankton biotoxins",
@@ -170,7 +206,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-17",
-          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Source": "CFS (HK)",
           "Company": "Étang de Diana producers",
           "Product": "Oysters and mussel products from Étang de Diana (harvested 2026-02-24 to 2026-03-05)",
           "Pathogen": "Lipophilic biotoxins (DSP)",
@@ -187,7 +223,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-16",
-          "Source": "CFS (HK) - aggregator (SFA SG)",
+          "Source": "CFS (HK)",
           "Company": "Nestlé / Nature One Dairy",
           "Product": "Nestle NAN HA2 + Nature One Premium Toddler Step 3 infant/toddler formulas",
           "Pathogen": "Bacillus cereus / cereulide",
@@ -204,7 +240,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-16",
-          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Source": "CFS (HK)",
           "Company": "AOSTE",
           "Product": "Cooked ham products",
           "Pathogen": "Listeria monocytogenes",
@@ -221,7 +257,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-13",
-          "Source": "CFS (HK) - aggregator (MPI NZ)",
+          "Source": "CFS (HK)",
           "Company": "Banks Peninsula shellfish harvesters",
           "Product": "Banks Peninsula shellfish (mussels, oysters, scallops, paua, cockles)",
           "Pathogen": "Paralytic shellfish toxins (PSP)",
@@ -238,7 +274,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-13",
-          "Source": "CFS (HK) - aggregator (MPI NZ)",
+          "Source": "CFS (HK)",
           "Company": "— (Banks Peninsula shellfish)",
           "Product": "Shellfish gathered from northern side of Banks Peninsula",
           "Pathogen": "Paralytic shellfish toxins (PSP)",
@@ -272,7 +308,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-09",
-          "Source": "CFS (HK) - aggregator (RappelConso FR)",
+          "Source": "CFS (HK)",
           "Company": "AOSTE",
           "Product": "Cooked ham products",
           "Pathogen": "Listeria monocytogenes",
@@ -289,7 +325,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-09",
-          "Source": "CFS (HK) - aggregator (MHLW Japan)",
+          "Source": "CFS (HK)",
           "Company": "UCC Ueshima Coffee",
           "Product": "UCC BEANS&ROASTERS Cafe Latte リキャップ缶 375g",
           "Pathogen": "Inadequate sterilization (microbiological hazard)",
@@ -306,7 +342,7 @@
         "reason": "cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall",
         "row": {
           "Date": "2026-03-02",
-          "Source": "CFS (HK) - aggregator (Czech)",
+          "Source": "CFS (HK)",
           "Company": "Czech Agriculture & Food Inspection",
           "Product": "Happy Mimi 1 infant formula (single batch)",
           "Pathogen": "Bacillus cereus / cereulide",
@@ -343,6 +379,32 @@
         }
       },
       {
+        "id": "d2d622a11cef8328",
+        "category": "cross_source_dup",
+        "confidence": "medium",
+        "reason": "same content identity (date + company + pathogen) as a row from a different source (fda)",
+        "row": {
+          "Date": "2026-09-03",
+          "Source": "CDC",
+          "Company": "Frutas y Hortalizas del Sur S.A.",
+          "Product": "Frozen berries — GreenWise Organic IQF Blueberries 10 oz, GreenWise Whole Mixed Berries, Great Value Organic Triple Berry Blend 10 oz",
+          "Pathogen": "E. coli O145 (STEC)",
+          "Country": "United States",
+          "Tier": 1,
+          "URL": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html"
+        },
+        "duplicate_of": {
+          "Date": "2026-09-03",
+          "Source": "FDA",
+          "Company": "Frutas y Hortalizas del Sur S.A.",
+          "Product": "Organic Triple Berry Blend",
+          "Pathogen": "E. coli O145 (STEC)",
+          "Country": "United States",
+          "Tier": 1,
+          "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple"
+        }
+      },
+      {
         "id": "e96aa2b1ef3d3756",
         "category": "cross_source_dup",
         "confidence": "medium",
@@ -374,15 +436,8 @@
   },
   "stale_reports": {
     "weeklies": [
-      "W34"
-    ],
-    "monthlies": [
-      "M07"
-    ]
-  },
-  "rebuilt": {
-    "weeklies": [
-      "W34"
+      "W34",
+      "W36"
     ],
     "monthlies": []
   }

@@ -48,14 +48,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      # Originally an exact "HOUR == 12" match. Nightly-operator review
+      # 2026-09-12 found via the Actions API that GitHub has been
+      # dispatching this workflow's own schedule trigger 3-6 hours late on
+      # this account for weeks straight (recent runs landed Athens 15:40-
+      # 17:13, never 12:xx) — so every run showed green while every step
+      # after this guard was skipped, and the watchdog never once produced
+      # its job summary. The irony: this is the workflow meant to catch
+      # exactly this "green but did nothing" failure mode, and it was
+      # silently suffering from it itself. Read-only and side-effect-free
+      # (job summary only, no commit), so a wide catch-up window carries no
+      # double-fire risk the way a writer workflow's would.
       - name: Athens-hour guard (one fire per day across DST)
         id: guard
         run: |
           HOUR=$(TZ=Europe/Athens date +%H)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$HOUR" = "12" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || { [ "$HOUR" -ge "12" ] && [ "$HOUR" -le "23" ]; }; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Athens hour $HOUR — the DST twin will fire. Skipping."
+            echo "Athens hour $HOUR — outside the 12-23 catch-up window. Skipping."
             echo "run=false" >> "$GITHUB_OUTPUT"
           fi
 

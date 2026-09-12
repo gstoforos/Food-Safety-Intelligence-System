@@ -2,23 +2,23 @@
  {
   "Date": "2026-09-11",
   "Source": "RappelConso (FR)",
-  "Company": "Prix Mini",
+  "Company": "Cooperative U",
   "Brand": "Prix Mini",
   "Product": "lardons fumés pxm 200g",
   "Pathogen": "Staphylococcus enterotoxin",
-  "Reason": "Non conformite microbiologique",
+  "Reason": "Microbiological non-compliance (Staphylococcus enterotoxin).",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23497/interne",
-  "Notes": "cooperative u [confirm-agent 2026-09-11: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "cooperative u [confirm-agent 2026-09-11: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator-2026-09-12 proposal 66c3beae2d785278 applied 2026-09-12: Company held the Brand value 'Prix Mini' (Cooperative U's private label); the fiche's 'Origine de la fiche' names the reporting company distinctly. Reason was untranslated French.]"
  },
  {
   "Date": "2026-09-11",
   "Source": "RappelConso (FR)",
-  "Company": "Porc de Nos Villages",
+  "Company": "Jean-Pierre Tallec - L'Heritage du Gout",
   "Brand": "Porc de Nos Villages",
   "Product": "rôti de porc cuit supérieur 4 tranches 220g",
   "Pathogen": "Listeria monocytogenes",
@@ -29,7 +29,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23499/interne",
-  "Notes": "auchan [confirm-agent 2026-09-11: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "auchan [confirm-agent 2026-09-11: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator-2026-09-12 proposal 493b12ec0fc4e06b applied 2026-09-12: Company duplicated the Brand value 'Porc de Nos Villages'. The fiche's 'Origine de la fiche' names the manufacturer distinctly from both the Auchan distributor and the brand.]"
  },
  {
   "Date": "2026-09-11",
