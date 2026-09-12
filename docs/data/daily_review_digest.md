@@ -1,19 +1,22 @@
-# FSIS Daily Review — 2026-08-26 (Athens)
+# FSIS Daily Review — 2026-09-12 (Athens)
 
-Mode: **live** · generated 2026-08-26T09:27:56+03:00
-Recalls rows reviewed: **1512** · in-progress week (never published): **W35**
+Mode: **live** · generated 2026-09-12T23:32:55+03:00
+Recalls rows reviewed: **1688** · in-progress week (never published): **W37**
 
 ## 1. Integrity
 - Duplicate URL groups: **0**
 - Non-specific URLs shared by different recalls: **0**
 - Rows with blank required fields: **0**
-- Mis-tiered (always-Tier-1) rows: **2**
+- Mis-tiered (always-Tier-1) rows: **3**
 - Date-sanity issues: **0**
 
 ## 2. Lane A — safe auto-fixes (APPLIED)
-- tier1_enforce: **2**
+- tier1_enforce: **3**
 
 ## 3. Lane B — proposed deletions (QUEUED, nothing deleted)
+- **[cfs_foreign_repost · high]** 2026-09-04 · Noja Fine Trade Limited, Maxly Food Company Limited and King Rise (Asia) Limited (importers) · Listeria monocytogenes — https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_628.html
+  - Evidence: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall
+  - id `c549d1ac3975ffdf` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 - **[cfs_foreign_repost · high]** 2026-03-23 · MOMA Foods · Mouse contamination (physical/biological hazard) — https://www.cfs.gov.hk/english/rc/subject/files/20260323_1.pdf
   - Evidence: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall
   - id `1d09f80d00b75c39` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
@@ -60,14 +63,18 @@ Recalls rows reviewed: **1512** · in-progress week (never published): **W35**
   - Evidence: CFIA slug variants of one recall (shared stem: charlevoisienne-joe-meat-smoked)
   - Duplicate of: https://recalls-rappels.canada.ca/en/alert-recall/charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due-listeria
   - id `4ae9dcc6ef9bc9fc` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
+- **[cross_source_dup · medium]** 2026-09-03 · Frutas y Hortalizas del Sur S.A. · E. coli O145 (STEC) — https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html
+  - Evidence: same content identity (date + company + pathogen) as a row from a different source (fda)
+  - Duplicate of: https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple
+  - id `d2d622a11cef8328` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 - **[cross_source_dup · medium]** 2026-04-22 · Good4U · Salmonella Bovismorbificans — https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-batches-of-good4u-super-sprouts-super-gr
   - Evidence: same content identity (date + company + pathogen) as a row from a different source (fsa (uk))
   - Duplicate of: https://www.food.gov.uk/news-alerts/alert/fsa-prin-20-2026
   - id `e96aa2b1ef3d3756` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 
 ## 4. Reports flagged stale (rebuild → UPDATED masthead)
-- Weeklies: W34
-- Monthlies: M07
+- Weeklies: W34, W36
+- Monthlies: none
 
 ## 5. Asset / deliverable integrity
 - **[unexpected_pdf_link]** M01: M01 has a pdf_url but is HTML-only by rule
