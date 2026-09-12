@@ -1,0 +1,1816 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20260912T064608Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; food terms sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
+          "quote": "2026-08-22 FDA Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lo",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "2b030b9331011403"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; food terms sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and",
+          "quote": "2026-08-29 FDA Robust Radish Mix, 5oz Cups",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d15a216ebd54d6fb"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/broccoli-sprouts-09-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; food terms broccoli, sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/broccoli-sprouts-09-26/index.html",
+          "quote": "2026-09-09 CDC Broccoli sprouts, distributed mainly in Idaho, Montana and Washington and possibly further",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "73b642a23c863465"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; food terms broccoli, sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk",
+          "quote": "2026-09-10 FDA Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "58bcbcfa7c96b00a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/blackstone-products-recalls-parmesan-ranch-seasoning-because-possible-salmonella-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/blackstone-products-recalls-parmesan-ranch-seasoning-because-possible-salmonella-health-risk",
+          "quote": "2026-05-15 FDA Parmesan Ranch Seasoning 7.3 oz. Lot codes: 2025-43282 (Best by 07/02/2027), 2025-46172 (B",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "82472901b2d7918e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sugar-foods-issues-recall-specific-lots-kroger-homestyle-cheese-garlic-croutons-due-possible-health"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sugar-foods-issues-recall-specific-lots-kroger-homestyle-cheese-garlic-croutons-due-possible-health",
+          "quote": "2026-05-18 FDA Kroger Homestyle Cheese Garlic Croutons, 5 oz pouches (UPC 0 11110 81353 4). Multiple Best",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "5ed04264948bc932"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nassar-investments-recalls-malazi-tahina-due-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nassar-investments-recalls-malazi-tahina-due-salmonella-contamination",
+          "quote": "2026-05-18 FDA Malazi Tahina, 1Kg plastic bottle (UPC 6 224011 088244, EXP 30/12/2026). Distributed Mar 1",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e2ad0d01df4f8fe4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html",
+          "quote": "2026-05-20 CDC moringa capsules",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e3cc6e9b1b7e7fb8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk",
+          "quote": "2026-05-23 FDA Various specialty beverages",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e3180957d9ccef14"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella",
+          "quote": "2026-05-26 FDA Mogo Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "47e1dffd84d9d454"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood",
+          "quote": "2026-05-26 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor's Pride Complete Gree",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "3129264aa4916d18"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html",
+          "quote": "2026-05-27 CDC Moringa capsules (TNVitamins Ultra Potent Complete Green Superfood Moringa, Doctor's Pride",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f6cd0db06828794f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html",
+          "quote": "2026-05-27 CDC Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "75528bfd1f440f95"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html",
+          "quote": "2026-05-27 CDC Pure Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1a7f6134d2e5098e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643",
+          "quote": "2026-05-29 RASFF (EU) Shelled pistachios",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "084899e91f4791ab"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk",
+          "quote": "2026-06-01 FDA Motor City Pizza Co. 5 Cheese Bread — Single Pack (UPC 8 70375 00511 1) and 2 Pack (UPC 8 ",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "583cb446ee102999"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated",
+          "quote": "2026-06-02 USDA FSIS Frozen pizzas, pork rinds, and other meat/poultry products containing FDA-regulated dairy ",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "fbdc08014910a784"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016",
+          "quote": "2026-06-09 RASFF (EU) Salmonella spp. in natural almonds from the United States, via the Netherlands",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d1e0323012726bb5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0",
+          "quote": "2026-06-11 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor’s Pride Complete Gree",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "30a69f3b282d02e3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853317"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853317",
+          "quote": "2026-06-23 RASFF (EU) Detection of Salmonella in sprouts, with suspected seed contamination",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "25af8965b2c61897"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026",
+          "quote": "2026-06-24 FDA Trafa Pharmaceuticals Inc. brand ORGANIC MORINGA LEAF POWDER; NET WEIGHT: 15 KGS; packaged",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "47cd30fa49738ddf"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet, SKU 10150, Net wt. 5oz. Product is refrigerated. UPC 1",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "fc54d3e11ab76579"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet Deluxe with Bacon, SKU 10303, Net wt. 5.9oz. Product is",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9e2e5423d9f5ff98"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due",
+          "quote": "2026-06-27 FDA TNVitamins 100% Organic Moringa Capsules (1,200 mg) and 100% Organic Moringa Powder",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "2af621c846d31b1e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859413"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/idaho-company-recalls-sprouts-linked-to-salmonella-outbreak",
+          "quote": "55 patients in Idaho, Montana, Utah and Washington | illnesses began on July 7 with the most recent person becoming ill on Aug. 26 | Evergreen Fresh Sprouts LLC of Moyie Springs, ID, is recalling 215 cases of Broccoli Sprouts",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859413",
+          "quote": "2026-07-17 RASFF (EU) Salmonella spp. in chopped pistachios from Italy, produced with raw material from the Unit",
+          "retrieved_utc": "2026-09-12T06:45:39+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "5388f703dc1e01b2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-beef-kofta-products-served-kebab-shop-restaurant"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-outbreak-investigations-continue-4"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: country named in the article; serotype o157:h7. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-outbreak-investigations-continue-4",
+          "quote": "As of Sept. 10, there were 14 confirmed patients | the CDC declared the outbreak over on July 29",
+          "retrieved_utc": "2026-09-12T06:45:50+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-beef-kofta-products-served-kebab-shop-restaurant",
+          "quote": "2026-05-24 USDA FSIS Beef kofta — raw ground beef product produced by Olympia Food Industries, Inc. dba Olympia",
+          "retrieved_utc": "2026-09-12T06:45:50+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "458243cffd793b57"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-raw-beef-ravioli-products-due-possible-e-coli-o157h7-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-outbreak-investigations-continue-4"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: country named in the article; serotype o157:h7. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-outbreak-investigations-continue-4",
+          "quote": "As of Sept. 10, there were 14 confirmed patients | the CDC declared the outbreak over on July 29",
+          "retrieved_utc": "2026-09-12T06:45:50+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-raw-beef-ravioli-products-due-possible-e-coli-o157h7-contamination",
+          "quote": "2026-05-31 USDA FSIS Raw beef ravioli products, including \"12 Jumbo Meat Ravioli\"",
+          "retrieved_utc": "2026-09-12T06:45:50+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "2e31ba4ef09071ba"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-outbreak-investigations-continue-4"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-outbreak-investigations-continue-4",
+          "quote": "As of Sept. 10, there were 14 confirmed patients | the CDC declared the outbreak over on July 29",
+          "retrieved_utc": "2026-09-12T06:45:50+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due",
+          "quote": "2026-07-06 FDA Organic IQF Frozen Blueberries 10 oz",
+          "retrieved_utc": "2026-09-12T06:45:50+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e1f9bad8c51ef3c8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-outbreak-investigations-continue-4"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-outbreak-investigations-continue-4",
+          "quote": "As of Sept. 10, there were 14 confirmed patients | the CDC declared the outbreak over on July 29",
+          "retrieved_utc": "2026-09-12T06:45:50+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e",
+          "quote": "2026-07-30 FDA Organic IQF Frozen Blueberries and Whole Mixed Berries, 10 oz and 48 oz",
+          "retrieved_utc": "2026-09-12T06:45:50+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0c63fabd2c416703"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article; food terms alfalfa, sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
+          "quote": "2026-08-22 FDA Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lo",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "de700449ddfd23ad"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article; food terms sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and",
+          "quote": "2026-08-29 FDA Robust Radish Mix, 5oz Cups",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "54756dbff5f16c03"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/kyan-culture-brand-and-farm-boy-brand-organic-microgreens-recalled-due-pathogenic-e"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/kyan-culture-brand-and-farm-boy-brand-organic-microgreens-recalled-due-pathogenic-e",
+          "quote": "2026-05-15 CFIA Organic microgreens 65g packs (6 SKUs across 2 brands): Farm Boy Organic Broccoli Microgre",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f04b759cf7168d51"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/845828"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/845828",
+          "quote": "2026-05-21 RASFF (EU) Detection of STEC in mung bean sprouts from the Netherlands",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e569e29645d93f99"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-beef-kofta-products-served-kebab-shop-restaurant"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-beef-kofta-products-served-kebab-shop-restaurant",
+          "quote": "2026-05-24 USDA FSIS Beef kofta — raw ground beef product produced by Olympia Food Industries, Inc. dba Olympia",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "a75ada639b98bd8f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-raw-beef-ravioli-products-due-possible-e-coli-o157h7-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-raw-beef-ravioli-products-due-possible-e-coli-o157h7-contamination",
+          "quote": "2026-05-31 USDA FSIS Raw beef ravioli products, including \"12 Jumbo Meat Ravioli\"",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "80ffd0bcbdcb507b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1181-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1181-2026",
+          "quote": "2026-07-03 FDA Organic Whole Blueberries, Net Wt 10 oz (284g) plastic bag, packed in 8 bags per case of 1",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "36ae5e02c50b30d3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/fromagerie-p-jacquin-fils-brand-valencay-aop-fromage-chevre-au-lait-cru-recalled-due"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/fromagerie-p-jacquin-fils-brand-valencay-aop-fromage-chevre-au-lait-cru-recalled-due",
+          "quote": "2026-07-27 CFIA Valençay AOP \"fromage de chèvre au lait cru\"",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "2f3553b221eba862"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862688"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862688",
+          "quote": "2026-07-30 RASFF (EU) Shigatoxin-producing Escherichia coli (STEC) in organic red clover seeds for sprouts and s",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "2862a4874b29adba"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-cheese-products-recalled-due-generic-e-coli"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-cheese-products-recalled-due-generic-e-coli",
+          "quote": "2026-08-07 CFIA Various brands of cheese products recalled due to generic E. coli",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c237d88f14cf289c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-39-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-39-2026",
+          "quote": "2026-08-10 FSA (UK) Rapunzel bioSnacky Das Original Red Clover — Seeds for Sprouts and Seedlings, 30 g — batch",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "07b26fc411cd232a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple",
+          "quote": "2026-09-03 FDA Organic Triple Berry Blend",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ef4ff0bdd3d2c49d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/sprout-seed-supplier-recalled-product-amid-outbreak/",
+          "quote": "55 people across 15 states had been infected by E. coli and/or Salmonella | International Sprout Holdings Inc. recalled 43,799 pounds of alfalfa seeds on Aug 23",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html",
+          "quote": "2026-09-03 CDC Frozen berries — GreenWise Organic IQF Blueberries 10 oz, GreenWise Whole Mixed Berries, G",
+          "retrieved_utc": "2026-09-12T06:46:02+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c5305a715bf6bd45"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
+          "quote": "2026-07-22 FDA White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, J",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "7c9a433525941fc6"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html",
+          "quote": "2026-09-03 CDC Shell eggs — white and brown cage-free (more than 1.5 million dozen recalled)",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "204dfa6f75e2099a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/blackstone-products-recalls-parmesan-ranch-seasoning-because-possible-salmonella-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/blackstone-products-recalls-parmesan-ranch-seasoning-because-possible-salmonella-health-risk",
+          "quote": "2026-05-15 FDA Parmesan Ranch Seasoning 7.3 oz. Lot codes: 2025-43282 (Best by 07/02/2027), 2025-46172 (B",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "a518a617f9dc5eb8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843898"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/843898",
+          "quote": "2026-05-18 RASFF (EU) Salmonella Eggs",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "b77f4ee3ea7a0a4e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sugar-foods-issues-recall-specific-lots-kroger-homestyle-cheese-garlic-croutons-due-possible-health"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sugar-foods-issues-recall-specific-lots-kroger-homestyle-cheese-garlic-croutons-due-possible-health",
+          "quote": "2026-05-18 FDA Kroger Homestyle Cheese Garlic Croutons, 5 oz pouches (UPC 0 11110 81353 4). Multiple Best",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "747bb5a58b4b996c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nassar-investments-recalls-malazi-tahina-due-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/nassar-investments-recalls-malazi-tahina-due-salmonella-contamination",
+          "quote": "2026-05-18 FDA Malazi Tahina, 1Kg plastic bottle (UPC 6 224011 088244, EXP 30/12/2026). Distributed Mar 1",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "8088448f4768206b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html",
+          "quote": "2026-05-20 CDC moringa capsules",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e1b019da5b555fff"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk",
+          "quote": "2026-05-23 FDA Various specialty beverages",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "5eeba30cbf7ad4c0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella",
+          "quote": "2026-05-26 FDA Mogo Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "cd3e4d9747dcf2e2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood",
+          "quote": "2026-05-26 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor's Pride Complete Gree",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e0c523c48d0e4c4e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html",
+          "quote": "2026-05-27 CDC Moringa capsules (TNVitamins Ultra Potent Complete Green Superfood Moringa, Doctor's Pride",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "7c6fdfce39ff98f9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html",
+          "quote": "2026-05-27 CDC Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "17f683c7f792cf04"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html",
+          "quote": "2026-05-27 CDC Pure Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "42595e185be9aba0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643",
+          "quote": "2026-05-29 RASFF (EU) Shelled pistachios",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ace785c8a8e5131e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk",
+          "quote": "2026-06-01 FDA Motor City Pizza Co. 5 Cheese Bread — Single Pack (UPC 8 70375 00511 1) and 2 Pack (UPC 8 ",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c9d6b1a3b773e788"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated",
+          "quote": "2026-06-02 USDA FSIS Frozen pizzas, pork rinds, and other meat/poultry products containing FDA-regulated dairy ",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "a8e86cc7761afb57"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016",
+          "quote": "2026-06-09 RASFF (EU) Salmonella spp. in natural almonds from the United States, via the Netherlands",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "bb184ad9b7078f68"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0",
+          "quote": "2026-06-11 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor’s Pride Complete Gree",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "790151fa79bba022"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853189"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853189",
+          "quote": "2026-06-22 RASFF (EU) Eggs from a Dutch stable that tested positive for Salmonella",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "66170c9d0463dae7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026",
+          "quote": "2026-06-24 FDA Trafa Pharmaceuticals Inc. brand ORGANIC MORINGA LEAF POWDER; NET WEIGHT: 15 KGS; packaged",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "689da799418f2615"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet, SKU 10150, Net wt. 5oz. Product is refrigerated. UPC 1",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "7ee3e96939b6f901"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet Deluxe with Bacon, SKU 10303, Net wt. 5.9oz. Product is",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d65aeaa5c98e12ef"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/854455"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/854455",
+          "quote": "2026-06-26 RASFF (EU) Suspicion of salmonella in eggs",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c42f977dffd7bc70"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due",
+          "quote": "2026-06-27 FDA TNVitamins 100% Organic Moringa Capsules (1,200 mg) and 100% Organic Moringa Powder",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "6861fbc0508a4d5d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/vermont-farm-recalls-eggs-because-of-link-to-salmonella-outbreak/",
+          "quote": "Vermont health officials have linked 14 illnesses to the strain | The recall covers cartons dated between June 1 and Sept. 5",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843",
+          "quote": "2026-07-14 Ministero della Salute (IT) Uova fresche di categoria A (Fresh eggs category A), 6 or 30 eggs",
+          "retrieved_utc": "2026-09-12T06:46:08+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "554417196852afdf"
+    }
+  ]
+}
