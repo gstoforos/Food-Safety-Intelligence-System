@@ -1,11 +1,11 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-11T19:52:37+00:00",
-  "row_count": 55,
-  "tier1_count": 48,
+  "generated_utc": "2026-09-12T03:22:18+00:00",
+  "row_count": 56,
+  "tier1_count": 49,
   "outbreak_count": 8,
   "by_reviewer": {
-    "unknown": 42,
+    "unknown": 43,
     "operator-review": 10,
     "repromotion-guard": 2,
     "confirm-agent": 1
@@ -101,6 +101,29 @@
       "Week_Added": "2026-09-13",
       "RejectedBy": "unknown",
       "RejectionReason": "Confirmer: reviewer 2 approved but Product looks like a headline, not a product name",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-10",
+      "Source": "FSA (UK)",
+      "Company": "Waitrose",
+      "Brand": "Waitrose",
+      "Product": "Waitrose Essential Pitted Black Olives ... - Alerts",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "Listeria monocytogenes",
+      "Class": "Recall",
+      "Country": "United Kingdom",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://alerts.food.gov.uk/article/6861/Waitrose-recalls-Waitrose-Essential-Pitted-Black-Olives-because-of-contamination-with-Listeria-monocytogenes",
+      "Notes": "REJECTED: Confirmer: reviewer 2 approved but duplicate: the same alert (same date, firm and pathogen on alerts.food.gov.uk) is already published at https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-44-2026 | 2 days ago · Waitrose recalls Waitrose Essential Pitted Black Olives because of contamination with Listeria monocytogenes. Food Alert , 10 September 2026 ...  [via DDGS gap-finder, deterministic extract]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Confirmer: reviewer 2 approved but duplicate: the same alert (same date, firm and pathogen on alerts.food.gov.uk) is already published at https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-44-2026",
       "Reviewed": "N"
     },
     {
