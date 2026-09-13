@@ -286,6 +286,13 @@ PATHOGEN_RULES: List[Tuple[str, str]] = [
     ("Cyclospora cayetanensis", r"\bcyclospora\b"),
     ("Yersinia enterocolitica", r"\byersinia\b"),
     ("Bacillus cereus", r"\bb(acillus)?\.?\s*cereus\b"),
+    # Clostridium perfringens (added 2026-09-13). normalize_pathogen()
+    # returned "" for it, so a recall naming the organism arrived with no
+    # canonical label and no tier — see the block in
+    # pipeline/_pathogen_scope.py for where the rest of the pipeline already
+    # recognised it. Written to match the abbreviated forms regulators use.
+    ("Clostridium perfringens",
+        r"\bc(lostridium)?\.?\s*perfringens\b"),
     ("Brucella", r"\bbrucella\b"),
     ("Aflatoxin", r"\baflatoxin\w*\b"),
     ("Ochratoxin", r"\bochratoxin\w*\b|\bocratoxin\w*\b|\bocratossin\w*\b"),
@@ -358,6 +365,7 @@ _TIERS: Dict[str, int] = {
     "Cyclospora cayetanensis": 3,
     "Yersinia enterocolitica": 3,
     "Bacillus cereus": 3,
+    "Clostridium perfringens": 3,
     "Brucella": 3,
     "Aflatoxin": 3,
     "Ochratoxin": 3,
@@ -635,7 +643,8 @@ def _fda_framework_tier(pathogen_canonical: str, product: Any) -> int:
         "Vibrio parahaemolyticus", "Vibrio cholerae",
         "Vibrio cholerae non-O1/non-O139", "Vibrio alginolyticus",
         "Yersinia enterocolitica", "Cronobacter sakazakii",
-        "Bacillus cereus", "Brucella", "Shigella",
+        "Bacillus cereus", "Clostridium perfringens",
+        "Brucella", "Shigella",
         "Staphylococcus enterotoxin", "Histamine / scombrotoxin",
         "Escherichia coli (generic)",
         "Aflatoxin", "Ochratoxin", "Mycotoxin", "Alternaria toxins",
