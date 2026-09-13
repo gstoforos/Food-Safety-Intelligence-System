@@ -76,3 +76,60 @@ class TestBridgeWeek(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ──────────────────────────────────────────────────────────────────────
+# AUDIT 2026-09-13 — the prior-week comparison
+# ──────────────────────────────────────────────────────────────────────
+# `total` is an INCIDENT count; `prev_total` was `len(pr)`, a NOTICE count.
+# Identical for every week before incident tagging, so the mismatch was
+# invisible until W36 collapsed 109 notices into 83 incidents. Without the
+# fix the W37 issue compares 52 incidents against 109 notices and prints
+# -52% for a real change of -37%.
+
+def test_prev_total_is_an_incident_count_not_a_notice_count():
+    import importlib.util
+    from pathlib import Path as _P
+    root = _P(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location(
+        "_b", root / "docs" / "build_weekly_report_afts.py")
+    b = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(b)
+
+    def _row(i, inc=None):
+        n = f"[incident:{inc}]" if inc else ""
+        return {"Date": "2026-09-01", "Source": "RappelConso (FR)",
+                "Company": f"Co{i}", "Brand": "", "Product": "p",
+                "Pathogen": "Listeria monocytogenes", "Reason": "Listeria",
+                "Class": "Recall", "Country": "France", "Region": "Europe",
+                "Tier": 1, "Outbreak": 0, "Notes": n,
+                "URL": f"https://rappel.conso.gouv.fr/fiche-rappel/{9000+i}/interne"}
+
+    # prior week: four notices that a human tagged as ONE incident
+    prev = [_row(i, "fr:test-cluster") for i in range(4)]
+    cur = [_row(100 + i) for i in range(3)]
+    st = b.compute_stats(cur, prev)
+    assert st["prev_total"] == 1, (
+        f"prior week must count 1 incident, not 4 notices (got "
+        f"{st['prev_total']})")
+    assert st["total"] == 3
+    assert st["delta"] == 2
+
+
+def test_an_untagged_prior_week_is_unchanged():
+    """No tags means notices == incidents; no historical figure may move."""
+    import importlib.util
+    from pathlib import Path as _P
+    root = _P(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location(
+        "_b2", root / "docs" / "build_weekly_report_afts.py")
+    b = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(b)
+    mk = lambda i: {"Date": "2026-09-01", "Source": "FDA", "Company": f"C{i}",
+                    "Brand": "", "Product": "p", "Pathogen": "Salmonella",
+                    "Reason": "Salmonella", "Class": "Recall",
+                    "Country": "United States", "Region": "North America",
+                    "Tier": 1, "Outbreak": 0, "Notes": "",
+                    "URL": f"https://www.fda.gov/x/{i}"}
+    st = b.compute_stats([mk(9), mk(8)], [mk(i) for i in range(5)])
+    assert st["prev_total"] == 5

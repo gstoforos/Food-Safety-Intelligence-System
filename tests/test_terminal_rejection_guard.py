@@ -307,3 +307,44 @@ def test_an_undated_mould_rejection_stays_retryable():
     """Undated notes predate the operator-review stamp, so they are old."""
     assert _is_terminal_rejection(
         "quality/spoilage — mould on the crust") is False
+
+
+# ──────────────────────────────────────────────────────────────────────
+# AUDIT 2026-09-12 — the daily review agent's tier auto-fix
+# ──────────────────────────────────────────────────────────────────────
+# `is_always_tier1(pathogen)` sees only the Pathogen string, so it answers
+# True for "E. coli" and "Escherichia coli (generic)". The register
+# deliberately holds those at Tier 2 when the notice calls the organism an
+# indicator and names no pathogenic strain — a decision `enforce_tier1(row)`
+# makes by reading Reason and Notes as well. The daily review agent used the
+# bare predicate for both its detector and its Lane A auto-fix, so it called
+# three correctly-tiered rows mis-tiered and escalated them. These pin the
+# two functions apart so the narrower one cannot come back.
+
+def test_the_bare_predicate_is_not_the_tier_decision():
+    from pipeline._pathogen_scope import is_always_tier1, enforce_tier1
+    row = {"Date": "2026-09-02", "Pathogen": "Escherichia coli (generic)",
+           "Tier": 2, "Class": "Recall", "Product": "live bivalves",
+           "Reason": "Presence of E. coli (indicator organism, strain not "
+                     "specified)", "Notes": ""}
+    assert is_always_tier1(row["Pathogen"]) is True
+    assert str(enforce_tier1(dict(row)).get("Tier")) == "2", (
+        "indicator E. coli must stay Tier 2 — the tier guard reads Reason")
+
+
+def test_a_real_stec_row_still_escalates():
+    from pipeline._pathogen_scope import enforce_tier1
+    row = {"Date": "2026-09-02", "Pathogen": "Listeria monocytogenes",
+           "Tier": 3, "Class": "Recall", "Product": "soft cheese",
+           "Reason": "Presence of Listeria monocytogenes", "Notes": ""}
+    assert str(enforce_tier1(dict(row)).get("Tier")) == "1"
+
+
+def test_the_agent_asks_enforce_tier1_not_the_bare_predicate():
+    """Detector and applier must both consult the tier guard."""
+    from pathlib import Path as _P
+    src = (_P(__file__).resolve().parents[1] / "pipeline"
+           / "daily_review_agent.py").read_text("utf-8")
+    assert src.count("enforce_tier1(dict(r))") >= 2, (
+        "both the mis-tier detector and the Lane A applier must decide with "
+        "enforce_tier1(row); one of them is still using the bare predicate")
