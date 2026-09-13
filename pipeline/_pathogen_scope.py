@@ -63,6 +63,26 @@ TIER1_KEYWORDS = (
     # have escalated a row the gate was about to throw away.
     "vibrio", "vulnificus", "parahaemolyticus",
     "cholera", "alginolyticus",
+    # Clostridium perfringens (added 2026-09-13). THE SAME OMISSION AS
+    # VIBRIO ABOVE, found the same way: two RappelConso recalls of one lot
+    # of foie gras (fiches 23501 and 23502, 11 Sep 2026, "presence de
+    # Clostridium perfringens a un niveau non conforme aux criteres
+    # applicables") could not be published because is_in_scope() said False.
+    #
+    # Everything else in the pipeline already knows the organism:
+    #   pipeline/_publish_gate.py      line 200, accepted biological pathogen
+    #   scrapers/_pathogen_vocab.py    line 109
+    #   pipeline/signal_detector.py    canonical label mapping
+    #   pipeline/gap_finder/rules.py   and gap_finder_gr/rules.py
+    #   pipeline/build_monthly_marketing.py  has the short form "C. perfringens"
+    #   docs/monthly_stats.py          and docs/data/monthly_stats.py
+    #   docs/pathogen_italic.py        italicises "perfringens"
+    # — the marketing PDF carries a label for a pathogen the scope list would
+    # not admit. Confirmed cost: ZERO C. perfringens rows in 1,690 Recalls.
+    #
+    # Severity is NOT decided here: Tier 2 in scrapers/_models.py, beside
+    # Bacillus cereus, the other toxin-mediated gastroenteritis organism.
+    "clostridium perfringens", "c. perfringens", "perfringens",
     # Viral
     "hepatitis a", "hépatite a", "norovirus",
     # Toxins (mycotoxins)

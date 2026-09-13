@@ -198,6 +198,11 @@ HAZARD_CLASS_KEYWORDS = {
         # the contradiction rule. Spaced so it only matches the token.
         " hav ", "(hav)", "hav virus",
         "yersinia", "vibrio", "clostridium perfringens",
+        # bare "perfringens" too (2026-09-13): regulators abbreviate to
+        # "C. perfringens", which the two-word entry above does not match,
+        # and an unclassified pathogen reads as a class MISMATCH against a
+        # biological Reason — the failure the Vibrio comment below describes.
+        "perfringens",
         # Vibrio species / disease names (added 2026-08-14). "vibrio" alone
         # covers "Vibrio vulnificus", but a source that writes only the
         # species or only "cholera" would not match it, and an unmatched

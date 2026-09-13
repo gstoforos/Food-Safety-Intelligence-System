@@ -307,11 +307,28 @@ def build_integrity_report(rows: List[Dict[str, Any]], today: date) -> Dict[str,
             blank_fields.append(v)
 
     # Mis-tiered pathogens: always-Tier-1 pathogen sitting at a lower tier.
+    #
+    # DECIDED BY enforce_tier1(row), NOT by is_always_tier1(pathogen) alone
+    # (fix 2026-09-12). The bare predicate sees only the Pathogen string, so
+    # it answers True for "E. coli" and "Escherichia coli (generic)" — and
+    # the register deliberately holds those at Tier 2 when the notice calls
+    # the organism an indicator and names no pathogenic strain
+    # (_NON_PATHOGENIC_ECOLI_TIER in pipeline/_pathogen_scope.py, which reads
+    # Reason and Notes as well as Pathogen). Three live rows are in exactly
+    # that state: RappelConso 23408 "Presence of E. coli (indicator organism,
+    # strain not specified)" and two CFIA "generic E. coli" cheese recalls.
+    # On the bare predicate this agent calls all three mis-tiered and its
+    # Lane A "safe auto-fix" escalates them to Tier 1 — overriding the guard
+    # that put them at Tier 2 in the first place. The 2026-08-26 digest shows
+    # it did this to two rows already. enforce_tier1 is the register's own
+    # answer to the question, so ask it.
     mistiered = []
     for r in rows:
         pathogen = str(r.get("Pathogen") or "")
         if not is_always_tier1(pathogen):
             continue
+        if str(enforce_tier1(dict(r)).get("Tier") or "") != "1":
+            continue  # the tier guard itself says this row is not Tier 1
         try:
             cur = int(r.get("Tier") or 0)
         except (ValueError, TypeError):
@@ -352,7 +369,11 @@ def compute_lane_a(rows: List[Dict[str, Any]], today: date) -> List[Dict[str, An
     for i, r in enumerate(rows):
         # 1. tier-1 enforcement
         pathogen = str(r.get("Pathogen") or "")
-        if is_always_tier1(pathogen):
+        # Same test as the detector above — enforce_tier1 decides, not the
+        # bare pathogen-name predicate (fix 2026-09-12). A detector and an
+        # applier that disagree are worse than either being wrong alone.
+        if (is_always_tier1(pathogen)
+                and str(enforce_tier1(dict(r)).get("Tier") or "") == "1"):
             try:
                 cur = int(r.get("Tier") or 0)
             except (ValueError, TypeError):
