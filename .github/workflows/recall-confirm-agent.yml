@@ -652,6 +652,39 @@ jobs:
                   print(f"  (archived {n_rec} rejection(s) to Weekly_Rejected)")
               except Exception as e:                                   # noqa: BLE001
                   print(f"  !! could not record rejections: {type(e).__name__}: {e}")
+
+              # AND THE OTHER HALF OF THE LEDGER (audit 2026-09-13).
+              #
+              # The block above mirrors EVICTIONS into Weekly_Rejected. Promotions were
+              # never mirrored into Weekly_Review, and this agent is the only promoter
+              # left: merge_master runs in janitor mode unless MERGE_MASTER_PROMOTE=1
+              # (which the hourly merge-master.yml does not set, despite its commit
+              # message reading "hourly Pending→Recalls merge"), and the two call sites
+              # of record_promotions are claude_check.py and that disabled merge_master
+              # branch. So nothing has written Weekly_Review since this agent took over
+              # publishing.
+              #
+              # The cost, measured on the week of 2026-09-07..13: 62 rows entered
+              # Recalls — 35 through this agent and 27 by operator review — and the
+              # Sunday manual-review email reported "0 recalls added · No new recalls
+              # promoted into the Recalls sheet this week", because Weekly_Review held
+              # only its header. The freshness guard in the email was right and fired
+              # ("JSON is 167.5h old"); the sheet behind it was simply never written.
+              #
+              # Same shape, same fix, same failure mode as the rejection mirror above:
+              # save_xlsx_with_pending() does not do it for you, so the caller must.
+              try:
+                  from pipeline.weekly_review_capture import record_promotions
+                  # json_path passed explicitly for the same reason the rejection
+                  # call above does it: the module-level default is resolved from the
+                  # package ROOT at import time, not from the workbook this run was
+                  # given, so it would write beside the wrong file if --xlsx moves.
+                  n_rev = record_promotions(new_approved, xlsx_path=xlsx,
+                                            json_path=xlsx.parent / "weekly-review-latest.json")
+                  print(f"  (mirrored {n_rev} promotion(s) to Weekly_Review)")
+              except Exception as e:                                   # noqa: BLE001
+                  print(f"  !! could not record promotions: {type(e).__name__}: {e}")
+
               try:
                   from pipeline.merge_master import mirror_json_from_xlsx
                   mirror_json_from_xlsx(xlsx, xlsx.parent / "recalls.json")
