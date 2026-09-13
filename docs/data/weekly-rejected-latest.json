@@ -1,11 +1,11 @@
 {
   "week_end": "2026-09-13",
-  "generated_utc": "2026-09-12T19:52:14+00:00",
-  "row_count": 59,
-  "tier1_count": 52,
+  "generated_utc": "2026-09-13T03:22:18+00:00",
+  "row_count": 60,
+  "tier1_count": 53,
   "outbreak_count": 10,
   "by_reviewer": {
-    "unknown": 45,
+    "unknown": 46,
     "operator-review": 10,
     "repromotion-guard": 3,
     "confirm-agent": 1
@@ -1205,6 +1205,29 @@
       "Week_Added": "2026-09-13",
       "RejectedBy": "unknown",
       "RejectionReason": "Confirmer: reviewer 2 approved but Date is empty",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "",
+      "Source": "AESAN (ES)",
+      "Company": "La resistencia a los antimicrobianos en bacterias transmitidas ...",
+      "Brand": "La resistencia a los antimicrobianos en bacterias transmitidas ...",
+      "Product": "1 day ago · La resistencia a los antimicrobianos (RAM) en bacterias comunes transmitidas por los alimentos, como Salmonella y Campylobacter, sigue siendo un motivo de ...",
+      "Pathogen": "Salmonella",
+      "Reason": "Salmonella",
+      "Class": "Recall",
+      "Country": "Spain",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.aesan.gob.es/actualidad/actualidad-noticias/Resistencia_antimicrobianos",
+      "Notes": "REJECTED: Confirmer: reviewer 2 approved but Product looks like a headline, not a product name; Company and Brand are the same long headline string | 1 day ago · La resistencia a los antimicrobianos (RAM) en bacterias comunes transmitidas por los alimentos, como Salmonella y Campylobacter, sigue siendo un motivo de ...  [via DDGS gap-finder, deterministic extract] [date-unknown: claude-check please verify Date]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-13",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Confirmer: reviewer 2 approved but Product looks like a headline, not a product name; Company and Brand are the same long headline string",
       "Reviewed": "N"
     },
     {

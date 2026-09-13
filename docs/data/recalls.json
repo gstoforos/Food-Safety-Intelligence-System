@@ -192,6 +192,38 @@
   "Notes": "[RASFF #2026.8063; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=872529] [confirm-agent 2026-09-12: pending_gap_v3 → pending; independent checks passed]"
  },
  {
+  "Date": "2026-09-11",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Ireland | Notifying: Ireland",
+  "Brand": "—",
+  "Product": "Non-compliant elevated level of E. coli in Razor Clams",
+  "Pathogen": "Escherichia coli (generic)",
+  "Reason": "Non-compliant elevated level of E. coli in Razor Clams; risk: serious; category: bivalve molluscs and products thereof",
+  "Class": "Information",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872578",
+  "Notes": "[RASFF #2026.8074; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=872578] [confirm-agent 2026-09-13: pending_gap_v3 → pending; independent checks passed] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+ },
+ {
+  "Date": "2026-09-11",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Netherlands | Notifying: Netherlands",
+  "Brand": "—",
+  "Product": "Visible spots of mould in cake, from The Netherlands",
+  "Pathogen": "Mold",
+  "Reason": "Visible spots of mold in cake, from The Netherlands; risk: potential risk; category: cereals and bakery products",
+  "Class": "Information",
+  "Country": "Netherlands",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872530",
+  "Notes": "[RASFF #2026.8073; classification: information notification for follow-up; category: cereals and bakery products; notifId=872530] [confirm-agent 2026-09-13: pending_gap_v3 → pending; independent checks passed]"
+ },
+ {
   "Date": "2026-09-10",
   "Source": "RappelConso (FR)",
   "Company": "Ferme des Aubriais",
