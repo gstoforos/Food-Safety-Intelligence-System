@@ -1137,7 +1137,21 @@ def compute_stats(wr, pr):
         src = str(r.get("Source") or "").strip()
         if src:
             cs.setdefault(country, set()).add(src)
-    pt = len(pr); delta = total - pt
+    # PRIOR-WEEK TOTAL MUST ALSO BE AN INCIDENT COUNT (fix 2026-09-13).
+    #
+    # This was `pt = len(pr)` — the prior week's raw NOTICE count — while
+    # `total` above is the current week's INCIDENT count. For every week
+    # before incident tagging the two are identical, so the mismatch was
+    # invisible; W36 is the first week where it is not. W36 collapses 109
+    # notices into 83 incidents, so tomorrow's W37 issue would have compared
+    # 52 incidents against 109 notices and printed "-52%" for a real change
+    # of -37%. The comparison has to be like for like.
+    try:
+        from pipeline._incident_id import count_incidents as _ci_prev
+        pt = _ci_prev(pr)
+    except Exception:                                          # noqa: BLE001
+        pt = len(pr)
+    delta = total - pt
     # Apply synonym consolidation BEFORE deriving top_pathogen so the KPI
     # banner and the distribution table never disagree.
     pc_consolidated = _consolidate_counter(pc)
@@ -3446,6 +3460,30 @@ def build_html(week_end, recalls, prev_week, original_published=None, all_rows=N
         dh = '<div class="kpi-delta" style="color:#dc2626">&#9650; +{} (+{}%) vs prior week</div>'.format(d, dp)
     else:
         dh = '<div class="kpi-delta" style="color:var(--muted)">No change vs prior week</div>'
+
+    # A SEVEN-DAY WEEK AGAINST A LONGER PRIOR WEEK (fix 2026-09-13).
+    # The branch above normalises per day when THIS week is long — the W36
+    # bridge. The mirror case arrives one issue later: W37 is a normal
+    # seven-day week, but the week it is compared against covered ten. A raw
+    # count then reads as a fall that is mostly calendar, exactly the
+    # distortion the bridge note was written to avoid. So when the PRIOR
+    # window is not seven days, say the comparison per day as well.
+    _pw_end = anchor_for(week_end - timedelta(days=7))
+    # _display_window derives the window from THE ROWS IT IS GIVEN, so it
+    # must get the prior week's rows — passing all_rows returned a 253-day
+    # "week" and a +2164% delta on the first dry run.
+    _pws, _pwe = _display_window(_pw_end, prev_week)
+    _prev_span = (_pwe - _pws).days + 1
+    _pt = stats.get("prev_total", 0)   # `pt` above is local to the bridge branch
+    if span_days <= 7 and _prev_span != 7 and _pt:
+        rate_now = total / max(span_days, 1)
+        rate_prev = _pt / _prev_span
+        rp = round((rate_now - rate_prev) / max(rate_prev, 1e-9) * 100)
+        arrow, col = (("&#9650; +", "#dc2626") if rp > 0 else
+                      ("&#9660; ", "#059669") if rp < 0 else ("", "var(--muted)"))
+        dh = ('<div class="kpi-delta" style="color:{}">{}{}% per day vs prior week '
+              '<span style="color:var(--muted)">({} in {} days vs {} in {})</span></div>'
+              ).format(col, arrow, rp, total, span_days, _pt, _prev_span)
 
     tp, tc = stats["top_pathogen"]
     tpct = round(tc/max(total,1)*100) if total else 0
