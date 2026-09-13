@@ -311,3 +311,47 @@ class TestRecordPromotions:
                                     xlsx_path=missing,
                                     json_path=json_out)
         assert result == 0
+
+
+# ──────────────────────────────────────────────────────────────────────
+# AUDIT 2026-09-13 — the Sunday email that said "0 recalls added"
+# ──────────────────────────────────────────────────────────────────────
+# 62 rows entered Recalls in the week 7-13 Sep (35 via the confirm agent,
+# 27 by operator review) and the manual-review email reported none, because
+# Weekly_Review held only its header. The confirm agent calls
+# promote_approved() and save_xlsx_with_pending(), mirrors EVICTIONS into
+# Weekly_Rejected (fixed 2026-09-04) — and never mirrored PROMOTIONS. It is
+# the only promoter left: merge_master runs in janitor mode unless
+# MERGE_MASTER_PROMOTE=1, which the hourly workflow does not set.
+
+def test_the_confirm_agent_mirrors_promotions():
+    from pathlib import Path as _P
+    src = (_P(__file__).resolve().parents[1] / "pipeline"
+           / "recall_confirm_agent.py").read_text("utf-8")
+    assert "record_promotions(" in src, (
+        "the confirm agent must mirror promotions into Weekly_Review — it is "
+        "the only promoter, so without this the Sunday review email reports "
+        "zero however many rows were published")
+    assert "weekly-review-latest.json" in src, (
+        "pass json_path explicitly: the module default resolves from the "
+        "package ROOT at import time, not from the workbook this run was given")
+
+
+def test_both_halves_of_the_ledger_are_mirrored():
+    """Rejections and promotions, in the same place, for the same reason."""
+    from pathlib import Path as _P
+    src = (_P(__file__).resolve().parents[1] / "pipeline"
+           / "recall_confirm_agent.py").read_text("utf-8")
+    assert src.index("record_rejections(") < src.index("record_promotions("), (
+        "both mirrors belong immediately after save_xlsx_with_pending()")
+
+
+def test_the_embedded_workflow_copy_carries_the_fix():
+    """The agent runs from a heredoc copy inside its own workflow."""
+    from pathlib import Path as _P
+    yml = (_P(__file__).resolve().parents[1] / ".github" / "workflows"
+           / "recall-confirm-agent.yml").read_text("utf-8")
+    assert "record_promotions(" in yml, (
+        "recall-confirm-agent.yml overwrites pipeline/recall_confirm_agent.py "
+        "at runtime from its embedded copy — rebuild the pair after editing "
+        "the module or the fix never runs")
