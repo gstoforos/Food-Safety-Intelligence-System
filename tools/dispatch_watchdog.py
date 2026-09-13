@@ -63,7 +63,16 @@ WATCHED: tuple[tuple[str, str, int], ...] = (
     ("url guardian",                  r"^URL guardian @",                         12),
 
     # Gate / review / promote — the path from Pending to Recalls.
-    ("gemini url-gate",               r"^FSIS Gemini URL-gate ",                  48),
+    #
+    # "gemini url-gate" REMOVED 2026-09-13 (operator review). The workflow
+    # itself was retired 2026-08-30 — superseded by recall-url-agent.yml —
+    # and its job now exits at a "Retired — reviewer 1 owns this lane" guard
+    # unless dispatched with force_run:true. It will never commit again in
+    # normal operation, so this line was a permanent, unfixable false
+    # OVERDUE: 34 dispatch-watchdog runs in a row flagged a workflow that is
+    # working exactly as designed. If gemini-url-gate is ever un-retired,
+    # re-add the line; until then watching it here just trains operators to
+    # ignore a real OVERDUE next to it.
     ("merge-master",                  r"^chore\(data\): hourly Pending",          36),
     ("recall review agent",           r"^Recall review agent:",                   72),
     # Until 2026-09-04 all three review-chain agents committed under the

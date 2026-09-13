@@ -48,14 +48,29 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Athens-hour guard (one fire per day across DST)
+      # WIDENED 2026-09-13 — this guard had never once fired in 34 runs
+      # since the workflow's creation (2026-08-28). Its own history shows
+      # every scheduled run landing at Athens local time 15:xx-20:xx, never
+      # 12:xx: GitHub queues a cron dispatch 3-6 hours late (the same lag
+      # documented in daily-review-agent.yml's guard fix), so the one-hour
+      # HOUR == "12" check skipped every single fire. The watchdog that
+      # exists to catch silent non-execution was itself silently
+      # non-executing, the whole time, with a green tick every day.
+      #
+      # Fix: widen to a window that covers the observed lag off of either
+      # DST twin (12:00 or 13:00 Athens + up to ~6h slip). Unlike the
+      # data-writer workflows, this job is read-only (permissions:
+      # contents: read, no commit step) — so both DST cron lines firing
+      # inside the window on the same day just means two audit runs
+      # instead of one, which is harmless, not a duplicate-write risk.
+      - name: Athens-hour guard (widened catch-up window)
         id: guard
         run: |
-          HOUR=$(TZ=Europe/Athens date +%H)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$HOUR" = "12" ]; then
+          HOUR=$(TZ=Europe/Athens date +%-H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || { [ "$HOUR" -ge 12 ] && [ "$HOUR" -le 20 ]; }; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Athens hour $HOUR — the DST twin will fire. Skipping."
+            echo "Athens hour $HOUR — outside the 12:00-20:00 catch-up window. Skipping."
             echo "run=false" >> "$GITHUB_OUTPUT"
           fi
 
