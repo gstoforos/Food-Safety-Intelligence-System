@@ -42,17 +42,54 @@ jobs:
           fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # DST hour-guard: only proceed if it is 09:xx in Athens right now.
+      # Athens hour guard — WIDENED 2026-09-12 after a 17-day silent outage.
+      #
+      # WHAT WENT WRONG. The guard was `[ "$H" != "09" ] -> run=false`, a
+      # ONE-HOUR window, and every step below is gated on run == 'true'.
+      # FsisScheduler.gs asks for 09:00 Athens, but GitHub dispatches a
+      # queued workflow_dispatch late — observed 3 to 6 hours late. Whenever
+      # it landed at 10:00 or later the guard set run=false, all five steps
+      # skipped, and the JOB REPORTED SUCCESS. Nothing failed, nothing ran:
+      # docs/data/daily_review_digest.md was last written on 2026-08-26 and
+      # docs/data/daily_review_report.json has not moved since 2026-09-02.
+      # Seventeen days of green ticks with no review behind them.
+      #
+      # THE FIX IS THE PATTERN THIS REPO ALREADY USES. north_america_feeds_
+      # collector.yml gates the same way but adds
+      # `|| github.event_name == 'workflow_dispatch'`, so a dispatched run
+      # never depends on the clock — which is why that collector kept working
+      # while this one did not. Three rules, in order:
+      #
+      #   1. A dispatched run ALWAYS runs. That is how the scheduler fires it
+      #      and how a human re-runs it after a fix.
+      #   2. Otherwise, skip if today's digest already exists. This is what
+      #      makes a wide window safe: the catch-up cannot run twice in a day.
+      #   3. Otherwise, run on a cron fire anywhere from 09:00 to 15:00
+      #      Athens, which covers the observed dispatch lag.
+      #
+      # The date is read from the digest's own first line
+      # ("# FSIS Daily Review — YYYY-MM-DD (Athens)"), so the check needs no
+      # extra state file. Checkout runs before this step, so the file is here.
       - name: Athens hour guard
         id: guard
         run: |
-          H=$(TZ=Europe/Athens date +%H)
-          echo "Athens hour = $H"
-          if [ "$H" != "09" ]; then
-            echo "Not 09:00 Athens — skipping this DST-offset run."
-            echo "run=false" >> "$GITHUB_OUTPUT"
-          else
+          H=$(TZ=Europe/Athens date +%-H)
+          TODAY=$(TZ=Europe/Athens date +%F)
+          LAST=$(sed -n '1s/.*[—-] \([0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}\).*/\1/p' \
+                   docs/data/daily_review_digest.md 2>/dev/null)
+          echo "Athens hour=$H  today=$TODAY  last digest=${LAST:-none}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Dispatched run — the clock does not gate it."
             echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "$LAST" = "$TODAY" ]; then
+            echo "Digest for $TODAY already written — nothing to catch up."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          elif [ "$H" -ge 9 ] && [ "$H" -le 15 ]; then
+            echo "Inside the 09:00-15:00 Athens catch-up window."
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Outside the catch-up window (Athens hour=$H) — skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Set up Python 3.11
