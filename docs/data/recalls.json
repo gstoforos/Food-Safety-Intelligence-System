@@ -12282,10 +12282,10 @@
   "Class": "Alert",
   "Country": "Ireland",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-biona-organic-himalayan-basma",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Biona Organic'] [gemini-enrich 2026-06-19: Pathogen ''→'Aflatoxin'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)] [fix 2026-07-17: Company was product/headline echo -> 'Biona Organic' (product echo -> brand)]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [gemini-enrich 2026-06-19: Brand '—'→'Biona Organic'] [gemini-enrich 2026-06-19: Pathogen ''→'Aflatoxin'] [claude-check 2026-06-20: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-06-20: pending_enrichment → pending (Claude verified)] [fix 2026-07-17: Company was product/headline echo -> 'Biona Organic' (product echo -> brand)] [operator review 2026-09-13: Tier 3 -> 2 on operator instruction. The register holds 139 Aflatoxin rows: 136 at Tier 2 and these three at Tier 3, with no reason recorded on any of them for the difference. Tier 2 is the house tier for the mycotoxins (scrapers/_models.py tier_2_pathogens), so these three were stragglers, not a judgement. Tier-1 counts are unaffected; the change shows only in the per-notice tier badge on the weekly and monthly pages, which are rebuilt in the same set.]"
  },
  {
   "Date": "2026-06-19",
@@ -19946,10 +19946,10 @@
   "Class": "Recall",
   "Country": "Germany",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.produktwarnung.eu/2026/04/24/rueckruf-aflatoxin-orienta-foods-ruft-rotes-chilipulver-der-marke-rino-zurueck/37845",
-  "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday]"
+  "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday] [operator review 2026-09-13: Tier 3 -> 2 on operator instruction. The register holds 139 Aflatoxin rows: 136 at Tier 2 and these three at Tier 3, with no reason recorded on any of them for the difference. Tier 2 is the house tier for the mycotoxins (scrapers/_models.py tier_2_pathogens), so these three were stragglers, not a judgement. Tier-1 counts are unaffected; the change shows only in the per-notice tier badge on the weekly and monthly pages, which are rebuilt in the same set.]"
  },
  {
   "Date": "2026-04-24",
@@ -20314,10 +20314,10 @@
   "Class": "Recall",
   "Country": "Germany",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260423_24_ST_Rotes_Chilipulver/260423_ST_Rotes_Chilipulver_Meldung.html",
-  "Notes": "[Hersteller/Inverkehrbringer: Firma Orienta Foods GmbH, Porphyrstraße 14, 06126 Halle (Saale); distributed in Sachsen and Sachsen-Anhalt; date corrected to 2026-04-23 per official page (your row had 2026-04-24); URL repaired from produktwarnung.eu news mirror to regulator; out-of-scope per locked Tier-1, kept at Tier 3] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "Notes": "[Hersteller/Inverkehrbringer: Firma Orienta Foods GmbH, Porphyrstraße 14, 06126 Halle (Saale); distributed in Sachsen and Sachsen-Anhalt; date corrected to 2026-04-23 per official page (your row had 2026-04-24); URL repaired from produktwarnung.eu news mirror to regulator; out-of-scope per locked Tier-1, kept at Tier 3] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [operator review 2026-09-13: Tier 3 -> 2 on operator instruction. The register holds 139 Aflatoxin rows: 136 at Tier 2 and these three at Tier 3, with no reason recorded on any of them for the difference. Tier 2 is the house tier for the mycotoxins (scrapers/_models.py tier_2_pathogens), so these three were stragglers, not a judgement. Tier-1 counts are unaffected; the change shows only in the per-notice tier badge on the weekly and monthly pages, which are rebuilt in the same set.]"
  },
  {
   "Date": "2026-04-23",
