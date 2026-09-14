@@ -1,11 +1,11 @@
 {
   "week_end": "2026-09-20",
-  "generated_utc": "2026-09-14T03:22:19+00:00",
-  "row_count": 12,
-  "tier1_count": 12,
+  "generated_utc": "2026-09-14T13:22:31+00:00",
+  "row_count": 13,
+  "tier1_count": 13,
   "outbreak_count": 4,
   "by_reviewer": {
-    "unknown": 10,
+    "unknown": 11,
     "confirm-agent": 1,
     "repromotion-guard": 1
   },
@@ -146,6 +146,29 @@
       "Week_Added": "2026-09-20",
       "RejectedBy": "unknown",
       "RejectionReason": "Confirmer: reviewer 2 approved but Product looks like a headline, not a product name; Company and Brand are the same long headline string",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-06",
+      "Source": "USDA FSIS",
+      "Company": "",
+      "Brand": "",
+      "Product": "•\tVarious weight cardboard cases containing two pieces of individually vacuumed packed “PRIME LINE DISTRIBUTORS, INC. GUANCIALE PORK JOWL PRODUCT OF ITALY” with “LOT: 263311US” and “BEST IF USE BY DATE: 05.16.27” printed on the label. •\tVarious weight individually vacuumed packaged “GUANCIALE PORK J",
+      "Pathogen": "Listeria",
+      "Reason": "Prime Line Distributors, Inc. and Ferrarini USA, Inc. Recall Imported Ready-To-Eat Pork Guanciale Products Due to Possible Listeria Contamination Product Contamination",
+      "Class": "Class I",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.fsis.usda.gov/recalls-alerts?search=019-020-2026",
+      "Notes": "REJECTED: Confirmer: row was at pending_gap (not reviewed by reviewer 2) and Product looks like a headline, not a product name; neither Company nor Brand is set | source_id=019-020-2026 [via official-feed collector]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-20",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Confirmer: row was at pending_gap (not reviewed by reviewer 2) and Product looks like a headline, not a product name; neither Company nor Brand is set",
       "Reviewed": "N"
     },
     {
