@@ -132,12 +132,36 @@ def test_the_tool_never_writes_to_recalls():
 # --------------------------------------------------------------------------
 
 @pytest.fixture
-def workbook_copy(tmp_path):
+def workbook_copy(tmp_path, pesto):
+    """A copy of the real workbook, with the shipped row's own URL removed
+    from Recalls if present.
+
+    The fixture below exercises "does the tool queue THIS row into
+    Pending" against the real workbook. Once the shipped row is itself
+    live in production Recalls (which is the point of shipping it), that
+    URL is permanently "already approved" and the tool correctly skips
+    it — the mechanics test would fail forever, not because the tool is
+    broken but because its precondition (row not yet present) no longer
+    holds. Strip it back out of this throwaway copy so the test keeps
+    testing what it was written to test.
+    """
     src = ROOT / "docs" / "data" / "recalls.xlsx"
     if not src.exists():
         pytest.skip("recalls.xlsx not present")
     dst = tmp_path / "recalls.xlsx"
     dst.write_bytes(src.read_bytes())
+
+    url = str(pesto["URL"]).strip().lower().rstrip("/")
+    wb = load_workbook(dst)
+    ws = wb["Recalls"]
+    hdr = [str(c.value or "") for c in ws[1]]
+    if "URL" in hdr:
+        col = hdr.index("URL") + 1
+        for row in range(ws.max_row, 1, -1):
+            v = str(ws.cell(row=row, column=col).value or "").strip().lower().rstrip("/")
+            if v == url:
+                ws.delete_rows(row)
+    wb.save(dst)
     return dst
 
 
