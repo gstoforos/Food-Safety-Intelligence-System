@@ -1464,6 +1464,9 @@ jobs:
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
           SEARX_URL: ${{ secrets.SEARX_URL }}
+        shell: bash          # -eo pipefail: without it the `| tee` below
+                             # returns tee's exit status and a washout run
+                             # (agent exit 3) paints the job green.
         run: |
           ARGS=""
           SF="${{ github.event.inputs.source_filter || '' }}"

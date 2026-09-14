@@ -567,24 +567,24 @@ jobs:
                   idx = by_url.get(str(row.get("URL", "")).strip())
                   if idx is None:
                       continue
-                  # RECORD THE STATUS THE ROW ACTUALLY HELD (fix 2026-09-13).
-                  #
-                  # This stamp was hard-coded to "pending_gap_v3 → pending" for every
-                  # confirmed row, whatever the row's real prior status. Since the lane
-                  # above was widened on 2026-09-04 to admit ANY pending status, that
-                  # string is usually not what happened — and reviewer 2, the only
-                  # thing that sets pending_gap_v3, has banked nothing since at least
-                  # 2026-09-02 (replayed across every workbook commit since: the
-                  # pending_gap_v3 queue is 0 at every one). So every stamp written in
-                  # that window asserts a reviewer-2 hand-off that did not occur, on
-                  # rows reviewer 2 never saw. The register's provenance trail is read
-                  # by people deciding whether a row was checked; it has to say what
-                  # happened, not what used to happen.
-                  _prior = str(full_pending[idx].get("Status", "")).strip() or "(no status)"
+                  # THE STAMP MUST NAME THE STATUS THE ROW ACTUALLY HELD (2026-09-13).
+                  # This line used to interpolate the A2_APPROVED constant, so every
+                  # published row was stamped "pending_gap_v3 → pending" — asserting
+                  # that reviewer 2 had reviewed and banked it — whatever status the
+                  # row really carried. Reviewer 2 has not written a stamp to any
+                  # published row since 2026-08-10 (reviewer 1: 2026-08-05), and every
+                  # row this agent published in that window was at plain "pending"
+                  # straight from a scraper. So the audit trail claimed a review that
+                  # never happened, on rows whose only review was the deterministic
+                  # guards below. Record the real prior status; the guards are worth
+                  # exactly what they are, and no more.
+                  prior = str(full_pending[idx].get("Status", "") or "?").strip() or "?"
                   full_pending[idx]["Status"] = "pending"      # now promotable
                   n = str(full_pending[idx].get("Notes", "")).strip()
-                  stamp = (f" [confirm-agent {today}: {_prior} → pending; "
-                           "independent checks passed]")
+                  stamp = (f" [confirm-agent {today}: {prior} → pending; "
+                           f"deterministic checks passed"
+                           + ("" if prior == A2_APPROVED
+                              else "; reviewer 2 did NOT review this row") + "]")
                   # ENGLISH-OUTPUT RULE AT THE LAST GATE (2026-09-04). Nine French
                   # Reasons reached Recalls in the first four days of September. The
                   # language check is a warning by policy (a real recall is never
@@ -605,37 +605,24 @@ jobs:
                       pass
                   full_pending[idx]["Notes"] = (n + stamp).strip()[:1000]
 
-              # SAY WHO ACTUALLY DID WHAT (fix 2026-09-13, same defect as the stamp
-              # above). These two strings are what the operator reads in the archive
-              # and in the Thursday email, and both asserted a reviewer-2 action:
-              #
-              #   "Confirmer: reviewer 2 approved but <problem>"
-              #   "Rejected by reviewer 2"
-              #
-              # Neither is knowable here. The lane was widened on 2026-09-04 to admit
-              # any pending status, so most rows reaching this point were never in
-              # reviewer 2's hands — and reviewer 2 has banked nothing since at least
-              # 2026-09-02 (its pending_gap_v3 queue is empty at every workbook commit
-              # since). The first string is why 37 archived rows read as though two
-              # stages agreed to drop them, several of which were genuine Tier-1
-              # Listeria recalls with nothing wrong but an empty field.
-              #
-              # What IS known here is the row's status when this agent found it, so
-              # that is what gets recorded. A row that really did come from reviewer 2
-              # still says so, because its status says so.
               for row, probs in blocked:
                   idx = by_url.get(str(row.get("URL", "")).strip())
                   if idx is None:
                       continue
-                  _from = str(full_pending[idx].get("Status", "")).strip() or "(no status)"
-                  rejected_flags[idx] = (f"Confirmer rejected (row was at {_from}): "
+                  # Same correction as the publish stamp above: this text asserted
+                  # "reviewer 2 approved" on every blocked row regardless of whether
+                  # reviewer 2 had ever seen it. Name the real prior status instead.
+                  _prior = str(full_pending[idx].get("Status", "") or "?").strip() or "?"
+                  _who = ("reviewer 2 approved but"
+                          if _prior == A2_APPROVED
+                          else f"row was at {_prior} (not reviewed by reviewer 2) and")
+                  rejected_flags[idx] = (f"Confirmer: {_who} "
                                          + "; ".join(probs[:2]))[:280]
 
               for row in already_rejected:
                   idx = by_url.get(str(row.get("URL", "")).strip())
                   if idx is not None and idx not in rejected_flags:
-                      rejected_flags[idx] = ("Arrived already marked rejected; "
-                                             "confirmer did not re-review")
+                      rejected_flags[idx] = "Rejected by reviewer 2"
 
               # Held rows: park at pending_gap_v2 so promote_approved() neither
               # publishes them (Company empty would fail its gate) nor archives them.
@@ -740,6 +727,9 @@ jobs:
         if: steps.guard.outputs.run == 'true'
         env:
           SEARX_URL: ${{ secrets.SEARX_URL }}
+        shell: bash          # -eo pipefail: without it the `| tee` below
+                             # returns tee's exit status and a washout run
+                             # (agent exit 3) paints the job green.
         run: |
           ARGS=""
           SF="${{ github.event.inputs.source_filter || '' }}"
