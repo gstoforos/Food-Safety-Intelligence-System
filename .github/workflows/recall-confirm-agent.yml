@@ -622,7 +622,15 @@ jobs:
               for row in already_rejected:
                   idx = by_url.get(str(row.get("URL", "")).strip())
                   if idx is not None and idx not in rejected_flags:
-                      rejected_flags[idx] = "Rejected by reviewer 2"
+                      # The companion of the correction above, missed when that one
+                      # was made (fix 2026-09-14). This row arrived at Status
+                      # "rejected" — by whom is not recorded anywhere this agent can
+                      # see, and attributing it to reviewer 2 is a guess that reads in
+                      # the archive as a fact. Reviewer 2 has banked nothing since
+                      # 2026-09-02, so for every row archived in that window the guess
+                      # is also wrong.
+                      rejected_flags[idx] = ("Arrived already marked rejected; "
+                                             "confirmer did not re-review")
 
               # Held rows: park at pending_gap_v2 so promote_approved() neither
               # publishes them (Company empty would fail its gate) nor archives them.
