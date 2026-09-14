@@ -29,9 +29,18 @@ sys.path.insert(0, ROOT)
 
 from tools import alert_vocab as V  # noqa: E402
 
-GS = os.path.join(ROOT, "tools", "apps_script", "AftsAlertVocab.gs")
+GS = os.path.join(ROOT, "tools", "apps_script", "AftsAlerts.gs")
+GS_BASE = os.path.join(ROOT, "tools", "apps_script", "AftsAlerts.base.gs")
 HTML = os.path.join(ROOT, "docs", "alerts.html")
 RECALLS = os.path.join(ROOT, "docs", "data", "recalls.json")
+
+# The merged file is the whole Apps Script project, so evaluating it under node
+# needs the Apps Script globals to exist. None of them is called by the
+# vocabulary self-test; they only have to be defined.
+_GAS_STUBS = (
+    "global.SpreadsheetApp={};global.UrlFetchApp={};global.Utilities={};"
+    "global.ContentService={};global.HtmlService={};global.ScriptApp={};"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -69,7 +78,36 @@ def test_generated_files_are_in_sync():
         [sys.executable, os.path.join("tools", "gen_alert_vocab.py"), "--check"],
         cwd=ROOT, capture_output=True, text=True)
     assert r.returncode == 0, (
-        "alerts.html / AftsAlertVocab.gs are stale.\n" + r.stdout + r.stderr)
+        "alerts.html / AftsAlerts.gs are stale.\n" + r.stdout + r.stderr)
+
+
+def test_merged_gs_keeps_every_function_from_the_deployed_base():
+    """The generated file is the deployed script PLUS the engine, never minus.
+
+    Losing a helper here is not a test failure in production — it is an alert
+    mailer that throws on its next scan. The base file is the operator's
+    2026-07-25 script verbatim; only two of its functions are replaced.
+    """
+    base = open(GS_BASE, encoding="utf-8").read()
+    full = open(GS, encoding="utf-8").read()
+    fn = lambda src: set(re.findall(r"^function\s+(\w+)", src, re.M))
+    const = lambda src: set(re.findall(r"^const\s+(\w+)", src, re.M))
+    missing = sorted(fn(base) - fn(full))
+    assert not missing, "merge dropped function(s): %s" % missing
+    missing_c = sorted(const(base) - const(full))
+    assert not missing_c, "merge dropped const(s): %s" % missing_c
+    for name in ("recallMatchesCriterion_", "sendAlertMatchEmail_"):
+        n = len(re.findall(r"^function\s+%s\b" % name, full, re.M))
+        assert n == 1, "%s defined %d times — Apps Script picks one at random" % (name, n)
+
+
+def test_merged_gs_has_no_first_token_truncation():
+    """The exact shape of the 13 Sep bug, in CODE (comments may quote it)."""
+    full = open(GS, encoding="utf-8").read()
+    code = "\n".join(l for l in full.splitlines()
+                     if not l.lstrip().startswith(("*", "//", "/*")))
+    for bug in ("v.split(/[\\s/()]/)[0]", "v.split(/[\\s—()-]/)[0]"):
+        assert bug not in code, "first-token truncation is back: %s" % bug
 
 
 def test_html_and_gs_offer_the_same_words():
@@ -274,6 +312,7 @@ def test_apps_script_self_test_passes():
         "const fs=require('fs');"
         "global.Logger={log:function(m){console.log(String(m));}};"
         "global.MailApp={sendEmail:function(){}};"
+        + _GAS_STUBS +
         "eval(fs.readFileSync(%r,'utf8'));"
         "process.exit(test_fsisAlertVocab()?0:1);" % GS
     )
@@ -300,6 +339,7 @@ def test_javascript_and_python_agree_on_every_case():
         "const fs=require('fs');"
         "global.Logger={log:function(){}};"
         "global.MailApp={sendEmail:function(){}};"
+        + _GAS_STUBS +
         "eval(fs.readFileSync(%r,'utf8'));"
         "const cs=%s;"
         "console.log(JSON.stringify(cs.map(function(c){"
