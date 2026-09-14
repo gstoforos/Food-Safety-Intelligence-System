@@ -355,3 +355,65 @@ def test_the_embedded_workflow_copy_carries_the_fix():
         "recall-confirm-agent.yml overwrites pipeline/recall_confirm_agent.py "
         "at runtime from its embedded copy — rebuild the pair after editing "
         "the module or the fix never runs")
+
+
+# ──────────────────────────────────────────────────────────────────────
+# AUDIT 2026-09-13 — the confirm agent's provenance stamp
+# ──────────────────────────────────────────────────────────────────────
+# The stamp was hard-coded to "pending_gap_v3 → pending" for every confirmed
+# row. The lane was widened on 2026-09-04 to admit ANY pending status, and
+# reviewer 2 — the only thing that sets pending_gap_v3 — has banked nothing
+# since at least 2026-09-02. So the stamp asserted a reviewer-2 hand-off
+# that never happened, on rows reviewer 2 never saw.
+
+def test_the_stamp_records_the_real_prior_status():
+    from pathlib import Path as _P
+    src = (_P(__file__).resolve().parents[1] / "pipeline"
+           / "recall_confirm_agent.py").read_text("utf-8")
+    assert '_prior = str(full_pending[idx].get("Status"' in src, (
+        "the confirm agent must read the row's actual prior status before "
+        "overwriting it with 'pending'")
+    assert '{A2_APPROVED} → pending' not in src, (
+        "the stamp must not hard-code pending_gap_v3 — it is usually not "
+        "the status the row held")
+
+
+def test_the_embedded_copy_carries_the_stamp_fix():
+    from pathlib import Path as _P
+    yml = (_P(__file__).resolve().parents[1] / ".github" / "workflows"
+           / "recall-confirm-agent.yml").read_text("utf-8")
+    assert "_prior = str(full_pending[idx]" in yml, (
+        "rebuild the recall-confirm-agent.yml heredoc pair after editing the "
+        "module, or the fix never runs")
+
+
+def test_the_retired_gate_is_not_watched():
+    """A permanently-false OVERDUE trains operators to ignore real ones."""
+    import re
+    from pathlib import Path as _P
+    src = (_P(__file__).resolve().parents[1] / "tools"
+           / "dispatch_watchdog.py").read_text("utf-8")
+    blk = src[src.index("WATCHED"):]
+    names = re.findall(r'^\s*\("([^"]+)"', blk, re.M)
+    assert not any("gemini" in n for n in names), (
+        "gemini-url-gate was retired 2026-08-30 and its job exits at a "
+        "retirement guard; watching it can only ever report OVERDUE")
+
+
+def test_no_string_claims_a_reviewer_2_action_it_cannot_know():
+    """The archive is read by people deciding whether a row was checked."""
+    from pathlib import Path as _P
+    raw = (_P(__file__).resolve().parents[1] / "pipeline"
+           / "recall_confirm_agent.py").read_text("utf-8")
+    # Comments quote the old strings to explain why they went; only CODE
+    # counts here.
+    src = "\n".join(l for l in raw.splitlines()
+                    if not l.lstrip().startswith("#"))
+    for claim in ('"Confirmer: reviewer 2 approved but "',
+                  '"Rejected by reviewer 2"'):
+        assert claim not in src, (
+            f"{claim} asserts an action by an agent that may never have seen "
+            "the row — the lane admits any pending status, and reviewer 2 "
+            "has banked nothing since 2026-09-02")
+    assert "row was at {_from}" in src, (
+        "record the status the row actually held when the confirmer found it")

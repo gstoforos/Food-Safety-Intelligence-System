@@ -133,3 +133,62 @@ def test_an_untagged_prior_week_is_unchanged():
                     "URL": f"https://www.fda.gov/x/{i}"}
     st = b.compute_stats([mk(9), mk(8)], [mk(i) for i in range(5)])
     assert st["prev_total"] == 5
+
+
+# ──────────────────────────────────────────────────────────────────────
+# AUDIT 2026-09-14 — the email and the page disagreed in print
+# ──────────────────────────────────────────────────────────────────────
+# Monday's subscriber email said the week fell 37%; the page it links to
+# said "-10% per day (52 in 7 days vs 83 in 10)". Both are arithmetically
+# right — W36 covered ten days, W37 seven — but the JSON the mailer reads
+# carried no per-day figure and no prior-window length, so the mailer had
+# nothing else it could print.
+
+def _mod():
+    import importlib.util
+    from pathlib import Path as _P
+    root = _P(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location(
+        "_wb", root / "docs" / "build_weekly_report_afts.py")
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def _rows(n, d="2026-09-08"):
+    return [{"Date": d, "Source": "FDA", "Company": f"C{i}", "Brand": "",
+             "Product": "p", "Pathogen": "Salmonella", "Reason": "Salmonella",
+             "Class": "Recall", "Country": "United States",
+             "Region": "North America", "Tier": 1, "Outbreak": 0, "Notes": "",
+             "URL": f"https://www.fda.gov/x/{d}/{i}"} for i in range(n)]
+
+
+def test_the_summary_json_carries_the_prior_window(tmp_path):
+    """So the mailer can say exactly what the page says."""
+    from datetime import date
+    m = _mod()
+    import json
+    stats = {"total": 52, "tier1": 37, "outbreaks": 1, "delta": -31,
+             "delta_pct": -37, "prev_total": 83,
+             "top_pathogen": ("Salmonella spp.", 20)}
+    m.write_weekly_summary_json(date(2026, 9, 13), _rows(3), stats, tmp_path,
+                                prev_week_rows=_rows(4, "2026-08-28"))
+    d = json.loads((tmp_path / "weekly-summary-latest.json").read_text("utf-8"))
+    assert d["prev_total"] == 83
+    assert "prev_span_days" in d and "delta_per_day_pct" in d
+
+
+def test_equal_windows_leave_the_per_day_figure_unset(tmp_path):
+    """A normal week: delta_pct is already the honest comparison."""
+    from datetime import date
+    import json
+    m = _mod()
+    stats = {"total": 10, "tier1": 5, "outbreaks": 0, "delta": 2,
+             "delta_pct": 25, "prev_total": 8,
+             "top_pathogen": ("Salmonella spp.", 4)}
+    m.write_weekly_summary_json(date(2026, 9, 13), _rows(3), stats, tmp_path,
+                                prev_week_rows=_rows(4, "2026-09-01"))
+    d = json.loads((tmp_path / "weekly-summary-latest.json").read_text("utf-8"))
+    assert d["delta_per_day_pct"] is None, (
+        "when both windows are the same length the mailer should keep using "
+        "delta_pct")
