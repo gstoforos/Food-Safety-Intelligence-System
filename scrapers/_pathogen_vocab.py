@@ -315,6 +315,23 @@ PATHOGENS_BY_LANGUAGE: dict = {
         "skażenie", "zanieczyszczenie",
         "ciało obce",
         "trutka na szczury",
+        # Added 2026-09-14. GIS titles its warnings by hazard, and these
+        # are the words it uses when it does NOT print the Latin name —
+        # so without them the title is invisible to the vocabulary.
+        # The miss that prompted this: "Możliwa obecność toksyny
+        # botulinowej w jednej partii zielonego pesto" (28.08.2026),
+        # Tier 1 botulism, outbreak-linked, unseen for 17 days.
+        # Stems, not whole words: Polish declines everything.
+        "toksyna botulinowa", "botulinow",   # toksyny/toksyną botulinowej
+        "kiełbasian", "kielbasian",          # jad kiełbasiany, any case
+        "cereulidyn",                        # cereulidyny — Tier 1, was missing
+        "alkaloidy pirolizydynowe", "pirolizydynow",
+        "fragmenty szkła", "szkła", "szkla",
+        "ciał obcych",                       # genitive of ciało obce
+        "aflatoksyn", "ochratoksyn", "patulin",
+        "histamin",
+        "gronkowiec", "gronkowca",           # Staphylococcus
+        "przetrwalnik",                      # spores
     ),
 
     # ─── Czech ───
