@@ -1,8 +1,8 @@
 {
-  "generated": "2026-09-13T23:06:23+03:00",
-  "date": "2026-09-13",
+  "generated": "2026-09-14T14:10:04+03:00",
+  "date": "2026-09-14",
   "mode": "live",
-  "in_progress_week": "W37",
+  "in_progress_week": "W38",
   "counts": {
     "recalls_rows": 1693,
     "duplicate_url_groups": 0,
@@ -376,14 +376,16 @@
   "stale_reports": {
     "weeklies": [
       "W34",
-      "W36"
+      "W36",
+      "W37"
     ],
     "monthlies": []
   },
   "rebuilt": {
     "weeklies": [
       "W34",
-      "W36"
+      "W36",
+      "W37"
     ],
     "monthlies": []
   }

@@ -10,7 +10,10 @@
   "week_end_display": "13 Sep 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-09-14T01:07:43.720270+00:00",
+  "generated_utc": "2026-09-14T11:10:09.036663+00:00",
+  "prev_total": 83,
+  "prev_span_days": 10,
+  "delta_per_day_pct": -10,
   "stats": {
     "total": 52,
     "tier1": 37,
