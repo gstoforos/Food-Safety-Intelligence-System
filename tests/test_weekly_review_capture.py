@@ -402,6 +402,7 @@ def test_the_retired_gate_is_not_watched():
 
 def test_no_string_claims_a_reviewer_2_action_it_cannot_know():
     """The archive is read by people deciding whether a row was checked."""
+    import re as _re
     from pathlib import Path as _P
     raw = (_P(__file__).resolve().parents[1] / "pipeline"
            / "recall_confirm_agent.py").read_text("utf-8")
@@ -415,5 +416,8 @@ def test_no_string_claims_a_reviewer_2_action_it_cannot_know():
             f"{claim} asserts an action by an agent that may never have seen "
             "the row — the lane admits any pending status, and reviewer 2 "
             "has banked nothing since 2026-09-02")
-    assert "row was at {_from}" in src, (
+    # Name-agnostic: main calls the variable _prior, an earlier draft called
+    # it _from. What matters is that the real prior status is interpolated,
+    # not that a particular local name survives.
+    assert _re.search(r'row was at \{_\w+\}', src), (
         "record the status the row actually held when the confirmer found it")
