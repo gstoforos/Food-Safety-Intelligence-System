@@ -690,6 +690,38 @@ def rank_top_recalls(recalls, n=10):
         re.IGNORECASE)
     _HOSP_RE = re.compile(r"(\d[\d,]{1,6})\s*hospitali[sz]", re.IGNORECASE)
 
+    # Spelled-out counts (audit 2026-09-14).
+    #
+    # The two regexes above read DIGITS only. A notice that writes "two
+    # human botulism cases" — which is how regulators habitually write
+    # small numbers — scored 0 and lost the phase-0 tie-break to any
+    # outbreak with a numeral in it.
+    #
+    # That bias is exactly backwards. Spelled-out counts cluster at the
+    # low end, and the low end is where the most lethal organisms live:
+    # a botulism cluster is two or three people, a Salmonella one is
+    # eighty. Reading only numerals meant the deadliest events were the
+    # ones most likely to be scored as if nobody had been harmed at all.
+    #
+    # Found when the 28.08.2026 Łowicz pesto row (Clostridium botulinum,
+    # two cases) came out at burden 0 and ranked behind a 55-case STEC
+    # outbreak in Top 5 Critical Threats. Fifty-five does outrank two —
+    # but it should win on 55-vs-2, not on 55-vs-nothing.
+    #
+    # One through twelve only. Past that regulators use numerals, and a
+    # longer word list is more surface for a false positive ("one of the
+    # affected cases").
+    _WORD_NUM = {
+        "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+        "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11,
+        "twelve": 12,
+    }
+    _WORD_BURDEN_RE = re.compile(
+        r"\b(" + "|".join(_WORD_NUM) + r")\s+"
+        r"(?:\w+\s+){0,2}?"        # "two human botulism cases"
+        r"(?:cases?|illnesses|people|persons?|patients?|hospitali[sz]ations?)\b",
+        re.IGNORECASE)
+
     def _illness_burden(r):
         """Highest published case count for the row, 0 when none is stated."""
         text = " ".join(str(r.get(k) or "") for k in ("Reason", "Notes"))
@@ -700,6 +732,8 @@ def rank_top_recalls(recalls, n=10):
                     best = max(best, int(m.group(1).replace(",", "")))
                 except ValueError:
                     continue
+        for m in _WORD_BURDEN_RE.finditer(text):
+            best = max(best, _WORD_NUM[m.group(1).lower()])
         return best
 
     def _rank_key(r):
