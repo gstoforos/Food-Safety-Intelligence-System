@@ -3719,7 +3719,8 @@ def update_dashboard_data(week_end, stats, all_recalls=None):
     except Exception as e:
         log.error("weekly-index.json write failed: %s", e)
 
-def write_weekly_summary_json(week_end, recalls, stats, data_dir):
+def write_weekly_summary_json(week_end, recalls, stats, data_dir,
+                              prev_week_rows=None):
     wnum = week_end.isocalendar()[1]; year = week_end.year
     # Audit 2026-05-12: week_end in this JSON is the DISPLAY end (Thu for
     # new-rule, Fri for legacy) so the dashboard formats it correctly.
@@ -3740,6 +3741,23 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir):
             "company":str(r.get("Company","")),"brand":str(r.get("Brand","\u2014")),
             "product":str(r.get("Product","")),"country":str(r.get("Country","")),
             "source":str(r.get("Source","")),"url":str(r.get("URL",""))})
+    # Length of the window this week is compared against, and the per-day
+    # change when the two windows differ (see the note on the fields below).
+    _span_now = (we_display - ws).days + 1
+    _pt = stats.get("prev_total", 0)
+    _prev_span = _span_now
+    try:
+        _pw = anchor_for(week_end - timedelta(days=7))
+        _pws, _pwe = _display_window(_pw, prev_week_rows or [])
+        _prev_span = (_pwe - _pws).days + 1
+    except Exception:                                          # noqa: BLE001
+        pass
+    _delta_per_day = None
+    if _pt and _prev_span and _prev_span != _span_now:
+        _rate_now = stats["total"] / max(_span_now, 1)
+        _rate_prev = _pt / _prev_span
+        _delta_per_day = round((_rate_now - _rate_prev) / max(_rate_prev, 1e-9) * 100)
+
     summary = {"filename":"{}-W{:02d}.html".format(year,wnum),
         "report_url":"https://fsis.advfood.tech/{}-W{:02d}.html".format(year,wnum),
         "dashboard_url":"https://www.advfood.tech/fsis-recalls",
@@ -3750,6 +3768,23 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir):
         "span_days":(we_display - ws).days + 1,
         "bridge_edition":((we_display - ws).days + 1) > 7,
         "generated_utc":datetime.now(timezone.utc).isoformat(),
+        # THE PRIOR WINDOW, AND THE PER-DAY CHANGE (added 2026-09-14).
+        #
+        # `delta_pct` is a raw count-to-count change, and on 14 September the
+        # subscriber email said the week fell 37% while the page it links to
+        # said "-10% per day (52 in 7 days vs 83 in 10)". Both figures are
+        # arithmetically right; they disagree because W36 covered TEN days
+        # and W37 covers seven. The page normalises, the email could not —
+        # this JSON carried no per-day figure and no prior-window length, so
+        # the mailer had nothing else to print.
+        #
+        # These three fields let the email say exactly what the page says.
+        # delta_per_day_pct is None when the two windows are the same length,
+        # which is the normal case: then delta_pct already IS the honest
+        # comparison and the mailer should keep using it.
+        "prev_total":stats.get("prev_total",0),
+        "prev_span_days":_prev_span,
+        "delta_per_day_pct":_delta_per_day,
         "stats":{"total":stats["total"],"tier1":stats["tier1"],"outbreaks":stats["outbreaks"],
                  "delta":stats.get("delta",0),"delta_pct":stats.get("delta_pct",0)},
         "leading_pathogen":leading,"ai_lead_paragraph":"","top_threats":threats,
@@ -3979,7 +4014,8 @@ def main():
     out.write_text(html, encoding="utf-8")
     log.info("Report -> %s (%d bytes)", out, len(html))
     update_dashboard_data(week_end, stats, all_r)
-    write_weekly_summary_json(week_end, wr, stats, Path(args.xlsx).parent)
+    write_weekly_summary_json(week_end, wr, stats, Path(args.xlsx).parent,
+                              prev_week_rows=pr)
     return 0
 
 if __name__ == "__main__":
