@@ -567,9 +567,24 @@ jobs:
                   idx = by_url.get(str(row.get("URL", "")).strip())
                   if idx is None:
                       continue
+                  # RECORD THE STATUS THE ROW ACTUALLY HELD (fix 2026-09-13).
+                  #
+                  # This stamp was hard-coded to "pending_gap_v3 → pending" for every
+                  # confirmed row, whatever the row's real prior status. Since the lane
+                  # above was widened on 2026-09-04 to admit ANY pending status, that
+                  # string is usually not what happened — and reviewer 2, the only
+                  # thing that sets pending_gap_v3, has banked nothing since at least
+                  # 2026-09-02 (replayed across every workbook commit since: the
+                  # pending_gap_v3 queue is 0 at every one). So every stamp written in
+                  # that window asserts a reviewer-2 hand-off that did not occur, on
+                  # rows reviewer 2 never saw. The register's provenance trail is read
+                  # by people deciding whether a row was checked; it has to say what
+                  # happened, not what used to happen.
+                  _prior = str(full_pending[idx].get("Status", "")).strip() or "(no status)"
                   full_pending[idx]["Status"] = "pending"      # now promotable
                   n = str(full_pending[idx].get("Notes", "")).strip()
-                  stamp = f" [confirm-agent {today}: {A2_APPROVED} → pending; independent checks passed]"
+                  stamp = (f" [confirm-agent {today}: {_prior} → pending; "
+                           "independent checks passed]")
                   # ENGLISH-OUTPUT RULE AT THE LAST GATE (2026-09-04). Nine French
                   # Reasons reached Recalls in the first four days of September. The
                   # language check is a warning by policy (a real recall is never
@@ -590,17 +605,37 @@ jobs:
                       pass
                   full_pending[idx]["Notes"] = (n + stamp).strip()[:1000]
 
+              # SAY WHO ACTUALLY DID WHAT (fix 2026-09-13, same defect as the stamp
+              # above). These two strings are what the operator reads in the archive
+              # and in the Thursday email, and both asserted a reviewer-2 action:
+              #
+              #   "Confirmer: reviewer 2 approved but <problem>"
+              #   "Rejected by reviewer 2"
+              #
+              # Neither is knowable here. The lane was widened on 2026-09-04 to admit
+              # any pending status, so most rows reaching this point were never in
+              # reviewer 2's hands — and reviewer 2 has banked nothing since at least
+              # 2026-09-02 (its pending_gap_v3 queue is empty at every workbook commit
+              # since). The first string is why 37 archived rows read as though two
+              # stages agreed to drop them, several of which were genuine Tier-1
+              # Listeria recalls with nothing wrong but an empty field.
+              #
+              # What IS known here is the row's status when this agent found it, so
+              # that is what gets recorded. A row that really did come from reviewer 2
+              # still says so, because its status says so.
               for row, probs in blocked:
                   idx = by_url.get(str(row.get("URL", "")).strip())
                   if idx is None:
                       continue
-                  rejected_flags[idx] = ("Confirmer: reviewer 2 approved but "
+                  _from = str(full_pending[idx].get("Status", "")).strip() or "(no status)"
+                  rejected_flags[idx] = (f"Confirmer rejected (row was at {_from}): "
                                          + "; ".join(probs[:2]))[:280]
 
               for row in already_rejected:
                   idx = by_url.get(str(row.get("URL", "")).strip())
                   if idx is not None and idx not in rejected_flags:
-                      rejected_flags[idx] = "Rejected by reviewer 2"
+                      rejected_flags[idx] = ("Arrived already marked rejected; "
+                                             "confirmer did not re-review")
 
               # Held rows: park at pending_gap_v2 so promote_approved() neither
               # publishes them (Company empty would fail its gate) nor archives them.
