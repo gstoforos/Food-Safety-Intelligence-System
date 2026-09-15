@@ -6,30 +6,30 @@
   "Brand": "Talleyrand",
   "Product": "brie de melun aop talleyrand",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "Non conformite microbiologique",
+  "Reason": "Microbiological non-conformity",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23519/interne",
-  "Notes": "cooperative u [confirm-agent 2026-09-15: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "cooperative u [confirm-agent 2026-09-15: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [agent nightly-operator proposal 45e61b8d8abd026a applied 2026-09-15: Published row (2026-09-15) carried the untranslated French motif 'Non conformite microbiologique'. Translated per standing English-output rule; the language detector did not flag this short phrase, so it slipped through ]"
  },
  {
   "Date": "2026-09-14",
   "Source": "RappelConso (FR)",
-  "Company": "Cordon Bleu de Poulet",
+  "Company": "VALDIS CENTRE LECLERC VALENCIENNES",
   "Brand": "Cordon Bleu de Poulet",
   "Product": "cordon bleu de poulet",
   "Pathogen": "Salmonella",
-  "Reason": "Presence of Salmonella mises en évidence dans le cadre du plan d'autocontrôle microbiologique",
+  "Reason": "Presence of Salmonella detected under the microbiological self-monitoring plan",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23473/interne",
-  "Notes": "leclerc valenciennes [confirm-agent 2026-09-14: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Reason not in English and no verified translation on file]"
+  "Notes": "leclerc valenciennes [confirm-agent 2026-09-14: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Reason not in English and no verified translation on file] [agent nightly-operator proposal ff3712530c1ab48b applied 2026-09-15: Published row (2026-09-14) had Company/Brand both scraped as the product headline 'Cordon Bleu de Poulet' instead of the recalling firm, and Reason was half-translated French ('mises en évidence dans le cadre du plan d'a]"
  },
  {
   "Date": "2026-09-14",
