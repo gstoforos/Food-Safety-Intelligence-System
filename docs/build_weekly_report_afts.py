@@ -15,6 +15,19 @@ from openpyxl import load_workbook
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+# docs/ explicitly, not just ROOT: the test suite loads this module through
+# spec_from_file_location, which puts nothing on sys.path, so a sibling
+# import that works when the script is run directly would fail there.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+# The weekly PA note is built by _process_authority_note() below, on its own
+# six hazard classes. Only the closing tool sentence is shared with the
+# monthly note, so that both briefings point at the same software in the
+# same words and the wording lives in one file.
+from process_authority import (  # noqa: E402
+    detect_process_authority_trigger as _pa_detect,
+    tooling_pointer as _pa_tooling_pointer,
+)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY")
@@ -1446,8 +1459,15 @@ Tone: professional, process-engineering voice, no emojis, no bullets, no colons 
     # printed "35 Listeria monocytogenes incidents" in the note against
     # "30 recall incidents" in the banner, because the note counted notices
     # while the banner counted incidents. Pass the collapsed rows.
-    pa = _process_authority_note(stats.get("dist_rows") or recalls, bot)
+    pa_rows = stats.get("dist_rows") or recalls
+    pa = _process_authority_note(pa_rows, bot)
     if pa:
+        # Same closing sentence as the monthly note. The weekly fires on
+        # hazard classes the shared detector does not model — RTE Listeria,
+        # low-moisture Salmonella — and tooling_pointer() answers those with
+        # the general pointer rather than a retort model that has nothing to
+        # do with them.
+        pa = pa.rstrip() + " " + _pa_tooling_pointer(_pa_detect(pa_rows))
         claude_out = claude_out.rstrip() + "\n\n" + PA_NOTE_MARKER + pa
     return claude_out
 

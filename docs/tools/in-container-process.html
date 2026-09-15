@@ -1,0 +1,2891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>In-Container Process | Advanced Food-Tech Solutions</title>
+<meta name="description" content="In-container thermal processing: axisymmetric finite-element conduction heating in a sealed container, cold-spot and mass-average lethality, Ball heat-penetration parameters, mesh convergence and a printable process schedule record."/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<script>
+/* Resolve the theme BEFORE first paint or the page flashes white on a dark
+   desktop. 'auto' follows the computer live. The stored choice is shared with
+   every other AFTS tool under one key, and is best-effort: inside a Wix embed
+   localStorage can be blocked, and a failure here must never break the page. */
+(function(){
+  var pref='auto';
+  try{ pref = localStorage.getItem('afts-theme') || 'auto'; }catch(e){}
+  if(pref!=='light' && pref!=='dark') pref='auto';
+  var sysDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-theme', pref==='auto' ? (sysDark?'dark':'light') : pref);
+  document.documentElement.setAttribute('data-theme-pref', pref);
+})();
+</script>
+<style>
+/* ============================================================================
+   AFTS house theme — identical token contract to the SIP Validator, HX Studio
+   and the F-Value Library, so the tools sit together on one site without
+   re-skinning.
+
+     --page      the page itself
+     --card      any raised surface: cards, inputs, modals
+     --off/-2    progressively subtler flat fills
+     --ink       strong text and the brand mark
+     --solid / --on-solid   the filled interactive pair; it inverts in dark
+     --grid/--axis/--plotbg chart furniture, read live by the SVG builder
+
+   COLOUR RULE, and it is a rule rather than a preference:
+   ORANGE IS INK, NEVER A FILL, AND ONLY EVER ON WHITE. It appears as text, a
+   hairline, a 2.5 px rule or a bar drawn on a white or near-white surface —
+   nowhere else. Anything that needs a filled block uses black (--solid). In
+   dark there is no white to sit on, so --accent resolves to warm white and no
+   orange is drawn at all. Everything structural is black, silver and white.
+
+   Two exceptions, both information rather than decoration:
+     · status — green / amber / red on the acceptance checks, always with a
+       word beside them, and never used as a chart mark;
+     · the three pin colours. Validated for CVD separation against both
+       surfaces (see --pin-* below).
+   ========================================================================= */
+:root,:root[data-theme="light"]{
+  --orange:#E8601A;--orange-soft:rgba(232,96,26,0.07);
+  --accent:#E8601A;--accent-soft:rgba(232,96,26,0.07);--sel:rgba(232,96,26,0.18);
+  --page:#ffffff;--card:#ffffff;--off:#F7F7F5;--off2:#F1F1EE;--border:#E4E4E0;
+  --muted:#77776F;--text:#1C1C1C;--ink:#111111;--black:#111111;
+  --silver:#C8C8C0;--silver-deep:#8A8A82;
+  --solid:#111111;--on-solid:#ffffff;--solid-hover:#3a3436;
+  --inputbg:#ffffff;--inputbd:#d3d3cd;--placeholder:#c2c2bc;
+  --grid:#eeeeec;--axis:#8A8A82;--plotbg:#fafafa;
+  --trace:#B9B9B1;         /* the unselected curve bundle                     */
+  --trace-hi:#111111;      /* the operating curve, drawn out of the bundle    */
+  /* Validated all-pairs on #ffffff: lightness band, chroma floor,
+     protan/deutan/tritan separation, normal-vision floor and 3:1 contrast all
+     pass. Do not substitute by eye. */
+  --pin-1:#0072B2;--pin-2:#D55E00;--pin-3:#009E73;
+  --wm:rgba(17,17,17,0.055);
+  --footbg:#111111;
+  --veil-a:rgba(255,255,255,.55);--veil-b:rgba(255,255,255,.92);
+  --green:#16794a;--green-soft:rgba(22,121,74,0.09);
+  --red:#c0271f;--red-soft:rgba(192,39,31,0.07);
+  --amber:#a86a05;--amber-soft:rgba(168,106,5,0.09);
+  --mono:'DM Mono',ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --orange:#f7f2ec;--orange-soft:rgba(247,242,236,0.08);
+  --accent:#f7f2ec;--accent-soft:rgba(247,242,236,0.08);--sel:rgba(247,242,236,0.20);
+  --page:#151312;--card:#1e1b1a;--off:#232020;--off2:#2b2726;--border:#35302e;
+  --muted:#a1968f;--text:#ece5df;--ink:#f7f2ec;--black:#f7f2ec;
+  --silver:#3b3532;--silver-deep:#6f6560;
+  --solid:#efe7e0;--on-solid:#1a1716;--solid-hover:#d8cfc8;
+  --inputbg:#211e1d;--inputbd:#3f3936;--placeholder:#6a615c;
+  --grid:#2b2726;--axis:#a1968f;--plotbg:#1a1817;
+  --trace:#5d554f;--trace-hi:#f7f2ec;
+  /* re-stepped for the dark surface #1a1817, not flipped. Validated all-pairs. */
+  --pin-1:#3E90CE;--pin-2:#D2701F;--pin-3:#2FA87C;
+  --wm:rgba(247,242,236,0.05);
+  --footbg:#0e0d0c;
+  --veil-a:rgba(21,19,18,.55);--veil-b:rgba(21,19,18,.92);
+  --green:#6ed49a;--green-soft:rgba(110,212,154,0.13);
+  --red:#f28fa8;--red-soft:rgba(242,143,168,0.12);
+  --amber:#e0b45f;--amber-soft:rgba(224,180,95,0.13);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--text);background:var(--page);min-height:100vh;display:flex;flex-direction:column;font-size:14.4px;}
+a{color:inherit;}
+::selection{background:var(--sel);}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 18px;border-bottom:1px solid var(--silver);background:var(--page);gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:60;}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.brand-mark{width:30px;height:37px;flex-shrink:0;display:block;fill:currentColor;color:var(--ink);}
+.brand-name{font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:var(--ink);letter-spacing:-0.012em;line-height:1.1;}
+.brand-sub{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+.topbar-right{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.t-link{font-size:0.78rem;font-weight:600;color:var(--text);text-decoration:none;border:1px solid var(--silver);border-radius:7px;padding:6px 11px;transition:all .16s;white-space:nowrap;cursor:pointer;background:var(--card);font-family:inherit;letter-spacing:-0.005em;}
+.t-link:hover{border-color:var(--silver-deep);color:var(--ink);background:var(--off);}
+.t-link.cta{background:var(--solid);color:var(--on-solid);border-color:var(--solid);}
+.t-link.cta:hover{background:var(--solid-hover);border-color:var(--solid-hover);color:var(--on-solid);}
+.lic-chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:0.63rem;letter-spacing:0.09em;text-transform:uppercase;padding:5px 10px;border-radius:999px;border:1px solid var(--border);background:var(--off);color:var(--muted);cursor:pointer;}
+.lic-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--silver-deep);}
+.lic-chip.on{border-color:rgba(22,121,74,.35);background:var(--green-soft);color:var(--green);}
+.lic-chip.pass{border-color:rgba(168,106,5,.35);background:var(--amber-soft);color:var(--amber);}
+.themetoggle{display:inline-flex;border:1px solid var(--silver);border-radius:7px;overflow:hidden;background:var(--card);flex:none;}
+.themetoggle button{border:0;background:transparent;font:inherit;font-size:0.72rem;font-weight:600;padding:6px 9px;cursor:pointer;color:var(--muted);display:grid;place-items:center;line-height:1;}
+.themetoggle button+button{border-left:1px solid var(--border);}
+.themetoggle button:hover{color:var(--ink);background:var(--off);}
+.themetoggle button[aria-pressed="true"]{background:var(--solid);color:var(--on-solid);}
+.themetoggle svg{display:block;}
+
+/* ── SHELL ── */
+main{flex:1;width:100%;max-width:1760px;margin:0 auto;padding:13px 18px 40px;}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
+h1{font-family:'Syne',sans-serif;font-size:clamp(1.1rem,1.7vw,1.44rem);font-weight:800;color:var(--ink);line-height:1.05;letter-spacing:-0.02em;}
+.h1-sub{font-size:0.79rem;color:var(--muted);margin-top:3px;max-width:640px;line-height:1.45;}
+.head-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+
+.proj-bar{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--border);border-radius:9px;margin-bottom:11px;overflow:hidden;background:var(--card);}
+.proj-cell{padding:5px 10px;border-right:1px solid var(--border);min-width:0;}
+.proj-cell:last-child{border-right:none;}
+.proj-lbl{font-family:var(--mono);font-size:0.57rem;letter-spacing:0.11em;text-transform:uppercase;color:var(--muted);margin-bottom:1px;}
+.proj-cell input{border:none;font-family:inherit;font-size:0.84rem;color:var(--text);width:100%;padding:0;background:transparent;outline:none;}
+.proj-cell input::placeholder{color:var(--placeholder);font-style:italic;}
+
+/* Three columns: inputs left, THE SCHEDULE IN THE MIDDLE, the verdict right.
+   Unlike the distribution tools in this suite, the work surface here is not a
+   graph — it is the schedule table, because that is the deliverable: two
+   numbers that go on a process letter. The table therefore sits directly under
+   the control bar where the desktop module puts it, and the operating curve
+   and the sensitivity chart sit below it as supporting evidence rather than
+   above it as the headline.
+
+   The rails are RANGES, not fixed widths, so they give ground to the chart on
+   a narrow screen instead of forcing the right rail to wrap underneath. Three
+   columns survive down to 1180 px, which is an ordinary laptop at 100 %. */
+.wrap{display:grid;
+  grid-template-columns:minmax(300px,356px) minmax(0,1fr) minmax(248px,318px);
+  gap:14px;align-items:start;}
+@media(max-width:1180px){
+  .wrap{grid-template-columns:minmax(290px,340px) minmax(0,1fr);}
+  .rrail{grid-column:1/-1;}
+  .rrail .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:10px;align-items:start;}
+}
+@media(max-width:880px){.wrap{grid-template-columns:minmax(0,1fr);}}
+
+/* right rail — the schedule and the numbers that support it */
+.rrail{display:flex;flex-direction:column;gap:10px;min-width:0;}
+.rrail .rgrid{display:flex;flex-direction:column;gap:10px;}
+@media(min-width:1181px) and (min-height:720px){
+  .rail,.rrail{position:sticky;top:62px;max-height:calc(100vh - 78px);overflow-y:auto;padding-right:4px;}
+}
+.rrail::-webkit-scrollbar{width:7px;}
+.rrail::-webkit-scrollbar-thumb{background:var(--silver);border-radius:4px;}
+.rcard{border:1px solid var(--border);border-radius:9px;background:var(--card);overflow:hidden;}
+.rcard-h{background:var(--off);padding:6px 10px;border-bottom:1px solid var(--border);font-family:var(--mono);
+  font-size:0.615rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);display:flex;justify-content:space-between;gap:8px;align-items:center;}
+.rcard-b{padding:8px 11px;}
+.rrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:4px 0;border-bottom:1px dotted var(--border);font-size:0.79rem;}
+.rrow:last-child{border-bottom:none;}
+.rrow .k{color:var(--muted);}
+.rrow .v{font-family:var(--mono);font-weight:500;text-align:right;}
+.rbig{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1rem,1.35vw,1.24rem);letter-spacing:-0.02em;color:var(--ink);line-height:1.1;}
+.rsub{font-size:0.72rem;color:var(--muted);margin-top:2px;line-height:1.4;}
+
+/* centre column: control bar above the chart */
+.centre{display:flex;flex-direction:column;gap:11px;min-width:0;}
+.ctrlbar{border:1px solid var(--border);border-radius:9px;background:var(--card);padding:8px 12px;
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.ctrlbar .cg{display:flex;align-items:center;gap:5px;}
+.ctrlbar .cl{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted);}
+.ctrlbar select,.ctrlbar input{padding:4px 7px;border:1px solid var(--inputbd);border-radius:6px;background:var(--inputbg);
+  color:var(--text);font-family:inherit;font-size:0.78rem;outline:none;-webkit-appearance:none;appearance:none;}
+.ctrlbar input[type=number]{width:74px;font-family:var(--mono);font-size:0.75rem;}
+.ctrlbar select:focus,.ctrlbar input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);}
+.ctrlbar .sep{width:1px;height:20px;background:var(--border);}
+.seg{display:inline-flex;border:1px solid var(--silver);border-radius:7px;overflow:hidden;}
+.seg button{border:0;background:transparent;font:inherit;font-size:0.72rem;font-weight:600;padding:5px 10px;cursor:pointer;color:var(--muted);}
+.seg button+button{border-left:1px solid var(--border);}
+.seg button:hover{background:var(--off);color:var(--ink);}
+.seg button[aria-pressed="true"]{background:var(--solid);color:var(--on-solid);}
+
+/* ── INPUT RAIL ──
+   Sections are COLLAPSED by default and each header carries a one-line summary
+   of what is set inside it, so the whole schedule reads at a glance without
+   opening anything. flex-shrink:0 is not optional — without it the short
+   sections squash to empty bars inside the sticky scroller. */
+.rail{display:flex;flex-direction:column;gap:9px;padding-bottom:8px;min-width:0;}
+.rail > *{flex:0 0 auto;}
+.rail::-webkit-scrollbar{width:7px;}
+.rail::-webkit-scrollbar-thumb{background:var(--silver);border-radius:4px;}
+.sec{border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--card);}
+.sec-head{background:var(--off);padding:6px 10px;border-bottom:1px solid transparent;display:grid;grid-template-columns:1fr auto;align-items:center;cursor:pointer;user-select:none;gap:2px 8px;}
+.sec:not(.collapsed) .sec-head{border-bottom-color:var(--border);}
+.sec-head:hover{background:var(--off2);}
+.sec-title{font-family:var(--mono);font-size:0.665rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);font-weight:500;display:flex;align-items:center;gap:7px;min-width:0;}
+.sec-n{width:16px;height:16px;border-radius:4px;background:var(--solid);color:var(--on-solid);display:inline-flex;align-items:center;justify-content:center;font-size:0.56rem;flex:0 0 auto;}
+.sec-sum{grid-column:1/2;font-size:0.72rem;color:var(--muted);line-height:1.35;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.sec:not(.collapsed) .sec-sum{display:none;}
+.sec-arrow{grid-column:2/3;grid-row:1/3;font-size:0.62rem;color:var(--muted);transition:transform .18s;align-self:center;}
+.sec.collapsed .sec-arrow{transform:rotate(-90deg);}
+.sec-body{padding:9px 11px;}
+.sec.collapsed .sec-body{display:none;}
+
+.field{margin-bottom:9px;}
+.field:last-child{margin-bottom:0;}
+.field>label{display:block;font-size:0.815rem;color:var(--text);margin-bottom:3px;line-height:1.3;}
+.field-row{display:flex;gap:5px;align-items:center;}
+.field-row input,.field-row select,.field-row textarea{padding:6px 9px;border:1px solid var(--inputbd);border-radius:6px;font-family:inherit;font-size:0.855rem;color:var(--text);background:var(--inputbg);outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none;}
+.field-row input,.field-row textarea{flex:1;min-width:0;}
+.field-row input[type=number]{font-family:var(--mono);font-size:0.82rem;}
+.field-row select{padding:6px 21px 6px 9px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2377776F' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;cursor:pointer;}
+.field-row select.u{min-width:78px;flex:0 0 auto;font-family:var(--mono);font-size:0.74rem;color:var(--muted);background-color:var(--off);}
+.field-row select.full{flex:1;min-width:0;}
+.field-row input:focus,.field-row select:focus,.field-row textarea:focus{border-color:var(--accent);box-shadow:0 0 0 2.5px var(--accent-soft);}
+.field-row input:disabled,.field-row select:disabled{opacity:.62;cursor:not-allowed;background:var(--off2);}
+.field-hint{font-size:0.7rem;color:var(--muted);margin-top:2px;line-height:1.4;}
+.field-hint b{color:var(--text);font-weight:600;}
+.field-hint.warn{color:var(--amber);}
+.field.inline-2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.field.inline-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+.chkrow{display:flex;align-items:center;gap:7px;font-size:0.815rem;margin-bottom:7px;cursor:pointer;}
+.chkrow input{width:15px;height:15px;accent-color:var(--solid);cursor:pointer;flex:0 0 auto;}
+.subhead{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px;padding-top:9px;border-top:1px dashed var(--border);}
+.subhead:first-child{margin-top:0;padding-top:0;border-top:none;}
+
+/* ── THE FORM ─────────────────────────────────────────────────────────────
+   The desktop module puts the inputs in the MIDDLE of the window, all of them
+   on screen at once, label right-aligned against entry and unit — the exact
+   shape of create_row(). That is the layout the people who use this already
+   know, so it is the layout here: no accordion, no progressive disclosure,
+   nothing hidden behind a summary line. A schedule is six numbers and four
+   switches; there is nothing worth hiding, and hiding it is how a working
+   tool turns into a brochure.
+   ──────────────────────────────────────────────────────────────────────── */
+.pform{display:grid;grid-template-columns:minmax(118px,186px) minmax(0,1fr) 96px;
+  gap:3px 9px;align-items:center;}
+.pform > label{font-size:0.85rem;color:var(--text);text-align:right;line-height:1.3;padding:5px 0;}
+/* :not([type=checkbox]) is not fussiness. appearance:none on a checkbox
+   removes the tick along with the chrome, so every box rendered as an empty
+   rounded rectangle whether it was on or off — F₀ showed LOCKED next to what
+   looked like an unticked box. A checkbox keeps its native appearance. */
+.pform input:not([type=checkbox]),.pform select{padding:6px 9px;border:1px solid var(--inputbd);border-radius:6px;
+  font-family:inherit;font-size:0.86rem;color:var(--text);background:var(--inputbg);outline:none;
+  -webkit-appearance:none;appearance:none;width:100%;transition:border-color .15s,box-shadow .15s;}
+.pform input[type=checkbox]{-webkit-appearance:auto;appearance:auto;width:16px;height:16px;
+  flex:0 0 auto;padding:0;border:0;background:none;accent-color:var(--accent);cursor:pointer;}
+.pform input[type=number]{font-family:var(--mono);font-size:0.84rem;}
+.pform select{padding-right:21px;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2377776F' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 6px center;}
+.pform select.u{font-family:var(--mono);font-size:0.75rem;color:var(--muted);background-color:var(--off);}
+.pform input:focus,.pform select:focus{border-color:var(--accent);box-shadow:0 0 0 2.5px var(--accent-soft);}
+.pform input:disabled,.pform select:disabled{opacity:.55;cursor:not-allowed;background:var(--off2);}
+.pspan{grid-column:1/-1;}
+.pspan2{grid-column:2/-1;}
+.pmsg{grid-column:2/-1;font-size:0.725rem;color:var(--muted);font-style:italic;line-height:1.45;padding:0 0 3px;}
+.pmsg.amber{color:var(--amber);}
+.pmsg > span{display:inline;}
+.pmsg.red{color:var(--red);}
+.pchk{display:inline-flex;align-items:center;gap:7px;font-size:0.845rem;cursor:pointer;color:var(--text);}
+.pchk input{width:15px;height:15px;accent-color:var(--solid);cursor:pointer;flex:0 0 auto;}
+.pcf{grid-column:1/-1;display:flex;gap:8px 16px;align-items:center;flex-wrap:wrap;padding:4px 0;}
+.pcf > span{font-size:0.845rem;font-style:italic;color:var(--text);}
+.pcf input[type=number]{width:86px;flex:0 0 auto;}
+.psep{grid-column:1/-1;height:1px;background:var(--border);margin:9px 0 6px;}
+.phead{grid-column:1/-1;font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--muted);margin:10px 0 2px;}
+.phead:first-child{margin-top:0;}
+.form-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:11px 14px;
+  border-top:1px solid var(--border);background:var(--off);}
+.form-nav .wide{width:100%;justify-content:center;}
+
+/* ── THE FORM IN A 356 px COLUMN ──────────────────────────────────────────
+   Same builder, two shapes. A three-track row of label | entry | unit needs
+   about 420 px; in the rail the label takes its own line and the entry and
+   unit sit under it. Nothing is hidden and nothing is re-authored — only the
+   tracks change. */
+.rail .pform{grid-template-columns:minmax(0,1fr) minmax(74px,auto);gap:2px 7px;}
+.rail .pform > label{grid-column:1/-1;text-align:left;padding:7px 0 1px;font-size:0.8rem;color:var(--muted);}
+.rail .pform > .pspan2,
+.rail .pform > .pmsg,
+.rail .pform > .pcf,
+.rail .pform > .psep,
+.rail .pform > .phead{grid-column:1/-1;}
+.rail .pform > span:empty{display:none;}
+.rail .pform > label.pchk{grid-column:1/-1;text-align:left;color:var(--text);font-size:0.83rem;padding:6px 0 2px;}
+.rail .pcf{gap:6px 10px;}
+.rail .pcf input[type=number]{width:72px;}
+
+/* ── THE RESULTS PANEL ────────────────────────────────────────────────────
+   The module's right-hand results block, row for row: label, the value in a
+   tinted cell, then the unit — with the live time and temperature pickers
+   that re-express the answer without re-solving it. */
+/* ONE GRID FOR THE WHOLE PANEL, NOT ONE PER ROW.
+   Each row used to be its own grid with `auto` tracks, so every value box
+   sized to its own content and no two lined up — the column read as a heap of
+   boxes at seven different widths. The rows are `display:contents` now, so
+   their cells are laid out by the PANEL's tracks and the value boxes and unit
+   pickers form true columns.
+
+   The value track is minmax(86px,auto): wide enough to be a column, free to
+   grow so the headline number is never clipped at browser zoom, which is what
+   the earlier fixed 96 px did. */
+.pres{display:grid;grid-template-columns:minmax(0,1fr) minmax(86px,auto) minmax(34px,auto);
+  gap:6px 7px;align-items:center;}
+.presrow{display:contents;}
+.presrow .k{font-family:var(--mono);font-size:0.705rem;color:var(--muted);text-align:right;line-height:1.3;
+  overflow-wrap:anywhere;}
+.presrow .v{font-family:var(--mono);font-weight:500;font-size:0.85rem;text-align:center;
+  background:var(--off);border:1px solid var(--border);border-radius:5px;padding:5px 9px;color:var(--ink);
+  min-width:84px;white-space:nowrap;}
+.presrow .v.big{font-family:'Syne',sans-serif;font-weight:800;font-size:0.98rem;
+  border-color:var(--accent);background:var(--card);}
+.presrow .u{font-family:var(--mono);font-size:0.7rem;color:var(--muted);}
+.presrow select{font-family:var(--mono);font-size:0.7rem;padding:4px 5px;border:1px solid var(--inputbd);
+  border-radius:5px;background:var(--inputbg);color:var(--text);outline:none;width:100%;
+  -webkit-appearance:none;appearance:none;cursor:pointer;}
+.presnote{font-size:0.705rem;color:var(--muted);font-style:italic;line-height:1.5;padding:6px 0 0;}
+.presnote.red{color:var(--red);}
+.pressum{margin-top:10px;padding:9px 11px;border-radius:7px;background:var(--off);
+  border:1px solid var(--border);font-size:0.755rem;line-height:1.6;color:var(--text);}
+.presempty{color:var(--muted);font-size:0.78rem;font-style:italic;line-height:1.6;padding:14px 2px;}
+
+/* buttons */
+.btn{font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;padding:8px 14px;border-radius:7px;border:1.5px solid var(--border);background:var(--card);color:var(--ink);cursor:pointer;transition:all .16s;display:inline-flex;align-items:center;gap:6px;line-height:1.2;white-space:nowrap;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn-pri{background:var(--solid);color:var(--on-solid);border-color:var(--solid);font-family:'Syne',sans-serif;font-weight:700;font-size:0.86rem;padding:9px 18px;}
+.btn-pri:hover{background:var(--solid-hover);border-color:var(--solid-hover);color:var(--on-solid);}
+.btn-sm{font-size:0.72rem;padding:5px 9px;}
+.btn-dgr:hover{border-color:var(--red);color:var(--red);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btnbar{display:flex;gap:6px;flex-wrap:wrap;}
+.btn.wide{width:100%;justify-content:center;}
+.lock-pill{background:var(--solid);color:var(--on-solid);font-family:var(--mono);font-size:0.55rem;letter-spacing:0.07em;text-transform:uppercase;padding:1px 5px;border-radius:999px;}
+
+/* ── RESULTS ── */
+.tabs{display:flex;gap:2px;border-bottom:1.5px solid var(--border);margin-bottom:16px;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{font-family:'DM Sans',sans-serif;font-size:0.83rem;font-weight:600;padding:9px 14px;border:none;background:none;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;white-space:nowrap;transition:color .15s;display:inline-flex;align-items:center;gap:6px;}
+.tab:hover{color:var(--text);}
+.tab.on{color:var(--ink);border-bottom-color:var(--accent);}
+.pane{display:none;}
+.pane.on{display:block;animation:fade .18s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+/* the answer — one question, one number, one line of support */
+.answer{border:1px solid var(--solid);border-radius:10px;padding:15px 18px;margin-bottom:14px;background:var(--card);}
+.answer-q{font-family:var(--mono);font-size:0.63rem;letter-spacing:0.11em;text-transform:uppercase;color:var(--muted);}
+.answer-v{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:5px;}
+.answer-v b{font-family:'Syne',sans-serif;font-weight:700;font-size:2.45rem;line-height:1;letter-spacing:-0.02em;color:var(--ink);}
+.answer-v span{font-size:0.95rem;color:var(--text);}
+.answer-s{font-size:0.86rem;color:var(--text);margin-top:7px;}
+.answer-x{font-size:0.77rem;color:var(--muted);margin-top:4px;line-height:1.5;}
+.answer-bad{border-color:var(--red);}
+.answer-bad .answer-v b{color:var(--red);}
+.answer-hold{border-color:var(--amber);}
+.answer-hold .answer-v b{color:var(--amber);}
+@media (max-width:640px){ .answer-v b{font-size:1.9rem;} }
+
+/* ── RESULT TILES ─────────────────────────────────────────────────────────
+   The values, sitting under the form where the answer to what was just typed
+   belongs — the same tiles HX Studio leads its main column with. The unit
+   under a value is a PICKER, not a caption: the desktop module puts a live
+   combobox beside Res. time and Hold Tube Temp, and this is that combobox.
+   Changing it re-expresses the answer; it never re-solves it. */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:9px;}
+.kpi{background:var(--off);border:1.5px solid var(--border);border-radius:9px;padding:10px 13px;min-width:0;}
+.kpi.primary{border-color:var(--accent);background:var(--card);}
+/* THE LABEL WRAPS; IT DOES NOT TRUNCATE. "Hold-tube exit tempera…" names
+   nothing — a tile whose caption is cut off is a tile you have to guess at.
+   Two lines are reserved so the values stay on a common baseline. */
+.kpi-lbl{font-size:0.7rem;color:var(--muted);font-weight:600;margin-bottom:3px;line-height:1.25;min-height:2.5em;overflow-wrap:break-word;}
+/* break-word, never `anywhere`: `anywhere` split Turbulent across two lines
+   as "Turbule / nt", which reads as a rendering fault. A word wraps whole or
+   it shrinks. */
+.kpi-val{font-family:'Syne',sans-serif;font-size:clamp(1.02rem,3.4vw,1.3rem);font-weight:800;color:var(--ink);line-height:1.1;letter-spacing:-0.02em;overflow-wrap:break-word;hyphens:none;}
+.kpi-val.word{font-size:clamp(0.9rem,2.1vw,1.06rem);}
+/* A LONG NUMBER SHRINKS; IT DOES NOT WRAP. 11356.24 broke as "11356.2 / 4",
+   which is not a number. The step is by digit count because that is what
+   actually decides whether it fits. */
+.kpi-val.n8{font-size:clamp(0.9rem,2.4vw,1.1rem);}
+.kpi-val.n10{font-size:clamp(0.8rem,2.0vw,0.95rem);letter-spacing:-0.03em;}
+.kpi-val{white-space:nowrap;}
+.kpi-val.word{white-space:normal;}
+.kpi.primary .kpi-val{color:var(--accent);}
+.kpi-val.empty{color:var(--placeholder);}
+.kpi-unit{font-size:0.7rem;color:var(--muted);margin-top:3px;font-family:var(--mono);display:flex;align-items:center;gap:2px;flex-wrap:wrap;}
+.kpi.click{cursor:pointer;}
+.kpi.click:hover{border-color:var(--accent);}
+/* the unit under a result is a picker, and has to look like one */
+.uwrap{position:relative;display:inline-flex;align-items:center;}
+select.usel{font-family:var(--mono);font-size:0.7rem;color:var(--ink);background:transparent;border:1px solid transparent;
+  border-radius:5px;padding:1px 15px 1px 4px;margin-left:-4px;cursor:pointer;-webkit-appearance:none;appearance:none;outline:none;
+  border-bottom-color:var(--silver);border-bottom-style:dotted;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9' viewBox='0 0 24 24' fill='none' stroke='%238A8A82' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 3px center;transition:background-color .14s,border-color .14s;}
+select.usel:hover{background-color:var(--off2);border-color:var(--silver);border-bottom-style:solid;}
+select.usel:focus{border-color:var(--accent);background-color:var(--off2);box-shadow:0 0 0 2px var(--accent-soft);}
+.uextra{color:var(--muted);}
+.unitreset{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;
+  border:1px solid var(--silver);background:var(--card);color:var(--muted);border-radius:999px;padding:5px 10px;cursor:pointer;display:none;align-items:center;}
+.unitreset:hover{border-color:var(--accent);color:var(--accent);}
+@media print{ select.usel{-webkit-appearance:none;appearance:none;background-image:none;border-color:transparent;padding-right:0;margin-left:0;} }
+
+.card{border:1px solid var(--border);border-radius:9px;background:var(--card);overflow:hidden;}
+.card-head{padding:9px 14px;border-bottom:1px solid var(--border);background:var(--off);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.card-title{font-family:var(--mono);font-size:0.665rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);font-weight:500;}
+.card-body{padding:13px 14px;}
+.card-note{font-size:0.74rem;color:var(--muted);line-height:1.55;}
+
+/* acceptance checks */
+.chk{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:0.83rem;padding:6px 0;border-bottom:1px dashed var(--border);}
+.chk:last-child{border-bottom:none;}
+.chk-lbl{color:var(--text);line-height:1.35;}
+.chk-lbl small{display:block;color:var(--muted);font-size:0.7rem;margin-top:1px;}
+.chk-val{font-family:var(--mono);font-size:0.755rem;font-weight:500;padding:2px 8px;border-radius:5px;white-space:nowrap;flex:0 0 auto;}
+.chk-ok{background:var(--green-soft);color:var(--green);}
+.chk-warn{background:var(--red-soft);color:var(--red);}
+.chk-caut{background:var(--amber-soft);color:var(--amber);}
+.chk-na{background:var(--off);color:var(--muted);}
+
+/* tables */
+table.t{width:100%;border-collapse:collapse;font-size:0.79rem;}
+table.t th{text-align:left;font-family:var(--mono);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:6px 8px;border-bottom:1.5px solid var(--border);white-space:nowrap;}
+table.t td{padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:top;}
+table.t td.n{font-family:var(--mono);text-align:right;white-space:nowrap;}
+table.t td.c{text-align:center;font-family:var(--mono);}
+table.t tr:last-child td{border-bottom:none;}
+table.t tr.tot td{font-weight:700;background:var(--off);border-top:1.5px solid var(--silver);}
+table.t tr.sub td{background:var(--off);}
+table.t tr.pick{cursor:pointer;}
+table.t tr.pick:hover td{background:var(--off);}
+table.t tr.on td{background:var(--accent-soft);}
+.tscroll{overflow-x:auto;}
+.swatch{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px;}
+.pos{color:var(--red);font-weight:700;}
+.neg{color:var(--green);font-weight:700;}
+
+/* the schedule table — the deliverable. Boxed and gridded like the desktop
+   module's results table, because that is the table people photograph and
+   paste into a process letter. */
+table.sched{width:100%;border-collapse:collapse;font-size:0.79rem;border:1.2px solid var(--ink);}
+table.sched th{background:var(--off2);font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:700;color:var(--ink);
+  text-align:center;padding:7px 6px;border:0.8px solid var(--ink);line-height:1.25;text-transform:none;letter-spacing:0;}
+table.sched td{font-family:var(--mono);font-weight:500;font-size:0.9rem;text-align:center;padding:8px 6px;border:0.8px solid var(--ink);}
+
+/* charts */
+.chart{width:100%;height:auto;display:block;}
+/* ── LEGEND ───────────────────────────────────────────────────────────────
+   The curve key and the marker switches. Every marker entry is a button —
+   clicking it draws that construction line on the chart, which is how a
+   number in a table gets tied back to the place on the curve it came from. */
+.legend{display:block;font-size:0.73rem;color:var(--muted);margin-top:10px;
+  border-top:1px solid var(--border);padding-top:9px;}
+.legend-item{display:flex;align-items:center;gap:5px;}
+.legend-dot{width:16px;height:2.5px;border-radius:2px;flex:0 0 auto;}
+.lg-h{font-family:var(--mono);font-size:0.575rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:5px;}
+.lg-i{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:0.72rem;color:var(--text);
+  border:1px solid transparent;border-radius:5px;padding:2px 6px;background:none;cursor:pointer;
+  white-space:nowrap;line-height:1.5;}
+button.lg-i:hover{border-color:var(--silver);background:var(--off);}
+.lg-i.on{border-color:var(--ink);background:var(--off2);font-weight:600;}
+.lg-i em{font-style:normal;font-family:var(--mono);font-size:0.6rem;color:var(--muted);}
+.lg-note{margin-top:9px;font-size:0.71rem;color:var(--muted);line-height:1.5;}
+.lg-clear{border:0;background:none;font:inherit;font-size:0.71rem;color:var(--accent);
+  text-decoration:underline;cursor:pointer;padding:0;}
+.empty-msg{color:var(--muted);font-size:0.85rem;text-align:center;padding:40px 14px;font-style:italic;line-height:1.6;}
+.chart-tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--silver-deep);border-radius:7px;padding:7px 10px;font-family:var(--mono);font-size:0.7rem;line-height:1.5;color:var(--text);box-shadow:0 6px 22px rgba(0,0,0,.16);z-index:20;max-width:260px;display:none;}
+.chart-tip b{font-family:'DM Sans',sans-serif;font-weight:700;}
+.chart-host{position:relative;}
+
+/* banner */
+.banner{border-radius:8px;padding:9px 13px;font-size:0.8rem;line-height:1.5;margin-bottom:12px;display:flex;gap:9px;align-items:flex-start;}
+.banner b{font-weight:700;}
+.banner.err{background:var(--red-soft);border:1px solid rgba(192,39,31,.22);color:var(--red);}
+.banner.warn{background:var(--amber-soft);border:1px solid rgba(168,106,5,.22);color:var(--amber);}
+.banner.info{background:var(--off);border:1px solid var(--border);color:var(--text);}
+
+/* gated */
+.gate{position:relative;}
+.gate>.gate-inner{filter:blur(4.5px);opacity:.45;pointer-events:none;user-select:none;}
+.gate-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;padding:22px;background:linear-gradient(180deg,var(--veil-a),var(--veil-b));border-radius:9px;}
+.gate-ov h4{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:var(--ink);}
+.gate-ov p{font-size:0.8rem;color:var(--muted);max-width:420px;line-height:1.5;}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(15,15,14,.62);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto;backdrop-filter:blur(2px);}
+.modal.on{display:flex;}
+.modal-box{background:var(--card);border-radius:13px;max-width:960px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,.3);overflow:hidden;}
+.modal-box.narrow{max-width:640px;}
+.modal-head{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.modal-head h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;}
+.modal-body{padding:20px 22px 24px;}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);background:var(--off);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+.x{background:none;border:none;font-size:1.35rem;color:var(--muted);cursor:pointer;line-height:1;padding:0 4px;}
+.x:hover{color:var(--ink);}
+
+/* ── SYSTEM SCHEMATIC ─────────────────────────────────────────────────────
+   The schematic is not a picture, it is an input. Click a station, give it its
+   instrument tag, and the assignment flows straight through to the
+   instrumentation table and to Figure 1 of the record — which is the figure
+   that answers the question a process letter has to answer before any of the
+   numbers matter: WHERE is the hold-tube exit temperature measured, and where
+   does the product divert if it is not reached. */
+.sk-wrap{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:14px;align-items:start;}
+@media(max-width:820px){.sk-wrap{grid-template-columns:minmax(0,1fr);}}
+.sk-host{position:relative;border:1px solid var(--border);border-radius:9px;background:var(--plotbg);overflow:hidden;}
+.sk-side{display:flex;flex-direction:column;gap:10px;}
+.sk-list{border:1px solid var(--border);border-radius:8px;max-height:300px;overflow-y:auto;background:var(--card);}
+.sk-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--border);font-size:0.76rem;}
+.sk-item:last-child{border-bottom:none;}
+.sk-item .p{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sk-item .q{font-family:var(--mono);font-size:0.68rem;color:var(--muted);}
+.sk-note{font-size:0.74rem;color:var(--muted);line-height:1.5;border-left:2px solid var(--silver);padding-left:9px;}
+.sk-status{border:1px dashed var(--border);border-radius:8px;padding:9px 11px;font-size:0.75rem;color:var(--muted);min-height:38px;}
+.sk-status.ok{border-style:solid;border-color:var(--green);background:var(--green-soft);color:var(--green);}
+.sk-pop{position:absolute;z-index:30;background:var(--card);border:1px solid var(--ink);border-radius:9px;
+  box-shadow:0 10px 34px rgba(0,0,0,.24);min-width:250px;max-height:320px;overflow-y:auto;padding:6px 0;}
+.sk-pop .h{padding:5px 12px;font-family:var(--mono);font-size:0.58rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted);}
+.sk-pop .t{padding:2px 12px 7px;font-family:'Syne',sans-serif;font-weight:800;font-size:0.84rem;color:var(--ink);border-bottom:1px solid var(--border);}
+.sk-pop .fr{padding:7px 12px 0;}
+.sk-pop .fr label{display:block;font-size:0.7rem;color:var(--muted);margin-bottom:2px;}
+.sk-pop .fr input{width:100%;padding:5px 8px;border:1px solid var(--inputbd);border-radius:6px;
+  font-family:inherit;font-size:0.8rem;background:var(--inputbg);color:var(--text);outline:none;}
+.sk-pop .fr input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);}
+.sk-pop .bb{display:flex;gap:6px;padding:9px 12px 4px;}
+.sk-pop .dv{height:1px;background:var(--border);margin:5px 0;}
+
+/* pricing */
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:11px;margin:14px 0 4px;}
+.tier{border:1.5px solid var(--border);border-radius:10px;padding:14px 15px;background:var(--card);display:flex;flex-direction:column;}
+.tier.featured{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+.tier-tag{font-family:var(--mono);font-size:0.55rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--accent);margin-bottom:3px;height:12px;}
+.tier-name{font-family:'Syne',sans-serif;font-weight:800;font-size:0.98rem;color:var(--ink);}
+.tier-price{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;color:var(--accent);margin:5px 0 1px;letter-spacing:-0.02em;}
+.tier-price small{font-size:0.68rem;color:var(--muted);font-weight:500;letter-spacing:0;}
+.tier-yr{font-size:0.71rem;color:var(--muted);margin-bottom:9px;min-height:16px;}
+.tier ul{list-style:none;font-size:0.775rem;line-height:1.6;flex:1;}
+.tier li{padding-left:13px;position:relative;color:var(--text);}
+.tier li::before{content:"·";position:absolute;left:4px;color:var(--accent);font-weight:700;}
+.tier li.no{color:var(--muted);}
+.tier li.no::before{content:"–";color:var(--silver);}
+.tier .btn{width:100%;justify-content:center;margin-top:11px;}
+
+/* method prose */
+.prose{font-size:0.85rem;line-height:1.68;color:var(--text);max-width:80ch;}
+.prose h4{font-family:'Syne',sans-serif;font-size:0.94rem;font-weight:800;margin:18px 0 5px;color:var(--ink);}
+.prose h4:first-child{margin-top:0;}
+.prose p{margin-bottom:9px;}
+.prose ul{margin:0 0 9px 17px;}
+.prose li{margin-bottom:3px;}
+.prose code,.eq{font-family:var(--mono);font-size:0.79rem;background:var(--off);padding:1px 5px;border-radius:4px;}
+.eq{display:block;padding:8px 11px;margin:7px 0;border-left:2.5px solid var(--accent);border-radius:0 5px 5px 0;line-height:1.7;background:var(--off);}
+.prose .src{font-size:0.75rem;color:var(--muted);font-family:var(--mono);}
+
+/* ── THE RECORD ──
+   A document, not a screen: cover, numbered sections, figures, tables,
+   signature block. Printed straight from the browser, so what is on screen is
+   exactly what is issued. */
+.rep{max-width:190mm;margin:0 auto;font-size:0.86rem;line-height:1.62;color:var(--text);}
+.rep-cover{border-bottom:2px solid var(--solid);padding-bottom:16px;margin-bottom:20px;}
+.rep-cover .rc-top{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;}
+.rep-cover svg{width:34px;height:42px;flex:0 0 auto;color:var(--ink);}
+.rep-cover h1{font-size:1.5rem;letter-spacing:-0.01em;margin:0;line-height:1.15;}
+.rep-cover .rc-sub{font-size:0.82rem;color:var(--muted);margin-top:4px;}
+.rep-cover .rc-doc{font-family:var(--mono);font-size:0.68rem;text-align:right;color:var(--muted);line-height:1.7;white-space:nowrap;}
+.rep-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 26px;margin-top:16px;}
+.rep-meta div{display:flex;justify-content:space-between;gap:10px;font-size:0.79rem;padding:4px 0;border-bottom:1px dotted var(--border);}
+.rep-meta span:first-child{color:var(--muted);}
+.rep-meta span:last-child{font-family:var(--mono);text-align:right;}
+.rep h2{font-size:1.0rem;margin:26px 0 9px;padding-bottom:5px;border-bottom:1px solid var(--silver);letter-spacing:-0.005em;break-after:avoid;}
+.rep h3{font-size:0.87rem;margin:16px 0 6px;color:var(--ink);break-after:avoid;}
+.rep p{margin:0 0 9px;}
+.rep ul,.rep ol{margin:0 0 9px 20px;}
+.rep li{margin-bottom:3px;}
+.rep table.t{margin-bottom:6px;}
+.rep .rep-toc{background:var(--off);border:1px solid var(--border);border-radius:8px;padding:12px 15px;font-size:0.8rem;}
+.rep .rep-toc ol{margin:6px 0 0 18px;columns:2;column-gap:26px;}
+.rep .note{font-size:0.76rem;color:var(--muted);line-height:1.5;border-left:2px solid var(--silver);padding-left:10px;margin:9px 0;}
+.rep .fig{margin:12px 0 16px;break-inside:avoid;}
+.rep .figcap{font-size:0.76rem;color:var(--muted);margin-top:6px;line-height:1.5;}
+.rep .figcap b{color:var(--text);font-weight:700;}
+.rep .sig{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px;margin-top:26px;}
+.rep .sig div{border-top:1px solid var(--solid);padding-top:5px;font-size:0.72rem;color:var(--muted);margin-top:44px;}
+.rep .sig b{display:block;font-size:0.82rem;color:var(--text);}
+/* the signature block, matching the desktop module's PDF: a ruled box for the
+   signature itself and five labelled lines under it */
+.rep .lt-sigcell{display:flex;align-items:flex-end;height:19mm;position:relative;
+  border-bottom:1px solid var(--solid)!important;padding:0 0 4px!important;}
+.rep .lt-sigcell span{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.09em;
+  text-transform:uppercase;color:var(--muted);}
+.rep .lt-sigimg{position:absolute;left:0;bottom:3px;max-height:17mm;max-width:78%;
+  object-fit:contain;mix-blend-mode:multiply;}
+.rep .lt-blank{border-bottom:none!important;}
+.rep .sigfields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 26px;margin-top:8px;}
+.rep .sigfields div{display:flex;gap:8px;font-size:0.78rem;padding:7px 0 3px;border-bottom:1px solid var(--silver);}
+.rep .sigfields span{color:var(--muted);min-width:64px;font-size:0.72rem;}
+.rep .keyfig{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0;}
+.rep .keyfig div{border:1px solid var(--border);border-radius:7px;padding:8px 10px;background:var(--off);}
+.rep .keyfig b{display:block;font-family:var(--mono);font-size:1.02rem;color:var(--ink);margin-top:2px;}
+.rep .keyfig small{font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:var(--mono);}
+@media (max-width:760px){ .rep-meta,.rep .sig,.rep .sigfields,.rep .keyfig{grid-template-columns:1fr;} .rep .rep-toc ol{columns:1;} }
+
+/* ── THE PROCESS LETTER ───────────────────────────────────────────────────
+   NOT the record. The record is the software's report — ten sections, figures,
+   appendices. THE LETTER is the one page the desktop module's PDF export
+   produces and the thing that actually gets signed and filed: logo and date,
+   the company name, "Process Schedule Results", the product, the system and
+   its dimensions, the table, the notes, and the signature block. Same order,
+   same wording, same weights. */
+/* THE LETTER IS PAPER, IN EVERY THEME.
+   It is the artefact that gets signed and filed, so it is white with black ink
+   whether the interface is light or dark: you cannot sign a black box, and a
+   dark sheet sent to a printer empties a toner cartridge for nothing. The
+   document does not follow the interface theme — it overrides every token it
+   uses, so the table rules, the signature box and the field lines are black on
+   white on screen exactly as they will be on paper. */
+#m_letter .modal-body{background:var(--off2);padding:16px;}
+.letter{
+  --page:#ffffff;--card:#ffffff;--off:#ffffff;--off2:#f2f2ef;--border:#c9c9c4;
+  --muted:#555555;--text:#000000;--ink:#000000;--silver:#8a8a82;
+  --solid:#000000;--on-solid:#ffffff;--accent:#000000;--red:#000000;
+  background:#ffffff;color:#000000;
+  max-width:186mm;margin:0 auto;padding:14mm 12mm;
+  box-shadow:0 2px 20px rgba(0,0,0,.20);
+}
+.letter *{color:inherit;}
+.letter .lt-date,.letter .lt-co,.letter h2,.letter .lt-prod,.letter .lt-sys,
+.letter b,.letter table.sched td{color:#000;}
+.letter .lt-note{color:#1c1c1c;}
+.letter .lt-siglabel,.letter .lt-fields span{color:#555;}
+.letter table.sched{border-color:#000;}
+.letter table.sched th{background:#f2f2ef;color:#000;border-color:#000;}
+.letter table.sched td{border-color:#000;}
+@media print{
+  /* padding-bottom clears the running AFTS footer, which is position:fixed in
+     the page's bottom margin — without it the signature block printed on top
+     of it. */
+  .letter{box-shadow:none;padding:0 0 16mm;max-width:none;}
+  #m_letter .modal-body{background:#fff;padding:0;}
+  .letter .lt-mark{width:64px;height:64px;}
+}
+.letter .lt-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:2px;}
+.letter .lt-mark{width:52px;height:52px;flex:0 0 auto;display:block;}
+.letter .lt-date{font-size:0.78rem;color:var(--text);white-space:nowrap;}
+.letter .lt-co{text-align:center;font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;color:var(--ink);margin:2px 0 8px;}
+.letter h2{text-align:center;font-size:1rem;font-weight:700;color:var(--ink);margin:0;border:none;padding:0;}
+.letter .lt-prod{text-align:center;font-weight:700;font-size:0.9rem;color:var(--ink);margin-top:3px;}
+.letter .lt-sys{font-size:0.82rem;color:var(--text);margin:8px 0 12px;}
+.letter table.sched{margin:0 auto 14px;}
+.letter .lt-note{font-size:0.8rem;font-style:italic;color:var(--text);margin-bottom:6px;line-height:1.5;}
+.letter .lt-note.red{color:var(--red);}
+/* SIGN ON A LINE, NOT IN A BOX. A bordered square the height of a paragraph is
+   not where anyone signs — the rule sits directly above the identification
+   fields, with clear space above it to write in. */
+.letter .lt-sig{margin-top:26px;}
+.letter .lt-sigcell{display:flex;align-items:flex-end;height:19mm;
+  border-bottom:1px solid #000!important;padding:0 0 4px!important;}
+.letter .lt-sigcell{position:relative;}
+.letter .lt-sigcell span{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.09em;
+  text-transform:uppercase;color:#555;min-width:0;}
+/* mix-blend-mode:multiply drops the white ground of a scanned signature, so an
+   uploaded photograph sits on the rule rather than in a white box on top of it */
+.letter .lt-sigimg{position:absolute;left:0;bottom:3px;max-height:17mm;max-width:78%;
+  object-fit:contain;mix-blend-mode:multiply;}
+.letter .lt-blank{border-bottom:none!important;}
+.letter .lt-fields{display:grid;grid-template-columns:1fr 1fr;gap:2px 26px;}
+.letter .lt-fields div{display:flex;gap:9px;align-items:baseline;font-size:0.82rem;padding:8px 0 3px;border-bottom:1px solid var(--silver);}
+.letter .lt-fields span{color:var(--muted);min-width:62px;font-size:0.74rem;}
+@media(max-width:700px){ .letter .lt-fields{grid-template-columns:1fr;} }
+
+.wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font-family:'Syne',sans-serif;font-size:3.4rem;font-weight:800;color:var(--wm);transform:rotate(-24deg);letter-spacing:.06em;z-index:5;}
+
+/* footer */
+footer{background:var(--footbg);padding:14px 26px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.ft-brand{font-family:'Syne',sans-serif;font-weight:700;color:#fff;font-size:0.84rem;display:flex;align-items:center;gap:9px;}
+.ft-mark{width:17px;height:21px;flex-shrink:0;fill:currentColor;display:block;}
+.ft-right{display:flex;gap:16px;flex-wrap:wrap;}
+.ft-link{font-size:0.75rem;color:rgba(255,255,255,.42);text-decoration:none;}
+.ft-link:hover{color:#fff;}
+.ft-copy{font-size:0.69rem;color:rgba(255,255,255,.26);}
+
+@media(max-width:780px){
+  .topbar{padding:8px 12px;}main{padding:11px 12px 32px;}
+  .proj-bar{grid-template-columns:1fr 1fr;}footer{padding:12px;}
+}
+
+/* ── PRINT ────────────────────────────────────────────────────────────────
+   A printed AFTS document is black on white. No reversed-out headings, no
+   tinted panels, no accent colour — the only mark on the page allowed to be
+   anything other than type and hairlines is the AFTS logo, and that is
+   monochrome anyway. A solid bar is the first thing that looks wrong out of
+   an office printer, and a report that arrives grey and striped does not read
+   as a company document.
+   ──────────────────────────────────────────────────────────────────────── */
+@media print{
+  @page{size:A4;margin:14mm 13mm 21mm;}
+  :root,:root[data-theme="dark"],:root[data-theme="light"]{
+    --page:#fff;--card:#fff;--off:#fff;--off2:#fff;--border:#b9b9b4;
+    --muted:#3f3f3b;--text:#000;--ink:#000;--black:#000;
+    --silver:#8a8a82;--silver-deep:#000;--solid:#000;--on-solid:#000;
+    --inputbg:#fff;--inputbd:#999;--grid:#dddddd;--axis:#333;--plotbg:#fff;
+    --trace:#8a8a82;--trace-hi:#000;
+    --pin-1:#000;--pin-2:#555;--pin-3:#888;
+    --orange:#000;--accent:#000;--accent-soft:transparent;--solid-hover:#000;
+    --green:#000;--red:#000;--amber:#000;
+    --green-soft:transparent;--red-soft:transparent;--amber-soft:transparent;
+    --veil-a:transparent;--veil-b:transparent;
+    color-scheme:light;
+  }
+  *{ -webkit-print-color-adjust:economy; print-color-adjust:economy; box-shadow:none!important; text-shadow:none!important; }
+  /* THE DOCUMENT STARTS AT THE TOP OF THE PAGE.
+     body is a flex column with min-height:100vh on screen; carried into print
+     that reserved a full viewport of height before the only visible child, and
+     the letter began two-thirds of the way down the first sheet. In print the
+     body is an ordinary block and the modal has no padding of its own. */
+  body{display:block!important;min-height:0!important;font-size:9.6pt;line-height:1.5;background:#fff;color:#000;}
+  .modal{padding:0!important;margin:0!important;}
+  /* The record lives in a modal, so printing has to lift it out of the modal
+     chrome rather than hide it with everything else. Without this, Ctrl+P
+     produced a blank page — the print sheet hid the only thing worth printing. */
+  .topbar,.rail,.rrail,.centre,.tabs,footer,.page-head,.proj-bar,.no-print,
+  .banner,.modal,.gate-ov,.lock-pill,.chart-tip{display:none!important;}
+  #m_report.on,#m_letter.on{display:block!important;position:static;inset:auto;background:none;
+    padding:0;overflow:visible;backdrop-filter:none;z-index:auto;}
+  #m_report .modal-box,#m_letter .modal-box{max-width:none;width:auto;box-shadow:none;border-radius:0;background:#fff;overflow:visible;}
+  #m_report .modal-head,#m_letter .modal-head{display:none!important;}
+  #m_report .modal-body,#m_letter .modal-body{padding:0;}
+  .letter .lt-sigcell{border-bottom:0.8pt solid #000!important;height:17mm;break-inside:avoid;}
+  .letter .lt-blank{border-bottom:none!important;}
+  .letter .lt-fields div{border-bottom:0.5pt solid #000;font-size:8.4pt;}
+  .letter .lt-co{font-size:14pt;}
+  .letter h2{font-size:11pt;}
+  main{padding:0;max-width:none;}
+  .wrap{display:block;}
+  .card,.card-head,.card-body,.kpi,.kpis>div,.rep .keyfig div,.rep-toc,.chk-val,
+  table.t th,table.t tr.tot td,table.t tr.sub td,.sec{background:transparent!important;}
+  .card{border:none;margin:0 0 10pt;}
+  .card-head{display:none;}
+  .card-body{padding:0;}
+  table.t{font-size:8.6pt;}
+  table.t th{font-size:7pt;color:#000;font-weight:600;border-bottom:0.8pt solid #000;padding:3pt 4pt;}
+  table.t td{border-bottom:0.4pt solid #c9c9c4;padding:3pt 4pt;}
+  table.t tr{break-inside:avoid;page-break-inside:avoid;}
+  table.t td.n,table.t td.c{font-variant-numeric:tabular-nums;}
+  /* the schedule table keeps its rules in print — it is the deliverable */
+  table.sched{font-size:8.6pt;border:1pt solid #000;break-inside:avoid;}
+  table.sched th{background:transparent!important;font-size:7.4pt;border:0.6pt solid #000;padding:3pt 3pt;}
+  table.sched td{font-size:9.4pt;border:0.6pt solid #000;padding:4pt 3pt;font-variant-numeric:tabular-nums;}
+  .tscroll{overflow:visible!important;}
+  .chk{border-bottom:0.4pt solid #c9c9c4;padding:2.5pt 0;break-inside:avoid;}
+  .chk-val{border:0.5pt solid #000;border-radius:0;padding:0.5pt 4pt;color:#000!important;font-size:7.2pt;}
+  .chart{max-width:100%;break-inside:avoid;}
+  a{color:#000;text-decoration:none;}
+  h1,h2,h3,h4,h5{break-after:avoid;page-break-after:avoid;}
+  p,li{orphans:3;widows:3;}
+  .print-only{display:block!important;}
+  .rep{max-width:none;font-size:9.4pt;line-height:1.48;}
+  .rep h2{font-size:10.6pt;border-bottom:0.8pt solid #000;padding-bottom:2.5pt;margin:14pt 0 6pt;}
+  .rep h3{font-size:9.2pt;margin:9pt 0 3pt;}
+  .rep p{margin:0 0 5pt;}
+  .rep .fig{break-inside:avoid;margin:8pt 0 10pt;}
+  .rep .figcap{font-size:8pt;color:#000;}
+  .rep .sig{break-inside:avoid;margin-top:16pt;}
+  .rep .sig div{border-top:0.8pt solid #000;padding-top:4pt;font-size:7.4pt;margin-top:38pt;}
+  .rep .lt-sigcell{border-bottom:0.8pt solid #000!important;height:17mm;break-inside:avoid;}
+  .rep .lt-blank{border-bottom:none!important;}
+  .rep .sigfields div{border-bottom:0.5pt solid #000;font-size:8.2pt;}
+  .rep-cover{break-after:page;border-bottom:1.2pt solid #000;padding-bottom:8pt;margin-bottom:10pt;}
+  .rep-cover h1{font-size:15pt;}
+  .rep-cover svg{width:22pt;height:27pt;}
+  .rep-meta div{border-bottom:0.4pt solid #c9c9c4;font-size:8.2pt;padding:2pt 0;}
+  .rep .keyfig{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:0.8pt solid #000;border-bottom:0.8pt solid #000;margin:6pt 0 9pt;break-inside:avoid;}
+  .rep .keyfig div{border:none!important;border-left:0.4pt solid #c9c9c4!important;border-radius:0!important;padding:4pt 7pt!important;}
+  .rep .keyfig div:first-child{border-left:none!important;}
+  .rep .keyfig b{font-size:11pt;}
+  .rep .rep-toc{border:none;border-top:0.4pt solid #c9c9c4;border-bottom:0.4pt solid #c9c9c4;border-radius:0;padding:5pt 0;font-size:8.4pt;break-inside:avoid;}
+  .rep .note{border-left:1.2pt solid #000;color:#000;font-size:8.2pt;padding-left:7pt;margin:6pt 0;}
+  .pagebreak{break-before:page;page-break-before:always;}
+  /* the running AFTS footer — repeats at the foot of every printed sheet, so a
+     page separated from the rest still says whose document it is */
+  .print-foot{display:flex!important;position:fixed;left:0;right:0;bottom:0;align-items:flex-end;justify-content:space-between;gap:10pt;border-top:0.8pt solid #000;padding-top:3.5pt;font-size:7pt;line-height:1.35;color:#000;background:#fff;}
+}
+.print-only{display:none;}
+.print-foot{display:none;}
+.print-foot svg{width:9.5pt;height:11.6pt;flex:0 0 auto;color:#000;}
+.print-foot .pf-co{display:flex;gap:6pt;align-items:flex-end;}
+.print-foot b{font-weight:700;letter-spacing:0.01em;}
+.print-foot .pf-sub{color:#333;}
+.print-foot .pf-r{text-align:right;font-family:var(--mono);white-space:nowrap;}
+/* ══════════════════════════════════════════════════════════════════════════
+   UI REFINEMENT LAYER
+   ──────────────────────────────────────────────────────────────────────────
+   Laid OVER the house theme, never replacing it. Every colour token, font and
+   class name above is the original and both themes still resolve from the
+   same contract, so this page still sits beside the rest of the suite. What
+   changes here is density, alignment, and how much of the page is shouting.
+
+   THE ACCENT. The house rule is unchanged - orange is ink, never a fill, and
+   only ever on white. The restrained accent added here is --blue, and it is
+   not a new colour: it is --pin-1, already in the palette and already
+   validated all-pairs for CVD separation against both surfaces. It carries
+   STRUCTURE only - focus rings, the group numbers, the rule over the
+   deliverable, the principal result. It never fills a block and it is never
+   a chart mark.
+
+   THE TYPOGRAPHY. The single biggest readability change is that section and
+   card titles, field labels and table headers stop being 0.6 rem letterspaced
+   uppercase mono. Mono is kept for what it is for: numbers, units and symbols.
+   Words are set in the text face, sentence case, at a size that can be read.
+   ══════════════════════════════════════════════════════════════════════════ */
+:root,:root[data-theme="light"]{
+  --blue:#0072B2;--blue-soft:rgba(0,114,178,0.08);--blue-line:rgba(0,114,178,0.34);
+}
+:root[data-theme="dark"]{
+  --blue:#3E90CE;--blue-soft:rgba(62,144,206,0.14);--blue-line:rgba(62,144,206,0.44);
+}
+:root{
+  --ctl:32px;          /* one control height, everywhere                    */
+  --topbar-h:54px;     /* measured live by syncStick()                      */
+  --actbar-h:48px;
+  --lbl:0.815rem;      /* field label                                       */
+  --ttl:0.78rem;       /* section / card title                              */
+}
+
+/* ── HEADER ───────────────────────────────────────────────────────────────
+   One compact band: brand, module title, then the controls that belong to the
+   whole page - units, theme, licence. The reference links come after a rule
+   as quiet text, because they leave the page and nothing on it depends on
+   them. The old separate page-head block and its seven loose buttons are
+   gone; the buttons are in the action bar with everything else. */
+/* flex-start + margin-left:auto, NOT space-between. With space-between, the
+   moment the controls wrap to a second row the module title is left alone on
+   the first and flies to the far right, away from the brand it belongs to.
+   This pins the title beside the brand and lets the controls wrap underneath
+   where they came from. */
+.topbar{padding:7px 18px;gap:10px 14px;justify-content:flex-start;}
+.topbar-right{gap:6px 9px;margin-left:auto;}
+.hdr-title{display:flex;flex-direction:column;justify-content:center;padding-left:14px;
+  margin-left:2px;border-left:1px solid var(--border);min-width:0;}
+.hdr-title h1{font-size:clamp(0.98rem,1.25vw,1.14rem);line-height:1.15;}
+.hdr-title .hdr-sub{font-size:0.735rem;color:var(--muted);line-height:1.3;margin-top:1px;}
+@media(max-width:900px){ .hdr-title{border-left:none;padding-left:0;} .hdr-title .hdr-sub{display:none;} }
+.hdr-grp{display:inline-flex;align-items:center;gap:6px;}
+.hdr-rule{width:1px;height:22px;background:var(--border);flex:none;}
+.t-link{font-size:0.775rem;padding:0 11px;height:var(--ctl);display:inline-flex;align-items:center;border-radius:var(--r);}
+.t-link.quiet{border-color:transparent;background:transparent;color:var(--muted);padding:0 7px;font-weight:500;}
+.t-link.quiet:hover{color:var(--ink);background:var(--off);border-color:transparent;}
+.topbar select.t-link{padding-right:9px;}
+.themetoggle{border-radius:var(--r);height:var(--ctl);}
+.themetoggle button{padding:0 10px;height:100%;}
+.lic-chip{font-family:'DM Sans',sans-serif;font-size:0.73rem;letter-spacing:0;text-transform:none;
+  font-weight:600;height:var(--ctl);padding:0 11px;border-radius:var(--r);}
+
+/* ── CASE BAR ──────────────────────────────────────────────────────────────
+   Who and what this schedule is for. Labels in the text face at a size that
+   can be read, not 0.57 rem tracked-out mono. */
+main{padding-top:11px;}
+.page-head{display:none;}
+.proj-bar{grid-template-columns:repeat(5,1fr);border-radius:var(--r);margin-bottom:9px;}
+.proj-cell{padding:6px 12px;}
+.proj-lbl{font-family:'DM Sans',sans-serif;font-size:0.695rem;letter-spacing:0;text-transform:none;
+  font-weight:600;color:var(--muted);margin-bottom:1px;}
+.proj-cell input{font-size:0.86rem;}
+.proj-cell:focus-within{background:var(--blue-soft);}
+@media(max-width:1100px){ .proj-bar{grid-template-columns:repeat(2,1fr);}
+  .proj-cell{border-bottom:1px solid var(--border);}
+  .proj-cell:nth-last-child(-n+1){border-bottom:none;} }
+@media(max-width:560px){ .proj-bar{grid-template-columns:1fr;}
+  .proj-cell{border-right:none;} }
+
+/* ── ACTION BAR ────────────────────────────────────────────────────────────
+   Calculate, the case actions, the copy and the two documents, in one place
+   and in that order. It was three places before: a row of loose buttons in
+   the page head, an Actions panel at the top of the input rail, and a third
+   set inside the schedule card. Sticky under the header so it is reachable
+   from anywhere in a long page. */
+.actionbar{position:sticky;top:var(--topbar-h);z-index:55;display:flex;align-items:center;
+  gap:8px;flex-wrap:wrap;padding:8px 12px;margin-bottom:11px;border:1px solid var(--border);
+  border-radius:var(--r);background:var(--card);
+  box-shadow:0 1px 0 var(--border),0 6px 18px -14px rgba(0,0,0,.4);}
+.actionbar .ab-sep{width:1px;height:22px;background:var(--border);flex:none;}
+.actionbar .ab-spacer{flex:1;min-width:0;}
+.actionbar .btn{height:var(--ctl);padding:0 12px;}
+.actionbar .btn-pri{padding:0 16px;font-size:0.82rem;}
+.actionbar .ab-note{font-size:0.735rem;color:var(--muted);white-space:nowrap;}
+@media(max-width:820px){ .actionbar{position:static;} .actionbar .ab-spacer{display:none;}
+  .actionbar .ab-note{display:none;} }
+
+/* ── THE THREE COLUMNS ─────────────────────────────────────────────────────
+   Unchanged in principle: inputs left, the deliverable in the middle, the
+   answer and its status on the right. The rails stick under the header and
+   the action bar rather than under the header alone. */
+.wrap{gap:13px;}
+@media(min-width:1181px) and (min-height:720px){
+  .rail,.rrail{top:calc(var(--topbar-h) + var(--actbar-h) + 19px);
+    max-height:calc(100vh - var(--topbar-h) - var(--actbar-h) - 34px);}
+}
+/* Below three columns nothing sticks and nothing scrolls inside itself - the
+   page scrolls, once, which is what a narrow screen expects. */
+@media(max-width:1180px){
+  .rail,.rrail{position:static!important;max-height:none!important;overflow:visible!important;}
+}
+/* One column. Grid rather than flex, because a grid track declared
+   minmax(0,1fr) is guaranteed to shrink below its content's intrinsic width
+   and a flex item is not - which is the difference between a form that
+   reflows and a form whose unit pickers are clipped off the right edge. */
+@media(max-width:880px){
+  .wrap{grid-template-columns:minmax(0,1fr);}
+  .rail{order:1;} .centre{order:2;} .rrail{order:3;}
+  .rrail .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;}
+}
+
+/* ── INPUT GROUPS ──────────────────────────────────────────────────────────
+   Seven numbered groups. The five that carry the calculation open by default,
+   because those are the boxes that get edited; instrumentation and the report
+   details sit closed under a summary of what is in them. Collapsed or not,
+   every head carries its current values in one line. */
+.sec{border-radius:var(--r);}
+.sec-head{padding:8px 11px;gap:3px 10px;}
+.sec-title{font-family:'DM Sans',sans-serif;font-size:var(--ttl);font-weight:700;letter-spacing:0;
+  text-transform:none;color:var(--ink);gap:9px;}
+.sec-n{width:19px;height:19px;border-radius:5px;background:var(--blue-soft);color:var(--blue);
+  border:1px solid var(--blue-line);font-family:var(--mono);font-size:0.66rem;font-weight:500;}
+.sec-sum{font-size:0.755rem;}
+.sec-arrow{font-size:0.7rem;}
+.sec-body{padding:10px 12px 12px;}
+.sec.locked .sec-head{cursor:default;}
+
+/* the form grid: label on its own line, entry and unit side by side under it,
+   numbers centred in the box so a column of them reads as a column */
+.rail .pform{grid-template-columns:minmax(0,1fr) minmax(86px,auto);gap:3px 8px;}
+.rail .pform > label{font-size:var(--lbl);color:var(--text);padding:8px 0 2px;font-weight:500;}
+.pform input:not([type=checkbox]),.pform select{height:var(--ctl);padding:0 10px;border-radius:6px;font-size:0.86rem;}
+.pform input[type=number]{text-align:center;font-size:0.865rem;letter-spacing:0.01em;}
+.pform select{padding-right:22px;}
+.pform select.u{text-align:center;text-align-last:center;background-color:var(--off);color:var(--text);font-size:0.775rem;}
+.pform input:focus,.pform select:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft);}
+.pform input:disabled,.pform select:disabled{opacity:.6;}
+.rail .pform > label.pchk{font-size:var(--lbl);padding:8px 0 3px;font-weight:500;}
+.pmsg{font-size:0.745rem;font-style:normal;line-height:1.5;padding:3px 0 2px;color:var(--muted);}
+.pmsg:empty{display:none;}
+.psep{margin:10px 0 4px;}
+.phead{font-family:'DM Sans',sans-serif;font-size:0.735rem;letter-spacing:0;text-transform:none;
+  font-weight:700;color:var(--text);margin:11px 0 3px;}
+.pcf{gap:7px 12px;}
+.pcf > span{font-style:normal;font-size:var(--lbl);color:var(--text);}
+.pcf input[type=number]{width:82px;text-align:center;}
+.field>label{font-size:var(--lbl);font-weight:500;margin-bottom:4px;}
+.field-row input,.field-row select,.field-row textarea{height:var(--ctl);padding:0 10px;font-size:0.855rem;}
+.field-row textarea{height:auto;padding:8px 10px;}
+.field-row input:focus,.field-row select:focus,.field-row textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft);}
+.field-row select.u{text-align:center;text-align-last:center;}
+.field-hint{font-size:0.735rem;}
+.subhead{font-family:'DM Sans',sans-serif;font-size:0.735rem;letter-spacing:0;text-transform:none;
+  font-weight:700;color:var(--text);margin:13px 0 6px;padding-top:10px;}
+/* the F0 lock reads as a state on the field, not as a badge shouting LOCKED */
+.lock-pill{background:transparent;color:var(--muted);border:1px solid var(--border);
+  font-family:'DM Sans',sans-serif;font-size:0.68rem;letter-spacing:0;text-transform:none;
+  font-weight:600;padding:1px 7px;}
+
+/* ── CENTRE: THE DELIVERABLE FIRST ────────────────────────────────────────
+   The schedule table is the work surface and it is at the top of the column
+   with a blue rule over it. The curves are evidence and sit underneath. The
+   calculation trace is a derivation, so it is behind a disclosure. */
+.centre{gap:11px;}
+.card{border-radius:var(--r);}
+.card-head{padding:9px 13px;}
+.card-title{font-family:'DM Sans',sans-serif;font-size:var(--ttl);font-weight:700;letter-spacing:0;
+  text-transform:none;color:var(--ink);}
+.card-note{font-size:0.745rem;}
+.card--primary{border-color:var(--blue-line);box-shadow:0 0 0 3px var(--blue-soft);}
+.card--primary > .card-head{background:var(--blue-soft);border-bottom-color:var(--blue-line);}
+table.sched{font-size:0.82rem;}
+table.sched th{font-size:0.735rem;padding:8px 8px;font-weight:700;}
+table.sched td{font-size:1.02rem;padding:11px 8px;}
+/* the lethality column: room enough that the name and its unit stay on one
+   line; the preheater column: the long name wraps and gives the room back */
+table.sched th.sc-f{width:17%;}
+table.sched th.sc-pre{width:11%;}
+.sched-meta{display:flex;gap:8px 18px;flex-wrap:wrap;align-items:baseline;margin-top:10px;
+  font-size:0.775rem;color:var(--muted);line-height:1.5;}
+.sched-meta b{color:var(--text);font-weight:600;}
+.sched-meta > span{display:inline;}
+.sched-warn{color:var(--red);}
+/* compact chart controls */
+.card-head .cg{gap:6px;}
+.card-head .cl{font-family:'DM Sans',sans-serif;font-size:0.735rem;letter-spacing:0;
+  text-transform:none;font-weight:600;color:var(--muted);}
+.card-head select{height:28px;padding:0 24px 0 9px;border:1px solid var(--inputbd);border-radius:6px;
+  background:var(--inputbg);color:var(--text);font-family:inherit;font-size:0.775rem;outline:none;}
+.card-head select:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft);}
+.legend{font-size:0.745rem;padding-top:8px;margin-top:8px;}
+.lg-h{font-family:'DM Sans',sans-serif;font-size:0.72rem;letter-spacing:0;text-transform:none;
+  font-weight:600;color:var(--muted);margin-bottom:5px;}
+.lg-i{font-size:0.745rem;}
+.lg-clear{color:var(--blue);}
+/* disclosures - where the long explanations went */
+details.disc{border:1px solid var(--border);border-radius:var(--r);background:var(--card);overflow:hidden;}
+details.disc > summary{list-style:none;cursor:pointer;padding:9px 13px;background:var(--off);
+  font-family:'DM Sans',sans-serif;font-size:var(--ttl);font-weight:700;color:var(--ink);
+  display:flex;align-items:center;gap:9px;}
+details.disc > summary::-webkit-details-marker{display:none;}
+details.disc > summary::before{content:"\25B8";color:var(--muted);font-size:0.72rem;transition:transform .18s;}
+details.disc[open] > summary::before{transform:rotate(90deg);}
+details.disc > summary:hover{background:var(--off2);}
+details.disc > summary small{font-weight:500;color:var(--muted);font-size:0.745rem;}
+details.disc[open] > summary{border-bottom:1px solid var(--border);}
+.disc-body{padding:12px 13px;}
+table.t th{font-family:'DM Sans',sans-serif;font-size:0.72rem;letter-spacing:0;text-transform:none;
+  font-weight:700;color:var(--text);padding:7px 8px;}
+table.t{font-size:0.8rem;}
+table.t td{padding:7px 8px;}
+
+/* ── RIGHT COLUMN ─────────────────────────────────────────────────────────
+   Three cards, not five. Status and its checks, the principal results, then
+   the assumptions the schedule stands on with the working hydraulics behind a
+   disclosure. Nothing in this column is printed twice. */
+.rcard{border-radius:var(--r);}
+.rcard-h{font-family:'DM Sans',sans-serif;font-size:var(--ttl);letter-spacing:0;text-transform:none;
+  font-weight:700;color:var(--ink);padding:8px 12px;}
+.rcard-h span{font-family:var(--mono);font-size:0.72rem;font-weight:400;color:var(--muted);}
+.rcard-b{padding:10px 12px;}
+.rrow{font-size:0.79rem;padding:5px 0;}
+.rbig{font-size:clamp(0.98rem,1.2vw,1.16rem);}
+.rsub{font-size:0.755rem;margin-top:4px;}
+.pres{grid-template-columns:minmax(0,1fr) minmax(88px,auto) minmax(38px,auto);gap:7px;}
+.presrow .k{font-family:'DM Sans',sans-serif;font-size:0.775rem;font-weight:500;color:var(--muted);}
+.presrow .v{font-size:0.87rem;padding:6px 9px;border-radius:6px;}
+.presrow .v.big{font-size:1.04rem;border-color:var(--blue-line);background:var(--blue-soft);color:var(--ink);}
+.presrow .u,.presrow select{font-size:0.735rem;}
+.presnote{font-size:0.745rem;font-style:normal;}
+/* a note that spans the whole results grid, sitting under the row it explains */
+.presrow.presfull{grid-column:1/-1;font-size:0.735rem;line-height:1.5;color:var(--amber);
+  padding:2px 0 4px;}
+.presrow.presfull.plain{color:var(--muted);padding-top:6px;}
+.presrow.presfull > span{display:inline;}
+.pressum{font-size:0.775rem;padding:10px 12px;}
+.chk{font-size:0.8rem;padding:6px 0;}
+.chk-lbl small{font-size:0.735rem;}
+.chk-val{font-family:'DM Sans',sans-serif;font-size:0.73rem;font-weight:600;padding:2px 9px;}
+
+/* ── BUTTONS ──────────────────────────────────────────────────────────────*/
+.btn{border-radius:var(--r);border-width:1px;font-size:0.795rem;}
+.btn:hover{border-color:var(--blue);color:var(--blue);}
+.btn-pri{border-width:1px;}
+.btn-pri:hover{color:var(--on-solid);border-color:var(--solid-hover);}
+.btn-dgr:hover{border-color:var(--red);color:var(--red);}
+.btn:focus-visible{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft);}
+.btn-sm{font-size:0.75rem;padding:0 10px;height:28px;}
+
+/* ── BANNERS ──────────────────────────────────────────────────────────────*/
+.banner{border-radius:var(--r);font-size:0.8rem;}
+
+/* ── READABILITY FLOOR ────────────────────────────────────────────────────
+   Nothing on a small screen gets smaller than it is on a large one. The old
+   layout leaned on clamp() minima that landed under 11 px on a phone. */
+@media(max-width:880px){
+  body{font-size:15px;}
+  .sec-body,.card-body,.rcard-b{padding-left:13px;padding-right:13px;}
+  table.sched td{font-size:1rem;}
+  .presrow .k{font-size:0.8rem;}
+}
+.empty-msg{font-size:0.85rem;font-style:normal;padding:30px 16px;}
+/* A <sub> that becomes a flex item loses its baseline and sits as a separate
+   word. Every place a subscript appears inside a flex row it is wrapped in a
+   span; this is the belt to that braces. */
+.lg-i > span,.rrow .v,.presrow .k{display:inline;}
+sub{font-size:0.72em;line-height:0;}
+/* the unit system, as a pressable pair rather than a select that cannot be
+   re-chosen; sized to the one control height like everything else up here */
+.topbar .seg{height:var(--ctl);border-radius:var(--r);}
+.topbar .seg button{padding:0 11px;height:100%;font-size:0.775rem;}
+/* AN OVERRIDDEN UNIT IS A STATE THE PAGE MUST NOT KEEP QUIETLY. It is the
+   reason the system can read US / Imperial while a value on screen reads °C,
+   so it is amber and it says what it is, not a grey word. */
+.unitreset{border-color:rgba(168,106,5,.45);background:var(--amber-soft);color:var(--amber);
+  font-family:'DM Sans',sans-serif;font-size:0.735rem;font-weight:600;letter-spacing:0;
+  text-transform:none;height:var(--ctl);border-radius:var(--r);padding:0 11px;}
+.unitreset:hover{border-color:var(--amber);color:var(--amber);background:var(--amber-soft);}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ADDITIONS FOR THIS TOOL ONLY
+   Everything above is the AFTS house sheet, carried over unchanged from the
+   Process Schedule module so the two tools are the same page with different
+   physics in it. What follows is the little this module needs and that one
+   did not: a temperature field drawn on the container cross-section, and a
+   ranked sensitivity bar. Same tokens, same rule — orange is ink, never a
+   fill, and only ever on white.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* The cross-section. The field is an SVG, so it inherits the plot furniture
+   tokens and needs no colour of its own. */
+.fieldwrap{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:14px;align-items:start;}
+@media(max-width:620px){.fieldwrap{grid-template-columns:minmax(0,1fr);}}
+.fkey{display:flex;flex-direction:column;gap:3px;}
+.fkey-row{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:0.68rem;color:var(--muted);}
+.fkey-sw{width:16px;height:11px;border-radius:2px;border:1px solid var(--border);flex:0 0 auto;}
+.fkey-hd{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+
+/* Ranked sensitivity. A bar per input, signed, drawn from a centre rule.
+   Black bars: this is a chart mark, so the orange rule applies and it stays
+   out of it. Direction is carried by the side of the rule the bar sits on. */
+.sens{display:flex;flex-direction:column;gap:5px;}
+.sens-row{display:grid;grid-template-columns:150px minmax(0,1fr) 84px;gap:9px;align-items:center;font-size:0.79rem;}
+.sens-lbl{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sens-lbl small{display:block;color:var(--muted);font-family:var(--mono);font-size:0.66rem;line-height:1.2;}
+.sens-bar{position:relative;height:15px;background:var(--off);border-radius:3px;overflow:hidden;}
+.sens-bar i{position:absolute;top:2px;height:11px;background:var(--trace-hi);border-radius:2px;display:block;}
+.sens-bar u{position:absolute;top:0;bottom:0;width:1px;left:50%;background:var(--silver-deep);}
+.sens-val{font-family:var(--mono);font-size:0.74rem;color:var(--muted);text-align:right;}
+@media(max-width:620px){.sens-row{grid-template-columns:110px minmax(0,1fr) 70px;}}
+
+/* The trace is a derivation, so it is set as one: monospace, tight, and
+   quiet enough that nobody mistakes it for a result. */
+.trace{font-family:var(--mono);font-size:0.735rem;line-height:1.75;color:var(--text);}
+.trace .tl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;padding:1px 0;border-bottom:1px dotted var(--border);}
+.trace .tl b{font-weight:500;color:var(--muted);}
+.trace .th{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted);margin:10px 0 3px;}
+.trace .th:first-child{margin-top:0;}
+.trace .tv{color:var(--ink);white-space:nowrap;}
+
+/* The banner that says what this model is not. It is not a warning and it is
+   not decoration; it is the envelope the numbers are only true inside. */
+.envelope{border:1px solid var(--border);border-left:2.5px solid var(--silver-deep);border-radius:0 8px 8px 0;
+  background:var(--off);padding:9px 12px;font-size:0.775rem;line-height:1.5;color:var(--muted);}
+.envelope b{color:var(--text);font-weight:600;}
+</style>
+</head>
+<body>
+<!-- AFTS mark, defined once and referenced wherever it is needed. Monochrome:
+     it takes its colour from the element it sits in, so it is black in the
+     topbar, white in the footer and black again on a printed record. -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false"><symbol id="afts-mark" viewBox="0 0 344 420"><g transform="translate(0,420) scale(0.1,-0.1)"><path d="M1365 4111 c-57 -113 -70 -244 -35 -346 55 -159 178 -295 268 -295
+27 0 32 3 28 18 -2 9 -19 73 -36 142 -17 69 -46 159 -66 200 -35 75 -35 75 1
+40 71 -68 115 -190 115 -317 0 -40 4 -73 9 -73 13 0 46 49 59 89 27 78 6 244
+-42 339 -43 83 -126 164 -238 231 -37 22 -37 22 -63 -28z M2070 3811 c-83 -27
+-150 -64 -206 -115 -59 -52 -120 -138 -130 -181 -6 -28 -2 -26 45 27 50 55
+117 105 127 95 3 -2 -35 -41 -83 -86 -87 -81 -87 -81 -53 -81 71 0 242 104
+304 184 32 42 76 134 76 159 0 21 -10 21 -80 -2z M1455 3375 c-262 -42 -534
+-159 -752 -324 -178 -134 -381 -378 -482 -580 -237 -472 -237 -1040 0 -1512
+66 -132 177 -287 288 -402 248 -256 532 -414 879 -489 95 -20 133 -23 337 -23
+254 1 337 13 527 76 182 60 424 196 546 305 43 39 43 39 -196 277 l-239 239
+-66 -47 c-90 -63 -219 -121 -335 -152 -83 -22 -118 -26 -242 -26 -125 0 -159
+4 -245 27 -463 122 -776 545 -752 1019 22 442 321 809 752 923 86 23 120 27
+245 27 125 0 159 -4 245 -27 355 -94 614 -346 722 -701 25 -84 27 -103 27
+-270 0 -168 -2 -186 -28 -270 -34 -114 -92 -234 -149 -312 l-45 -60 240 -239
+c239 -239 239 -239 279 -194 111 125 242 359 303 542 63 190 81 305 80 538 0
+183 -3 219 -27 331 -140 662 -642 1166 -1305 1310 -129 28 -471 36 -607 14z
+M1520 2510 c-286 -74 -514 -300 -592 -586 -30 -112 -30 -306 1 -418 74 -274
+282 -490 556 -576 99 -31 303 -39 409 -16 299 67 534 288 618 583 32 112 32
+324 0 436 -69 240 -238 434 -468 537 -139 61 -371 79 -524 40z m252 -370 c10
+-21 27 -115 43 -235 37 -292 71 -414 143 -511 31 -42 101 -84 140 -84 18 0 22
+-6 22 -30 0 -25 -4 -30 -23 -30 -51 0 -122 34 -168 80 -92 92 -144 249 -181
+552 -13 107 -25 173 -29 162 -4 -11 -15 -82 -24 -159 -44 -379 -130 -567 -282
+-619 -68 -23 -83 -21 -83 12 0 25 5 29 44 40 63 16 110 62 151 145 48 99 72
+198 101 431 31 249 46 290 104 284 17 -2 30 -14 42 -38z"/></g></symbol></svg>
+
+<div class="topbar">
+  <a href="https://www.advfood.tech" class="brand" target="_blank" rel="noopener noreferrer">
+    <svg class="brand-mark" viewBox="0 0 344 420" role="img" aria-label="Advanced Food-Tech Solutions"><use href="#afts-mark"/></svg>
+    <div>
+      <div class="brand-name">Advanced Food-Tech Solutions</div>
+      <div class="brand-sub">In-Container Process &middot; Conduction</div>
+    </div>
+  </a>
+  <div class="hdr-title">
+    <h1>In-Container Process</h1>
+    <div class="hdr-sub">Conduction heating in a sealed container &middot; cold-spot lethality and heat penetration</div>
+  </div>
+  <div class="topbar-right">
+    <!-- Page-wide controls first: the unit system, then the appearance.
+         Everything here changes how the page reads; nothing here changes the
+         physical schedule. Switching the system CONVERTS the numbers in the
+         boxes, so the case on screen never moves when the units do. -->
+    <div class="hdr-grp">
+      <div class="seg" role="group" aria-label="Unit system" id="unitsys"
+        title="Sets every unit at once — the input boxes and the results together. The numbers convert, so the schedule itself does not change.">
+        <button type="button" data-usys="SI" aria-pressed="true"  onclick="setUnitSys('SI')">SI units</button>
+        <button type="button" data-usys="US" aria-pressed="false" onclick="setUnitSys('US')">US / Imperial</button>
+      </div>
+      <div class="themetoggle" role="group" aria-label="Appearance" id="themeToggle">
+        <button type="button" data-theme-set="auto" aria-pressed="true" title="Follow my computer's appearance setting">Auto</button>
+        <button type="button" data-theme-set="light" aria-pressed="false" title="Always light" aria-label="Light">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 12H2M22 12h-2.2M5.6 5.6 4 4M20 20l-1.6-1.6M18.4 5.6 20 4M4 20l1.6-1.6"/></svg>
+        </button>
+        <button type="button" data-theme-set="dark" aria-pressed="false" title="Always dark" aria-label="Dark">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2Z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="hdr-rule"></div>
+    <!-- References leave the page and nothing on it depends on them, so they
+         are quiet text rather than three more outlined buttons. -->
+    <div class="hdr-grp">
+      <button class="t-link quiet" onclick="openModal('m_regs')" title="21 CFR 113/114, EC 852/2004 and the parallel national frameworks a scheduled process is written against">Regulatory</button>
+      <a href="https://www.advfood.tech/f-valuelibrary" class="t-link quiet" target="_blank" rel="noopener noreferrer" title="Cited D, z and F values for your organism in your substrate">F-Value Library</a>
+      <a href="https://www.advfood.tech/food-tech-programs" class="t-link quiet" target="_blank" rel="noopener noreferrer" title="More process-authority software from AFTS">More software</a>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="proj-bar no-print">
+    <div class="proj-cell"><div class="proj-lbl">Product</div><input id="p_product" placeholder="Product name" oninput="S.meta.product=this.value;stamp()"/></div>
+    <div class="proj-cell"><div class="proj-lbl">Project / schedule no.</div><input id="p_proj" placeholder="Schedule number" oninput="S.meta.proj=this.value;stamp()"/></div>
+    <div class="proj-cell"><div class="proj-lbl">Client / site</div><input id="p_client" placeholder="Client, facility" oninput="S.meta.client=this.value;stamp()"/></div>
+    <div class="proj-cell"><div class="proj-lbl">Process authority</div><input id="p_eng" placeholder="Name, credential" oninput="S.meta.eng=this.value;stamp()"/></div>
+    <div class="proj-cell"><div class="proj-lbl">Date</div><input id="p_dates" placeholder="e.g. 15 Sep 2026" title="Day, three-letter month, year — unambiguous in every country" oninput="S.meta.dates=this.value;stamp()"/></div>
+  </div>
+
+  <!-- ── ACTION BAR ────────────────────────────────────────────────────────
+       One home for every action, in the Process Schedule module's order:
+       the one that produces the answer, then the case, then the copy, then
+       the documents. -->
+  <div class="actionbar no-print" id="actionbar">
+    <button class="btn btn-pri" onclick="calculateProcess()">&#9654;&nbsp; Calculate Process</button>
+    <div class="ab-sep"></div>
+    <button class="btn" onclick="saveLocal()" title="Keep this case in this browser">Save</button>
+    <button class="btn" onclick="loadLocal()" title="Reopen the case saved in this browser">Open</button>
+    <button class="btn" onclick="exportJSON()" title="Write a case file you can archive or send">Export .json</button>
+    <div class="ab-sep"></div>
+    <button class="btn" onclick="copySchedTSV()" title="Copy the schedule table as tab-separated text">Copy table</button>
+    <button class="btn" onclick="window.print()" title="The full process schedule record">Full record</button>
+    <div class="ab-sep"></div>
+    <button class="btn" onclick="openModal('m_method')" title="What is computed, and on what basis">Method</button>
+    <button class="btn btn-dgr" onclick="resetAll()">Reset</button>
+    <div class="ab-spacer"></div>
+    <div class="ab-note" id="ab_note"></div>
+  </div>
+
+  <div class="wrap">
+    <!-- ── THE INPUT COLUMN ──────────────────────────────────────────────
+         Five numbered groups. The four that carry the calculation are open on
+         arrival because they are the boxes that get edited; the numerical
+         model sits closed under a one-line summary, because its defaults are
+         the right answer for almost every case and the page reports what they
+         cost rather than asking anyone to choose. Nothing is sequenced and
+         nothing is gated: NOTHING is computed until Calculate is pressed. -->
+    <div class="rail no-print" id="rail_secs"></div>
+
+    <!-- ── THE CENTRE: THE DELIVERABLE, THEN THE EVIDENCE ────────────────
+         The schedule table is the work surface and it is at the top, because
+         it is what goes on a process letter. The curves, the field and the
+         sensitivity are evidence for it and sit underneath. The calculation
+         trace is a derivation, so it is behind a disclosure. -->
+    <div class="centre">
+      <div id="banners" class="no-print"></div>
+
+      <div class="card card--primary"><div class="card-head">
+          <div class="card-title">Process schedule</div>
+          <div class="card-note" id="tbl_note">The deliverable &mdash; reproduced as Table&nbsp;1 of the record</div>
+        </div><div class="card-body tscroll" id="sched_table"></div></div>
+
+      <div class="card"><div class="card-head">
+          <div class="card-title">Temperature history</div>
+          <div class="cg" style="display:flex;align-items:center;gap:6px">
+            <span class="cl">Show</span>
+            <select id="c_hist" onchange="S.ui.hist=this.value;render()">
+              <option value="T">Temperature and lethality</option>
+              <option value="F">Lethality only</option>
+            </select>
+          </div>
+        </div><div class="card-body" style="padding:12px 12px 8px">
+        <div id="chart_hist"></div>
+        <div class="legend" id="legend_hist"></div>
+      </div></div>
+
+      <div class="card"><div class="card-head">
+          <div class="card-title">Heat penetration</div>
+          <div class="card-note">The semi-log curve the plant measures, with the fitted straight line</div>
+        </div><div class="card-body" style="padding:12px 12px 8px">
+        <div id="chart_hp"></div>
+        <div class="legend" id="legend_hp"></div>
+      </div></div>
+
+      <div class="card"><div class="card-head">
+          <div class="card-title">Temperature field</div>
+          <div class="cg" style="display:flex;align-items:center;gap:6px">
+            <span class="cl">At</span>
+            <input type="range" id="c_time" min="0" max="100" value="100" style="width:150px"
+                   oninput="S.ui.frame=+this.value;renderField()"/>
+            <span class="cl" id="c_time_lbl" style="min-width:74px"></span>
+          </div>
+        </div><div class="card-body" style="padding:12px">
+        <div class="fieldwrap">
+          <div id="chart_field"></div>
+          <div class="fkey" id="field_key"></div>
+        </div>
+      </div></div>
+
+      <div class="card" id="sens_card"><div class="card-head">
+          <div class="card-title">Sensitivity of the cold-spot lethality</div>
+          <div class="card-note">Change in F at the cold spot for a realistic uncertainty on each input</div></div>
+        <div class="card-body" id="sens_body"></div></div>
+
+      <details class="disc" id="trace_disc"><summary>Calculation trace <small>every intermediate quantity, in the order it is computed</small></summary>
+        <div class="disc-body tscroll" id="trace_body"></div></details>
+    </div>
+
+    <!-- ── RIGHT COLUMN: the answer, its status, and what it stands on ── -->
+    <div class="rrail no-print" id="rrail"></div>
+  </div>
+</main>
+
+<!-- Running footer for printed pages. Hidden on screen. -->
+<div class="print-foot" aria-hidden="true">
+  <div class="pf-co">
+    <svg viewBox="0 0 344 420" aria-hidden="true"><use href="#afts-mark"/></svg>
+    <div><b>Advanced Food-Tech Solutions</b><br/><span class="pf-sub">advfood.tech · info@advfood.tech</span></div>
+  </div>
+  <div class="pf-r" id="pf_id"></div>
+</div>
+
+<footer class="no-print">
+  <div class="ft-brand"><svg class="ft-mark" viewBox="0 0 344 420" aria-hidden="true"><use href="#afts-mark"/></svg>Advanced Food-Tech Solutions</div>
+  <div class="ft-right">
+    <a class="ft-link" href="https://www.advfood.tech/food-tech-programs" target="_blank" rel="noopener noreferrer">Process-authority software</a>
+    <a class="ft-link" href="mailto:info@advfood.tech">info@advfood.tech</a>
+    <span class="ft-copy" id="ft_ver">In-Container Process</span>
+  </div>
+</footer>
+
+<!-- ── MODAL: method ──────────────────────────────────────────────────────
+     What is computed and on what basis. A tool that produces an F-value has
+     to be able to say where the number came from, or the number is an
+     assertion. -->
+<div class="modal" id="m_method">
+  <div class="modal-box">
+    <div class="modal-head"><h3>Method</h3><button class="x" onclick="closeModal('m_method')">&times;</button></div>
+    <div class="modal-body prose">
+      <h4>The equation</h4>
+      <p>Transient conduction in a finite cylinder, axisymmetric in <i>r</i> and <i>z</i>:</p>
+      <div class="eq">&rho;c<sub>p</sub> &part;T/&part;t = (1/r) &part;/&part;r ( k r &part;T/&part;r ) + &part;/&part;z ( k &part;T/&part;z )</div>
+      <p>solved by Galerkin finite elements &mdash; bilinear quadrilaterals on a structured
+         (<i>r</i>,&nbsp;<i>z</i>) mesh, 2&times;2 Gauss quadrature, and the axisymmetric volume
+         weight 2&pi;<i>r</i>. The symmetry axis needs no condition of its own: that weight
+         vanishes there. The wall and <b>both ends</b> carry a convective condition,
+         <i>q</i>&nbsp;=&nbsp;<i>h</i>(T<sub>medium</sub>&nbsp;&minus;&nbsp;T<sub>surface</sub>);
+         a condensing-steam retort is modelled as an isothermal surface through a scaled
+         penalty on <i>h</i>.</p>
+      <p>Time integration is the generalised &theta;-method. &theta;&nbsp;=&nbsp;1 is backward
+         Euler: first order, unconditionally stable and monotone in time, which is what a
+         come-up meeting a hold needs. The system matrix is constant, so it is
+         Cholesky-factorised once in banded storage and back-substituted per step.</p>
+
+      <h4>Lethality</h4>
+      <p>The lethal rate L&nbsp;=&nbsp;10<sup>(T&minus;T<sub>ref</sub>)/z</sup> is integrated by
+         trapezoid <b>at every node</b>, and the mass-average F is the volume-weighted mean of
+         those nodal F-values. It is not F of the mass-average temperature: L is convex in T, so
+         those are different numbers, and the second one is the flattering one.</p>
+      <p>The cold spot is reported as the node of least accumulated lethality &mdash; found, not
+         assumed. For pure conduction in a cylinder heated on every face it lands on the
+         geometric centre, and the schedule table says whether it did.</p>
+
+      <h4>Heat penetration</h4>
+      <p>f<sub>h</sub> and j<sub>h</sub> are read off the simulated centre curve by least squares
+         over the part of the constant-temperature hold where the unaccomplished temperature
+         difference has fallen between 0.30 and 0.02 of its initial value &mdash; after the higher
+         modes have died, before the curve flattens into rounding. Fit from 0.5 and the curve is
+         still approaching its asymptote from below, which flattens the slope and inflates
+         f<sub>h</sub> by around 3&nbsp;% on a normal can.</p>
+      <p>j<sub>h</sub> is referenced to the start of the hold, so it is the textbook 2.04 when the
+         come-up is instantaneous and drifts below it when it is not. Ball's 0.42&nbsp;&times;
+         come-up correction is deliberately <b>not</b> applied: this reports what the model did,
+         not what Ball's method would have assumed. The closed form it is checked against is
+         f<sub>h</sub>&nbsp;=&nbsp;ln(10)/&lambda;<sub>1</sub>, with
+         &lambda;<sub>1</sub>&nbsp;=&nbsp;&alpha;((2.4048/R)&sup2;&nbsp;+&nbsp;(&pi;/H)&sup2;).</p>
+
+      <h4>What is checked</h4>
+      <p>The solver behind this page is verified against the closed-form finite-cylinder product
+         solution &mdash; the Bessel series in <i>r</i> times the cosine series in <i>z</i> &mdash;
+         against Ball's f<sub>h</sub> and j<sub>h</sub> for the same geometry, and against the
+         discrete invariants of its own assembly: the capacity matrix must integrate to
+         &rho;c<sub>p</sub>V and the conduction matrix must annihilate a uniform field, both to
+         machine precision. Every run on this page also re-solves on a doubled mesh at half the
+         time step and reports the difference, because a converged-looking answer on one mesh is
+         not a converged answer.</p>
+
+      <h4>What this model is not</h4>
+      <p>It is <b>conduction only</b>: no convection inside the pack, no agitation, no rotation,
+         no headspace, no boiling, no phase change, no shrinkage, and uniform properties that do
+         not vary with temperature. It assumes the medium temperature is the same everywhere
+         outside the container, which a temperature-distribution study is what establishes. A
+         convection-heating or broken-heating product is <b>outside</b> this model and its answer
+         here will be optimistic.</p>
+      <p>Thermophysical properties are the input that decides the answer. The presets are
+         representative handbook values and nothing more; a 10&nbsp;% error in diffusivity is a
+         10&nbsp;% error in f<sub>h</sub>, which at the end of a long conduction cook is a large
+         error in F.</p>
+    </div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal('m_method')">Close</button></div>
+  </div>
+</div>
+
+<!-- ── MODAL: regulatory ─────────────────────────────────────────────────── -->
+<div class="modal" id="m_regs">
+  <div class="modal-box">
+    <div class="modal-head"><h3>Regulatory</h3><button class="x" onclick="closeModal('m_regs')">&times;</button></div>
+    <div class="modal-body prose">
+      <p>Across jurisdictions the regulatory architecture differs but the engineering principle
+         converges: a shelf-stable low-acid or commercially sterile product requires a
+         scientifically established and validated process, executed under documented GMP
+         oversight.</p>
+      <h4>United States</h4>
+      <p><b>21 CFR 113</b> &mdash; thermally processed low-acid foods packaged in hermetically
+         sealed containers. <b>21 CFR 114</b> &mdash; acidified foods. <b>21 CFR 108</b> &mdash;
+         emergency permit control, and the registration and process-filing obligations.
+         <b>9 CFR 431</b> for meat and poultry. The scheduled process must be established by a
+         <b>qualified process authority</b>, and a deviation must be evaluated by one before
+         release.</p>
+      <h4>European Union</h4>
+      <p><b>Regulation 852/2004</b> imposes general hygiene and HACCP obligations;
+         <b>Regulation 2073/2005</b> fixes microbiological criteria. Neither is a direct
+         equivalent of US LACF filing, but both presuppose process control validated against a
+         documented hazard analysis, with national low-acid rules layered on top in some Member
+         States.</p>
+      <h4>Elsewhere</h4>
+      <p>Canada's <b>SFCR</b>, the UK's <b>FSA / FSS</b>, <b>FSANZ</b> in Australia and New
+         Zealand and Japan's <b>MHLW</b> each impose comparable preventive-control obligations
+         to the same end.</p>
+      <div class="envelope" style="margin-top:14px">
+        <b>This page is not a scheduled process.</b> It is a model, run on the numbers typed into
+        it. A scheduled process is established by a qualified process authority on measured
+        product data, against a temperature-distribution study of the retort it will run in, and
+        it is signed. Nothing computed here substitutes for that, and no number on this page
+        should be filed, quoted to a regulator or run in a plant on its own authority.
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal('m_regs')">Close</button></div>
+  </div>
+</div>
+
+<script>
+/* @solver-start — do not move or edit this marker.
+   tests/test_in_container_page.py slices the block between this marker and
+   @solver-end, runs it in node, and asserts it reproduces the verified
+   Python module in docs/finite_elements.py to 1e-9 on every case. The
+   markers are how it finds the code; without them the test cannot run and
+   the page's arithmetic goes unchecked. */
+/* ==========================================================================
+   IN-CONTAINER CONDUCTION SOLVER
+   A line-for-line port of docs/finite_elements.py, which is the verified
+   implementation: it is checked against the closed-form finite-cylinder
+   product solution, against Ball's f_h and j_h, and against the discrete
+   invariants of its own assembly. This file must agree with it to the last
+   digit that matters, and tests/verify_fem_port.js is what says so.
+
+   Axisymmetric Galerkin FEM in (r, z). Bilinear quadrilaterals, 2x2 Gauss,
+   the 2*pi*r volume weight, a Robin condition on the wall and both ends,
+   and the theta-method in time. The system matrix is constant, so it is
+   Cholesky-factorised once in banded storage and back-substituted per step.
+   ========================================================================== */
+const FEM = (function(){
+"use strict";
+
+const LN10 = Math.log(10);
+const J0_ROOT_1 = 2.404825557695773;
+const BALL_J_FINITE_CYLINDER = 2.0396;
+
+/* Semi-log fit windows, tried in order: [g_high, g_low, minimum points].
+   The primary window is the asymptotic stretch of the heating curve; fit
+   from g=0.5 and the curve is still approaching its asymptote from below,
+   which flattens the slope and inflates f_h by about 3% on a normal can. */
+const FIT_WINDOWS = [[0.30, 0.02, 5], [0.60, 0.02, 5], [0.80, 0.02, 3]];
+
+function lethalRate(tC, refC, zC){ return Math.exp(LN10 * (tC - refC) / zC); }
+
+/* --- symmetric banded matrix, upper band: a[i][d] = A[i][i+d] ----------- */
+/* The mesh is numbered radius-fastest, so a node couples only to nodes
+   within one mesh row: half-bandwidth = (nr+1)+1. Flat Float64Array rather
+   than arrays-of-arrays because this is the inner loop of the whole page. */
+function Band(n, bw){
+  this.n = n; this.bw = bw; this.w = bw + 1;
+  this.a = new Float64Array(n * this.w);
+  this.u = null;
+}
+Band.prototype.add = function(i, j, v){
+  if (j < i){ const t = i; i = j; j = t; }
+  this.a[i * this.w + (j - i)] += v;
+};
+Band.prototype.get = function(i, j){
+  if (j < i){ const t = i; i = j; j = t; }
+  const d = j - i;
+  return d <= this.bw ? this.a[i * this.w + d] : 0;
+};
+Band.prototype.rowSums = function(){
+  const out = new Float64Array(this.n);
+  for (let i = 0; i < this.n; i++){
+    const base = i * this.w;
+    out[i] += this.a[base];
+    for (let d = 1; d <= this.bw; d++){
+      const j = i + d;
+      if (j >= this.n) break;
+      const v = this.a[base + d];
+      if (v){ out[i] += v; out[j] += v; }
+    }
+  }
+  return out;
+};
+Band.prototype.lump = function(){
+  const out = new Band(this.n, this.bw), s = this.rowSums();
+  for (let i = 0; i < this.n; i++) out.a[i * this.w] = s[i];
+  return out;
+};
+Band.prototype.matvec = function(x, y){
+  y = y || new Float64Array(this.n);
+  y.fill(0);
+  for (let i = 0; i < this.n; i++){
+    const base = i * this.w, xi = x[i];
+    y[i] += this.a[base] * xi;
+    for (let d = 1; d <= this.bw; d++){
+      const j = i + d;
+      if (j >= this.n) break;
+      const v = this.a[base + d];
+      if (v){ y[i] += v * x[j]; y[j] += v * xi; }
+    }
+  }
+  return y;
+};
+Band.prototype.combine = function(other, sa, sb){
+  const out = new Band(this.n, this.bw);
+  for (let k = 0; k < this.a.length; k++) out.a[k] = sa * this.a[k] + sb * other.a[k];
+  return out;
+};
+Band.prototype.factorise = function(){
+  const n = this.n, bw = this.bw, w = this.w;
+  const u = new Float64Array(this.a);
+  for (let i = 0; i < n; i++){
+    const jmax = Math.min(i + bw, n - 1);
+    for (let j = i; j <= jmax; j++){
+      let s = u[i * w + (j - i)];
+      const kmin = Math.max(0, i - bw);
+      for (let k = kmin; k < i; k++){
+        const di = i - k, dj = j - k;
+        if (dj <= bw) s -= u[k * w + di] * u[k * w + dj];
+      }
+      if (j === i){
+        if (!(s > 0)) throw new Error(
+          "system matrix is not positive definite — check mesh, time step " +
+          "and material properties");
+        u[i * w] = Math.sqrt(s);
+      } else {
+        u[i * w + (j - i)] = s / u[i * w];
+      }
+    }
+  }
+  this.u = u;
+};
+Band.prototype.solve = function(b, x){
+  if (!this.u) this.factorise();
+  const u = this.u, n = this.n, bw = this.bw, w = this.w;
+  const y = new Float64Array(n);
+  for (let i = 0; i < n; i++){
+    let s = b[i];
+    for (let k = Math.max(0, i - bw); k < i; k++) s -= u[k * w + (i - k)] * y[k];
+    y[i] = s / u[i * w];
+  }
+  x = x || new Float64Array(n);
+  for (let i = n - 1; i >= 0; i--){
+    let s = y[i];
+    const base = i * w;
+    for (let d = 1; d <= bw; d++){
+      const j = i + d;
+      if (j >= n) break;
+      s -= u[base + d] * x[j];
+    }
+    x[i] = s / u[base];
+  }
+  return x;
+};
+
+/* --- schedule ---------------------------------------------------------- */
+function scheduleTotal(sch){
+  let t = 0;
+  for (const s of sch.steps) t += s.duration_s;
+  return t;
+}
+function mediumAt(sch, t){
+  if (t <= 0) return sch.start_c;
+  let prev = sch.start_c, elapsed = 0;
+  for (const step of sch.steps){
+    if (t <= elapsed + step.duration_s){
+      if (!step.ramp || step.duration_s <= 0) return step.target_c;
+      return prev + (step.target_c - prev) * (t - elapsed) / step.duration_s;
+    }
+    elapsed += step.duration_s;
+    prev = step.target_c;
+  }
+  return prev;
+}
+
+/* --- mesh + assembly --------------------------------------------------- */
+const G = 1 / Math.sqrt(3), GAUSS = [-G, G];
+
+function shapeFns(xi, eta){
+  return {
+    n:    [0.25*(1-xi)*(1-eta), 0.25*(1+xi)*(1-eta),
+           0.25*(1+xi)*(1+eta), 0.25*(1-xi)*(1+eta)],
+    dxi:  [-0.25*(1-eta), 0.25*(1-eta), 0.25*(1+eta), -0.25*(1+eta)],
+    deta: [-0.25*(1-xi), -0.25*(1+xi), 0.25*(1+xi), 0.25*(1-xi)]
+  };
+}
+
+/* axial divisions are forced even so a node lands exactly on the geometric
+   centre — the cold spot is the one place nobody should be interpolating. */
+function evenNz(nz){ return nz + (nz % 2); }
+
+function assemble(container, product, opts){
+  const nr = opts.nr, nz = evenNz(opts.nz);
+  const R = container.diameter_m / 2, H = container.height_m;
+  const rN = [], zN = [];
+  for (let i = 0; i <= nr; i++) rN.push(R * i / nr);
+  for (let j = 0; j <= nz; j++) zN.push(H * j / nz);
+
+  const nRow = nr + 1, n = nRow * (nz + 1), bw = nRow + 1;
+  const cap = new Band(n, bw), con = new Band(n, bw), srf = new Band(n, bw);
+  const load = new Float64Array(n);
+  const k = product.k, rhoCp = product.rho * product.cp;
+  const idx = (i, j) => j * nRow + i;
+
+  for (let j = 0; j < nz; j++){
+    const dz = zN[j+1] - zN[j];
+    for (let i = 0; i < nr; i++){
+      const dr = rN[i+1] - rN[i];
+      const nodes = [idx(i,j), idx(i+1,j), idx(i+1,j+1), idx(i,j+1)];
+      const detJ = dr * dz / 4;
+      for (const xi of GAUSS){
+        const rr = rN[i] + dr * (1 + xi) / 2;
+        for (const eta of GAUSS){
+          const sh = shapeFns(xi, eta);
+          const dndr = sh.dxi.map(d => d * 2 / dr);
+          const dndz = sh.deta.map(d => d * 2 / dz);
+          const coef = 2 * Math.PI * rr * detJ;          /* Gauss weight = 1 */
+          for (let a = 0; a < 4; a++){
+            for (let b = a; b < 4; b++){
+              con.add(nodes[a], nodes[b],
+                      k * (dndr[a]*dndr[b] + dndz[a]*dndz[b]) * coef);
+              cap.add(nodes[a], nodes[b], rhoCp * sh.n[a] * sh.n[b] * coef);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* wetted surface: side wall plus both ends — the whole can is in the retort */
+  function edge(na, nb, ra, rb, za, zb){
+    const len = Math.hypot(rb - ra, zb - za);
+    for (const s of GAUSS){
+      const N = [(1 - s) / 2, (1 + s) / 2];
+      const rr = ra + (rb - ra) * (1 + s) / 2;
+      const coef = 2 * Math.PI * rr * len / 2;
+      const pair = [na, nb];
+      for (let a = 0; a < 2; a++){
+        load[pair[a]] += N[a] * coef;
+        for (let b = a; b < 2; b++) srf.add(pair[a], pair[b], N[a] * N[b] * coef);
+      }
+    }
+  }
+  for (let j = 0; j < nz; j++)
+    edge(idx(nr,j), idx(nr,j+1), rN[nr], rN[nr], zN[j], zN[j+1]);
+  for (let i = 0; i < nr; i++){
+    edge(idx(i,0), idx(i+1,0), rN[i], rN[i+1], zN[0], zN[0]);
+    edge(idx(i,nz), idx(i+1,nz), rN[i], rN[i+1], zN[nz], zN[nz]);
+  }
+
+  return { rN, zN, nr, nz, nRow, n,
+           capacity: opts.lumped ? cap.lump() : cap,
+           conduction: con, surface: srf, load, idx };
+}
+
+/* Surface coefficient standing in for an isothermal boundary. Scaled off
+   k/h_min so the penalty is a fixed ~1e-6 relative error in the surface
+   temperature regardless of mesh or material. */
+function penaltyH(container, product, opts){
+  const hMin = Math.min(container.diameter_m / 2 / opts.nr,
+                        container.height_m / evenNz(opts.nz));
+  return 1e6 * product.k / hMin;
+}
+
+function diffusivity(product){ return product.k / (product.rho * product.cp); }
+
+/* Asymptotic f_h for an isothermal-surface finite cylinder, seconds:
+   the closed form behind Ball's f_h = 0.398 / (alpha (1/R^2 + ...)). */
+function analyticFhS(container, product){
+  const R = container.diameter_m / 2, H = container.height_m;
+  const lam = diffusivity(product) *
+              (Math.pow(J0_ROOT_1 / R, 2) + Math.pow(Math.PI / H, 2));
+  return LN10 / lam;
+}
+
+/* Smallest time step the consistent capacity matrix integrates without
+   spatial overshoot: dt >= h_min^2 / (6 alpha). */
+function oscillationFreeDt(container, product, opts){
+  const hMin = Math.min(container.diameter_m / 2 / opts.nr,
+                        container.height_m / evenNz(opts.nz));
+  return hMin * hMin / (6 * diffusivity(product));
+}
+
+/* --- the solve --------------------------------------------------------- */
+function simulate(cfg){
+  const container = cfg.container, product = cfg.product, sch = cfg.schedule;
+  const o = Object.assign({ nr:10, nz:16, dt:5, theta:1, h:null, lumped:false,
+                            f0Ref:121.11, f0Z:10, cookRef:100, cookZ:33.1,
+                            record:1 }, cfg.options || {});
+  const sys = assemble(container, product, o);
+  const n = sys.n, dt = o.dt, theta = o.theta;
+  const h = (o.h !== null && o.h !== undefined && o.h > 0)
+            ? o.h : penaltyH(container, product, o);
+
+  const kTotal = sys.conduction.combine(sys.surface, 1, h);
+  const cap = sys.capacity;
+  const lhs = cap.combine(kTotal, 1 / dt, theta);
+  const rhsOp = cap.combine(kTotal, 1 / dt, -(1 - theta));
+  lhs.factorise();
+
+  const massW = cap.rowSums();
+  let totalMass = 0;
+  for (let i = 0; i < n; i++) totalMass += massW[i];
+
+  const centre = sys.idx(0, evenNz(o.nz) / 2);
+  const initial = cfg.initial_c;
+
+  let temps = new Float64Array(n).fill(initial);
+  const peak = new Float64Array(temps), trough = new Float64Array(temps);
+  const f0Nodes = new Float64Array(n), cookNodes = new Float64Array(n);
+  const rF0 = new Float64Array(n).fill(lethalRate(initial, o.f0Ref, o.f0Z));
+  const rCk = new Float64Array(n).fill(lethalRate(initial, o.cookRef, o.cookZ));
+
+  const totalS = scheduleTotal(sch);
+  const nSteps = Math.max(1, Math.round(totalS / dt));
+  const dtMin = dt / 60;
+
+  const times = [0], medium = [mediumAt(sch, 0)], centreS = [initial],
+        massS = [initial], f0S = [0];
+
+  /* FRAME CAPTURE — a page-only extension, and deliberately inert.
+     The Python module returns the final field; the cross-section on this
+     page scrubs through time, so whole-field snapshots are kept at a fixed
+     count regardless of step count. It reads state and writes nothing back:
+     verify_fem_port.js runs with framesWanted at its default of 0 AND at 60
+     and gets identical numbers either way, which is what makes it safe to
+     have here at all. */
+  const framesWanted = o.frames | 0;
+  const frameEvery = framesWanted > 0 ? Math.max(1, Math.floor(nSteps / framesWanted)) : 0;
+  const frames = [];
+  if (frameEvery) frames.push({ t: 0, temps: new Float64Array(temps) });
+
+  const base = new Float64Array(n), rhs = new Float64Array(n);
+  let t = 0;
+  for (let step = 0; step < nSteps; step++){
+    const tNext = t + dt;
+    const fOld = h * mediumAt(sch, t), fNew = h * mediumAt(sch, tNext);
+    rhsOp.matvec(temps, base);
+    const scale = theta * fNew + (1 - theta) * fOld;
+    for (let i = 0; i < n; i++) rhs[i] = base[i] + scale * sys.load[i];
+    temps = lhs.solve(rhs);
+
+    /* Nodal lethality, trapezoid on the rate. Per node because L is convex
+       in T: the mass average of F is not F of the mass average. */
+    for (let i = 0; i < n; i++){
+      const ti = temps[i];
+      if (ti > peak[i]) peak[i] = ti;
+      else if (ti < trough[i]) trough[i] = ti;
+      const a = lethalRate(ti, o.f0Ref, o.f0Z);
+      const b = lethalRate(ti, o.cookRef, o.cookZ);
+      f0Nodes[i]   += 0.5 * (rF0[i] + a) * dtMin;
+      cookNodes[i] += 0.5 * (rCk[i] + b) * dtMin;
+      rF0[i] = a; rCk[i] = b;
+    }
+
+    t = tNext;
+    if (frameEvery && ((step + 1) % frameEvery === 0 || step === nSteps - 1))
+      frames.push({ t, temps: new Float64Array(temps) });
+    if ((step + 1) % o.record === 0 || step === nSteps - 1){
+      let ma = 0;
+      for (let i = 0; i < n; i++) ma += massW[i] * temps[i];
+      times.push(t); medium.push(mediumAt(sch, t));
+      centreS.push(temps[centre]); massS.push(ma / totalMass);
+      f0S.push(f0Nodes[centre]);
+    }
+  }
+
+  let f0Cold = Infinity, coldNode = 0, f0Avg = 0, cookAvg = 0, cookMax = -Infinity;
+  for (let i = 0; i < n; i++){
+    if (f0Nodes[i] < f0Cold){ f0Cold = f0Nodes[i]; coldNode = i; }
+    f0Avg += massW[i] * f0Nodes[i];
+    cookAvg += massW[i] * cookNodes[i];
+    if (cookNodes[i] > cookMax) cookMax = cookNodes[i];
+  }
+
+  return {
+    container, product, schedule: sch, options: o, initial_c: initial,
+    times, medium, centre: centreS, massAvg: massS, f0Series: f0S,
+    rN: sys.rN, zN: sys.zN, nRow: sys.nRow,
+    finalTemps: temps, peakTemps: peak, troughTemps: trough,
+    f0Nodes, cookNodes, massWeights: massW, frames,
+    f0ColdSpot: f0Cold, f0MassAvg: f0Avg / totalMass,
+    cookMassAvg: cookAvg / totalMass, cookSurface: cookMax,
+    coldSpot: { r: sys.rN[coldNode % sys.nRow], z: sys.zN[Math.floor(coldNode / sys.nRow)] },
+    peakCentre: Math.max.apply(null, centreS),
+    totalTimeS: times[times.length - 1],
+    heatPenetration: fitHeatPenetration(times, medium, centreS, initial, sch),
+    surfaceH: h, isothermal: !(o.h > 0)
+  };
+}
+
+/* --- heat penetration -------------------------------------------------- */
+function fitHeatPenetration(times, medium, centre, initialC, sch){
+  let holdT = 0, holdC = null, elapsed = 0;
+  for (const step of sch.steps){
+    if (!step.ramp){ holdT = elapsed; holdC = step.target_c; break; }
+    elapsed += step.duration_s;
+  }
+  if (holdC === null) return null;
+  const span = holdC - initialC;
+  if (!(span > 0)) return null;
+
+  for (const [gHi, gLo, need] of FIT_WINDOWS){
+    const xs = [], ys = [];
+    for (let i = 0; i < times.length; i++){
+      const t = times[i], tm = medium[i], tc = centre[i];
+      if (t < holdT || Math.abs(tm - holdC) > 1e-9 || tc >= holdC) continue;
+      const g = (holdC - tc) / span;
+      if (g >= gLo && g <= gHi){ xs.push(t - holdT); ys.push(Math.log10(holdC - tc)); }
+    }
+    if (xs.length < need) continue;
+    const m = xs.length;
+    let mx = 0, my = 0;
+    for (let i = 0; i < m; i++){ mx += xs[i]; my += ys[i]; }
+    mx /= m; my /= m;
+    let sxx = 0, sxy = 0, syy = 0;
+    for (let i = 0; i < m; i++){
+      sxx += (xs[i]-mx)*(xs[i]-mx);
+      sxy += (xs[i]-mx)*(ys[i]-my);
+      syy += (ys[i]-my)*(ys[i]-my);
+    }
+    if (!(sxx > 0) || sxy >= 0) continue;
+    const slope = sxy / sxx, intercept = my - slope * mx;
+    return { fhS: -1 / slope, jH: Math.pow(10, intercept) / span,
+             r2: syy > 0 ? (sxy*sxy)/(sxx*syy) : 0,
+             windowS: [xs[0] + holdT, xs[m-1] + holdT],
+             nPoints: m, gWindow: [gHi, gLo] };
+  }
+  return null;
+}
+
+return { simulate, lethalRate, analyticFhS, oscillationFreeDt, diffusivity,
+         mediumAt, scheduleTotal, assemble, evenNz, Band,
+         BALL_J_FINITE_CYLINDER };
+})();
+/* @solver-end */
+
+
+/* ==========================================================================
+   THE PAGE
+   ========================================================================== */
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
+  c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const isNum = v => typeof v === "number" && isFinite(v);
+const fmt = (v, d) => isNum(v) ? v.toFixed(d == null ? 2 : d) : "—";
+
+/* ── CONTAINERS ───────────────────────────────────────────────────────────
+   An American can code is two three-digit halves: whole inches, then
+   sixteenths. 307 is 3 + 7/16 in; 409 is 4 + 9/16 in. The code describes the
+   outside of the double seam, so it is a nominal cavity, generous by a
+   millimetre or two — which is the conservative direction for a diameter and
+   the optimistic one for a height, and is why the boxes stay editable. */
+function fromCanCode(code){
+  const parts = String(code).toLowerCase().replace(/-/g, "x").split("x");
+  if (parts.length !== 2 || !parts.every(p => /^\d{3}$/.test(p))) return null;
+  const dim = p => (parseInt(p[0], 10) + parseInt(p.slice(1), 10) / 16) * 0.0254;
+  return { d: dim(parts[0]), h: dim(parts[1]) };
+}
+const CANS = [
+  ["211x400", "211×400 tall"], ["300x407", "300×407 (No. 300)"],
+  ["307x409", "307×409 (No. 2)"], ["401x411", "401×411 (No. 2½)"],
+  ["603x700", "603×700 (A10)"],
+];
+
+/* ── PRODUCTS ─────────────────────────────────────────────────────────────
+   REPRESENTATIVE VALUES ONLY, and the page says so wherever they are used.
+   Real products are measured, and the measurement is part of the engagement.
+   A 10 % error in diffusivity is a 10 % error in f_h. */
+const PRODUCTS = {
+  puree:   ["Vegetable puree",        0.55, 1080, 3700],
+  meat:    ["Meat paste / pâté",      0.45, 1050, 3500],
+  gravy:   ["Starch-thickened gravy", 0.50, 1050, 3600],
+  brine:   ["Brine / water-like",     0.62, 1000, 4180],
+  custom:  ["Custom",                 0.55, 1080, 3700],
+};
+
+/* ── LETHALITY BASES ──────────────────────────────────────────────────────
+   An in-container process is not always a botulinum cook. A chilled ready
+   meal pasteurised for Listeria is the same conduction problem against a
+   different organism, so the basis is an input and not a constant. */
+const BASES = {
+  f0:   ["F₀ — botulinum cook",       121.11, 10.0],
+  p70:  ["P₇₀ — Listeria (6D)",        70.0,  7.5],
+  p90:  ["P₉₀ — psychrotrophic spores", 90.0, 9.0],
+  cust: ["Custom",                    121.11, 10.0],
+};
+
+/* ── STATE — always SI ────────────────────────────────────────────────────
+   The single rule that keeps the unit system honest: state is metres,
+   degrees Celsius and seconds, everywhere and always. A unit is a way of
+   WRITING a number down, so it lives in the display layer and nowhere else.
+   Switching US/SI therefore cannot move the physical case; it can only
+   re-spell it. */
+const DEFAULTS = () => ({
+  meta: { product:"", proj:"", client:"", eng:"", dates:"" },
+  can:  { preset:"307x409", d:0.0873125, h:0.1158875 },
+  prod: { preset:"puree", k:0.55, rho:1080, cp:3700, init:70 },
+  sch:  { start:70, comeUp:600, holdT:121.11, holdS:4500, coolT:40, coolS:900,
+          surf:"steam", h:150 },
+  leth: { preset:"f0", ref:121.11, z:10, cookRef:100, cookZ:33.1, target:0 },
+  num:  { nr:14, nz:22, dt:3, theta:1, lumped:false },
+  ui:   { openSecs:{ can:1, prod:1, sch:1, leth:1, num:0 },
+          calculated:false, hist:"T", frame:100 },
+});
+let S = DEFAULTS();
+let R = null;          /* the last result                                    */
+let CHC = null;        /* chart colours, invalidated on theme change         */
+
+/* ── UNITS ────────────────────────────────────────────────────────────────
+   [name, factor to SI, offset].  toSI: (v − offset) × factor. */
+const UCONV = {
+  T  : [["°C",1,0],["°F",5/9,32]],
+  dT : [["°C",1,0],["°F",5/9,0]],
+  Lc : [["mm",0.001,0],["in",0.0254,0]],
+  t  : [["min",60,0],["s",1,0],["h",3600,0]],
+  hc : [["W/m²·K",1,0],["BTU/h·ft²·°F",5.678263,0]],
+};
+const SI_PREF = { T:"°C", dT:"°C", Lc:"mm", t:"min", hc:"W/m²·K" };
+const US_PREF = { T:"°F", dT:"°F", Lc:"in",  t:"min", hc:"BTU/h·ft²·°F" };
+let USYS = "SI";
+const du = q => (USYS === "SI" ? SI_PREF : US_PREF)[q] || UCONV[q][0][0];
+function uToSI(v, q, u){
+  const r = (UCONV[q] || []).find(x => x[0] === (u || du(q)));
+  return r ? (v - r[2]) * r[1] : v;
+}
+function uFromSI(v, q, u){
+  const r = (UCONV[q] || []).find(x => x[0] === (u || du(q)));
+  return r ? v / r[1] + r[2] : v;
+}
+const Tu = () => du("T");
+function setUnitSys(sys){
+  USYS = sys === "US" ? "US" : "SI";
+  document.querySelectorAll("#unitsys button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.usys === USYS)));
+  try { localStorage.setItem("afts-units", USYS); } catch(e){}
+  renderRail(); render();
+}
+
+/* ── STATE ACCESS ─────────────────────────────────────────────────────────
+   Dotted paths so the form can be declared as data rather than wired by
+   hand. Any edit invalidates the result: a page showing an answer computed
+   from numbers that are no longer on screen is worse than a page showing
+   nothing. */
+const get = p => p.split(".").reduce((o,k) => (o == null ? o : o[k]), S);
+function setv(path, v){
+  const parts = path.split("."), last = parts.pop();
+  let o = S; for (const k of parts) o = o[k];
+  o[last] = v;
+  S.ui.calculated = false; R = null;
+  updateSummaries(); render();
+}
+function setNum(path, q, raw){
+  const v = parseFloat(raw);
+  if (!isFinite(v)) return;
+  setv(path, q ? uToSI(v, q) : v);
+}
+
+/* ── THE FORM ─────────────────────────────────────────────────────────────
+   Declared, not written out. Every box is the same three lines of markup, so
+   a box cannot drift from its neighbours in padding, in focus ring or in the
+   way it reports its unit. */
+const F = {
+  num(path, label, q, opts){
+    opts = opts || {};
+    const si = get(path);
+    const shown = q ? uFromSI(si, q) : si;
+    const dp = opts.dp != null ? opts.dp : (q === "Lc" ? 2 : q === "t" ? 1 : 2);
+    const val = isNum(shown) ? (+shown.toFixed(dp)) : "";
+    return `<div class="field"><label>${esc(label)}</label>
+      <div class="field-row">
+        <input type="number" step="any" value="${val}"
+          onchange="setNum('${path}','${q||""}',this.value)"/>
+        ${q ? `<select class="u" onchange="setUnit('${q}',this.value)">${
+          UCONV[q].map(u => `<option${u[0]===du(q)?" selected":""}>${esc(u[0])}</option>`).join("")
+        }</select>` : (opts.unit ? `<select class="u" disabled><option>${esc(opts.unit)}</option></select>` : "")}
+      </div>${opts.hint ? `<div class="field-hint">${opts.hint}</div>` : ""}</div>`;
+  },
+  sel(path, label, options, onchange, opts){
+    opts = opts || {};
+    const cur = String(get(path));
+    return `<div class="field"><label>${esc(label)}</label>
+      <div class="field-row"><select class="full" onchange="${onchange}(this.value)">${
+        options.map(([v,t]) => `<option value="${esc(v)}"${v===cur?" selected":""}>${esc(t)}</option>`).join("")
+      }</select></div>${opts.hint ? `<div class="field-hint">${opts.hint}</div>` : ""}</div>`;
+  },
+  chk(path, label, hint){
+    return `<label class="chkrow"><input type="checkbox" ${get(path)?"checked":""}
+      onchange="setv('${path}',this.checked)"/><span>${esc(label)}</span></label>` +
+      (hint ? `<div class="field-hint" style="margin:-4px 0 8px">${hint}</div>` : "");
+  },
+};
+/* A unit picked anywhere applies everywhere that quantity appears — one unit
+   per quantity, which is how the Process Schedule module does it. Changing it
+   re-expresses the case; it never re-solves it. */
+function setUnit(q, u){
+  const pref = USYS === "SI" ? SI_PREF : US_PREF;
+  pref[q] = u;
+  renderRail(); render();
+}
+
+function setCan(v){
+  S.can.preset = v;
+  const dims = fromCanCode(v);
+  if (dims){ S.can.d = dims.d; S.can.h = dims.h; }
+  S.ui.calculated = false; R = null;
+  renderRail(); render();
+}
+function setProd(v){
+  S.prod.preset = v;
+  const p = PRODUCTS[v];
+  if (p && v !== "custom"){ S.prod.k = p[1]; S.prod.rho = p[2]; S.prod.cp = p[3]; }
+  S.ui.calculated = false; R = null;
+  renderRail(); render();
+}
+function setBasis(v){
+  S.leth.preset = v;
+  const b = BASES[v];
+  if (b && v !== "cust"){ S.leth.ref = b[1]; S.leth.z = b[2]; }
+  S.ui.calculated = false; R = null;
+  renderRail(); render();
+}
+function setSurf(v){
+  S.sch.surf = v; S.ui.calculated = false; R = null;
+  renderRail(); render();
+}
+
+const GROUPS = [
+  { id:"can",  n:1, title:"Container", body: () =>
+      F.sel("can.preset", "Size", CANS.concat([["custom","Custom dimensions"]]), "setCan",
+        { hint:"A can code is whole inches then sixteenths — 307 is 3&nbsp;+&nbsp;7/16&nbsp;in. The code is the outside of the seam, so these are nominal cavity dimensions; edit them to the measured ones." }) +
+      F.num("can.d", "Internal diameter", "Lc") +
+      F.num("can.h", "Internal height", "Lc",
+        { hint: "Product cavity, not the shipping dimension. The axial term goes as 1/H², so a few millimetres of headspace moves f<sub>h</sub> by more than most people assume." })
+  },
+  { id:"prod", n:2, title:"Product", body: () =>
+      F.sel("prod.preset", "Product", Object.keys(PRODUCTS).map(k => [k, PRODUCTS[k][0]]), "setProd",
+        { hint:"<b>Representative handbook values.</b> They are a starting point and not data. Measure the product before anything computed here is used for a filing." }) +
+      F.num("prod.k",   "Thermal conductivity k", null, { unit:"W/m·K", dp:3 }) +
+      F.num("prod.rho", "Density ρ",              null, { unit:"kg/m³", dp:0 }) +
+      F.num("prod.cp",  "Specific heat cₚ",  null, { unit:"J/kg·K", dp:0 }) +
+      F.num("prod.init","Initial temperature",    "T",
+        { hint:"The fill temperature, uniform at t=0. It is a scheduled-process parameter in its own right, which is why a cold fill is not a free variable." })
+  },
+  { id:"sch",  n:3, title:"Retort schedule", body: () =>
+      F.num("sch.start",  "Medium at t = 0",       "T") +
+      F.num("sch.comeUp", "Come-up time",          "t",
+        { hint:"Ramped, not stepped. A retort is not a step function, and the difference shows up in F." }) +
+      F.num("sch.holdT",  "Hold temperature",      "T") +
+      F.num("sch.holdS",  "Hold time",             "t") +
+      F.num("sch.coolT",  "Cooling medium",        "T") +
+      F.num("sch.coolS",  "Cooling time",          "t",
+        { hint:"Cooling is part of the process, not the end of it: the cold spot keeps rising after the steam is off, and that lethality counts." }) +
+      `<div class="subhead">Surface condition</div>` +
+      F.sel("sch.surf", "Heating medium", [["steam","Condensing steam — isothermal surface"],["h","Finite coefficient h"]], "setSurf",
+        { hint:"Steam condensing on a can wall is effectively isothermal. Water cascade, steam/air and any overpressure system are not." }) +
+      (S.sch.surf === "h" ? F.num("sch.h", "Surface coefficient h", "hc",
+        { hint:"Steam/air and water cascade run roughly 200–2000 W/m²·K. h is a resistance in series with the product, so it can only slow the centre down.", dp:0 }) : "")
+  },
+  { id:"leth", n:4, title:"Lethality basis", body: () =>
+      F.sel("leth.preset", "Basis", Object.keys(BASES).map(k => [k, BASES[k][0]]), "setBasis",
+        { hint:"The reference temperature and z of the organism the process is aimed at. Use the F-Value Library for a cited D and z in your substrate." }) +
+      F.num("leth.ref", "Reference temperature", "T") +
+      F.num("leth.z",   "z value",               "dT") +
+      F.num("leth.target", "Target F at the cold spot", null, { unit:"min", dp:2,
+        hint:"<b>Yours to supply.</b> This page does not know what your process requires and will not invent it — it reports what the schedule delivers and compares it with what you type here." }) +
+      `<div class="subhead">Quality</div>` +
+      F.num("leth.cookRef", "Cook reference temperature", "T") +
+      F.num("leth.cookZ",   "Cook z value",               "dT",
+        { hint:"100&nbsp;°C with z&nbsp;=&nbsp;33.1&nbsp;°C is the conventional overall-quality pairing. Every extra minute of safety is paid for here." })
+  },
+  { id:"num",  n:5, title:"Numerical model", body: () =>
+      `<div class="field-hint" style="margin-bottom:9px">The defaults are right for almost every case. The page re-solves on a doubled mesh at half the step and reports what these cost, so nothing here has to be chosen blind.</div>` +
+      F.num("num.nr", "Radial elements", null, { dp:0 }) +
+      F.num("num.nz", "Axial elements",  null, { dp:0,
+        hint:"Forced even, so a node lands exactly on the geometric centre. The cold spot is the one place nobody should be interpolating." }) +
+      F.num("num.dt", "Time step", null, { unit:"s", dp:1 }) +
+      F.sel("num.theta", "Time integration", [["1","θ = 1 — backward Euler"],["0.5","θ = 0.5 — Crank–Nicolson"]],
+        "setTheta", { hint:"Backward Euler is first order but monotone. Crank–Nicolson is second order and rings on the corner where a come-up meets a hold, which is where lethality is most sensitive." }) +
+      F.chk("num.lumped", "Lumped capacity matrix",
+        "Strictly monotone, slightly less accurate on the cold spot. Off, the consistent matrix can overshoot the medium by a fraction of a degree at the wall below the step limit the checks report.")
+  },
+];
+function setTheta(v){ setv("num.theta", parseFloat(v)); renderRail(); }
+
+/* ── BUILDING A CASE FOR THE SOLVER ───────────────────────────────────────
+   One function, so the sweep, the convergence run and the headline solve all
+   go in through the same door and cannot drift apart. `over` overrides any
+   field, which is what the sensitivity study perturbs. */
+function buildCase(over){
+  const o = over || {};
+  const can  = { diameter_m: o.d != null ? o.d : S.can.d,
+                 height_m:   o.h != null ? o.h : S.can.h };
+  const prod = { k:   o.k   != null ? o.k   : S.prod.k,
+                 rho: o.rho != null ? o.rho : S.prod.rho,
+                 cp:  o.cp  != null ? o.cp  : S.prod.cp };
+  const sc = S.sch;
+  const holdS = o.holdS != null ? o.holdS : sc.holdS;
+  const holdT = o.holdT != null ? o.holdT : sc.holdT;
+  const steps = [];
+  if (sc.comeUp > 0) steps.push({ duration_s: sc.comeUp, target_c: holdT, ramp: true });
+  steps.push({ duration_s: Math.max(1, holdS), target_c: holdT, ramp: false });
+  if (sc.coolS > 0)  steps.push({ duration_s: sc.coolS, target_c: sc.coolT, ramp: true });
+  return {
+    container: can, product: prod,
+    schedule: { start_c: sc.start, steps },
+    initial_c: o.init != null ? o.init : S.prod.init,
+    options: {
+      nr: Math.max(2, Math.round(o.nr != null ? o.nr : S.num.nr)),
+      nz: Math.max(2, Math.round(o.nz != null ? o.nz : S.num.nz)),
+      dt: o.dt != null ? o.dt : S.num.dt,
+      theta: S.num.theta, lumped: S.num.lumped,
+      h: sc.surf === "h" ? sc.h : null,
+      f0Ref: S.leth.ref, f0Z: S.leth.z,
+      cookRef: S.leth.cookRef, cookZ: S.leth.cookZ,
+      frames: o.frames || 0, record: o.record || 1,
+    },
+  };
+}
+
+function validate(){
+  const bad = [];
+  if (!(S.can.d > 0) || !(S.can.h > 0)) bad.push("container dimensions must be positive");
+  if (!(S.prod.k > 0) || !(S.prod.rho > 0) || !(S.prod.cp > 0))
+    bad.push("k, ρ and cₚ must all be positive");
+  if (!(S.sch.holdS > 0)) bad.push("the hold must have a duration");
+  if (!(S.leth.z > 0) || !(S.leth.cookZ > 0)) bad.push("z values must be positive");
+  if (S.sch.holdT <= S.prod.init)
+    bad.push("the hold temperature is at or below the initial temperature — nothing heats");
+  if (S.sch.surf === "h" && !(S.sch.h > 0)) bad.push("h must be positive");
+  const steps = (S.sch.comeUp + S.sch.holdS + S.sch.coolS) / S.num.dt;
+  if (steps > 40000) bad.push("that time step would take more than 40 000 steps — raise it");
+  return bad;
+}
+
+/* ── CALCULATE ────────────────────────────────────────────────────────────
+   Three solves, not one:
+     · the schedule itself, with frames for the cross-section;
+     · the SAME case on a doubled mesh at half the time step, because a
+       converged-looking answer on one mesh is not a converged answer and
+       the only honest way to say so is to go and look;
+     · a ±10 % perturbation of each input, ranked, so the number that most
+       deserves a measurement is named rather than guessed at.
+   The convergence run is not optional and cannot be switched off. It is the
+   difference between a result and a claim. */
+function calculateProcess(){
+  const bad = validate();
+  if (bad.length){
+    S.ui.calculated = false; R = null;
+    document.getElementById("banners").innerHTML =
+      `<div class="banner err"><div><b>Cannot calculate.</b> ${esc(bad.join("; "))}.</div></div>`;
+    render(); return;
+  }
+  const note = document.getElementById("ab_note");
+  note.textContent = "solving…";
+
+  setTimeout(() => {
+    const t0 = performance.now();
+    const base = buildCase({ frames: 60 });
+    const res = FEM.simulate(base);
+
+    /* convergence: twice the mesh, half the step */
+    const fine = FEM.simulate(buildCase({
+      nr: S.num.nr * 2, nz: S.num.nz * 2, dt: S.num.dt / 2, record: 4 }));
+
+    /* SENSITIVITY — and the perturbation is not ±10 % on everything.
+       A percentage of a Celsius temperature is not a physical quantity: ten
+       per cent of 121.11 °C is 12.1 °C, ten per cent of the same temperature
+       written as 250 °F is 25 °F, and those are different processes. So the
+       temperatures move by a fixed number of degrees, chosen to be what they
+       actually vary by in a plant — a retort holds to about a degree, a fill
+       temperature wanders by rather more — and everything else, which has a
+       true zero and so a meaningful percentage, moves by ±10 %.
+
+       Mixing the two makes the ranking a ranking of REALISTIC UNCERTAINTY
+       rather than of mathematical derivative, which is the more useful of the
+       two and the one that answers "what should I go and measure". Each row
+       prints the perturbation it was given, so the mixture is visible. */
+    const SENS = [
+      ["Thermal conductivity k", "k",     S.prod.k,    { pct:0.10 }],
+      ["Density ρ",              "rho",   S.prod.rho,  { pct:0.10 }],
+      ["Specific heat cₚ",        "cp",    S.prod.cp,   { pct:0.10 }],
+      ["Internal diameter",      "d",     S.can.d,     { pct:0.10 }],
+      ["Internal height",        "h",     S.can.h,     { pct:0.10 }],
+      ["Hold temperature",       "holdT", S.sch.holdT, { abs:1, unit:"°C" }],
+      ["Hold time",              "holdS", S.sch.holdS, { pct:0.10 }],
+      ["Initial temperature",    "init",  S.prod.init, { abs:5, unit:"°C" }],
+    ];
+    const coarse = { nr: 8, nz: 12, dt: Math.max(S.num.dt * 2, 8), record: 8 };
+    const ref = FEM.simulate(buildCase(coarse)).f0ColdSpot;
+    const sens = SENS.map(([label, key, value, how]) => {
+      const hi = how.abs != null ? value + how.abs : value * (1 + how.pct);
+      const lo = how.abs != null ? value - how.abs : value * (1 - how.pct);
+      const up = FEM.simulate(buildCase(Object.assign({ [key]: hi }, coarse))).f0ColdSpot;
+      const dn = FEM.simulate(buildCase(Object.assign({ [key]: lo }, coarse))).f0ColdSpot;
+      return { label, up: up - ref, dn: dn - ref,
+               how: how.abs != null ? `±${how.abs} ${how.unit}`
+                                    : `±${(how.pct*100).toFixed(0)} %`,
+               span: Math.max(Math.abs(up - ref), Math.abs(dn - ref)) };
+    }).sort((a, b) => b.span - a.span);
+
+    R = { res, fine, sens, sensRef: ref, ms: performance.now() - t0 };
+    S.ui.calculated = true;
+    note.textContent = `${Math.round(R.ms)} ms · ${res.times.length - 1} steps · ${res.rN.length * res.zN.length} nodes`;
+    render();
+  }, 10);
+}
+
+/* ── ACCEPTANCE CHECKS ────────────────────────────────────────────────────
+   Green, amber or red, always with a word beside it, never used as a chart
+   mark. The first is the process question. The rest are questions about
+   whether the answer to the first one can be believed. */
+function checks(){
+  if (!R) return [];
+  const r = R.res, out = [];
+
+  const target = S.leth.target;
+  if (target > 0){
+    const ratio = r.f0ColdSpot / target;
+    out.push({ lbl: "Target F at the cold spot",
+      sub: `delivered ${fmt(r.f0ColdSpot)} min against ${fmt(target)} min`,
+      val: ratio >= 1 ? "MET" : "NOT MET",
+      cls: ratio >= 1.15 ? "ok" : ratio >= 1 ? "caut" : "warn" });
+  } else {
+    out.push({ lbl: "Target F at the cold spot", sub: "no target entered",
+      val: "NOT SET", cls: "na" });
+  }
+
+  const dF = Math.abs(R.fine.f0ColdSpot - r.f0ColdSpot) /
+             Math.max(1e-12, Math.abs(R.fine.f0ColdSpot));
+  out.push({ lbl: "Mesh and step convergence",
+    sub: `doubled mesh, half step: F moves ${(dF*100).toFixed(2)} % to ${fmt(R.fine.f0ColdSpot)} min`,
+    val: dF < 0.01 ? "CONVERGED" : dF < 0.03 ? "MARGINAL" : "COARSE",
+    cls: dF < 0.01 ? "ok" : dF < 0.03 ? "caut" : "warn" });
+
+  const limit = FEM.oscillationFreeDt(r.container, r.product, r.options);
+  const over = Math.max.apply(null, Array.from(r.peakTemps)) -
+               Math.max(Math.max.apply(null, r.medium), r.initial_c);
+  if (S.num.lumped){
+    out.push({ lbl: "Surface overshoot", sub: "lumped capacity — none possible",
+      val: "NONE", cls: "ok" });
+  } else {
+    out.push({ lbl: "Surface overshoot",
+      sub: S.num.dt >= limit
+        ? `step ${fmt(S.num.dt,1)} s is at or above the ${fmt(limit,1)} s consistent-capacity limit`
+        : `+${fmt(over,3)} °C at the wall — step ${fmt(S.num.dt,1)} s is below the ${fmt(limit,1)} s limit; the cold spot is unaffected`,
+      val: over <= 1e-6 ? "NONE" : over < 1 ? `+${over.toFixed(2)} °C` : "LARGE",
+      cls: over <= 1e-6 ? "ok" : over < 1 ? "caut" : "warn" });
+  }
+
+  const cold = r.coldSpot;
+  const centred = cold.r < 1e-9 &&
+    Math.abs(cold.z - r.container.height_m / 2) < 1e-9;
+  out.push({ lbl: "Cold spot location",
+    sub: centred ? "geometric centre, as pure conduction requires"
+                 : `r = ${fmt(cold.r*1000,1)} mm, z = ${fmt(cold.z*1000,1)} mm — off centre`,
+    val: centred ? "CENTRE" : "OFF CENTRE", cls: centred ? "ok" : "caut" });
+
+  const hp = r.heatPenetration;
+  if (hp){
+    const closed = FEM.analyticFhS(r.container, r.product);
+    const dev = Math.abs(hp.fhS - closed) / closed;
+    out.push({ lbl: "fₕ against the closed form",
+      sub: `${fmt(hp.fhS/60,1)} min simulated, ${fmt(closed/60,1)} min from ln(10)/λ₁`,
+      val: `${(dev*100).toFixed(1)} %`,
+      cls: dev < 0.05 ? "ok" : dev < 0.12 ? "caut" : "warn" });
+  }
+  return out;
+}
+
+/* ── THE SCHEDULE TABLE — the deliverable ─────────────────────────────── */
+function atTime(t){
+  const r = R.res;
+  let i = 0;
+  while (i < r.times.length - 1 && r.times[i] < t) i++;
+  return i;
+}
+function schedTable(){
+  if (!S.ui.calculated) return `<div class="empty-msg">Enter the container, the product and the retort schedule.<br/>The process schedule appears here.</div>`;
+  const r = R.res, legs = [];
+  let t = 0;
+  if (S.sch.comeUp > 0){ legs.push(["Come-up", S.sch.start, S.sch.holdT, S.sch.comeUp, t += S.sch.comeUp]); }
+  legs.push(["Hold", S.sch.holdT, S.sch.holdT, S.sch.holdS, t += S.sch.holdS]);
+  if (S.sch.coolS > 0){ legs.push(["Cooling", S.sch.holdT, S.sch.coolT, S.sch.coolS, t += S.sch.coolS]); }
+
+  const total = r.f0ColdSpot;
+  let prevF = 0;
+  const rows = legs.map(([name, t0, t1, dur, tEnd]) => {
+    const i = atTime(tEnd);
+    const f = r.f0Series[i], share = total > 0 ? (f - prevF) / total * 100 : 0;
+    const row = `<tr><td>${esc(name)}</td>
+      <td class="n">${fmt(uFromSI(t0,"T"),1)}${t0===t1?"":" → "+fmt(uFromSI(t1,"T"),1)}</td>
+      <td class="n">${fmt(dur/60,1)}</td>
+      <td class="n">${fmt(tEnd/60,1)}</td>
+      <td class="n">${fmt(uFromSI(r.centre[i],"T"),1)}</td>
+      <td class="n">${fmt(f)}</td>
+      <td class="n">${share.toFixed(0)} %</td></tr>`;
+    prevF = f;
+    return row;
+  }).join("");
+
+  return `<table class="t"><thead><tr>
+      <th>Leg</th><th class="n" style="text-align:right">Medium (${esc(Tu())})</th><th class="n" style="text-align:right">Duration (min)</th>
+      <th class="n" style="text-align:right">Elapsed (min)</th><th class="n" style="text-align:right">Cold spot (${esc(Tu())})</th>
+      <th class="n" style="text-align:right">F cumulative (min)</th><th class="n" style="text-align:right">Share of F</th>
+    </tr></thead><tbody>${rows}
+    <tr class="tot"><td><b>Process</b></td>
+      <td class="n">—</td>
+      <td class="n"><b>${fmt(r.totalTimeS/60,1)}</b></td>
+      <td class="n">—</td>
+      <td class="n"><b>${fmt(uFromSI(r.peakCentre,"T"),1)}</b> peak</td>
+      <td class="n"><b>${fmt(r.f0ColdSpot)}</b></td>
+      <td class="n">100 %</td></tr>
+    </tbody></table>
+    <div class="sched-meta">Cold spot at r&nbsp;=&nbsp;${fmt(r.coldSpot.r*1000,1)}&nbsp;mm,
+      z&nbsp;=&nbsp;${fmt(r.coldSpot.z*1000,1)}&nbsp;mm · basis
+      ${esc(BASES[S.leth.preset][0].split(" — ")[0])} at ${fmt(uFromSI(S.leth.ref,"T"),1)}&nbsp;${esc(Tu())},
+      z&nbsp;=&nbsp;${fmt(uFromSI(S.leth.z,"dT"),1)}&nbsp;${esc(Tu())} ·
+      mass-average F ${fmt(r.f0MassAvg)}&nbsp;min · cook value ${fmt(r.cookMassAvg,1)}&nbsp;min</div>`;
+}
+
+/* ── CHART FURNITURE ──────────────────────────────────────────────────────
+   Colours are read live off the stylesheet, so the charts follow the theme
+   toggle without a second palette existing anywhere. The house rule holds
+   inside the plot too: orange is ink on white and never a fill, so in dark
+   no orange is drawn at all and the operating trace is warm white instead. */
+function chc(){
+  if (CHC) return CHC;
+  const cs = getComputedStyle(document.documentElement);
+  const g = (n, f) => ((cs.getPropertyValue(n) || "").trim() || f);
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  CHC = { grid:g("--grid","#eeeeec"), axis:g("--axis","#8A8A82"), border:g("--border","#E4E4E0"),
+          plotbg:g("--plotbg","#fafafa"), ink:g("--ink","#111"), muted:g("--muted","#77776F"),
+          trace:g("--trace","#B9B9B1"), hi:g("--trace-hi","#111"), dark,
+          off2:g("--off2","#F1F1EE"),
+          ok:g("--green","#16794a"), bad:g("--red","#c0271f"), silver:g("--silver","#C8C8C0"),
+          p1:g("--pin-1","#0072B2"), p2:g("--pin-2","#D55E00"), p3:g("--pin-3","#009E73") };
+  return CHC;
+}
+function niceTicks(lo, hi, want){
+  if (!(hi > lo)) return [lo];
+  const raw = (hi - lo) / want;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const n = raw / mag;
+  const step = (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * mag;
+  const out = [];
+  for (let v = Math.ceil(lo/step)*step; v <= hi + step*1e-9; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+const svgWrap = (id, W, H, g) =>
+  `<div class="chart-host"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"
+     style="width:100%;height:auto;display:block" role="img" id="${id}">${g}</svg></div>`;
+const legend = items => items.map(i =>
+  `<span class="legend-item"><span class="legend-dot" style="background:${i.c};${
+    i.dash ? "background:repeating-linear-gradient(90deg,"+i.c+" 0 4px,transparent 4px 7px);" : ""}"></span>${esc(i.t)}</span>`
+  ).join("");
+
+/* ── TEMPERATURE HISTORY ──────────────────────────────────────────────────
+   Medium, cold spot and mass average on the left axis; accumulated lethality
+   at the cold spot on the right. They belong on one frame because the whole
+   point of a conduction pack is the lag between them: the cold spot is still
+   climbing when the steam goes off, and the F it accumulates while it does
+   is a large share of the total. A reader who sees only the temperature
+   curve will underestimate the cooling leg every time. */
+function chartHistory(){
+  const C = chc(), W = 900, H = 380, m = { l:58, r:62, t:14, b:40 };
+  if (!S.ui.calculated) return `<div class="empty-msg">Press Calculate Process.<br/>The temperature history appears here.</div>`;
+  const r = R.res, showT = S.ui.hist === "T";
+  const tMax = r.totalTimeS / 60;
+  const temps = [].concat(r.medium, r.centre, r.massAvg).map(v => uFromSI(v, "T"));
+  let ylo = Math.min.apply(null, temps), yhi = Math.max.apply(null, temps);
+  const pad = (yhi - ylo) * 0.08 + 0.5; ylo -= pad; yhi += pad;
+  const fMax = Math.max(r.f0Series[r.f0Series.length-1], S.leth.target, 1e-9) * 1.1;
+
+  const X = t => m.l + t / Math.max(1e-9, tMax) * (W - m.l - m.r);
+  const Y = v => m.t + (yhi - v) / Math.max(1e-9, yhi - ylo) * (H - m.t - m.b);
+  const YF = v => m.t + (1 - v / fMax) * (H - m.t - m.b);
+
+  let g = `<rect x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="${C.plotbg}" stroke="${C.border}"/>`;
+  for (const v of niceTicks(ylo, yhi, 6)){
+    if (!showT) break;
+    g += `<line x1="${m.l}" y1="${Y(v).toFixed(1)}" x2="${W-m.r}" y2="${Y(v).toFixed(1)}" stroke="${C.grid}"/>`;
+    g += `<text x="${m.l-7}" y="${(Y(v)+3.5).toFixed(1)}" text-anchor="end" font-size="11" fill="${C.muted}" font-family="DM Mono,monospace">${v}</text>`;
+  }
+  for (const t of niceTicks(0, tMax, 8)){
+    g += `<line x1="${X(t).toFixed(1)}" y1="${m.t}" x2="${X(t).toFixed(1)}" y2="${H-m.b}" stroke="${C.grid}"/>`;
+    g += `<text x="${X(t).toFixed(1)}" y="${H-m.b+16}" text-anchor="middle" font-size="11" fill="${C.muted}" font-family="DM Mono,monospace">${t}</text>`;
+  }
+  const path = (vals, yf, xf) => vals.map((v,i) =>
+    (i ? "L" : "M") + xf(i).toFixed(1) + " " + yf(v).toFixed(1)).join(" ");
+  const xi = i => X(r.times[i] / 60);
+
+  if (showT){
+    g += `<path d="${path(r.medium.map(v=>uFromSI(v,"T")), Y, xi)}" fill="none" stroke="${C.trace}" stroke-width="1.6" stroke-dasharray="5 3"/>`;
+    g += `<path d="${path(r.massAvg.map(v=>uFromSI(v,"T")), Y, xi)}" fill="none" stroke="${C.p1}" stroke-width="1.6"/>`;
+    g += `<path d="${path(r.centre.map(v=>uFromSI(v,"T")), Y, xi)}" fill="none" stroke="${C.hi}" stroke-width="2.4"/>`;
+  }
+  g += `<path d="${path(r.f0Series, YF, xi)}" fill="none" stroke="${C.p3}" stroke-width="2.1"/>`;
+  if (S.leth.target > 0 && S.leth.target < fMax){
+    g += `<line x1="${m.l}" y1="${YF(S.leth.target).toFixed(1)}" x2="${W-m.r}" y2="${YF(S.leth.target).toFixed(1)}" stroke="${C.p3}" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.75"/>`;
+    g += `<text x="${W-m.r-5}" y="${(YF(S.leth.target)-5).toFixed(1)}" text-anchor="end" font-size="10.5" fill="${C.p3}" font-family="DM Mono,monospace">target ${fmt(S.leth.target)}</text>`;
+  }
+  for (const v of niceTicks(0, fMax, 5))
+    g += `<text x="${W-m.r+7}" y="${(YF(v)+3.5).toFixed(1)}" font-size="11" fill="${C.p3}" font-family="DM Mono,monospace">${(+v.toFixed(2))}</text>`;
+
+  g += `<text x="${m.l}" y="${H-6}" font-size="11" fill="${C.muted}">minutes</text>`;
+  const midY = m.t + (H - m.t - m.b) / 2;
+  if (showT) g += `<text transform="translate(13,${midY.toFixed(0)}) rotate(-90)" text-anchor="middle" font-size="11" fill="${C.muted}">temperature (${esc(Tu())})</text>`;
+  g += `<text transform="translate(${W-9},${midY.toFixed(0)}) rotate(-90)" text-anchor="middle" font-size="11" fill="${C.p3}">F at the cold spot (min)</text>`;
+  g += `<rect x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="none" stroke="${C.border}"/>`;
+
+  document.getElementById("legend_hist").innerHTML = legend(showT ? [
+    { c:C.hi, t:"Cold spot" }, { c:C.p1, t:"Mass average" },
+    { c:C.trace, t:"Heating medium", dash:1 }, { c:C.p3, t:"Accumulated F at the cold spot" },
+  ] : [{ c:C.p3, t:"Accumulated F at the cold spot" }]);
+  return svgWrap("ch_hist", W, H, g);
+}
+
+/* ── HEAT PENETRATION ─────────────────────────────────────────────────────
+   The plot the plant actually measures: log10(T_medium − T_centre) against
+   time. The fitted straight line is drawn ONLY across the window it was
+   fitted over, and the window is shaded, because the whole argument about
+   f_h is an argument about which part of the curve is straight. Drawing the
+   line across the full width would hide exactly the thing being claimed. */
+function chartHP(){
+  const C = chc(), W = 900, H = 340, m = { l:62, r:132, t:14, b:40 };
+  if (!S.ui.calculated) return `<div class="empty-msg">Press Calculate Process.<br/>The heat-penetration curve appears here.</div>`;
+  const r = R.res, hp = r.heatPenetration;
+  const holdT = S.sch.comeUp > 0 ? S.sch.comeUp : 0;
+  const pts = [];
+  for (let i = 0; i < r.times.length; i++){
+    const d = S.sch.holdT - r.centre[i];
+    if (r.times[i] >= holdT && d > 1e-4 && r.times[i] <= holdT + S.sch.holdS)
+      pts.push({ t: (r.times[i] - holdT)/60, y: Math.log10(d) });
+  }
+  if (pts.length < 3) return `<div class="empty-msg">The hold is too short to show a heating curve.</div>`;
+
+  const tMax = Math.max.apply(null, pts.map(p => p.t));
+  let ylo = Math.min.apply(null, pts.map(p => p.y)), yhi = Math.max.apply(null, pts.map(p => p.y));
+  ylo = Math.floor(ylo * 2) / 2 - 0.1; yhi = Math.ceil(yhi * 2) / 2 + 0.1;
+  const X = t => m.l + t/Math.max(1e-9,tMax)*(W-m.l-m.r);
+  const Y = v => m.t + (yhi - v)/Math.max(1e-9,yhi-ylo)*(H-m.t-m.b);
+
+  let g = `<rect x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="${C.plotbg}" stroke="${C.border}"/>`;
+  /* decade lines, and the minor log ticks between them — this is a log axis
+     and it has to look like one or it will be read as linear */
+  for (let d = Math.ceil(ylo); d <= Math.floor(yhi); d++){
+    g += `<line x1="${m.l}" y1="${Y(d).toFixed(1)}" x2="${W-m.r}" y2="${Y(d).toFixed(1)}" stroke="${C.axis}" stroke-width="0.9" opacity="0.5"/>`;
+    g += `<text x="${m.l-7}" y="${(Y(d)+3.5).toFixed(1)}" text-anchor="end" font-size="11" fill="${C.muted}" font-family="DM Mono,monospace">${
+      d >= 0 ? String(Math.round(Math.pow(10,d))) : Math.pow(10,d).toFixed(-d)}</text>`;
+    for (let k = 2; k <= 9; k++){
+      const v = d + Math.log10(k);
+      if (v > ylo && v < yhi)
+        g += `<line x1="${m.l}" y1="${Y(v).toFixed(1)}" x2="${W-m.r}" y2="${Y(v).toFixed(1)}" stroke="${C.grid}"/>`;
+    }
+  }
+  for (const t of niceTicks(0, tMax, 8)){
+    g += `<line x1="${X(t).toFixed(1)}" y1="${m.t}" x2="${X(t).toFixed(1)}" y2="${H-m.b}" stroke="${C.grid}"/>`;
+    g += `<text x="${X(t).toFixed(1)}" y="${H-m.b+16}" text-anchor="middle" font-size="11" fill="${C.muted}" font-family="DM Mono,monospace">${t}</text>`;
+  }
+
+  if (hp){
+    const a = (hp.windowS[0] - holdT)/60, b = (hp.windowS[1] - holdT)/60;
+    g += `<rect x="${X(a).toFixed(1)}" y="${m.t}" width="${(X(b)-X(a)).toFixed(1)}" height="${H-m.t-m.b}" fill="${C.ink}" opacity="0.045"/>`;
+    const slope = -1/(hp.fhS/60);
+    const y0 = Math.log10(hp.jH * (S.sch.holdT - r.initial_c));
+    const line = t => y0 + slope*t;
+    g += `<line x1="${X(a).toFixed(1)}" y1="${Y(line(a)).toFixed(1)}" x2="${X(b).toFixed(1)}" y2="${Y(line(b)).toFixed(1)}" stroke="${C.p2}" stroke-width="2.2"/>`;
+    g += `<text x="${X(b)+6}" y="${Y(line(b)).toFixed(1)}" font-size="11" fill="${C.p2}" font-family="DM Mono,monospace">fₕ ${fmt(hp.fhS/60,1)} min</text>`;
+    g += `<text x="${X(b)+6}" y="${(Y(line(b))+14).toFixed(1)}" font-size="11" fill="${C.p2}" font-family="DM Mono,monospace">jₕ ${fmt(hp.jH,3)}</text>`;
+    g += `<text x="${X(b)+6}" y="${(Y(line(b))+28).toFixed(1)}" font-size="10.5" fill="${C.muted}" font-family="DM Mono,monospace">r² ${hp.r2.toFixed(5)}</text>`;
+  }
+  g += `<path d="${pts.map((p,i)=>(i?"L":"M")+X(p.t).toFixed(1)+" "+Y(p.y).toFixed(1)).join(" ")}" fill="none" stroke="${C.hi}" stroke-width="2.2"/>`;
+  g += `<text x="${m.l}" y="${H-6}" font-size="11" fill="${C.muted}">minutes into the hold</text>`;
+  g += `<text transform="translate(13,${(m.t+(H-m.t-m.b)/2).toFixed(0)}) rotate(-90)" text-anchor="middle" font-size="11" fill="${C.muted}">T medium − T cold spot (°C)</text>`;
+  g += `<rect x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="none" stroke="${C.border}"/>`;
+
+  document.getElementById("legend_hp").innerHTML = legend([
+    { c:C.hi, t:"Simulated cold spot" },
+    { c:C.p2, t:"Fitted straight line, over its fit window only" },
+  ]) + (hp ? `<div class="lg-note">Fitted where the unaccomplished difference lies between ${hp.gWindow[0]} and ${hp.gWindow[1]} of its initial value — ${hp.nPoints} points. Closed form for this geometry: ${fmt(FEM.analyticFhS(r.container,r.product)/60,1)} min.</div>` : "");
+  return svgWrap("ch_hp", W, H, g);
+}
+
+/* ── THE TEMPERATURE FIELD ────────────────────────────────────────────────
+   The container in cross-section, mirrored about the axis so the picture
+   reads like the can rather than like half of one. Cells are shaded on a
+   monochrome ramp from the plot ground to the ink, which keeps the house
+   rule intact — no orange fill — and, more usefully, keeps the field legible
+   to a reader who cannot separate hues. Colour carries magnitude here, so it
+   has to be a lightness ramp and nothing else.
+
+   The cold spot is pinned with a validated pin colour rather than a shade,
+   because it is information and not magnitude: it is the one place on the
+   picture that decides whether the process is adequate. */
+function hex2rgb(h){
+  h = String(h).trim();
+  if (h[0] === "#") h = h.slice(1);
+  if (h.length === 3) h = h.split("").map(c => c + c).join("");
+  const n = parseInt(h, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function ramp(c0, c1, f){
+  const a = hex2rgb(c0), b = hex2rgb(c1);
+  f = Math.max(0, Math.min(1, f));
+  return `rgb(${a.map((v,i)=>Math.round(v + (b[i]-v)*f)).join(",")})`;
+}
+function renderField(){
+  const host = document.getElementById("chart_field");
+  const key = document.getElementById("field_key");
+  const lbl = document.getElementById("c_time_lbl");
+  if (!S.ui.calculated || !R.res.frames.length){
+    host.innerHTML = `<div class="empty-msg">Press Calculate Process.<br/>The cross-section appears here.</div>`;
+    key.innerHTML = ""; lbl.textContent = ""; return;
+  }
+  const C = chc(), r = R.res, fr = r.frames;
+  const idx = Math.min(fr.length - 1, Math.max(0, Math.round(S.ui.frame / 100 * (fr.length - 1))));
+  const frame = fr[idx];
+  lbl.textContent = fmt(frame.t / 60, 1) + " min";
+
+  const nR = r.rN.length, nZ = r.zN.length;
+  /* The scale is FIXED over the whole run, not per frame. A ramp that
+     re-normalises on every frame makes a can that is cooling look like a can
+     that is heating, because the coldest thing on screen is always white. */
+  let lo = r.initial_c, hi = r.initial_c;
+  for (const f of fr) for (const v of f.temps){ if (v < lo) lo = v; if (v > hi) hi = v; }
+  const span = (hi - lo) || 1;
+
+  const cw = 13, ch = 13, W = nR * 2 * cw + 76, H = nZ * ch + 44;
+  const x0 = 38, y0 = 14;
+  let g = "";
+  for (let j = 0; j < nZ; j++){
+    for (let i = 0; i < nR; i++){
+      const v = frame.temps[j * nR + i];
+      const col = ramp(C.off2, C.ink, (v - lo) / span);
+      /* z increases upward on the drawing, so the top row of the picture is
+         the top of the can */
+      const y = y0 + (nZ - 1 - j) * ch;
+      g += `<rect x="${x0 + (nR + i) * cw}" y="${y}" width="${cw}" height="${ch}" fill="${col}"><title>r ${fmt(r.rN[i]*1000,1)} mm, z ${fmt(r.zN[j]*1000,1)} mm — ${fmt(uFromSI(v,"T"),1)} ${Tu()}</title></rect>`;
+      g += `<rect x="${x0 + (nR - 1 - i) * cw}" y="${y}" width="${cw}" height="${ch}" fill="${col}"/>`;
+    }
+  }
+  const wall = x0 + nR * 2 * cw;
+  g += `<rect x="${x0}" y="${y0}" width="${nR*2*cw}" height="${nZ*ch}" fill="none" stroke="${C.ink}" stroke-width="1.6"/>`;
+  g += `<line x1="${x0+nR*cw}" y1="${y0-5}" x2="${x0+nR*cw}" y2="${y0+nZ*ch+5}" stroke="${C.axis}" stroke-width="0.9" stroke-dasharray="4 3"/>`;
+  g += `<text x="${x0+nR*cw}" y="${y0+nZ*ch+18}" text-anchor="middle" font-size="10.5" fill="${C.muted}" font-family="DM Mono,monospace">axis</text>`;
+  g += `<text x="${wall+5}" y="${y0+9}" font-size="10.5" fill="${C.muted}" font-family="DM Mono,monospace">wall</text>`;
+  g += `<text transform="translate(${x0-9},${y0+nZ*ch/2}) rotate(-90)" text-anchor="middle" font-size="10.5" fill="${C.muted}" font-family="DM Mono,monospace">z</text>`;
+  /* the cold spot */
+  const ci = r.rN.indexOf(r.coldSpot.r), cj = r.zN.indexOf(r.coldSpot.z);
+  if (ci >= 0 && cj >= 0){
+    const cy = y0 + (nZ - 1 - cj) * ch + ch/2;
+    /* On the axis the mirrored pair coincide, and drawing both put two rings
+       either side of the centreline — which reads as two cold spots. */
+    const xs = ci === 0 ? [x0 + nR * cw]
+                        : [x0 + (nR + ci) * cw + cw/2, x0 + (nR - 1 - ci) * cw + cw/2];
+    for (const cx of xs)
+      g += `<circle cx="${cx}" cy="${cy}" r="5" fill="none" stroke="${C.p1}" stroke-width="2"/>`;
+  }
+  host.innerHTML = svgWrap("ch_field", W, H, g);
+
+  const steps = 6;
+  let k = `<div class="fkey-hd">Temperature</div>`;
+  for (let i = steps; i >= 0; i--){
+    const f = i / steps, v = lo + span * f;
+    k += `<div class="fkey-row"><span class="fkey-sw" style="background:${ramp(C.off2,C.ink,f)}"></span>${fmt(uFromSI(v,"T"),0)} ${esc(Tu())}</div>`;
+  }
+  k += `<div class="fkey-row" style="margin-top:7px"><span class="fkey-sw" style="background:transparent;border:2px solid ${C.p1};border-radius:50%;width:12px;height:12px"></span>cold spot</div>`;
+  k += `<div class="fkey-row" style="margin-top:7px;line-height:1.45;white-space:normal">Scale fixed over the whole run.</div>`;
+  key.innerHTML = k;
+}
+
+/* ── SENSITIVITY ──────────────────────────────────────────────────────────
+   Ranked, because the useful output is not "F moves when k moves" — everyone
+   knows that — but WHICH measurement to go and make first. The bars are
+   black: this is a chart mark, so the orange rule applies to it. */
+function sensBody(){
+  if (!S.ui.calculated) return `<div class="empty-msg">Press Calculate Process.</div>`;
+  const max = Math.max.apply(null, R.sens.map(s => s.span)) || 1;
+  const rows = R.sens.map(s => {
+    const w = v => Math.abs(v) / max * 50;
+    return `<div class="sens-row">
+      <div class="sens-lbl" title="${esc(s.label)} ${esc(s.how)}">${esc(s.label)}<small>${esc(s.how)}</small></div>
+      <div class="sens-bar"><u></u>
+        <i style="left:${(50 - w(s.dn)).toFixed(1)}%;width:${w(s.dn).toFixed(1)}%;opacity:.45"></i>
+        <i style="left:50%;width:${w(s.up).toFixed(1)}%"></i>
+      </div>
+      <div class="sens-val">${s.up >= 0 ? "+" : ""}${s.up.toFixed(2)} min</div>
+    </div>`;
+  }).join("");
+  return `<div class="sens">${rows}</div>
+    <div class="field-hint" style="margin-top:9px">Solid bar: the input raised. Faint bar: lowered. Each row says by how much &mdash; the temperatures move by a fixed number of degrees rather than by a percentage, because a percentage of a Celsius temperature is not a physical quantity and would change if the same temperature were written in Fahrenheit. Run on a coarser mesh than the schedule itself, so read the ranking and not the third decimal. The input at the top of this list is the one worth measuring before anything here is filed.</div>`;
+}
+
+/* ── TRACE ────────────────────────────────────────────────────────────────
+   A derivation, set as one. Everything the answer was built from, in the
+   order it was computed, so a reviewer can follow it without the source. */
+function traceBody(){
+  if (!S.ui.calculated) return `<div class="empty-msg">Press Calculate Process.</div>`;
+  const r = R.res, hp = r.heatPenetration, o = r.options;
+  const a = FEM.diffusivity(r.product);
+  const L = (k, v) => `<div class="tl"><b>${k}</b><span class="tv">${v}</span></div>`;
+  const H = t => `<div class="th">${t}</div>`;
+  const R_ = r.container.diameter_m/2, Hh = r.container.height_m;
+  const lam = a * (Math.pow(2.404825557695773/R_,2) + Math.pow(Math.PI/Hh,2));
+  return `<div class="trace">
+    ${H("Geometry")}
+    ${L("internal radius R", fmt(R_*1000,2)+" mm")}
+    ${L("internal height H", fmt(Hh*1000,2)+" mm")}
+    ${L("volume πR²H", fmt(Math.PI*R_*R_*Hh*1e6,1)+" mL")}
+    ${L("wetted area 2πR(H+R)", fmt(2*Math.PI*R_*(Hh+R_)*1e4,1)+" cm²")}
+    ${H("Material")}
+    ${L("k", fmt(r.product.k,3)+" W/m·K")}
+    ${L("ρ cₚ", fmt(r.product.rho*r.product.cp,0)+" J/m³·K")}
+    ${L("thermal diffusivity α = k/ρcₚ", (a*1e7).toFixed(4)+"e-7 m²/s")}
+    ${H("Discretisation")}
+    ${L("mesh", `${o.nr} × ${FEM.evenNz(o.nz)} elements, ${r.rN.length*r.zN.length} nodes`)}
+    ${L("element size Δr × Δz", fmt(R_/o.nr*1000,2)+" × "+fmt(Hh/FEM.evenNz(o.nz)*1000,2)+" mm")}
+    ${L("time step Δt", fmt(o.dt,2)+" s over "+(r.times.length-1)+" steps")}
+    ${L("θ", fmt(o.theta,2)+(o.theta===1?" (backward Euler)":" (Crank–Nicolson)"))}
+    ${L("capacity matrix", o.lumped ? "lumped" : "consistent")}
+    ${L("surface coefficient h", r.isothermal
+        ? fmt(r.surfaceH,0)+" W/m²·K (penalty for an isothermal wall)"
+        : fmt(r.surfaceH,1)+" W/m²·K")}
+    ${L("monotonicity limit Δt ≥ h²/6α", fmt(FEM.oscillationFreeDt(r.container,r.product,o),1)+" s")}
+    ${H("First eigenvalue — the closed form this is checked against")}
+    ${L("β₁²α/R²", (a*Math.pow(2.404825557695773/R_,2)).toExponential(4)+" s⁻¹")}
+    ${L("π²α/H²", (a*Math.pow(Math.PI/Hh,2)).toExponential(4)+" s⁻¹")}
+    ${L("λ₁ = sum", lam.toExponential(4)+" s⁻¹")}
+    ${L("fₕ = ln(10)/λ₁", fmt(Math.log(10)/lam/60,2)+" min")}
+    ${H("Recovered from the simulated curve")}
+    ${hp ? L("fₕ fitted", fmt(hp.fhS/60,2)+" min ("+((hp.fhS-Math.log(10)/lam)/(Math.log(10)/lam)*100).toFixed(2)+" % from the closed form)") : L("fₕ fitted","not identifiable — the hold never straightened")}
+    ${hp ? L("jₕ fitted", fmt(hp.jH,4)+" (2.0396 for an instantaneous come-up)") : ""}
+    ${hp ? L("fit window", fmt(hp.windowS[0]/60,1)+" – "+fmt(hp.windowS[1]/60,1)+" min, "+hp.nPoints+" points, r² "+hp.r2.toFixed(6)) : ""}
+    ${H("Lethality")}
+    ${L("basis", "T_ref "+fmt(o.f0Ref,2)+" °C, z "+fmt(o.f0Z,2)+" °C")}
+    ${L("cold spot", "r "+fmt(r.coldSpot.r*1000,1)+" mm, z "+fmt(r.coldSpot.z*1000,1)+" mm")}
+    ${L("peak cold-spot temperature", fmt(r.peakCentre,3)+" °C")}
+    ${L("F at the cold spot", fmt(r.f0ColdSpot,4)+" min")}
+    ${L("F mass-average", fmt(r.f0MassAvg,4)+" min")}
+    ${L("cook value C mass-average", fmt(r.cookMassAvg,2)+" min at "+fmt(o.cookRef,0)+" °C, z "+fmt(o.cookZ,1))}
+    ${L("cook value at the surface", fmt(r.cookSurface,2)+" min")}
+    ${H("Convergence — the same case, twice the mesh, half the step")}
+    ${L("fine mesh", `${o.nr*2} × ${FEM.evenNz(o.nz*2)} elements, Δt ${fmt(o.dt/2,2)} s`)}
+    ${L("F at the cold spot, fine", fmt(R.fine.f0ColdSpot,4)+" min")}
+    ${L("difference", ((R.fine.f0ColdSpot-r.f0ColdSpot)/R.fine.f0ColdSpot*100).toFixed(3)+" %")}
+  </div>`;
+}
+
+/* ── THE RIGHT COLUMN — the answer, its status, what it stands on ─────── */
+function kpi(lbl, val, unitHTML, primary){
+  const empty = val === "—" || val == null || val === "";
+  const word = !empty && !/^[-+]?[\d.,]/.test(String(val));
+  const n = empty ? 0 : String(val).length;
+  const size = word ? " word" : n >= 10 ? " n10" : n >= 8 ? " n8" : "";
+  return `<div class="kpi ${primary ? "primary" : ""}">
+    <div class="kpi-lbl">${esc(lbl)}</div>
+    <div class="kpi-val${empty ? " empty" : ""}${size}">${esc(empty ? "—" : val)}</div>
+    <div class="kpi-unit">${unitHTML || ""}</div></div>`;
+}
+function renderRRail(){
+  const host = document.getElementById("rrail");
+  if (!S.ui.calculated){
+    host.innerHTML = `<div class="rgrid"><div class="answer">
+      <div class="answer-q">F at the cold spot</div>
+      <div class="answer-v"><b>—</b></div>
+      <div class="answer-x">Enter the container, the product and the schedule, then press Calculate Process.</div>
+    </div></div>`;
+    return;
+  }
+  const r = R.res, ck = checks();
+  const target = S.leth.target;
+  const met = target > 0 ? r.f0ColdSpot >= target : null;
+  const cls = met === null ? "" : met ? "" : " answer-bad";
+  const hp = r.heatPenetration;
+
+  let h = `<div class="rgrid">`;
+  h += `<div class="answer${cls}">
+    <div class="answer-q">F at the cold spot</div>
+    <div class="answer-v"><b>${fmt(r.f0ColdSpot)}</b><span>min</span></div>
+    <div class="answer-s">${
+      target > 0
+        ? (met ? `Meets the ${fmt(target)} min target with ${fmt(r.f0ColdSpot - target)} min in hand.`
+               : `<b>Short of the ${fmt(target)} min target by ${fmt(target - r.f0ColdSpot)} min.</b>`)
+        : "No target entered — this is what the schedule delivers."}</div>
+    <div class="answer-x">At r&nbsp;${fmt(r.coldSpot.r*1000,1)}&nbsp;mm, z&nbsp;${fmt(r.coldSpot.z*1000,1)}&nbsp;mm.
+      Reference ${fmt(uFromSI(S.leth.ref,"T"),1)}&nbsp;${esc(Tu())}, z&nbsp;${fmt(uFromSI(S.leth.z,"dT"),1)}&nbsp;${esc(Tu())}.
+      Mass-average F is ${fmt(r.f0MassAvg)}&nbsp;min — the gap between the two is the conduction pack.</div>
+  </div>`;
+
+  h += `<div class="rcard"><div class="rcard-h">Acceptance</div><div class="rcard-b">${
+    ck.map(c => `<div class="chk"><div class="chk-lbl">${esc(c.lbl)}<small>${c.sub}</small></div>
+      <div class="chk-val chk-${c.cls}">${esc(c.val)}</div></div>`).join("")
+  }</div></div>`;
+
+  h += `<div class="rcard"><div class="rcard-h">The numbers</div><div class="rcard-b"><div class="kpis">${
+    kpi("Peak cold-spot temperature", fmt(uFromSI(r.peakCentre,"T"),1), esc(Tu())) +
+    kpi("Mass-average F", fmt(r.f0MassAvg), "min") +
+    kpi("fₕ heating rate", hp ? fmt(hp.fhS/60,1) : "—", "min") +
+    kpi("jₕ lag factor", hp ? fmt(hp.jH,3) : "—", "") +
+    kpi("Cook value, mass average", fmt(r.cookMassAvg,0), "min") +
+    kpi("Process time", fmt(r.totalTimeS/60,1), "min")
+  }</div></div></div>`;
+
+  h += `<div class="rcard"><div class="rcard-h">Envelope</div><div class="rcard-b">
+    <div class="envelope"><b>Conduction only.</b> No convection in the pack, no agitation or
+    rotation, no headspace, no boiling or phase change, and properties that do not vary with
+    temperature. The medium is assumed uniform around the container, which is what a
+    temperature-distribution study establishes. A convection-heating or broken-heating product is
+    outside this model and its answer here will be optimistic.</div>
+    <div class="field-hint" style="margin-top:8px">Properties are ${
+      S.prod.preset === "custom" ? "the ones you entered" : "<b>representative handbook values</b>"
+    }. This page is a model, not a scheduled process.</div>
+  </div></div>`;
+  h += `</div>`;
+  host.innerHTML = h;
+}
+
+/* ── RENDER ───────────────────────────────────────────────────────────── */
+function render(){
+  document.getElementById("sched_table").innerHTML = schedTable();
+  document.getElementById("chart_hist").innerHTML = chartHistory();
+  document.getElementById("chart_hp").innerHTML = chartHP();
+  document.getElementById("sens_body").innerHTML = sensBody();
+  document.getElementById("trace_body").innerHTML = traceBody();
+  renderField();
+  renderRRail();
+  if (S.ui.calculated) document.getElementById("banners").innerHTML = "";
+  stamp();
+}
+function renderRail(){
+  document.getElementById("rail_secs").innerHTML = GROUPS.map(g => {
+    const open = !!S.ui.openSecs[g.id];
+    return `<div class="sec ${open ? "" : "collapsed"}" id="sec-${g.id}">
+      <div class="sec-head" onclick="toggleSec('${g.id}')" title="${open ? "Collapse" : "Expand"} this group">
+        <div class="sec-title"><span class="sec-n">${g.n}</span>${esc(g.title)}</div>
+        <div class="sec-arrow">&#9662;</div>
+        <div class="sec-sum" id="sum-${g.id}"></div>
+      </div>
+      <div class="sec-body">${g.body()}</div>
+    </div>`;
+  }).join("");
+  updateSummaries();
+}
+function toggleSec(id){ S.ui.openSecs[id] = !S.ui.openSecs[id]; renderRail(); }
+
+/* Each collapsed header carries a one-line summary of what is set inside it,
+   so the whole case reads at a glance without opening anything. */
+function updateSummaries(){
+  const T = v => fmt(uFromSI(v,"T"),1) + " " + Tu();
+  const L = v => fmt(uFromSI(v,"Lc"),1) + " " + du("Lc");
+  const sums = {
+    can:  `${S.can.preset === "custom" ? "custom" : S.can.preset} · ${L(S.can.d)} dia × ${L(S.can.h)} · ${fmt(Math.PI*Math.pow(S.can.d/2,2)*S.can.h*1e6,0)} mL`,
+    prod: `${PRODUCTS[S.prod.preset][0]} · α ${(FEM.diffusivity({k:S.prod.k,rho:S.prod.rho,cp:S.prod.cp})*1e7).toFixed(3)}e-7 m²/s · in at ${T(S.prod.init)}`,
+    sch:  `${fmt(S.sch.comeUp/60,0)} min come-up · ${T(S.sch.holdT)} for ${fmt(S.sch.holdS/60,0)} min · cool ${fmt(S.sch.coolS/60,0)} min · ${S.sch.surf === "steam" ? "steam" : "h " + fmt(S.sch.h,0)}`,
+    leth: `${BASES[S.leth.preset][0].split(" — ")[0]} · ref ${T(S.leth.ref)}, z ${fmt(uFromSI(S.leth.z,"dT"),1)} ${Tu()}${S.leth.target > 0 ? " · target " + fmt(S.leth.target) + " min" : " · no target"}`,
+    num:  `${S.num.nr} × ${FEM.evenNz(S.num.nz)} elements · Δt ${fmt(S.num.dt,1)} s · θ ${fmt(S.num.theta,1)}${S.num.lumped ? " · lumped" : ""}`,
+  };
+  for (const k in sums){
+    const el = document.getElementById("sum-" + k);
+    if (el) el.textContent = sums[k];
+  }
+}
+function stamp(){
+  const bits = [S.meta.proj, S.meta.product, S.meta.client].filter(Boolean);
+  document.getElementById("pf_id").textContent = bits.join(" · ") || "In-Container Process";
+}
+
+/* ── ACTIONS ──────────────────────────────────────────────────────────── */
+function openModal(id){ document.getElementById(id).classList.add("on"); }
+function closeModal(id){ document.getElementById(id).classList.remove("on"); }
+function caseData(){ return { v:1, tool:"afts-in-container", S:{
+  meta:S.meta, can:S.can, prod:S.prod, sch:S.sch, leth:S.leth, num:S.num } }; }
+function saveLocal(){
+  try { localStorage.setItem("afts-incontainer-case", JSON.stringify(caseData()));
+        note("saved in this browser"); }
+  catch(e){ note("this browser refused to store the case"); }
+}
+function loadLocal(){
+  let raw = null;
+  try { raw = localStorage.getItem("afts-incontainer-case"); } catch(e){}
+  if (!raw){ note("nothing saved in this browser"); return; }
+  try {
+    const d = JSON.parse(raw);
+    Object.assign(S, d.S);
+    S.ui = DEFAULTS().ui;
+    R = null;
+    renderRail(); render(); syncMeta(); note("case reopened");
+  } catch(e){ note("the saved case could not be read"); }
+}
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(caseData(), null, 2)], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = (S.meta.proj || "in-container-case").replace(/[^\w.-]+/g, "_") + ".json";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function copySchedTSV(){
+  if (!S.ui.calculated){ note("calculate first"); return; }
+  const host = document.getElementById("sched_table").querySelector("table");
+  if (!host) return;
+  const tsv = Array.from(host.querySelectorAll("tr")).map(tr =>
+    Array.from(tr.children).map(td => td.textContent.trim()).join("\t")).join("\n");
+  (navigator.clipboard ? navigator.clipboard.writeText(tsv) : Promise.reject())
+    .then(() => note("schedule copied"), () => note("the browser refused the clipboard"));
+}
+function resetAll(){
+  S = DEFAULTS(); R = null;
+  renderRail(); render(); syncMeta();
+  document.getElementById("ab_note").textContent = "";
+}
+function note(msg){
+  const n = document.getElementById("ab_note");
+  n.textContent = msg;
+  setTimeout(() => { if (n.textContent === msg) n.textContent = ""; }, 4000);
+}
+function syncMeta(){
+  for (const [id, k] of [["p_product","product"],["p_proj","proj"],["p_client","client"],
+                         ["p_eng","eng"],["p_dates","dates"]])
+    document.getElementById(id).value = S.meta[k] || "";
+}
+
+/* ── THEME ────────────────────────────────────────────────────────────── */
+function setTheme(pref){
+  const sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.setAttribute("data-theme", pref === "auto" ? (sysDark ? "dark" : "light") : pref);
+  document.documentElement.setAttribute("data-theme-pref", pref);
+  try { localStorage.setItem("afts-theme", pref); } catch(e){}
+  document.querySelectorAll("#themeToggle button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.themeSet === pref)));
+  CHC = null;                      /* the charts read the sheet, so re-read it */
+  if (S.ui.calculated) render(); else renderField();
+}
+
+/* ── BOOT ─────────────────────────────────────────────────────────────── */
+(function(){
+  document.querySelectorAll("#themeToggle button").forEach(b =>
+    b.addEventListener("click", () => setTheme(b.dataset.themeSet)));
+  let pref = "auto";
+  try { pref = localStorage.getItem("afts-theme") || "auto"; } catch(e){}
+  document.querySelectorAll("#themeToggle button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.themeSet === pref)));
+  if (window.matchMedia){
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => {
+      if (document.documentElement.getAttribute("data-theme-pref") === "auto") setTheme("auto");
+    };
+    mq.addEventListener ? mq.addEventListener("change", onChange) : mq.addListener(onChange);
+  }
+  try { const u = localStorage.getItem("afts-units"); if (u === "US" || u === "SI") USYS = u; } catch(e){}
+  document.querySelectorAll("#unitsys button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.usys === USYS)));
+  document.addEventListener("click", e => {
+    if (e.target.classList && e.target.classList.contains("modal")) e.target.classList.remove("on");
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") document.querySelectorAll(".modal.on").forEach(m => m.classList.remove("on"));
+  });
+  renderRail(); render(); syncMeta();
+})();
+</script>
+</body>
+</html>

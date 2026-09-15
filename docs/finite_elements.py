@@ -423,6 +423,15 @@ class SolveOptions:
     surface_h_w_m2k: Optional[float] = None
     theta: float = 1.0
     lumped_capacity: bool = False
+    # The lethality basis. Defaults are the botulinum cook, but an
+    # in-container process is not always a botulinum cook: a chilled
+    # ready meal pasteurised for Listeria is the same conduction
+    # problem against a different organism, and hard-coding 121.11/10
+    # would have made this module answer only half the question.
+    f0_ref_c: float = F0_REF_C
+    f0_z_c: float = F0_Z_C
+    cook_ref_c: float = COOK_REF_C
+    cook_z_c: float = COOK_Z_C
 
     def __post_init__(self) -> None:
         if self.radial_divisions < 2 or self.axial_divisions < 2:
@@ -431,6 +440,8 @@ class SolveOptions:
             raise ValueError("time_step_s must be positive")
         if not 0.0 <= self.theta <= 1.0:
             raise ValueError("theta must lie in [0, 1]")
+        if self.f0_z_c <= 0.0 or self.cook_z_c <= 0.0:
+            raise ValueError("z values must be positive")
 
     @property
     def axial_divisions_even(self) -> int:
@@ -826,8 +837,10 @@ def simulate(container: Container,
     trough = temps[:]
     f0_nodes = [0.0] * n
     cook_nodes = [0.0] * n
-    rate_f0 = [lethal_rate(initial_c, F0_REF_C, F0_Z_C)] * n
-    rate_ck = [lethal_rate(initial_c, COOK_REF_C, COOK_Z_C)] * n
+    f0_ref, f0_z = opts.f0_ref_c, opts.f0_z_c
+    cook_ref, cook_z = opts.cook_ref_c, opts.cook_z_c
+    rate_f0 = [lethal_rate(initial_c, f0_ref, f0_z)] * n
+    rate_ck = [lethal_rate(initial_c, cook_ref, cook_z)] * n
 
     t = 0.0
     total_s = schedule.total_s
@@ -862,8 +875,8 @@ def simulate(container: Container,
                 # temperature is the signature of a ringing time
                 # integrator, not of anything physical.
                 trough[i] = ti
-            r_f0 = lethal_rate(ti, F0_REF_C, F0_Z_C)
-            r_ck = lethal_rate(ti, COOK_REF_C, COOK_Z_C)
+            r_f0 = lethal_rate(ti, f0_ref, f0_z)
+            r_ck = lethal_rate(ti, cook_ref, cook_z)
             f0_nodes[i] += 0.5 * (rate_f0[i] + r_f0) * dt_min
             cook_nodes[i] += 0.5 * (rate_ck[i] + r_ck) * dt_min
             rate_f0[i] = r_f0
@@ -1055,10 +1068,12 @@ def summarize(result: SimulationResult, *, include_map: bool = True) -> str:
         f"(geometric centre r=0.0, z={c.height_m * 500:.1f} mm)",
         f"Peak centre    {result.peak_center_c:.2f} C",
         f"F0 cold spot   {result.f0_cold_spot_min:.2f} min  "
-        f"(ref {F0_REF_C:.2f} C, z={F0_Z_C:.0f} C)",
+        f"(ref {result.options.f0_ref_c:.2f} C, "
+        f"z={result.options.f0_z_c:.1f} C)",
         f"F0 mass avg    {result.f0_mass_avg_min:.2f} min",
         f"Cook mass avg  {result.cook_mass_avg_min:.1f} min  "
-        f"(ref {COOK_REF_C:.0f} C, z={COOK_Z_C:.1f} C)",
+        f"(ref {result.options.cook_ref_c:.0f} C, "
+        f"z={result.options.cook_z_c:.1f} C)",
         f"Cook surface   {result.cook_surface_min:.1f} min",
     ]
     if hp is not None:

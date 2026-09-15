@@ -35,7 +35,7 @@ Design rules:
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 # ──────────────────────────────────────────────────────────────────────
 # Public constant — the section label, also used by the report builder
@@ -265,6 +265,8 @@ def build_prompt_extension(trigger: Dict[str, Any]) -> str:
         ex_lines.append("  - " + " | ".join(bits))
     ex_block = "\n".join(ex_lines) if ex_lines else "  (no specific example rows captured)"
 
+    tooling = tooling_pointer(trigger)
+
     return f"""ADDITIONAL TASK — PROCESS AUTHORITY NOTE
 This reporting window contains {n} recall(s) with thermal-processing /
 commercial-sterility / scheduled-process relevance:
@@ -299,6 +301,16 @@ The paragraph must:
   5. Recommend that operators in adjacent commodity categories engage
      a qualified process authority to verify scheduled-process adequacy
      and GMP alignment before any production change.
+  6. Close with this sentence, reproduced EXACTLY as given, as the final
+     sentence of the paragraph. Do not paraphrase it, do not shorten the
+     URL, and do not move it earlier — it names the software AFTS
+     publishes for this work, and the clause about not substituting for
+     a process authority is the part that keeps rule 4 honest:
+
+     {tooling}
+
+The sentence in rule 6 is the only place a tool, a product or a URL may
+appear. Rule 4 governs the rest of the paragraph without exception.
 
 Return the paragraph as the FOURTH paragraph of your response, after a
 single blank line separating it from paragraph three.
@@ -340,6 +352,89 @@ _GLOBAL_FRAMING = (
     "the LACF and acidified-food rules; other jurisdictions apply their own "
     "validation, HACCP and preventive-control requirements to the same end."
 )
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Public: tooling_pointer
+# ──────────────────────────────────────────────────────────────────────
+# The PA note tells an operator to engage a qualified process authority.
+# AFTS is one, and it publishes the software that does this arithmetic.
+# Saying so is legitimate and useful; saying it carelessly is not, for
+# two separate reasons.
+#
+#   1. RULE 4 STILL HOLDS. The pointer names what a tool COMPUTES. It
+#      never states a value — no F-value, D-value, z-value, hold-tube
+#      length or temperature target — because a number in this paragraph
+#      would be a process recommendation to an operator whose product
+#      nobody has measured. test_process_authority.py enforces this.
+#
+#   2. A CALCULATOR IS NOT A PROCESS AUTHORITY. The sentence before this
+#      one asks the reader to engage one. A tool link that arrives
+#      without qualification reads as an alternative to that advice
+#      rather than an aid to it, which is precisely backwards: these
+#      models are how a process authority prepares and checks work, and
+#      every one of them still needs measured product data and a signed
+#      scheduled process. So the closing clause is not a disclaimer
+#      bolted on — it is the point of the sentence.
+#
+# Deep links are deliberately absent. Only the software index URL is
+# known to be stable; inventing per-tool URLs would put dead links in a
+# published briefing. Add them here, in one place, when they exist.
+AFTS_SOFTWARE_URL = "https://www.advfood.tech/food-tech-programs"
+
+# category -> the clause naming the tool that fits that hazard shape.
+_TOOL_CLAUSES = {
+    "in_container": ("an in-container thermal-process model that reports "
+                     "cold-spot lethality for conduction packs"),
+    "continuous":   ("a hold-tube process-schedule model for "
+                     "continuous-flow systems"),
+    "library":      "a library of cited D and z values",
+}
+
+# Which tools to name, per trigger category. Ordered most- to
+# least-relevant; the pointer names at most two so the sentence stays a
+# sentence.
+_CATEGORY_TOOLS = {
+    "lacf":                ("in_container", "library"),
+    "auto_category":       ("in_container", "library"),
+    "aseptic":             ("continuous", "library"),
+    "botulinum":           ("in_container", "continuous"),
+    "anaerobic_packaging": ("library", "in_container"),
+}
+_DEFAULT_TOOLS = ("in_container", "continuous")
+
+
+def tooling_pointer(trigger: Optional[Dict[str, Any]] = None) -> str:
+    """One sentence naming the AFTS software that fits the fired hazard.
+
+    Safe to call with None, with an unfired trigger, or with a trigger
+    whose categories this module does not recognise — the weekly builder
+    fires a PA note on hazard classes this module never sees (RTE
+    Listeria, low-moisture Salmonella), and those get the general
+    pointer rather than a retort model that has nothing to do with them.
+
+    Returns a sentence, never an empty string: the caller decides
+    whether to append it.
+    """
+    cats = list((trigger or {}).get("categories") or [])
+    keys: List[str] = []
+    for cat in ("lacf", "auto_category", "aseptic", "botulinum",
+                "anaerobic_packaging"):
+        if cat in cats:
+            keys = list(_CATEGORY_TOOLS[cat])
+            break
+    if not keys:
+        keys = list(_DEFAULT_TOOLS)
+
+    clauses = [_TOOL_CLAUSES[k] for k in keys[:2]]
+    named = clauses[0] if len(clauses) == 1 else f"{clauses[0]} and {clauses[1]}"
+    return (
+        f"AFTS publishes process-authority software for this work — "
+        f"{named}, at {AFTS_SOFTWARE_URL} — but these models support a "
+        f"process-authority engagement rather than substituting for one, "
+        f"and none is a scheduled process until it has been run on "
+        f"measured product data and signed."
+    )
 
 
 def _fallback_botulinum(trigger: Dict[str, Any]) -> str:
@@ -448,12 +543,19 @@ def _fallback_generic(trigger: Dict[str, Any]) -> str:
     )
 
 
-def deterministic_fallback(trigger: Dict[str, Any]) -> str:
+def deterministic_fallback(trigger: Dict[str, Any],
+                           include_tooling: bool = True) -> str:
     """Return the full PA paragraph (starting with the label) when fired.
 
     Returns empty string when trigger.fired is False, so the caller can
     append unconditionally (`body + "\\n\\n" + pa_note` is a no-op when
     pa_note is empty).
+
+    include_tooling appends tooling_pointer() as the closing sentence.
+    It is a parameter rather than a constant because the pointer names
+    AFTS software, and a caller rendering this paragraph somewhere that
+    would make that read as advertising rather than as a reference
+    should be able to drop it without editing prose.
     """
     if not trigger or not trigger.get("fired"):
         return ""
@@ -462,19 +564,24 @@ def deterministic_fallback(trigger: Dict[str, Any]) -> str:
     # Priority order: most specific → most general.
     # Botulinum is the most acute hazard and gets its own dedicated text.
     if "botulinum" in cats:
-        return _fallback_botulinum(trigger)
-    if "lacf" in cats or "auto_category" in cats:
-        return _fallback_lacf(trigger)
-    if "aseptic" in cats:
-        return _fallback_aseptic(trigger)
-    if "anaerobic_packaging" in cats:
-        return _fallback_anaerobic(trigger)
-    return _fallback_generic(trigger)
+        body = _fallback_botulinum(trigger)
+    elif "lacf" in cats or "auto_category" in cats:
+        body = _fallback_lacf(trigger)
+    elif "aseptic" in cats:
+        body = _fallback_aseptic(trigger)
+    elif "anaerobic_packaging" in cats:
+        body = _fallback_anaerobic(trigger)
+    else:
+        body = _fallback_generic(trigger)
+
+    return f"{body} {tooling_pointer(trigger)}" if include_tooling else body
 
 
 __all__ = [
     "PROCESS_AUTHORITY_LABEL",
+    "AFTS_SOFTWARE_URL",
     "detect_process_authority_trigger",
     "build_prompt_extension",
     "deterministic_fallback",
+    "tooling_pointer",
 ]
