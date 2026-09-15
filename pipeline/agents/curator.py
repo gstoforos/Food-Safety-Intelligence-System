@@ -144,13 +144,23 @@ def check_gate(row: Dict[str, Any]) -> List[str]:
 
 
 def check_language(row: Dict[str, Any]) -> List[str]:
-    """Reason and Company must be English. Brand and Product may not be."""
+    """Reason, Class, Pathogen, Country and Region must be English.
+
+    Company, Brand and Product are NAMES, not description — the same
+    exemption pipeline/_language.py documents and tests/test_language_policy
+    .py enforces as MUST_BE_ENGLISH = ("Reason", "Class", "Pathogen",
+    "Country", "Region"). Checking Company here (found 2026-09-15) refused
+    every enrich proposal that merely left an existing, correct French
+    company name untouched — "SARL la Gare du Terroir" is what the
+    regulator calls it, and translating it would break the match against
+    the source page this same check requires elsewhere.
+    """
     try:
         from pipeline._language import looks_non_english
     except Exception:                                       # noqa: BLE001
         return []
     out = []
-    for f in ("Reason", "Company"):
+    for f in ("Reason", "Class", "Pathogen", "Country", "Region"):
         v = str(row.get(f, "") or "")
         if v and looks_non_english(v):
             out.append(f"{f} is not English: {v[:60]!r}")
