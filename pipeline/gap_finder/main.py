@@ -660,12 +660,87 @@ def main() -> int:
     print("=" * 70, file=sys.stderr)
 
     # ── Run log ─────────────────────────────────────────────────────────────
-    log_record = asdict(state)
-    log_record["finished_at"] = datetime.now(timezone.utc).isoformat()
-    append_jsonl(log_record, cfg.run_log_path)
+    _write_run_log(cfg, state, status="completed")
 
     return 1 if state.errors else 0
 
 
+def _write_run_log(cfg, state, status: str, failed_stage: str = "",
+                   error: str = "") -> None:
+    """Append this run to the country's run_log.jsonl.
+
+    AUDIT 2026-09-16 — WHY THIS IS A FUNCTION NOW
+    ---------------------------------------------
+    The append used to be the second-to-last statement of main(). Eighteen
+    stages above it catch their own exceptions, but anything they miss —
+    an import error, a country config that raises, a bad response shape —
+    unwinds straight past it and NOTHING IS WRITTEN.
+
+    So run_log.jsonl records "last run that reached the end", not "last
+    run". A country that starts and dies every single day is
+    indistinguishable, in the only durable record there is, from one that
+    was never dispatched at all.
+
+    That is not hypothetical. Fourteen countries read as dark — the Nordic
+    five since 2026-05-31, the Central EU eight since 2026-06-14, Greece
+    since 2026-07-08 — while Greece commits a dated "auto-update" every
+    morning. Both facts are true at once precisely because a crash leaves
+    no trace here.
+
+    Now every exit writes a record, carrying the stage it died in. A
+    crashing country becomes fourteen dated crash records naming a stage,
+    which is a diagnosis; silence is not.
+    """
+    try:
+        rec = asdict(state)
+        rec["finished_at"] = datetime.now(timezone.utc).isoformat()
+        rec["status"] = status
+        if failed_stage:
+            rec["failed_stage"] = failed_stage
+        if error:
+            rec["error"] = str(error)[:500]
+        append_jsonl(rec, cfg.run_log_path)
+    except Exception as exc:        # noqa: BLE001
+        # Never let logging mask the real failure.
+        print(f"  WARN: could not write run log: {exc}", file=sys.stderr)
+
+
+def _main_guarded() -> int:
+    """main() with a run-log record guaranteed on every exit path."""
+    try:
+        return main()
+    except SystemExit:
+        raise
+    except BaseException as exc:                             # noqa: BLE001
+        import traceback
+        traceback.print_exc()
+        # Recover whatever context main() had built before it died, so the
+        # record names a country rather than being anonymous.
+        cfg = state = None
+        tb = sys.exc_info()[2]
+        while tb is not None:
+            lv = tb.tb_frame.f_locals
+            cfg = lv.get("cfg", cfg)
+            state = lv.get("state", state)
+            tb = tb.tb_next
+        if cfg is not None and state is not None:
+            stage = ""
+            tb2 = sys.exc_info()[2]
+            while tb2 is not None:
+                name = tb2.tb_frame.f_code.co_name
+                if name.startswith("stage_"):
+                    stage = name
+                tb2 = tb2.tb_next
+            _write_run_log(cfg, state, status="crashed",
+                           failed_stage=stage or "unknown",
+                           error=f"{type(exc).__name__}: {exc}")
+            print(f"  run log records a CRASH in "
+                  f"{stage or 'an unknown stage'}", file=sys.stderr)
+        else:
+            print("  crashed before a country config existed — nothing to "
+                  "log against", file=sys.stderr)
+        return 2
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_main_guarded())
