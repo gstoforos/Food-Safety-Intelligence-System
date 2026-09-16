@@ -109,6 +109,7 @@ jobs:
       # so a red run still means "nothing was reviewed" — but now the log names
       # the reason instead of dying at a curl.
       - name: Health-check llama-server on VPS
+        id: llama
         if: steps.guard.outputs.run == 'true'
         continue-on-error: true
         env:
@@ -117,11 +118,79 @@ jobs:
           echo "Pinging $LLAMA_BASE_URL/models..."
           for i in 1 2 3 4 5; do
             if curl -sf --max-time 10 "$LLAMA_BASE_URL/models" > /dev/null; then
-              echo "✓ llama-server is reachable"; exit 0
+              echo "✓ llama-server is reachable"
+              echo "reachable=true" >> "$GITHUB_OUTPUT"
+              exit 0
             fi
             echo "Attempt $i/5 failed, retrying in 5s..."; sleep 5
           done
-          echo "✗ llama-server unreachable after 5 attempts — the agent will\n                run, find the model unreachable, and exit 3 with a clear reason."
+          echo "✗ llama-server unreachable after 5 attempts"
+          echo "reachable=false" >> "$GITHUB_OUTPUT"
+
+      # Searx health-check (audit 2026-09-16) — the dependency nobody pinged.
+      #
+      # On 2026-09-16 both reviewers went red at 05:46 and 06:16 while the
+      # Italian gap finder had verified 6 rows through the SAME llama at
+      # 05:41. The model was up. But the reviewers are the only workflows
+      # that also need Searx, and Searx fails SOFT: every error path returns
+      # [], so the model keeps asking for another search, hits the 6-turn
+      # tool-loop cap, and llama_client returns None — which both agents
+      # report as "INFRA: no llama response (retry)".
+      #
+      # Result: a dead search box is indistinguishable from a dead model, in
+      # the log and in the failure email. So ping it too, and say which one
+      # is down before spending 20-40 minutes proving it one row at a time.
+      - name: Health-check Searx
+        id: searx
+        if: steps.guard.outputs.run == 'true'
+        continue-on-error: true
+        env:
+          SEARX_URL: ${{ secrets.SEARX_URL }}
+        run: |
+          if [ -z "$SEARX_URL" ]; then
+            echo "✗ SEARX_URL is not set — the reviewers would run blind"
+            echo "reachable=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "Querying Searx for a known-good term..."
+          for i in 1 2 3; do
+            if curl -sf --max-time 15 --get "$SEARX_URL" \
+                 --data-urlencode "q=listeria recall" \
+                 --data-urlencode "format=json" | grep -q '"results"'; then
+              echo "✓ Searx answered with a results array"
+              echo "reachable=true" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+            echo "Attempt $i/3 failed, retrying in 5s..."; sleep 5
+          done
+          echo "✗ Searx did not return a results array after 3 attempts"
+          echo "reachable=false" >> "$GITHUB_OUTPUT"
+
+      # Fail FAST and by name. Without this the job spends its whole time
+      # budget calling a dependency already known to be down, then exits 3
+      # with "no llama response" whichever one it was.
+      - name: Stop early when a dependency is down
+        if: |
+          steps.guard.outputs.run == 'true' &&
+          (steps.llama.outputs.reachable != 'true' ||
+           steps.searx.outputs.reachable != 'true')
+        run: |
+          echo "::error title=Reviewer dependency down::llama reachable=${{ steps.llama.outputs.reachable }}, searx reachable=${{ steps.searx.outputs.reachable }}"
+          {
+            echo "## Reviewer stopped before running"
+            echo ""
+            echo "| dependency | reachable |"
+            echo "|---|---|"
+            echo "| llama-server (LLAMA_BASE_URL) | ${{ steps.llama.outputs.reachable }} |"
+            echo "| Searx (SEARX_URL)             | ${{ steps.searx.outputs.reachable }} |"
+            echo ""
+            echo "Nothing was reviewed and nothing was written. The queue is"
+            echo "untouched, so the next run picks up exactly where this one"
+            echo "stopped."
+            echo ""
+            echo "Searx false with llama true is the case that used to read as"
+            echo "a model outage: the reviewers search, get nothing, loop to"
+            echo "the tool-call cap, and report \"no llama response\"."
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
 
       - name: Install review agent
         if: steps.guard.outputs.run == 'true'
@@ -1460,7 +1529,10 @@ jobs:
           echo "Installed pipeline/recall_review_agent.py"
 
       - name: Run review agent
-        if: steps.guard.outputs.run == 'true'
+        if: |
+          steps.guard.outputs.run == 'true' &&
+          steps.llama.outputs.reachable == 'true' &&
+          steps.searx.outputs.reachable == 'true'
         env:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
           SEARX_URL: ${{ secrets.SEARX_URL }}
