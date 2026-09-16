@@ -6,14 +6,14 @@
   "Brand": "Talleyrand",
   "Product": "brie de melun aop talleyrand",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "Non conformite microbiologique",
+  "Reason": "Microbiological non-conformity",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23519/interne",
-  "Notes": "cooperative u [confirm-agent 2026-09-15: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "cooperative u [confirm-agent 2026-09-15: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [brief-fix 2026-09-16: corrected Reason against the source notice]"
  },
  {
   "Date": "2026-09-15",
@@ -22,14 +22,14 @@
   "Brand": "Unbranded",
   "Product": "brie de melun aop talleyrand",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "Non conformite microbiologique",
+  "Reason": "Microbiological non-conformity",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23524/interne",
-  "Notes": "cooperative u [confirm-agent 2026-09-16: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "cooperative u [confirm-agent 2026-09-16: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [brief-fix 2026-09-16: corrected Reason against the source notice]"
  },
  {
   "Date": "2026-09-14",
@@ -38,14 +38,14 @@
   "Brand": "Cordon Bleu de Poulet",
   "Product": "cordon bleu de poulet",
   "Pathogen": "Salmonella",
-  "Reason": "Presence of Salmonella mises en évidence dans le cadre du plan d'autocontrôle microbiologique",
+  "Reason": "Presence of Salmonella found during own-check microbiological testing",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23473/interne",
-  "Notes": "leclerc valenciennes [confirm-agent 2026-09-14: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Reason not in English and no verified translation on file]"
+  "Notes": "leclerc valenciennes [confirm-agent 2026-09-14: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Reason not in English and no verified translation on file] [brief-fix 2026-09-16: corrected Reason against the source notice]"
  },
  {
   "Date": "2026-09-14",
@@ -132,16 +132,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: France | Notifying: France",
   "Brand": "—",
-  "Product": "E coli STEC in french  Brie cheese",
+  "Product": "E coli STEC in French Brie cheese",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "E coli STEC in french  Brie cheese; risk: serious; category: milk and milk products",
+  "Reason": "E coli STEC in French Brie cheese; risk: serious; category: milk and milk products",
   "Class": "Alert",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872923",
-  "Notes": "[RASFF #2026.8123; classification: alert notification; category: milk and milk products; notifId=872923] [confirm-agent 2026-09-16: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "[RASFF #2026.8123; classification: alert notification; category: milk and milk products; notifId=872923] [confirm-agent 2026-09-16: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [brief-fix 2026-09-16: corrected Product, Reason against the source notice]"
  },
  {
   "Date": "2026-09-11",
