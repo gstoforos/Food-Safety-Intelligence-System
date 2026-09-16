@@ -106,9 +106,44 @@ _DATE_WINDOW = 600
 _TAGS = re.compile(r"<[^>]+>")
 _WS = re.compile(r"\s+")
 
+# Markdown artefacts that leak in when gov.pl anchor text is read from a
+# markdown-converted rendering of the page rather than raw HTML.
+#
+# WHY (audit 2026-09-16): rows for the 2026-09-09 Listeria cheese and the
+# 2026-09-10 pyrrolizidine-alkaloid nettle-tea warnings both reached the
+# sheet with Product/Reason literally beginning "> Ostrzeżenie publiczne
+# dotyczące żywności: …". _TAGS only removes <...> tags, so a leading
+# blockquote marker ("> "), ATX heading marker ("#"), or list bullet
+# survived _clean() and was written verbatim into two columns.
+_MD_LEADERS = re.compile(r"^\s*(?:[>#]+\s*|[-*+]\s+)+")
+
+# GIS titles all open with the notice-type boilerplate
+# "Ostrzeżenie publiczne dotyczące żywności: <subject>". That prefix is the
+# NOTICE TYPE, not part of the product, so it is stripped for Product while
+# Reason keeps the full title verbatim (audit 2026-09-16).
+_GIS_TITLE_PREFIX = re.compile(
+    r"^\s*Ostrze[żz]enie\s+publiczne\s+dotycz[ąa]ce\s+"
+    r"(?:[żz]ywno[śs]ci|pasz)\s*[:\-–]\s*",
+    flags=re.IGNORECASE,
+)
+
+
+def _subject_from_title(title: str) -> str:
+    """The subject of a GIS warning, with the notice-type prefix removed.
+
+    Falls back to the full title when the prefix is absent, so a GIS
+    wording change degrades to today's behaviour rather than an empty cell.
+    """
+    stripped = _GIS_TITLE_PREFIX.sub("", title or "").strip()
+    return stripped or (title or "").strip()
+
 
 def _clean(text: str) -> str:
-    return _WS.sub(" ", _TAGS.sub(" ", text)).strip()
+    """Visible text: strip HTML tags, leading markdown markers, collapse WS."""
+    out = _WS.sub(" ", _TAGS.sub(" ", text)).strip()
+    # Applied after tag-strip + WS-collapse so "> # Title" and ">  Title"
+    # both reduce to "Title". Loop-free: the character class repeats.
+    return _MD_LEADERS.sub("", out).strip()
 
 
 def _nearest_date(html: str, pos: int) -> Optional[str]:
@@ -315,7 +350,7 @@ class GISScraper(GenericGeminiScraper):
                     pass          # unparseable date: keep, let review catch it
             rows.append(self._new_recall(
                 Date=it["date"],
-                Product=it["title"],
+                Product=_subject_from_title(it["title"]),
                 Pathogen=pathogen_from_title(it["title"]),
                 Reason=it["title"],
                 URL=it["url"],

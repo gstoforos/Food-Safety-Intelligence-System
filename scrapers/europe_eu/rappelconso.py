@@ -191,10 +191,38 @@ _REASON_FR_TEMPLATES: Tuple[Tuple[str, str], ...] = (
         r"Suspected contamination with \1"),
     (r"(?i)^\s*contamination\s+" + _PAR_OR_PARELIDED + r"(.+?)\s*\.?\s*$",
         r"Contamination with \1"),
-    (r"(?i)^\s*d[ée]tection\s+" + _DE_OR_DELIDED + r"(.+?)\s*\.?\s*$",
+    # "Rappel de précaution suite à la détection de X ..." — the DGCCRF
+    # wording for a store-cut / secondary recall. Must come BEFORE the
+    # bare "détection" patterns, which would otherwise never match
+    # because the string does not START with "détection".
+    # (audit 2026-09-16 — fiche 23518, produit vendu à la coupe)
+    (r"(?i)^\s*rappel\s+de\s+pr[ée]caution\s+suite\s+[àa]\s+la\s+"
+     r"d[ée]tection\s+" + _DE_OR_DELIDED + r"(.+?)\s*\.?\s*$",
+        r"Precautionary recall following detection of \1"),
+    # NOTE (audit 2026-09-16): `de`/`d'` is OPTIONAL after détection /
+    # découverte. RappelConso writes the commonest motif WITHOUT it —
+    # "Détection salmonelle", "Détection e. coli stec" — so the previous
+    # mandatory _DE_OR_DELIDED never matched and those rows reached the
+    # published sheet in French, failing tests/test_language_policy.py.
+    # The `(?!of\s)` guard matters: "(?i)d[ée]tection" also matches the
+    # ENGLISH word "Detection", so with `de` optional an already-English
+    # motif ("Detection of Campylobacter spp") would re-match and emit
+    # "Detection of of Campylobacter spp". The lookahead makes these
+    # patterns idempotent on their own output.
+    (r"(?i)^\s*d[ée]tection\s+(?!of\s)(?:" + _DE_OR_DELIDED + r")?(.+?)\s*\.?\s*$",
         r"Detection of \1"),
-    (r"(?i)^\s*d[ée]couverte\s+" + _DE_OR_DELIDED + r"(.+?)\s*\.?\s*$",
+    (r"(?i)^\s*d[ée]couverte\s+(?!of\s)(?:" + _DE_OR_DELIDED + r")?(.+?)\s*\.?\s*$",
         r"Detection of \1"),
+    # Standalone motifs that name no pathogen. Exact boilerplate only —
+    # these carry no variable part, so translating them invents nothing.
+    # (audit 2026-09-16 — fiches 23519/23524, Brie de Melun AOP)
+    (r"(?i)^\s*non\s*-?\s*conformit[ée]\s+microbiologique\s*\.?\s*$",
+        "Microbiological non-conformity"),
+    (r"(?i)^\s*non\s*-?\s*conformit[ée]\s+chimique\s*\.?\s*$",
+        "Chemical non-conformity"),
+    (r"(?i)^\s*r[ée]sultats?\s+d['’]\s*autocontr[ôo]les?\s+"
+     r"non\s*-?\s*conformes?\s*\.?\s*$",
+        "Non-conforming own-check results"),
 )
 
 # Bare pathogen names that the French data leaves lower-case and/or in
@@ -205,16 +233,53 @@ _REASON_FR_TEMPLATES: Tuple[Tuple[str, str], ...] = (
 # escherichia coli; listeria monocytogenes before bare listeria).
 _REASON_PATHOGEN_FIXUPS: Tuple[Tuple[str, str], ...] = (
     (r"(?i)\bescherichia\s+coli\s+stec\b",          "E. coli STEC"),
+    # RappelConso also writes the abbreviated lower-case form
+    # ("Détection e. coli stec" — fiche 23517). Must precede the plain
+    # "e. coli" rule so the STEC qualifier is not dropped.
+    # (audit 2026-09-16)
+    (r"(?i)\be\.?\s*coli\s+stec\b",                 "E. coli STEC"),
     (r"(?i)\bescherichia\s+coli\s+(o\d+)(:h\d+)?\b", r"E. coli \1\2"),
     (r"(?i)\bescherichia\s+coli\b",                  "E. coli"),
     (r"(?i)\blisteria\s+monocytogenes\b",            "Listeria monocytogenes"),
     (r"(?i)\bbacillus\s+cereus\b",                   "Bacillus cereus"),
     (r"(?i)\bclostridium\s+botulinum\b",             "Clostridium botulinum"),
-    (r"(?i)\bsalmonelles\b",                         "Salmonella"),
-    (r"(?i)\bsalmonella\s+spp\.?\b",                 "Salmonella spp."),
+    # Singular "salmonelle" as well as plural (audit 2026-09-16 — the
+    # motif "Détection salmonelle" is singular and was left untouched).
+    (r"(?i)\bsalmonelles?\b",                        "Salmonella"),
+    # `\bspp\.?\b` also matches "spp." INCLUDING its period, so the old
+    # form re-fired on its own output and produced "Salmonella spp.."
+    # on a second pass. The negative lookahead makes it idempotent.
+    # (audit 2026-09-16)
+    (r"(?i)\bsalmonella\s+spp\.?(?!\.)\b",           "Salmonella spp."),
     (r"(?i)\bsalmonella\b",                          "Salmonella"),
     (r"(?i)\blisteria\b",                            "Listeria"),
     (r"(?i)\bcamp[yi]lobacter\b",                    "Campylobacter"),
+)
+
+
+# Trailing DGCCRF boilerplate that survives head-only template
+# translation. Each entry is fixed wording that names no pathogen, lot or
+# firm, so rewriting it invents no meaning. (audit 2026-09-16)
+_REASON_FR_TAIL_PHRASES: Tuple[Tuple[str, str], ...] = (
+    (r"(?i)\s+sur\s+un\s+produit\s+d[ée]coup[ée]\s+par\s+un\s+magasin\b",
+        " on a product cut in store"),
+    (r"(?i)\s+sur\s+un\s+produit\s+vendu\s+[àa]\s+la\s+coupe\b",
+        " on a product sold loose at the counter"),
+    # Longest variant first: the motif often ends "...plan d'autocontrôle
+    # microbiologique", and a shorter pattern would strand the adjective.
+    (r"(?i)\s+mises?\s+en\s+[ée]vidence\s+dans\s+le\s+cadre\s+"
+     r"du\s+plan\s+d['’]\s*autocontr[ôo]les?\s+microbiologiques?\b",
+        " found during own-check microbiological testing"),
+    (r"(?i)\s+mises?\s+en\s+[ée]vidence\s+dans\s+le\s+cadre\s+"
+     r"du\s+plan\s+d['’]\s*autocontr[ôo]les?\b",
+        " found during own-check testing"),
+    (r"(?i)\s+dans\s+le\s+cadre\s+du\s+plan\s+"
+     r"d['’]\s*autocontr[ôo]les?\b",
+        " during own-check testing"),
+    (r"(?i)\s+lors\s+d['’]\s*un\s+autocontr[ôo]le\b",
+        " during an own-check"),
+    (r"(?i)\s+par\s+le\s+fabricant\b", " by the manufacturer"),
+    (r"(?i)\s+par\s+le\s+fournisseur\b", " by the supplier"),
 )
 
 
@@ -246,6 +311,20 @@ def _translate_reason_fr_to_en(reason: str) -> str:
     # Pass 2: pathogen-name fixups (always applied).
     for pattern, replacement in _REASON_PATHOGEN_FIXUPS:
         text = re.sub(pattern, replacement, text)
+    # Pass 3: trailing-clause boilerplate (audit 2026-09-16).
+    #
+    # Pass 1 translates the HEAD of a motif and keeps the captured tail
+    # verbatim, which on the longer DGCCRF wordings left a French tail on
+    # an otherwise-English Reason:
+    #
+    #   "Precautionary recall following detection of E. coli STEC
+    #    sur un produit découpé par un magasin"
+    #
+    # Only exact, pathogen-free boilerplate is listed here, so nothing is
+    # invented; an unrecognised tail is still left untouched.
+    for pattern, replacement in _REASON_FR_TAIL_PHRASES:
+        text = re.sub(pattern, replacement, text)
+    text = re.sub(r"\s{2,}", " ", text).strip()
     # Capitalise first letter — pathogen-fixups may have inserted a
     # lowercase pathogen at sentence start (Pass 1's "Presence of \1"
     # placed an unfixed pathogen group right after a capital letter,
