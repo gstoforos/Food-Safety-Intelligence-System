@@ -80,6 +80,22 @@
   "Notes": "monoprix, carrefour, coopérative u, e. leclerc, auchan, intermarché, prosol, distributeurs restauration hors foyer et cr [confirm-agent hold: 2026-09-15: no recalling firm on the row (Brand 'Unbranded'); not published and not rejected — reviewer 2 to read the firm from the notice] [brief-fix 2026-09-16: corrected Company, Reason against the source notice] [confirm-agent 2026-09-16: pending_gap_v2 → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
  },
  {
+  "Date": "2026-09-15",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Poland | Notifying: Italy",
+  "Brand": "—",
+  "Product": "riscontro salmonella typhimurium, enteritidis  e salmonella spp in carne di pollame origine Polonia/ Detection of Salmonella typhimurium, Salmonella enteritidis, and Salmonella spp. in frozen poultry meat  originating from Poland",
+  "Pathogen": "Salmonella",
+  "Reason": "riscontro salmonella typhimurium, enteritidis  e salmonella spp in carne di pollame origine Polonia/ Detection of Salmonella typhimurium, Salmonella enteritidis, and Salmonella spp. in frozen poultry meat  originating from Poland; risk: serious; category: poultry meat and poultry meat products",
+  "Class": "Alert",
+  "Country": "Poland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872569",
+  "Notes": "[RASFF #2026.8151; classification: alert notification; category: poultry meat and poultry meat products; notifId=872569] [confirm-agent 2026-09-16: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+ },
+ {
   "Date": "2026-09-14",
   "Source": "RappelConso (FR)",
   "Company": "Cordon Bleu de Poulet",
