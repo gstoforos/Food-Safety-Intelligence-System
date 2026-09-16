@@ -20,7 +20,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Cooperative U",
   "Brand": "Unbranded",
-  "Product": "brie de melun aop talleyrand",
+  "Product": "Brie de Melun AOP",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Microbiological non-conformity",
   "Class": "Voluntary",
@@ -28,8 +28,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23524/interne",
-  "Notes": "cooperative u [confirm-agent 2026-09-16: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [brief-fix 2026-09-16: corrected Reason against the source notice]"
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23526/interne",
+  "Notes": "cooperative u [confirm-agent 2026-09-16: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [brief-fix 2026-09-16: corrected Reason against the source notice] [agent nightly-operator proposal 86a9559dcc24f3ae applied 2026-09-16: fiche-rappel/23524 does not resolve to a specific notice (redirects to the general listing homepage) -- checked repeatedly. fiche-rappel/23526 resolves to a page whose Origine de la fiche, brand, product and hazard match] [agent nightly-operator proposal 301b64dcbe802cfa applied 2026-09-16: Product field carried 'brie de melun aop talleyrand' -- the word 'talleyrand' does not appear anywhere on this fiche (Origine de la fiche: Cooperative U, Brand: Sans Marque) and matches a different, brand-named row's tex]"
  },
  {
   "Date": "2026-09-15",
@@ -84,16 +84,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Poland | Notifying: Italy",
   "Brand": "—",
-  "Product": "riscontro salmonella typhimurium, enteritidis  e salmonella spp in carne di pollame origine Polonia/ Detection of Salmonella typhimurium, Salmonella enteritidis, and Salmonella spp. in frozen poultry meat  originating from Poland",
+  "Product": "Salmonella typhimurium, Salmonella enteritidis and Salmonella spp. in frozen poultry meat from Poland",
   "Pathogen": "Salmonella",
-  "Reason": "riscontro salmonella typhimurium, enteritidis  e salmonella spp in carne di pollame origine Polonia/ Detection of Salmonella typhimurium, Salmonella enteritidis, and Salmonella spp. in frozen poultry meat  originating from Poland; risk: serious; category: poultry meat and poultry meat products",
+  "Reason": "Salmonella typhimurium, Salmonella enteritidis and Salmonella spp. in frozen poultry meat from Poland; risk: serious; category: poultry meat and poultry meat products",
   "Class": "Alert",
   "Country": "Poland",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872569",
-  "Notes": "[RASFF #2026.8151; classification: alert notification; category: poultry meat and poultry meat products; notifId=872569] [confirm-agent 2026-09-16: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "[RASFF #2026.8151; classification: alert notification; category: poultry meat and poultry meat products; notifId=872569] [confirm-agent 2026-09-16: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [agent nightly-operator proposal 25258d8b7003f2fc applied 2026-09-16: Product and Reason carried the source's Italian notifying-country text concatenated with its own English translation (doubled scraper string). Reason must be English per language policy; de-duplicated to the English half]"
  },
  {
   "Date": "2026-09-14",
