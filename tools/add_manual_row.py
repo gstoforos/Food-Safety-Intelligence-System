@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Queue an operator-found recall into Pending, through the real code path.
 
-    python3 tools/add_manual_row.py rows/gis-pesto-2026-08-28.json
+    python3 tools/add_manual_row.py path/to/row.json
     python3 tools/add_manual_row.py <file.json> --dry-run      # show, write nothing
 
 WHY THIS EXISTS
@@ -19,6 +19,10 @@ a scraper would, hands it to ``merge_master.append_to_pending``, and lets
 that function apply its own rules: already approved is skipped, already
 pending is skipped, a previously rejected key is replaced for
 re-validation. Nothing here bypasses any of it.
+
+A worked example lives at tests/fixtures/gis-pesto-2026-08-28.json.
+There is no conventional home for these files and they are not inputs the
+pipeline reads — write the JSON wherever you like and pass the path.
 
 THE JSON
 --------
