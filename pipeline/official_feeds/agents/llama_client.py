@@ -31,6 +31,44 @@ LLAMA_MAX_LOOPS   = 6    # cap tool-calling loop depth (raised from 4 so the
 # Circuit breaker — after 3 failures, stop calling for this run.
 _STATE = {"failures": 0, "open": False}
 
+# ── WHY the last chat() gave up (audit 2026-09-16) ────────────────────────
+#
+# chat() returned a bare None for four different reasons, and the callers
+# (recall_url_agent, recall_review_agent) turned every one of them into the
+# same string: "INFRA: no llama response (retry)".
+#
+# When every row retries, both agents exit 3 on purpose — "make it loud",
+# which is right. But the email then says only "All jobs have failed", and
+# the log says only "no llama response", so an operator reasonably concludes
+# the VPS is down and goes to restart a box that is already running.
+#
+# On 2026-09-16 both reviewers were red from 05:46 while the Italian gap
+# finder had just verified 6 rows through the SAME llama at 05:41. The model
+# was demonstrably up. Nothing in either agent's output could say that.
+#
+# So record the reason. It costs nothing and it is the difference between
+# "the box is down" and "the box is fine, the tool loop never converged".
+_LAST_FAILURE = {"reason": "", "detail": ""}
+
+
+def _fail(reason: str, detail: str = "") -> None:
+    _LAST_FAILURE["reason"] = reason
+    _LAST_FAILURE["detail"] = str(detail)[:300]
+
+
+def last_failure() -> dict:
+    """Why the most recent chat() returned None. Empty reason = no failure."""
+    return dict(_LAST_FAILURE)
+
+
+def failure_summary() -> str:
+    """One line an agent can print, or "" when nothing has failed."""
+    r = _LAST_FAILURE.get("reason")
+    if not r:
+        return ""
+    d = _LAST_FAILURE.get("detail")
+    return f"{r}: {d}" if d else r
+
 
 def is_configured() -> bool:
     return bool(LLAMA_BASE_URL)
@@ -58,8 +96,12 @@ def chat(messages: list[dict],
         max_tokens:     per-turn max output tokens.
     """
     if not LLAMA_BASE_URL:
+        _fail("LLAMA_BASE_URL is not set",
+              "the workflow did not pass the secret into this step")
         return None
     if _STATE["open"]:
+        _fail("circuit breaker open",
+              "3 consecutive failures earlier in this run; see the first one")
         return None
 
     url = f"{LLAMA_BASE_URL}/chat/completions"
@@ -144,5 +186,16 @@ def chat(messages: list[dict],
             })
             time.sleep(0.1)
 
-    print(f"  [llama] hit max tool loop depth ({LLAMA_MAX_LOOPS})")
+    # Loop exhaustion is NOT an outage. The model answered every turn; it
+    # just kept asking for another tool call instead of committing to a
+    # final answer. The usual cause is the tool returning nothing useful —
+    # an empty Searx result set will do it, and Searx fails soft (returns
+    # []), so a dead search box looks exactly like a dead model from here.
+    print(f"  [llama] hit max tool loop depth ({LLAMA_MAX_LOOPS}) — the model "
+          f"kept requesting tools and never returned a final answer. This is "
+          f"NOT an unreachable model: it replied {LLAMA_MAX_LOOPS} times. "
+          f"Check SEARX_URL before restarting the VPS.")
+    _fail("tool loop never converged",
+          f"model replied {LLAMA_MAX_LOOPS} times but only ever asked for "
+          f"more tool calls — usually an empty/failing Searx")
     return None
