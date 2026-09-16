@@ -367,6 +367,7 @@ from pipeline.gap_finder_tavily import (  # noqa: E402
     _extract_company_product as _gf_extract_company_product,
     _parse_date as _gf_parse_date,
     _is_generic_url as _gf_is_generic_url,
+    _strip_site_suffix,
 )
 
 
@@ -622,7 +623,18 @@ def call_exa_search(target_date: date, region: str, agencies: str,
         outbreak = _gf_detect_outbreak(blob)
         company, product = _gf_extract_company_product(title, content)
         if not product:
-            product = (content.split(". ", 1)[0])[:200]
+            # Sanitize before taking the "first sentence" (audit 2026-09-16).
+            #
+            # `content` for an agency page is markdown-converted, so it often
+            # opens with the page title, a blank line, then an ATX heading:
+            #
+            #   "Sjømathuset AS tilbakekaller … | Mattilsynet\n\n# Sjømathuset
+            #    AS tilbakekaller …\n\nSjømathuset"
+            #
+            # There is no ". " in that span, so the old one-liner wrote the
+            # whole blob — newlines, pipe suffix and "#" marker included —
+            # straight into Product. Collapse structure first, then split.
+            product = _first_body_sentence(content, title)
 
         # _gf_parse_date now returns (date_str, fallback_flag).
         # daily_recall_search runs a TIGHT date-window check (must be
@@ -664,6 +676,49 @@ def call_exa_search(target_date: date, region: str, agencies: str,
     # = €0 per query.
     record_spend(ledger, 0.0, region, 0, 0)
     return {"recalls": rows}
+
+
+_MD_LEADER_RX = re.compile(r"^\s*(?:[>#]+\s*|[-*+]\s+)+")
+
+
+def _norm_for_echo(s: str) -> str:
+    """Casefolded, punctuation-light form used only to spot title echoes."""
+    return re.sub(r"[^\w]+", " ", (s or "").lower()).strip()
+
+
+def _first_body_sentence(content: str, title: str = "", limit: int = 200) -> str:
+    """First real sentence of BODY prose — never the page title echo.
+
+    Agency pages arrive markdown-converted, so `content` typically opens by
+    repeating the <title> (often with a "| Site" suffix), then an ATX
+    heading repeating it again, and only then the prose:
+
+        Sjømathuset AS tilbakekaller … | Mattilsynet
+        # Sjømathuset AS tilbakekaller …
+        Sjømathuset AS kaller tilbake Lerøy laks loin. Lotnumrene er …
+
+    Splitting the raw blob on ". " (the pre-2026-09-16 behaviour) returned
+    that whole preamble — newlines, pipe suffix and "#" marker included —
+    and it was written verbatim into Product. Here each line is stripped of
+    markdown leaders and lines that merely echo the title are skipped, so
+    Product gets prose.
+    """
+    title_norm = _norm_for_echo(_strip_site_suffix(title))
+    for raw_line in (content or "").splitlines():
+        line = _MD_LEADER_RX.sub("", raw_line).strip()
+        line = _strip_site_suffix(line)
+        if len(line) < 15:
+            continue
+        line_norm = _norm_for_echo(line)
+        if title_norm and (line_norm == title_norm
+                           or line_norm.startswith(title_norm)
+                           or title_norm.startswith(line_norm)):
+            continue          # title echo, not body prose
+        return re.sub(r"\s+", " ", line).split(". ", 1)[0][:limit].strip()
+    # Nothing but echoes/headings — flatten and take the first sentence so
+    # the row still carries something for reviewer 2 to work from.
+    flat = _MD_LEADER_RX.sub("", re.sub(r"\s+", " ", content or "")).strip()
+    return flat.split(". ", 1)[0][:limit].strip()
 
 
 def write_status_file(ok: bool, recalls_count: int, regions_done: int,

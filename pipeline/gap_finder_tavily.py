@@ -314,7 +314,28 @@ def _detect_outbreak(text: str) -> int:
 # ---------------------------------------------------------------------------
 _RECALL_VERBS = (
     r"recalls?|recalled|recalling|issues?\s+recall|withdraws?|withdrawn|"
-    r"pulls?|pulled|alerts?|alerted|warns?|warned"
+    r"pulls?|pulled|alerts?|alerted|warns?|warned|"
+    # ── Non-English recall verbs (audit 2026-09-16) ────────────────────
+    # WHY: the verb list was English-only, so every non-English headline
+    # fell through to the "whole title as Company" fallback below. That is
+    # how the Mattilsynet row for "Sjømathuset AS tilbakekaller Lerøy laks
+    # loin 600g og 250g etter mistanke om listeria | Mattilsynet" ended up
+    # with the entire headline copied into Company, Brand AND Product.
+    # Nordic (no/da/sv)
+    r"tilbakekaller|tilbakekalles|trekker\s+tilbake|"
+    r"tilbagekalder|tilbagekaldes|"
+    r"återkallar|aterkallar|återkallas|aterkallas|drar\s+tillbaka|"
+    r"vetää\s+takaisin|vetaa\s+takaisin|"
+    # German / Dutch
+    r"ruft\s+zur[üu]ck|rueft\s+zurueck|warnt\s+vor|"
+    r"roept\s+terug|haalt\s+terug|"
+    # Romance
+    r"rappelle|proc[èe]de\s+au\s+rappel|"
+    r"richiama|ritira|"
+    r"retira|recupera|"
+    r"recolhe|"
+    # Polish
+    r"wycofuje|wycofano"
 )
 # Audit 2026-05-06: improved for FDA-style "Brand X Issues Voluntary Recall of Y".
 # Pre-fix output: Company="Brand X Issues Voluntary", Product="of Y" (broken).
@@ -357,23 +378,62 @@ _TITLE_PREFIXES = re.compile(
 )
 
 
+# Trailing "  | Site Name" / "  – Site Name" that CMSs append to <title>.
+# Kept tight (<= 40 chars, no sentence punctuation) so a real product
+# containing a dash is never truncated. Audit 2026-09-16.
+_SITE_SUFFIX_RX = re.compile(r"\s*[|•·]\s*[^|•·]{2,40}\s*$")
+
+
+def _strip_site_suffix(title: str) -> str:
+    """Drop a trailing CMS site-name segment from a page title.
+
+    "… om listeria | Mattilsynet"  ->  "… om listeria"
+
+    Only pipe-style separators are stripped; a bare dash is far too common
+    inside real product and company names to treat as a site boundary.
+    """
+    t = (title or "").strip()
+    prev = None
+    # Two passes at most — some CMSs emit "Title | Section | Site".
+    while prev != t and t.count("|") + t.count("•") + t.count("·"):
+        prev = t
+        candidate = _SITE_SUFFIX_RX.sub("", t).strip(" -–—|")
+        if len(candidate) < 10:      # never strip away the whole title
+            break
+        t = candidate
+    return t
+
+
 def _extract_company_product(title: str, content: str) -> Tuple[str, str]:
     """Best-effort company + product extraction. Blank strings if nothing found.
     The URL gate (Claude Haiku) will reject rows missing required fields, so
     it's OK to return partial data here."""
-    t = _TITLE_PREFIXES.sub("", title or "").strip()
+    t = _strip_site_suffix(_TITLE_PREFIXES.sub("", title or "").strip())
     m = _TITLE_SPLIT_RX.match(t)
     if m:
         company = m.group("company").strip(" -:,;")
         product = m.group("product").strip(" -:,;")[:200]
         return company, product
-    # Fallback: no verb match. Use first 80 chars of title as company, rest as product.
+    # Fallback: no verb match. A "Company - Product" split is still safe,
+    # because the separator is what identifies the boundary.
     if len(t) > 10:
-        # Split at first colon / dash if any
         parts = re.split(r"\s+[-:–—]\s+", t, maxsplit=1)
         if len(parts) == 2:
             return parts[0].strip()[:120], parts[1].strip()[:200]
-        return t[:120], ""
+    # NO last-ditch "whole title as Company" (audit 2026-09-16).
+    #
+    # The previous `return t[:120], ""` copied an entire headline into
+    # Company — and, because daily_recall_search mirrors Company into
+    # Brand, into Brand as well. Production example (Pending, 2026-09-16):
+    #
+    #   Company = Brand = "Sjømathuset AS tilbakekaller Lerøy laks loin
+    #                      600g og 250g etter mistanke om listeria |
+    #                      Mattilsynet"
+    #
+    # An EMPTY Company is the honest output here: the confirm agent already
+    # holds rows with no recalling firm for reviewer 2, which is the correct
+    # destination for "we could not parse the firm". A headline-shaped
+    # Company silently passes that gate and reaches the published sheet.
     return "", ""
 
 
