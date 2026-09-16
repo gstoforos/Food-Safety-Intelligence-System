@@ -355,20 +355,144 @@ class RetortSchedule:
         return sum(s.duration_s for s in self.steps)
 
     def temperature_at(self, t_s: float) -> float:
-        """Medium temperature at time t. Clamped at both ends."""
+        """Medium temperature at time t. Clamped at both ends.
+
+        Right-continuous: each leg owns [start, end), the last leg also
+        owns its end, and a zero-duration leg is a step change whose
+        value is what the next leg starts from. So AT the instant of a
+        step change the profile already reads the new value — which is
+        what a warm start at that instant has to see, and what a chart
+        with a sharp drop on it means.
+        """
         if t_s <= 0.0:
             return self.start_c
         prev = self.start_c
         elapsed = 0.0
-        for step in self.steps:
-            if t_s <= elapsed + step.duration_s:
-                if not step.ramp or step.duration_s <= 0.0:
+        last = len(self.steps) - 1
+        for i, step in enumerate(self.steps):
+            if step.duration_s <= 0.0:
+                prev = step.target_c
+                continue
+            end = elapsed + step.duration_s
+            if t_s < end or (i == last and t_s == end):
+                if not step.ramp:
                     return step.target_c
-                frac = (t_s - elapsed) / step.duration_s
-                return prev + (step.target_c - prev) * frac
-            elapsed += step.duration_s
+                return prev + (step.target_c - prev) * (t_s - elapsed) / step.duration_s
+            elapsed = end
             prev = step.target_c
         return prev
+
+    def breakpoints(self) -> List[Tuple[float, float]]:
+        """The profile as (t, T) vertices. A step change appears as two
+        vertices at the same instant, before and after, so the list is
+        an exact description and from_profile() round-trips it."""
+        pts = [(0.0, self.start_c)]
+        t = 0.0
+        for step in self.steps:
+            if step.ramp:
+                t += step.duration_s
+                pts.append((t, step.target_c))
+            else:
+                if pts[-1][1] != step.target_c:
+                    pts.append((t, step.target_c))
+                t += step.duration_s
+                if step.duration_s > 0.0:
+                    pts.append((t, step.target_c))
+        return pts
+
+    @classmethod
+    def from_profile(cls, points: Sequence[Tuple[float, float]]
+                     ) -> "RetortSchedule":
+        """A logged medium-temperature trace as a schedule.
+
+        This is the door a deviation walks in through: a retort chart is
+        a list of (seconds, degrees), and the solver takes that list as
+        it is, with no assumption about what shape the process was meant
+        to have. Segments are linear between points; a flat segment is
+        marked as a hold so the heat-penetration fit can find it; two
+        points at the same instant are a step change.
+        """
+        pts = [(float(t), float(v)) for t, v in points]
+        if len(pts) < 1:
+            raise ValueError("a profile needs at least one point")
+        for a, b in zip(pts, pts[1:]):
+            if b[0] < a[0]:
+                raise ValueError("profile times must not decrease")
+        steps: List[RetortStep] = []
+        for (t0, v0), (t1, v1) in zip(pts, pts[1:]):
+            d = t1 - t0
+            if d <= 0.0:
+                if v1 != v0:
+                    steps.append(RetortStep(0.0, v1, ramp=False))
+                continue
+            steps.append(RetortStep(d, v1, ramp=(v1 != v0)))
+        return cls(start_c=pts[0][1], steps=tuple(steps))
+
+    @property
+    def hold_end_s(self) -> Optional[float]:
+        """End of the last constant-temperature leg that is followed by
+        a fall — the instant the scheduled cooling begins. None when the
+        profile has no such leg."""
+        t = 0.0
+        last_hold_end = None
+        peak = None
+        for step in self.steps:
+            t_end = t + step.duration_s
+            if not step.ramp and step.duration_s > 0.0:
+                if peak is None or step.target_c >= peak - 1e-9:
+                    peak = step.target_c
+                    last_hold_end = t_end
+            t = t_end
+        return last_hold_end
+
+    def with_temperature_drop(self, *, start_s: float, duration_s: float,
+                              low_c: float, ramp_down_s: float = 0.0,
+                              ramp_up_s: float = 0.0) -> "RetortSchedule":
+        """This schedule with a medium-temperature excursion spliced in.
+
+        Between start_s and start_s + duration_s the medium falls to
+        low_c (over ramp_down_s), stays there, and recovers to whatever
+        the schedule was doing at the end of the window (over ramp_up_s).
+        Everything outside the window is untouched. Zero ramp times give
+        step changes, which is the conservative reading of a chart with a
+        sharp drop on it.
+        """
+        if duration_s <= 0.0:
+            return self
+        end_s = start_s + duration_s
+        if ramp_down_s + ramp_up_s > duration_s:
+            raise ValueError("ramps are longer than the deviation itself")
+        pts = self.breakpoints()
+        before = [p for p in pts if p[0] < start_s]
+        after = [p for p in pts if p[0] > end_s]
+        t_in = self.temperature_at(start_s)
+        t_out = self.temperature_at(end_s)
+        window: List[Tuple[float, float]] = [(start_s, t_in)]
+        window.append((start_s + ramp_down_s, low_c))
+        window.append((end_s - ramp_up_s, low_c))
+        window.append((end_s, t_out))
+        return RetortSchedule.from_profile(before + window + after)
+
+    def extended(self, *, at_s: float, extra_s: float, hold_c: float,
+                 tail: "RetortSchedule") -> "RetortSchedule":
+        """This schedule up to at_s, then hold_c for extra_s, then the
+        tail's profile — the shape of a corrected process."""
+        pts = [p for p in self.breakpoints() if p[0] < at_s]
+        pts.append((at_s, self.temperature_at(at_s)))
+        pts.append((at_s, hold_c))
+        pts.append((at_s + extra_s, hold_c))
+        shift = at_s + extra_s
+        for t, v in tail.breakpoints():
+            pts.append((shift + t, v))
+        return RetortSchedule.from_profile(pts)
+
+    def tail_from(self, at_s: float) -> "RetortSchedule":
+        """The profile from at_s onward, re-zeroed at at_s."""
+        pts = [(0.0, self.temperature_at(at_s))]
+        for t, v in self.breakpoints():
+            if t > at_s:
+                pts.append((t - at_s, v))
+        return RetortSchedule.from_profile(pts)
 
     @classmethod
     def standard(cls, *,
@@ -801,16 +925,29 @@ def simulate(container: Container,
              schedule: RetortSchedule,
              *,
              initial_c: float,
-             options: Optional[SolveOptions] = None) -> SimulationResult:
+             options: Optional[SolveOptions] = None,
+             warm_start: Optional["SimulationResult"] = None
+             ) -> SimulationResult:
     """Run the process and return everything it produced.
 
     initial_c is the uniform product temperature at t=0 — the filling /
     initial temperature, which is a scheduled-process parameter in its
     own right and is why a cold fill is not a free variable.
+
+    warm_start continues from the end of an earlier result instead of
+    from a uniform field: the schedule's t=0 is the earlier result's
+    end, its start_c should be the medium temperature there, and the
+    nodal lethality carries on accumulating. It exists for deviation
+    work, where the process up to the moment the deviation clears is
+    solved once and only the candidate corrections are re-solved. With
+    the same mesh and time step it is exactly the continuous run — test
+    _warm_start_is_the_continuous_run pins that to round-off.
     """
     opts = options or SolveOptions()
     sys_ = _assemble(container, product, opts)
     n = sys_.n_nodes
+    if warm_start is not None and len(warm_start.final_temps_c) != n:
+        raise ValueError("warm_start was solved on a different mesh")
     dt = opts.time_step_s
     theta = opts.theta
 
@@ -832,25 +969,36 @@ def simulate(container: Container,
 
     center = sys_.index(0, opts.axial_divisions_even // 2)
 
-    temps = [initial_c] * n
-    peak = temps[:]
-    trough = temps[:]
-    f0_nodes = [0.0] * n
-    cook_nodes = [0.0] * n
     f0_ref, f0_z = opts.f0_ref_c, opts.f0_z_c
     cook_ref, cook_z = opts.cook_ref_c, opts.cook_z_c
-    rate_f0 = [lethal_rate(initial_c, f0_ref, f0_z)] * n
-    rate_ck = [lethal_rate(initial_c, cook_ref, cook_z)] * n
+    if warm_start is None:
+        temps = [initial_c] * n
+        peak = temps[:]
+        trough = temps[:]
+        f0_nodes = [0.0] * n
+        cook_nodes = [0.0] * n
+        t_offset = 0.0
+        f0_center0 = 0.0
+    else:
+        temps = list(warm_start.final_temps_c)
+        peak = list(warm_start.peak_temps_c)
+        trough = list(warm_start.trough_temps_c)
+        f0_nodes = list(warm_start.f0_nodes_min)
+        cook_nodes = list(warm_start.cook_nodes_min)
+        t_offset = warm_start.total_time_s
+        f0_center0 = warm_start.f0_center_series_min[-1]
+    rate_f0 = [lethal_rate(x, f0_ref, f0_z) for x in temps]
+    rate_ck = [lethal_rate(x, cook_ref, cook_z) for x in temps]
 
     t = 0.0
     total_s = schedule.total_s
     n_steps = max(1, int(round(total_s / dt)))
 
-    times = [0.0]
+    times = [t_offset]
     medium = [schedule.temperature_at(0.0)]
-    center_series = [initial_c]
-    mass_series = [initial_c]
-    f0_series = [0.0]
+    center_series = [temps[center]]
+    mass_series = [sum(m * x for m, x in zip(mass_weights, temps)) / total_mass]
+    f0_series = [f0_center0]
 
     dt_min = dt / 60.0
     load = sys_.surface_load
@@ -883,15 +1031,16 @@ def simulate(container: Container,
             rate_ck[i] = r_ck
 
         t = t_next
-        times.append(t)
+        times.append(t_offset + t)
         medium.append(schedule.temperature_at(t))
         center_series.append(temps[center])
         mass_series.append(
             sum(m * x for m, x in zip(mass_weights, temps)) / total_mass)
         f0_series.append(f0_nodes[center])
 
-    hp = _fit_heat_penetration(times, medium, center_series, initial_c,
-                               schedule)
+    hp = (None if warm_start is not None else
+          _fit_heat_penetration(times, medium, center_series, initial_c,
+                                schedule))
     return SimulationResult(
         container=container, product=product, schedule=schedule,
         options=opts, initial_c=initial_c,

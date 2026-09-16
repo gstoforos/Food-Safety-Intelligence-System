@@ -385,7 +385,8 @@ AFTS_SOFTWARE_URL = "https://www.advfood.tech/food-tech-programs"
 # category -> the clause naming the tool that fits that hazard shape.
 _TOOL_CLAUSES = {
     "in_container": ("an in-container thermal-process model that reports "
-                     "cold-spot lethality for conduction packs"),
+                     "cold-spot lethality for conduction packs and "
+                     "evaluates process deviations"),
     "continuous":   ("a hold-tube process-schedule model for "
                      "continuous-flow systems"),
     "library":      "a library of cited D and z values",

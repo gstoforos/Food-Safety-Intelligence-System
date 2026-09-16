@@ -1263,6 +1263,20 @@ M1520 2510 c-286 -74 -514 -300 -592 -586 -30 -112 -30 -306 1 -418 74 -274
           <div class="card-note" id="tbl_note">The deliverable &mdash; reproduced as Table&nbsp;1 of the record</div>
         </div><div class="card-body tscroll" id="sched_table"></div></div>
 
+      <!-- Deviation evaluation. Hidden until a deviation is described,
+           because an empty card here would be a card about nothing. It sits
+           directly under the schedule because its table IS a schedule — the
+           corrected one — and belongs next to the filed one. -->
+      <div class="card card--primary" id="dev_card" hidden><div class="card-head">
+          <div class="card-title">Deviation evaluation</div>
+          <div class="card-note" id="dev_note">Delivered plus predicted, against the target</div>
+        </div><div class="card-body" style="padding:12px">
+        <div id="dev_verdict"></div>
+        <div class="tscroll" id="dev_table"></div>
+        <div id="chart_dev" style="margin-top:12px"></div>
+        <div class="legend" id="legend_dev"></div>
+      </div></div>
+
       <div class="card"><div class="card-head">
           <div class="card-title">Temperature history</div>
           <div class="cg" style="display:flex;align-items:center;gap:6px">
@@ -1588,15 +1602,23 @@ function scheduleTotal(sch){
   return t;
 }
 function mediumAt(sch, t){
+  /* Right-continuous: each leg owns [start, end), the last leg also owns
+     its end, and a zero-duration leg is a step change whose value is what
+     the next leg starts from. At the instant of a step change the profile
+     already reads the new value — which is what a warm start at that
+     instant has to see. Mirrors RetortSchedule.temperature_at exactly. */
   if (t <= 0) return sch.start_c;
   let prev = sch.start_c, elapsed = 0;
-  for (const step of sch.steps){
-    if (t <= elapsed + step.duration_s){
-      if (!step.ramp || step.duration_s <= 0) return step.target_c;
+  const last = sch.steps.length - 1;
+  for (let i = 0; i < sch.steps.length; i++){
+    const step = sch.steps[i];
+    if (step.duration_s <= 0){ prev = step.target_c; continue; }
+    const end = elapsed + step.duration_s;
+    if (t < end || (i === last && t === end)){
+      if (!step.ramp) return step.target_c;
       return prev + (step.target_c - prev) * (t - elapsed) / step.duration_s;
     }
-    elapsed += step.duration_s;
-    prev = step.target_c;
+    elapsed = end; prev = step.target_c;
   }
   return prev;
 }
@@ -1733,18 +1755,33 @@ function simulate(cfg){
   const centre = sys.idx(0, evenNz(o.nz) / 2);
   const initial = cfg.initial_c;
 
-  let temps = new Float64Array(n).fill(initial);
-  const peak = new Float64Array(temps), trough = new Float64Array(temps);
-  const f0Nodes = new Float64Array(n), cookNodes = new Float64Array(n);
-  const rF0 = new Float64Array(n).fill(lethalRate(initial, o.f0Ref, o.f0Z));
-  const rCk = new Float64Array(n).fill(lethalRate(initial, o.cookRef, o.cookZ));
+  /* WARM START — continue from the end of an earlier result instead of a
+     uniform field. The schedule's t=0 is the earlier result's end and the
+     nodal lethality carries on. With the same mesh and step it is the
+     continuous run to round-off; the deviation search leans on that. */
+  const ws = cfg.warmStart || null;
+  if (ws && ws.finalTemps.length !== n) throw new Error("warm start was solved on a different mesh");
+  let temps = ws ? new Float64Array(ws.finalTemps) : new Float64Array(n).fill(initial);
+  const peak = ws ? new Float64Array(ws.peakTemps) : new Float64Array(temps);
+  const trough = ws ? new Float64Array(ws.troughTemps) : new Float64Array(temps);
+  const f0Nodes = ws ? new Float64Array(ws.f0Nodes) : new Float64Array(n);
+  const cookNodes = ws ? new Float64Array(ws.cookNodes) : new Float64Array(n);
+  const tOffset = ws ? ws.totalTimeS : 0;
+  const rF0 = new Float64Array(n), rCk = new Float64Array(n);
+  for (let i = 0; i < n; i++){ rF0[i] = lethalRate(temps[i], o.f0Ref, o.f0Z);
+                               rCk[i] = lethalRate(temps[i], o.cookRef, o.cookZ); }
 
   const totalS = scheduleTotal(sch);
-  const nSteps = Math.max(1, Math.round(totalS / dt));
+  /* Banker's rounding, because Python's round() is banker's rounding and
+     the module this is a port of computes n_steps that way. 337.5 s at a
+     15 s step is 22 steps there and would be 23 with Math.round, and the
+     deviation search branched on exactly that difference. */
+  const nSteps = Math.max(1, roundHalfEven(totalS / dt));
   const dtMin = dt / 60;
 
-  const times = [0], medium = [mediumAt(sch, 0)], centreS = [initial],
-        massS = [initial], f0S = [0];
+  let ma0 = 0; for (let i = 0; i < n; i++) ma0 += massW[i] * temps[i];
+  const times = [tOffset], medium = [mediumAt(sch, 0)], centreS = [temps[centre]],
+        massS = [ma0 / totalMass], f0S = [ws ? ws.f0Series[ws.f0Series.length - 1] : 0];
 
   /* FRAME CAPTURE — a page-only extension, and deliberately inert.
      The Python module returns the final field; the cross-section on this
@@ -1783,11 +1820,11 @@ function simulate(cfg){
 
     t = tNext;
     if (frameEvery && ((step + 1) % frameEvery === 0 || step === nSteps - 1))
-      frames.push({ t, temps: new Float64Array(temps) });
+      frames.push({ t: tOffset + t, temps: new Float64Array(temps) });
     if ((step + 1) % o.record === 0 || step === nSteps - 1){
       let ma = 0;
       for (let i = 0; i < n; i++) ma += massW[i] * temps[i];
-      times.push(t); medium.push(mediumAt(sch, t));
+      times.push(tOffset + t); medium.push(mediumAt(sch, t));
       centreS.push(temps[centre]); massS.push(ma / totalMass);
       f0S.push(f0Nodes[centre]);
     }
@@ -1812,7 +1849,7 @@ function simulate(cfg){
     coldSpot: { r: sys.rN[coldNode % sys.nRow], z: sys.zN[Math.floor(coldNode / sys.nRow)] },
     peakCentre: Math.max.apply(null, centreS),
     totalTimeS: times[times.length - 1],
-    heatPenetration: fitHeatPenetration(times, medium, centreS, initial, sch),
+    heatPenetration: ws ? null : fitHeatPenetration(times, medium, centreS, initial, sch),
     surfaceH: h, isothermal: !(o.h > 0)
   };
 }
@@ -1857,9 +1894,273 @@ function fitHeatPenetration(times, medium, centre, initialC, sch){
   return null;
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PROCESS DEVIATIONS — a port of docs/in_container_deviation.py
+   The NumeriCAL / FMC-patent shape (Weng US 6,472,008; Datta, Teixeira &
+   Manson 1986; Simpson, Almonacid & Teixeira 2006, 2007): a numerical model
+   of the cold spot, calibrated to plant heat-penetration data, driven by the
+   medium trace as it actually ran, cooling included; total lethality is what
+   was delivered up to the moment the deviation cleared plus what the rest of
+   the process is predicted to deliver, and the process end moves until that
+   sum meets the target. Three corrections are reported and none is chosen.
+   ══════════════════════════════════════════════════════════════════════════ */
+function roundHalfEven(x){
+  const f = Math.floor(x), d = x - f;
+  if (d < 0.5) return f;
+  if (d > 0.5) return f + 1;
+  return (f % 2 === 0) ? f : f + 1;
+}
+function breakpoints(sch){
+  const pts = [[0, sch.start_c]];
+  let t = 0;
+  for (const step of sch.steps){
+    if (step.ramp){ t += step.duration_s; pts.push([t, step.target_c]); }
+    else {
+      if (pts[pts.length - 1][1] !== step.target_c) pts.push([t, step.target_c]);
+      t += step.duration_s;
+      if (step.duration_s > 0) pts.push([t, step.target_c]);
+    }
+  }
+  return pts;
+}
+function fromProfile(points){
+  const pts = points.map(p => [+p[0], +p[1]]);
+  if (pts.length < 1) throw new Error("a profile needs at least one point");
+  for (let i = 1; i < pts.length; i++)
+    if (pts[i][0] < pts[i-1][0]) throw new Error("profile times must not decrease");
+  const steps = [];
+  for (let i = 1; i < pts.length; i++){
+    const [t0, v0] = pts[i-1], [t1, v1] = pts[i], d = t1 - t0;
+    if (d <= 0){ if (v1 !== v0) steps.push({ duration_s:0, target_c:v1, ramp:false }); continue; }
+    steps.push({ duration_s:d, target_c:v1, ramp: v1 !== v0 });
+  }
+  return { start_c: pts[0][1], steps };
+}
+function holdEndS(sch){
+  let t = 0, lastHoldEnd = null, peak = null;
+  for (const step of sch.steps){
+    const tEnd = t + step.duration_s;
+    if (!step.ramp && step.duration_s > 0){
+      if (peak === null || step.target_c >= peak - 1e-9){ peak = step.target_c; lastHoldEnd = tEnd; }
+    }
+    t = tEnd;
+  }
+  return lastHoldEnd;
+}
+function withTemperatureDrop(sch, d){
+  const rd = d.ramp_down_s || 0, ru = d.ramp_up_s || 0;
+  if (d.duration_s <= 0) return sch;
+  const endS = d.start_s + d.duration_s;
+  if (rd + ru > d.duration_s) throw new Error("ramps are longer than the deviation itself");
+  const pts = breakpoints(sch);
+  const before = pts.filter(p => p[0] < d.start_s), after = pts.filter(p => p[0] > endS);
+  const tIn = mediumAt(sch, d.start_s), tOut = mediumAt(sch, endS);
+  const window = [[d.start_s, tIn], [d.start_s + rd, d.low_c], [endS - ru, d.low_c], [endS, tOut]];
+  return fromProfile(before.concat(window, after));
+}
+function tailFrom(sch, at){
+  const pts = [[0, mediumAt(sch, at)]];
+  for (const [t, v] of breakpoints(sch)) if (t > at) pts.push([t - at, v]);
+  return fromProfile(pts);
+}
+function standardSchedule(startC, comeUpS, holdC, holdS, coolC, coolS){
+  return { start_c: startC, steps: [
+    { duration_s: comeUpS, target_c: holdC, ramp: true },
+    { duration_s: holdS,   target_c: holdC, ramp: false },
+    { duration_s: coolS,   target_c: coolC, ramp: true } ] };
+}
+
+function apparentAlphaFromFh(container, fhS){
+  if (!(fhS > 0)) throw new Error("f_h must be positive");
+  const R = container.diameter_m / 2, H = container.height_m;
+  const lam = Math.pow(J0_ROOT_1 / R, 2) + Math.pow(Math.PI / H, 2);
+  return LN10 / (fhS * lam);
+}
+/* Scale k until the model's f_h — read off the simulated curve under the
+   plant's own come-up — matches the measured one. Secant in log-log. */
+function calibrateToFh(container, product, fhMeasured, schedule, initialC, options, tol, maxIt){
+  tol = tol || 0.002; maxIt = maxIt || 12;
+  if (!(fhMeasured > 0)) throw new Error("f_h must be positive");
+  const rhoCp = product.rho * product.cp;
+  const withAlpha = a => ({ k: a * rhoCp, rho: product.rho, cp: product.cp });
+  const fhOf = a => {
+    const r = simulate({ container, product: withAlpha(a), schedule, initial_c: initialC, options });
+    if (!r.heatPenetration) throw new Error("the schedule never holds long enough for f_h to be read off the simulated curve — lengthen the hold");
+    return r.heatPenetration.fhS;
+  };
+  let a0 = apparentAlphaFromFh(container, fhMeasured), f0 = fhOf(a0);
+  let a1 = a0 * f0 / fhMeasured, f1 = fhOf(a1), it = 2;
+  while (Math.abs(f1 - fhMeasured) > tol * fhMeasured && it < maxIt){
+    const la0 = Math.log(a0), la1 = Math.log(a1), lf0 = Math.log(f0), lf1 = Math.log(f1);
+    if (lf1 === lf0) break;
+    const la2 = la1 + (Math.log(fhMeasured) - lf1) * (la1 - la0) / (lf1 - lf0);
+    a0 = a1; f0 = f1; a1 = Math.exp(la2); f1 = fhOf(a1); it++;
+  }
+  return { product: withAlpha(a1), fhMeasured, fhSimulated: f1,
+           alphaClosedForm: apparentAlphaFromFh(container, fhMeasured),
+           alphaCalibrated: a1, iterations: it, fhError: (f1 - fhMeasured) / fhMeasured };
+}
+
+function bisectIncreasing(f, target, lo, hi, tolX, maxIter){
+  maxIter = maxIter || 40;
+  let fHi = f(hi);
+  if (fHi < target) throw new Error(`target ${target.toFixed(3)} not reachable within the search limit (reaches ${fHi.toFixed(3)})`);
+  let fLo = f(lo);
+  if (fLo >= target) return [lo, fLo];
+  for (let i = 0; i < maxIter; i++){
+    if (hi - lo <= tolX) break;
+    const mid = 0.5 * (lo + hi), fMid = f(mid);
+    if (fMid >= target){ hi = mid; fHi = fMid; } else { lo = mid; fLo = fMid; }
+  }
+  return [hi, fHi];
+}
+function holdTimeForTarget(container, product, p){
+  const opts = p.options || {};
+  const dt = opts.dt || 5;
+  const fOf = holdS => simulate({ container, product,
+    schedule: standardSchedule(p.medium_start_c, p.come_up_s, p.hold_c, holdS, p.cool_c, p.cool_s),
+    initial_c: p.initial_c, options: opts }).f0ColdSpot;
+  return bisectIncreasing(fOf, p.target_f_min, dt, p.max_hold_s == null ? 6*3600 : p.max_hold_s,
+                          p.tol_s == null ? 15 : p.tol_s)[0];
+}
+
+const VERDICT = { ADEQUATE:"ADEQUATE", CORRECTABLE:"CORRECTABLE", UNDER:"UNDER-PROCESSED" };
+
+function evaluateDeviation(container, product, scheduled, actual, p){
+  const opts = Object.assign({ nr:10, nz:16, dt:5 }, p.options || {});
+  const dt = opts.dt;
+  const maxExt = p.max_extension_s == null ? 4*3600 : p.max_extension_s;
+  const maxRaise = p.max_raise_c == null ? 8 : p.max_raise_c;
+  const tolS = p.tol_s == null ? 10 : p.tol_s;
+  let holdEnd = holdEndS(scheduled);
+  if (holdEnd === null) throw new Error("the scheduled process has no constant-temperature hold to extend");
+  const holdC = mediumAt(scheduled, holdEnd);
+  holdEnd = roundHalfEven(holdEnd / dt) * dt;
+
+  const run = (sch, ws) => simulate({ container, product, schedule: sch, initial_c: p.initial_c, options: opts, warmStart: ws });
+  const schedRes = run(scheduled);
+  const target = p.target_f_min != null ? p.target_f_min : schedRes.f0ColdSpot;
+
+  /* where and how deep */
+  const gridSet = new Set([0, holdEnd]);
+  for (const [t] of breakpoints(actual)) gridSet.add(t);
+  for (let i = 0; i <= Math.floor(holdEnd / dt); i++) gridSet.add(i * dt);
+  const grid = Array.from(gridSet).sort((a, b) => a - b);
+  const deficits = [];
+  for (const t of grid){ if (t > holdEnd) continue;
+    const v = mediumAt(actual, t);
+    if (v < mediumAt(scheduled, t) - 0.05) deficits.push([t, v]); }
+  let lowC = holdC, devStart = 0, devEnd = 0;
+  if (deficits.length){
+    lowC = Math.min.apply(null, deficits.map(d => d[1]));
+    devStart = Math.min.apply(null, deficits.map(d => d[0]));
+    devEnd = Math.max.apply(null, deficits.map(d => d[0]));
+  }
+
+  const head = fromProfile(breakpoints(actual).filter(pt => pt[0] < holdEnd).concat([[holdEnd, mediumAt(actual, holdEnd)]]));
+  const toClear = run(head);
+  const tail = tailFrom(scheduled, holdEnd);
+  const cooled = run(tail, toClear);
+  const asRun = p.process_complete ? cooled : null;
+
+  const corrections = [];
+  const extended = extraS => {
+    if (extraS <= 0) return { res: cooled, parts: [toClear, cooled] };
+    const ext = fromProfile([[0, mediumAt(actual, holdEnd)], [0, holdC], [extraS, holdC]]);
+    const mid = run(ext, toClear);
+    const fin = run(tail, mid);
+    return { res: fin, parts: [toClear, mid, fin] };
+  };
+
+  let proportional = null;
+  try {
+    let [extra] = bisectIncreasing(x => extended(x).res.f0ColdSpot, target, 0, maxExt, tolS);
+    extra = extra > 0 ? Math.ceil(extra / dt) * dt : 0;
+    const e = extended(extra);
+    proportional = { name:"proportional", description:"extend the hold at the recovered temperature by the time the model says the cold spot needs",
+      extra_hold_s: extra, hold_c: holdC, f_cold_spot_min: e.res.f0ColdSpot, cook_mass_avg_min: e.res.cookMassAvg,
+      total_time_s: e.res.totalTimeS, feasible: true, note: "", parts: e.parts };
+  } catch (err){
+    proportional = { name:"proportional", description:"extend at the recovered temperature", extra_hold_s: NaN, hold_c: holdC,
+      f_cold_spot_min: NaN, cook_mass_avg_min: NaN, total_time_s: NaN, feasible: false, note: err.message, parts: null };
+  }
+  corrections.push(proportional);
+
+  const schedPts = breakpoints(scheduled);
+  const cu = schedPts.find(pt => Math.abs(pt[1] - holdC) < 1e-9);
+  const comeUpS = cu ? cu[0] : 0;
+  const schedHoldS = holdEnd - comeUpS;
+  const totalS = scheduleTotal(scheduled);
+  const coolS = totalS - holdEnd, coolC = mediumAt(scheduled, totalS);
+  if (lowC < holdC - 0.05){
+    try {
+      const holdLow = holdTimeForTarget(container, product, { target_f_min: target, initial_c: p.initial_c,
+        medium_start_c: scheduled.start_c, come_up_s: comeUpS, hold_c: lowC, cool_c: coolC, cool_s: coolS,
+        options: opts, max_hold_s: schedHoldS + maxExt, tol_s: tolS });
+      let extraC = Math.max(0, holdLow - schedHoldS);
+      extraC = Math.ceil(extraC / dt) * dt;
+      const e = extended(extraC);
+      corrections.push({ name:"commercial", description:`extend as though the whole process had run at ${lowC.toFixed(1)} °C, the lowest temperature reached — the traditional rule`,
+        extra_hold_s: extraC, hold_c: holdC, f_cold_spot_min: e.res.f0ColdSpot, cook_mass_avg_min: e.res.cookMassAvg,
+        total_time_s: e.res.totalTimeS, feasible: true, note: "", parts: e.parts });
+    } catch (err){
+      corrections.push({ name:"commercial", description:"whole process at the lowest temperature", extra_hold_s: NaN, hold_c: holdC,
+        f_cold_spot_min: NaN, cook_mass_avg_min: NaN, total_time_s: NaN, feasible: false, note: err.message, parts: null });
+    }
+  }
+
+  const remaining = holdEnd - devEnd;
+  if (remaining >= 2 * dt && lowC < holdC - 0.05){
+    const clearT = roundHalfEven(devEnd / dt) * dt;
+    const headDev = fromProfile(breakpoints(actual).filter(pt => pt[0] < clearT).concat([[clearT, mediumAt(actual, clearT)]]));
+    const atClear = run(headDev);
+    const raised = tC => {
+      const rest = fromProfile([[0, mediumAt(actual, clearT)], [0, tC], [holdEnd - clearT, tC]]);
+      const mid = run(rest, atClear);
+      const fin = run(tail, mid);
+      return { res: fin, parts: [atClear, mid, fin] };
+    };
+    try {
+      const [tUp] = bisectIncreasing(x => raised(x).res.f0ColdSpot, target, holdC, holdC + maxRaise, 0.05);
+      const e = raised(tUp);
+      corrections.push({ name:"optimum", description:"raise the medium for the rest of the scheduled hold and finish on the original clock",
+        extra_hold_s: 0, hold_c: tUp, f_cold_spot_min: e.res.f0ColdSpot, cook_mass_avg_min: e.res.cookMassAvg,
+        total_time_s: e.res.totalTimeS, feasible: true,
+        note: `${(tUp - holdC) >= 0 ? "+" : ""}${(tUp - holdC).toFixed(2)} °C on the medium for ${((holdEnd - clearT) / 60).toFixed(1)} min`, parts: e.parts });
+    } catch (err){
+      corrections.push({ name:"optimum", description:"raise the medium for the rest of the hold", extra_hold_s: 0, hold_c: NaN,
+        f_cold_spot_min: NaN, cook_mass_avg_min: NaN, total_time_s: NaN, feasible: false, note: err.message, parts: null });
+    }
+  }
+
+  let verdict, reason;
+  if (cooled.f0ColdSpot >= target){
+    verdict = VERDICT.ADEQUATE;
+    reason = `the process as run still delivers ${cooled.f0ColdSpot.toFixed(2)} min against a target of ${target.toFixed(2)} min — no correction needed`;
+  } else if (p.process_complete){
+    verdict = VERDICT.UNDER;
+    reason = `the lot has cooled ${(target - cooled.f0ColdSpot).toFixed(2)} min short of target; nothing is left to extend. 21 CFR 113.89: full reprocessing, or evaluation of the product by a competent process authority`;
+  } else if (proportional.feasible){
+    verdict = VERDICT.CORRECTABLE;
+    reason = `short by ${(target - cooled.f0ColdSpot).toFixed(2)} min at the cold spot; an added ${(proportional.extra_hold_s / 60).toFixed(1)} min at ${holdC.toFixed(1)} °C restores the target`;
+  } else {
+    verdict = VERDICT.UNDER;
+    reason = "the target is not reachable within the extension limit";
+  }
+
+  return { scheduled: schedRes, asRun, toClearance: toClear, cooled, target_f_min: target,
+           deviation_low_c: lowC, deviation_start_s: devStart, deviation_end_s: devEnd, hold_end_s: holdEnd,
+           hold_c: holdC, corrections, verdict, reason,
+           f_scheduled_min: schedRes.f0ColdSpot, f_delivered_at_clearance_min: toClear.f0ColdSpot,
+           f_as_run_min: asRun ? asRun.f0ColdSpot : null,
+           shortfall_min: asRun ? Math.max(0, target - asRun.f0ColdSpot) : null };
+}
+
 return { simulate, lethalRate, analyticFhS, oscillationFreeDt, diffusivity,
-         mediumAt, scheduleTotal, assemble, evenNz, Band,
-         BALL_J_FINITE_CYLINDER };
+         mediumAt, scheduleTotal, assemble, evenNz, Band, BALL_J_FINITE_CYLINDER,
+         breakpoints, fromProfile, holdEndS, withTemperatureDrop, tailFrom, standardSchedule,
+         apparentAlphaFromFh, calibrateToFh, holdTimeForTarget, evaluateDeviation, VERDICT };
 })();
 /* @solver-end */
 
@@ -1927,7 +2228,16 @@ const DEFAULTS = () => ({
           surf:"steam", h:150 },
   leth: { preset:"f0", ref:121.11, z:10, cookRef:100, cookZ:33.1, target:0 },
   num:  { nr:14, nz:22, dt:3, theta:1, lumped:false },
-  ui:   { openSecs:{ can:1, prod:1, sch:1, leth:1, num:0 },
+  /* A deviation is described the way a retort chart shows it: when the
+     medium fell, how far, for how long, and how sharply. Times are seconds
+     from the start of the process. calFh is a measured heating factor from
+     the plant's own heat-penetration study; when it is set, the model is
+     calibrated to it before the deviation is evaluated, which is what
+     NumeriCAL does with imported heating factors and what makes the answer
+     about this product rather than about a handbook. */
+  dev:  { mode:"none", start:1800, dur:900, low:112, rampDown:60, rampUp:120,
+          complete:false, calFh:0 },
+  ui:   { openSecs:{ can:1, prod:1, sch:1, leth:1, num:0, dev:1 },
           calculated:false, hist:"T", frame:100 },
 });
 let S = DEFAULTS();
@@ -2107,8 +2417,25 @@ const GROUPS = [
       F.chk("num.lumped", "Lumped capacity matrix",
         "Strictly monotone, slightly less accurate on the cold spot. Off, the consistent matrix can overshoot the medium by a fraction of a degree at the wall below the step limit the checks report.")
   },
+  { id:"dev",  n:6, title:"Deviation", body: () =>
+      F.sel("dev.mode", "Medium as it ran", [["none","As scheduled — no deviation"],["drop","Temperature drop during the process"]], "setDevMode",
+        { hint:"21 CFR 113.89: a departure from the scheduled process puts the lot on hold until it is fully reprocessed or evaluated by a competent process authority. This is the evaluation arithmetic; it is not the process authority." }) +
+      (S.dev.mode === "drop" ? (
+        F.num("dev.start", "Drop begins at", "t", { hint:"Time from the start of the process." }) +
+        F.num("dev.dur",   "Drop lasts",     "t") +
+        F.num("dev.low",   "Lowest medium temperature", "T") +
+        F.num("dev.rampDown", "Fall takes", "t", { hint:"Zero is a step change — the conservative reading of a chart with a sharp drop on it." }) +
+        F.num("dev.rampUp",   "Recovery takes", "t") +
+        F.chk("dev.complete", "The lot has already cooled",
+          "On, there is nothing left to extend: the lot is short by a known amount and the verdict says so. Off, the process is still in the retort and a correction can be applied.") +
+        `<div class="subhead">Calibration</div>` +
+        F.num("dev.calFh", "Measured f\u2095 from the heat-penetration study", "t",
+          { hint:"<b>Optional, and the difference between an estimate and an evaluation.</b> With a measured f<sub>h</sub> the model's diffusivity is adjusted until it reproduces the plant's own heating curve under this come-up, so the deviation is judged on the product as it actually heats. Zero leaves the properties above in force." })
+      ) : "")
+  },
 ];
 function setTheta(v){ setv("num.theta", parseFloat(v)); renderRail(); }
+function setDevMode(v){ S.dev.mode = v; S.ui.calculated = false; R = null; renderRail(); render(); }
 
 /* ── BUILDING A CASE FOR THE SOLVER ───────────────────────────────────────
    One function, so the sweep, the convergence run and the headline solve all
@@ -2226,7 +2553,29 @@ function calculateProcess(){
                span: Math.max(Math.abs(up - ref), Math.abs(dn - ref)) };
     }).sort((a, b) => b.span - a.span);
 
-    R = { res, fine, sens, sensRef: ref, ms: performance.now() - t0 };
+    /* the deviation, on the same mesh, calibrated first if a measured f_h
+       was given — the order matters: the calibration must see the
+       scheduled come-up, not the deviated one */
+    let dev = null, cal = null, devErr = "";
+    if (S.dev.mode === "drop"){
+      try {
+        const sched = base.schedule;
+        let prod = base.product;
+        if (S.dev.calFh > 0){
+          cal = FEM.calibrateToFh(base.container, prod, S.dev.calFh, sched, base.initial_c, base.options);
+          prod = cal.product;
+        }
+        const actual = FEM.withTemperatureDrop(sched, { start_s: S.dev.start, duration_s: S.dev.dur,
+          low_c: S.dev.low, ramp_down_s: S.dev.rampDown, ramp_up_s: S.dev.rampUp });
+        dev = FEM.evaluateDeviation(base.container, prod, sched, actual, {
+          initial_c: base.initial_c, options: Object.assign({}, base.options, { frames: 0, record: 2 }),
+          target_f_min: S.leth.target > 0 ? S.leth.target : null,
+          process_complete: !!S.dev.complete, tol_s: Math.max(S.num.dt * 2, 10) });
+        dev.actual = actual;
+      } catch (err){ devErr = err.message; dev = null; }
+    }
+
+    R = { res, fine, sens, sensRef: ref, dev, cal, devErr, ms: performance.now() - t0 };
     S.ui.calculated = true;
     note.textContent = `${Math.round(R.ms)} ms · ${res.times.length - 1} steps · ${res.rN.length * res.zN.length} nodes`;
     render();
@@ -2667,11 +3016,128 @@ function traceBody(){
     ${L("F mass-average", fmt(r.f0MassAvg,4)+" min")}
     ${L("cook value C mass-average", fmt(r.cookMassAvg,2)+" min at "+fmt(o.cookRef,0)+" °C, z "+fmt(o.cookZ,1))}
     ${L("cook value at the surface", fmt(r.cookSurface,2)+" min")}
+    ${R.dev ? H("Deviation — delivered plus predicted") +
+      L("medium fell to", fmt(R.dev.deviation_low_c,2)+" °C between "+fmt(R.dev.deviation_start_s/60,1)+" and "+fmt(R.dev.deviation_end_s/60,1)+" min") +
+      L("scheduled hold ends", fmt(R.dev.hold_end_s/60,1)+" min at "+fmt(R.dev.hold_c,2)+" °C") +
+      L("F scheduled, cooling included", fmt(R.dev.f_scheduled_min,4)+" min") +
+      L("target", fmt(R.dev.target_f_min,4)+" min") +
+      L("F delivered at clearance", fmt(R.dev.f_delivered_at_clearance_min,4)+" min") +
+      L("F as run, cooling included", fmt(R.dev.cooled.f0ColdSpot,4)+" min") +
+      R.dev.corrections.map(c => L(c.name + (c.feasible ? "" : " (not feasible)"),
+        c.feasible ? (c.name === "optimum" ? c.note : "+"+fmt(c.extra_hold_s/60,2)+" min at "+fmt(c.hold_c,2)+" °C")
+                     + " → F "+fmt(c.f_cold_spot_min,4)+" min, cook "+fmt(c.cook_mass_avg_min,1)+" min, total "+fmt(c.total_time_s/60,1)+" min"
+                   : c.note)).join("") +
+      (R.cal ? L("calibration", "α "+(R.cal.alphaClosedForm*1e7).toFixed(4)+"e-7 closed form → "+(R.cal.alphaCalibrated*1e7).toFixed(4)+"e-7 m²/s, f\u2095 "+fmt(R.cal.fhSimulated/60,2)+" vs "+fmt(R.cal.fhMeasured/60,2)+" min measured") : "")
+      : ""}
     ${H("Convergence — the same case, twice the mesh, half the step")}
     ${L("fine mesh", `${o.nr*2} × ${FEM.evenNz(o.nz*2)} elements, Δt ${fmt(o.dt/2,2)} s`)}
     ${L("F at the cold spot, fine", fmt(R.fine.f0ColdSpot,4)+" min")}
     ${L("difference", ((R.fine.f0ColdSpot-r.f0ColdSpot)/R.fine.f0ColdSpot*100).toFixed(3)+" %")}
   </div>`;
+}
+
+/* ── DEVIATION — the corrected schedule and what it stands on ─────────── */
+function concatSeries(parts){
+  const t = [], m = [], c = [];
+  for (const p of parts){
+    const skip = t.length ? 1 : 0;      /* the seam point is in both parts */
+    for (let i = skip; i < p.times.length; i++){ t.push(p.times[i]); m.push(p.medium[i]); c.push(p.centre[i]); }
+  }
+  return { times: t, medium: m, centre: c };
+}
+function renderDeviation(){
+  const card = document.getElementById("dev_card");
+  const show = S.ui.calculated && S.dev.mode === "drop";
+  card.hidden = !show;
+  if (!show) return;
+  const d = R.dev;
+  const V = document.getElementById("dev_verdict");
+  if (!d){
+    V.innerHTML = `<div class="banner err"><div><b>Not evaluated.</b> ${esc(R.devErr)}</div></div>`;
+    document.getElementById("dev_table").innerHTML = "";
+    document.getElementById("chart_dev").innerHTML = ""; document.getElementById("legend_dev").innerHTML = "";
+    return;
+  }
+  const cls = d.verdict === "ADEQUATE" ? "ok" : d.verdict === "CORRECTABLE" ? "caut" : "warn";
+  /* With a measured f_h the evaluation runs on the CALIBRATED product, so
+     its scheduled F is not the schedule table's. Say so where the two sit
+     eight lines apart, or the page looks as if it cannot add up. */
+  document.getElementById("dev_note").innerHTML = R.cal
+    ? `On the product calibrated to f\u2095 ${fmt(R.cal.fhMeasured/60,1)} min (α ${(R.cal.alphaCalibrated*1e7).toFixed(3)}e-7 m²/s) — which is why the scheduled F here differs from the table above`
+    : "Delivered plus predicted, against the target — on the properties in group 2";
+  V.innerHTML = `<div class="chk" style="border-bottom:none;padding-top:0"><div class="chk-lbl"><b>${esc(d.verdict)}</b><small>${esc(d.reason)}</small></div>
+    <div class="chk-val chk-${cls}">${fmt(d.cooled.f0ColdSpot)} / ${fmt(d.target_f_min)} min</div></div>`;
+
+  const row = (name, sub, holdC, extra, total, f, cook, strong) =>
+    `<tr${strong ? ' class="tot"' : ""}><td>${esc(name)}${sub ? `<br/><span style="color:var(--muted);font-size:0.72rem">${sub}</span>` : ""}</td>
+      <td class="n">${holdC == null ? "—" : fmt(uFromSI(holdC,"T"),1)}</td>
+      <td class="n">${extra == null ? "—" : (extra === 0 ? "none" : "+" + fmt(extra/60,1))}</td>
+      <td class="n">${total == null ? "—" : fmt(total/60,1)}</td>
+      <td class="n">${f == null ? "—" : fmt(f)}</td>
+      <td class="n">${cook == null ? "—" : fmt(cook,0)}</td></tr>`;
+  let rows = row("Scheduled process", "as filed, cooling included", d.hold_c, 0, d.scheduled.totalTimeS, d.f_scheduled_min, d.scheduled.cookMassAvg);
+  rows += row("As run, no correction", "the trace as it happened, then the scheduled cooling", null, 0, d.cooled.totalTimeS, d.cooled.f0ColdSpot, d.cooled.cookMassAvg);
+  for (const c of d.corrections){
+    rows += c.feasible
+      ? row(c.name[0].toUpperCase() + c.name.slice(1), esc(c.description) + (c.name === "optimum" ? " — " + esc(c.note) : ""),
+            c.hold_c, c.name === "optimum" ? 0 : c.extra_hold_s, c.total_time_s, c.f_cold_spot_min, c.cook_mass_avg_min, c.name === "proportional")
+      : row(c.name[0].toUpperCase() + c.name.slice(1), "not feasible — " + esc(c.note), null, null, null, null, null, false);
+  }
+  document.getElementById("dev_table").innerHTML = `<table class="t"><thead><tr>
+      <th>Process</th><th class="n" style="text-align:right">Hold (${esc(Tu())})</th><th class="n" style="text-align:right">Added (min)</th>
+      <th class="n" style="text-align:right">Total (min)</th><th class="n" style="text-align:right">F cold spot (min)</th><th class="n" style="text-align:right">Cook (min)</th>
+    </tr></thead><tbody>${rows}</tbody></table>
+    <div class="field-hint" style="margin-top:8px">Three ways of making the lot whole, from the safest to the most economical. The commercial rule charges the whole process for a fault that lasted minutes; the proportional correction is what the model says the cold spot actually needs; the optimum raises the medium instead and finishes on the original clock. <b>Which to use is an engineering and a regulatory decision. This page does not make it.</b></div>`;
+  document.getElementById("chart_dev").innerHTML = chartDeviation(d);
+}
+
+/* Scheduled against actual — medium and cold spot for each — with the
+   deviation window and the proportional extension shaded. The plot ends
+   where the longest drawn process ends, so an extension is visible as
+   extra length and not as a change of scale. */
+function chartDeviation(d){
+  const C = chc(), W = 900, H = 340, m = { l:58, r:24, t:14, b:40 };
+  const sched = d.scheduled;
+  const actual = concatSeries([d.toClearance, d.cooled]);
+  const prop = d.corrections.find(c => c.name === "proportional" && c.feasible && c.parts);
+  const corr = prop ? concatSeries(prop.parts) : null;
+  const tMax = Math.max(sched.totalTimeS, actual.times[actual.times.length-1], corr ? corr.times[corr.times.length-1] : 0) / 60;
+  const all = [].concat(sched.medium, sched.centre, actual.medium, actual.centre).map(v => uFromSI(v,"T"));
+  let ylo = Math.min.apply(null, all), yhi = Math.max.apply(null, all);
+  const pad = (yhi - ylo) * 0.08 + 0.5; ylo -= pad; yhi += pad;
+  const X = t => m.l + t / Math.max(1e-9, tMax) * (W - m.l - m.r);
+  const Y = v => m.t + (yhi - v) / Math.max(1e-9, yhi - ylo) * (H - m.t - m.b);
+  let g = `<rect x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="${C.plotbg}" stroke="${C.border}"/>`;
+  if (d.deviation_end_s > d.deviation_start_s)
+    g += `<rect x="${X(d.deviation_start_s/60).toFixed(1)}" y="${m.t}" width="${(X(d.deviation_end_s/60)-X(d.deviation_start_s/60)).toFixed(1)}" height="${H-m.t-m.b}" fill="${C.bad}" opacity="0.07"/>`;
+  if (prop && prop.extra_hold_s > 0)
+    g += `<rect x="${X(d.hold_end_s/60).toFixed(1)}" y="${m.t}" width="${(X((d.hold_end_s+prop.extra_hold_s)/60)-X(d.hold_end_s/60)).toFixed(1)}" height="${H-m.t-m.b}" fill="${C.ok}" opacity="0.09"/>`;
+  for (const v of niceTicks(ylo, yhi, 6)){
+    g += `<line x1="${m.l}" y1="${Y(v).toFixed(1)}" x2="${W-m.r}" y2="${Y(v).toFixed(1)}" stroke="${C.grid}"/>`;
+    g += `<text x="${m.l-7}" y="${(Y(v)+3.5).toFixed(1)}" text-anchor="end" font-size="11" fill="${C.muted}" font-family="DM Mono,monospace">${v}</text>`;
+  }
+  for (const t of niceTicks(0, tMax, 8)){
+    g += `<line x1="${X(t).toFixed(1)}" y1="${m.t}" x2="${X(t).toFixed(1)}" y2="${H-m.b}" stroke="${C.grid}"/>`;
+    g += `<text x="${X(t).toFixed(1)}" y="${H-m.b+16}" text-anchor="middle" font-size="11" fill="${C.muted}" font-family="DM Mono,monospace">${t}</text>`;
+  }
+  const path = (ts, vs) => vs.map((v,i) => (i ? "L" : "M") + X(ts[i]/60).toFixed(1) + " " + Y(uFromSI(v,"T")).toFixed(1)).join(" ");
+  g += `<path d="${path(sched.times, sched.medium)}" fill="none" stroke="${C.trace}" stroke-width="1.5" stroke-dasharray="5 3"/>`;
+  g += `<path d="${path(sched.times, sched.centre)}" fill="none" stroke="${C.trace}" stroke-width="2"/>`;
+  if (corr){
+    g += `<path d="${path(corr.times, corr.medium)}" fill="none" stroke="${C.p3}" stroke-width="1.4" stroke-dasharray="5 3"/>`;
+    g += `<path d="${path(corr.times, corr.centre)}" fill="none" stroke="${C.p3}" stroke-width="2"/>`;
+  }
+  g += `<path d="${path(actual.times, actual.medium)}" fill="none" stroke="${C.hi}" stroke-width="1.5" stroke-dasharray="5 3"/>`;
+  g += `<path d="${path(actual.times, actual.centre)}" fill="none" stroke="${C.hi}" stroke-width="2.4"/>`;
+  g += `<text x="${m.l}" y="${H-6}" font-size="11" fill="${C.muted}">minutes</text>`;
+  g += `<text transform="translate(13,${(m.t+(H-m.t-m.b)/2).toFixed(0)}) rotate(-90)" text-anchor="middle" font-size="11" fill="${C.muted}">temperature (${esc(Tu())})</text>`;
+  g += `<rect x="${m.l}" y="${m.t}" width="${W-m.l-m.r}" height="${H-m.t-m.b}" fill="none" stroke="${C.border}"/>`;
+  document.getElementById("legend_dev").innerHTML = legend([
+    { c:C.trace, t:"Scheduled — medium (dashed) and cold spot" },
+    { c:C.hi, t:"As run — medium (dashed) and cold spot" },
+  ].concat(corr ? [{ c:C.p3, t:"Proportional correction — extension shaded" }] : []))
+  + `<div class="lg-note">Red band: the deviation. Green band: the added hold. Cooling is drawn for every case because the cold spot keeps rising after the steam is off and that lethality counts.</div>`;
+  return svgWrap("ch_dev", W, H, g);
 }
 
 /* ── THE RIGHT COLUMN — the answer, its status, what it stands on ─────── */
@@ -2729,6 +3195,22 @@ function renderRRail(){
     kpi("Process time", fmt(r.totalTimeS/60,1), "min")
   }</div></div></div>`;
 
+  if (R.dev || R.devErr){
+    const d = R.dev;
+    const cls = !d ? "warn" : d.verdict === "ADEQUATE" ? "ok" : d.verdict === "CORRECTABLE" ? "caut" : "warn";
+    h += `<div class="rcard"><div class="rcard-h">Deviation</div><div class="rcard-b">
+      <div class="chk"><div class="chk-lbl">Verdict<small>${esc(d ? d.reason : R.devErr)}</small></div>
+        <div class="chk-val chk-${cls}">${esc(d ? d.verdict : "NOT EVALUATED")}</div></div>
+      ${d ? `<div class="chk"><div class="chk-lbl">Delivered at clearance<small>by the end of the scheduled hold, on the trace as it ran</small></div>
+        <div class="chk-val">${fmt(d.f_delivered_at_clearance_min)} min</div></div>
+      <div class="chk"><div class="chk-lbl">Target<small>${S.leth.target > 0 ? "entered above" : "what the scheduled process delivers, cooling included"}</small></div>
+        <div class="chk-val">${fmt(d.target_f_min)} min</div></div>` : ""}
+      ${R.cal ? `<div class="chk"><div class="chk-lbl">Calibrated to f\u2095<small>α ${(R.cal.alphaCalibrated*1e7).toFixed(3)}e-7 m²/s in ${R.cal.iterations} iterations, f\u2095 reproduced to ${(R.cal.fhError*100).toFixed(2)} %</small></div>
+        <div class="chk-val chk-ok">MEASURED</div></div>` : (d ? `<div class="chk"><div class="chk-lbl">Properties<small>no measured f\u2095 given — the evaluation stands on the properties in group 2</small></div>
+        <div class="chk-val chk-caut">ASSUMED</div></div>` : "")}
+    </div></div>`;
+  }
+
   h += `<div class="rcard"><div class="rcard-h">Envelope</div><div class="rcard-b">
     <div class="envelope"><b>Conduction only.</b> No convection in the pack, no agitation or
     rotation, no headspace, no boiling or phase change, and properties that do not vary with
@@ -2751,6 +3233,7 @@ function render(){
   document.getElementById("sens_body").innerHTML = sensBody();
   document.getElementById("trace_body").innerHTML = traceBody();
   renderField();
+  renderDeviation();
   renderRRail();
   if (S.ui.calculated) document.getElementById("banners").innerHTML = "";
   stamp();
@@ -2782,6 +3265,8 @@ function updateSummaries(){
     sch:  `${fmt(S.sch.comeUp/60,0)} min come-up · ${T(S.sch.holdT)} for ${fmt(S.sch.holdS/60,0)} min · cool ${fmt(S.sch.coolS/60,0)} min · ${S.sch.surf === "steam" ? "steam" : "h " + fmt(S.sch.h,0)}`,
     leth: `${BASES[S.leth.preset][0].split(" — ")[0]} · ref ${T(S.leth.ref)}, z ${fmt(uFromSI(S.leth.z,"dT"),1)} ${Tu()}${S.leth.target > 0 ? " · target " + fmt(S.leth.target) + " min" : " · no target"}`,
     num:  `${S.num.nr} × ${FEM.evenNz(S.num.nz)} elements · Δt ${fmt(S.num.dt,1)} s · θ ${fmt(S.num.theta,1)}${S.num.lumped ? " · lumped" : ""}`,
+    dev:  S.dev.mode === "none" ? "as scheduled — no deviation"
+          : `down to ${T(S.dev.low)} at ${fmt(S.dev.start/60,0)} min for ${fmt(S.dev.dur/60,0)} min${S.dev.complete ? " · lot has cooled" : ""}${S.dev.calFh > 0 ? " · calibrated to f\u2095 " + fmt(S.dev.calFh/60,1) + " min" : ""}`,
   };
   for (const k in sums){
     const el = document.getElementById("sum-" + k);
