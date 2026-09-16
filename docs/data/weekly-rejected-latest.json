@@ -1,15 +1,38 @@
 {
   "week_end": "2026-09-20",
-  "generated_utc": "2026-09-16T03:22:36+00:00",
-  "row_count": 29,
-  "tier1_count": 27,
+  "generated_utc": "2026-09-16T13:22:15+00:00",
+  "row_count": 31,
+  "tier1_count": 28,
   "outbreak_count": 7,
   "by_reviewer": {
-    "unknown": 27,
+    "unknown": 29,
     "confirm-agent": 1,
     "repromotion-guard": 1
   },
   "rows": [
+    {
+      "Date": "2026-09-15",
+      "Source": "Mattilsynet",
+      "Company": "Sjømathuset AS",
+      "Brand": "Lerøy",
+      "Product": "Lerøy laks loin 600 g og 250 g (lot 315219, 315215)",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "Listeria monocytogenes",
+      "Class": "Recall",
+      "Country": "Norway",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.mattilsynet.no/tilbakekallinger/sjomathuset-as-tilbakekaller-leroy-laks-loin-600g-og-250g-etter-mistanke-om-listeria",
+      "Notes": "REJECTED: Confirmer: row was at pending_gap (not reviewed by reviewer 2) and page does not mention any of ['sjømathuset', 'lerøy'] — the cited URL describes something other than this row | Sjømathuset AS tilbakekaller Lerøy laks loin 600g og 250g etter mistanke om listeria | Mattilsynet\n\n# Sjømathuset AS tilbakekaller Lerøy laks loin 600g og 250g etter mistanke om listeria\n\nSjømathuset AS kaller tilbake Lerøy laks loin på 600 gram og 250 gram, med lotnumrene 315219 og 315215, og siste  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [brief-fix 2026-09-16: corrected Brand, Company, Product against the source notice]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-20",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Confirmer: row was at pending_gap (not reviewed by reviewer 2) and page does not mention any of",
+      "Reviewed": "N"
+    },
     {
       "Date": "2026-09-11",
       "Source": "FSANZ (AU)",
@@ -675,6 +698,29 @@
       "Week_Added": "2026-09-20",
       "RejectedBy": "unknown",
       "RejectionReason": "Confirmer: row was at pending_gap (not reviewed by reviewer 2) and page does not mention any of",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-15",
+      "Source": "FDA",
+      "Company": "Danone USA",
+      "Brand": "So Delicious Dairy Free",
+      "Product": "Salted Caramel Cluster Non-Dairy Frozen Dessert pints",
+      "Pathogen": "",
+      "Reason": "Product may contain foreign objects such as small stones and other hard objects",
+      "Class": "Recall",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 3,
+      "Outbreak": 0,
+      "URL": "",
+      "Notes": "REJECTED: http_error | FDA listing HTML (Layer 1) [URL-guardian 2026-09-16: blanked http_error https://www.fda.gov/safety/recalls-market-withdrawals-safety] [brief-fix 2026-09-16: corrected URL against the source notice] [URL-guardian 2026-09-16: blanked http_error https://www.fda.gov/safety/recalls-market-withdrawals-safety]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-20",
+      "RejectedBy": "unknown",
+      "RejectionReason": "http_error",
       "Reviewed": "N"
     }
   ]
