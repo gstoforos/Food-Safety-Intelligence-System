@@ -1,0 +1,169 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20260916T064449Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: country named in the article; serotype e. coli o26:h11; food terms alfalfa, sprout. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella",
+          "quote": "at least 55 people sick in 15 states | Forty-six people are sick with E. coli infections, seven are sick with Salmonella food poisoning, and two are sick with both Salmonella and E. coli infections | Illness onset dates range from May 31, 2026 to August 8, 2026",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
+          "quote": "2026-08-22 FDA Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lo",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "f6fd668ec3f11149"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/micro-verdure-brand-microgreens-recalled-due-pathogenic-e-coli"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella",
+          "quote": "at least 55 people sick in 15 states | Forty-six people are sick with E. coli infections, seven are sick with Salmonella food poisoning, and two are sick with both Salmonella and E. coli infections | Illness onset dates range from May 31, 2026 to August 8, 2026",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/micro-verdure-brand-microgreens-recalled-due-pathogenic-e-coli",
+          "quote": "2026-05-20 CFIA Microgreens — Broccoli 80g (UPC 6 28011 65702 2); Summery Fusion 150g (UPC 6 28011 65748 0",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0897be46f2cf06be"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/fermes-lufa-brand-broccoli-microgreens-recalled-due-pathogenic-e-coli"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella",
+          "quote": "at least 55 people sick in 15 states | Forty-six people are sick with E. coli infections, seven are sick with Salmonella food poisoning, and two are sick with both Salmonella and E. coli infections | Illness onset dates range from May 31, 2026 to August 8, 2026",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/fermes-lufa-brand-broccoli-microgreens-recalled-due-pathogenic-e-coli",
+          "quote": "2026-05-21 CFIA Broccoli microgreens — 50 g (no UPC; sold from 2026-04-20 to 2026-05-08)",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e459e0650c49c7d7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.hortidaily.com/article/9841186/canada-recalls-broccoli-microgreens-over-possible-e-coli-contamination/"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella",
+          "quote": "at least 55 people sick in 15 states | Forty-six people are sick with E. coli infections, seven are sick with Salmonella food poisoning, and two are sick with both Salmonella and E. coli infections | Illness onset dates range from May 31, 2026 to August 8, 2026",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.hortidaily.com/article/9841186/canada-recalls-broccoli-microgreens-over-possible-e-coli-contamination/",
+          "quote": "2026-05-26 CFIA broccoli microgreens",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "8dc886f6d731c947"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella",
+          "quote": "at least 55 people sick in 15 states | Forty-six people are sick with E. coli infections, seven are sick with Salmonella food poisoning, and two are sick with both Salmonella and E. coli infections | Illness onset dates range from May 31, 2026 to August 8, 2026",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due",
+          "quote": "2026-07-06 FDA Organic IQF Frozen Blueberries 10 oz",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ebbb53526ba46693"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/international-sprout-holding-recalls-seeds-for-e-coli-and-salmonella",
+          "quote": "at least 55 people sick in 15 states | Forty-six people are sick with E. coli infections, seven are sick with Salmonella food poisoning, and two are sick with both Salmonella and E. coli infections | Illness onset dates range from May 31, 2026 to August 8, 2026",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e",
+          "quote": "2026-07-30 FDA Organic IQF Frozen Blueberries and Whole Mixed Berries, 10 oz and 48 oz",
+          "retrieved_utc": "2026-09-16T06:44:43+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "377450eb1651fb70"
+    }
+  ]
+}

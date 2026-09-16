@@ -1,0 +1,44 @@
+[
+  {
+    "proposal_id": "f6fd668ec3f11149",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "0897be46f2cf06be",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "e459e0650c49c7d7",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "8dc886f6d731c947",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "ebbb53526ba46693",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "377450eb1651fb70",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  }
+]
