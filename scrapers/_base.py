@@ -949,6 +949,34 @@ class GenericGeminiScraper(BaseScraper):
     LANGUAGE: str = "en"
     EXTRACTION_HINTS: str = ""  # optional agency-specific guidance appended to the prompt
 
+    #: Regex matching a DETAIL-page href on this agency's listing, as the
+    #: href is written in the markup. Setting it turns on the deterministic
+    #: parse in scrapers/_listing.py, which runs as a FLOOR under the LLM:
+    #: entries it finds that the LLM missed are merged in by URL.
+    #:
+    #: Added 2026-09-14 after GIS (PL) was found to have returned zero rows
+    #: for eight months without ever reporting an error — the LLM path fails
+    #: silently in four different ways and an empty list looks exactly like
+    #: a quiet week. See scrapers/_listing.py for the full account.
+    #:
+    #: Leave it unset and behaviour is byte-identical to before: LLM only.
+    #: A generic every-link parse is deliberately NOT the default, because
+    #: navigation chrome would become rows.
+    DETAIL_URL_RE: str = ""
+
+    #: Hazard label for a row the deterministic parse found, given its
+    #: listing title. Override per agency where the title names the hazard
+    #: in a language the shared vocabulary does not cover — GIS (PL) is the
+    #: worked example. Returning "" is correct and normal; review enriches.
+    def hazard_from_title(self, title: str) -> str:  # noqa: D401
+        from scrapers._pathogen_vocab import CORE
+        low = (title or "").lower()
+        for kw in CORE:
+            k = kw.strip()
+            if len(k) > 4 and k in low:
+                return k
+        return ""
+
     def scrape(self, since_days: int = 30) -> List[Recall]:
         if not self.INDEX_URLS:
             self.logger.warning(
@@ -995,9 +1023,80 @@ class GenericGeminiScraper(BaseScraper):
                 "extracted %d rows from %s (%d within %d-day window)",
                 len(rows), url, len(filtered), since_days,
             )
+
+            # ── Deterministic floor (2026-09-14) ──────────────────────────
+            # Runs on the SAME html the LLM just saw, so it costs no extra
+            # fetch. Merged by URL: whatever the LLM found is kept as-is and
+            # richer, and anything it missed is added rather than lost.
+            filtered = self._merge_deterministic(resp.text, url, filtered, cutoff)
             all_rows.extend(filtered)
 
         return all_rows
+
+    # ---------------------------------------------------------- internal
+    def _merge_deterministic(self, html, url, llm_rows, cutoff):
+        """Add listing entries the LLM path missed. Never raises."""
+        from scrapers import _listing
+
+        if not self.DETAIL_URL_RE:
+            if not llm_rows:
+                # The single most useful line in the log. GIS printed the
+                # equivalent of this zero times in 102 days because nobody
+                # was asking the question.
+                verdict = {}
+                try:
+                    verdict = _listing.looks_like_listing(html, url)
+                except Exception:       # noqa: BLE001
+                    pass
+                self.logger.warning(
+                    "%s: %s returned NO rows and has no DETAIL_URL_RE to fall "
+                    "back on. Page has %s link(s) and %s date(s) — %s",
+                    self.AGENCY, url, verdict.get("links", "?"),
+                    verdict.get("dates_on_page", "?"),
+                    "looks like a listing, so suspect the extractor"
+                    if verdict.get("is_listing")
+                    else "this may not be a listing page at all; check the URL",
+                )
+            return llm_rows
+
+        try:
+            import re as _re
+            entries = _listing.extract_links(
+                html, url, _re.compile(self.DETAIL_URL_RE, _re.I))
+        except Exception as exc:        # noqa: BLE001
+            self.logger.exception("%s: deterministic parse failed: %s",
+                                  self.AGENCY, exc)
+            return llm_rows
+
+        if not entries:
+            self.logger.warning(
+                "%s: DETAIL_URL_RE matched nothing on %s — the pattern or the "
+                "URL is stale", self.AGENCY, url)
+            return llm_rows
+
+        have = {str(getattr(r, "URL", "") or "").rstrip("/") for r in llm_rows}
+        added = []
+        for e in entries:
+            if e["url"].rstrip("/") in have:
+                continue
+            if not _listing.within_window(e["date"], cutoff):
+                continue
+            added.append(self._new_recall(
+                Date=e["date"],
+                Product=e["title"],
+                Pathogen=self.hazard_from_title(e["title"]),
+                Reason=e["title"],
+                URL=e["url"],
+                Notes="listing (deterministic parse); detail page not yet read",
+            ))
+
+        if added:
+            self.logger.warning(
+                "%s: deterministic parse recovered %d entr(ies) the LLM path "
+                "missed (%d -> %d). A partial extraction is otherwise "
+                "indistinguishable from a complete one.",
+                self.AGENCY, len(added), len(llm_rows), len(llm_rows) + len(added))
+        return list(llm_rows) + added
 
     # ---------------------------------------------------------- internal
     def _extract_with_gemini(self, html: str, source_url: str) -> List[Recall]:
