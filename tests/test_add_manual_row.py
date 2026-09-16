@@ -154,25 +154,67 @@ def _run(*argv):
                           cwd=ROOT, capture_output=True, text=True)
 
 
-def test_dry_run_writes_nothing(workbook_copy):
+@pytest.fixture
+def novel_row(tmp_path, pesto):
+    """The pesto row with a URL the register has never seen.
+
+    AUDIT 2026-09-16 — the end-to-end tests used to queue the shipped pesto
+    row itself. That worked only until the row was promoted; now that it is
+    in Recalls, append_to_pending correctly SKIPS it and the tests failed
+    for the one reason that means the tool is working.
+
+    So the pipeline behaviour is split in two, and both halves are asserted:
+    a genuinely new row queues (below), and the shipped row is refused
+    because it is already approved (test_shipped_row_is_now_a_no_op).
+    """
+    spec = dict(pesto)
+    # A different URL is NOT enough. append_to_pending also runs a
+    # near-duplicate index on (company, date, pathogen) — the guard added
+    # 2026-04-29 against hallucinated gap-finder URLs — so a re-skinned
+    # pesto row is still recognised as the approved one. Change the
+    # identity, not just the link.
+    spec["URL"] = "https://www.gov.pl/web/gis/unit-test-only-never-real"
+    spec["Company"] = "UNIT TEST Sp. z o.o. (not a real firm)"
+    spec["Date"] = "2026-08-27"
+    spec["Product"] = "UNIT TEST pesto — synthetic row, never publish"
+    f = tmp_path / "novel.json"
+    f.write_text(json.dumps(spec, ensure_ascii=False), encoding="utf-8")
+    return str(f)
+
+
+def test_shipped_row_is_now_a_no_op(workbook_copy):
+    """The pesto row is in Recalls. Re-running must add nothing.
+
+    This is append_to_pending's own dedup rule — already approved, skip
+    silently — and it is what stops a hand-add being queued twice by an
+    operator who does not remember running it.
+    """
+    before = _counts(workbook_copy)
+    r = _run(str(ROW_JSON), "--xlsx", str(workbook_copy))
+    assert r.returncode == 0, r.stderr
+    assert "Nothing queued" in r.stdout
+    assert _counts(workbook_copy) == before
+
+
+def test_dry_run_writes_nothing(workbook_copy, novel_row):
     before = workbook_copy.read_bytes()
-    r = _run(str(ROW_JSON), "--xlsx", str(workbook_copy), "--dry-run")
+    r = _run(novel_row, "--xlsx", str(workbook_copy), "--dry-run")
     assert r.returncode == 0, r.stderr
     assert "DRY RUN" in r.stdout
     assert workbook_copy.read_bytes() == before
 
 
-def test_queues_one_row_into_pending_and_leaves_recalls_alone(workbook_copy):
+def test_queues_one_row_into_pending_and_leaves_recalls_alone(workbook_copy, novel_row):
     before = _counts(workbook_copy)
-    r = _run(str(ROW_JSON), "--xlsx", str(workbook_copy))
+    r = _run(novel_row, "--xlsx", str(workbook_copy))
     assert r.returncode == 0, r.stderr
     after = _counts(workbook_copy)
     assert after["Pending"] == before["Pending"] + 1
     assert after["Recalls"] == before["Recalls"]
 
 
-def test_the_queued_row_is_status_pending(workbook_copy):
-    _run(str(ROW_JSON), "--xlsx", str(workbook_copy))
+def test_the_queued_row_is_status_pending(workbook_copy, novel_row):
+    _run(novel_row, "--xlsx", str(workbook_copy))
     wb = load_workbook(workbook_copy, read_only=True, data_only=True)
     rows = list(wb["Pending"].iter_rows(values_only=True))
     hdr = [str(c or "") for c in rows[0]]
@@ -184,11 +226,11 @@ def test_the_queued_row_is_status_pending(workbook_copy):
     assert int(hits[0]["Tier"]) == 1
 
 
-def test_running_twice_does_not_duplicate(workbook_copy):
+def test_running_twice_does_not_duplicate(workbook_copy, novel_row):
     """append_to_pending's own rule: already pending -> skip."""
-    _run(str(ROW_JSON), "--xlsx", str(workbook_copy))
+    _run(novel_row, "--xlsx", str(workbook_copy))
     mid = _counts(workbook_copy)
-    r = _run(str(ROW_JSON), "--xlsx", str(workbook_copy))
+    r = _run(novel_row, "--xlsx", str(workbook_copy))
     assert r.returncode == 0, r.stderr
     assert _counts(workbook_copy)["Pending"] == mid["Pending"]
     assert "Nothing queued" in r.stdout
