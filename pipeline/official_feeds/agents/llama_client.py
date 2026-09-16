@@ -56,6 +56,41 @@ def _fail(reason: str, detail: str = "") -> None:
     _LAST_FAILURE["detail"] = str(detail)[:300]
 
 
+_ANNOTATED = {"done": False}
+
+
+def _annotate_once(title: str, body: str, had_tools: bool) -> None:
+    """Put the FIRST llama failure where a human will actually see it.
+
+    Writes a GitHub Actions ``::error`` annotation and appends to
+    GITHUB_STEP_SUMMARY, so the cause reaches the run page and the failure
+    email instead of dying in step output. Once per run — three identical
+    annotations before the circuit breaker trips is noise, not signal.
+
+    A no-op outside Actions.
+    """
+    if _ANNOTATED["done"]:
+        return
+    _ANNOTATED["done"] = True
+    one = " ".join(str(body).split())[:400]
+    print(f"::error title={title}::{one}")
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not path:
+        return
+    try:
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write(f"\n### {title}\n\n")
+            if had_tools:
+                fh.write(
+                    "This request carried **`tools[]`** (function calling). A "
+                    "llama-server started without a tool-capable chat template "
+                    "answers plain completions normally — which is why the gap "
+                    "finders keep working — and rejects every reviewer request.\n\n")
+            fh.write("The server said:\n\n```\n" + one + "\n```\n")
+    except OSError:
+        pass
+
+
 def last_failure() -> dict:
     """Why the most recent chat() returned None. Empty reason = no failure."""
     return dict(_LAST_FAILURE)
@@ -126,6 +161,8 @@ def chat(messages: list[dict],
         except Exception as e:   # noqa: BLE001
             _STATE["failures"] += 1
             print(f"  [llama] network: {e}")
+            _fail("network error talking to llama", str(e))
+            _annotate_once("llama network error", str(e), bool(tools))
             if _STATE["failures"] >= 3:
                 _STATE["open"] = True
                 print(f"  [llama] CIRCUIT OPEN: 3 consecutive failures")
@@ -133,8 +170,19 @@ def chat(messages: list[dict],
 
         if resp.status_code != 200:
             _STATE["failures"] += 1
-            print(f"  [llama] HTTP {resp.status_code}: "
-                  f"{resp.text[:200].replace(chr(10), ' ')}")
+            body = resp.text[:300].replace(chr(10), " ")
+            print(f"  [llama] HTTP {resp.status_code}: {body}")
+            # The server's own words are the whole diagnosis, and until now
+            # they only ever reached stdout — where nobody reads them,
+            # because the email says "All jobs have failed" and stops there.
+            # A tools[] rejection in particular is invisible from outside:
+            # GET /models still passes and plain completions still work, so
+            # every other signal says the box is healthy.
+            _fail(f"llama returned HTTP {resp.status_code}",
+                  (body + ("  | this request carried tools[] — a server "
+                           "without a tool-capable chat template rejects "
+                           "exactly these and nothing else" if tools else "")))
+            _annotate_once(f"llama HTTP {resp.status_code}", body, bool(tools))
             if _STATE["failures"] >= 3:
                 _STATE["open"] = True
             return None
