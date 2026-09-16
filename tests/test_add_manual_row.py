@@ -23,7 +23,16 @@ sys.path.insert(0, str(ROOT))
 from tools.add_manual_row import build_recall  # noqa: E402
 
 TOOL = ROOT / "tools" / "add_manual_row.py"
-ROW_JSON = ROOT / "rows" / "gis-pesto-2026-08-28.json"
+# The worked example for tools/add_manual_row.py, kept as a TEST FIXTURE.
+#
+# It lived in a top-level rows/ directory for two days, which was a bad
+# call on my part: nothing in the pipeline, the workflows or the site ever
+# read it, so a reader finding rows/ at the repo root had no way to tell
+# whether it was an input the system depended on. It is not. It is the
+# hand-add spec for the 2026-08-28 Łowicz pesto row — already promoted,
+# already in Recalls — retained so these tests have something real to
+# exercise and so the row's provenance is reproducible.
+ROW_JSON = ROOT / "tests" / "fixtures" / "gis-pesto-2026-08-28.json"
 
 
 # --------------------------------------------------------------------------
