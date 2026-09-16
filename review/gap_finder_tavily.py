@@ -286,13 +286,16 @@ def _extract_company_product(title: str, content: str) -> Tuple[str, str]:
         company = m.group("company").strip(" -:,;")
         product = m.group("product").strip(" -:,;")[:200]
         return company, product
-    # Fallback: no verb match. Use first 80 chars of title as company, rest as product.
+    # Fallback: no verb match. A "Company - Product" split is still safe,
+    # because the separator is what identifies the boundary.
     if len(t) > 10:
-        # Split at first colon / dash if any
         parts = re.split(r"\s+[-:–—]\s+", t, maxsplit=1)
         if len(parts) == 2:
             return parts[0].strip()[:120], parts[1].strip()[:200]
-        return t[:120], ""
+    # NO last-ditch "whole title as Company" — see the long note on the
+    # canonical copy in pipeline/gap_finder_tavily.py (audit 2026-09-16).
+    # An empty Company routes the row to reviewer 2, which is correct;
+    # a headline-shaped Company passes the gate and reaches the sheet.
     return "", ""
 
 
