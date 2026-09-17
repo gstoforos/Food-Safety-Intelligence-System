@@ -83,6 +83,73 @@ jobs:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           tags: tag:ci
           version: latest
+      # Fail HERE, by name, when the tailnet does not come up.
+      #
+      # WHY (audit 2026-09-17, from the reviewer run log)
+      # -------------------------------------------------
+      # tailscale/github-action retries five times and then lets the job
+      # CONTINUE:
+      #
+      #     Attempt 1 to bring up Tailscale...
+      #     backend error: invalid key: API key does not exist
+      #     Tailscale up failed. Retrying in 5 seconds...
+      #     ... x5
+      #
+      # The next step then reports "llama-server unreachable after 5 attempts"
+      # and the one after it "Searx did not return a results array", and the
+      # job dies pointing at two services that are both perfectly healthy.
+      # They were never down. They were unroutable, because the runner never
+      # joined the tailnet.
+      #
+      # That misdirection cost six weeks. TAILSCALE_AUTHKEY expired around
+      # 9-13 August; reviewer 1 last stamped a row on 2026-08-05 and reviewer
+      # 2 on 2026-08-10. Every failure email since said "unreachable", so the
+      # diagnosis kept going to the VPS — twice to the point of restarting
+      # llama-server, which was answering the whole time.
+      #
+      # An auth key is valid for at most 90 days, so this WILL happen again.
+      # Next time it takes one line to read instead of a week.
+      - name: Verify Tailscale actually came up
+        run: |
+          if ! command -v tailscale >/dev/null 2>&1; then
+            echo "::error title=Tailscale binary not on PATH::The tailscale/github-action step did not install the client. Everything downstream will report the VPS as unreachable; it is not."
+            exit 1
+          fi
+          TS_IP=$(tailscale ip -4 2>/dev/null | head -1 || true)
+          if [ -z "$TS_IP" ]; then
+            echo "::error title=Tailscale did NOT connect — TAILSCALE_AUTHKEY is the first thing to check::The runner is not on the tailnet, so llama-server and Searx are UNROUTABLE, not down. Do not restart the VPS."
+            {
+              echo "## The runner never joined the tailnet"
+              echo ""
+              echo "Everything downstream depends on this. Any \"unreachable\""
+              echo "message after this point is about ROUTING, not about the"
+              echo "VPS. llama-server and Searx are almost certainly fine."
+              echo ""
+              echo "Scroll up to the **Connect to Tailscale** step and read its"
+              echo "last line. The usual one is:"
+              echo ""
+              echo '```'
+              echo "backend error: invalid key: API key does not exist"
+              echo '```'
+              echo ""
+              echo "which means the \`TAILSCALE_AUTHKEY\` secret has expired."
+              echo "Auth keys last at most 90 days."
+              echo ""
+              echo "**Fix (about five minutes):**"
+              echo ""
+              echo "1. login.tailscale.com/admin/settings/keys -> Generate auth key"
+              echo "2. Reusable ON, Ephemeral ON, Pre-approved ON, Tags \`tag:ci\`"
+              echo "3. Repo Settings -> Secrets and variables -> Actions ->"
+              echo "   \`TAILSCALE_AUTHKEY\` -> Update secret"
+              echo "4. Re-run this workflow"
+              echo ""
+              echo "Nothing was read and nothing was written. The queue is"
+              echo "untouched."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "Tailscale up: $TS_IP"
+
 
       # continue-on-error (2026-08-24): a VPS outage is not a workflow
       # failure. Every regional finder hard-exited here, so one unreachable
