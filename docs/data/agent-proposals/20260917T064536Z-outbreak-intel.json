@@ -1,0 +1,871 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20260917T064536Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
+          "quote": "2026-07-22 FDA White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, J",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "58bb10dc6cfb203a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html",
+          "quote": "2026-09-03 CDC Shell eggs — white and brown cage-free (more than 1.5 million dozen recalled)",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "df042123116776fa"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/media/releases/2026/2026-growing-number-of-salmonella-illnesses-and-outbreaks-linked-to-moringa-leaf-products-consumers.html",
+          "quote": "2026-05-20 CDC moringa capsules",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d4d59a35a31c0e44"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sks-copack-recalls-various-specialty-beverages-because-possible-health-risk",
+          "quote": "2026-05-23 FDA Various specialty beverages",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "330d44f470abd8a3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/mogo-moringa-llc-announces-voluntary-recall-select-lots-moringa-capsules-due-possible-salmonella",
+          "quote": "2026-05-26 FDA Mogo Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e66cec8650bb9623"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-tnvitamins-and-doctors-pride-ultra-potent-complete-green-superfood",
+          "quote": "2026-05-26 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor's Pride Complete Gree",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "a648e51d4cde9148"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/supergreenssupplementpowders-1-26/index.html",
+          "quote": "2026-05-27 CDC Moringa capsules (TNVitamins Ultra Potent Complete Green Superfood Moringa, Doctor's Pride",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "75e29a4ebb2e93c4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/investigation.html",
+          "quote": "2026-05-27 CDC Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "b6b79050456f478d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/moringa-05-26/index.html",
+          "quote": "2026-05-27 CDC Pure Moringa Oleifera Capsules",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c32c724236c4f564"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/847643",
+          "quote": "2026-05-29 RASFF (EU) Shelled pistachios",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "3f7574e55b627f5c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/champion-foods-recalls-some-batches-motor-city-pizza-co-5-cheese-bread-because-possible-health-risk",
+          "quote": "2026-06-01 FDA Motor City Pizza Co. 5 Cheese Bread — Single Pack (UPC 8 70375 00511 1) and 2 Pack (UPC 8 ",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9c3ed9c608a51c06"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated",
+          "quote": "2026-06-02 USDA FSIS Frozen pizzas, pork rinds, and other meat/poultry products containing FDA-regulated dairy ",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "56df89a60859e41d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850016",
+          "quote": "2026-06-09 RASFF (EU) Salmonella spp. in natural almonds from the United States, via the Netherlands",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "88a169859b5632e6"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-expands-recall-tnvitamins-and-doctors-pride-ultra-potent-complete-green-0",
+          "quote": "2026-06-11 FDA TNVitamins Ultra Potent Complete Green Superfood Capsules and Doctor’s Pride Complete Gree",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "22eaf7d427dc32c1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853189"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853189",
+          "quote": "2026-06-22 RASFF (EU) Eggs from a Dutch stable that tested positive for Salmonella",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "7f6027e0a971c5d4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026",
+          "quote": "2026-06-24 FDA Trafa Pharmaceuticals Inc. brand ORGANIC MORINGA LEAF POWDER; NET WEIGHT: 15 KGS; packaged",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "26c6dafc562962db"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet, SKU 10150, Net wt. 5oz. Product is refrigerated. UPC 1",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "432102451ad84f3d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet Deluxe with Bacon, SKU 10303, Net wt. 5.9oz. Product is",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1f178444de3a114a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/854455"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/854455",
+          "quote": "2026-06-26 RASFF (EU) Suspicion of salmonella in eggs",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c6a1adc1565ab700"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due",
+          "quote": "2026-06-27 FDA TNVitamins 100% Organic Moringa Capsules (1,200 mg) and 100% Organic Moringa Powder",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "470cd26a71828af2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843",
+          "quote": "2026-07-14 Ministero della Salute (IT) Uova fresche di categoria A (Fresh eggs category A), 6 or 30 eggs",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "85b4c45d3d0ff054"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859413"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859413",
+          "quote": "2026-07-17 RASFF (EU) Salmonella spp. in chopped pistachios from Italy, produced with raw material from the Unit",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "b5d824afcc7873a5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/relay-peak-research-llc-recalls-zen-principler-moringa-capsules-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/relay-peak-research-llc-recalls-zen-principler-moringa-capsules-because-possible-health-risk",
+          "quote": "2026-07-19 FDA Moringa Leaf Powder Capsules",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "91c9cbcee2ca9664"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860573"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860573",
+          "quote": "2026-07-21 RASFF (EU) Salmonella detected in grated almonds from Austria, manufactured from raw almonds originat",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0cb5f0e870decae7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/boticelli-foods-recalls-bettergoods-pistachio-nut-butter-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/leaping-bear-eggs-salmonella-outbreak-sickens-14-in-vermont",
+          "quote": "sickened at least 14 people | All eggs with cartons dated between June 1, 2026 and September 5, 2026 are included in the recall",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/boticelli-foods-recalls-bettergoods-pistachio-nut-butter-because-possible-health-risk",
+          "quote": "2026-08-03 FDA Pistachio Nut Butter",
+          "retrieved_utc": "2026-09-17T06:45:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "966906c815419577"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850982"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported",
+          "quote": "There have been reported illnesses associated with the consumption of these products",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850982",
+          "quote": "2026-06-11 RASFF (EU) Norovirus on frozen oysters from South Korea",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4f480814a6370d3c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-surasang-frozen-oysters"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported",
+          "quote": "There have been reported illnesses associated with the consumption of these products",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-surasang-frozen-oysters",
+          "quote": "2026-06-12 FSAI (IE) Surasang Frozen Oysters",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "b6856fa53b2fbf8a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/855027"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported",
+          "quote": "There have been reported illnesses associated with the consumption of these products",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/855027",
+          "quote": "2026-06-30 RASFF (EU) Norovirus in frozen organic strawberries from Chile, via Ireland",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "602078700a07c801"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860140"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported",
+          "quote": "There have been reported illnesses associated with the consumption of these products",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860140",
+          "quote": "2026-07-22 RASFF (EU) Norovirus RNA in organic frozen mixed berries from Germany",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d2f4a3d5e53101b5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.blv.admin.ch/de/newnsb/F880wt7ttea28QG0eJI5b"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported",
+          "quote": "There have been reported illnesses associated with the consumption of these products",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.blv.admin.ch/de/newnsb/F880wt7ttea28QG0eJI5b",
+          "quote": "2026-07-28 BLV (CH) Freshona Bio Beerenmischung tiefgefroren, 300g",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f9b1feb9dfba49ac"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/863002"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported",
+          "quote": "There have been reported illnesses associated with the consumption of these products",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/863002",
+          "quote": "2026-07-30 RASFF (EU) Norovirus in frozen smoothie mix from Belgium",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "a1d18d7ddf6096f0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/866266"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/frozen-raspberries-recalled-because-of-norovirus-illnesses-reported",
+          "quote": "There have been reported illnesses associated with the consumption of these products",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/866266",
+          "quote": "2026-08-14 RASFF (EU) Norovirus RNA in frozen strawberries from Egypt, via Germany",
+          "retrieved_utc": "2026-09-17T06:45:28+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "b4b82ae7c3a134eb"
+    }
+  ]
+}
