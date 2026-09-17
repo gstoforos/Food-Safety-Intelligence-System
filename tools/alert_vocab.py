@@ -125,7 +125,7 @@ PATHOGEN: dict[str, list[str]] = {
                                      "phytoplankton"],              # 8
     "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol",
                                 "muscaria", "hydrocyanic", "cyanogenic",
-                                "solanine", "tropane"],             # 3
+                                "solanine", "tropane", "pyrrolizidine"],  # 4
 
     # --- chemical -------------------------------------------------------
     "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury",

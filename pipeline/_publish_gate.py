@@ -286,6 +286,11 @@ HAZARD_CLASS_KEYWORDS = {
         # 2. Natural chemical toxicants of the food itself, as distinct from
         #    a biotoxin produced by an organism.
         "hydrocyanic", "cyanide", "cyanogenic",
+        # Pyrrolizidine alkaloids (AUDIT 2026-09-17) — plant-derived natural
+        # toxicant (ragwort/borage-family contamination of herbal teas and
+        # honey), same family as the hydrocyanic/cyanogenic entries above,
+        # not a microbial biotoxin or a mycotoxin.
+        "pyrrolizidine",
         # 3. Undeclared pharmaceutical adulteration — IN SCOPE since
         #    2026-05-12 (see pipeline/_pathogen_scope.py) and notifiable to
         #    INFOSAN, but it had no hazard class, so the SUPPLX yohimbine row
