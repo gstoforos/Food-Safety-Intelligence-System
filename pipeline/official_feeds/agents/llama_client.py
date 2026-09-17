@@ -234,16 +234,64 @@ def chat(messages: list[dict],
             })
             time.sleep(0.1)
 
+    # ── LOOP EXHAUSTION: ASK FOR THE VERDICT, DON'T THROW THE RUN AWAY ──
+    #
     # Loop exhaustion is NOT an outage. The model answered every turn; it
     # just kept asking for another tool call instead of committing to a
     # final answer. The usual cause is the tool returning nothing useful —
     # an empty Searx result set will do it, and Searx fails soft (returns
     # []), so a dead search box looks exactly like a dead model from here.
+    #
+    # Returning None here (the behaviour until 2026-09-17) made every such
+    # row come back "INFRA: no llama response (retry)", the whole run exit 3,
+    # and the work of all six turns be discarded. Observed on 2026-09-17:
+    # reviewer 1 spent six searches on one Prime Line Distributors row and
+    # published nothing, on a box where llama was demonstrably healthy.
+    #
+    # A model that has searched six times has either found what it needs or
+    # established that it cannot. Both are answers. So spend ONE more call
+    # with tool_choice="none" — the model physically cannot ask for another
+    # tool — and take whatever verdict it gives. If it says it could not
+    # confirm, that is a real reject/retry decided on evidence, not an
+    # infrastructure guess.
     print(f"  [llama] hit max tool loop depth ({LLAMA_MAX_LOOPS}) — the model "
           f"kept requesting tools and never returned a final answer. This is "
           f"NOT an unreachable model: it replied {LLAMA_MAX_LOOPS} times. "
-          f"Check SEARX_URL before restarting the VPS.")
-    _fail("tool loop never converged",
+          f"Forcing a final answer with tools disabled.")
+
+    history.append({
+        "role": "user",
+        "content": (
+            "You have used every available tool call. Do not request another "
+            "tool — you will not be given one. Answer NOW, in the exact "
+            "output format the first message specified, using only what you "
+            "already have. If the searches did not let you confirm this "
+            "recall, say so plainly in that format rather than asking to "
+            "search again."
+        ),
+    })
+    try:
+        resp = requests.post(
+            url,
+            json={"model": LLAMA_MODEL, "messages": history,
+                  "temperature": temperature, "max_tokens": max_tokens,
+                  "tool_choice": "none"},
+            headers=headers, timeout=LLAMA_TIMEOUT)
+        if resp.status_code == 200:
+            final = ((resp.json()["choices"][0]["message"].get("content")
+                      or "").strip())
+            if final:
+                print("  [llama] forced final answer obtained "
+                      f"({len(final)} chars) — the run is NOT an infra failure")
+                return final
+            print("  [llama] forced final call returned empty content")
+        else:
+            print(f"  [llama] forced final call HTTP {resp.status_code}: "
+                  f"{resp.text[:200].replace(chr(10), ' ')}")
+    except Exception as e:   # noqa: BLE001
+        print(f"  [llama] forced final call failed: {type(e).__name__}: {e}")
+
+    _fail("tool loop never converged and the forced final answer failed",
           f"model replied {LLAMA_MAX_LOOPS} times but only ever asked for "
           f"more tool calls — usually an empty/failing Searx")
     return None
