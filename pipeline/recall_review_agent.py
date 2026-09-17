@@ -185,6 +185,8 @@ def _fetch_page_text(url: str) -> Tuple[str, str]:
 
 
 def _make_tool_executor(seen_urls: set) -> Callable[[str, dict], str]:
+    _asked: dict = {}          # normalised query -> result count, per row
+
     def execute(name: str, args: dict) -> str:
         if name == "fetch_page":
             url = (args or {}).get("url", "").strip()
@@ -194,14 +196,39 @@ def _make_tool_executor(seen_urls: set) -> Callable[[str, dict], str]:
             seen_urls.add(url)
             return json.dumps({"url": url, "status": status, "text": text})
         if name == "web_search":
+            # See the note on _executor in recall_url_agent.py (2026-09-17):
+            # an empty result set repeated in silence is what drives the
+            # model into the tool-loop cap. Name it, and refuse repeats.
             q = (args or {}).get("query", "").strip()
             if searx_search is None:
                 return json.dumps({"error": "searx unavailable"})
+            import re as _re
+            key = _re.sub(r"\s+", " ",
+                          _re.sub(r"[^a-z0-9 ]+", " ", q.lower())).strip()
+            if key in _asked:
+                return json.dumps({
+                    "query": q,
+                    "results": [],
+                    "note": (f"You have already run this search; it returned "
+                             f"{_asked[key]} results. Do not search again — "
+                             f"fetch a URL you already have, or give your "
+                             f"final answer now."),
+                })
             try:
                 results = searx_search.search(q)
                 slim = [{"title": r.get("title", ""), "url": r.get("url", ""),
                          "content": (r.get("content", "") or "")[:200]}
                         for r in (results or [])[:6]]
+                _asked[key] = len(slim)
+                if not slim:
+                    return json.dumps({
+                        "query": q,
+                        "results": [],
+                        "note": ("THE SEARCH ENGINE RETURNED ZERO RESULTS. "
+                                 "That is a failure of the search box, not "
+                                 "evidence about the recall. Rewording will "
+                                 "not help. Answer from what you have."),
+                    })
                 return json.dumps({"query": q, "results": slim})
             except Exception as e:  # noqa: BLE001
                 return json.dumps({"error": f"{type(e).__name__}: {e}"})
