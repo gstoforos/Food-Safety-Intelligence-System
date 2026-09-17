@@ -489,17 +489,75 @@ jobs:
               ]
 
 
+          # WHY THE SEARCH TOOL TALKS BACK (2026-09-17)
+          #
+          # A tool that answers {"results": []} six times teaches the model nothing,
+          # so it rewrites the query slightly and asks again until the loop cap ends
+          # the run. Observed exactly once on one row:
+          #
+          #   web_search "Prime Line Distributors ... Listeria United States"
+          #   web_search "... United States recall"
+          #   web_search "... United States FSIS"
+          #   web_search "... United States USDA FSIS"
+          #   web_search "... United States FSIS recall"
+          #   web_search "... United States FSIS official recall"
+          #
+          # Six calls, one recall, nothing published, the run exited 3. The model was
+          # not malfunctioning: nothing in those replies told it that searching was
+          # not working, so searching again was the reasonable move every time.
+          #
+          # So the tool now says what happened in words the model can act on: it
+          # reports an empty result set as an empty result set, and it refuses to run
+          # a query it has already run, naming the repeat. Both are instructions to
+          # stop searching and decide.
+          def _norm_q(q: str) -> str:
+              """Normalise a query so trivial rewordings collide.
+
+              Runs of whitespace MUST be collapsed: punctuation is replaced by a
+              space, so "x  Y!" and "x y" only match once the doubled space is
+              squeezed. Without that the dedupe silently never fires.
+              """
+              import re as _re
+              q = _re.sub(r"[^a-z0-9 ]+", " ", str(q or "").lower())
+              return _re.sub(r"\s+", " ", q).strip()
+
+
           def _executor(seen: set) -> Callable[[str, dict], str]:
+              asked: dict = {}
+
               def run(name: str, args: dict) -> str:
                   if name == "web_search":
                       q = (args or {}).get("query", "").strip()
                       if searx_search is None:
                           return json.dumps({"error": "searx unavailable"})
+                      key = _norm_q(q)
+                      if key in asked:
+                          return json.dumps({
+                              "query": q,
+                              "results": [],
+                              "note": (f"You have already run this search; it returned "
+                                       f"{asked[key]} results. Repeating it will return "
+                                       f"the same thing. Do not search again — either "
+                                       f"fetch_page on a URL you already have, or give "
+                                       f"your final answer now."),
+                          })
                       try:
                           res = searx_search.search(q, max_results=8)
                           slim = [{"title": r.get("title", ""), "url": r.get("url", ""),
                                    "snippet": (r.get("content", "") or "")[:200]}
                                   for r in (res or [])[:8]]
+                          asked[key] = len(slim)
+                          if not slim:
+                              return json.dumps({
+                                  "query": q,
+                                  "results": [],
+                                  "note": ("THE SEARCH ENGINE RETURNED ZERO RESULTS. "
+                                           "This is a failure of the search box, not "
+                                           "evidence about the recall. Rewording will "
+                                           "not help. Give your final answer from what "
+                                           "you already have; if that is not enough to "
+                                           "confirm the official URL, say so."),
+                              })
                           return json.dumps({"query": q, "results": slim})
                       except Exception as e:  # noqa: BLE001
                           return json.dumps({"error": f"{type(e).__name__}: {e}"})
