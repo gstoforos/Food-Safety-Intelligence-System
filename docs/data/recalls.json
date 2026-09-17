@@ -22,14 +22,14 @@
   "Brand": "Unbranded",
   "Product": "hareng kipper vendu au rayon poissonnerie traditionnel",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria monocytogène (inférieur à 10 ufc/g)",
+  "Reason": "Presence of Listeria monocytogenes (below 10 cfu/g)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23534/interne",
-  "Notes": "carrefour hyper montluçon uniquement"
+  "Notes": "carrefour hyper montluçon uniquement [agent nightly-operator proposal 3fce2ee0d478b2bf applied 2026-09-17: Reason field carried French wording ('listéria monocytogène', 'inférieur à 10 ufc/g') against the standing English-output rule for Reason/Company. Translated in place; no fact changed, same organism and threshold, unit u]"
  },
  {
   "Date": "2026-09-17",
@@ -214,14 +214,14 @@
   "Brand": "—",
   "Product": "Graines de courge en vrac (bulk pumpkin seeds), lot 4754-1925-05, DLUO 09/10/2026",
   "Pathogen": "Salmonella",
-  "Reason": "Détection de Salmonelle / Salmonella detected. Risk statement on the notice: Salmonella spp, agent responsable de la salmonellose.",
+  "Reason": "Salmonella detected. Risk statement on the notice: Salmonella spp, the causative agent of salmonellosis.",
   "Class": "Recall",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23512/Interne",
-  "Notes": "Reviewed 2026-09-17 against the RappelConso notice. Sold nationwide (France entière) 2025-11-03 to 2026-08-31. TIER CORRECTED 3 -> 1: Salmonella is always Tier 1 by the scope module; the row arrived Tier 3. OUTBREAK LEFT AT 0 DELIBERATELY: agriculture.gouv.fr published 'Cas groupés de salmonellose : retrait-rappel de graines de courge' on 2026-09-04 reporting 81 cases of one Salmonella Enteritidis strain isolated 3 May - 12 Aug 2026 from pumpkin seeds processed in Lot-et-Garonne, but that notice names fiches 23359 and 23360, NOT 23512. Same product and period, linkage UNVERIFIED. Do not set Outbreak=1 without a source naming this fiche."
+  "Notes": "Reviewed 2026-09-17 against the RappelConso notice. Sold nationwide (France entière) 2025-11-03 to 2026-08-31. TIER CORRECTED 3 -> 1: Salmonella is always Tier 1 by the scope module; the row arrived Tier 3. OUTBREAK LEFT AT 0 DELIBERATELY: agriculture.gouv.fr published 'Cas groupés de salmonellose : retrait-rappel de graines de courge' on 2026-09-04 reporting 81 cases of one Salmonella Enteritidis strain isolated 3 May - 12 Aug 2026 from pumpkin seeds processed in Lot-et-Garonne, but that notice names fiches 23359 and 23360, NOT 23512. Same product and period, linkage UNVERIFIED. Do not set Outbreak=1 without a source naming this fiche. [agent nightly-operator proposal c7aa08be1659fe41 applied 2026-09-17: Reason field mixed French ('Détection de Salmonelle', 'agent responsable de la salmonellose') into an otherwise-English sentence, against the standing English-output rule. Translated in place; same claim, same organism.]"
  },
  {
   "Date": "2026-09-15",
@@ -1414,14 +1414,14 @@
   "Brand": "U Saveurs",
   "Product": "jambon de bayonne igp u saveurs",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria monocytogènes",
+  "Reason": "Presence of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23456/interne",
-  "Notes": "super u [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "super u [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator proposal 1988265a144093a9 applied 2026-09-17: Reason field carried French wording ('listéria monocytogènes') against the standing English-output rule. Translated in place; same organism, no fact changed. Not one of the two rows the test failures named, but the same ]"
  },
  {
   "Date": "2026-09-04",
