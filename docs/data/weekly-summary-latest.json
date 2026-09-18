@@ -10,21 +10,21 @@
   "week_end_display": "20 Sep 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-09-17T12:16:44.917582+00:00",
+  "generated_utc": "2026-09-18T10:12:16.510762+00:00",
   "prev_total": 54,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 17,
-    "tier1": 14,
+    "total": 25,
+    "tier1": 22,
     "outbreaks": 1,
-    "delta": -37,
-    "delta_pct": -69
+    "delta": -29,
+    "delta_pct": -54
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 6,
-    "pct": 35
+    "cases": 12,
+    "pct": 48
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -44,6 +44,20 @@
     },
     {
       "rank": 2,
+      "date": "2026-09-17",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Carrefour Hyper Montluçon",
+      "brand": "Unbranded",
+      "product": "hareng kipper vendu au rayon poissonnerie traditionnel",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23534/interne"
+    },
+    {
+      "rank": 3,
       "date": "2026-09-15",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -57,7 +71,7 @@
       "url": "https://www.mattilsynet.no/tilbakekallinger/sjomathuset-as-tilbakekaller-leroy-laks-loin-600g-og-250g-etter-mistanke-om-listeria"
     },
     {
-      "rank": 3,
+      "rank": 4,
       "date": "2026-09-14",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -71,33 +85,19 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23504/interne"
     },
     {
-      "rank": 4,
-      "date": "2026-09-15",
-      "pathogen": "Shiga toxin-producing E. coli (STEC)",
-      "pathogen_raw": "Shiga toxin-producing E. coli (STEC)",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Talleyrand",
-      "brand": "Talleyrand",
-      "product": "brie de melun aop talleyrand",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23519/interne"
-    },
-    {
       "rank": 5,
-      "date": "2026-09-15",
+      "date": "2026-09-16",
       "pathogen": "Salmonella",
       "pathogen_raw": "Salmonella",
       "tier": 1,
       "outbreak": false,
-      "company": "Origin: Poland | Notifying: Italy",
+      "company": "Origin: Brazil | Notifying: Italy",
       "brand": "—",
-      "product": "riscontro salmonella typhimurium, enteritidis  e salmonella spp in carne di pollame origine Polonia/ Detection of Salmonella typhimurium, Salmonella enteritidis, and Salmonella spp. in frozen poultry meat  originating from Poland",
-      "country": "Poland",
+      "product": "Salmonella Drogana in poultry meat from Brazil",
+      "country": "Brazil",
       "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872569"
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/873405"
     }
   ],
-  "country_count": 8
+  "country_count": 10
 }
