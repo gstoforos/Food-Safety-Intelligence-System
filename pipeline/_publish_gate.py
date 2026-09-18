@@ -286,6 +286,9 @@ HAZARD_CLASS_KEYWORDS = {
         # 2. Natural chemical toxicants of the food itself, as distinct from
         #    a biotoxin produced by an organism.
         "hydrocyanic", "cyanide", "cyanogenic",
+        # Plant-derived natural toxin (GIS PL nettle-tea row, 2026-09-10):
+        # pyrrolizidine alkaloids classified as nothing at all.
+        "pyrrolizidine",
         # 3. Undeclared pharmaceutical adulteration — IN SCOPE since
         #    2026-05-12 (see pipeline/_pathogen_scope.py) and notifiable to
         #    INFOSAN, but it had no hazard class, so the SUPPLX yohimbine row

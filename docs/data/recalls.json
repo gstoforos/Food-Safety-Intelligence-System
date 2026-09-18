@@ -6,14 +6,14 @@
   "Brand": "Unbranded",
   "Product": "pilon de poulet cru mariné vendu sur place au rayon trad et pilon de poulet cru non mariné vendu non déconditionné en libre service",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria",
+  "Reason": "Presence of Listeria",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23538/interne",
-  "Notes": "carrefour hyper arcueil uniquement"
+  "Notes": "carrefour hyper arcueil uniquement [agent nightly-operator proposal bc262a11d05b3002 applied 2026-09-18: Reason field carried a French accented word (listéria) against the English-output rule.]"
  },
  {
   "Date": "2026-09-18",
@@ -38,14 +38,14 @@
   "Brand": "Terre Exotique",
   "Product": "boite métallique 40g de baie timur et sachet",
   "Pathogen": "Salmonella",
-  "Reason": "Contamination potentielle par Salmonella",
+  "Reason": "Potential contamination by Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23541/interne",
-  "Notes": "diverses épiceries"
+  "Notes": "diverses épiceries [agent nightly-operator proposal b7ff7b4e63fff1de applied 2026-09-18: Reason field was entirely in French against the English-output rule.]"
  },
  {
   "Date": "2026-09-18",
@@ -70,14 +70,14 @@
   "Brand": "Le Gaulois",
   "Product": "2 filets de poulet facon hache",
   "Pathogen": "Salmonella",
-  "Reason": "Suspicion de Salmonella typhimurium",
+  "Reason": "Suspected presence of Salmonella Typhimurium",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23565/interne",
-  "Notes": "grandes et moyennes surfaces"
+  "Notes": "grandes et moyennes surfaces [agent nightly-operator proposal 813c7c9365ae4507 applied 2026-09-18: Reason field was entirely in French against the English-output rule.]"
  },
  {
   "Date": "2026-09-18",
@@ -134,14 +134,14 @@
   "Brand": "Unbranded",
   "Product": "hareng kipper vendu au rayon poissonnerie traditionnel",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria monocytogène (inférieur à 10 ufc/g)",
+  "Reason": "Presence of Listeria monocytogenes (below 10 CFU/g)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23534/interne",
-  "Notes": "carrefour hyper montluçon uniquement"
+  "Notes": "carrefour hyper montluçon uniquement [agent nightly-operator proposal ce6d31ea3573a35d applied 2026-09-18: Reason field mixed French wording and an accented word against the English-output rule.]"
  },
  {
   "Date": "2026-09-17",
@@ -390,14 +390,14 @@
   "Brand": "—",
   "Product": "Graines de courge en vrac (bulk pumpkin seeds), lot 4754-1925-05, DLUO 09/10/2026",
   "Pathogen": "Salmonella",
-  "Reason": "Détection de Salmonelle / Salmonella detected. Risk statement on the notice: Salmonella spp, agent responsable de la salmonellose.",
+  "Reason": "Salmonella detected. Risk statement on the notice: Salmonella spp, the organism responsible for salmonellosis.",
   "Class": "Recall",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23512/Interne",
-  "Notes": "Reviewed 2026-09-17 against the RappelConso notice. Sold nationwide (France entière) 2025-11-03 to 2026-08-31. TIER CORRECTED 3 -> 1: Salmonella is always Tier 1 by the scope module; the row arrived Tier 3. OUTBREAK LEFT AT 0 DELIBERATELY: agriculture.gouv.fr published 'Cas groupés de salmonellose : retrait-rappel de graines de courge' on 2026-09-04 reporting 81 cases of one Salmonella Enteritidis strain isolated 3 May - 12 Aug 2026 from pumpkin seeds processed in Lot-et-Garonne, but that notice names fiches 23359 and 23360, NOT 23512. Same product and period, linkage UNVERIFIED. Do not set Outbreak=1 without a source naming this fiche."
+  "Notes": "Reviewed 2026-09-17 against the RappelConso notice. Sold nationwide (France entière) 2025-11-03 to 2026-08-31. TIER CORRECTED 3 -> 1: Salmonella is always Tier 1 by the scope module; the row arrived Tier 3. OUTBREAK LEFT AT 0 DELIBERATELY: agriculture.gouv.fr published 'Cas groupés de salmonellose : retrait-rappel de graines de courge' on 2026-09-04 reporting 81 cases of one Salmonella Enteritidis strain isolated 3 May - 12 Aug 2026 from pumpkin seeds processed in Lot-et-Garonne, but that notice names fiches 23359 and 23360, NOT 23512. Same product and period, linkage UNVERIFIED. Do not set Outbreak=1 without a source naming this fiche. [agent nightly-operator proposal 3baf7471b049c29b applied 2026-09-18: Reason field still named the organism in French ('Salmonelle', 'salmonellose') against the English-output rule; pytest test_no_salmonelle_survives_in_a_published_reason caught it.]"
  },
  {
   "Date": "2026-09-15",

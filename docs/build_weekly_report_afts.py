@@ -3826,6 +3826,31 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir,
     out = data_dir / "weekly-summary-latest.json"
 
     # ---------------------------------------------------------------------
+    # NEVER POINT AT A WEEK THAT HASN'T CLOSED YET (incident 2026-09-17/18).
+    #
+    # The backward-move guard below stops the pointer sliding to an OLDER
+    # week. It never checked the other direction: a plain, correctly-invoked
+    # build of the current in-progress week (exactly what a nightly run
+    # does every day until the week closes) still calls this function, and
+    # the guard's `prior_key > (year, wnum)` test is false for a same-week
+    # or forward move, so it wrote straight through. Twice now (2026-09-17,
+    # then again the next night before that fix had been merged) this put
+    # the subscriber pointer on a week with data still arriving, days before
+    # it actually closes.
+    #
+    # A week is closed once its own end date (`week_end`, the Sunday anchor
+    # under the ISO rule) has passed. Building the still-open week must
+    # keep updating the HTML and weekly-index.json — that's what lets the
+    # dashboard show today's count — but must leave this pointer alone.
+    if week_end >= date.today():
+        log.info(
+            "Not updating the weekly latest-pointer: %04d-W%02d closes %s, "
+            "which has not passed yet. HTML and weekly-index.json are "
+            "still updated; the subscriber pointer keeps naming the last "
+            "CLOSED week.", year, wnum, week_end)
+        return
+
+    # ---------------------------------------------------------------------
     # "LATEST" MEANS LATEST (incident 2026-08-07).
     #
     # WHAT HAPPENED
