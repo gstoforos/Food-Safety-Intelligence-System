@@ -3880,6 +3880,33 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir,
             log.warning("weekly latest-pointer unreadable (%s: %s) — writing "
                         "%04d-W%02d", type(exc).__name__, exc, year, wnum)
 
+    # ---------------------------------------------------------------------
+    # THE POINTER MUST NAME A CLOSED WEEK (audit 2026-09-18).
+    #
+    # The backward-guard above stops the pointer moving to an OLDER week
+    # number than the one already published. It does nothing to stop the
+    # opposite mistake: a build invoked with a --week-end that is still in
+    # the future closes no gap at all, because `we_display` (the last day
+    # actually in the data window) hasn't happened yet. On 2026-09-17 a
+    # manual build for 2026-W38 (window ending Sunday 2026-09-20, four days
+    # ahead of that day) wrote this file anyway — the week number was
+    # "newest ever seen" so the backward-guard waved it through, and the
+    # subscriber pointer ended up naming a week that was still collecting
+    # data and would go on changing under it.
+    #
+    # tests/test_report_week.py::TestLatestPointerNeverMovesBackwards::
+    # test_the_published_pointer_is_not_a_closed_week encodes the same
+    # invariant this checks: the pointer's week_end (== we_display here)
+    # must never be later than today.
+    if we_display > date.today():
+        log.warning(
+            "REFUSING to point weekly latest-pointer at an unclosed week: "
+            "%04d-W%02d's data window ends %s, which is still in the "
+            "future. The HTML and weekly-index.json are updated as a "
+            "preview, the subscriber pointer is not.",
+            year, wnum, we_display.isoformat())
+        return
+
     out.write_text(json.dumps(summary,indent=2,ensure_ascii=False),encoding="utf-8")
     log.info("Wrote %s",out)
 

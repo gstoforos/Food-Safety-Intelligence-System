@@ -346,6 +346,13 @@ HAZARD_CLASS_KEYWORDS = {
         # or not the notice names the specific molecule.
         "amanita", "muscimol", "mushroom toxin", "phytoplankton",
         "lipophilic biotoxin", "shellfish toxin",
+        # AUDIT 2026-09-18 — a GIS (PL) herbal-product row published with
+        # Pathogen "Pyrrolizidine alkaloids" had no hazard class at all.
+        # PAs are natural toxins the plant itself produces (comfrey,
+        # borage, ragwort and other contaminating weeds in herbal teas and
+        # supplements), the same "toxin inherent to the source material"
+        # framing as the mushroom/algal entries above.
+        "pyrrolizidine",
     ),
     # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
     # "fish") must NOT appear here: RASFF Reason text routinely carries
