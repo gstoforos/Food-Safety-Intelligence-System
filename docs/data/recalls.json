@@ -50,7 +50,7 @@
  {
   "Date": "2026-09-17",
   "Source": "RappelConso (FR)",
-  "Company": "Petit Bethmale",
+  "Company": "FROMAGERIE DE LA CORE CAZALAS",
   "Brand": "Petit Bethmale",
   "Product": "petit bethmale au lait cru de vache",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
@@ -61,7 +61,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23500/interne",
-  "Notes": "itm montbartier, pamiers la cavalerie"
+  "Notes": "itm montbartier, pamiers la cavalerie [company-fix 2026-09-18: Company held 'Petit Bethmale', which is the product/brand. Fiche 23500 (ref 2026-09-0124) names the recalling firm as FROMAGERIE DE LA CORE CAZALAS; lot 300626VACPM, sold 29/08-04/09/2026, DLC 06/11/2026. Date LEFT at 2026-09-17: the fiche's own page carries 17/09/2026.]"
  },
  {
   "Date": "2026-09-16",
@@ -3222,14 +3222,14 @@
   "Brand": "Macroom Buffalo Cheese Products Ltd.",
   "Product": "Recall of specific batch of Macroom Buffalo Cheese Mozzarella, Bocconcini and Burrata products",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Recall of specific batch of Macroom Buffalo Cheese Mozzarella, Bocconcini and Burrata products Recall of a specific batch of Macroom Buffalo Cheese Mozzarella, Bocconcini and Burrata products due to the presence of Listeria monocytogenes Thursday, 27 August 2026 Alert Summary Category 1: For Action Alert Notification: 2026.53 Product Identification: Macroom Buffalo Cheese Mozzarella; pack size: 125g Macroom Buffalo Cheese Bocconcini; pack size: 160g Macroom Buffalo Cheese Burrata; pack size: 150g Batch Code Use-by date: 07/09/2026 Country Of Origin: Ireland Message: Macroom Buffalo Cheese Products Ltd. is recalling the above batch of its Mozzarella, Bocconcini and Burrata products due to the presence of Listeria monocytogenes. Recall notices will be displayed at point-of-sale. Nature Of Da",
+  "Reason": "Recall of a specific batch of Macroom Buffalo Cheese Mozzarella (125 g), Bocconcini (160 g) and Burrata (150 g), use-by 07/09/2026, due to the presence of Listeria monocytogenes.",
   "Class": "Recall",
   "Country": "Ireland",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batch-of-various-macroom-buffal",
-  "Notes": "source_id=FSAI-recall-of-specific-batch-of-various-macroom-buffal [via official-feed collector] [url-agent 2026-09-18: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent 2026-09-18: pending_gap_v1 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [url-fix 2026-09-18: FSAI truncates its slugs. The published URL was the real slug with the rest of the headline glued on and resolves to the alerts listing. Canonical URL confirmed by fetching the page: it self-reports this address and carries the 27 August 2026 alert, Mozzarella 125g / Bocconcini 160g / Burrata 150g, use-by 07/09/2026.]"
+  "Notes": "source_id=FSAI-recall-of-specific-batch-of-various-macroom-buffal [via official-feed collector] [url-agent 2026-09-18: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent 2026-09-18: pending_gap_v1 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [url-fix 2026-09-18: FSAI truncates its slugs. The published URL was the real slug with the rest of the headline glued on and resolves to the alerts listing. Canonical URL confirmed by fetching the page: it self-reports this address and carries the 27 August 2026 alert, Mozzarella 125g / Bocconcini 160g / Burrata 150g, use-by 07/09/2026.] [reason-fix 2026-09-18: Reason held 800 characters of raw scraped alert text ('Alert Summary Category 1: For Action...'), truncated mid-word at 'Nature Of Da'. Rewritten from the notice. Same markdown-leak class as the Mattilsynet row on 2026-09-16.]"
  },
  {
   "Date": "2026-08-26",
