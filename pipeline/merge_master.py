@@ -367,8 +367,19 @@ def _normalize_url_for_dedup(url: str) -> str:
         keepers = []
         for kv in query.split("&"):
             k = kv.split("=", 1)[0]
+            # "search" joins the keepers ONLY for openFDA's enforcement
+            # endpoint (audit 2026-09-18). Eight Tier-1 rows were moved off
+            # fda.gov's ?search_api_fulltext= listing — a keyword search
+            # whose answer changes on re-index — and onto
+            #     api.fda.gov/food/enforcement.json?search=recall_number:"H-…"
+            # which pins one permanent record. But "search" was not a
+            # keeper, so all eight collapsed to the bare endpoint and any
+            # later promotion could be dropped as a duplicate of any of
+            # them. This is bug 1 in the 2026-07-26 audit above, recurring
+            # on a new host: the query param IS the identity.
             if k in ("permalink", "id", "fiche", "ref", "recall_id",
-                     "search_api_fulltext"):
+                     "search_api_fulltext") or (
+                    k == "search" and "api.fda.gov" in path):
                 keepers.append(kv)
         s = path + (("?" + "&".join(keepers)) if keepers else "")
     if s.endswith("/"):

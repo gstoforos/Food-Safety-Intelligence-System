@@ -500,6 +500,36 @@ def pathogen_reason_class_mismatch(pathogen: str, reason: str) -> bool:
 _SEARCH_QUERY_URL = re.compile(
     r"[?&](search|search_api_fulltext|q|query|keywords?|s)=", re.I)
 
+# EXCEPTION: a query that PINS ONE RECORD is not a search (audit 2026-09-18).
+#
+# Eight Tier-1 rows cite
+#     .../recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1181-2026
+# and the rule above is right about them: that is a keyword search across a
+# listing, and it shows whatever the site indexes today.
+#
+# But those eight are openFDA ENFORCEMENT REPORT rows (recall_number
+# H-xxxx-2026, ev_id). FDA publishes no press release for an enforcement
+# report — the record exists only in the enforcement database — so there is
+# no slug to point at. The nearest thing to "the document that was
+# published" is the record itself:
+#
+#     https://api.fda.gov/food/enforcement.json?search=recall_number:"H-1181-2026"
+#
+# That resolves exactly one record, by its permanent identifier, and keeps
+# resolving after any re-index. It is a citation, not a search: the thing
+# the rule exists to forbid is a query whose answer can change, and this
+# one's cannot.
+#
+# Deliberately narrow. It matches only api.fda.gov/food/enforcement.json
+# with a quoted exact recall_number, so a bare ?search=listeria on the same
+# host is still refused.
+_PINNED_RECORD_URL = re.compile(
+    r"^https://api\.fda\.gov/food/enforcement\.json"
+    r"\?search=recall_number:%22[A-Z]-\d{4}-\d{4}%22$"
+    r"|^https://api\.fda\.gov/food/enforcement\.json"
+    r'\?search=recall_number:"[A-Z]-\d{4}-\d{4}"$',
+    re.I)
+
 
 # ---------------------------------------------------------------------------
 # COMPANY MUST BE A COMPANY, NOT THE NOTICE HEADLINE (audit 2026-08-13)
@@ -741,11 +771,55 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
             f"so this link does not load")
 
     # 6d. The URL must not be a SEARCH QUERY. See _SEARCH_QUERY_URL above.
-    if url and _SEARCH_QUERY_URL.search(url):
+    if url and _SEARCH_QUERY_URL.search(url) and not _PINNED_RECORD_URL.match(url):
         problems.append(
             f"URL is a search query, not a recall notice ({url[:80]!r}) — it "
             f"renders today and breaks when the regulator re-indexes, and it "
             f"is not the document that was published")
+
+    # 6d-bis. The URL slug must not EXTEND past the collector's source_id.
+    #
+    # AUDIT 2026-09-18 — the defect that reached a subscriber's inbox.
+    #
+    # The official-feed collector stamps the notice's true identifier into
+    # Notes as source_id=<agency>-<slug>. FSAI truncates its slugs, so for
+    # the Macroom Buffalo Cheese listeria recall the real page is
+    #
+    #   /food-alerts/recall-of-specific-batch-of-various-macroom-buffal
+    #
+    # and the row was published carrying
+    #
+    #   /food-alerts/recall-of-specific-batch-of-various-macroom-buffalo-
+    #   cheese-products-due-to-the-presence-of-listeria-monocytogenes/
+    #
+    # — the truncated slug with the rest of the HEADLINE glued back on. It
+    # is well-formed, it reads correctly, it contains the real slug as a
+    # prefix, and it is not a page. FSAI serves the alerts listing for it,
+    # so the alert email's "view" link took the subscriber to a general
+    # index instead of the recall.
+    #
+    # Reviewer 1 stamped this row "URL confirmed" and the confirmer's
+    # provenance check passed, because a prefix match is enough for both.
+    # Nothing else in the pipeline compares the URL to the identifier the
+    # collector already recorded.
+    #
+    # A trailing slash, a language segment, an anchor or a short query are
+    # all normal; what is not normal is many more characters of slug.
+    _sid = re.search(r"source_id=([^\s\]]+)", str(row.get("Notes") or ""))
+    if url and _sid:
+        _slug = re.sub(r"^[A-Z]{2,6}-", "", _sid.group(1)).lower()
+        _low = url.lower()
+        if len(_slug) >= 12 and _slug in _low:
+            _tail = _low.split(_slug, 1)[1].strip("/")
+            _tail = re.sub(r"^(\?|#).*$", "", _tail)
+            if len(_tail) > 8:
+                problems.append(
+                    f"URL slug runs {len(_tail)} characters past the "
+                    f"collector's source_id — the identifier is "
+                    f"{_slug[-40:]!r} and the URL continues {_tail[:40]!r}. "
+                    f"A truncated regulator slug with the rest of the "
+                    f"headline appended is not a page; it resolves to the "
+                    f"agency's listing")
 
     # 6e. Company must be a company, not the page headline. See above.
     if looks_like_a_headline(row.get("Company")):
