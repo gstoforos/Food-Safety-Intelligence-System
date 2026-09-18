@@ -3228,8 +3228,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batch-of-various-macroom-buffalo-cheese-products-due-to-the-presence-of-listeria-monocytogenes/",
-  "Notes": "source_id=FSAI-recall-of-specific-batch-of-various-macroom-buffal [via official-feed collector] [url-agent 2026-09-18: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent 2026-09-18: pending_gap_v1 → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batch-of-various-macroom-buffal",
+  "Notes": "source_id=FSAI-recall-of-specific-batch-of-various-macroom-buffal [via official-feed collector] [url-agent 2026-09-18: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent 2026-09-18: pending_gap_v1 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [url-fix 2026-09-18: FSAI truncates its slugs. The published URL was the real slug with the rest of the headline glued on and resolves to the alerts listing. Canonical URL confirmed by fetching the page: it self-reports this address and carries the 27 August 2026 alert, Mozzarella 125g / Bocconcini 160g / Burrata 150g, use-by 07/09/2026.]"
  },
  {
   "Date": "2026-08-26",
@@ -10892,8 +10892,8 @@
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1181-2026",
-  "Notes": "openFDA recall#=H-1181-2026; ev_id=99373; distrib=FL [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.] [audit 2026-08-02: this is the openFDA ENFORCEMENT report for the same event as the FDA company announcement of 2026-07-06 (Frutas y Hortalizas del Sur S.A. / GreenWise Organic IQF Blueberries). The outbreak flag is set on that row only, so the monthly outbreak COUNT stays at one event. OPERATOR DECISION: these two rows may warrant merging — same firm, same product, same pathogen, three days apart, differing only in FDA publication channel.]"
+  "URL": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-1181-2026\"",
+  "Notes": "openFDA recall#=H-1181-2026; ev_id=99373; distrib=FL [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.] [audit 2026-08-02: this is the openFDA ENFORCEMENT report for the same event as the FDA company announcement of 2026-07-06 (Frutas y Hortalizas del Sur S.A. / GreenWise Organic IQF Blueberries). The outbreak flag is set on that row only, so the monthly outbreak COUNT stays at one event. OPERATOR DECISION: these two rows may warrant merging — same firm, same product, same pathogen, three days apart, differing only in FDA publication channel.] [url-fix 2026-09-18: openFDA enforcement report — FDA publishes no press-release page for these, so the record itself is the document. Pins one permanent recall_number; unlike the old link it cannot change when FDA re-indexes.]"
  },
  {
   "Date": "2026-07-03",
@@ -11260,8 +11260,8 @@
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1179-2026",
-  "Notes": "[promoted 2026-08-06: verified against the openFDA food enforcement record recall_number H-1179-2026 — recalling firm Brooklyn Roasting Works LLC, Brooklyn NY; recall initiation 2026-07-02, report date 2026-07-29; status ongoing; distribution NY and NJ. Date is the recall initiation date, matching the convention used for the other openFDA enforcement rows in this sheet.]"
+  "URL": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-1179-2026\"",
+  "Notes": "[promoted 2026-08-06: verified against the openFDA food enforcement record recall_number H-1179-2026 — recalling firm Brooklyn Roasting Works LLC, Brooklyn NY; recall initiation 2026-07-02, report date 2026-07-29; status ongoing; distribution NY and NJ. Date is the recall initiation date, matching the convention used for the other openFDA enforcement rows in this sheet.] [url-fix 2026-09-18: openFDA enforcement report — FDA publishes no press-release page for these, so the record itself is the document. Pins one permanent recall_number; unlike the old link it cannot change when FDA re-indexes.]"
  },
  {
   "Date": "2026-07-01",
@@ -12092,8 +12092,8 @@
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026",
-  "Notes": "openFDA recall#=H-1149-2026; ev_id=99335; distrib=Distributed in OR and WA. [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_enrichment'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
+  "URL": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-1149-2026\"",
+  "Notes": "openFDA recall#=H-1149-2026; ev_id=99335; distrib=Distributed in OR and WA. [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_enrichment'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.] [url-fix 2026-09-18: openFDA enforcement report — FDA publishes no press-release page for these, so the record itself is the document. Pins one permanent recall_number; unlike the old link it cannot change when FDA re-indexes.]"
  },
  {
   "Date": "2026-06-25",
@@ -12108,8 +12108,8 @@
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026",
-  "Notes": "openFDA recall#=H-1148-2026; ev_id=99335; distrib=Distributed in OR and WA. [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_enrichment'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
+  "URL": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-1148-2026\"",
+  "Notes": "openFDA recall#=H-1148-2026; ev_id=99335; distrib=Distributed in OR and WA. [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending_enrichment'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.] [url-fix 2026-09-18: openFDA enforcement report — FDA publishes no press-release page for these, so the record itself is the document. Pins one permanent recall_number; unlike the old link it cannot change when FDA re-indexes.]"
  },
  {
   "Date": "2026-06-25",
@@ -12252,8 +12252,8 @@
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026",
-  "Notes": "openFDA recall#=H-1144-2026; ev_id=99314; distrib=NY [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.]"
+  "URL": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-1144-2026\"",
+  "Notes": "openFDA recall#=H-1144-2026; ev_id=99314; distrib=NY [manual-adjudication 2026-07-29: PASSED. Pathogen/URL/date verified; promoted from Pending Status='pending'. The blocking SKIP was a TLS transport failure on rappel.conso.gouv.fr, not a content verdict.] [country-normalise 2026-08-01: 'USA'->'United States'; the workbook already used 'United States' on 82 rows vs 'USA' on 15, and the RASFF rows spelled it 'Origin: United States' in their own Company field while Country said 'USA'.] [url-fix 2026-09-18: openFDA enforcement report — FDA publishes no press-release page for these, so the record itself is the document. Pins one permanent recall_number; unlike the old link it cannot change when FDA re-indexes.]"
  },
  {
   "Date": "2026-06-24",
@@ -21356,8 +21356,8 @@
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-0700-2026",
-  "Notes": "openFDA recall#=H-0700-2026; ev_id=98796. Voluntary recall of 100+ batches of dried milk powder. California Dairies supplies ~40% of US dried-milk-powder market — downstream cascade is the root cause of the Salmonella outbreak hitting Williams Sonoma, Zapp's, Pork King Good, Utz, Sugar Foods, Blackstone Products, JCB Flavors, Stoltzfus, etc. [manual-promote 2026-05-21: malformed Date=\"20260420\" corrected] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "URL": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-0700-2026\"",
+  "Notes": "openFDA recall#=H-0700-2026; ev_id=98796. Voluntary recall of 100+ batches of dried milk powder. California Dairies supplies ~40% of US dried-milk-powder market — downstream cascade is the root cause of the Salmonella outbreak hitting Williams Sonoma, Zapp's, Pork King Good, Utz, Sugar Foods, Blackstone Products, JCB Flavors, Stoltzfus, etc. [manual-promote 2026-05-21: malformed Date=\"20260420\" corrected] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [url-fix 2026-09-18: openFDA enforcement report — FDA publishes no press-release page for these, so the record itself is the document. Pins one permanent recall_number; unlike the old link it cannot change when FDA re-indexes.]"
  },
  {
   "Date": "2026-04-20",
@@ -21372,8 +21372,8 @@
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-0699-2026",
-  "Notes": "openFDA recall#=H-0699-2026; ev_id=98796. Voluntary recall of 100+ batches of dried milk powder. California Dairies supplies ~40% of US dried-milk-powder market — downstream cascade is the root cause of the Salmonella outbreak hitting Williams Sonoma, Zapp's, Pork King Good, Utz, Sugar Foods, Blackstone Products, JCB Flavors, Stoltzfus, etc. [manual-promote 2026-05-21: malformed Date=\"20260420\" corrected] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "URL": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-0699-2026\"",
+  "Notes": "openFDA recall#=H-0699-2026; ev_id=98796. Voluntary recall of 100+ batches of dried milk powder. California Dairies supplies ~40% of US dried-milk-powder market — downstream cascade is the root cause of the Salmonella outbreak hitting Williams Sonoma, Zapp's, Pork King Good, Utz, Sugar Foods, Blackstone Products, JCB Flavors, Stoltzfus, etc. [manual-promote 2026-05-21: malformed Date=\"20260420\" corrected] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [url-fix 2026-09-18: openFDA enforcement report — FDA publishes no press-release page for these, so the record itself is the document. Pins one permanent recall_number; unlike the old link it cannot change when FDA re-indexes.]"
  },
  {
   "Date": "2026-04-20",
@@ -21388,8 +21388,8 @@
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-0698-2026",
-  "Notes": "openFDA recall#=H-0698-2026; ev_id=98796. Voluntary recall of 100+ batches of dried milk powder. California Dairies supplies ~40% of US dried-milk-powder market — downstream cascade is the root cause of the Salmonella outbreak hitting Williams Sonoma, Zapp's, Pork King Good, Utz, Sugar Foods, Blackstone Products, JCB Flavors, Stoltzfus, etc. [manual-promote 2026-05-21: malformed Date=\"20260420\" corrected] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "URL": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-0698-2026\"",
+  "Notes": "openFDA recall#=H-0698-2026; ev_id=98796. Voluntary recall of 100+ batches of dried milk powder. California Dairies supplies ~40% of US dried-milk-powder market — downstream cascade is the root cause of the Salmonella outbreak hitting Williams Sonoma, Zapp's, Pork King Good, Utz, Sugar Foods, Blackstone Products, JCB Flavors, Stoltzfus, etc. [manual-promote 2026-05-21: malformed Date=\"20260420\" corrected] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [url-fix 2026-09-18: openFDA enforcement report — FDA publishes no press-release page for these, so the record itself is the document. Pins one permanent recall_number; unlike the old link it cannot change when FDA re-indexes.]"
  },
  {
   "Date": "2026-04-20",
