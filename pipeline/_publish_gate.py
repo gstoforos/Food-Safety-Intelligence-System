@@ -821,6 +821,50 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
                     f"headline appended is not a page; it resolves to the "
                     f"agency's listing")
 
+    # 6d-ter. A JOURNAL ARTICLE IS NOT A RECALL (audit 2026-09-18).
+    #
+    # The Exa gap finder queued this as a Tier-1 US Salmonella recall:
+    #
+    #   Company  "Early Release"          <- the EID masthead banner
+    #   Brand    "Early Release"
+    #   Product  "Multiple Introductions and Cross-Sector Transmission of
+    #             Salmonella enterica Serovar Infantis Carrying blaCTX-M-65
+    #             Gene, South Korea, 2022-2024 - Volume 32..."
+    #   Country  "United States"          <- it is about SOUTH KOREA
+    #   Class    "Recall"
+    #   URL      wwwnc.cdc.gov/eid/article/32/10/25-1758_article
+    #
+    # It is an Emerging Infectious Diseases paper. Nothing was recalled by
+    # anyone. A literature search phrased as a recall search returns
+    # literature, and every downstream check passes: the URL resolves, the
+    # page is a real CDC page, and it genuinely does mention Salmonella.
+    #
+    # Surveillance and outbreak-investigation pages are a different matter
+    # and stay in scope — this fires only on the journal article paths.
+    _JOURNAL_URL = re.compile(
+        r"(wwwnc\.cdc\.gov/eid/article/|/eid/articles?/|"
+        r"pubmed\.ncbi\.nlm\.nih\.gov/|ncbi\.nlm\.nih\.gov/pmc/|"
+        r"doi\.org/|sciencedirect\.com/|link\.springer\.com/|"
+        r"onlinelibrary\.wiley\.com/|journals\.plos\.org/|"
+        r"academic\.oup\.com/|/eurosurveillance\.org/content/)", re.I)
+    if url and _JOURNAL_URL.search(url):
+        problems.append(
+            f"URL is a scientific paper, not a recall notice ({url[:80]!r}) — "
+            f"a literature search phrased as a recall search returns "
+            f"literature, and it passes every other check because the page is "
+            f"real and does mention the pathogen")
+
+    # "Early Release", "Volume 32", "Ahead of Print" and friends are journal
+    # furniture that lands in Company/Brand when a paper is scraped as a row.
+    _JOURNAL_FURNITURE = re.compile(
+        r"^\s*(early release|ahead of print|online first|in press|"
+        r"volume\s+\d+|issue\s+\d+|preprint)\s*$", re.I)
+    for _f in ("Company", "Brand"):
+        if _JOURNAL_FURNITURE.match(str(row.get(_f) or "")):
+            problems.append(
+                f"{_f} is {str(row.get(_f))!r} — journal furniture, not a "
+                f"firm. This row is a paper that was scraped as a recall")
+
     # 6e. Company must be a company, not the page headline. See above.
     if looks_like_a_headline(row.get("Company")):
         problems.append(
