@@ -917,7 +917,24 @@ def apply_review(row: Dict[str, Any], review: Dict[str, Any]) -> Dict[str, Any]:
             merged[k] = v
     vu = review.get("verified_url")
     if vu:
-        merged["URL"] = vu
+        # Same guard as reviewer 1 (audit 2026-09-18). This line has the
+        # identical shape to the one that published a fabricated FSAI URL:
+        # whatever the model returns replaces a href the collector read out
+        # of the regulator's own markup. See pipeline/_url_guard.py.
+        try:
+            from pipeline._url_guard import url_overwrite_refusal
+            _ref = url_overwrite_refusal(merged, vu)
+        except Exception:                                    # noqa: BLE001
+            # Fail safe: no guard, no rewrite.
+            _ref = ("pipeline/_url_guard.py is not importable — refusing "
+                    "to rewrite")
+        if _ref:
+            print("  [url-guard] keeping the row's own URL — %s" % _ref)
+            merged["Notes"] = (str(merged.get("Notes") or "") +
+                               " [url-guard: reviewer 2 proposed a different "
+                               "URL and it was refused — %s]" % _ref)[:2000]
+        else:
+            merged["URL"] = vu
     _normalize_country_source(merged)
     return merged
 

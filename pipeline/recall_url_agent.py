@@ -45,6 +45,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -344,6 +345,24 @@ def _provenance_ok(row: Dict[str, Any], url: str) -> List[str]:
         return []
 
 
+try:
+    from pipeline._url_guard import url_overwrite_refusal          # noqa: E402
+except Exception:                                                   # noqa: BLE001
+    def url_overwrite_refusal(row, proposed):                       # type: ignore
+        """Fail SAFE: with no guard module, refuse every replacement.
+
+        A reviewer that cannot check whether it is entitled to rewrite a
+        URL must not rewrite one. The failure mode this exists to prevent
+        published a fabricated link to a subscriber; a missed correction
+        is a smaller harm than a repeat of that.
+        """
+        cur = str((row or {}).get("URL") or "").strip()
+        new = str(proposed or "").strip()
+        if not new or not cur or new.rstrip("/") == cur.rstrip("/"):
+            return ""
+        return "pipeline/_url_guard.py is not importable — refusing to rewrite"
+
+
 def review_url(row: Dict[str, Any]) -> Dict[str, Any]:
     infra = {"decision": "retry", "official_url": row.get("URL", ""),
              "pathogen_if_found": "", "identity_matches": False}
@@ -385,6 +404,16 @@ def review_url(row: Dict[str, Any]) -> Dict[str, Any]:
     # domain is not necessarily the notice for this row.
     _u = str(parsed.get("official_url") or row.get("URL") or "").strip()
     _dec = str(parsed.get("decision", "")).strip().lower()
+
+    # Refuse a URL replacement the model is not entitled to make, BEFORE the
+    # provenance check runs on it — otherwise the fabricated URL is what gets
+    # fetched, and an agency listing page happily corroborates any row.
+    _refuse = url_overwrite_refusal(row, _u)
+    if _refuse:
+        print("  [url-guard] keeping the row's own URL — %s" % _refuse)
+        parsed["official_url"] = row.get("URL", "")
+        parsed["url_overwrite_refused"] = _refuse
+        _u = str(row.get("URL") or "").strip()
     if _u and _dec in ("confirm", "approve", "accept"):
         _pp = _provenance_ok(row, _u)
         if _pp:
@@ -493,8 +522,21 @@ def main() -> int:
 
         # Apply confirmed URL + enrichment pathogen in place
         if dec == "confirm":
-            if res.get("official_url"):
-                row["URL"] = res["official_url"]
+            _prop = res.get("official_url")
+            if _prop:
+                _ref = url_overwrite_refusal(row, _prop)
+                if _ref:
+                    # Second, independent check at the only line that mutates
+                    # row["URL"]. review_url() already refuses these, but this
+                    # is the line that published a fabricated URL, so it does
+                    # not take anyone's word for it.
+                    print("  [url-guard] refused at write: %s" % _ref)
+                    row["Notes"] = (str(row.get("Notes") or "") +
+                                    " [url-guard %s: reviewer 1 proposed a "
+                                    "different URL and it was refused — %s]"
+                                    % (dt.date.today().isoformat(), _ref))[:2000]
+                else:
+                    row["URL"] = _prop
             if (not str(row.get("Pathogen", "")).strip()
                     and res.get("pathogen_if_found")):
                 row["Pathogen"] = res["pathogen_if_found"]
