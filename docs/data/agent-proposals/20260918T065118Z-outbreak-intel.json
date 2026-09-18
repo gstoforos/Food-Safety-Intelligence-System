@@ -1,0 +1,682 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20260918T065118Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/alasko-brand-frozen-whole-raspberries-recalled-due-norovirus"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; country named in the article; food terms alasko, frozen, raspberries. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus",
+          "quote": "Alasko Frozen Raspberries are being recalled in Canada for possible norovirus contamination.",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/alasko-brand-frozen-whole-raspberries-recalled-due-norovirus",
+          "quote": "2026-09-15 CFIA Whole Raspberries (frozen) 1 kg, UPC 6 95058 00205 4; IQF Whole Raspberries 5 kg (5 x 1 kg",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "196d2d15611e7f09"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850982"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus",
+          "quote": "Alasko Frozen Raspberries are being recalled in Canada for possible norovirus contamination.",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/850982",
+          "quote": "2026-06-11 RASFF (EU) Norovirus on frozen oysters from South Korea",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "41c4ad9317e2e42c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-surasang-frozen-oysters"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus",
+          "quote": "Alasko Frozen Raspberries are being recalled in Canada for possible norovirus contamination.",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-surasang-frozen-oysters",
+          "quote": "2026-06-12 FSAI (IE) Surasang Frozen Oysters",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "407dad541a00dfe4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/855027"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus",
+          "quote": "Alasko Frozen Raspberries are being recalled in Canada for possible norovirus contamination.",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/855027",
+          "quote": "2026-06-30 RASFF (EU) Norovirus in frozen organic strawberries from Chile, via Ireland",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "68b86caac6ec4ca7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860140"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus",
+          "quote": "Alasko Frozen Raspberries are being recalled in Canada for possible norovirus contamination.",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860140",
+          "quote": "2026-07-22 RASFF (EU) Norovirus RNA in organic frozen mixed berries from Germany",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ddd2b73ad2b7dd39"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.blv.admin.ch/de/newnsb/F880wt7ttea28QG0eJI5b"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus",
+          "quote": "Alasko Frozen Raspberries are being recalled in Canada for possible norovirus contamination.",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.blv.admin.ch/de/newnsb/F880wt7ttea28QG0eJI5b",
+          "quote": "2026-07-28 BLV (CH) Freshona Bio Beerenmischung tiefgefroren, 300g",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "59a5c3c43268e034"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/863002"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus",
+          "quote": "Alasko Frozen Raspberries are being recalled in Canada for possible norovirus contamination.",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/863002",
+          "quote": "2026-07-30 RASFF (EU) Norovirus in frozen smoothie mix from Belgium",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "8a3268c0376e8172"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/866266"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus norovirus; food terms frozen. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/alasko-frozen-raspberries-recalled-in-canada-for-norovirus",
+          "quote": "Alasko Frozen Raspberries are being recalled in Canada for possible norovirus contamination.",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/866266",
+          "quote": "2026-08-14 RASFF (EU) Norovirus RNA in frozen strawberries from Egypt, via Germany",
+          "retrieved_utc": "2026-09-18T06:41:20+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "015ea0742ac94ae8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms brand. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-meat-and-poultry-products-containing-fda-regulated",
+          "quote": "2026-06-02 USDA FSIS Frozen pizzas, pork rinds, and other meat/poultry products containing FDA-regulated dairy ",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "29b02f1854fca5a1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853189"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853189",
+          "quote": "2026-06-22 RASFF (EU) Eggs from a Dutch stable that tested positive for Salmonella",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d5b4a3a6bf5eab29"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms brand. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026",
+          "quote": "2026-06-24 FDA Trafa Pharmaceuticals Inc. brand ORGANIC MORINGA LEAF POWDER; NET WEIGHT: 15 KGS; packaged",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c6302c2a3225c358"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/854455"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/854455",
+          "quote": "2026-06-26 RASFF (EU) Suspicion of salmonella in eggs",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "5e1f8e3241353761"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-five-star-shellfish-inc-brand-oysters-recalled-due-salmonella"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms brand. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-five-star-shellfish-inc-brand-oysters-recalled-due-salmonella",
+          "quote": "2026-06-30 CFIA Certain Five Star Shellfish Inc. brand oysters recalled due to Salmonella",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "02d24d6e6663fc4b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843",
+          "quote": "2026-07-14 Ministero della Salute (IT) Uova fresche di categoria A (Fresh eggs category A), 6 or 30 eggs",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "df7fdc17a50d2157"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
+          "quote": "2026-07-22 FDA White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, J",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "42a7f55c4cf65de1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/kehar-brand-californian-pistachio-kernel-recalled-due-salmonella"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms brand. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/kehar-brand-californian-pistachio-kernel-recalled-due-salmonella",
+          "quote": "2026-08-06 CFIA Californian Pistachio Kernel",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "a40ff3bfb80ff647"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552",
+          "quote": "2026-08-12 RASFF (EU) Salmonella Enteritidis in eggs from Belgium",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0394673b6ae468dc"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms hens. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359",
+          "quote": "2026-08-14 RASFF (EU) Salmonella enteritidis in gallina busto/Salmonella Enteritidis in frozen whole hens",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4d387396ec1382b7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387",
+          "quote": "2026-08-20 RASFF (EU) Salmonella Enteritidis in eggs",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "55c845d0eacc1cb4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1122"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1122",
+          "quote": "2026-08-21 BLV (CH) Œufs Regio, lot de 4, Tessin (eggs)",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "50435ca8160e902b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1123"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1123",
+          "quote": "2026-08-24 BLV (CH) Uova del Ticino (eggs)",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4a575e09e5cd06dd"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html",
+          "quote": "2026-09-03 CDC Shell eggs — white and brown cage-free (more than 1.5 million dozen recalled)",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "75b06de340aeacd7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/871671"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/871671",
+          "quote": "2026-09-08 RASFF (EU) Eggs from a Dutch stable that tested positive for Salmonella",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "016055eaebbf028b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/871653"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/871653",
+          "quote": "2026-09-08 RASFF (EU) Eggs from a Dutch stable that tested positive for Salmonella",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "bfa1eb811779f1f1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/pk-brand-roasted-lemon-n-chilli-peanuts-recalled-due-salmonella"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms brand. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/09/fda-releases-executive-summaries-on-two-outbreak-investigations",
+          "quote": "California issues public warning about Happy Hens eggs because of link to Salmonella outbreak",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/pk-brand-roasted-lemon-n-chilli-peanuts-recalled-due-salmonella",
+          "quote": "2026-09-10 CFIA PK brand Roasted Lemon N' Chilli Peanuts, 65 g — UPC 6 28998 001245, best before 2027/JN/2",
+          "retrieved_utc": "2026-09-18T06:43:38+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "8683b14b96b54c8f"
+    }
+  ]
+}
