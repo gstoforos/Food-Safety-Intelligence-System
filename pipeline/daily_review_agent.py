@@ -571,6 +571,27 @@ def detect_stale_reports(rows: List[Dict[str, Any]], today: date) -> Dict[str, L
     monthlies: List[str] = []
 
     # Weeklies — authoritative via the builder's own filter_week + extractor.
+    #
+    # AUDIT 2026-09-19 — false-positive staleness on every week that has a
+    # multi-notice INCIDENT. compute_stats() in build_weekly_report_afts.py
+    # has counted incidents, not raw notices, since 2026-08-15 (one broken
+    # chiller at E.Leclerc Dinan produced twenty DGCCRF fiches for a single
+    # event; counting rows would have tripled that week). The baked total
+    # this function reads back is therefore an INCIDENT count. Comparing it
+    # against `len(filter_week(rows, friday))` — raw notice count — flags a
+    # week as stale on every additional duplicate notice for an incident
+    # ALREADY counted once, even when the report is byte-for-byte correct.
+    # Found when three weeks (W34, W36, W37) were reported stale, rebuilt,
+    # and two of the three rebuilds produced IDENTICAL output: 73 notices
+    # for W34's Leclerc Dinan cluster still grouped to the same 54 incidents
+    # already baked. Only W36 (a genuinely new row) and W38 (the in-progress
+    # week) had real content changes. Grouping through the same
+    # pipeline._incident_id.count_incidents() the builder itself uses keeps
+    # this comparison unit-for-unit.
+    try:
+        from pipeline._incident_id import count_incidents
+    except Exception:                                       # noqa: BLE001
+        count_incidents = None                              # type: ignore
     try:
         bw = _load_module(DOCS / "build_weekly_report_afts.py", "bw_stale")
         tags = sorted({str(r.get("report_week") or "").strip()
@@ -586,7 +607,8 @@ def detect_stale_reports(rows: List[Dict[str, Any]], today: date) -> Dict[str, L
             if not html.exists():
                 continue  # never issued; not our job to first-publish here
             baked = bw._extract_total_from_html(html)
-            dataset = len(bw.filter_week(rows, friday))
+            week_rows = bw.filter_week(rows, friday)
+            dataset = count_incidents(week_rows) if count_incidents else len(week_rows)
             if baked is not None and baked != dataset:
                 weeklies.append(tag)
     except Exception as e:  # pragma: no cover - defensive

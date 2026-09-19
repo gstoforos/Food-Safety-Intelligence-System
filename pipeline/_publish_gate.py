@@ -286,6 +286,13 @@ HAZARD_CLASS_KEYWORDS = {
         # 2. Natural chemical toxicants of the food itself, as distinct from
         #    a biotoxin produced by an organism.
         "hydrocyanic", "cyanide", "cyanogenic",
+        # AUDIT 2026-09-19 — plant alkaloids EFSA regulates as a maximum-
+        # level chemical contaminant (ragwort/comfrey pollen in herbal teas
+        # and honey), not a microbial biotoxin. Published GIS (PL) row:
+        # Zielnik Polski nettle tea, "Exceeds the maximum permitted level
+        # of pyrrolizidine alkaloids" — classified as nothing at all, which
+        # is what made the curator refuse to touch the row.
+        "pyrrolizidine alkaloid", "pyrrolizidine",
         # 3. Undeclared pharmaceutical adulteration — IN SCOPE since
         #    2026-05-12 (see pipeline/_pathogen_scope.py) and notifiable to
         #    INFOSAN, but it had no hazard class, so the SUPPLX yohimbine row
@@ -953,6 +960,29 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
                 "recalls are excluded; pathogens, biotoxins, mycotoxins, "
                 "visible mould, foreign material, pest and chemical hazards "
                 "only)")
+
+    # 8b. HK CFS aggregator re-posts of a FOREIGN recall (audit 2026-09-19).
+    #
+    # pipeline/_cfs_aggregator_guard.py has blocked these at merge_master's
+    # ingest gate since 2026-07-14 — but the daily review agent's Lane B
+    # sweep found 15 of them already published, the newest from 2026-09-04,
+    # two months after the guard existed. The gap: every promotion path is
+    # supposed to funnel through publish_blockers() (see the module
+    # docstring), but merge_master.py carries its OWN private copy of the
+    # CFS check and never wired it here, so recall_review_agent / recall_
+    # confirm_agent — which call this gate, not merge_master's — published
+    # cfs.gov.hk reposts of French, British, NZ and Australian recalls
+    # merge_master would have refused. Importing the same guard here closes
+    # that gap for every caller at once.
+    try:
+        from pipeline._cfs_aggregator_guard import is_foreign_cfs_repost as _is_fcfs
+        if url and _is_fcfs(url, row.get("Country", "")):
+            problems.append(
+                f"cfs_foreign_repost: cfs.gov.hk aggregator of a non-HK "
+                f"recall (Country={row.get('Country', '')!r}) — the "
+                f"upstream regulator's own row is the primary source")
+    except ImportError:                                    # pragma: no cover
+        pass
 
     # 9. Company must not carry the page's status banner. FSANZ prepends
     #    "UPDATED DD.MM.YY | " to the <h1> of an amended alert, and a

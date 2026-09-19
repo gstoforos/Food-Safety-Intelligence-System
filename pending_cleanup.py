@@ -49,6 +49,7 @@ clean run will do nothing the second time.
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import sys
 from datetime import datetime, timezone
@@ -97,7 +98,10 @@ def evaluate_row(row: dict, now_utc: datetime) -> tuple:
         "geen meetbare",   # NL: "no measurable"
         "no measurable",   # EN
         "not a recall",
-        "no recall",
+        r"no recall\b",    # word-boundary: must NOT match "no recalling
+                           # firm on the row" (confirm-agent's own hold
+                           # note, found 2026-09-19 flagging two rows the
+                           # operator had just enriched with real firms)
         "clearance notice",
         "lifting recall",  # post-recall lift announcement
         "recall closed",
@@ -107,10 +111,9 @@ def evaluate_row(row: dict, now_utc: datetime) -> tuple:
     )
     if status.startswith("pending_gap"):
         lo = notes.lower()
-        if any(p in lo for p in no_recall_phrases):
-            for p in no_recall_phrases:
-                if p in lo:
-                    return (True, f"pending_gap with no-recall phrase {p!r}")
+        for p in no_recall_phrases:
+            if re.search(p, lo):
+                return (True, f"pending_gap with no-recall phrase {p!r}")
 
     # Rule 3: rejected rows older than 12 hours. claude-check has had
     # its pass; further retention is pointless noise.

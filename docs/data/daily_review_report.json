@@ -1,19 +1,19 @@
 {
-  "generated": "2026-09-19T12:53:17+03:00",
+  "generated": "2026-09-19T23:25:46+03:00",
   "date": "2026-09-19",
-  "mode": "live",
+  "mode": "dry-run",
   "in_progress_week": "W38",
   "counts": {
-    "recalls_rows": 1736,
+    "recalls_rows": 1751,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
     "mistiered_rows": 0,
     "date_issue_rows": 0,
     "lane_a_changes": 0,
-    "proposed_deletions": 18,
+    "proposed_deletions": 17,
     "ledger_resolved": 0,
-    "asset_issues": 1
+    "asset_issues": 0
   },
   "integrity": {
     "duplicate_urls": [],
@@ -22,15 +22,9 @@
     "mistiered": [],
     "date_issues": []
   },
-  "asset_issues": [
-    {
-      "kind": "unexpected_pdf_link",
-      "month": "M01",
-      "detail": "M01 has a pdf_url but is HTML-only by rule"
-    }
-  ],
+  "asset_issues": [],
   "lane_a": {
-    "applied": true,
+    "applied": false,
     "summary": {},
     "changes": []
   },
@@ -318,32 +312,6 @@
         }
       },
       {
-        "id": "d2d622a11cef8328",
-        "category": "cross_source_dup",
-        "confidence": "medium",
-        "reason": "same content identity (date + company + pathogen) as a row from a different source (fda)",
-        "row": {
-          "Date": "2026-09-03",
-          "Source": "CDC",
-          "Company": "Frutas y Hortalizas del Sur S.A.",
-          "Product": "Frozen berries — GreenWise Organic IQF Blueberries 10 oz, GreenWise Whole Mixed Berries, Great Value Organic Triple Berry Blend 10 oz",
-          "Pathogen": "E. coli O145 (STEC)",
-          "Country": "United States",
-          "Tier": 1,
-          "URL": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html"
-        },
-        "duplicate_of": {
-          "Date": "2026-09-03",
-          "Source": "FDA",
-          "Company": "Frutas y Hortalizas del Sur S.A.",
-          "Product": "Organic Triple Berry Blend",
-          "Pathogen": "E. coli O145 (STEC)",
-          "Country": "United States",
-          "Tier": 1,
-          "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple"
-        }
-      },
-      {
         "id": "e96aa2b1ef3d3756",
         "category": "cross_source_dup",
         "confidence": "medium",
@@ -374,23 +342,7 @@
     "max_links": 25
   },
   "stale_reports": {
-    "weeklies": [
-      "W34",
-      "W36",
-      "W37",
-      "W38"
-    ],
-    "monthlies": [
-      "M08"
-    ]
-  },
-  "rebuilt": {
-    "weeklies": [
-      "W34",
-      "W36",
-      "W37",
-      "W38"
-    ],
+    "weeklies": [],
     "monthlies": []
   }
 }
