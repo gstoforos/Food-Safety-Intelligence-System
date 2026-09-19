@@ -10,21 +10,21 @@
   "week_end_display": "20 Sep 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-09-18T10:12:16.510762+00:00",
+  "generated_utc": "2026-09-19T09:53:23.132305+00:00",
   "prev_total": 54,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 25,
-    "tier1": 22,
+    "total": 39,
+    "tier1": 36,
     "outbreaks": 1,
-    "delta": -29,
-    "delta_pct": -54
+    "delta": -15,
+    "delta_pct": -28
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 12,
-    "pct": 48
+    "cases": 20,
+    "pct": 51
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -44,60 +44,60 @@
     },
     {
       "rank": 2,
+      "date": "2026-09-18",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Carrefour Hyper Arcueil",
+      "brand": "Unbranded",
+      "product": "pilon de poulet cru mariné vendu sur place au rayon trad et pilon de poulet cru non mariné vendu non déconditionné en libre service",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23538/interne"
+    },
+    {
+      "rank": 3,
+      "date": "2026-09-18",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Carrefour Hyper Chambourcy",
+      "brand": "Unbranded",
+      "product": "bulots cuits vendus au rayon traditionnel",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23548/interne"
+    },
+    {
+      "rank": 4,
+      "date": "2026-09-18",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Various Branded Prepared Meals",
+      "brand": "",
+      "product": "various branded prepared meals",
+      "country": "Ireland",
+      "source": "FSAI (IE)",
+      "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-ready-meals-due-to-the-possible"
+    },
+    {
+      "rank": 5,
       "date": "2026-09-17",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Carrefour Hyper Montluçon",
-      "brand": "Unbranded",
-      "product": "hareng kipper vendu au rayon poissonnerie traditionnel",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23534/interne"
-    },
-    {
-      "rank": 3,
-      "date": "2026-09-15",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Sjømathuset AS",
-      "brand": "Lerøy",
-      "product": "Lerøy laks loin 600 g og 250 g / Lerøy salmon loin 600 g and 250 g, batch 315219 and 315215, use-by (siste forbruksdag) 21.09.2026",
-      "country": "Norway",
-      "source": "Mattilsynet",
-      "url": "https://www.mattilsynet.no/tilbakekallinger/sjomathuset-as-tilbakekaller-leroy-laks-loin-600g-og-250g-etter-mistanke-om-listeria"
-    },
-    {
-      "rank": 4,
-      "date": "2026-09-14",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Poulaillon",
-      "brand": "Poulaillon",
-      "product": "sandwich pavé poulet crudités",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23504/interne"
-    },
-    {
-      "rank": 5,
-      "date": "2026-09-16",
-      "pathogen": "Salmonella",
-      "pathogen_raw": "Salmonella",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Origin: Brazil | Notifying: Italy",
+      "company": "Origin: Sweden | Notifying: Sweden",
       "brand": "—",
-      "product": "Salmonella Drogana in poultry meat from Brazil",
-      "country": "Brazil",
+      "product": "Listeria in breaded haddock product",
+      "country": "Sweden",
       "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/873405"
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/873333"
     }
   ],
-  "country_count": 10
+  "country_count": 12
 }
