@@ -6,11 +6,11 @@
     "month_name": "August 2026",
     "month_start": "2026-08-01",
     "month_end": "2026-08-31",
-    "total": 246,
-    "tier1": 192,
-    "outbreaks": 3,
+    "total": 248,
+    "tier1": 194,
+    "outbreaks": 4,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "August 2026: 246 recalls, 192 Tier-1, 3 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "summary": "August 2026: 248 recalls, 194 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
     "pdf_url": "https://fsis.advfood.tech/marketing/2026-M08-marketing.pdf",
     "notified_total": 246
   },
@@ -111,7 +111,6 @@
     "tier1": 35,
     "outbreaks": 4,
     "top_pathogen": "Bacillus cereus / Cereulide",
-    "summary": "January 2026: 36 recalls, 35 Tier-1, 4 outbreak(s). Leading pathogen: Bacillus cereus / Cereulide.",
-    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M01-marketing.pdf"
+    "summary": "January 2026: 36 recalls, 35 Tier-1, 4 outbreak(s). Leading pathogen: Bacillus cereus / Cereulide."
   }
 ]

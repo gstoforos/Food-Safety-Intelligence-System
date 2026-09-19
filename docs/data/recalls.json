@@ -2173,7 +2173,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_628.html",
-  "Notes": "[operator review 2026-09-09: verified on the CFS food alert page 2026_628 of 04/09/2026, which this environment CAN read (the nightly review reported cfs.gov.hk blocked; it answered normally today). The row arrived from Google News with a Dimsum Daily headline in Company, Product and Reason; rebuilt from the regulator page and the news URL dropped. Country is France, the origin, and the importers are the Company, following the CFS row of 2026-08-18 (City Super Limited (Importer), Country France). One alert, one row, all three importers named. NOT GROUPED, AND A QUESTION FOR THE OPERATOR: lot 000000BXCG here is one of the two lots on RappelConso fiche 23460 (SASU Paturages Comtois, 04/09/2026), and the register holds six more Paturages Comtois Listeria notices (fiches 23002, 23138, 23417, 23425, 23427, 23460) from 28/07 to 04/09, none of them carrying an incident id. These are very probably one producer event across two regulators. Grouping is operator-tagged and never inferred, so nothing was tagged here — but if you want them collapsed, all seven need the same id, not just this one.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B cfs_foreign_repost/high: cfs.gov.hk row whose origin Country (France) is not Hong Kong — cross-source re-post of an upstream regulator's recall per pipeline/_cfs_aggregator_guard.py operator rule 2026-07-14. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 9b41995518546432 applied 2026-09-19: Lane B cfs_foreign_repost/high, flagging for human-confirmed removal.]"
  },
  {
   "Date": "2026-09-04",
@@ -2413,7 +2413,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html",
-  "Notes": "[outbreak-opened:2026-07-06] [outbreak:fda:e-coli-o145h28-frozen-blueberries-july-2026] [operator review 2026-09-06: verified on the CDC page (published 6 Jul 2026, updated 3 Sep 2026). Row rebuilt: Brand had been truncated to \"E\" and Company held the headline. Same event as the FDA GreenWise (6 Jul) and Triple Berry Blend (3 Sep) rows — one outbreak id, counted once.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cross_source_dup/medium]: same content identity (date + company + pathogen) as a row from a different source (fda) (kept survivor: https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple). Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 2350d4facb26d920 applied 2026-09-19: Lane B [cross_source_dup/medium]: same content identity (date + company + pathogen) as a row from a different source (fda) (kept survivor: https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hort]"
  },
  {
   "Date": "2026-09-02",
@@ -10365,7 +10365,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/charcuterie-charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due",
-  "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/charcuterie-charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due [via official-feed collector] [gemini-check 2026-07-14: fix; corrections: Company→Boucherie Charcuterie Lyn Tremblay Inc., Brand→Joe Smoked Meat, Charcuterie Charlevoisi; placeholder_company_filled_from_page | fix; company mismatch | Company and Brand were empty in the row but found on the ] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [gap-gate 2026-07-14: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-15: pass; pass | All fields match the official CFIA page. Date 2026-07-10 confirmed. Company Boucherie Charcuterie Lyn Tremblay In] [gap-gate 2026-07-15: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfia_duplicate/high]: CFIA slug variants of one recall (shared stem: charlevoisienne-joe-meat-smoked) (kept survivor: https://recalls-rappels.canada.ca/en/alert-recall/charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due-listeria). Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 71b1d5de940479a2 applied 2026-09-19: Lane B [cfia_duplicate/high]: CFIA slug variants of one recall (shared stem: charlevoisienne-joe-meat-smoked) (kept survivor: https://recalls-rappels.canada.ca/en/alert-recall/charlevoisienne-and-joe-smoked-meat-brand-me]"
  },
  {
   "Date": "2026-07-10",
@@ -21469,7 +21469,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-batches-of-good4u-super-sprouts-super-gr",
-  "Notes": "[product of UK; retailers requested to remove from sale and display point-of-sale recall notices; matching FSA UK alert same day; OUTBREAK CONFIRMED via UKHSA/THL/HPSC investigations: 48 cases of S. Bovismorbificans across UK (15 in England/Wales since Jan 2026), Finland (32 cases Mar-Apr 2026, 23 women, ages 17-77), Ireland; ≥5 hospitalised; epidemiological investigations in all 3 countries point to sprouted seeds; 4 other EU countries report 10 additional related cases; UPGRADED Tier 2→1 + Outbreak 0→1 per news 2026-04-30] [outbreak-dedupe 2026-08-28: Outbreak 1→0; event xs:salmonella:sprout:2026-04 is already flagged on the FSA (UK) row — one event, one flag]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cross_source_dup/medium]: same content identity (date + company + pathogen) as a row from a different source (fsa (uk)) (kept survivor: https://www.food.gov.uk/news-alerts/alert/fsa-prin-20-2026). Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 4ee54bf8dd6b87cc applied 2026-09-19: Lane B [cross_source_dup/medium]: same content identity (date + company + pathogen) as a row from a different source (fsa (uk)) (kept survivor: https://www.food.gov.uk/news-alerts/alert/fsa-prin-20-2026)]"
  },
  {
   "Date": "2026-04-21",
@@ -26333,7 +26333,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260323_1.pdf",
-  "Notes": "[HK CFS FISS aggregator notification of UK FSA recall; physical/rodent hazard IS in pathogen scope per locked rules] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 1d8c36b81541ef7d applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-23",
@@ -26397,7 +26397,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260320_1.pdf",
-  "Notes": "[HK CFS FISS notification of RappelConso recall] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W12->W13; Thursday-to-Thursday rule — week runs 2026-03-20 Fri -> 2026-03-26 Thu, labelled by ISO week of the closing Thursday] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 98664207aab67254 applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-19",
@@ -26413,7 +26413,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260319_1.pdf",
-  "Notes": "[HK CFS FISS notification of RappelConso recall] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal f837b576ec0add14 applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-19",
@@ -26461,7 +26461,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_3.pdf",
-  "Notes": "[HK CFS FISS notification; norovirus in Tier-1 scope] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal c7e220d3747715f9 applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-17",
@@ -26477,7 +26477,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_2.pdf",
-  "Notes": "[HK CFS FISS notification; SCOPE FLAG: phytoplankton/marine biotoxins NOT explicitly in or out of locked _pathogen_scope.py — review needed; sister to row 27 (Étang de Diana DSP) — same harvest area] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 03b6787ae53cd26b applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-17",
@@ -26493,7 +26493,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260317_1.pdf",
-  "Notes": "[HK CFS FISS notification; SCOPE FLAG: DSP marine biotoxins NOT explicitly in/out of scope per _pathogen_scope.py — recommend pathogen scope review and explicit decision; Corsican Étang de Diana shellfish-area closure event (sister to row 26)] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 3d109ce843774317 applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-17",
@@ -26557,7 +26557,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260316_4.pdf",
-  "Notes": "SFA Singapore via HK CFS aggregator | global cereulide crisis [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Singapore] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal ef55367fa3a8b97d applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-16",
@@ -26573,7 +26573,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260316_1.pdf",
-  "Notes": "HK CFS FISS notification of RappelConso recall [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal afcca1894779a7d9 applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-16",
@@ -26637,7 +26637,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260313_2.pdf",
-  "Notes": "MPI NZ via HK CFS aggregator | marine biotoxin [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W11->W12; Thursday-to-Thursday rule — week runs 2026-03-13 Fri -> 2026-03-19 Thu, labelled by ISO week of the closing Thursday] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal abb6e43a00e9b124 applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-13",
@@ -26653,7 +26653,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260313_1.pdf",
-  "Notes": "MPI NZ shellfish biotoxin warning [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W11->W12; Thursday-to-Thursday rule — week runs 2026-03-13 Fri -> 2026-03-19 Thu, labelled by ISO week of the closing Thursday] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 60d8047c4c2d464c applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-13",
@@ -26733,7 +26733,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260310_2.pdf",
-  "Notes": "[restored 2026-06-30: distinct recall (BEBIKO 1 nutriFLOR, AFSCA Belgium origin via CFS HK) — wrongly deleted during a Nutricia-cereulide dedup that over-matched on company+pathogen. Different product and market from the SA Aptamil recall.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 2faa4076fb94b1d0 applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-10",
@@ -26781,7 +26781,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260309_1.pdf",
-  "Notes": "HK CFS FISS notification of RappelConso recall [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 1804cf58d098b121 applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-09",
@@ -26797,7 +26797,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260309_2.pdf",
-  "Notes": "MHLW Japan recall via HK CFS [region-fix 2026-07-28: Region 'Asia-Pacific'->'Asia'; Region is a continent bucket, detailed geography belongs in Notes. Country=Japan] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 4b1f7d2e47222dae applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-09",
@@ -26925,7 +26925,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/rc/subject/files/20260302_1.pdf",
-  "Notes": "[HK CFS FISS notification of Czech Agriculture & Food Inspection Authority recall; part of GLOBAL CEREULIDE INFANT FORMULA CRISIS] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [source-label 2026-08-31: was 'CFS (HK) - aggregator (RappelConso FR)'. Hong Kong's Centre for Food Safety is the OFFICIAL regulator publishing this notice under its own authority; 'aggregator' described where the underlying product recall originated, not the status of the publisher, and mislabelled a primary regulatory source. Country stays as the product ORIGIN per the corpus convention.]"
+  "Notes": "[operator review 2026-09-19: REJECTED — Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall. Flagged for removal to Weekly_Rejected; destructive delete needs operator confirmation.] [agent nightly-operator proposal 0a8b001a5d35a8ca applied 2026-09-19: Lane B [cfs_foreign_repost/high]: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall]"
  },
  {
   "Date": "2026-03-02",

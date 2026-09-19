@@ -1,7 +1,7 @@
 # FSIS Daily Review — 2026-09-19 (Athens)
 
-Mode: **live** · generated 2026-09-19T12:53:17+03:00
-Recalls rows reviewed: **1736** · in-progress week (never published): **W38**
+Mode: **dry-run** · generated 2026-09-19T23:25:46+03:00
+Recalls rows reviewed: **1751** · in-progress week (never published): **W38**
 
 ## 1. Integrity
 - Duplicate URL groups: **0**
@@ -10,7 +10,7 @@ Recalls rows reviewed: **1736** · in-progress week (never published): **W38**
 - Mis-tiered (always-Tier-1) rows: **0**
 - Date-sanity issues: **0**
 
-## 2. Lane A — safe auto-fixes (APPLIED)
+## 2. Lane A — safe auto-fixes (would apply)
 - none
 
 ## 3. Lane B — proposed deletions (QUEUED, nothing deleted)
@@ -63,20 +63,16 @@ Recalls rows reviewed: **1736** · in-progress week (never published): **W38**
   - Evidence: CFIA slug variants of one recall (shared stem: charlevoisienne-joe-meat-smoked)
   - Duplicate of: https://recalls-rappels.canada.ca/en/alert-recall/charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due-listeria
   - id `4ae9dcc6ef9bc9fc` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
-- **[cross_source_dup · medium]** 2026-09-03 · Frutas y Hortalizas del Sur S.A. · E. coli O145 (STEC) — https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html
-  - Evidence: same content identity (date + company + pathogen) as a row from a different source (fda)
-  - Duplicate of: https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple
-  - id `d2d622a11cef8328` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 - **[cross_source_dup · medium]** 2026-04-22 · Good4U · Salmonella Bovismorbificans — https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-batches-of-good4u-super-sprouts-super-gr
   - Evidence: same content identity (date + company + pathogen) as a row from a different source (fsa (uk))
   - Duplicate of: https://www.food.gov.uk/news-alerts/alert/fsa-prin-20-2026
   - id `e96aa2b1ef3d3756` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 
 ## 4. Reports flagged stale (rebuild → UPDATED masthead)
-- Weeklies: W34, W36, W37, W38
-- Monthlies: M08
+- Weeklies: none
+- Monthlies: none
 
 ## 5. Asset / deliverable integrity
-- **[unexpected_pdf_link]** M01: M01 has a pdf_url but is HTML-only by rule
+- none
 
 _Lane A applies automatically. Lane B removals require your approval and are archived to Weekly_Rejected on execution — nothing is ever silently deleted._

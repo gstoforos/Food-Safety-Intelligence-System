@@ -1,13 +1,14 @@
 {
   "week_end": "2026-09-20",
-  "generated_utc": "2026-09-19T19:53:48+00:00",
-  "row_count": 49,
+  "generated_utc": "2026-09-19T20:44:28+00:00",
+  "row_count": 50,
   "tier1_count": 37,
   "outbreak_count": 8,
   "by_reviewer": {
     "unknown": 46,
     "repromotion-guard": 2,
-    "confirm-agent": 1
+    "confirm-agent": 1,
+    "nightly-operator": 1
   },
   "rows": [
     {
@@ -997,6 +998,29 @@
       "Week_Added": "2026-09-20",
       "RejectedBy": "unknown",
       "RejectionReason": "URL agent: non-food product (glycérol)",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-18",
+      "Source": "FDA",
+      "Company": "Gf Blends",
+      "Brand": "—",
+      "Product": "Gf Blends Recalls Truly Aip All Purpose Flour And Bread Mix And Eat Gangster Flat Bread Pizza Mix",
+      "Pathogen": "",
+      "Reason": "Gf Blends Recalls Truly Aip All Purpose Flour And Bread Mix And Eat Gangster Flat Bread Pizza Mix",
+      "Class": "Recall",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 3,
+      "Outbreak": 0,
+      "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/gf-blends-recalls-truly-aip-all-purpose-flour-and-bread-mix-and-eat-gangster-flat-bread-pizza-mix",
+      "Notes": "REJECTED: http_error | FDA HTML fallback — claude-check needs to enrich Date+Pathogen [operator review 2026-09-19: REJECTED — Out of AFTS scope: hazard is undeclared wheat gluten from mislabeled 'gluten free' plantain flour supplied by PMF Global (allergen/labelling issue, not a pathogen/biotoxin/mycotoxin/foreign-material/pest/chemical hazard). Verified at fda.gov: \"contained gluten\" testing \"significantly exceeding the FDA's 20 ppm\" limit.]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-20",
+      "RejectedBy": "nightly-operator",
+      "RejectionReason": "Out of AFTS scope: hazard is undeclared wheat gluten from mislabeled 'gluten free' plantain flour supplied by PMF Global (allergen/labelling issue, not a pathogen/biotoxin/mycotoxin/foreign-material/pest/chemical hazard). Verified at fda.gov: \"contained gluten\" testing \"significantly exceeding the F",
       "Reviewed": "N"
     },
     {

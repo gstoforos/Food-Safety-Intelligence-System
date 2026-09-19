@@ -559,6 +559,39 @@ class TestWorkbookStaysClean(unittest.TestCase):
         # 22204 -> 22206 — so there is no authoritative record to repair it
         # from, and guessing is the failure this gate exists to prevent.
         "fiche-rappel/22205",   # Listeria mc <- aflatoxin / corn wafers (SK)
+        # ── Added 2026-09-19 with the new CFS-aggregator rule (8b) ────────
+        # UNLIKE every entry above, these are not legitimate exceptions —
+        # they are 15 rows the daily review agent's Lane B sweep found
+        # already published in violation of the standing 2026-07-14
+        # operator rule (pipeline/_cfs_aggregator_guard.py): cfs.gov.hk
+        # "Food Incident Post" re-posts of a FOREIGN regulator's own
+        # recall (France/UK/NZ/AU), which merge_master's ingest gate has
+        # refused since that date but publish_blockers() did not check —
+        # so recall_review_agent / recall_confirm_agent, which call THIS
+        # gate, kept publishing them (the newest 2026-09-04, two months
+        # after the guard existed). Each has been stamped REJECTED in its
+        # own Notes via the curator, with the regulator/duplicate evidence,
+        # 2026-09-19 — but ACTUAL removal to Weekly_Rejected needs a
+        # destructive delete on the published Recalls sheet, which this
+        # session's write-permission scope refused pending George's
+        # explicit confirmation. Pinned here only until that deletion runs;
+        # unlike the rows above, this sub-list must shrink to ZERO, not
+        # persist.
+        "whatsnew_fa/2026_628.html",
+        "rc/subject/files/20260323_1.pdf",
+        "rc/subject/files/20260320_1.pdf",
+        "rc/subject/files/20260319_1.pdf",
+        "rc/subject/files/20260317_3.pdf",
+        "rc/subject/files/20260317_2.pdf",
+        "rc/subject/files/20260317_1.pdf",
+        "rc/subject/files/20260316_4.pdf",
+        "rc/subject/files/20260316_1.pdf",
+        "rc/subject/files/20260313_2.pdf",
+        "rc/subject/files/20260313_1.pdf",
+        "rc/subject/files/20260310_2.pdf",
+        "rc/subject/files/20260309_1.pdf",
+        "rc/subject/files/20260309_2.pdf",
+        "rc/subject/files/20260302_1.pdf",
     })
 
     def test_no_NEW_row_violates_the_gate(self):
