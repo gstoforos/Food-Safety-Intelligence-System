@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arista Invoice Analytics</title>
+<meta name="description" content="Αυτόματη ανάγνωση τιμολογίων Παπαδοπούλου και υπολογισμός πωληθέντων κιλών ανά κωδικό, ανά αγορά και ανά περίοδο — Arista Logistics, Λαμία.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231c5cab'/%3E%3Cpath d='M32 12 12 52h10l4-9h12l4 9h10L32 12zm0 14 4 10h-8l4-10z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+/* ---------- Design tokens: Arista blue / white ---------- */
+:root {
+  color-scheme: light;
+  --brand-900: #0d366b;
+  --brand-700: #184f95;
+  --brand-600: #1c5cab;
+  --brand-500: #2a78d6;
+  --brand-400: #3987e5;
+  --brand-300: #86b6ef;
+  --brand-200: #b7d3f6;
+  --brand-100: #cde2fb;
+  --brand-50:  #eaf2fc;
+
+  --surface-0: #ffffff;
+  --surface-1: #f5f8fc;
+  --surface-2: #e9eff7;
+  --border:    #d6dfeb;
+  --text-1:    #0f1b2d;
+  --text-2:    #4a5568;
+  --text-3:    #7b8794;
+
+  --series-big:   #2a78d6;   /* Μεγάλα Supermarket */
+  --series-small: #eb6834;   /* Μικρή αγορά */
+  --series-3:     #1baf7a;
+  --good:    #008300;
+  --warn:    #c98500;
+  --danger:  #e34948;
+
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(13,54,107,.06), 0 4px 16px rgba(13,54,107,.06);
+  --font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-0: #141a24; --surface-1: #0f141c; --surface-2: #1c2531; --border: #2a3646;
+    --text-1: #f2f5fa; --text-2: #c3cbd6; --text-3: #8a96a6;
+    --brand-50: #1a2a40; --brand-100: #1f3557;
+    --series-big: #3987e5; --series-small: #d95926; --series-3: #199e70;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-0: #141a24; --surface-1: #0f141c; --surface-2: #1c2531; --border: #2a3646;
+  --text-1: #f2f5fa; --text-2: #c3cbd6; --text-3: #8a96a6;
+  --brand-50: #1a2a40; --brand-100: #1f3557;
+  --series-big: #3987e5; --series-small: #d95926; --series-3: #199e70;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.35);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font); font-size: 15px; line-height: 1.5;
+  color: var(--text-1); background: var(--surface-1);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--brand-500); }
+h1, h2, h3, h4 { margin: 0; line-height: 1.25; }
+h2 { font-size: 20px; font-weight: 650; }
+h3 { font-size: 16px; font-weight: 650; }
+p { margin: 0 0 10px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+/* ---------- Layout ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  background: linear-gradient(90deg, var(--brand-900), var(--brand-600));
+  color: #fff; box-shadow: 0 2px 10px rgba(13,54,107,.25);
+}
+.topbar-inner {
+  max-width: 1280px; margin: 0 auto; padding: 10px 16px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo svg { width: 38px; height: 38px; flex: none; }
+.logo .name { font-weight: 800; font-size: 20px; letter-spacing: .5px; }
+.logo .sub { font-size: 12px; opacity: .85; margin-top: -2px; }
+.topbar-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pill {
+  font-size: 12px; padding: 3px 10px; border-radius: 999px;
+  background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35);
+}
+.pill.demo { background: #ffd166; color: #3b2a00; border-color: #ffd166; font-weight: 700; }
+
+nav.tabs {
+  background: var(--surface-0); border-bottom: 1px solid var(--border);
+  position: sticky; top: 58px; z-index: 25;
+}
+nav.tabs .inner { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; gap: 2px; overflow-x: auto; }
+nav.tabs button {
+  border: 0; background: none; padding: 12px 14px; cursor: pointer;
+  color: var(--text-2); font-weight: 600; white-space: nowrap;
+  border-bottom: 3px solid transparent; margin-bottom: -1px;
+}
+nav.tabs button:hover { color: var(--brand-600); }
+nav.tabs button.active { color: var(--brand-600); border-bottom-color: var(--brand-500); }
+nav.tabs button .n {
+  display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 6px; border-radius: 999px;
+  background: var(--surface-2); color: var(--text-2); font-size: 12px; text-align: center;
+}
+
+main { max-width: 1280px; margin: 0 auto; padding: 20px 16px 60px; }
+section.view { display: none; }
+section.view.active { display: block; }
+.view-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.view-head p { color: var(--text-2); margin: 4px 0 0; max-width: 760px; }
+
+.card {
+  background: var(--surface-0); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 18px; margin-bottom: 16px;
+}
+.card h3 { margin-bottom: 8px; }
+.card .hint { color: var(--text-3); font-size: 13px; }
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+/* ---------- Controls ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  padding: 8px 14px; border-radius: 9px; border: 1px solid var(--border);
+  background: var(--surface-0); color: var(--text-1); font-weight: 600; font-size: 14px;
+  transition: background .12s, border-color .12s, transform .05s;
+}
+.btn:hover { background: var(--surface-2); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--brand-500); border-color: var(--brand-500); color: #fff; }
+.btn.primary:hover { background: var(--brand-600); }
+.btn.ghost { background: transparent; border-color: rgba(255,255,255,.4); color: #fff; }
+.btn.ghost:hover { background: rgba(255,255,255,.12); }
+.btn.accent { background: #ffd166; border-color: #ffd166; color: #3b2a00; }
+.btn.accent:hover { background: #ffc94a; }
+.btn.sm { padding: 5px 10px; font-size: 13px; }
+.btn.danger { color: var(--danger); }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field label { font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .4px; }
+.field input, .field select, .field textarea {
+  padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface-0); min-width: 0;
+}
+.field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--brand-300); border-color: var(--brand-400); }
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; align-items: end; }
+.filters .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 9px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface-0); padding: 7px 12px; cursor: pointer; font-weight: 600; color: var(--text-2); }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.active { background: var(--brand-500); color: #fff; }
+
+/* ---------- Stat tiles ---------- */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.tile { background: var(--surface-0); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+.tile .label { font-size: 12px; color: var(--text-2); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+.tile .value { font-size: 30px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.tile .value small { font-size: 14px; color: var(--text-2); font-weight: 600; margin-left: 4px; }
+.tile .delta { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.tile.hero .value { font-size: 44px; color: var(--brand-600); }
+.tile .swatch { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; }
+.tile.big .swatch { background: var(--series-big); }
+.tile.small .swatch { background: var(--series-small); }
+
+/* ---------- Tables ---------- */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: var(--text-2); background: var(--surface-1); position: sticky; top: 0; }
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { color: var(--brand-600); }
+th .arrow { font-size: 10px; margin-left: 3px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.total td { font-weight: 700; background: var(--surface-1); border-top: 2px solid var(--brand-300); }
+tbody tr:hover { background: var(--brand-50); }
+tr.clickable { cursor: pointer; }
+code, .code { font-family: var(--mono); font-size: 13px; background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.badge.big { background: var(--brand-100); color: var(--brand-900); }
+.badge.small { background: #fde5da; color: #7a2e0e; }
+:root[data-theme="dark"] .badge.small { background: #4a2414; color: #ffc9b3; }
+.badge.src { background: var(--surface-2); color: var(--text-2); }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.dot.big { background: var(--series-big); }
+.dot.small { background: var(--series-small); }
+.bar-inline { display: inline-block; height: 8px; border-radius: 0 4px 4px 0; background: var(--brand-400); vertical-align: middle; }
+
+/* ---------- Charts ---------- */
+.chart { position: relative; }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart text { font-family: var(--font); fill: var(--text-2); font-size: 12px; }
+.chart .grid line { stroke: var(--border); stroke-width: 1; }
+.chart .axis text { fill: var(--text-3); }
+.chart .lbl { fill: var(--text-1); font-weight: 600; }
+.chart rect.hit { fill: transparent; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--text-2); margin: 4px 0 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.tooltip {
+  position: fixed; z-index: 100; pointer-events: none; display: none;
+  background: var(--text-1); color: var(--surface-0); padding: 8px 10px; border-radius: 8px;
+  font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,.25); max-width: 280px;
+}
+.tooltip b { display: block; margin-bottom: 2px; }
+.tooltip .row { display: flex; justify-content: space-between; gap: 14px; }
+
+/* ---------- Dropzone / import ---------- */
+.dropzone {
+  border: 2px dashed var(--brand-300); border-radius: var(--radius); padding: 28px; text-align: center;
+  background: var(--brand-50); color: var(--text-2); cursor: pointer; transition: background .15s, border-color .15s;
+}
+.dropzone.over { background: var(--brand-100); border-color: var(--brand-500); }
+.dropzone strong { color: var(--brand-700); }
+textarea.mono { font-family: var(--mono); font-size: 13px; min-height: 220px; width: 100%; resize: vertical; }
+.parse-log { font-family: var(--mono); font-size: 12px; background: var(--surface-2); border-radius: 8px; padding: 10px; max-height: 220px; overflow: auto; white-space: pre-wrap; }
+.parse-log .ok { color: var(--good); }
+.parse-log .err { color: var(--danger); }
+.parse-log .warn { color: var(--warn); }
+
+/* ---------- Modal ---------- */
+.modal-bg { position: fixed; inset: 0; background: rgba(8,20,40,.55); z-index: 80; display: none; align-items: center; justify-content: center; padding: 16px; }
+.modal-bg.open { display: flex; }
+.modal { background: var(--surface-0); border-radius: 14px; max-width: 860px; width: 100%; max-height: 90vh; overflow: auto; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.modal-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.modal-head h3 { flex: 1; }
+.modal-body { padding: 20px; }
+.invoice-paper { border: 1px solid var(--border); border-radius: 10px; padding: 18px; background: var(--surface-0); font-size: 14px; }
+.invoice-paper .hdr { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; border-bottom: 2px solid var(--brand-500); padding-bottom: 10px; margin-bottom: 12px; }
+.invoice-paper .hdr .co { font-weight: 800; color: var(--brand-700); font-size: 18px; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 13px; }
+.kv dt { color: var(--text-3); }
+.kv dd { margin: 0; }
+
+/* ---------- Tour ---------- */
+.tour { position: fixed; z-index: 90; bottom: 20px; left: 50%; transform: translateX(-50%); width: min(560px, calc(100% - 32px));
+  background: var(--brand-900); color: #fff; border-radius: 14px; padding: 16px 18px; box-shadow: 0 16px 48px rgba(0,0,0,.4); display: none; }
+.tour.open { display: block; }
+.tour .step { font-size: 12px; opacity: .8; text-transform: uppercase; letter-spacing: .5px; }
+.tour h4 { font-size: 17px; margin: 4px 0 6px; }
+.tour p { font-size: 14px; opacity: .95; margin: 0 0 12px; }
+.tour .nav { display: flex; gap: 8px; align-items: center; }
+.tour .nav .spacer { flex: 1; }
+.tour .dots { display: flex; gap: 5px; }
+.tour .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.35); }
+.tour .dots i.on { background: #ffd166; }
+.highlight { outline: 3px solid #ffd166; outline-offset: 4px; border-radius: 12px; transition: outline .2s; }
+
+/* ---------- Architecture ---------- */
+.flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.flow .node { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 14px; position: relative; }
+.flow .node .num { position: absolute; top: -10px; left: 12px; background: var(--brand-500); color: #fff; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; }
+.flow .node h4 { font-size: 14px; margin: 6px 0 4px; }
+.flow .node p { font-size: 13px; color: var(--text-2); margin: 0; }
+.flow .node ul { font-size: 13px; color: var(--text-2); margin: 6px 0 0; padding-left: 18px; }
+.check li { margin-bottom: 6px; }
+.formula { font-family: var(--mono); background: var(--brand-50); border-left: 4px solid var(--brand-500); padding: 10px 14px; border-radius: 6px; font-size: 14px; }
+.toast { position: fixed; top: 110px; right: 16px; z-index: 95; pointer-events: none; background: var(--text-1); color: var(--surface-0); padding: 10px 14px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.3); display: none; font-size: 14px; }
+.toast.show { display: block; animation: fade 3s forwards; }
+@keyframes fade { 0%,80% { opacity: 1; } 100% { opacity: 0; } }
+.empty { text-align: center; padding: 40px 20px; color: var(--text-2); }
+.empty .big-icon { font-size: 40px; margin-bottom: 8px; }
+.muted { color: var(--text-3); font-size: 13px; }
+.mt { margin-top: 12px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.right { margin-left: auto; }
+.sr-only { position: absolute; left: -9999px; }
+
+@media print {
+  .topbar, nav.tabs, .filters .actions, .no-print, .tour, .toast { display: none !important; }
+  body { background: #fff; }
+  .card, .tile { box-shadow: none; break-inside: avoid; }
+  main { padding: 0; max-width: none; }
+}
+@media (max-width: 640px) {
+  .logo .sub { display: none; }
+  nav.tabs { top: 56px; }
+  .tile .value { font-size: 24px; }
+  .tile.hero .value { font-size: 34px; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#fff"/><path d="M32 12 12 52h10l4-9h12l4 9h10L32 12zm0 14 4 10h-8l4-10z" fill="#1c5cab"/></svg>
+      <div>
+        <div class="name">ARISTA <span style="font-weight:400;opacity:.85">Invoice Analytics</span></div>
+        <div class="sub">Logistics &middot; Λαμία &middot; Διανομή προϊόντων Παπαδοπούλου</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="pill" id="pillData">Χωρίς δεδομένα</span>
+      <button class="btn accent" id="btnDemo" title="Φορτώνει δείγμα τιμολογίων για παρουσίαση">&#9654; Demo δεδομένα</button>
+      <button class="btn ghost" id="btnTour">Παρουσίαση</button>
+      <button class="btn ghost" id="btnTheme" title="Φωτεινό / σκούρο θέμα">&#9790;</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="inner" id="tabs">
+    <button data-view="dashboard" class="active">Επισκόπηση</button>
+    <button data-view="report">Αναφορά Κιλών</button>
+    <button data-view="invoices">Τιμολόγια <span class="n" id="nInv">0</span></button>
+    <button data-view="import">Εισαγωγή Τιμολογίων</button>
+    <button data-view="customers">Πελάτες &amp; Αγορές <span class="n" id="nCus">0</span></button>
+    <button data-view="products">Κωδικοί Προϊόντων <span class="n" id="nProd">0</span></button>
+    <button data-view="how">Πώς λειτουργεί</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ================= DASHBOARD ================= -->
+<section class="view active" id="view-dashboard">
+  <div class="view-head">
+    <div>
+      <h2>Επισκόπηση πωλήσεων σε κιλά</h2>
+      <p>Έξοδος προϊόντων μετρημένη σε κιλά, από τα τιμολόγια πώλησης. Διαχωρισμός σε <b>Μεγάλα Supermarket</b> και <b>Μικρή αγορά</b> (mini market, ψιλικά, περίπτερα, φούρνοι).</p>
+    </div>
+    <div class="row">
+      <div class="seg" id="dashRange">
+        <button data-days="30">30 ημέρες</button>
+        <button data-days="90">3 μήνες</button>
+        <button data-days="365" class="active">Έτος</button>
+        <button data-days="0">Όλα</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashEmpty" class="card empty">
+    <div class="big-icon">&#128230;</div>
+    <h3>Δεν υπάρχουν ακόμη τιμολόγια</h3>
+    <p>Πατήστε <b>&#9654; Demo δεδομένα</b> επάνω δεξιά για να φορτωθεί ένα ρεαλιστικό δείγμα 9 μηνών, ή εισάγετε τιμολόγια από την καρτέλα <b>Εισαγωγή Τιμολογίων</b>.</p>
+    <button class="btn primary" onclick="loadDemo()">&#9654; Φόρτωση demo δεδομένων</button>
+  </div>
+
+  <div id="dashContent" style="display:none">
+    <div class="tiles" id="dashTiles"></div>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Κιλά ανά μήνα και αγορά</h3>
+        <div class="hint">Στοιβαγμένες στήλες: Μεγάλα Supermarket + Μικρή αγορά = σύνολο μήνα.</div>
+        <div class="chart" id="chartMonthly"></div>
+      </div>
+      <div class="card">
+        <h3>Top 10 κωδικοί σε κιλά</h3>
+        <div class="hint">Ανά κωδικό προϊόντος, με ανάλυση ανά αγορά.</div>
+        <div class="chart" id="chartTop"></div>
+      </div>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Μερίδιο αγορών</h3>
+        <div class="hint">Ποσοστό κιλών ανά κατηγορία πελατών για την επιλεγμένη περίοδο.</div>
+        <div id="shareBars"></div>
+      </div>
+      <div class="card">
+        <h3>Top πελάτες σε κιλά</h3>
+        <div class="table-wrap"><table id="tblTopCustomers"></table></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REPORT ================= -->
+<section class="view" id="view-report">
+  <div class="view-head">
+    <div>
+      <h2>Αναφορά: κιλά ανά κωδικό προϊόντος</h2>
+      <p>«Πόσα κιλά έχω πουλήσει ανά κωδικό, για συγκεκριμένο χρονικό διάστημα και για συγκεκριμένη κατηγορία πελατών.»</p>
+    </div>
+  </div>
+
+  <div class="card" id="reportFilters">
+    <div class="filters">
+      <div class="field"><label>Από</label><input type="date" id="fFrom"></div>
+      <div class="field"><label>Έως</label><input type="date" id="fTo"></div>
+      <div class="field"><label>Κατηγορία πελατών</label>
+        <select id="fMarket">
+          <option value="ALL">Όλες οι αγορές</option>
+          <option value="BIG">Μεγάλα Supermarket</option>
+          <option value="SMALL">Μικρή αγορά (mini market κ.λπ.)</option>
+        </select>
+      </div>
+      <div class="field"><label>Πελάτης</label><select id="fCustomer"><option value="">Όλοι οι πελάτες</option></select></div>
+      <div class="field"><label>Κατηγορία προϊόντος</label><select id="fCategory"><option value="">Όλες</option></select></div>
+      <div class="field"><label>Αναζήτηση κωδικού / ονόματος</label><input type="search" id="fSearch" placeholder="π.χ. 1001 ή Πτι-Μπερ"></div>
+      <div class="actions">
+        <button class="btn primary" id="btnRun">Υπολογισμός</button>
+        <button class="btn" id="btnResetFilters">Καθαρισμός</button>
+      </div>
+    </div>
+    <div class="row mt no-print">
+      <span class="muted">Γρήγορες περίοδοι:</span>
+      <button class="btn sm" data-quick="thisMonth">Τρέχων μήνας</button>
+      <button class="btn sm" data-quick="lastMonth">Προηγούμενος μήνας</button>
+      <button class="btn sm" data-quick="q">Τρέχον τρίμηνο</button>
+      <button class="btn sm" data-quick="ytd">Από αρχή έτους</button>
+      <button class="btn sm" data-quick="all">Όλη η περίοδος</button>
+      <span class="right"></span>
+      <button class="btn sm" id="btnExportCsv">&#11015; Εξαγωγή CSV / Excel</button>
+      <button class="btn sm" id="btnPrint">&#128424; Εκτύπωση / PDF</button>
+    </div>
+  </div>
+
+  <div class="tiles" id="reportTiles"></div>
+
+  <div class="card">
+    <div class="row">
+      <h3>Αποτέλεσμα ανά κωδικό</h3>
+      <span class="muted" id="reportMeta"></span>
+    </div>
+    <div class="table-wrap"><table id="tblReport"></table></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Κιλά ανά κωδικό (top 15)</h3>
+      <div class="chart" id="chartReportBars"></div>
+    </div>
+    <div class="card">
+      <h3>Εξέλιξη κιλών στην περίοδο</h3>
+      <div class="hint">Ομαδοποίηση ανά μήνα (ή ανά εβδομάδα αν η περίοδος είναι έως 3 μήνες).</div>
+      <div class="chart" id="chartReportTrend"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INVOICES ================= -->
+<section class="view" id="view-invoices">
+  <div class="view-head">
+    <div>
+      <h2>Τιμολόγια</h2>
+      <p>Όλα τα τιμολόγια που έχουν διαβαστεί από το σύστημα. Κάθε γραμμή τιμολογίου μετατρέπεται σε κιλά με βάση τον κωδικό προϊόντος.</p>
+    </div>
+    <div class="row no-print">
+      <button class="btn danger sm" id="btnClearInvoices">Διαγραφή όλων</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="filters">
+      <div class="field"><label>Αναζήτηση</label><input type="search" id="invSearch" placeholder="Αρ. τιμολογίου, πελάτης..."></div>
+      <div class="field"><label>Αγορά</label>
+        <select id="invMarket"><option value="ALL">Όλες</option><option value="BIG">Μεγάλα Supermarket</option><option value="SMALL">Μικρή αγορά</option></select>
+      </div>
+      <div class="field"><label>Πηγή</label>
+        <select id="invSource"><option value="">Όλες</option><option value="demo">Demo</option><option value="import">Εισαγωγή αρχείου</option><option value="ocr">Ανάγνωση κειμένου</option></select>
+      </div>
+    </div>
+    <div class="table-wrap mt"><table id="tblInvoices"></table></div>
+    <div class="row mt"><span class="muted" id="invMeta"></span><span class="right"></span><button class="btn sm" id="invMore" style="display:none">Περισσότερα</button></div>
+  </div>
+</section>
+
+<!-- ================= IMPORT ================= -->
+<section class="view" id="view-import">
+  <div class="view-head">
+    <div>
+      <h2>Εισαγωγή τιμολογίων</h2>
+      <p>Στην παραγωγική έκδοση τα τιμολόγια θα διαβάζονται αυτόματα (myDATA / ERP / PDF μέσω OCR). Στο demo μπορείτε να εισάγετε αρχείο ή να επικολλήσετε το κείμενο ενός τιμολογίου και να δείτε την αυτόματη αναγνώριση.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card" id="importFileCard">
+      <h3>1. Αρχείο τιμολογίων (CSV / JSON)</h3>
+      <div class="hint">Εξαγωγή από ERP (SoftOne, Epsilon, Entersoft, Pylon) ή από το myDATA. Στήλες: <code>invoice_no, date, customer, code, qty, unit</code>.</div>
+      <div class="dropzone mt" id="dropzone">
+        <div style="font-size:32px">&#128196;</div>
+        <div><strong>Σύρετε εδώ αρχείο</strong> ή κάντε κλικ για επιλογή</div>
+        <div class="muted">CSV, JSON, TXT &middot; PDF/XML στην παραγωγική έκδοση</div>
+        <input type="file" id="fileInput" accept=".csv,.json,.txt,.pdf,.xml" multiple class="sr-only">
+      </div>
+      <div class="row mt">
+        <button class="btn sm" id="btnSampleCsv">&#11015; Κατέβασμα υποδείγματος CSV</button>
+        <button class="btn sm" id="btnLoadSampleCsv">Δοκιμή με υπόδειγμα</button>
+      </div>
+    </div>
+
+    <div class="card" id="importTextCard">
+      <h3>2. Ανάγνωση κειμένου τιμολογίου (προσομοίωση OCR)</h3>
+      <div class="hint">Επικολλήστε το κείμενο ενός τιμολογίου Παπαδοπούλου όπως βγαίνει από σαρωτή / PDF. Το σύστημα εντοπίζει πελάτη, ημερομηνία, κωδικούς και ποσότητες.</div>
+      <textarea class="mono mt" id="ocrText" placeholder="Επικολλήστε εδώ το κείμενο του τιμολογίου..."></textarea>
+      <div class="row mt">
+        <button class="btn primary" id="btnParseText">Ανάγνωση &amp; υπολογισμός κιλών</button>
+        <button class="btn" id="btnSampleText">Φόρτωση δείγματος</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="importResult" style="display:none">
+    <div class="row"><h3>Αποτέλεσμα ανάγνωσης</h3><span class="right"></span>
+      <button class="btn primary" id="btnCommitImport">Αποθήκευση στα τιμολόγια</button>
+      <button class="btn" id="btnDiscardImport">Απόρριψη</button>
+    </div>
+    <div class="parse-log mt" id="parseLog"></div>
+    <div class="table-wrap mt"><table id="tblImportPreview"></table></div>
+  </div>
+</section>
+
+<!-- ================= CUSTOMERS ================= -->
+<section class="view" id="view-customers">
+  <div class="view-head">
+    <div>
+      <h2>Πελάτες &amp; κατηγορίες αγοράς</h2>
+      <p>Κάθε πελάτης ανήκει σε μία αγορά. Η κατάταξη γίνεται αυτόματα από κανόνες (όνομα αλυσίδας) και μπορεί να διορθωθεί χειροκίνητα. Αυτός ο πίνακας είναι που «χωρίζει» τα κιλά ανά αγορά.</p>
+    </div>
+    <div class="row no-print">
+      <button class="btn sm" id="btnAddCustomer">+ Νέος πελάτης</button>
+      <button class="btn sm" id="btnAutoClassify">Αυτόματη κατάταξη</button>
+    </div>
+  </div>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Κανόνες αυτόματης κατάταξης</h3>
+      <div class="hint">Αν το όνομα του πελάτη περιέχει κάποια από τις λέξεις-κλειδιά, κατατάσσεται σε <b>Μεγάλα Supermarket</b>. Διαφορετικά, σε <b>Μικρή αγορά</b>.</div>
+      <div class="field mt"><label>Λέξεις-κλειδιά μεγάλων αλυσίδων (χωρισμένες με κόμμα)</label>
+        <textarea id="bigKeywords" rows="3"></textarea></div>
+      <div class="row mt"><button class="btn sm primary" id="btnSaveKeywords">Αποθήκευση κανόνων</button></div>
+    </div>
+    <div class="card">
+      <h3>Σύνοψη</h3>
+      <div id="customerSummary"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="field" style="max-width:320px"><label>Αναζήτηση</label><input type="search" id="cusSearch" placeholder="Όνομα, ΑΦΜ, πόλη"></div>
+    <div class="table-wrap mt"><table id="tblCustomers"></table></div>
+  </div>
+</section>
+
+<!-- ================= PRODUCTS ================= -->
+<section class="view" id="view-products">
+  <div class="view-head">
+    <div>
+      <h2>Κωδικοί προϊόντων Παπαδοπούλου</h2>
+      <p>Ο πίνακας-κλειδί του συστήματος: για κάθε κωδικό, το καθαρό βάρος ανά τεμάχιο και τα τεμάχια ανά κιβώτιο. Έτσι κάθε ποσότητα τιμολογίου μετατρέπεται σε κιλά.</p>
+    </div>
+    <div class="row no-print"><button class="btn sm" id="btnAddProduct">+ Νέος κωδικός</button></div>
+  </div>
+  <div class="card">
+    <div class="formula">Κιλά γραμμής = Τεμάχια &times; Καθαρό βάρος (kg) &nbsp;&nbsp;|&nbsp;&nbsp; Τεμάχια = Κιβώτια &times; Τεμ./κιβώτιο</div>
+    <div class="table-wrap mt"><table id="tblProducts"></table></div>
+    <p class="muted mt">Οι κωδικοί και τα βάρη είναι ενδεικτικά για το demo. Στην παραγωγική έκδοση ο πίνακας συγχρονίζεται με τον τιμοκατάλογο της Παπαδοπούλου.</p>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="view" id="view-how">
+  <div class="view-head">
+    <div>
+      <h2>Πώς λειτουργεί το σύστημα</h2>
+      <p>Από το τιμολόγιο στο αποτέλεσμα σε κιλά, ανά κωδικό, ανά αγορά, ανά περίοδο, αυτόματα και χωρίς χειροκίνητη καταχώρηση.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="flow">
+      <div class="node"><span class="num">1</span><h4>Λήψη τιμολογίων</h4>
+        <ul><li>myDATA (ΑΑΔΕ) &mdash; αυτόματη άντληση εκδοθέντων παραστατικών</li><li>ERP export (CSV/XML)</li><li>PDF / σάρωση &rarr; OCR</li><li>Email inbox παρακολούθησης</li></ul></div>
+      <div class="node"><span class="num">2</span><h4>Ανάγνωση &amp; εξαγωγή γραμμών</h4>
+        <p>Αναγνώριση αρ. τιμολογίου, ημερομηνίας, πελάτη (ΑΦΜ), και για κάθε γραμμή: κωδικός, ποσότητα, μονάδα (τεμ./κιβ.).</p></div>
+      <div class="node"><span class="num">3</span><h4>Μετατροπή σε κιλά</h4>
+        <p>Αντιστοίχιση κωδικού με τον πίνακα προϊόντων: καθαρό βάρος &times; τεμάχια. Έλεγχος για άγνωστους κωδικούς.</p></div>
+      <div class="node"><span class="num">4</span><h4>Κατάταξη πελάτη</h4>
+        <p>Ο πελάτης αντιστοιχίζεται σε αγορά: Μεγάλα Supermarket ή Μικρή αγορά. Κανόνες + χειροκίνητες διορθώσεις.</p></div>
+      <div class="node"><span class="num">5</span><h4>Άθροιση &amp; αναφορές</h4>
+        <p>Κιλά ανά κωδικό &times; αγορά &times; περίοδο. Πίνακες, γραφήματα, εξαγωγή Excel/PDF, αυτόματη μηνιαία αποστολή.</p></div>
+    </div>
+  </div>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Τι απαντά το σύστημα</h3>
+      <ul class="check">
+        <li>Πόσα κιλά πουλήθηκαν ανά κωδικό προϊόντος σε οποιοδήποτε διάστημα ημερομηνιών.</li>
+        <li>Πόσα από αυτά πήγαν σε Μεγάλα Supermarket και πόσα στη Μικρή αγορά.</li>
+        <li>Ποιοι πελάτες / ποιες περιοχές απορροφούν τα περισσότερα κιλά.</li>
+        <li>Τάση ανά μήνα/εβδομάδα, σύγκριση περιόδων.</li>
+        <li>Έτοιμη αναφορά προς Παπαδοπούλου (έξοδος προϊόντων σε κιλά) με ένα κλικ.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Επόμενα βήματα για την παραγωγική έκδοση</h3>
+      <ul class="check">
+        <li><b>Πρόσβαση στα τιμολόγια:</b> κωδικοί myDATA ή export από το ERP της Arista (ή φάκελος PDF).</li>
+        <li><b>Πίνακας προϊόντων:</b> επίσημος τιμοκατάλογος Παπαδοπούλου με βάρη &amp; συσκευασίες.</li>
+        <li><b>Λίστα πελατών:</b> επιβεβαίωση κατάταξης αγορών.</li>
+        <li><b>Αυτοματισμός:</b> νυχτερινή ανάγνωση νέων τιμολογίων, μηνιαία αναφορά με email.</li>
+        <li><b>Πρόσβαση χρηστών:</b> web εφαρμογή με σύνδεση, ιστορικό και backups.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Παράδειγμα υπολογισμού</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Γραμμή τιμολογίου</th><th>Κωδικός</th><th class="num">Ποσότητα</th><th>Μονάδα</th><th class="num">Τεμ./κιβ.</th><th class="num">Βάρος/τεμ.</th><th class="num">Κιλά</th></tr></thead>
+      <tbody>
+        <tr><td>Πτι-Μπερ Κλασικό 225g</td><td><code>1001</code></td><td class="num">12</td><td>ΚΙΒ</td><td class="num">20</td><td class="num">0,225</td><td class="num"><b>54,00</b></td></tr>
+        <tr><td>Ψωμί Τοστ Σίτου 700g</td><td><code>3001</code></td><td class="num">40</td><td>ΤΕΜ</td><td class="num">&mdash;</td><td class="num">0,700</td><td class="num"><b>28,00</b></td></tr>
+        <tr><td>Φρυγανιές Σίτου 250g</td><td><code>2001</code></td><td class="num">5</td><td>ΚΙΒ</td><td class="num">12</td><td class="num">0,250</td><td class="num"><b>15,00</b></td></tr>
+        <tr class="total"><td colspan="6">Σύνολο τιμολογίου</td><td class="num">97,00 kg</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+</main>
+
+<!-- Modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head"><h3 id="modalTitle"></h3><button class="btn sm" id="modalClose">Κλείσιμο</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Tour -->
+<div class="tour" id="tour">
+  <div class="step" id="tourStep"></div>
+  <h4 id="tourTitle"></h4>
+  <p id="tourText"></p>
+  <div class="nav">
+    <div class="dots" id="tourDots"></div>
+    <span class="spacer"></span>
+    <button class="btn sm ghost" id="tourPrev">&larr; Πίσω</button>
+    <button class="btn sm accent" id="tourNext">Επόμενο &rarr;</button>
+    <button class="btn sm ghost" id="tourClose">&times;</button>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   ARISTA Invoice Analytics — demo (single file, no dependencies)
+   ===================================================================== */
+'use strict';
+
+/* ---------- Utilities ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+const fmtKg = n => (Math.round(n * 100) / 100).toLocaleString('el-GR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtInt = n => Math.round(n).toLocaleString('el-GR');
+const fmtKgShort = n => n >= 10000 ? (n / 1000).toLocaleString('el-GR', { maximumFractionDigits: 1 }) + ' t' : fmtInt(n) + ' kg';
+const pct = (a, b) => b ? (100 * a / b).toLocaleString('el-GR', { maximumFractionDigits: 1 }) + '%' : '—';
+const iso = d => d.toISOString().slice(0, 10);
+const parseISO = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const fmtDate = s => { const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`; };
+const MONTHS = ['Ιαν', 'Φεβ', 'Μαρ', 'Απρ', 'Μάι', 'Ιουν', 'Ιουλ', 'Αυγ', 'Σεπ', 'Οκτ', 'Νοε', 'Δεκ'];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const MARKET_LABEL = { BIG: 'Μεγάλα Supermarket', SMALL: 'Μικρή αγορά' };
+const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 3100); }
+
+const storage = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } }
+};
+
+/* ---------- Master data (demo) ---------- */
+const DEFAULT_PRODUCTS = [
+  { code: '1001', name: 'Πτι-Μπερ Κλασικό 225g', cat: 'Μπισκότα', netKg: 0.225, perCase: 20 },
+  { code: '1002', name: 'Πτι-Μπερ Ολικής Άλεσης 225g', cat: 'Μπισκότα', netKg: 0.225, perCase: 20 },
+  { code: '1003', name: 'Μιράντα Κλασικά 250g', cat: 'Μπισκότα', netKg: 0.250, perCase: 16 },
+  { code: '1004', name: 'Caprice Πραλίνα 250g', cat: 'Μπισκότα', netKg: 0.250, perCase: 12 },
+  { code: '1005', name: 'Caprice Καπουτσίνο 115g', cat: 'Μπισκότα', netKg: 0.115, perCase: 24 },
+  { code: '1006', name: 'Digestive Κλασικό 250g', cat: 'Μπισκότα', netKg: 0.250, perCase: 16 },
+  { code: '1007', name: 'Digestive Σοκολάτα Γάλακτος 200g', cat: 'Μπισκότα', netKg: 0.200, perCase: 16 },
+  { code: '1008', name: 'Cream Crackers Κλασικά 175g', cat: 'Κράκερ', netKg: 0.175, perCase: 24 },
+  { code: '1009', name: 'Γεμιστά Σοκολάτα 200g', cat: 'Μπισκότα', netKg: 0.200, perCase: 20 },
+  { code: '1010', name: 'Γεμιστά Βανίλια 200g', cat: 'Μπισκότα', netKg: 0.200, perCase: 20 },
+  { code: '1011', name: 'Cream Crackers Ολικής 175g', cat: 'Κράκερ', netKg: 0.175, perCase: 24 },
+  { code: '1012', name: 'Digestive Bars Μήλο 5x28g', cat: 'Μπισκότα', netKg: 0.140, perCase: 24 },
+  { code: '2001', name: 'Φρυγανιές Σίτου 250g', cat: 'Φρυγανιές', netKg: 0.250, perCase: 12 },
+  { code: '2002', name: 'Φρυγανιές Ολικής Άλεσης 250g', cat: 'Φρυγανιές', netKg: 0.250, perCase: 12 },
+  { code: '2003', name: 'Φρυγανιές Πολύσπορες 240g', cat: 'Φρυγανιές', netKg: 0.240, perCase: 12 },
+  { code: '2004', name: 'Κριτσίνια Κλασικά 150g', cat: 'Φρυγανιές', netKg: 0.150, perCase: 18 },
+  { code: '2005', name: 'Παξιμάδια Χαρουπιού 200g', cat: 'Φρυγανιές', netKg: 0.200, perCase: 12 },
+  { code: '3001', name: 'Ψωμί Τοστ Σίτου 700g', cat: 'Ψωμί', netKg: 0.700, perCase: 8 },
+  { code: '3002', name: 'Ψωμί Τοστ Ολικής 700g', cat: 'Ψωμί', netKg: 0.700, perCase: 8 },
+  { code: '3003', name: 'Ψωμί Χωριάτικο σε φέτες 500g', cat: 'Ψωμί', netKg: 0.500, perCase: 10 },
+  { code: '3004', name: 'Ψωμί Τοστ Σίτου Mini 340g', cat: 'Ψωμί', netKg: 0.340, perCase: 12 },
+];
+
+const DEFAULT_CUSTOMERS = [
+  { id: 'C001', name: 'ΣΚΛΑΒΕΝΙΤΗΣ ΑΕΕ – Λαμία (Λ. Καλυβίων)', afm: '999080324', city: 'Λαμία', market: 'BIG' },
+  { id: 'C002', name: 'ΣΚΛΑΒΕΝΙΤΗΣ ΑΕΕ – Λαμία (Κέντρο)', afm: '999080324', city: 'Λαμία', market: 'BIG' },
+  { id: 'C003', name: 'ΑΒ ΒΑΣΙΛΟΠΟΥΛΟΣ – Λαμία', afm: '094025817', city: 'Λαμία', market: 'BIG' },
+  { id: 'C004', name: 'LIDL HELLAS – Λαμία', afm: '099876543', city: 'Λαμία', market: 'BIG' },
+  { id: 'C005', name: 'ΜΑΣΟΥΤΗΣ – Λαμία', afm: '094112233', city: 'Λαμία', market: 'BIG' },
+  { id: 'C006', name: 'ΓΑΛΑΞΙΑΣ – Λαμία', afm: '094556677', city: 'Λαμία', market: 'BIG' },
+  { id: 'C007', name: 'MY MARKET (ΜΕΤΡΟ ΑΕΒΕ) – Λαμία', afm: '094334455', city: 'Λαμία', market: 'BIG' },
+  { id: 'C008', name: 'MARKET IN – Στυλίδα', afm: '094778899', city: 'Στυλίδα', market: 'BIG' },
+  { id: 'C009', name: 'ΚΡΗΤΙΚΟΣ – Καμένα Βούρλα', afm: '094990011', city: 'Καμένα Βούρλα', market: 'BIG' },
+  { id: 'C010', name: 'ΣΚΛΑΒΕΝΙΤΗΣ ΑΕΕ – Αταλάντη', afm: '999080324', city: 'Αταλάντη', market: 'BIG' },
+  { id: 'C101', name: 'MINI MARKET ΠΑΠΑΔΑΚΗΣ Ν.', afm: '045123456', city: 'Λαμία', market: 'SMALL' },
+  { id: 'C102', name: 'ΨΙΛΙΚΑ ΚΑΡΑΓΙΑΝΝΗ Ε.', afm: '046234567', city: 'Λαμία', market: 'SMALL' },
+  { id: 'C103', name: 'ΠΕΡΙΠΤΕΡΟ ΠΛΑΤΕΙΑ ΠΑΡΚΟΥ', afm: '047345678', city: 'Λαμία', market: 'SMALL' },
+  { id: 'C104', name: 'ΦΟΥΡΝΟΣ ΑΝΤΩΝΙΟΥ & ΣΙΑ ΟΕ', afm: '048456789', city: 'Λαμία', market: 'SMALL' },
+  { id: 'C105', name: 'MINI MARKET "ΤΟ ΛΙΜΑΝΙ"', afm: '049567890', city: 'Στυλίδα', market: 'SMALL' },
+  { id: 'C106', name: 'ΠΑΝΤΟΠΩΛΕΙΟ ΓΕΩΡΓΙΟΥ Κ.', afm: '050678901', city: 'Δομοκός', market: 'SMALL' },
+  { id: 'C107', name: 'MINI MARKET ΤΣΙΤΣΙΠΑΣ', afm: '051789012', city: 'Μακρακώμη', market: 'SMALL' },
+  { id: 'C108', name: 'ΨΙΛΙΚΑ-ΚΑΦΕ ΝΙΚΟΛΑΟΥ', afm: '052890123', city: 'Αταλάντη', market: 'SMALL' },
+  { id: 'C109', name: 'MINI MARKET ΑΜΦΙΚΛΕΙΑΣ', afm: '053901234', city: 'Αμφίκλεια', market: 'SMALL' },
+  { id: 'C110', name: 'ΠΑΝΤΟΠΩΛΕΙΟ ΜΩΛΟΥ', afm: '054012345', city: 'Μώλος', market: 'SMALL' },
+  { id: 'C111', name: 'MINI MARKET ΣΠΕΡΧΕΙΑΔΑΣ', afm: '055123450', city: 'Σπερχειάδα', market: 'SMALL' },
+  { id: 'C112', name: 'ΨΙΛΙΚΑ ΕΛΑΤΕΙΑΣ – ΔΗΜΟΥ Μ.', afm: '056234561', city: 'Ελάτεια', market: 'SMALL' },
+  { id: 'C113', name: 'ΚΑΝΤΙΝΑ ΝΟΣΟΚΟΜΕΙΟΥ ΛΑΜΙΑΣ', afm: '057345672', city: 'Λαμία', market: 'SMALL' },
+  { id: 'C114', name: 'MINI MARKET ΡΟΔΙΤΣΑ', afm: '058456783', city: 'Λαμία', market: 'SMALL' },
+  { id: 'C115', name: 'ΦΟΥΡΝΟΣ "Η ΓΩΝΙΑ" – Στυλίδα', afm: '059567894', city: 'Στυλίδα', market: 'SMALL' },
+];
+
+const DEFAULT_BIG_KEYWORDS = 'ΣΚΛΑΒΕΝΙΤΗΣ, ΑΒ ΒΑΣΙΛΟΠΟΥΛΟΣ, LIDL, ΜΑΣΟΥΤΗΣ, ΓΑΛΑΞΙΑΣ, MY MARKET, ΜΕΤΡΟ, MARKET IN, ΚΡΗΤΙΚΟΣ, SUPERMARKET, ΣΟΥΠΕΡ ΜΑΡΚΕΤ, ΧΑΛΚΙΑΔΑΚΗΣ, ΣΥΝΚΑ, BAZAAR';
+
+/* ---------- State ---------- */
+const state = {
+  products: storage.get('arista.products', DEFAULT_PRODUCTS),
+  customers: storage.get('arista.customers', DEFAULT_CUSTOMERS),
+  invoices: storage.get('arista.invoices', []),
+  bigKeywords: storage.get('arista.bigKeywords', DEFAULT_BIG_KEYWORDS),
+  pendingImport: null,
+  dashDays: 365,
+  invShown: 50,
+  sort: { key: 'kgTotal', dir: -1 },
+};
+function persist() {
+  storage.set('arista.products', state.products);
+  storage.set('arista.customers', state.customers);
+  storage.set('arista.invoices', state.invoices);
+  storage.set('arista.bigKeywords', state.bigKeywords);
+}
+const productMap = () => Object.fromEntries(state.products.map(p => [p.code, p]));
+const customerMap = () => Object.fromEntries(state.customers.map(c => [c.id, c]));
+
+/* ---------- Core: kg computation & aggregation ---------- */
+function lineKg(line, pm) {
+  const p = pm[line.code];
+  if (!p) return { pieces: 0, cases: 0, kg: 0, unknown: true };
+  const pieces = line.unit === 'ΚΙΒ' ? line.qty * p.perCase : line.qty;
+  const cases = line.unit === 'ΚΙΒ' ? line.qty : line.qty / p.perCase;
+  return { pieces, cases, kg: pieces * p.netKg, unknown: false };
+}
+function invoiceKg(inv, pm) { return inv.lines.reduce((s, l) => s + lineKg(l, pm).kg, 0); }
+
+function filterInvoices({ from, to, market, customerId, source, search }) {
+  const cm = customerMap();
+  return state.invoices.filter(inv => {
+    if (from && inv.date < from) return false;
+    if (to && inv.date > to) return false;
+    const c = cm[inv.customerId];
+    const m = c ? c.market : 'SMALL';
+    if (market && market !== 'ALL' && m !== market) return false;
+    if (customerId && inv.customerId !== customerId) return false;
+    if (source && inv.source !== source) return false;
+    if (search) {
+      const q = norm(search);
+      if (!norm(inv.no).includes(q) && !norm(c && c.name).includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function aggregate(f) {
+  const pm = productMap(), cm = customerMap();
+  const invs = filterInvoices(f);
+  const byCode = {}, byPeriod = {}, byCustomer = {};
+  const tot = { kgBig: 0, kgSmall: 0, kg: 0, invoices: invs.length, lines: 0, unknown: 0 };
+  const catFilter = f.category || '', q = norm(f.search || '');
+  const useWeeks = f.granularity === 'week';
+  for (const inv of invs) {
+    const c = cm[inv.customerId];
+    const m = c && c.market === 'BIG' ? 'BIG' : 'SMALL';
+    const per = useWeeks ? weekKey(inv.date) : inv.date.slice(0, 7);
+    for (const line of inv.lines) {
+      const p = pm[line.code];
+      if (catFilter && (!p || p.cat !== catFilter)) continue;
+      if (q && !(norm(line.code).includes(q) || norm(p && p.name).includes(q))) continue;
+      const r = lineKg(line, pm);
+      if (r.unknown) { tot.unknown++; continue; }
+      tot.lines++;
+      const row = byCode[line.code] || (byCode[line.code] = { code: line.code, name: p.name, cat: p.cat, pieces: 0, cases: 0, kgBig: 0, kgSmall: 0, kgTotal: 0, invoices: new Set() });
+      row.pieces += r.pieces; row.cases += r.cases; row.kgTotal += r.kg; row.invoices.add(inv.no);
+      const pr = byPeriod[per] || (byPeriod[per] = { key: per, kgBig: 0, kgSmall: 0 });
+      const cr = byCustomer[inv.customerId] || (byCustomer[inv.customerId] = { id: inv.customerId, name: c ? c.name : inv.customerId, market: m, kg: 0, invoices: new Set() });
+      cr.kg += r.kg; cr.invoices.add(inv.no);
+      if (m === 'BIG') { row.kgBig += r.kg; pr.kgBig += r.kg; tot.kgBig += r.kg; } else { row.kgSmall += r.kg; pr.kgSmall += r.kg; tot.kgSmall += r.kg; }
+      tot.kg += r.kg;
+    }
+  }
+  return {
+    rows: Object.values(byCode).map(r => ({ ...r, invoices: r.invoices.size })),
+    periods: Object.values(byPeriod).sort((a, b) => a.key < b.key ? -1 : 1),
+    customers: Object.values(byCustomer).map(c => ({ ...c, invoices: c.invoices.size })).sort((a, b) => b.kg - a.kg),
+    total: tot, invoiceCount: invs.length,
+  };
+}
+function weekKey(dateStr) {
+  const d = parseISO(dateStr); const day = (d.getDay() + 6) % 7; d.setDate(d.getDate() - day);
+  return iso(d);
+}
+function periodLabel(key) {
+  if (key.length === 7) { const [y, m] = key.split('-'); return MONTHS[+m - 1] + ' ' + y.slice(2); }
+  const [y, m, d] = key.split('-'); return `${d}/${m}`;
+}
+function dataRange() {
+  if (!state.invoices.length) return null;
+  let min = '9999', max = '0000';
+  for (const i of state.invoices) { if (i.date < min) min = i.date; if (i.date > max) max = i.date; }
+  return { min, max };
+}
+
+/* ---------- Demo data generator (deterministic) ---------- */
+function generateDemo() {
+  const rnd = mulberry32(20260919);
+  const pick = arr => arr[Math.floor(rnd() * arr.length)];
+  const products = state.products, customers = state.customers;
+  const end = new Date(); end.setHours(0, 0, 0, 0);
+  const start = new Date(end.getFullYear(), 0, 1);
+  if ((end - start) / 86400000 < 200) start.setMonth(start.getMonth() - 8);
+  // product popularity weights per market
+  const wBig = {}, wSmall = {};
+  products.forEach(p => {
+    const base = p.cat === 'Ψωμί' ? 1.6 : p.cat === 'Φρυγανιές' ? 1.0 : p.cat === 'Κράκερ' ? 0.8 : 1.2;
+    wBig[p.code] = base * (0.6 + rnd());
+    wSmall[p.code] = (p.cat === 'Ψωμί' ? 0.9 : p.cat === 'Μπισκότα' ? 1.4 : 0.9) * (0.5 + rnd());
+  });
+  const weightedPick = w => { const codes = Object.keys(w); const tot = codes.reduce((s, c) => s + w[c], 0); let r = rnd() * tot; for (const c of codes) { r -= w[c]; if (r <= 0) return c; } return codes[codes.length - 1]; };
+  const invoices = []; let seq = 1;
+  for (const c of customers) {
+    const big = c.market === 'BIG';
+    const perWeek = big ? 2 + Math.floor(rnd() * 2) : (rnd() < 0.35 ? 2 : 1);
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 7)) {
+      for (let k = 0; k < perWeek; k++) {
+        const dd = new Date(d); dd.setDate(dd.getDate() + Math.floor(rnd() * 5));
+        if (dd > end || dd.getDay() === 0) continue;
+        const month = dd.getMonth();
+        const season = 1 + 0.18 * Math.sin((month - 1) / 12 * 2 * Math.PI) + (month === 11 ? 0.2 : 0) + (month === 7 ? -0.1 : 0);
+        const nLines = big ? 5 + Math.floor(rnd() * 8) : 2 + Math.floor(rnd() * 4);
+        const used = new Set(), lines = [];
+        for (let i = 0; i < nLines; i++) {
+          const code = weightedPick(big ? wBig : wSmall);
+          if (used.has(code)) continue; used.add(code);
+          if (big) lines.push({ code, qty: Math.max(1, Math.round((2 + rnd() * 14) * season)), unit: 'ΚΙΒ' });
+          else lines.push({ code, qty: Math.max(1, Math.round((3 + rnd() * 20) * season)), unit: rnd() < 0.25 ? 'ΚΙΒ' : 'ΤΕΜ' });
+        }
+        if (!lines.length) continue;
+        invoices.push({ no: `ΤΔΑ-${String(seq++).padStart(5, '0')}`, date: iso(dd), customerId: c.id, lines, source: 'demo' });
+      }
+    }
+  }
+  invoices.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.no < b.no ? -1 : 1);
+  invoices.forEach((inv, i) => inv.no = `ΤΔΑ-${String(i + 1).padStart(5, '0')}`);
+  return invoices;
+}
+function loadDemo() {
+  state.invoices = generateDemo();
+  persist();
+  renderAll();
+  showView('dashboard');
+  toast(`Φορτώθηκαν ${fmtInt(state.invoices.length)} demo τιμολόγια`);
+}
+
+/* ---------- Parsers ---------- */
+function resolveCustomer(text) {
+  const t = norm(text).trim();
+  if (!t) return null;
+  let c = state.customers.find(x => x.afm && x.afm === text.replace(/\D/g, '') && text.replace(/\D/g, '').length === 9);
+  if (c) return c;
+  c = state.customers.find(x => norm(x.id) === t || norm(x.name) === t);
+  if (c) return c;
+  c = state.customers.find(x => norm(x.name).includes(t) || t.includes(norm(x.name)));
+  return c || null;
+}
+function classifyName(name) {
+  const n = norm(name);
+  return state.bigKeywords.split(',').map(k => norm(k.trim())).filter(Boolean).some(k => n.includes(k)) ? 'BIG' : 'SMALL';
+}
+function ensureCustomer(nameOrAfm, log) {
+  let c = resolveCustomer(nameOrAfm);
+  if (c) return c;
+  const id = 'C' + String(900 + state.customers.length);
+  c = { id, name: String(nameOrAfm).trim(), afm: '', city: '', market: classifyName(nameOrAfm), _new: true };
+  state.customers.push(c);
+  log.push(['warn', `Νέος πελάτης «${c.name}» → αυτόματη κατάταξη: ${MARKET_LABEL[c.market]}`]);
+  return c;
+}
+function normDate(s) {
+  s = String(s).trim();
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/); if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})/); if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+  m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2})$/); if (m) return `20${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+  return null;
+}
+function normUnit(u) { u = norm(u); return /^(kib|κιβ|box|cs|case|cases|κιβωτ)/.test(u) || u.startsWith('κιβ') ? 'ΚΙΒ' : 'ΤΕΜ'; }
+function parseNum(s) { s = String(s).trim(); if (s.includes(',') && !s.includes('.')) s = s.replace(',', '.'); return parseFloat(s.replace(/[^\d.\-]/g, '')); }
+
+function parseCSV(text) {
+  const rows = []; let row = [], field = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQ) { if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; } else field += ch; }
+    else if (ch === '"') inQ = true;
+    else if (ch === ',' || ch === ';' || ch === '\t') { row.push(field); field = ''; }
+    else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; row.push(field); rows.push(row); row = []; field = ''; }
+    else field += ch;
+  }
+  if (field || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim()));
+}
+function importRows(records, source, log) {
+  // records: [{invoice_no, date, customer, code, qty, unit}]
+  const pm = productMap(); const invs = {}; let bad = 0;
+  for (const r of records) {
+    const date = normDate(r.date); const code = String(r.code || '').trim(); const qty = parseNum(r.qty);
+    if (!r.invoice_no || !date || !code || !(qty > 0)) { bad++; continue; }
+    if (!pm[code]) { log.push(['err', `Άγνωστος κωδικός ${code} (τιμολόγιο ${r.invoice_no}) — προσθέστε τον στον πίνακα προϊόντων`]); }
+    const cust = ensureCustomer(r.customer, log);
+    const inv = invs[r.invoice_no] || (invs[r.invoice_no] = { no: String(r.invoice_no).trim(), date, customerId: cust.id, lines: [], source });
+    inv.lines.push({ code, qty, unit: normUnit(r.unit) });
+  }
+  if (bad) log.push(['warn', `${bad} γραμμές αγνοήθηκαν (ελλιπή στοιχεία)`]);
+  return Object.values(invs);
+}
+function parseFileText(name, text) {
+  const log = [];
+  let invoices = [];
+  if (/\.json$/i.test(name) || text.trim().startsWith('[') || text.trim().startsWith('{')) {
+    let data = JSON.parse(text); if (!Array.isArray(data)) data = data.invoices || data.rows || [data];
+    if (data.length && data[0].lines) {
+      // already invoice-shaped
+      const recs = []; data.forEach(inv => inv.lines.forEach(l => recs.push({ invoice_no: inv.no || inv.invoice_no, date: inv.date, customer: inv.customer || inv.customerId, code: l.code, qty: l.qty, unit: l.unit })));
+      invoices = importRows(recs, 'import', log);
+    } else invoices = importRows(data, 'import', log);
+  } else if (/\.(pdf|xml)$/i.test(name)) {
+    log.push(['err', `${name}: η ανάγνωση PDF/XML γίνεται από την υπηρεσία OCR/myDATA της παραγωγικής έκδοσης. Στο demo χρησιμοποιήστε CSV ή επικόλληση κειμένου.`]);
+  } else {
+    const rows = parseCSV(text);
+    if (!rows.length) { log.push(['err', 'Κενό αρχείο']); return { invoices, log }; }
+    const head = rows[0].map(h => norm(h).replace(/[^a-z_α-ω]/g, ''));
+    const col = names => head.findIndex(h => names.includes(h));
+    const ci = { no: col(['invoice_no', 'invoice', 'αρτιμολογιου', 'τιμολογιο', 'no', 'αριθμος']), date: col(['date', 'ημερομηνια', 'ημνια']), cust: col(['customer', 'πελατης', 'afm', 'αφμ', 'customer_afm']), code: col(['code', 'κωδικος', 'sku', 'product_code']), qty: col(['qty', 'quantity', 'ποσοτητα', 'ποσ']), unit: col(['unit', 'μοναδα', 'μμ', 'um']) };
+    if (ci.no < 0 || ci.code < 0 || ci.qty < 0) { log.push(['err', 'Δεν βρέθηκαν οι στήλες invoice_no / code / qty στην επικεφαλίδα']); return { invoices, log }; }
+    const recs = rows.slice(1).map(r => ({ invoice_no: r[ci.no], date: ci.date >= 0 ? r[ci.date] : '', customer: ci.cust >= 0 ? r[ci.cust] : '', code: r[ci.code], qty: r[ci.qty], unit: ci.unit >= 0 ? r[ci.unit] : 'ΤΕΜ' }));
+    invoices = importRows(recs, 'import', log);
+  }
+  log.unshift(['ok', `${name}: αναγνωρίστηκαν ${invoices.length} τιμολόγια, ${invoices.reduce((s, i) => s + i.lines.length, 0)} γραμμές`]);
+  return { invoices, log };
+}
+
+/* OCR-like free-text invoice parser */
+function parseInvoiceText(text) {
+  const log = []; const lines = text.split(/\r?\n/);
+  const get = re => { for (const l of lines) { const m = l.match(re); if (m) return m[1].trim(); } return ''; };
+  const no = get(/(?:ΑΡ(?:ΙΘΜΟΣ|\.)?\s*(?:ΤΙΜ(?:ΟΛΟΓΙΟΥ|\.)?|ΠΑΡΑΣΤΑΤΙΚΟΥ)|INVOICE\s*(?:NO|#)|ΤΔΑ|ΤΙΜΟΛΟΓΙΟ)\s*[:#.]?\s*([A-ZΑ-Ω]{0,4}[-\s]?\d{3,})/i) || `OCR-${Date.now().toString().slice(-6)}`;
+  const dateRaw = get(/(?:ΗΜ(?:ΕΡΟΜΗΝΙΑ|\/ΝΙΑ|\.)?|DATE)\s*[:.]?\s*(\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}|\d{4}-\d{2}-\d{2})/i);
+  const date = normDate(dateRaw) || iso(new Date());
+  const afm = get(/ΑΦΜ\s*(?:ΠΕΛΑΤΗ)?\s*[:.]?\s*(\d{9})/i);
+  const custName = get(/(?:ΠΕΛΑΤΗΣ|ΕΠΩΝΥΜΙΑ|ΠΡΟΣ|ΑΓΟΡΑΣΤΗΣ|CUSTOMER)\s*[:.]?\s*(.+)/i);
+  let cust = (afm && state.customers.find(c => c.afm === afm)) || resolveCustomer(custName);
+  if (!cust) { cust = ensureCustomer(custName || (afm ? 'ΑΦΜ ' + afm : 'Άγνωστος πελάτης'), log); if (afm) cust.afm = afm; }
+  log.push(['ok', `Τιμολόγιο ${no} · ${fmtDate(date)} · πελάτης: ${cust.name} (${MARKET_LABEL[cust.market]})`]);
+  const pm = productMap(); const items = [];
+  const lineRe = /(?:^|\s)(\d{4,6})\s+(.+?)\s+(\d+(?:[.,]\d+)?)\s*(ΚΙΒ(?:\.|ΩΤΙΑ)?|ΤΕΜ(?:\.|ΑΧΙΑ)?|KIB|TEM|CS|PCS)?(?:\s|$)/i;
+  for (const l of lines) {
+    const m = l.match(lineRe); if (!m) continue;
+    const code = m[1], qty = parseNum(m[3]), unit = normUnit(m[4] || 'ΤΕΜ');
+    if (!pm[code]) { log.push(['err', `Άγνωστος κωδικός ${code}: «${m[2].trim()}»`]); }
+    else log.push(['ok', `  ${code} ${pm[code].name} — ${qty} ${unit} → ${fmtKg(lineKg({ code, qty, unit }, pm).kg)} kg`]);
+    items.push({ code, qty, unit });
+  }
+  if (!items.length) log.push(['err', 'Δεν εντοπίστηκαν γραμμές προϊόντων (μορφή: ΚΩΔΙΚΟΣ ΠΕΡΙΓΡΑΦΗ ΠΟΣΟΤΗΤΑ ΜΟΝΑΔΑ)']);
+  return { invoices: items.length ? [{ no, date, customerId: cust.id, lines: items, source: 'ocr' }] : [], log };
+}
+
+const SAMPLE_TEXT = `Ε.Ι. ΠΑΠΑΔΟΠΟΥΛΟΣ Α.Ε. — ΔΙΑΝΟΜΕΑΣ: ARISTA LOGISTICS, ΛΑΜΙΑ
+ΤΙΜΟΛΟΓΙΟ - ΔΕΛΤΙΟ ΑΠΟΣΤΟΛΗΣ
+ΑΡ. ΤΙΜΟΛΟΓΙΟΥ: ΤΔΑ-90417
+ΗΜΕΡΟΜΗΝΙΑ: 12/09/2026
+ΠΕΛΑΤΗΣ: ΑΒ ΒΑΣΙΛΟΠΟΥΛΟΣ – Λαμία
+ΑΦΜ: 094025817   ΔΟΥ: ΦΑΕ ΑΘΗΝΩΝ
+ΔΙΕΥΘΥΝΣΗ ΠΑΡΑΔΟΣΗΣ: ΛΕΩΦ. ΑΘΗΝΩΝ 45, ΛΑΜΙΑ
+
+ΚΩΔΙΚΟΣ  ΠΕΡΙΓΡΑΦΗ                         ΠΟΣΟΤΗΤΑ  Μ.Μ.
+1001     ΠΤΙ-ΜΠΕΡ ΚΛΑΣΙΚΟ 225G                  12  ΚΙΒ
+1004     CAPRICE ΠΡΑΛΙΝΑ 250G                    8  ΚΙΒ
+1006     DIGESTIVE ΚΛΑΣΙΚΟ 250G                  6  ΚΙΒ
+2001     ΦΡΥΓΑΝΙΕΣ ΣΙΤΟΥ 250G                    5  ΚΙΒ
+3001     ΨΩΜΙ ΤΟΣΤ ΣΙΤΟΥ 700G                   40  ΤΕΜ
+3002     ΨΩΜΙ ΤΟΣΤ ΟΛΙΚΗΣ 700G                  24  ΤΕΜ
+
+ΣΥΝΟΛΟ ΓΡΑΜΜΩΝ: 6
+ΠΑΡΑΤΗΡΗΣΕΙΣ: Παράδοση πρωί.`;
+
+const SAMPLE_CSV = `invoice_no,date,customer,code,qty,unit
+ΤΔΑ-90501,15/09/2026,ΣΚΛΑΒΕΝΙΤΗΣ ΑΕΕ – Λαμία (Κέντρο),1001,10,ΚΙΒ
+ΤΔΑ-90501,15/09/2026,ΣΚΛΑΒΕΝΙΤΗΣ ΑΕΕ – Λαμία (Κέντρο),1003,6,ΚΙΒ
+ΤΔΑ-90501,15/09/2026,ΣΚΛΑΒΕΝΙΤΗΣ ΑΕΕ – Λαμία (Κέντρο),3001,60,ΤΕΜ
+ΤΔΑ-90502,15/09/2026,MINI MARKET ΠΑΠΑΔΑΚΗΣ Ν.,1001,12,ΤΕΜ
+ΤΔΑ-90502,15/09/2026,MINI MARKET ΠΑΠΑΔΑΚΗΣ Ν.,1009,10,ΤΕΜ
+ΤΔΑ-90502,15/09/2026,MINI MARKET ΠΑΠΑΔΑΚΗΣ Ν.,2001,1,ΚΙΒ
+ΤΔΑ-90503,16/09/2026,ΨΙΛΙΚΑ ΠΑΠΑΔΗΜΗΤΡΙΟΥ – Λαμία,1005,24,ΤΕΜ
+ΤΔΑ-90503,16/09/2026,ΨΙΛΙΚΑ ΠΑΠΑΔΗΜΗΤΡΙΟΥ – Λαμία,3004,12,ΤΕΜ
+ΤΔΑ-90504,16/09/2026,LIDL HELLAS – Λαμία,2002,9,ΚΙΒ
+ΤΔΑ-90504,16/09/2026,LIDL HELLAS – Λαμία,1008,7,ΚΙΒ
+`;
+
+/* ---------- Charts (inline SVG, no dependencies) ---------- */
+const tip = $('#tooltip');
+function showTip(e, html) { tip.innerHTML = html; tip.style.display = 'block'; moveTip(e); }
+function moveTip(e) { const w = tip.offsetWidth, h = tip.offsetHeight; let x = e.clientX + 14, y = e.clientY + 14; if (x + w > innerWidth - 8) x = e.clientX - w - 14; if (y + h > innerHeight - 8) y = e.clientY - h - 14; tip.style.left = x + 'px'; tip.style.top = y + 'px'; }
+function hideTip() { tip.style.display = 'none'; }
+function bindTips(svg) {
+  $$('[data-tip]', svg).forEach(el => {
+    el.addEventListener('mouseenter', e => showTip(e, el.getAttribute('data-tip')));
+    el.addEventListener('mousemove', moveTip);
+    el.addEventListener('mouseleave', hideTip);
+  });
+}
+function niceMax(v) { if (v <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); const n = v / p; const m = n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10; return m * p; }
+function tipRows(rows) { return rows.map(([k, v]) => `<div class="row"><span>${k}</span><span>${v}</span></div>`).join(''); }
+const LEGEND = `<div class="legend"><span><i style="background:var(--series-big)"></i>Μεγάλα Supermarket</span><span><i style="background:var(--series-small)"></i>Μικρή αγορά</span></div>`;
+
+/* Stacked columns over time: data = [{key, kgBig, kgSmall}] */
+function stackedColumns(el, data) {
+  if (!data.length) { el.innerHTML = '<div class="empty muted">Δεν υπάρχουν δεδομένα για την περίοδο</div>'; return; }
+  const W = 640, H = 260, L = 52, R = 12, T = 16, B = 36;
+  const pw = W - L - R, ph = H - T - B;
+  const max = niceMax(Math.max(...data.map(d => d.kgBig + d.kgSmall)));
+  const n = data.length, slot = pw / n, bw = Math.min(24, slot * 0.6);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Κιλά ανά περίοδο και αγορά">`;
+  s += '<g class="grid">';
+  for (let i = 0; i <= 4; i++) { const y = T + ph - ph * i / 4; s += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}"/><text class="axis" x="${L - 6}" y="${y + 4}" text-anchor="end">${fmtInt(max * i / 4)}</text>`; }
+  s += '</g>';
+  const step = Math.ceil(n / 12);
+  data.forEach((d, i) => {
+    const x = L + slot * i + (slot - bw) / 2;
+    const hB = ph * d.kgBig / max, hS = ph * d.kgSmall / max;
+    const yB = T + ph - hB, yS = yB - hS - (hS > 0 && hB > 0 ? 2 : 0);
+    const t = `<b>${periodLabel(d.key)}</b>` + tipRows([['Μεγάλα SM', fmtKg(d.kgBig) + ' kg'], ['Μικρή αγορά', fmtKg(d.kgSmall) + ' kg'], ['Σύνολο', fmtKg(d.kgBig + d.kgSmall) + ' kg']]);
+    if (hB > 0) s += `<rect x="${x}" y="${yB}" width="${bw}" height="${hB}" fill="var(--series-big)"${hS <= 0 ? ' rx="4"' : ''}/>`;
+    if (hS > 0) s += `<path d="M${x},${yS + hS} v${-(hS - Math.min(4, hS))} q0,-${Math.min(4, hS)} ${Math.min(4, hS)},-${Math.min(4, hS)} h${bw - 2 * Math.min(4, hS)} q${Math.min(4, hS)},0 ${Math.min(4, hS)},${Math.min(4, hS)} v${hS - Math.min(4, hS)} z" fill="var(--series-small)"/>`;
+    s += `<rect class="hit" x="${L + slot * i}" y="${T}" width="${slot}" height="${ph}" data-tip="${esc(t)}"/>`;
+    if (i % step === 0 || n <= 12) s += `<text class="axis" x="${x + bw / 2}" y="${H - B + 16}" text-anchor="middle">${periodLabel(d.key)}</text>`;
+  });
+  // label the max column
+  const mi = data.reduce((b, d, i) => (d.kgBig + d.kgSmall) > (data[b].kgBig + data[b].kgSmall) ? i : b, 0);
+  const md = data[mi]; const mx = L + slot * mi + slot / 2, my = T + ph - ph * (md.kgBig + md.kgSmall) / max - 6;
+  s += `<text class="lbl" x="${mx}" y="${my}" text-anchor="middle">${fmtInt(md.kgBig + md.kgSmall)}</text>`;
+  s += '</svg>';
+  el.innerHTML = LEGEND + s; bindTips(el);
+}
+
+/* Horizontal stacked bars: rows = [{code, name, kgBig, kgSmall, kgTotal}] */
+function stackedBars(el, rows) {
+  if (!rows.length) { el.innerHTML = '<div class="empty muted">Δεν υπάρχουν δεδομένα</div>'; return; }
+  const W = 680, L = 250, R = 72, rowH = 30, T = 8;
+  const H = T + rows.length * rowH + 8, pw = W - L - R;
+  const max = Math.max(...rows.map(r => r.kgTotal));
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Κιλά ανά κωδικό">`;
+  rows.forEach((r, i) => {
+    const y = T + i * rowH + (rowH - 20) / 2;
+    const wB = pw * r.kgBig / max, wS = pw * r.kgSmall / max;
+    const gap = wB > 0 && wS > 0 ? 2 : 0;
+    const label = r.name.length > 30 ? r.name.slice(0, 29) + "…" : r.name;
+    const t = `<b>${esc(r.code)} · ${esc(r.name)}</b>` + tipRows([['Μεγάλα SM', fmtKg(r.kgBig) + ' kg'], ['Μικρή αγορά', fmtKg(r.kgSmall) + ' kg'], ['Σύνολο', fmtKg(r.kgTotal) + ' kg']]);
+    s += `<text x="${L - 8}" y="${y + 14}" text-anchor="end"><tspan class="lbl">${esc(r.code)}</tspan> <tspan>${esc(label)}</tspan></text>`;
+    if (wB > 0) s += `<rect x="${L}" y="${y}" width="${wB}" height="20" fill="var(--series-big)"${wS <= 0 ? ' rx="4"' : ''}/>`;
+    if (wS > 0) { const x = L + wB + gap, rr = Math.min(4, wS); s += `<path d="M${x},${y} h${wS - rr} q${rr},0 ${rr},${rr} v${20 - 2 * rr} q0,${rr} -${rr},${rr} h-${wS - rr} z" fill="var(--series-small)"/>`; }
+    s += `<text x="${L + wB + gap + wS + 6}" y="${y + 14}" class="axis">${fmtInt(r.kgTotal)} kg</text>`;
+    s += `<rect class="hit" x="0" y="${T + i * rowH}" width="${W}" height="${rowH}" data-tip="${esc(t)}"/>`;
+  });
+  s += '</svg>';
+  el.innerHTML = LEGEND + s; bindTips(el);
+}
+
+/* ---------- Rendering ---------- */
+function showView(name) {
+  $$('nav.tabs button').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  $$('section.view').forEach(s => s.classList.toggle('active', s.id === 'view-' + name));
+  window.scrollTo({ top: 0 });
+  if (name === 'report') renderReport();
+}
+function renderCounts() {
+  $('#nInv').textContent = fmtInt(state.invoices.length);
+  $('#nCus').textContent = fmtInt(state.customers.length);
+  $('#nProd').textContent = fmtInt(state.products.length);
+  const r = dataRange();
+  const pill = $('#pillData');
+  if (r) { pill.textContent = `${fmtInt(state.invoices.length)} τιμολόγια · ${fmtDate(r.min)} – ${fmtDate(r.max)}`; pill.classList.toggle('demo', state.invoices.every(i => i.source === 'demo')); }
+  else { pill.textContent = 'Χωρίς δεδομένα'; pill.classList.remove('demo'); }
+}
+function tile(label, value, unit, cls = '', delta = '') {
+  return `<div class="tile ${cls}"><span class="swatch"></span><div class="label">${label}</div><div class="value">${value}${unit ? `<small>${unit}</small>` : ''}</div>${delta ? `<div class="delta">${delta}</div>` : ''}</div>`;
+}
+
+function renderDashboard() {
+  const has = state.invoices.length > 0;
+  $('#dashEmpty').style.display = has ? 'none' : '';
+  $('#dashContent').style.display = has ? '' : 'none';
+  if (!has) return;
+  const r = dataRange(); let from = '';
+  if (state.dashDays) { const d = parseISO(r.max); d.setDate(d.getDate() - state.dashDays + 1); from = iso(d); if (from < r.min) from = r.min; }
+  const a = aggregate({ from, to: r.max, market: 'ALL' });
+  const t = a.total;
+  $('#dashTiles').innerHTML =
+    tile('Σύνολο κιλών', fmtInt(t.kg), 'kg', 'hero', `${fmtInt(a.invoiceCount)} τιμολόγια · ${from ? fmtDate(from) : fmtDate(r.min)} – ${fmtDate(r.max)}`) +
+    tile('Μεγάλα Supermarket', fmtInt(t.kgBig), 'kg', 'big', pct(t.kgBig, t.kg) + ' των κιλών') +
+    tile('Μικρή αγορά', fmtInt(t.kgSmall), 'kg', 'small', pct(t.kgSmall, t.kg) + ' των κιλών') +
+    tile('Κωδικοί με πωλήσεις', fmtInt(a.rows.length), '', '', `${fmtInt(a.customers.length)} ενεργοί πελάτες`);
+  stackedColumns($('#chartMonthly'), a.periods);
+  stackedBars($('#chartTop'), a.rows.sort((x, y) => y.kgTotal - x.kgTotal).slice(0, 10));
+  const share = (label, kg, cls, count) => `<div class="mt"><div class="row"><span><span class="dot ${cls}"></span><b>${label}</b> <span class="muted">· ${count} πελάτες</span></span><span class="right"><b>${fmtInt(kg)} kg</b> <span class="muted">(${pct(kg, t.kg)})</span></span></div><div style="height:10px;background:var(--surface-2);border-radius:5px;overflow:hidden"><div style="height:100%;width:${t.kg ? 100 * kg / t.kg : 0}%;background:var(--series-${cls});border-radius:0 5px 5px 0"></div></div></div>`;
+  $('#shareBars').innerHTML = share('Μεγάλα Supermarket', t.kgBig, 'big', a.customers.filter(c => c.market === 'BIG').length) + share('Μικρή αγορά', t.kgSmall, 'small', a.customers.filter(c => c.market === 'SMALL').length)
+    + `<p class="muted mt">Μέσο τιμολόγιο: Μεγάλα SM ${fmtKg(avgInv(a, 'BIG'))} kg · Μικρή αγορά ${fmtKg(avgInv(a, 'SMALL'))} kg</p>`;
+  const top = a.customers.slice(0, 8);
+  $('#tblTopCustomers').innerHTML = `<thead><tr><th>Πελάτης</th><th>Αγορά</th><th class="num">Τιμολ.</th><th class="num">Κιλά</th></tr></thead><tbody>` +
+    top.map(c => `<tr><td>${esc(c.name)}</td><td><span class="badge ${c.market.toLowerCase()}">${MARKET_LABEL[c.market]}</span></td><td class="num">${fmtInt(c.invoices)}</td><td class="num">${fmtInt(c.kg)}</td></tr>`).join('') + '</tbody>';
+}
+function avgInv(a, m) { const cs = a.customers.filter(c => c.market === m); const kg = cs.reduce((s, c) => s + c.kg, 0), n = cs.reduce((s, c) => s + c.invoices, 0); return n ? kg / n : 0; }
+
+/* Report */
+function reportFilter() {
+  const from = $('#fFrom').value, to = $('#fTo').value;
+  const days = from && to ? (parseISO(to) - parseISO(from)) / 86400000 : 999;
+  return { from, to, market: $('#fMarket').value, customerId: $('#fCustomer').value, category: $('#fCategory').value, search: $('#fSearch').value.trim(), granularity: days <= 95 ? 'week' : 'month' };
+}
+let lastReport = null;
+function renderReport() {
+  const f = reportFilter();
+  const a = aggregate(f); lastReport = { a, f };
+  const t = a.total;
+  const mk = f.market;
+  $('#reportTiles').innerHTML =
+    tile('Σύνολο κιλών', fmtInt(t.kg), 'kg', 'hero', `${fmtInt(a.invoiceCount)} τιμολόγια · ${fmtInt(a.rows.length)} κωδικοί`) +
+    (mk !== 'SMALL' ? tile('Μεγάλα Supermarket', fmtInt(t.kgBig), 'kg', 'big', pct(t.kgBig, t.kg)) : '') +
+    (mk !== 'BIG' ? tile('Μικρή αγορά', fmtInt(t.kgSmall), 'kg', 'small', pct(t.kgSmall, t.kg)) : '') +
+    tile('Τεμάχια', fmtInt(a.rows.reduce((s, r) => s + r.pieces, 0)), '', '', `${fmtInt(a.rows.reduce((s, r) => s + r.cases, 0))} κιβώτια`);
+  $('#reportMeta').textContent = [f.from && f.to ? `${fmtDate(f.from)} – ${fmtDate(f.to)}` : 'όλη η περίοδος', mk === 'ALL' ? 'όλες οι αγορές' : MARKET_LABEL[mk], f.customerId ? customerMap()[f.customerId].name : '', f.category, t.unknown ? `${t.unknown} γραμμές με άγνωστο κωδικό` : ''].filter(Boolean).join(' · ');
+  const { key, dir } = state.sort;
+  const rows = a.rows.slice().sort((x, y) => (x[key] > y[key] ? 1 : x[key] < y[key] ? -1 : 0) * dir);
+  const cols = [['code', 'Κωδικός'], ['name', 'Προϊόν'], ['cat', 'Κατηγορία'], ['invoices', 'Τιμολ.', 1], ['pieces', 'Τεμάχια', 1], ['cases', 'Κιβώτια', 1]];
+  if (mk !== 'SMALL') cols.push(['kgBig', 'Κιλά Μεγάλα SM', 1]);
+  if (mk !== 'BIG') cols.push(['kgSmall', 'Κιλά Μικρή αγορά', 1]);
+  cols.push(['kgTotal', 'Σύνολο κιλά', 1], ['share', '% κιλών', 1]);
+  const th = cols.map(([k, l, n]) => `<th class="sortable ${n ? 'num' : ''}" data-sort="${k}">${l}${key === k ? `<span class="arrow">${dir < 0 ? '▼' : '▲'}</span>` : ''}</th>`).join('');
+  const maxKg = Math.max(1, ...rows.map(r => r.kgTotal));
+  const body = rows.map(r => `<tr class="clickable" data-code="${esc(r.code)}"><td><code>${esc(r.code)}</code></td><td>${esc(r.name)}</td><td class="muted">${esc(r.cat)}</td><td class="num">${fmtInt(r.invoices)}</td><td class="num">${fmtInt(r.pieces)}</td><td class="num">${r.cases.toLocaleString('el-GR', { maximumFractionDigits: 1 })}</td>` +
+    (mk !== 'SMALL' ? `<td class="num">${fmtKg(r.kgBig)}</td>` : '') + (mk !== 'BIG' ? `<td class="num">${fmtKg(r.kgSmall)}</td>` : '') +
+    `<td class="num"><b>${fmtKg(r.kgTotal)}</b></td><td class="num"><span class="bar-inline" style="width:${Math.max(2, 60 * r.kgTotal / maxKg)}px"></span> ${pct(r.kgTotal, t.kg)}</td></tr>`).join('');
+  const totalRow = rows.length ? `<tr class="total"><td colspan="3">Σύνολο</td><td class="num">${fmtInt(a.invoiceCount)}</td><td class="num">${fmtInt(rows.reduce((s, r) => s + r.pieces, 0))}</td><td class="num">${rows.reduce((s, r) => s + r.cases, 0).toLocaleString('el-GR', { maximumFractionDigits: 1 })}</td>` +
+    (mk !== 'SMALL' ? `<td class="num">${fmtKg(t.kgBig)}</td>` : '') + (mk !== 'BIG' ? `<td class="num">${fmtKg(t.kgSmall)}</td>` : '') + `<td class="num">${fmtKg(t.kg)} kg</td><td class="num">100%</td></tr>` : '';
+  $('#tblReport').innerHTML = `<thead><tr>${th}</tr></thead><tbody>${body || `<tr><td colspan="${cols.length}" class="empty">Δεν βρέθηκαν πωλήσεις για τα κριτήρια. ${state.invoices.length ? '' : 'Φορτώστε πρώτα demo δεδομένα.'}</td></tr>`}${totalRow}</tbody>`;
+  rows.forEach(r => { r.share = r.kgTotal / (t.kg || 1); });
+  stackedBars($('#chartReportBars'), a.rows.slice().sort((x, y) => y.kgTotal - x.kgTotal).slice(0, 15));
+  stackedColumns($('#chartReportTrend'), a.periods);
+}
+function fillReportSelects() {
+  const cs = $('#fCustomer'); const cur = cs.value;
+  cs.innerHTML = '<option value="">Όλοι οι πελάτες</option>' + state.customers.slice().sort((a, b) => a.name.localeCompare(b.name, 'el')).map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  cs.value = cur;
+  const cat = $('#fCategory'); const cc = cat.value;
+  cat.innerHTML = '<option value="">Όλες</option>' + [...new Set(state.products.map(p => p.cat))].map(c => `<option>${esc(c)}</option>`).join('');
+  cat.value = cc;
+}
+function setQuick(kind) {
+  const r = dataRange(); const today = r ? parseISO(r.max) : new Date();
+  let from, to = today;
+  if (kind === 'thisMonth') from = new Date(today.getFullYear(), today.getMonth(), 1);
+  else if (kind === 'lastMonth') { from = new Date(today.getFullYear(), today.getMonth() - 1, 1); to = new Date(today.getFullYear(), today.getMonth(), 0); }
+  else if (kind === 'q') from = new Date(today.getFullYear(), Math.floor(today.getMonth() / 3) * 3, 1);
+  else if (kind === 'ytd') from = new Date(today.getFullYear(), 0, 1);
+  else { $('#fFrom').value = r ? r.min : ''; $('#fTo').value = r ? r.max : ''; renderReport(); return; }
+  $('#fFrom').value = iso(from); $('#fTo').value = iso(to); renderReport();
+}
+function exportCsv() {
+  if (!lastReport) renderReport();
+  const { a, f } = lastReport;
+  const head = ['Κωδικός', 'Προϊόν', 'Κατηγορία', 'Τιμολόγια', 'Τεμάχια', 'Κιβώτια', 'Κιλά Μεγάλα SM', 'Κιλά Μικρή αγορά', 'Σύνολο κιλά'];
+  const lines = [[`Arista Invoice Analytics — Κιλά ανά κωδικό`], [`Περίοδος: ${f.from ? fmtDate(f.from) : '—'} έως ${f.to ? fmtDate(f.to) : '—'}`, `Αγορά: ${f.market === 'ALL' ? 'Όλες' : MARKET_LABEL[f.market]}`], [], head];
+  const num = n => n.toFixed(2).replace('.', ',');
+  a.rows.sort((x, y) => y.kgTotal - x.kgTotal).forEach(r => lines.push([r.code, r.name, r.cat, r.invoices, r.pieces, num(r.cases), num(r.kgBig), num(r.kgSmall), num(r.kgTotal)]));
+  lines.push(['ΣΥΝΟΛΟ', '', '', a.invoiceCount, '', '', num(a.total.kgBig), num(a.total.kgSmall), num(a.total.kg)]);
+  const csv = '﻿' + lines.map(l => l.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\r\n');
+  download(`arista-kila-ana-kodiko-${f.from || 'all'}_${f.to || 'all'}.csv`, csv, 'text/csv;charset=utf-8');
+  toast('Το αρχείο CSV κατέβηκε (ανοίγει απευθείας στο Excel)');
+}
+function download(name, content, type) {
+  const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+/* Invoices list */
+function renderInvoices() {
+  const pm = productMap(), cm = customerMap();
+  const f = { search: $('#invSearch').value, market: $('#invMarket').value, source: $('#invSource').value };
+  const list = filterInvoices(f).slice().sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : a.no < b.no ? 1 : -1);
+  const shown = list.slice(0, state.invShown);
+  $('#tblInvoices').innerHTML = `<thead><tr><th>Αρ. τιμολογίου</th><th>Ημερομηνία</th><th>Πελάτης</th><th>Αγορά</th><th>Πηγή</th><th class="num">Γραμμές</th><th class="num">Κιλά</th></tr></thead><tbody>` +
+    (shown.map(inv => { const c = cm[inv.customerId]; const m = c ? c.market : 'SMALL'; return `<tr class="clickable" data-inv="${esc(inv.no)}"><td><code>${esc(inv.no)}</code></td><td>${fmtDate(inv.date)}</td><td>${esc(c ? c.name : inv.customerId)}</td><td><span class="badge ${m.toLowerCase()}">${MARKET_LABEL[m]}</span></td><td><span class="badge src">${{ demo: 'Demo', import: 'Αρχείο', ocr: 'Κείμενο/OCR' }[inv.source] || inv.source}</span></td><td class="num">${inv.lines.length}</td><td class="num"><b>${fmtKg(invoiceKg(inv, pm))}</b></td></tr>`; }).join('') || '<tr><td colspan="7" class="empty">Δεν υπάρχουν τιμολόγια</td></tr>') + '</tbody>';
+  $('#invMeta').textContent = `Εμφανίζονται ${fmtInt(shown.length)} από ${fmtInt(list.length)} τιμολόγια · σύνολο ${fmtKg(list.reduce((s, i) => s + invoiceKg(i, pm), 0))} kg`;
+  $('#invMore').style.display = list.length > shown.length ? '' : 'none';
+}
+function openInvoice(no) {
+  const inv = state.invoices.find(i => i.no === no); if (!inv) return;
+  const pm = productMap(), c = customerMap()[inv.customerId]; const m = c ? c.market : 'SMALL';
+  let tot = 0, pcs = 0;
+  const rows = inv.lines.map(l => { const r = lineKg(l, pm); tot += r.kg; pcs += r.pieces; const p = pm[l.code]; return `<tr><td><code>${esc(l.code)}</code></td><td>${p ? esc(p.name) : '<span class="badge small">Άγνωστος κωδικός</span>'}</td><td class="num">${l.qty}</td><td>${l.unit}</td><td class="num">${p ? p.perCase : '—'}</td><td class="num">${fmtInt(r.pieces)}</td><td class="num">${p ? p.netKg.toFixed(3) : '—'}</td><td class="num"><b>${fmtKg(r.kg)}</b></td></tr>`; }).join('');
+  $('#modalTitle').textContent = `Τιμολόγιο ${inv.no}`;
+  $('#modalBody').innerHTML = `<div class="invoice-paper">
+    <div class="hdr"><div><div class="co">Ε.Ι. ΠΑΠΑΔΟΠΟΥΛΟΣ Α.Ε.</div><div class="muted">Διανομή: ARISTA Logistics, Λαμία</div></div>
+      <dl class="kv"><dt>Αρ. τιμολογίου</dt><dd><b>${esc(inv.no)}</b></dd><dt>Ημερομηνία</dt><dd>${fmtDate(inv.date)}</dd><dt>Πηγή</dt><dd>${{ demo: 'Demo δεδομένα', import: 'Εισαγωγή αρχείου', ocr: 'Ανάγνωση κειμένου' }[inv.source] || inv.source}</dd></dl></div>
+    <dl class="kv"><dt>Πελάτης</dt><dd><b>${esc(c ? c.name : inv.customerId)}</b></dd><dt>ΑΦΜ</dt><dd>${esc(c && c.afm || '—')}</dd><dt>Πόλη</dt><dd>${esc(c && c.city || '—')}</dd><dt>Αγορά</dt><dd><span class="badge ${m.toLowerCase()}">${MARKET_LABEL[m]}</span></dd></dl>
+    <div class="table-wrap mt"><table><thead><tr><th>Κωδ.</th><th>Προϊόν</th><th class="num">Ποσ.</th><th>Μ.Μ.</th><th class="num">Τεμ./κιβ.</th><th class="num">Τεμάχια</th><th class="num">kg/τεμ.</th><th class="num">Κιλά</th></tr></thead>
+    <tbody>${rows}<tr class="total"><td colspan="5">Σύνολο τιμολογίου</td><td class="num">${fmtInt(pcs)}</td><td></td><td class="num">${fmtKg(tot)} kg</td></tr></tbody></table></div></div>`;
+  $('#modalBg').classList.add('open');
+}
+function openCode(code) {
+  const p = productMap()[code]; if (!p) return;
+  const f = lastReport ? lastReport.f : { market: 'ALL' };
+  const cm = customerMap(); const per = {};
+  filterInvoices(f).forEach(inv => inv.lines.filter(l => l.code === code).forEach(l => { const c = cm[inv.customerId]; const k = inv.customerId; const r = per[k] || (per[k] = { name: c ? c.name : k, market: c ? c.market : 'SMALL', kg: 0, n: 0 }); r.kg += lineKg(l, productMap()).kg; r.n++; }));
+  const list = Object.values(per).sort((a, b) => b.kg - a.kg); const tot = list.reduce((s, r) => s + r.kg, 0);
+  $('#modalTitle').textContent = `${code} · ${p.name}`;
+  $('#modalBody').innerHTML = `<p class="muted">Ανάλυση ανά πελάτη για τα τρέχοντα φίλτρα της αναφοράς. Καθαρό βάρος ${p.netKg.toFixed(3)} kg/τεμ., ${p.perCase} τεμ./κιβώτιο.</p>
+    <div class="table-wrap"><table><thead><tr><th>Πελάτης</th><th>Αγορά</th><th class="num">Γραμμές</th><th class="num">Κιλά</th><th class="num">%</th></tr></thead><tbody>` +
+    list.map(r => `<tr><td>${esc(r.name)}</td><td><span class="badge ${r.market.toLowerCase()}">${MARKET_LABEL[r.market]}</span></td><td class="num">${r.n}</td><td class="num"><b>${fmtKg(r.kg)}</b></td><td class="num">${pct(r.kg, tot)}</td></tr>`).join('') +
+    `<tr class="total"><td colspan="3">Σύνολο</td><td class="num">${fmtKg(tot)} kg</td><td class="num">100%</td></tr></tbody></table></div>`;
+  $('#modalBg').classList.add('open');
+}
+
+/* Customers */
+function renderCustomers() {
+  const q = norm($('#cusSearch').value);
+  const kgBy = {}; const pm = productMap();
+  state.invoices.forEach(inv => { kgBy[inv.customerId] = (kgBy[inv.customerId] || 0) + invoiceKg(inv, pm); });
+  const list = state.customers.filter(c => !q || norm(c.name).includes(q) || (c.afm || '').includes(q) || norm(c.city).includes(q)).sort((a, b) => (kgBy[b.id] || 0) - (kgBy[a.id] || 0));
+  $('#tblCustomers').innerHTML = `<thead><tr><th>Κωδ.</th><th>Επωνυμία</th><th>ΑΦΜ</th><th>Πόλη</th><th>Αγορά</th><th class="num">Κιλά (σύνολο)</th><th></th></tr></thead><tbody>` +
+    list.map(c => `<tr><td><code>${esc(c.id)}</code></td><td>${esc(c.name)}${c._new ? ' <span class="badge src">νέος</span>' : ''}</td><td>${esc(c.afm || '—')}</td><td>${esc(c.city || '—')}</td>
+      <td><select data-cus="${esc(c.id)}" class="mkSel" style="padding:4px 6px;border-radius:6px;border:1px solid var(--border);background:var(--surface-0)"><option value="BIG"${c.market === 'BIG' ? ' selected' : ''}>Μεγάλα Supermarket</option><option value="SMALL"${c.market === 'SMALL' ? ' selected' : ''}>Μικρή αγορά</option></select></td>
+      <td class="num">${fmtInt(kgBy[c.id] || 0)}</td><td class="no-print"><button class="btn sm danger" data-del="${esc(c.id)}" title="Διαγραφή">✕</button></td></tr>`).join('') + '</tbody>';
+  const big = state.customers.filter(c => c.market === 'BIG'), small = state.customers.filter(c => c.market === 'SMALL');
+  const kg = m => state.customers.filter(c => c.market === m).reduce((s, c) => s + (kgBy[c.id] || 0), 0);
+  $('#customerSummary').innerHTML = `<div class="tiles" style="margin:0"><div class="tile big"><span class="swatch"></span><div class="label">Μεγάλα Supermarket</div><div class="value">${big.length}<small>πελάτες</small></div><div class="delta">${fmtInt(kg('BIG'))} kg συνολικά</div></div>
+    <div class="tile small"><span class="swatch"></span><div class="label">Μικρή αγορά</div><div class="value">${small.length}<small>πελάτες</small></div><div class="delta">${fmtInt(kg('SMALL'))} kg συνολικά</div></div></div>
+    <p class="muted mt">Η αλλαγή αγοράς ενός πελάτη ενημερώνει αυτόματα όλες τις αναφορές (και για παλαιότερα τιμολόγια).</p>`;
+  $('#bigKeywords').value = state.bigKeywords;
+}
+
+/* Products */
+function renderProducts() {
+  const sold = {}; state.invoices.forEach(inv => inv.lines.forEach(l => { sold[l.code] = (sold[l.code] || 0) + lineKg(l, productMap()).kg; }));
+  const list = state.products.slice().sort((a, b) => a.code.localeCompare(b.code));
+  $('#tblProducts').innerHTML = `<thead><tr><th>Κωδικός</th><th>Περιγραφή</th><th>Κατηγορία</th><th class="num">Καθαρό βάρος (kg/τεμ.)</th><th class="num">Τεμ./κιβώτιο</th><th class="num">kg/κιβώτιο</th><th class="num">Πωλήσεις (kg)</th><th></th></tr></thead><tbody>` +
+    list.map(p => `<tr><td><code>${esc(p.code)}</code></td><td>${esc(p.name)}</td><td class="muted">${esc(p.cat)}</td>
+      <td class="num"><input type="number" step="0.001" min="0" value="${p.netKg}" data-prod="${esc(p.code)}" data-f="netKg" style="width:90px;text-align:right;padding:4px 6px;border-radius:6px;border:1px solid var(--border);background:var(--surface-0)"></td>
+      <td class="num"><input type="number" step="1" min="1" value="${p.perCase}" data-prod="${esc(p.code)}" data-f="perCase" style="width:70px;text-align:right;padding:4px 6px;border-radius:6px;border:1px solid var(--border);background:var(--surface-0)"></td>
+      <td class="num">${fmtKg(p.netKg * p.perCase)}</td><td class="num">${fmtInt(sold[p.code] || 0)}</td><td class="no-print"><button class="btn sm danger" data-delp="${esc(p.code)}">✕</button></td></tr>`).join('') + '</tbody>';
+}
+
+function renderAll() { renderCounts(); fillReportSelects(); renderDashboard(); renderInvoices(); renderCustomers(); renderProducts(); if ($('#view-report').classList.contains('active')) renderReport(); }
+
+/* ---------- Import UI ---------- */
+function showImportResult(res) {
+  state.pendingImport = res.invoices;
+  $('#importResult').style.display = '';
+  $('#parseLog').innerHTML = res.log.map(([k, m]) => `<div class="${k}">${k === 'ok' ? '✔' : k === 'err' ? '✖' : '⚠'} ${esc(m)}</div>`).join('');
+  const pm = productMap(), cm = customerMap();
+  $('#tblImportPreview').innerHTML = `<thead><tr><th>Αρ. τιμολογίου</th><th>Ημερομηνία</th><th>Πελάτης</th><th>Αγορά</th><th class="num">Γραμμές</th><th class="num">Κιλά</th></tr></thead><tbody>` +
+    (res.invoices.map(inv => { const c = cm[inv.customerId]; return `<tr><td><code>${esc(inv.no)}</code></td><td>${fmtDate(inv.date)}</td><td>${esc(c ? c.name : '')}</td><td><span class="badge ${(c ? c.market : 'SMALL').toLowerCase()}">${MARKET_LABEL[c ? c.market : 'SMALL']}</span></td><td class="num">${inv.lines.length}</td><td class="num"><b>${fmtKg(invoiceKg(inv, pm))}</b></td></tr>`; }).join('') || '<tr><td colspan="6" class="empty">Τίποτα προς εισαγωγή</td></tr>') + '</tbody>';
+  $('#btnCommitImport').disabled = !res.invoices.length;
+  $('#importResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function commitImport() {
+  if (!state.pendingImport) return;
+  const existing = new Set(state.invoices.map(i => i.no)); let added = 0, replaced = 0;
+  for (const inv of state.pendingImport) {
+    if (existing.has(inv.no)) { state.invoices = state.invoices.filter(i => i.no !== inv.no); replaced++; } else added++;
+    state.invoices.push(inv);
+  }
+  state.customers.forEach(c => delete c._new);
+  state.pendingImport = null; $('#importResult').style.display = 'none';
+  persist(); renderAll();
+  toast(`Αποθηκεύτηκαν ${added} νέα τιμολόγια${replaced ? `, ${replaced} ενημερώθηκαν` : ''}`);
+  showView('invoices');
+}
+async function handleFiles(files) {
+  let all = { invoices: [], log: [] };
+  for (const f of files) {
+    try {
+      const text = /\.pdf$/i.test(f.name) ? '' : await f.text();
+      const res = parseFileText(f.name, text);
+      all.invoices.push(...res.invoices); all.log.push(...res.log);
+    } catch (e) { all.log.push(['err', `${f.name}: ${e.message}`]); }
+  }
+  showImportResult(all);
+}
+
+/* ---------- Presentation tour ---------- */
+const TOUR = [
+  { view: 'dashboard', sel: '#dashTiles', title: 'Το πρόβλημα που λύνουμε', text: 'Η Παπαδοπούλου ζητά από την Arista την «έξοδο προϊόντων» σε κιλά, ανά κωδικό, ανά κατηγορία πελατών. Σήμερα αυτό γίνεται χειροκίνητα από τα τιμολόγια. Το σύστημα το κάνει αυτόματα.' },
+  { view: 'how', sel: '.flow', title: 'Πώς λειτουργεί', text: 'Τα τιμολόγια διαβάζονται αυτόματα (myDATA, ERP ή PDF/OCR), κάθε γραμμή μετατρέπεται σε κιλά από τον πίνακα προϊόντων, ο πελάτης κατατάσσεται σε αγορά και τα κιλά αθροίζονται.' },
+  { view: 'import', sel: '#importTextCard', title: 'Ανάγνωση τιμολογίου', text: 'Πατήστε «Φόρτωση δείγματος» και μετά «Ανάγνωση & υπολογισμός κιλών»: το σύστημα εντοπίζει πελάτη, ημερομηνία, κωδικούς και ποσότητες και τα μετατρέπει σε κιλά.' },
+  { view: 'products', sel: '.formula', title: 'Ο πίνακας-κλειδί: κωδικοί & βάρη', text: 'Για κάθε κωδικό Παπαδοπούλου ορίζεται καθαρό βάρος ανά τεμάχιο και τεμάχια ανά κιβώτιο. Κιλά = τεμάχια × βάρος. Ο πίνακας συγχρονίζεται με τον τιμοκατάλογο.' },
+  { view: 'customers', sel: '#customerSummary', title: 'Δύο αγορές', text: 'Κάθε πελάτης ανήκει στα Μεγάλα Supermarket (Σκλαβενίτης, ΑΒ, Lidl, Μασούτης…) ή στη Μικρή αγορά (mini market, ψιλικά, περίπτερα, φούρνοι). Αυτόματη κατάταξη με κανόνες, με δυνατότητα διόρθωσης.' },
+  { view: 'report', sel: '#reportFilters', title: 'Η απάντηση με ένα κλικ', text: 'Επιλέξτε περίοδο και κατηγορία πελατών: κιλά ανά κωδικό, με ανάλυση ανά αγορά, γράφημα, τάση και εξαγωγή σε Excel ή PDF για αποστολή στην Παπαδοπούλου.' },
+  { view: 'dashboard', sel: '#chartMonthly', title: 'Συνεχής εικόνα', text: 'Η επισκόπηση δείχνει κάθε στιγμή τα κιλά ανά μήνα και ανά αγορά, τους κορυφαίους κωδικούς και πελάτες. Επόμενο βήμα: σύνδεση με τα πραγματικά τιμολόγια της Arista.' },
+];
+let tourIdx = -1, tourEl = null;
+function tourGo(i) {
+  if (tourEl) tourEl.classList.remove('highlight');
+  if (i < 0 || i >= TOUR.length) { tourStop(); return; }
+  tourIdx = i; const s = TOUR[i];
+  if (!state.invoices.length) loadDemo();
+  showView(s.view);
+  $('#tour').classList.add('open');
+  $('#tourStep').textContent = `Βήμα ${i + 1} από ${TOUR.length}`; $('#tourTitle').textContent = s.title; $('#tourText').textContent = s.text;
+  $('#tourDots').innerHTML = TOUR.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('');
+  $('#tourPrev').disabled = i === 0; $('#tourNext').textContent = i === TOUR.length - 1 ? 'Τέλος' : 'Επόμενο →';
+  tourEl = $(s.sel); if (tourEl) { tourEl.classList.add('highlight'); setTimeout(() => tourEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50); }
+}
+function tourStop() { if (tourEl) tourEl.classList.remove('highlight'); tourEl = null; tourIdx = -1; $('#tour').classList.remove('open'); }
+
+/* ---------- Events ---------- */
+function init() {
+  $('#tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) showView(b.dataset.view); });
+  $('#btnDemo').addEventListener('click', loadDemo);
+  $('#btnTour').addEventListener('click', () => tourGo(0));
+  $('#tourNext').addEventListener('click', () => tourGo(tourIdx + 1));
+  $('#tourPrev').addEventListener('click', () => tourGo(tourIdx - 1));
+  $('#tourClose').addEventListener('click', tourStop);
+  $('#btnTheme').addEventListener('click', () => {
+    const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const next = cur === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; storage.set('arista.theme', next);
+  });
+  const th = storage.get('arista.theme', ''); if (th) document.documentElement.dataset.theme = th;
+
+  $('#dashRange').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $$('#dashRange button').forEach(x => x.classList.toggle('active', x === b)); state.dashDays = +b.dataset.days; renderDashboard(); });
+
+  // report
+  $('#btnRun').addEventListener('click', renderReport);
+  ['#fMarket', '#fCustomer', '#fCategory'].forEach(s => $(s).addEventListener('change', renderReport));
+  ['#fFrom', '#fTo'].forEach(s => $(s).addEventListener('change', renderReport));
+  $('#fSearch').addEventListener('input', renderReport);
+  $('#btnResetFilters').addEventListener('click', () => { $('#fMarket').value = 'ALL'; $('#fCustomer').value = ''; $('#fCategory').value = ''; $('#fSearch').value = ''; setQuick('all'); });
+  $$('[data-quick]').forEach(b => b.addEventListener('click', () => setQuick(b.dataset.quick)));
+  $('#btnExportCsv').addEventListener('click', exportCsv);
+  $('#btnPrint').addEventListener('click', () => window.print());
+  $('#tblReport').addEventListener('click', e => {
+    const th = e.target.closest('th.sortable'); if (th) { const k = th.dataset.sort; state.sort = { key: k, dir: state.sort.key === k ? -state.sort.dir : (k === 'code' || k === 'name' || k === 'cat' ? 1 : -1) }; renderReport(); return; }
+    const tr = e.target.closest('tr[data-code]'); if (tr) openCode(tr.dataset.code);
+  });
+
+  // invoices
+  ['#invSearch', '#invMarket', '#invSource'].forEach(s => $(s).addEventListener('input', () => { state.invShown = 50; renderInvoices(); }));
+  $('#invMore').addEventListener('click', () => { state.invShown += 100; renderInvoices(); });
+  $('#tblInvoices').addEventListener('click', e => { const tr = e.target.closest('tr[data-inv]'); if (tr) openInvoice(tr.dataset.inv); });
+  $('#btnClearInvoices').addEventListener('click', () => { if (!state.invoices.length || confirm('Να διαγραφούν όλα τα τιμολόγια από το demo;')) { state.invoices = []; persist(); renderAll(); } });
+  $('#modalClose').addEventListener('click', () => $('#modalBg').classList.remove('open'));
+  $('#modalBg').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('#modalBg').classList.remove('open'); } });
+
+  // import
+  const dz = $('#dropzone'), fi = $('#fileInput');
+  dz.addEventListener('click', () => fi.click());
+  fi.addEventListener('change', () => { handleFiles(Array.from(fi.files)); fi.value = ''; });
+  ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('over'); }));
+  dz.addEventListener('drop', e => handleFiles(Array.from(e.dataTransfer.files)));
+  $('#btnSampleCsv').addEventListener('click', () => download('arista-sample-invoices.csv', '﻿' + SAMPLE_CSV, 'text/csv;charset=utf-8'));
+  $('#btnLoadSampleCsv').addEventListener('click', () => showImportResult(parseFileText('arista-sample-invoices.csv', SAMPLE_CSV)));
+  $('#btnSampleText').addEventListener('click', () => { $('#ocrText').value = SAMPLE_TEXT; });
+  $('#btnParseText').addEventListener('click', () => { const t = $('#ocrText').value.trim(); if (!t) { toast('Επικολλήστε πρώτα το κείμενο του τιμολογίου'); return; } showImportResult(parseInvoiceText(t)); });
+  $('#btnCommitImport').addEventListener('click', commitImport);
+  $('#btnDiscardImport').addEventListener('click', () => { state.customers = state.customers.filter(c => !c._new); state.pendingImport = null; $('#importResult').style.display = 'none'; renderAll(); });
+
+  // customers
+  $('#cusSearch').addEventListener('input', renderCustomers);
+  $('#tblCustomers').addEventListener('change', e => { const s = e.target.closest('select.mkSel'); if (!s) return; const c = customerMap()[s.dataset.cus]; if (c) { c.market = s.value; persist(); renderAll(); toast(`${c.name} → ${MARKET_LABEL[c.market]}`); } });
+  $('#tblCustomers').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (!b) return; const c = customerMap()[b.dataset.del]; if (c && confirm(`Διαγραφή πελάτη «${c.name}»;`)) { state.customers = state.customers.filter(x => x.id !== c.id); persist(); renderAll(); } });
+  $('#btnSaveKeywords').addEventListener('click', () => { state.bigKeywords = $('#bigKeywords').value; persist(); toast('Οι κανόνες αποθηκεύτηκαν'); });
+  $('#btnAutoClassify').addEventListener('click', () => { let n = 0; state.customers.forEach(c => { const m = classifyName(c.name); if (m !== c.market) { c.market = m; n++; } }); persist(); renderAll(); toast(`Αυτόματη κατάταξη: ${n} αλλαγές`); });
+  $('#btnAddCustomer').addEventListener('click', () => {
+    const name = prompt('Επωνυμία πελάτη:'); if (!name) return;
+    const afm = prompt('ΑΦΜ (προαιρετικό):') || ''; const city = prompt('Πόλη (προαιρετικό):') || '';
+    state.customers.push({ id: 'C' + String(900 + state.customers.length), name: name.trim(), afm: afm.trim(), city: city.trim(), market: classifyName(name) });
+    persist(); renderAll(); toast('Ο πελάτης προστέθηκε');
+  });
+
+  // products
+  $('#tblProducts').addEventListener('change', e => { const i = e.target.closest('input[data-prod]'); if (!i) return; const p = productMap()[i.dataset.prod]; if (!p) return; const v = parseFloat(i.value); if (!(v > 0)) { i.value = p[i.dataset.f]; return; } p[i.dataset.f] = i.dataset.f === 'perCase' ? Math.round(v) : v; persist(); renderAll(); toast(`${p.code}: ενημερώθηκε`); });
+  $('#tblProducts').addEventListener('click', e => { const b = e.target.closest('[data-delp]'); if (!b) return; if (confirm(`Διαγραφή κωδικού ${b.dataset.delp};`)) { state.products = state.products.filter(p => p.code !== b.dataset.delp); persist(); renderAll(); } });
+  $('#btnAddProduct').addEventListener('click', () => {
+    const code = prompt('Κωδικός προϊόντος:'); if (!code) return; if (productMap()[code.trim()]) { toast('Ο κωδικός υπάρχει ήδη'); return; }
+    const name = prompt('Περιγραφή:'); if (!name) return;
+    const cat = prompt('Κατηγορία (Μπισκότα / Φρυγανιές / Ψωμί / Κράκερ):', 'Μπισκότα') || 'Άλλο';
+    const netKg = parseFloat(prompt('Καθαρό βάρος ανά τεμάχιο σε kg (π.χ. 0.225):', '0.250')); const perCase = parseInt(prompt('Τεμάχια ανά κιβώτιο:', '12'), 10);
+    if (!(netKg > 0) || !(perCase > 0)) { toast('Μη έγκυρα στοιχεία'); return; }
+    state.products.push({ code: code.trim(), name: name.trim(), cat: cat.trim(), netKg, perCase }); persist(); renderAll(); toast('Ο κωδικός προστέθηκε');
+  });
+
+  // initial report range
+  const r = dataRange(); if (r) { $('#fFrom').value = r.min; $('#fTo').value = r.max; }
+  renderAll();
+  if (location.hash === '#demo' && !state.invoices.length) loadDemo();
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
