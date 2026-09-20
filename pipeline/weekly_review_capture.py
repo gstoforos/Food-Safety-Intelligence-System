@@ -71,6 +71,46 @@ def review_day_for(now_utc: Optional[datetime] = None) -> date:
     return d + timedelta(days=days_until_thu)
 
 
+def review_day_just_closed(now_utc: Optional[datetime] = None) -> date:
+    """The review bucket the Sunday email is ABOUT — the one that just shut.
+
+    AUDIT 2026-09-20 — why every Sunday email said "0 recalls added".
+    ---------------------------------------------------------------
+    ``review_day_for()`` answers a different question: "a row promoted
+    right now will appear in WHICH email?" That is the right stamp to
+    write onto a row at promotion time, and it deliberately rolls over
+    to next Sunday once the 17:00 Athens cutoff passes.
+
+    ``export_week_slice()`` reused it as the FILTER for the email being
+    sent, and the mailer fires at Sunday 17:00 — the exact moment of the
+    rollover. So the export looked in next week's bucket, which is empty
+    by definition, and the email reported nothing, every week.
+
+    Measured today. The Weekly_Review sheet holds 15 rows, all stamped
+    ``Week_Added = 2026-09-20``. At 17:14 Athens ``review_day_for()``
+    returns **2026-09-27**. The slice matched zero rows and wrote
+    ``row_count: 0, rows: []`` — while the sheet behind it was correct.
+
+    That is also why the live file says ``week_end: 2026-09-13`` with
+    ``generated_utc: 2026-09-06``: the same off-by-one-week, a fortnight
+    ago, and nothing has regenerated it since.
+
+    So: the most recent review Sunday at or before now.
+      * Sunday at/after 17:00 Athens -> today; the bucket has just closed
+      * Sunday before 17:00          -> the previous Sunday, since this
+                                        week's bucket is still filling
+      * any other day                -> the Sunday just past
+    """
+    if now_utc is None:
+        now_utc = datetime.now(timezone.utc)
+    local = now_utc.astimezone(ATHENS)
+    d = local.date()
+    days_since_sun = (d.weekday() - 6) % 7      # Sun=0, Mon=1 ... Sat=6
+    if days_since_sun == 0:
+        return d if local.hour >= REVIEW_HOUR_LOCAL else d - timedelta(days=7)
+    return d - timedelta(days=days_since_sun)
+
+
 # ---------------------------------------------------------------------------
 # Sheet I/O helpers
 # ---------------------------------------------------------------------------
@@ -179,7 +219,9 @@ def export_week_slice(
               the next promotion would land in (i.e. the upcoming review).
     """
     if week_end is None:
-        week_end = review_day_for().isoformat()
+        # The week that CLOSED, not the one now filling. See
+        # review_day_just_closed() for the week of empty emails this cost.
+        week_end = review_day_just_closed().isoformat()
 
     rows: List[Dict[str, Any]] = []
     if xlsx_path.exists():
