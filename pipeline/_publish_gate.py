@@ -346,6 +346,11 @@ HAZARD_CLASS_KEYWORDS = {
         # or not the notice names the specific molecule.
         "amanita", "muscimol", "mushroom toxin", "phytoplankton",
         "lipophilic biotoxin", "shellfish toxin",
+        # 2026-09-20 — GIS (PL) nettle-tea recall ("Pyrrolizidine
+        # alkaloids") had no hazard class for the same reason: a toxin
+        # made by a plant is a biotoxin whether or not the notice groups
+        # it with the marine/fungal ones above.
+        "pyrrolizidine",
     ),
     # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
     # "fish") must NOT appear here: RASFF Reason text routinely carries

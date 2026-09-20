@@ -92,6 +92,8 @@ PATHOGEN: dict[str, list[str]] = {
     "Yersinia": ["yersinia", "enterocolitica"],                     # 0  (rules)
     "Shigella": ["shigella"],                                       # 0  (rules)
     "Brucella": ["brucella", "brucellosis"],                        # 0  (rules)
+    "Unspecified microbiological contamination": [
+        "unspecified microbiological"],                             # 1  (rows)
 
     # --- viruses --------------------------------------------------------
     "Norovirus": ["norovirus", "norwalk"],                          # 19
@@ -126,6 +128,7 @@ PATHOGEN: dict[str, list[str]] = {
     "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol",
                                 "muscaria", "hydrocyanic", "cyanogenic",
                                 "solanine", "tropane"],             # 3
+    "Pyrrolizidine alkaloids": ["pyrrolizidine"],                   # 1  (rows)
 
     # --- chemical -------------------------------------------------------
     "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury",
