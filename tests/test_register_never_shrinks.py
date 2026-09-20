@@ -125,3 +125,106 @@ def test_the_json_mirror_matches_the_workbook():
     assert n_json == n_xlsx, (
         "recalls.json has %d rows, recalls.xlsx has %d — the site is serving "
         "a different register from the workbook" % (n_json, n_xlsx))
+
+# ---------------------------------------------------------------------------
+# EVERY SHEET, NOT JUST RECALLS (audit 2026-09-20, same day, second incident)
+# ---------------------------------------------------------------------------
+# The guard above was written hours earlier and watched ``Recalls`` alone.
+# The very next upload proved why that is not enough.
+#
+# Restoring the 29 deleted Recalls rows carried the rest of the workbook
+# with it, and the NEWS sheet went back to its 2026-09-18 state — roughly
+# 36 hours of news collection, reverted. Recalls was correct, so the guard
+# stayed green and said nothing, and the hourly news job carried on
+# committing on top of a sheet that had been rolled back underneath it.
+#
+# One workbook, six sheets, and a rule that covered one of them.
+#
+# NEWS carries its own freshness stamp, so it gets a second check the
+# others cannot have: a sheet whose newest row goes BACKWARDS has been
+# overwritten with an older copy, whatever its row count says. Here the
+# reverted sheet had MORE rows (39) than the current one (28), because the
+# pipeline purges on a rolling window — so counting alone would have
+# called the regression an improvement.
+
+SHEETS_THAT_MUST_NOT_SHRINK = ("Recalls", "Rejected", "Weekly_Rejected")
+
+#: Sheets whose row count legitimately falls: Pending drains as rows are
+#: promoted, NEWS is purged on a rolling window, Weekly_Review is rebuilt
+#: per week. They are covered by the freshness check below instead.
+SHEETS_THAT_MAY_SHRINK = ("Pending", "NEWS", "Weekly_Review")
+
+
+def _sheet_rows(path, sheet):
+    from openpyxl import load_workbook
+    wb = load_workbook(path, read_only=True, data_only=True)
+    if sheet not in wb.sheetnames:
+        wb.close()
+        return None
+    raw = list(wb[sheet].iter_rows(values_only=True))
+    hdr = [str(c or "") for c in raw[0]] if raw else []
+    out = [dict(zip(hdr, r)) for r in raw[1:]]
+    wb.close()
+    return out
+
+
+@pytest.mark.parametrize("sheet", SHEETS_THAT_MUST_NOT_SHRINK)
+def test_no_append_only_sheet_loses_rows(sheet):
+    """Recalls, Rejected and Weekly_Rejected only ever grow."""
+    if not (ROOT / ".git").exists():
+        pytest.skip("not a git checkout")
+    prev = _previous_workbook()
+    if prev is None:
+        pytest.skip("no previous revision of the workbook")
+    before = _sheet_rows(prev, sheet)
+    after = _sheet_rows(XLSX, sheet)
+    Path(prev).unlink(missing_ok=True)
+    if before is None or after is None:
+        pytest.skip("sheet %r not present in both revisions" % sheet)
+
+    msg = _git("log", "-1", "--format=%B").stdout.lower()
+    if any(m in msg for m in DELETION_MARKERS):
+        return
+    assert len(after) >= len(before), (
+        "sheet %r went from %d rows to %d and the commit message does not "
+        "declare a deletion. An upload that overwrites the workbook takes "
+        "EVERY sheet with it, not just the one you were looking at."
+        % (sheet, len(before), len(after)))
+
+
+def test_the_news_sheet_did_not_go_backwards_in_time():
+    """A freshness check, because NEWS is purged and row counts lie.
+
+    On 2026-09-20 the reverted NEWS sheet had 39 rows against the live
+    sheet's 28 — MORE rows, 36 hours older. Only the timestamp shows it.
+    """
+    if not (ROOT / ".git").exists():
+        pytest.skip("not a git checkout")
+    prev = _previous_workbook()
+    if prev is None:
+        pytest.skip("no previous revision of the workbook")
+    before = _sheet_rows(prev, "NEWS")
+    after = _sheet_rows(XLSX, "NEWS")
+    Path(prev).unlink(missing_ok=True)
+    if not before or not after:
+        pytest.skip("NEWS not present in both revisions")
+
+    def newest(rows):
+        stamps = []
+        for r in rows:
+            for k, v in r.items():
+                if "retriev" in k.lower() or "date" in k.lower():
+                    s = str(v or "").strip()
+                    if s:
+                        # normalise "2026-09-20 06:07 UTC" and
+                        # "2026-09-18T01:37:24Z" to a sortable prefix
+                        stamps.append(s.replace("T", " ")[:16])
+        return max(stamps) if stamps else ""
+
+    b, a = newest(before), newest(after)
+    if not b or not a:
+        pytest.skip("no usable timestamp column in NEWS")
+    assert a >= b, (
+        "the NEWS sheet's newest entry moved BACKWARDS, from %r to %r. The "
+        "workbook has been overwritten with an older copy. Row counts will "
+        "not show this — a purged sheet can be smaller AND newer." % (b, a))
