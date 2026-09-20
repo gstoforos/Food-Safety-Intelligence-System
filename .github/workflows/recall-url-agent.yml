@@ -548,6 +548,16 @@ jobs:
                                    "snippet": (r.get("content", "") or "")[:200]}
                                   for r in (res or [])[:8]]
                           asked[key] = len(slim)
+                          # Make the OUTCOME visible to the operator, not just to the
+                          # model (audit 2026-09-17). The log printed every tool CALL
+                          # and never its result, so six empty searches looked exactly
+                          # like six rich ones the model ignored. Searx fails SOFT —
+                          # every error path returns [] — which is how a dead search
+                          # box impersonates a dead model in a failure email.
+                          print("  [searx] %d result(s) for %r" % (len(slim), q[:70]))
+                          if not slim:
+                              print("  [searx] EMPTY — the model is told not to reword; "
+                                    "if this repeats, check SEARX_URL.")
                           if not slim:
                               return json.dumps({
                                   "query": q,
@@ -898,8 +908,31 @@ jobs:
               if _n and counts.get("retry", 0) == _n:
                   print("\n" + "=" * 60)
                   print(f"*** NO REVIEW PERFORMED — all {_n} rows returned retry. ***")
-                  print("The model was unreachable for every row. Nothing was written.")
-                  print("Check: curl $LLAMA_BASE_URL/models on the VPS.")
+                  # WHY THIS IS NOT "the model was unreachable" (audit 2026-09-17).
+                  # On 2026-09-17 this printed "unreachable" for a run in which llama
+                  # answered SIX times. llama_client prints "This is NOT an unreachable
+                  # model" one line earlier and records the real reason in
+                  # last_failure(); the summary overwrote both with a guess, and sent
+                  # the operator to a healthy VPS. Print what actually happened.
+                  try:
+                      from pipeline.official_feeds.agents import llama_client as _lc
+                      _why = _lc.failure_summary()
+                  except Exception:                                    # noqa: BLE001
+                      _why = ""
+                  if _why:
+                      print(f"Reason from the client: {_why}")
+                  else:
+                      print("No reason was recorded by the llama client.")
+                  _low = (_why or "").lower()
+                  if "never converged" in _low or "loop" in _low:
+                      print("The model REPLIED every turn — it is up. It kept asking")
+                      print("for another search instead of committing to an answer,")
+                      print("which is what an empty Searx result set looks like from")
+                      print("here. Check SEARX_URL before touching the VPS.")
+                  elif "network" in _low or "unreachable" in _low or "http" in _low:
+                      print("Check: curl $LLAMA_BASE_URL/models on the VPS.")
+                  else:
+                      print("Nothing was written. The queue is untouched.")
                   print("=" * 60)
                   return 3
 
