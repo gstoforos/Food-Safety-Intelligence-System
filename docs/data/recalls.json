@@ -28014,5 +28014,53 @@
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/gias-foods-inc-recalls-bettergoods-authentic-italian-lemon-alfredo-fettuccine-because-possible",
   "Notes": "FDA listing HTML (Layer 1) [restored 2026-09-20: deleted from Recalls by commit 02d97dde ('Add files via upload'), which overwrote the live register with a 1722-row snapshot built 2026-09-18. 29 published rows, 19 Tier 1, were removed silently. Restored verbatim from 4210e05b.]"
+ },
+ {
+  "Date": "2026-09-18",
+  "Source": "RappelConso (FR)",
+  "Company": "ROZENN-AER SARL (Vincent Conanec)",
+  "Brand": "—",
+  "Product": "Oeufs issus de poules plein air, lot 1FRLNS01, pondu le 31-08-2026, DDM 28-09-2026",
+  "Pathogen": "Veterinary drug residue",
+  "Reason": "eggs contaminated with a veterinary medicine residue. Risk stated on the notice: \"Substances interdites (au sens du Règlement UE 37/2010)\".",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23549/interne",
+  "Notes": "aucune enseigne Reviewed 2026-09-20 against RappelConso fiche 23549, published 18/09/2026. COMPANY FILLED: the row had none; the notice names the entity as ROZENN-AER SARL VINCENT CONANEC. Sold in MORBIHAN (56) only, no retail chain (\"aucune enseigne\"). HAZARD IS CHEMICAL, NOT AN ORGANISM: written into Pathogen as 'Veterinary drug residue' so the publish gate's 'Pathogen is empty' rule clears. The gate still has no Hazard column — third row this month to need the workaround."
+ },
+ {
+  "Date": "2026-09-17",
+  "Source": "CFIA",
+  "Company": "Fresh Bites Inc.",
+  "Brand": "Fresh Bites, Spyhill, Fresh & Local",
+  "Product": "Sandwiches, subs and croissants — 28 affected products across the Fresh Bites, Spyhill and Fresh & Local brands",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Possible Listeria monocytogenes contamination.",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-sandwiches-recalled-due-listeria-monocytogenes",
+  "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/various-brands-sandwiches-recalled-due-listeria-monocytogenes [via official-feed collector] [url-agent 2026-09-18: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent hold: 2026-09-18: no recalling firm on the row (Brand ''); not published and not rejected — reviewer 2 to read the firm from the notice] Reviewed 2026-09-20 against the CFIA notice, published 17/09/2026. COMPANY FILLED: 'Fresh Bites Inc.' (Calgary) — the row had none, which is what the confirm agent held it for. Brands and the 28-product count added; Product previously held the notice headline. Distributed in ALBERTA only. No reported illnesses, so Outbreak stays 0."
+ },
+ {
+  "Date": "2026-09-17",
+  "Source": "RappelConso (FR)",
+  "Company": "CARREFOUR FRANCE",
+  "Brand": "Carrefour",
+  "Product": "Hydrate Isotonic Blueberry Flavour, bouteille 50 cl, lots HHMML6145R (DDM 21/12/2026) and HHMML6146R (DDM 22/12/2026)",
+  "Pathogen": "Unspecified microbiological contamination",
+  "Reason": "Suspicion de contamination microbiologique / suspected microbiological contamination. The notice states the risk as \"Autres contaminants biologiques\" and names no organism.",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23535/Interne",
+  "Notes": "Reviewed 2026-09-20 against RappelConso fiche 23535, published 17/09/2026. Company corrected from 'Carrefour' to the notice's own 'CARREFOUR FRANCE'; lots and DDMs added. Sold France entière via Carrefour and Supermarchés Match. No organism is named on the notice, so Pathogen records that rather than guessing one. RE-PROMOTION OVERRIDE: the row sat in Weekly_Rejected with \"URL agent: No official regulator URL found for this recall\". That is false — the regulator URL was on the row, and fetching it returns the notice: product, brand Carrefour, entity CARREFOUR FRANCE, both lot codes, both DDMs, the motif and the risk wording all read off that page on 2026-09-20. Same class as the Mattilsynet false rejection of 2026-09-17."
  }
 ]
