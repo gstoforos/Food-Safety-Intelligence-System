@@ -91,6 +91,11 @@ CATEGORY_MAP: Dict[str, str] = {
     "cephalopods and products thereof": "fish-seafood",
     "eggs and egg products": "eggs-egg-products",
     "cocoa and cocoa preparations, coffee and tea": "beverages",
+    # 22nd observed category, seen 2026-09. Same mechanism as the biscuit
+    # case below: an unmapped term returns None, so the coverage test goes
+    # red the moment such a row is promoted rather than quietly filing it
+    # as "other".
+    "non-alcoholic beverages": "beverages",
     "dietetic foods, food supplements and fortified foods": "supplements",
     "ices and desserts": "confectionery-snacks",
     # 21st observed category, seen 2026-08-27 on a Croatian border rejection

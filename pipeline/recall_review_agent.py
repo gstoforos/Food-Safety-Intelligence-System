@@ -220,6 +220,14 @@ def _make_tool_executor(seen_urls: set) -> Callable[[str, dict], str]:
                          "content": (r.get("content", "") or "")[:200]}
                         for r in (results or [])[:6]]
                 _asked[key] = len(slim)
+                # Operator-visible outcome (audit 2026-09-17). See the same
+                # note in recall_url_agent.py: the log showed the tool CALL
+                # and never its result, so an empty Searx was indistinguishable
+                # from a dithering model in the failure email.
+                print("  [searx] %d result(s) for %r" % (len(slim), q[:70]))
+                if not slim:
+                    print("  [searx] EMPTY — the model is told not to reword; "
+                          "if this repeats, check SEARX_URL.")
                 if not slim:
                     return json.dumps({
                         "query": q,
@@ -1054,9 +1062,31 @@ def main() -> int:
     if _n and _retry == _n:
         print("\n" + "=" * 60)
         print(f"*** NO REVIEW PERFORMED — all {_n} rows returned retry. ***")
-        print("The model was unreachable for every row (llama down, context")
-        print("exceeded, or circuit breaker open). Nothing was written.")
-        print("Check: curl $LLAMA_BASE_URL/models on the VPS.")
+        # WHY THIS IS NOT "the model was unreachable" (audit 2026-09-17).
+        # On 2026-09-17 this printed "unreachable" for a run in which llama
+        # answered SIX times. llama_client prints "This is NOT an unreachable
+        # model" one line earlier and records the real reason in
+        # last_failure(); the summary overwrote both with a guess, and sent
+        # the operator to a healthy VPS. Print what actually happened.
+        try:
+            from pipeline.official_feeds.agents import llama_client as _lc
+            _why = _lc.failure_summary()
+        except Exception:                                    # noqa: BLE001
+            _why = ""
+        if _why:
+            print(f"Reason from the client: {_why}")
+        else:
+            print("No reason was recorded by the llama client.")
+        _low = (_why or "").lower()
+        if "never converged" in _low or "loop" in _low:
+            print("The model REPLIED every turn — it is up. It kept asking")
+            print("for another search instead of committing to an answer,")
+            print("which is what an empty Searx result set looks like from")
+            print("here. Check SEARX_URL before touching the VPS.")
+        elif "network" in _low or "unreachable" in _low or "http" in _low:
+            print("Check: curl $LLAMA_BASE_URL/models on the VPS.")
+        else:
+            print("Nothing was written. The queue is untouched.")
         print("=" * 60)
         return 3
     if _n and _retry > _n * 0.8:
@@ -1141,14 +1171,44 @@ def main() -> int:
                 full_pending[idx]["Outbreak"] = int(ob)
             applied_corrections += 1
             cur = str(full_pending[idx].get("Status", "")).strip()
+
+            # STAMP EVERY ROW THIS AGENT ACTUALLY REVIEWED (audit 2026-09-19).
+            #
+            # Advancing a status and recording that a reviewer read the row
+            # are two different facts, and they were fused: the stamp lived
+            # inside `if cur in _ADVANCE_FROM`, so a row already at plain
+            # "pending" was reviewed, corrected, approved and promoted while
+            # its Notes said nothing at all.
+            #
+            # Measured on 2026-09-19. Pending held 15 rows at "pending", 10 at
+            # "pending_enrichment" and 2 at "pending_gap_v2". _ADVANCE_FROM
+            # does not contain "pending". The run promoted 15 rows (Recalls
+            # 1736 -> 1751) and wrote ZERO review-agent stamps.
+            #
+            # Those 15 are worse off than rows marked "reviewer 2 did NOT
+            # review this row": that flag is at least true and auditable.
+            # These carry no stamp AND no flag, so nothing in the register
+            # distinguishes a row Qwen read line by line from one nobody
+            # looked at — the single thing the two-reviewer architecture
+            # exists to make visible.
+            notes = str(full_pending[idx].get("Notes", "")).strip()
             if cur in _ADVANCE_FROM:
                 full_pending[idx]["Status"] = _A2_APPROVED_STATUS
-                notes = str(full_pending[idx].get("Notes", "")).strip()
                 tag = (f"[review-agent {today_iso}: {cur} → "
                        f"{_A2_APPROVED_STATUS} (Qwen verified; awaiting "
                        f"reviewer 3 confirmation)]")
-                full_pending[idx]["Notes"] = (notes + " " + tag).strip()[:1000]
                 gap_advanced += 1
+            else:
+                tag = (f"[review-agent {today_iso}: reviewed and approved at "
+                       f"status {cur!r}; fields verified against the source, "
+                       f"status left unchanged]")
+
+            # Truncate the OLD notes, never the new stamp. The cap bounds cell
+            # size; dropping the provenance it was added to record defeats it.
+            _room = 1000 - len(tag) - 1
+            full_pending[idx]["Notes"] = (
+                (notes[:_room].rstrip() + " " + tag).strip()
+                if _room > 0 else tag[:1000])
 
     # Rejects → rejected_flags (index → reason)
     for merged, review in results["reject"]:
