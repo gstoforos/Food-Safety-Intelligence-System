@@ -1,13 +1,13 @@
 {
   "week_end": "2026-09-20",
-  "generated_utc": "2026-09-19T19:53:48+00:00",
-  "row_count": 49,
+  "generated_utc": "2026-09-20T03:22:10+00:00",
+  "row_count": 52,
   "tier1_count": 37,
   "outbreak_count": 8,
   "by_reviewer": {
-    "unknown": 46,
+    "unknown": 48,
     "repromotion-guard": 2,
-    "confirm-agent": 1
+    "confirm-agent": 2
   },
   "rows": [
     {
@@ -862,6 +862,29 @@
       "Reviewed": "N"
     },
     {
+      "Date": "2026-09-18",
+      "Source": "CFIA",
+      "Company": "Altra Foods Inc.",
+      "Brand": "Yotvata",
+      "Product": "Caciotta Peperoncino Cheese",
+      "Pathogen": "Staphylococcus aureus",
+      "Reason": "Food - Microbial contamination - Staphylococcus aureus",
+      "Class": "Recall",
+      "Country": "Canada",
+      "Region": "Ontario, Quebec",
+      "Tier": 2,
+      "Outbreak": 0,
+      "URL": "https://recalls-rappels.canada.ca/en/alert-recall/yotvata-brand-caciotta-peperoncino-cheese-recalled-due-staphylococcus-aureus",
+      "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/yotvata-brand-caciotta-peperoncino-cheese-recalled-due-staphylococcus-aureus [via official-feed collector] [confirm-agent hold: 2026-09-19: no recalling firm on the row (Brand ''); not published and not rejected — reviewer 2 to read the firm from the notice] [review-agent 2026-09-20: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [confirm-agent 2026-09-20: pending_gap_v3 → pending; deterministic checks passed] [publish-gate 2026-08-01: Region 'Ontario, Quebec' is not one of ['Africa', 'Asia', 'Europe', 'Latin America', 'Middle East', 'North America', 'Oceania', 'Unknown']]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-20",
+      "RejectedBy": "confirm-agent",
+      "RejectionReason": "— reviewer 2 to read the firm from the notice",
+      "Reviewed": "N"
+    },
+    {
       "Date": "",
       "Source": "MHLW",
       "Company": "[PDF] Request for discontinuation of use of red mold rice materials by ...",
@@ -905,6 +928,29 @@
       "Week_Added": "2026-09-20",
       "RejectedBy": "unknown",
       "RejectionReason": "Confirmer: row was at pending_gap (not reviewed by reviewer 2) and page does not mention any of",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-20",
+      "Source": "FSAI (IE)",
+      "Company": "Dunnes Stores Potato Waffles 680g",
+      "Brand": "—",
+      "Product": "Dunnes Stores Potato Waffles 680g",
+      "Pathogen": "",
+      "Reason": "Dunnes Stores Potato Waffles 680g",
+      "Class": "Alert",
+      "Country": "Ireland",
+      "Region": "Europe",
+      "Tier": 3,
+      "Outbreak": 0,
+      "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-dunnes-stores-potato-waffles",
+      "Notes": "REJECTED: URL agent: No official recall page found | FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page || unknown: Arrived already marked rejected; confirmer did not re-review",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-20",
+      "RejectedBy": "unknown",
+      "RejectionReason": "URL agent: No official recall page found",
       "Reviewed": "N"
     },
     {
@@ -997,6 +1043,29 @@
       "Week_Added": "2026-09-20",
       "RejectedBy": "unknown",
       "RejectionReason": "URL agent: non-food product (glycérol)",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-18",
+      "Source": "BLV (CH)",
+      "Company": "Fortura AG",
+      "Brand": "—",
+      "Product": "Frosty Pocket in den Geschmacksrichtungen Waldbeerslush, Erdbeerslush, Draculaslush und Zitronenslush",
+      "Pathogen": "",
+      "Reason": "Fortura AG ruft das Produkt «Frosty Pocket» in den Geschmacksrichtungen « Waldbeerslush, Erdbeerslush, Draculaslush und Zitronenslush» wegen zu hohem Gehalt an Glycerin zurück.",
+      "Class": "Recall",
+      "Country": "Switzerland",
+      "Region": "Europe",
+      "Tier": 3,
+      "Outbreak": 0,
+      "URL": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1140",
+      "Notes": "REJECTED: URL agent: No official regulator URL found for this recall | Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html || unknown: Arrived already marked rejected; confirmer did not re-review",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-20",
+      "RejectedBy": "unknown",
+      "RejectionReason": "URL agent: No official regulator URL found for this recall",
       "Reviewed": "N"
     },
     {
