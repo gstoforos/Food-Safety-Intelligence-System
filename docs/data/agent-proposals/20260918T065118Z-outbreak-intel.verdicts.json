@@ -73,8 +73,10 @@
     "proposal_id": "c6302c2a3225c358",
     "action": "link_event",
     "applied": false,
-    "refusals": [],
-    "detail": "would apply (dry run)"
+    "refusals": [
+      "no row found for 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026' in Pending or Recalls"
+    ],
+    "detail": ""
   },
   {
     "proposal_id": "5e1f8e3241353761",
