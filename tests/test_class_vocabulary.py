@@ -83,6 +83,8 @@ ALLOWED = {
     "Sanitary alert (update)",
     "Voluntary",
     "Voluntary recall",
+    "Withdrawal",             # GIS (PL) notice type — English, a notice type
+                               # not a reason/product (row 2026-09-10)
 }
 
 # Values that must never come back, with the reason they left.

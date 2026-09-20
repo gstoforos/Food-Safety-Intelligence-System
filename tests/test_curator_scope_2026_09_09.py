@@ -139,6 +139,16 @@ class TestTheRegister(unittest.TestCase):
         "Coliform / total bacterial count",
         "Inadequate sterilization (microbiological hazard)",
         "Possible incomplete pasteurization (process deviation)",
+        # DECIDED by the nightly operator review of 2026-09-20 — RappelConso
+        # fiche 23535 (CARREFOUR FRANCE, Hydrate Isotonic Blueberry). Chased
+        # to the regulator page: "Motif du rappel: Suspicion de contamination
+        # microbiologique", risk "Autres contaminants biologiques" — no
+        # organism is named anywhere on the notice. Pathogen records that
+        # rather than guessing one (see the row's own Notes), so it stays a
+        # vague microbial-contamination hazard by design, the same reason
+        # classify_hazard() deliberately refuses to classify a bare
+        # "microbial contamination" (see pipeline/_publish_gate.py).
+        "Unspecified microbiological contamination",
     }
 
     @classmethod
