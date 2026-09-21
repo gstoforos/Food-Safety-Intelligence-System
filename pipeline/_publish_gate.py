@@ -219,6 +219,16 @@ HAZARD_CLASS_KEYWORDS = {
         # "pathogen-parasitic" — it was simply missing here.
         "cyclospora", "cryptosporidium", "giardia", "trichinella",
         "anisakis", "toxoplasma", "taenia", "echinococcus",
+        # AUDIT 2026-09-21. RappelConso's own risk category for a notice
+        # that names no organism at all: "Autres contaminants biologiques".
+        # A row published with this text as Pathogen classified as nothing,
+        # which made the curator refuse it even though the row is a
+        # genuine (if unspecific) biological-hazard recall, not a
+        # fabrication. QUALIFIED phrases only, same reasoning as the
+        # physical/pest classes below: a bare "contamination" would match
+        # far too much correct text.
+        "unspecified microbiological", "autres contaminants biologiques",
+        "other biological contaminant",
     ),
     "physical": (
         "foreign matter", "foreign material", "foreign body",
@@ -346,6 +356,10 @@ HAZARD_CLASS_KEYWORDS = {
         # or not the notice names the specific molecule.
         "amanita", "muscimol", "mushroom toxin", "phytoplankton",
         "lipophilic biotoxin", "shellfish toxin",
+        # AUDIT 2026-09-21 — pyrrolizidine alkaloids (e.g. GIS Poland herbal
+        # tea recalls) are a plant-derived natural toxin, the same family
+        # as the mushroom/algal toxins already listed here.
+        "pyrrolizidine",
     ),
     # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
     # "fish") must NOT appear here: RASFF Reason text routinely carries
