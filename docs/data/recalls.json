@@ -624,6 +624,22 @@
   "Notes": "[RASFF #2026.8180; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=873110]"
  },
  {
+  "Date": "2026-09-16",
+  "Source": "CFIA",
+  "Company": "Altra Foods Inc.",
+  "Brand": "Yotvata",
+  "Product": "Caciotta Peperoncino Cheese, 250 g, UPC 8 00395 0003017, code LUG 26, best before 31-05-2027",
+  "Pathogen": "Staphylococcus enterotoxin",
+  "Reason": "Possible Staphylococcus aureus contamination. CFIA Class 2 recall.",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/yotvata-brand-caciotta-peperoncino-cheese-recalled-due-staphylococcus-aureus",
+  "Notes": "Reviewed 2026-09-21 against the CFIA notice. The deterministic extract failed on four fields, all corrected: Company held the PRODUCT name (the notice names the firm as Altra Foods Inc.); Product was the fragment 'due to ...'; Reason held the bare pathogen name; Date used the notice's LAST-UPDATED stamp (2026-09-18) rather than its recall date (2026-09-16). CFIA Class 2, Ontario and Quebec, no illnesses so Outbreak=0. PATHOGEN: the notice names Staphylococcus aureus; normalize_pathogen() canonicalises to 'Staphylococcus enterotoxin', the form 4 existing rows use, so the canonical value is kept and the organism named in Reason. RE-PROMOTION OVERRIDE: the row was in the Rejected ledger as 'NO_REASON_RECORDED — rejected by confirm-agent from CFIA, status pending. The writer supplied no verdict' — an infrastructure artefact recorded as a data verdict, not a finding about this recall. Third such false rejection this month (Mattilsynet 09-17, Carrefour 09-20)."
+ },
+ {
   "Date": "2026-09-15",
   "Source": "RappelConso (FR)",
   "Company": "Talleyrand",
@@ -28062,21 +28078,5 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
- },
- {
-  "Date": "2026-09-16",
-  "Source": "CFIA",
-  "Company": "Altra Foods Inc.",
-  "Brand": "Yotvata",
-  "Product": "Caciotta Peperoncino Cheese, 250 g, UPC 8 00395 0003017, code LUG 26, best before 31-05-2027",
-  "Pathogen": "Staphylococcus enterotoxin",
-  "Reason": "Possible Staphylococcus aureus contamination. CFIA Class 2 recall.",
-  "Class": "Recall",
-  "Country": "Canada",
-  "Region": "North America",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/yotvata-brand-caciotta-peperoncino-cheese-recalled-due-staphylococcus-aureus",
-  "Notes": "Reviewed 2026-09-21 against the CFIA notice. The deterministic extract failed on four fields, all corrected: Company held the PRODUCT name (the notice names the firm as Altra Foods Inc.); Product was the fragment 'due to ...'; Reason held the bare pathogen name; Date used the notice's LAST-UPDATED stamp (2026-09-18) rather than its recall date (2026-09-16). CFIA Class 2, Ontario and Quebec, no illnesses so Outbreak=0. PATHOGEN: the notice names Staphylococcus aureus; normalize_pathogen() canonicalises to 'Staphylococcus enterotoxin', the form 4 existing rows use, so the canonical value is kept and the organism named in Reason. RE-PROMOTION OVERRIDE: the row was in the Rejected ledger as 'NO_REASON_RECORDED — rejected by confirm-agent from CFIA, status pending. The writer supplied no verdict' — an infrastructure artefact recorded as a data verdict, not a finding about this recall. Third such false rejection this month (Mattilsynet 09-17, Carrefour 09-20)."
  }
 ]
