@@ -6,14 +6,14 @@
   "Brand": "Loiseau",
   "Product": "truffé briard",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Detection of Listeria mono sur autocontrôle",
+  "Reason": "Detection of Listeria monocytogenes via the company's own quality-control testing (self-checks)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23567/interne",
-  "Notes": "nous-mêmes sur les étals du marché de fontainebleau et de melun (gaillardon)"
+  "Notes": "nous-mêmes sur les étals du marché de fontainebleau et de melun (gaillardon) [agent nightly-operator proposal 9400279abeafabde applied 2026-09-21: Published Reason still carried French wording, violating the English-output policy (test_language_policy). Translated against the regulator page, Pathogen field unchanged (already correct).]"
  },
  {
   "Date": "2026-09-21",
@@ -38,14 +38,14 @@
   "Brand": "Unbranded",
   "Product": "cuisse de poulet marinée, filet de poulet mariné, émincés de poulet marinés.",
   "Pathogen": "Salmonella",
-  "Reason": "Les analyses réalisées sur un lot de cuisses de poulet marinées au paprika ont révélé la présence de Salmonella. par mesure de précaution, l'entreprise procède au rappel de l'ensemble des produits issus de la fabrication volailles marinées .",
+  "Reason": "Testing on a batch of paprika-marinated chicken thighs revealed the presence of Salmonella. As a precaution, the company is recalling all products from the 'marinated poultry' production run.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23572/interne",
-  "Notes": "intermarché dole les epenottes"
+  "Notes": "intermarché dole les epenottes [agent nightly-operator proposal f9f4c53091efe8e6 applied 2026-09-21: Published Reason still carried French wording, violating the English-output policy (test_language_policy). Translated against the regulator page, Pathogen field unchanged (already correct).]"
  },
  {
   "Date": "2026-09-21",
@@ -62,6 +62,38 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23576/interne",
   "Notes": "intermarché, leclerc, match, esso, elior, norma, bp"
+ },
+ {
+  "Date": "2026-09-21",
+  "Source": "RappelConso (FR)",
+  "Company": "Fontalbat Mazars",
+  "Brand": "Fontalbat Mazars",
+  "Product": "saucisse fraîche de canard en poche sous vide",
+  "Pathogen": "Salmonella",
+  "Reason": "Presence of Salmonella",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23573/interne",
+  "Notes": "mangeons frais, provence halles [agent nightly-operator proposal 10845fa1625a030f applied 2026-09-21: RappelConso fiche states \"Motif du rappel : Presence de Salmonelle\" — Pathogen field was blank pending enrichment; Reason already correctly states the hazard in English.] [nightly-operator 2026-09-21: pending -> pending; verified against regulator_page (rappel.conso.gouv.fr), Pathogen enriched via curator, deterministic checks passed] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
+ },
+ {
+  "Date": "2026-09-21",
+  "Source": "RappelConso (FR)",
+  "Company": "Intermarché St Paul les Dax",
+  "Brand": "Unbranded",
+  "Product": "emincé de poulet curry indien en libre service",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23568/interne",
+  "Notes": "intermarché st paul les dax [agent nightly-operator proposal 81454f74d1408d91 applied 2026-09-21: RappelConso fiche states \"Motif du rappel: Salmonelle\" and names Salmonella spp as the causative agent — Pathogen field was blank pending enrichment.] [nightly-operator 2026-09-21: pending -> pending; verified against regulator_page (rappel.conso.gouv.fr), Pathogen enriched via curator, deterministic checks passed] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
  },
  {
   "Date": "2026-09-18",
@@ -502,14 +534,14 @@
   "Brand": "Unbranded",
   "Product": "hareng kipper vendu au rayon poissonnerie traditionnel",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria monocytogène (inférieur à 10 ufc/g)",
+  "Reason": "Presence of Listeria monocytogenes (below 10 CFU/g)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23534/interne",
-  "Notes": "carrefour hyper montluçon uniquement"
+  "Notes": "carrefour hyper montluçon uniquement [agent nightly-operator proposal ce6d31ea3573a35d applied 2026-09-21: Published Reason still carried French wording, violating the English-output policy (test_language_policy). Translated against the regulator page, Pathogen field unchanged (already correct).]"
  },
  {
   "Date": "2026-09-17",
@@ -806,14 +838,14 @@
   "Brand": "—",
   "Product": "Graines de courge en vrac (bulk pumpkin seeds), lot 4754-1925-05, DLUO 09/10/2026",
   "Pathogen": "Salmonella",
-  "Reason": "Détection de Salmonelle / Salmonella detected. Risk statement on the notice: Salmonella spp, agent responsable de la salmonellose.",
+  "Reason": "Detection of Salmonella. Risk statement on the notice: Salmonella spp, the organism responsible for salmonellosis.",
   "Class": "Recall",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23512/Interne",
-  "Notes": "Reviewed 2026-09-17 against the RappelConso notice. Sold nationwide (France entière) 2025-11-03 to 2026-08-31. TIER CORRECTED 3 -> 1: Salmonella is always Tier 1 by the scope module; the row arrived Tier 3. OUTBREAK LEFT AT 0 DELIBERATELY: agriculture.gouv.fr published 'Cas groupés de salmonellose : retrait-rappel de graines de courge' on 2026-09-04 reporting 81 cases of one Salmonella Enteritidis strain isolated 3 May - 12 Aug 2026 from pumpkin seeds processed in Lot-et-Garonne, but that notice names fiches 23359 and 23360, NOT 23512. Same product and period, linkage UNVERIFIED. Do not set Outbreak=1 without a source naming this fiche."
+  "Notes": "Reviewed 2026-09-17 against the RappelConso notice. Sold nationwide (France entière) 2025-11-03 to 2026-08-31. TIER CORRECTED 3 -> 1: Salmonella is always Tier 1 by the scope module; the row arrived Tier 3. OUTBREAK LEFT AT 0 DELIBERATELY: agriculture.gouv.fr published 'Cas groupés de salmonellose : retrait-rappel de graines de courge' on 2026-09-04 reporting 81 cases of one Salmonella Enteritidis strain isolated 3 May - 12 Aug 2026 from pumpkin seeds processed in Lot-et-Garonne, but that notice names fiches 23359 and 23360, NOT 23512. Same product and period, linkage UNVERIFIED. Do not set Outbreak=1 without a source naming this fiche. [agent nightly-operator proposal 6171e62a8b22103e applied 2026-09-21: Published Reason still carried French wording, violating the English-output policy (test_language_policy). Translated against the regulator page, Pathogen field unchanged (already correct).]"
  },
  {
   "Date": "2026-09-15",
@@ -2022,14 +2054,14 @@
   "Brand": "U Saveurs",
   "Product": "jambon de bayonne igp u saveurs",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria monocytogènes",
+  "Reason": "Presence of Listeria monocytogenes",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23456/interne",
-  "Notes": "super u [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "super u [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator proposal 1988265a144093a9 applied 2026-09-21: Published Reason still carried French wording, violating the English-output policy (test_language_policy). Translated against the regulator page, Pathogen field unchanged (already correct).]"
  },
  {
   "Date": "2026-09-04",
@@ -10478,22 +10510,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22805/Interne",
   "Notes": "carrefour pontault combault uniquement [url-gate 2026-07-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-14: fix; corrections: Company→Carrefour, Brand→Unbranded, Product→PILON DE POULET MARINE (TOUTE MARINADE) , Pathogen→Listeria monocytogenes; placeholder_company_filled_from_page | fix; company mismatch | Company field is empty but page identifies Carrefour as t] [language 2026-08-15: Reason organism name rendered in English. Was 'Presence of listéria'. The species name is not exempt from the English-output rule — only brand and product names are — and this row's own Pathogen field already read 'Listeria monocytogenes', which is where the target came from. Only the organism token was rewritten; any quantitative qualifier is byte-identical.]"
- },
- {
-  "Date": "2026-07-10",
-  "Source": "CFIA",
-  "Company": "Boucherie Charcuterie Lyn Tremblay Inc.",
-  "Brand": "Joe Smoked Meat, Charcuterie Charlevoisienne",
-  "Product": "Charcuterie Charlevoisienne and Joe Smoked Meat brand meat products recalled due to Listeria monocytogenes",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Charcuterie Charlevoisienne and Joe Smoked Meat brand meat products recalled due to Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Canada",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/charcuterie-charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due",
-  "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/charcuterie-charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due [via official-feed collector] [gemini-check 2026-07-14: fix; corrections: Company→Boucherie Charcuterie Lyn Tremblay Inc., Brand→Joe Smoked Meat, Charcuterie Charlevoisi; placeholder_company_filled_from_page | fix; company mismatch | Company and Brand were empty in the row but found on the ] [gap-gate 2026-07-14: pending_gap → pending_gap_v1] [gap-gate 2026-07-14: pending_gap_v1 → pending_gap_v2] [claude-check 2026-07-15: pass; pass | All fields match the official CFIA page. Date 2026-07-10 confirmed. Company Boucherie Charcuterie Lyn Tremblay In] [gap-gate 2026-07-15: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)]"
  },
  {
   "Date": "2026-07-10",

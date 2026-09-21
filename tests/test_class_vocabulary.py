@@ -83,6 +83,7 @@ ALLOWED = {
     "Sanitary alert (update)",
     "Voluntary",
     "Voluntary recall",
+    "Withdrawal",                    # GIS (PL) notice type (2026-09-10)
 }
 
 # Values that must never come back, with the reason they left.

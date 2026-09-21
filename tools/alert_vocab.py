@@ -92,6 +92,12 @@ PATHOGEN: dict[str, list[str]] = {
     "Yersinia": ["yersinia", "enterocolitica"],                     # 0  (rules)
     "Shigella": ["shigella"],                                       # 0  (rules)
     "Brucella": ["brucella", "brucellosis"],                        # 0  (rules)
+    # RappelConso's own risk category for a notice that names no organism
+    # (audit 2026-09-21): "Autres contaminants biologiques". Without this,
+    # such a row is published but no pathogen alert can ever reach it.
+    "Other biological contaminants": ["autres contaminants biologiques",
+                                      "other biological contaminant",
+                                      "unspecified microbiological"],  # 1
 
     # --- viruses --------------------------------------------------------
     "Norovirus": ["norovirus", "norwalk"],                          # 19
@@ -125,7 +131,8 @@ PATHOGEN: dict[str, list[str]] = {
                                      "phytoplankton"],              # 8
     "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol",
                                 "muscaria", "hydrocyanic", "cyanogenic",
-                                "solanine", "tropane"],             # 3
+                                "solanine", "tropane",
+                                "pyrrolizidine"],                   # 4
 
     # --- chemical -------------------------------------------------------
     "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury",
