@@ -98,6 +98,39 @@ def review_day_for(now_utc: Optional[datetime] = None) -> date:
     return d + timedelta(days=days_until_thu)
 
 
+def review_day_just_closed(now_utc: Optional[datetime] = None) -> date:
+    """The review bucket the Sunday email is ABOUT — the one that just shut.
+
+    AUDIT 2026-09-21 — the same off-by-one-week as weekly_review_capture.
+    ---------------------------------------------------------------------
+    ``review_day_for()`` answers "a row rejected right now appears in
+    WHICH email?" — the correct stamp to WRITE at rejection time, and it
+    deliberately rolls over once Sunday 17:00 Athens passes.
+
+    ``export_week_slice()`` reused it as the FILTER for the email being
+    sent, and the mailer fires at Sunday 17:00 — the instant of the
+    rollover. So the slice looked in next week's bucket, which is empty
+    by construction, and the rejection list in the operator email was
+    empty every week while Weekly_Rejected held 22 rows.
+
+    This is the mirror of ``weekly_review_capture.review_day_just_closed``
+    and must stay identical to it: the two sheets share one cutoff.
+
+      * Sunday at/after 17:00 Athens -> today; the bucket has just closed
+      * Sunday before 17:00          -> the previous Sunday, since this
+                                        week's bucket is still filling
+      * any other day                -> the Sunday just past
+    """
+    if now_utc is None:
+        now_utc = datetime.now(timezone.utc)
+    local = now_utc.astimezone(ATHENS)
+    d = local.date()
+    days_since_sun = (d.weekday() - 6) % 7      # Sun=0, Mon=1 ... Sat=6
+    if days_since_sun == 0:
+        return d if local.hour >= REVIEW_HOUR_LOCAL else d - timedelta(days=7)
+    return d - timedelta(days=days_since_sun)
+
+
 # ---------------------------------------------------------------------------
 # Sheet I/O helpers
 # ---------------------------------------------------------------------------
@@ -379,7 +412,14 @@ def record_rejections(
     if not rejected_rows:
         # Always refresh the JSON snapshot anyway so the mailer sees
         # current state on zero-reject runs (idempotent timestamp bump).
-        export_week_slice(xlsx_path=xlsx_path, json_path=json_path)
+        #
+        # Pass the FILLING window explicitly. export_week_slice()'s
+        # default is now the window that just CLOSED (correct for the
+        # mailer, wrong here) — leaving it implicit would make a
+        # zero-reject run mid-week rewrite the file with last week's
+        # bucket and undo the current one.
+        export_week_slice(xlsx_path=xlsx_path, json_path=json_path,
+                          week_end=review_day_for().isoformat())
         return 0
 
     week_end = review_day_for().isoformat()
@@ -499,11 +539,15 @@ def export_week_slice(
     Write a JSON slice of the upcoming/current Thu→Thu rejection window
     for the Apps Script Thursday-17:00 mailer to fetch.
 
-    week_end: ISO date of the closing Thursday. Default = the Thursday
-              the next rejection would land in (i.e. the upcoming review).
+    week_end: ISO date of the closing Sunday. Default = the window that
+              has just CLOSED — the one the email being sent is about.
+              Callers recording a fresh rejection pass the upcoming
+              Sunday explicitly (record_rejections does).
     """
     if week_end is None:
-        week_end = review_day_for().isoformat()
+        # The week that CLOSED, not the one now filling. See
+        # review_day_just_closed() for the empty rejection lists this cost.
+        week_end = review_day_just_closed().isoformat()
 
     rows: List[Dict[str, Any]] = []
     if xlsx_path.exists():
