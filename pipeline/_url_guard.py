@@ -84,4 +84,102 @@ def url_overwrite_refusal(row: Dict[str, Any], proposed: str) -> str:
 
     return ""
 
+# ==========================================================================
+# THE REJECT SIDE (audit 2026-09-21)
+# ==========================================================================
+# url_overwrite_refusal above stops reviewer 1 REPLACING a regulator's own
+# href with a guess. That was the Macroom incident. This is its mirror
+# image, and it has been quietly costing rows ever since:
+#
+# Reviewer 1's contract lets it reject for "no official page findable". It
+# decides "findable" by SEARCHING and FETCHING — and it does not look at
+# the URL already sitting on the row. So when a collector has supplied the
+# regulator's own href, which is the strongest evidence available, and the
+# page happens to be unreachable from a GitHub runner, the model concludes
+# the page does not exist and throws the row away.
+#
+# MEASURED 2026-09-21, from the live Weekly_Rejected sheet — every one of
+# these was rejected as "no official page", with the official page in its
+# own URL column:
+#
+#   FSAI (IE)  Dunnes Stores Potato Waffles   (rejected TWICE)
+#     https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-
+#     dunnes-stores-potato-waffles
+#   FSAI (IE)  prepared Roast Chicken and Gravy
+#   FDA        Gf Blends
+#     https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/
+#     gf-blends-recalls-truly-aip-all-purpose-fl
+#
+# fda.gov, fsis.usda.gov, fda.gov.ph and gov.il are already known to return
+# HTTP 403 to datacentre traffic for EVERY url — documented in this repo.
+# "I could not fetch it" and "it does not exist" are different facts and
+# the agent was reporting the second when it meant the first.
+#
+# This is not a licence to publish. The row goes back to the queue for a
+# human or a later run; it is simply not DISCARDED on the strength of a
+# fetch that a datacentre IP was never going to complete.
 
+#: Hosts whose own domain is proof the page is official. Suffix match, so
+#: a subdomain counts. Keep in step with the collectors in
+#: pipeline/official_feeds/sources/.
+_AUTHORITY_HOSTS = (
+    "fsai.ie", "fda.gov", "fsis.usda.gov", "cfia-acia.canada.ca",
+    "inspection.canada.ca", "recalls-rappels.canada.ca", "food.gov.uk",
+    "rappel.conso.gouv.fr", "agriculture.gouv.fr", "mattilsynet.no",
+    "livsmedelsverket.se", "ruokavirasto.fi", "nvwa.nl", "favv-afsca.be",
+    "blv.admin.ch", "ages.at", "bvl.bund.de", "lebensmittelwarnung.de",
+    "gov.pl", "efet.gr", "salute.gov.it", "aesan.gob.es", "asae.gov.pt",
+    "webgate.ec.europa.eu", "ec.europa.eu", "foodstandards.gov.au",
+    "mpi.govt.nz", "sfa.gov.sg", "cfs.gov.hk", "mfds.go.kr",
+    "fda.gov.ph", "gov.il", "nafdac.gov.ng", "sahpra.org.za",
+)
+
+#: Reject reasons that are a claim about REACHABILITY, not about content.
+#: Anything here is answerable by the URL already on the row.
+_NOT_FOUND_REASON = re.compile(
+    r"no\s+(official|specific)?\s*(regulator|recall|agency)?\s*"
+    r"(page|url|link|source)?\s*(was\s+)?(found|findable|located|"
+    r"available|identified)"
+    r"|could\s+not\s+(be\s+)?(find|locate|reach|access|verify)"
+    r"|unable\s+to\s+(find|locate|reach|access|verify)"
+    r"|(page|url|link)\s+(not\s+found|unreachable|inaccessible)"
+    r"|404|403",
+    re.I)
+
+
+def host_is_authority(url: str) -> bool:
+    """Is this URL on a regulator's own domain?"""
+    try:
+        host = urlparse(str(url or "").strip()).netloc.lower()
+    except ValueError:
+        return False
+    if not host:
+        return False
+    host = host.split(":")[0]
+    if host.startswith("www."):
+        host = host[4:]
+    return any(host == a or host.endswith("." + a) for a in _AUTHORITY_HOSTS)
+
+
+def reject_refusal(row: Dict[str, Any], reason: str) -> str:
+    """"" if reviewer 1 may reject on this reason, else why it may not.
+
+    ONLY blocks the "I could not find the page" class. A reject on
+    content — out of scope, allergen, foreign body, pre-2026, not a
+    recall, non-food — is reviewer 1 doing its job and passes straight
+    through, even on an authority URL.
+    """
+    why = str(reason or "").strip()
+    if not why:
+        return ""
+    if not _NOT_FOUND_REASON.search(why):
+        return ""          # a content verdict; not this guard's business
+    url = str(row.get("URL") or "").strip()
+    if not url:
+        return ""          # nothing on the row to contradict the model
+    if not host_is_authority(url):
+        return ""          # a news or unknown host proves nothing
+    return (f"the row already carries an official regulator URL ({url}); "
+            f"'{why[:90]}' is a statement about reachability, not about "
+            f"whether the notice exists. Several regulator hosts return "
+            f"403 to datacentre traffic for every page.")
