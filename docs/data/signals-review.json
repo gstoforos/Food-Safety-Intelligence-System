@@ -1,10 +1,10 @@
 {
  "meta": {
-  "week": "2026-09-07/2026-09-13",
-  "week_start": "2026-09-07",
-  "week_end": "2026-09-13",
-  "corpus_week_total": 54,
-  "generated_utc": "2026-09-14T02:22:11+00:00",
+  "week": "2026-09-14/2026-09-20",
+  "week_start": "2026-09-14",
+  "week_end": "2026-09-20",
+  "corpus_week_total": 57,
+  "generated_utc": "2026-09-21T02:22:05+00:00",
   "agent": "signal_review_agent",
   "model": null,
   "advisory_only": true,
@@ -17,49 +17,9 @@
  },
  "novelty": [
   {
-   "pathogen": "Clostridium perfringens",
-   "stratum_key": "global::Clostridium perfringens",
-   "observed": 2,
-   "baseline": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "first_appearance_ever": true,
-   "outbreak_records": 0,
-   "tier1_records": 0,
-   "severity": "no severity flag",
-   "records": [
-    {
-     "date": "2026-09-11",
-     "source": "RappelConso (FR)",
-     "company": "La Truffe Perigourdine",
-     "product": "Foie gras, choix, deveined (\"FOIE GRAS CHOIX EVEINE DF SO LTRESTO\") in Darfresh pack — lot VA238F001",
-     "country": "France",
-     "outbreak": false,
-     "tier": "2"
-    },
-    {
-     "date": "2026-09-11",
-     "source": "RappelConso (FR)",
-     "company": "La Truffe Perigourdine",
-     "product": "Duck foie gras, deveined, extra, 2 lobes, from the South-West, in Darfresh pack — lot VA238F001, use",
-     "country": "France",
-     "outbreak": false,
-     "tier": "2"
-    }
-   ],
-   "testable": false,
-   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
-  },
-  {
-   "pathogen": "Foreign material",
-   "stratum_key": "global::Foreign material",
-   "observed": 2,
+   "pathogen": "Campylobacter",
+   "stratum_key": "global::Campylobacter",
+   "observed": 1,
    "baseline": [
     0,
     0,
@@ -75,22 +35,106 @@
    "severity": "no severity flag",
    "records": [
     {
-     "date": "2026-09-09",
+     "date": "2026-09-15",
      "source": "RappelConso (FR)",
-     "company": "Distri Mascareignes GIE",
-     "product": "Pork sausages \"lontan\", pork sausages \"lontan aux herbes\", pork merguez and pork chipolatas sold at ",
+     "company": "ALDI CENTRALE D'ACHAT ET COMPAGNIE ALDI",
+     "product": "nugget de poulet 1kg",
      "country": "France",
      "outbreak": false,
      "tier": "2"
-    },
+    }
+   ],
+   "testable": false,
+   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
+  },
+  {
+   "pathogen": "Foreign material",
+   "stratum_key": "global::Foreign material",
+   "observed": 1,
+   "baseline": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_appearance_ever": false,
+   "outbreak_records": 0,
+   "tier1_records": 0,
+   "severity": "no severity flag",
+   "records": [
     {
-     "date": "2026-09-09",
+     "date": "2026-09-15",
+     "source": "FDA",
+     "company": "Danone USA",
+     "product": "So Delicious Dairy Free Salted Caramel Cluster Non-Dairy Frozen Dessert, pints, UPC 744473476138, SK",
+     "country": "United States",
+     "outbreak": false,
+     "tier": "3"
+    }
+   ],
+   "testable": false,
+   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
+  },
+  {
+   "pathogen": "Unspecified microbiological contamination",
+   "stratum_key": "global::Unspecified microbiological contamination",
+   "observed": 1,
+   "baseline": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_appearance_ever": true,
+   "outbreak_records": 0,
+   "tier1_records": 0,
+   "severity": "no severity flag",
+   "records": [
+    {
+     "date": "2026-09-17",
      "source": "RappelConso (FR)",
-     "company": "Distri Mascareignes GIE",
-     "product": "Pork stuffing (farce de porc), pork merguez and pork chipolatas in modified-atmosphere trays — GTIN ",
+     "company": "CARREFOUR FRANCE",
+     "product": "Hydrate Isotonic Blueberry Flavour, bouteille 50 cl, lots HHMML6145R (DDM 21/12/2026) and HHMML6146R",
      "country": "France",
      "outbreak": false,
-     "tier": "2"
+     "tier": "3"
+    }
+   ],
+   "testable": false,
+   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
+  },
+  {
+   "pathogen": "Veterinary drug residue",
+   "stratum_key": "global::Veterinary drug residue",
+   "observed": 1,
+   "baseline": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_appearance_ever": true,
+   "outbreak_records": 0,
+   "tier1_records": 0,
+   "severity": "no severity flag",
+   "records": [
+    {
+     "date": "2026-09-18",
+     "source": "RappelConso (FR)",
+     "company": "ROZENN-AER SARL (Vincent Conanec)",
+     "product": "Oeufs issus de poules plein air, lot 1FRLNS01, pondu le 31-08-2026, DDM 28-09-2026",
+     "country": "France",
+     "outbreak": false,
+     "tier": "3"
     }
    ],
    "testable": false,
@@ -101,21 +145,17 @@
   "observed": 1,
   "baseline": [
    1,
-   1,
    2,
    0,
    1,
    0,
-   1
+   1,
+   2
   ],
-  "baseline_mean": 0.86,
-  "poisson_p_upper": 0.575627,
+  "baseline_mean": 1.0,
+  "poisson_p_upper": 0.632121,
   "note": "exact Poisson upper tail vs the guarded 7-week mean; small counts — read the tail, do not threshold it",
   "series_12w": [
-   {
-    "week": "2026-06-22/2026-06-28",
-    "n": 1
-   },
    {
     "week": "2026-06-29/2026-07-05",
     "n": 1
@@ -150,7 +190,7 @@
    },
    {
     "week": "2026-08-24/2026-08-30",
-    "n": 1
+    "n": 2
    },
    {
     "week": "2026-08-31/2026-09-06",
@@ -159,183 +199,211 @@
    {
     "week": "2026-09-07/2026-09-13",
     "n": 1
+   },
+   {
+    "week": "2026-09-14/2026-09-20",
+    "n": 1
    }
   ],
   "records": [
    {
-    "date": "2026-09-09",
-    "source": "CDC",
-    "pathogen": "Salmonella",
-    "company": "Evergreen Fresh Sprouts, LLC",
-    "country": "United States"
+    "date": "2026-09-15",
+    "source": "CFIA",
+    "pathogen": "Norovirus",
+    "company": "New Alasko L.P.",
+    "country": "Canada"
    }
   ]
  },
  "news": {
-  "n_headlines": 35,
+  "n_headlines": 32,
   "burst_threshold": 3,
   "applies_to_week": true,
   "note": "rolling 7-day NEWS sheet read at run time; describes the latest complete week",
-  "baseline_weeks_available": 2,
+  "baseline_weeks_available": 3,
   "pathogens": [
    {
-    "pathogen": "Salmonella",
-    "headlines": 13,
-    "burst": true,
-    "baseline_weeks": 2,
-    "baseline_mean": 15.0,
-    "samples": [
-     "Evergreen Fresh Broccoli Sprouts Salmonella Outbreak Sickens 22",
-     "Evergreen Fresh Broccoli Sprouts Recalled For Salmonella",
-     "Idaho company recalls sprouts linked to Salmonella outbreak",
-     "UK Salmonella outbreak appears to be easing",
-     "Peanuts recalled because of Salmonella contamination"
-    ]
-   },
-   {
-    "pathogen": "Cyclospora",
-    "headlines": 5,
-    "burst": true,
-    "baseline_weeks": 2,
-    "baseline_mean": 6.0,
-    "samples": [
-     "Iceberg Lettuce Cyclospora Outbreak Ends With 12,883 Sick",
-     "CDC says Cyclospora outbreak linked to iceberg lettuce is over",
-     "Cyclospora Outbreak Linked to Taylor Farms Lettuce Ends with Nearly 13,000 Illnesses, Two Deaths",
-     "CDC reporting almost 20,000 confirmed patients in Cyclospora outbreak",
-     "Interim Report Details Michigan’s Cyclospora Outbreak Investigation, Early Epidemiologic Evidence"
-    ]
-   },
-   {
     "pathogen": "Listeria monocytogenes",
+    "headlines": 9,
+    "burst": true,
+    "baseline_weeks": 3,
+    "baseline_mean": 3.67,
+    "samples": [
+     "Bettergoods Italian Lemon Alfredo Fettuccine Recalled For Listeria",
+     "USDA-FSIS to Roll Out Listeria Environmental Sampling Program Nationwide at RTE Facilities",
+     "Fresh & Local and Fresh Bites Sandwiches Recalled For Possible Listeria",
+     "FDA releases executive summaries on two outbreak investigations",
+     "Olymel Chicken Breast Strips Recalled in Canada For Listeria"
+    ]
+   },
+   {
+    "pathogen": "Salmonella",
     "headlines": 4,
     "burst": true,
-    "baseline_weeks": 2,
-    "baseline_mean": 3.5,
+    "baseline_weeks": 3,
+    "baseline_mean": 14.33,
     "samples": [
-     "Prime Line Guanciale Recalled For Possible Listeria",
-     "Made Fresh Salads and Cream Cheese Recalled For Listeria",
-     "Dozens of varieties of deli style salads recalled because of Listeria",
-     "Ready-to-eat pork jowls recalled because of Listeria contamination"
+     "Leaping Bear Eggs Salmonella Outbreak Sickens 14 in Vermont",
+     "Study Shows Potential of Thymol for Controlling Salmonella Biofilms on Food-Contact Surfaces",
+     "Happy Hens Eggs Recalled in Ramona Family Market Salmonella Outbreak",
+     "International Sprout Holding Recalls Seeds For E. coli and Salmonella"
     ]
    },
    {
-    "pathogen": "Clostridium botulinum",
+    "pathogen": "Campylobacter",
     "headlines": 3,
     "burst": true,
-    "baseline_weeks": 2,
-    "baseline_mean": 1.5,
+    "baseline_weeks": 3,
+    "baseline_mean": 0.67,
     "samples": [
-     "Pesto linked to botulism cases in Poland",
-     "Recommendations from Industry-Led Reagan-Udall Roundtable on Controlling C. botulinum in Infant Formula",
-     "Sauce company refuses to comply with cease and desist order issued because of botulism risk"
+     "Researchers Identify Molecule in Gut that Inhibits Campylobacter Growth",
+     "Study Explores qPCR Campylobacter Monitoring in Fecal, Air Samples on Poultry Farms",
+     "Food Safety Five Ep. 37: Sanitizer Spray Efficacy, ROI of WGS, Emulsifier Health Effects, and More"
     ]
    },
    {
-    "pathogen": "Clostridium perfringens",
-    "headlines": 3,
-    "burst": true,
-    "baseline_weeks": 2,
+    "pathogen": "Norovirus",
+    "headlines": 2,
+    "burst": false,
+    "baseline_weeks": 3,
     "baseline_mean": 0.0,
     "samples": [
-     "Pesto linked to botulism cases in Poland",
-     "Recommendations from Industry-Led Reagan-Udall Roundtable on Controlling C. botulinum in Infant Formula",
-     "Sauce company refuses to comply with cease and desist order issued because of botulism risk"
+     "Alasko Frozen Raspberries Recalled in Canada For Norovirus",
+     "Frozen raspberries recalled because of norovirus; illnesses reported"
+    ]
+   },
+   {
+    "pathogen": "Undeclared pharmacological ingredient (yohimbine)",
+    "headlines": 2,
+    "burst": false,
+    "baseline_weeks": 3,
+    "baseline_mean": 0.33,
+    "samples": [
+     "Whole Foods recalls cheese because of undeclared eggs",
+     "Potato chips recalled because of  undeclared soy"
+    ]
+   },
+   {
+    "pathogen": "Hepatitis A",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 3,
+    "baseline_mean": 0.0,
+    "samples": [
+     "Details emerge about Italian hepatitis A outbreak"
     ]
    },
    {
     "pathogen": "Possible incomplete pasteurization (process deviation)",
-    "headlines": 2,
-    "burst": false,
-    "baseline_weeks": 2,
-    "baseline_mean": 1.0,
-    "samples": [
-     "Prime Line Guanciale Recalled For Possible Listeria",
-     "Fi Dog Supplements Recalled For Possible Salmonella"
-    ]
-   },
-   {
-    "pathogen": "Aflatoxin",
     "headlines": 1,
     "burst": false,
-    "baseline_weeks": 2,
-    "baseline_mean": 0.0,
+    "baseline_weeks": 3,
+    "baseline_mean": 1.33,
     "samples": [
-     "EU notes improvement in U.S. aflatoxin situation"
+     "Fresh & Local and Fresh Bites Sandwiches Recalled For Possible Listeria"
     ]
    },
-   {
-    "pathogen": "Rodenticide (rat poison)",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 2,
-    "baseline_mean": 0.0,
-    "samples": [
-     "Indonesia urged to act to stop meal program poisonings"
-    ]
-   },
-   {
-    "pathogen": "Bacillus cereus",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 2,
-    "baseline_mean": 0.5,
-    "samples": [
-     "EU opens comments on cereulide limit proposals"
-    ]
-   },
-   {
-    "pathogen": "Cereulide (B. cereus toxin)",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 2,
-    "baseline_mean": 0.5,
-    "samples": [
-     "EU opens comments on cereulide limit proposals"
-    ]
-   }
-  ],
-  "news_only": [
    {
     "pathogen": "Cyclospora",
-    "headlines": 5,
-    "register_records_this_week": 0,
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 3,
+    "baseline_mean": 5.67,
     "samples": [
-     "Iceberg Lettuce Cyclospora Outbreak Ends With 12,883 Sick",
-     "CDC says Cyclospora outbreak linked to iceberg lettuce is over",
-     "Cyclospora Outbreak Linked to Taylor Farms Lettuce Ends with Nearly 13,000 Illnesses, Two Deaths",
-     "CDC reporting almost 20,000 confirmed patients in Cyclospora outbreak",
-     "Interim Report Details Michigan’s Cyclospora Outbreak Investigation, Early Epidemiologic Evidence"
+     "Cyclospora Outbreak Sickens 19,883 With 1,064 Hospitalized"
     ]
    },
    {
     "pathogen": "Clostridium botulinum",
-    "headlines": 3,
-    "register_records_this_week": 0,
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 3,
+    "baseline_mean": 2.0,
     "samples": [
-     "Pesto linked to botulism cases in Poland",
-     "Recommendations from Industry-Led Reagan-Udall Roundtable on Controlling C. botulinum in Infant Formula",
-     "Sauce company refuses to comply with cease and desist order issued because of botulism risk"
+     "Cease-and-Desist Order To Phire in the Hole Hot Sauce Maker"
+    ]
+   },
+   {
+    "pathogen": "Clostridium perfringens",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 3,
+    "baseline_mean": 1.0,
+    "samples": [
+     "Cease-and-Desist Order To Phire in the Hole Hot Sauce Maker"
+    ]
+   },
+   {
+    "pathogen": "Cronobacter sakazakii",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 3,
+    "baseline_mean": 0.0,
+    "samples": [
+     "Sunday Edition: Sodium"
+    ]
+   },
+   {
+    "pathogen": "Pesticide residues",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 3,
+    "baseline_mean": 0.33,
+    "samples": [
+     "FDA steps up enforcement on importers because of illegal colors, pesticides and unsafe additives"
     ]
    }
-  ]
+  ],
+  "news_only": []
  },
  "alarm_reviews": [
   {
-   "label": "Tier 2 · Europe",
-   "stratum_key": "tier::2::Europe",
+   "label": "Shiga toxin-producing E. coli (STEC) · France",
+   "stratum_key": "country::Shiga toxin-producing E. coli (STEC)::Europe::France",
    "channel": "proportion",
-   "effect": 2.22,
-   "p_value": 0.006361578876669653,
+   "effect": 3.91,
+   "p_value": 0.004255644364634047,
    "fdr_pass": true,
-   "records": 12,
-   "distinct_firms": 9,
-   "top_firm": "origin: netherlands | notifying: netherl",
+   "records": 6,
+   "distinct_firms": 6,
+   "top_firm": "fromagerie de la core cazalas",
    "top_firm_share": 0.17,
    "outbreak_records": 0,
    "headlines": 0,
-   "verdict_hint": "unclear",
-   "reason": "no corroboration and no artefact signature found"
+   "verdict_hint": "single-publisher",
+   "reason": "83% of records from RappelConso (FR)"
+  },
+  {
+   "label": "Salmonella · France",
+   "stratum_key": "country::Salmonella::Europe::France",
+   "channel": "proportion",
+   "effect": 2.45,
+   "p_value": 0.00689941948066981,
+   "fdr_pass": true,
+   "records": 10,
+   "distinct_firms": 9,
+   "top_firm": "guillot cobreda",
+   "top_firm_share": 0.2,
+   "outbreak_records": 0,
+   "headlines": 4,
+   "verdict_hint": "corroborated",
+   "reason": "4 headlines on Salmonella this week; 100% of records from RappelConso (FR)"
+  },
+  {
+   "label": "Aflatoxin · Europe",
+   "stratum_key": "region::Aflatoxin::Europe",
+   "channel": "count-only",
+   "effect": 2.69,
+   "p_value": 0.0251599919607981,
+   "fdr_pass": true,
+   "records": 5,
+   "distinct_firms": 3,
+   "top_firm": "origin: türkiye | notifying: greece",
+   "top_firm_share": 0.4,
+   "outbreak_records": 0,
+   "headlines": 0,
+   "verdict_hint": "single-publisher",
+   "reason": "100% of records from RASFF (EU)"
   }
  ]
 }
