@@ -1,0 +1,207 @@
+{
+  "meta": {
+    "week": "2026-09-14/2026-09-20",
+    "week_start": "2026-09-14",
+    "week_end": "2026-09-20",
+    "board_generated_utc": "2026-09-21T12:21:11+00:00",
+    "generated_utc": "2026-09-21T12:21:16+00:00",
+    "reviewer": "signal_stats_reviewer",
+    "model": null,
+    "advisory_only": true,
+    "corpus_week_total": 58,
+    "strata_tested": 15,
+    "strata_suppressed_sparse": 471,
+    "signals_reported": 3
+  },
+  "fdr": {
+    "q": 0.1,
+    "m_used_by_reviewer": 15,
+    "m_declared_by_board": 15,
+    "share_channel_tests": 2,
+    "steps": [
+      {
+        "rank": 1,
+        "label": "Shiga toxin-producing E. coli (STEC) · France",
+        "p_value": 0.00464027649574115,
+        "threshold": 0.006667,
+        "formula": "1*0.1/15",
+        "passes": true
+      },
+      {
+        "rank": 2,
+        "label": "Salmonella · France",
+        "p_value": 0.007811779245341124,
+        "threshold": 0.013333,
+        "formula": "2*0.1/15",
+        "passes": true
+      }
+    ],
+    "disagreements": [],
+    "findings": []
+  },
+  "signals": [
+    {
+      "label": "Shiga toxin-producing E. coli (STEC) · France",
+      "stratum_key": "country::Shiga toxin-producing E. coli (STEC)::Europe::France",
+      "channel": "proportion",
+      "observed": 6,
+      "p_value": 0.00464027649574115,
+      "fdr_status": "pass",
+      "checks": [
+        {
+          "check": "overdispersion",
+          "severity": "caution",
+          "baseline_values": [
+            0.0,
+            0.0,
+            9.0,
+            1.0,
+            1.0,
+            1.0,
+            0.0
+          ],
+          "baseline_variance": 10.571,
+          "binomial_variance": 1.518,
+          "ratio": 6.96,
+          "threshold": 3.0,
+          "reading": "the baseline varies 7.0x more than Binomial(N=58, pi=0.0269) assumes, so the exact p is anti-conservative — the direction is probably right, the number is soft"
+        },
+        {
+          "check": "fragile_baseline",
+          "severity": "caution",
+          "baseline_values": [
+            0.0,
+            0.0,
+            9.0,
+            1.0,
+            1.0,
+            1.0,
+            0.0
+          ],
+          "largest_week": 9.0,
+          "share_of_baseline_mass": 0.75,
+          "threshold": 0.5,
+          "reading": "one week supplies 75% of the baseline (9 of 12); the comparison rests on a single prior observation and moves a lot if it is wrong"
+        },
+        {
+          "check": "trend",
+          "severity": "note",
+          "run_length_weeks": 4,
+          "tail": [
+            0.0,
+            2.0,
+            3.0,
+            6.0
+          ],
+          "weeks_inside_guard_band": [
+            2.0,
+            3.0
+          ],
+          "reading": "4 consecutive rising weeks ending in the alarm week (0 -> 2 -> 3 -> 6); the last 2 of them sit inside the guard band, so the test scored this as a single elevated week rather than a ramp"
+        },
+        {
+          "check": "publisher",
+          "severity": "supporting",
+          "verdict": "not-a-publisher-artefact",
+          "dominant_source": "RappelConso (FR)",
+          "dominant_share": 0.83,
+          "publisher_base_share": 0.4821,
+          "publisher_now_share": 0.3966,
+          "publisher_share_delta": -0.0855,
+          "reading": "83% of this stratum is RappelConso (FR), but RappelConso (FR)'s own share of corpus FELL 48.2% -> 39.7% (30.71 -> 23 records). The stratum rose inside a contracting feed, which is the opposite of a publication artefact."
+        }
+      ],
+      "worst_severity": "caution"
+    },
+    {
+      "label": "Salmonella · France",
+      "stratum_key": "country::Salmonella::Europe::France",
+      "channel": "proportion",
+      "observed": 10,
+      "p_value": 0.007811779245341124,
+      "fdr_status": "pass",
+      "checks": [
+        {
+          "check": "publisher",
+          "severity": "supporting",
+          "verdict": "not-a-publisher-artefact",
+          "dominant_source": "RappelConso (FR)",
+          "dominant_share": 1.0,
+          "publisher_base_share": 0.4821,
+          "publisher_now_share": 0.3966,
+          "publisher_share_delta": -0.0855,
+          "reading": "100% of this stratum is RappelConso (FR), but RappelConso (FR)'s own share of corpus FELL 48.2% -> 39.7% (30.71 -> 23 records). The stratum rose inside a contracting feed, which is the opposite of a publication artefact."
+        },
+        {
+          "check": "re_alarm",
+          "severity": "caution",
+          "prior_alarms": [
+            {
+              "week": "2026-08-31/2026-09-06",
+              "observed": 15,
+              "weeks_ago": 2,
+              "inside_guard_band": true
+            }
+          ],
+          "reading": "alarmed 1x in the last 4 weeks; a LARGER week (15 on 2026-08-31/2026-09-06) sits inside the guard band and is therefore excluded from the baseline this week is judged against — the bar is lower because of the earlier spike"
+        }
+      ],
+      "worst_severity": "caution"
+    },
+    {
+      "label": "Aflatoxin · Europe",
+      "stratum_key": "region::Aflatoxin::Europe",
+      "channel": "count-only",
+      "observed": 5,
+      "p_value": 0.02689284428523679,
+      "fdr_status": "not-applicable",
+      "checks": [
+        {
+          "check": "trend",
+          "severity": "note",
+          "run_length_weeks": 3,
+          "tail": [
+            2.0,
+            3.0,
+            5.0
+          ],
+          "weeks_inside_guard_band": [
+            2.0,
+            3.0
+          ],
+          "reading": "3 consecutive rising weeks ending in the alarm week (2 -> 3 -> 5); the last 2 of them sit inside the guard band, so the test scored this as a single elevated week rather than a ramp"
+        },
+        {
+          "check": "publisher",
+          "severity": "caution",
+          "verdict": "confounded",
+          "dominant_source": "RASFF (EU)",
+          "dominant_share": 1.0,
+          "publisher_base_share": 0.3565,
+          "publisher_now_share": 0.4828,
+          "publisher_share_delta": 0.1263,
+          "reading": "100% of this stratum is RASFF (EU), and RASFF (EU)'s own share of corpus ROSE 35.6% -> 48.3% this week. The stratum and its publisher moved together; they cannot be separated."
+        }
+      ],
+      "worst_severity": "caution"
+    }
+  ],
+  "corpus_volume": {
+    "check": "corpus_volume",
+    "severity": "note",
+    "observed": 58,
+    "baseline_mean": 63.71,
+    "baseline_sd": 14.13,
+    "c2": -0.4,
+    "reading": "corpus is below its own baseline by 0.40 sd — inside the normal band, so share readings are not confounded by a volume swing"
+  },
+  "coverage": {
+    "check": "coverage",
+    "severity": "note",
+    "within_coverage_window": true,
+    "coverage_window_start": "2026-06-08/2026-06-14",
+    "reading": "Baseline lies wholly after mature collection."
+  },
+  "defects": [],
+  "verdict": "statistics consistent with the published board"
+}
