@@ -296,9 +296,48 @@ def _existing_keys(ws) -> set:
 # RejectedBy / Reason extraction — operator sees WHO + WHY without
 # digging through Notes blobs.
 # ---------------------------------------------------------------------------
+# AUDIT 2026-09-22 — WHY EVERY REVIEWER-1 REJECTION SAID "unknown".
+# ------------------------------------------------------------------
+# This pattern lists claude-check, openrouter-check and gemini-check: the
+# reviewers that existed BEFORE the three-agent chain was built. It was
+# never updated when reviewer 1 / 2 / 3 replaced them, so no stamp any
+# current agent writes matches it, `rejected_by` stayed "", and
+# _extract_rejection_metadata fell through to "an unnamed reviewer".
+#
+# MEASURED on the live sheet: 10 of the 11 stamped rows in Weekly_Rejected
+# carried RejectedBy = "unknown" while their own Reason began "URL agent:".
+# The sheet knew which agent had spoken and could not say so.
+#
+# That is also what produced the Yotvata line an operator escalated:
+#
+#     "NO_REASON_RECORDED — rejected by an unnamed reviewer from CFIA …
+#      The writer supplied no verdict"
+#
+# The writer HAD supplied a verdict. Nothing here could read it.
+#
+# Two shapes are matched now: the bracketed stamp the agents write into
+# Notes, and the bare "URL agent:" / "Confirmer:" prefix that
+# merge_master puts in front of a REJECTED row.
 _REVIEWER_TAG_RE = re.compile(
-    r"\[(claude-check|openrouter-check|gemini-check)\b", re.IGNORECASE,
+    r"\[(claude-check|openrouter-check|gemini-check"
+    r"|url-agent|review-agent|confirm-agent|url-guardian|daily-review)\b"
+    r"|\b(URL agent|Review agent|Confirmer|Confirm agent)\s*:",
+    re.IGNORECASE,
 )
+
+#: How a matched tag is spelled in the RejectedBy column. Keyed on the
+#: lowercased match, so both shapes above land on one canonical name.
+_REVIEWER_CANONICAL = {
+    "url-agent": "reviewer 1 (url-agent)",
+    "url agent": "reviewer 1 (url-agent)",
+    "review-agent": "reviewer 2 (review-agent)",
+    "review agent": "reviewer 2 (review-agent)",
+    "confirm-agent": "reviewer 3 (confirm-agent)",
+    "confirm agent": "reviewer 3 (confirm-agent)",
+    "confirmer": "reviewer 3 (confirm-agent)",
+    "url-guardian": "url-guardian",
+    "daily-review": "daily-review-agent",
+}
 _VERDICT_REASON_RE = re.compile(
     r"\[(?:claude-check|openrouter-check|gemini-check)\s+\d{4}-\d{2}-\d{2}:\s*"
     r"(?:fail|reject)[^;]*;\s*([^\]]+)\]",
@@ -343,7 +382,9 @@ def _extract_rejection_metadata(row: Dict[str, Any]) -> Tuple[str, str]:
     if not rejected_by:
         m = _REVIEWER_TAG_RE.search(notes)
         if m:
-            rejected_by = m.group(1).lower()
+            # group(1) is the bracketed form, group(2) the bare prefix.
+            raw = (m.group(1) or m.group(2) or "").strip().lower()
+            rejected_by = _REVIEWER_CANONICAL.get(raw, raw)
 
     reason = ""
     # AUDIT 2026-09-01 — MANDATORY REASON.

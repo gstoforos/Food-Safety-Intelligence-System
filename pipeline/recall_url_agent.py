@@ -320,6 +320,23 @@ STEPS:
                  chemical / quality / labelling-only issue with no microbial
                  pathogen. Those are OUT OF SCOPE — reject them here so they
                  never reach reviewer 2.
+   AN OUTBREAK IS NOT REQUIRED (audit 2026-09-22). Most recalls are
+   precautionary and no illness is ever linked to them. "No outbreak
+   found", "no illnesses reported", "no specific outbreak for the given
+   product and hazard" are NOT grounds to reject — they are the normal
+   case. One live rejection read "No specific outbreak for the given
+   product and hazard found" on a row with a valid regulator URL; that
+   criterion appears nowhere above and was invented. Reject on the
+   HAZARD TYPE and on the SOURCE, never on the absence of illness.
+
+   "COULD NOT FETCH" IS NOT "DOES NOT EXIST" (audit 2026-09-21). If the
+   row already carries a URL on the regulator's own domain and your
+   searches cannot reach it, say so in those words and return "retry",
+   not "reject". fda.gov, fsis.usda.gov, fda.gov.ph and gov.il return
+   HTTP 403 to this runner for EVERY page; a fetch failure there is a
+   fact about the network, not about the recall. Three good rows were
+   discarded this way in one day.
+
    NAME THE HAZARD CORRECTLY in your reason — it goes into the audit trail.
    "undeclared allergen (<name>)" applies ONLY to recognised allergens
    (peanuts, tree nuts, milk, egg, soy, wheat/gluten, fish, crustaceans,
