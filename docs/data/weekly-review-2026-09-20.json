@@ -321,7 +321,5 @@
       "Week_Added": "2026-09-20",
       "Reviewed": "N"
     }
-  ],
-  "sheet_wiped_utc": "2026-09-20T14:37:10+00:00",
-  "note": "Recovered 2026-09-21 from commit 9a0419f9^ (the workbook as it stood before the 17:30 Sunday wipe). The 17:30 job regenerated this file from the sheet it had just emptied and wrote row_count: 0 over the real 15-row capture — see tools/wipe_weekly_review.py. These are the rows the 17:00 email should have carried. The next promotion replaces this file."
+  ]
 }
