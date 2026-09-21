@@ -691,7 +691,8 @@ jobs:
 
 
           try:
-              from pipeline._url_guard import url_overwrite_refusal          # noqa: E402
+              from pipeline._url_guard import (url_overwrite_refusal,
+                                           reject_refusal)          # noqa: E402
           except Exception:                                                   # noqa: BLE001
               def url_overwrite_refusal(row, proposed):                       # type: ignore
                   """Fail SAFE: with no guard module, refuse every replacement.
@@ -706,6 +707,26 @@ jobs:
                   if not new or not cur or new.rstrip("/") == cur.rstrip("/"):
                       return ""
                   return "pipeline/_url_guard.py is not importable — refusing to rewrite"
+
+              def reject_refusal(row, reason):                                # type: ignore
+                  """Fail SAFE: with no guard module, do not DISCARD a row that
+                  carries a URL on the strength of 'I could not find the page'.
+
+                  Deliberately cruder than the real guard — it cannot tell an
+                  authority host from any other — and deliberately biased towards
+                  keeping the row. A row left in Pending is reviewed again
+                  tomorrow; a row discarded is gone.
+                  """
+                  import re as _re
+                  why = str(reason or "")
+                  if not str(row.get("URL") or "").strip():
+                      return ""
+                  if not _re.search(r"not\s+found|no\s+official|could\s+not\s+"
+                                    r"(find|locate|reach|access)|unable\s+to\s+"
+                                    r"(find|locate|reach|access)|404|403", why, _re.I):
+                      return ""
+                  return ("pipeline/_url_guard.py is not importable — refusing to "
+                          "discard a row that has a URL, on a not-found reason")
 
 
           def review_url(row: Dict[str, Any]) -> Dict[str, Any]:
@@ -891,7 +912,25 @@ jobs:
                           row["Notes"] = (note + f" [url-agent {today}: {cur}→{newstat} "
                                           f"URL confirmed]").strip()[:1000]
                   elif dec == "reject":
-                      rejected_flags[idx] = f"URL agent: {res.get('reason','')[:280]}"
+                      # A row is not discarded because a datacentre IP could not
+                      # fetch a page whose URL is already on the row. See
+                      # _url_guard.reject_refusal for the three live rows this cost
+                      # on 2026-09-21 — one of them rejected twice.
+                      _why = res.get("reason", "")
+                      _ref = reject_refusal(row, _why)
+                      if _ref:
+                          print("  [url-guard] reject refused: %s" % _ref)
+                          counts["reject"] -= 1
+                          counts["retry"] = counts.get("retry", 0) + 1
+                          note = str(row.get("Notes", "")).strip()
+                          tag = (f"[url-guard {today}: reviewer 1 tried to reject this "
+                                 f"row as {_why[:110]!r}; refused — the official URL is "
+                                 f"on the row. Left in Pending for a later run.]")
+                          _room = 1000 - len(tag) - 1
+                          row["Notes"] = ((note[:_room].rstrip() + " " + tag).strip()
+                                          if _room > 0 else tag[:1000])
+                      else:
+                          rejected_flags[idx] = f"URL agent: {_why[:280]}"
 
                   print(f"  [{n}/{len(work_idx)}] {dec.upper():11s} {cur:18s} "
                         f"→ {newstat or cur:16s} {str(row.get('Product',''))[:34]:34s}"
