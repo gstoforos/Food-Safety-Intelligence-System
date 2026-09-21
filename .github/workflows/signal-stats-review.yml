@@ -1,0 +1,172 @@
+# =============================================================================
+# Signal Statistics Reviewer — Monday evening (deterministic, no model)
+# =============================================================================
+# Runs pipeline/signal_stats_reviewer.py over docs/data/signals-board.json and
+# writes down what a statistician would ask of that week's result:
+#
+#   fdr_recompute     BH step-up redone from the board's own p-values and
+#                     strata_tested, by a SECOND implementation. Disagreement
+#                     with the published verdicts is reported as a DEFECT.
+#   overdispersion    baseline variance vs the Binomial(N, pi) variance the
+#                     share test assumes — an optimistic p, in the direction
+#                     that makes alarms rather than suppresses them
+#   fragile_baseline  one week supplying most of the baseline mass
+#   trend             a monotone run ending in the alarm week, including the
+#                     weeks the guard band hides from the test
+#   re_alarm          the same stratum alarming again, and whether its
+#                     earlier, LARGER week sits inside the current guard band
+#   publisher         dominant source, and whether THAT publisher's own share
+#                     of corpus rose or fell — the answer cuts both ways
+#   corpus_volume     is the denominator itself inside its normal band
+#   coverage          does the baseline lie inside mature collection
+#
+# Writes: docs/data/signals-stats-review.json
+#         docs/data/signals-stats-review.md
+#         docs/data/signals-stats-review.jsonl   (append-only history)
+#
+# WHY IT EXISTS (audit 2026-09-21)
+# --------------------------------
+# A hand audit of one week's board found three things nothing in the
+# pipeline could notice, because none of them is wrong code:
+#
+#   * BH was applied over len(candidates) — the strata that had already
+#     cleared alpha — instead of over the strata tested. 3 instead of 15.
+#     Published table read "FDR: pass" on a row the honest step-up drops.
+#   * STEC - France alarmed against baseline [0,0,9,1,1,1,0]: SD 3.25 on a
+#     mean of 1.71, roughly 7x the variance the binomial assumes.
+#   * The same series reads 0 -> 2 -> 3 -> 6. The strongest evidence on the
+#     board was the one thing the board never tested.
+#
+# The test suite cannot catch any of that. A weekly reviewer can, and
+# writes its arithmetic down so a reader can redo it.
+#
+# WHEN. MONDAY EVENING, after signal-board.yml and signal-review-agent.yml
+# have both run — it reads the board those produce. Scheduling is
+# centralised in FsisScheduler.gs by repository rule; add a Monday evening
+# slot for `signal-stats-review.yml`. No internal cron block.
+# tools/dispatch_watchdog.py watches the commit prefix "Signal stats ".
+#
+# NOT EMBEDDED. Checks the .py out of the repo rather than installing it
+# from a heredoc, for the reason signal-review-agent.yml gives: on
+# 2026-09-02 two embedded agent copies were found stale against their .py
+# files, so fixes that were on main never executed.
+#
+# ADVISORY. It annotates a board that is already published. It never
+# suppresses a signal, never alarms, and never writes to the register.
+# `--fail-on-defect` is deliberately NOT passed: a red run every Monday is
+# a red run everyone learns to ignore. The defect count goes in the step
+# summary and the commit message instead, where it is read.
+# =============================================================================
+
+name: Signal Statistics Reviewer (weekly, Monday evening)
+
+on:
+  # Scheduling is centralised in Apps Script (FsisScheduler.gs), which
+  # dispatches this workflow on Monday evening Athens time.
+  workflow_dispatch: {}
+
+concurrency:
+  group: fsis-data-writers
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  stats-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Board must exist and be for a complete week
+        id: board
+        run: |
+          if [ ! -f docs/data/signals-board.json ]; then
+            echo "::error title=No signal board::docs/data/signals-board.json is missing. signal-board.yml has not run, or its commit did not land. Nothing to review."
+            exit 1
+          fi
+          WEEK=$(python - <<'EOF'
+          import json
+          d = json.loads(open("docs/data/signals-board.json",
+                              encoding="utf-8-sig").read())
+          print(d.get("meta", {}).get("week", ""))
+          EOF
+          )
+          echo "week=$WEEK" >> "$GITHUB_OUTPUT"
+          echo "Reviewing board for week: $WEEK"
+
+      - name: Run the statistics reviewer
+        run: |
+          python -m pipeline.signal_stats_reviewer | tee /tmp/stats.log
+
+      - name: Summarise
+        if: always()
+        run: |
+          N=$(python - <<'EOF'
+          import json
+          try:
+              d = json.load(open("docs/data/signals-stats-review.json",
+                                 encoding="utf-8"))
+              print(len(d.get("defects") or []))
+          except Exception:
+              print("?")
+          EOF
+          )
+          {
+            echo "## Signal statistics review — $(TZ=Europe/Athens date '+%Y-%m-%d %H:%M') Athens"
+            echo ""
+            echo "Defects: **${N}**"
+            echo ""
+            if [ -f docs/data/signals-stats-review.md ]; then
+              cat docs/data/signals-stats-review.md
+            else
+              echo '```'
+              cat /tmp/stats.log || true
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          # An annotation too, so a defect is visible on the runs list
+          # without opening the summary.
+          if [ "$N" != "0" ] && [ "$N" != "?" ]; then
+            echo "::warning title=Signal statistics review found ${N} defect(s)::See the step summary. Advisory — the board was published regardless."
+          fi
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          for f in docs/data/signals-stats-review.json \
+                   docs/data/signals-stats-review.md \
+                   docs/data/signals-stats-review.jsonl; do
+            [ -f "$f" ] && git add "$f"
+          done
+          if git diff --cached --quiet; then
+            echo "No review outputs changed — nothing to commit."
+            exit 0
+          fi
+          N=$(python - <<'EOF'
+          import json
+          d = json.load(open("docs/data/signals-stats-review.json",
+                             encoding="utf-8"))
+          print(len(d.get("defects") or []))
+          EOF
+          )
+          git commit -m "Signal stats ${{ steps.board.outputs.week }} — ${N} defect(s), FDR recomputed"
+          git pull --rebase --autostash origin main || true
+          git push origin HEAD:main
