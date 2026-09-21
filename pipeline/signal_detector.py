@@ -240,16 +240,52 @@ def binom_sf(k: int, n: int, p: float) -> float:
     return min(max(total, 0.0), 1.0)
 
 
-def benjamini_hochberg(pvals: List[float], q: float) -> List[bool]:
-    """Standard BH step-up. Returns a per-test rejection mask."""
+def benjamini_hochberg(pvals: List[float], q: float,
+                       m: Optional[int] = None) -> List[bool]:
+    """Standard BH step-up. Returns a per-test rejection mask.
+
+    ``m`` is the NUMBER OF HYPOTHESES TESTED, which is not in general the
+    length of ``pvals``.
+
+    AUDIT 2026-09-21 — why this argument exists
+    -------------------------------------------
+    The only caller passed the p-values of the strata that had ALREADY
+    cleared the alpha screen, so ``m`` silently became the count of things
+    already found significant. On the 2026-09-14/20 run that was 3, giving
+    thresholds 0.033 / 0.067 / 0.100 — every survivor of an alpha = 0.01
+    screen clears those by construction, and the meta recorded exactly
+    that: ``candidates: 3, after_fdr: 3``.
+
+    Selecting on the outcome and then correcting for multiplicity over the
+    selected set controls nothing. BH's guarantee is over the full family
+    of tests, so ``m`` must be the count of strata that received a
+    p-value at all — ``strata_tested``, 15 on that run.
+
+    Measured consequence on that week: with m = 15 the step-up rejects the
+    first 2 and Aflatoxin - Europe (p = 0.0252 against a k=3 threshold of
+    3*0.1/15 = 0.0200) falls out. It was published.
+
+    Note this is the SAME conflation that was fixed in the reporting on
+    2026-09-02, when ``strata_tested`` stopped meaning ``len(candidates)``.
+    It was corrected in the field and left in the statistic.
+
+    ``m = None`` keeps the old len(pvals) behaviour so a caller that
+    genuinely tested everything it passes is unchanged.
+    """
     n = len(pvals)
     if n == 0:
         return []
+    if m is None:
+        m = n
+    # A denominator smaller than the number of p-values would make the
+    # correction weaker than no correction at all. Refuse rather than
+    # quietly produce an anti-conservative mask.
+    m = max(int(m), n)
     order = sorted(range(n), key=lambda i: pvals[i])
     keep = [False] * n
     max_rank = -1
     for rank, idx in enumerate(order, start=1):
-        if pvals[idx] <= (rank / n) * q:
+        if pvals[idx] <= (rank / m) * q:
             max_rank = rank
     if max_rank > 0:
         for rank, idx in enumerate(order, start=1):
@@ -422,6 +458,25 @@ class Signal:
     # other becoming unrecoverable.
     effect_share: float = 0.0
     effect_count: float = 0.0
+    # WHY A STRING AND NOT JUST fdr_pass (audit 2026-09-21)
+    # ----------------------------------------------------
+    # A count-only signal carries the SHARE test's p-value, because that
+    # is the only p-value computed — but the share test is not the test
+    # that fired it. Rendering `fdr_pass` beside such a row prints a
+    # verdict from a test the row did not take.
+    #
+    # On 2026-09-14/20 the published table read "Aflatoxin - Europe ...
+    # FDR: pass" for a count-only row whose own note says the share test
+    # did NOT alarm. Both statements were on the same line.
+    #
+    # Worse in the other direction: across the walk-forward ledger, 33 of
+    # 68 alarms are count-only and 23 carry fdr_pass = False. Those are
+    # published by design (the count channel bypasses FDR, and the page
+    # says so), but the column still had to print something.
+    #
+    # So the status says which of the three it is, and the page renders
+    # this instead of a boolean it has to reinterpret.
+    fdr_status: str = "unknown"      # "pass" | "fail" | "not-applicable"
 
 
 def _dominant_source(corpus: Corpus, s: Stratum, week: pd.Period) -> Tuple[Optional[str], float]:
@@ -668,9 +723,26 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
         ))
 
     # --- multiplicity control -----------------------------------------------
-    keep = benjamini_hochberg([c.p_value for c in candidates], FDR_Q)
-    for c, k in zip(candidates, keep):
+    # `tested`, NOT len(candidates). See benjamini_hochberg's docstring:
+    # candidates are the strata that already passed the alpha screen, and
+    # correcting over those controls nothing.
+    # SCOPE: the SHARE channel only. The page's own words are "controls the
+    # expected false-discovery proportion among share-channel hits", and a
+    # count-only candidate carries the share test's p-value even though the
+    # share test is not what fired it. Feeding those p-values into the
+    # step-up put hypotheses in the family that the family does not cover,
+    # and could only ever loosen the threshold for the rows that ARE
+    # covered. Corrected 2026-09-21, in the same pass as the denominator.
+    share_c = [c for c in candidates if c.channel == "proportion"]
+    keep = benjamini_hochberg([c.p_value for c in share_c], FDR_Q, m=tested)
+    for c, k in zip(share_c, keep):
         c.fdr_pass = bool(k)
+    # Say which test each verdict belongs to, for EVERY candidate. A
+    # count-only row's p-value is the share test's, and the share test is
+    # not what fired it — see Signal.fdr_status.
+    for c in candidates:
+        c.fdr_status = ("not-applicable" if c.channel == "count-only"
+                        else ("pass" if c.fdr_pass else "fail"))
 
     surviving = [c for c in candidates
                  if c.fdr_pass or c.channel == "count-only"]
@@ -713,6 +785,10 @@ def detect(corpus: Corpus, strata: Dict[str, Stratum],
         "strata_tested": tested,
         "strata_suppressed_sparse": suppressed_sparse,
         "candidates": len(candidates),
+        # The denominator BH actually used. Published so a reader can
+        # redo the arithmetic; until 2026-09-21 it was len(candidates),
+        # which made the correction a formality.
+        "fdr_m": tested,
         "after_fdr": len(surviving),
         # `after_fdr` is pre-dedup. Without `after_dedup` a reader comparing
         # after_fdr to reported would conclude MAX_SIGNALS truncated the
@@ -844,6 +920,7 @@ def build_board(corpus: Corpus, strata: Dict[str, Stratum],
             "channel": sig.channel if sig else None,
             "p_value": sig.p_value if sig else None,
             "fdr_pass": sig.fdr_pass if sig else None,
+            "fdr_status": sig.fdr_status if sig else None,
             "dominant_source": src, "dominant_share": round(src_share, 2),
             "parent_key": s.parent_key(),
             "note": sig.note if sig else "",
@@ -925,7 +1002,8 @@ def build_ledger(corpus: Corpus, strata: Dict[str, Stratum]) -> List[Dict]:
                 "label": s.label, "channel": s.channel,
                 "observed": s.observed, "baseline_mean": s.baseline_mean,
                 "effect": s.effect, "p_value": round(s.p_value, 6),
-                "fdr_pass": s.fdr_pass, "dominant_source": s.dominant_source,
+                "fdr_pass": s.fdr_pass, "fdr_status": s.fdr_status,
+                "dominant_source": s.dominant_source,
             } for s in sigs],
         })
     return out
