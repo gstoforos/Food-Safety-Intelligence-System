@@ -48,7 +48,10 @@ EXIT CODES
 from __future__ import annotations
 
 import argparse
+import json
+import shutil
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -59,12 +62,24 @@ XLSX = ROOT / "docs" / "data" / "recalls.xlsx"
 JSON = ROOT / "docs" / "data" / "weekly-rejected-latest.json"
 
 
+def _archive_path(week_end: str) -> Path:
+    return JSON.parent / f"weekly-rejected-{week_end}.json"
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--yes", action="store_true",
                    help="Skip interactive confirmation")
     p.add_argument("--dry-run", action="store_true",
                    help="Print what would change; do not write")
+    p.add_argument("--all", action="store_true",
+                   help="Wipe every data row regardless of Week_Added. "
+                        "Default keeps rows stamped for a FUTURE review "
+                        "Sunday — a rejection landing between the 17:00 "
+                        "mailer and this 17:30 wipe belongs to next week.")
+    p.add_argument("--week-end", default=None, metavar="YYYY-MM-DD",
+                   help="Override the closed review Sunday. Default is "
+                        "review_day_just_closed().")
     args = p.parse_args()
 
     if not XLSX.exists():
@@ -74,8 +89,11 @@ def main() -> int:
     # Lazy imports — keeps script startup fast
     from openpyxl import load_workbook  # noqa: E402
     from pipeline.weekly_rejected_capture import (  # noqa: E402
-        SHEET_NAME, SHEET_COLS, export_week_slice,
+        SHEET_NAME, SHEET_COLS, export_week_slice, review_day_just_closed,
     )
+
+    week_end = args.week_end or review_day_just_closed().isoformat()
+    print(f"Closed review window: week ending {week_end}")
 
     wb = load_workbook(XLSX)
     if SHEET_NAME not in wb.sheetnames:
@@ -90,18 +108,96 @@ def main() -> int:
         print(f"Weekly_Rejected sheet already empty (only header present).")
         return 0
 
-    print(f"Weekly_Rejected currently has {n_data_rows} data row(s).")
+    # ── WHICH ROWS CLOSE, WHICH ROLL OVER (audit 2026-09-21) ───────────
+    # The workflow comment says rows arriving 17:00→17:30 "land in NEXT
+    # Sunday's window". The code did not do that: delete_rows(2, max_row-1)
+    # took every row whatever its Week_Added stamp. Here the row still
+    # reaches the permanent Rejected archive, so nothing was destroyed —
+    # but it never appeared in the email it was stamped for, which is the
+    # one thing the rolling sheet exists to guarantee.
+    _hdr_now = [str(c.value or "") for c in ws[1]]
+    try:
+        _we_idx = _hdr_now.index("Week_Added")
+    except ValueError:
+        _we_idx = -1
+
+    def _stamp(row_idx: int) -> str:
+        if _we_idx < 0:
+            return week_end
+        v = ws.cell(row=row_idx, column=_we_idx + 1).value
+        if v is None:
+            return ""
+        return v.isoformat()[:10] if hasattr(v, "isoformat") else str(v)[:10]
+
+    # A row rolls over only when stamped for a LATER Sunday. A missing or
+    # unparseable stamp closes — otherwise it would be immortal and show
+    # up in every future email.
+    closing, rolling = [], []
+    for r in range(2, ws.max_row + 1):
+        s = _stamp(r)
+        if not args.all and _we_idx >= 0 and s > week_end:
+            rolling.append(r)
+        else:
+            closing.append(r)
+
+    print(f"Weekly_Rejected has {n_data_rows} data row(s): "
+          f"{len(closing)} closing, {len(rolling)} rolling over.")
+    for r in rolling[:10]:
+        print(f"    keep row {r}: Week_Added={_stamp(r)}")
 
     if args.dry_run:
-        print(f"[dry-run] Would wipe {n_data_rows} row(s), keeping header.")
+        print(f"[dry-run] Would archive the {week_end} slice to "
+              f"{_archive_path(week_end).name}, leave {JSON.name} holding "
+              f"it, and move+clear {len(closing)} row(s).")
         return 0
 
     if not args.yes:
-        resp = input(f"Wipe {n_data_rows} row(s) from Weekly_Rejected? [y/N] "
-                     ).strip().lower()
+        resp = input(f"Clear {len(closing)} row(s) from Weekly_Rejected? "
+                     f"[y/N] ").strip().lower()
         if resp not in ("y", "yes"):
             print("Aborted.")
             return 2
+
+    # ── ARCHIVE THE JSON FIRST — before a single row moves ─────────────
+    # The old code called export_week_slice() AFTER the wipe, over the
+    # sheet it had just emptied, writing row_count: 0 over the real
+    # capture. Same defect, same file pair, as wipe_weekly_review.py —
+    # see that module's docstring for the measured evidence.
+    try:
+        payload = export_week_slice(xlsx_path=XLSX,
+                                    json_path=_archive_path(week_end),
+                                    week_end=week_end)
+        print(f"  ✓ Archived {_archive_path(week_end).name}: "
+              f"{payload['row_count']} rows for week ending "
+              f"{payload['week_end']}")
+    except Exception as e:                                   # noqa: BLE001
+        print(f"  ERROR: could not archive the closed week: {e}",
+              file=sys.stderr)
+        print("  Refusing to wipe.", file=sys.stderr)
+        return 1
+
+    try:
+        held = dict(payload)
+        held["sheet_wiped_utc"] = (datetime.now(timezone.utc)
+                                   .isoformat(timespec="seconds"))
+        held["note"] = (
+            "Weekly_Rejected was cleared for this window after the Sunday "
+            "17:00 Athens email. These are the rejections that email "
+            "covered, kept so a re-send is correct rather than empty. The "
+            "next rejection replaces this file.")
+        JSON.parent.mkdir(parents=True, exist_ok=True)
+        JSON.write_text(
+            json.dumps(held, ensure_ascii=False, indent=2, default=str),
+            encoding="utf-8")
+        print(f"  ✓ {JSON.name} holds the closed week "
+              f"({held['row_count']} rows, week_end={held['week_end']})")
+    except Exception as e:                                   # noqa: BLE001
+        print(f"  WARN: could not stamp {JSON.name} ({e}); copying the "
+              f"archive verbatim.", file=sys.stderr)
+        try:
+            shutil.copyfile(_archive_path(week_end), JSON)
+        except OSError as e2:
+            print(f"  WARN: copy failed too: {e2}", file=sys.stderr)
 
     # ── MOVE, DON'T DELETE (audit 2026-08-14) ──────────────────────────
     # This step used to delete the rows outright. The workflow that calls
@@ -173,7 +269,11 @@ def main() -> int:
                 seen.add(_key(dict(zip(arch_hdr, t))))
 
         moved = already = 0
-        for t in ws.iter_rows(min_row=2, values_only=True):
+        # Only the CLOSING rows are archived and removed. A row stamped
+        # for a later Sunday stays in the rolling sheet and is archived
+        # when its own window closes.
+        for r_idx in closing:
+            t = tuple(c.value for c in ws[r_idx])
             if all(v in (None, "") for v in t):
                 continue
             row_map = dict(zip(hdr, t))
@@ -189,7 +289,9 @@ def main() -> int:
               f"sheet ({already} already present); archive now holds "
               f"{archive.max_row - 1}.")
 
-        ws.delete_rows(2, ws.max_row - 1)
+        # Bottom-up, so earlier indices stay valid as rows shift up.
+        for r_idx in sorted(closing, reverse=True):
+            ws.delete_rows(r_idx, 1)
 
     # Defensive: if header is somehow missing or wrong, restore it.
     expected_headers = list(SHEET_COLS)
@@ -204,19 +306,13 @@ def main() -> int:
 
     XLSX.parent.mkdir(parents=True, exist_ok=True)
     wb.save(XLSX)
-    print(f"  ✓ Wiped {n_data_rows} row(s) from Weekly_Rejected.")
+    print(f"  ✓ Cleared {len(closing)} row(s) from Weekly_Rejected; "
+          f"{len(rolling)} kept for a later Sunday.")
 
-    # Regenerate the JSON snapshot to reflect the empty state.
-    # This protects against the Apps Script mailer reading stale rows
-    # if it happens to fire between this wipe and the next rejection.
-    try:
-        result = export_week_slice(xlsx_path=XLSX, json_path=JSON)
-        print(f"  ✓ Regenerated {JSON.name}: {result['row_count']} rows "
-              f"for week ending {result['week_end']}")
-    except Exception as e:
-        print(f"  WARN: JSON regenerate failed: {e}", file=sys.stderr)
-        # Don't fail the script — the xlsx wipe is the canonical action.
-        # Apps Script can re-derive on next email.
+    # NO JSON regenerate here. It used to run at this point, over the
+    # sheet just emptied, and wrote row_count: 0 across the capture the
+    # email was built from. The file was written BEFORE the wipe, above,
+    # and holds the closed week deliberately.
 
     print("Done.")
     return 0
