@@ -21,7 +21,36 @@ import requests
 
 LLAMA_BASE_URL    = os.environ.get("LLAMA_BASE_URL", "").rstrip("/")
 LLAMA_MODEL       = os.environ.get("LLAMA_MODEL", "qwen2.5-7b-instruct")
-LLAMA_TIMEOUT     = int(os.environ.get("LLAMA_TIMEOUT_SEC", "90"))
+# 90 s was too short and cost whole runs. The box is 2 CPU vCPUs with no
+# GPU: a first token after a 5 000-character page has to prompt-eval the
+# entire conversation, which takes minutes, not seconds. Every one of those
+# turns was recorded as "network error talking to llama" and the row went
+# back to Pending as an infra retry — on a server that was working, just
+# thinking. The job's own time budget (--time-budget-min) is the real stop,
+# and it is 20-40 minutes; this only needs to be longer than one slow turn.
+LLAMA_TIMEOUT     = int(os.environ.get("LLAMA_TIMEOUT_SEC", "300"))
+# ── CONTEXT BUDGET (2026-09-22) ─────────────────────────────────────────
+# llama-server runs with --ctx-size 8192. The conversation is the system
+# prompt + the row + the tool schema + every page the model has fetched,
+# and a single regulator page at MAX_PAGE_CHARS=5000 is already a quarter
+# of that. Two fetches and the server answers:
+#
+#     HTTP 500 {"error":{"message":"Context size has been exceeded."}}
+#
+# which the client counted as a failure, tripped the circuit breaker on,
+# and reported as an outage. It is not an outage: it is us handing the
+# model more text than it can hold. Four RappelConso rows died this way on
+# 2026-09-22 in a single run.
+#
+# So the client now keeps its own budget and trims the conversation to fit
+# BEFORE sending, oldest tool results first — those are pages the model has
+# already read and summarised into its reasoning; the newest one is the one
+# it is working on. Chars, not tokens, because we cannot tokenise here:
+# ~3.5 chars/token for French and Polish, so 14 000 chars ≈ 4 000 tokens,
+# leaving room for the tool schema and the reply inside 8192.
+LLAMA_CTX_CHARS   = int(os.environ.get("LLAMA_CTX_CHAR_BUDGET", "14000"))
+TOOL_RESULT_CHARS = int(os.environ.get("LLAMA_TOOL_RESULT_CHARS", "2500"))
+_OLD_TOOL_KEEP    = 400      # what an already-read page is trimmed down to
 LLAMA_MAX_LOOPS   = 6    # cap tool-calling loop depth (raised from 4 so the
                          # agent has room for staged discovery: site-scoped
                          # search → broad search to find the recalling firm →
@@ -113,6 +142,51 @@ def is_open() -> bool:
     return _STATE["open"]
 
 
+def _conv_chars(history: list[dict]) -> int:
+    """Chars this history will cost on the wire.
+
+    tool_calls are counted too: an assistant turn that requests a tool
+    carries the function name and its JSON arguments, and those are sent
+    to the model exactly like content. Counting only `content` made the
+    budget read low on precisely the conversations that overflow — the
+    ones with several tool rounds.
+    """
+    n = 0
+    for m in history:
+        n += len(str(m.get("content") or ""))
+        for tc in (m.get("tool_calls") or []):
+            fn = tc.get("function") or {}
+            n += len(str(fn.get("name") or "")) + len(str(fn.get("arguments") or ""))
+    return n
+
+
+def _fit_context(history: list[dict], hard: bool = False) -> tuple[list[dict], int]:
+    """Trim the conversation to the char budget. Returns (history, n_trimmed).
+
+    Oldest tool results go first, and the most recent one is trimmed only
+    when `hard` — the model is reasoning about that page right now, so
+    cutting it is the last resort rather than the first.
+    """
+    budget = LLAMA_CTX_CHARS // (2 if hard else 1)
+    if _conv_chars(history) <= budget:
+        return history, 0
+    tool_idx = [i for i, m in enumerate(history) if m.get("role") == "tool"]
+    order = tool_idx[:-1] if (tool_idx and not hard) else tool_idx
+    n = 0
+    for i in order:
+        if _conv_chars(history) <= budget:
+            break
+        body = str(history[i].get("content") or "")
+        keep = _OLD_TOOL_KEEP if not hard else 200
+        if len(body) > keep:
+            history[i] = dict(history[i])
+            history[i]["content"] = (
+                body[:keep] + "\n…[earlier tool result trimmed so the "
+                              "conversation fits the model's context]")
+            n += 1
+    return history, n
+
+
 def chat(messages: list[dict],
           tools: Optional[list[dict]] = None,
           tool_executor: Optional[Callable[[str, dict], str]] = None,
@@ -145,6 +219,10 @@ def chat(messages: list[dict],
     # Iterate: model -> tool calls -> tool results -> model -> ... -> text
     history = list(messages)
     for loop in range(LLAMA_MAX_LOOPS):
+        history, _t = _fit_context(history)
+        if _t:
+            print(f"  [llama] trimmed {_t} earlier tool result(s) to stay "
+                  f"inside the {LLAMA_CTX_CHARS}-char context budget")
         payload = {
             "model":       LLAMA_MODEL,
             "messages":    history,
@@ -158,6 +236,26 @@ def chat(messages: list[dict],
         try:
             resp = requests.post(url, json=payload, headers=headers,
                                   timeout=LLAMA_TIMEOUT)
+            # CONTEXT OVERFLOW IS OURS TO FIX, NOT AN OUTAGE (2026-09-22).
+            # Retry once on a halved budget before calling anything failed.
+            if (resp.status_code == 500
+                    and "context size" in resp.text.lower()):
+                history, _h = _fit_context(history, hard=True)
+                if _h:
+                    print(f"  [llama] server says the context is full — "
+                          f"trimmed {_h} tool result(s) hard and retrying "
+                          f"this turn once")
+                    payload["messages"] = history
+                    resp = requests.post(url, json=payload, headers=headers,
+                                          timeout=LLAMA_TIMEOUT)
+                else:
+                    # Nothing left to trim: the seed alone does not fit.
+                    # Re-sending the identical payload buys an identical
+                    # 500 and, at LLAMA_TIMEOUT=300, can cost five minutes
+                    # per row. Fall through and report it instead.
+                    print("  [llama] context is full and there is nothing "
+                          "left to trim — the system prompt + row + tool "
+                          "schema alone exceed --ctx-size. Not retrying.")
         except Exception as e:   # noqa: BLE001
             _STATE["failures"] += 1
             print(f"  [llama] network: {e}")
@@ -178,11 +276,40 @@ def chat(messages: list[dict],
             # A tools[] rejection in particular is invisible from outside:
             # GET /models still passes and plain completions still work, so
             # every other signal says the box is healthy.
-            _fail(f"llama returned HTTP {resp.status_code}",
-                  (body + ("  | this request carried tools[] — a server "
-                           "without a tool-capable chat template rejects "
-                           "exactly these and nothing else" if tools else "")))
-            _annotate_once(f"llama HTTP {resp.status_code}", body, bool(tools))
+            # NAME THE RIGHT CAUSE (2026-09-22).
+            #
+            # This hint used to be appended to EVERY non-200 that carried
+            # tools[]. So the 500 immediately above — the one that says
+            # "Context size has been exceeded" in the server's own words —
+            # was reported as a chat-template problem. That theory was
+            # probed on the VPS on 2026-09-17 and came back ALREADY OK.
+            # Following it a second time means restarting a box whose only
+            # complaint is that we sent it too much text.
+            #
+            # A template rejection is a 4xx that says "template". An
+            # overflow is a 500 that says "context". Different sentences,
+            # different hints, and the context one must say plainly that
+            # the VPS is not the problem.
+            _ctx = "context size" in body.lower() or "n_ctx" in body.lower()
+            if _ctx:
+                extra = ("  | THE BOX IS FINE. The conversation did not fit "
+                         "in --ctx-size. The client already trimmed and "
+                         "retried once; if you see this, trimming was not "
+                         "enough. Lower LLAMA_CTX_CHAR_BUDGET / "
+                         "REVIEW_MAX_PAGE_CHARS, or raise --ctx-size on "
+                         "llama-server. Do NOT restart the VPS.")
+            elif tools and resp.status_code < 500 and any(
+                    w in body.lower()
+                    for w in ("template", "tool_call", "function call",
+                              "does not support")):
+                extra = ("  | this request carried tools[] and the server's "
+                         "own words match a chat template that cannot "
+                         "accept them")
+            else:
+                extra = ""
+            _fail(f"llama returned HTTP {resp.status_code}", body + extra)
+            _annotate_once(f"llama HTTP {resp.status_code}", body + extra,
+                           bool(tools) and not _ctx)
             if _STATE["failures"] >= 3:
                 _STATE["open"] = True
             return None
@@ -225,8 +352,9 @@ def chat(messages: list[dict],
             except Exception as e:   # noqa: BLE001
                 result = f"ERROR: {e}"
             # Truncate huge results so we don't blow context
-            if len(result) > 4000:
-                result = result[:4000] + "\n…[truncated]"
+            if len(result) > TOOL_RESULT_CHARS:
+                result = (result[:TOOL_RESULT_CHARS]
+                          + "\n…[truncated to fit the model's context]")
             history.append({
                 "role":         "tool",
                 "tool_call_id": tc.get("id", ""),
@@ -270,6 +398,7 @@ def chat(messages: list[dict],
             "search again."
         ),
     })
+    history, _ = _fit_context(history, hard=True)
     try:
         resp = requests.post(
             url,
