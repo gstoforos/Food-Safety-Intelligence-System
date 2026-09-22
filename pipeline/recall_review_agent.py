@@ -92,7 +92,13 @@ PENDING_COLUMNS = [
 # rows sat outside the lane: 55% of every run produced nothing.
 AGENT2_STATUSES = {"pending_gap_v2", "pending"}
 
-MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "5000"))
+# 3 500, not 5 000 (2026-09-22). llama-server runs with --ctx-size 8192;
+# a 5 000-char page is a quarter of that before the system prompt, the
+# row, the tool schema and any second page are counted, and two fetches
+# produced "Context size has been exceeded" on four RappelConso rows in
+# one run. Regulator notices put the recall facts — firm, product, lot,
+# hazard, date — in the first screenful; what gets cut is boilerplate.
+MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "3500"))
 
 
 # ─── Tool-calling schema for the agent ───────────────────────────────────
@@ -1288,10 +1294,6 @@ def main() -> int:
     return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
-
-
 # ─── AUDIT MODE: re-verify rows ALREADY promoted to Recalls ──────────────
 
 def audit_recalls(args, commit: bool) -> int:
@@ -1431,3 +1433,20 @@ def audit_recalls(args, commit: bool) -> int:
     except Exception as e:
         print(f"  (JSON mirror skipped: {e})")
     return 0
+
+
+# THE GUARD GOES LAST (audit 2026-09-22).
+#
+# `raise SystemExit(main())` used to sit ABOVE audit_recalls, so the module
+# body never reached that def before main() ran. Every other path worked,
+# which is why it survived: audit_recalls is only called for
+# `--audit-recalls true`, and that flag is not on any schedule.
+#
+#     python -m pipeline.recall_review_agent --audit-recalls true
+#     NameError: name 'audit_recalls' is not defined
+#
+# Audit mode is the only thing that re-checks rows ALREADY in Recalls —
+# the FSANZ fabricated-Listeria class — so the one tool for that job could
+# not start.
+if __name__ == "__main__":
+    raise SystemExit(main())

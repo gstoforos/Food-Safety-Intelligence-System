@@ -75,7 +75,13 @@ S_REJECTED = "rejected"
 # Statuses Agent 1 is responsible for (first-reviewer lane).
 AGENT1_STATUSES = {S_GAP, S_GAP_V1, S_ENRICH}
 
-MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "5000"))
+# 3 500, not 5 000 (2026-09-22). llama-server runs with --ctx-size 8192;
+# a 5 000-char page is a quarter of that before the system prompt, the
+# row, the tool schema and any second page are counted, and two fetches
+# produced "Context size has been exceeded" on four RappelConso rows in
+# one run. Regulator notices put the recall facts — firm, product, lot,
+# hazard, date — in the first screenful; what gets cut is boilerplate.
+MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "3500"))
 
 
 # ─── Page fetch (self-contained, TLS-impersonated) ───────────────────────
