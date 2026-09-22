@@ -219,6 +219,18 @@ HAZARD_CLASS_KEYWORDS = {
         # "pathogen-parasitic" — it was simply missing here.
         "cyclospora", "cryptosporidium", "giardia", "trichinella",
         "anisakis", "toxoplasma", "taenia", "echinococcus",
+        # GENERIC MICROBIAL FRAMING, no organism named (audit 2026-09-22 —
+        # RappelConso fiche 23535, Pathogen "Unspecified microbiological
+        # contamination", Reason "Suspicion de contamination
+        # microbiologique / suspected microbiological contamination").
+        # Every other occurrence of this phrase in the register already
+        # co-occurs with a named organism (Salmonella, Listeria, STEC, ...)
+        # that classifies it anyway, so this only ever ADDS a class to an
+        # otherwise-unclassifiable row; checked against the full register
+        # for a negated use ("no microbiological contamination") and found
+        # none.
+        "microbiological contamination", "microbial contamination",
+        "contamination microbiologique",
     ),
     "physical": (
         "foreign matter", "foreign material", "foreign body",
@@ -286,6 +298,10 @@ HAZARD_CLASS_KEYWORDS = {
         # 2. Natural chemical toxicants of the food itself, as distinct from
         #    a biotoxin produced by an organism.
         "hydrocyanic", "cyanide", "cyanogenic",
+        # Plant alkaloids accumulating in herbal products (audit 2026-09-22
+        # — GIS Poland nettle-tea withdrawal, Pathogen "Pyrrolizidine
+        # alkaloids", had no hazard class at all).
+        "pyrrolizidine",
         # 3. Undeclared pharmaceutical adulteration — IN SCOPE since
         #    2026-05-12 (see pipeline/_pathogen_scope.py) and notifiable to
         #    INFOSAN, but it had no hazard class, so the SUPPLX yohimbine row

@@ -729,7 +729,7 @@ var PATHOGEN_VOCAB = {
   "Mycotoxins (other)": ["mycotoxin", "fumonisin", "citrinin", "ergot"],
   "Histamine / scombrotoxin": ["histamine", "scombrotox"],
   "Marine / shellfish biotoxins": ["marine biotoxin", "biotoxin", "shellfish toxin", "paralytic shellfish", "lipophilic", "okadaic", "domoic", "saxitoxin", "tetrodotoxin", "ciguatoxin", "ciguatera", "phytoplankton"],
-  "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol", "muscaria", "hydrocyanic", "cyanogenic", "solanine", "tropane"],
+  "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol", "muscaria", "hydrocyanic", "cyanogenic", "solanine", "tropane", "pyrrolizidine"],
   "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury", "arsenic", "molybdenum"],
   "Pesticide / veterinary residues": ["pesticide", "veterinary medicine", "veterinary chemical", "penicillin", "nitrofurazone", "chloramphenicol", "rodenticide", "residue"],
   "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin", "ethylene oxide", "mineral oil", "moah", "mosh", "acrylamide", "melamine", "chemical hazard"],
@@ -738,6 +738,7 @@ var PATHOGEN_VOCAB = {
   "Mold / spoilage": ["mold", "spoilage", "organoleptic", "coliform", "total bacterial count"],
   "Rodent / pest contamination": ["rodent", "mouse contamination", "rat poison", "insect", "pest infestation"],
   "Process deviation (sterilisation / pasteurisation)": ["sterilization", "sterilisation", "pasteurization", "pasteurisation", "process deviation"],
+  "Unspecified microbiological contamination": ["microbiological contamination", "microbial contamination"],
 };
 
 var PRODUCT_VOCAB = {

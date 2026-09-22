@@ -125,7 +125,7 @@ PATHOGEN: dict[str, list[str]] = {
                                      "phytoplankton"],              # 8
     "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol",
                                 "muscaria", "hydrocyanic", "cyanogenic",
-                                "solanine", "tropane"],             # 3
+                                "solanine", "tropane", "pyrrolizidine"],  # 3
 
     # --- chemical -------------------------------------------------------
     "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury",
@@ -155,6 +155,8 @@ PATHOGEN: dict[str, list[str]] = {
     "Process deviation (sterilisation / pasteurisation)": [
         "sterilization", "sterilisation", "pasteurization",
         "pasteurisation", "process deviation"],                     # 2
+    "Unspecified microbiological contamination": [
+        "microbiological contamination", "microbial contamination"],  # 1
 }
 
 # Terms REMOVED from the old alerts.html list on 2026-09-14 and why. Kept here
