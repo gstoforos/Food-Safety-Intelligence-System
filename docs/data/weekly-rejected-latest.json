@@ -1,11 +1,11 @@
 {
   "week_end": "2026-09-27",
-  "generated_utc": "2026-09-22T19:52:40+00:00",
-  "row_count": 28,
+  "generated_utc": "2026-09-22T20:08:07+00:00",
+  "row_count": 30,
   "tier1_count": 16,
   "outbreak_count": 7,
   "by_reviewer": {
-    "unknown": 24,
+    "unknown": 26,
     "confirm-agent": 3,
     "repromotion-guard": 1
   },
@@ -517,6 +517,29 @@
       "Reviewed": "N"
     },
     {
+      "Date": "2026-09-22",
+      "Source": "RappelConso (FR)",
+      "Company": "Chateau Bellevue",
+      "Brand": "Chateau Bellevue",
+      "Product": "cuisse de canard a l orange 380gr; cuisse de caanrd a l orange 765gr",
+      "Pathogen": "",
+      "Reason": "Défaut d’herméticité",
+      "Class": "Voluntary",
+      "Country": "France",
+      "Region": "Europe",
+      "Tier": 3,
+      "Outbreak": 0,
+      "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23584/interne",
+      "Notes": "REJECTED: Operator review 2026-09-22: packaging/hermetic-seal defect only ('Defaut d'hermeticite'); no pathogen or hazard agent named on the regulator page — out of scope (quality/packaging defect, not a confirmed hazard). | leclerc orthez - oloron; intermarche pau - pouzac - susmiou - boucau; super u orthez; chateau bellevue boutique baigts et [url-guard 2026-09-22: reviewer 1 tried to reject this row as 'No official regulator URL found'; refused — the official URL is on the row. Left in Pending for a later run.]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-27",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Operator review 2026-09-22: packaging/hermetic-seal defect only ('Defaut d'hermeticite'); no pathogen or hazard agent named on the regulator page — out of scope (quality/packaging defect, not a confirmed hazard).",
+      "Reviewed": "N"
+    },
+    {
       "Date": "2026-09-21",
       "Source": "FSAI (IE)",
       "Company": "Dunnes Stores Potato Waffles 680g",
@@ -652,6 +675,29 @@
       "Week_Added": "2026-09-27",
       "RejectedBy": "unknown",
       "RejectionReason": "URL agent: No official regulator page found for this recall",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "",
+      "Source": "FDA",
+      "Company": "Par Health Issues Voluntary Nationwide Recall Two Lots Dexmedetomidine Hcl 09 Sodium Chloride",
+      "Brand": "—",
+      "Product": "Par Health Issues Voluntary Nationwide Recall Two Lots Dexmedetomidine Hcl 09 Sodium Chloride",
+      "Pathogen": "",
+      "Reason": "Par Health Issues Voluntary Nationwide Recall Two Lots Dexmedetomidine Hcl 09 Sodium Chloride",
+      "Class": "Recall",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 3,
+      "Outbreak": 0,
+      "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/par-health-issues-voluntary-nationwide-recall-two-lots-dexmedetomidine-hcl-09-sodium-chloride",
+      "Notes": "REJECTED: Operator review 2026-09-22: verified at source — Dexmedetomidine HCl in 0.9% Sodium Chloride Injection is an intravenous sedative pharmaceutical (Par Pharmaceutical), not a food product. Out of scope (non-food/drug recall). | FDA HTML fallback — claude-check needs to enrich Date+Pathogen [url-guard 2026-09-22: reviewer 1 tried to reject this row as 'could not confirm official recall: Unable to find the official URL through the search query'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-22: reviewer 1 tried to reject this row as 'could not confirm official recall: Unable to find the official URL through the search query'; refused — the official URL is on the row. Left in Pending for a later run.]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-27",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Operator review 2026-09-22: verified at source — Dexmedetomidine HCl in 0.9% Sodium Chloride Injection is an intravenous sedative pharmaceutical (Par Pharmaceutical), not a food product. Out of scope (non-food/drug recall).",
       "Reviewed": "N"
     }
   ]
