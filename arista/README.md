@@ -75,3 +75,15 @@ keyword rules. See `sample-invoices.csv`.
 
 The product codes, weights, customer names and ΑΦΜ values in the demo are
 illustrative only.
+
+## Entry gate
+
+The page opens with a joke gate: *Ποια είναι η καλύτερη ομάδα στον κόσμο;*
+Only the ΠΑΟΚ button can be clicked. The other options dodge the cursor on
+desktop and jump away on touch, with a rotating taunt line. Passing the gate is
+remembered for the browser tab via `sessionStorage` and auto-loads the demo
+data, so a shared link opens straight into a working app.
+
+The page is also published as a shareable artifact. CSV export there goes
+through the artifact `downloads` capability; opened as a local file it falls
+back to an ordinary browser download.

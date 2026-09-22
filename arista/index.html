@@ -75,7 +75,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ---------- Layout ---------- */
 .topbar {
-  position: sticky; top: 0; z-index: 30;
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30;
   background: linear-gradient(90deg, var(--brand-900), var(--brand-600));
   color: #fff; box-shadow: 0 2px 10px rgba(13,54,107,.25);
 }
@@ -96,7 +96,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 nav.tabs {
   background: var(--surface-0); border-bottom: 1px solid var(--border);
-  position: sticky; top: 58px; z-index: 25;
+  position: sticky; top: calc(58px + env(safe-area-inset-top, 0px)); z-index: 25;
 }
 nav.tabs .inner { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; gap: 2px; overflow-x: auto; }
 nav.tabs button {
@@ -277,21 +277,82 @@ textarea.mono { font-family: var(--mono); font-size: 13px; min-height: 220px; wi
 .right { margin-left: auto; }
 .sr-only { position: absolute; left: -9999px; }
 
+
+/* ---------- Entry gate (joke) ---------- */
+.gate {
+  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
+  padding: 24px 16px; overflow: hidden;
+  background: radial-gradient(120% 90% at 50% 0%, #1c5cab 0%, #0d366b 55%, #08203f 100%);
+  color: #fff;
+}
+.gate[hidden] { display: none !important; }
+.gate.done { opacity: 0; pointer-events: none; transition: opacity .45s ease; }
+.gate-card { width: min(640px, 100%); text-align: center; position: relative; z-index: 1; }
+.gate-mark { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 26px; }
+.gate-mark svg { width: 34px; height: 34px; }
+.gate-mark span { font-weight: 800; letter-spacing: 1.5px; font-size: 15px; }
+.gate-mark span b { font-weight: 400; opacity: .7; }
+.gate-eyebrow { font-size: 12px; letter-spacing: 2.4px; text-transform: uppercase; color: #ffd166; font-weight: 700; }
+.gate h1 { font-size: clamp(25px, 5.4vw, 40px); font-weight: 750; margin: 10px 0 8px; text-wrap: balance; }
+.gate .gate-sub { color: rgba(255,255,255,.75); margin: 0 auto; max-width: 42ch; font-size: 15px; }
+.gate-options { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 30px 0 4px; }
+.gate-options .opt {
+  border: 1px solid rgba(255,255,255,.4); background: rgba(255,255,255,.1); color: #fff;
+  padding: 13px 22px; border-radius: 999px; font-weight: 700; font-size: 15px; cursor: pointer;
+  letter-spacing: .4px; will-change: transform;
+}
+.gate-options .opt.wrong { transition: transform .16s cubic-bezier(.2,.9,.3,1.3); }
+.gate-options .opt:focus-visible { outline: 3px solid #ffd166; outline-offset: 3px; }
+.gate-options .opt.right {
+  background: #0c0c0c; border-color: #fff; color: #fff; padding: 14px 34px; font-size: 17px;
+  box-shadow: 0 6px 22px rgba(0,0,0,.45);
+}
+.gate-options .opt.right:hover { background: #fff; color: #0c0c0c; }
+.gate-taunt { min-height: 26px; margin-top: 20px; font-size: 15px; font-weight: 600; color: #ffd166; }
+.gate-foot { margin-top: 26px; font-size: 13px; color: rgba(255,255,255,.55); }
+.gate-foot b { color: rgba(255,255,255,.8); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) {
+  .gate-options .opt.wrong { transition: none; }
+  .gate.done { transition: none; }
+}
+
 @media print {
-  .topbar, nav.tabs, .filters .actions, .no-print, .tour, .toast { display: none !important; }
+  .gate, .topbar, nav.tabs, .filters .actions, .no-print, .tour, .toast { display: none !important; }
   body { background: #fff; }
   .card, .tile { box-shadow: none; break-inside: avoid; }
   main { padding: 0; max-width: none; }
 }
 @media (max-width: 640px) {
   .logo .sub { display: none; }
-  nav.tabs { top: 56px; }
+  nav.tabs { top: calc(56px + env(safe-area-inset-top, 0px)); }
   .tile .value { font-size: 24px; }
   .tile.hero .value { font-size: 34px; }
 }
 </style>
 </head>
 <body>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-mark">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#fff"/><path d="M32 12 12 52h10l4-9h12l4 9h10L32 12zm0 14 4 10h-8l4-10z" fill="#1c5cab"/></svg>
+      <span>ARISTA <b>Invoice Analytics</b></span>
+    </div>
+    <div class="gate-eyebrow">Έλεγχος ταυτότητας</div>
+    <h1>Ποια είναι η καλύτερη ομάδα στον κόσμο;</h1>
+    <p class="gate-sub">Μία σωστή απάντηση. Διαλέξτε την και η εφαρμογή ανοίγει.</p>
+    <div class="gate-options" id="gateOptions">
+      <button type="button" class="opt right" id="gateYes">ΠΑΟΚ</button>
+      <button type="button" class="opt wrong">ΟΛΥΜΠΙΑΚΟΣ</button>
+      <button type="button" class="opt wrong">ΠΑΝΑΘΗΝΑΪΚΟΣ</button>
+      <button type="button" class="opt wrong">ΑΕΚ</button>
+      <button type="button" class="opt wrong">ΑΡΗΣ</button>
+      <button type="button" class="opt wrong">Άλλη ομάδα</button>
+    </div>
+    <div class="gate-taunt" id="gateTaunt" role="status" aria-live="polite"></div>
+    <div class="gate-foot">Demo για την <b>Arista Logistics, Λαμία</b> · κιλά ανά κωδικό από τα τιμολόγια</div>
+  </div>
+</div>
 
 <header class="topbar">
   <div class="topbar-inner">
@@ -1201,12 +1262,23 @@ function exportCsv() {
   lines.push(['ΣΥΝΟΛΟ', '', '', a.invoiceCount, '', '', num(a.total.kgBig), num(a.total.kgSmall), num(a.total.kg)]);
   const csv = '﻿' + lines.map(l => l.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\r\n');
   download(`arista-kila-ana-kodiko-${f.from || 'all'}_${f.to || 'all'}.csv`, csv, 'text/csv;charset=utf-8');
-  toast('Το αρχείο CSV κατέβηκε (ανοίγει απευθείας στο Excel)');
 }
-function download(name, content, type) {
+let downloadCap = Promise.resolve(null);
+try {
+  if (window.claude && typeof window.claude.use === 'function') downloadCap = window.claude.use('downloads').catch(() => null);
+} catch (e) { /* plain browser */ }
+async function download(name, content, type) {
+  let cap = null;
+  try { cap = await downloadCap; } catch (e) { cap = null; }
+  if (cap) {
+    try { await cap.save({ filename: name, data: content }); toast('Το αρχείο αποθηκεύτηκε'); }
+    catch (err) { if (!err || err.code !== 'declined') toast('Η αποθήκευση δεν είναι διαθέσιμη εδώ. Ανοίξτε το αρχείο τοπικά.'); }
+    return;
+  }
   const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast('Το αρχείο κατέβηκε (ανοίγει απευθείας στο Excel)');
 }
 
 /* Invoices list */
@@ -1227,7 +1299,7 @@ function openInvoice(no) {
   const rows = inv.lines.map(l => { const r = lineKg(l, pm); tot += r.kg; pcs += r.pieces; const p = pm[l.code]; return `<tr><td><code>${esc(l.code)}</code></td><td>${p ? esc(p.name) : '<span class="badge small">Άγνωστος κωδικός</span>'}</td><td class="num">${l.qty}</td><td>${l.unit}</td><td class="num">${p ? p.perCase : '—'}</td><td class="num">${fmtInt(r.pieces)}</td><td class="num">${p ? p.netKg.toFixed(3) : '—'}</td><td class="num"><b>${fmtKg(r.kg)}</b></td></tr>`; }).join('');
   $('#modalTitle').textContent = `Τιμολόγιο ${inv.no}`;
   $('#modalBody').innerHTML = `<div class="invoice-paper">
-    <div class="hdr"><div><div class="co">Ε.Ι. ΠΑΠΑΔΟΠΟΥΛΟΣ Α.Ε.</div><div class="muted">Διανομή: ARISTA Logistics, Λαμία</div></div>
+    <div class="hdr"><div><div class="co">Ε.Ι. ΠΑΠΑΔΟΠΟΥΛΟΣ Α.Ε.</div><div class="muted">Διανομή: ARISTA Logistics, Λαμία</div>${inv.source === 'demo' ? '<div class="badge small" style="margin-top:6px">ΔΕΙΓΜΑ — όχι πραγματικό παραστατικό</div>' : ''}</div>
       <dl class="kv"><dt>Αρ. τιμολογίου</dt><dd><b>${esc(inv.no)}</b></dd><dt>Ημερομηνία</dt><dd>${fmtDate(inv.date)}</dd><dt>Πηγή</dt><dd>${{ demo: 'Demo δεδομένα', import: 'Εισαγωγή αρχείου', ocr: 'Ανάγνωση κειμένου' }[inv.source] || inv.source}</dd></dl></div>
     <dl class="kv"><dt>Πελάτης</dt><dd><b>${esc(c ? c.name : inv.customerId)}</b></dd><dt>ΑΦΜ</dt><dd>${esc(c && c.afm || '—')}</dd><dt>Πόλη</dt><dd>${esc(c && c.city || '—')}</dd><dt>Αγορά</dt><dd><span class="badge ${m.toLowerCase()}">${MARKET_LABEL[m]}</span></dd></dl>
     <div class="table-wrap mt"><table><thead><tr><th>Κωδ.</th><th>Προϊόν</th><th class="num">Ποσ.</th><th>Μ.Μ.</th><th class="num">Τεμ./κιβ.</th><th class="num">Τεμάχια</th><th class="num">kg/τεμ.</th><th class="num">Κιλά</th></tr></thead>
@@ -1340,6 +1412,66 @@ function tourGo(i) {
 }
 function tourStop() { if (tourEl) tourEl.classList.remove('highlight'); tourEl = null; tourIdx = -1; $('#tour').classList.remove('open'); }
 
+
+/* ---------- Entry gate (joke): only one answer opens the app ---------- */
+const TAUNTS = ['Σοβαρά τώρα;', 'Λάθος πόρτα.', 'Το κουμπί δεν σε συμπαθεί.', 'Ξαναδοκίμασε, με ειλικρίνεια.', 'Κοντά ήσουν. Όχι.', 'Μία σωστή απάντηση υπάρχει.', 'Ούτε κατά διάνοια.', 'Πιάσε με αν μπορείς!'];
+function initGate() {
+  const gate = $('#gate'); if (!gate) return;
+  let passed = false;
+  try { passed = sessionStorage.getItem('arista.gate') === 'ok'; } catch (e) { }
+  if (passed) { gate.hidden = true; enterApp(false); return; }
+  const wrongs = $$('.opt.wrong', gate);
+  const taunt = $('#gateTaunt');
+  let lastTaunt = 0, ti = 0;
+  const saySomething = () => {
+    const now = Date.now(); if (now - lastTaunt < 550) return;
+    lastTaunt = now; taunt.textContent = TAUNTS[ti++ % TAUNTS.length];
+  };
+  const dodge = (b, px, py, force) => {
+    const r = b.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const reach = Math.max(r.width, r.height) * 0.8 + 30;
+    const dist = Math.hypot(px - cx, py - cy);
+    if (!force && dist > reach) return;
+    const t = b._t || { x: 0, y: 0 };
+    const baseL = r.left - t.x, baseT = r.top - t.y;
+    const pad = 8;
+    const maxX = Math.max(pad, innerWidth - r.width - pad), maxY = Math.max(pad, innerHeight - r.height - pad);
+    let ax = cx - px, ay = cy - py;
+    const len = Math.hypot(ax, ay) || 1; ax /= len; ay /= len;
+    const jump = 110 + Math.random() * 120;
+    let nl = r.left + ax * jump + (Math.random() - 0.5) * 90;
+    let nt = r.top + ay * jump + (Math.random() - 0.5) * 90;
+    nl = Math.min(Math.max(nl, pad), maxX); nt = Math.min(Math.max(nt, pad), maxY);
+    if (Math.hypot(nl + r.width / 2 - px, nt + r.height / 2 - py) < reach) {
+      nl = pad + Math.random() * (maxX - pad); nt = pad + Math.random() * (maxY - pad);
+    }
+    b._t = { x: nl - baseL, y: nt - baseT };
+    b.style.transform = `translate(${b._t.x.toFixed(1)}px, ${b._t.y.toFixed(1)}px) rotate(${(Math.random() * 14 - 7).toFixed(1)}deg)`;
+    saySomething();
+  };
+  gate.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') wrongs.forEach(b => dodge(b, e.clientX, e.clientY, false)); });
+  wrongs.forEach(b => {
+    const flee = e => {
+      e.preventDefault(); e.stopPropagation();
+      const r = b.getBoundingClientRect();
+      dodge(b, e.clientX || r.left + r.width / 2, e.clientY || r.top + r.height / 2, true);
+    };
+    b.addEventListener('pointerdown', flee);
+    b.addEventListener('click', flee);
+  });
+  $('#gateYes').addEventListener('click', () => {
+    try { sessionStorage.setItem('arista.gate', 'ok'); } catch (e) { }
+    taunt.textContent = 'Σωστά. Καλώς ήρθες.';
+    gate.classList.add('done');
+    setTimeout(() => { gate.hidden = true; enterApp(true); }, 450);
+  });
+}
+function enterApp(fresh) {
+  if (!state.invoices.length) loadDemo();
+  if (fresh) toast('Φορτώθηκαν demo δεδομένα. Πατήστε «Παρουσίαση» για ξενάγηση.');
+}
+
 /* ---------- Events ---------- */
 function init() {
   $('#tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) showView(b.dataset.view); });
@@ -1422,6 +1554,7 @@ function init() {
   const r = dataRange(); if (r) { $('#fFrom').value = r.min; $('#fTo').value = r.max; }
   renderAll();
   if (location.hash === '#demo' && !state.invoices.length) loadDemo();
+  initGate();
 }
 document.addEventListener('DOMContentLoaded', init);
 </script>
