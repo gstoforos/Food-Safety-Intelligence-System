@@ -99,6 +99,11 @@ NOT_YET_RUN = {
     "cl": "2026-09-23",
     # Middle East
     "sa": "2026-09-23", "ae": "2026-09-23",
+    # North America. Added after the others, when a question showed that
+    # USDA FSIS — blocked by a 403, exactly like the rest — had gone
+    # fifteen days without a row while the healthy FDA scraper made the
+    # region look covered.
+    "us": "2026-09-23",
 }
 
 #: The union, for the freshness assertion, which does not care why.

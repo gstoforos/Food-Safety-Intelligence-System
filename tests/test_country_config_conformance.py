@@ -169,6 +169,24 @@ KNOWN_URLS = {
         ["https://www.moccae.gov.ae/en/knowledge/food-safety",
          "https://www.moccae.gov.ae/en/knowledge-and-statistics/food-safety.aspx"],
     ),
+    "us": (
+        ["https://www.fsis.usda.gov/recalls-alerts/star-meat-delivery-inc--"
+         "recalls-raw-pork-beef-and-goat-products-produced-without",
+         "https://www.fsis.usda.gov/recalls-alerts/prime-line-distributors-inc--"
+         "and-ferrarini-usa-inc--recall-imported-ready-eat-pork",
+         "https://www.fsis.usda.gov/recalls-alerts/015-2026-city-foods-inc-"
+         "recalls-ready-eat-pastrami-and-corned-beef-products",
+         "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-"
+         "alert-beef-kofta-products-served-kebab-shop"],
+        # The listing differs from an item by one character: "?" not "/".
+        # All three of these are already sitting in Rejected.
+        ["https://www.fsis.usda.gov/recalls-alerts?search=015-2026",
+         "https://www.fsis.usda.gov/recalls-alerts?search=019-020-2026",
+         "https://www.fsis.usda.gov/recalls-alerts?search=PHA-08082026-01",
+         "https://www.fsis.usda.gov/recalls",
+         "https://www.fsis.usda.gov/food-safety/foodborne-illness-and-disease/"
+         "outbreaks/outbreak-investigations-response"],
+    ),
     "ch": (
         ["https://www.blv.admin.ch/dam/blv/de/dokumente/rueckrufe/"
          "rr-blau-krabben.pdf.download.pdf/Rueckruf.pdf",

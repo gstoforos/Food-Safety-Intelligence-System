@@ -63,7 +63,13 @@ NEW_2026_09_23 = {
 #:      URLs in Recalls were refused by their own country's gate.
 CORRECTED = {"ch"}
 
-MUST_BE_CLEAN = NEW_2026_09_23 | CORRECTED
+#: Added 2026-09-23 after the audit, when a question exposed that the
+#: largest meat-recall jurisdiction in the register had been silent for
+#: fifteen days behind a working FDA scraper. Held to the same bar from
+#: the start: it was written FROM the register's own 24 FSIS URLs.
+LATE_ADDITION = {"us"}
+
+MUST_BE_CLEAN = NEW_2026_09_23 | CORRECTED | LATE_ADDITION
 
 #: Sheets holding rows the system STANDS BEHIND. Rejected/Weekly_Rejected
 #: are excluded on purpose: a rejected row's URL is often a listing page,
