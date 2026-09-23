@@ -1,15 +1,29 @@
 {
   "entries": [
     {
-      "date": "2026-09-21",
-      "url": "daily/2026-09-21.html",
-      "total": 4,
-      "tier1": 4,
+      "date": "2026-09-22",
+      "url": "daily/2026-09-22.html",
+      "total": 2,
+      "tier1": 1,
       "outbreak": 0,
       "by_region": {
-        "Europe": 4
+        "Europe": 1,
+        "North America": 1
       },
-      "generated": "2026-09-22T07:07:45Z"
+      "generated": "2026-09-23T07:07:51Z"
+    },
+    {
+      "date": "2026-09-21",
+      "url": "daily/2026-09-21.html",
+      "total": 7,
+      "tier1": 5,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 5,
+        "Middle East": 1,
+        "North America": 1
+      },
+      "generated": "2026-09-23T07:07:52Z"
     },
     {
       "date": "2026-09-20",
@@ -18,7 +32,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-09-22T07:07:46Z"
+      "generated": "2026-09-23T07:07:53Z"
     },
     {
       "date": "2026-09-19",
@@ -27,7 +41,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-09-22T07:07:47Z"
+      "generated": "2026-09-23T07:07:54Z"
     },
     {
       "date": "2026-09-18",
@@ -39,7 +53,7 @@
         "Europe": 24,
         "Asia": 2
       },
-      "generated": "2026-09-22T07:07:48Z"
+      "generated": "2026-09-23T07:07:55Z"
     },
     {
       "date": "2026-09-17",
@@ -52,7 +66,7 @@
         "Latin America": 2,
         "North America": 1
       },
-      "generated": "2026-09-22T07:07:49Z"
+      "generated": "2026-09-23T07:07:56Z"
     },
     {
       "date": "2026-09-16",
@@ -65,19 +79,7 @@
         "Latin America": 1,
         "North America": 1
       },
-      "generated": "2026-09-22T07:07:50Z"
-    },
-    {
-      "date": "2026-09-15",
-      "url": "daily/2026-09-15.html",
-      "total": 11,
-      "tier1": 9,
-      "outbreak": 1,
-      "by_region": {
-        "Europe": 8,
-        "North America": 3
-      },
-      "generated": "2026-09-22T07:07:52Z"
+      "generated": "2026-09-23T07:07:57Z"
     }
   ]
 }
