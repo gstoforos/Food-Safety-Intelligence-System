@@ -71,8 +71,21 @@ KNOWN_URLS = {
     ),
     "hk": (
         ["https://www.cfs.gov.hk/english/press/20260416_12332.html",
-         "https://www.cfs.gov.hk/tc_chi/press/20260416_12332.html"],
+         "https://www.cfs.gov.hk/tc_chi/press/20260416_12332.html",
+         # The Food Alerts board. The live register produced this one
+         # itself on 2026-09-23 (US raw oysters, excessive E. coli) and
+         # the press-only pattern rejected it.
+         "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_627.html",
+         "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_616.html",
+         "https://www.cfs.gov.hk/english/whatsnew/whatsnew_sfpa/2026_101.html",
+         # Food Incident Posts, published as PDFs. 14 rows already in
+         # Recalls use this shape; the HTML-only pattern rejected them all.
+         "https://www.cfs.gov.hk/english/rc/subject/files/20260914_1.pdf",
+         "https://www.cfs.gov.hk/english/rc/subject/files/20260302_1.pdf"],
+        # An item is <year>_<serial>.html; the LISTING repeats the board name.
         ["https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/whatsnew_fa.html",
+         "https://www.cfs.gov.hk/english/whatsnew/whatsnew_sfpa/whatsnew_sfpa.html",
+         "https://www.cfs.gov.hk/english/press/press.html",
          "https://www.cfs.gov.hk/english/import/import_icfsg_08.html"],
     ),
     "kr": (
@@ -113,9 +126,14 @@ KNOWN_URLS = {
          "https://www.pom.go.id/penjelasan-publik"],
     ),
     "co": (
-        ["https://invima.gov.co/biblioteca/preview/102418"],
+        ["https://invima.gov.co/biblioteca/preview/102418",
+         # The one Colombian row already in Recalls — a press-room article,
+         # not a library document.
+         "https://www.invima.gov.co/blog/sala-de-prensa-13/alimento-para-"
+         "propositos-medicos-especiales-contaminado-con-cronobacter"],
         ["https://app.invima.gov.co/alertas/alertas-alimentos-bebidas",
-         "https://app.invima.gov.co/alertas/alertas-sanitarias-general"],
+         "https://app.invima.gov.co/alertas/alertas-sanitarias-general",
+         "https://www.invima.gov.co/blog/sala-de-prensa-13"],
     ),
     "sa": (
         ["https://www.sfda.gov.sa/en/news/2683516",
@@ -150,6 +168,16 @@ KNOWN_URLS = {
         # Standing guidance pages, not recalls.
         ["https://www.moccae.gov.ae/en/knowledge/food-safety",
          "https://www.moccae.gov.ae/en/knowledge-and-statistics/food-safety.aspx"],
+    ),
+    "ch": (
+        ["https://www.blv.admin.ch/dam/blv/de/dokumente/rueckrufe/"
+         "rr-blau-krabben.pdf.download.pdf/Rueckruf.pdf",
+         "https://www.blv.admin.ch/dam/blv/de/dokumente/oeffentliche-warnungen/"
+         "ow-moringa.pdf.download.pdf/260410.pdf",
+         "https://www.blv.admin.ch/de/newnsb/F880wt7ttea28QG0eJI5b"],
+        # The landing page the old word-match accepted on "rappel".
+        ["https://www.blv.admin.ch/fr/mises-en-garde-et-rappels-aliments",
+         "https://www.blv.admin.ch/de/aktuell"],
     ),
     "br": (
         ["https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2026/"
