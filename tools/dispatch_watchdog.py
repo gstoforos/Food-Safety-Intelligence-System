@@ -117,6 +117,31 @@ WATCHED: tuple[tuple[str, str, int], ...] = (
     # and two is loud. Africa is here on the same terms as the rest even
     # though it is running: it produced ONE row in the last 30 days, and a
     # watchdog that only watches the healthy ones is decoration.
+    # THE FLEET replaces the eight per-region finders below (2026-09-23).
+    # It deals every REGISTERED country into seven weekday shards, so one
+    # scheduler slot covers all 28 and a new config joins automatically.
+    # It runs daily; 30 h allows one missed slot.
+    #
+    # Keep the per-region lines until FsisScheduler.gs has actually been
+    # switched over. Deleting them first would hide a half-finished
+    # migration — the fleet silent AND the regions silent, with nothing
+    # red. Once the fleet has committed for a week, delete the eight and
+    # this note with them.
+    ("gap finder FLEET (all countries)", r"^Gap finder fleet:",                     30),
+
+    # There is no line for the 66 SCRAPERS here on purpose. They do not
+    # commit under a prefix of their own — run_all bundles them into the
+    # "FSIS daily update" commit already watched above, and that commit
+    # lands whether the scrapers found 200 rows or none. Watching it says
+    # only that the job ran.
+    #
+    # A scraper's yield is a different question and it is answered by
+    # docs/data/scraper_health.json, written every run, and asserted by
+    # tests/test_scraper_health.py. As of 2026-09-23 that file records 47
+    # of 66 scrapers as silent, 34 of them having NEVER placed a row —
+    # which the green "FSIS daily update" commit has been reporting as a
+    # healthy fleet every day for months.
+
     ("gap finder: Italian",           r"^Italian gap finder:",                    30),
     ("gap finder: Spanish",           r"^Spanish gap finder:",                    30),
     ("gap finder: Portuguese",        r"^Portuguese gap finder:",                 30),
