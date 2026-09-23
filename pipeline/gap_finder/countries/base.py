@@ -12,6 +12,8 @@ Belgium/Germany/Austria/Netherlands by writing one ~80-line config file each.
 """
 
 from __future__ import annotations
+import sys as _sys
+from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -34,8 +36,26 @@ class CountryConfig:
     authority_short: str            # "EFET", "Salute", "AESAN"
     authority_full: str             # "Ενιαίος Φορέας Ελέγχου Τροφίμων" / "Ministero della Salute"
     authority_domain: str           # "efet.gr", "salute.gov.it"
-    # Regex (within netloc+path) identifying a REAL recall item (filters portal/category pages)
-    authority_item_url_regex: str   # e.g. r"anakleiseis-cat/item/\d+" for EFET
+    # Regex identifying a REAL recall item, filtering out portal/category pages.
+    #
+    # MATCHED AGAINST TWO DIFFERENT STRINGS — write it for both:
+    #   * the full URL, in authority_url_finder and extractor
+    #   * "path?query" WITH THE NETLOC STRIPPED, in search_verifier's
+    #     bulk-index filter
+    # so a regex that names the host matches at the first two sites and
+    # silently fails at the third, dropping every bulk-index hit as a portal
+    # page. (Corrected 2026-09-23; this comment used to read "within
+    # netloc+path", which is how br/hk/mx/hu came to name their hosts.)
+    #
+    # Scope by PATH, and prefix with the host-optional group when the host is
+    # unavoidable:
+    #   r"anakleiseis-cat/item/\d+"                          (EFET — path only)
+    #   r"^(?:https?://[^/]+)?/cofepris/(?:articulos|prensa)/[a-z0-9\-]+"
+    # The query string IS included where present, so authorities that carry
+    # the recall id as a parameter can require it:
+    #   r"newsContent\.aspx\?(?:.*&)?id=[a-z]?\d+"           (Taiwan TFDA)
+    # Host-level filtering is done separately, against authority_domain.
+    authority_item_url_regex: str
 
     # ── News sources ────────────────────────────────────────────────────────
     rss_sources: list[RssSource]            # tried first (often broken; we tolerate failures)
@@ -165,13 +185,7 @@ def get(code: str) -> CountryConfig:
     """Look up a country config by ISO2 code. Raises KeyError if not registered."""
     code = code.lower()
     if code not in _REGISTRY:
-        # Lazy-import all countries to populate registry.
-        # Note: Iceland's ISO2 code is 'is' but Python 'is' is reserved,
-        # so the module file is named iceland.py (still registers with code='is').
-        from . import (gr, it, es, pt,
-                       de, at, ch, be, nl, lu, pl, hu,
-                       se, no, dk, fi, iceland,
-                       cz, hr, ee, mk, md, ba, za, ng, gh, eg, ke)  # noqa: F401
+        _import_all_countries()
     if code not in _REGISTRY:
         raise KeyError(
             f"Unknown country code {code!r}. "
@@ -180,5 +194,55 @@ def get(code: str) -> CountryConfig:
     return _REGISTRY[code]
 
 
+def _import_all_countries() -> None:
+    """Import every country module in this package, so each registers.
+
+    DISCOVERED, NOT LISTED (audit 2026-09-23)
+    -----------------------------------------
+    This used to be a hand-written import tuple naming all 28 modules. A
+    new country config was therefore invisible until someone remembered to
+    add it in a second place — and the failure was silent, because `get()`
+    only raises for the code you asked about, so 27 countries kept working
+    while the 28th did not exist.
+
+    That is the same shape as every other outage found this week: a
+    hand-maintained list beside the thing it is supposed to describe. The
+    gap-finder fleet already reads this registry rather than a list; the
+    registry now reads the directory rather than a list.
+
+    Iceland is why the naive version of this needs care: its ISO2 code is
+    "is", a Python keyword, so its module is iceland.py and registers
+    itself with code="is". Walking the directory handles that without
+    anyone having to know it.
+    """
+    import importlib
+    import pkgutil
+
+    # This directory, not the package's __path__. The first version of this
+    # read `__path__ if "__path__" in dir() else [str(Path(__file__).parent)]`,
+    # which was wrong twice over: dir() inside a function returns LOCAL names,
+    # never module globals, so the test was always False and the fallback
+    # always taken. It worked, by accident, because the fallback is the right
+    # answer. pyflakes caught it as an undefined name (tests/
+    # test_no_undefined_names.py) — the guard was hiding a bug rather than
+    # preventing one. The directory is what we actually mean here, so say so.
+    here = [str(Path(__file__).parent)]
+
+    for _, modname, _ in pkgutil.iter_modules(here):
+        if modname.startswith("_") or modname == "base":
+            continue
+        try:
+            importlib.import_module(f"{__package__}.{modname}")
+        except Exception as exc:                             # noqa: BLE001
+            # One broken config must not take the other 27 down with it.
+            # Loud, because a country that fails to import is a country
+            # that silently stops being covered.
+            print(f"[countries] WARNING: {modname} did not import: "
+                  f"{type(exc).__name__}: {exc}", file=_sys.stderr)
+
+
 def all_codes() -> list[str]:
+    """Every registered code. Triggers discovery if nothing is loaded yet."""
+    if not _REGISTRY:
+        _import_all_countries()
     return sorted(_REGISTRY.keys())

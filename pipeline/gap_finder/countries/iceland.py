@@ -95,10 +95,18 @@ ICELAND = CountryConfig(
 
     timezone="Atlantic/Reykjavik",
     run_local_hour=21,
-    # Reykjavik: GMT year-round, no DST.
-    # Workflow runs at 21:00 Stockholm = 19:00 Reykjavik (CET winter)
-    # or 19:00 Reykjavik (CEST summer — actually Stockholm 21:00 CEST = 19:00 GMT)
-    cron_utc_offsets=(19, 20),
+    # Reykjavik is GMT year-round (no DST since 1968), so 21:00 local IS
+    # 21:00 UTC, in both halves of the year.
+    #
+    # CORRECTED 2026-09-23. This read (19, 20) — Central-European numbers,
+    # copied from a Nordic sibling. The old comment reasoned in Stockholm
+    # time and then contradicted itself inside one sentence ("19:00 ... CET
+    # winter or 19:00 ... CEST summer"), while the value said two different
+    # hours. Nothing failed: a wrong offset is silent, it just runs the
+    # country at the wrong hour forever. Iceland had been running at 19:00
+    # and 20:00 local. Asserted now in
+    # tests/test_country_config_conformance.py against the real tz database.
+    cron_utc_offsets=(21, 21),
 )
 
 

@@ -82,9 +82,18 @@ EGYPT = CountryConfig(
 
     timezone="Africa/Cairo",
     run_local_hour=21,
-    # EET = UTC+2 year-round (Egypt has no DST since 2014; reinstated briefly but
-    # currently no observed summer shift for our purposes). 21:00 local = 19:00 UTC.
-    cron_utc_offsets=(19, 19),
+    # Cairo is EET (UTC+2) in winter and EEST (UTC+3) in summer, so 21:00
+    # local is 19:00 UTC in winter and 18:00 UTC in summer.
+    #
+    # CORRECTED 2026-09-23. This read (19, 19) on the stated grounds that
+    # "Egypt has no DST since 2014". Egypt abolished DST in 2014 and then
+    # REINSTATED it in 2023 (Law 24/2023, last Friday of April to last
+    # Thursday of October). The tz database agrees: 2026-07-15 in
+    # Africa/Cairo is EEST, UTC+3. For five months a year Egypt was running
+    # an hour late. Asserted now in
+    # tests/test_country_config_conformance.py against the real tz database,
+    # which updates itself when a country changes its mind again.
+    cron_utc_offsets=(18, 19),
 )
 
 

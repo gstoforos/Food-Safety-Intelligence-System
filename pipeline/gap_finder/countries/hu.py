@@ -33,7 +33,16 @@ HUNGARY = CountryConfig(
     # so the authority_domain gate matches). Each press release is its own HTML
     # page: portal.nebih.gov.hu/-/<slug> (e.g. /-/gyorsfagyasztott-zoldsegeket-
     # hiv-vissza-a-nebih). The index is the searchable termékvisszahívás page.
-    authority_item_url_regex=r"nebih\.gov\.hu/-/",
+    # HOST-OPTIONAL PREFIX — see tests/test_country_config_conformance.py
+    # ::test_the_regex_matches_both_forms_the_pipeline_uses. This regex is
+    # applied to TWO different strings: the full URL (authority_url_finder,
+    # extractor) and just "path?query" with the netloc stripped
+    # (search_verifier, when it filters the bulk index). A regex naming the
+    # host therefore matches at the first site and silently fails at the
+    # second, which drops every bulk-index hit as a portal page. The
+    # "^(?:https?://[^/]+)?" prefix — the idiom gh.py and za.py already
+    # used — matches both.
+    authority_item_url_regex=r"^(?:https?://[^/]+)?/-/",
     authority_index_url="https://portal.nebih.gov.hu/termekvisszahivas",
 
     rss_sources=[
