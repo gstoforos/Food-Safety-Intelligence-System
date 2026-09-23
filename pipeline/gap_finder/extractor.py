@@ -208,6 +208,57 @@ def build_pending_row(
     return row
 
 
+# ---------------------------------------------------------------------------
+# Weekly_Rejected schema bridge (audit 2026-09-21, re-measured 2026-09-23)
+# ---------------------------------------------------------------------------
+# MEASURED: 49 of 78 rows in Weekly_Rejected carry a BLANK Week_Added and a
+# BLANK RejectionReason. 14 on 2026-09-21, 29 on 09-22, 46 then 49 on 09-23
+# — roughly +16/day, from six gap finders.
+#
+# Neither field was lost. They were never written, because this module and
+# pipeline/weekly_rejected_capture.py disagree on two names:
+#
+#     built here                 live sheet column
+#     ----------------------     ---------------------
+#     RejectReason               RejectionReason
+#     RejectedAt                 (no such column)
+#     (nothing)                  Week_Added
+#
+# The writer lays down `row.get(h, "")` for each header on the sheet — BY
+# NAME, which is why nothing is misaligned and why this went unseen. A key
+# the sheet does not name is dropped on the floor; a column the row does
+# not carry lands empty.
+#
+# Downstream that is not cosmetic:
+#   * a blank Week_Added matches no review window, so the row appears in
+#     NO Sunday operator email — it is rejected in silence
+#   * a blank RejectionReason is what an audit reports as
+#     "NO_REASON_RECORDED … the writer supplied no verdict"
+#
+# FOUR modules define build_rejected_row and all four had this defect.
+# Fixing two of them (first pass, 2026-09-21) fixed nothing measurable,
+# because the live rows came through the authority-URL gate in the other
+# two.
+#
+# The fix is additive: emit BOTH spellings. Extra keys are ignored by any
+# sheet that does not name them, so the Pending write is unaffected.
+def _review_week() -> str:
+    """The review Sunday a rejection recorded right now belongs to.
+
+    Imported, never recomputed. Two copies of this date math is how the
+    Sunday operator email came to be off by a week; see
+    weekly_rejected_capture.review_day_just_closed.
+    """
+    try:
+        from pipeline.weekly_rejected_capture import review_day_for
+        return review_day_for().isoformat()
+    except Exception as e:   # noqa: BLE001
+        print(f"  [WARN] cannot stamp Week_Added ({type(e).__name__}: {e}) "
+              f"— this rejection will not appear in any Sunday email",
+              file=sys.stderr)
+        return ""
+
+
 def build_rejected_row(
     verified: dict,
     classification: Classification,
@@ -236,6 +287,13 @@ def build_rejected_row(
         "RejectedBy":   f"gap_finder/{cfg.code}/rules.py",
         "RejectedAt":   now,
         "RejectReason": classification.category,
+        # --- the same two facts under the names the sheet uses ---
+        "RejectionReason": (
+            f"{classification.category}: {classification.rule}"
+            if classification.rule else classification.category),
+        "Week_Added":   _review_week(),
+        "DateAdded":    now,
+        "Reviewed":     "N",
     }
     return row
 
@@ -337,6 +395,11 @@ def extract_one(
             f"No official {cfg.authority_short} press-release URL found in the "
             f"source article — discovery via news only; not promoted to Recalls."
         )
+        # The gate overrides Reason; RejectionReason must follow it or the
+        # audit reads "allergen: …" for a row rejected on provenance.
+        rejected["RejectionReason"] = (
+            f"no-authority-url: no official {cfg.authority_short} "
+            f"press-release URL in the source article (news-only discovery)")
         return None, rejected
 
     if news_mode_url and verbose:
@@ -414,6 +477,13 @@ def extract_one(
             "Re-extract from the official "
             f"{cfg.authority_short} press release when the LLM is available."
         )
+        # Same rule as the authority-URL gate: an overridden Reason must
+        # carry a matching RejectionReason, or the audit reports a
+        # classifier category for a row the classifier never ran on.
+        rejected["RejectionReason"] = (
+            "llm-extraction-failed: Llama timeout or circuit-open; title-only "
+            "fallback could not produce clean fields. Not a content verdict — "
+            "re-extract when the box is up.")
         if news_mode_url:
             rejected["URL"] = news_mode_url
         return None, rejected
