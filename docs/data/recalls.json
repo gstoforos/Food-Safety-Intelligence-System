@@ -52,16 +52,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Uzbekistan | Notifying: Poland",
   "Brand": "—",
-  "Product": "Stwierdzenie przekroczenia NDP ochratoksyny A w rodzynkach kraj pochodzenia Uzbekistan // Exceedance of the maximum level for ochratoxin A in raisins from Uzbekistan)",
+  "Product": "Stwierdzenie przekroczenia NDP ochratoksyny A w rodzynkach kraj pochodzenia Uzbekistan // Exceedance of the maximum level for ochratoxin A in raisins from Uzbekistan",
   "Pathogen": "Ochratoxin",
-  "Reason": "Stwierdzenie przekroczenia NDP ochratoksyny A w rodzynkach kraj pochodzenia Uzbekistan // Exceedance of the maximum level for ochratoxin A in raisins from Uzbekistan); risk: potential risk; category: fruits and vegetables",
+  "Reason": "Stwierdzenie przekroczenia NDP ochratoksyny A w rodzynkach kraj pochodzenia Uzbekistan // Exceedance of the maximum level for ochratoxin A in raisins from Uzbekistan; risk: potential risk; category: fruits and vegetables",
   "Class": "Border Rejection",
   "Country": "Uzbekistan",
   "Region": "Unknown",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/874292",
-  "Notes": "[RASFF #2026.8370; classification: border rejection notification; category: fruits and vegetables; notifId=874292]"
+  "Notes": "[RASFF #2026.8370; classification: border rejection notification; category: fruits and vegetables; notifId=874292] [agent nightly-operator proposal 6a371d818df6b934 applied 2026-09-23: Data-integrity fix, not a language fix (RASFF Product is exempt from the English-only rule): the bilingual subject line carried a stray trailing ')' with zero matching '(' -- the tell of a bad mid-parenthetical split. Re] [agent nightly-operator proposal 6a371d818df6b934 applied 2026-09-23: Data-integrity fix, not a language fix (RASFF Product is exempt from the English-only rule): the bilingual subject line carried a stray trailing ')' with zero matching '(' -- the tell of a bad mid-parenthetical split. Re]"
  },
  {
   "Date": "2026-09-21",
@@ -70,14 +70,14 @@
   "Brand": "Loiseau",
   "Product": "truffé briard",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Detection of Listeria mono sur autocontrôle",
+  "Reason": "Detection of Listeria monocytogenes via self-monitoring testing",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23567/interne",
-  "Notes": "nous-mêmes sur les étals du marché de fontainebleau et de melun (gaillardon)"
+  "Notes": "nous-mêmes sur les étals du marché de fontainebleau et de melun (gaillardon) [agent nightly-operator proposal 6db919a8df151dda applied 2026-09-23: House rule: Reason must be English. Prior wording mixed English verb with French 'sur autocontrole' (self-monitoring test); translated, same fact (self-testing detected Listeria monocytogenes).]"
  },
  {
   "Date": "2026-09-21",
@@ -102,14 +102,14 @@
   "Brand": "Unbranded",
   "Product": "cuisse de poulet marinée, filet de poulet mariné, émincés de poulet marinés.",
   "Pathogen": "Salmonella",
-  "Reason": "Les analyses réalisées sur un lot de cuisses de poulet marinées au paprika ont révélé la présence de Salmonella. par mesure de précaution, l'entreprise procède au rappel de l'ensemble des produits issus de la fabrication volailles marinées .",
+  "Reason": "Testing on a batch of paprika-marinated chicken thighs revealed the presence of Salmonella. As a precaution, the company is recalling all products from the marinated-poultry production run.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23572/interne",
-  "Notes": "intermarché dole les epenottes"
+  "Notes": "intermarché dole les epenottes [agent nightly-operator proposal edc564a7028e1eae applied 2026-09-23: House rule: Reason must be English; prior value was entirely in French. Translated with no change of fact (Salmonella found in paprika-marinated chicken thighs; full production-run recall as a precaution).] [agent nightly-operator proposal edc564a7028e1eae applied 2026-09-23: House rule: Reason must be English; prior value was entirely in French. Translated with no change of fact (Salmonella found in paprika-marinated chicken thighs; full production-run recall as a precaution).]"
  },
  {
   "Date": "2026-09-21",
@@ -614,14 +614,14 @@
   "Brand": "Unbranded",
   "Product": "hareng kipper vendu au rayon poissonnerie traditionnel",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria monocytogène (inférieur à 10 ufc/g)",
+  "Reason": "Presence of Listeria monocytogenes (below 10 cfu/g)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23534/interne",
-  "Notes": "carrefour hyper montluçon uniquement"
+  "Notes": "carrefour hyper montluçon uniquement [agent nightly-operator proposal 3fce2ee0d478b2bf applied 2026-09-23: House rule: Reason must be English. Prior value carried the French accented spelling 'listeria monocytogene' and 'ufc/g' (French abbreviation for cfu/g); translated, same fact.]"
  },
  {
   "Date": "2026-09-17",
@@ -918,14 +918,14 @@
   "Brand": "—",
   "Product": "Graines de courge en vrac (bulk pumpkin seeds), lot 4754-1925-05, DLUO 09/10/2026",
   "Pathogen": "Salmonella",
-  "Reason": "Détection de Salmonelle / Salmonella detected. Risk statement on the notice: Salmonella spp, agent responsable de la salmonellose.",
+  "Reason": "Salmonella detected. Risk statement on the notice: Salmonella spp, the organism responsible for salmonellosis.",
   "Class": "Recall",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23512/Interne",
-  "Notes": "Reviewed 2026-09-17 against the RappelConso notice. Sold nationwide (France entière) 2025-11-03 to 2026-08-31. TIER CORRECTED 3 -> 1: Salmonella is always Tier 1 by the scope module; the row arrived Tier 3. OUTBREAK LEFT AT 0 DELIBERATELY: agriculture.gouv.fr published 'Cas groupés de salmonellose : retrait-rappel de graines de courge' on 2026-09-04 reporting 81 cases of one Salmonella Enteritidis strain isolated 3 May - 12 Aug 2026 from pumpkin seeds processed in Lot-et-Garonne, but that notice names fiches 23359 and 23360, NOT 23512. Same product and period, linkage UNVERIFIED. Do not set Outbreak=1 without a source naming this fiche."
+  "Notes": "Reviewed 2026-09-17 against the RappelConso notice. Sold nationwide (France entière) 2025-11-03 to 2026-08-31. TIER CORRECTED 3 -> 1: Salmonella is always Tier 1 by the scope module; the row arrived Tier 3. OUTBREAK LEFT AT 0 DELIBERATELY: agriculture.gouv.fr published 'Cas groupés de salmonellose : retrait-rappel de graines de courge' on 2026-09-04 reporting 81 cases of one Salmonella Enteritidis strain isolated 3 May - 12 Aug 2026 from pumpkin seeds processed in Lot-et-Garonne, but that notice names fiches 23359 and 23360, NOT 23512. Same product and period, linkage UNVERIFIED. Do not set Outbreak=1 without a source naming this fiche. [agent nightly-operator proposal 3baf7471b049c29b applied 2026-09-23: House rule: Reason must be English. Prior value opened with a French/English bilingual pair ('Detection de Salmonelle / Salmonella detected') and closed with French ('agent responsable de la salmonellose'); translated to] [agent nightly-operator proposal 3baf7471b049c29b applied 2026-09-23: House rule: Reason must be English. Prior value opened with a French/English bilingual pair ('Detection de Salmonelle / Salmonella detected') and closed with French ('agent responsable de la salmonellose'); translated to]"
  },
  {
   "Date": "2026-09-15",

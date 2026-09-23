@@ -52,6 +52,7 @@ attempted from the audit sandbox was refused at the proxy.
 | `sa` | SFDA | `/{en,ar}/news/<n>` |
 | `ae` | MOCCAE | `/{en,ar}/media-center/news/<D>/<M>/<YYYY>/<slug>` |
 | `ch` * | BLV | `/dam/blv/<lang>/dokumente/{oeffentliche-warnungen,rueckrufe}/…`, `/<lang>/newnsb/<id>` |
+| `us` | FSIS | `/recalls-alerts/<slug>` |
 
 `ch` (*) is not new — its regex was rewritten today. The three marked †
 were corrected within hours of being written, by the register rather than

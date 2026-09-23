@@ -219,6 +219,15 @@ HAZARD_CLASS_KEYWORDS = {
         # "pathogen-parasitic" — it was simply missing here.
         "cyclospora", "cryptosporidium", "giardia", "trichinella",
         "anisakis", "toxoplasma", "taenia", "echinococcus",
+        # UNNAMED MICROBIOLOGICAL HAZARD (audit 2026-09-23). Some regulators
+        # (RappelConso "Autres contaminants biologiques") confirm a
+        # microbiological finding without naming the organism. That is a
+        # real biological hazard, not a fabrication risk — the row's own
+        # Pathogen field already says "Unspecified", so classifying it does
+        # not invent an organism, it just recognises the class the notice
+        # itself asserts.
+        "microbiological contamination", "biological contamination",
+        "contaminants biologiques",
     ),
     "physical": (
         "foreign matter", "foreign material", "foreign body",
@@ -286,6 +295,11 @@ HAZARD_CLASS_KEYWORDS = {
         # 2. Natural chemical toxicants of the food itself, as distinct from
         #    a biotoxin produced by an organism.
         "hydrocyanic", "cyanide", "cyanogenic",
+        # Pyrrolizidine alkaloids (audit 2026-09-23) — natural plant
+        # toxicants (herbal teas, honey) regulated as a chemical
+        # contaminant by GIS/EFSA; same footing as cyanogenic glycosides
+        # above.
+        "pyrrolizidine",
         # 3. Undeclared pharmaceutical adulteration — IN SCOPE since
         #    2026-05-12 (see pipeline/_pathogen_scope.py) and notifiable to
         #    INFOSAN, but it had no hazard class, so the SUPPLX yohimbine row

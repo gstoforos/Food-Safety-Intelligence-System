@@ -92,6 +92,13 @@ PATHOGEN: dict[str, list[str]] = {
     "Yersinia": ["yersinia", "enterocolitica"],                     # 0  (rules)
     "Shigella": ["shigella"],                                       # 0  (rules)
     "Brucella": ["brucella", "brucellosis"],                        # 0  (rules)
+    # Unspecified microbiological finding — some regulators (RappelConso
+    # "Autres contaminants biologiques") confirm a biological hazard without
+    # naming the organism. Real hazard, no organism to name; not the same
+    # bucket as Mold / spoilage below.
+    "Unspecified microbiological contamination": [
+        "unspecified microbiological", "contaminants biologiques",
+        "other biological contaminants"],                          # 1
 
     # --- viruses --------------------------------------------------------
     "Norovirus": ["norovirus", "norwalk"],                          # 19
@@ -125,7 +132,7 @@ PATHOGEN: dict[str, list[str]] = {
                                      "phytoplankton"],              # 8
     "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol",
                                 "muscaria", "hydrocyanic", "cyanogenic",
-                                "solanine", "tropane"],             # 3
+                                "solanine", "tropane", "pyrrolizidine"],  # 4
 
     # --- chemical -------------------------------------------------------
     "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury",
