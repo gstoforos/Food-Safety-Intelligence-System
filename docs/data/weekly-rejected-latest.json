@@ -1,11 +1,11 @@
 {
   "week_end": "2026-09-27",
-  "generated_utc": "2026-09-22T19:52:40+00:00",
-  "row_count": 28,
-  "tier1_count": 16,
+  "generated_utc": "2026-09-23T03:22:18+00:00",
+  "row_count": 29,
+  "tier1_count": 17,
   "outbreak_count": 7,
   "by_reviewer": {
-    "unknown": 24,
+    "unknown": 25,
     "confirm-agent": 3,
     "repromotion-guard": 1
   },
@@ -77,6 +77,29 @@
       "Week_Added": "2026-09-27",
       "RejectedBy": "confirm-agent",
       "RejectionReason": "NO_REASON_RECORDED — rejected by confirm-agent from RASFF, status pending. The writer supplied no verdict and none could be parsed from Notes; treat as UNAUDITED, not as a confirmed rejection.",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-08-23",
+      "Source": "FDA",
+      "Company": "International Sprout Holdings, Inc",
+      "Brand": "—",
+      "Product": "Alfalfa, Net Weight 50 lbs. bag, Product of USA, International Specialty Supply 1011 Volunteer Dr. Cookeville, TN 38506",
+      "Pathogen": "Salmonella",
+      "Reason": "Potential E. coli and Salmonella contamination",
+      "Class": "Class I",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1341-2026",
+      "Notes": "REJECTED: Arrived already marked rejected; confirmer did not re-review | openFDA recall#=H-1341-2026; ev_id=99822; distrib=Wholesale consignees in 16 states: CA, FL, HI, IL, MA, MN, MO, MT, NY, OH, OR, PA, TN, SC, TX, UT; Puerto Rico; Canada, [safety-hold: reviewed but not approved this run; not promoted] [review-agent 2026-09-23: REJECTED — Review agent: URL is dead and no official page found]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-09-27",
+      "RejectedBy": "unknown",
+      "RejectionReason": "Arrived already marked rejected; confirmer did not re-review",
       "Reviewed": "N"
     },
     {

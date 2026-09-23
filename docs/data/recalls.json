@@ -16,6 +16,22 @@
   "Notes": "carrefour market le faouet uniquement"
  },
  {
+  "Date": "2026-09-22",
+  "Source": "FDA",
+  "Company": "Wakefern Food Corp.",
+  "Brand": "Wholesome Pantry",
+  "Product": "Organic Unsweetened Apple Sauce",
+  "Pathogen": "patulin",
+  "Reason": "Elevated levels of patulin",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/wakefern-food-corp-voluntarily-recalls-wholesome-pantry-organic-unsweetened-apple-sauce",
+  "Notes": "FDA listing HTML (Layer 1) [review-agent 2026-09-23: reviewed and approved at status 'pending'; fields verified against the source, status left unchanged] [confirm-agent 2026-09-23: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+ },
+ {
   "Date": "2026-09-21",
   "Source": "RappelConso (FR)",
   "Company": "Loiseau",
