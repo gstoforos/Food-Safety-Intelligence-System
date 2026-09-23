@@ -96,6 +96,42 @@ WATCHED: tuple[tuple[str, str, int], ...] = (
     # crying wolf.
     ("recall url agent (reviewer 1)", r"^Recall URL agent:",                      30),
 
+    # ── THE GAP FINDERS — NONE OF THEM WAS WATCHED (audit 2026-09-23) ──
+    #
+    # This table watched the scrapers, the reviewers, the merge, the news
+    # feed, the guardian and the publication surfaces. It did not watch a
+    # single gap finder, which is the whole discovery half of the system.
+    #
+    # Three had already died in that blind spot, and the register shows it:
+    #
+    #     Central EU gap finder   last commit 2026-06-14   (3 months)
+    #     Nordic gap finder       last commit 2026-05-31   (4 months)
+    #     East EU gap finder      HAS NEVER COMMITTED
+    #
+    # Nothing anywhere said so. Germany sits at 41 rows and Austria,
+    # Switzerland, Czechia, Hungary, Slovakia are between 0 and 20 while
+    # France alone holds 800 of 1764 — a distribution that reads like a
+    # European map and is actually a map of which gap finders are alive.
+    #
+    # Thresholds are 2x the dispatch interval, so one missed slot is quiet
+    # and two is loud. Africa is here on the same terms as the rest even
+    # though it is running: it produced ONE row in the last 30 days, and a
+    # watchdog that only watches the healthy ones is decoration.
+    ("gap finder: Italian",           r"^Italian gap finder:",                    30),
+    ("gap finder: Spanish",           r"^Spanish gap finder:",                    30),
+    ("gap finder: Portuguese",        r"^Portuguese gap finder:",                 30),
+    ("gap finder: Greek",             r"^Greek gap finder:",                      30),
+    ("gap finder: Africa",            r"^Africa gap finder:",                     30),
+    # These three are ALREADY overdue on the day this line is added. That
+    # is deliberate: an entry that only goes green after someone fixes the
+    # workflow is a to-do item that cannot be forgotten. If a region is
+    # retired on purpose, delete its line and say so here — the way the
+    # gemini url-gate line above was retired — rather than leaving a
+    # permanent false OVERDUE that trains people to ignore the real ones.
+    ("gap finder: Central EU",        r"^Central EU gap finder:",                 30),
+    ("gap finder: Nordic",            r"^Nordic gap finder:",                     30),
+    ("gap finder: East EU",           r"^East EU gap finder:",                    30),
+
     # The daily accuracy brief. daily-review-agent.yml runs at 09:00 Athens
     # and writes docs/data/daily_review_digest.md + daily_review_report.json
     # on EVERY run — the report is written whether or not it found anything,
