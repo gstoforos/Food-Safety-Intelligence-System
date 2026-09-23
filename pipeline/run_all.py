@@ -134,25 +134,106 @@ def discover_scrapers() -> List[BaseScraper]:
     return found
 
 
-def run_one_scraper(scraper: BaseScraper, since_days: int) -> List[Recall]:
+# ── SCRAPER HEALTH (audit 2026-09-23) ──────────────────────────────────
+#
+# 66 scrapers run here every day. Each printed ONE line to the job log —
+# "[DONE] SFA (SG)/Singapore -> 0 recalls" — and the log dies with the job.
+# So a scraper whose selector broke when the site was redesigned returns 0,
+# forever, and looks exactly like a scraper on a quiet week.
+#
+# MEASURED against the register on 2026-09-23. Of the 33 scrapers covering
+# Asia, Latin America, the Middle East and Africa, ONE produced a row in
+# the last 45 days:
+#
+#     20 have NEVER placed a row in the register
+#     12 placed rows and stopped, most clustered in mid-to-late June:
+#        FDA (PH) 06-14 · NCC (ZA) 06-14 · SFA (SG) 06-25 ·
+#        COFEPRIS 06-26 · ANMAT 06-27 · ANVISA 06-27
+#
+# Those six stopping within a fortnight is a pattern, not six coincidences,
+# and nothing in this repository was in a position to notice it — the only
+# record of a scraper's yield was a log line.
+#
+# So write it down. One JSON file, one entry per agency, updated every run:
+# when it last ran, what it returned, how many consecutive runs it has
+# returned nothing, and the last error if it threw. That turns "silence"
+# into a number that tests/test_scraper_health.py can fail on.
+HEALTH_PATH = ROOT / "docs" / "data" / "scraper_health.json"
+
+
+def _load_health() -> Dict[str, Any]:
+    try:
+        import json
+        return json.loads(HEALTH_PATH.read_text(encoding="utf-8-sig"))
+    except Exception:                                        # noqa: BLE001
+        return {}
+
+
+def _save_health(health: Dict[str, Any]) -> None:
+    """Best effort. A health file that cannot be written must never take
+    the scrape down with it — the rows are the product, this is telemetry."""
+    try:
+        import json
+        HEALTH_PATH.parent.mkdir(parents=True, exist_ok=True)
+        HEALTH_PATH.write_text(
+            json.dumps(health, ensure_ascii=False, indent=1, sort_keys=True),
+            encoding="utf-8")
+    except Exception as e:                                   # noqa: BLE001
+        log.warning("could not write scraper health: %s", e)
+
+
+def run_one_scraper(scraper: BaseScraper, since_days: int) -> Tuple[str, List[Recall], str]:
+    """Returns (agency, rows, error). The error string is "" on success.
+
+    A raised exception and an empty result are DIFFERENT facts and were
+    being flattened into the same `[]`. A scraper that throws is broken; a
+    scraper that returns nothing may simply have had a quiet week. Keeping
+    them apart is the whole point of the health record.
+    """
     name = f"{scraper.AGENCY}/{scraper.COUNTRY}"
     try:
         log.info("[START] %s", name)
         rows = scraper.scrape(since_days=since_days)
         log.info("[DONE]  %s -> %d recalls", name, len(rows))
-        return rows
-    except Exception as e:
+        return scraper.AGENCY, list(rows or []), ""
+    except Exception as e:                                   # noqa: BLE001
         log.error("[FAIL]  %s: %s", name, e)
-        return []
+        return scraper.AGENCY, [], f"{type(e).__name__}: {e}"[:300]
 
 
 def run_all_scrapers(scrapers: List[BaseScraper], since_days: int) -> List[Recall]:
-    """Run all scrapers in parallel batches."""
+    """Run all scrapers in parallel batches, recording each one's yield."""
     all_rows: List[Recall] = []
+    health = _load_health()
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+
     with ThreadPoolExecutor(max_workers=MAX_PARALLEL) as ex:
         futs = {ex.submit(run_one_scraper, s, since_days): s for s in scrapers}
         for f in as_completed(futs):
-            all_rows.extend(f.result())
+            agency, rows, err = f.result()
+            all_rows.extend(rows)
+            rec = health.get(agency) or {}
+            rec["last_run_utc"] = now
+            rec["last_yield"] = len(rows)
+            rec["last_error"] = err
+            if rows:
+                rec["last_nonzero_utc"] = now
+                rec["consecutive_zero_runs"] = 0
+            else:
+                rec["consecutive_zero_runs"] = int(
+                    rec.get("consecutive_zero_runs") or 0) + 1
+            rec["total_runs"] = int(rec.get("total_runs") or 0) + 1
+            health[agency] = rec
+
+    _save_health(health)
+
+    # Name the silent ones in the job log too. The JSON is for the tests;
+    # this line is for whoever is reading a red run at 06:00.
+    quiet = sorted(a for a, r in health.items()
+                   if int(r.get("consecutive_zero_runs") or 0) >= 14)
+    if quiet:
+        log.warning("SCRAPERS SILENT FOR 14+ CONSECUTIVE RUNS (%d): %s",
+                    len(quiet), ", ".join(quiet))
     log.info("Total scraped (raw): %d", len(all_rows))
     return all_rows
 
