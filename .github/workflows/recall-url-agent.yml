@@ -1076,14 +1076,30 @@ jobs:
       - name: Commit xlsx changes (race-safe)
         if: ${{ github.event.inputs.skip_commit != 'true' }}
         run: |
+          # SIGN YOUR OWN COMMITS (audit 2026-09-23).
+          #
+          # This step used to commit as "Recall review agent:" — reviewer
+          # 2's prefix. tools/dispatch_watchdog.py watches prefixes, so one
+          # line covered two agents: if reviewer 1 stopped being dispatched
+          # entirely, reviewer 2's commits kept that line green and nothing
+          # anywhere said reviewer 1 had gone quiet.
+          #
+          # The watchdog's own comment records this being fixed for the
+          # CONFIRM agent on 2026-09-04 — "the confirm agent now signs its
+          # own commits". Reviewer 1 was never given the same treatment.
+          #
+          # Measured 2026-09-23: no url-agent stamp anywhere in Pending, the
+          # url-guard notes on nine held rows all dated 2026-09-22, and
+          # every FSIS daily update reading "+0 approved" — with the
+          # watchdog green, because reviewer 2 was committing normally.
           if [ -f scripts/safe_push.sh ]; then
             bash scripts/safe_push.sh \
-              "Recall review agent: $(date -u +%Y-%m-%d) verified promotions" \
+              "Recall URL agent: $(date -u +%Y-%m-%d) reviewer 1 pass" \
               docs/data/recalls.xlsx
           else
-            git config user.name "AFTS Intelligence System (review-agent)"
+            git config user.name "AFTS Intelligence System (url-agent)"
             git config user.email "fsis-bot@advfood.tech"
             git add docs/data/recalls.xlsx
-            git diff --cached --quiet || git commit -m "Recall review agent: $(date -u +%Y-%m-%d)"
+            git diff --cached --quiet || git commit -m "Recall URL agent: $(date -u +%Y-%m-%d) reviewer 1 pass"
             for i in 1 2 3; do git push && break; git pull --rebase; sleep 3; done
           fi
