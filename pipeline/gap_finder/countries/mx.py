@@ -48,8 +48,27 @@ MEXICO = CountryConfig(
     # second, which drops every bulk-index hit as a portal page. The
     # "^(?:https?://[^/]+)?" prefix — the idiom gh.py and za.py already
     # used — matches both.
+    # Two shapes. The second was added 2026-09-23 on the register's
+    # evidence: BOTH published Mexican rows use it, and the articulos/prensa
+    # pattern alone rejected both.
+    #     /cofepris/(articulos|prensa)/<slug>
+    #     /cms/uploads/attachment/file/<id>/Alerta_Sanitaria__<name>.pdf
+    # The file-library path is the caveat this config shipped with — "if
+    # unmatched.jsonl fills with PDF-only recalls, revisit" — answered
+    # sooner than expected, by the register rather than by unmatched.jsonl.
+    #
+    # HONEST TRADE-OFF. /cms/uploads/ is the WHOLE Mexican federal
+    # government's upload library, not COFEPRIS's, so this one shape cannot
+    # be scoped by agency path the way the rest of this file is. It is
+    # scoped by FILENAME instead — the document must be named as a sanitary
+    # alert. That is weaker, and it is recorded here rather than hidden:
+    # a non-COFEPRIS ministry publishing a file called "Alerta_Sanitaria"
+    # would pass this gate. The extractor still has to classify it, and
+    # Mexico is one of the countries to re-check first if odd rows appear.
     authority_item_url_regex=(
-        r"^(?:https?://[^/]+)?/cofepris/(?:articulos|prensa)/[a-z0-9\-]+"
+        r"^(?:https?://[^/]+)?/(?:"
+        r"cofepris/(?:articulos|prensa)/[a-z0-9\-]+"
+        r"|cms/uploads/attachment/file/\d+/[^/]*[Aa]lerta[^/]*\.pdf)"
     ),
     authority_index_url="https://www.gob.mx/cofepris/archivo/articulos",
 

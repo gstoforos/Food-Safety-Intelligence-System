@@ -22,10 +22,19 @@ INVIMA's layout needs care, because three different things look alike:
   * invima.gov.co/biblioteca/preview/<id>                 — the individual
     alert document, one permanent numbered page each
 
-Only the third is an item, so that is what the regex takes. The listings
-are Angular routes that render client-side, which is a second reason not
-to accept them: fetched, they yield an app shell, and a row extracted from
-an app shell is how a recall acquires a navigation label for a company name.
+The listings are Angular routes that render client-side, which is a second
+reason not to accept them: fetched, they yield an app shell, and a row
+extracted from an app shell is how a recall acquires a navigation label
+for a company name.
+
+CORRECTED the same day, by the register rather than by more searching.
+INVIMA also publishes alerts as PRESS-ROOM articles, and the one Colombian
+row already in Recalls is one:
+
+    invima.gov.co/blog/sala-de-prensa-13/alimento-para-propositos-medicos-
+        especiales-contaminado-...
+
+The biblioteca-only pattern rejected it. Both shapes are now accepted.
 
 SCOPE NOTE. INVIMA regulates medicines, devices, cosmetics and food from
 one alert series, and /biblioteca/preview/<id> is the whole document
@@ -49,9 +58,19 @@ COLOMBIA = CountryConfig(
         "Instituto Nacional de Vigilancia de Medicamentos y Alimentos"
     ),
     authority_domain="invima.gov.co",
-    # The numbered library document is the only per-alert page. See the
-    # docstring for the two Angular listings this excludes.
-    authority_item_url_regex=r"^(?:https?://[^/]+)?/biblioteca/preview/\d+",
+    # Two shapes; see the docstring for the Angular listings this excludes.
+    # The second was added 2026-09-23 on the register's
+    # evidence: the ONE published Colombian row is a press-room article,
+    #     /blog/sala-de-prensa-13/alimento-para-propositos-medicos-
+    #         especiales-contaminado-...
+    # not a library document, and the biblioteca pattern alone rejected it.
+    # Requiring a slug AFTER the section keeps the section landing page
+    # (/blog/sala-de-prensa-13) out.
+    authority_item_url_regex=(
+        r"^(?:https?://[^/]+)?/(?:"
+        r"biblioteca/preview/\d+"
+        r"|blog/[a-z0-9\-]+/[a-z0-9][a-z0-9\-]{9,})"
+    ),
     authority_index_url="https://app.invima.gov.co/alertas/alertas-alimentos-bebidas",
     authority_domains_extra=["app.invima.gov.co"],
 

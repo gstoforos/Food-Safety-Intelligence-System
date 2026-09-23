@@ -24,7 +24,33 @@ SWITZERLAND = CountryConfig(
     authority_short="BLV",
     authority_full="Bundesamt für Lebensmittelsicherheit und Veterinärwesen",
     authority_domain="blv.admin.ch",
-    authority_item_url_regex=r"(warnung|rappel|richiamo|news|aktuell)",
+    # REWRITTEN 2026-09-23 against the 14 real BLV URLs in the register.
+    #
+    # It read r"(warnung|rappel|richiamo|news|aktuell)" — a word match on
+    # the whole URL, which was wrong in both directions at once:
+    #
+    #   TOO NARROW. Every Swiss RECALL document lives under /rueckrufe/
+    #   and contains none of those words, so the gate refused 9 of the 14
+    #   Swiss URLs already in Recalls — including all six rr-*.pdf recall
+    #   notices. Those are recalls the system had already found and could
+    #   not have found again.
+    #
+    #   TOO WIDE. "rappel" matched /fr/mises-en-garde-et-rappels-aliments,
+    #   the BLV LANDING PAGE — which is how a row reached Recalls with
+    #   Company = Brand = the page title and Product = "aliments".
+    #
+    # BLV publishes on two structures, both present in the register:
+    #   /dam/blv/<lang>/dokumente/oeffentliche-warnungen/ow-<slug>.pdf...
+    #   /dam/blv/<lang>/dokumente/rueckrufe/rr-<slug>.pdf...
+    #   /<lang>/newnsb/<opaque-id>                        (news items)
+    # and the landing pages carry no document path and no news id, so
+    # requiring one of those three shapes excludes them structurally
+    # rather than by word.
+    authority_item_url_regex=(
+        r"^(?:https?://[^/]+)?/(?:"
+        r"dam/blv/[a-z]{2}/dokumente/(?:oeffentliche-warnungen|rueckrufe)/[^/]+"
+        r"|(?:de|fr|it|en)/newnsb/[A-Za-z0-9_-]{8,})"
+    ),
 
     # ── News sources (trilingual: DE + FR + IT) ─────────────────────────────
     rss_sources=[

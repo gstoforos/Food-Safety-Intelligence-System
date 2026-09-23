@@ -39,13 +39,47 @@ HONG_KONG = CountryConfig(
     # ::test_the_regex_matches_both_forms_the_pipeline_uses. This regex is
     # applied to TWO different strings: the full URL (authority_url_finder,
     # extractor) and just "path?query" with the netloc stripped
-    # (search_verifier, when it filters the bulk index). A regex naming the
-    # host therefore matches at the first site and silently fails at the
-    # second, which drops every bulk-index hit as a portal page. The
-    # "^(?:https?://[^/]+)?" prefix — the idiom gh.py and za.py already
-    # used — matches both.
+    # (search_verifier). A regex naming the host matches at the first and
+    # silently fails at the second.
+    #
+    # THREE BOARDS, NOT ONE — corrected 2026-09-23, same day as written.
+    # The first version of this took /press/<YYYYMMDD>_<n>.html only. The
+    # live register then produced the counter-example itself: a Pending row
+    # for Hong Kong, scraped 18:08 UTC, carrying
+    #     /english/whatsnew/whatsnew_fa/2026_627.html
+    #     "CFS orders recall of US raw oysters after excessive E. coli"
+    # which the press-only pattern REJECTS. Confirmed against a second real
+    # alert, /english/whatsnew/whatsnew_fa/2026_616.html (undeclared gluten
+    # in imported yoghurt).
+    #
+    # CFS publishes recalls across three boards, and press releases are the
+    # LEAST relevant of the three for this register:
+    #     /press/<YYYYMMDD>_<n>.html                 press releases
+    #     /whatsnew/whatsnew_fa/<YYYY>_<n>.html      Food / Allergy Alerts
+    #     /whatsnew/whatsnew_sfpa/<YYYY>_<n>.html    Suspected Food Poisoning
+    # Taking press only would have left Hong Kong running every day,
+    # finding alerts, and rejecting all of them at the authority gate —
+    # the exact silent-empty failure this file's tests exist to prevent.
+    #
+    # The index/item rule on the whatsnew boards is that an ITEM is
+    # <year>_<serial>.html while the LISTING repeats the board name
+    # (whatsnew_fa/whatsnew_fa.html). Requiring the year_serial shape is
+    # what keeps the listing out.
+    # FOUR boards, not three — corrected again 2026-09-23 against the live
+    # register, which holds 14 published Recalls rows on a shape the
+    # three-board pattern still rejected:
+    #     /english/rc/subject/files/<YYYYMMDD>_<n>.pdf
+    # These are CFS Food Incident Posts (indexed at rc/subject/fi_list.html)
+    # and they are published as PDFs rather than HTML pages. A PDF is
+    # accepted here because it is a permanent, per-incident document on the
+    # authority's own host — the authority-URL guarantee is about WHO
+    # published it and WHETHER it addresses one incident, not about the
+    # file format.
     authority_item_url_regex=(
-        r"^(?:https?://[^/]+)?/(?:english|tc_chi|sc_chi)/press/\d{8}_\d+\.html"
+        r"^(?:https?://[^/]+)?/(?:english|tc_chi|sc_chi)/"
+        r"(?:press/\d{8}_\d+\.html"
+        r"|whatsnew/whatsnew_(?:fa|sfpa)/\d{4}_\d+\.html"
+        r"|rc/subject/files/\d{8}_\d+\.pdf)"
     ),
     authority_index_url="https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/whatsnew_fa.html",
 

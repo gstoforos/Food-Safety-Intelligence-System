@@ -38,7 +38,7 @@ attempted from the audit sandbox was refused at the proxy.
 | Code | Authority | Verified item URL shape |
 |---|---|---|
 | `sg` | SFA | `/news-publications/newsroom/[YYYY/]<slug-with-recall>` |
-| `hk` | CFS | `/{english,tc_chi,sc_chi}/press/<YYYYMMDD>_<n>.html` |
+| `hk` † | CFS | `/<lang>/press/<YYYYMMDD>_<n>.html`, `/<lang>/whatsnew/whatsnew_{fa,sfpa}/<YYYY>_<n>.html`, `/<lang>/rc/subject/files/<YYYYMMDD>_<n>.pdf` |
 | `kr` | MFDS | `/[eng/]brd/m_<n>/view.do?seq=<n>` |
 | `jp` | CAA | `/result/detail.php?rcl=<n>` |
 | `tw` | TFDA | `/{tc,eng}/newsContent.aspx?...id=[t]<n>` |
@@ -46,16 +46,72 @@ attempted from the audit sandbox was refused at the proxy.
 | `id` | BPOM | `/{siaran-pers,penjelasan-publik}/<slug>` |
 | `vn` | VFA | `/{tin-tuc,xu-ly-vi-pham-attp}/<slug>.html` |
 | `br` | ANVISA | `/anvisa/pt-br/assuntos/noticias-anvisa/<YYYY>/<slug>` |
-| `mx` | COFEPRIS | `/cofepris/{articulos,prensa}/<slug>` |
-| `co` | INVIMA | `/biblioteca/preview/<n>` |
+| `mx` † | COFEPRIS | `/cofepris/{articulos,prensa}/<slug>`, `/cms/uploads/attachment/file/<id>/Alerta_*.pdf` |
+| `co` † | INVIMA | `/biblioteca/preview/<n>`, `/blog/<section>/<slug>` |
 | `cl` | ACHIPIA | `/<YYYY>/<MM>/<DD>/<slug>/` |
 | `sa` | SFDA | `/{en,ar}/news/<n>` |
 | `ae` | MOCCAE | `/{en,ar}/media-center/news/<D>/<M>/<YYYY>/<slug>` |
+| `ch` * | BLV | `/dam/blv/<lang>/dokumente/{oeffentliche-warnungen,rueckrufe}/…`, `/<lang>/newnsb/<id>` |
 
-Every one of these is asserted against a real URL, plus at least one page
+`ch` (*) is not new — its regex was rewritten today. The three marked †
+were corrected within hours of being written, by the register rather than
+by more searching. Both stories are in the next section. Every one of these is asserted against a real URL, plus at least one page
 that must NOT match, in `tests/test_country_config_conformance.py`. The
 negatives are the half that matters: an index page accepted as a recall is
 how a row ends up with a navigation label for a company name.
+
+---
+
+## The register is a better oracle than web search
+
+Added later the same day, after the configs above were checked against the
+URLs **already in the register**. Web search tells you what a regulator's
+recall page looks like. The register tells you what that regulator
+*actually publishes*, and for three of the fourteen the two differed.
+
+Each of these would have run daily, found candidates, rejected all of them
+at the authority gate, and reported success.
+
+| Code | Took | Missed | Damage |
+|---|---|---|---|
+| `hk` | `/press/<date>_<n>.html` | Food Alerts (`/whatsnew/whatsnew_fa/<yr>_<n>.html`) and Food Incident Post PDFs (`/rc/subject/files/<date>_<n>.pdf`) | 20 of 22 refused |
+| `mx` | `/cofepris/<section>/<slug>` | CMS alert PDFs (`/cms/uploads/attachment/file/<id>/Alerta_*.pdf`) | 2 of 2 refused |
+| `co` | `/biblioteca/preview/<id>` | Press-room articles (`/blog/<section>/<slug>`) | 1 of 1 refused |
+
+Hong Kong supplied its own counter-example: a Pending row scraped at 18:08
+UTC that day, "CFS orders recall of US raw oysters after excessive E.
+coli", on a board the config did not know existed.
+
+**`ch` — Switzerland, live since long before today, and the worst of all
+of them.** Its regex was `(warnung|rappel|richiamo|news|aktuell)` — a word
+match against the whole URL, wrong in both directions at once:
+
+* **Too narrow.** Every Swiss *recall* document lives under `/rueckrufe/`
+  and contains none of those words. The gate refused all six `rr-*.pdf`
+  recall notices, 9 of the 14 Swiss URLs in Recalls.
+* **Too wide.** `rappel` matched `/fr/mises-en-garde-et-rappels-aliments` —
+  the BLV **landing page**. That is the documented origin of a Recalls row
+  whose Company and Brand were the page title and whose Product was
+  "aliments".
+
+Rewritten to require one of the three structures BLV actually uses
+(`/dam/blv/<lang>/dokumente/{oeffentliche-warnungen,rueckrufe}/…` or
+`/<lang>/newnsb/<id>`). All 16 real Swiss URLs now pass; the landing page
+does not.
+
+This check is now permanent: `tests/test_register_urls_pass_their_own_gate.py`
+asserts that every authority URL in Recalls or Pending passes its own
+country's item gate, at 100% for these fifteen, and prints the rate for
+the older configs. A URL the register holds but the gate refuses is a
+recall the system found once and cannot find again.
+
+Two older configs still show refusals and are left alone deliberately,
+because some of them are the gate working: `gr` refuses
+`efet.gr/…/deltia-typou`, which is a listing page that reached Recalls
+before the item regexes existed, and `it` refuses two in-store
+`cartello*` notice PDFs while *accepting* its own listing page
+`/new/it/avvisi/avvisi-e-richiami-di-prodotti-alimentari` — the same
+defect as Switzerland's, unfixed because Italy needs its own evidence pass.
 
 ---
 
