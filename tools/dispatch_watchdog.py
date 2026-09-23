@@ -80,6 +80,21 @@ WATCHED: tuple[tuple[str, str, int], ...] = (
     # whether the one step that publishes had run at all. The confirm agent
     # now signs its own commits; it runs three times a day.
     ("recall confirm agent",          r"^Recall confirm agent:",                  30),
+    # REVIEWER 1 WAS STILL SHARING REVIEWER 2'S PREFIX (audit 2026-09-23).
+    #
+    # The fix above was applied to the confirm agent and stopped there.
+    # recall-url-agent.yml went on committing as "Recall review agent:",
+    # so this table watched two agents with one line and reviewer 2 alone
+    # could hold it green.
+    #
+    # It did. On 2026-09-23: no url-agent stamp anywhere in Pending, nine
+    # held rows whose url-guard notes were all dated 2026-09-22, every
+    # daily update reading "+0 approved" — and no OVERDUE.
+    #
+    # Reviewer 1 is dispatched twice a day (05:00 and 22:00 Athens), so a
+    # gap past ~26 h means a missed slot. 30 h allows one slip without
+    # crying wolf.
+    ("recall url agent (reviewer 1)", r"^Recall URL agent:",                      30),
 
     # The daily accuracy brief. daily-review-agent.yml runs at 09:00 Athens
     # and writes docs/data/daily_review_digest.md + daily_review_report.json
