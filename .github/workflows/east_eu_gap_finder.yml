@@ -241,4 +241,23 @@ jobs:
       - name: Commit xlsx changes (race-safe)
         if: inputs.dry_run != 'true'
         run: |
-          bash scripts/safe_push.sh "East EU gap finder: $(date -u +%Y-%m-%d) auto-update" docs/data/recalls.xlsx docs/data/gap_finder_easteu/
+          # PER-COUNTRY PATHS — corrected 2026-09-23.
+          #
+          # This read "docs/data/gap_finder_gap_finder_easteu/", a REGION name. The
+          # pipeline never creates one: CountryConfig.data_dir is
+          # f"docs/data/gap_finder_{{code}}", so only per-country dirs
+          # exist. git add is atomic across pathspecs, so that one bad
+          # argument aborted the whole add and staged NOTHING — including
+          # recalls.xlsx, which had this run's recalls in it. safe_push.sh
+          # swallowed the error and printed "No changes to commit.", and
+          # the workflow went green.
+          #
+          # Measured on 2026-09-23: this workflow ran, found recalls, and
+          # committed nothing. Zero rows dated 2026-09-23 reached the
+          # register from it. Every run since the path was introduced did
+          # the same.
+          #
+          # safe_push.sh now skips missing paths with a warning and fails
+          # loudly if the xlsx is dirty while the index is empty, so this
+          # cannot silently recur. The paths below are correct anyway.
+          bash scripts/safe_push.sh "East EU gap finder: $(date -u +%Y-%m-%d) auto-update" docs/data/recalls.xlsx docs/data/gap_finder_cz/ docs/data/gap_finder_hr/ docs/data/gap_finder_ee/ docs/data/gap_finder_mk/ docs/data/gap_finder_md/ docs/data/gap_finder_ba/

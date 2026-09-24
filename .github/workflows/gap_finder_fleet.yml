@@ -9,18 +9,69 @@ name: Gap Finder Fleet (all registered countries)
 
 # ONE SLOT FOR THE WHOLE FLEET (audit 2026-09-23)
 # ===============================================
-# Coverage was spread over eight per-region workflows, each needing its
-# own entry in FsisScheduler.gs — a file this repository cannot see or
-# test. Three lost their entry and nobody noticed for months:
+# Coverage was spread over eight per-region workflows. Whatever the
+# reason in each case, the result was the same — 22 of 28 registered
+# countries producing nothing:
 #
 #     at be ch de hu lu nl pl   last run 2026-06-14   Central EU
 #     dk fi is no se            last run 2026-05-31   Nordic
 #     ba cz ee hr md mk         never ran             East EU
 #     eg gh ke                  fully configured, wired to nothing
 #
-# 22 of 28 registered countries dark, and the code was never broken: all
-# 22 codes resolve through countries.get() today. What broke was the
-# bookkeeping — N workflows needing N hand-maintained scheduler entries.
+# CORRECTION (2026-09-23, later the same day). This header first said the
+# three silent finders "lost their entry in FsisScheduler.gs". THAT WAS
+# WRONG, and reading the scheduler disproves it:
+#
+#     05:30  central_eu_gap_finder.yml      present
+#     08:00  scandinavian_gap_finder.yml    present
+#     12:45  east_eu_gap_finder.yml         present
+#
+# All three files exist on main, all three declare workflow_dispatch, and
+# all three gates pass immediately on a dispatch, so the Apps Script
+# dispatcher gets its 204 and fires them every day. They still commit
+# nothing, while Greek, Italian, Spanish, Portuguese and Africa each
+# commit ~30 times a month. Their country run_logs stop as whole cohorts
+# on a single day — all 8 Central EU at 2026-06-14 with exactly 9 runs
+# each, all 5 Nordic at 2026-05-31 — which is a workflow stopping, not
+# countries failing.
+#
+# DIAGNOSED, later the same day, from the Actions logs. It is the push,
+# not the run. All three passed safe_push.sh a REGION-named directory:
+#
+#     scandinavian   docs/data/gap_finder_nordic/
+#     east_eu        docs/data/gap_finder_easteu/
+#     central_eu     docs/data/gap_finder_centraleu/
+#
+# The pipeline never creates one — CountryConfig.data_dir is
+# f"docs/data/gap_finder_{code}", per COUNTRY. git add is atomic across
+# pathspecs, so that one bad argument aborted the whole add and staged
+# NOTHING, recalls.xlsx included. safe_push.sh's `git add ... || true`
+# swallowed the error, the empty index looked like "No changes to
+# commit.", and the workflow went green.
+#
+# They were running and working the whole time. On 2026-09-23 alone:
+# Sweden 10 rejected rows, Norway 2 Pending + 13 rejected (including four
+# accepted Listeria recalls), Moldova 7, Czechia 5, Croatia 1, Iceland 2 —
+# and zero rows dated 2026-09-23 from any of them in the register.
+#
+# africa_gap_finder.yml does the same multi-country job and listed its
+# countries properly (gap_finder_za/ gap_finder_ng/), which is why Africa
+# committed daily while its three siblings committed nothing.
+#
+# Fixed in those three workflows; safe_push.sh now skips a missing path
+# with a warning and fails loudly if the xlsx is dirty while the index is
+# empty; tests/test_safe_push_paths_exist.py holds every workflow to it.
+# The scheduler was right all along.
+#
+# eg gh ke ARE a wiring gap, and a real one: they have configs and no
+# workflow at all.
+#
+# What this workflow fixes is the SHAPE of the problem rather than any one
+# instance of it — N workflows needing N hand-maintained scheduler entries,
+# where a country can be missing, mis-scheduled or quietly broken and the
+# schedule still reads as covered. All 19 affected countries are in the
+# registry, so the fleet runs them on their shard whatever is wrong with
+# their own workflow.
 #
 # The same bookkeeping produced a quieter tell: africa_gap_finder.yml's
 # header lists "Verified & wired: cz hr ee mk md ba" — the EAST EU
@@ -33,11 +84,24 @@ name: Gap Finder Fleet (all registered countries)
 # scheduler slot covers everything, and a new country config joins on its
 # next shard with no workflow, default list or Apps Script edit.
 #
-# WHY SHARDED. 28 countries at the observed ~6 min each is nearly three
+# WHY SHARDED. 43 countries at the observed ~6 min each is over four
 # hours in one job, holding the fsis-data-writers lane and blocking every
-# reviewer behind it. Four a day is ~25 min. Every country runs weekly:
-# a reduction for the five that run daily now, and the thing that makes
-# room for the 22 that run never.
+# reviewer behind it. Six or seven a day is ~40 min. Every country runs
+# weekly: a reduction for the ones that run daily now, and the thing that
+# makes room for the ones that run never.
+#
+# SCHEDULED AT 13:30 ATHENS, DAILY — and the hour is not a free choice.
+# tools/fleet_shard.py picks the shard from the UTC weekday, so any slot
+# before 03:00 Athens lands on the previous UTC day and runs the wrong
+# shard every day, with one shard never running at all. 13:30 Athens is
+# 10:30 UTC in summer and 11:30 in winter: same day in both. It also puts
+# these rows in front of reviewer slot 2 (15:35 / 16:00 / 16:15) the same
+# afternoon instead of leaving them overnight.
+#
+# NEVER give this a day-of-week restriction in FsisScheduler.gs. The
+# sharding is HERE, inside the workflow. A "Mon only" restriction would
+# not thin it out — it would delete six of the seven shards and take 37 of
+# 43 countries dark while the schedule still showed a gap finder running.
 #
 # Add ONE entry to FsisScheduler.gs, daily:
 #     {day:'*', hour:4, minute:0, workflow:'gap_finder_fleet.yml'}
@@ -271,6 +335,21 @@ jobs:
           # Its own prefix, watched by tools/dispatch_watchdog.py. Reviewer 1
           # spent weeks invisible because it committed under reviewer 2's
           # prefix; a new workflow does not get to repeat that.
+          # Narrowed 2026-09-23 from "docs/data/" to this shard's own
+          # directories. The whole tree always exists, so it never hit the
+          # missing-path bug that silenced three regional finders — but it
+          # would happily stage another workflow's in-flight file, and
+          # safe_push's rebase+row-union only protects recalls.xlsx.
+          #
+          # Listing dirs that do not exist yet is now safe: safe_push.sh
+          # skips a missing path with a warning instead of aborting the
+          # whole add. A country's first run therefore commits its xlsx
+          # rows even though its data dir did not exist when the shard
+          # started.
+          SHARD_PATHS=""
+          for cc in $(echo "${{ steps.shard.outputs.list }}" | tr ',' ' '); do
+            SHARD_PATHS="$SHARD_PATHS docs/data/gap_finder_${cc}/"
+          done
           bash scripts/safe_push.sh \
             "Gap finder fleet: $(date -u +%Y-%m-%d) shard of ${{ steps.shard.outputs.n }} countries" \
-            docs/data/recalls.xlsx docs/data/
+            docs/data/recalls.xlsx $SHARD_PATHS
