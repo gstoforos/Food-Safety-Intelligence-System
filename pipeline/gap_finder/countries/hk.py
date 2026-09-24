@@ -43,14 +43,30 @@ HONG_KONG = CountryConfig(
     # silently fails at the second.
     #
     # THREE BOARDS, NOT ONE — corrected 2026-09-23, same day as written.
-    # The first version of this took /press/<YYYYMMDD>_<n>.html only. The
-    # live register then produced the counter-example itself: a Pending row
-    # for Hong Kong, scraped 18:08 UTC, carrying
+    # The first version of this took /press/<YYYYMMDD>_<n>.html only, and
+    # rejected every Food Alert.
+    #
+    # THE WITNESS I FIRST CITED WAS CONTAMINATED — retracted 2026-09-24.
+    # I cited a Pending row carrying
     #     /english/whatsnew/whatsnew_fa/2026_627.html
-    #     "CFS orders recall of US raw oysters after excessive E. coli"
-    # which the press-only pattern REJECTS. Confirmed against a second real
-    # alert, /english/whatsnew/whatsnew_fa/2026_616.html (undeclared gluten
-    # in imported yoghurt).
+    # as "CFS orders recall of US raw oysters after excessive E. coli".
+    # That row's URL was WRONG. 2026_627 is "CFS finds trace amount of
+    # formaldehyde in prepackaged rice vermicelli sample" — a different
+    # alert entirely. The oysters notice is /english/press/20260921_12610
+    # .html, and url_resurrect corrected the row to it the next morning.
+    #
+    # The CHANGE still stands, on evidence that does not depend on that
+    # row. Four rows already PUBLISHED in Recalls sit on this board:
+    #     whatsnew_fa/2026_628.html   French brie, three batches
+    #     whatsnew_fa/2026_614.html   bottled apple juice drink
+    #     whatsnew_fa/2026_611.html   powdered infant formula
+    #     whatsnew_fa/2026_610.html   infant and young children formula
+    # plus fourteen more on the Food Incident Post board below. A
+    # press-only pattern refuses all eighteen.
+    #
+    # The lesson is narrower than the fix: a single register row is not
+    # evidence, because a row's URL can itself be wrong. Four published
+    # rows on one board are.
     #
     # CFS publishes recalls across three boards, and press releases are the
     # LEAST relevant of the three for this register:

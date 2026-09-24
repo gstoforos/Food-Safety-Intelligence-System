@@ -79,9 +79,25 @@ at the authority gate, and reported success.
 | `mx` | `/cofepris/<section>/<slug>` | CMS alert PDFs (`/cms/uploads/attachment/file/<id>/Alerta_*.pdf`) | 2 of 2 refused |
 | `co` | `/biblioteca/preview/<id>` | Press-room articles (`/blog/<section>/<slug>`) | 1 of 1 refused |
 
-Hong Kong supplied its own counter-example: a Pending row scraped at 18:08
-UTC that day, "CFS orders recall of US raw oysters after excessive E.
-coli", on a board the config did not know existed.
+Hong Kong appeared to supply its own counter-example: a Pending row
+scraped at 18:08 UTC that day, "CFS orders recall of US raw oysters after
+excessive E. coli", on a board the config did not know existed.
+
+**That witness was contaminated — retracted 2026-09-24.** The row's URL was
+wrong. `whatsnew_fa/2026_627.html` is *"CFS finds trace amount of
+formaldehyde in prepackaged rice vermicelli sample"*; the oysters notice is
+`press/20260921_12610.html`, and `url_resurrect` corrected the row to it the
+next morning with confidence 1.00.
+
+The widening still stands on evidence that does not depend on that row: four
+rows already **published** in Recalls sit on the Food Alerts board
+(`2026_628` brie, `2026_614` apple juice, `2026_611` and `2026_610` infant
+formula), plus fourteen on the Food Incident Post board. A press-only
+pattern refuses all eighteen.
+
+The lesson is narrower than the fix, and worth keeping: **one register row
+is not evidence, because a row's URL can itself be wrong.** Four published
+rows on the same board are.
 
 **`ch` — Switzerland, live since long before today, and the worst of all
 of them.** Its regex was `(warnung|rappel|richiamo|news|aktuell)` — a word
