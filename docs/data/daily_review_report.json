@@ -1,10 +1,10 @@
 {
-  "generated": "2026-09-23T13:25:15+03:00",
-  "date": "2026-09-23",
+  "generated": "2026-09-24T13:42:09+03:00",
+  "date": "2026-09-24",
   "mode": "live",
   "in_progress_week": "W39",
   "counts": {
-    "recalls_rows": 1764,
+    "recalls_rows": 1772,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
