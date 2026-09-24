@@ -90,8 +90,14 @@ NOT_YET_RUN = {
     # covering Asia, Latin America, the Middle East and Africa, one placed
     # a row in the preceding 45 days.
     #
-    # Asia — replacing scrapers silent since 06-14 (ph) and 06-25 (sg)
-    "sg": "2026-09-23", "hk": "2026-09-23", "kr": "2026-09-23",
+    # Asia — replacing scrapers silent since 06-14 (ph) and 06-25 (sg).
+    #
+    # sg and hk LEFT this list on 2026-09-24: the gap finder fleet ran its
+    # first shard that morning ("Gap finder fleet: 2026-09-24 shard of 6
+    # countries") and both wrote a run_log at 10:44/10:45. They are now held
+    # to the 14-day freshness bar like any other live country — which is the
+    # whole point of this list being time-bounded rather than permanent.
+    "kr": "2026-09-23",
     "jp": "2026-09-23", "ph": "2026-09-23", "tw": "2026-09-23",
     "id": "2026-09-23", "vn": "2026-09-23",
     # Latin America — replacing scrapers silent since 06-26 (mx), 06-27 (br)
