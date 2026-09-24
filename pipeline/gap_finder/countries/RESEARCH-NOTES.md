@@ -51,6 +51,7 @@ attempted from the audit sandbox was refused at the proxy.
 | `cl` | ACHIPIA | `/<YYYY>/<MM>/<DD>/<slug>/` |
 | `sa` | SFDA | `/{en,ar}/news/<n>` |
 | `ae` | MOCCAE | `/{en,ar}/media-center/news/<D>/<M>/<YYYY>/<slug>` |
+| `us` ‡ | USDA FSIS | `/recalls-alerts/<slug>` |
 | `ch` * | BLV | `/dam/blv/<lang>/dokumente/{oeffentliche-warnungen,rueckrufe}/…`, `/<lang>/newnsb/<id>` |
 
 `ch` (*) is not new — its regex was rewritten today. The three marked †
@@ -112,6 +113,131 @@ before the item regexes existed, and `it` refuses two in-store
 `cartello*` notice PDFs while *accepting* its own listing page
 `/new/it/avvisi/avvisi-e-richiami-di-prodotti-alimentari` — the same
 defect as Switzerland's, unfixed because Italy needs its own evidence pass.
+
+---
+
+## ‡ The United States — found by a question, not by the audit
+
+The audit looked at Asia, Latin America, the Middle East and Africa.
+**North America was not examined, because it looked fine.** The FDA
+scraper is fine: 121 URLs in the register and a row placed the same day.
+
+Then someone asked whether one specific recall had been captured:
+
+> **Star Meat Delivery Inc.** — 167,639 lb of raw beef, pork and goat,
+> distributed **nationwide**, produced without federal inspection and
+> bearing **false USDA inspection marks**. FSIS **Class I**: "reasonable
+> probability that use of the product will cause serious, adverse health
+> consequences or death." Recalled **2026-09-23**.
+
+It was not in the register. The most recent FSIS row was **2026-09-08** —
+fifteen days earlier.
+
+`fsis.usda.gov` returns **403** to datacentre traffic. It refused the audit
+sandbox exactly as it refuses the scraper. `usda_fsis.py` is not broken; it
+is blocked, in the largest meat-recall jurisdiction the register covers.
+
+**The lesson is about the health metric, not about the US.** North America
+had a working scraper and a blocked one, and the region-level view showed
+the working one. A regulator can be silent behind a healthy sibling — which
+is why `scraper_health.json` is keyed per AGENCY and not per region, and
+why `test_no_country_goes_dark.py` asserts per country.
+
+`us.py` covers FSIS **only**. FDA is deliberately out of scope: putting a
+gap finder on top of a scraper that already works produces nothing but
+duplicates for dedupe to clean up. If the FDA scraper goes quiet, widen it
+then — and record it there.
+
+Built from the register's own 24 FSIS URLs rather than from search. The
+item/listing distinction is one character:
+
+```
+item     /recalls-alerts/cs-beef-packers-llc-recalls-ground-beef-products…
+listing  /recalls-alerts?search=019-020-2026
+```
+
+All three listing forms are already sitting in the Rejected sheet, which is
+the gate working. Public health alerts (`PHA-…`) are **in** scope — FSIS
+issues them instead of a recall when the product is no longer recallable,
+they use the same board and URL shape, and the register already carries
+them.
+
+---
+
+## Why three regional finders were silent — it was the push, not the run
+
+Settled 2026-09-23 from the Actions logs, and it was none of the things I
+had guessed.
+
+They were **running the whole time, and working.** On 2026-09-23 alone:
+
+| | found | wrote |
+|---|---|---|
+| Sweden | 24 candidates | 10 rejected rows |
+| Norway | 42 candidates | **4 accepted** (Listeria ×3, STEC ×1), 2 Pending + 13 rejected |
+| Moldova | 10 candidates | 7 rejected rows |
+| Czechia | 13 candidates | 5 rejected rows |
+| Croatia, Iceland | | 1 and 2 rejected rows |
+
+**Zero of it reached the register.** Not one row dated 2026-09-23 from any
+of them.
+
+All three passed `safe_push.sh` a **region-named** directory:
+
+```
+scandinavian   docs/data/gap_finder_nordic/
+east_eu        docs/data/gap_finder_easteu/
+central_eu     docs/data/gap_finder_centraleu/
+```
+
+The pipeline never creates one. `CountryConfig.data_dir` is
+`f"docs/data/gap_finder_{code}"` — per **country**. And `git add` is
+atomic across pathspecs: one pathspec matching nothing aborts the whole
+command and stages **nothing**, `recalls.xlsx` included. `safe_push.sh`
+had `git add ... || true`, so the error vanished; the empty index then
+looked exactly like "nothing changed", the script printed *"No changes to
+commit."* and exited 0, and the workflow went **green**.
+
+`africa_gap_finder.yml` does the same multi-country job and listed its
+countries properly (`gap_finder_za/ gap_finder_ng/`). That is the entire
+difference between Africa committing daily and its three siblings
+committing nothing for months.
+
+Fixed in all three. `safe_push.sh` now skips a missing path with a warning
+instead of poisoning the add, and **fails loudly** when the xlsx is dirty
+while the index is empty — because "nothing staged" and "nothing changed"
+printing the same message is what made this invisible.
+`tests/test_safe_push_paths_exist.py` checks every workflow's push paths
+against the registry, and was verified to fail on the original bug.
+
+### And a second one underneath it: the model timeout
+
+`pipeline/gap_finder/llama_client.py` had `DEFAULT_TIMEOUT = 45`, with a
+comment arguing "a healthy Qwen-7B call finishes <30s". Not on this box —
+Qwen 2.5 7B on 2 vCPUs, CPU-only, where prompt evaluation alone takes
+minutes. (The file's own docstring still said 120; the two disagreed.)
+
+The extractor only calls the model for rows that classify **accepted**, so
+a timeout lands exclusively on real recalls, and the handler routes them
+to Rejected. On 2026-09-23:
+
+```
+za  "Deli Hummus range Product Safety Recall"
+    [classify] accept/pathogen tier=1 matched='listeria'
+    [LLM ERROR] Read timed out (timeout=45) -> Rejected
+cz  "Varování pro spotřebitele - salmonela ..."
+    [classify] accept/pathogen tier=1 matched='salmonella'
+    [LLM ERROR] Read timed out (timeout=45) -> Rejected
+```
+
+Each was that country's **only** accepted row that day. Norway, running at
+05:08 when the box was quieter, got four accepts through on identical
+code — the difference was load, not correctness.
+
+Raised to 300, matching the operator's own `LLAMA_TIMEOUT=300`. The
+dead-box case that the 45 was meant to address is already handled by the
+circuit breaker in `_post()`, which fails every later call instantly after
+the first failure.
 
 ---
 
