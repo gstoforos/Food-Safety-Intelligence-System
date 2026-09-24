@@ -42,6 +42,7 @@ import json
 import logging
 import os
 import re
+import unicodedata
 import sys
 from pathlib import Path
 from datetime import datetime, timezone
@@ -286,6 +287,123 @@ def propose_url(row: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 # Verify a proposed URL
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Guards added 2026-09-24 after the Hong Kong oysters row
+# ---------------------------------------------------------------------------
+#
+# WHAT HAPPENED. A Pending row for "CFS orders recall of US raw oysters after
+# excessive E. coli" carried
+#     cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_627.html
+# which is a DIFFERENT alert — "CFS finds trace amount of formaldehyde in
+# prepackaged rice vermicelli sample". This module did its job: it proposed
+# cfs.gov.hk/english/press/20260921_12610.html, the real oysters notice, at
+# confidence 1.00, and rewrote the row. That was correct.
+#
+# Two things were wrong around it, and neither is caught anywhere.
+#
+# 1. NOTHING CHECKED THE NEW PAGE IS ABOUT THIS RECALL. verify_url() only
+#    asks whether the URL LOADS. A plausible-but-wrong regulator URL returns
+#    200 and is accepted exactly like the right one. The bad URL this run
+#    FIXED got onto the row in the first place through the same blind spot
+#    upstream, in authority_url_finder's index matcher, which accepts a
+#    match at score 1.
+#
+# 2. REWRITING THE URL CHANGES THE ROW'S IDENTITY. merge_master._dedup_key
+#    is URL-primary. So a resurrected row no longer dedupes against its own
+#    pre-resurrection twin, and the register ends up holding the same recall
+#    twice — which is exactly what happened: two Pending rows, same
+#    source_id, same product, same date, one per URL.
+#
+# The confidence score was also computed, logged, and never used.
+
+#: Minimum Gemini confidence to accept a proposal. The oysters fix scored
+#: 1.00; there is no reason to act on a coin-flip.
+CONF_MIN = float(os.environ.get("URL_RESURRECT_CONF_MIN", "0.70"))
+
+#: Tokens too common to prove anything about a page's subject.
+_STOPISH = {
+    "the", "and", "for", "with", "from", "due", "recall", "recalls", "recalled",
+    "product", "products", "food", "foods", "brand", "brands", "ltd", "limited",
+    "inc", "llc", "gmbh", "sarl", "sas", "bv", "co", "company", "corp",
+    "alert", "alerts", "notice", "notification", "warning", "batch", "lot",
+}
+
+
+def _row_tokens(row: Dict[str, Any]) -> set:
+    """Distinctive words from the row's own Company / Brand / Product."""
+    blob = " ".join(str(row.get(f) or "") for f in ("Company", "Brand", "Product"))
+    blob = unicodedata.normalize("NFD", blob).encode("ascii", "ignore").decode()
+    words = re.findall(r"[a-z0-9]{4,}", blob.lower())
+    return {w for w in words if w not in _STOPISH}
+
+
+def verify_url_is_about_this_recall(url: str, row: Dict[str, Any]) -> Tuple[str, str]:
+    """Does the page at `url` actually mention what this row is about?
+
+    Returns (verdict, reason) where verdict is one of:
+        "match"     — the page names something distinctive from the row
+        "no-body"   — could not read the page; DO NOT block on this
+        "mismatch"  — page read fine and shares nothing with the row
+
+    "no-body" must not block. Regulator pages are routinely 403 to
+    datacentre IPs (fda.gov, fsis.usda.gov, fda.gov.ph, gov.il all are) and
+    several are JS-only; treating unreadable as wrong would throw away every
+    correct proposal for exactly the hosts that need this module most.
+    """
+    want = _row_tokens(row)
+    if not want:
+        return "no-body", "row has no distinctive tokens to match on"
+    try:
+        import requests
+        resp = requests.get(
+            url, timeout=20,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; AFTS-FSIS/1.0)"},
+        )
+        if resp.status_code >= 400 or not resp.text:
+            return "no-body", f"HTTP {resp.status_code}, no readable body"
+        text = re.sub(r"<[^>]+>", " ", resp.text)
+        text = unicodedata.normalize("NFD", text).encode("ascii", "ignore").decode().lower()
+    except Exception as e:                                   # noqa: BLE001
+        return "no-body", f"fetch failed: {type(e).__name__}"
+    hits = sorted(w for w in want if w in text)
+    if hits:
+        return "match", f"page mentions {hits[:4]}"
+    return "mismatch", (
+        f"page shares NOTHING with the row (looked for {sorted(want)[:6]})")
+
+
+def collapse_resurrection_twin(
+    rows: List[Dict[str, Any]], fixed: Dict[str, Any], old_url: str
+) -> Optional[Dict[str, Any]]:
+    """Find the stale twin a URL rewrite just created, and return it.
+
+    _dedup_key is URL-primary, so the moment this module rewrites a URL the
+    row stops matching its own earlier copy and merge_master can no longer
+    collapse them. Identify the twin by what did NOT change — source_id if
+    the row carries one, else Date + Product — and hand it back so the
+    caller can drop it.
+    """
+    def sid(r: Dict[str, Any]) -> str:
+        m = re.search(r"source_id=([A-Za-z0-9_-]+)", str(r.get("Notes") or ""))
+        return m.group(1) if m else ""
+
+    def ident(r: Dict[str, Any]) -> tuple:
+        return (str(r.get("Date") or "")[:10],
+                str(r.get("Product") or "").strip().lower()[:60])
+
+    fid, fident = sid(fixed), ident(fixed)
+    for r in rows:
+        if r is fixed:
+            continue
+        same = (fid and sid(r) == fid) or (not fid and ident(r) == fident)
+        if not same:
+            continue
+        # Only the copy still on the OLD url is the stale twin.
+        if str(r.get("URL") or "").strip() == old_url.strip():
+            return r
+    return None
+
+
 def verify_url(url: str) -> Tuple[bool, str]:
     """Returns (is_live, reason). Uses the same check_url helper the URL gate uses."""
     try:
@@ -348,6 +466,9 @@ def main() -> int:
     resurrected = 0
     still_dead = 0
     no_proposal = 0
+    low_confidence = 0
+    content_mismatch = 0
+    twins_dropped = 0
 
     for i, row in enumerate(to_try, 1):
         src = row.get("Source", "?")
@@ -366,11 +487,32 @@ def main() -> int:
         log.info("    -> proposal: %s  (conf=%.2f, %s)",
                  new_url[:80], confidence, strategy)
 
+        # GATE 1 — confidence. Computed and logged since this module was
+        # written, never once used. A 0.2 proposal was accepted exactly like
+        # the 1.00 one that fixed the Hong Kong oysters row.
+        if confidence < CONF_MIN:
+            log.info("    -> confidence %.2f < %.2f — leaving row alone",
+                     confidence, CONF_MIN)
+            low_confidence += 1
+            continue
+
         is_live, reason = verify_url(new_url)
         if not is_live:
             log.info("    -> URL probe FAILED: %s — leaving row alone", reason)
             still_dead += 1
             continue
+
+        # GATE 2 — is the page actually about THIS recall? Liveness is not
+        # relevance: a plausible-but-wrong regulator URL returns 200 and was
+        # previously accepted identically. "no-body" does not block, because
+        # the regulators that need this module most are the ones that 403
+        # datacentre traffic.
+        verdict, why = verify_url_is_about_this_recall(new_url, row)
+        if verdict == "mismatch":
+            log.info("    -> CONTENT MISMATCH: %s — leaving row alone", why)
+            content_mismatch += 1
+            continue
+        log.info("    -> content check: %s (%s)", verdict, why)
 
         log.info("    -> URL probe PASSED (%s). Updating row.", reason)
         if args.dry_run:
@@ -390,9 +532,20 @@ def main() -> int:
                 cleaned_notes + f"  [resurrected {datetime.now(timezone.utc).strftime('%Y-%m-%d')}: "
                 f"{old_url[:40]}... -> OK via Gemini grounded search ({strategy}, conf={confidence:.2f})]"
             ).strip()
+            row["Notes"] = (row["Notes"] + f"  [content-check: {verdict}]").strip()
             # Reset status so URL gate picks it up again as a fresh candidate
             if "Status" in row:
                 row["Status"] = STATUS_PENDING
+
+            # Rewriting the URL changed this row's dedup identity, so
+            # merge_master can no longer collapse it against its own
+            # pre-resurrection copy. Drop the stale twin here instead of
+            # leaving the register holding the same recall twice.
+            twin = collapse_resurrection_twin(pending, row, old_url)
+            if twin is not None:
+                pending.remove(twin)
+                twins_dropped += 1
+                log.info("    -> dropped stale twin still on %s", old_url[:60])
         resurrected += 1
 
     log.info("=" * 60)
@@ -400,6 +553,11 @@ def main() -> int:
     log.info("  Attempted     : %d", len(to_try))
     log.info("  Resurrected   : %d  (URL fixed, back in Pending for URL gate)", resurrected)
     log.info("  Still dead    : %d  (Gemini proposal also failed probe)", still_dead)
+    log.info("  Low confidence: %d  (below URL_RESURRECT_CONF_MIN=%.2f)",
+             low_confidence, CONF_MIN)
+    log.info("  Content mismatch: %d  (page had nothing to do with the row)",
+             content_mismatch)
+    log.info("  Stale twins dropped: %d", twins_dropped)
     log.info("  No proposal   : %d  (Gemini couldn't suggest anything)", no_proposal)
 
     if args.dry_run:
