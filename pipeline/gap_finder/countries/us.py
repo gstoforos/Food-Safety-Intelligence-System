@@ -101,11 +101,23 @@ UNITED_STATES = CountryConfig(
         RssSource("apnews.com", ["https://apnews.com/hub/ap-top-news.rss"]),
         RssSource("npr.org", ["https://feeds.npr.org/1001/rss.xml"]),
     ],
+    # MERGED 2026-09-24 with the config the nightly operator agent wrote
+    # independently in PR #30. Both arrived at the same authority, the same
+    # item regex character for character, the same timezone and the same
+    # cron offsets — which is the strongest corroboration either of them
+    # gets. The lists were the only real difference, so this is the union.
+    #
+    # cidrap.umn.edu and foodpoisoningbulletin.com came from that config and
+    # are better sources for this purpose than half of what I had: CIDRAP
+    # tracks US outbreaks academically and Food Poisoning Bulletin covers
+    # FSIS releases that the national outlets skip when nobody is ill yet.
     google_news_domains=[
         "foodsafetynews.com", "apnews.com", "reuters.com", "cnn.com",
         "nbcnews.com", "cbsnews.com", "abcnews.go.com", "usatoday.com",
         "npr.org", "newsweek.com", "people.com", "foodsafetymagazine.com",
         "thepacker.com", "meatpoultry.com", "foodnavigator-usa.com",
+        # from PR #30
+        "cidrap.umn.edu", "foodpoisoningbulletin.com", "foxnews.com",
     ],
     google_news_keywords=[
         "USDA FSIS recall meat",
@@ -153,6 +165,8 @@ UNITED_STATES = CountryConfig(
         "without the benefit of inspection", "uninspected",
         "do not eat", "do not consume", "throw it away",
         "class i", "meat", "poultry",
+        # from PR #30
+        "adulterated", "contaminated", "unsafe",
     ],
 
     # ── Scheduling ──────────────────────────────────────────────────────────
