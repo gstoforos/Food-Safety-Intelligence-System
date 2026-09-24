@@ -295,6 +295,12 @@ HAZARD_CLASS_KEYWORDS = {
         "undeclared pharmacological", "adulterant", "adulterated",
         "sildenafil", "tadalafil", "vardenafil", "sibutramine",
         "yohimbine", "phenolphthalein",
+        # Food-additive limit exceedance (audit 2026-09-24, Frosty Pockets /
+        # RappelConso fiche 23546): glycerol (E422) over the authorised
+        # limit is a genuine chemical hazard, not a "non-food product" —
+        # it had classified as nothing, so the curator refused every
+        # correction to the row it applied to.
+        "glycerol", "glycérol", "e422", "e 422",
     ),
     "mycotoxin": (
         "aflatoxin", "ochratoxin", "patulin", "fumonisin",
