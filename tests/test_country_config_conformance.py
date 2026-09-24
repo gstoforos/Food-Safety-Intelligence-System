@@ -72,10 +72,18 @@ KNOWN_URLS = {
     "hk": (
         ["https://www.cfs.gov.hk/english/press/20260416_12332.html",
          "https://www.cfs.gov.hk/tc_chi/press/20260416_12332.html",
-         # The Food Alerts board. The live register produced this one
-         # itself on 2026-09-23 (US raw oysters, excessive E. coli) and
-         # the press-only pattern rejected it.
+         # The Food Alerts board. 2026_627 is a real item on it — "CFS
+         # finds trace amount of formaldehyde in prepackaged rice
+         # vermicelli sample" — so it stays as a positive. What changed
+         # on 2026-09-24 is WHY: I first cited it as the oysters recall
+         # because a Pending row carried it under that headline, and that
+         # row's URL was simply wrong (the oysters notice is
+         # press/20260921_12610.html). The board is evidenced by the four
+         # rows already published on it, below, not by that row.
          "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_627.html",
+         "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_628.html",
+         "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_614.html",
+         "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_610.html",
          "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_616.html",
          "https://www.cfs.gov.hk/english/whatsnew/whatsnew_sfpa/2026_101.html",
          # Food Incident Posts, published as PDFs. 14 rows already in
