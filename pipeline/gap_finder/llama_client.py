@@ -33,7 +33,8 @@ Env vars:
                        default: http://localhost:8080/v1
     LLAMA_API_KEY    — optional bearer token (llama-server can be configured to require)
     LLAMA_MODEL      — model name reported by server (default: qwen2.5-7b-instruct)
-    LLAMA_TIMEOUT    — request timeout seconds (default: 120)
+    LLAMA_TIMEOUT    — request timeout seconds (default: 300; see
+                       DEFAULT_TIMEOUT below for why it is not 45)
 """
 
 from __future__ import annotations
@@ -54,7 +55,40 @@ import requests
 
 DEFAULT_BASE_URL = "http://localhost:8080/v1"
 DEFAULT_MODEL = "qwen2.5-7b-instruct"
-DEFAULT_TIMEOUT = 45   # was 120 — a healthy Qwen-7B call finishes <30s; 120 just prolongs hangs on a dead box
+# RAISED 45 -> 300 on 2026-09-23. The comment this replaces read "a
+# healthy Qwen-7B call finishes <30s; 120 just prolongs hangs on a dead
+# box". The first half is false for THIS box and the second half is
+# already handled elsewhere:
+#
+#   * The AFTS Llama VPS runs Qwen 2.5 7B on CPU with 2 vCPUs. Prompt
+#     evaluation alone takes minutes on a long article — that is the same
+#     measurement behind the operator's own LLAMA_TIMEOUT=300.
+#   * A DEAD box does not need a short timeout. _post() opens a circuit
+#     breaker on first failure and every later call fails instantly, so
+#     the dead-box cost is one timeout per run, not timeout x retries x
+#     records.
+#
+# What 45s actually did was kill the calls that MATTER. The extractor only
+# calls the model for rows that classify ACCEPTED, so a timeout falls
+# exclusively on real recalls, and the handler routes them to Rejected.
+# Measured on 2026-09-23, in one day:
+#
+#   za  "Media Statement: Deli Hummus range Product Safety Recall"
+#       [classify] accept/pathogen tier=1 matched='listeria'
+#       [LLM ERROR] Read timed out (read timeout=45) -> Rejected
+#       That was the ONLY accepted row South Africa found.
+#
+#   cz  "Varování pro spotřebitele - salmonela ..."
+#       [classify] accept/pathogen tier=1 matched='salmonella'
+#       [LLM ERROR] Read timed out (read timeout=45) -> Rejected
+#       That was the ONLY accepted row Czechia found.
+#
+# Norway, running at 05:08 when the box was quieter, got 4 accepts through
+# on the same code. The difference was load, not correctness.
+#
+# The docstring at the top of this file still said 120 while the constant
+# said 45 — they now agree.
+DEFAULT_TIMEOUT = 300
 
 
 def _env(key: str, default: str) -> str:
