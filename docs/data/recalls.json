@@ -6,14 +6,14 @@
   "Brand": "Picard",
   "Product": "persil coupe plat surgelé",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "Presence of E. coli shiga toxinogène (stec)",
+  "Reason": "Presence of Shiga toxin-producing E. coli (STEC).",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23605/interne",
-  "Notes": "picard"
+  "Notes": "picard [agent nightly-operator proposal a69ec33efc4cd0b9 applied 2026-09-24: Reason field carried the French word 'toxinogene' inside an otherwise English sentence, against the English-output house rule.]"
  },
  {
   "Date": "2026-09-24",
@@ -22,14 +22,14 @@
   "Brand": "Broceliande",
   "Product": "creme de foie avec barde",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogene",
+  "Reason": "Presence of Listeria monocytogenes.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23612/interne",
-  "Notes": "super u"
+  "Notes": "super u [agent nightly-operator proposal e9c5f4a678686fdc applied 2026-09-24: Reason field was the bare French-form fragment 'Listeria monocytogene' (missing the final s); restated in the same English sentence form used on the sibling rows published from this same scrape run.]"
  },
  {
   "Date": "2026-09-24",
@@ -100,16 +100,16 @@
   "Source": "RappelConso (FR)",
   "Company": "Pépite",
   "Brand": "Pépite",
-  "Product": "pot 300g",
+  "Product": "Purée de sésame Demeter d'Egypte - blanc - 300 g x 8",
   "Pathogen": "Salmonella",
-  "Reason": "Suspicion de Salmonella",
+  "Reason": "Suspected Salmonella contamination.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23590/interne",
-  "Notes": "magasins bio"
+  "Notes": "magasins bio [agent nightly-operator proposal 5abc0dae8d569f24 applied 2026-09-24: Product field was truncated to just 'pot 300g' (the packaging-size tail of the scraped string, missing the product name itself). Reason was untranslated French ('Suspicion de Salmonella').]"
  },
  {
   "Date": "2026-09-23",
@@ -244,16 +244,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Uzbekistan | Notifying: Poland",
   "Brand": "—",
-  "Product": "Stwierdzenie przekroczenia NDP ochratoksyny A w rodzynkach kraj pochodzenia Uzbekistan // Exceedance of the maximum level for ochratoxin A in raisins from Uzbekistan)",
+  "Product": "Stwierdzenie przekroczenia NDP ochratoksyny A w rodzynkach kraj pochodzenia Uzbekistan // Exceedance of the maximum level for ochratoxin A in raisins from Uzbekistan",
   "Pathogen": "Ochratoxin",
-  "Reason": "Stwierdzenie przekroczenia NDP ochratoksyny A w rodzynkach kraj pochodzenia Uzbekistan // Exceedance of the maximum level for ochratoxin A in raisins from Uzbekistan); risk: potential risk; category: fruits and vegetables",
+  "Reason": "Exceedance of the maximum level for ochratoxin A in raisins from Uzbekistan.",
   "Class": "Border Rejection",
   "Country": "Uzbekistan",
   "Region": "Unknown",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/874292",
-  "Notes": "[RASFF #2026.8370; classification: border rejection notification; category: fruits and vegetables; notifId=874292]"
+  "Notes": "[RASFF #2026.8370; classification: border rejection notification; category: fruits and vegetables; notifId=874292] [agent nightly-operator proposal 930251a374b20106 applied 2026-09-24: Reason field carried the raw bilingual RASFF subject (Polish + English) plus a stray trailing ')' with no matching '(' from a bad bilingual-string split, against the English-output rule for Reason. Restated as the clean ]"
  },
  {
   "Date": "2026-09-22",
