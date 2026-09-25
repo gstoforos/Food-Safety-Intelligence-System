@@ -161,6 +161,58 @@ PATHOGENS: Tuple[str, ...] = (
 
     # ─── Mould / spoilage (specific hazard, distinct from generic "alert") ───
     "mould", "mold",
+
+    # ─── UNASSESSED HAZARD — added 2026-09-25 ────────────────────────────
+    # Product that never passed the inspection that would have established
+    # whether it carried a hazard at all. The hazard here is the ABSENCE of
+    # assessment, and it belongs in this layer for the same reason "foreign
+    # material" does: it is a specific, named condition of the product, not
+    # a recall verb.
+    #
+    # WHY IT WAS MISSING. On 2026-09-25 the daily sweep reported Star Meat
+    # Delivery Inc. — 167,639 lb of raw pork, beef and goat, produced
+    # without the benefit of federal inspection and bearing a FALSE
+    # inspection mark, "EST. 1363" — as absent from the register. It was.
+    # scrapers/north_america/usda_fsis.py migrated to pathogens("en") on
+    # 2026-07-29 and is the only scraper that has, so FSIS rows must match a
+    # named hazard to survive. Nothing in this tuple could match that
+    # recall, so it was dropped at n_skipped_no_pathogen and could never
+    # have been collected. Reproduced against the live scraper with the
+    # record rebuilt in the API's own field shape:
+    #
+    #     USDA FSIS: 1 pathogen recalls in 30-day window (3 records
+    #     scanned, skipped: ... no_pathogen=2 ...)
+    #
+    # WHY IT IS NOT A SCOPE DECISION. Allergen-only recalls ARE deliberately
+    # out of scope — NON_PATHOGEN_REJECTS below lists "undeclared milk",
+    # "allergen labelling" and their kin, and _models._NON_PATHOGEN_MARKERS
+    # enforces it. Uninspected product appears on neither list. It was never
+    # excluded; there was simply no term for it, which is an omission rather
+    # than a judgement. And of the two, unassessed is the worse category to
+    # be blind to: an allergen recall names its hazard and affects a known
+    # subset of consumers, while uninspected meat means nobody looked.
+    #
+    # Phrasings are FSIS's own standard wordings, taken from the notice
+    # titles and reason fields the API emits.
+    "without the benefit of inspection",
+    "without the benefit of federal inspection",
+    "without benefit of inspection",
+    "produced without inspection",
+    "not produced under inspection",
+    "false inspection mark",
+    "uninspected product",
+    "uninspected meat",
+    "uninspected poultry",
+    "misbranded and uninspected",
+    # NOT included, deliberately: import violations. "Ineligible imported",
+    # "not presented for import reinspection" and their kin are arguably the
+    # same unassessed class — product from a source outside the inspection
+    # system — but they are a SEPARATE scope line with its own existing test
+    # (tests/test_usda_fsis_scraper.py::test_import_violation_dropped), and
+    # that line has not been ruled on. When the first version of this block
+    # carried "ineligible for importation", that test passed only because
+    # the fixture says "Ineligible Imported" — a wording accident, not
+    # agreement. Decide it explicitly or leave it; do not let it in sideways.
 )
 
 

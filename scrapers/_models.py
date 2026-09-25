@@ -332,6 +332,25 @@ PATHOGEN_RULES: List[Tuple[str, str]] = [
         r"\bmould\b|\bmoulds\b|\bmouldy\b|\bmold\b(?!\s*(?:ing|ed))|"
         r"\bmoldy\b|\bmoisissure\w*\b|\bmuffa\b|\bmoho\b|\bschimmel\b|"
         r"\bmögel\b|ευρωτίασ\w*|μούχλα|\bfungal\s+(?:growth|contamination)\b"),
+
+    # ─── Unassessed hazard (added 2026-09-25) ────────────────────────────
+    # See the matching block in scrapers/_pathogen_vocab.py for the Star
+    # Meat Delivery case that exposed the gap. This rule exists so a row
+    # that survives the vocabulary gate also gets a canonical Pathogen
+    # value, instead of storing FSIS's raw sentence — the bug audit
+    # 2026-05-10 item 1 was about.
+    #
+    # The name says what is known and no more. "Uninspected product" is a
+    # true statement; naming a pathogen here would be fabrication (R5),
+    # because the whole point is that nobody tested for one.
+    ("Uninspected product (hazard not assessed)",
+        r"without\s+(?:the\s+)?benefit\s+of\s+(?:federal\s+)?inspection|"
+        r"produced\s+without\s+inspection|"
+        r"not\s+produced\s+under\s+(?:federal\s+)?inspection|"
+        r"false\s+inspection\s+mark|"
+        r"uninspected\s+(?:product|meat|poultry)"),
+    # Import violations are NOT matched here — see the note in
+    # scrapers/_pathogen_vocab.py beside the same omission.
 ]
 
 _TIERS: Dict[str, int] = {
@@ -380,6 +399,14 @@ _TIERS: Dict[str, int] = {
     "Staphylococcus enterotoxin": 3,
     "Shigella": 3,
     "Histamine / scombrotoxin": 3,
+    # Tier 2 by default, and only by default. The hybrid framework prefers
+    # the regulator's own Class field, which FSIS supplies on most of these,
+    # so this fallback applies when Class is absent. It is not Tier 3,
+    # because an unassessed hazard is not a mild one — it is an unknown one,
+    # and 167,639 lb of uninspected meat is not the same risk as a labelling
+    # error. It is not Tier 1 either, because nothing specific and severe
+    # has been established; claiming otherwise would be inventing a finding.
+    "Uninspected product (hazard not assessed)": 2,
 }
 
 # Pre-compiled regexes for fast matching (internal)
@@ -649,6 +676,22 @@ def _fda_framework_tier(pathogen_canonical: str, product: Any) -> int:
         "Escherichia coli (generic)",
         "Aflatoxin", "Ochratoxin", "Mycotoxin", "Alternaria toxins",
         "T-2 / HT-2 toxin", "Ergot alkaloids", "Citrinin",
+        # Uninspected product (added 2026-09-25). Listed HERE and not only
+        # in _TIERS, because _TIERS is the legacy lookup and this function
+        # never reads it — a canonical that is absent from this set falls
+        # through to the Tier-3 default. That is the trap the 2026-08-14
+        # Vibrio comment above and the "Escherichia coli (generic)" one
+        # before it both describe, and I walked into it: the first run of
+        # the fix produced Tier=3 for 167,639 lb of uninspected meat, and
+        # only reading the scraper's output caught it.
+        #
+        # Tier 2 is the fallback used when FSIS supplies no Class. Not
+        # Tier 3, because an unassessed hazard is unknown rather than mild.
+        # Not Tier 1, because nothing specific and severe has been
+        # established and claiming otherwise would be inventing a finding
+        # (R5). When FSIS does supply a Class, step 1 of assign_tier
+        # prefers it and this never runs.
+        "Uninspected product (hazard not assessed)",
         # Visible mould / fungal growth — in scope from 2026-09-07 (operator
         # decision; see the block in pipeline/_pathogen_scope.py). Tier 2,
         # beside the mycotoxins: a microbiological contamination that can
