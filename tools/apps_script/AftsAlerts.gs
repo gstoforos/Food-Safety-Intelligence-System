@@ -738,6 +738,7 @@ var PATHOGEN_VOCAB = {
   "Mold / spoilage": ["mold", "spoilage", "organoleptic", "coliform", "total bacterial count"],
   "Rodent / pest contamination": ["rodent", "mouse contamination", "rat poison", "insect", "pest infestation"],
   "Process deviation (sterilisation / pasteurisation)": ["sterilization", "sterilisation", "pasteurization", "pasteurisation", "process deviation"],
+  "Uninspected product / false inspection mark": ["uninspected", "without the benefit of inspection", "without the benefit of federal inspection", "without benefit of inspection", "produced without inspection", "false inspection mark", "false mark of inspection", "false usda mark", "hazard not assessed"],
 };
 
 var PRODUCT_VOCAB = {
