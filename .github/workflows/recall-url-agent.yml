@@ -715,7 +715,9 @@ jobs:
 
           try:
               from pipeline._url_guard import (url_overwrite_refusal,
-                                           reject_refusal)          # noqa: E402
+                                           reject_refusal,
+                                           url_is_self_evidently_official,
+                                           refusal_count)           # noqa: E402
           except Exception:                                                   # noqa: BLE001
               def url_overwrite_refusal(row, proposed):                       # type: ignore
                   """Fail SAFE: with no guard module, refuse every replacement.
@@ -750,6 +752,23 @@ jobs:
                       return ""
                   return ("pipeline/_url_guard.py is not importable — refusing to "
                           "discard a row that has a URL, on a not-found reason")
+
+              def url_is_self_evidently_official(url):                    # type: ignore
+                  """Fail SAFE the other way: with no guard module, never promote.
+
+                  The escalation below advances a row on the strength of a refusal.
+                  That is only defensible when something has actually checked the
+                  URL's shape against the authority's own pattern. Without the guard
+                  module nothing has, so the row waits — which is the behaviour that
+                  existed before the escalation, and is merely slow rather than
+                  wrong.
+                  """
+                  return ""
+
+              def refusal_count(notes):                                   # type: ignore
+                  import re as _re
+                  return len(_re.findall(r"\[url-guard [\d-]+: reviewer 1 tried to "
+                                         r"reject", str(notes or "")))
 
 
           def review_url(row: Dict[str, Any]) -> Dict[str, Any]:
@@ -944,11 +963,46 @@ jobs:
                       if _ref:
                           print("  [url-guard] reject refused: %s" % _ref)
                           counts["reject"] -= 1
-                          counts["retry"] = counts.get("retry", 0) + 1
                           note = str(row.get("Notes", "")).strip()
-                          tag = (f"[url-guard {today}: reviewer 1 tried to reject this "
-                                 f"row as {_why[:110]!r}; refused — the official URL is "
-                                 f"on the row. Left in Pending for a later run.]")
+                          # How many times has this already happened to this row?
+                          # Counted BEFORE today's tag is appended.
+                          _prior = refusal_count(note)
+                          _self = url_is_self_evidently_official(row.get("URL", ""))
+
+                          if _prior >= 1 and _self:
+                              # ESCALATE. See _url_guard.url_is_self_evidently_official.
+                              # The refusal is not an absence of a verdict — it IS the
+                              # verdict reviewer 1 was asked for, reached
+                              # deterministically instead of by reading a page a
+                              # datacentre IP cannot reach. Leaving the row put means
+                              # asking the same question a fourth, seventh, twenty-first
+                              # time; ten rows were doing exactly that on 2026-09-25.
+                              #
+                              # Pathogen is deliberately NOT filled in here. Reviewer 1
+                              # also enriches, and this path has confirmed only the URL.
+                              # An empty Pathogen is a true statement about what we
+                              # know; reviewer 2 and the confirm agent both hold rows
+                              # on it, which is the correct outcome.
+                              counts["confirm"] = counts.get("confirm", 0) + 1
+                              newstat = next_status(cur, "confirm")
+                              if newstat:
+                                  row["Status"] = newstat
+                              tag = (f"[url-guard {today}: reviewer 1 tried to reject "
+                                     f"this row as {_why[:80]!r} for the "
+                                     f"{_prior + 1}{'st' if _prior == 0 else 'nd' if _prior == 1 else 'th'} "
+                                     f"time; refused AND escalated — {_self}. URL "
+                                     f"confirmed deterministically; Pathogen left "
+                                     f"empty because this path did not enrich.]")
+                          else:
+                              counts["retry"] = counts.get("retry", 0) + 1
+                              # The row is NOT rejected, so the per-row line must not
+                              # print "→ rejected". next_status already returned
+                              # S_REJECTED for dec="reject"; discard it.
+                              newstat = None
+                              tag = (f"[url-guard {today}: reviewer 1 tried to reject "
+                                     f"this row as {_why[:110]!r}; refused — the "
+                                     f"official URL is on the row. Left in Pending "
+                                     f"for a later run.]")
                           _room = 1000 - len(tag) - 1
                           row["Notes"] = ((note[:_room].rstrip() + " " + tag).strip()
                                           if _room > 0 else tag[:1000])
