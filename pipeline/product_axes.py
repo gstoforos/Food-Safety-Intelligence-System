@@ -679,7 +679,28 @@ CONSUMPTION_TERMS: Dict[str, Tuple[str, ...]] = {
     "cook-before-eating": (
         "cook before", "cook thoroughly", "a cuire", "cuire avant",
         "bien cuire", "cocinar antes", "cuocere prima", "durchgaren",
-        "not ready-to-eat", "must be cooked", "raw poultry", "raw chicken",
+        # ── The NRTE negation, in every spelling (added 2026-09-25) ──────
+        # This was the single term "not ready-to-eat". _find matches
+        # substrings and CONSUMPTION_ORDER checks cook-before-eating
+        # first, so the guard works — but ONLY for that exact spelling.
+        # "not-ready-to-eat" (all hyphens) and "not ready to eat" (all
+        # spaces) both missed it and then matched the POSITIVE
+        # "ready-to-eat" term as a substring of themselves, so the axis
+        # came back with the exact opposite of what the notice said.
+        #
+        # Found on FSIS recall 018-2026, whose title is "Recalls
+        # Not-Ready-To-Eat Frozen Buffalo Chicken Products" and which
+        # was stored as ready-to-eat. This field decides whether the
+        # consumer is expected to cook the product, so inverting it is
+        # not a cosmetic miss.
+        #
+        # Measured before changing: exactly ONE published row of 1,784
+        # contains a negated RTE phrase, so no existing row is
+        # reclassified by this. FSIS uses "NRTE" constantly, so it was
+        # latent rather than rare.
+        "not ready-to-eat", "not-ready-to-eat", "not ready to eat",
+        "not-ready-to eat", "not ready-to eat", "nrte",
+        "must be cooked", "raw poultry", "raw chicken",
         "viande hachee", "steak hache", "minced meat", "ground beef",
         "corn dog", "nugget", "raw sausage to cook",
         "poultry meat", "chicken meat", "turkey meat", "chicken breast",

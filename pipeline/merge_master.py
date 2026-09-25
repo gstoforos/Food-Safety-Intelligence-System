@@ -1090,33 +1090,86 @@ _TERMINAL_REJECTION_MARKERS = (
 # more, because the policy that produced them has since changed (2026-09-07:
 # visible mould moved INTO scope). A reason matching one of these is treated
 # as retryable even when it also matches a marker above.
-_REVERSED_REJECTION_MARKERS = (
-    "mould", "mold", "moisissure", "muffa", "moho", "schimmel",
+# ── Scope reversals: one entry per policy change ─────────────────────────
+#
+# A rejection made under a policy that has since been REVERSED is not a
+# permanent property of the item. Each entry is (vocabulary, date): the
+# vocabulary identifies rejections made on that subject, and the date says
+# when the rule changed, so the excuse applies to decisions taken under the
+# OLD rule and not to the subject matter for ever. That distinction is the
+# 2026-09-08 audit finding — as first written this was one flat list with no
+# date at all, which made any rejection mentioning mould retryable for ever,
+# including one an operator would make tomorrow with the new policy in hand.
+#
+# GENERALISED 2026-09-25, from one tuple plus one module-level date to a list
+# of pairs. With a single shared date a second reversal could not be
+# expressed: adding the uninspected-product vocabulary to the mould list
+# would have judged it against 2026-09-07, so an operator rejecting an
+# uninspected row between 09-07 and 09-25 — under the rule that was still in
+# force then — would have been held to a reversal that had not happened yet,
+# and that row would have stayed blocked for ever. The same bug the 09-08
+# audit fixed, in the other direction.
+_POLICY_REVERSALS = (
+    # Visible mould moved INTO scope on 2026-09-07 (operator decision; see
+    # the block in pipeline/_pathogen_scope.py).
+    (("mould", "mold", "moisissure", "muffa", "moho", "schimmel"),
+     "2026-09-07"),
+    # Uninspected product moved INTO scope on 2026-09-25 (operator decision,
+    # recorded in scrapers/_pathogen_vocab.py and in the fixture comment on
+    # PHA-03252026-01 in tests/test_usda_fsis_scraper.py).
+    #
+    # This one exists because the operator had personally rejected FSIS
+    # 016/017/018-2026 as "fabricated_pathogen_and_out_of_scope" on
+    # 2026-08-20 and 08-27. Both halves of that verdict were right at the
+    # time: the rows really did carry a fabricated Pathogen of "Hepatitis A
+    # virus", and uninspected product really was out of scope. The fabricated
+    # pathogen is fixed at source now, and the scope half is reversed — so
+    # without this entry those URLs would stay permanently blocked by a
+    # verdict whose grounds have both gone.
+    (("uninspected", "without the benefit of inspection",
+      "without benefit of inspection", "produced without inspection",
+      "false inspection mark", "lack of federal inspection",
+      "lack of inspection", "without federal inspection"),
+     "2026-09-25"),
 )
 
-# The date the mould policy changed. A rejection is only excused by the list
-# above when it was made BEFORE this date (audit 2026-09-08): as first
-# written, the list made ANY rejection whose text mentions mould retryable
-# for ever, including one an operator makes tomorrow with the new policy in
-# hand. A reversal excuses the decisions taken under the old rule, not the
-# subject matter.
-_POLICY_REVERSAL_DATE = "2026-09-07"
+# Kept as derived aliases: nothing outside this module reads them today, but
+# they were the public shape of this idea and a flat view of the vocabulary
+# is still the useful thing to log.
+_REVERSED_REJECTION_MARKERS = tuple(
+    m for markers, _ in _POLICY_REVERSALS for m in markers)
+_POLICY_REVERSAL_DATE = min(d for _, d in _POLICY_REVERSALS)
+
+
+def _reversal_excuses(desc: str) -> bool:
+    """True when some reversal covers this rejection and predates no stamp.
+
+    For each reversal, the text must mention that reversal's subject AND
+    carry no operator stamp dated on/after that reversal's own date. An
+    undated note counts as older: the operator-review path has stamped its
+    verdicts with a date since 2026-08-29, so anything undated is from
+    before any of these rules changed.
+    """
+    import re as _re_rev
+    d = desc or ""
+    dl = d.lower()
+    stamps = _re_rev.findall(r"operator\s+review\s+(\d{4}-\d{2}-\d{2})",
+                             d, _re_rev.IGNORECASE)
+    latest = max(stamps) if stamps else ""
+    for markers, when in _POLICY_REVERSALS:
+        if any(m in dl for m in markers) and (not latest or latest < when):
+            return True
+    return False
 
 
 def _rejection_predates_policy_reversal(desc: str) -> bool:
-    """True when no operator stamp in `desc` is dated on/after the reversal.
+    """Back-compatible name. Prefer _reversal_excuses.
 
-    An undated note counts as older: every rejection carrying mould
-    vocabulary before the reversal was made under the old scope rule, and
-    the operator-review path has stamped its verdicts with a date since
-    2026-08-29.
+    The old signature answered "is this stamp older than THE reversal date",
+    which only made sense while there was exactly one. Callers wanted the
+    question _reversal_excuses actually answers, so this now forwards to it.
     """
-    import re as _re_rev
-    stamps = _re_rev.findall(r"operator\s+review\s+(\d{4}-\d{2}-\d{2})",
-                             desc or "", _re_rev.IGNORECASE)
-    if not stamps:
-        return True
-    return max(stamps) < _POLICY_REVERSAL_DATE
+    return _reversal_excuses(desc)
 
 # Checked FIRST. A reason that is transient, ambiguous, or explicitly not a
 # rejection must stay retryable no matter what else it contains — giving a
@@ -1197,10 +1250,19 @@ def _is_terminal_rejection(desc: str) -> bool:
     # scope). Checked before everything else, including an operator verdict:
     # the operator changed the policy, so their own earlier verdict under the
     # old one must not keep the row out.
-    dl_all = d.lower()
-    if (any(m in dl_all for m in _REVERSED_REJECTION_MARKERS)
-            and _rejection_predates_policy_reversal(d)):
+    # Per-reversal: the subject must match a reversal AND no operator stamp
+    # may be dated on/after THAT reversal. Previously this ANDed a flat
+    # vocabulary against a single shared date, which cannot express two
+    # reversals with different dates — see _POLICY_REVERSALS.
+    if _reversal_excuses(d):
         return False
+    # Lower-cased once. The reversal check above used to compute this as
+    # `dl_all` on its way past; when that check moved into
+    # _reversal_excuses (2026-09-25) the name went with it and the
+    # terminal-vocabulary read further down was left holding an undefined
+    # name — a NameError on any note carrying an operator verdict with an
+    # inconclusive code. tests/test_no_undefined_names.py caught it.
+    dl_all = d.lower()
     verdict = _latest_operator_verdict(d)
     if verdict is not None:
         kind, code = verdict

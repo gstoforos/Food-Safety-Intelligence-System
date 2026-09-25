@@ -146,6 +146,25 @@ _NOT_A_HAZARD = ("unspecified hazard", "none (", "organoleptic",
                  "incomplete pasteurization", "labeling", "labelling")
 
 
+# Hazards that are REAL but UNMEASURED. Distinct from _NOT_A_HAZARD above:
+# "None (organoleptic spoilage)" names no hazard, while "Uninspected product"
+# names a condition of the product under which any hazard would have gone
+# undetected. Both must stay out of the bacterial catch-all, but they are not
+# the same finding and a stratification that merged them would be wrong.
+#
+# WHY (2026-09-25). The uninspected-product class entered the vocabulary that
+# day so FSIS recall 022-2026 (Star Meat Delivery, 167,639 lb of raw pork,
+# beef and goat under a false "EST. 1363" mark) could reach the register at
+# all. Nothing in _HAZARD_GROUP_RULES matches its canonical, so it would have
+# landed "pathogen-bacterial" on the catch-all — for a row with no organism
+# named anywhere and no test performed. That is the same defect the SUPPLX
+# yohimbine comment above records, reached by a different route, and the
+# third time this catch-all has mislabelled a non-microbial hazard.
+_NO_HAZARD_ASSESSED = (
+    "uninspected", "hazard not assessed", "without the benefit of inspection",
+    "without benefit of inspection", "false inspection mark",
+)
+
 # Organisms whose NAME contains a hazard word that belongs to another group.
 # Checked before the rule table, because the table matches substrings and
 # "Shiga toxin-producing E. coli" contains "toxin".
@@ -196,6 +215,13 @@ def _hazard_group(pathogen: str) -> str:
     p = (pathogen or "").strip().lower()
     if not p:
         return "unknown"
+    # FIRST, before any substring table: an unassessed hazard is its own
+    # group. Checked here because the tables match substrings and a later
+    # rule ("adulterat" -> chemical) can fire on FSIS's own wording for
+    # these notices, which calls uninspected product adulterated.
+    for needle in _NO_HAZARD_ASSESSED:
+        if needle in p:
+            return "hazard-not-assessed"
     for needle, group in _ORGANISM_OVERRIDES:
         if needle in p:
             return group

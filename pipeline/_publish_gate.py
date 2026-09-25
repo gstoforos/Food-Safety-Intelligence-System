@@ -399,6 +399,37 @@ HAZARD_CLASS_KEYWORDS = {
         "visible mould", "visible mold", "mouldy", "moldy",
         "ευρωτίασ", "μούχλα", "fungal growth", "fungal contamination",
     ),
+    # UNINSPECTED PRODUCT — in scope from 2026-09-25 (operator decision; see
+    # scrapers/_pathogen_vocab.py and pipeline/merge_master._POLICY_REVERSALS).
+    #
+    # This class has to exist HERE, and not only in the collection
+    # vocabulary, because of rule 8 below: a row is refused when
+    # allergen/labelling is the ONLY class it resolves to. FSIS's own hazard
+    # sentence on every one of these notices reads "may contain undeclared
+    # allergens, harmful bacteria, or other contaminants" — so the Reason
+    # classifies as {"allergen"}, and without a class of its own the row was
+    # refused as allergen-only. That happened on the first build of FSIS
+    # PHA-03252026-01 (Blackwing Meats): tests/test_publish_gate.py and
+    # tests/test_auxico_regression.py both caught it, correctly.
+    #
+    # Quoting the regulator's hazard sentence is not optional — dropping the
+    # word "allergens" to get past a gate would be editing the source to
+    # suit the tool. The gate needed to learn the class instead.
+    #
+    # Deliberately narrow: only wording that states product was not
+    # inspected or bore a false mark. A bare "inspection" must never be here
+    # — "FSIS routine import re-inspection sampling" appears in the Prime
+    # Line Listeria row, and "insanitary conditions found during inspection"
+    # is a real phrase on genuine pathogen notices.
+    "uninspected": (
+        "uninspected", "without the benefit of inspection",
+        "without the benefit of federal inspection",
+        "without benefit of inspection", "produced without inspection",
+        "not produced under inspection", "false inspection mark",
+        "false mark of inspection", "false usda mark",
+        "lack of federal inspection", "without federal inspection",
+        "hazard not assessed",
+    ),
 }
 
 # FALSE FRIEND. "moulded / demoulded / moulding" mean SHAPED IN A MOULD —
