@@ -155,6 +155,26 @@ PATHOGEN: dict[str, list[str]] = {
     "Process deviation (sterilisation / pasteurisation)": [
         "sterilization", "sterilisation", "pasteurization",
         "pasteurisation", "process deviation"],                     # 2
+
+    # --- inspection ------------------------------------------------------
+    # Added 2026-09-25, with the hazard class itself. Without a subscriber
+    # word, FSIS recall 022-2026 — Star Meat Delivery, 167,639 lb of raw
+    # pork, beef and goat distributed nationwide under a counterfeit "EST.
+    # 1363" mark, Class I — would have sat in the register reaching no
+    # subscriber at all. test_every_row_matches_at_least_one_pathogen_term
+    # is the test that says so, and it is the right test to have.
+    #
+    # NO BARE "inspection" TOKEN. The Prime Line / Ferrarini Listeria row
+    # (2026-09-06) says "confirmed by FSIS routine import re-inspection
+    # sampling", and "insanitary conditions found during inspection" is
+    # standard wording on genuine pathogen notices. Every token below states
+    # that inspection did NOT happen, or that its mark was faked.
+    "Uninspected product / false inspection mark": [
+        "uninspected", "without the benefit of inspection",
+        "without the benefit of federal inspection",
+        "without benefit of inspection", "produced without inspection",
+        "false inspection mark", "false mark of inspection",
+        "false usda mark", "hazard not assessed"],                  # 4
 }
 
 # Terms REMOVED from the old alerts.html list on 2026-09-14 and why. Kept here
