@@ -351,8 +351,19 @@ class TestTheWorkbookIsClean(unittest.TestCase):
         # "pest" added 2026-09-09: the scope statement has named pest
         # contamination since 2026-07-29 but the gate had no such class, so
         # the two published rodent rows classified as nothing at all.
+        # "uninspected" added 2026-09-25: product produced without the
+        # benefit of federal inspection, or bearing a false mark of
+        # inspection, became an in-scope hazard class of its own that day
+        # (operator decision). The hazard is that the assessment never
+        # happened, and FSIS recall 022-2026 — Star Meat Delivery, 167,639 lb
+        # of raw pork, beef and goat under a counterfeit "EST. 1363" — is why.
+        #
+        # Without it, all four uninspected rows were flagged here as
+        # allergen-only, which is how this set works: it is the register's
+        # scope statement written as a test, and every scope change has to be
+        # added to it. That is now three times (mould, pest, uninspected).
         IN_SCOPE = {"biological", "biotoxin", "mycotoxin", "mould",
-                    "physical", "chemical", "pest"}
+                    "physical", "chemical", "pest", "uninspected"}
         # A row may sit outside the hazard classes ONLY when the operator
         # wrote the exception onto the row itself. One such row exists: the
         # MILBONA high-protein pudding (EFET, 26 Jun 2026, organoleptic
