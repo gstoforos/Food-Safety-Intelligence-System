@@ -331,7 +331,14 @@ def _url_health_pass(pending: List[Dict[str, Any]], since_days: int,
     stats = {"checked": len(validated), "skipped_recent": skipped_recent,
              "ok": 0, "bot_blocked": 0,
              "blanked_generic": 0, "flagged_generic": 0,
-             "blanked_404": 0, "blanked_5xx": 0, "kept_403": 0}
+             "blanked_404": 0, "blanked_5xx": 0,
+             # Renamed 2026-09-25. It was "kept_403", which is what it
+             # counted when only a 403 could land here. Now it counts every
+             # URL kept because nothing that can read the page said it was
+             # gone — a lying 404 from an Akamai host, a TLS chain we cannot
+             # complete, a timeout. Calling that "kept_403" hid the case
+             # that deleted the Galil Importing URL.
+             "kept_unverified": 0}
     for (idx, _), vrow in zip(targets, validated):
         check = vrow.get("_url_check", {})
         reason = check.get("reason", "")
@@ -368,7 +375,12 @@ def _url_health_pass(pending: List[Dict[str, Any]], since_days: int,
             audit = f"[URL-guardian {today_iso}: blanked {reason} {original[:60]}]"
             pending[idx]["Notes"] = (notes + " " + audit).strip()[:500]
         else:
-            stats["kept_403"] += 1
+            stats["kept_unverified"] += 1
+            # A kept URL used to be silent, so nobody could see the
+            # guardian declining to act. Name it, once per row.
+            log.info("URL kept (not verified dead): %s — %s",
+                     str(pending[idx].get("URL", ""))[:90],
+                     check.get("error") or reason or "no reason given")
     return stats
 
 

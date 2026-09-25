@@ -355,10 +355,31 @@ def verify_url_is_about_this_recall(url: str, row: Dict[str, Any]) -> Tuple[str,
         return "no-body", "row has no distinctive tokens to match on"
     try:
         import requests
-        resp = requests.get(
-            url, timeout=20,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; AFTS-FSIS/1.0)"},
-        )
+        # ── 2026-09-25 ──────────────────────────────────────────────────
+        # Route the Akamai hosts through Chrome TLS impersonation, the way
+        # claude_check.py, _provenance.py and the scrapers have since
+        # 2026-05-20. www.fda.gov, www.fsis.usda.gov, www.fda.gov.ph and
+        # www.gov.il answer plain `requests` with HTTP 404 for EVERY page,
+        # real notices included.
+        #
+        # This never deleted anything — an unreadable page returns
+        # "no-body", which by design does not block. But it made the check
+        # VACUOUS on exactly the two authorities the register most depends
+        # on: a resurrected FDA URL was being waved through unread, which
+        # is how three re-minted FDA recalls reached the register on
+        # 2026-09-02. A guard that cannot read is not a guard.
+        resp = None
+        try:
+            from scrapers._akamai_fetch import is_akamai_host, fetch_via_curl_cffi
+            if is_akamai_host(url) and fetch_via_curl_cffi is not None:
+                resp = fetch_via_curl_cffi(url)
+        except Exception:                                        # noqa: BLE001
+            resp = None
+        if resp is None:
+            resp = requests.get(
+                url, timeout=20,
+                headers={"User-Agent": "Mozilla/5.0 (compatible; AFTS-FSIS/1.0)"},
+            )
         if resp.status_code >= 400 or not resp.text:
             return "no-body", f"HTTP {resp.status_code}, no readable body"
         text = re.sub(r"<[^>]+>", " ", resp.text)

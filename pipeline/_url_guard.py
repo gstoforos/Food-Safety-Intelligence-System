@@ -183,3 +183,109 @@ def reject_refusal(row: Dict[str, Any], reason: str) -> str:
             f"'{why[:90]}' is a statement about reachability, not about "
             f"whether the notice exists. Several regulator hosts return "
             f"403 to datacentre traffic for every page.")
+
+
+# ── Breaking the refusal livelock (2026-09-25) ───────────────────────────
+#
+# reject_refusal above stops reviewer 1 discarding a row whose URL is
+# already on a regulator's own domain. It has fired 15 times, and it was
+# right every time. But refusing a rejection changed NOTHING ELSE: the row
+# stayed at its input status, so the next pass asked the same model the
+# same question about the same page and got the same answer, and the guard
+# refused again. Three passes a day.
+#
+# The measured cost on 2026-09-25: ten rows stuck in Pending, the oldest
+# since 2026-09-18 — roughly twenty-one wasted reviewer passes on a single
+# RappelConso row, and a reviewer-1 queue that a freshness audit reads as
+# STALE while the stage is in fact running perfectly and being overruled.
+#
+# The way out was sitting inside the refusal. Reviewer 1's job is to
+# CONFIRM THE OFFICIAL URL. When the guard refuses a rejection it has
+# already established, deterministically, that the row carries a URL on the
+# authority's own domain — which is a stronger answer than the model was
+# being asked for. So stop treating the refusal as "no verdict" and read it
+# as the verdict it is.
+#
+# Two brakes, because a promotion on a negative deserves them:
+#   * the URL must be a PER-RECALL url, not a board index — checked against
+#     the country's own authority_item_url_regex where a config exists.
+#     Without this, a landing page on the right host would be promoted, and
+#     that is the Switzerland/Germany defect all over again.
+#   * not on the first refusal. One refusal can be a transient fetch
+#     failure, and one more pass costs nothing. It takes a SECOND refusal
+#     for the pattern to be systematic.
+
+
+def _item_url_regex_for(url: str):
+    """The country config regex governing this host, or None.
+
+    Matched on the authority_domain rather than a country code, because
+    the row does not have to name a country we have a config for — France
+    is the case in point: RappelConso is a native scraper and fr has no
+    CountryConfig at all.
+    """
+    try:
+        from urllib.parse import urlparse
+        from pipeline.gap_finder.countries import get, all_codes
+    except Exception:                                            # noqa: BLE001
+        return None
+    host = urlparse(str(url or "")).netloc.lower().split(":")[0]
+    if host.startswith("www."):
+        host = host[4:]
+    if not host:
+        return None
+    for code in all_codes():
+        try:
+            cfg = get(code)
+        except Exception:                                        # noqa: BLE001
+            continue
+        dom = str(getattr(cfg, "authority_domain", "") or "").lower()
+        if dom and (host == dom or host.endswith("." + dom)):
+            return getattr(cfg, "authority_item_url_regex", None)
+    return None
+
+
+def url_is_self_evidently_official(url: str) -> str:
+    """Why this URL needs no model to confirm it, or "" if it does.
+
+    Deliberately conservative: an empty return means "ask again", never
+    "reject". Nothing here can discard a row.
+    """
+    import re as _re
+    u = str(url or "").strip()
+    if not u or not host_is_authority(u):
+        return ""
+    rx = _item_url_regex_for(u)
+    if rx:
+        try:
+            if not _re.search(rx, u, _re.I):
+                # On the authority's own host but not a per-recall notice:
+                # a board index, a category, or a shape the config does not
+                # know. Not confirmable without reading it.
+                return ""
+        except _re.error:
+            return ""
+        return (f"the URL is on the authority's own domain AND matches that "
+                f"authority's per-recall URL pattern")
+    # No config for this host. Fall back to the shared listing check, so a
+    # /categorie/1 or /food-alert-list link is never promoted this way.
+    try:
+        from review.url_validator import is_generic_url
+        if is_generic_url(u):
+            return ""
+    except Exception:                                            # noqa: BLE001
+        return ""       # cannot check → do not promote
+    from urllib.parse import urlparse
+    segs = [x for x in (urlparse(u).path or "").split("/") if x]
+    if len(segs) < 2:
+        return ""
+    return ("the URL is on the authority's own domain and is a specific "
+            "page, not a listing")
+
+
+def refusal_count(notes: str) -> int:
+    """How many times the guard has already refused a rejection on this row."""
+    import re as _re
+    return len(_re.findall(r"\[url-guard [\d-]+: reviewer 1 tried to reject",
+                           str(notes or "")))
+
