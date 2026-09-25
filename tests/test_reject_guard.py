@@ -213,13 +213,84 @@ def test_the_agent_consults_the_guard_before_rejecting():
         "the guard must be consulted BEFORE the row is flagged rejected")
 
 
-def test_a_refused_reject_becomes_a_retry_not_a_confirm():
-    """The row goes back to the queue. It is not published."""
+# --------------------------------------------------------------------------
+# REVISED 2026-09-25 — the invariant narrowed, on purpose
+#
+# This was:
+#
+#     def test_a_refused_reject_becomes_a_retry_not_a_confirm():
+#         """The row goes back to the queue. It is not published."""
+#         assert 'counts["retry"] = ...' in AGENT
+#         assert 'row["Status"]' not in AGENT[refused_region], (
+#             "a refused reject must not change the row's status")
+#
+# "It is not published" was the point, and it still holds. "The status must
+# not change" was how that point was enforced, and it turned out to cost
+# more than it protected: with the row left exactly where it was, the next
+# pass asked the same model the same question about the same page, got the
+# same answer, and the guard refused again — three times a day. Ten rows
+# were doing that in Pending on 2026-09-25, the oldest since 09-18.
+#
+# So a second refusal now advances the row ONE step inside reviewer 1's own
+# lane, and these tests hold the line where it actually is:
+#   * the advance goes through next_status(cur, "confirm") and nowhere else,
+#     so it is bounded by that function's lane table and cannot invent a
+#     status or reach a published one;
+#   * both brakes are present — a prior refusal, and a URL that is a
+#     per-recall notice on the authority's own host;
+#   * Pathogen is NOT written, because this path confirmed a URL and did
+#     not enrich anything. Reviewer 2 and the confirm agent still hold the
+#     row on an empty field, which is the correct outcome.
+# --------------------------------------------------------------------------
+
+def _refused_region() -> str:
+    """The source between the refusal print and the end of that branch."""
+    i = AGENT.index("[url-guard] reject refused")
+    j = AGENT.index('rejected_flags[idx] = f"URL agent:', i)
+    return AGENT[i:j]
+
+
+def test_a_refused_reject_still_defaults_to_a_retry():
     assert 'counts["retry"] = counts.get("retry", 0) + 1' in AGENT
-    assert "row[\"Status\"]" not in AGENT[
-        AGENT.index("[url-guard] reject refused"):
-        AGENT.index("else:", AGENT.index("[url-guard] reject refused"))], (
-        "a refused reject must not change the row's status")
+
+
+def test_the_only_status_change_goes_through_next_status():
+    region = _refused_region()
+    assert 'next_status(cur, "confirm")' in region, (
+        "the escalation must reuse the lane table, not set a status itself")
+    for bad in ('row["Status"] = "', "row['Status'] = '"):
+        assert bad not in region, (
+            "a refused reject must never assign a literal status — that is "
+            "how a row would skip the lane and reach the register")
+
+
+def test_the_escalation_cannot_reach_a_published_status():
+    """next_status is the only writer, so its table is the whole story:
+    from reviewer 1's three input statuses it emits only pending_gap_v1 and
+    pending_gap_v2. Nothing published, nothing approved."""
+    import re
+    src = AGENT[AGENT.index("def next_status("):AGENT.index("# ─── Sheet I/O")]
+    emitted = set(re.findall(r"return (S_[A-Z_0-9]+)", src))
+    assert emitted <= {"S_REJECTED", "S_GAP_V1", "S_GAP_V2"}, emitted
+    for forbidden in ("S_APPROVED", "S_PUBLISHED", "Recalls", "approved"):
+        assert forbidden not in src, forbidden
+
+
+def test_both_brakes_are_on_the_escalation():
+    region = _refused_region()
+    assert "_prior >= 1" in region, (
+        "brake 2: one refusal can be a transient fetch failure; it takes a "
+        "second for the pattern to be systematic")
+    assert "url_is_self_evidently_official" in region, (
+        "brake 1: a listing page on the authority's own host must not be "
+        "promoted — that is the Switzerland/Germany defect by a new route")
+
+
+def test_the_escalation_does_not_invent_a_pathogen():
+    region = _refused_region()
+    assert 'row["Pathogen"]' not in region and "row['Pathogen']" not in region, (
+        "this path confirmed a URL; it enriched nothing. An empty Pathogen "
+        "is a true statement about what we know (R5)")
 
 
 def test_the_refusal_is_written_into_notes():
