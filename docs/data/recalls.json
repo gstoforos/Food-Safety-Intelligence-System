@@ -64,6 +64,22 @@
   "Notes": "magasins u"
  },
  {
+  "Date": "2026-09-24",
+  "Source": "RappelConso (FR)",
+  "Company": "GAEC Clavel",
+  "Brand": "GAEC Clavel",
+  "Product": "fromage saint-nectaire entier",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Suspiscion de listéria",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23616/interne",
+  "Notes": "particuliers [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent 2026-09-25: pending_gap_v2 → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+ },
+ {
   "Date": "2026-09-23",
   "Source": "FDA",
   "Company": "Berlin Seeds",
