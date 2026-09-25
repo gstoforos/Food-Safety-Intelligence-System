@@ -104,7 +104,22 @@ SAMPLE_PAYLOAD = [
         "field_recall_url": "https://www.fsis.usda.gov/recalls-alerts/test-deli",
     },
     {
-        # Should DROP — produced without inspection (not a hazard category).
+        # NOW KEPT — scope changed 2026-09-25 (operator decision).
+        #
+        # This said "Should DROP — produced without inspection (not a hazard
+        # category)", and that call held from 2026-05-10 until the daily
+        # global sweep on 2026-09-25 reported FSIS recall 022-2026 — Star
+        # Meat Delivery Inc., 167,639 lb of raw pork, beef and goat, produced
+        # without the benefit of federal inspection and bearing a FALSE
+        # inspection mark "EST. 1363" — as absent from the register. It was.
+        #
+        # The line moved because the category is not "no hazard", it is
+        # "hazard not assessed": nobody tested the product, so the hazard is
+        # unknown rather than absent, and unknown is the worse thing to be
+        # blind to. Allergen-only recalls remain out of scope — that line did
+        # NOT move, and tests/test_uninspected_product_is_a_hazard.py holds
+        # both halves. Import violations also did not move; see the note in
+        # scrapers/_pathogen_vocab.py.
         "field_recall_number": "PHA-03252026-01",
         "field_title": "Firm Recalls Product Produced Without Benefit of Inspection",
         "field_recall_reason": "Produced Without Benefit of Inspection",
@@ -278,10 +293,26 @@ class TestUSDAFSISScraper(unittest.TestCase):
         mis = [r for r in out if r.Notes and "009-2026" in r.Notes]
         self.assertEqual(mis, [])
 
-    def test_without_inspection_dropped(self):
+    def test_without_inspection_now_kept(self):
+        """Was test_without_inspection_dropped. See the fixture comment on
+        PHA-03252026-01 for why the scope line moved on 2026-09-25."""
         out = self._run_with_payload(SAMPLE_PAYLOAD)
         noi = [r for r in out if r.Notes and "PHA-03252026-01" in r.Notes]
-        self.assertEqual(noi, [])
+        self.assertEqual(len(noi), 1,
+            "an uninspected-product recall must now reach the register")
+        self.assertEqual(noi[0].Pathogen,
+                         "Uninspected product (hazard not assessed)")
+
+    def test_misbranding_and_allergens_are_still_dropped_alongside_it(self):
+        """The scope change must be exactly one category wide. 009-2026 is
+        misbranding, and the Test Deli record is undeclared wheat — both
+        must still fall."""
+        out = self._run_with_payload(SAMPLE_PAYLOAD)
+        kept = {(r.Notes or "").split(";")[0] for r in out}
+        for number in ("009-2026",):
+            self.assertNotIn(number, " ".join(kept))
+        self.assertEqual(
+            [r for r in out if "wheat" in (r.Pathogen or "").lower()], [])
 
     def test_retraction_dropped(self):
         out = self._run_with_payload(SAMPLE_PAYLOAD)
@@ -299,11 +330,12 @@ class TestUSDAFSISScraper(unittest.TestCase):
         self.assertEqual(imp, [])
 
     def test_expected_total_count(self):
-        """Of 10 payload records, 5 should pass: metal PHA, glass, Listeria,
-        STEC, Salmonella."""
+        """Of 10 payload records, 6 should pass: metal PHA, glass, Listeria,
+        STEC, Salmonella, and — from 2026-09-25 — the uninspected-product
+        PHA. Was 5; the sixth is the scope change, not a leak."""
         out = self._run_with_payload(SAMPLE_PAYLOAD)
-        self.assertEqual(len(out), 5,
-            f"Expected 5 in-scope rows, got {len(out)}: "
+        self.assertEqual(len(out), 6,
+            f"Expected 6 in-scope rows, got {len(out)}: "
             f"{[(r.Notes.split(';')[0], r.Pathogen) for r in out]}")
 
     def test_html_stripped_from_reason(self):
@@ -415,9 +447,12 @@ class TestFsisRelativeUrlPayload(unittest.TestCase):
 
         out = self._run(payload)
         self.assertEqual(
-            len(out), 5,
+            len(out), 6,
             "Relative API URLs must survive the prefix gate. Got "
-            f"{len(out)} rows — the 2026-07-29 blackout has regressed.")
+            f"{len(out)} rows — the 2026-07-29 blackout has regressed. "
+            "(6 not 5 since the 2026-09-25 scope change; if this reads 5, "
+            "the uninspected-product row is being lost at the URL gate "
+            "rather than at the hazard gate.)")
         for r in out:
             self.assertTrue(
                 r.URL.startswith("https://www.fsis.usda.gov/"),
