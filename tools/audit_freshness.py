@@ -183,11 +183,40 @@ def check_gap_finders(today):
             continue
         when = rec.get("started_at") or rec.get("ts")
         age = _age_days(when, today)
+        verdict = _verdict(age, 3, 7)
+        detail = ("candidates=%s verified=%s"
+                  % (rec.get("candidates_found"), rec.get("verified_count")))
+
+        # ── A fresh run is not the same as a useful one (2026-09-25) ─────
+        #
+        # This check graded on AGE alone, and age is exactly what an LLM
+        # outage does not affect. When the Llama box is unreachable, the
+        # extractor routes every row that classified ACCEPTED to Rejected,
+        # the finder exits 0, the run log says status="completed", and this
+        # line reported "candidates=14 verified=9" and a verdict of OK.
+        # Five real recalls are in Rejected from exactly that: South
+        # Africa's Deli Hummus Listeria recall twice (08-09, 09-21),
+        # Czechia 09-15, Poland 09-19 and 09-21.
+        #
+        # llm_extraction_failures was added to the run log the same day. A
+        # run that lost EVERY accepted row to the box is STALE whatever its
+        # timestamp says — it produced nothing. A run that lost some is a
+        # WARN, unless age already makes it worse.
+        llm_lost = int(rec.get("llm_extraction_failures") or 0)
+        if llm_lost:
+            accepted = int(rec.get("extracted_accepted") or 0) + llm_lost
+            detail += ("; %d of %d accepted rows lost to an unreachable "
+                       "Llama box — routed to Rejected, NOT content "
+                       "rejections" % (llm_lost, accepted))
+            if accepted and llm_lost >= accepted:
+                verdict = STALE
+                detail = ("PRODUCED NOTHING USABLE: " + detail)
+            elif verdict == OK:
+                verdict = WARN
+
         out.append(dict(
             component="gap finder %s" % cc, last=str(when or "")[:16], age=age,
-            verdict=_verdict(age, 3, 7),
-            detail="candidates=%s verified=%s"
-                   % (rec.get("candidates_found"), rec.get("verified_count"))))
+            verdict=verdict, detail=detail))
     return out
 
 
