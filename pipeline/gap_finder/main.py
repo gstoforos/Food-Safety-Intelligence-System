@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import os
 import sys
 import time
 import traceback
@@ -70,6 +71,10 @@ class RunState:
     skipped_dupe_pending: int = 0
     skipped_dupe_recalls: int = 0
     skipped_dupe_rejected: int = 0
+    # Rows that CLASSIFIED ACCEPTED and were routed to Rejected only because
+    # the Llama box could not be reached. Added 2026-09-25 — see the block
+    # above the RUN SUMMARY for why a count is not enough on its own.
+    llm_extraction_failures: int = 0
     errors: list[dict] = field(default_factory=list)
 
     def add_error(self, stage: str, exc: Exception) -> None:
@@ -618,6 +623,30 @@ def main() -> int:
         pending_rows, rejected_rows = [], []
     state.extracted_accepted = len(pending_rows)
     state.extracted_rejected = len(rejected_rows)
+    # ── Count the rows the MODEL lost, not the rules ─────────────────────
+    #
+    # extractor.extract_one routes a row here when the Llama box times out or
+    # its circuit is open. That is the right handling — a half-parsed row must
+    # never reach Pending, and the recall is preserved for manual re-extraction
+    # rather than dropped. What was missing is that this is INDISTINGUISHABLE,
+    # everywhere downstream, from the rules rejecting a row on its merits.
+    #
+    # On 2026-09-25 the box died mid-request (RemoteDisconnected, then
+    # connection refused for the rest of the run) and the reviewer chain went
+    # red with exit 3 — visible. A gap finder in the same outage exits 0,
+    # writes status="completed" to its run log, and reports "candidates=14
+    # verified=9" to the freshness audit, which grades on age and says OK. The
+    # register already holds five such rows: South Africa's Deli Hummus
+    # Listeria recall (twice — 08-09 and 09-21), Czechia 09-15, Poland 09-19
+    # and 09-21. Real recalls, in Rejected, from a green run.
+    #
+    # This is the DEFAULT_TIMEOUT=45 incident's exact signature — "killed
+    # exactly the rows that classified ACCEPTED and routed them to Rejected" —
+    # with the box down instead of slow. The timeout fix raised 45s to 300s;
+    # it could not help when nothing is listening.
+    state.llm_extraction_failures = sum(
+        1 for r in rejected_rows
+        if str(r.get("RejectionReason") or "").startswith("llm-extraction-failed"))
 
     # ── Stage 4: Write xlsx ─────────────────────────────────────────────────
     print(f"\n=== Stage 4: Write to {args.xlsx} ===", file=sys.stderr)
@@ -656,8 +685,46 @@ def main() -> int:
     print(f"  skipped (dupe Pending):  {state.skipped_dupe_pending}", file=sys.stderr)
     print(f"  skipped (dupe Recalls):  {state.skipped_dupe_recalls}", file=sys.stderr)
     print(f"  skipped (dupe Rejected): {state.skipped_dupe_rejected}", file=sys.stderr)
+    print(f"  LLM failures (box down): {state.llm_extraction_failures}",
+          file=sys.stderr)
     print(f"  errors:                  {len(state.errors)}", file=sys.stderr)
     print("=" * 70, file=sys.stderr)
+
+    # ── Make an outage visible without turning the fleet red ─────────────
+    #
+    # The exit code is deliberately NOT changed. That decision is from
+    # 2026-08-24 and it is recorded in every regional finder's workflow:
+    # "a VPS outage is not a workflow failure. Every regional finder
+    # hard-exited here, so one unreachable box turned the whole fleet red
+    # and buried the real cause. The finder itself reports honestly when
+    # the model is unavailable."
+    #
+    # The decision stands. What did not hold is the last sentence: the
+    # honest report went to stderr and nowhere else. The run log said
+    # "completed", the summary counted zero errors, and every automated
+    # watcher — the freshness audit, test_no_country_goes_dark,
+    # dispatch_watchdog — saw a healthy country. So the report now lands
+    # where it can be read: a GitHub annotation, the step summary, and a
+    # field in run_log.jsonl that tools/audit_freshness.py grades on.
+    if state.llm_extraction_failures:
+        _total = state.llm_extraction_failures
+        _accepted = state.extracted_accepted + _total
+        _all_of_them = _accepted > 0 and _total >= _accepted
+        _what = ("EVERY accepted row" if _all_of_them
+                 else f"{_total} of {_accepted} accepted rows")
+        _msg = (f"{cfg.code}: {_what} was routed to Rejected because the "
+                f"Llama box was unreachable. These are not content "
+                f"rejections — re-run this country once the box is up, or "
+                f"re-extract them by hand from the authority page. This run "
+                f"exits 0 by the 2026-08-24 policy; it is NOT a clean run.")
+        print(f"::error title=LLM unavailable ({cfg.code})::{_msg}")
+        _sm = os.environ.get("GITHUB_STEP_SUMMARY")
+        if _sm:
+            try:
+                with open(_sm, "a", encoding="utf-8") as _fh:
+                    _fh.write(f"\n### \u26a0 {cfg.code}: LLM unavailable\n\n{_msg}\n")
+            except OSError:
+                pass
 
     # ── Run log ─────────────────────────────────────────────────────────────
     _write_run_log(cfg, state, status="completed")
