@@ -113,6 +113,10 @@ BOT_HOSTILE_DOMAINS = {
     "recalls-rappels.canada.ca",
     "www.food.gov.uk",
     "food.gov.uk",
+    # Named explicitly as well as covered by the suffix match below: this is
+    # where every UK FSA alert actually lives, and it is robots-disallowed to
+    # automated clients.
+    "alerts.food.gov.uk",
     "www.fda.gov",
     "www.fsis.usda.gov",
     "www.foodstandards.gov.au",
@@ -127,6 +131,41 @@ BOT_HOSTILE_DOMAINS = {
     "www.aesan.gob.es",
     "www.cfs.gov.hk",
 }
+
+
+def _is_tolerated_host(url: str) -> bool:
+    """Is this URL on a host that lies to automated clients?
+
+    SUFFIX matching, added 2026-09-26. The tolerance was `dom in
+    BOT_HOSTILE_DOMAINS` — an exact hostname compare — while
+    pipeline/_url_guard.host_is_authority has always matched on suffix. The
+    two disagreed, and the gap is where the regulators actually publish:
+
+        food.gov.uk            in the set   -> tolerated
+        alerts.food.gov.uk     NOT in it    -> NOT tolerated
+
+    and alerts.food.gov.uk is where every UK FSA alert lives. It is
+    robots-disallowed to automated clients, so a check against it fails, and
+    under exact matching that failure counted as evidence: verified_dead, URL
+    deleted. FSA-PRIN-47-2026 — World of Sweets / Alyan Dubai Style
+    chocolate, Salmonella, Tier 1 — was the row that showed it.
+
+    The same hole covered every other subdomain of a listed regulator, so it
+    was one hostname away from doing this to any of them.
+    """
+    host = _domain(url)
+    if not host:
+        return False
+    host = host.split(":")[0]
+    for tolerated in BOT_HOSTILE_DOMAINS:
+        t = tolerated.lower().lstrip(".")
+        if host == t or host.endswith("." + t):
+            return True
+        # The set carries both "food.gov.uk" and "www.food.gov.uk"; strip the
+        # www so a bare host still matches a www-prefixed entry.
+        if t.startswith("www.") and (host == t[4:] or host.endswith("." + t[4:])):
+            return True
+    return False
 
 
 def _domain(url: str) -> str:
@@ -273,7 +312,7 @@ def check_url(url: str, do_get_fallback: bool = True) -> Dict[str, Any]:
         # used to be forgiven for status 403 alone; the hosts that hurt us
         # answered 404, which walked straight past the exemption into
         # should_blank_url. The status is no longer what decides.
-        if dom in BOT_HOSTILE_DOMAINS:
+        if _is_tolerated_host(url):
             return {"url": url, "status": code, "ok": True, "generic": False,
                     "error": f"HTTP {code} from a host that rejects "
                              f"datacentre traffic — not conclusive",
@@ -301,7 +340,7 @@ def check_url(url: str, do_get_fallback: bool = True) -> Dict[str, Any]:
                 "reason": "tls_error", "verified_dead": False}
     except requests.Timeout:
         # Timeout on bot-hostile domain → also a tolerant pass
-        if dom in BOT_HOSTILE_DOMAINS:
+        if _is_tolerated_host(url):
             return {"url": url, "status": 0, "ok": True, "generic": False,
                     "error": "timeout (tolerated)",
                     "reason": "bot_blocked", "verified_dead": False}
