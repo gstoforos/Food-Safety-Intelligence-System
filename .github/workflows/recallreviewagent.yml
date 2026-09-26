@@ -289,7 +289,13 @@ jobs:
           # rows sat outside the lane: 55% of every run produced nothing.
           AGENT2_STATUSES = {"pending_gap_v2", "pending"}
 
-          MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "5000"))
+          # 3 500, not 5 000 (2026-09-22). llama-server runs with --ctx-size 8192;
+          # a 5 000-char page is a quarter of that before the system prompt, the
+          # row, the tool schema and any second page are counted, and two fetches
+          # produced "Context size has been exceeded" on four RappelConso rows in
+          # one run. Regulator notices put the recall facts — firm, product, lot,
+          # hazard, date — in the first screenful; what gets cut is boilerplate.
+          MAX_PAGE_CHARS = int(os.environ.get("REVIEW_MAX_PAGE_CHARS", "3500"))
 
 
           # ─── Tool-calling schema for the agent ───────────────────────────────────
@@ -382,6 +388,8 @@ jobs:
 
 
           def _make_tool_executor(seen_urls: set) -> Callable[[str, dict], str]:
+              _asked: dict = {}          # normalised query -> result count, per row
+
               def execute(name: str, args: dict) -> str:
                   if name == "fetch_page":
                       url = (args or {}).get("url", "").strip()
@@ -391,14 +399,47 @@ jobs:
                       seen_urls.add(url)
                       return json.dumps({"url": url, "status": status, "text": text})
                   if name == "web_search":
+                      # See the note on _executor in recall_url_agent.py (2026-09-17):
+                      # an empty result set repeated in silence is what drives the
+                      # model into the tool-loop cap. Name it, and refuse repeats.
                       q = (args or {}).get("query", "").strip()
                       if searx_search is None:
                           return json.dumps({"error": "searx unavailable"})
+                      import re as _re
+                      key = _re.sub(r"\s+", " ",
+                                    _re.sub(r"[^a-z0-9 ]+", " ", q.lower())).strip()
+                      if key in _asked:
+                          return json.dumps({
+                              "query": q,
+                              "results": [],
+                              "note": (f"You have already run this search; it returned "
+                                       f"{_asked[key]} results. Do not search again — "
+                                       f"fetch a URL you already have, or give your "
+                                       f"final answer now."),
+                          })
                       try:
                           results = searx_search.search(q)
                           slim = [{"title": r.get("title", ""), "url": r.get("url", ""),
                                    "content": (r.get("content", "") or "")[:200]}
                                   for r in (results or [])[:6]]
+                          _asked[key] = len(slim)
+                          # Operator-visible outcome (audit 2026-09-17). See the same
+                          # note in recall_url_agent.py: the log showed the tool CALL
+                          # and never its result, so an empty Searx was indistinguishable
+                          # from a dithering model in the failure email.
+                          print("  [searx] %d result(s) for %r" % (len(slim), q[:70]))
+                          if not slim:
+                              print("  [searx] EMPTY — the model is told not to reword; "
+                                    "if this repeats, check SEARX_URL.")
+                          if not slim:
+                              return json.dumps({
+                                  "query": q,
+                                  "results": [],
+                                  "note": ("THE SEARCH ENGINE RETURNED ZERO RESULTS. "
+                                           "That is a failure of the search box, not "
+                                           "evidence about the recall. Rewording will "
+                                           "not help. Answer from what you have."),
+                              })
                           return json.dumps({"query": q, "results": slim})
                       except Exception as e:  # noqa: BLE001
                           return json.dumps({"error": f"{type(e).__name__}: {e}"})
@@ -1016,7 +1057,39 @@ jobs:
               b = str(merged.get("Brand", "") or "")
               if c and c == b and len(c) > 60:
                   probs.append("Company and Brand are the same long headline string")
+              # A regulator's LISTING page is not a notice (2026-09-04). BLV's
+              # "Mises en garde et rappels — aliments" index reached Recalls with
+              # Company = Brand = the page title and Product = "aliments"; the real
+              # recall (Léguriviera, ochratoxin A) was quoted inside its own Notes.
+              # Two independent tells, either one blocks: the URL's last path segment
+              # is a known index slug, or Company/Brand IS a listing title. Measured
+              # against the 1574-row register before shipping: zero hits.
+              _u = str(merged.get("URL", "") or "").strip().lower().rstrip("/")
+              _tail = _u.rsplit("/", 1)[-1] if "/" in _u else _u
+              if _tail in _LISTING_SLUGS or _tail in ("recalls", "alerts", "rappels", "warnungen"):
+                  probs.append("URL is a regulator listing/index page, not a notice")
+              _cb = {c.strip().lower(), b.strip().lower()} - {""}
+              if _cb & _LISTING_TITLES:
+                  probs.append("Company/Brand is a listing-page title, not a firm")
               return probs
+
+
+          # Exact last-path-segment slugs of regulator index pages that have been seen
+          # (or are known) to be captured as if they were notices.
+          _LISTING_SLUGS = frozenset({
+              "mises-en-garde-et-rappels-aliments",        # BLV (CH) fr
+              "warnungen-und-rueckrufe-lebensmittel",      # BLV (CH) de
+              "avvertenze-e-richiami-alimenti",            # BLV (CH) it
+              "recalls-market-withdrawals-safety-alerts",  # FDA index
+              "recalls-alerts",                            # FSIS index
+              "food-alerts", "news-alerts",                # FSA / FSAI indexes
+              "sistema-di-controllo-della-sicurezza-alimentare",  # salute.gov.it /tema/
+          })
+          _LISTING_TITLES = frozenset({
+              "mises en garde et rappels", "warnungen und rückrufe", "warnungen und rueckrufe",
+              "avvertenze e richiami", "recalls and alerts", "recalls, market withdrawals, & safety alerts",
+              "food alerts", "news alerts", "rappels de produits", "rappel conso",
+          })
 
 
           def _normalize_country_source(merged: Dict[str, Any]) -> None:
@@ -1055,7 +1128,24 @@ jobs:
                       merged[k] = v
               vu = review.get("verified_url")
               if vu:
-                  merged["URL"] = vu
+                  # Same guard as reviewer 1 (audit 2026-09-18). This line has the
+                  # identical shape to the one that published a fabricated FSAI URL:
+                  # whatever the model returns replaces a href the collector read out
+                  # of the regulator's own markup. See pipeline/_url_guard.py.
+                  try:
+                      from pipeline._url_guard import url_overwrite_refusal
+                      _ref = url_overwrite_refusal(merged, vu)
+                  except Exception:                                    # noqa: BLE001
+                      # Fail safe: no guard, no rewrite.
+                      _ref = ("pipeline/_url_guard.py is not importable — refusing "
+                              "to rewrite")
+                  if _ref:
+                      print("  [url-guard] keeping the row's own URL — %s" % _ref)
+                      merged["Notes"] = (str(merged.get("Notes") or "") +
+                                         " [url-guard: reviewer 2 proposed a different "
+                                         "URL and it was refused — %s]" % _ref)[:2000]
+                  else:
+                      merged["URL"] = vu
               _normalize_country_source(merged)
               return merged
 
@@ -1175,9 +1265,31 @@ jobs:
               if _n and _retry == _n:
                   print("\n" + "=" * 60)
                   print(f"*** NO REVIEW PERFORMED — all {_n} rows returned retry. ***")
-                  print("The model was unreachable for every row (llama down, context")
-                  print("exceeded, or circuit breaker open). Nothing was written.")
-                  print("Check: curl $LLAMA_BASE_URL/models on the VPS.")
+                  # WHY THIS IS NOT "the model was unreachable" (audit 2026-09-17).
+                  # On 2026-09-17 this printed "unreachable" for a run in which llama
+                  # answered SIX times. llama_client prints "This is NOT an unreachable
+                  # model" one line earlier and records the real reason in
+                  # last_failure(); the summary overwrote both with a guess, and sent
+                  # the operator to a healthy VPS. Print what actually happened.
+                  try:
+                      from pipeline.official_feeds.agents import llama_client as _lc
+                      _why = _lc.failure_summary()
+                  except Exception:                                    # noqa: BLE001
+                      _why = ""
+                  if _why:
+                      print(f"Reason from the client: {_why}")
+                  else:
+                      print("No reason was recorded by the llama client.")
+                  _low = (_why or "").lower()
+                  if "never converged" in _low or "loop" in _low:
+                      print("The model REPLIED every turn — it is up. It kept asking")
+                      print("for another search instead of committing to an answer,")
+                      print("which is what an empty Searx result set looks like from")
+                      print("here. Check SEARX_URL before touching the VPS.")
+                  elif "network" in _low or "unreachable" in _low or "http" in _low:
+                      print("Check: curl $LLAMA_BASE_URL/models on the VPS.")
+                  else:
+                      print("Nothing was written. The queue is untouched.")
                   print("=" * 60)
                   return 3
               if _n and _retry > _n * 0.8:
@@ -1262,20 +1374,126 @@ jobs:
                           full_pending[idx]["Outbreak"] = int(ob)
                       applied_corrections += 1
                       cur = str(full_pending[idx].get("Status", "")).strip()
+
+                      # STAMP EVERY ROW THIS AGENT ACTUALLY REVIEWED (audit 2026-09-19).
+                      #
+                      # Advancing a status and recording that a reviewer read the row
+                      # are two different facts, and they were fused: the stamp lived
+                      # inside `if cur in _ADVANCE_FROM`, so a row already at plain
+                      # "pending" was reviewed, corrected, approved and promoted while
+                      # its Notes said nothing at all.
+                      #
+                      # Measured on 2026-09-19. Pending held 15 rows at "pending", 10 at
+                      # "pending_enrichment" and 2 at "pending_gap_v2". _ADVANCE_FROM
+                      # does not contain "pending". The run promoted 15 rows (Recalls
+                      # 1736 -> 1751) and wrote ZERO review-agent stamps.
+                      #
+                      # Those 15 are worse off than rows marked "reviewer 2 did NOT
+                      # review this row": that flag is at least true and auditable.
+                      # These carry no stamp AND no flag, so nothing in the register
+                      # distinguishes a row Qwen read line by line from one nobody
+                      # looked at — the single thing the two-reviewer architecture
+                      # exists to make visible.
+                      notes = str(full_pending[idx].get("Notes", "")).strip()
                       if cur in _ADVANCE_FROM:
                           full_pending[idx]["Status"] = _A2_APPROVED_STATUS
-                          notes = str(full_pending[idx].get("Notes", "")).strip()
                           tag = (f"[review-agent {today_iso}: {cur} → "
                                  f"{_A2_APPROVED_STATUS} (Qwen verified; awaiting "
                                  f"reviewer 3 confirmation)]")
-                          full_pending[idx]["Notes"] = (notes + " " + tag).strip()[:1000]
                           gap_advanced += 1
+                      else:
+                          tag = (f"[review-agent {today_iso}: reviewed and approved at "
+                                 f"status {cur!r}; fields verified against the source, "
+                                 f"status left unchanged]")
+
+                      # Truncate the OLD notes, never the new stamp. The cap bounds cell
+                      # size; dropping the provenance it was added to record defeats it.
+                      _room = 1000 - len(tag) - 1
+                      full_pending[idx]["Notes"] = (
+                          (notes[:_room].rstrip() + " " + tag).strip()
+                          if _room > 0 else tag[:1000])
 
               # Rejects → rejected_flags (index → reason)
+              #
+              # NOTE: tests/test_review_agent_stamps.py slices this module on the
+              # literal string "# Rejects → rejected_flags". Keep that exact
+              # wording on the line above — decorating it with box-drawing
+              # characters broke collection of that whole test file, which is how
+              # this note came to be here.
+              #
+              # THE REACHABILITY GUARD, WIRED IN 2026-09-26.
+              #
+              # pipeline/_url_guard.reject_refusal has protected reviewer 1 since
+              # 2026-09-21: a row is not discarded because a datacentre IP could not
+              # fetch a page whose URL is already on the regulator's own domain. It was
+              # never wired into reviewer 2 — and reviewer 2 is the reviewer that
+              # ARCHIVES, so its mistakes leave Pending altogether.
+              #
+              # What that cost, measured on the 2026-09-26 workbook: TWELVE rows
+              # rejected on a not-found reason while holding an authority URL, six
+              # distinct recalls, three of them Tier 1.
+              #
+              #   * World of Sweets / Alyan Dubai Style chocolate — Salmonella, Tier 1,
+              #     rejected TWICE (the original alert and its update-1) as "URL is dead
+              #     and no official page found". The URL is not dead;
+              #     alerts.food.gov.uk is robots-disallowed to automated clients, which
+              #     is a statement about us and not about the alert. An operator opened
+              #     it in a browser the same day and asked why we did not have it.
+              #   * International Sprout Holdings — Salmonella, Tier 1, www.fda.gov
+              #   * Kilbride Classic Cuisine — Listeria monocytogenes, Tier 1, fsai.ie
+              #   * RASFF Portugal aflatoxin (Tier 2), Hong Kong CFS E. coli (Tier 2),
+              #     Dunnes Stores (Tier 3)
+              #
+              # Every host on that list answers 403, a robots refusal, or a lying 404 to
+              # automated traffic. Not one of those is evidence a notice does not exist.
+              #
+              # The guard already returns the right answer for both of the reason
+              # strings reviewer 2 produced ("URL is dead and no official page found",
+              # "URL not found and no official page found"). It was simply never asked.
+              #
+              # Deliberately NOT the escalation reviewer 1 gained on 2026-09-25: that
+              # promotes a row because the guard has confirmed its URL, which is
+              # reviewer 1's job. Reviewer 2 judges CONTENT, and a refusal here means
+              # "do not discard this — look at it again", nothing more. The refusal is
+              # counted into Notes so the row's history stays readable from the sheet.
+              try:
+                  from pipeline._url_guard import reject_refusal as _reject_refusal
+              except Exception:                                            # noqa: BLE001
+                  def _reject_refusal(row, reason):                        # type: ignore
+                      """Fail SAFE: with no guard module, do not DISCARD a row that
+                      carries a URL on the strength of a not-found reason. Cruder than
+                      the real guard — it cannot tell an authority host from any other
+                      — and biased towards keeping the row, because a row left in
+                      Pending is reviewed again tomorrow and a row archived is gone."""
+                      import re as _re
+                      if not str((row or {}).get("URL") or "").strip():
+                          return ""
+                      if not _re.search(r"not\s+found|no\s+official|is\s+dead|dead\s+link"
+                                        r"|could\s+not\s+(find|locate|reach|access)"
+                                        r"|unable\s+to\s+(find|locate|reach|access)"
+                                        r"|404|403|robots", str(reason or ""), _re.I):
+                          return ""
+                      return ("pipeline/_url_guard.py is not importable — refusing to "
+                              "discard a row that has a URL, on a not-found reason")
+
               for merged, review in results["reject"]:
                   idx = url_to_idx.get(str(merged.get("URL", "")).strip())
-                  if idx is not None:
-                      rejected_flags[idx] = f"Review agent: {review.get('reason','')[:280]}"
+                  if idx is None:
+                      continue
+                  _why = str(review.get("reason", ""))
+                  _row = full_pending[idx]
+                  _ref = _reject_refusal(_row, _why)
+                  if _ref:
+                      print(f"  [url-guard] reject refused: {_ref}")
+                      _notes = str(_row.get("Notes") or "").strip()
+                      _tag = (f"[url-guard {today_iso}: reviewer 2 tried to reject this "
+                              f"row as {_why[:110]!r}; refused — {_ref[:160]} Left in "
+                              f"Pending for a later run.]")
+                      _room = 1000 - len(_tag) - 1
+                      _row["Notes"] = ((_notes[:_room].rstrip() + " " + _tag).strip()
+                                       if _room > 0 else _tag[:1000])
+                      continue
+                  rejected_flags[idx] = f"Review agent: {_why[:280]}"
 
               # retry (infra failure) → leave the row COMPLETELY untouched in Pending.
               # Do not change status, do not reject. The next scheduled run retries it.
@@ -1347,10 +1565,6 @@ jobs:
                     f"banked at {_A2_APPROVED_STATUS} ({_v3} awaiting reviewer 3), "
                     f"{len(rejected_flags)} marked rejected. Nothing published here.")
               return 0
-
-
-          if __name__ == "__main__":
-              raise SystemExit(main())
 
 
           # ─── AUDIT MODE: re-verify rows ALREADY promoted to Recalls ──────────────
@@ -1492,6 +1706,23 @@ jobs:
               except Exception as e:
                   print(f"  (JSON mirror skipped: {e})")
               return 0
+
+
+          # THE GUARD GOES LAST (audit 2026-09-22).
+          #
+          # `raise SystemExit(main())` used to sit ABOVE audit_recalls, so the module
+          # body never reached that def before main() ran. Every other path worked,
+          # which is why it survived: audit_recalls is only called for
+          # `--audit-recalls true`, and that flag is not on any schedule.
+          #
+          #     python -m pipeline.recall_review_agent --audit-recalls true
+          #     NameError: name 'audit_recalls' is not defined
+          #
+          # Audit mode is the only thing that re-checks rows ALREADY in Recalls —
+          # the FSANZ fabricated-Listeria class — so the one tool for that job could
+          # not start.
+          if __name__ == "__main__":
+              raise SystemExit(main())
           PYEOF_AGENT
           echo "Installed pipeline/recall_review_agent.py"
 
