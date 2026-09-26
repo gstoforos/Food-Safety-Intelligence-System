@@ -1217,10 +1217,86 @@ def main() -> int:
                 if _room > 0 else tag[:1000])
 
     # Rejects → rejected_flags (index → reason)
+    #
+    # NOTE: tests/test_review_agent_stamps.py slices this module on the
+    # literal string "# Rejects → rejected_flags". Keep that exact
+    # wording on the line above — decorating it with box-drawing
+    # characters broke collection of that whole test file, which is how
+    # this note came to be here.
+    #
+    # THE REACHABILITY GUARD, WIRED IN 2026-09-26.
+    #
+    # pipeline/_url_guard.reject_refusal has protected reviewer 1 since
+    # 2026-09-21: a row is not discarded because a datacentre IP could not
+    # fetch a page whose URL is already on the regulator's own domain. It was
+    # never wired into reviewer 2 — and reviewer 2 is the reviewer that
+    # ARCHIVES, so its mistakes leave Pending altogether.
+    #
+    # What that cost, measured on the 2026-09-26 workbook: TWELVE rows
+    # rejected on a not-found reason while holding an authority URL, six
+    # distinct recalls, three of them Tier 1.
+    #
+    #   * World of Sweets / Alyan Dubai Style chocolate — Salmonella, Tier 1,
+    #     rejected TWICE (the original alert and its update-1) as "URL is dead
+    #     and no official page found". The URL is not dead;
+    #     alerts.food.gov.uk is robots-disallowed to automated clients, which
+    #     is a statement about us and not about the alert. An operator opened
+    #     it in a browser the same day and asked why we did not have it.
+    #   * International Sprout Holdings — Salmonella, Tier 1, www.fda.gov
+    #   * Kilbride Classic Cuisine — Listeria monocytogenes, Tier 1, fsai.ie
+    #   * RASFF Portugal aflatoxin (Tier 2), Hong Kong CFS E. coli (Tier 2),
+    #     Dunnes Stores (Tier 3)
+    #
+    # Every host on that list answers 403, a robots refusal, or a lying 404 to
+    # automated traffic. Not one of those is evidence a notice does not exist.
+    #
+    # The guard already returns the right answer for both of the reason
+    # strings reviewer 2 produced ("URL is dead and no official page found",
+    # "URL not found and no official page found"). It was simply never asked.
+    #
+    # Deliberately NOT the escalation reviewer 1 gained on 2026-09-25: that
+    # promotes a row because the guard has confirmed its URL, which is
+    # reviewer 1's job. Reviewer 2 judges CONTENT, and a refusal here means
+    # "do not discard this — look at it again", nothing more. The refusal is
+    # counted into Notes so the row's history stays readable from the sheet.
+    try:
+        from pipeline._url_guard import reject_refusal as _reject_refusal
+    except Exception:                                            # noqa: BLE001
+        def _reject_refusal(row, reason):                        # type: ignore
+            """Fail SAFE: with no guard module, do not DISCARD a row that
+            carries a URL on the strength of a not-found reason. Cruder than
+            the real guard — it cannot tell an authority host from any other
+            — and biased towards keeping the row, because a row left in
+            Pending is reviewed again tomorrow and a row archived is gone."""
+            import re as _re
+            if not str((row or {}).get("URL") or "").strip():
+                return ""
+            if not _re.search(r"not\s+found|no\s+official|is\s+dead|dead\s+link"
+                              r"|could\s+not\s+(find|locate|reach|access)"
+                              r"|unable\s+to\s+(find|locate|reach|access)"
+                              r"|404|403|robots", str(reason or ""), _re.I):
+                return ""
+            return ("pipeline/_url_guard.py is not importable — refusing to "
+                    "discard a row that has a URL, on a not-found reason")
+
     for merged, review in results["reject"]:
         idx = url_to_idx.get(str(merged.get("URL", "")).strip())
-        if idx is not None:
-            rejected_flags[idx] = f"Review agent: {review.get('reason','')[:280]}"
+        if idx is None:
+            continue
+        _why = str(review.get("reason", ""))
+        _row = full_pending[idx]
+        _ref = _reject_refusal(_row, _why)
+        if _ref:
+            print(f"  [url-guard] reject refused: {_ref}")
+            _notes = str(_row.get("Notes") or "").strip()
+            _tag = (f"[url-guard {today_iso}: reviewer 2 tried to reject this "
+                    f"row as {_why[:110]!r}; refused — {_ref[:160]} Left in "
+                    f"Pending for a later run.]")
+            _room = 1000 - len(_tag) - 1
+            _row["Notes"] = ((_notes[:_room].rstrip() + " " + _tag).strip()
+                             if _room > 0 else _tag[:1000])
+            continue
+        rejected_flags[idx] = f"Review agent: {_why[:280]}"
 
     # retry (infra failure) → leave the row COMPLETELY untouched in Pending.
     # Do not change status, do not reject. The next scheduled run retries it.
