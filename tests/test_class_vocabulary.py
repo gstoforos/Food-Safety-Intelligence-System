@@ -82,6 +82,7 @@ ALLOWED = {
     "Sanitary alert",
     "Sanitary alert (update)",
     "Voluntary",
+    "Withdrawal",                     # GIS (PL) notice type, published 2026-09-10
     "Voluntary recall",
 }
 

@@ -113,7 +113,10 @@ NOT_YET_RUN = {
     # regulator's own notice. Until that lands they are live, freshness-
     # checked, and contributing nothing. That is a coverage gap stated
     # honestly, which is better than a grace period hiding it.
-    "jp": "2026-09-23", "ph": "2026-09-23",
+    # ph LEFT on 2026-09-26 (nightly operator review): its gap-finder shard
+    # has now run and produced a run_log, so like sg/hk/br/kr/tw above it is
+    # held to the ordinary 14-day freshness bar instead of the grace period.
+    "jp": "2026-09-23",
     "id": "2026-09-23", "vn": "2026-09-23",
     # Latin America — replacing scrapers silent since 06-26 (mx), 06-27 (br)
     "mx": "2026-09-23", "co": "2026-09-23",

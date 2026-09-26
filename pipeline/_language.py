@@ -722,6 +722,31 @@ _RAW_TRANSLATIONS = {
     # guessing. Translated here instead, from the notification's own text.
     "Salmonella spp in care pasare, origine Brazilia // Salmonela spp in chicken meat from Brasil; risk: serious; category: poultry meat and poultry meat products":
         "Salmonella spp. in poultry meat from Brazil; risk: serious; category: poultry meat and poultry meat products",
+
+    # ── Nightly operator review, 2026-09-26: 4 published Reasons still
+    #    untranslated, plus one already-split RASFF bilingual whose surviving
+    #    "English" half still carried a trailing French clause ─────────────
+    "Par mesure de précaution, le magasin procède à un rappel du produit "
+    "ci-dessous, en raison d'une présence Listeria monocytogènes":
+        "As a precautionary measure, the store is recalling the product "
+        "below due to the presence of Listeria monocytogenes",
+    "Detection of Listeria mono sur autocontrôle":
+        "Detection of Listeria monocytogenes via own-check testing",
+    "Les analyses réalisées sur un lot de cuisses de poulet marinées au "
+    "paprika ont révélé la présence de Salmonella. par mesure de "
+    "précaution, l'entreprise procède au rappel des produits.":
+        "Testing on a batch of paprika-marinated chicken thighs revealed "
+        "the presence of Salmonella. As a precautionary measure, the "
+        "company is recalling the products.",
+    "Presence of listéria monocytogène (inférieur à 10 ufc/g)":
+        "Presence of Listeria monocytogenes (below 10 CFU/g)",
+    # The English half split_bilingual() correctly isolated for the SARL
+    # La Gare du Terroir pumpkin-seed fiche still ended in a French clause
+    # the source's own "English" text carried verbatim.
+    "Salmonella detected. Risk statement on the notice: Salmonella spp, "
+    "agent responsable de la salmonellose.":
+        "Salmonella detected. Risk statement on the notice: Salmonella "
+        "spp, the organism responsible for salmonellosis.",
 }
 
 REASON_EN: Dict[str, str] = {_norm_key(k): v for k, v in _RAW_TRANSLATIONS.items()}

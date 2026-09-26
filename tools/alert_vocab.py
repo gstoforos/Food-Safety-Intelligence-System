@@ -125,7 +125,7 @@ PATHOGEN: dict[str, list[str]] = {
                                      "phytoplankton"],              # 8
     "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol",
                                 "muscaria", "hydrocyanic", "cyanogenic",
-                                "solanine", "tropane"],             # 3
+                                "solanine", "tropane", "pyrrolizidine"],  # 4
 
     # --- chemical -------------------------------------------------------
     "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury",
@@ -175,6 +175,14 @@ PATHOGEN: dict[str, list[str]] = {
         "without benefit of inspection", "produced without inspection",
         "false inspection mark", "false mark of inspection",
         "false usda mark", "hazard not assessed"],                  # 4
+
+    # Added 2026-09-26, with the hazard class itself. A RappelConso row
+    # (Carrefour France, fiche 23535) names no organism at all — "suspected
+    # microbiological contamination" — and reached the register with no
+    # subscriber term able to see it, same shape as the inspection gap above.
+    "Other biological contaminants": ["unspecified microbiological",
+                                      "autres contaminants biologiques",
+                                      "other biological contaminant"],  # 1
 }
 
 # Terms REMOVED from the old alerts.html list on 2026-09-14 and why. Kept here
@@ -317,7 +325,7 @@ COUNTRY: list[str] = [
     "Czechia", "Denmark", "Ecuador", "Egypt", "Estonia", "Ethiopia",
     "Finland", "France", "Georgia", "Germany", "Greece", "Hong Kong",
     "Hungary", "India", "Indonesia", "Iran", "Ireland", "Italy", "Japan",
-    "Kenya", "Korea, South", "Kosovo", "Latvia", "Lithuania", "Madagascar",
+    "Kenya", "Korea, South", "Kosovo", "Latvia", "Lebanon", "Lithuania", "Madagascar",
     "Malawi", "Mexico", "Morocco", "Nepal", "Netherlands", "New Zealand",
     "Nicaragua", "Nigeria", "Norway", "Pakistan", "Panama", "Peru",
     "Philippines", "Poland", "Portugal", "Romania", "Rwanda", "Serbia",

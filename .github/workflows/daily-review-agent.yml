@@ -142,9 +142,16 @@ jobs:
               subprocess.run([sys.executable, "docs/build_monthly_report_afts.py",
                               "--month-end", mend[m], "--xlsx", "docs/data/recalls.xlsx"],
                              check=False)
-              subprocess.run([sys.executable, "-m", "pipeline.build_monthly_marketing",
-                              "--summary", "docs/data/monthly-summary-latest.json",
-                              "--out-dir", "docs/marketing"], check=False)
+              # M01/M02 are HTML-only by standing rule (see
+              # daily_review_agent.build_asset_integrity's "unexpected_pdf_link"
+              # check) — building a marketing PDF for them is exactly the
+              # defect that check exists to catch. Found 2026-09-26: this
+              # rebuild loop was the uncaught source of it, so the asset
+              # check kept firing on M01 with nothing upstream ever fixed.
+              if m not in ("M01", "M02"):
+                  subprocess.run([sys.executable, "-m", "pipeline.build_monthly_marketing",
+                                  "--summary", "docs/data/monthly-summary-latest.json",
+                                  "--out-dir", "docs/marketing"], check=False)
               rebuilt["monthlies"].append(m)
 
           if rebuilt["monthlies"]:

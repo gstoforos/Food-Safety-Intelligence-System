@@ -219,6 +219,12 @@ HAZARD_CLASS_KEYWORDS = {
         # "pathogen-parasitic" — it was simply missing here.
         "cyclospora", "cryptosporidium", "giardia", "trichinella",
         "anisakis", "toxoplasma", "taenia", "echinococcus",
+        # AUDIT 2026-09-26 — a RappelConso row whose Pathogen names no
+        # specific organism ("Unspecified microbiological contamination")
+        # had no hazard class either, same failure shape as the parasite gap
+        # above: a real biological hazard that just didn't name a genus.
+        "unspecified microbiological", "autres contaminants biologiques",
+        "other biological contaminant",
     ),
     "physical": (
         "foreign matter", "foreign material", "foreign body",
@@ -346,6 +352,11 @@ HAZARD_CLASS_KEYWORDS = {
         # or not the notice names the specific molecule.
         "amanita", "muscimol", "mushroom toxin", "phytoplankton",
         "lipophilic biotoxin", "shellfish toxin",
+        # AUDIT 2026-09-26 — a GIS (PL) row named "Pyrrolizidine alkaloids"
+        # (plant-produced toxins, e.g. in herbal teas) had no hazard class at
+        # all and the curator refused to touch it, same failure shape as the
+        # Amanita/mushroom-toxin gap above.
+        "pyrrolizidine",
     ),
     # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
     # "fish") must NOT appear here: RASFF Reason text routinely carries

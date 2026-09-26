@@ -729,7 +729,7 @@ var PATHOGEN_VOCAB = {
   "Mycotoxins (other)": ["mycotoxin", "fumonisin", "citrinin", "ergot"],
   "Histamine / scombrotoxin": ["histamine", "scombrotox"],
   "Marine / shellfish biotoxins": ["marine biotoxin", "biotoxin", "shellfish toxin", "paralytic shellfish", "lipophilic", "okadaic", "domoic", "saxitoxin", "tetrodotoxin", "ciguatoxin", "ciguatera", "phytoplankton"],
-  "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol", "muscaria", "hydrocyanic", "cyanogenic", "solanine", "tropane"],
+  "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol", "muscaria", "hydrocyanic", "cyanogenic", "solanine", "tropane", "pyrrolizidine"],
   "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury", "arsenic", "molybdenum"],
   "Pesticide / veterinary residues": ["pesticide", "veterinary medicine", "veterinary chemical", "penicillin", "nitrofurazone", "chloramphenicol", "rodenticide", "residue"],
   "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin", "ethylene oxide", "mineral oil", "moah", "mosh", "acrylamide", "melamine", "chemical hazard"],
@@ -739,6 +739,7 @@ var PATHOGEN_VOCAB = {
   "Rodent / pest contamination": ["rodent", "mouse contamination", "rat poison", "insect", "pest infestation"],
   "Process deviation (sterilisation / pasteurisation)": ["sterilization", "sterilisation", "pasteurization", "pasteurisation", "process deviation"],
   "Uninspected product / false inspection mark": ["uninspected", "without the benefit of inspection", "without the benefit of federal inspection", "without benefit of inspection", "produced without inspection", "false inspection mark", "false mark of inspection", "false usda mark", "hazard not assessed"],
+  "Other biological contaminants": ["unspecified microbiological", "autres contaminants biologiques", "other biological contaminant"],
 };
 
 var PRODUCT_VOCAB = {
@@ -779,11 +780,11 @@ var COUNTRY_LIST = [
   "Czechia", "Denmark", "Ecuador", "Egypt", "Estonia", "Ethiopia",
   "Finland", "France", "Georgia", "Germany", "Greece", "Hong Kong",
   "Hungary", "India", "Indonesia", "Iran", "Ireland", "Italy", "Japan",
-  "Kenya", "Korea, South", "Kosovo", "Latvia", "Lithuania", "Madagascar",
-  "Malawi", "Mexico", "Morocco", "Nepal", "Netherlands", "New Zealand",
-  "Nicaragua", "Nigeria", "Norway", "Pakistan", "Panama", "Peru",
-  "Philippines", "Poland", "Portugal", "Romania", "Rwanda", "Serbia",
-  "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain",
+  "Kenya", "Korea, South", "Kosovo", "Latvia", "Lebanon", "Lithuania",
+  "Madagascar", "Malawi", "Mexico", "Morocco", "Nepal", "Netherlands",
+  "New Zealand", "Nicaragua", "Nigeria", "Norway", "Pakistan", "Panama",
+  "Peru", "Philippines", "Poland", "Portugal", "Romania", "Rwanda",
+  "Serbia", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain",
   "Sri Lanka", "Sweden", "Switzerland", "Syria", "Taiwan", "Thailand",
   "Turkey", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
   "United States", "Uruguay", "Uzbekistan", "Vietnam",
