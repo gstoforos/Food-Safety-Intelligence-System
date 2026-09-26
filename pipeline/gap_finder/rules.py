@@ -575,6 +575,46 @@ def _normalize(text: str) -> str:
     return text
 
 
+def _normalize_keep_accents(text: str) -> str:
+    """Lowercase and collapse whitespace, but KEEP diacritics.
+
+    Added 2026-09-26. _normalize strips accents so that a source writing
+    "aflatossina" matches "aflatoxin". For terms of four characters or fewer
+    that is too blunt: stripping the accent turns a word in one language into
+    a completely different, very common word in another.
+
+    Measured on the register the day this was written — ten published rows
+    whose ENTIRE Pathogen field is one of these tokens:
+
+        'ble'  x3, all Norway.  French "blé" (wheat) normalises to "ble",
+               which is Norwegian for "was" — among the commonest words in
+               the language. One of the three is Baza Nordic's sauerkraut
+               recall for GLASS PARTICLES, filed as
+               "Undeclared allergen — out of scope" with Pathogen "ble".
+        'tej'  x1, Poland.  Hungarian "tej" (milk) against Polish "tej
+               partii" ("of this batch").
+        'lead' x5, Nigeria and Hong Kong.  The English metal against the
+               English verb. One is a notice about excessive AFLATOXIN.
+        'agg'  x1, Sweden.  Swedish "ägg" — a genuine egg recall, and the
+               only true positive of the ten.
+
+    Word boundaries were already in place and did not help: these are
+    homographs, not substrings. The repo has met this shape twice before —
+    _FM_BOUND exists so "stone" does not match "Blackstone", and
+    tests/test_hav_substring_regression.py guards a three-letter
+    hepatitis-A abbreviation that once matched the word "have" on every FSIS
+    notice. Boundaries fix the substring half; only keeping the accent, or
+    anchoring the word, fixes the homograph half.
+
+    (That guard scans for the quoted token on any line not starting with a
+    "#" — a docstring counts. Naming it here in quotes is how this paragraph
+    first failed the suite, which is a fair demonstration of the point.)
+    """
+    if not text:
+        return ""
+    return re.sub(r"\s+", " ", text.lower().strip())
+
+
 def _normalize_set(keywords: set[str]) -> set[str]:
     return {_normalize(k) for k in keywords}
 
@@ -584,9 +624,53 @@ _PATHOGENS_T1_N = _normalize_set(PATHOGENS_TIER_1)
 _PATHOGENS_T2_N = _normalize_set(PATHOGENS_TIER_2)
 _MICROBIAL_TOXINS_N = _normalize_set(MICROBIAL_TOXINS)
 _NATURAL_TOXINS_N = _normalize_set(NATURAL_TOXINS)
+# ── Homograph protection (2026-09-26) ────────────────────────────────────
+#
+# Short terms that must be matched WITH their diacritics, against text that
+# has been lowercased but not accent-stripped. See _normalize_keep_accents
+# for the ten rows that made this necessary. Derived rather than hand-listed,
+# so a new accented short term in any vocabulary is covered automatically.
+_ACCENT_STRICT: dict[str, str] = {}
+for _src in (ALLERGENS, HEAVY_METALS, FOREIGN_MATTER, NATURAL_TOXINS,
+             MICROBIAL_TOXINS, SYNTHETIC_CHEMICALS,
+             PATHOGENS_TIER_1, PATHOGENS_TIER_2):
+    for _t in _src:
+        _low = _t.lower()
+        _flat = _normalize(_t)
+        if len(_flat) <= 4 and _flat != _low:
+            _ACCENT_STRICT[_flat] = _low
+del _src, _t, _low, _flat
+
+# Terms that carry NO accent to protect them and collide with a common word
+# in the same language. Replaced by anchored phrases, exactly as
+# scrapers/_pathogen_vocab.py already does for lead ("anchored phrases to
+# reduce false positives") — this module simply never got that treatment.
+#
+#   "lead"  the metal vs the verb. Five rows, including a Hong Kong notice
+#           about excessive aflatoxin filed with Pathogen "lead".
+#   "tin"   the metal vs the container. A product "canned in a tin" would
+#           classify as a heavy-metal recall.
+#   "tej"   Hungarian milk vs Polish "tej" ("of this"). Dropped rather than
+#           anchored: ALLERGENS already carries tejfehérje and tejtermék, and
+#           the cost asymmetry favours missing it. A false allergen match
+#           REJECTS a real recall; a missed Hungarian milk allergen merely
+#           lets an allergen row through, and the register's own allergen
+#           gate refuses it downstream anyway.
+_UNANCHORED_HOMOGRAPHS = {"lead", "tin", "tej"}
+_ANCHORED_REPLACEMENTS = {
+    "lead contamin", "elevated lead", "levels of lead", "lead in product",
+    "excess lead", "excessive lead", "high lead",
+    "tin contamin", "excess tin", "levels of tin",
+}
+
+
 _ALLERGENS_N = _normalize_set(ALLERGENS)
 _SYNTHETIC_CHEMICALS_N = _normalize_set(SYNTHETIC_CHEMICALS)
-_HEAVY_METALS_N = _normalize_set(HEAVY_METALS)
+# The anchored lead/tin phrases replace the bare tokens that
+# _UNANCHORED_HOMOGRAPHS now refuses. Added to the NORMALISED set directly so
+# the source vocabulary stays a plain word list.
+_HEAVY_METALS_N = _normalize_set(HEAVY_METALS) | {
+    _normalize(_p) for _p in _ANCHORED_REPLACEMENTS}
 _FOREIGN_MATTER_N = _normalize_set(FOREIGN_MATTER)
 
 # Short English foreign-matter nouns that need word-boundary matching even
@@ -598,8 +682,10 @@ _FOREIGN_MATTER_N = _normalize_set(FOREIGN_MATTER)
 _FM_BOUND = {"stone", "glass", "insect", "rubber"}
 
 
+
 def _contains_any(haystack: str, needles: set[str],
-                  bound_extra: Optional[set[str]] = None) -> Optional[str]:
+                  bound_extra: Optional[set[str]] = None,
+                  _haystack_accented: str = "") -> Optional[str]:
     """Return first matching needle, or None.
 
     Short terms (≤4 chars, e.g. 'tin', 'don', 'pcb') use word-boundary matching
@@ -615,9 +701,25 @@ def _contains_any(haystack: str, needles: set[str],
     the call site (foreign_matter, heavy_metal).
     """
     bound_extra = bound_extra or set()
+    # The same text, lowercased but with diacritics intact, for the short
+    # accented terms. Built once per call; cheap next to the regex loop.
+    haystack_accented = _haystack_accented or ""
     # Pre-compile word-boundary regexes for short terms (cached at module load)
     for needle in needles:
         if not needle:
+            continue
+        # A term that collides with a common word once de-accented is tested
+        # against the ACCENTED text instead, so French "blé" no longer
+        # matches Norwegian "ble".
+        if needle in _ACCENT_STRICT:
+            _acc = _ACCENT_STRICT[needle]
+            if haystack_accented and re.search(
+                    r"(?<![^\W\d_])" + re.escape(_acc) + r"(?![^\W\d_])",
+                    haystack_accented):
+                return _acc
+            continue
+        # Homographs with no accent to protect them: never match bare.
+        if needle in _UNANCHORED_HOMOGRAPHS:
             continue
         if needle in bound_extra:
             # English-noun word-boundary match with optional plural suffix
@@ -706,6 +808,7 @@ def classify(
     scope under Rule B.
     """
     blob = _normalize(f"{pathogen} {reason} {product}")
+    blob_acc = _normalize_keep_accents(f"{pathogen} {reason} {product}")
 
     # Out-of-scope REJECT checks (foreign matter / heavy metals / synthetic
     # chemicals) run on the HAZARD text only — NOT the product/packaging
@@ -717,9 +820,11 @@ def classify(
     # wrap PHA was wrongly rejected as foreign_matter on its "clear plastic
     # wrapped packages" product text.)
     reject_blob = _normalize(f"{pathogen} {reason}")
+    reject_blob_acc = _normalize_keep_accents(f"{pathogen} {reason}")
 
     # ── UNAMBIGUOUS REJECT path (glass, heavy metals, synthetic chemicals) ─
-    m = _contains_any(reject_blob, _FOREIGN_MATTER_N, bound_extra=_FM_BOUND)
+    m = _contains_any(reject_blob, _FOREIGN_MATTER_N, bound_extra=_FM_BOUND,
+                     _haystack_accented=reject_blob_acc)
     if m:
         return Classification(
             verdict="reject", category="foreign_matter", tier=None,
@@ -727,7 +832,8 @@ def classify(
             outbreak_qualifies=False,
         )
 
-    m = _contains_any(reject_blob, _HEAVY_METALS_N)
+    m = _contains_any(reject_blob, _HEAVY_METALS_N,
+                     _haystack_accented=reject_blob_acc)
     if m:
         return Classification(
             verdict="reject", category="heavy_metal", tier=None,
@@ -735,7 +841,8 @@ def classify(
             outbreak_qualifies=False,
         )
 
-    m = _contains_any(reject_blob, _SYNTHETIC_CHEMICALS_N)
+    m = _contains_any(reject_blob, _SYNTHETIC_CHEMICALS_N,
+                     _haystack_accented=reject_blob_acc)
     if m:
         return Classification(
             verdict="reject", category="synthetic_chemical", tier=None,
@@ -747,7 +854,8 @@ def classify(
     # ── ACCEPT path (pathogens & toxins — more specific than allergen mention) ─
     outbreak = detect_outbreak(reason)
 
-    m = _contains_any(blob, _PATHOGENS_T1_N)
+    m = _contains_any(blob, _PATHOGENS_T1_N,
+                     _haystack_accented=blob_acc)
     if m:
         return Classification(
             verdict="accept", category="pathogen", tier=1,
@@ -757,7 +865,8 @@ def classify(
             outbreak_qualifies=outbreak,
         )
 
-    m = _contains_any(blob, _PATHOGENS_T2_N)
+    m = _contains_any(blob, _PATHOGENS_T2_N,
+                     _haystack_accented=blob_acc)
     if m:
         # Outbreak with case counts elevates to Tier 1
         tier = 1 if outbreak else 2
@@ -768,7 +877,8 @@ def classify(
             outbreak_qualifies=outbreak,
         )
 
-    m = _contains_any(blob, _MICROBIAL_TOXINS_N)
+    m = _contains_any(blob, _MICROBIAL_TOXINS_N,
+                     _haystack_accented=blob_acc)
     if m:
         return Classification(
             verdict="accept", category="microbial_toxin", tier=2,
@@ -777,7 +887,8 @@ def classify(
             outbreak_qualifies=outbreak,
         )
 
-    m = _contains_any(blob, _NATURAL_TOXINS_N)
+    m = _contains_any(blob, _NATURAL_TOXINS_N,
+                     _haystack_accented=blob_acc)
     if m:
         return Classification(
             verdict="accept", category="natural_toxin", tier=2,
@@ -787,7 +898,8 @@ def classify(
         )
 
     # ── ALLERGEN REJECT (last resort — only if no pathogen/toxin matched) ──
-    m = _contains_any(blob, _ALLERGENS_N)
+    m = _contains_any(blob, _ALLERGENS_N,
+                     _haystack_accented=blob_acc)
     if m:
         return Classification(
             verdict="reject", category="allergen", tier=None,
