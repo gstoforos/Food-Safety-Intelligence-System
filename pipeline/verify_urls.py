@@ -51,6 +51,7 @@ Usage
 from __future__ import annotations
 
 import argparse
+import datetime as _dt
 import collections
 import re
 import sys
@@ -58,7 +59,7 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -111,6 +112,61 @@ _RASFF_PATH = re.compile(r"/rasff-window/screen/notification/([^/?#]+)")
 _RASFF_REF_IN_NOTES = re.compile(r"notifId=(\d+)")
 
 
+def _host_matches(host: str, domain: str) -> bool:
+    """Delegate to the canonical host test in _publish_gate.
+
+    Imported lazily and defensively: this module is run standalone from a
+    workflow step, and if the import were to fail at module scope the whole
+    check would vanish silently. On failure this falls back to exact-or-
+    subdomain — which is the CORRECT rule, merely without the normalisation
+    — so a broken import can never restore the substring hole.
+    """
+    try:
+        from pipeline._publish_gate import host_matches_domain
+        return host_matches_domain(host, domain)
+    except Exception:                              # pragma: no cover
+        h, d = (host or "").lower(), (domain or "").lower()
+        return h == d or h.endswith("." + d)
+
+
+def repair_rasff_reference(row: Dict[str, Any]) -> Optional[str]:
+    """The corrected URL for a RASFF row addressed by REFERENCE, or None.
+
+    This is the one finding in this module that can be repaired offline and
+    without inventing anything, because the row already carries the answer.
+    The RASFF collector stamps the notification id into Notes at scrape time:
+
+        [RASFF #2026.4017; classification: alert notification;
+         category: nuts, nut products and seeds; notifId=842548]
+
+    So the numeric id is the row's OWN provenance, recorded when the
+    notification was read. Rewriting the path segment from 2026.4017 to
+    842548 does not change the format — it puts the value our format has
+    always called for where the reference was written by mistake.
+
+    HISTORY, because this was wrong in the repo for six weeks:
+    tests/test_publish_gate.py pinned these seven rows on 2026-08-14 with
+    the reasoning that RASFF Window is a JavaScript application returning an
+    empty shell to a server-side fetch, so "the numeric id cannot be looked
+    up and guessing would be fabrication". The first half is true and the
+    conclusion did not follow: nobody needed to look the id up or guess it,
+    because the collector had already written it into the row. The pin
+    reasoned about the network and never read the Notes column.
+
+    Returns None whenever anything is missing or already correct, so the
+    caller can never write a half-known URL.
+    """
+    url = str(row.get("URL") or "").strip()
+    m = _RASFF_PATH.search(url)
+    if not m or m.group(1).isdigit():
+        return None
+    noted = _RASFF_REF_IN_NOTES.search(str(row.get("Notes") or ""))
+    if not noted:
+        return None
+    return url.replace("/notification/" + m.group(1),
+                       "/notification/" + noted.group(1), 1)
+
+
 def _host(url: str) -> str:
     """Hostname, lowercased, with a leading 'www.' removed.
 
@@ -144,8 +200,14 @@ def structural_findings(row: Dict[str, Any]) -> List[str]:
     allowed = HOST_FOR_SOURCE.get(source)
     if allowed:
         host = _host(url)
-        if not any(host == a or host.endswith("." + a) or a in host
-                   for a in allowed):
+        # 2026-09-27: this test used to end in `or a in host` — a bare
+        # SUBSTRING containment check, so "fda.gov.evil.example" satisfied
+        # "fda.gov". The identical defect was removed from
+        # _publish_gate.host_matches_domain the same day, and that function
+        # declares itself THE ONE CANONICAL HOST TEST — which it was not,
+        # while this second copy carried the bug. Now there is one
+        # implementation and this module calls it.
+        if not any(_host_matches(host, a) for a in allowed):
             out.append(
                 f"host {host!r} does not belong to Source {source!r} "
                 f"(expected one of {list(allowed)}) — the row cites a "
@@ -212,6 +274,10 @@ def main() -> int:
                     help="also check reachability (needs outbound HTTPS)")
     ap.add_argument("--delay", type=float, default=0.3)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--apply", action="store_true",
+                    help="repair the RASFF reference-style URLs in place from "
+                         "each row's own notifId (offline; no other finding "
+                         "class is ever auto-repaired)")
     args = ap.parse_args()
 
     import openpyxl
@@ -266,6 +332,47 @@ def main() -> int:
         print("\n(reachability not checked — pass --live in CI, where "
               "outbound HTTPS needs no approval. Structural checks above are "
               "complete and need no network.)")
+
+    if args.apply:
+        print("\n--apply : repairing RASFF reference-style URLs from each "
+              "row's own notifId")
+        repairs = []
+        for row in data:
+            fixed = repair_rasff_reference(row)
+            if fixed:
+                repairs.append((str(row.get("URL")).strip(), fixed,
+                                str(row.get("Date")), str(row.get("Company"))))
+        if not repairs:
+            print("    nothing to repair")
+        else:
+            import openpyxl as _ox
+            wb2 = _ox.load_workbook(args.xlsx)          # writable
+            ws = wb2[args.sheet]
+            head = [str(c.value) for c in ws[1]]
+            ucol = head.index("URL") + 1
+            ncol = head.index("Notes") + 1
+            by_old = {old: (new, d, c) for old, new, d, c in repairs}
+            written = 0
+            for r in range(2, ws.max_row + 1):
+                cur = str(ws.cell(r, ucol).value or "").strip()
+                if cur in by_old:
+                    new_url = by_old[cur][0]
+                    ws.cell(r, ucol).value = new_url
+                    stamp = (f"[url-repair {_dt.date.today().isoformat()}: "
+                             f"RASFF reference -> notifId from this row's own "
+                             f"Notes; format unchanged]")
+                    prev = str(ws.cell(r, ncol).value or "")
+                    if stamp not in prev:
+                        ws.cell(r, ncol).value = (prev + " " + stamp).strip()
+                    written += 1
+            wb2.save(args.xlsx)
+            for old_u, new_u, d, c in repairs:
+                print(f"    {d}  {c[:34]}")
+                print(f"        {old_u.rsplit('/', 1)[-1]}  ->  "
+                      f"{new_u.rsplit('/', 1)[-1]}")
+            print(f"    {written} row(s) repaired in {args.xlsx}")
+            print("    NOTE: run pipeline/mirror_json_from_xlsx.py so "
+                  "docs/data/recalls.json matches.")
 
     return 1 if flagged else 0
 
