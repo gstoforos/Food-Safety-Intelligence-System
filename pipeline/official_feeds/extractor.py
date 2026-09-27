@@ -140,7 +140,7 @@ Rules:
 7. For chemicals exceeding regulatory limits, include 'exceeding limit' in pathogen_en (e.g. 'Coumarin exceeding limit').
 8. For undeclared allergens, format as 'Undeclared <allergen>' (e.g. 'Undeclared wheat').
 9. Articles may contain background info (e.g. 'Listeriosis is rare but severe...'). Ignore background; extract ONLY the specific recall facts (this brand, this product, this lot, this hazard).
-10. If the article mentions a recall reference number issued by {cfg.authority_short} (e.g. 'allerta 842632', 'numero pratica 12345'), include it in reason_en (e.g. 'Recall ID 842632')."""
+10. If — and ONLY if — the article itself prints a recall reference number issued by {cfg.authority_short}, append it to reason_en AFTER a full description of the hazard, never instead of one. reason_en must describe what is wrong with the food even when no reference number exists. NEVER copy the illustrative digits below into your answer; they are a FORMAT example, not data. Format: '<hazard description> (Recall ID <the number printed in the article>)'."""
 
 
 # Legacy module-level alias for Greek (kept for any importers expecting SYSTEM_PROMPT)
