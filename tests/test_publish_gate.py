@@ -559,6 +559,33 @@ class TestWorkbookStaysClean(unittest.TestCase):
         # 22204 -> 22206 — so there is no authoritative record to repair it
         # from, and guessing is the failure this gate exists to prevent.
         "fiche-rappel/22205",   # Listeria mc <- aflatoxin / corn wafers (SK)
+        # ── Added 2026-09-27 with rule 6f-bis (Product names a product) ──
+        # Fiche 23602 — Super U de Truchtersheim, Listeria monocytogenes,
+        # Tier 1, published 2026-09-25 — carries Product exactly "//".
+        # An operator spotted it on the live dashboard; the new rule found
+        # it the moment it was wired in, which is the rule doing its job.
+        #
+        # The name is NOT recoverable from the row: every enrichment axis
+        # came back "unknown", and the Reason is the RappelConso boilerplate
+        # "le magasin procède à un rappel du produit ci-dessous" — the
+        # product below — which lives in a fiche field the scraper did not
+        # capture. Inventing one is the fabrication this gate exists to stop.
+        #
+        # IT IS REPAIRABLE, AUTHORITATIVELY, AND THE TOOL ALREADY EXISTS.
+        # pipeline/verify_rappelconso.py reconciles a fiche against the
+        # DGCCRF open-data record, whose primary key is the fiche id, and
+        # its own docstring says it "never invents: it will not write a
+        # Company or Product that the open data does not carry". One
+        # command repairs this row:
+        #
+        #     python -m pipeline.verify_rappelconso --fiche 23602 --apply
+        #
+        # It is not run here because tabular-api.data.gouv.fr is not
+        # reachable from the audit environment. It is not run anywhere
+        # else either: that module is dispatched by NO workflow and NO
+        # scheduler slot, which is why a French row can sit mis-scraped.
+        # RappelConso is the register's largest single source.
+        "fiche-rappel/23602",   # Product "//" — run verify_rappelconso
     })
 
     def test_no_NEW_row_violates_the_gate(self):
