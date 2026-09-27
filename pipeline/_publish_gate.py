@@ -219,6 +219,12 @@ HAZARD_CLASS_KEYWORDS = {
         # "pathogen-parasitic" — it was simply missing here.
         "cyclospora", "cryptosporidium", "giardia", "trichinella",
         "anisakis", "toxoplasma", "taenia", "echinococcus",
+        # AUDIT 2026-09-26 — a RappelConso row whose Pathogen names no
+        # specific organism ("Unspecified microbiological contamination")
+        # had no hazard class either, same failure shape as the parasite gap
+        # above: a real biological hazard that just didn't name a genus.
+        "unspecified microbiological", "autres contaminants biologiques",
+        "other biological contaminant",
     ),
     "physical": (
         "foreign matter", "foreign material", "foreign body",
@@ -346,6 +352,11 @@ HAZARD_CLASS_KEYWORDS = {
         # or not the notice names the specific molecule.
         "amanita", "muscimol", "mushroom toxin", "phytoplankton",
         "lipophilic biotoxin", "shellfish toxin",
+        # AUDIT 2026-09-26 — a GIS (PL) row named "Pyrrolizidine alkaloids"
+        # (plant-produced toxins, e.g. in herbal teas) had no hazard class at
+        # all and the curator refused to touch it, same failure shape as the
+        # Amanita/mushroom-toxin gap above.
+        "pyrrolizidine",
     ),
     # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
     # "fish") must NOT appear here: RASFF Reason text routinely carries
@@ -630,6 +641,44 @@ def looks_like_a_headline(company: str) -> bool:
 from datetime import date as _date  # rule 6c
 
 
+def host_matches_domain(host: str, domain: str) -> bool:
+    """True when `host` IS `domain` or a genuine subdomain of it.
+
+    THE ONE CANONICAL HOST TEST. Added 2026-09-27 to replace a three-way
+    disjunction of: equality, a suffix test, and — the defect — a bare
+    SUBSTRING containment test. The first two are
+    correct; the third accepted any host that merely contained the domain
+    anywhere, so an FDA-labelled row citing
+
+        https://fda.gov.evil.example/recall/123
+
+    passed the gate that exists to prove the regulator published the
+    notice. `"fda.gov" in "fda.gov.evil.example"` is True, and a
+    lookalike host is exactly what an authority-URL rule is for.
+
+    Both sides are normalised: lowercased, port stripped, trailing dot
+    stripped, and a leading "www." removed, because the allow-list mixes
+    "fda.gov" with "www.fsis.usda.gov" and a host should match either
+    spelling of its own domain. Nothing else is tolerated — in
+    particular, a domain appearing as a PREFIX of a longer registrable
+    name never matches.
+
+    The same defect, in the same shape, was fixed in
+    review/url_validator._is_tolerated_host on 2026-09-26; that one
+    compared hostnames exactly where it should have matched suffixes,
+    this one matched substrings where it should have matched suffixes.
+    Both are now suffix tests, and both refuse the lookalike.
+    """
+    def _norm(x: str) -> str:
+        x = (x or "").strip().lower().rstrip(".")
+        x = x.split("://")[-1].split("/")[0].split(":")[0]
+        return x[4:] if x.startswith("www.") else x
+
+    h, d = _norm(host), _norm(domain)
+    if not h or not d:
+        return False
+    return h == d or h.endswith("." + d)
+
 def publish_blockers(row: Dict[str, Any]) -> List[str]:
     """Return every reason this row must not be published. Empty == publishable.
 
@@ -728,8 +777,7 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
                 _allowed = HOST_FOR_SOURCE.get(str(row.get("Source") or "").strip())
                 if _allowed:
                     _h = _host(url)
-                    if not any(_h == a or _h.endswith("." + a) or a in _h
-                               for a in _allowed):
+                    if not any(host_matches_domain(_h, a) for a in _allowed):
                         problems.append(
                             f"URL host {_h!r} does not belong to Source "
                             f"{str(row.get('Source'))!r} (expected one of "
@@ -909,6 +957,26 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
             f"Product is a fragment of the notice headline "
             f"({str(row.get('Product'))[:60]!r}) — a product name does not "
             f"begin with a causal connector")
+
+    # 6g. Product must name something. Added 2026-09-27 after an operator
+    #     spotted it on the live dashboard: RappelConso fiche 23602 (Super U
+    #     de Truchtersheim, Listeria monocytogenes, 2026-09-25) is published
+    #     with Product exactly "//". It passed every check above — it is not
+    #     blank, it is not a headline fragment, it does not begin with a
+    #     causal connector — because nothing asked whether it contains a
+    #     single letter or digit.
+    #
+    #     A row whose Product is punctuation tells a subscriber nothing about
+    #     what to avoid, which is the one thing a recall notice is for. The
+    #     rule is deliberately narrow: at least one alphanumeric character,
+    #     in any script, so Greek, Cyrillic, Chinese and Japanese product
+    #     names all pass unchanged.
+    _prod = str(row.get("Product") or "").strip()
+    if _prod and not any(ch.isalnum() for ch in _prod):
+        problems.append(
+            f"Product contains no letter or digit ({_prod[:40]!r}) — it names "
+            f"no product, and a recall row that cannot say what to avoid is "
+            f"not publishable")
 
     # 7. Pathogen and Reason must not describe different hazard classes.
     #    See the 2026-08-02 incident in the module docstring: an invented
