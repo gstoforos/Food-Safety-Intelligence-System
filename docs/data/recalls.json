@@ -54,30 +54,30 @@
   "Brand": "Carrefour",
   "Product": "crevettes entières cuites réfrigérées élevage 40/60 300g bio litopenaeus vannamei",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Présence listéria monocytogènes",
+  "Reason": "Presence of Listeria monocytogenes.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23620/interne",
-  "Notes": "cora, carrefour [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent 2026-09-26: pending_gap_v2 → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "cora, carrefour [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent 2026-09-26: pending_gap_v2 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [agent nightly-operator proposal b2d9b38003baa066 applied 2026-09-27: Reason field was in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel.] [agent nightly-operator proposal b2d9b38003baa066 applied 2026-09-27: Reason field was in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel.]"
  },
  {
   "Date": "2026-09-25",
   "Source": "RappelConso (FR)",
   "Company": "Super U de Truchtersheim",
   "Brand": "Unbranded",
-  "Product": "//",
+  "Product": "Filet de hareng à l'ancienne vendu au rayon traditionnel poissonnerie",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Par mesure de précaution, le magasin procède à un rappel du produit ci-dessous, en raison d’une présence Listeria monocytogènes",
+  "Reason": "As a precaution, the store is recalling the product below due to the presence of Listeria monocytogenes.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23602/interne",
-  "Notes": "super u de truchtersheim [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent 2026-09-26: pending_gap_v2 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Reason not in English and no verified translation on file]"
+  "Notes": "super u de truchtersheim [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent 2026-09-26: pending_gap_v2 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Reason not in English and no verified translation on file] [agent nightly-operator proposal 710aeeac0e7c0933 applied 2026-09-27: Reason field was entirely in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel. Product field was literally '//' (a scraper/split artifact naming no product); replaced with the]"
  },
  {
   "Date": "2026-09-25",
@@ -182,14 +182,14 @@
   "Brand": "Yoleau",
   "Product": "spritz sans alcool fleur de sureau canette 25cl; spritz sans alcool orange amère canette 25cl",
   "Pathogen": "Physical/foreign-body contamination",
-  "Reason": "Défaut de la canette entraînant une perte d'étanchéité, susceptible d'altérer la qualité microbiologique du produit.",
+  "Reason": "Can defect causing a loss of seal integrity, which may compromise the microbiological quality of the product.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23555/interne",
-  "Notes": "carrefour (lot orange uniquement), potager city (lot fleur de sureau uniquement), cavistes et détaillants indépendants. [url-guard 2026-09-26: reviewer 1 tried to reject this row as 'No official regulator URL found'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-26: reviewer 1 tried to reject this row as 'No official regulator URL found' for the 2nd time; refused AND escalated — the URL is on the authority's own domain and is a specific page, not a listing. URL confirmed deterministically; Pathogen left empty because this path did not enrich.] [offline-enrich 2026-09-27: Pathogen '' -> 'Physical/foreign-body contamination', read from this row's own hazard text; no fetch, no model] [promote 2026-09-27: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Pathogen is empty | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed '; that defect is repaired and the row now passes every publish-gate rule]"
+  "Notes": "carrefour (lot orange uniquement), potager city (lot fleur de sureau uniquement), cavistes et détaillants indépendants. [url-guard 2026-09-26: reviewer 1 tried to reject this row as 'No official regulator URL found'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-26: reviewer 1 tried to reject this row as 'No official regulator URL found' for the 2nd time; refused AND escalated — the URL is on the authority's own domain and is a specific page, not a listing. URL confirmed deterministically; Pathogen left empty because this path did not enrich.] [offline-enrich 2026-09-27: Pathogen '' -> 'Physical/foreign-body contamination', read from this row's own hazard text; no fetch, no model] [promote 2026-09-27: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Pathogen is empty | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed '; that defect is repaired and the row now passes every publish-gate rule] [agent nightly-operator proposal 9e9e67d9f0cd4dc8 applied 2026-09-27: Reason field was entirely in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel.]"
  },
  {
   "Date": "2026-09-25",
@@ -214,14 +214,62 @@
   "Brand": "U",
   "Product": "jambon sec supérieur u 10 tranches 200 g",
   "Pathogen": "Ochratoxin A",
-  "Reason": "Non conformité chimique : présence identifiée d'd'ochratoxine a",
+  "Reason": "Chemical non-compliance: identified presence of ochratoxin A.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23628/interne",
-  "Notes": "magasins u [offline-enrich 2026-09-27: Pathogen '' -> 'Ochratoxin A', read from this row's own hazard text; no fetch, no model] [promote 2026-09-27: status 'pending_enrichment'->'pending' — passes every publish-gate rule]"
+  "Notes": "magasins u [offline-enrich 2026-09-27: Pathogen '' -> 'Ochratoxin A', read from this row's own hazard text; no fetch, no model] [promote 2026-09-27: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [agent nightly-operator proposal 2d088ea6c0d53a3b applied 2026-09-27: Reason field was entirely in French (and carried a duplicated-word typo, \"d'd'ochratoxine\"), against the English-output rule. Translated verbatim from the fiche's Motif du rappel.]"
+ },
+ {
+  "Date": "2026-09-25",
+  "Source": "RappelConso (FR)",
+  "Company": "GAEC La Maison Blanche",
+  "Brand": "Unbranded",
+  "Product": "fromages de chèvres ronds cendrés",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Potential presence of Shiga toxin-producing E. coli O103",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23622/interne",
+  "Notes": "vente directe à la ferme [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent hold: 2026-09-27: no recalling firm on the row (Brand 'Unbranded'); not published and not rejected — reviewer 2 to read the firm from the notice] [agent nightly-operator proposal f83ed865f41f77be applied 2026-09-27: Company was blank (Brand='Unbranded' placeholder); the fiche names the producer as 'Origine de la fiche : GAEC LA MAISON BLANCHE'. Reason was in French; translated per the English-output rule, matching the wording alread] [nightly-operator 2026-09-27: pending_gap_v2 -> pending (verified against regulator source: URL resolves, names the claimed company/product/pathogen; curator-applied field corrections passed deterministic re-check)]"
+ },
+ {
+  "Date": "2026-09-25",
+  "Source": "RappelConso (FR)",
+  "Company": "STB Stalaven - Euralis",
+  "Brand": "Unbranded",
+  "Product": "vol au vent au ris de veau x9",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23633/interne",
+  "Notes": "galec (magasins leclerc) et saisons & salaisons (distribution chez des bouchers charcutiers traiteurs) [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent hold: 2026-09-27: no recalling firm on the row (Brand 'Unbranded'); not published and not rejected — reviewer 2 to read the firm from the notice] [agent nightly-operator proposal d382d521b33cab42 applied 2026-09-27: Company was blank (Brand='Unbranded' placeholder); the fiche's 'Origine de la fiche' field names STB Stalaven - Euralis as the recalling firm (distributed via Galec/Leclerc and Saisons & Salaisons).] [nightly-operator 2026-09-27: pending_gap_v2 -> pending (verified against regulator source: URL resolves, names the claimed company/product/pathogen; curator-applied field corrections passed deterministic re-check)]"
+ },
+ {
+  "Date": "2026-09-25",
+  "Source": "RappelConso (FR)",
+  "Company": "STB Stalaven - Euralis",
+  "Brand": "Unbranded",
+  "Product": "bouchee a la reine 150g x 9",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23634/interne",
+  "Notes": "saisons & salaisons (distribution dans des bouchers, charcutiers, traiteurs) [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent hold: 2026-09-27: no recalling firm on the row (Brand 'Unbranded'); not published and not rejected — reviewer 2 to read the firm from the notice] [agent nightly-operator proposal 1556937611faa3a9 applied 2026-09-27: Company was blank (Brand='Unbranded' placeholder); the fiche's 'Origine de la fiche' field names STB Stalaven - Euralis as the recalling firm (distributed via Saisons & Salaisons).] [nightly-operator 2026-09-27: pending_gap_v2 -> pending (verified against regulator source: URL resolves, names the claimed company/product/pathogen; curator-applied field corrections passed deterministic re-check)]"
  },
  {
   "Date": "2026-09-24",
@@ -334,6 +382,22 @@
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/galil-importing-corp-recalls-lior-cinnamon-ground-seasoning-due-elevated-lead-levels",
   "Notes": "FDA listing HTML (Layer 1) [url-guard 2026-09-26: reviewer 1 tried to reject this row as 'could not confirm official recall: Unable to find the official regulator URL through the search query'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-26: reviewer 1 tried to reject this row as 'could not confirm official recall: Unable to find the official regulator URL thr' for the 2nd time; refused AND escalated — the URL is on the authority's own domain and is a specific page, not a listing. URL confirmed deterministically; Pathogen left empty because this path did not enrich.] [review-agent 2026-09-27: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [offline-enrich 2026-09-27: Pathogen '' -> 'Lead (heavy metal)', read from this row's own hazard text; no fetch, no model] [promote 2026-09-27: status 'pending_gap_v3'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Pathogen is empty | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed '; that defect is repaired and the row now passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-09-24",
+  "Source": "RappelConso (FR)",
+  "Company": "Salaisons Saint Georges",
+  "Brand": "Unbranded",
+  "Product": "saucisse sèche au piment d'espelette 150g",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23610/interne",
+  "Notes": "v and b et bars à vin [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent hold: 2026-09-25: no recalling firm on the row (Brand 'Unbranded'); not published and not rejected — reviewer 2 to read the firm from the notice] [agent nightly-operator proposal 63a61425c86dbf2c applied 2026-09-27: Company was blank (Brand='Unbranded' placeholder); fiche names 'Origine de la fiche : SALAISONS SAINT GEORGES'. Reason carried a French accented word ('listéria') inside an otherwise-English sentence, against the English] [nightly-operator 2026-09-27: pending_gap_v2 -> pending (verified against regulator source: URL resolves, names the claimed company/product/pathogen; curator-applied field corrections passed deterministic re-check)]"
  },
  {
   "Date": "2026-09-23",
@@ -470,14 +534,14 @@
   "Brand": "U",
   "Product": "flan rhum raisins u différents conditionnements (1 ou plusieurs parts)",
   "Pathogen": "Foreign material (metal)",
-  "Reason": "Suspicion de présence de corps étrangers métalliques",
+  "Reason": "Suspected presence of metallic foreign bodies.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23587/interne",
-  "Notes": "magasins u [url-guard 2026-09-24: reviewer 1 tried to reject this row as 'No official regulator page found for the given product and hazard'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-24: reviewer 1 tried to reject this row as 'No official regulator page found for the given product and hazard'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-24: reviewer 1 tried to reject this row as 'No official regulator page found for the given product and hazard'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-25: reviewer 1 tried to reject this row as 'No official regulator page found for the given product and hazard' for the 4th time; refused AND escalated — the URL is on the authority's own domain and is a specific page, not a listing. URL confirmed deterministically; Pathogen left empty because this path did not enrich.] [offline-enrich 2026-09-27: Pathogen '' -> 'Foreign material (metal)', read from this row's own hazard text; no fetch, no model] [promote 2026-09-27: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Pathogen is empty | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed '; that defect is repaired and the row now passes every publish-gate rule]"
+  "Notes": "magasins u [url-guard 2026-09-24: reviewer 1 tried to reject this row as 'No official regulator page found for the given product and hazard'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-24: reviewer 1 tried to reject this row as 'No official regulator page found for the given product and hazard'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-24: reviewer 1 tried to reject this row as 'No official regulator page found for the given product and hazard'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-25: reviewer 1 tried to reject this row as 'No official regulator page found for the given product and hazard' for the 4th time; refused AND escalated — the URL is on the authority's own domain and is a specific page, not a listing. URL confirmed deterministically; Pathogen left empty because this path did not enrich.] [offline-enrich 2026-09-27: Pathogen '' -> 'Foreign material (metal)', read from this row's own hazard text; no fetch, no model] [promote 2026-09-27: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Pathogen is empty | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed '; that defect is repaired and the row now passes every publish-gate rule] [agent nightly-operator proposal 7e189ae89b102742 applied 2026-09-27: Reason field was entirely in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel.]"
  },
  {
   "Date": "2026-09-22",
@@ -532,16 +596,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Uzbekistan | Notifying: Poland",
   "Brand": "—",
-  "Product": "Stwierdzenie przekroczenia NDP ochratoksyny A w rodzynkach kraj pochodzenia Uzbekistan // Exceedance of the maximum level for ochratoxin A in raisins from Uzbekistan)",
+  "Product": "Raisins from Uzbekistan",
   "Pathogen": "Ochratoxin",
-  "Reason": "Stwierdzenie przekroczenia NDP ochratoksyny A w rodzynkach kraj pochodzenia Uzbekistan // Exceedance of the maximum level for ochratoxin A in raisins from Uzbekistan); risk: potential risk; category: fruits and vegetables",
+  "Reason": "Exceedance of the maximum level for ochratoxin A (potential risk).",
   "Class": "Border Rejection",
   "Country": "Uzbekistan",
   "Region": "Unknown",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/874292",
-  "Notes": "[RASFF #2026.8370; classification: border rejection notification; category: fruits and vegetables; notifId=874292]"
+  "Notes": "[RASFF #2026.8370; classification: border rejection notification; category: fruits and vegetables; notifId=874292] [agent nightly-operator proposal 3bb28ab35bad443e applied 2026-09-27: Product and Reason both carried the full bilingual PL/EN notice sentence verbatim (including a stray unmatched trailing parenthesis), instead of a product name and an English reason. RASFF's window is a JS single-page ap]"
  },
  {
   "Date": "2026-09-22",
@@ -630,14 +694,14 @@
   "Brand": "Loiseau",
   "Product": "truffé briard",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Detection of Listeria mono sur autocontrôle",
+  "Reason": "Detection of Listeria monocytogenes through self-testing.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23567/interne",
-  "Notes": "nous-mêmes sur les étals du marché de fontainebleau et de melun (gaillardon)"
+  "Notes": "nous-mêmes sur les étals du marché de fontainebleau et de melun (gaillardon) [agent nightly-operator proposal f89cd13b6e2571fa applied 2026-09-27: Reason field mixed English and French (\"Detection of Listeria mono sur autocontrôle\"), against the English-output rule. Translated/normalized from the fiche's Motif du rappel.]"
  },
  {
   "Date": "2026-09-21",
@@ -662,14 +726,14 @@
   "Brand": "Unbranded",
   "Product": "cuisse de poulet marinée, filet de poulet mariné, émincés de poulet marinés.",
   "Pathogen": "Salmonella",
-  "Reason": "Les analyses réalisées sur un lot de cuisses de poulet marinées au paprika ont révélé la présence de Salmonella. par mesure de précaution, l'entreprise procède au rappel de l'ensemble des produits issus de la fabrication volailles marinées .",
+  "Reason": "Testing on a batch of paprika-marinated chicken thighs revealed the presence of Salmonella; as a precaution, the company is recalling all products from the same production run.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23572/interne",
-  "Notes": "intermarché dole les epenottes"
+  "Notes": "intermarché dole les epenottes [agent nightly-operator proposal b1ce5519fbe8aedc applied 2026-09-27: Reason field was entirely in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel.]"
  },
  {
   "Date": "2026-09-21",
@@ -1206,14 +1270,14 @@
   "Brand": "Unbranded",
   "Product": "hareng kipper vendu au rayon poissonnerie traditionnel",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria monocytogène (inférieur à 10 ufc/g)",
+  "Reason": "Presence of Listeria monocytogenes (below 10 CFU/g).",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23534/interne",
-  "Notes": "carrefour hyper montluçon uniquement"
+  "Notes": "carrefour hyper montluçon uniquement [agent nightly-operator proposal b4d2a0291ce881d8 applied 2026-09-27: Reason carried French accented spelling ('listéria monocytogène') inside an otherwise-English sentence, against the English-output rule. Normalized spelling and unit casing (ufc/g -> CFU/g).]"
  },
  {
   "Date": "2026-09-17",
@@ -1408,6 +1472,22 @@
   "Notes": "Reviewed 2026-09-21 against the CFIA notice. The deterministic extract failed on four fields, all corrected: Company held the PRODUCT name (the notice names the firm as Altra Foods Inc.); Product was the fragment 'due to ...'; Reason held the bare pathogen name; Date used the notice's LAST-UPDATED stamp (2026-09-18) rather than its recall date (2026-09-16). CFIA Class 2, Ontario and Quebec, no illnesses so Outbreak=0. PATHOGEN: the notice names Staphylococcus aureus; normalize_pathogen() canonicalises to 'Staphylococcus enterotoxin', the form 4 existing rows use, so the canonical value is kept and the organism named in Reason. RE-PROMOTION OVERRIDE: the row was in the Rejected ledger as 'NO_REASON_RECORDED — rejected by confirm-agent from CFIA, status pending. The writer supplied no verdict' — an infrastructure artefact recorded as a data verdict, not a finding about this recall. Third such false rejection this month (Mattilsynet 09-17, Carrefour 09-20)."
  },
  {
+  "Date": "2026-09-16",
+  "Source": "CFIA",
+  "Company": "Otto Richter and Sons Limited, O/A Richters Herbs",
+  "Brand": "—",
+  "Product": "Lemongrass - Dried Herb - Cut - Organic",
+  "Pathogen": "Foreign material (stones)",
+  "Reason": "Recalled due to presence of stones (extraneous material)",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/richters-brand-dried-lemongrass-recalled-due-presence-stones",
+  "Notes": "CFIA HTML listing fallback — claude-check needs to enrich Date+Pathogen [offline-enrich 2026-09-27: Pathogen '' -> 'Foreign material (stones)', read from this row's own hazard text; no fetch, no model] [url-guard 2026-09-27: reviewer 1 tried to reject this row as 'could not confirm official recall: Could not find the official regulator URL through the search query'; refused — the official URL is on the row. Left in Pending for a later run.] [agent nightly-operator proposal d20bf8bacf2022ef applied 2026-09-27: Company/Product/Reason on the row were all the scraper's page-headline fallback text, not the actual entity/product/hazard fields. The CFIA listing names the recalling firm, product and issue date separately; Date correc] [nightly-operator 2026-09-27: pending_enrichment -> pending (verified against regulator source: URL resolves, names the claimed company/product/pathogen; curator-applied field corrections passed deterministic re-check)]"
+ },
+ {
   "Date": "2026-09-15",
   "Source": "RappelConso (FR)",
   "Company": "Talleyrand",
@@ -1510,14 +1590,14 @@
   "Brand": "—",
   "Product": "Graines de courge en vrac (bulk pumpkin seeds), lot 4754-1925-05, DLUO 09/10/2026",
   "Pathogen": "Salmonella",
-  "Reason": "Détection de Salmonelle / Salmonella detected. Risk statement on the notice: Salmonella spp, agent responsable de la salmonellose.",
+  "Reason": "Detection of Salmonella. Risk statement on the notice: Salmonella spp, the organism responsible for salmonellosis.",
   "Class": "Recall",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23512/Interne",
-  "Notes": "Reviewed 2026-09-17 against the RappelConso notice. Sold nationwide (France entière) 2025-11-03 to 2026-08-31. TIER CORRECTED 3 -> 1: Salmonella is always Tier 1 by the scope module; the row arrived Tier 3. OUTBREAK LEFT AT 0 DELIBERATELY: agriculture.gouv.fr published 'Cas groupés de salmonellose : retrait-rappel de graines de courge' on 2026-09-04 reporting 81 cases of one Salmonella Enteritidis strain isolated 3 May - 12 Aug 2026 from pumpkin seeds processed in Lot-et-Garonne, but that notice names fiches 23359 and 23360, NOT 23512. Same product and period, linkage UNVERIFIED. Do not set Outbreak=1 without a source naming this fiche."
+  "Notes": "Reviewed 2026-09-17 against the RappelConso notice. Sold nationwide (France entière) 2025-11-03 to 2026-08-31. TIER CORRECTED 3 -> 1: Salmonella is always Tier 1 by the scope module; the row arrived Tier 3. OUTBREAK LEFT AT 0 DELIBERATELY: agriculture.gouv.fr published 'Cas groupés de salmonellose : retrait-rappel de graines de courge' on 2026-09-04 reporting 81 cases of one Salmonella Enteritidis strain isolated 3 May - 12 Aug 2026 from pumpkin seeds processed in Lot-et-Garonne, but that notice names fiches 23359 and 23360, NOT 23512. Same product and period, linkage UNVERIFIED. Do not set Outbreak=1 without a source naming this fiche. [agent nightly-operator proposal 6171e62a8b22103e applied 2026-09-27: Reason field's second half was still in French (\"agent responsable de la salmonellose\"), against the English-output rule. Pure translation of text already present on the row; the live fiche page could not be re-fetched t]"
  },
  {
   "Date": "2026-09-15",
@@ -2726,14 +2806,14 @@
   "Brand": "U Saveurs",
   "Product": "jambon de bayonne igp u saveurs",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of listéria monocytogènes",
+  "Reason": "Presence of Listeria monocytogenes.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23456/interne",
-  "Notes": "super u [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed]"
+  "Notes": "super u [confirm-agent 2026-09-04: pending_gap_v3 → pending; independent checks passed] [agent nightly-operator proposal 180ba9b239429717 applied 2026-09-27: Reason carried French accented spelling ('listéria') inside an otherwise-English sentence, against the English-output rule. Normalized spelling.]"
  },
  {
   "Date": "2026-09-04",
@@ -28878,5 +28958,21 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-09-17",
+  "Source": "Mattilsynet",
+  "Company": "Matcompaniet AS",
+  "Brand": "",
+  "Product": "Brie de Melun AOP",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Recalled due to Shiga toxin-producing E. coli (STEC) — Matcompaniet AS recalls Brie de Melun AOC",
+  "Class": "Recall",
+  "Country": "Norway",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.mattilsynet.no/tilbakekallinger/matcompaniet-as-kaller-tilbake-brie-de-melun-aoc-pga-e.coli-stec",
+  "Notes": "Discovered via news: mattilsynet.no [rescue 2026-09-27: dropped by PR#34, which cleared Pending to 0; this was the only one of main's 37 Pending rows that landed in no sheet. Repairs, all from the row's own data: Pathogen 'E. coli STEC'->the register's canonical spelling; Region was 'Norway - Oslo (CC Vest), Germany (Tyskland)', a DISTRIBUTION list that leaked into the Region column, -> 'Europe' (Norway); Class '' -> 'Recall' (the URL is /tilbakekallinger/ and the slug reads 'kaller tilbake'); Reason was the literal 'Recall ID 842632', the extractor prompt's own worked example, -> the hazard this row's Pathogen and its URL slug ('pga-e.coli-stec') both state. Nothing fetched, nothing invented.]"
  }
 ]
