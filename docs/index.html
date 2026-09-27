@@ -251,6 +251,58 @@ tr:hover td{background:rgba(255,255,255,.02);}
   .pb{min-height:44px;}
   .report-btn{min-height:44px;display:flex;align-items:center;justify-content:center;}
 }
+
+/* ── Hover lens: magnify a table cell on dwell (2026-09-27) ──────────────
+   The table runs at 12px, and .firm/.prod are capped at 180px/240px with
+   text-overflow:ellipsis — so the two most-read columns are routinely cut
+   off ("crevettes entieres cuites refrigerees elevage 40/60 300g bio
+   litopenaeus ..."). Pausing on a cell shows its FULL text at ~1.7x.
+
+   A lens rather than scaling the cell itself, for three reasons:
+     * .tbl-wrap has overflow-x:auto, so a transform on a td is clipped at
+       the left and right edges — exactly where the long columns sit;
+     * scaling one cell in an 8-column row reflows or overlaps its
+       neighbours unpredictably;
+     * scaling alone would magnify the ELLIPSIS. The lens reads from the
+       source text, so it also un-truncates, which is the actual problem.
+
+   Pointer-only: guarded by (hover:hover) and (pointer:fine) so it never
+   arms on touch, where the mobile stylesheet already reflows td to block
+   and nothing is truncated. */
+@media (hover:hover) and (pointer:fine){
+  .tbl-wrap table tbody td:hover,.sg-tbl tbody td:hover{
+    cursor:zoom-in;
+    box-shadow:inset 0 -1px 0 rgba(96,165,250,.45);
+  }
+}
+.zlens{
+  position:fixed;z-index:9999;pointer-events:none;
+  max-width:min(560px,72vw);
+  background:var(--s2,#12182a);
+  border:1px solid var(--brd,#1d2436);
+  border-left:3px solid var(--ai,#34d399);
+  border-radius:4px;
+  padding:10px 13px 11px;
+  box-shadow:0 12px 34px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.03);
+  opacity:0;transform:translateY(3px);
+  transition:opacity .11s ease,transform .11s ease;
+}
+.zlens.on{opacity:1;transform:translateY(0);}
+.zlens .zl-col{
+  display:block;font-family:'DM Mono',monospace;font-size:8.5px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim,#5b6478);
+  margin-bottom:5px;
+}
+.zlens .zl-val{
+  display:block;font-size:19px;line-height:1.38;font-weight:500;
+  color:var(--white,#e8ecf4);
+  word-break:break-word;overflow-wrap:anywhere;white-space:pre-wrap;
+}
+.zlens .zl-val em{font-style:normal;color:var(--muted,#8b95a8);font-size:15px;}
+@media (prefers-reduced-motion:reduce){
+  .zlens{transition:none;transform:none;}
+  .zlens.on{transform:none;}
+}
 </style></head><body>
 
 <div class="hdr"><div class="brand"><a href="https://www.advfood.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</a><small>// AI-Reviewed · AI-Analyzed Food Recall Intelligence · under AFTS process authority · 66 sources · 60+ countries</small><small style="margin-top:3px;color:var(--muted);font-weight:500;letter-spacing:.10em">✓ Verified by 2 independent AI reviewers + weekly human checkpoint</small></div><div class="hdr-right"><span class="live-pill">LIVE MONITORING</span><div class="hdr-meta" id="meta">Loading…</div></div></div>
@@ -294,7 +346,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 </div>
 <div class="wrap"><div class="grid2"><div class="panel"><div class="sec">Top Pathogens — All Sources</div><div id="chart-path"></div></div><div class="panel"><div class="sec">By Source</div><div id="chart-src"></div></div></div></div>
 <div class="pbar" id="pills"></div>
-<div class="fbar"><input type="search" id="q" placeholder="Search firm, product, country, pathogen..."><select id="f-src"><option value="">All Sources</option></select><select id="f-path"><option value="">All Pathogens</option></select><select id="f-tier"><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option></select><select id="f-region"><option value="">All Records</option><option value="Americas">Americas</option><option value="Europe">Europe</option><option value="Asia">Asia</option><option value="Oceania">Oceania</option><option value="Africa">Africa</option></select><select id="f-pp"><option value="50">50/page</option><option value="25">25/page</option><option value="100">100/page</option></select><span class="rcount" id="rcount"></span></div>
+<div class="fbar"><input type="search" id="q" placeholder="Search firm, product, country, pathogen..."><select id="f-src"><option value="">All Sources</option></select><select id="f-path"><option value="">All Pathogens</option></select><select id="f-tier"><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option></select><select id="f-region"><option value="">All Records</option><option value="Americas">Americas (all)</option><option value="North America">— North America</option><option value="Latin America">— Latin America</option><option value="Europe">Europe</option><option value="Asia">Asia</option><option value="Oceania">Oceania</option><option value="Africa">Africa</option><option value="Middle East">Middle East</option></select><select id="f-pp"><option value="50">50/page</option><option value="25">25/page</option><option value="100">100/page</option></select><span class="rcount" id="rcount"></span></div>
 <div class="tbl-wrap"><table><thead><tr><th data-col="date">Date</th><th data-col="source">Source</th><th data-col="company">Firm / Producer</th><th data-col="product">Product</th><th data-col="pathogen">Pathogen</th><th data-col="tier">Risk</th><th data-col="country">Country</th><th>Link</th></tr></thead><tbody id="tbody"><tr><td colspan="8" class="loading">Loading data/recalls.xlsx …</td></tr></tbody></table></div>
 <div class="pager"><button class="pb" id="prev" disabled>‹ Prev</button><span class="pi" id="pinfo">—</span><button class="pb" id="next">Next ›</button></div>
 </div>
@@ -998,7 +1050,16 @@ function applyFilters(){
   filtered=ALL.filter(r=>{
     if(src&&r.source!==src)return false;
     if(path&&normalizePathogen(r.pathogen)!==path)return false;
-    if(tier&&r.tier!==parseInt(tier))return false;if(region&&r.region!==region)return false;
+    if(tier&&r.tier!==parseInt(tier))return false;
+    /* Region was an exact string compare, and no row is stored as
+       "Americas" — the register uses "North America" (203 rows) and
+       "Latin America" (72). So the Americas option matched 0 of 275.
+       "Americas" now means either; every other option still compares
+       exactly, and Middle East was added because 13 rows carry it and
+       the list did not offer it. */
+    if(region && !(region==='Americas'
+                   ? (r.region==='North America'||r.region==='Latin America')
+                   : r.region===region)) return false;
     if(pillFilter){
       const normalized=normalizePathogen(r.pathogen);
       if(normalized.toLowerCase()!==pillFilter.toLowerCase())return false;
@@ -1013,9 +1074,15 @@ function render(){
   if(!slice.length){tbody.innerHTML='<tr><td colspan="8" class="loading">No matching records.</td></tr>';}
   else{tbody.innerHTML=slice.map(r=>{
     const tc=r.tier===1?'r1':r.tier===2?'r2':'';
-    const tierBg=r.tier===1?'rgba(239,68,68,.15)':'rgba(245,158,11,.15)';
-    const tierCol=r.tier===1?'var(--red)':'var(--orange)';
-    const tl=r.tier===1?'TIER-1':'TIER-2';
+    /* Three tiers, not two. This read
+           const tl = r.tier===1 ? 'TIER-1' : 'TIER-2';
+       a binary, so all 68 Tier-3 records in the register rendered as
+       TIER-2 — a row was shown one severity band above where the pipeline
+       put it. The card renderer further down already did the three-way
+       test correctly; this copy had drifted. */
+    const tierBg=r.tier===1?'rgba(239,68,68,.15)':r.tier===2?'rgba(245,158,11,.15)':'rgba(96,165,250,.13)';
+    const tierCol=r.tier===1?'var(--red)':r.tier===2?'var(--orange)':'var(--cyan)';
+    const tl=r.tier===1?'TIER-1':r.tier===2?'TIER-2':'TIER-3';
     const ob=r.is_outbreak===1?' <span style="background:rgba(239,68,68,.1);color:var(--red);font-size:7px;padding:1px 5px;border-radius:2px;font-family:DM Mono,monospace;font-weight:700;letter-spacing:.08em;border:1px solid rgba(239,68,68,.25)">OUTBREAK</span>':'';
     return`<tr class="${tc}"><td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);white-space:nowrap">${esc(r.date)}</td><td><span style="font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.05em;background:rgba(52,211,153,.08);color:var(--ai);border:1px solid rgba(52,211,153,.25)">${esc(r.source)}</span></td><td class="firm" title="${esc(r.company)}">${esc(r.company||r.brand||'—')}</td><td class="prod" title="${esc(r.product)}">${esc((r.product||'').substring(0,80))}</td><td style="font-family:'DM Mono',monospace;font-size:9px;color:${pColor(r.pathogen)}">${esc(r.pathogen)}${ob}</td><td style="white-space:nowrap"><span style="display:inline-block;white-space:nowrap;font-family:'DM Mono',monospace;font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.08em;background:${tierBg};color:${tierCol};border:1px solid ${tierCol}40">${tl}</span></td><td style="font-size:10px;color:var(--muted)">${esc(r.country)}</td><td>${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--ai);font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;letter-spacing:.02em" title="${esc(r.url)}">${urlHost(r.url)}</a>`:''}</td></tr>`;
   }).join('');}
@@ -1412,4 +1479,109 @@ async function loadDaily(){
 // Subscriber PDF generation decommissioned 2026-05-02 — HTML is the
 // canonical deliverable. The marketing one-pager PDF stays as a public
 // lead magnet and is linked via `pdf_url` on monthly-index.json entries.
+
+/* ── Hover lens ──────────────────────────────────────────────────────────
+   Dwell on any table cell to read it at ~1.7x, full text, no truncation.
+   See the .zlens rules in the stylesheet for why this magnifies into
+   a panel rather than scaling the cell. */
+(function(){
+  if(!window.matchMedia||!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+
+  var DWELL=220, lens=null, timer=null, current=null, lastXY={x:0,y:0};
+
+  function el(){
+    if(!lens){
+      lens=document.createElement('div');
+      lens.className='zlens';
+      lens.setAttribute('aria-hidden','true');
+      document.body.appendChild(lens);
+    }
+    return lens;
+  }
+
+  /* The FULL text, which is often not the text on screen.
+     Two different truncations are in play on this table:
+       * CSS — .firm and .prod carry max-width + text-overflow:ellipsis;
+       * JavaScript — the row builder emits
+             esc((r.product||'').substring(0,80))
+         so the Product cell's own textContent is already cut to 80
+         characters. Only the title attribute holds the whole value.
+     So prefer title whenever it is longer than what is rendered; that is
+     the one place the untruncated string survives. */
+  function cellText(td){
+    var shown=((td.textContent)||'').replace(/\s+/g,' ').trim();
+    var full='';
+    var holder=td.hasAttribute('title')?td:td.querySelector('[title]');
+    if(holder) full=(holder.getAttribute('title')||'').replace(/\s+/g,' ').trim();
+    return (full.length>shown.length)?full:shown;
+  }
+
+  function columnLabel(td){
+    var tr=td.parentNode, table=td.closest('table');
+    if(!table||!tr) return '';
+    var i=Array.prototype.indexOf.call(tr.children,td);
+    var head=table.tHead&&table.tHead.rows[0];
+    if(!head||!head.cells[i]) return '';
+    return (head.cells[i].textContent||'').replace(/\s+/g,' ').trim();
+  }
+
+  function place(x,y){
+    var n=el(), r=n.getBoundingClientRect(), pad=14;
+    var left=x+18, top=y+18;
+    if(left+r.width>innerWidth-pad)  left=x-r.width-18;
+    if(left<pad) left=pad;
+    if(top+r.height>innerHeight-pad) top=y-r.height-18;
+    if(top<pad) top=pad;
+    n.style.left=left+'px'; n.style.top=top+'px';
+  }
+
+  function show(td){
+    var txt=cellText(td);
+    if(!txt) return;
+    var n=el(), col=columnLabel(td);
+    n.innerHTML='';
+    if(col){ var c=document.createElement('span'); c.className='zl-col'; c.textContent=col; n.appendChild(c); }
+    var v=document.createElement('span'); v.className='zl-val'; v.textContent=txt; n.appendChild(v);
+    /* A link cell shows its href underneath, since the text is just a host. */
+    var a=td.querySelector('a[href]');
+    if(a&&a.getAttribute('href')&&a.getAttribute('href')!==txt){
+      var e=document.createElement('em'); e.textContent='\n'+a.getAttribute('href'); v.appendChild(e);
+    }
+    n.style.left='-9999px'; n.style.top='-9999px';
+    n.classList.add('on');
+    place(lastXY.x,lastXY.y);
+    current=td;
+  }
+
+  function hide(){
+    if(timer){ clearTimeout(timer); timer=null; }
+    if(lens) lens.classList.remove('on');
+    current=null;
+  }
+
+  document.addEventListener('mouseover',function(ev){
+    var td=ev.target.closest&&ev.target.closest('td');
+    if(!td||!td.closest('.tbl-wrap table, .sg-tbl')){ hide(); return; }
+    if(td===current) return;
+    if(td.classList.contains('loading')||td.hasAttribute('colspan')) return;
+    hide();
+    timer=setTimeout(function(){ show(td); }, DWELL);
+  },true);
+
+  document.addEventListener('mousemove',function(ev){
+    lastXY={x:ev.clientX,y:ev.clientY};
+    if(lens&&lens.classList.contains('on')) place(lastXY.x,lastXY.y);
+  },{passive:true});
+
+  document.addEventListener('mouseout',function(ev){
+    var to=ev.relatedTarget;
+    if(current&&to&&to.closest&&to.closest('td')===current) return;
+    hide();
+  },true);
+
+  addEventListener('scroll',hide,{passive:true,capture:true});
+  addEventListener('blur',hide);
+  document.addEventListener('click',hide,true);
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') hide(); });
+})();
 </script></body></html>
