@@ -135,11 +135,29 @@ def test_the_week_stamp_is_a_sunday(name, build):
 
 @pytest.mark.parametrize("name,build", BUILDERS, ids=[b[0] for b in BUILDERS])
 def test_the_row_is_unchanged_otherwise(name, build):
-    """The fix is additive. Nothing the row already carried may move."""
+    """The fix is additive. Nothing the row already carried may move.
+
+    ONE FIELD MOVED DELIBERATELY, 2026-09-27: Status was pinned here as
+    "Rejected" with a capital R, which is what these four builders wrote. All
+    three reviewers selected their lane with `.strip()` and no `.lower()`
+    against lowercase status sets, so a capitalised status matched no lane and
+    the row was invisible to every reviewer — 86 rows across eight countries
+    (Spain, Greece, Portugal, Nigeria, South Africa, Italy, Poland, Norway).
+    The builders now write the canonical lowercase value and the reviewers
+    lowercase before comparing; see
+    tests/test_no_country_is_invisible_to_the_reviewers.py.
+
+    The capitalisation was pinned here incidentally, alongside Source and URL,
+    rather than because anything depended on it. The assertion is kept — this
+    test's job is to notice when a field moves — and now states which value is
+    correct and why.
+    """
     row = build()
     assert row["Source"] in ("Salute", "EFET", "AESAN")
     assert row["URL"] == "https://example.test/richiamo-1"
-    assert row["Status"] == "Rejected"
+    assert row["Status"] == "rejected", (
+        "must be the canonical lowercase status — a capitalised one is "
+        "invisible to every reviewer's lane")
     assert row["Reason"] == "milk not declared on label"
     assert row["Pathogen"] == "milk"
 
