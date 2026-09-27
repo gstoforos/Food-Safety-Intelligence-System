@@ -1,0 +1,130 @@
+[
+  {
+    "proposal_id": "f83ed865f41f77be",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 2"
+  },
+  {
+    "proposal_id": "d382d521b33cab42",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 3"
+  },
+  {
+    "proposal_id": "1556937611faa3a9",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 4"
+  },
+  {
+    "proposal_id": "63a61425c86dbf2c",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 5"
+  },
+  {
+    "proposal_id": "d20bf8bacf2022ef",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 7"
+  },
+  {
+    "proposal_id": "710aeeac0e7c0933",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 6"
+  },
+  {
+    "proposal_id": "9e9e67d9f0cd4dc8",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 13"
+  },
+  {
+    "proposal_id": "2d088ea6c0d53a3b",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 15"
+  },
+  {
+    "proposal_id": "7e189ae89b102742",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 35"
+  },
+  {
+    "proposal_id": "f89cd13b6e2571fa",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 45"
+  },
+  {
+    "proposal_id": "b1ce5519fbe8aedc",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 47"
+  },
+  {
+    "proposal_id": "6171e62a8b22103e",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 101"
+  },
+  {
+    "proposal_id": "3bb28ab35bad443e",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 39"
+  },
+  {
+    "proposal_id": "b4d2a0291ce881d8",
+    "action": "enrich",
+    "applied": false,
+    "refusals": [
+      "URL unreachable (ConnectionError) \u2014 cannot confirm provenance"
+    ],
+    "detail": ""
+  },
+  {
+    "proposal_id": "b2d9b38003baa066",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 5"
+  },
+  {
+    "proposal_id": "180ba9b239429717",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 177"
+  },
+  {
+    "proposal_id": "b2d9b38003baa066",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 5"
+  },
+  {
+    "proposal_id": "b4d2a0291ce881d8",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 81"
+  }
+]

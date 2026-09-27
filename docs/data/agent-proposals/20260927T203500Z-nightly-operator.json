@@ -1,0 +1,374 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20260927T203500Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23622/interne"
+      },
+      "changes": {
+        "Company": "GAEC La Maison Blanche",
+        "Reason": "Potential presence of Shiga toxin-producing E. coli O103"
+      },
+      "reason": "Company was blank (Brand='Unbranded' placeholder); the fiche names the producer as 'Origine de la fiche : GAEC LA MAISON BLANCHE'. Reason was in French; translated per the English-output rule, matching the wording already used on this producer's sibling row (fiche 23224).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23622/interne",
+          "quote": "Origine de la fiche : GAEC LA MAISON BLANCHE ... presence potentielle E.coli STEC O103",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23633/interne"
+      },
+      "changes": {
+        "Company": "STB Stalaven - Euralis"
+      },
+      "reason": "Company was blank (Brand='Unbranded' placeholder); the fiche's 'Origine de la fiche' field names STB Stalaven - Euralis as the recalling firm (distributed via Galec/Leclerc and Saisons & Salaisons).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23633/interne",
+          "quote": "Origine de la fiche : STB STALAVEN - EURALIS ... Presence de Listeria Monocytogenes",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23634/interne"
+      },
+      "changes": {
+        "Company": "STB Stalaven - Euralis"
+      },
+      "reason": "Company was blank (Brand='Unbranded' placeholder); the fiche's 'Origine de la fiche' field names STB Stalaven - Euralis as the recalling firm (distributed via Saisons & Salaisons).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23634/interne",
+          "quote": "Origine de la fiche : STB STALAVEN - EURALIS ... Presence de Listeria Monocytogenes",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23610/interne"
+      },
+      "changes": {
+        "Company": "Salaisons Saint Georges",
+        "Reason": "Presence of Listeria monocytogenes"
+      },
+      "reason": "Company was blank (Brand='Unbranded' placeholder); fiche names 'Origine de la fiche : SALAISONS SAINT GEORGES'. Reason carried a French accented word ('listéria') inside an otherwise-English sentence, against the English-output rule; normalized spelling.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23610/interne",
+          "quote": "Origine de la fiche : SALAISONS SAINT GEORGES ... presence de Listéria Monocytogenes",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/richters-brand-dried-lemongrass-recalled-due-presence-stones"
+      },
+      "changes": {
+        "Company": "Otto Richter and Sons Limited, O/A Richters Herbs",
+        "Product": "Lemongrass - Dried Herb - Cut - Organic",
+        "Reason": "Recalled due to presence of stones (extraneous material)",
+        "Date": "2026-09-16"
+      },
+      "reason": "Company/Product/Reason on the row were all the scraper's page-headline fallback text, not the actual entity/product/hazard fields. The CFIA listing names the recalling firm, product and issue date separately; Date corrected from the scrape timestamp (2026-09-23) to the recall's own date (2026-09-16).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/richters-brand-dried-lemongrass-recalled-due-presence-stones",
+          "quote": "Recalling Firm: Otto Richter and Sons Limited, O/A Richters Herbs; Product: Lemongrass - Dried Herb - Cut - Organic; Issue: presence of stones; Date: 2026-09-16",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23602/interne"
+      },
+      "changes": {
+        "Reason": "As a precaution, the store is recalling the product below due to the presence of Listeria monocytogenes.",
+        "Product": "Filet de hareng à l'ancienne vendu au rayon traditionnel poissonnerie"
+      },
+      "reason": "Reason field was entirely in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel. Product field was literally '//' (a scraper/split artifact naming no product); replaced with the actual product name from the fiche.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23602/interne",
+          "quote": "Par mesure de précaution, le magasin procède à un rappel du produit ci-dessous, en raison d'une présence Listeria Monocytogènes",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23555/interne"
+      },
+      "changes": {
+        "Reason": "Can defect causing a loss of seal integrity, which may compromise the microbiological quality of the product."
+      },
+      "reason": "Reason field was entirely in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23555/interne",
+          "quote": "Défaut de la canette entraînant une perte d'étanchéité, susceptible d'altérer la qualité microbiologique du produit.",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23628/interne"
+      },
+      "changes": {
+        "Reason": "Chemical non-compliance: identified presence of ochratoxin A."
+      },
+      "reason": "Reason field was entirely in French (and carried a duplicated-word typo, \"d'd'ochratoxine\"), against the English-output rule. Translated verbatim from the fiche's Motif du rappel.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23628/interne",
+          "quote": "Non conformité chimique : présence identifiée d'd'ochratoxine A",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23587/interne"
+      },
+      "changes": {
+        "Reason": "Suspected presence of metallic foreign bodies."
+      },
+      "reason": "Reason field was entirely in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23587/interne",
+          "quote": "Suspicion de présence de corps étrangers métalliques",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23567/interne"
+      },
+      "changes": {
+        "Reason": "Detection of Listeria monocytogenes through self-testing."
+      },
+      "reason": "Reason field mixed English and French (\"Detection of Listeria mono sur autocontrôle\"), against the English-output rule. Translated/normalized from the fiche's Motif du rappel.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23567/interne",
+          "quote": "Détection Listeria Mono sur autocontrôle",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23572/interne"
+      },
+      "changes": {
+        "Reason": "Testing on a batch of paprika-marinated chicken thighs revealed the presence of Salmonella; as a precaution, the company is recalling all products from the same production run."
+      },
+      "reason": "Reason field was entirely in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23572/interne",
+          "quote": "Les analyses réalisées sur un lot de cuisses de poulet marinées au paprika ont révélé la présence de Salmonelle. par mesure de précaution, l'entreprise procède au rappel de l'ensemble des produits",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23512/Interne"
+      },
+      "changes": {
+        "Reason": "Detection of Salmonella. Risk statement on the notice: Salmonella spp, the organism responsible for salmonellosis."
+      },
+      "reason": "Reason field's second half was still in French (\"agent responsable de la salmonellose\"), against the English-output rule. Pure translation of text already present on the row; the live fiche page could not be re-fetched tonight (returned a listing page, not fiche 23512, for both URL casings tried), so this is evidenced against the row's own existing bilingual text rather than a fresh fetch.",
+      "evidence": [
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23512/Interne",
+          "quote": "Détection de Salmonelle / Salmonella detected. Risk statement on the notice: Salmonella spp, agent responsable de la salmonellose.",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/874292"
+      },
+      "changes": {
+        "Product": "Raisins from Uzbekistan",
+        "Reason": "Exceedance of the maximum level for ochratoxin A (potential risk)."
+      },
+      "reason": "Product and Reason both carried the full bilingual PL/EN notice sentence verbatim (including a stray unmatched trailing parenthesis), instead of a product name and an English reason. RASFF's window is a JS single-page app WebFetch cannot render tonight, so this is a wording cleanup of the row's own already-present bilingual text (the English half was already there after '//'), not a new fact.",
+      "evidence": [
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/874292",
+          "quote": "Stwierdzenie przekroczenia NDP ochratoksyny A w rodzynkach kraj pochodzenia Uzbekistan // Exceedance of the maximum level for ochratoxin A in raisins from Uzbekistan); risk: potential risk; category: fruits and vegetables",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23534/interne"
+      },
+      "changes": {
+        "Reason": "Presence of Listeria monocytogenes (below 10 CFU/g)."
+      },
+      "reason": "Reason carried French accented spelling ('listéria monocytogène') inside an otherwise-English sentence, against the English-output rule. Normalized spelling and unit casing (ufc/g -> CFU/g).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23534/interne",
+          "quote": "Présence de Listéria monocytogène (inférieur à 10 UFC/g)",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23620/interne"
+      },
+      "changes": {
+        "Reason": "Presence of Listeria monocytogenes."
+      },
+      "reason": "Reason field was in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23620/interne",
+          "quote": "Présence Listéria Monocytogènes",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23456/interne"
+      },
+      "changes": {
+        "Reason": "Presence of Listeria monocytogenes."
+      },
+      "reason": "Reason carried French accented spelling ('listéria') inside an otherwise-English sentence, against the English-output rule. Normalized spelling.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23456/interne",
+          "quote": "présence de listéria Monocytogènes",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23620/interne"
+      },
+      "changes": {
+        "Reason": "Presence of Listeria monocytogenes."
+      },
+      "reason": "Reason field was in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23620/interne",
+          "quote": "Présence Listéria Monocytogènes",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23534/interne"
+      },
+      "changes": {
+        "Reason": "Presence of Listeria monocytogenes (below 10 CFU/g)."
+      },
+      "reason": "Reason carried French accented spelling ('listéria monocytogène') inside an otherwise-English sentence, against the English-output rule. Normalized spelling and unit casing (ufc/g -> CFU/g).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23534/interne",
+          "quote": "Présence de Listéria monocytogène (inférieur à 10 UFC/g)",
+          "retrieved_utc": "2026-09-27T00:00:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    }
+  ]
+}

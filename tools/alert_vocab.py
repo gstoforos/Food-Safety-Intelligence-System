@@ -125,7 +125,8 @@ PATHOGEN: dict[str, list[str]] = {
                                      "phytoplankton"],              # 8
     "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol",
                                 "muscaria", "hydrocyanic", "cyanogenic",
-                                "solanine", "tropane"],             # 3
+                                "solanine", "tropane", "pyrrolizidine",
+                                "pyrrolizidin"],                    # 3
 
     # --- chemical -------------------------------------------------------
     "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury",
@@ -317,7 +318,7 @@ COUNTRY: list[str] = [
     "Czechia", "Denmark", "Ecuador", "Egypt", "Estonia", "Ethiopia",
     "Finland", "France", "Georgia", "Germany", "Greece", "Hong Kong",
     "Hungary", "India", "Indonesia", "Iran", "Ireland", "Italy", "Japan",
-    "Kenya", "Korea, South", "Kosovo", "Latvia", "Lithuania", "Madagascar",
+    "Kenya", "Korea, South", "Kosovo", "Latvia", "Lebanon", "Lithuania", "Madagascar",
     "Malawi", "Mexico", "Morocco", "Nepal", "Netherlands", "New Zealand",
     "Nicaragua", "Nigeria", "Norway", "Pakistan", "Panama", "Peru",
     "Philippines", "Poland", "Portugal", "Romania", "Rwanda", "Serbia",

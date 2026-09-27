@@ -1,9 +1,58 @@
 {
   "week_end": "2026-10-04",
-  "generated_utc": "2026-09-27T19:55:56+00:00",
-  "row_count": 0,
-  "tier1_count": 0,
-  "outbreak_count": 0,
-  "by_reviewer": {},
-  "rows": []
+  "generated_utc": "2026-09-27T20:09:26+00:00",
+  "row_count": 2,
+  "tier1_count": 1,
+  "outbreak_count": 1,
+  "by_reviewer": {
+    "manual": 2
+  },
+  "rows": [
+    {
+      "Date": "2026-09-21",
+      "Source": "FDA",
+      "Company": "",
+      "Brand": "—",
+      "Product": "Rodent and pest infestations in facilities that store food, drugs, medical devices, and cosmetics pose serious contamination risks",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "Listeria monocytogenes — outbreak",
+      "Class": "Recall",
+      "Country": "United States",
+      "Region": "North America",
+      "Tier": 1,
+      "Outbreak": 1,
+      "URL": "https://www.fda.gov/news-events/press-announcements/federal-court-enters-consent-decree-against-gold-star-distribution-inc-following-persistent",
+      "Notes": "REJECTED: Manual (nightly-operator): fabricated pathogen/outbreak attachment — this URL is a federal consent-decree press release about pest-control violations at a warehouse, not a specific recall notice. It names Listeria only as a theoretical rodent-borne risk and documents no confirmed human illness. Pathogen='Listeria monocytogenes' and Outbreak=1 on this row are not supported by the source. Confirmed at source (fda.gov). | Rodent and pest infestations in facilities that store food, drugs, medical devices, and cosmetics pose serious contamination risks. Rodents can carry pathogens such as Salmonella, Listeria, and E. coli, and their droppings, urine, and fur can contaminate such products, potentially causing illness or  [via Tavily gap-finder, deterministic extract] [url-guard 2026-09-27: reviewer 1 tried to reject this row as 'No official regulator page found for the given product and hazard'; refused — the official URL is on the row. Left in Pending for a later run.] [confirm-agent hold: 2026-09-27: no recalling firm on the row (Brand '—'); not published and not rejected — reviewer 2 to read the firm from the notice]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-10-04",
+      "RejectedBy": "manual",
+      "RejectionReason": "Manual (nightly-operator): fabricated pathogen/outbreak attachment — this URL is a federal consent-decree press release about pest-control violations at a warehouse, not a specific recall notice. It names Listeria only as a theoretical rodent-borne risk and documents no confirmed human illness. Path",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-09-23",
+      "Source": "CFIA",
+      "Company": "Chungjungwon brand Sunchang Ssamjang (seasoned bean paste) recalled due to undeclared peanut",
+      "Brand": "—",
+      "Product": "Chungjungwon brand Sunchang Ssamjang (seasoned bean paste) recalled due to undeclared peanut",
+      "Pathogen": "",
+      "Reason": "Chungjungwon brand Sunchang Ssamjang (seasoned bean paste) recalled due to undeclared peanut",
+      "Class": "Recall",
+      "Country": "Canada",
+      "Region": "North America",
+      "Tier": 3,
+      "Outbreak": 0,
+      "URL": "https://recalls-rappels.canada.ca/en/alert-recall/chungjungwon-brand-sunchang-ssamjang-seasoned-bean-paste-recalled-due-undeclared",
+      "Notes": "REJECTED: Manual (nightly-operator): out of scope — allergen-only recall (undeclared peanut in seasoned bean paste); no pathogen, biotoxin, mycotoxin, foreign-material, pest or chemical hazard is involved. Confirmed at source (recalls-rappels.canada.ca). | CFIA HTML listing fallback — claude-check needs to enrich Date+Pathogen [url-guard 2026-09-27: reviewer 1 tried to reject this row as 'could not confirm official recall: Could not find the official regulator URL through web search'; refused — the official URL is on the row. Left in Pending for a later run.]",
+      "DateAdded": "",
+      "LastUpdated": "",
+      "LastChecked": "",
+      "Week_Added": "2026-10-04",
+      "RejectedBy": "manual",
+      "RejectionReason": "Manual (nightly-operator): out of scope — allergen-only recall (undeclared peanut in seasoned bean paste); no pathogen, biotoxin, mycotoxin, foreign-material, pest or chemical hazard is involved. Confirmed at source (recalls-rappels.canada.ca).",
+      "Reviewed": "N"
+    }
+  ]
 }
