@@ -978,6 +978,41 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
             f"no product, and a recall row that cannot say what to avoid is "
             f"not publishable")
 
+    #  6f-ter. …AND IT MUST NOT BE THE NAME OF THE REGULATOR.
+    #     2026-09-27: the whole Pending queue was run through this gate to
+    #     decide what could be promoted. Exactly ONE row of fifty passed —
+    #     and it was the worst row in the queue:
+    #
+    #         Source "CDC" · Product "CDC" · Pathogen "Salmonella"
+    #         Company "Salmonella Outbreaks Linked to Backyard Poultry"
+    #         URL cdc.gov/salmonella/outbreaks/saintpaul-04-26/index.html
+    #
+    #     Every field was populated, so 6f-bis was satisfied ("CDC" has
+    #     letters) and no other rule objected. The row is a scraper artifact
+    #     whose Product is the agency's own acronym, and the notice is not
+    #     even a food recall — it is a Salmonella outbreak from handling live
+    #     backyard poultry. A gate that blocks forty-nine rows and admits
+    #     that one is not measuring what it thinks it is.
+    #
+    #     So a Product that is nothing but the publisher's name, an agency
+    #     acronym, or the bare word "recall"/"alert" is refused. Tokens are
+    #     matched WHOLE and case-insensitively, so real products keep their
+    #     names: "FDA-approved gummies", "CDC brand rice" and any product
+    #     merely containing an acronym are untouched — only a Product that
+    #     IS the token, alone, is rejected.
+    _agency_only = {
+        "cdc", "fda", "usda", "fsis", "cfia", "efsa", "efet", "aesan",
+        "asae", "bvl", "favv", "nvwa", "gis", "mpi", "fsai", "fsa",
+        "rasff", "salute", "mattilsynet", "livsmedelsverket", "anses",
+        "recall", "alert", "recalls", "alerts", "notification", "advisory",
+        "canada.ca", "gov.uk", "unknown", "n/a", "na", "none",
+    }
+    if _prod and _prod.strip(" .-—·|").lower() in _agency_only:
+        problems.append(
+            f"Product is the publisher's name or a bare notice word "
+            f"({_prod[:40]!r}), not a product — this is the scraper's "
+            f"fallback text, and it names nothing a subscriber could avoid")
+
     # 7. Pathogen and Reason must not describe different hazard classes.
     #    See the 2026-08-02 incident in the module docstring: an invented
     #    "Listeria monocytogenes" sat on a row whose own Reason said
