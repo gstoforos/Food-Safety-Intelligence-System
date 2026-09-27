@@ -739,8 +739,52 @@ class CFIAScraper(BaseScraper):
         cutoff = today - timedelta(days=since_days)
         out: List[Recall] = []
 
+        # ── FOOD ONLY. THE FALLBACK READS A MULTI-CATEGORY PORTAL. ────────
+        # This fallback fetches https://recalls-rappels.canada.ca/en — the
+        # SITE ROOT — and recalls-rappels.canada.ca is Canada's consolidated
+        # recall portal: CFIA food notices sit alongside Transport Canada
+        # vehicle recalls, Health Canada medical devices and consumer-product
+        # recalls, all under the same /en/alert-recall/<slug> path with no
+        # category marker to tell them apart. The primary path uses the
+        # CFIA-scoped feed (/en/feed/cfia-alerts-recalls) and is therefore
+        # food-only; this fallback was not, and every notice it found was
+        # emitted with Source="CFIA" — a claim that the Canadian Food
+        # Inspection Agency published it.
+        #
+        # MEASURED COST, 2026-09-27: twelve CFIA rows sat in Pending and NINE
+        # were not food — Transport Canada recalls for two Fords, a Land Rover
+        # and a Jaguar, Galanz refrigerators (fire hazard), INMO AIR3 smart
+        # glasses (burn hazard), Cuisinart grill brushes (injury hazard), a
+        # Williams cystoscopic injection needle and an OmniaSecure MRI device.
+        # They also jammed the queue: they carry no pathogen, so reviewer 1
+        # tried to reject two of them as "no official regulator page found",
+        # and _url_guard correctly refused that rejection because the URL IS
+        # on the regulator's domain — two correct mechanisms holding a fridge
+        # in a food-safety register for ever. CFIA published nothing from
+        # 2026-09-17 to 2026-09-27 while this queue sat behind them.
+        #
+        # The filter EXCLUDES on explicit non-food markers rather than
+        # requiring a positive food signal, deliberately: a marker we have not
+        # thought of lets a row through to Pending exactly as today, which
+        # costs nothing new, whereas a missing positive signal would discard a
+        # real recall. Validated against the register: 0 of 61 published CFIA
+        # food rows match any marker, and all 9 non-food rows above match,
+        # while the 3 genuine food rows in the same queue do not.
+        NON_FOOD_MARKERS = (
+            "transport-canada-recall",   # vehicles — Transport Canada, not CFIA
+            "-mri-", "surescan", "cystoscopic", "injection-needle",
+            "stent", "catheter", "defibrillator",   # Health Canada devices
+            "smart-glasses", "refrigerator", "grill-brush",  # consumer goods
+        )
+
         for slug in unique:
             url = f"https://recalls-rappels.canada.ca{slug}"
+
+            low = slug.lower()
+            if any(m in low for m in NON_FOOD_MARKERS):
+                log.info("CFIA: skipping non-food notice on the consolidated "
+                         "portal: %s", slug)
+                continue
 
             # Try to extract title: look for the slug in href, then walk
             # back to find the anchor's text content.
