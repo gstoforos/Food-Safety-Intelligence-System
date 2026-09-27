@@ -202,7 +202,7 @@ def build_pending_row(
         "URL":         verified.get("efet_url", ""),
         "Notes":       f"Discovered via news: {verified.get('news_source_domain', '')}",
         "ScrapedAt":   now,
-        "Status":      "Pending",
+        "Status":      "pending",
         "RejectedBy":  "",
     }
     return row
@@ -283,7 +283,7 @@ def build_rejected_row(
         "URL":          verified.get("efet_url", ""),
         "Notes":        f"Discovered via news: {verified.get('news_source_domain', '')}",
         "ScrapedAt":    now,
-        "Status":       "Rejected",
+        "Status":       "rejected",
         "RejectedBy":   f"gap_finder/{cfg.code}/rules.py",
         "RejectedAt":   now,
         "RejectReason": classification.category,

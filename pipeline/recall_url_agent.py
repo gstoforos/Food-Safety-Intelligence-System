@@ -557,8 +557,36 @@ def main() -> int:
 
     full_pending = _load_sheet(args.xlsx, "Pending")
     # Agent 1 acts only on its lane
+    # ── Status matching is CASE-INSENSITIVE (2026-09-27) ─────────────────────
+    #
+    # Every lane test below lowercases before comparing. It used to be
+    # `str(r.get("Status", "")).strip() in <lowercase set>` — strip but no lower —
+    # and four collectors write their status capitalised:
+    #
+    #     pipeline/extractor.py:205                 "Status": "Pending"
+    #     pipeline/gap_finder/extractor.py:205      "Status": "Pending"
+    #     pipeline/gap_finder_gr/extractor.py:200   "Status": "Pending"
+    #     pipeline/official_feeds/extractor.py:205  "Status": "Pending"
+    #
+    # So a row from the official-feeds collectors or the country fleet landed in
+    # Pending with Status "Pending", which matches NO reviewer's lane, and sat
+    # there permanently — invisible to reviewer 1, 2 and 3 alike.
+    #
+    # merge_master hid it: that module DOES lowercase when it compares
+    # (`(r.get("Status") or "").lower() == STATUS_REJECTED`), so the row passed
+    # the merge without complaint and only the reviewers could not see it.
+    #
+    # Measured on the 2026-09-27 workbook: 86 rows whose Status is canonical only
+    # after lowercasing, across EIGHT countries — Spain (AESAN, 20), Greece
+    # (EFET, 17), Portugal (ASAE, 16), Nigeria (NAFDAC, 13), South Africa (NCC,
+    # 10), Italy (Salute, 8), Poland (GIS, 1), Norway (Mattilsynet, 1).
+    #
+    # The writers are fixed at source in the same change. This lowercasing is the
+    # belt as well as the braces: a status is data from a collector, and a
+    # reviewer that can only see one capitalisation of it is one typo away from
+    # going blind to a whole country again.
     work_idx = [i for i, r in enumerate(full_pending)
-                if str(r.get("Status", "")).strip() in AGENT1_STATUSES]
+                if str(r.get("Status", "")).strip().lower() in AGENT1_STATUSES]
     if args.source_filter:
         sf = args.source_filter.lower()
         work_idx = [i for i in work_idx
@@ -587,7 +615,7 @@ def main() -> int:
                   f"next run. Saving progress now.")
             break
         row = full_pending[idx]
-        cur = str(row.get("Status", "")).strip()
+        cur = str(row.get("Status", "")).strip().lower()
         res = review_url(row)
         dec = res.get("decision", "retry")
         counts[dec if dec in counts else "retry"] += 1

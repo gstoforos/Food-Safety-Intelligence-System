@@ -366,12 +366,40 @@ def main() -> int:
     # would add is re-reading a page whose fields already agree with it. So
     # any status is admitted here; the guards, not the label, decide. Nothing
     # is relaxed: confirm() still runs in full and rejects anything that fails.
+    # ── Status matching is CASE-INSENSITIVE (2026-09-27) ─────────────────────
+    #
+    # Every lane test below lowercases before comparing. It used to be
+    # `str(r.get("Status", "")).strip() in <lowercase set>` — strip but no lower —
+    # and four collectors write their status capitalised:
+    #
+    #     pipeline/extractor.py:205                 "Status": "Pending"
+    #     pipeline/gap_finder/extractor.py:205      "Status": "Pending"
+    #     pipeline/gap_finder_gr/extractor.py:200   "Status": "Pending"
+    #     pipeline/official_feeds/extractor.py:205  "Status": "Pending"
+    #
+    # So a row from the official-feeds collectors or the country fleet landed in
+    # Pending with Status "Pending", which matches NO reviewer's lane, and sat
+    # there permanently — invisible to reviewer 1, 2 and 3 alike.
+    #
+    # merge_master hid it: that module DOES lowercase when it compares
+    # (`(r.get("Status") or "").lower() == STATUS_REJECTED`), so the row passed
+    # the merge without complaint and only the reviewers could not see it.
+    #
+    # Measured on the 2026-09-27 workbook: 86 rows whose Status is canonical only
+    # after lowercasing, across EIGHT countries — Spain (AESAN, 20), Greece
+    # (EFET, 17), Portugal (ASAE, 16), Nigeria (NAFDAC, 13), South Africa (NCC,
+    # 10), Italy (Salute, 8), Poland (GIS, 1), Norway (Mattilsynet, 1).
+    #
+    # The writers are fixed at source in the same change. This lowercasing is the
+    # belt as well as the braces: a status is data from a collector, and a
+    # reviewer that can only see one capitalisation of it is one typo away from
+    # going blind to a whole country again.
     lane = [r for r in pending
-            if str(r.get("Status", "")).strip() in
+            if str(r.get("Status", "")).strip().lower() in
             (A2_APPROVED, "pending", "pending_gap", "pending_gap_v1",
              "pending_gap_v2")]
     already_rejected = [r for r in pending
-                        if str(r.get("Status", "")).strip() == "rejected"]
+                        if str(r.get("Status", "")).strip().lower() == "rejected"]
     if args.limit and args.limit > 0:
         lane = lane[:args.limit]
 
@@ -471,7 +499,7 @@ def main() -> int:
         # never happened, on rows whose only review was the deterministic
         # guards below. Record the real prior status; the guards are worth
         # exactly what they are, and no more.
-        prior = str(full_pending[idx].get("Status", "") or "?").strip() or "?"
+        prior = str(full_pending[idx].get("Status", "") or "?").strip().lower() or "?"
         full_pending[idx]["Status"] = "pending"      # now promotable
         n = str(full_pending[idx].get("Notes", "")).strip()
         stamp = (f" [confirm-agent {today}: {prior} → pending; "
@@ -505,7 +533,7 @@ def main() -> int:
         # Same correction as the publish stamp above: this text asserted
         # "reviewer 2 approved" on every blocked row regardless of whether
         # reviewer 2 had ever seen it. Name the real prior status instead.
-        _prior = str(full_pending[idx].get("Status", "") or "?").strip() or "?"
+        _prior = str(full_pending[idx].get("Status", "") or "?").strip().lower() or "?"
         _who = ("reviewer 2 approved but"
                 if _prior == A2_APPROVED
                 else f"row was at {_prior} (not reviewed by reviewer 2) and")
