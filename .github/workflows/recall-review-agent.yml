@@ -1345,8 +1345,36 @@ jobs:
               rows, _ = load_pending(args.xlsx)
               if not args.all_statuses:
                   _before = len(rows)
+                  # ── Status matching is CASE-INSENSITIVE (2026-09-27) ─────────────────────
+                  #
+                  # Every lane test below lowercases before comparing. It used to be
+                  # `str(r.get("Status", "")).strip() in <lowercase set>` — strip but no lower —
+                  # and four collectors write their status capitalised:
+                  #
+                  #     pipeline/extractor.py:205                 "Status": "Pending"
+                  #     pipeline/gap_finder/extractor.py:205      "Status": "Pending"
+                  #     pipeline/gap_finder_gr/extractor.py:200   "Status": "Pending"
+                  #     pipeline/official_feeds/extractor.py:205  "Status": "Pending"
+                  #
+                  # So a row from the official-feeds collectors or the country fleet landed in
+                  # Pending with Status "Pending", which matches NO reviewer's lane, and sat
+                  # there permanently — invisible to reviewer 1, 2 and 3 alike.
+                  #
+                  # merge_master hid it: that module DOES lowercase when it compares
+                  # (`(r.get("Status") or "").lower() == STATUS_REJECTED`), so the row passed
+                  # the merge without complaint and only the reviewers could not see it.
+                  #
+                  # Measured on the 2026-09-27 workbook: 86 rows whose Status is canonical only
+                  # after lowercasing, across EIGHT countries — Spain (AESAN, 20), Greece
+                  # (EFET, 17), Portugal (ASAE, 16), Nigeria (NAFDAC, 13), South Africa (NCC,
+                  # 10), Italy (Salute, 8), Poland (GIS, 1), Norway (Mattilsynet, 1).
+                  #
+                  # The writers are fixed at source in the same change. This lowercasing is the
+                  # belt as well as the braces: a status is data from a collector, and a
+                  # reviewer that can only see one capitalisation of it is one typo away from
+                  # going blind to a whole country again.
                   rows = [r for r in rows
-                          if str(r.get("Status", "")).strip() in AGENT2_STATUSES]
+                          if str(r.get("Status", "")).strip().lower() in AGENT2_STATUSES]
                   _skipped = _before - len(rows)
                   if _skipped:
                       print(f"Lane filter: {len(rows)} row(s) in "
@@ -1511,7 +1539,7 @@ jobs:
                       if ob in (0, 1, "0", "1"):
                           full_pending[idx]["Outbreak"] = int(ob)
                       applied_corrections += 1
-                      cur = str(full_pending[idx].get("Status", "")).strip()
+                      cur = str(full_pending[idx].get("Status", "")).strip().lower()
 
                       # STAMP EVERY ROW THIS AGENT ACTUALLY REVIEWED (audit 2026-09-19).
                       #
@@ -1664,7 +1692,7 @@ jobs:
               # (Reviewer 2 no longer writes "pending" at all, so this guard now only
               # protects rows that arrived promotable from elsewhere.)
               for prow in full_pending:
-                  if str(prow.get("Status", "")).strip() != "pending":
+                  if str(prow.get("Status", "")).strip().lower() != "pending":
                       continue
                   u = str(prow.get("URL", "")).strip()
                   if u not in reviewed_urls:
@@ -1698,7 +1726,7 @@ jobs:
                   pass
 
               _v3 = sum(1 for r in full_pending
-                        if str(r.get("Status", "")).strip() == _A2_APPROVED_STATUS)
+                        if str(r.get("Status", "")).strip().lower() == _A2_APPROVED_STATUS)
               print(f"\n✓ Reviewer 2 done. {applied_corrections} row(s) verified and "
                     f"banked at {_A2_APPROVED_STATUS} ({_v3} awaiting reviewer 3), "
                     f"{len(rejected_flags)} marked rejected. Nothing published here.")

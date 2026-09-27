@@ -233,10 +233,20 @@ jobs:
 
 
           def _norm_url(u: Any) -> str:
+              import re as _re
               u = str(u or "").strip().lower().rstrip("/")
               for p in ("https://", "http://", "www."):
                   if u.startswith(p):
                       u = u[len(p):]
+              # admin.ch newsroom (2026-09-07): one federal release is served at /de/,
+              # /fr/ and /it/, and mirrored on every department host, under the same
+              # message id. The German page of the OSAV Nautica trout warning was
+              # published beside the French page already in Recalls. merge_master's
+              # dedup key already collapses these; this makes the confirmer's own
+              # duplicate test agree with it.
+              m = _re.match(r"^[a-z0-9.-]*admin\.ch/(?:[a-z]{2}/)?newnsb/([a-z0-9]+)", u)
+              if m:
+                  return "admin.ch/newnsb/" + m.group(1)
               return u
 
 
@@ -316,7 +326,45 @@ jobs:
                   if _norm_url(p.get("URL")) == u:
                       return ["duplicate: this URL is already published on "
                               f"{str(p.get('Date'))[:10]}"]
+
+              # TWO ADDRESSES FOR ONE ALERT (review 2026-09-06). FSA-PRIN-43-2026 was
+              # published twice: once at alerts.food.gov.uk/news-alerts/alert/fsa-
+              # prin-43-2026 (the Food Alerts API) and again, two days later, at
+              # alerts.food.gov.uk/article/6857/... (the same notice as the site's
+              # article page, found by a gap-finder). The URL rule above cannot see
+              # that. For hosts KNOWN to publish one alert under two URL forms, a
+              # second row with the same date, firm and pathogen is that alert. This
+              # is host-scoped on purpose: RappelConso files one fiche per SKU and a
+              # same-day/same-firm/same-pathogen rule there would reject real notices
+              # (the 15 SILVE fiches, the 7 Nollens cuts).
+              host = u.split("/")[0]
+              if any(host.endswith(h) for h in _TWO_URL_FORM_HOSTS):
+                  key = (str(row.get("Date", ""))[:10], _norm_txt(row.get("Company", "")),
+                         _norm_txt(row.get("Pathogen", "")).split(" ")[0])
+                  if all(key):
+                      for p in published:
+                          pu = _norm_url(p.get("URL"))
+                          if not any(pu.split("/")[0].endswith(h) for h in _TWO_URL_FORM_HOSTS):
+                              continue
+                          pk = (str(p.get("Date", ""))[:10], _norm_txt(p.get("Company", "")),
+                                _norm_txt(p.get("Pathogen", "")).split(" ")[0])
+                          if pk == key:
+                              return ["duplicate: the same alert (same date, firm and pathogen on "
+                                      f"{host}) is already published at {str(p.get('URL'))[:90]}"]
               return []
+
+
+          # Hosts that serve one alert at two addresses (API notation URL and article
+          # URL). Scoped to the duplicate rule above; see its comment.
+          _TWO_URL_FORM_HOSTS = ("alerts.food.gov.uk", "food.gov.uk", "food.gov.scot")
+
+
+          _FIRM_PROBLEMS = ("Company is empty", "neither Company nor Brand is set")
+
+
+          def _is_firm_problem(p: str) -> bool:
+              """A problem that says only that no firm is named — reviewer 2's job."""
+              return any(p.startswith(f) for f in _FIRM_PROBLEMS)
 
 
           def confirm(row: Dict[str, Any],
@@ -384,6 +432,12 @@ jobs:
               if not str(row.get("Company", "") or "").strip() and \
                  not str(row.get("Brand", "") or "").strip():
                   problems.append("neither Company nor Brand is set")
+              elif not str(row.get("Company", "") or "").strip():
+                  # The publish gate inside promote_approved() requires Company, so a
+                  # Brand-only row cannot publish; say so HERE, where main() can hold
+                  # it for reviewer 2 instead of letting the gate archive it.
+                  problems.append("Company is empty (Brand set) — the publish gate "
+                                  "requires the recalling firm")
 
               # Scope: a pre-2026 notice never publishes, whatever reviewer 2 said.
               d = str(row.get("Date", "") or "").strip()[:10]
@@ -419,14 +473,67 @@ jobs:
               # would add is re-reading a page whose fields already agree with it. So
               # any status is admitted here; the guards, not the label, decide. Nothing
               # is relaxed: confirm() still runs in full and rejects anything that fails.
+              # ── Status matching is CASE-INSENSITIVE (2026-09-27) ─────────────────────
+              #
+              # Every lane test below lowercases before comparing. It used to be
+              # `str(r.get("Status", "")).strip() in <lowercase set>` — strip but no lower —
+              # and four collectors write their status capitalised:
+              #
+              #     pipeline/extractor.py:205                 "Status": "Pending"
+              #     pipeline/gap_finder/extractor.py:205      "Status": "Pending"
+              #     pipeline/gap_finder_gr/extractor.py:200   "Status": "Pending"
+              #     pipeline/official_feeds/extractor.py:205  "Status": "Pending"
+              #
+              # So a row from the official-feeds collectors or the country fleet landed in
+              # Pending with Status "Pending", which matches NO reviewer's lane, and sat
+              # there permanently — invisible to reviewer 1, 2 and 3 alike.
+              #
+              # merge_master hid it: that module DOES lowercase when it compares
+              # (`(r.get("Status") or "").lower() == STATUS_REJECTED`), so the row passed
+              # the merge without complaint and only the reviewers could not see it.
+              #
+              # Measured on the 2026-09-27 workbook: 86 rows whose Status is canonical only
+              # after lowercasing, across EIGHT countries — Spain (AESAN, 20), Greece
+              # (EFET, 17), Portugal (ASAE, 16), Nigeria (NAFDAC, 13), South Africa (NCC,
+              # 10), Italy (Salute, 8), Poland (GIS, 1), Norway (Mattilsynet, 1).
+              #
+              # The writers are fixed at source in the same change. This lowercasing is the
+              # belt as well as the braces: a status is data from a collector, and a
+              # reviewer that can only see one capitalisation of it is one typo away from
+              # going blind to a whole country again.
               lane = [r for r in pending
-                      if str(r.get("Status", "")).strip() in
+                      if str(r.get("Status", "")).strip().lower() in
                       (A2_APPROVED, "pending", "pending_gap", "pending_gap_v1",
                        "pending_gap_v2")]
               already_rejected = [r for r in pending
-                                  if str(r.get("Status", "")).strip() == "rejected"]
+                                  if str(r.get("Status", "")).strip().lower() == "rejected"]
               if args.limit and args.limit > 0:
                   lane = lane[:args.limit]
+
+              # HOLD, DO NOT EVICT (audit 2026-09-04). Replayed on the workbook
+              # history: between 2026-09-02 and 2026-09-04 the deterministic publish
+              # gate inside promote_approved() evicted RappelConso fiches 23420 and
+              # 23421 (rillettes d'oie / steak haché, Listeria and Salmonella, sold
+              # "sans marque" at one Carrefour) and CFIA RA-82581 (Coaticook aged
+              # cheddar, Listeria) on every run, for "Company is empty". None of the
+              # three was defective: the RappelConso API names only the distributor
+              # for an unbranded fiche and the CFIA open-data title only the brand.
+              # Reviewer 2 reads the notice and fills Company — but this agent admits
+              # plain "pending" rows and runs three times a day, so it reached them
+              # first and promote_approved() archived them before reviewer 2 ever saw
+              # them (and, until the record_rejections call below existed, without a
+              # trace). A missing Company beside a present Brand is a row that needs a
+              # reader, not a rejection: park it at pending_gap_v2, which is in
+              # reviewer 2's lane and which merge_master will not promote or evict.
+              #
+              # Widened 2026-09-05: FSA-PRIN-43-2026 (Sainsbury's olives, Listeria)
+              # arrived from the official-feed collector with Company AND Brand empty
+              # and was rejected for "neither Company nor Brand is set" — the only
+              # thing wrong with a row whose title began "Sainsbury's recalls". So the
+              # hold is now decided AFTER confirm() runs, on the problems themselves:
+              # when every problem is a missing-firm problem the row is held; when
+              # anything else is wrong it is blocked as before, with all reasons.
+              held: List[Dict[str, Any]] = []
 
               print(f"Agent 3 (confirmer): {len(lane)} row(s) in lane, "
                     f"{len(already_rejected)} already rejected by reviewer 2 "
@@ -445,7 +552,12 @@ jobs:
               confirmed, blocked = [], []
               for i, row in enumerate(lane, 1):
                   probs = confirm(row, published_now)
-                  if probs:
+                  if probs and all(_is_firm_problem(p) for p in probs):
+                      held.append(row)
+                      print(f"  [{i}/{len(lane)}] HOLD    "
+                            f"{str(row.get('Product',''))[:40]:40s} | {probs[0][:40]} "
+                            f"— reviewer 2 to read the firm from the notice")
+                  elif probs:
                       blocked.append((row, probs))
                       print(f"  [{i}/{len(lane)}] BLOCK   "
                             f"{str(row.get('Product',''))[:40]:40s} | {probs[0][:52]}")
@@ -483,23 +595,87 @@ jobs:
                   idx = by_url.get(str(row.get("URL", "")).strip())
                   if idx is None:
                       continue
+                  # THE STAMP MUST NAME THE STATUS THE ROW ACTUALLY HELD (2026-09-13).
+                  # This line used to interpolate the A2_APPROVED constant, so every
+                  # published row was stamped "pending_gap_v3 → pending" — asserting
+                  # that reviewer 2 had reviewed and banked it — whatever status the
+                  # row really carried. Reviewer 2 has not written a stamp to any
+                  # published row since 2026-08-10 (reviewer 1: 2026-08-05), and every
+                  # row this agent published in that window was at plain "pending"
+                  # straight from a scraper. So the audit trail claimed a review that
+                  # never happened, on rows whose only review was the deterministic
+                  # guards below. Record the real prior status; the guards are worth
+                  # exactly what they are, and no more.
+                  prior = str(full_pending[idx].get("Status", "") or "?").strip().lower() or "?"
                   full_pending[idx]["Status"] = "pending"      # now promotable
                   n = str(full_pending[idx].get("Notes", "")).strip()
-                  full_pending[idx]["Notes"] = (
-                      n + f" [confirm-agent {today}: {A2_APPROVED} → pending; "
-                      f"independent checks passed]").strip()[:1000]
+                  stamp = (f" [confirm-agent {today}: {prior} → pending; "
+                           f"deterministic checks passed"
+                           + ("" if prior == A2_APPROVED
+                              else "; reviewer 2 did NOT review this row") + "]")
+                  # ENGLISH-OUTPUT RULE AT THE LAST GATE (2026-09-04). Nine French
+                  # Reasons reached Recalls in the first four days of September. The
+                  # language check is a warning by policy (a real recall is never
+                  # rejected over wording), but nothing on the publish path ever
+                  # translated. pipeline._language.englishify_reason is a table of
+                  # verified translations that never invents: apply it here, and when
+                  # it has no entry, stamp the row so the weekly review sees it.
+                  try:
+                      from pipeline._language import englishify_reason, looks_non_english
+                      before = str(full_pending[idx].get("Reason", "") or "")
+                      after, changed = englishify_reason(before)
+                      if changed:
+                          full_pending[idx]["Reason"] = after
+                          stamp += f" [reason translated: \"{before[:80]}\"]"
+                      elif looks_non_english(before):
+                          stamp += " [needs cleanup: Reason not in English and no verified translation on file]"
+                  except Exception:                                    # noqa: BLE001
+                      pass
+                  full_pending[idx]["Notes"] = (n + stamp).strip()[:1000]
 
               for row, probs in blocked:
                   idx = by_url.get(str(row.get("URL", "")).strip())
                   if idx is None:
                       continue
-                  rejected_flags[idx] = ("Confirmer: reviewer 2 approved but "
+                  # Same correction as the publish stamp above: this text asserted
+                  # "reviewer 2 approved" on every blocked row regardless of whether
+                  # reviewer 2 had ever seen it. Name the real prior status instead.
+                  _prior = str(full_pending[idx].get("Status", "") or "?").strip().lower() or "?"
+                  _who = ("reviewer 2 approved but"
+                          if _prior == A2_APPROVED
+                          else f"row was at {_prior} (not reviewed by reviewer 2) and")
+                  rejected_flags[idx] = (f"Confirmer: {_who} "
                                          + "; ".join(probs[:2]))[:280]
 
               for row in already_rejected:
                   idx = by_url.get(str(row.get("URL", "")).strip())
                   if idx is not None and idx not in rejected_flags:
-                      rejected_flags[idx] = "Rejected by reviewer 2"
+                      # The companion of the correction above, missed when that one
+                      # was made (fix 2026-09-14). This row arrived at Status
+                      # "rejected" — by whom is not recorded anywhere this agent can
+                      # see, and attributing it to reviewer 2 is a guess that reads in
+                      # the archive as a fact. Reviewer 2 has banked nothing since
+                      # 2026-09-02, so for every row archived in that window the guess
+                      # is also wrong.
+                      rejected_flags[idx] = ("Arrived already marked rejected; "
+                                             "confirmer did not re-review")
+
+              # Held rows: park at pending_gap_v2 so promote_approved() neither
+              # publishes them (Company empty would fail its gate) nor archives them.
+              # Stamped once; a row already carrying the hold stamp is left alone.
+              HOLD_MARK = "[confirm-agent hold:"
+              for row in held:
+                  idx = by_url.get(str(row.get("URL", "")).strip())
+                  if idx is None or idx in rejected_flags:
+                      continue
+                  full_pending[idx]["Status"] = "pending_gap_v2"
+                  n = str(full_pending[idx].get("Notes", "")).strip()
+                  if HOLD_MARK not in n:
+                      full_pending[idx]["Notes"] = (
+                          n + f" {HOLD_MARK} {today}: no recalling firm on the row "
+                          f"(Brand {str(row.get('Brand',''))[:40]!r}); not published and "
+                          "not rejected — reviewer 2 to read the firm from the "
+                          "notice]").strip()[:1000]
 
               new_approved, remaining, archived = promote_approved(
                   pending=full_pending,
@@ -516,18 +692,57 @@ jobs:
               # NEVER SILENT-DELETE (audit 2026-09-04). save_xlsx_with_pending()
               # documents newly_rejected_rows as a NO-OP: the caller must mirror the
               # evicted rows into Weekly_Rejected itself, immediately after the save.
-              # This agent never did. Every row it blocked between 2026-08-31 and
-              # 2026-09-04 — 10-14 per run, every RASFF scraper row among them — left
-              # Pending with no record in Recalls, Weekly_Rejected or Rejected, and was
-              # re-scraped and deleted again the next day. A rejection without a
-              # recorded reason is not a rejection; it is data loss.
+              # This agent never did. Measured by replaying the workbook across the six
+              # agent commits of 2026-09-02..04: 50 evictions with no record in
+              # Recalls, Weekly_Rejected or Rejected — 18 distinct rows, 12 of them
+              # RASFF notifications (Listeria, Salmonella, STEC, ochratoxin, DON,
+              # aflatoxin), re-scraped and evicted again on every run. A rejection
+              # without a recorded reason is not a rejection; it is data loss.
               try:
                   from pipeline.weekly_rejected_capture import record_rejections
+                  # The JSON slice the Thursday mailer reads is
+                  # docs/data/weekly-rejected-latest.json (weekly_rejected_capture's
+                  # default). An earlier cut of this call named "weekly-rejected.json"
+                  # — a file nothing reads — so the archive would have been written to
+                  # the sheet but invisible to the operator's email.
                   n_rec = record_rejections(archived, xlsx_path=xlsx,
-                                            json_path=xlsx.parent / "weekly-rejected.json")
+                                            json_path=xlsx.parent / "weekly-rejected-latest.json")
                   print(f"  (archived {n_rec} rejection(s) to Weekly_Rejected)")
               except Exception as e:                                   # noqa: BLE001
                   print(f"  !! could not record rejections: {type(e).__name__}: {e}")
+
+              # AND THE OTHER HALF OF THE LEDGER (audit 2026-09-13).
+              #
+              # The block above mirrors EVICTIONS into Weekly_Rejected. Promotions were
+              # never mirrored into Weekly_Review, and this agent is the only promoter
+              # left: merge_master runs in janitor mode unless MERGE_MASTER_PROMOTE=1
+              # (which the hourly merge-master.yml does not set, despite its commit
+              # message reading "hourly Pending→Recalls merge"), and the two call sites
+              # of record_promotions are claude_check.py and that disabled merge_master
+              # branch. So nothing has written Weekly_Review since this agent took over
+              # publishing.
+              #
+              # The cost, measured on the week of 2026-09-07..13: 62 rows entered
+              # Recalls — 35 through this agent and 27 by operator review — and the
+              # Sunday manual-review email reported "0 recalls added · No new recalls
+              # promoted into the Recalls sheet this week", because Weekly_Review held
+              # only its header. The freshness guard in the email was right and fired
+              # ("JSON is 167.5h old"); the sheet behind it was simply never written.
+              #
+              # Same shape, same fix, same failure mode as the rejection mirror above:
+              # save_xlsx_with_pending() does not do it for you, so the caller must.
+              try:
+                  from pipeline.weekly_review_capture import record_promotions
+                  # json_path passed explicitly for the same reason the rejection
+                  # call above does it: the module-level default is resolved from the
+                  # package ROOT at import time, not from the workbook this run was
+                  # given, so it would write beside the wrong file if --xlsx moves.
+                  n_rev = record_promotions(new_approved, xlsx_path=xlsx,
+                                            json_path=xlsx.parent / "weekly-review-latest.json")
+                  print(f"  (mirrored {n_rev} promotion(s) to Weekly_Review)")
+              except Exception as e:                                   # noqa: BLE001
+                  print(f"  !! could not record promotions: {type(e).__name__}: {e}")
+
               try:
                   from pipeline.merge_master import mirror_json_from_xlsx
                   mirror_json_from_xlsx(xlsx, xlsx.parent / "recalls.json")
