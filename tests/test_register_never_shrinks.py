@@ -90,9 +90,66 @@ def test_recalls_did_not_shrink_without_saying_so():
     before, after = _rows(prev), _rows(XLSX)
     Path(prev).unlink(missing_ok=True)
 
-    keys = {str(r.get("URL") or "").strip().lower() for r in after}
-    gone = [r for r in before
-            if str(r.get("URL") or "").strip().lower() not in keys]
+    # A row is matched on its URL FIRST, because that is the register's own
+    # primary identity (_dedup_key is URL-primary). But a URL is not a
+    # permanent name: it gets REPAIRED. On 2026-09-27 seven RASFF rows had a
+    # notification reference in the path corrected to the numeric notifId
+    # recorded in their own Notes, and this guard reported seven Tier-1 rows
+    # "vanished" — none had. Nothing was removed; seven links were fixed.
+    #
+    # That matters more than one false alarm. This guard is the 2026-09-20
+    # guard, and the only way past it is a deletion word in the commit
+    # message. If an ordinary link repair trips it, an operator learns to
+    # write "remove-rows" on a commit that removes nothing — and the day a
+    # commit really does drop 29 rows, the word is already there and means
+    # nothing. A guard that cries wolf is a guard that gets bypassed.
+    #
+    # So a row also counts as present if a row with the same STABLE identity
+    # is present: EventID when the register carries one (RASFF rows carry
+    # "rasff:2026.4017", which survives any link change), else the tuple of
+    # Date + Source + Company + Product, which does not depend on the URL.
+    # Deleting a row still removes every one of these, so the 2026-09-20
+    # shape is still caught in full.
+    # MATCHING IS ONE-TO-ONE, AND THAT IS NOT A DETAIL. The first version of
+    # this relaxation tested set MEMBERSHIP — "is some row with this identity
+    # still there?" — and that quietly gutted the guard, because identities
+    # collide: several rows can share an EventID or a Date+Source+Company+
+    # Product tuple. Deleting one of a colliding pair left its twin behind to
+    # answer "yes, still there", so a measured 3-row deletion reported 1 and
+    # reverting the register to an older 1,700-row snapshot — the exact
+    # 2026-09-20 incident — reported 7 instead of 94. Each `before` row must
+    # therefore claim a DISTINCT `after` row, or it counts as gone.
+    def _stable(r):
+        ev = str(r.get("EventID") or "").strip().lower()
+        if ev:
+            return ev
+        return "|".join(str(r.get(k) or "").strip().lower()
+                        for k in ("Date", "Source", "Company", "Product"))
+
+    by_url: dict = {}
+    by_stable: dict = {}
+    for i, r in enumerate(after):
+        by_url.setdefault(str(r.get("URL") or "").strip().lower(), []).append(i)
+        by_stable.setdefault(_stable(r), []).append(i)
+
+    claimed: set = set()
+
+    def _claim(index_list):
+        for i in index_list:
+            if i not in claimed:
+                claimed.add(i)
+                return True
+        return False
+
+    gone = []
+    for r in before:
+        # URL first: it is the register's own primary identity.
+        if _claim(by_url.get(str(r.get("URL") or "").strip().lower(), [])):
+            continue
+        # Then the stable identity, so a REPAIRED link is not a deletion.
+        if _claim(by_stable.get(_stable(r), [])):
+            continue
+        gone.append(r)
     if not gone:
         return
 

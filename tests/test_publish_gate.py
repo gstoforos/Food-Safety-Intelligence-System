@@ -520,27 +520,49 @@ class TestWorkbookStaysClean(unittest.TestCase):
         "search_api_fulltext=H-1149-2026",
         "search_api_fulltext=H-1179-2026",
         "search_api_fulltext=H-1181-2026",
-        # ── Added 2026-08-14 with rule 6g (RASFF numeric notifId) ────────
-        # Seven RASFF rows cite the notification REFERENCE instead of the
-        # numeric notifId, so the page does not load:
-        #   2026.6859 (31 Jul), 2026.4556 / 4544 / 4543 (22 May),
-        #   2026.4499 (21 May), 2026.4017 / 4025 (07 May).
-        # An accuracy review caught one by hand; rule 6g found all seven.
+        # ── REPAIRED 2026-09-27. The seven RASFF pins are GONE. ──────────
+        # These seven rows cited the notification REFERENCE instead of the
+        # numeric notifId — 2026.6859 (31 Jul), 2026.4556 / 4544 / 4543
+        # (22 May), 2026.4499 (21 May), 2026.4017 / 4025 (07 May) — and the
+        # 2026-08-14 pin that used to sit here said they were "NOT repairable
+        # from the audit environment", because RASFF Window is a JavaScript
+        # application that returns an empty shell to a server-side fetch, so
+        # "the numeric id cannot be looked up, and guessing one would be a
+        # fabricated citation".
         #
-        # NOT repairable from the audit environment: RASFF Window is a JS
-        # application that returns an empty shell to any server-side fetch,
-        # so the numeric id cannot be looked up, and guessing one would be a
-        # fabricated citation — the exact failure this gate exists to stop.
-        # Each row carries a [url-defect] stamp in Notes so the weakness is
-        # visible in the row itself. Repair needs a browser session or the
-        # RASFF export; the row DATA is unaffected, only the link.
-        "notification/2026.6859",
-        "notification/2026.4556",
-        "notification/2026.4544",
-        "notification/2026.4543",
-        "notification/2026.4499",
-        "notification/2026.4017",
-        "notification/2026.4025",
+        # THE FIRST HALF IS TRUE AND THE CONCLUSION DID NOT FOLLOW. Nobody
+        # ever needed to look the id up. The RASFF collector stamps it into
+        # the row at scrape time, and every one of the seven carried it:
+        #
+        #     [RASFF #2026.4017; classification: alert notification;
+        #      category: nuts, nut products and seeds; notifId=842548]
+        #
+        # The id was in the Notes column of the same row the whole time. The
+        # pin reasoned about the network and never read the row. Six weeks of
+        # "unfixable" was one column away. pipeline/verify_urls.py had even
+        # written the check for it — it parses notifId out of Notes to detect
+        # a URL that disagrees with it — and nothing ran that module, because
+        # it is dispatched by no workflow and no scheduler slot.
+        #
+        # Repaired with `python -m pipeline.verify_urls --apply`, which reads
+        # the id from each row's own Notes and rewrites only the path
+        # segment. THE FORMAT IS UNCHANGED: our format has always been the
+        # numeric-id path that 607 of the 614 RASFF rows already used, and
+        # these seven now match it. Nothing was fetched and nothing guessed.
+        #
+        # As a sanity check the seven ids were compared against the numeric
+        # ids of known-good RASFF rows within a few days of each date; all
+        # seven fall inside the band (RASFF issues roughly 230 ids a day).
+        #
+        # ONE CONSEQUENCE NEEDS A HUMAN, recorded here rather than acted on:
+        # repairing 2026.4017 -> 842548 made it collide with a row that
+        # already carried .../842548. They are the SAME notification — same
+        # EventID rasff:2026.4017, same notifId, same DateAdded to the
+        # second — so the register holds it twice, and the malformed URL is
+        # why: _dedup_key is URL-primary, so a reference-style URL and an
+        # id-style URL looked like two different records. Fixing the link
+        # exposed a duplicate it had been hiding. Neither row is deleted
+        # here; see the operator note dated 2026-09-27.
         # ── Revised 2026-08-02 (second pass) ──────────────────────────────
         # The ten RappelConso rows previously pinned here have been REPAIRED
         # from the official DGCCRF open-data record and are gone from this
