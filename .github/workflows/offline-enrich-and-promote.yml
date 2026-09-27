@@ -1,0 +1,131 @@
+name: Offline enrich + promote
+
+# WHY THIS EXISTS
+# ---------------
+# On 2026-09-27 the Pending queue held 50 rows and ZERO could be promoted. The
+# dominant blocker was not review and not judgement: 18 rows had an empty
+# Pathogen and 12 an empty Company, and in most of them the hazard was written
+# in the row's OWN Reason field the whole time — "présence identifiée
+# d'ochratoxine a", "Presence of Salmonella", "elevated levels of lead",
+# "presence of stones". Twelve real recalls, five of them Tier 1, were sitting
+# one field short of publishable while an operator was asked to work the queue
+# by hand. Running it took a person most of a day; it takes this workflow
+# about a minute.
+#
+# THE POINT: EVERY STEP BELOW IS OFFLINE. No model, no Llama box, no LLM API,
+# no outbound fetch except the git push. That is what makes it safe to schedule
+# twice a day — it keeps working when the box is down, which is precisely when
+# the queue backs up.
+#
+# IT NEVER INVENTS. enrich_pending_offline writes ONLY Pathogen, only from the
+# row's own text, and only values already used by published rows. It never
+# fills Company: for RappelConso the only company-ish text on the row is the
+# DISTRIBUTOR list in Notes ("magasins u", "leclerc thouars"), and publishing a
+# supermarket as the recalling firm is a fabricated attribution. Promotion goes
+# through merge_master.promote_approved, so the re-promotion guard, the URL
+# dedup and the publish gate all still apply. promote_gate_passing never
+# archives anything — rows that do not pass are left in Pending and printed.
+#
+# SCHEDULE LIVES IN FsisScheduler.gs, NOT HERE. Add two slots that dispatch
+# this workflow — 06:20 and 18:20 Athens are clear of the existing jobs. No
+# internal cron, per the standing rule.
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "write changes (false = report only, safe to run any time)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  # The workbook is rewritten several times an hour by other jobs. Two copies
+  # of this workflow editing it at once would lose rows.
+  group: fsis-workbook
+  cancel-in-progress: false
+
+jobs:
+  enrich-promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Always visible in the run log, apply or not, so a red run can be read
+      # without re-running anything.
+      - name: Report what would change
+        run: python -m pipeline.enrich_pending_offline
+
+      - name: Fill Pathogen from each row's own notice text
+        if: ${{ inputs.apply }}
+        run: python -m pipeline.enrich_pending_offline --apply
+
+      - name: Repair RASFF reference-style URLs from each row's own notifId
+        if: ${{ inputs.apply }}
+        run: python -m pipeline.verify_urls --apply
+
+      - name: Promote every row that passes the full publish gate
+        if: ${{ inputs.apply }}
+        run: python -m pipeline.promote_gate_passing --apply
+
+      # Reports only — never fails the run. This is the audit that would have
+      # caught the seven RASFF reference URLs and the six BVL rows citing
+      # produktwarnung.eu months earlier, had anything been running it.
+      - name: Structural URL audit
+        run: python -m pipeline.verify_urls || true
+
+      - name: Rebuild weekly report
+        if: ${{ inputs.apply }}
+        run: |
+          python -m pipeline.build_missing_weekly_reports \
+            --this-week-end "$(TZ=Europe/Athens date +%F)" \
+            --xlsx docs/data/recalls.xlsx \
+            --docs-dir docs \
+            --builder docs/build_weekly_report_afts.py
+
+      - name: Rebuild signals
+        if: ${{ inputs.apply }}
+        run: |
+          python -m pipeline.signal_detector --board
+          python -m pipeline.build_signals_page
+
+      - name: Run the tests that guard the register
+        if: ${{ inputs.apply }}
+        run: |
+          python -m pytest -q -p no:randomly \
+            tests/test_publish_gate.py \
+            tests/test_register_never_shrinks.py \
+            tests/test_auxico_regression.py
+
+      - name: Commit
+        if: ${{ inputs.apply }}
+        run: |
+          git config --local user.email "fsis-bot@advfood.tech"
+          git config --local user.name  "AFTS Intelligence System"
+          git add docs/data/recalls.xlsx docs/data/recalls.json \
+                  docs/data/weekly-index.json \
+                  docs/data/weekly-summary-latest.json \
+                  docs/data/signals-board.json docs/data/signals-latest.json \
+                  docs/data/signals-history.jsonl \
+                  docs/signals.html docs/2026-W*.html || true
+          if [ -z "$(git diff --cached --name-only)" ]; then
+            echo "nothing to commit"; exit 0
+          fi
+          # NO deletion marker here, deliberately. Promotion only ADDS rows to
+          # Recalls, so the register-shrink guard must stay armed on this path.
+          # If a marker were written unconditionally the word would stop
+          # meaning anything, and the day a job really did drop rows the guard
+          # would wave it through — which is the 2026-09-20 incident.
+          git commit -m "Offline enrich + promote $(date -u +%F' '%H:%M) UTC"
+          git push || echo "push failed — not retried"
