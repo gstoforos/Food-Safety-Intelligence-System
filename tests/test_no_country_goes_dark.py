@@ -113,11 +113,26 @@ NOT_YET_RUN = {
     # regulator's own notice. Until that lands they are live, freshness-
     # checked, and contributing nothing. That is a coverage gap stated
     # honestly, which is better than a grace period hiding it.
-    "jp": "2026-09-23", "ph": "2026-09-23",
-    "id": "2026-09-23", "vn": "2026-09-23",
+    "jp": "2026-09-23",
+    # ph, id, vn and cl LEFT on 2026-09-26/27 — the next shard after br/kr/tw.
+    # This test asked for them by name the moment their run logs appeared,
+    # which is the mechanism working: the grace list is not a place to park a
+    # country.
+    #
+    # AND AGAIN, "HAS RUN" IS NOT "IS WORKING". Between them they produced 89
+    # rejections and ZERO accepted rows, and the reason is the same wall
+    # br/kr/tw hit: 50 "no official VFA press-release URL" (Vietnam), 28
+    # "no official BPOM" (Indonesia), 4 "no official ACHIPIA" (Chile) — all
+    # news-only discovery with no regulator notice to resolve back to. Not the
+    # LLM (llm_extraction_failures = 0 on every run) and not a bad regex. The
+    # authority-URL gate held exactly as designed; what these finders lack is
+    # the SECOND half of the Greek route — resolving a news story back to the
+    # authority's own page. Until that lands they are live, freshness-checked
+    # and contributing nothing, which is now stated here rather than hidden by
+    # a grace period. Published rows today: cl 2, id 2, vn 5, ph 2 — all from
+    # native scrapers or RASFF, none from these finders.
     # Latin America — replacing scrapers silent since 06-26 (mx), 06-27 (br)
     "mx": "2026-09-23", "co": "2026-09-23",
-    "cl": "2026-09-23",
     # Middle East
     "sa": "2026-09-23", "ae": "2026-09-23",
     # North America. Added after the others, when a question showed that
