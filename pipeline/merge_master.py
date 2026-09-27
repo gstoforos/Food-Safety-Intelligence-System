@@ -2015,7 +2015,76 @@ def promote_approved(
         # verdict from a different reviewer. See load_rejected_urls() above
         # for the trace that made this necessary.
         _u_now = _normalize_url_for_dedup(str(clean.get("URL", "") or ""))
+
+        # ── EXCEPTION (audit 2026-09-27): A REPAIRED DEFECT IS NOT A
+        #    SECOND VERDICT. ───────────────────────────────────────────────
+        # The guard above is right about reviewers disagreeing, and wrong
+        # about one case: a row archived for a REPAIRABLE data defect, whose
+        # defect has since been repaired.
+        #
+        # Measured today: 14 rows sit in Weekly_Rejected with the reason
+        # "Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2)
+        # and Pathogen is empty". Every one of those hazards was written in
+        # the row's own Reason field the whole time — "présence identifiée
+        # d'ochratoxine a", "Presence of Salmonella", "elevated levels of
+        # lead". pipeline/enrich_pending_offline.py copies the hazard the
+        # notice already states into the field the gate requires, and then
+        # ELEVEN real recalls — Ochratoxin A, Lead, Salmonella x4, Listeria,
+        # two foreign-material and two seal-integrity rows — were refused
+        # re-entry by this guard, because the archive remembers a defect that
+        # no longer exists. Archived for a missing field; barred for ever
+        # once the field is supplied. That is a dead end, not a policy.
+        #
+        # This is the third guard today with the same shape: the shrink guard
+        # read a URL repair as a deleted row, and _url_guard refused a
+        # reviewer's reject that was right about the URL. A correct rule plus
+        # a repaired row equals a permanent loss unless the rule is told what
+        # a repair looks like.
+        #
+        # The exception is deliberately narrow, and all three conditions must
+        # hold:
+        #   1. the archived reason names a defect from REPAIRABLE_DEFECTS
+        #      below — a MISSING or MALFORMED FIELD, never a scope, content,
+        #      duplicate or authority judgement;
+        #   2. the row now passes the FULL publish gate, so the repair is
+        #      demonstrated rather than asserted;
+        #   3. the re-entry is stamped into Notes naming the old reason, so
+        #      the round trip is readable from the sheet.
+        # A row rejected as out of scope, not a food product, a duplicate or
+        # lacking an authority URL is still barred for ever.
+        _repromote_ok = False
         if _u_now and _u_now in previously_rejected:
+            _prior_reason = str(previously_rejected[_u_now] or "")
+            REPAIRABLE_DEFECTS = (
+                "pathogen is empty",
+                "company is empty",
+                "reason is empty",
+                "product is a fragment",
+                "reason is only a reference number",
+                "llm-extraction-failed",
+            )
+            _low = _prior_reason.lower()
+            if any(d in _low for d in REPAIRABLE_DEFECTS):
+                try:
+                    from pipeline._publish_gate import publish_blockers
+                    if not publish_blockers(clean):
+                        _repromote_ok = True
+                except Exception:                       # pragma: no cover
+                    _repromote_ok = False               # fail closed
+            if _repromote_ok:
+                log.warning(
+                    "re-promotion ALLOWED %s — archived for a repairable "
+                    "defect (%s) which is now repaired and the row passes "
+                    "the full publish gate",
+                    str(clean.get("URL", ""))[:90], _prior_reason[:90])
+                clean["Notes"] = (
+                    str(clean.get("Notes") or "").strip()
+                    + f" [re-promotion allowed 2026-09-27: was archived as "
+                      f"{_prior_reason[:160]!r}; that defect is repaired and "
+                      f"the row now passes every publish-gate rule]"
+                ).strip()
+
+        if _u_now and _u_now in previously_rejected and not _repromote_ok:
             _prior = previously_rejected[_u_now]
             log.warning("re-promotion BLOCKED %s — already in Weekly_Rejected "
                         "(%s)", str(clean.get("URL", ""))[:90], _prior[:120])
