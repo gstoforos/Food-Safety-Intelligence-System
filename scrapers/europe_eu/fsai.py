@@ -525,11 +525,39 @@ class FSAIScraper(BaseScraper):
                     yr = int(date_match.group(3))
                     d = datetime(yr, mon, day)
                 else:
-                    d = today
+                    d = None
             else:
-                d = _parse_pubdate(date_match.group(1)) or today
+                d = _parse_pubdate(date_match.group(1))
 
-            if d < cutoff:
+            # ── A SCRAPE DATE IS NOT A PUBLISH DATE (2026-09-28) ───────────
+            # This used to fall back to `today` whenever the listing's date
+            # could not be parsed. The morning sweep caught the cost: two FSAI
+            # rows sat in Pending stamped Date=2026-09-28 with
+            # ScrapedAt=2026-09-28T01:10:40Z — "Recall of a batch of Dunnes
+            # Stores Potato Waffles" and "Recall of specific batches of
+            # prepared Roast Chicken and Gravy Dinners" — while FSAI's own
+            # alert list dates both to 18 SEPTEMBER. Ten-day-old alerts wearing
+            # today's date.
+            #
+            # That is worse than a cosmetic error. Every window filter in this
+            # system keys on Date: the daily sweep decides what is "in window",
+            # the weekly builder decides which report a row belongs to, and the
+            # signal detector decides which ISO week to score. Defaulting to
+            # today makes an old alert look new to all three at once, and there
+            # is no way to tell an undated row from a genuinely-today one.
+            #
+            # An unknown date is now left EMPTY. The publish gate already
+            # refuses a row with no Date, so the row stops in Pending for
+            # enrichment instead of entering the register wearing a date nobody
+            # measured. A missing value that blocks is safer than a plausible
+            # value that lies.
+            if d is None:
+                d = None                      # explicit: unknown stays unknown
+
+            # An unknown date cannot be compared to the cutoff. Keep the row
+            # (it is a candidate) and let the gate refuse it until enriched,
+            # rather than silently dropping a real alert on a missing field.
+            if d is not None and d < cutoff:
                 continue
 
             # Apply pathogen + food filter on title only (we don't have
@@ -555,7 +583,7 @@ class FSAIScraper(BaseScraper):
             co, br = normalise_company_brand(raw_company[:100], "—")
 
             out.append(self._new_recall(
-                Date=d.strftime("%Y-%m-%d"),
+                Date=(d.strftime("%Y-%m-%d") if d else ""),   # unknown stays empty — see above
                 Company=co,
                 Brand=br,
                 Product=cleaned_title[:300] or title[:300],
