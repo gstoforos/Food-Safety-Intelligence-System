@@ -33,6 +33,93 @@ ROOT = Path(__file__).resolve().parents[1]
 XLSX = ROOT / "docs" / "data" / "recalls.xlsx"
 
 
+def supersede_archived_copies(xlsx_path, promoted_urls) -> int:
+    """Mark any archive row whose URL has just been PUBLISHED as superseded.
+
+    THE FAULT THIS CLOSES (morning sweep, 2026-09-28)
+    -------------------------------------------------
+    The sweep found **31 URLs that are simultaneously published and rejected**
+    — 21 shared between Recalls and Weekly_Rejected, 10 between Recalls and
+    Rejected — and put it exactly right: "A recall cannot be both published
+    and thrown away; whichever copy a reader hits first decides what the
+    register says."
+
+    Eleven of those twenty-one are mine. On 2026-09-27 I added a narrow
+    exception to merge_master's re-promotion guard so that a row archived for
+    a REPAIRABLE defect ("Pathogen is empty") could come back once the defect
+    was repaired. It works — eleven real recalls returned, five of them Tier 1
+    — but it only ever wrote to Recalls. The Weekly_Rejected row that said the
+    recall had been thrown away stayed exactly where it was, so the register
+    now asserts both things at once. Fixing the promotion without retiring the
+    rejection is half a fix.
+
+    WHY THIS ANNOTATES RATHER THAN DELETES. Weekly_Rejected and Rejected are
+    append-only by design — test_no_append_only_sheet_loses_rows guards them,
+    and the whole point of an archive is that you can read why something was
+    once refused. Deleting the row would destroy the audit trail AND trip the
+    register-shrink guard. So the row stays, its Reviewed/status column says
+    SUPERSEDED, and the reason records which copy now wins.
+
+    NOT EVERY SHARED URL IS A CONTRADICTION. Seven of the twenty-one are the
+    RASFF duplicate copies archived on 2026-09-27: after their malformed
+    reference URLs were repaired, the archived copy and the kept copy
+    legitimately share one address, because they were always the same
+    notification. Those already say "Duplicate" in their reason and are left
+    alone — marking them superseded would be true but redundant, and rewriting
+    settled audit text for no gain is how audit text stops being trusted.
+    """
+    import openpyxl
+    SUPERSEDE_IF = ("pathogen is empty", "company is empty", "reason is empty",
+                    "product is a fragment", "reason is only a reference number",
+                    "llm-extraction-failed", "no official regulator url",
+                    "no matching hazard category",
+                    # 2026-09-28: verified by reading both copies. Two USDA FSIS
+                    # rows were rejected as "fabricated_pathogen_and_out_of_scope"
+                    # for carrying Pathogen "Hepatitis A virus" on recalls whose
+                    # real hazard was production without inspection. The rows now
+                    # PUBLISHED under those same URLs carry the correct
+                    # "Uninspected product (hazard not assessed)". So the
+                    # rejection is the audit trail of a fabrication and the
+                    # published row is its repair — the archive should say so
+                    # rather than look like a live contradiction.
+                    "fabricated_pathogen")
+    wb = openpyxl.load_workbook(xlsx_path)
+    want = {str(u).strip().lower() for u in promoted_urls if str(u).strip()}
+    stamped = 0
+    for sheet, reason_col, mark_col in (("Weekly_Rejected", "RejectionReason", "Reviewed"),
+                                        ("Rejected", "RejectReason", "Status")):
+        if sheet not in wb.sheetnames:
+            continue
+        ws = wb[sheet]
+        head = [str(c.value) for c in ws[1]]
+        if "URL" not in head or reason_col not in head:
+            continue
+        ucol = head.index("URL") + 1
+        rcol = head.index(reason_col) + 1
+        mcol = head.index(mark_col) + 1 if mark_col in head else None
+        for r in range(2, ws.max_row + 1):
+            if str(ws.cell(r, ucol).value or "").strip().lower() not in want:
+                continue
+            prior = str(ws.cell(r, rcol).value or "")
+            low = prior.lower()
+            if "duplicate" in low:            # see the docstring — leave settled text
+                continue
+            if not any(d in low for d in SUPERSEDE_IF):
+                continue
+            if "SUPERSEDED" in prior:
+                continue
+            ws.cell(r, rcol).value = (
+                "[SUPERSEDED " + dt.date.today().isoformat() + " — the defect named "
+                "below was repaired and this recall is PUBLISHED in Recalls. This row "
+                "is kept only as the audit trail of the original refusal; the Recalls "
+                "copy is what the register says.] " + prior)
+            if mcol:
+                ws.cell(r, mcol).value = "SUPERSEDED"
+            stamped += 1
+    if stamped:
+        wb.save(xlsx_path)
+    return stamped
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--xlsx", default=str(XLSX))
@@ -129,6 +216,11 @@ def main() -> int:
         # fail silently either — a stale email is what this whole block is for.
         print(f"WARNING: Weekly_Review capture failed ({exc!r}); the rows ARE "
               f"promoted but today's operator email will not mention them")
+    n_sup = supersede_archived_copies(args.xlsx, promoted)
+    if n_sup:
+        print(f"marked {n_sup} archive row(s) SUPERSEDED — a recall must not be "
+              f"both published and rejected")
+
     print(f"Recalls {before} -> {before + len(new)}; "
           f"removed {len(drop)} promoted row(s) from Pending; json mirrored")
     print("ROWS_REMOVED=0")          # promotion never removes a published row
