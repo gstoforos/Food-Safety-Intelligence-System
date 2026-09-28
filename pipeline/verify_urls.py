@@ -374,6 +374,31 @@ def main() -> int:
             print("    NOTE: run pipeline/mirror_json_from_xlsx.py so "
                   "docs/data/recalls.json matches.")
 
+    # ── EXIT CONTRACT (fixed 2026-09-28) ──────────────────────────────────
+    # WITHOUT --apply this is an AUDIT, and exit 1 for "structural problems
+    # found" is correct and useful: a CI step can gate on it.
+    #
+    # WITH --apply it is a REPAIR ACTION, and its exit code must report
+    # whether the REPAIR worked — not whether the audit happened to find
+    # unrelated defects it was never asked to fix.
+    #
+    # The difference cost a whole night's run. offline-enrich-and-promote.yml
+    # called `verify_urls --apply` as its third step. The register carries 8
+    # known structural defects that cannot be fixed offline — the EFET
+    # press-release landing page, a CFIA row citing hortidaily.com, and six
+    # BVL rows citing produktwarnung.eu, a private aggregator rather than the
+    # German regulator. All 8 are reported, none is repairable here, so the
+    # step exited 1 and GitHub killed the job. Everything after it —
+    # promote_gate_passing, the weekly rebuild, the signals rebuild and the
+    # commit — never ran. The offline loop, the one piece of this system that
+    # works while the Llama box is down, was being stopped every time by an
+    # audit finding defects it was not there to fix.
+    #
+    # So: --apply exits 0 when the repairs it attempted succeeded. The audit
+    # step later in the same workflow still reports all 8, and still carries
+    # `|| true` because reporting is not failing either.
+    if args.apply:
+        return 0
     return 1 if flagged else 0
 
 
