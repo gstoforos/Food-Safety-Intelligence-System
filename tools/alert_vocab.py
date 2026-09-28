@@ -102,6 +102,29 @@ PATHOGEN: dict[str, list[str]] = {
 
     # --- mycotoxins -----------------------------------------------------
     "Aflatoxin": ["aflatoxin"],                                     # 149
+    # ── 2026-09-28. Both rows below are ACCURATE; neither reached a
+    # subscriber, because no offered word matched them. Flagged by the
+    # nightly operator on 09-27 and again by the morning sweep on 09-28, and
+    # the fix did not survive into main either time — this is the third
+    # rediscovery, so it is written down here with its reason.
+    #
+    # Pyrrolizidine alkaloids: plant toxins that carry over into herbal teas
+    # and honey, hepatotoxic and EU-regulated. A real hazard class, already
+    # in scrapers/_pathogen_vocab.py and in _publish_gate; only the
+    # subscriber vocabulary was missing it. GIS (PL) 2026-09-10, Herbapol
+    # Lublin, Zielnik Polski.
+    "Pyrrolizidine alkaloids": ["pyrrolizidine", "alkaloid"],
+    # Unspecified microbiological contamination: RappelConso 2026-09-17,
+    # Carrefour France. The nightly operator called this "a product decision,
+    # not a bug", and was right that it is a decision — so here it is, made
+    # explicitly: a recall the regulator issued for a microbiological hazard
+    # it did not name is still a microbiological hazard, and a subscriber
+    # filtering for those should see it. Withholding an alert because the
+    # regulator was unspecific tells the subscriber less than the regulator
+    # did. If you disagree, delete this line — the row stays accurate either
+    # way, it simply stops reaching anyone.
+    "Unspecified microbiological contamination": [
+        "unspecified microbiological", "microbiological contamination"],
     "Ochratoxin": ["ochratoxin"],                                   # 91
     "Patulin": ["patulin"],                                         # 2
     "T-2 / HT-2 toxin": ["t-2", "ht-2", "t2 toxin"],                # 10
@@ -317,7 +340,8 @@ COUNTRY: list[str] = [
     "Czechia", "Denmark", "Ecuador", "Egypt", "Estonia", "Ethiopia",
     "Finland", "France", "Georgia", "Germany", "Greece", "Hong Kong",
     "Hungary", "India", "Indonesia", "Iran", "Ireland", "Italy", "Japan",
-    "Kenya", "Korea, South", "Kosovo", "Latvia", "Lithuania", "Madagascar",
+    "Kenya", "Korea, South", "Kosovo", "Latvia", "Lebanon", "Lithuania",
+    "Madagascar",
     "Malawi", "Mexico", "Morocco", "Nepal", "Netherlands", "New Zealand",
     "Nicaragua", "Nigeria", "Norway", "Pakistan", "Panama", "Peru",
     "Philippines", "Poland", "Portugal", "Romania", "Rwanda", "Serbia",
