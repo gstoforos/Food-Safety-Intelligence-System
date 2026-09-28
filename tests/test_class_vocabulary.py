@@ -79,6 +79,13 @@ ALLOWED = {
     "Recall (Voluntary)",
     "Regional public warning",
     "Safety warning",                # was "Veiligheidswaarschuwing (...)" (NL)
+    # 2026-09-28: GIS (PL) publishes "Withdrawal" as a notice type distinct
+    # from "Recall" — product pulled from sale without a consumer return
+    # request. English, and a notice type, so it meets both admission tests
+    # above. Flagged by the nightly operator on 2026-09-27 and again by the
+    # morning sweep; the fix did not survive into main, so it is re-applied
+    # here rather than rediscovered a third time.
+    "Withdrawal",
     "Sanitary alert",
     "Sanitary alert (update)",
     "Voluntary",
