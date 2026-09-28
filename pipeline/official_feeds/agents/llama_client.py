@@ -237,17 +237,62 @@ def chat(messages: list[dict],
             resp = requests.post(url, json=payload, headers=headers,
                                   timeout=LLAMA_TIMEOUT)
             # CONTEXT OVERFLOW IS OURS TO FIX, NOT AN OUTAGE (2026-09-22).
-            # Retry once on a halved budget before calling anything failed.
-            if (resp.status_code == 500
-                    and "context size" in resp.text.lower()):
-                history, _h = _fit_context(history, hard=True)
-                if _h:
-                    print(f"  [llama] server says the context is full — "
-                          f"trimmed {_h} tool result(s) hard and retrying "
-                          f"this turn once")
+            #
+            # STATUS CODE IS THE WRONG THING TO MATCH ON (fixed 2026-09-28).
+            # This used to require `status_code == 500`, on the stated theory
+            # that "a template rejection is a 4xx and an overflow is a 500".
+            # This llama-server build disagrees. The 2026-09-28 reviewer run
+            # got:
+            #
+            #   HTTP 400 {"error":{"code":400,
+            #     "message":"request (4104 tokens) exceeds the available
+            #                context size (4096 tokens) ...",
+            #     "type":"exceed_context_size_error",
+            #     "n_prompt_tokens":4104,"n_ctx":4096}}
+            #
+            # so the retry NEVER FIRED. The row was reported as
+            # "INFRA: no response from llama", the operator was told the box
+            # was fine, and the run died 8 tokens over a 4096-token limit.
+            # Match the server's own words, at any status code.
+            _over = ("exceed_context_size" in resp.text.lower()
+                     or "context size" in resp.text.lower()
+                     or "n_ctx" in resp.text.lower())
+            if resp.status_code >= 400 and _over:
+                # USE THE SERVER'S NUMBERS RATHER THAN GUESSING. The budget
+                # here is in CHARACTERS and the limit is in TOKENS, so the
+                # mapping has always been an estimate — which is how a
+                # request lands 8 tokens over. The error names both figures,
+                # so trim to the ratio it reports (with headroom) and keep
+                # going until it fits or there is nothing left to cut.
+                import json as _json, re as _re
+                try:
+                    _e = _json.loads(resp.text).get("error", {})
+                    _npt, _nctx = int(_e.get("n_prompt_tokens") or 0), int(_e.get("n_ctx") or 0)
+                except Exception:                       # pragma: no cover
+                    _m = _re.search(r"\((\d+) tokens\).*?\((\d+) tokens\)", resp.text)
+                    _npt, _nctx = (int(_m.group(1)), int(_m.group(2))) if _m else (0, 0)
+                if _npt and _nctx:
+                    print(f"  [llama] context overflow: {_npt} tokens into "
+                          f"{_nctx} — over by {_npt - _nctx}")
+
+                _tries, _h = 0, 0
+                while _tries < 4:
+                    history, _h = _fit_context(history, hard=True)
+                    if not _h:
+                        break
+                    _tries += 1
+                    print(f"  [llama] trimmed {_h} tool result(s) hard "
+                          f"(attempt {_tries}) and retrying this turn")
                     payload["messages"] = history
                     resp = requests.post(url, json=payload, headers=headers,
                                           timeout=LLAMA_TIMEOUT)
+                    if resp.status_code < 400:
+                        break
+                    if not ("exceed_context_size" in resp.text.lower()
+                            or "context size" in resp.text.lower()):
+                        break                      # a different error now
+                if _h or _tries:
+                    pass
                 else:
                     # Nothing left to trim: the seed alone does not fit.
                     # Re-sending the identical payload buys an identical
@@ -293,9 +338,11 @@ def chat(messages: list[dict],
             _ctx = "context size" in body.lower() or "n_ctx" in body.lower()
             if _ctx:
                 extra = ("  | THE BOX IS FINE. The conversation did not fit "
-                         "in --ctx-size. The client already trimmed and "
-                         "retried once; if you see this, trimming was not "
-                         "enough. Lower LLAMA_CTX_CHAR_BUDGET / "
+                         "in --ctx-size. The client trimmed hard and "
+                         "retried up to 4 times; if you see this, there was "
+                         "nothing left to cut — the system prompt + row + "
+                         "tool schema alone exceed --ctx-size. Lower "
+                         "LLAMA_CTX_CHAR_BUDGET / "
                          "REVIEW_MAX_PAGE_CHARS, or raise --ctx-size on "
                          "llama-server. Do NOT restart the VPS.")
             elif tools and resp.status_code < 500 and any(
