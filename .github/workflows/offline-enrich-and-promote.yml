@@ -71,6 +71,16 @@ jobs:
         if: ${{ inputs.apply }}
         run: python -m pipeline.enrich_pending_offline --apply
 
+      # `--apply` is a REPAIR, and since 2026-09-28 it exits 0 when the
+      # repairs it attempted succeeded. It used to inherit the AUDIT exit
+      # code — 1 whenever any structural problem existed anywhere — and the
+      # register carries 8 that cannot be fixed offline (an EFET landing
+      # page, a CFIA row on hortidaily.com, six BVL rows on
+      # produktwarnung.eu). So this step exited 1 every single run and
+      # GitHub killed the job here: promote, the weekly rebuild, the signals
+      # rebuild and the commit never executed. The one part of this system
+      # that works while the Llama box is down was being stopped by an audit
+      # finding defects it was not there to fix.
       - name: Repair RASFF reference-style URLs from each row's own notifId
         if: ${{ inputs.apply }}
         run: python -m pipeline.verify_urls --apply
@@ -108,8 +118,12 @@ jobs:
             tests/test_register_never_shrinks.py \
             tests/test_auxico_regression.py
 
+      # ALWAYS REACH THE COMMIT. A promotion that succeeded must not be
+      # thrown away because the weekly builder or the signal detector failed
+      # afterwards — those rebuild next run; an unstaged workbook change is
+      # overwritten by the next hourly job and gone for good.
       - name: Commit
-        if: ${{ inputs.apply }}
+        if: ${{ always() && inputs.apply }}
         run: |
           git config --local user.email "fsis-bot@advfood.tech"
           git config --local user.name  "AFTS Intelligence System"
