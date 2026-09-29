@@ -61,6 +61,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          # pytest lives in requirements-dev.txt, NOT requirements.txt —
+          # requirements.txt is deliberately the runtime-only set so that
+          # workflows which merely run the pipeline do not pull a test stack.
+          # This workflow DOES run the register guard tests before committing,
+          # so it needs the dev set too. Without this line the guard step dies
+          # with "No module named pytest" (2026-09-29), and since that step
+          # sits between the promotion and the commit, the job went red every
+          # run while the work itself had already succeeded.
+          pip install -r requirements-dev.txt
 
       # Always visible in the run log, apply or not, so a red run can be read
       # without re-running anything.
