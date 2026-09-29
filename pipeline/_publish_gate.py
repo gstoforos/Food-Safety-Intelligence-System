@@ -357,6 +357,25 @@ HAZARD_CLASS_KEYWORDS = {
         # all and the curator refused to touch it, same failure shape as the
         # Amanita/mushroom-toxin gap above.
         "pyrrolizidine",
+        # AUDIT 2026-09-29 — and the very next plant alkaloid did it again.
+        # RappelConso fiche 23624, published 2026-09-25: TOP LEGUMES SAS,
+        # "Epinards vrac bio" lots 264.1/266.3, Pathogen "Tropane alkaloids",
+        # Reason "Présence d'alcaloïdes tropaniques (datura)", Tier 1. The row
+        # is IN Recalls and the curator refuses its hazard, exactly as it
+        # refused pyrrolizidine three days earlier —
+        # tests/test_curator_scope_2026_09_09.py names it.
+        #
+        # Datura contamination of leaf crops is a recurring EU hazard, not a
+        # one-off, so the class carries the molecule names as well as the
+        # framing term: a notice may say "atropine and scopolamine" and never
+        # print the word "alkaloid". Filed as biotoxin on the precedent set
+        # one line above — a toxin a PLANT makes, like one a fungus or an alga
+        # makes.
+        "tropane", "tropanique",               # EN / RappelConso FR
+        "tropanalkaloid", "tropan-alkaloid",   # BVL / BLV DE
+        "tropanici", "tropanicos",             # Salute IT / AESAN ES-PT
+        "datura", "stramonium", "jimsonweed",
+        "atropine", "scopolamine", "hyoscyamine",
     ),
     # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
     # "fish") must NOT appear here: RASFF Reason text routinely carries
