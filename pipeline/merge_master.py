@@ -2323,6 +2323,82 @@ def _write_sheet(wb: Workbook,
         c.font = Font(bold=True)
         if header_fill is not None:
             c.fill = header_fill
+    # ── A FAMILY LABEL IS NOT THE FINAL ANSWER (audit 2026-09-29) ─────────
+    # Runs BEFORE the Tier-1 guard below, because the tier follows from the
+    # organism and a family label and its specific member do not share one.
+    #
+    # THE ROW THAT FOUND THIS. FDA, 2026-09-29, Sierra Nevada Cheese Company,
+    # Graziers raw milk cheese. Published as:
+    #
+    #     Pathogen  "Escherichia coli (generic)"
+    #     Reason    "Potential to be contaminated with Shiga toxin-producing
+    #                Escherichia coli (STEC)"
+    #
+    # The row contradicted itself in its own two adjacent fields. FDA's notice
+    # names E. coli O26:H11 in an FDA/CDC outbreak investigation with 13
+    # illnesses; the workbook's own NEWS sheet carried "E. coli / STEC ·
+    # Outbreak · Sickens 13" the same morning.
+    #
+    # Nothing was broken in the normaliser — run it on that Reason and it
+    # returns "Shiga toxin-producing E. coli (STEC)". The row was built by the
+    # FDA HTML listing fallback (Layer 1), where the only token available is a
+    # bare "E. coli", which canonicalises to the generic label CORRECTLY for
+    # that input. Then the detail page filled Reason and nothing re-derived
+    # Pathogen. It is the same failure as Country, Source and Class directly
+    # below: a field normalised where it is CREATED, then updated in place
+    # with no earlier gate running again.
+    #
+    # WHY THE TABLE IS EXPLICIT AND SHORT. This only ever REPLACES A FAMILY
+    # LABEL WITH ONE OF ITS OWN MEMBERS, from the row's own text. It cannot
+    # move Salmonella to Listeria, cannot generalise a specific organism back
+    # to its family, and cannot invent anything the row does not say. Two
+    # families qualify today and both are listed by hand rather than inferred,
+    # so that widening this is a decision somebody makes on purpose.
+    _PATHOGEN_FAMILIES = {
+        # E. coli: the generic label is what a bare "E. coli" produces.
+        "escherichia coli (generic)": (
+            "Shiga toxin-producing E. coli (STEC)",
+        ),
+        # Vibrio: the bare genus is Tier 2, two of its members are Tier 1, so
+        # leaving a row on the family label understates the hazard as well as
+        # mislabelling it.
+        "vibrio": (
+            "Vibrio vulnificus",
+            "Vibrio cholerae O1/O139",
+            "Vibrio cholerae non-O1/non-O139",
+            "Vibrio cholerae",
+            "Vibrio parahaemolyticus",
+            "Vibrio alginolyticus",
+        ),
+    }
+    try:
+        if "Pathogen" in schema and "Reason" in schema:
+            from scrapers._models import normalize_pathogen as _norm_path
+            for _row in rows:
+                _cur = str(_row.get("Pathogen") or "").strip()
+                _members = _PATHOGEN_FAMILIES.get(_cur.lower())
+                if not _members:
+                    continue
+                _from_text = _norm_path(
+                    str(_row.get("Reason") or "") + " " +
+                    str(_row.get("Product") or ""))
+                if not _from_text or _from_text not in _members:
+                    continue
+                log.warning(
+                    "Pathogen specialised at writer [%s]: %r -> %r, from the "
+                    "row's own Reason (%s)", sheet_name, _cur, _from_text,
+                    str(_row.get("URL", ""))[:80])
+                _row["Pathogen"] = _from_text
+                if "Notes" in schema:
+                    _row["Notes"] = (
+                        str(_row.get("Notes") or "").strip() +
+                        f" [pathogen-specialised: {_cur!r} -> {_from_text!r}, "
+                        f"derived from this row's own Reason, which names the "
+                        f"organism the family label does not]").strip()
+    except Exception as exc:
+        log.warning("Pathogen specialisation skipped at writer [%s]: %s: %s",
+                    sheet_name, type(exc).__name__, str(exc)[:80])
+
     # Absolute-final always-Tier-1 guard (added 2026-07-14). Applies only
     # to the Recalls sheet (never Pending/Weekly_Rejected). Catches any row
     # that reached the writer without passing through promote_approved —
