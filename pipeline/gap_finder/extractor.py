@@ -171,6 +171,85 @@ def _safe(extracted: dict, key: str, default: str = "") -> str:
     return str(val).strip() if val is not None else default
 
 
+# ---------------------------------------------------------------------------
+# REGION IS A CONTINENT, NOT A PROVINCE (audit 2026-09-29)
+# ---------------------------------------------------------------------------
+# build_pending_row wrote the LLM's `region_en` straight into the Region
+# column. Those are two different fields. `region_en` is documented in
+# EXTRACTION_SCHEMA above as "region/city/prefecture ... e.g. 'Lesvos',
+# 'Attica'" — a LOCALITY. The Region COLUMN is a controlled continental
+# vocabulary, pipeline/_publish_gate.py VALID_REGIONS:
+#     Europe, North America, Latin America, Asia, Africa, Oceania,
+#     Middle East, Unknown
+# Anything else is a hard publish-gate blocker, so every gap-finder row whose
+# article happened to name a province was refused for ever. Rows nationwide
+# in scope got Region "" and passed; rows with a locality did not. A field
+# the extractor fills correctly, written to a column that means something
+# else, and the gate doing exactly its job.
+#
+# MEASURED on docs/data/recalls.xlsx at 82620c48:
+#   Pending row 5   Salute (IT), 2026-09-15, Listeria monocytogenes in
+#                   Caseificio Valdarno brie, Tier 1. Region "Toscana".
+#                   The ONLY accepted row from this morning's Italian run
+#                   (run_log: candidates 94, verified 22, accepted 1), and
+#                   promote_gate_passing refuses it on Region alone.
+#   Weekly_Rejected 429  GIS (PL), 2026-08-21, Bacillus cereus in Lidl
+#                   Pilos High Protein Pudding 200 g, Tier 1, official
+#                   gov.pl URL. Region held the LLM's prose answer, "Not
+#                   specified in the article, but the product was
+#                   distributed in Poland as per the distributor details
+#                   provided in the article." The review agent APPROVED this
+#                   row on 2026-09-28 and the confirm agent passed it; the
+#                   re-promotion guard then barred it, because its
+#                   REPAIRABLE_DEFECTS exception (merge_master.py) requires
+#                   the row to pass the FULL publish gate, and Region stopped
+#                   it. Two Tier-1 recalls, one field-mapping line.
+#
+# The continent is not an extraction judgement — the country is already
+# known from CountryConfig, so it is derived, never guessed. Values below
+# follow the register's OWN convention, counted from the 1,816 published
+# rows (Egypt/Nigeria/Kenya/South Africa → Africa; Iran/Lebanon/Syria →
+# Middle East; Hong Kong/Taiwan/Japan/Korea/Indonesia/Philippines → Asia;
+# Turkey → Europe; Mexico → Latin America, 3 rows to 1). Countries with no
+# published row yet (ae, sa, gh, md, mk, is, lu, vn) take the same
+# continental assignment as their neighbours in that count.
+#
+# The locality is NOT discarded — it is real information from the notice and
+# it moves into Notes, where nothing gates on it.
+_GATE_REGION_BY_COUNTRY_CODE = {
+    # Europe
+    "at": "Europe", "ba": "Europe", "be": "Europe", "ch": "Europe",
+    "cz": "Europe", "de": "Europe", "dk": "Europe", "ee": "Europe",
+    "es": "Europe", "fi": "Europe", "gr": "Europe", "hr": "Europe",
+    "hu": "Europe", "is": "Europe", "it": "Europe", "lu": "Europe",
+    "md": "Europe", "mk": "Europe", "nl": "Europe", "no": "Europe",
+    "pl": "Europe", "pt": "Europe", "se": "Europe",
+    # North America
+    "us": "North America",
+    # Latin America
+    "br": "Latin America", "cl": "Latin America", "co": "Latin America",
+    "mx": "Latin America",
+    # Asia
+    "hk": "Asia", "id": "Asia", "jp": "Asia", "kr": "Asia", "ph": "Asia",
+    "sg": "Asia", "tw": "Asia", "vn": "Asia",
+    # Africa
+    "eg": "Africa", "gh": "Africa", "ke": "Africa", "ng": "Africa",
+    "za": "Africa",
+    # Middle East
+    "ae": "Middle East", "sa": "Middle East",
+}
+
+
+def gate_region_for(cfg: CountryConfig) -> str:
+    """The continental Region value for a country config.
+
+    "Unknown" rather than "" for an unmapped code: "Unknown" is in
+    VALID_REGIONS, so a country added to countries/ without a line above
+    still produces a publishable row instead of a silently blocked one.
+    """
+    return _GATE_REGION_BY_COUNTRY_CODE.get(str(cfg.code).lower(), "Unknown")
+
+
 def build_pending_row(
     verified: dict,
     classification: Classification,
@@ -186,6 +265,25 @@ def build_pending_row(
     outbreak = "1" if classification.outbreak_qualifies else ""
     tier = str(classification.tier) if classification.tier is not None else ""
 
+    # The locality the article named, kept out of the Region column and
+    # carried in Notes instead. See _GATE_REGION_BY_COUNTRY_CODE above.
+    # A prose non-answer ("Not specified in the article") is dropped rather
+    # than filed as a locality — the publish gate's own _PROSE_MARKERS list
+    # is the arbiter, so one rule governs both places.
+    locality = _safe(extracted, "region_en")
+    if locality:
+        try:
+            from pipeline._publish_gate import _PROSE_MARKERS
+        except ImportError:                                   # pragma: no cover
+            _PROSE_MARKERS = ()
+        _low = locality.lower()
+        if len(locality) > 60 or any(m in _low for m in _PROSE_MARKERS):
+            locality = ""
+
+    notes = f"Discovered via news: {verified.get('news_source_domain', '')}"
+    if locality:
+        notes += f" [locality: {locality}]"
+
     row = {
         "Date":        date,
         "Source":      cfg.authority_short,
@@ -196,11 +294,11 @@ def build_pending_row(
         "Reason":      _safe(extracted, "reason_en"),
         "Class":       "",        # National authorities don't use FSIS-style Class
         "Country":     cfg.name_en,
-        "Region":      _safe(extracted, "region_en"),
+        "Region":      gate_region_for(cfg),
         "Tier":        tier,
         "Outbreak":    outbreak,
         "URL":         verified.get("efet_url", ""),
-        "Notes":       f"Discovered via news: {verified.get('news_source_domain', '')}",
+        "Notes":       notes,
         "ScrapedAt":   now,
         "Status":      "pending",
         "RejectedBy":  "",
