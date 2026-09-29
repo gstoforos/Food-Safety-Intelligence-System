@@ -1,7 +1,7 @@
-# FSIS Daily Review — 2026-09-28 (Athens)
+# FSIS Daily Review — 2026-09-29 (Athens)
 
-Mode: **live** · generated 2026-09-28T15:19:53+03:00
-Recalls rows reviewed: **1811** · in-progress week (never published): **W40**
+Mode: **live** · generated 2026-09-29T14:45:00+03:00
+Recalls rows reviewed: **1816** · in-progress week (never published): **W40**
 
 ## 1. Integrity
 - Duplicate URL groups: **0**
@@ -11,7 +11,7 @@ Recalls rows reviewed: **1811** · in-progress week (never published): **W40**
 - Date-sanity issues: **0**
 
 ## 2. Lane A — safe auto-fixes (APPLIED)
-- stamp_dateadded: **1**
+- none
 
 ## 3. Lane B — proposed deletions (QUEUED, nothing deleted)
 - **[cfs_foreign_repost · high]** 2026-09-04 · Noja Fine Trade Limited, Maxly Food Company Limited and King Rise (Asia) Limited (importers) · Listeria monocytogenes — https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_628.html
@@ -73,8 +73,8 @@ Recalls rows reviewed: **1811** · in-progress week (never published): **W40**
   - id `e96aa2b1ef3d3756` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 
 ## 4. Reports flagged stale (rebuild → UPDATED masthead)
-- Weeklies: W19, W34, W36, W37
-- Monthlies: M05
+- Weeklies: W34, W36, W37
+- Monthlies: none
 
 ## 5. Asset / deliverable integrity
 - **[unexpected_pdf_link]** M01: M01 has a pdf_url but is HTML-only by rule

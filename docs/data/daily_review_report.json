@@ -1,16 +1,16 @@
 {
-  "generated": "2026-09-28T15:19:53+03:00",
-  "date": "2026-09-28",
+  "generated": "2026-09-29T14:45:00+03:00",
+  "date": "2026-09-29",
   "mode": "live",
   "in_progress_week": "W40",
   "counts": {
-    "recalls_rows": 1811,
+    "recalls_rows": 1816,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
     "mistiered_rows": 0,
     "date_issue_rows": 0,
-    "lane_a_changes": 1,
+    "lane_a_changes": 0,
     "proposed_deletions": 18,
     "ledger_resolved": 0,
     "asset_issues": 1
@@ -31,19 +31,8 @@
   ],
   "lane_a": {
     "applied": true,
-    "summary": {
-      "stamp_dateadded": 1
-    },
-    "changes": [
-      {
-        "row": 87,
-        "field": "DateAdded",
-        "fix": "stamp_dateadded",
-        "before": "",
-        "after": "2026-09-28",
-        "reason": "blank DateAdded stamped with today (Athens)"
-      }
-    ]
+    "summary": {},
+    "changes": []
   },
   "lane_b": {
     "proposed_deletions": [
@@ -386,24 +375,18 @@
   },
   "stale_reports": {
     "weeklies": [
-      "W19",
       "W34",
       "W36",
       "W37"
     ],
-    "monthlies": [
-      "M05"
-    ]
+    "monthlies": []
   },
   "rebuilt": {
     "weeklies": [
-      "W19",
       "W34",
       "W36",
       "W37"
     ],
-    "monthlies": [
-      "M05"
-    ]
+    "monthlies": []
   }
 }
