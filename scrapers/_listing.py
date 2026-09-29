@@ -69,6 +69,28 @@ __all__ = [
 #: genuinely ambiguous; day-first wins because 62 of the 66 agencies here
 #: are outside the United States, and the two US scrapers are hardened ones
 #: that never reach this module.
+#: English month names, full and abbreviated, lower-cased. Only English is
+#: listed, deliberately. The agencies whose listings render a month NAME
+#: rather than digits are the English-language ones — FDA, FSAI, FSA (UK),
+#: FSANZ, MPI NZ, CFIA's English side — and a month table that guessed at
+#: other languages would collide ("mai" is May in German and French but
+#: March in Estonian; "juni"/"juli" differ by one letter across four
+#: languages). An unrecognised word yields None, which is the honest answer.
+MONTH_NAMES = {
+    "jan": 1, "january": 1,
+    "feb": 2, "february": 2,
+    "mar": 3, "march": 3,
+    "apr": 4, "april": 4,
+    "may": 5,
+    "jun": 6, "june": 6,
+    "jul": 7, "july": 7,
+    "aug": 8, "august": 8,
+    "sep": 9, "sept": 9, "september": 9,
+    "oct": 10, "october": 10,
+    "nov": 11, "november": 11,
+    "dec": 12, "december": 12,
+}
+
 DATE_PATTERNS: Sequence[tuple] = (
     (re.compile(r"\b(20\d{2})-(\d{1,2})-(\d{1,2})\b"), ("y", "m", "d")),
     (re.compile(r"\b(20\d{2})\.(\d{1,2})\.(\d{1,2})\b"), ("y", "m", "d")),
@@ -76,6 +98,23 @@ DATE_PATTERNS: Sequence[tuple] = (
     (re.compile(r"\b(\d{1,2})\.(\d{1,2})\.(20\d{2})\b"), ("d", "m", "y")),
     (re.compile(r"\b(\d{1,2})/(\d{1,2})/(20\d{2})\b"), ("d", "m", "y")),
     (re.compile(r"\b(\d{1,2})-(\d{1,2})-(20\d{2})\b"), ("d", "m", "y")),
+    # ── Month-NAME forms (added 2026-09-29) ────────────────────────────────
+    # Until today this module could not read a month name at all, so the
+    # single largest English-language date shape parsed as nothing. Two rows
+    # reached the register carrying the regulator's display string verbatim
+    # in the Date column — FDA's "September 18, 2026" and FSAI's "Friday,
+    # 18 September 2026". Neither could ever publish (the gate refuses a
+    # non-YYYY-MM-DD Date, correctly) but both sorted and filtered as
+    # nothing at all, which is how a real 18-September recall becomes
+    # invisible to the weekly builder rather than merely unpublished.
+    #
+    # An optional weekday prefix is not matched here: it does not need to
+    # be. "Friday, 18 September 2026" contains "18 September 2026", and \b
+    # lets the pattern start there.
+    (re.compile(r"\b(\d{1,2})\s+([A-Za-z]{3,9})\.?,?\s+(20\d{2})\b"),
+     ("d", "M", "y")),
+    (re.compile(r"\b([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(20\d{2})\b"),
+     ("M", "d", "y")),
 )
 
 #: How far either side of an anchor to look for its date. Regulator cards
@@ -93,17 +132,32 @@ def _clean(text: str) -> str:
 
 
 def parse_any_date(text: str) -> Optional[str]:
-    """First date in `text` as ISO, or None. Rejects impossible dates."""
+    """First date in `text` as ISO, or None. Rejects impossible dates.
+
+    Every match of each pattern is tried, not only the first. Before
+    2026-09-29 a pattern that matched something impossible ("31/02/2026") or
+    something that only looks like a date ("12 items 2026") gave up on that
+    shape entirely and moved to the next pattern, so a perfectly good date
+    later in the same string was never reached. That mattered the moment
+    month names were added below, because ``[A-Za-z]{3,9}`` matches any
+    word and the first word-shaped match in a card is frequently not a
+    month.
+    """
+    text = text or ""
     for pattern, order in DATE_PATTERNS:
-        m = pattern.search(text or "")
-        if not m:
-            continue
-        parts = dict(zip(order, m.groups()))
-        try:
-            d = date(int(parts["y"]), int(parts["m"]), int(parts["d"]))
-        except (ValueError, KeyError):
-            continue        # 31/02, or a day-first read of a month-first date
-        return d.isoformat()
+        for m in pattern.finditer(text):
+            parts = dict(zip(order, m.groups()))
+            try:
+                if "M" in parts:            # month rendered as a name
+                    month = MONTH_NAMES[parts["M"].strip(". ").lower()]
+                else:
+                    month = int(parts["m"])
+                d = date(int(parts["y"]), month, int(parts["d"]))
+            except (ValueError, KeyError):
+                # 31/02, a day-first read of a month-first date, or a word
+                # that is not a month. Try the next match of this shape.
+                continue
+            return d.isoformat()
     return None
 
 
