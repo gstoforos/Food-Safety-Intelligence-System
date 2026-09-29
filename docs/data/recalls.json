@@ -16,6 +16,22 @@
   "Notes": "e. leclerc falaise [promote 2026-09-28: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-09-28",
+  "Source": "RappelConso (FR)",
+  "Company": "Thiriet",
+  "Brand": "Thiriet",
+  "Product": "persil coupé surgelé",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Possible presence of E. coli shiga toxinogène (stec)",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23635/interne",
+  "Notes": "thiriet"
+ },
+ {
   "Date": "2026-09-26",
   "Source": "FSANZ (AU)",
   "Company": "Supercol Australia",
