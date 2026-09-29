@@ -6,14 +6,14 @@
   "Brand": "E. Leclerc Falaise",
   "Product": "viande hachée de boeuf à la demande.",
   "Pathogen": "Salmonella",
-  "Reason": "Ce rappel fait suite à un prélèvement avec un résultat non conforme sur du steak haché prélevé avec détection de Salmonella spp.",
+  "Reason": "This recall follows a sample taken with a non-compliant result on minced steak, with detection of Salmonella spp.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23618/interne",
-  "Notes": "e. leclerc falaise [promote 2026-09-28: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "e. leclerc falaise [promote 2026-09-28: status 'pending'->'pending' — passes every publish-gate rule] [language morning-fix 2026-09-29: Reason was the RappelConso notice's own French sentence and tests/test_language_policy.py requires English in Reason. Translated literally; the French is kept here verbatim so the translation is checkable against fiche 23618 -- \"Ce rappel fait suite à un prélèvement avec un résultat non conforme sur du steak haché prélevé avec détection de Salmonella spp.\". Product is left in French: the language policy allows a foreign product NAME.]"
  },
  {
   "Date": "2026-09-28",
@@ -317,7 +317,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsis.usda.gov/recalls-alerts/sempio-food-services-inc--recalls-ready-eat-chicken-stew-products-imported-without",
-  "Notes": "Added by sweep triage [added 2026-09-28 from the morning sweep, which found this absent from all five sheets and resolved it back to the authority URL on this row. Placed in PENDING, not Recalls: the facts come from an operator brief, so the reviewer chain and the publish gate verify them against the regulator before anything publishes.]"
+  "Notes": "Added by sweep triage [added 2026-09-28 from the morning sweep, which found this absent from all five sheets and resolved it back to the authority URL on this row. Placed in PENDING, not Recalls: the facts come from an operator brief, so the reviewer chain and the publish gate verify them against the regulator before anything publishes.] [SCOPE FLAG morning-fix 2026-09-29 — THIS ROW MAY NOT BELONG IN Recalls, on three counts measured today, and it is left in place because removing it is an operator decision. (1) Its Reason reads 'Imported without reinspection' — IMPORT reinspection, not production without federal inspection. The other four rows under Pathogen 'Uninspected product (hazard not assessed)' all read 'produced without the benefit of federal inspection'. tests/test_nrte_is_not_ready_to_eat.py states in terms that the import-eligibility cases are 'a separate scope line that has not been ruled on' and that 'none of them may appear under this hazard'; its guard is a list of firm names written before this notice existed, so it did not catch Sempio. (2) This row's OWN Notes, immediately above, say 'Placed in PENDING, not Recalls: the facts come from an operator brief, so the reviewer chain and the publish gate verify them against the regulator before anything publishes.' The row is in Recalls. The write did not do what its own note describes. (3) It carries neither the 'SOURCES:' block nor the 'operator review 2026-09-25' stamp that all four other rows in this class carry, and which test_every_one_carries_its_provenance requires because fsis.usda.gov answers 403 to the audit environment. Those two assertions are the only tests still red after this pass (before: 10 failures, after: 2). THE DECISION IS YOURS: if import reinspection is in scope, the row needs its provenance block and the pinned count in that test file needs raising from 4 to 5; if it is not, the row leaves Recalls and the commit message must contain 'remove-rows'. Nothing was invented and no field was changed here.]"
  },
  {
   "Date": "2026-09-25",
@@ -4269,7 +4269,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-42-2026",
-  "Notes": "PRIN-42-2026 [operator review 2026-08-28: verified vs data.food.gov.uk FSA-PRIN-42-2026. Company and Product both held the truncated alert headline; rebuilt from the alert body.] [url-fix 2026-08-28: cited the FSA metadata endpoint (data.food.gov.uk/food-alerts/id/...), which serves JSON-LD to a reader who clicks it. Replaced with the citizen-facing alert page. Verified: the page resolves and carries the same recall.]"
+  "Notes": "PRIN-42-2026 [operator review 2026-08-28: verified vs data.food.gov.uk FSA-PRIN-42-2026. Company and Product both held the truncated alert headline; rebuilt from the alert body.] [url-fix 2026-08-28: cited the FSA metadata endpoint (data.food.gov.uk/food-alerts/id/...), which serves JSON-LD to a reader who clicks it. Replaced with the citizen-facing alert page. Verified: the page resolves and carries the same recall.] [DOUBLE-PUBLICATION FLAG morning-fix 2026-09-29: this row is FSA (UK) FSA-PRIN-42-2026, 2026-08-28 and the SAME Macroom Buffalo Cheese Listeria monocytogenes recall is also published as FSAI (IE) 2026-08-27 on Recalls row 295. Both are Tier 1, so the 2026-M08 Tier-1 count includes this single event twice. Rejected rows 241, 242 and 251 were each refused on the explicit ground 'one outbreak, one source', naming FSA-PRIN-42-2026 as the published copy; the FSAI notice was then published on 2026-09-18 by the url-agent/confirm-agent path, which did not consult those rejections. NEITHER ROW WAS REMOVED — which notice survives is an operator scope call (the FSAI notice is the home authority and one day earlier; the FSA row is what the August figures already counted). Removing one requires 'remove-rows' in the commit message.]"
  },
  {
   "Date": "2026-08-28",
@@ -4701,7 +4701,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batch-of-various-macroom-buffal",
-  "Notes": "source_id=FSAI-recall-of-specific-batch-of-various-macroom-buffal [via official-feed collector] [url-agent 2026-09-18: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent 2026-09-18: pending_gap_v1 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [url-fix 2026-09-18: FSAI truncates its slugs. The published URL was the real slug with the rest of the headline glued on and resolves to the alerts listing. Canonical URL confirmed by fetching the page: it self-reports this address and carries the 27 August 2026 alert, Mozzarella 125g / Bocconcini 160g / Burrata 150g, use-by 07/09/2026.] [reason-fix 2026-09-18: Reason held 800 characters of raw scraped alert text ('Alert Summary Category 1: For Action...'), truncated mid-word at 'Nature Of Da'. Rewritten from the notice. Same markdown-leak class as the Mattilsynet row on 2026-09-16.]"
+  "Notes": "source_id=FSAI-recall-of-specific-batch-of-various-macroom-buffal [via official-feed collector] [url-agent 2026-09-18: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent 2026-09-18: pending_gap_v1 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [url-fix 2026-09-18: FSAI truncates its slugs. The published URL was the real slug with the rest of the headline glued on and resolves to the alerts listing. Canonical URL confirmed by fetching the page: it self-reports this address and carries the 27 August 2026 alert, Mozzarella 125g / Bocconcini 160g / Burrata 150g, use-by 07/09/2026.] [reason-fix 2026-09-18: Reason held 800 characters of raw scraped alert text ('Alert Summary Category 1: For Action...'), truncated mid-word at 'Nature Of Da'. Rewritten from the notice. Same markdown-leak class as the Mattilsynet row on 2026-09-16.] [DOUBLE-PUBLICATION FLAG morning-fix 2026-09-29: this row is FSAI (IE) 2026-08-27 and the SAME Macroom Buffalo Cheese Listeria monocytogenes recall is also published as FSA (UK) FSA-PRIN-42-2026 2026-08-28 on Recalls row 268. Both are Tier 1, so the 2026-M08 Tier-1 count includes this single event twice. Rejected rows 241, 242 and 251 were each refused on the explicit ground 'one outbreak, one source', naming FSA-PRIN-42-2026 as the published copy; the FSAI notice was then published on 2026-09-18 by the url-agent/confirm-agent path, which did not consult those rejections. NEITHER ROW WAS REMOVED — which notice survives is an operator scope call (the FSAI notice is the home authority and one day earlier; the FSA row is what the August figures already counted). Removing one requires 'remove-rows' in the commit message.]"
  },
  {
   "Date": "2026-08-26",
