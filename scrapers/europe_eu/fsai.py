@@ -275,8 +275,7 @@ class FSAIScraper(BaseScraper):
                 if d is None:
                     log.warning("FSAI RSS: unparseable pubDate %r — keeping "
                                 "row (claude-check will fix Date)", pub)
-                    d = datetime.utcnow()
-                if d < cutoff:
+                if d is not None and d < cutoff:
                     skipped_date += 1
                     continue
 
@@ -323,8 +322,7 @@ class FSAIScraper(BaseScraper):
                 if d is None:
                     log.warning("FSAI Atom: unparseable date %r — keeping row",
                                 pub)
-                    d = datetime.utcnow()
-                if d < cutoff:
+                if d is not None and d < cutoff:
                     continue
 
                 rec = self._build_recall(title, link, summary, d, "FSAI Atom")
@@ -382,7 +380,11 @@ class FSAIScraper(BaseScraper):
         outbreak = _detect_outbreak(merged)
 
         return self._new_recall(
-            Date=d.strftime("%Y-%m-%d"),
+            # `d` may be None: a feed entry whose date could not be parsed is
+            # kept with an EMPTY Date rather than stamped with today's
+            # (2026-09-29 sweep — the RSS and Atom paths in this same file
+            # still carried the fallback the listing path was fixed for).
+            Date=(d.strftime("%Y-%m-%d") if d else ""),
             Company=co,
             Brand=br,
             Product=cleaned_title[:300] or title[:300],
