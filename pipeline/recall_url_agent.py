@@ -601,7 +601,13 @@ def main() -> int:
         return 0
 
     today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
-    counts = {"confirm": 0, "reject": 0, "retry": 0}
+    # "refused" is NOT a kind of retry (audit 2026-09-29). A retry means the
+    # infrastructure failed and no verdict exists. A guard refusal means the
+    # url-guard looked at the row and DECIDED the rejection was wrong — the
+    # most confident outcome this agent produces short of a confirmation.
+    # Counting it as infra is what livelocked the queue; see the block at the
+    # end of the loop.
+    counts = {"confirm": 0, "reject": 0, "retry": 0, "refused": 0}
     rejected_flags: Dict[int, str] = {}
 
     _deadline = (dt.datetime.now(dt.timezone.utc)
@@ -687,7 +693,24 @@ def main() -> int:
                            f"confirmed deterministically; Pathogen left "
                            f"empty because this path did not enrich.]")
                 else:
-                    counts["retry"] = counts.get("retry", 0) + 1
+                    # A REFUSAL IS A DECISION, NOT AN OUTAGE (audit 2026-09-29).
+                    #
+                    # This used to increment counts["retry"]. On a run where
+                    # every row in the lane was a guard refusal — which is
+                    # exactly what an empty Searx result set produces, because
+                    # the model then falls back to "No official regulator URL
+                    # found" on every row — the totals came out as all-retry,
+                    # the all-retry block below declared NO REVIEW PERFORMED
+                    # and returned 3 BEFORE the write-back. So the refusal tag
+                    # written into Notes two lines down was discarded.
+                    #
+                    # That closed a livelock. refusal_count() reads those tags;
+                    # with them thrown away it always returned 0, so _prior
+                    # never reached 1, so the escalation directly above — added
+                    # 2026-09-25 precisely to stop a row being asked the same
+                    # question forever — could never fire. The guard refused,
+                    # the note vanished, the row came back identical next run.
+                    counts["refused"] = counts.get("refused", 0) + 1
                     # The row is NOT rejected, so the per-row line must not
                     # print "→ rejected". next_status already returned
                     # S_REJECTED for dec="reject"; discard it.
@@ -710,10 +733,38 @@ def main() -> int:
         print(f"NOTE: {_stopped_early} rows not reviewed this run (time budget).")
     print(f"\n{'='*60}")
     print(f"confirm: {counts['confirm']}  reject: {counts['reject']}  "
-          f"retry (infra, left in Pending): {counts['retry']}")
+          f"retry (infra, left in Pending): {counts['retry']}  "
+          f"guard-refused (left in Pending, note written): "
+          f"{counts.get('refused', 0)}")
     print(f"{'='*60}")
 
     _n = len(work_idx)
+    _refused = counts.get("refused", 0)
+    if _n and _refused and counts.get("retry", 0) + _refused == _n:
+        # EVERY row was a guard refusal, and none was an infra failure. This
+        # is NOT "no review performed": the guard reached a verdict on each
+        # one — that the rejection was wrong because the row already carries
+        # its authority URL. The run must fall through to the write-back so
+        # those refusals are recorded, because the escalation on the next run
+        # counts them.
+        print("\n" + "=" * 60)
+        print(f"*** NO ROW ADVANCED — all {_refused} were guard refusals. ***")
+        print("The url-guard refused every rejection reviewer 1 proposed. That")
+        print("is the guard working, not an outage: each of these rows already")
+        print("carries an official regulator URL, and 'no official URL found'")
+        print("is a statement about reachability, not about existence.")
+        print("")
+        print("The usual cause is an EMPTY SEARX RESULT SET. With no search")
+        print("results the model has nothing to cite and falls back to")
+        print("'No official regulator URL found' on every row. Check SEARX_URL")
+        print("and the instance's engines BEFORE touching the VPS — llama is")
+        print("answering, or there would be no rejections to refuse.")
+        print("")
+        print("The refusals ARE being written to Notes. A row refused twice")
+        print("escalates to confirmed on the next run (see the escalation in")
+        print("the reject branch above), so this clears itself once recorded.")
+        print("=" * 60)
+
     if _n and counts.get("retry", 0) == _n:
         print("\n" + "=" * 60)
         print(f"*** NO REVIEW PERFORMED — all {_n} rows returned retry. ***")
