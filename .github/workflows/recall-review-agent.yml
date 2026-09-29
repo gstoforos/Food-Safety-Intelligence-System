@@ -274,17 +274,46 @@ jobs:
             echo "✗ SEARX_URL is not set — the reviewers would run blind"
             echo "reachable=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
+          # REACHABLE IS NOT USEFUL (audit 2026-09-29).
+          #
+          # This used to pass on a grep for the string "results", which an
+          # EMPTY results array satisfies. On 2026-09-29 Searx answered every
+          # query with zero results; this check went green, the reviewer ran,
+          # the model had nothing to cite and fell back to "No official
+          # regulator URL found" on all four rows in the lane. The url-guard
+          # refused all four - correctly, they each carry an authority URL -
+          # and the run exited 3. A whole reviewer slot spent turning good
+          # rows into rejections that had to be refused.
+          #
+          # It is the same invariant as the lying 404 from an Akamai host:
+          # the service answering is not the service working. Require at
+          # least one result.
+          #
+          # The python is deliberately ONE line. A multi-line -c literal
+          # dedents to column 0 and ends the YAML block scalar early, which
+          # is a workflow that does not parse at all.
           echo "Querying Searx for a known-good term..."
           for i in 1 2 3; do
-            if curl -sf --max-time 15 --get "$SEARX_URL" \
-                 --data-urlencode "q=listeria recall" \
-                 --data-urlencode "format=json" | grep -q '"results"'; then
-              echo "✓ Searx answered with a results array"
+            n=$(curl -sf --max-time 15 --get "$SEARX_URL" \
+                  --data-urlencode "q=listeria recall" \
+                  --data-urlencode "format=json" \
+                | python3 -c "import json,sys;print(len(json.load(sys.stdin).get('results') or []))" \
+                || echo -1)
+            if [ "${n:--1}" -gt 0 ] 2>/dev/null; then
+              echo "OK - Searx returned $n result(s) for a known-good term"
               echo "reachable=true" >> "$GITHUB_OUTPUT"; exit 0
             fi
-            echo "Attempt $i/3 failed, retrying in 5s..."; sleep 5
+            if [ "$n" = "0" ]; then
+              echo "Attempt $i/3 - Searx answered but returned ZERO results."
+              echo "  The instance is UP and USELESS: engines failing, rate"
+              echo "  limited, or all engines disabled. The reviewer must not"
+              echo "  run on this - it produces false no-official-URL verdicts."
+            else
+              echo "Attempt $i/3 - no parseable results array."
+            fi
+            [ "$i" = "3" ] || { echo "retrying in 5s..."; sleep 5; }
           done
-          echo "✗ Searx did not return a results array after 3 attempts"
+          echo "Searx did not return a NON-EMPTY results array after 3 attempts"
           echo "reachable=false" >> "$GITHUB_OUTPUT"
 
       # Fail FAST and by name. Without this the job spends its whole time
