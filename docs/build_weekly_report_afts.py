@@ -3880,6 +3880,59 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir,
             log.warning("weekly latest-pointer unreadable (%s: %s) — writing "
                         "%04d-W%02d", type(exc).__name__, exc, year, wnum)
 
+    # ---------------------------------------------------------------------
+    # "LATEST" ALSO MEANS CLOSED (incident 2026-09-28, found 2026-09-29).
+    #
+    # The guard above stops the pointer moving BACKWARDS. Nothing stopped it
+    # moving FORWARDS into a week that has not finished, which is the same
+    # failure reflected: the mailer sends whatever this file names, and this
+    # file named a week two days old.
+    #
+    # WHAT HAPPENED
+    # On Monday 2026-09-28 at 15:25 UTC, offline-enrich-and-promote.yml ran
+    #     python -m pipeline.build_missing_weekly_reports \
+    #       --this-week-end "$(TZ=Europe/Athens date +%F)"
+    # `date +%F` is TODAY, not a week end. Monday 28 September is day one of
+    # 2026-W40, so the run built W40 and this pointer took it:
+    #     "filename": "2026-W40.html",  week 28 Sep - 4 Oct
+    #     "stats": {"total": 1, "tier1": 1, "delta": -54, "delta_pct": -98}
+    # One day of data presented as a week, and a 98% collapse in recalls that
+    # is nothing but the calendar. The most recently CLOSED week, W39
+    # (21-27 Sep), held 55.
+    #
+    # WHERE THE GUARD GOES
+    # Not in the workflow's --this-week-end argument, and not in each caller.
+    # The argument is right for what it does — it names the week to RENDER,
+    # and rendering the open week's HTML as it fills is wanted. It is only
+    # the subscriber pointer that must never name it. So the rule lives here,
+    # at the single place the pointer is written, for the same reason the
+    # backwards guard does: it covers the Wednesday check, the daily review
+    # agent, the offline promote path, a manual backfill, and whatever is
+    # written next year.
+    #
+    # THE RULE mirrors tests/test_report_week.py's invariant exactly: a week
+    # closes on its Sunday (WEEK_RULE 'iso', from 2026-W36) and ships the
+    # Monday after, so the newest week this pointer may name is the one
+    # ending on the most recent Sunday on or before today. Pre-W36 weeks
+    # closed Thursday and shipped Friday. Building the open week's HTML and
+    # its weekly-index.json row still happens; only the pointer is withheld.
+    _today = date.today()
+    if we_display >= date(2026, 9, 6):
+        _newest_allowed = _today - timedelta(days=(_today.weekday() + 1) % 7)
+    else:
+        _ship_friday = _today - timedelta(days=(_today.weekday() - 4) % 7)
+        _newest_allowed = _ship_friday - timedelta(days=1)
+    if we_display > _newest_allowed:
+        log.warning(
+            "REFUSING to point the weekly latest-pointer at an OPEN week: "
+            "this build is %04d-W%02d covering data through %s, but the most "
+            "recently closed week ends %s. The HTML and weekly-index.json "
+            "are written; the subscriber pointer keeps naming the last "
+            "closed week. (Incident 2026-09-28: the pointer named W40 on "
+            "day one of W40 — one row, reported as a 98%% weekly fall.)",
+            year, wnum, we_display, _newest_allowed)
+        return
+
     out.write_text(json.dumps(summary,indent=2,ensure_ascii=False),encoding="utf-8")
     log.info("Wrote %s",out)
 
