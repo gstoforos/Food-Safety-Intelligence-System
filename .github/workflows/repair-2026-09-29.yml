@@ -78,6 +78,7 @@ jobs:
             tests/test_nrte_is_not_ready_to_eat.py \
             tests/test_a_recall_is_not_both_published_and_rejected.py \
             tests/test_an_unknown_date_is_never_today.py \
+            tests/test_a_family_label_is_not_the_final_answer.py \
             tests/test_terminal_rejection_guard.py
 
       - name: Commit
@@ -99,5 +100,5 @@ jobs:
           # because it was added by hand and then auto-promoted. It is
           # archived to Rejected with a terminal reason in the same commit, so
           # nothing is lost and nothing re-ingests it.
-          git commit -m "remove-rows: Sempio import-reinspection row (deliberately out of scope) + normalise two non-ISO dates"
+          git commit -m "remove-rows: Sempio import-reinspection row (deliberately out of scope); normalise two non-ISO dates; name the STEC organism on the Sierra Nevada row its own Reason already named"
           git push
