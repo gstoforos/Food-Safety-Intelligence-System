@@ -2664,6 +2664,70 @@ def _write_sheet(wb: Workbook,
         log.warning("Class normalisation skipped at writer [%s]: %s: %s",
                     sheet_name, type(exc).__name__, str(exc)[:80])
 
+    # ── Absolute-final Date canonicalisation (audit 2026-09-29) ────────────
+    # Same choke-point rationale as Country, Source and Class above, and the
+    # same cause: a value is normalised where it is CREATED, then something
+    # updates the row in place afterwards and no earlier gate runs again.
+    #
+    # The block below already forced a datetime into YYYY-MM-DD, and this
+    # function's docstring claimed Date cells were "forced to YYYY-MM-DD
+    # strings" — but a value that was ALREADY a string went through
+    # untouched, whatever it said. So detail-page enrichment, which reads the
+    # date the regulator prints, wrote the regulator's DISPLAY string
+    # straight into the column:
+    #
+    #     FDA    GF Blends           Date = "September 18, 2026"
+    #     FSAI   Kilbride Classic    Date = "Friday, 18 September 2026"
+    #
+    # Neither could ever be published — publish_blockers refuses a Date that
+    # is not YYYY-MM-DD, and did — but every window filter in this system
+    # does a string or datetime comparison on this column, so both rows
+    # sorted and filtered as nothing at all. A real 18-September recall
+    # becomes INVISIBLE to the weekly builder rather than merely unpublished.
+    # The second of the two is the same Kilbride alert whose date the FSAI
+    # listing fallback had already got wrong once, the other way.
+    #
+    # WHY AN UNREADABLE VALUE IS NOT SIMPLY DROPPED: the original text is the
+    # only record of what the regulator actually printed. It is copied into
+    # Notes before the cell is cleared, so the row can be repaired by hand
+    # rather than re-fetched.
+    try:
+        if "Date" in schema:
+            from scrapers._listing import parse_any_date as _parse_any_date
+            for _row in rows:
+                _raw = _row.get("Date")
+                if _raw in (None, "") or isinstance(_raw, (_dt, _dt_date)):
+                    continue            # empty, or handled by the block below
+                _txt = str(_raw).strip()
+                if re.match(r"^\d{4}-\d{2}-\d{2}", _txt):
+                    continue            # already ISO (a trailing time is fine)
+                _iso = _parse_any_date(_txt)
+                if _iso:
+                    log.info("Date canonicalised at writer [%s]: %r -> %r (%s)",
+                             sheet_name, _txt, _iso,
+                             str(_row.get("URL", ""))[:80])
+                    _row["Date"] = _iso
+                    if "Notes" in schema:
+                        _row["Notes"] = (
+                            str(_row.get("Notes") or "").strip() +
+                            f" [date-normalised {sheet_name}: {_txt!r} -> {_iso}]"
+                        ).strip()
+                else:
+                    log.warning("Date UNREADABLE at writer [%s]: %r — cleared, "
+                                "kept in Notes (%s)", sheet_name, _txt,
+                                str(_row.get("URL", ""))[:80])
+                    _row["Date"] = ""
+                    if "Notes" in schema:
+                        _row["Notes"] = (
+                            str(_row.get("Notes") or "").strip() +
+                            f" [date-unreadable {sheet_name}: regulator printed "
+                            f"{_txt!r}; cleared so no window filter reads it as "
+                            f"a date — the publish gate holds this row]"
+                        ).strip()
+    except Exception as exc:
+        log.warning("Date canonicalisation skipped at writer [%s]: %s: %s",
+                    sheet_name, type(exc).__name__, str(exc)[:80])
+
     for r_idx, row in enumerate(rows, 2):
         for c_idx, col in enumerate(schema, 1):
             v = row.get(col, "")

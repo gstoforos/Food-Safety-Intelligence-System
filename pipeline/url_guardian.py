@@ -436,7 +436,15 @@ def _gap_finder_pass(recalls: List[Dict[str, Any]],
             if not url or is_generic_url(url):
                 continue
             new_row = {
-                "Date":      (c.get("Date") or today)[:10],
+                # AN UNKNOWN DATE IS NOT TODAY (2026-09-29). This was the
+                # third live copy of the fallback that mis-dated two FSAI
+                # alerts by ten days on 2026-09-28 — a gap-finder candidate
+                # that names no date is a recall whose date we do not know,
+                # and stamping today makes it look like this morning's news
+                # to the daily sweep, the weekly builder and the signal
+                # detector. Empty is held by the publish gate ("Date is
+                # empty") until a reviewer supplies the real one.
+                "Date":      (c.get("Date") or "")[:10],
                 "Source":    f"{agency} (gap-finder)",
                 "Company":  c.get("Company", ""),
                 "Brand":    "",
