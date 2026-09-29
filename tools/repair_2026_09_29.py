@@ -90,6 +90,36 @@ SEMPIO_REASON = (
 #: it buys.
 LIVE_SHEETS = ("Recalls", "Pending", "Weekly_Review", "Weekly_Rejected")
 
+
+# ── FAULT C — A ROW VAGUER THAN ITS OWN REASON ─────────────────────────────
+# FDA, 2026-09-29, Sierra Nevada Cheese Company, Graziers raw milk cheese.
+# Published with Pathogen "Escherichia coli (generic)" while its own Reason
+# read "Potential to be contaminated with Shiga toxin-producing Escherichia
+# coli (STEC)". The writer now specialises a family label from the row's own
+# text (merge_master._write_sheet), which prevents the next one; this repairs
+# the row already written, on every sheet that holds it.
+#
+# The Outbreak flag is a separate matter and is NOT force-set. It read 0, and
+# that was correct given the row's text — the outbreak evidence was on FDA's
+# page, not in the row. The flag is evidence-gated on purpose (five rows were
+# once published as outbreaks on the strength of a RASFF "risk: serious"
+# string). So the EVIDENCE is written into Reason, quoted from the notice this
+# row already cites, and the flag then rests on something the row says.
+SIERRA_URL = ("https://www.fda.gov/safety/recalls-market-withdrawals-safety-"
+              "alerts/sierra-nevada-cheese-company-recalls-graziers-raw-milk-"
+              "cheese-because-possible-health-risk")
+
+SIERRA_PATHOGEN = "Shiga toxin-producing E. coli (STEC)"
+
+#: Verbatim from the FDA notice at SIERRA_URL (company announcement
+#: 2026-09-28, FDA publish date 2026-09-29).
+SIERRA_REASON = (
+    "Potential to be contaminated with Shiga toxin-producing Escherichia coli "
+    "(STEC); FDA names Escherichia coli O26:H11. FDA/CDC outbreak "
+    "investigation: 13 illnesses identified to date, epidemiologically "
+    "associated with consumption of Graziers Raw Milk Medium Cheddar."
+)
+
 _ISO = re.compile(r"^\d{4}-\d{2}-\d{2}")
 
 
@@ -178,6 +208,51 @@ def remove_sempio(wb) -> int:
     return 1
 
 
+def repair_sierra_nevada(wb) -> int:
+    """Name the organism the row's own Reason already named, on every sheet."""
+    fixed = 0
+    for name in wb.sheetnames:
+        ws = wb[name]
+        head = [str(c.value) for c in ws[1]]
+        if "URL" not in head or "Pathogen" not in head:
+            continue
+        ucol = head.index("URL") + 1
+        pcol = head.index("Pathogen") + 1
+        rcol = head.index("Reason") + 1 if "Reason" in head else None
+        ocol = head.index("Outbreak") + 1 if "Outbreak" in head else None
+        ncol = head.index("Notes") + 1 if "Notes" in head else None
+        tcol = head.index("Tier") + 1 if "Tier" in head else None
+        for r in range(2, ws.max_row + 1):
+            if str(ws.cell(r, ucol).value or "").strip() != SIERRA_URL:
+                continue
+            was = str(ws.cell(r, pcol).value or "")
+            if was == SIERRA_PATHOGEN and ocol and ws.cell(r, ocol).value in (1, "1"):
+                print(f"  {name} row {r}: already repaired")
+                continue
+            ws.cell(r, pcol).value = SIERRA_PATHOGEN
+            if rcol:
+                ws.cell(r, rcol).value = SIERRA_REASON
+            if ocol:
+                ws.cell(r, ocol).value = 1
+            if tcol:
+                ws.cell(r, tcol).value = 1
+            if ncol:
+                prior = str(ws.cell(r, ncol).value or "").strip()
+                ws.cell(r, ncol).value = (
+                    prior + f" [pathogen-repair {TODAY}: Pathogen was {was!r} "
+                    f"while this row's own Reason already said 'Shiga "
+                    f"toxin-producing Escherichia coli (STEC)'. Set to the "
+                    f"organism the row names. Outbreak set to 1 on the FDA "
+                    f"notice's own words — FDA/CDC investigation, 13 illnesses "
+                    f"epidemiologically associated — which are now quoted in "
+                    f"Reason so the flag rests on something the row says]"
+                ).strip()
+            print(f"  {name} row {r}: {was!r} -> {SIERRA_PATHOGEN!r}; "
+                  f"Outbreak -> 1")
+            fixed += 1
+    return fixed
+
+
 def main() -> int:
     import openpyxl
     if not XLSX.exists():
@@ -194,7 +269,11 @@ def main() -> int:
     n_rows = remove_sempio(wb)
     print(f"  {n_rows} removed\n")
 
-    if not n_dates and not n_rows:
+    print("FAULT C — a row vaguer than its own Reason")
+    n_path = repair_sierra_nevada(wb)
+    print(f"  {n_path} repaired\n")
+
+    if not n_dates and not n_rows and not n_path:
         print("nothing to do")
         print("ROWS_REMOVED=0")
         return 0
