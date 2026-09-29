@@ -1,0 +1,103 @@
+name: One-shot data repair 2026-09-29
+
+# ============================================================================
+# Runs tools/repair_2026_09_29.py once, rebuilds what the change affects, and
+# commits with a DELETION MARKER in the message. Manual trigger only.
+#
+# WHY THIS EXISTS AT ALL. Removing a row from Recalls trips
+# test_register_never_shrinks unless the commit message says so in as many
+# words ("remove-rows"). A workbook uploaded through the GitHub web UI commits
+# as "Add files via upload", which says nothing — so the guard would either
+# fail the build or, worse, teach everyone to ignore it. The committing job
+# writes the marker itself, which is the only honest way to do this.
+#
+# It also means the repair runs against whatever main holds at the moment it
+# fires, not against a snapshot taken hours earlier. The workbook is rewritten
+# several times an hour by other jobs; an uploaded copy would silently discard
+# everything written in between. That is the 2026-09-20 shape.
+#
+# AFTER IT SUCCEEDS, DELETE BOTH FILES:
+#   .github/workflows/repair-2026-09-29.yml
+#   tools/repair_2026_09_29.py
+# A one-shot repair left lying around is a loaded gun; the next person to hit
+# "Run workflow" on it would remove a row that is no longer there to remove
+# (harmless today) against a workbook that has moved on (not harmless).
+# ============================================================================
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # The workbook is rewritten several times an hour by other jobs.
+  group: fsis-workbook
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # pytest is in the dev set, not the runtime set — see
+          # tests/test_a_workflow_installs_what_it_runs.py. This job runs the
+          # register guards before committing, so it needs both.
+          pip install -r requirements-dev.txt
+
+      - name: Repair
+        run: python tools/repair_2026_09_29.py
+
+      - name: Rebuild weekly report
+        run: |
+          python -m pipeline.build_missing_weekly_reports \
+            --this-week-end "$(TZ=Europe/Athens date +%F)" \
+            --xlsx docs/data/recalls.xlsx \
+            --docs-dir docs \
+            --builder docs/build_weekly_report_afts.py
+
+      - name: Rebuild signals
+        run: |
+          python -m pipeline.signal_detector --board
+          python -m pipeline.build_signals_page
+
+      - name: Run the tests that guard the register
+        run: |
+          python -m pytest -q -p no:randomly \
+            tests/test_publish_gate.py \
+            tests/test_nrte_is_not_ready_to_eat.py \
+            tests/test_a_recall_is_not_both_published_and_rejected.py \
+            tests/test_an_unknown_date_is_never_today.py \
+            tests/test_terminal_rejection_guard.py
+
+      - name: Commit
+        run: |
+          git config --local user.email "fsis-bot@advfood.tech"
+          git config --local user.name  "AFTS Intelligence System"
+          git add docs/data/recalls.xlsx docs/data/recalls.json \
+                  docs/data/weekly-index.json \
+                  docs/data/weekly-summary-latest.json \
+                  docs/data/signals-board.json docs/data/signals-latest.json \
+                  docs/data/signals-history.jsonl \
+                  docs/signals.html docs/2026-W*.html || true
+          if [ -z "$(git diff --cached --name-only)" ]; then
+            echo "nothing to commit"; exit 0
+          fi
+          # THE DELETION MARKER IS DELIBERATE AND SPECIFIC. One row is removed
+          # from Recalls: the USDA FSIS Sempio import-reinspection recall,
+          # which this register excludes on purpose and which reached Recalls
+          # because it was added by hand and then auto-promoted. It is
+          # archived to Rejected with a terminal reason in the same commit, so
+          # nothing is lost and nothing re-ingests it.
+          git commit -m "remove-rows: Sempio import-reinspection row (deliberately out of scope) + normalise two non-ISO dates"
+          git push
