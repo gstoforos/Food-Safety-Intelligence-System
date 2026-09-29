@@ -67,10 +67,28 @@ def result(board):
 # it runs at all
 # --------------------------------------------------------------------------
 
-def test_it_reviews_the_live_board(result):
+def test_it_reviews_the_live_board(board, result):
+    """AUDIT 2026-09-29: this read `assert result["signals"]` flat.
+
+    A week in which the detector finds nothing is a NORMAL board, not a
+    broken one. docs/data/signals-board.json for 2026-09-21/27 reads
+    candidates 0, after_fdr 0, after_dedup 0, reported 0, status "ok" —
+    9 strata tested, 499 suppressed as sparse, and no aberration. The
+    assertion went red on the quiet week and would go red on every quiet
+    week after it, which is the failure mode test_report_week.py documents
+    at length: a guard that fails forever is a guard everyone learns to
+    ignore.
+
+    The invariant that actually matters is the one below — an empty review
+    is only acceptable when the detector itself reported nothing to review.
+    A board with candidates and no reviewed signals is still a failure.
+    """
     assert result["meta"]["week"]
-    assert result["signals"], "no signals reviewed"
     assert result["verdict"]
+    if not result["signals"]:
+        assert not board.get("signals"), (
+            f"the board carries {len(board.get('signals') or [])} signal(s) "
+            f"and the reviewer reviewed none of them")
 
 
 def test_the_digest_renders(result):
@@ -117,6 +135,18 @@ def test_it_catches_the_2026_09_21_denominator_defect(board):
 
 
 def test_it_catches_a_published_verdict_that_does_not_recompute(board):
+    # AUDIT 2026-09-29: this injection needs a PUBLISHED row to contradict.
+    # It flips fdr_pass to True on every signal and asserts the recompute
+    # disagrees — with no signals on the board there is nothing to flip, so
+    # `disagreements` is empty for a reason that is not a defect. The quiet
+    # week of 2026-09-21/27 (candidates 0) made it red. Skipped rather than
+    # weakened: the denominator defect this file exists for is still asserted
+    # unconditionally by test_it_catches_the_2026_09_21_denominator_defect,
+    # which works off meta and passes on an empty board.
+    if not board.get("signals"):
+        pytest.skip("live board has no signals this week — nothing to "
+                    "publish a contradictory verdict on (quiet week, "
+                    "candidates=0); the meta-level injection still runs")
     b = copy.deepcopy(board)
     b["meta"]["strata_tested"] = 500            # enormous family
     b["meta"]["fdr_m"] = 500

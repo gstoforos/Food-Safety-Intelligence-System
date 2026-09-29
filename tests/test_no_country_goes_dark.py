@@ -131,10 +131,21 @@ NOT_YET_RUN = {
     # and contributing nothing, which is now stated here rather than hidden by
     # a grace period. Published rows today: cl 2, id 2, vn 5, ph 2 — all from
     # native scrapers or RASFF, none from these finders.
+    #
+    # ae and co LEFT this list on 2026-09-28, in the shard that ran at
+    # 10:40/10:41 UTC. Both now hold to the 14-day freshness bar, which is
+    # what this list being time-bounded is for. And again, "has run" is not
+    # "is working": their first run logs read
+    #     ae  candidates 0, verified 0, accepted 0 (15s, no errors)
+    #     co  candidates 23, verified 11, accepted 0, appended_rejected 11
+    # llm_extraction_failures 0 on both — co hit the same wall as br/kr/tw
+    # and cl/id/vn above, news-only discovery with no regulator notice to
+    # resolve back to. ae found nothing at all, which for the UAE is a
+    # question about the search side, not the gate.
     # Latin America — replacing scrapers silent since 06-26 (mx), 06-27 (br)
-    "mx": "2026-09-23", "co": "2026-09-23",
+    "mx": "2026-09-23",
     # Middle East
-    "sa": "2026-09-23", "ae": "2026-09-23",
+    "sa": "2026-09-23",
     # North America. Added after the others, when a question showed that
     # USDA FSIS — blocked by a 403, exactly like the rest — had gone
     # fifteen days without a row while the healthy FDA scraper made the
