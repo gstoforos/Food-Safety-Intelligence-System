@@ -142,10 +142,24 @@ NOT_YET_RUN = {
     # and cl/id/vn above, news-only discovery with no regulator notice to
     # resolve back to. ae found nothing at all, which for the UAE is a
     # question about the search side, not the gate.
+    # mx and sa LEFT this list on 2026-09-29, in the shard that ran at
+    # 10:42-10:44 UTC. Both now hold to the 14-day freshness bar.
+    #
+    # AND FOR THE FIRST TIME, "has run" WAS "is working" — for one of them.
+    # Their run logs read
+    #     mx  candidates 31, verified 17, accepted 1,  appended_rejected 16
+    #     sa  candidates  7, verified  5, accepted 0,  appended_rejected  5
+    # llm_extraction_failures 0 on both. Mexico's single accepted row is the
+    # FIRST row any gap finder outside Greece has accepted: br, kr, tw, cl,
+    # id, vn, ph, ae and co between them produced 166 candidates and zero
+    # accepted rows, every one refused by the authority-URL gate as news-only
+    # discovery. So the second half of the Greek route — resolving a news
+    # story back to the regulator's own notice — does work outside Greece;
+    # it worked once, in Mexico, at a rate of one row in thirty-one
+    # candidates. That is a starting point stated honestly, not a success.
+    #
     # Latin America — replacing scrapers silent since 06-26 (mx), 06-27 (br)
-    "mx": "2026-09-23",
     # Middle East
-    "sa": "2026-09-23",
     # North America. Added after the others, when a question showed that
     # USDA FSIS — blocked by a 403, exactly like the rest — had gone
     # fifteen days without a row while the healthy FDA scraper made the

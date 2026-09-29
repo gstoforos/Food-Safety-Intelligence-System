@@ -45,6 +45,22 @@ Defaulting to today makes a ten-day-old alert look new to all three at once,
 and leaves no way to tell an undated row from a genuinely-today one. An
 unknown date is now left EMPTY, where the publish gate blocks it, because a
 missing value that blocks is safer than a plausible value that lies.
+
+**A DATA-SIDE TEST FOR FAULT 2 WAS WITHDRAWN ON 2026-09-29.** It read: flag
+any row whose Date equals the date part of its own ScrapedAt. That condition
+is exactly as true of the system working perfectly as of the system lying — a
+regulator publishes in the morning, the scraper reads it that afternoon, the
+two agree, and that is the best outcome this register can produce. It fired on
+three rows and all three were genuine same-day captures (a GIS (PL) Listeria
+notice parsed off its own card, RappelConso fiche 23644, an NCC (ZA) hummus
+recall); none of those three scrapers contains a today-fallback at all. The
+original FSAI rows were undetectable this way for the same reason: nothing in
+the workbook distinguishes "published today, read today" from "date unknown,
+stamped today". The evidence was never in the data — it was in the source, and
+a sweep of the source found **three more live copies** that this file's
+one-file check had not. That sweep now lives in
+``tests/test_an_unknown_date_is_never_today.py``, together with the writer-side
+normalisation that keeps a regulator's display string out of the Date column.
 """
 from __future__ import annotations
 
@@ -113,31 +129,12 @@ def test_every_shared_url_says_which_copy_wins(sheet, reason_col):
         "not sit there silently contradicting the register.")
 
 
-def test_no_row_carries_its_own_scrape_time_as_a_publish_date():
-    """Date == the date part of ScrapedAt, on a row that names no other date."""
-    _, sh = _sheets()
-    bad = []
-    for name, df in sh.items():
-        if name not in LIVE_SHEETS:
-            continue
-        if "Date" not in df.columns or "ScrapedAt" not in df.columns:
-            continue
-        for _, r in df.iterrows():
-            d = str(r.get("Date") or "")[:10]
-            s = str(r.get("ScrapedAt") or "")[:10]
-            if not d or d in ("nan", "NaT") or not s or s in ("nan", "NaT"):
-                continue
-            notes = str(r.get("Notes") or "").lower()
-            if d == s and "date-cleared" not in notes and "confirmed" not in notes:
-                bad.append((name, d, str(r.get("Source"))[:14],
-                            str(r.get("Product"))[:38]))
-    assert not bad, (
-        f"{len(bad)} row(s) carry their own scrape date as the publish date:\n  " +
-        "\n  ".join(map(str, bad[:6])) +
-        "\n\nEvery window filter keys on Date — the daily sweep, the weekly "
-        "builder and the signal detector. A scrape date here makes an old "
-        "alert look like today's to all three. Leave an unknown date EMPTY; "
-        "the publish gate will hold the row until it is enriched.")
+# NOTE: test_no_row_carries_its_own_scrape_time_as_a_publish_date was removed
+# on 2026-09-29. See the module docstring — the condition it tested cannot
+# distinguish a mis-stamped row from a correctly captured same-day one, and it
+# was failing CI on three healthy rows while the three real copies of the bug
+# it was meant to find ran undetected in the source. The replacement sweeps the
+# source instead: tests/test_an_unknown_date_is_never_today.py.
 
 
 def test_the_fsai_fallback_does_not_default_a_date_to_today():
