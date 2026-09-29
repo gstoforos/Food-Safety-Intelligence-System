@@ -244,14 +244,62 @@ def test_the_agent_consults_the_guard_before_rejecting():
 # --------------------------------------------------------------------------
 
 def _refused_region() -> str:
-    """The source between the refusal print and the end of that branch."""
+    """The LIVE source between the refusal print and the end of that branch.
+
+    Comment lines are stripped. The comments in this branch necessarily quote
+    the code they are explaining — including the ``counts["retry"]`` line that
+    was removed on 2026-09-29 and the reason it was wrong — and a test that
+    read them as code would fail on its own explanation. That has now happened
+    in this repo five times; it is cheaper to strip than to keep rediscovering.
+    """
     i = AGENT.index("[url-guard] reject refused")
     j = AGENT.index('rejected_flags[idx] = f"URL agent:', i)
-    return AGENT[i:j]
+    return "\n".join(l for l in AGENT[i:j].splitlines()
+                     if not l.strip().startswith("#"))
 
 
-def test_a_refused_reject_still_defaults_to_a_retry():
-    assert 'counts["retry"] = counts.get("retry", 0) + 1' in AGENT
+def test_a_refused_reject_never_becomes_a_rejection():
+    """The row stays in Pending. What it is COUNTED as changed on 2026-09-29.
+
+    This used to assert the literal ``counts["retry"] = counts.get("retry",
+    0) + 1``, as a proxy for the real property: a refused reject must not be
+    archived. The literal itself turned out to be the bug. Counting a guard
+    refusal as an infra retry made a run in which EVERY row was refused look
+    like a total llama outage, so main() hit the all-retry block, printed
+    NO REVIEW PERFORMED and returned 3 *before* the write-back — discarding
+    the refusal note it had just written into Notes. refusal_count() reads
+    those notes, so it always saw zero, so the escalation two lines above
+    could never fire, so the row came back identical on every run.
+
+    The property is asserted directly now, and the counter is required to be
+    a separate one, so the two categories cannot be conflated again.
+    """
+    region = _refused_region()
+    assert 'counts["refused"] = counts.get("refused", 0) + 1' in region, (
+        "a guard refusal must be counted as a refusal, not as an infra retry "
+        "— see the docstring; conflating them closed a livelock")
+    assert 'counts["retry"]' not in region, (
+        "a refusal is a decision the guard reached, not a failure to reach "
+        "one; counting it as retry is what made main() abort before writing")
+    assert "newstat = None" in region, (
+        "the row must keep its status and stay in Pending")
+
+
+def test_a_run_of_nothing_but_refusals_still_reaches_the_write_back():
+    """The whole point: the refusal NOTE must survive the run.
+
+    main() returns 3 when every row was an infra retry, and that early return
+    sits above the write-back. So the abort has to be able to tell a refusal
+    from an outage, or a run of nothing but refusals is mistaken for one and
+    its notes are thrown away.
+    """
+    abort = AGENT.index("*** NO REVIEW PERFORMED")
+    assert "save_xlsx_with_pending" in AGENT[abort:], (
+        "the write-back must still be below the all-retry abort")
+    guard = AGENT[AGENT.index("_n = len(work_idx)"):abort]
+    assert "refused" in guard, (
+        "the all-retry abort must know about refusals, or a run of nothing "
+        "but refusals is mistaken for an outage and its notes are discarded")
 
 
 def test_the_only_status_change_goes_through_next_status():
