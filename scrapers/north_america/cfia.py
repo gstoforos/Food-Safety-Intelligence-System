@@ -493,7 +493,7 @@ class CFIAScraper(BaseScraper):
             co, br = _split_company_brand_from_title(title)
 
             out.append(self._new_recall(
-                Date=d.strftime("%Y-%m-%d"),
+                Date=(d.strftime("%Y-%m-%d") if d else ""),
                 Company=co,
                 Brand=br,
                 Product=(product or title)[:300],
@@ -582,8 +582,7 @@ class CFIAScraper(BaseScraper):
                 if d is None:
                     log.warning("CFIA RSS: unparseable pubDate %r — keeping "
                                 "row (claude-check will fix Date)", pub)
-                    d = datetime.utcnow()  # don't drop; let downstream review
-                if d < cutoff:
+                if d is not None and d < cutoff:
                     skipped_date += 1
                     continue
 
@@ -627,12 +626,18 @@ class CFIAScraper(BaseScraper):
                 if not link or _is_generic_url(link) or link in seen:
                     continue
 
+                # AN UNKNOWN DATE IS NOT TODAY (2026-09-29). Keeping the row
+                # is right — a recall whose date we cannot read is still a
+                # recall — but it used to be kept while wearing today's
+                # date, which then carried it past the cutoff below and made
+                # it look like this morning's news to every window filter.
+                # It is kept with NO date instead; publish_blockers holds it
+                # on "Date is empty" until enrichment reads the detail page.
                 d = _parse_pubdate(pub)
                 if d is None:
-                    log.warning("CFIA Atom: unparseable date %r — keeping row",
-                                pub)
-                    d = datetime.utcnow()
-                if d < cutoff:
+                    log.warning("CFIA Atom: unparseable date %r — keeping row "
+                                "with an EMPTY Date, not today's", pub)
+                if d is not None and d < cutoff:
                     continue
 
                 rec = self._build_recall(title, link, summary, d)
@@ -648,8 +653,12 @@ class CFIAScraper(BaseScraper):
 
     # ------------------------------------------------------------------
     def _build_recall(self, title: str, link: str, desc: str,
-                      d: datetime) -> Optional[Recall]:
-        """Apply pathogen + food-context filters and build a Recall."""
+                      d: Optional[datetime]) -> Optional[Recall]:
+        """Apply pathogen + food-context filters and build a Recall.
+
+        `d` may be None: a feed entry whose date could not be parsed is kept
+        with an EMPTY Date rather than stamped with today's (2026-09-29).
+        """
         # Strip HTML from desc (some feeds embed <p>, <a>, etc.)
         desc_text = re.sub(r"<[^>]+>", " ", desc or "")
         desc_text = re.sub(r"\s+", " ", desc_text).strip()
@@ -681,7 +690,7 @@ class CFIAScraper(BaseScraper):
         outbreak = _detect_outbreak(merged)
 
         return self._new_recall(
-            Date=d.strftime("%Y-%m-%d"),
+            Date=(d.strftime("%Y-%m-%d") if d else ""),
             Company=co,
             Brand=br,
             Product=title[:300],
@@ -734,7 +743,9 @@ class CFIAScraper(BaseScraper):
         # Match each slug to surrounding HTML context to pull title +
         # date if visible. Pattern: card containers usually carry the
         # date in a <time datetime="2026-05-05"> or similar element.
-        # If we can't find a date, use today and let claude-check fix it.
+        # If we can't find a date, LEAVE IT EMPTY and let enrichment read the
+        # detail page. This comment used to say "use today", and the code
+        # below used to do it — see the note at the date branch.
         today = datetime.utcnow()
         cutoff = today - timedelta(days=since_days)
         out: List[Recall] = []
@@ -809,12 +820,30 @@ class CFIAScraper(BaseScraper):
                 date_match = re.search(
                     r'(\d{4}-\d{2}-\d{2})', window
                 )
+            # AN UNKNOWN DATE IS NOT TODAY (2026-09-29).
+            #
+            # Both branches below used to fall back to `today`. That is the
+            # same defect found in scrapers/europe_eu/fsai.py on 2026-09-28,
+            # where it stamped two 18-September alerts with 2026-09-28 and
+            # made a ten-day-old recall look new to the daily sweep, the
+            # weekly builder and the signal detector at once. FSAI was fixed
+            # and the pattern was not swept for; CFIA carried it the whole
+            # time, and pipeline/url_guardian.py carried a third copy.
+            #
+            # Here it was worse than at FSAI. The cutoff test immediately
+            # below compares `d` against the collection window, so a recall
+            # whose date could not be read was not merely mis-stamped — the
+            # false `today` carried it PAST a filter whose whole job is to
+            # drop anything old. Now an unreadable date is empty, the cutoff
+            # is applied only to a date we actually have, and the row lands
+            # in Pending where publish_blockers holds it on "Date is empty"
+            # until detail-page enrichment supplies the real one.
             if date_match:
-                d = _parse_pubdate(date_match.group(1)) or today
+                d = _parse_pubdate(date_match.group(1))
             else:
-                d = today  # claude-check will fix
+                d = None
 
-            if d < cutoff:
+            if d is not None and d < cutoff:
                 continue
 
             # Build a candidate row; pathogen filter applied to title.
@@ -830,7 +859,7 @@ class CFIAScraper(BaseScraper):
                                              "—")
 
             out.append(self._new_recall(
-                Date=d.strftime("%Y-%m-%d"),
+                Date=(d.strftime("%Y-%m-%d") if d else ""),
                 Company=co,
                 Brand=br,
                 Product=title[:300],
