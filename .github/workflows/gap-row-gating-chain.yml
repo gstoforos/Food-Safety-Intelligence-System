@@ -78,13 +78,10 @@ jobs:
         run: |
           python -m pipeline.url_gate_gemini
 
-      - name: Step 3 — Claude page-content check (v2 → pending)
-        env:
-          ANTHROPIC_API_KEY:    ${{ secrets.ANTHROPIC_API_KEY }}
-          ANTHROPIC_MODEL:      ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-4-5' }}
-          SKIP_COMMIT:          "1"
-        run: |
-          python -m pipeline.claude_check
+      # Step 3 (pipeline.claude_check) REMOVED 2026-09-30, operator ruling:
+      # claude_check.py stays in the repo but no code runs it — review is
+      # done by our own agents (recall_url_agent / recall_review_agent /
+      # recall_confirm_agent). Held by tests/test_nothing_runs_claude_check.py.
 
       - name: Step 4 — Single consolidating commit
         env:
