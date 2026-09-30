@@ -127,7 +127,10 @@ def test_reviewer_one_distinguishes_the_two():
     src = _live_source("pipeline/recall_url_agent.py")
     assert '"refused"' in src, (
         "reviewer 1 must carry a separate refusal counter")
-    guard = src[src.index("_n = len(work_idx)"):src.index("NO REVIEW PERFORMED")]
+    _abort = src.index("NO REVIEW PERFORMED")
+    # From the run summary to the banner: the abort condition and
+    # whatever it is computed from.
+    guard = src[src.rindex("print(f\"{'='*60}\")", 0, _abort):_abort]
     assert "refused" in guard, (
         "the abort must consult the refusal count, or a run of nothing but "
         "refusals is still mistaken for an outage")
@@ -192,9 +195,13 @@ def test_the_searx_probe_is_a_single_line_of_python(wf):
     p = ROOT / ".github" / "workflows" / wf
     if not p.exists():                                       # pragma: no cover
         pytest.skip(f"{wf} not present")
+    # The property is that the `-c` literal CLOSES on the line it opens on.
+    # (It used to test what the line ends with, which rejects a valid
+    # `python3 -c '...' 2>/dev/null) || n=-1` on one line.)
+    import re as _re
     for line in p.read_text(encoding="utf-8").splitlines():
         if "python3 -c" in line:
-            assert line.rstrip().endswith('"') or line.rstrip().endswith("\\"), (
+            assert _re.search(r"""python3 -c (?:'[^']*'|"[^"]*")""", line), (
                 f"{wf}: the python probe spills onto another line")
 
 
