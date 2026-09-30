@@ -57,6 +57,20 @@ PATHOGENS_TIER_1 = {
     "αλλαντίαση", "αλλαντιαση",
     # Other high-severity
     "cronobacter sakazakii", "cronobacter",
+    # ── Asian-language fleet (2026-09-30: JP, KR, CN, TH, ID) ───────────────
+    # Without these a notice written in the local language can never
+    # classify: every row is "unknown: No matching hazard category". Matched
+    # after the same NFD/Mn-strip as everything else, so the needles and the
+    # haystack degrade identically (voiced kana, Thai tone marks).
+    "サルモネラ", "リステリア", "腸管出血性大腸菌", "ボツリヌス", "セレウス",
+    "クロノバクター",                                             # Japanese
+    "살모넬라", "리스테리아", "장출혈성대장균", "보툴리눔", "세레우스",
+    "크로노박터",                                                 # Korean
+    "沙门氏菌", "沙门菌", "沙門氏菌", "李斯特菌", "李斯特氏菌",
+    "肉毒梭菌", "肉毒杆菌", "肉毒毒素", "蜡样芽孢杆菌", "仙人掌杆菌",
+    "克罗诺杆菌", "阪崎肠杆菌", "阪崎腸桿菌",                      # Chinese
+    "ซัลโมเนลลา", "ซาลโมเนลลา", "ลิสทีเรีย", "ลิสเทอเรีย", "โบทูลินัม",
+    "โบทูลินั่ม",                                                 # Thai
 }
 
 PATHOGENS_TIER_2 = {
@@ -93,6 +107,44 @@ PATHOGENS_TIER_2 = {
     "vibrio", "δονακιοειδή", "δονακιοειδη",
     # Generic E. coli without O157 specification → Tier 2 by default
     "e. coli", "e.coli", "escherichia coli", "κολοβακτηρίδιο", "κολοβακτηριδιο",
+    # ── Asian-language fleet (2026-09-30) ───────────────────────────────────
+    # NOT the bare coliform words 大腸菌 / 大肠菌 / 대장균: "大腸菌群" /
+    # "大肠菌群" / "대장균군" are coliform COUNTS, a hygiene indicator on
+    # every Japanese and Chinese sampling notice, not a pathogen. Only
+    # E. coli proper is listed.
+    "黄色ブドウ球菌", "ノロウイルス", "カンピロバクター", "腸炎ビブリオ",
+    "ビブリオ", "ウエルシュ菌", "a型肝炎",                          # Japanese
+    "황색포도상구균", "노로바이러스", "캠필로박터", "비브리오",
+    "장염비브리오", "a형간염",                                     # Korean
+    "金黄色葡萄球菌", "金黃色葡萄球菌", "诺如病毒", "諾羅病毒", "空肠弯曲",
+    "弯曲杆菌", "大肠埃希氏菌", "大肠杆菌", "副溶血性弧菌", "副溶血弧菌",
+    "甲型肝炎", "产气荚膜梭菌",                                     # Chinese
+    "สแตฟิโลค็อกคัส", "โนโรไวรัส", "แคมไพโลแบคเตอร์", "อีโคไล",
+    "ไวรัสตับอักเสบเอ", "วิบริโอ",                                  # Thai
+}
+
+# ACCEPT — mould (2026-09-30). In scope since the operator decision of
+# 2026-09-07 (pipeline/_publish_gate.py "MOULD IS ITS OWN HAZARD CLASS" and
+# pipeline/_pathogen_scope.py), Tier 2 per scrapers/_models.py. This
+# classifier was never told, so every mould notice the fleet found was
+# rejected as "unknown: No matching hazard category" — the decision reached
+# two of the three places that apply it. Only explicit mould vocabulary: a
+# bare "microbial contamination" stays unknown, as it does at the gate.
+# NOT Indonesian "jamur" (also "mushroom" — "jamur enoki") and NOT "fungi".
+MOULD = {
+    "mould", "moulds", "mold", "molds", "mouldy", "moldy",
+    "mould contamination", "mold contamination",
+    "moisissure", "moisissures", "muffa", "moho", "schimmel", "mögel",
+    "pleśń", "plesn", "penész", "hometta",
+    "μούχλα", "ευρωτίασ", "fungal growth", "fungal contamination",
+    "カビ", "真菌",                                                # Japanese
+    "곰팡이",                                                      # Korean
+    # NOT bare 霉菌: Chinese sampling notices report 霉菌数 — a mould
+    # COUNT against a limit, a hygiene indicator like 菌落总数 — and a bare
+    # needle would admit every one. 霉变 / 发霉 are visible mould growth.
+    "霉变", "发霉", "發霉",                                         # Chinese
+    "เชื้อรา",                                                     # Thai
+    "kapang", "cemaran jamur",                                     # Indonesian
 }
 
 # ACCEPT — microbial-origin toxins (mycotoxins)
@@ -623,6 +675,7 @@ def _normalize_set(keywords: set[str]) -> set[str]:
 _PATHOGENS_T1_N = _normalize_set(PATHOGENS_TIER_1)
 _PATHOGENS_T2_N = _normalize_set(PATHOGENS_TIER_2)
 _MICROBIAL_TOXINS_N = _normalize_set(MICROBIAL_TOXINS)
+_MOULD_N = _normalize_set(MOULD)
 _NATURAL_TOXINS_N = _normalize_set(NATURAL_TOXINS)
 # ── Homograph protection (2026-09-26) ────────────────────────────────────
 #
@@ -680,6 +733,28 @@ _FOREIGN_MATTER_N = _normalize_set(FOREIGN_MATTER)
 # variants for these concepts are separate entries in the lexicon (πέτρα,
 # verre, vidrio, etc.) and aren't affected.
 _FM_BOUND = {"stone", "glass", "insect", "rubber"}
+
+# Bare material nouns in FOREIGN_MATTER — accepted only with context below.
+_FM_BARE_MATERIALS = _normalize_set({
+    "glass", "γυαλί", "γυαλι", "verre", "vetro", "cristal", "vidrio", "vidro",
+    "glas", "szkło", "üveg", "lasi", "gler", "μέταλλο", "μεταλλο", "metallo",
+    "plastic", "πλαστικό", "πλαστικο", "plastica", "plástico", "plastico",
+    "kunststoff", "plastik", "kunststof", "plastique", "tworzywo sztuczne",
+    "műanyag", "plast", "muovi", "stone", "πέτρα", "πετρα", "insect",
+    "έντομο", "εντομο", "rubber", "ελαστικό", "λάστιχο",
+})
+# Words that say a material is IN the food. Multilingual, stems.
+_FM_CONTEXT_N = _normalize_set({
+    "fragment", "piece", "splinter", "shard", "particle", "bits of", "bit of",
+    "foreign", "sliver", "presence of", "possible presence",
+    "frammenti", "frammento", "pezzi", "pezzo", "presenza", "corpo estraneo",
+    "morceau", "présence", "corps étranger", "éclat",
+    "trozo", "presencia", "cuerpo extraño", "partícula",
+    "stück", "teile", "splitter", "fremdkörper", "scherbe",
+    "odłamk", "kawałk", "darab", "szilánk", "bitar", "biter", "stykker",
+    "flisor", "paloja", "sirpale", "brot", "θραύσμ", "κομμάτ", "παρουσία",
+    "ξένο σώμα",
+})
 
 
 
@@ -822,34 +897,34 @@ def classify(
     reject_blob = _normalize(f"{pathogen} {reason}")
     reject_blob_acc = _normalize_keep_accents(f"{pathogen} {reason}")
 
-    # ── UNAMBIGUOUS REJECT path (glass, heavy metals, synthetic chemicals) ─
-    m = _contains_any(reject_blob, _FOREIGN_MATTER_N, bound_extra=_FM_BOUND,
-                     _haystack_accented=reject_blob_acc)
-    if m:
-        return Classification(
-            verdict="reject", category="foreign_matter", tier=None,
-            matched_term=m, rule="Foreign matter — out of scope (Rule B reject).",
-            outbreak_qualifies=False,
-        )
-
-    m = _contains_any(reject_blob, _HEAVY_METALS_N,
-                     _haystack_accented=reject_blob_acc)
-    if m:
-        return Classification(
-            verdict="reject", category="heavy_metal", tier=None,
-            matched_term=m, rule="Heavy metal — out of scope (Rule B reject).",
-            outbreak_qualifies=False,
-        )
-
-    m = _contains_any(reject_blob, _SYNTHETIC_CHEMICALS_N,
-                     _haystack_accented=reject_blob_acc)
-    if m:
-        return Classification(
-            verdict="reject", category="synthetic_chemical", tier=None,
-            matched_term=m,
-            rule="Synthetic/environmental chemical — out of scope (Rule B reject).",
-            outbreak_qualifies=False,
-        )
+    # ── PRINTED SCOPE (operator decision 2026-09-30) ─────────────────────
+    # Foreign matter, heavy metals and synthetic/environmental chemicals were
+    # the "UNAMBIGUOUS REJECT path" here (Rule B). The AFTS scope printed on
+    # every brief since 2026-07-29 names foreign material and chemical
+    # hazards as IN, and the publish gate has always published them; this
+    # classifier was the one place still refusing them, so a news-discovered
+    # foreign-body recall could never reach the register while a scraped one
+    # could. They are now ACCEPTED — after the pathogen/toxin checks below,
+    # so a named pathogen still decides the category (glass in a Listeria
+    # product is a Listeria recall).
+    #
+    # Matched on the HAZARD text only (pathogen + reason), never the product
+    # description, exactly as before: "glass jar", "plastic tray" and
+    # "clear plastic wrapped packages" must not make a recall a foreign-body
+    # one (audit 2026-06-26, FSIS Listeria chicken-Caesar wrap).
+    _fm = _contains_any(reject_blob, _FOREIGN_MATTER_N, bound_extra=_FM_BOUND,
+                        _haystack_accented=reject_blob_acc)
+    # A BARE material word ("glass", "plastic", "vetro") was fine as a reject
+    # signal and is dangerous as an accept one: "packaged in a glass jar" is
+    # not a foreign-body recall. Accept on a bare word only when the hazard
+    # text also says something is IN the food (fragment, pieces, foreign...).
+    if _fm and _fm in _FM_BARE_MATERIALS and not any(
+            t in reject_blob for t in _FM_CONTEXT_N):
+        _fm = None
+    _hm = _contains_any(reject_blob, _HEAVY_METALS_N,
+                        _haystack_accented=reject_blob_acc)
+    _sc = _contains_any(reject_blob, _SYNTHETIC_CHEMICALS_N,
+                        _haystack_accented=reject_blob_acc)
 
     # ── ACCEPT path (pathogens & toxins — more specific than allergen mention) ─
     outbreak = detect_outbreak(reason)
@@ -895,6 +970,41 @@ def classify(
             matched_term=m,
             rule="Natural plant/fungal toxin — accepted per Rule B.",
             outbreak_qualifies=outbreak,
+        )
+
+    m = _contains_any(blob, _MOULD_N, _haystack_accented=blob_acc)
+    if m:
+        return Classification(
+            verdict="accept", category="mould", tier=2,
+            matched_term=m,
+            rule="Mould — microbiological contamination, in scope since "
+                 "2026-09-07 (Tier 2).",
+            outbreak_qualifies=outbreak,
+        )
+
+    if _fm:
+        return Classification(
+            verdict="accept", category="foreign_matter", tier=3,
+            matched_term=_fm,
+            rule="Foreign matter — in AFTS scope (printed scope; Rule B "
+                 "reject retired 2026-09-30).",
+            outbreak_qualifies=False,
+        )
+    if _hm:
+        return Classification(
+            verdict="accept", category="heavy_metal", tier=2,
+            matched_term=_hm,
+            rule="Heavy metal — chemical hazard, in AFTS scope (Rule B "
+                 "reject retired 2026-09-30).",
+            outbreak_qualifies=False,
+        )
+    if _sc:
+        return Classification(
+            verdict="accept", category="synthetic_chemical", tier=3,
+            matched_term=_sc,
+            rule="Synthetic/environmental chemical — in AFTS scope (Rule B "
+                 "reject retired 2026-09-30).",
+            outbreak_qualifies=False,
         )
 
     # ── ALLERGEN REJECT (last resort — only if no pathogen/toxin matched) ──

@@ -394,6 +394,25 @@ def fetch_html(url: str, cfg: CountryConfig, timeout: int | None = None) -> tupl
     return resolved_url, html, status
 
 
+# ── Bot-wall screen (2026-09-30) ─────────────────────────────────────────────
+# A challenge page served with HTTP 200 ("Gcore", "Just a moment...") is not
+# a successful fetch. Rebinding fetch_html here means every caller in this
+# module — including the authority-page fetch — gets status "bot_wall" and
+# empty HTML, and falls back exactly as it would for any failed fetch.
+# See pipeline/_bot_wall.py for the incident.
+_fetch_html_unscreened = fetch_html
+
+
+def fetch_html(url, cfg, *args, **kwargs):  # type: ignore[no-redef]
+    resolved_url, html, status = _fetch_html_unscreened(url, cfg, *args,
+                                                        **kwargs)
+    try:
+        from pipeline._bot_wall import screen as _screen
+    except Exception:                                        # noqa: BLE001
+        return resolved_url, html, status
+    return _screen(resolved_url, html, status)
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # CONTENT EXTRACTION
 # ─────────────────────────────────────────────────────────────────────────────
@@ -459,7 +478,7 @@ def _normalize_text(text: str) -> str:
     return "\n".join(paragraphs)
 
 
-def extract_title(html: str) -> str:
+def _extract_title_raw(html: str) -> str:
     """Extract the press-release title from authority-page HTML.
 
     Tries, in order: <h1>, og:title meta, <title>. Returns "" if none.
@@ -498,6 +517,18 @@ def extract_title(html: str) -> str:
             t = t.split(" - ")[0].strip()
         return t
     return ""
+
+
+def extract_title(html: str) -> str:
+    """_extract_title_raw, but never a challenge page's title (2026-09-30)."""
+    t = _extract_title_raw(html)
+    try:
+        from pipeline._bot_wall import is_wall_title
+        if is_wall_title(t):
+            return ""
+    except Exception:                                        # noqa: BLE001
+        pass
+    return t
 
 
 def _unescape_ws(t: str) -> str:
