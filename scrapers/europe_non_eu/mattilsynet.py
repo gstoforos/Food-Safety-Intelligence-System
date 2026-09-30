@@ -1,4 +1,4 @@
-"""Mattilsynet (NO) food safety scraper — uses Gemini for HTML extraction.
+"""Mattilsynet (NO) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 URL update (2026-05-08):
 The previous URL `/mat-og-drikke/tilbakekalte-matvarer` started returning
@@ -18,10 +18,10 @@ recall you're looking for.) Individual recall articles live at
     (Jan 2026, traditional sheep meats / Listeria, 6 confirmed cases)
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class MattilsynetScraper(GenericGeminiScraper):
+class MattilsynetScraper(GenericLLMScraper):
     AGENCY = "Mattilsynet (NO)"
     COUNTRY = "Norway"
     INDEX_URLS = ['https://www.mattilsynet.no/tilbakekallinger']

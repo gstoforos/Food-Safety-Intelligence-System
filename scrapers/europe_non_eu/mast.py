@@ -1,4 +1,4 @@
-"""MAST (IS) food safety scraper — uses Gemini for HTML extraction.
+"""MAST (IS) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 URL update (2026-05-08):
 The previous URL `/is/frettir/innkollun` started returning HTTP 404 — that
@@ -20,10 +20,10 @@ Replacement URLs (verified 2026-05-08 against live MAST.is content):
    secondary source in case the news-feed page stops carrying recalls.
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class MASTScraper(GenericGeminiScraper):
+class MASTScraper(GenericLLMScraper):
     AGENCY = "MAST (IS)"
     COUNTRY = "Iceland"
     INDEX_URLS = [
