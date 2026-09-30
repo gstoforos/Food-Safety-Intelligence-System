@@ -1,9 +1,9 @@
-"""ONSSA (MA) food safety scraper — uses Gemini for HTML extraction."""
+"""ONSSA (MA) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction."""
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class ONSSAScraper(GenericGeminiScraper):
+class ONSSAScraper(GenericLLMScraper):
     AGENCY = "ONSSA (MA)"
     COUNTRY = "Morocco"
     INDEX_URLS = ['http://www.onssa.gov.ma/index.php/fr/communiques-de-presse']

@@ -1,4 +1,4 @@
-"""NCC (ZA) food safety scraper — uses Gemini for HTML extraction.
+"""NCC (ZA) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 URL retargeting (Batch 3, 2026-05-08):
 The previous two URLs were:
@@ -21,10 +21,10 @@ The previous docstring in this file claimed `/category/product-recalls/`
 the older non-category URLs return 0. Reverting to the category URL.
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class NCCScraper(GenericGeminiScraper):
+class NCCScraper(GenericLLMScraper):
     AGENCY = "NCC (ZA)"
     COUNTRY = "South Africa"
     INDEX_URLS = [

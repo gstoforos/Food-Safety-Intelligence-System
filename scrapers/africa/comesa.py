@@ -1,4 +1,4 @@
-"""COMESA food safety scraper — uses Gemini for HTML extraction.
+"""COMESA food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 Two changes in Batch 4 (2026-05-08):
 
@@ -18,7 +18,7 @@ Two changes in Batch 4 (2026-05-08):
    These are scoped to this scraper's session only.
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
 _CHROME_FINGERPRINT_HEADERS = {
@@ -34,7 +34,7 @@ _CHROME_FINGERPRINT_HEADERS = {
 }
 
 
-class COMESAScraper(GenericGeminiScraper):
+class COMESAScraper(GenericLLMScraper):
     AGENCY = "COMESA"
     COUNTRY = "Kenya"
     INDEX_URLS = [
