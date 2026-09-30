@@ -212,8 +212,9 @@ def check_scope(row: Dict[str, Any]) -> List[str]:
         out.append("Pathogen empty — the register names its hazard")
     else:
         classes = classify_hazard(p) | classify_hazard(reason)
-        in_scope = is_in_scope(p) or bool(
-            classes - {"allergen", "fermentation"})
+        # Same rule, now shared: _pathogen_scope.is_in_afts_scope.
+        from pipeline._pathogen_scope import is_in_afts_scope
+        in_scope = is_in_afts_scope(p, reason)
         if not in_scope:
             out.append(
                 f"hazard {p!r} is outside the monitored scope "
