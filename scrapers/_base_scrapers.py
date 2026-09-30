@@ -14,11 +14,11 @@ Public API (do not change signatures without grepping all callers)
         _new_recall(Date, Company, Brand, Product, Pathogen, Reason,
                     Class, URL, Outbreak, Notes) -> Recall  builds + normalizes
 
-    GenericGeminiScraper(BaseScraper)
+    GenericLLMScraper(BaseScraper)
         INDEX_URLS        class attr, Sequence[str]
         LANGUAGE          class attr, str (default "en")
         EXTRACTION_HINTS  class attr, str (optional agency-specific guidance)
-        scrape(since_days: int = 30) -> List[Recall]       uses Gemini
+        scrape(since_days: int = 30) -> List[Recall]       uses our own model
 
     make_session() -> requests.Session
     fetch(session, url, method="GET", timeout=30, **kwargs) -> Optional[Response]
@@ -27,7 +27,7 @@ Public API (do not change signatures without grepping all callers)
 Consumers
 ---------
     pipeline.run_all                   BaseScraper, make_session
-    scrapers.<region>.*                BaseScraper or GenericGeminiScraper, fetch
+    scrapers.<region>.*                BaseScraper or GenericLLMScraper, fetch
     scrapers.news_feeds._news_base     make_session, fetch
     pipeline.fsis_url_guardian         make_session, fetch (likely)
 """
@@ -193,88 +193,21 @@ def fetch(
 
 
 # ---------------------------------------------------------------------------
-# Gemini 2.0 Flash helper (used by GenericGeminiScraper)
+# Retired Gemini helper — raises; see _call_llm
 # ---------------------------------------------------------------------------
 
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-GEMINI_MAX_HTML_CHARS = 120_000
+MAX_HTML_CHARS = 120_000
 
-
-def _gemini_api_keys() -> List[str]:
-    """
-    Collect every available Gemini key. Supports both conventions:
-      - Single key:   GEMINI_API_KEY
-      - Rotation:     GEMINI_API_KEY_1 .. GEMINI_API_KEY_5
-    """
-    keys: List[str] = []
-    legacy = os.getenv("GEMINI_API_KEY")
-    if legacy:
-        keys.append(legacy)
-    for i in range(1, 6):
-        k = os.getenv(f"GEMINI_API_KEY_{i}")
-        if k and k not in keys:
-            keys.append(k)
-    return keys
 
 
 def _call_gemini(prompt: str, html: str, language: str = "en") -> str:
-    """Call Gemini with key rotation. Returns the raw text response.
+    """RETIRED 2026-09-30 by operator ruling — nothing may call Gemini.
 
-    Uses the new google-genai SDK (replaces deprecated google.generativeai).
-    Install: pip install google-genai
+    Kept only as a name so an old import fails loudly instead of at import
+    time. It never contacts Google.
     """
-    try:
-        from google import genai  # type: ignore
-        from google.genai import types  # type: ignore
-    except ImportError as exc:
-        raise RuntimeError(
-            "google-genai is not installed. Add it to requirements.txt "
-            "(pip install google-genai)."
-        ) from exc
-
-    keys = _gemini_api_keys()
-    if not keys:
-        raise RuntimeError(
-            "No GEMINI_API_KEY(_1..5) env var set. Configure in GitHub Actions secrets."
-        )
-
-    if len(html) > GEMINI_MAX_HTML_CHARS:
-        html = html[:GEMINI_MAX_HTML_CHARS] + "\n<!-- truncated -->"
-
-    full_prompt = f"{prompt}\n\nLANGUAGE OF PAGE: {language}\n\nHTML:\n{html}"
-
-    last_error: Optional[Exception] = None
-    for api_key in random.sample(keys, k=len(keys)):
-        try:
-            client = genai.Client(api_key=api_key)
-            # max_output_tokens=32000 prevents JSON truncation on long pages.
-            # The default cap (~8K) was silently cutting Gemini's response
-            # mid-string on agency listings with many recalls (e.g. KEBS,
-            # observed 2026-04-28: "Unterminated string at char 7298").
-            # Gemini 2.5 Flash supports up to 65K output tokens.
-            config = types.GenerateContentConfig(
-                temperature=0.1,
-                max_output_tokens=32_000,
-            )
-            resp = client.models.generate_content(
-                model=GEMINI_MODEL,
-                contents=full_prompt,
-                config=config,
-            )
-            text = (getattr(resp, "text", None) or "").strip()
-            if text:
-                return text
-        except Exception as exc:  # noqa: BLE001 - try next key
-            last_error = exc
-            log.warning(
-                "Gemini call failed on one key (%s); trying next.",
-                type(exc).__name__,
-            )
-            continue
-
-    if last_error:
-        raise RuntimeError(f"All Gemini keys failed: {last_error}") from last_error
-    return ""
+    raise RuntimeError("Gemini is retired by operator policy (2026-09-30); "
+                       "extraction runs on our own model.")
 
 
 # ---------------------------------------------------------------------------
@@ -331,7 +264,7 @@ def _openai_api_keys() -> List[str]:
 #   for good. The self-hosted Qwen on the AFTS VPS has no quota.
 #
 # THE CONTEXT PROBLEM, AND HOW THIS HANDLES IT HONESTLY
-#   Gemini is fed up to GEMINI_MAX_HTML_CHARS = 120,000 characters of raw
+#   Gemini is fed up to MAX_HTML_CHARS = 120,000 characters of raw
 #   HTML (~30k tokens). The VPS runs Qwen at n_ctx 4096. A naive swap would
 #   see ~11% of a page and silently return three recalls where twelve exist —
 #   the worst possible failure, because it looks like success.
@@ -453,7 +386,7 @@ def _call_openai(prompt: str, html: str, language: str = "en") -> str:
     signature and return contract so it's a drop-in replacement.
 
     Returns the raw text response (expected to be JSON-as-text, same as
-    Gemini). The caller (_extract_with_gemini) parses + validates.
+    Gemini). The caller (_extract_with_llm) parses + validates.
 
     Multi-key rotation matches Gemini's behavior — on failure with one
     key (auth, rate, network), tries the next. Raises RuntimeError if
@@ -468,8 +401,8 @@ def _call_openai(prompt: str, html: str, language: str = "en") -> str:
 
     # Same HTML truncation cap as Gemini for consistency. Avoids one
     # backend processing 4× more page content than the other.
-    if len(html) > GEMINI_MAX_HTML_CHARS:
-        html = html[:GEMINI_MAX_HTML_CHARS] + "\n<!-- truncated -->"
+    if len(html) > MAX_HTML_CHARS:
+        html = html[:MAX_HTML_CHARS] + "\n<!-- truncated -->"
 
     full_prompt = f"{prompt}\n\nLANGUAGE OF PAGE: {language}\n\nHTML:\n{html}"
 
@@ -549,61 +482,32 @@ def _is_quota_or_rate_error(exc: BaseException) -> bool:
 
 
 def _call_llm(prompt: str, html: str, language: str = "en") -> str:
-    """Call Gemini first; on failure, fall back to OpenAI if configured.
+    """Extraction through our own model (Qwen on the VPS), OpenAI fallback.
 
-    Behavior matrix:
-      - Gemini succeeds                       → return Gemini's text
-      - Gemini quota/rate error + OpenAI set  → try OpenAI; if it succeeds,
-                                                return its text
-      - Gemini other error      + OpenAI set  → try OpenAI; on any failure
-                                                there, raise combined error
-      - Gemini fails + OpenAI not configured  → re-raise original Gemini
-                                                error (pre-fix behavior)
-
-    The two-backend strategy is deliberately invisible to callers — they
-    see a single text return as before. Logs make the choice explicit so
-    operators can spot when fallback engages without parsing JSON.
+    GEMINI IS GONE (operator ruling 2026-09-30: "gemini must not be anywhere
+    — my agents have replaced them"). It used to be the step after the
+    self-hosted model; now a llama failure goes straight to the OpenAI
+    fallback if one is configured, and otherwise raises, so the scraper
+    reports the failure instead of quietly handing the page to Google.
+    Held by tests/test_no_gemini_anywhere.py.
     """
-    # QWEN FIRST (2026-08-14). Gemini is kept as the fallback, not removed:
-    # it still works for the 21 agencies currently producing, and dropping it
-    # outright would trade one single point of failure for another. But it can
-    # no longer be the thing 38 dead scrapers are waiting on.
     try:
         return _call_llama(prompt, html, language)
     except Exception as llama_exc:  # noqa: BLE001
-        log.info("Self-hosted extraction unavailable (%s: %s) — falling back "
-                 "to Gemini.", type(llama_exc).__name__, str(llama_exc)[:120])
-
-    try:
-        text = _call_gemini(prompt, html, language)
-        return text
-    except Exception as gemini_exc:  # noqa: BLE001
-        openai_keys = _openai_api_keys()
-        if not openai_keys:
-            # No fallback configured — surface original error (pre-fix path)
+        if not _openai_api_keys():
             raise
-
-        is_quota = _is_quota_or_rate_error(gemini_exc)
-        if is_quota:
-            log.info("Gemini quota exhausted (%s) — switching to OpenAI "
-                     "fallback for this call.", type(gemini_exc).__name__)
-        else:
-            log.info("Gemini failed (%s: %s) — trying OpenAI fallback.",
-                     type(gemini_exc).__name__,
-                     str(gemini_exc)[:120])
-
+        log.info("Self-hosted extraction unavailable (%s: %s) — trying the "
+                 "OpenAI fallback.", type(llama_exc).__name__,
+                 str(llama_exc)[:120])
         try:
             text = _call_openai(prompt, html, language)
             log.info("OpenAI fallback succeeded (model=%s, %d chars out)",
                      OPENAI_MODEL, len(text))
             return text
         except Exception as openai_exc:  # noqa: BLE001
-            # Both backends failed — raise a combined error so the
-            # _extract_with_gemini layer's single except sees one
-            # exception with full context.
             raise RuntimeError(
-                f"Both Gemini and OpenAI failed. "
-                f"Gemini: {type(gemini_exc).__name__}: {str(gemini_exc)[:200]}. "
+                f"Self-hosted model and OpenAI both failed. "
+                f"llama: {type(llama_exc).__name__}: {str(llama_exc)[:200]}. "
                 f"OpenAI: {type(openai_exc).__name__}: {str(openai_exc)[:200]}."
             ) from openai_exc
 
@@ -617,7 +521,7 @@ def _strip_code_fences(s: str) -> str:
     return s.strip()
 
 
-GEMINI_EXTRACTION_PROMPT = """\
+LLM_EXTRACTION_PROMPT = """\
 You are a STRICT EXTRACTOR of food recall records from an agency's HTML page.
 You are NOT a summarizer, interpreter, or guesser. Return ONLY facts that
 appear LITERALLY on the page. If a fact is not on the page, return "" for
@@ -882,12 +786,12 @@ class BaseScraper:
 
 
 # ---------------------------------------------------------------------------
-# GenericGeminiScraper
+# GenericLLMScraper
 # ---------------------------------------------------------------------------
 
-class GenericGeminiScraper(BaseScraper):
+class GenericLLMScraper(BaseScraper):
     """
-    Default scraper: uses Gemini 2.0 Flash to extract structured recall rows
+    Default scraper: uses our own model (Qwen) to extract structured recall rows
     from each URL in INDEX_URLS.
 
     Subclasses typically set only:
@@ -921,9 +825,9 @@ class GenericGeminiScraper(BaseScraper):
                 continue
 
             try:
-                rows = self._extract_with_gemini(resp.text, url)
+                rows = self._extract_with_llm(resp.text, url)
             except Exception as exc:  # noqa: BLE001
-                self.logger.exception("gemini extract failed for %s: %s", url, exc)
+                self.logger.exception("llm extract failed for %s: %s", url, exc)
                 rows = []
 
             # Date filter — drop rows older than cutoff when date parseable,
@@ -949,8 +853,8 @@ class GenericGeminiScraper(BaseScraper):
         return all_rows
 
     # ---------------------------------------------------------- internal
-    def _extract_with_gemini(self, html: str, source_url: str) -> List[Recall]:
-        prompt = GEMINI_EXTRACTION_PROMPT
+    def _extract_with_llm(self, html: str, source_url: str) -> List[Recall]:
+        prompt = LLM_EXTRACTION_PROMPT
         if self.EXTRACTION_HINTS:
             prompt = f"{prompt}\n\nAGENCY-SPECIFIC HINTS:\n{self.EXTRACTION_HINTS}"
         prompt = (
@@ -968,7 +872,7 @@ class GenericGeminiScraper(BaseScraper):
             # appears in env — no per-scraper opt-in needed.
             raw = _call_llm(prompt=prompt, html=html, language=self.LANGUAGE)
         except Exception as exc:  # noqa: BLE001 - review layer can try Claude fallback
-            self.logger.warning("LLM call failed (Gemini+OpenAI both): %s", exc)
+            self.logger.warning("LLM call failed (self-hosted + OpenAI fallback): %s", exc)
             return []
 
         if not raw:
@@ -978,7 +882,7 @@ class GenericGeminiScraper(BaseScraper):
         try:
             data = json.loads(cleaned)
         except json.JSONDecodeError as exc:
-            self.logger.warning("Gemini returned non-JSON: %s", exc)
+            self.logger.warning("LLM returned non-JSON: %s", exc)
             return []
 
         if not isinstance(data, list):
@@ -1004,7 +908,7 @@ class GenericGeminiScraper(BaseScraper):
                 Pathogen=str(item.get("pathogen", "")),
                 Reason=str(item.get("description", "")) or str(item.get("pathogen", "")),
                 URL=raw_url,
-                Notes=f"Gemini/{self.LANGUAGE} from {source_url}",
+                Notes=f"LLM/{self.LANGUAGE} from {source_url}",
             )
 
             # Drop rows that can't be promoted anyway (no URL or no pathogen).
@@ -1018,7 +922,7 @@ class GenericGeminiScraper(BaseScraper):
 
 __all__ = [
     "BaseScraper",
-    "GenericGeminiScraper",
+    "GenericLLMScraper",
     "make_session",
     "fetch",
 ]

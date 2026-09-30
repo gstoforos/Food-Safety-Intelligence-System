@@ -5,10 +5,10 @@ EFET publishes food safety recalls and warnings in Greek. The main
 listings page shows recent ανακλήσεις (recalls) with product details.
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class EFETScraper(GenericGeminiScraper):
+class EFETScraper(GenericLLMScraper):
     AGENCY = "EFET (GR)"
     COUNTRY = "Greece"
     BASE_URL = "https://www.efet.gr"

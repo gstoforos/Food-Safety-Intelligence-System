@@ -1,9 +1,9 @@
-"""FDA (GH) food safety scraper — uses Gemini for HTML extraction."""
+"""FDA (GH) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction."""
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class FDAGHScraper(GenericGeminiScraper):
+class FDAGHScraper(GenericLLMScraper):
     AGENCY = "FDA (GH)"
     COUNTRY = "Ghana"
     INDEX_URLS = ['https://fdaghana.gov.gh/index.php/news/recall-notices/']

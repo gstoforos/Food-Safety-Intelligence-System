@@ -21,7 +21,6 @@ Consumers
     scrapers._base                         imports everything above
     scrapers.news_feeds._news_base         imports normalize_pathogen, PATHOGEN_RULES
     enrichment.enrich_rows                 imports Recall + all helpers
-    enrichment.gemini_client               (indirect, through enrich_rows)
     pipeline.merge_master                  imports Recall
     pipeline.run_all                       imports Recall
     pipeline.gap_finder_claude             imports Recall + all helpers

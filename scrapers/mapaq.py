@@ -1,9 +1,9 @@
-"""MoPH (QA) food safety scraper — uses Gemini for HTML extraction."""
+"""MoPH (QA) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction."""
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class MoPHQAScraper(GenericGeminiScraper):
+class MoPHQAScraper(GenericLLMScraper):
     AGENCY = "MoPH (QA)"
     COUNTRY = "Qatar"
     INDEX_URLS = ['https://www.moph.gov.qa/english/Pages/news.aspx']

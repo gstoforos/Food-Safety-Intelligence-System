@@ -14,12 +14,12 @@ JSON API — the internal API requires authentication).
 from __future__ import annotations
 from typing import List
 import logging
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 log = logging.getLogger(__name__)
 
 
-class RASFFScraper(GenericGeminiScraper):
+class RASFFScraper(GenericLLMScraper):
     AGENCY = "RASFF (EU)"
     COUNTRY = ""  # Multi-country; pathogen origin extracted per-row by Gemini
     BASE_URL = "https://webgate.ec.europa.eu/rasff-window"

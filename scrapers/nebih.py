@@ -1,9 +1,9 @@
-"""GIS (PL) food safety scraper — uses Gemini for HTML extraction."""
+"""GIS (PL) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction."""
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class GISScraper(GenericGeminiScraper):
+class GISScraper(GenericLLMScraper):
     AGENCY = "GIS (PL)"
     COUNTRY = "Poland"
     INDEX_URLS = ['https://www.gov.pl/web/gis/ostrzezenia-publiczne-dotyczace-zywnosci']

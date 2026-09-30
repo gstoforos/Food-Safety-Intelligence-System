@@ -5,7 +5,7 @@ WHY THIS MODULE EXISTS
 ======================
 On 2026-09-14 the GIS (PL) scraper was found to have produced zero rows in
 eight months while reporting no error. It was ten lines wrapping
-``GenericGeminiScraper``, aimed at ``/web/gis/ostrzezenia-publiczne-
+``GenericLLMScraper``, aimed at ``/web/gis/ostrzezenia-publiczne-
 dotyczace-zywnosci`` — the singular *article* slug — while GIS publishes
 its dated list at ``/web/gis/ostrzezenia``. The fetch succeeded, so health
 never showed a failure; the LLM had nothing to extract; an empty list came

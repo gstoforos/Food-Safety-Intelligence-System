@@ -1,9 +1,9 @@
-"""TFDA (TW) food safety scraper — uses Gemini for HTML extraction."""
+"""TFDA (TW) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction."""
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class TFDATWScraper(GenericGeminiScraper):
+class TFDATWScraper(GenericLLMScraper):
     AGENCY = "TFDA (TW)"
     COUNTRY = "Taiwan"
     INDEX_URLS = ['https://www.fda.gov.tw/TC/news.aspx?cid=4']

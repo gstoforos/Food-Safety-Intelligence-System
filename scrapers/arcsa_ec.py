@@ -1,9 +1,9 @@
-"""ARCSA (EC) food safety scraper — uses Gemini for HTML extraction."""
+"""ARCSA (EC) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction."""
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class ARCSAScraper(GenericGeminiScraper):
+class ARCSAScraper(GenericLLMScraper):
     AGENCY = "ARCSA (EC)"
     COUNTRY = "Ecuador"
     INDEX_URLS = ['https://www.controlsanitario.gob.ec/category/noticias/']
