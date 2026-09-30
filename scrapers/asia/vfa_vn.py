@@ -1,4 +1,4 @@
-"""VFA (VN) food safety scraper — uses Gemini for HTML extraction.
+"""VFA (VN) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 TLS workaround (added 2026-05-07):
 vfa.gov.vn negotiates TLS using a Diffie-Hellman key smaller than 1024 bits.
@@ -18,7 +18,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from urllib3.util.ssl_ import create_urllib3_context
 
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
 class _LegacyTLSAdapter(HTTPAdapter):
@@ -38,7 +38,7 @@ class _LegacyTLSAdapter(HTTPAdapter):
         return super().proxy_manager_for(*args, **kwargs)
 
 
-class VFAScraper(GenericGeminiScraper):
+class VFAScraper(GenericLLMScraper):
     AGENCY = "VFA (VN)"
     COUNTRY = "Vietnam"
     INDEX_URLS = ['https://vfa.gov.vn/canh-bao/']

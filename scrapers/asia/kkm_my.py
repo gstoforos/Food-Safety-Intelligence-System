@@ -1,9 +1,9 @@
-"""KKM (MY) food safety scraper — uses Gemini for HTML extraction."""
+"""KKM (MY) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction."""
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class KKMScraper(GenericGeminiScraper):
+class KKMScraper(GenericLLMScraper):
     AGENCY = "KKM (MY)"
     COUNTRY = "Malaysia"
     INDEX_URLS = ['https://hq.moh.gov.my/fsq/ms/kenyataan-akhbar']

@@ -1,4 +1,4 @@
-"""BPOM (ID) food safety scraper — uses Gemini for HTML extraction.
+"""BPOM (ID) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 TLS workaround (added 2026-05-07):
 pom.go.id serves an incomplete HTTPS certificate chain — the GitHub Actions
@@ -18,14 +18,14 @@ from __future__ import annotations
 import urllib3
 from urllib3.exceptions import InsecureRequestWarning
 
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 # Suppress the verify=False warning that would otherwise fire on every
 # request through this scraper's session. Module-level so it runs once.
 urllib3.disable_warnings(InsecureRequestWarning)
 
 
-class BPOMScraper(GenericGeminiScraper):
+class BPOMScraper(GenericLLMScraper):
     AGENCY = "BPOM (ID)"
     COUNTRY = "Indonesia"
     INDEX_URLS = ['https://www.pom.go.id/siaran-pers']

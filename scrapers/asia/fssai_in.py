@@ -1,4 +1,4 @@
-"""FSSAI (IN) food safety scraper — uses Gemini for HTML extraction.
+"""FSSAI (IN) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 URL retargeting (Batch 3, 2026-05-08):
 The previous URL `/cms/recall.php` is a procedural/educational page about
@@ -17,10 +17,10 @@ Two replacement URLs:
    to a structured recall feed.
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class FSSAIScraper(GenericGeminiScraper):
+class FSSAIScraper(GenericLLMScraper):
     AGENCY = "FSSAI (IN)"
     COUNTRY = "India"
     INDEX_URLS = [
