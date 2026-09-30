@@ -204,15 +204,20 @@ PATHOGENS: Tuple[str, ...] = (
     "uninspected meat",
     "uninspected poultry",
     "misbranded and uninspected",
-    # NOT included, deliberately: import violations. "Ineligible imported",
-    # "not presented for import reinspection" and their kin are arguably the
-    # same unassessed class — product from a source outside the inspection
-    # system — but they are a SEPARATE scope line with its own existing test
-    # (tests/test_usda_fsis_scraper.py::test_import_violation_dropped), and
-    # that line has not been ruled on. When the first version of this block
-    # carried "ineligible for importation", that test passed only because
-    # the fixture says "Ineligible Imported" — a wording accident, not
-    # agreement. Decide it explicitly or leave it; do not let it in sideways.
+    # IMPORT VIOLATIONS — RULED IN on 2026-09-30 (operator: "in scope, as
+    # uninspected"). This line used to read "NOT included, deliberately ...
+    # that line has not been ruled on. Decide it explicitly or leave it".
+    # It has now been decided. The same unassessed class: product from a
+    # source outside the inspection system — FSIS 2026-09-25 Sempio (Korean
+    # chicken stew "imported without the benefit of import reinspection")
+    # and 2026-09-09 El Eden (pork cracklings from Colombia, "a country that
+    # is not eligible to export meat products to the United States").
+    "without the benefit of import reinspection",
+    "without the benefit of import re-inspection",
+    "not presented for import reinspection",
+    "not presented for import re-inspection",
+    "ineligible for importation", "ineligible imported", "ineligible import",
+    "not eligible to export",
 )
 
 

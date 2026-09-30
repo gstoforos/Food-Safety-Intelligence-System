@@ -348,9 +348,13 @@ PATHOGEN_RULES: List[Tuple[str, str]] = [
         r"produced\s+without\s+inspection|"
         r"not\s+produced\s+under\s+(?:federal\s+)?inspection|"
         r"false\s+inspection\s+mark|"
-        r"uninspected\s+(?:product|meat|poultry)"),
-    # Import violations are NOT matched here — see the note in
-    # scrapers/_pathogen_vocab.py beside the same omission.
+        r"uninspected\s+(?:product|meat|poultry)|"
+        # Import violations — ruled IN on 2026-09-30 (operator: "in scope,
+        # as uninspected"). See scrapers/_pathogen_vocab.py.
+        r"without\s+(?:the\s+)?benefit\s+of\s+(?:u\.?s\.?\s+)?import\s+re-?inspection|"
+        r"not\s+presented\s+for\s+(?:u\.?s\.?\s+)?import\s+re-?inspection|"
+        r"\bineligible\b[^.;]{0,80}?\bimport|"
+        r"not\s+eligible\s+to\s+export"),
 ]
 
 _TIERS: Dict[str, int] = {
