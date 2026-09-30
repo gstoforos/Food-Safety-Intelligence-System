@@ -382,3 +382,24 @@ def dedupe_outbreak_flags(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             r["_outbreak_event"] = event
             losers.append(r)
     return losers
+
+
+def one_row_per_event(ranked: List[Dict[str, Any]],
+                      pool: Iterable[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    """A ranked list with each outbreak EVENT represented once (2026-09-30).
+
+    A Top-N table is a list of incidents, not rows. September 2026's Top 10
+    carried the Evergreen sprouts outbreak twice (the FDA recall and the CDC
+    investigation page) and the Frutas y Hortalizas blueberry outbreak twice,
+    so two of ten slots were repeats — and the social cards, which are
+    immutable once posted, inherited them.
+
+    The rows dropped are exactly the ones dedupe_outbreak_flags() says are
+    not the event's representative (FDA first, per the operator rule), so the
+    table and the outbreak count agree on what one event is. `pool` is the
+    set the grouping is computed over (default: `ranked` itself); order of
+    `ranked` is kept.
+    """
+    pool = list(ranked if pool is None else pool)
+    losers = {id(r) for r in dedupe_outbreak_flags(pool)}
+    return [r for r in ranked if id(r) not in losers]
