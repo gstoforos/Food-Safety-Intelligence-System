@@ -44,7 +44,6 @@ line:
     _SYNTHESIS_BACKENDS = [
         ("afts_v1",   _call_afts_v1),     # ← new line at the top
         ("anthropic", _call_anthropic),
-        ("gemini",    _call_gemini),
     ]
 
 If every LLM backend fails, `_deterministic_synthesis()` writes a
@@ -338,55 +337,10 @@ def _call_anthropic(prompt: str, timeout: int = 60) -> Optional[str]:
         return None
 
 
-def _call_gemini(prompt: str, timeout: int = 60) -> Optional[str]:
-    """Call Gemini via google.genai. Tries GEMINI_API_KEY_FREE first, then
-    GEMINI_API_KEY_1..5. Mirrors the rotation used by gap_finder_gemini so
-    this writer benefits from the same quota pool. No Google Search
-    grounding for synthesis (the data is in the prompt; no need to search)."""
-    keys = []
-    for env in ("GEMINI_API_KEY_FREE", "GEMINI_API_KEY_1", "GEMINI_API_KEY_2",
-                "GEMINI_API_KEY_3", "GEMINI_API_KEY_4", "GEMINI_API_KEY_5",
-                "GEMINI_API_KEY", "GOOGLE_API_KEY"):
-        v = (os.environ.get(env) or "").strip()
-        if v and v not in keys:
-            keys.append(v)
-    if not keys:
-        log.info("gemini backend: no API key configured — skipping")
-        return None
-    try:
-        from google import genai  # type: ignore
-        from google.genai import types  # type: ignore
-    except ImportError:
-        log.warning("gemini backend: google-genai not installed — skipping")
-        return None
-    model_name = os.environ.get("AFTS_SYNTHESIS_GEMINI_MODEL", "gemini-2.5-flash")
-    for idx, key in enumerate(keys, 1):
-        try:
-            client = genai.Client(api_key=key)
-            resp = client.models.generate_content(
-                model=model_name,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    temperature=0.4,
-                    max_output_tokens=600,
-                ),
-            )
-            text = (getattr(resp, "text", None) or "").strip()
-            if text:
-                log.info("gemini backend: key #%d/%d succeeded (%s)",
-                         idx, len(keys), model_name)
-                return text
-            log.info("gemini backend: key #%d returned empty text", idx)
-        except Exception as e:  # noqa: BLE001
-            log.warning("gemini backend key #%d exception: %s", idx, e)
-            continue
-    return None
-
-
 # Ordered backend list. New providers (AFTS in-house model) plug in at the top.
 _SYNTHESIS_BACKENDS: list[Tuple[str, Callable[[str, int], Optional[str]]]] = [
     ("anthropic", _call_anthropic),
-    ("gemini",    _call_gemini),
+    # Gemini backend REMOVED 2026-09-30 (operator ruling: no Gemini anywhere).
 ]
 
 
@@ -580,7 +534,7 @@ def _deterministic_synthesis(summary: dict, cadence: str) -> str:
 def generate_synthesis(summary: dict, cadence: str) -> Tuple[str, str]:
     """Try every backend in order; fall back to deterministic template.
     Returns (synthesis_text, source_label) — source_label is the backend
-    that succeeded (e.g. "anthropic", "gemini", "deterministic")."""
+    that succeeded (e.g. "anthropic", "deterministic")."""
     if cadence == "weekly":
         prompt = _build_weekly_prompt(summary)
     elif cadence == "monthly":

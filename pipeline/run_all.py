@@ -6,8 +6,8 @@ Triggered by GitHub Actions cron at 17:00 UTC daily.
 Flow:
   1. Discover and instantiate all scraper classes
   2. Run them in parallel batches (rate-limit friendly)
-     - Each GenericGeminiScraper: Gemini first, Claude Haiku fallback on 0-row pages
-  3. Enrich raw rows with Gemini (pathogen / country / class / tier normalization)
+     - Each GenericLLMScraper: our own model (Qwen, VPS); OpenAI fallback if configured
+  3. Enrich raw rows deterministically (pathogen / country / class / tier normalization)
   4. Append enriched rows to the Pending sheet (deduped vs Pending + Recalls)
   5. URL validation (HEAD/GET) against Pending rows only
   6. AI review of newly-scraped pending rows: Claude full-batch (rejection-grade)
@@ -25,7 +25,7 @@ Approval policy (what counts as a rejection):
   Otherwise the row is approved and promoted to Recalls.
 
 Environment flags:
-  SKIP_AI       : skip Gemini enrichment (keep deterministic normalization only)
+  SKIP_AI       : accepted, no effect — enrichment is deterministic only (2026-09-30)
   SKIP_REVIEW   : skip URL validation + Claude review (auto-approve everything)
   SKIP_COMMIT   : don't git push (useful for local dry-runs)
   SINCE_DAYS    : how many days back to scrape (default 7)
