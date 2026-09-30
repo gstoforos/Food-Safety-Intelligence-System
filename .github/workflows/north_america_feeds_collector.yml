@@ -171,8 +171,21 @@ jobs:
             (echo "Llama not reachable"; exit 1)
           echo ""
           echo "▶ Searx health:"
-          curl -fsS --max-time 10 "$SEARX_URL?q=test&format=json" | head -c 200 || \
-            (echo "Searx not reachable"; exit 1)
+          # Reachable is not useful (2026-09-30): an empty "results": [] used
+          # to pass this. Unreachable still fails the step as before; empty is
+          # flagged by name but does not stop the collector, which also reads
+          # the regulators' own feeds without Searx.
+          body=$(curl -fsS --max-time 10 --get "$SEARX_URL" \
+                   --data-urlencode "q=listeria recall" \
+                   --data-urlencode "format=json") || \
+            { echo "Searx not reachable"; exit 1; }
+          n=$(printf '%s' "$body" | python3 -c 'import json,sys; print(len(json.load(sys.stdin).get("results") or []))' 2>/dev/null) || n=-1
+          [ -n "$n" ] || n=-1
+          if [ "$n" -gt 0 ]; then
+            echo "Searx returned $n result(s)"
+          else
+            echo "::warning title=Searx is up but returns NOTHING::A known-good query returned $n results. Search-backed discovery will find nothing this run. Check SEARX_URL and the instance's engines on the VPS."
+          fi
           echo ""
 
       # ═══════════════════════════════════════════════════════════════════

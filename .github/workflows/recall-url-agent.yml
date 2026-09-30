@@ -274,46 +274,39 @@ jobs:
             echo "✗ SEARX_URL is not set — the reviewers would run blind"
             echo "reachable=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
-          # REACHABLE IS NOT USEFUL (audit 2026-09-29).
-          #
-          # This used to pass on a grep for the string "results", which an
-          # EMPTY results array satisfies. On 2026-09-29 Searx answered every
-          # query with zero results; this check went green, the reviewer ran,
-          # the model had nothing to cite and fell back to "No official
-          # regulator URL found" on all four rows in the lane. The url-guard
-          # refused all four - correctly, they each carry an authority URL -
-          # and the run exited 3. A whole reviewer slot spent turning good
-          # rows into rejections that had to be refused.
-          #
-          # It is the same invariant as the lying 404 from an Akamai host:
-          # the service answering is not the service working. Require at
-          # least one result.
-          #
-          # The python is deliberately ONE line. A multi-line -c literal
-          # dedents to column 0 and ends the YAML block scalar early, which
-          # is a workflow that does not parse at all.
+          # REACHABLE IS NOT USEFUL (2026-09-30). This used to grep for the
+          # string '"results"', which an EMPTY array satisfies. On 2026-09-29
+          # Searx answered every query with "results": [] — health check
+          # green, every row "[searx] EMPTY", the model said "No official
+          # regulator URL found" four times, the url-guard refused four times,
+          # and the run exited 3. Same invariant as the lying 404: an answer
+          # is not evidence. A known-good query must return at least one hit.
           echo "Querying Searx for a known-good term..."
+          n=-1
           for i in 1 2 3; do
-            n=$(curl -sf --max-time 15 --get "$SEARX_URL" \
-                  --data-urlencode "q=listeria recall" \
-                  --data-urlencode "format=json" \
-                | python3 -c "import json,sys;print(len(json.load(sys.stdin).get('results') or []))" \
-                || echo -1)
-            if [ "${n:--1}" -gt 0 ] 2>/dev/null; then
-              echo "OK - Searx returned $n result(s) for a known-good term"
+            body=$(curl -sf --max-time 15 --get "$SEARX_URL" \
+                 --data-urlencode "q=listeria recall" \
+                 --data-urlencode "format=json" 2>/dev/null) || body=""
+            n=$(printf '%s' "$body" | python3 -c 'import json,sys; print(len(json.load(sys.stdin).get("results") or []))' 2>/dev/null) || n=-1
+            [ -n "$n" ] || n=-1
+            if [ "$n" -gt 0 ]; then
+              echo "✓ Searx returned $n result(s) for a known-good query"
+              echo "results=$n" >> "$GITHUB_OUTPUT"
               echo "reachable=true" >> "$GITHUB_OUTPUT"; exit 0
             fi
-            if [ "$n" = "0" ]; then
-              echo "Attempt $i/3 - Searx answered but returned ZERO results."
-              echo "  The instance is UP and USELESS: engines failing, rate"
-              echo "  limited, or all engines disabled. The reviewer must not"
-              echo "  run on this - it produces false no-official-URL verdicts."
+            if [ "$n" -eq 0 ]; then
+              echo "Attempt $i/3: Searx ANSWERED but returned ZERO results; retrying in 5s..."
             else
-              echo "Attempt $i/3 - no parseable results array."
+              echo "Attempt $i/3: no JSON results array; retrying in 5s..."
             fi
-            [ "$i" = "3" ] || { echo "retrying in 5s..."; sleep 5; }
+            sleep 5
           done
-          echo "Searx did not return a NON-EMPTY results array after 3 attempts"
+          if [ "$n" -eq 0 ]; then
+            echo "::error title=Searx is up but returns NOTHING::A known-good query ('listeria recall') returned zero results 3 times. The reviewers would turn good rows into bogus 'no official URL found' rejections. Check SEARX_URL and the instance's enabled engines on the VPS."
+          else
+            echo "✗ Searx did not return a results array after 3 attempts"
+          fi
+          echo "results=$n" >> "$GITHUB_OUTPUT"
           echo "reachable=false" >> "$GITHUB_OUTPUT"
 
       # Fail FAST and by name. Without this the job spends its whole time
@@ -334,7 +327,7 @@ jobs:
             echo "|---|---|"
             echo "| llama-server reachable (GET /models) | ${{ steps.llama.outputs.reachable }} |"
             echo "| llama accepts tools[] (function calling) | ${{ steps.tools.outputs.ok }} |"
-            echo "| Searx (SEARX_URL) | ${{ steps.searx.outputs.reachable }} |"
+            echo "| Searx (SEARX_URL) returns results (count: ${{ steps.searx.outputs.results }}) | ${{ steps.searx.outputs.reachable }} |"
             echo ""
             echo "llama reachable=true with tools=false is the case that has"
             echo "been red since 2026-09-16: the box is up and answering plain"
@@ -965,12 +958,11 @@ jobs:
                   return 0
 
               today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
-              # "refused" is NOT a kind of retry (audit 2026-09-29). A retry means the
-              # infrastructure failed and no verdict exists. A guard refusal means the
-              # url-guard looked at the row and DECIDED the rejection was wrong — the
-              # most confident outcome this agent produces short of a confirmation.
-              # Counting it as infra is what livelocked the queue; see the block at the
-              # end of the loop.
+              # "refused" is a url-guard refusal: reviewer 1 wanted to reject, the guard
+              # said no because the authority URL is on the row. That is a DECISION,
+              # and it is recorded in Notes (refusal_count reads it back next run to
+              # decide whether to escalate). It is NOT "retry" — see the write-back
+              # comment below for what filing it as retry cost.
               counts = {"confirm": 0, "reject": 0, "retry": 0, "refused": 0}
               rejected_flags: Dict[int, str] = {}
 
@@ -1057,23 +1049,6 @@ jobs:
                                      f"confirmed deterministically; Pathogen left "
                                      f"empty because this path did not enrich.]")
                           else:
-                              # A REFUSAL IS A DECISION, NOT AN OUTAGE (audit 2026-09-29).
-                              #
-                              # This used to increment counts["retry"]. On a run where
-                              # every row in the lane was a guard refusal — which is
-                              # exactly what an empty Searx result set produces, because
-                              # the model then falls back to "No official regulator URL
-                              # found" on every row — the totals came out as all-retry,
-                              # the all-retry block below declared NO REVIEW PERFORMED
-                              # and returned 3 BEFORE the write-back. So the refusal tag
-                              # written into Notes two lines down was discarded.
-                              #
-                              # That closed a livelock. refusal_count() reads those tags;
-                              # with them thrown away it always returned 0, so _prior
-                              # never reached 1, so the escalation directly above — added
-                              # 2026-09-25 precisely to stop a row being asked the same
-                              # question forever — could never fire. The guard refused,
-                              # the note vanished, the row came back identical next run.
                               counts["refused"] = counts.get("refused", 0) + 1
                               # The row is NOT rejected, so the per-row line must not
                               # print "→ rejected". next_status already returned
@@ -1097,41 +1072,31 @@ jobs:
                   print(f"NOTE: {_stopped_early} rows not reviewed this run (time budget).")
               print(f"\n{'='*60}")
               print(f"confirm: {counts['confirm']}  reject: {counts['reject']}  "
-                    f"retry (infra, left in Pending): {counts['retry']}  "
-                    f"guard-refused (left in Pending, note written): "
-                    f"{counts.get('refused', 0)}")
+                    f"guard-refused (noted, left in Pending): {counts['refused']}  "
+                    f"retry (infra, untouched): {counts['retry']}")
               print(f"{'='*60}")
 
-              _n = len(work_idx)
-              _refused = counts.get("refused", 0)
-              if _n and _refused and counts.get("retry", 0) + _refused == _n:
-                  # EVERY row was a guard refusal, and none was an infra failure. This
-                  # is NOT "no review performed": the guard reached a verdict on each
-                  # one — that the rejection was wrong because the row already carries
-                  # its authority URL. The run must fall through to the write-back so
-                  # those refusals are recorded, because the escalation on the next run
-                  # counts them.
+              # ── NO REVIEW PERFORMED means NOTHING WAS DECIDED (2026-09-30) ──────────
+              #
+              # This used to fire when every row's *counter* said "retry", and a
+              # url-guard refusal was counted as retry. So a run in which the guard
+              # refused every rejection — Searx empty, model says "No official
+              # regulator URL found", guard correctly keeps the row — returned 3 HERE,
+              # above the write-back, and threw away the refusal tags already written
+              # into row["Notes"]. refusal_count() therefore never saw a prior refusal,
+              # `_prior >= 1` was never true, and the 2026-09-25 escalation could never
+              # fire. Same four RappelConso rows, same question, every run: a livelock.
+              #
+              # A guard refusal is a decision, not an outage. Only a run in which no
+              # row reached ANY decision is a run that performed no review; anything
+              # else is written back, so the next run can see what this one decided.
+              _reviewed = len(work_idx) - _stopped_early
+              _decided = (counts["confirm"] + counts["reject"]
+                          + counts.get("refused", 0))
+              if _reviewed and _decided == 0:
                   print("\n" + "=" * 60)
-                  print(f"*** NO ROW ADVANCED — all {_refused} were guard refusals. ***")
-                  print("The url-guard refused every rejection reviewer 1 proposed. That")
-                  print("is the guard working, not an outage: each of these rows already")
-                  print("carries an official regulator URL, and 'no official URL found'")
-                  print("is a statement about reachability, not about existence.")
-                  print("")
-                  print("The usual cause is an EMPTY SEARX RESULT SET. With no search")
-                  print("results the model has nothing to cite and falls back to")
-                  print("'No official regulator URL found' on every row. Check SEARX_URL")
-                  print("and the instance's engines BEFORE touching the VPS — llama is")
-                  print("answering, or there would be no rejections to refuse.")
-                  print("")
-                  print("The refusals ARE being written to Notes. A row refused twice")
-                  print("escalates to confirmed on the next run (see the escalation in")
-                  print("the reject branch above), so this clears itself once recorded.")
-                  print("=" * 60)
-
-              if _n and counts.get("retry", 0) == _n:
-                  print("\n" + "=" * 60)
-                  print(f"*** NO REVIEW PERFORMED — all {_n} rows returned retry. ***")
+                  print(f"*** NO REVIEW PERFORMED — all {_reviewed} rows returned "
+                        f"retry. ***")
                   # WHY THIS IS NOT "the model was unreachable" (audit 2026-09-17).
                   # On 2026-09-17 this printed "unreachable" for a run in which llama
                   # answered SIX times. llama_client prints "This is NOT an unreachable
@@ -1159,6 +1124,16 @@ jobs:
                       print("Nothing was written. The queue is untouched.")
                   print("=" * 60)
                   return 3
+
+              if _reviewed and counts.get("refused", 0) == _reviewed:
+                  # Written back (the refusals are the evidence the escalation needs),
+                  # but loud: every row refused in one run is what an empty Searx looks
+                  # like from here, not a verdict on the rows.
+                  print(f"\n*** WARNING: all {_reviewed} rows were rejected by the model "
+                        f"and refused by the url-guard. Refusals recorded in Notes; rows "
+                        f"whose URL is self-evidently official escalate on the next "
+                        f"refusal. If every search printed '[searx] EMPTY', check "
+                        f"SEARX_URL / the instance's engines on the VPS. ***")
 
               if not commit:
                   print("\nDRY RUN — no writes. Set --commit true to advance statuses.")

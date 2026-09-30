@@ -274,46 +274,39 @@ jobs:
             echo "✗ SEARX_URL is not set — the reviewers would run blind"
             echo "reachable=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
-          # REACHABLE IS NOT USEFUL (audit 2026-09-29).
-          #
-          # This used to pass on a grep for the string "results", which an
-          # EMPTY results array satisfies. On 2026-09-29 Searx answered every
-          # query with zero results; this check went green, the reviewer ran,
-          # the model had nothing to cite and fell back to "No official
-          # regulator URL found" on all four rows in the lane. The url-guard
-          # refused all four - correctly, they each carry an authority URL -
-          # and the run exited 3. A whole reviewer slot spent turning good
-          # rows into rejections that had to be refused.
-          #
-          # It is the same invariant as the lying 404 from an Akamai host:
-          # the service answering is not the service working. Require at
-          # least one result.
-          #
-          # The python is deliberately ONE line. A multi-line -c literal
-          # dedents to column 0 and ends the YAML block scalar early, which
-          # is a workflow that does not parse at all.
+          # REACHABLE IS NOT USEFUL (2026-09-30). This used to grep for the
+          # string '"results"', which an EMPTY array satisfies. On 2026-09-29
+          # Searx answered every query with "results": [] — health check
+          # green, every row "[searx] EMPTY", the model said "No official
+          # regulator URL found" four times, the url-guard refused four times,
+          # and the run exited 3. Same invariant as the lying 404: an answer
+          # is not evidence. A known-good query must return at least one hit.
           echo "Querying Searx for a known-good term..."
+          n=-1
           for i in 1 2 3; do
-            n=$(curl -sf --max-time 15 --get "$SEARX_URL" \
-                  --data-urlencode "q=listeria recall" \
-                  --data-urlencode "format=json" \
-                | python3 -c "import json,sys;print(len(json.load(sys.stdin).get('results') or []))" \
-                || echo -1)
-            if [ "${n:--1}" -gt 0 ] 2>/dev/null; then
-              echo "OK - Searx returned $n result(s) for a known-good term"
+            body=$(curl -sf --max-time 15 --get "$SEARX_URL" \
+                 --data-urlencode "q=listeria recall" \
+                 --data-urlencode "format=json" 2>/dev/null) || body=""
+            n=$(printf '%s' "$body" | python3 -c 'import json,sys; print(len(json.load(sys.stdin).get("results") or []))' 2>/dev/null) || n=-1
+            [ -n "$n" ] || n=-1
+            if [ "$n" -gt 0 ]; then
+              echo "✓ Searx returned $n result(s) for a known-good query"
+              echo "results=$n" >> "$GITHUB_OUTPUT"
               echo "reachable=true" >> "$GITHUB_OUTPUT"; exit 0
             fi
-            if [ "$n" = "0" ]; then
-              echo "Attempt $i/3 - Searx answered but returned ZERO results."
-              echo "  The instance is UP and USELESS: engines failing, rate"
-              echo "  limited, or all engines disabled. The reviewer must not"
-              echo "  run on this - it produces false no-official-URL verdicts."
+            if [ "$n" -eq 0 ]; then
+              echo "Attempt $i/3: Searx ANSWERED but returned ZERO results; retrying in 5s..."
             else
-              echo "Attempt $i/3 - no parseable results array."
+              echo "Attempt $i/3: no JSON results array; retrying in 5s..."
             fi
-            [ "$i" = "3" ] || { echo "retrying in 5s..."; sleep 5; }
+            sleep 5
           done
-          echo "Searx did not return a NON-EMPTY results array after 3 attempts"
+          if [ "$n" -eq 0 ]; then
+            echo "::error title=Searx is up but returns NOTHING::A known-good query ('listeria recall') returned zero results 3 times. The reviewers would turn good rows into bogus 'no official URL found' rejections. Check SEARX_URL and the instance's enabled engines on the VPS."
+          else
+            echo "✗ Searx did not return a results array after 3 attempts"
+          fi
+          echo "results=$n" >> "$GITHUB_OUTPUT"
           echo "reachable=false" >> "$GITHUB_OUTPUT"
 
       # Fail FAST and by name. Without this the job spends its whole time
@@ -334,7 +327,7 @@ jobs:
             echo "|---|---|"
             echo "| llama-server reachable (GET /models) | ${{ steps.llama.outputs.reachable }} |"
             echo "| llama accepts tools[] (function calling) | ${{ steps.tools.outputs.ok }} |"
-            echo "| Searx (SEARX_URL) | ${{ steps.searx.outputs.reachable }} |"
+            echo "| Searx (SEARX_URL) returns results (count: ${{ steps.searx.outputs.results }}) | ${{ steps.searx.outputs.reachable }} |"
             echo ""
             echo "llama reachable=true with tools=false is the case that has"
             echo "been red since 2026-09-16: the box is up and answering plain"
