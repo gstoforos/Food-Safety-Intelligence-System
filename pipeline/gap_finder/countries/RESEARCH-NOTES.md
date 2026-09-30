@@ -53,6 +53,15 @@ attempted from the audit sandbox was refused at the proxy.
 | `ae` | MOCCAE | `/{en,ar}/media-center/news/<D>/<M>/<YYYY>/<slug>` |
 | `us` ‡ | USDA FSIS | `/recalls-alerts/<slug>` |
 | `ch` * | BLV | `/dam/blv/<lang>/dokumente/{oeffentliche-warnungen,rueckrufe}/…`, `/<lang>/newnsb/<id>` |
+| `th` § | Thai FDA (Food Division) | `/media.php?id=<n>&name=<BE-yy>_<mm>_<x>.pdf` (one product per PDF) |
+
+§ `th` added 2026-09-30, verified against the consumer-alert board
+`food.fda.moph.go.th/consumer-alertnews/category/verification-results-2569`:
+`name=69_03_Salmon.pdf` (smoked salmon, Listeria monocytogenes),
+`name=69_08_01.pdf` (E. coli), `name=69_09_01.pdf` (undeclared sildenafil).
+`media.php` serves every file on the site, so the file-name shape is what
+makes a URL an alert. The `/news/<percent-encoded Thai>` shape recorded in
+the 2026-09-23 section below was never the alert board.
 
 `ch` (*) is not new — its regex was rewritten today. The three marked †
 were corrected within hours of being written, by the register rather than
@@ -322,15 +331,27 @@ about representation before it needs a config** — one row per listed
 product, with the list's publication date and URL, is probably right, but
 that is a modelling choice, not a regex.
 
-### Thailand — FDA Thailand
-Found: `fda.moph.go.th/news/<slug>` where the slug is **percent-encoded
-Thai**, and `safetyalert.fda.moph.go.th`. Plausibly workable, but no
-individual recall notice was verified, and a `[a-z0-9-]+` slug pattern
-would be wrong for percent-encoded Thai. **Closest to ready** of the
-countries in this section; needs one verified recall URL.
+### China — SAMR (researched 2026-09-30)
+Found, and verified: SAMR publishes unqualified-food sampling notices at
+`samr.gov.cn/zw/zfxxgk/fdzdgknr/spcjs/art/<YYYY>/art_<32 hex>.html` — e.g.
+`art_d2739a902a3249d9a8b9300b5e3230d0.html`, "市场监管总局办公厅关于40批次食品
+抽检不合格情况的通报", 2026-05-22. The URL shape is solid. The CONTENT is the
+problem, and it is Turkey's problem:
+
+* each notice is a periodic LIST of 30–50 unqualified batches, not a recall;
+* it orders "核查处置" (verification and disposal), not 召回 (recall);
+* most failures are indicator counts — 菌落总数, 大肠菌群, 霉菌数 (a mould
+  COUNT against a limit, not visible mould) — which are out of scope. The
+  two mould examples in the verified notice were both 霉菌数.
+
+So China needs a representation decision before a config: one row per
+in-scope product in the list (named pathogen, mycotoxin, visible mould,
+undeclared drug), dated and linked to the notice? A config was drafted and
+withdrawn on 2026-09-30 for exactly this reason. Thailand moved OUT of this
+section the same day (verified, see the table above).
 
 ### Not yet researched
-`cn`, `pe`, `ec`, `uy`, `qa`, `in`'s state regulators.
+`pe`, `ec`, `uy`, `qa`, `in`'s state regulators.
 
 ---
 

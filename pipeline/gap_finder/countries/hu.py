@@ -5,6 +5,12 @@ Country config: Hungary (NÉBIH — Nemzeti Élelmiszerlánc-biztonsági Hivatal
 
 Hungarian food-recall regime:
   - NÉBIH at nebih.gov.hu publishes alerts ("riasztások", "visszahívások").
+  - NKFH (Nemzeti Kereskedelmi és Fogyasztóvédelmi Hatóság) at nkfh.gov.hu
+    ALSO publishes consumer product recalls, food included, as
+    nkfh.gov.hu/hirek/termekvisszahivas-<slug>. Added 2026-09-30: the
+    Auchan Nívó ham Listeria recall of 2026-09-29 was published ONLY there,
+    and was rejected three times as "no official NÉBIH press-release URL" —
+    a URL that was never going to exist.
   - Hungarian is non-Indo-European (Uralic family) — completely separate
     vocabulary from other EU languages.
   - Volume: ~40-80 recalls/year.
@@ -42,7 +48,11 @@ HUNGARY = CountryConfig(
     # second, which drops every bulk-index hit as a portal page. The
     # "^(?:https?://[^/]+)?" prefix — the idiom gh.py and za.py already
     # used — matches both.
-    authority_item_url_regex=r"^(?:https?://[^/]+)?/-/",
+    # NKFH (second authority, 2026-09-30): per-recall pages are
+    # /hirek/termekvisszahivas-<slug>. The /hirek/ index itself is excluded
+    # because the alternation requires the "termekvisszahivas-" slug prefix.
+    authority_domains_extra=["nkfh.gov.hu"],
+    authority_item_url_regex=r"^(?:https?://[^/]+)?/(?:-/|hirek/termekvisszahivas-)",
     authority_index_url="https://portal.nebih.gov.hu/termekvisszahivas",
 
     rss_sources=[
@@ -75,6 +85,7 @@ HUNGARY = CountryConfig(
     ],
     google_news_keywords=[
         "NÉBIH visszahívás élelmiszer",
+        "NKFH termékvisszahívás élelmiszer",
         "élelmiszer riasztás Salmonella",
         "visszahívás Listeria",
         "élelmiszer kivonás",
@@ -87,6 +98,8 @@ HUNGARY = CountryConfig(
         "site:nebih.gov.hu Salmonella OR Listeria",
         "site:nebih.gov.hu allergén",
         "site:portal.nebih.gov.hu élelmiszer",
+        "site:nkfh.gov.hu termékvisszahívás",
+        "site:nkfh.gov.hu Listeria OR Salmonella",
     ],
 
     language_name="Hungarian",
@@ -103,7 +116,8 @@ HUNGARY = CountryConfig(
         "kivonás", "kivonas", "kivonja",
         "élelmiszer riasztás", "elelmiszer riasztas",
         "riasztás", "riasztas",
-        "nébih", "nebih",
+        "nébih", "nebih", "nkfh",
+        "termékvisszahívás", "termekvisszahivas",
         "ne fogyasszák", "ne fogyasszak",
         "allergén nem jelölt", "allergen nem jelolt",
         "nem deklarált", "nem deklaralt",
