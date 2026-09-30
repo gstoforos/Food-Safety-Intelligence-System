@@ -4,9 +4,9 @@ WHY THIS REPLACES THE PREVIOUS VERSION (audit 2026-05-06)
 ==========================================================
 Production data: 2 rows captured in 4 months. FSAI publishes ~2-3 alerts
 per week; expected capture ≈ 30-50 over the same period. The previous
-scraper was 10 lines wrapping ``GenericGeminiScraper``:
+scraper was 10 lines wrapping ``GenericLLMScraper``:
 
-    class FSAIScraper(GenericGeminiScraper):
+    class FSAIScraper(GenericLLMScraper):
         AGENCY = "FSAI (IE)"
         INDEX_URLS = ['https://www.fsai.ie/news-and-alerts/food-alerts']
 

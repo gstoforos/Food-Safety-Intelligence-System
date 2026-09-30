@@ -1,9 +1,9 @@
-"""HAH (HR) food safety scraper — uses Gemini for HTML extraction."""
+"""HAH (HR) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction."""
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class HAHScraper(GenericGeminiScraper):
+class HAHScraper(GenericLLMScraper):
     AGENCY = "HAH (HR)"
     COUNTRY = "Croatia"
     INDEX_URLS = ['https://www.hapih.hr/kategorija/obavijesti-za-potrosace/']

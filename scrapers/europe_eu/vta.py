@@ -1,9 +1,9 @@
-"""VTA (EE) food safety scraper — uses Gemini for HTML extraction."""
+"""VTA (EE) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction."""
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class VTAScraper(GenericGeminiScraper):
+class VTAScraper(GenericLLMScraper):
     AGENCY = "VTA (EE)"
     COUNTRY = "Estonia"
     INDEX_URLS = ['https://pta.agri.ee/otsing?search_term=&f%5B0%5D=type%3Anews']

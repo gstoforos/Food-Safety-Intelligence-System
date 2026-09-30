@@ -1,9 +1,9 @@
-"""AFSCA (BE) food safety scraper — uses Gemini for HTML extraction."""
+"""AFSCA (BE) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction."""
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class AFSCAScraper(GenericGeminiScraper):
+class AFSCAScraper(GenericLLMScraper):
     AGENCY = "AFSCA (BE)"
     COUNTRY = "Belgium"
     INDEX_URLS = ['https://favv-afsca.be/fr/produits']

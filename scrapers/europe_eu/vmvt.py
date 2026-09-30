@@ -1,4 +1,4 @@
-"""VMVT (LT) food safety scraper — uses Gemini for HTML extraction.
+"""VMVT (LT) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 Browser fingerprint headers (Batch 4, 2026-05-08):
 The previous AFTS session uses a Chrome 127 User-Agent but omits the
@@ -10,7 +10,7 @@ The URL itself (`/maisto-sauga/aktualijos`) is correct — it's the food
 safety news/updates section.
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
 _CHROME_FINGERPRINT_HEADERS = {
@@ -28,7 +28,7 @@ _CHROME_FINGERPRINT_HEADERS = {
 }
 
 
-class VMVTScraper(GenericGeminiScraper):
+class VMVTScraper(GenericLLMScraper):
     AGENCY = "VMVT (LT)"
     COUNTRY = "Lithuania"
     INDEX_URLS = ['https://vmvt.lt/maisto-sauga/aktualijos']

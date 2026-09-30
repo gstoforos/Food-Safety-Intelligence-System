@@ -1,4 +1,4 @@
-"""ŠVPS (SK) food safety scraper — uses Gemini for HTML extraction.
+"""ŠVPS (SK) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 Two changes in Batch 4 (2026-05-08):
 
@@ -18,7 +18,7 @@ Two changes in Batch 4 (2026-05-08):
    on first navigation and clears the 403.
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
 _CHROME_FINGERPRINT_HEADERS = {
@@ -36,7 +36,7 @@ _CHROME_FINGERPRINT_HEADERS = {
 }
 
 
-class SVPSScraper(GenericGeminiScraper):
+class SVPSScraper(GenericLLMScraper):
     AGENCY = "ŠVPS (SK)"
     COUNTRY = "Slovakia"
     INDEX_URLS = [

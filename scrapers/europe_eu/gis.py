@@ -8,9 +8,9 @@ at all — its Notes read ``Discovered via news: wp.pl``. So the honest
 count is zero. ``docs/data/scraper-health.json`` has been reporting
 ``SILENT_STALE`` for Poland with ``days_since_last_row: 102``.
 
-The previous version was ten lines wrapping ``GenericGeminiScraper``::
+The previous version was ten lines wrapping ``GenericLLMScraper``::
 
-    class GISScraper(GenericGeminiScraper):
+    class GISScraper(GenericLLMScraper):
         AGENCY = "GIS (PL)"
         INDEX_URLS = ['https://www.gov.pl/web/gis/ostrzezenia-publiczne-dotyczace-zywnosci']
 
@@ -77,7 +77,7 @@ import logging
 import re
 from typing import Dict, List, Optional
 
-from scrapers._base import GenericGeminiScraper, fetch
+from scrapers._base import GenericLLMScraper, fetch
 from scrapers._models import Recall
 
 log = logging.getLogger(__name__)
@@ -260,7 +260,7 @@ def parse_listing(html: str, listing_url: str = GIS_LISTING) -> List[Dict[str, s
     return out
 
 
-class GISScraper(GenericGeminiScraper):
+class GISScraper(GenericLLMScraper):
     AGENCY = "GIS (PL)"
     COUNTRY = "Poland"
     INDEX_URLS = [GIS_LISTING]
