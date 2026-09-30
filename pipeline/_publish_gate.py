@@ -285,6 +285,35 @@ HAZARD_CLASS_KEYWORDS = {
         "plomb",
         "dioxin", "pcb", "acrylamide", "perchlorate", "melamine",
         "ethylene oxide", "chlorate",
+        # ── MINERAL OIL HYDROCARBONS (audit 2026-09-30) ──────────────────
+        # The fourth instance of the pattern the 2026-09-09 audit named:
+        # a hazard the whole pipeline treats as in scope, that this one
+        # class could not see. Mineral oil is collected by the FSA UK and
+        # CFIA scrapers, listed in scrapers/_pathogen_vocab.py, named in
+        # gap_finder_claude's scope prompt, and — this is the part that
+        # bites — OFFERED TO SUBSCRIBERS. tools/alert_vocab.py and
+        # tools/apps_script/AftsAlerts.gs both match "moah"/"mosh"/"mineral
+        # oil" under "Industrial chemical contaminant", so a subscriber can
+        # select the word and be told rows exist for it.
+        #
+        # Measured 2026-09-30: FSAI alert 2026.59, Dunnes Stores Potato
+        # Waffles, 18 Sep 2026 — "elevated levels of mineral oil aromatic
+        # hydrocarbons (MOAH)" — reached Recalls and classified as NOTHING,
+        # failing test_curator_scope_2026_09_09.
+        #
+        # " mosh " is SPACE-BOUNDED and the others are not, deliberately.
+        # A bare "mosh" substring hits the Mushmoshi enoki brand (a real
+        # Listeria recall, Recalls row 1788) and the imoshion powerbank
+        # rows in Weekly_Rejected — two false chemical classes on the
+        # strength of a brand name. "moah" collides with nothing in the
+        # register. Non-English spellings are listed because BVL,
+        # RappelConso and NVWA all publish this hazard in their own
+        # language and the Reason field keeps the original.
+        "mineral oil", "mineral-oil", "moah", " mosh ", "(mosh", "mosh)",
+        "mineralöl", "mineraloel", "mineralol",
+        "huile minérale", "huile minerale", "huiles minérales",
+        "huiles minerales", "minerale olie", "aceite mineral",
+        "olio minerale", "oli minerali",
         # AUDIT 2026-09-09 — three groups the register already publishes and
         # this class could not see.
         # 1. Fluorinated contaminants.

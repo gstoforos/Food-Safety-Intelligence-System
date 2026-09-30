@@ -143,7 +143,39 @@ _NOT_FOUND_REASON = re.compile(
     r"|could\s+not\s+(be\s+)?(find|locate|reach|access|verify)"
     r"|unable\s+to\s+(find|locate|reach|access|verify)"
     r"|(page|url|link)\s+(not\s+found|unreachable|inaccessible)"
-    r"|404|403",
+    # ── DIGIT-BOUNDED HTTP CODES (fix 2026-09-30) ────────────────────────
+    # These two alternatives used to be the bare strings `404|403`, which
+    # match ANYWHERE — including inside a longer run of digits. This register
+    # is full of longer runs of digits: RASFF notification ids, GTINs, lot
+    # codes, alert numbers.
+    #
+    # Measured on the 2026-09-30 workbook, the bare form misreads TWELVE
+    # strings, every one of them a number and not an HTTP code:
+    #   Rejected[215]  "lot 24045"            (RejectReason AND Notes)
+    #   Recalls[77]    "notifId=874035"
+    #   Recalls[322]   "GTIN 3324040001436"
+    #   Recalls[527]   "notifId=863403"
+    #   Recalls[1192]  "notifId=844033"
+    #   Recalls[1263]  "RASFF #2026.4042"
+    #   Recalls[1361]  "notifId=840389"   Recalls[1362] "notifId=840339"
+    #   Recalls[1374]  "notifId=839403"   Recalls[1427] "notifId=838404"
+    #   Recalls[1433]  "RASFF #2026.3404"
+    #
+    # Rejected[215] is the one that is a live reject REASON, and it shows the
+    # cost: "pet_food_out_of_scope — AFTS-FSIS is a HUMAN-food register.
+    # Product reads 'Chicken Chips for Dogs (6 oz, lot 24045) - PET FOOD'."
+    # is a CONTENT verdict, correct, and the guard reads the 404 inside
+    # "24045" and calls it a statement about reachability. reject_refusal
+    # then REFUSES a rejection that was right, the refusal is counted into
+    # Notes, and on the SECOND such refusal the 2026-09-25 livelock
+    # escalation promotes the row. A guard built to stop a false negative
+    # becomes a route to a false positive, on nothing but a lot number.
+    #
+    # Digit boundaries, not word boundaries: the reviewers' own vocabulary
+    # writes these codes as "http_404", "(http_404)", "404s", "HTTP 403",
+    # "returns 404", and every one of those must keep matching. Only a 404
+    # or 403 with a digit against it is rejected.
+    r"|(?<!\d)40[34](?!\d)",
     re.I)
 
 

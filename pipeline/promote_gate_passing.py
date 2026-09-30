@@ -82,7 +82,16 @@ def supersede_archived_copies(xlsx_path, promoted_urls) -> int:
                     # rejection is the audit trail of a fabrication and the
                     # published row is its repair — the archive should say so
                     # rather than look like a live contradiction.
-                    "fabricated_pathogen")
+                    "fabricated_pathogen",
+                    # ── 2026-09-30 ────────────────────────────────────────
+                    # "Arrived already marked rejected; confirmer did not
+                    # re-review" is not a verdict on the recall at all — it
+                    # records that NOBODY looked. When the URL is now
+                    # published, the published copy is plainly the one that
+                    # wins, and leaving this row silent is exactly the
+                    # contradiction test_a_recall_is_not_both_published_and_
+                    # rejected was written to catch.
+                    "confirmer did not re-review")
     wb = openpyxl.load_workbook(xlsx_path)
     want = {str(u).strip().lower() for u in promoted_urls if str(u).strip()}
     stamped = 0
@@ -104,7 +113,30 @@ def supersede_archived_copies(xlsx_path, promoted_urls) -> int:
             low = prior.lower()
             if "duplicate" in low:            # see the docstring — leave settled text
                 continue
-            if not any(d in low for d in SUPERSEDE_IF):
+            # ── THE REFUSAL CLASS (2026-09-30) ───────────────────────────
+            # SUPERSEDE_IF is a list of literal phrases, and it carried
+            # exactly ONE spelling of the not-found refusal: "no official
+            # regulator url". The reviewers write it at least four other
+            # ways — "No official recall page found", "No official regulator
+            # page found", "No official regulator page found for this
+            # recall", "URL not found and no official page found" — and none
+            # of those matched. Measured on the 2026-09-30 workbook right
+            # after this morning's promotions: FIVE Weekly_Rejected rows
+            # shared a URL with a freshly published recall and said nothing
+            # about which copy wins, four of them on a refusal spelling this
+            # list did not know.
+            #
+            # _url_guard owns that vocabulary already — it is the module that
+            # decides what counts as a claim about reachability — so ask it
+            # rather than growing a second, divergent list here.
+            _is_refusal = False
+            try:
+                from pipeline._url_guard import reject_refusal as _rr
+                _is_refusal = bool(_rr(
+                    {"URL": str(ws.cell(r, ucol).value or "")}, prior))
+            except Exception:                              # pragma: no cover
+                _is_refusal = False
+            if not _is_refusal and not any(d in low for d in SUPERSEDE_IF):
                 continue
             if "SUPERSEDED" in prior:
                 continue

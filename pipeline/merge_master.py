@@ -2053,6 +2053,7 @@ def promote_approved(
         # A row rejected as out of scope, not a food product, a duplicate or
         # lacking an authority URL is still barred for ever.
         _repromote_ok = False
+        _repromote_kind = "defect"      # "defect" | "refusal" — see below
         if _u_now and _u_now in previously_rejected:
             _prior_reason = str(previously_rejected[_u_now] or "")
             REPAIRABLE_DEFECTS = (
@@ -2071,18 +2072,91 @@ def promote_approved(
                         _repromote_ok = True
                 except Exception:                       # pragma: no cover
                     _repromote_ok = False               # fail closed
+
+            # ── SECOND EXCEPTION (2026-09-30): A REACHABILITY REFUSAL IS
+            #    NOT A VERDICT EITHER. ──────────────────────────────────────
+            # The exception above is about a MISSING FIELD that has since
+            # been supplied. This one is about an archived reason that was
+            # never a judgement on the recall at all: "No official recall
+            # page found", "URL not found and no official page found" — a
+            # datacentre IP failing to fetch a page whose URL is already on
+            # the regulator's own domain.
+            #
+            # pipeline/_url_guard.reject_refusal has said so since
+            # 2026-09-21, and it has been right every time it fired. It was
+            # wired into reviewer 1 (2026-09-21) and reviewer 2 (2026-09-26)
+            # so neither reviewer can CREATE such a rejection any more. It
+            # was never wired in HERE, so every such rejection already in
+            # the archive is still a permanent bar, and the recall can never
+            # come back no matter what is later proved about it.
+            #
+            # Measured on the 2026-09-30 workbook: 19 archive rows carry a
+            # not-found refusal while holding an authority URL. Two of them
+            # are the FSAI rows this morning's pass enriched from FSAI's own
+            # pages, and recall_review_agent.py's own comment at the
+            # reachability guard already names one of them as a known
+            # wrongful rejection:
+            #   * Kilbride Classic Cuisine Roast Chicken & Gravy Dinner —
+            #     Listeria monocytogenes, Tier 1, FSAI alert 2026.58,
+            #     18 Sep 2026, archived "URL agent: No official regulator
+            #     page found for this recall"
+            #   * Dunnes Stores Potato Waffles — MOAH, FSAI alert 2026.59,
+            #     18 Sep 2026, archived "URL agent: No official recall page
+            #     found"
+            # Both notices exist and were read on 2026-09-30. A Tier 1
+            # Listeria recall sat barred for twelve days on a fetch failure.
+            #
+            # As narrow as the first exception, and for the same reasons.
+            # All three conditions must hold:
+            #   1. reject_refusal() says the archived reason is a not-found
+            #      claim AND the row's URL is on a regulator's own domain —
+            #      it checks both, and returns "" for any content verdict
+            #      (out of scope, allergen, duplicate, non-food, pet food),
+            #      so none of those is ever unbarred here;
+            #   2. the row passes the FULL publish gate now, so re-entry is
+            #      demonstrated and not asserted;
+            #   3. it is stamped into Notes naming the old reason.
+            if not _repromote_ok:
+                try:
+                    from pipeline._url_guard import reject_refusal as _rr
+                    from pipeline._publish_gate import publish_blockers
+                    if _rr(clean, _prior_reason) and not publish_blockers(clean):
+                        _repromote_ok = True
+                        _repromote_kind = "refusal"
+                except Exception:                       # pragma: no cover
+                    _repromote_ok = False               # fail closed
+
             if _repromote_ok:
-                log.warning(
-                    "re-promotion ALLOWED %s — archived for a repairable "
-                    "defect (%s) which is now repaired and the row passes "
-                    "the full publish gate",
-                    str(clean.get("URL", ""))[:90], _prior_reason[:90])
-                clean["Notes"] = (
-                    str(clean.get("Notes") or "").strip()
-                    + f" [re-promotion allowed 2026-09-27: was archived as "
-                      f"{_prior_reason[:160]!r}; that defect is repaired and "
-                      f"the row now passes every publish-gate rule]"
-                ).strip()
+                # Two exceptions, two different stories. The log and the Notes
+                # stamp must say WHICH one fired, or the sheet records a
+                # repaired field where the truth was an unfetchable page.
+                if _repromote_kind == "refusal":
+                    log.warning(
+                        "re-promotion ALLOWED %s — archived on a REACHABILITY "
+                        "refusal (%s) while holding a URL on the regulator's "
+                        "own domain; the row passes the full publish gate",
+                        str(clean.get("URL", ""))[:90], _prior_reason[:90])
+                    clean["Notes"] = (
+                        str(clean.get("Notes") or "").strip()
+                        + f" [re-promotion allowed 2026-09-30: was archived as "
+                          f"{_prior_reason[:160]!r}, which _url_guard reads as a "
+                          f"statement about REACHABILITY and not about whether "
+                          f"the notice exists — the URL is on the regulator's "
+                          f"own domain. The row now passes every publish-gate "
+                          f"rule]"
+                    ).strip()
+                else:
+                    log.warning(
+                        "re-promotion ALLOWED %s — archived for a repairable "
+                        "defect (%s) which is now repaired and the row passes "
+                        "the full publish gate",
+                        str(clean.get("URL", ""))[:90], _prior_reason[:90])
+                    clean["Notes"] = (
+                        str(clean.get("Notes") or "").strip()
+                        + f" [re-promotion allowed 2026-09-27: was archived as "
+                          f"{_prior_reason[:160]!r}; that defect is repaired and "
+                          f"the row now passes every publish-gate rule]"
+                    ).strip()
 
         if _u_now and _u_now in previously_rejected and not _repromote_ok:
             _prior = previously_rejected[_u_now]
