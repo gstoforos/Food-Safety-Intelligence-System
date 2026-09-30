@@ -16,6 +16,22 @@
   "Notes": "FDA listing HTML (Layer 1) [promote 2026-09-29: status 'pending'->'pending' — passes every publish-gate rule] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [pathogen-repair 2026-09-29: Pathogen was 'Escherichia coli (generic)' while this row's own Reason already said 'Shiga toxin-producing Escherichia coli (STEC)'. Set to the organism the row names. Outbreak set to 1 on the FDA notice's own words — FDA/CDC investigation, 13 illnesses epidemiologically associated — which are now quoted in Reason so the flag rests on something the row says]"
  },
  {
+  "Date": "2026-09-29",
+  "Source": "GIS (PL)",
+  "Company": "Przedsiębiorstwo Drobiarskie \"Drobex\" Sp. z o.o.",
+  "Brand": "",
+  "Product": "ćwiartka wędzonej z kurczaka",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii ćwiartki wędzonej z kurczaka",
+  "Class": "Recall",
+  "Country": "Poland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-cwiartki-wedzonej-z-kurczaka",
+  "Notes": "GIS listing (deterministic parse); producer, lot and best-before are on the detail page [review-agent 2026-09-29: reviewed and approved at status 'pending'; fields verified against the source, status left unchanged] [confirm-agent 2026-09-30: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+ },
+ {
   "Date": "2026-09-28",
   "Source": "RappelConso (FR)",
   "Company": "E. Leclerc Falaise",
