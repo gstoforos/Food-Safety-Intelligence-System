@@ -1488,6 +1488,10 @@ def build_monthly_html(month_start: date, month_end: date,
         return is_named and is_cdc   # True => exclude from Top 10
 
     _ranked_top = weekly.rank_top_recalls(month_recalls, n=len(month_recalls))
+    # One slot per outbreak EVENT, not per row (2026-09-30) — see
+    # pipeline._outbreak_id.one_row_per_event. The named rule above stays.
+    from pipeline._outbreak_id import one_row_per_event as _one_per_event
+    _ranked_top = _one_per_event(_ranked_top, month_recalls)
     top10 = [r for r in _ranked_top if not _drop_named_cdc(r)][:10]
     top_rows_html = "".join(weekly.render_top5_row(i+1, r) for i, r in enumerate(top10))
 
@@ -2347,6 +2351,10 @@ def write_monthly_summary_json(month_start: date, month_end: date,
         is_cdc   = "cdc" in source or "cdc.gov" in url
         return is_named and is_cdc
     _ranked_out = weekly.rank_top_recalls(month_recalls, n=len(month_recalls))
+    # Same one-slot-per-event rule as the HTML Top 10 — the summary JSON
+    # feeds the social cards, and they must list ten incidents, not ten rows.
+    from pipeline._outbreak_id import one_row_per_event as _one_per_event
+    _ranked_out = _one_per_event(_ranked_out, month_recalls)
     _top_out = [r for r in _ranked_out if not _drop_named_cdc_out(r)][:10]
     for i, r in enumerate(_top_out, 1):
         _, canon = weekly.severity_score(r.get("Pathogen") or "")

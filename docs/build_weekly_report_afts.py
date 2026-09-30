@@ -3455,8 +3455,12 @@ def build_html(week_end, recalls, prev_week, original_published=None, all_rows=N
     # sort_by_severity() ranks pathogen severity FIRST and treats Outbreak as
     # a tiebreak only within the same pathogen, so a 23-row Listeria week
     # buried every confirmed outbreak below the fold (reviewer note 2026-07-10).
-    sr_top = _diversify_by_country(rank_top_recalls(recalls, n=len(recalls)),
-                                   cap=2, window=5)
+    # One slot per outbreak EVENT (2026-09-30): an FDA recall and the CDC
+    # page for the same outbreak are one incident — pipeline._outbreak_id.
+    from pipeline._outbreak_id import one_row_per_event as _one_per_event
+    sr_top = _diversify_by_country(
+        _one_per_event(rank_top_recalls(recalls, n=len(recalls)), recalls),
+        cap=2, window=5)
     t5rows = "\n".join(_recall_row(i+1, r, 5) for i,r in enumerate(sr_top[:5]))
     allrows = "\n".join(_recall_row(i+1, r, 5) for i,r in enumerate(sr))
     if not t5rows: t5rows = '<tr><td class="empty" colspan="6">No recalls this week</td></tr>'
@@ -3766,8 +3770,10 @@ def write_weekly_summary_json(week_end, recalls, stats, data_dir,
     # Same phase-based ranking as the report's Top 5 so the email, the
     # summary JSON and the HTML never disagree about the headline threats.
     threats = []
-    sr = _diversify_by_country(rank_top_recalls(recalls, n=len(recalls)),
-                               cap=2, window=5)
+    from pipeline._outbreak_id import one_row_per_event as _one_per_event
+    sr = _diversify_by_country(
+        _one_per_event(rank_top_recalls(recalls, n=len(recalls)), recalls),
+        cap=2, window=5)
     for i,r in enumerate(sr[:5],1):
         threats.append({"rank":i,"date":str(r.get("Date",""))[:10],
             "pathogen":str(r.get("Pathogen","")),"pathogen_raw":str(r.get("Pathogen","")),
