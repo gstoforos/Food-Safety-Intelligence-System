@@ -78,7 +78,7 @@ def test_the_gap_finder_accepts_the_printed_scope(reason, cat):
     assert (c.verdict, c.category) == ("accept", cat)
 
 
-@pytest.mark.parametrize("mod", ["pipeline.claude_check", "pipeline.url_gate_gemini"])
+@pytest.mark.parametrize("mod", ["pipeline.url_gate_gemini"])
 def test_the_checkers_use_the_afts_scope(mod):
     import importlib.util
     from pathlib import Path

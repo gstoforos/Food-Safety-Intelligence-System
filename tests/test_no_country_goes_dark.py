@@ -113,10 +113,15 @@ NOT_YET_RUN = {
     # regulator's own notice. Until that lands they are live, freshness-
     # checked, and contributing nothing. That is a coverage gap stated
     # honestly, which is better than a grace period hiding it.
-    "jp": "2026-09-23",
+    # jp LEFT on 2026-09-30 — its first fleet shard ran 10:42 UTC: 20
+    # candidates, 0 accepted, 11 refused as "no official CAA press-release
+    # URL" (news-only discovery). Same wall as br/kr/tw above.
     # th added 2026-09-30 (operator request; Thai-authority rows: zero ever).
     # The fleet deals it into a shard automatically — tools/fleet_shard.py.
     "th": "2026-09-30",
+    # cn added 2026-09-30 on the operator ruling "China only confirmed,
+    # published officially" (SAMR's own notices only).
+    "cn": "2026-09-30",
     # ph, id, vn and cl LEFT on 2026-09-26/27 — the next shard after br/kr/tw.
     # This test asked for them by name the moment their run logs appeared,
     # which is the mechanism working: the grace list is not a place to park a

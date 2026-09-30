@@ -324,18 +324,24 @@ class TestUSDAFSISScraper(unittest.TestCase):
         old = [r for r in out if r.Notes and "001-2026" in r.Notes]
         self.assertEqual(old, [])
 
-    def test_import_violation_dropped(self):
+    def test_import_violation_is_kept_as_uninspected(self):
+        """Was test_import_violation_dropped. Operator ruling 2026-09-30:
+        import violations are in scope, AS uninspected product (FSIS Sempio
+        2026-09-25, El Eden 2026-09-09)."""
         out = self._run_with_payload(SAMPLE_PAYLOAD)
         imp = [r for r in out if r.Notes and "006-2026" in r.Notes]
-        self.assertEqual(imp, [])
+        self.assertEqual(len(imp), 1)
+        self.assertEqual(imp[0].Pathogen,
+                         "Uninspected product (hazard not assessed)")
 
     def test_expected_total_count(self):
-        """Of 10 payload records, 6 should pass: metal PHA, glass, Listeria,
-        STEC, Salmonella, and — from 2026-09-25 — the uninspected-product
-        PHA. Was 5; the sixth is the scope change, not a leak."""
+        """Of 10 payload records, 7 should pass: metal PHA, glass, Listeria,
+        STEC, Salmonella, the uninspected-product PHA (in scope from
+        2026-09-25) and the import violation (ruled in on 2026-09-30, as
+        uninspected). Was 5, then 6; each step is a scope ruling, not a leak."""
         out = self._run_with_payload(SAMPLE_PAYLOAD)
-        self.assertEqual(len(out), 6,
-            f"Expected 6 in-scope rows, got {len(out)}: "
+        self.assertEqual(len(out), 7,
+            f"Expected 7 in-scope rows, got {len(out)}: "
             f"{[(r.Notes.split(';')[0], r.Pathogen) for r in out]}")
 
     def test_html_stripped_from_reason(self):
@@ -447,10 +453,10 @@ class TestFsisRelativeUrlPayload(unittest.TestCase):
 
         out = self._run(payload)
         self.assertEqual(
-            len(out), 6,
+            len(out), 7,
             "Relative API URLs must survive the prefix gate. Got "
             f"{len(out)} rows — the 2026-07-29 blackout has regressed. "
-            "(6 not 5 since the 2026-09-25 scope change; if this reads 5, "
+            "(7: +1 on 2026-09-25 for uninspected product, +1 on 2026-09-30 for import violations; if this reads 5, "
             "the uninspected-product row is being lost at the URL gate "
             "rather than at the hazard gate.)")
         for r in out:

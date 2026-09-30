@@ -139,8 +139,20 @@ class TestTheRegisterRows:
                 if str(dict(zip(hdr, r)).get("Pathogen") or "")
                 .startswith("Uninspected product")]
 
+    IMPORT_FIRMS = ("mays chemical", "sobico", "bci foods", "maple leaf",
+                    "corte argentino", "shan distribution",
+                    "asian america", "el eden", "sempio")
+
+    @classmethod
+    def _is_import(cls, r):
+        blob = (str(r.get("Company")) + " " + str(r.get("Reason"))).lower()
+        return any(f in blob for f in cls.IMPORT_FIRMS)
+
     def test_all_four_are_present(self):
-        rows = self._uninspected_rows()
+        """The four produced-without-inspection rows this file was written
+        for. Since the 2026-09-30 ruling the same Pathogen also carries the
+        import violations, counted separately below."""
+        rows = [r for r in self._uninspected_rows() if not self._is_import(r)]
         assert len(rows) == 4, [r.get("Date") for r in rows]
 
     def test_each_is_on_the_authority_host_with_a_per_recall_path(self):
@@ -167,22 +179,24 @@ class TestTheRegisterRows:
 
     def test_every_one_carries_its_provenance(self):
         """fsis.usda.gov answers 403 to the environment these were added
-        from, so each row has to say where its facts came from."""
+        from, so each row has to say where its facts came from — and which
+        ruling put it in scope."""
         for r in self._uninspected_rows():
             notes = str(r.get("Notes") or "")
             assert "SOURCES:" in notes, r.get("Date")
-            assert "operator review 2026-09-25" in notes, r.get("Date")
+            ruling = ("operator ruling 2026-09-30" if self._is_import(r)
+                      else "operator review 2026-09-25")
+            assert ruling in notes, (r.get("Date"), ruling)
 
-    def test_the_import_eligibility_cases_were_not_swept_in(self):
-        """Seven 2026 FSIS recalls are import-eligibility violations —
-        arguably the same unassessed class, but a separate scope line that
-        has not been ruled on. None of them may appear under this hazard."""
-        for r in self._uninspected_rows():
-            blob = (str(r.get("Company")) + str(r.get("Reason"))).lower()
-            for firm in ("corte argentino", "shan distribution", "el eden",
-                         "de todito", "sobico", "maple leaf", "bci foods",
-                         "asian america", "mays chemical"):
-                assert firm not in blob, firm
+    def test_the_import_eligibility_cases_are_all_in(self):
+        """RULED 2026-09-30 (operator: "in scope, as uninspected"). This was
+        test_the_import_eligibility_cases_were_not_swept_in, which held the
+        line while it was unruled. All nine 2026 FSIS import-violation
+        recalls are now in the register, under the uninspected canonical."""
+        blobs = [(str(r.get("Company")) + " " + str(r.get("Reason"))).lower()
+                 for r in self._uninspected_rows()]
+        for firm in self.IMPORT_FIRMS:
+            assert any(firm in b for b in blobs), firm
 
 
 class TestThePublishGateLearnedTheClass:

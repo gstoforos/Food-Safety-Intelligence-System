@@ -182,8 +182,22 @@ def test_every_repairable_defect_also_supersedes_its_archive_copy():
     King lobster, 2026-09-30)."""
     src = (ROOT / "pipeline" / "promote_gate_passing.py").read_text("utf-8")
     block = src[src.index("SUPERSEDE_IF = ("):]
-    block = block[:block.index('"company and brand are the same")') + 40]
+    block = block[:block.index('"out_of_scope_import_reinspection")') + 40]
     sup = set(re.findall(r'"([^"]+)"', "\n".join(
         l for l in block.splitlines() if not l.strip().startswith("#"))))
     missing = [d for d in _repairable() if d not in sup]
     assert not missing, missing
+
+
+def test_a_reversed_policy_can_let_an_archived_row_back():
+    """FSIS Sempio: archived 2026-09-29 as out_of_scope_import_reinspection,
+    ruled in scope 2026-09-30. The re-promotion guard must consult the
+    policy-reversal table, not only the repairable-defect list."""
+    from pipeline.merge_master import _reversal_excuses
+    old = ("operator review 2026-09-29: out_of_scope_import_reinspection — "
+           "FSIS import re-inspection violations are deliberately excluded")
+    assert _reversal_excuses(old)
+    assert not _reversal_excuses(
+        "operator review 2026-10-02: out_of_scope_import_reinspection")
+    src = (ROOT / "pipeline" / "merge_master.py").read_text("utf-8")
+    assert '_repromote_kind = "reversal"' in src

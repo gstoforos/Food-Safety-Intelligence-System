@@ -43,7 +43,7 @@ PAIRS = sorted((code, dom)
 
 def test_the_sweep_sees_the_fleet():
     codes = {c for c, _ in PAIRS}
-    assert {"hu", "jp", "kr", "id", "th"} <= codes
+    assert {"hu", "jp", "kr", "id", "th", "cn"} <= codes
     assert len(PAIRS) >= 55
 
 

@@ -104,6 +104,13 @@ KNOWN_URLS = {
         ["https://www.mfds.go.kr/eng/brd/m_61/list.do",
          "https://www.mfds.go.kr/eng/wpge/m_11/de011002l001.do"],
     ),
+    # China, verified 2026-09-30 (operator ruling: SAMR's own notices only).
+    "cn": (
+        ["https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/spcjs/art/2026/"
+         "art_d2739a902a3249d9a8b9300b5e3230d0.html"],
+        ["https://www.samr.gov.cn/zw/zfxxgk/fdzdgknr/spcjs/",
+         "https://zwfw.samr.gov.cn/scjg/wyk/tbtg/"],
+    ),
     # Thailand, verified 2026-09-30. media.php serves every file on the
     # site; only the alert file-name shape is an alert.
     "th": (
@@ -440,7 +447,6 @@ RESEARCHED_NO_CONFIG = {
     "il": "Israel — Ministry of Health",
     "ar": "Argentina — ANMAT",
     "tr": "Turkey — Tarım ve Orman Bakanlığı",
-    "cn": "China — SAMR",
 }
 
 

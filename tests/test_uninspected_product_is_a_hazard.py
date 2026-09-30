@@ -206,19 +206,13 @@ class TestTheCanonicalAndItsTiers:
         "not presented for import re-inspection",
         "ineligible for importation",
     ])
-    def test_import_violations_are_deliberately_not_included(self, raw):
-        """Arguably the same unassessed class — product from outside the
-        inspection system — but a SEPARATE scope line with its own existing
-        test (test_usda_fsis_scraper.py::test_import_violation_dropped),
-        and that line has not been ruled on.
-
-        The first version of this fix did include them, and that test still
-        passed — only because its fixture says "Ineligible Imported" while
-        the vocabulary term was "ineligible for importation". A wording
-        accident, not agreement. This test exists so the next person
-        changes the line on purpose rather than discovering they already
-        have."""
-        assert normalize_pathogen(raw) == ""
+    def test_import_violations_are_uninspected_product(self, raw):
+        """RULED 2026-09-30 (operator: "in scope, as uninspected"). This test
+        used to assert these were deliberately NOT included, pending a
+        ruling; it existed so the line would be moved on purpose. It has
+        been — FSIS Sempio (no import reinspection) and El Eden (ineligible
+        country) are the cases that prompted it."""
+        assert normalize_pathogen(raw) == CANON
 
     def test_the_regulators_own_class_still_wins(self):
         """Step 1 of the hybrid framework. The Tier-2 fallback applies only
