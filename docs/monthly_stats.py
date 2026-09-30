@@ -418,9 +418,18 @@ def _cluster(
     for e in events:
         e.pop("_d", None)
 
+    # event_count counts outbreak EVENTS, not flagged rows (2026-09-30):
+    # the same pipeline/_outbreak_id.count_events the weekly report and the
+    # monthly KPI use, so "N clusters across M outbreak-associated
+    # incidents" cannot disagree with the Outbreaks KPI beside it.
+    try:
+        from pipeline._outbreak_id import count_events as _count_events
+        _event_count = _count_events(month_recalls)
+    except Exception:                                        # noqa: BLE001
+        _event_count = len(events)
     return {
         "events":        events,
-        "event_count":   len(events),
+        "event_count":   _event_count,
         "clusters":      clusters,
         "cluster_count": len(clusters),
     }

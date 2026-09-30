@@ -358,13 +358,69 @@ def build_pathogen_history(monthly_cohorts: List[Tuple[str, List[Dict]]]) -> Dic
 # ---------------------------------------------------------------------------
 def compute_month_stats(month_recalls: List[Dict],
                         prior_month_recalls: List[Dict]) -> Dict[str, Any]:
-    total     = len(month_recalls)
-    tier1     = sum(1 for r in month_recalls if weekly.safe_int(r.get("Tier")) == 1)
-    outbreaks = sum(1 for r in month_recalls if weekly.safe_int(r.get("Outbreak")) == 1)
+    # ── INCIDENTS, NOT NOTICES (2026-09-30) ─────────────────────────────
+    # The weekly builder has counted incidents since 2026-08-15 and outbreak
+    # EVENTS since 2026-08-14 (docs/build_weekly_report_afts.py
+    # compute_stats); this builder never got either fix, and printed every
+    # register row as a "recall incident". August 2026 is the worked case:
+    # the E.Leclerc Dinan cold-chain failure is 20 DGCCRF fiches and one
+    # incident, and the pumpkin-seed Salmonella Enteritidis cluster is two
+    # fiches and one outbreak — the report said "250 incidents" and
+    # "6 outbreak-associated incidents, 0 clusters".
+    #
+    # Same modules, same rules, same fail-open as the weekly: an untagged,
+    # unmatched row is its own incident, so a month with no multi-notice
+    # events is unchanged; if the modules are unavailable the row count
+    # stands, which over-counts visibly rather than crashing the build.
+    def _rows_by_incident(rows):
+        try:
+            from pipeline._incident_id import derive as _iid_of
+        except Exception:                                    # noqa: BLE001
+            return list(rows)
+        out, seen = [], set()
+        for _r in rows:
+            _iid = _iid_of(_r)
+            if _iid:
+                if _iid in seen:
+                    continue
+                seen.add(_iid)
+            out.append(_r)
+        return out
+
+    def _count_incidents(rows):
+        try:
+            from pipeline._incident_id import count_incidents
+            return count_incidents(rows)
+        except Exception:                                    # noqa: BLE001
+            return len(rows)
+
+    total = _count_incidents(month_recalls)
+    try:
+        from pipeline._incident_id import derive as _iid_of
+        _t1_groups, _t1_untagged = set(), 0
+        for r in month_recalls:
+            if weekly.safe_int(r.get("Tier")) != 1:
+                continue
+            _i = _iid_of(r)
+            if _i:
+                _t1_groups.add(_i)
+            else:
+                _t1_untagged += 1
+        tier1 = len(_t1_groups) + _t1_untagged
+    except Exception:                                        # noqa: BLE001
+        tier1 = sum(1 for r in month_recalls
+                    if weekly.safe_int(r.get("Tier")) == 1)
+    try:
+        from pipeline._outbreak_id import count_events
+        outbreaks = count_events(month_recalls)
+    except Exception:                                        # noqa: BLE001
+        outbreaks = sum(1 for r in month_recalls
+                        if weekly.safe_int(r.get("Outbreak")) == 1)
+    _dist = _rows_by_incident(month_recalls)
 
     pathogen_counts = Counter()
     pathogen_tier1  = Counter()
-    for r in month_recalls:
+    for r in _dist:
         p = (r.get("Pathogen") or "").strip()
         if not p:
             continue
@@ -381,15 +437,15 @@ def compute_month_stats(month_recalls: List[Dict],
 
     country_counts = Counter(
         (r.get("Country") or "Unknown").strip() or "Unknown"
-        for r in month_recalls
+        for r in _dist
     )
     source_counts = Counter()
-    for r in month_recalls:
+    for r in _dist:
         s = (r.get("Source") or "").strip()
         if s:
             source_counts[s] += 1
 
-    prev_total = len(prior_month_recalls)
+    prev_total = _count_incidents(prior_month_recalls)
     delta = total - prev_total
     delta_pct = round((delta / prev_total) * 100) if prev_total else None
 
@@ -578,6 +634,59 @@ Return only the three paragraphs separated by a single blank line."""
         return _fallback_narrative(stats, signals, models, month_name, year, pa_trigger)
 
 
+def _failure_modes_for(top_name: str) -> str:
+    """Leading-hypothesis failure modes for the month's dominant hazard.
+
+    Stated as hypotheses, never as findings: the paragraph that follows
+    says so, and inadequate process delivery cannot be excluded without
+    event-specific evidence for any of them.
+    """
+    t = str(top_name or "").lower()
+    if "listeria" in t:
+        return ("Listeria persistence on food-contact surfaces and in "
+                "associated equipment niches, followed by post-process "
+                "contamination of RTE foods, together with sanitation SOP "
+                "drift and cold-chain lapses.")
+    if "cereus" in t or "cereulide" in t:
+        return ("spore survival through cooking followed by temperature "
+                "abuse — slow cooling and warm holding of cooked starchy "
+                "foods such as rice and pasta — which lets spores germinate "
+                "and form heat-stable cereulide that reheating does not "
+                "destroy, and spore-bearing dry ingredients.")
+    if "salmonella" in t:
+        return ("contaminated raw materials — poultry, eggs and low-moisture "
+                "ingredients such as seeds, nuts, spices and powders — "
+                "carried through processes whose kill step is absent or not "
+                "validated for the matrix, together with raw-to-RTE "
+                "cross-contamination and post-process contamination of "
+                "low-moisture foods, where the organism survives for months.")
+    if any(k in t for k in ("stec", "shiga", "e. coli", "coli")):
+        return ("contaminated raw inputs — produce exposed to contaminated "
+                "irrigation water or soil amendments, raw milk, and ground "
+                "beef — reaching the consumer without a validated lethality "
+                "step, together with cross-contamination during handling.")
+    if any(k in t for k in ("aflatoxin", "ochratoxin", "mycotoxin",
+                            "patulin", "fumonisin", "deoxynivalenol")):
+        return ("fungal growth before harvest and during drying and "
+                "storage under inadequate moisture and temperature control, "
+                "passed through by supplier approval and incoming-lot "
+                "sampling that did not detect it.")
+    if any(k in t for k in ("foreign", "physical", "metal", "glass",
+                            "plastic")):
+        return ("equipment wear and breakage, failures of detection and "
+                "rejection systems (metal detection, X-ray, sieves and "
+                "magnets), and raw-material contamination not removed at "
+                "intake.")
+    if any(k in t for k in ("norovirus", "hepatitis")):
+        return ("contamination at primary production — irrigation or "
+                "washing water, shellfish harvesting areas — and infected "
+                "food handlers, in products eaten raw or without a "
+                "virucidal step.")
+    return ("raw-material contamination, process lethality that is "
+            "inadequate or not validated for the product, post-process "
+            "contamination and sanitation lapses.")
+
+
 def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
                         models: Dict[str, Any], month_name: str, year: int,
                         pa_trigger: Dict[str, Any]) -> str:
@@ -669,9 +778,12 @@ def _fallback_narrative(stats: Dict[str, Any], signals: Dict[str, Any],
           # inadequate lethality, formulation change, product geometry,
           # equipment operation and process deviation cannot be excluded
           # without event-specific evidence.
-          f"Listeria persistence on food-contact surfaces and in associated "
-          f"equipment niches, followed by post-process contamination of RTE "
-          f"foods, together with sanitation SOP drift and cold-chain lapses. "
+          #
+          # AUDIT 2026-09-30 — the Listeria mechanism below was printed for
+          # EVERY month whatever led it: June 2026 read "For a Salmonella
+          # spp.-dominated month, the relevant failure modes are Listeria
+          # persistence on food-contact surfaces". Chosen by hazard now.
+          f"{_failure_modes_for(top_name)} "
           f"These are the leading hypotheses for a {top_name}-dominated "
           f"month; inadequate process delivery or other control failures "
           f"cannot be excluded without event-specific evidence. "
@@ -2566,7 +2678,15 @@ def main() -> int:
     cohorts = [(ym, all_bucket[ym]) for ym in available_months]
     prior_cohorts = cohorts[:-1] if cohorts and cohorts[-1][0] == month_start.strftime("%Y-%m") else cohorts
     prior_month_recalls = prior_cohorts[-1][1] if prior_cohorts else []
-    monthly_count_history = [(ym, len(c)) for ym, c in cohorts]
+    # INCIDENTS, the unit the KPI banner prints (2026-09-30). This series
+    # feeds the §02 trend, the MoM tile and the narrative's "-N% move";
+    # counted as rows it printed -18% for August under a banner reading
+    # -24%, because 20 Leclerc Dinan fiches are one incident.
+    try:
+        from pipeline._incident_id import count_incidents as _ci
+    except Exception:                                        # noqa: BLE001
+        _ci = len
+    monthly_count_history = [(ym, _ci(c)) for ym, c in cohorts]
 
     # Shallow stats (KPI strip + distribution + top 10)
     stats = compute_month_stats(month_recalls, prior_month_recalls)
