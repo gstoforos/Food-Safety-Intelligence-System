@@ -1,13 +1,17 @@
-name: FSIS Gemini URL Gate
+name: FSIS Gemini URL Gate (RETIRED)
 
-# Final URL validation before promoting Pending → Recalls.
-# Runs at 07:30 ATHENS TIME daily — after the overnight gap-finders,
-# before the 08:00 morning scrape so the Recalls sheet is clean when
-# the morning pass starts.
+# ═══════════════════════════════════════════════════════════════════════
+#  RETIRED 2026-09-30 — operator ruling: "gemini must not be anywhere; my
+#  agents have replaced them". This workflow ran Gemini (directly, or via
+#  pipeline.url_gate_gemini / gap_finder_gemini / the Gemini-grounded URL
+#  repair tools). Review, URL resolution and gap-finding are done by our
+#  own agents: recall_url_agent, recall_review_agent, recall_confirm_agent
+#  and the gap_finder_fleet.
 #
-# Two DST crons + hour guard so the right one fires year-round.
-#   04:30 UTC → 07:30 Athens EEST (summer UTC+3)
-#   05:30 UTC → 07:30 Athens EET  (winter UTC+2)
+#  Kept as a no-op only so a stray Apps Script dispatch does not 404.
+#  DELETE THIS FILE in the GitHub UI. tests/test_no_gemini_anywhere.py
+#  fails if any workflow runs a Gemini module or passes a Gemini key.
+# ═══════════════════════════════════════════════════════════════════════
 
 on:
   workflow_dispatch:
@@ -18,107 +22,12 @@ on:
         default: false
 
 permissions:
-  contents: write
-
-concurrency:
-  group: fsis-data-writers
-  cancel-in-progress: false
+  contents: read
 
 jobs:
-  url-gate:
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
     steps:
-      # ── RETIRED 2026-08-30 ───────────────────────────────────────────
-      # This workflow is superseded by pipeline/recall_url_agent.py
-      # (reviewer 1, self-hosted Qwen). Both act on the SAME lane —
-      # pending_gap -> v1 -> v2 — and this one ALSO calls promote_approved,
-      # so whichever runs first empties the queue and the other finds
-      # nothing. That is why the Qwen reviewers show 6 approvals in a month
-      # while the register kept filling: they were not failing, they were
-      # arriving to an empty lane.
-      #
-      # It is retired HERE, in the job itself, rather than by removing a
-      # schedule: block, because it has no cron and is not in
-      # FsisScheduler.gs — yet it ran at 19:41 UTC on 2026-08-30, outside
-      # its own 06-08 Athens window. Something still dispatches it. A guard
-      # inside the job stops it whatever the caller is; deleting a trigger
-      # that was already absent would not have.
-      #
-      # To bring it back as a break-glass (e.g. the VPS is down for days),
-      # dispatch with force_run: true.
-      - name: Retired — reviewer 1 owns this lane
-        id: retired
+      - name: Retired — does nothing
         run: |
-          if [ "${{ github.event.inputs.force_run }}" = "true" ]; then
-            echo "force_run set — proceeding as break-glass"
-            echo "retired=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "::notice::gemini-url-gate is retired. Reviewer 1"
-            echo "::notice::(recall-url-agent.yml) owns pending_gap -> v1 -> v2."
-            echo "::notice::Dispatch with force_run=true to override."
-            echo "retired=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Athens-time guard (06-08:xx window)
-        id: guard
-        if: steps.retired.outputs.retired != 'true'
-        run: |
-          HOUR=$(TZ=Europe/Athens date +%H)
-          echo "athens_hour=$HOUR"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HOUR" -ge "05" ] && [ "$HOUR" -le "11" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Not 07:xx Athens (now ${HOUR}:xx). Skipping."
-          fi
-
-      - name: Checkout
-        if: steps.guard.outputs.run == 'true'
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Python 3.11
-        if: steps.guard.outputs.run == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-
-      - name: Install dependencies
-        if: steps.guard.outputs.run == 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run Gemini URL gate
-        if: steps.guard.outputs.run == 'true'
-        env:
-          # Free-tier keys checked first by url_gate_gemini.py
-          GEMINI_API_KEY_FREE:    ${{ secrets.GEMINI_API_KEY_FREE }}
-          GEMINI_API_KEY_FREE_2:  ${{ secrets.GEMINI_API_KEY_FREE_2 }}
-          GEMINI_API_KEY:         ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
-          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
-          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
-          # Audit 2026-05-08: defaulted to flash-lite (was flash). The
-          # URL gate task is per-row structured-output verification which
-          # flash-lite handles fine; flash-lite is $0.10/$0.40 per MTok
-          # vs flash at $0.30/$2.50 (4x cheaper output). Same free-tier
-          # RPD limits (1,500/day per key) so $0/month either way unless
-          # paid fallback kicks in. Set repo var GEMINI_MODEL_URL_GATE to
-          # override (e.g. 'gemini-2.5-flash' for hard pages).
-          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL_URL_GATE || vars.GEMINI_MODEL || 'gemini-2.5-flash-lite' }}
-          SKIP_COMMIT: "false"
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
-          GIT_USER_NAME: "FSIS Bot"
-        run: |
-          python -m pipeline.url_gate_gemini
+          echo "::notice title=Retired workflow::gemini-url-gate.yml is retired (no Gemini, operator ruling 2026-09-30). Delete this file and any FsisScheduler.gs entry for it."

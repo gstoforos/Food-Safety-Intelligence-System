@@ -69,15 +69,6 @@ jobs:
         env:
           TAVILY_API_KEY:    ${{ secrets.TAVILY_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          # Free-tier keys checked first by url_gate_gemini.py
-          GEMINI_API_KEY_FREE:    ${{ secrets.GEMINI_API_KEY_FREE }}
-          GEMINI_API_KEY_FREE_2:  ${{ secrets.GEMINI_API_KEY_FREE_2 }}
-          GEMINI_API_KEY:         ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
-          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
-          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
           GAP_SINCE_DAYS:    ${{ github.event.inputs.since_days || '7' }}
           SKIP_COMMIT:       "false"
           GH_TOKEN:          ${{ secrets.GITHUB_TOKEN }}
@@ -85,19 +76,9 @@ jobs:
           GIT_USER_NAME:     "FSIS Bot"
         run: |
           python -m pipeline.gap_finder_tavily
-      - name: Gemini URL Gate + Merge
+      - name: Merge janitor pass
         if: steps.guard.outputs.run == 'true'
         env:
-          # Free-tier keys checked first by url_gate_gemini.py
-          GEMINI_API_KEY_FREE:    ${{ secrets.GEMINI_API_KEY_FREE }}
-          GEMINI_API_KEY_FREE_2:  ${{ secrets.GEMINI_API_KEY_FREE_2 }}
-          GEMINI_API_KEY:         ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
-          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
-          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
-          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GIT_USER_EMAIL: "fsis-bot@advfood.tech"
           GIT_USER_NAME: "FSIS Bot"

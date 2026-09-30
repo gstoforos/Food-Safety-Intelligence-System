@@ -1,11 +1,17 @@
-name: FSIS Resolve Dead Scraper URLs
+name: FSIS Resolve Dead Scraper URLs (RETIRED)
 
-# Manual-dispatch only. Runs AFTER audit-scrapers.yml has produced
-# scraper_audit.csv. Uses OpenAI gpt-4o-mini to propose new INDEX_URLS
-# for each URL_FIX agency, probes each proposal, and uploads a JSON
-# patch file as an artifact. You review it, then edit scrapers/*.py by hand.
+# ═══════════════════════════════════════════════════════════════════════
+#  RETIRED 2026-09-30 — operator ruling: "gemini must not be anywhere; my
+#  agents have replaced them". This workflow ran Gemini (directly, or via
+#  pipeline.url_gate_gemini / gap_finder_gemini / the Gemini-grounded URL
+#  repair tools). Review, URL resolution and gap-finding are done by our
+#  own agents: recall_url_agent, recall_review_agent, recall_confirm_agent
+#  and the gap_finder_fleet.
 #
-# One-off. Run whenever the audit finds new URL_FIX cases.
+#  Kept as a no-op only so a stray Apps Script dispatch does not 404.
+#  DELETE THIS FILE in the GitHub UI. tests/test_no_gemini_anywhere.py
+#  fails if any workflow runs a Gemini module or passes a Gemini key.
+# ═══════════════════════════════════════════════════════════════════════
 
 on:
   workflow_dispatch:
@@ -19,54 +25,9 @@ permissions:
   contents: read
 
 jobs:
-  resolve:
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-
-      - name: Install dependencies
+      - name: Retired — does nothing
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run audit first (produces fresh CSV)
-        run: |
-          python -m pipeline.audit_scrapers --csv scraper_audit.csv
-
-      - name: Resolve URL_FIX agencies via OpenAI
-        env:
-          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
-          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
-          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
-          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
-        run: |
-          LIMIT_ARG=""
-          if [ -n "${{ github.event.inputs.limit }}" ]; then
-            LIMIT_ARG="--limit ${{ github.event.inputs.limit }}"
-          fi
-          python -m pipeline.resolve_dead_urls \
-            --audit-csv scraper_audit.csv \
-            --output url_fixes.json \
-            $LIMIT_ARG
-
-      - name: Upload patch artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: url-fixes-${{ github.run_id }}
-          path: |
-            scraper_audit.csv
-            url_fixes.json
-          retention-days: 30
+          echo "::notice title=Retired workflow::resolve-dead-urls.yml is retired (no Gemini, operator ruling 2026-09-30). Delete this file and any FsisScheduler.gs entry for it."

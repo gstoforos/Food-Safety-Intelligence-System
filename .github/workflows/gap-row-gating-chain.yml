@@ -1,100 +1,28 @@
-name: FSIS Gap-Row Gating Chain
+name: FSIS Gap-Row Gating Chain (RETIRED)
 
-# Gap-finder gating state machine (audit 2026-04-29). Runs the full
-# verification ladder on Status="pending_gap*" rows in a single dispatch:
-#   1. Gemini URL gate, run #1   →   pending_gap → pending_gap_v1
-#   2. Sleep 60s for sampling separation
-#   3. Gemini URL gate, run #2   →   pending_gap_v1 → pending_gap_v2
-#   4. Claude page-content check →   pending_gap_v2 → pending
-# Each step uses SKIP_COMMIT=1; only the final consolidating commit
-# happens at the end of the chain. Failures at any step set the row to
-# Status="rejected" via promote_approved's rejected_flags path.
+# ═══════════════════════════════════════════════════════════════════════
+#  RETIRED 2026-09-30 — operator ruling: "gemini must not be anywhere; my
+#  agents have replaced them". This workflow ran Gemini (directly, or via
+#  pipeline.url_gate_gemini / gap_finder_gemini / the Gemini-grounded URL
+#  repair tools). Review, URL resolution and gap-finding are done by our
+#  own agents: recall_url_agent, recall_review_agent, recall_confirm_agent
+#  and the gap_finder_fleet.
 #
-# Athens-time guard so manual workflow_dispatch from anywhere works,
-# but cron entries can be added later if we want a fixed schedule.
-# Currently dispatch-only — the daily cadence runs the existing gates
-# separately; this chain is for retroactive cleanup or for migrating
-# existing gap-finder runs through the verification ladder.
+#  Kept as a no-op only so a stray Apps Script dispatch does not 404.
+#  DELETE THIS FILE in the GitHub UI. tests/test_no_gemini_anywhere.py
+#  fails if any workflow runs a Gemini module or passes a Gemini key.
+# ═══════════════════════════════════════════════════════════════════════
 
 on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  group: fsis-data-writers
-  cancel-in-progress: false
+  contents: read
 
 jobs:
-  gating-chain:
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-
-      - name: Install dependencies
+      - name: Retired — does nothing
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Step 1 — Gemini URL gate (run #1, pending_gap → v1)
-        env:
-          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
-          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
-          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
-          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
-          SKIP_COMMIT:       "1"
-        run: |
-          python -m pipeline.url_gate_gemini
-
-      - name: Sleep 60s (sampling separation between runs)
-        run: sleep 60
-
-      - name: Step 2 — Gemini URL gate (run #2, v1 → v2)
-        env:
-          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
-          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_API_KEY_4:  ${{ secrets.GEMINI_API_KEY_4 }}
-          GEMINI_API_KEY_5:  ${{ secrets.GEMINI_API_KEY_5 }}
-          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
-          SKIP_COMMIT:       "1"
-        run: |
-          python -m pipeline.url_gate_gemini
-
-      # Step 3 (pipeline.claude_check) REMOVED 2026-09-30, operator ruling:
-      # claude_check.py stays in the repo but no code runs it — review is
-      # done by our own agents (recall_url_agent / recall_review_agent /
-      # recall_confirm_agent). Held by tests/test_nothing_runs_claude_check.py.
-
-      - name: Step 4 — Single consolidating commit
-        env:
-          GIT_USER_EMAIL: "fsis-bot@advfood.tech"
-          GIT_USER_NAME:  "FSIS Bot"
-        run: |
-          git config user.email "$GIT_USER_EMAIL"
-          git config user.name  "$GIT_USER_NAME"
-          if [[ -n "$(git status --porcelain)" ]]; then
-            git add -A
-            git commit -m "Gap-row gating chain: 2× Gemini URL + Claude check (audit 2026-04-29)"
-            git push
-            echo "Committed gating-chain run."
-          else
-            echo "No changes — nothing to commit."
-          fi
+          echo "::notice title=Retired workflow::gap-row-gating-chain.yml is retired (no Gemini, operator ruling 2026-09-30). Delete this file and any FsisScheduler.gs entry for it."

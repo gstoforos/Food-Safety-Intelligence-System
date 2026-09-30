@@ -34,9 +34,6 @@ jobs:
     env:
       TZ: Europe/Athens
       # All AI keys; orchestrator may need any of them
-      GEMINI_API_KEY_FREE:   ${{ secrets.GEMINI_API_KEY_FREE }}
-      GEMINI_API_KEY_FREE_2: ${{ secrets.GEMINI_API_KEY_FREE_2 }}
-      GEMINI_API_KEY:        ${{ secrets.GEMINI_API_KEY }}
       ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
       OPENAI_API_KEY:        ${{ secrets.OPENAI_API_KEY }}
       # Don't write back to Pending during audit — we just want diagnostics

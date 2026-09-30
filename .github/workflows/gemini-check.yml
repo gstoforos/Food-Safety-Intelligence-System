@@ -1,16 +1,16 @@
 name: Gemini Check (RETIRED)
 
 # ═══════════════════════════════════════════════════════════════════════
-#  RETIRED 2026-09-30 — operator ruling: pipeline/claude_check.py stays in
-#  the repository, but NO code may run it. Review is done by our own agents:
-#  recall_url_agent (reviewer 1), recall_review_agent (reviewer 2),
-#  recall_confirm_agent (reviewer 3).
+#  RETIRED 2026-09-30 — operator ruling: "gemini must not be anywhere; my
+#  agents have replaced them". This workflow ran Gemini (directly, or via
+#  pipeline.url_gate_gemini / gap_finder_gemini / the Gemini-grounded URL
+#  repair tools). Review, URL resolution and gap-finding are done by our
+#  own agents: recall_url_agent, recall_review_agent, recall_confirm_agent
+#  and the gap_finder_fleet.
 #
-#  This workflow ran claude_check (or a wrapper that imports it and swaps
-#  the model: openrouter_check / gemini_check / the FSIS-LM patch). It is
-#  kept as a no-op only so an Apps Script dispatch does not 404 — remove
-#  its FsisScheduler.gs entry and delete this file in the GitHub UI.
-#  tests/test_nothing_runs_claude_check.py fails if it is ever re-armed.
+#  Kept as a no-op only so a stray Apps Script dispatch does not 404.
+#  DELETE THIS FILE in the GitHub UI. tests/test_no_gemini_anywhere.py
+#  fails if any workflow runs a Gemini module or passes a Gemini key.
 # ═══════════════════════════════════════════════════════════════════════
 
 on:
@@ -42,4 +42,4 @@ jobs:
     steps:
       - name: Retired — does nothing
         run: |
-          echo "::notice title=Retired workflow::claude_check is not run by any workflow (operator ruling 2026-09-30). Remove this entry from FsisScheduler.gs and delete the file."
+          echo "::notice title=Retired workflow::gemini-check.yml is retired (no Gemini, operator ruling 2026-09-30). Delete this file and any FsisScheduler.gs entry for it."

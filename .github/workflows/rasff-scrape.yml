@@ -101,11 +101,6 @@ jobs:
           SKIP_PROMOTE:     "1"   # Audit 2026-05-07: rows stay in Pending; merge-master.yml promotes.
           # Gemini keys not needed when SKIP_AI=true, but pass them through
           # in case run_all's enrichment imports require them at module level.
-          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_API_KEY_1:  ${{ secrets.GEMINI_API_KEY_1 }}
-          GEMINI_API_KEY_2:  ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_API_KEY_3:  ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
           GH_TOKEN:          ${{ secrets.GITHUB_TOKEN }}
           GIT_USER_EMAIL:    "fsis-bot@advfood.tech"
           GIT_USER_NAME:     "AFTS Intelligence System"

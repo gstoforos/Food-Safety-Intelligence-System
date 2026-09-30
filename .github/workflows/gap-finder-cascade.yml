@@ -1,4 +1,17 @@
-name: Gap finder cascade
+name: Gap finder cascade (RETIRED)
+
+# ═══════════════════════════════════════════════════════════════════════
+#  RETIRED 2026-09-30 — operator ruling: "gemini must not be anywhere; my
+#  agents have replaced them". This workflow ran Gemini (directly, or via
+#  pipeline.url_gate_gemini / gap_finder_gemini / the Gemini-grounded URL
+#  repair tools). Review, URL resolution and gap-finding are done by our
+#  own agents: recall_url_agent, recall_review_agent, recall_confirm_agent
+#  and the gap_finder_fleet.
+#
+#  Kept as a no-op only so a stray Apps Script dispatch does not 404.
+#  DELETE THIS FILE in the GitHub UI. tests/test_no_gemini_anywhere.py
+#  fails if any workflow runs a Gemini module or passes a Gemini key.
+# ═══════════════════════════════════════════════════════════════════════
 
 on:
   workflow_dispatch:
@@ -20,78 +33,13 @@ on:
         type: string
         default: "7"
 
-# Don't fan out — only one cascade at a time per cron slot. If a previous
-# run is still in flight, GitHub will queue this one rather than running
-# both in parallel (which would fight over the recalls.xlsx commit).
-concurrency:
-  group: fsis-data-writers
-  cancel-in-progress: false
-
 permissions:
-  contents: write       # Cascade scripts commit corrected recalls.xlsx
+  contents: read
 
 jobs:
-  cascade:
+  retired:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      # Gemini key cascade order (audit 2026-05-07):
-      #   1) GEMINI_API_KEY_FREE    — primary free-tier key (Tier 1 quota)
-      #   2) GEMINI_API_KEY_FREE_2  — secondary free-tier key (overflow)
-      #   3) GEMINI_API_KEY         — paid key, last resort only
-      # gap_finder_gemini._collect_gemini_keys() iterates GEMINI_API_KEY_FREE*
-      # in order, then falls through to the paid GEMINI_API_KEY.
-      GEMINI_API_KEY_FREE:   ${{ secrets.GEMINI_API_KEY_FREE }}
-      GEMINI_API_KEY_FREE_2: ${{ secrets.GEMINI_API_KEY_FREE_2 }}
-      GEMINI_API_KEY:        ${{ secrets.GEMINI_API_KEY }}
-      ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
-      OPENAI_API_KEY:        ${{ secrets.OPENAI_API_KEY }}
-      # Lookback window — 7 days covers the gap between Tue/Thu/Sat fires.
-      # FsisScheduler.gs now restricts cascade dispatch to Tue/Thu/Sat only
-      # (was daily). With ~48-72h between fires a 7-day window catches
-      # everything that publishes between sweeps with a safety margin.
-      GAP_SINCE_DAYS:        ${{ inputs.gap_since_days || '7' }}
-      # Per-step timeout. Was 180s — tightened to 90s 2026-04-30: APIs that
-      # haven't started responding in 90s are typically stuck (Gemini/Claude/
-      # OpenAI all respond <30s when healthy), so failover faster instead of
-      # burning wall-clock waiting on a hung connection.
-      GAP_STEP_TIMEOUT:    "90"
-      # SKIP_COMMIT left unset — provider scripts handle their own commits
-
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-
-      - name: Install dependencies
+      - name: Retired — does nothing
         run: |
-          pip install -r requirements.txt
-          if [ -f requirements-additions.txt ]; then
-            pip install -r requirements-additions.txt
-          fi
-
-      - name: Configure git
-        run: |
-          git config user.name  "fsis-cascade-bot"
-          git config user.email "bot@advfood.tech"
-
-      - name: Run cascade
-        run: |
-          ARGS=""
-          if [ "${{ inputs.skip_paid   }}" = "true" ]; then ARGS="$ARGS --skip-paid"; fi
-          if [ "${{ inputs.skip_claude }}" = "true" ]; then ARGS="$ARGS --skip-claude"; fi
-          if [ "${{ inputs.skip_openai }}" = "true" ]; then ARGS="$ARGS --skip-openai"; fi
-          python -m pipeline.gap_finder_cascade $ARGS
-
-      - name: Pull any commits made by the cascade
-        if: always()
-        run: |
-          # Provider scripts auto-commit during the run. Make sure the
-          # workspace is in sync before we declare success.
-          git pull --rebase --autostash || true
+          echo "::notice title=Retired workflow::gap-finder-cascade.yml is retired (no Gemini, operator ruling 2026-09-30). Delete this file and any FsisScheduler.gs entry for it."

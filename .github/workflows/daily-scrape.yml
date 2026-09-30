@@ -187,7 +187,7 @@ jobs:
           LLAMA_BASE_URL: ${{ secrets.LLAMA_BASE_URL }}
         run: |
           if [ -z "$LLAMA_BASE_URL" ]; then
-            echo "LLAMA_BASE_URL not set — extraction will fall back to Gemini"
+            echo "::warning::LLAMA_BASE_URL not set — HTML extraction has no model this run (no Gemini fallback since 2026-09-30)"
             exit 0
           fi
           for i in 1 2 3; do
@@ -197,7 +197,7 @@ jobs:
             fi
             echo "attempt $i/3 failed, retrying in 5s..."; sleep 5
           done
-          echo "⚠ llama-server unreachable — falling back to Gemini for this run"
+          echo "::warning::llama-server unreachable — HTML-extraction scrapers will report failures this run (no Gemini fallback since 2026-09-30)"
 
       - name: Scrape full 66-agency fleet to Pending (SCRAPE-ONLY — no AI, no review, no merge)
         if: steps.guard.outputs.run == 'true'
@@ -210,8 +210,6 @@ jobs:
           # Self-hosted extraction (primary). Gemini stays as the fallback.
           LLAMA_BASE_URL:    ${{ secrets.LLAMA_BASE_URL }}
           LLAMA_MODEL:       ${{ vars.LLAMA_MODEL || 'qwen2.5-7b-instruct' }}
-          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL:      ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
 
           # Scrape lookback: today + 7 calendar days back (covers FDA
           # publication lag — audit 2026-05-07).
@@ -247,5 +245,5 @@ jobs:
         if: steps.guard.outputs.run == 'true' && always()
         run: |
           echo "Daily full-fleet scrape complete — Athens $(TZ=Europe/Athens date)."
-          echo "All new rows landed in Pending. The 19:00 gemini-url-gate +"
+          echo "All new rows landed in Pending. Reviewers 1-3 (our own agents) +"
           echo "18:30 merge-master chain handles promotion."
