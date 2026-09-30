@@ -1,4 +1,4 @@
-"""ANVISA (BR) food safety scraper — uses Gemini for HTML extraction.
+"""ANVISA (BR) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 URL retargeting (Batch 3, 2026-05-08):
 The previous URL `/assuntos/noticias-anvisa` is the parent news landing
@@ -16,10 +16,10 @@ January, or implement dynamic year via `datetime.now().year`.
 """
 from __future__ import annotations
 from datetime import datetime, timezone
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class ANVISAScraper(GenericGeminiScraper):
+class ANVISAScraper(GenericLLMScraper):
     AGENCY = "ANVISA (BR)"
     COUNTRY = "Brazil"
     # Dynamic year so we don't have to manually rotate every January.

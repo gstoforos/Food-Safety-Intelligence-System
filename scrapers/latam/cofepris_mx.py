@@ -1,4 +1,4 @@
-"""COFEPRIS (MX) food safety scraper — uses Gemini for HTML extraction.
+"""COFEPRIS (MX) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 COFEPRIS publishes alerts across multiple categories (medicamentos,
 dispositivos, alimentos, etc.). The two official COFEPRIS URLs are
@@ -23,10 +23,10 @@ slug each January, or use dynamic year as below.
 """
 from __future__ import annotations
 from datetime import datetime, timezone
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class COFEPRISScraper(GenericGeminiScraper):
+class COFEPRISScraper(GenericLLMScraper):
     AGENCY = "COFEPRIS (MX)"
     COUNTRY = "Mexico"
     _year = datetime.now(timezone.utc).year

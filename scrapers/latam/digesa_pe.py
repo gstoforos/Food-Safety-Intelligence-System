@@ -1,4 +1,4 @@
-"""DIGESA (PE) food safety scraper — uses Gemini for HTML extraction.
+"""DIGESA (PE) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 URL update + region cleanup (2026-05-08):
 
@@ -17,10 +17,10 @@ URL `/noticias/comunicados.asp` returned HTTP 200 in the 2026-05-08 run
 extraction limitations on the legacy ASP page; see HINTS below).
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class DIGESAScraper(GenericGeminiScraper):
+class DIGESAScraper(GenericLLMScraper):
     AGENCY = "DIGESA (PE)"
     COUNTRY = "Peru"
     INDEX_URLS = ['https://www.digesa.minsa.gob.pe/noticias/comunicados.asp']

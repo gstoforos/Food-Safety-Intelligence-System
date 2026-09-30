@@ -1,9 +1,9 @@
-"""ISP (CL) food safety scraper — uses Gemini for HTML extraction."""
+"""ISP (CL) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction."""
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class ISPScraper(GenericGeminiScraper):
+class ISPScraper(GenericLLMScraper):
     AGENCY = "ISP (CL)"
     COUNTRY = "Chile"
     INDEX_URLS = ['https://www.minsal.cl/category/alertas-alimentarias/']

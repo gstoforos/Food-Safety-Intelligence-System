@@ -1,4 +1,4 @@
-"""INVIMA (CO) food safety scraper — uses Gemini for HTML extraction.
+"""INVIMA (CO) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 URL retargeting (Batch 3, 2026-05-08):
 The previous URL `/sala-de-prensa` was the generic INVIMA press hall
@@ -13,10 +13,10 @@ FORTIFICADA" and similar food-specific items — exactly the
 extraction-friendly format Gemini handles well.
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class INVIMAScraper(GenericGeminiScraper):
+class INVIMAScraper(GenericLLMScraper):
     AGENCY = "INVIMA (CO)"
     COUNTRY = "Colombia"
     INDEX_URLS = [
