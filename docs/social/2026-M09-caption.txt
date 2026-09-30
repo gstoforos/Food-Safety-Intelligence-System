@@ -1,0 +1,30 @@
+AFTS Food Safety Intelligence System — SEPTEMBER 2026
+Top 10 critical incidents · 01 SEP – 30 SEP 2026
+
+Every incident below links to the originating regulatory notice.
+
+1. 03 SEP · Salmonella · Midwest Poultry Services, L.P. — United States · CDC
+   https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html
+2. 03 SEP · H. A virus · La Serranita (importer/dealers in NJ and NY) — United States · CDC
+   https://www.cdc.gov/hepatitis-a/outbreaks/clams-2026/index.html
+3. 10 SEP · Salmonella · Evergreen Fresh Sprouts, LLC. — United States · FDA
+   https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk
+4. 03 SEP · E. coli / STEC · Frutas y Hortalizas del Sur S.A. — United States · FDA
+   https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple
+5. 29 SEP · E. coli / STEC · Sierra Nevada Cheese Company — United States · FDA
+   https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sierra-nevada-cheese-company-recalls-graziers-raw-milk-cheese-because-possible-health-risk
+6. 23 SEP · E. coli / STEC · Berlin Seeds — United States · FDA
+   https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk
+7. 15 SEP · Norovirus · New Alasko L.P. — Canada · CFIA
+   https://recalls-rappels.canada.ca/en/alert-recall/alasko-brand-frozen-whole-raspberries-recalled-due-norovirus
+8. 29 SEP · Listeria · Funkció Kft. (HU 771 EK) — Hungary · NKFH (HU)
+   https://nkfh.gov.hu/hirek/termekvisszahivas-auchan-nivo-fuestoelt-suelt-sonka-listeria-jelenlete-miatt
+9. 29 SEP · Listeria · Przedsiębiorstwo Drobiarskie "Drobex" Sp. z o.o. — Poland · GIS (PL)
+   https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-cwiartki-wedzonej-z-kurczaka
+10. 25 SEP · Listeria · Qualite Traiteur — France · RappelConso (FR)
+   https://rappel.conso.gouv.fr/fiche-rappel/23632/interne
+
+Full month, all records and methodology:
+https://fsis.advfood.tech
+
+#foodsafety #foodrecall #HACCP #foodmanufacturing #qualityassurance
