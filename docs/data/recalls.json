@@ -29198,5 +29198,53 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-09-29",
+  "Source": "FSAI (IE)",
+  "Company": "Alyan",
+  "Brand": "Alyan",
+  "Product": "Alyan Dubai Style Crunchy Knafeh and Pistachio Milk Chocolate, 100g — all best-before dates",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella detected in the product",
+  "Class": "Alert",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-alyan-dubai-style-crunchy-knafeh-and-pis",
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [source-enrich 2026-09-30: FSAI detail page read 2026-09-30: dated 'Tuesday, 29 September 2026'; hazard Salmonella; brand 'Alyan'; all best-before dates; Alert Notification 2026.60, Category 1: For Action.] [promote 2026-09-30: status 'pending_enrichment'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-09-18",
+  "Source": "FSAI (IE)",
+  "Company": "Dunnes Stores",
+  "Brand": "Dunnes Stores",
+  "Product": "Dunnes Stores Potato Waffles, 680g — best before July 2028",
+  "Pathogen": "Mineral oil aromatic hydrocarbons (MOAH)",
+  "Reason": "Elevated levels of mineral oil aromatic hydrocarbons (MOAH)",
+  "Class": "Alert",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-dunnes-stores-potato-waffles",
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [source-enrich 2026-09-30: FSAI detail page read 2026-09-30: dated 'Friday, 18 September 2026'; hazard 'elevated levels of mineral oil aromatic hydrocarbons (MOAH)'; retailer 'Dunnes Stores'; 680g, best before July 2028; origin Belgium; Alert Notification 2026.59, Category 1: For Action.] [promote 2026-09-30: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-30: was archived as 'unknown: URL agent: No official recall page found | REJECTED: URL agent: No official recall page found | FSAI HTML listing fallback — claude-check please enrich', which _url_guard reads as a statement about REACHABILITY and not about whether the notice exists — the URL is on the regulator's own domain. The row now passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-09-18",
+  "Source": "FSAI (IE)",
+  "Company": "Kilbride Classic Cuisine",
+  "Brand": "Kilbride Classic Cuisine",
+  "Product": "Kilbride Classic Cuisine Roast Chicken & Gravy Dinner, 750g — use-by 17/09/2026 to 26/09/2026",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Possible presence of Listeria monocytogenes",
+  "Class": "Alert",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-branded-roast-chicken-and-gravy-produced",
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [source-enrich 2026-09-30: FSAI detail page read 2026-09-30: dated 'Friday, 18 September 2026'; hazard 'possible presence of Listeria monocytogenes'; manufacturer 'Kilbride Classic Cuisine'; Alert Notification 2026.58, Category 1: For Action.] [promote 2026-09-30: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-30: was archived as 'unknown: URL agent: No official regulator page found for this recall | REJECTED: URL agent: No official regulator page found for this recall | FSAI HTML listing', which _url_guard reads as a statement about REACHABILITY and not about whether the notice exists — the URL is on the regulator's own domain. The row now passes every publish-gate rule]"
  }
 ]
