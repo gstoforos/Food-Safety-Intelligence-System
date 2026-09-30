@@ -811,6 +811,7 @@ def validate_pending_row(
         from pipeline._url_year import is_year_mismatch
         from pipeline._pathogen_scope import (
             is_in_scope as _is_tier1_pathogen,
+            is_in_afts_scope as _is_in_afts_scope,
             is_empty_pathogen as _is_empty_pathogen,
             is_pet_food_product as _is_pet_food,
             is_pet_food_url as _is_pet_food_url,
@@ -820,6 +821,7 @@ def validate_pending_row(
     except ImportError:
         is_year_mismatch = None
         _is_tier1_pathogen = None
+        _is_in_afts_scope = None
         _is_empty_pathogen = None
         _is_news_mirror = None
         _is_pet_food = None
@@ -875,9 +877,15 @@ def validate_pending_row(
     pathogen_empty = (
         _is_empty_pathogen is not None and _is_empty_pathogen(pathogen_str)
     )
-    if (_is_tier1_pathogen is not None
-            and not pathogen_empty
-            and not _is_tier1_pathogen(pathogen_str)):
+    # 2026-09-30: the AFTS scope, not the Tier-1 list — see
+    # _pathogen_scope.is_in_afts_scope. A foreign-body or chemical recall
+    # used to be refused here when it arrived with its hazard named, and
+    # published when it arrived empty and was enriched later.
+    _scope_ok = (_is_in_afts_scope(pathogen_str, str(row.get("Reason") or ""))
+                 if _is_in_afts_scope is not None
+                 else (_is_tier1_pathogen is None
+                       or _is_tier1_pathogen(pathogen_str)))
+    if not pathogen_empty and not _scope_ok:
         return False, f"pathogen_out_of_scope: {pathogen_str!r}"
 
     # ── Pet / animal food gate (added 2026-05-23) ──────────────────────
@@ -2063,6 +2071,19 @@ def promote_approved(
                 "product is a fragment",
                 "reason is only a reference number",
                 "llm-extraction-failed",
+                # 2026-09-30. Both are field defects, not verdicts:
+                #  * the confirmer's "Company and Brand are the same long
+                #    headline string" — CFIA R.J. King lobster (Staph aureus),
+                #    archived on a parsing defect, not on the recall;
+                #  * the gap-finder classifier's "No matching hazard
+                #    category" — it could not NAME a hazard, which is a
+                #    missing field. The Ambrosini Salmonella row was archived
+                #    that way because its fields held a Gcore challenge page
+                #    (pipeline/_bot_wall.py). An out-of-scope verdict reads
+                #    "out of scope"/"allergen"/..., never this string.
+                # Condition 2 (the full publish gate) still has to pass.
+                "company and brand are the same",
+                "no matching hazard category",
             )
             _low = _prior_reason.lower()
             if any(d in _low for d in REPAIRABLE_DEFECTS):
@@ -2498,6 +2519,32 @@ def _write_sheet(wb: Workbook,
     if _artifact_hits:
         log.info("Stripped U+00A4 transcription artifact from %d cell(s) [%s]",
                  _artifact_hits, sheet_name)
+
+    # ── Bot-wall titles (2026-09-30) ────────────────────────────────────────
+    # A challenge page's <title> ("Gcore", "Just a moment...") stored as the
+    # Product/Company/Brand. Eleven Italian rows carried Product "Gcore". The
+    # fetchers now refuse walls (pipeline/_bot_wall.py); this is the writer
+    # choke point, on every sheet, because a row can be updated after the
+    # fetch by any route. Blanking is the true statement: we do not know the
+    # product, and an empty Product holds the row from publication.
+    try:
+        from pipeline._bot_wall import scrub_fields as _scrub_wall
+        for _row in rows:
+            _hit = _scrub_wall(_row)
+            if _hit:
+                log.warning("Bot-wall title blanked at writer [%s]: %s (%s)",
+                            sheet_name, ",".join(_hit),
+                            str(_row.get("URL", ""))[:80])
+                if "Notes" in schema and "bot-wall title" not in str(
+                        _row.get("Notes") or ""):
+                    _row["Notes"] = (
+                        str(_row.get("Notes") or "").strip() +
+                        f" [bot-wall title removed from {'/'.join(_hit)}: the "
+                        f"fetch returned a challenge page, not the notice]"
+                    ).strip()
+    except Exception as exc:
+        log.warning("Bot-wall scrub skipped at writer [%s]: %s: %s",
+                    sheet_name, type(exc).__name__, str(exc)[:80])
 
     # ── Page status banners folded into Company (audit 2026-08-02) ─────────
     # FSANZ prefixes the <h1> of an amended alert with its own status banner:

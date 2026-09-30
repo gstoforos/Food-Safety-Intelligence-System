@@ -146,7 +146,17 @@ def main() -> int:
         report_path = ROOT / "docs" / filename
 
         dataset_recalls = filter_week(all_recalls, week_end)
-        dataset_total = len(dataset_recalls)
+        # INCIDENTS — the unit the weekly report prints since 2026-08-15
+        # (2026-09-30). Comparing ROWS against the report's INCIDENT total
+        # flagged every week holding a multi-notice event as stale for ever
+        # and emailed subscribers phantom revisions: the manifest on main
+        # said "W34 54 -> 73" and "W36 81 -> 107", which are the Leclerc
+        # Dinan and SILVE fiche fans, not new recalls.
+        try:
+            from pipeline._incident_id import count_incidents as _ci
+            dataset_total = _ci(dataset_recalls)
+        except Exception:                                    # noqa: BLE001
+            dataset_total = len(dataset_recalls)
         existing_total = _extract_total_from_html(report_path)
         existing_label = _extract_label_from_html(report_path)
 

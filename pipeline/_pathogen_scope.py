@@ -158,6 +158,44 @@ def is_in_scope(pathogen: str) -> bool:
     return any(t in s for t in TIER1_KEYWORDS)
 
 
+def is_in_afts_scope(pathogen: str, reason: str = "") -> bool:
+    """The AFTS publication scope — THE one scope test (operator decision
+    2026-09-30: "printed scope everywhere").
+
+    Printed on every brief since 2026-07-29: "Pathogens + biotoxins +
+    mycotoxins + foreign material + pest + chemical hazards only.
+    Allergen-only, labeling, quality issues excluded." Visible mould joined
+    on 2026-09-07; uninspected product (FSIS) on 2026-09-25.
+
+    WHY THIS EXISTS. Three gates each held their own scope:
+      * this module's is_in_scope()  — pathogens/mycotoxins/mould/drugs only,
+        used by the Pending gate (merge_master.validate_pending_row);
+      * _publish_gate                 — the printed scope;
+      * gap_finder/rules.py           — rejected foreign matter, metals,
+        chemicals outright ("Rule B").
+    So a foreign-body or chemical recall was refused at Pending if it arrived
+    with its hazard named, and PUBLISHED if it arrived with an empty hazard
+    that enrichment filled in later — 38 September rows came in that side
+    door. Whether a recall was published depended on its route.
+
+    is_in_scope() is NOT changed: it is also the Tier-1 test (is_tier1 is an
+    alias), and widening it would re-tier every foreign-body row. This is the
+    same rule pipeline/agents/curator.py already applied: in Tier-1 scope, or
+    classifies into any publish-gate hazard class other than allergen and
+    fermentation (quality/spoilage).
+    """
+    if is_empty_pathogen(pathogen):
+        return False
+    if is_in_scope(pathogen):
+        return True
+    try:
+        from pipeline._publish_gate import classify_hazard
+    except Exception:                                        # noqa: BLE001
+        return False        # cannot classify → fall back to the narrow test
+    classes = classify_hazard(str(pathogen)) | classify_hazard(str(reason or ""))
+    return bool(classes - {"allergen", "fermentation"})
+
+
 def is_tier1(pathogen: str) -> bool:
     """Same as is_in_scope — kept for backward compat with Tier=1 enforcement."""
     return is_in_scope(pathogen)

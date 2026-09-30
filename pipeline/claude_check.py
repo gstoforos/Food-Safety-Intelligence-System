@@ -72,7 +72,9 @@ from review.claude_client import (  # noqa: E402
     last_call_error,
 )
 from pipeline._url_year import is_year_mismatch  # noqa: E402
-from pipeline._pathogen_scope import is_in_scope as is_tier1_pathogen  # noqa: E402
+# 2026-09-30: the AFTS scope (printed scope, operator decision), not the
+# Tier-1 list. The name is kept so every call site reads the same.
+from pipeline._pathogen_scope import is_in_afts_scope as is_tier1_pathogen  # noqa: E402
 from pipeline._news_mirror_blocklist import is_news_mirror  # noqa: E402
 
 # ISO-3166-1 alpha-3 codes that appear as RASFF origin/notifying countries.

@@ -325,7 +325,14 @@ def main() -> int:
         report_path = ROOT / "docs" / f"{year_m}.html"
 
         month_recalls = filter_month(all_recalls, ms, me_full)
-        dataset_total = len(month_recalls)
+        # INCIDENTS, the unit the report prints (2026-09-30). Comparing a
+        # row count against an incident count would call every month with
+        # a multi-notice event stale, for ever.
+        try:
+            from pipeline._incident_id import count_incidents as _ci
+            dataset_total = _ci(month_recalls)
+        except Exception:                                    # noqa: BLE001
+            dataset_total = len(month_recalls)
         existing_total = _extract_total_from_html_monthly(report_path)
         existing_label = _extract_label_from_html_monthly(report_path)
 

@@ -110,6 +110,15 @@ def _fetch_page_text(url: str) -> Tuple[str, str]:
                 return "", f"http_{r.status_code}"
         except Exception as e:  # noqa: BLE001
             return "", f"error_{type(e).__name__}"
+    # A challenge page served with 200 is not the notice (2026-09-30). Tell
+    # the model so, in words the url-guard recognises as reachability, so
+    # the row is not rejected on the content of a Gcore/Cloudflare wall.
+    try:
+        from pipeline._bot_wall import is_bot_wall_html as _is_wall
+        if _is_wall(html):
+            return "", "bot_wall"
+    except Exception:                                        # noqa: BLE001
+        pass
     try:
         from bs4 import BeautifulSoup
         soup = BeautifulSoup(html, "html.parser")

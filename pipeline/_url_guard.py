@@ -132,7 +132,28 @@ _AUTHORITY_HOSTS = (
     "webgate.ec.europa.eu", "ec.europa.eu", "foodstandards.gov.au",
     "mpi.govt.nz", "sfa.gov.sg", "cfs.gov.hk", "mfds.go.kr",
     "fda.gov.ph", "gov.il", "nafdac.gov.ng", "sahpra.org.za",
+    # ── Country-fleet authorities (2026-09-30). Every authority domain a
+    # gap_finder CountryConfig accepts must be recognised here too, or rows the
+    # fleet correctly finds are rejected or unprotected downstream. NKFH
+    # (Hungary) and CAA (Japan) were in NONE of the three lists. Enforced by
+    # tests/test_every_country_authority_is_known_everywhere.py.
+    # gov.br and gob.mx are deliberately NOT here: they are whole-government
+    # umbrellas, and url_is_self_evidently_official() would treat any deep
+    # page on them as a confirmed notice. See UMBRELLA_HOSTS below.
+    "nebih.gov.hu", "nkfh.gov.hu", "caa.go.jp", "foodsafetykorea.go.kr",
+    "samr.gov.cn", "fda.moph.go.th", "pom.go.id", "bpom.go.id",
+    "fda.gov.tw", "vfa.gov.vn", "moccae.gov.ae", "adafsa.gov.ae",
+    "dm.gov.ae", "moec.gov.ae", "sfda.gov.sa", "fsa.gov.ba",
+    "hapih.hr", "pta.agri.ee", "ansa.gov.md", "fva.gov.mk",
+    "mast.is", "securite-alimentaire.public.lu", "szpi.gov.cz", "potravinynapranyri.cz",
+    "foedevarestyrelsen.dk", "invima.gov.co",
+    "ispch.cl", "minsal.cl", "achipia.gob.cl", "kebs.org",
+    "nfsa.gov.eg", "fdaghana.gov.gh", "thencc.org.za", "thencc.gov.za",
 )
+
+#: Whole-government umbrella domains a country config accepts, kept OUT of
+#: _AUTHORITY_HOSTS on purpose (escalation risk, above).
+UMBRELLA_HOSTS = ("gov.br", "gob.mx")
 
 #: Reject reasons that are a claim about REACHABILITY, not about content.
 #: Anything here is answerable by the URL already on the row.
@@ -143,6 +164,8 @@ _NOT_FOUND_REASON = re.compile(
     r"|could\s+not\s+(be\s+)?(find|locate|reach|access|verify)"
     r"|unable\s+to\s+(find|locate|reach|access|verify)"
     r"|(page|url|link)\s+(not\s+found|unreachable|inaccessible)"
+    # A challenge page is a statement about us, not the notice (2026-09-30).
+    r"|bot[\s_-]?wall|challenge\s+page|captcha|browser[\s-]+validation"
     # ── DIGIT-BOUNDED HTTP CODES (fix 2026-09-30) ────────────────────────
     # These two alternatives used to be the bare strings `404|403`, which
     # match ANYWHERE — including inside a longer run of digits. This register
@@ -271,9 +294,17 @@ def _item_url_regex_for(url: str):
             cfg = get(code)
         except Exception:                                        # noqa: BLE001
             continue
-        dom = str(getattr(cfg, "authority_domain", "") or "").lower()
-        if dom and (host == dom or host.endswith("." + dom)):
-            return getattr(cfg, "authority_item_url_regex", None)
+        # Primary AND extra authority domains (2026-09-30). Checking only the
+        # primary meant a second authority — NKFH for Hungary, the CAA
+        # subdomains for Japan — fell through to the generic "any deep page"
+        # fallback below instead of that country's per-recall pattern.
+        doms = [str(getattr(cfg, "authority_domain", "") or "").lower()]
+        doms += [str(d or "").lower()
+                 for d in (getattr(cfg, "authority_domains_extra", None) or [])]
+        for dom in doms:
+            dom = dom[4:] if dom.startswith("www.") else dom
+            if dom and (host == dom or host.endswith("." + dom)):
+                return getattr(cfg, "authority_item_url_regex", None)
     return None
 
 

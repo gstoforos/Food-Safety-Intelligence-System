@@ -91,7 +91,13 @@ def supersede_archived_copies(xlsx_path, promoted_urls) -> int:
                     # wins, and leaving this row silent is exactly the
                     # contradiction test_a_recall_is_not_both_published_and_
                     # rejected was written to catch.
-                    "confirmer did not re-review")
+                    "confirmer did not re-review",
+                    # 2026-09-30: merge_master.REPAIRABLE_DEFECTS gained this
+                    # entry (CFIA R.J. King lobster); the two lists must move
+                    # together or a re-promoted row leaves its archive copy
+                    # contradicting the register. Held by
+                    # tests/test_a_challenge_page_is_not_data.py.
+                    "company and brand are the same")
     wb = openpyxl.load_workbook(xlsx_path)
     want = {str(u).strip().lower() for u in promoted_urls if str(u).strip()}
     stamped = 0

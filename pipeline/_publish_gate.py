@@ -267,6 +267,13 @@ HAZARD_CLASS_KEYWORDS = {
         # label "Physical/foreign-body contamination", which therefore
         # classified as nothing at all on three published rows.
         "foreign-body", "foreign-material", "foreign-object",
+        # CFIA files every foreign-body recall under the category "Food -
+        # Extraneous Material", and titles them "...due to shell fragments" /
+        # "...plastic-like and gravel-like fragments" (2026-09-30: two
+        # September CFIA recalls, walnuts and So Delicious, classified as
+        # nothing). Qualified forms only, as above.
+        "extraneous material", "extraneous matter", "shell fragment",
+        "gravel-like", "gravel fragment",
     ),
     "chemical": (
         "chemical contaminant", "chemical residue", "pesticide", "fungicide",
@@ -330,6 +337,9 @@ HAZARD_CLASS_KEYWORDS = {
         "undeclared pharmacological", "adulterant", "adulterated",
         "sildenafil", "tadalafil", "vardenafil", "sibutramine",
         "yohimbine", "phenolphthalein",
+        # 2026-09-30: FDA Lipofit (undeclared fluoxetine and DNP) and the Thai
+        # FDA furosemide alert classified as nothing.
+        "fluoxetine", "furosemide", "dinitrophenol", "2,4-dnp",
     ),
     "mycotoxin": (
         "aflatoxin", "ochratoxin", "patulin", "fumonisin",
@@ -405,6 +415,9 @@ HAZARD_CLASS_KEYWORDS = {
         "tropanici", "tropanicos",             # Salute IT / AESAN ES-PT
         "datura", "stramonium", "jimsonweed",
         "atropine", "scopolamine", "hyoscyamine",
+        # Plant cardiac glycosides (2026-09-30: FDA Niwali tejocote, "products
+        # contain yellow oleander (Thevetia peruviana)", classified as nothing).
+        "oleander", "thevetia", "cardiac glycoside",
     ),
     # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
     # "fish") must NOT appear here: RASFF Reason text routinely carries

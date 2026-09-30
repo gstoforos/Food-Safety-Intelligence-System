@@ -175,6 +175,18 @@ def fetch_text(url: str, timeout: int = 25) -> Tuple[str, str]:
         return "", fail
     if r.status_code >= 400:
         return "", f"http_{r.status_code}"
+    # A challenge page served with 200 (Gcore on salute.gov.it) is not the
+    # notice (2026-09-30). Without this it read as "ok", the row's anchors
+    # were absent from it, and check() reported a CONTENT mismatch — a wall
+    # turned into "the cited URL describes something other than this row".
+    # "bot_wall" is not a dead status, so check() treats it as
+    # infrastructure, exactly like a 403.
+    try:
+        from pipeline._bot_wall import is_bot_wall_html
+        if is_bot_wall_html(r.text):
+            return "", "bot_wall"
+    except Exception:                                        # noqa: BLE001
+        pass
     text = re.sub(r"<script.*?</script>", " ", r.text, flags=re.S | re.I)
     text = re.sub(r"<style.*?</style>", " ", text, flags=re.S | re.I)
     text = re.sub(r"<[^>]+>", " ", text)

@@ -108,7 +108,20 @@ REGULATOR_HOSTS = frozenset({
     # Asia
     "cfs.gov.hk", "sfa.gov.sg", "fda.gov.ph", "mfds.go.kr", "fda.gov.tw",
     # LATAM
-    "anvisa.gov.br", "gob.mx", "argentina.gob.ar",
+    "anvisa.gov.br", "gob.mx", "argentina.gob.ar",    # ── Country-fleet authorities (2026-09-30). Every authority domain a
+    # gap_finder CountryConfig accepts must be recognised here too, or rows the
+    # fleet correctly finds are rejected or unprotected downstream. NKFH
+    # (Hungary) and CAA (Japan) were in NONE of the three lists. Enforced by
+    # tests/test_every_country_authority_is_known_everywhere.py.
+    "nebih.gov.hu", "nkfh.gov.hu", "caa.go.jp", "foodsafetykorea.go.kr",
+    "samr.gov.cn", "fda.moph.go.th", "pom.go.id", "bpom.go.id",
+    "vfa.gov.vn", "moccae.gov.ae", "adafsa.gov.ae", "dm.gov.ae",
+    "moec.gov.ae", "sfda.gov.sa", "fsa.gov.ba", "hapih.hr",
+    "pta.agri.ee", "ansa.gov.md", "fva.gov.mk", "mast.is",
+    "securite-alimentaire.public.lu", "szpi.gov.cz", "potravinynapranyri.cz", "gov.br",
+    "invima.gov.co", "ispch.cl", "minsal.cl", "achipia.gob.cl",
+    "nafdac.gov.ng", "kebs.org", "nfsa.gov.eg", "fdaghana.gov.gh",
+    "thencc.org.za", "thencc.gov.za",
 })
 
 # ── Explicit news / aggregator hosts. Checked FIRST so the reject reason is the
@@ -236,6 +249,16 @@ def product_is_garbage(product: str) -> bool:
         return False  # empty Product is handled by other gates, not here
     if _ARTIFACT_RE.search(p):
         return True
+    # A challenge page's title ("Gcore", "Just a moment...") is not a product
+    # (2026-09-30). Imported lazily and fail-OPEN on import error only for
+    # this one check, so the stdlib-only guarantee above still holds for
+    # every other guard.
+    try:
+        from pipeline._bot_wall import is_wall_title
+        if is_wall_title(p):
+            return True
+    except Exception:                                        # noqa: BLE001
+        pass
     compact = p.replace(" ", "")
     if compact and _LOTDATE_RE.search(p):
         digit_sep = sum(c.isdigit() or c in "-/" for c in compact)

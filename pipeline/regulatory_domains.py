@@ -115,6 +115,32 @@ REGULATOR_DOMAINS: Dict[str, Tuple[str, str]] = {
     "nfsa.gov.eg":                  ("NFSA",          "Egypt"),
     "onssa.gov.ma":                 ("ONSSA",         "Morocco"),
     "ncc.org.za":                   ("NCC",           "South Africa"),
+    # ── Country-fleet authorities (2026-09-30). Every authority domain a
+    # gap_finder CountryConfig accepts must be recognised here too, or rows the
+    # fleet correctly finds are rejected or unprotected downstream. NKFH
+    # (Hungary) and CAA (Japan) were in NONE of the three lists. Enforced by
+    # tests/test_every_country_authority_is_known_everywhere.py.
+    "nkfh.gov.hu":                  ("NKFH",          "Hungary"),
+    "caa.go.jp":                    ("CAA",           "Japan"),
+    "foodsafetykorea.go.kr":        ("MFDS",          "South Korea"),
+    "pom.go.id":                    ("BPOM",          "Indonesia"),
+    "fda.gov.tw":                   ("TFDA",          "Taiwan"),
+    "adafsa.gov.ae":                ("ADAFSA",        "United Arab Emirates"),
+    "dm.gov.ae":                    ("Dubai Municipality", "United Arab Emirates"),
+    "moec.gov.ae":                  ("MoEC",          "United Arab Emirates"),
+    "fsa.gov.ba":                   ("FSA BiH",       "Bosnia and Herzegovina"),
+    "hapih.hr":                     ("HAPIH",         "Croatia"),
+    "pta.agri.ee":                  ("PTA",           "Estonia"),
+    "ansa.gov.md":                  ("ANSA",          "Moldova"),
+    "fva.gov.mk":                   ("FVA",           "North Macedonia"),
+    "securite-alimentaire.public.lu":("ALVA",          "Luxembourg"),
+    "potravinynapranyri.cz":        ("SZPI",          "Czech Republic"),
+    "gov.pl":                       ("GIS",           "Poland"),
+    "minsal.cl":                    ("MINSAL",        "Chile"),
+    "achipia.gob.cl":               ("ACHIPIA",       "Chile"),
+    "fdaghana.gov.gh":              ("FDA Ghana",     "Ghana"),
+    "thencc.org.za":                ("NCC",           "South Africa"),
+    "thencc.gov.za":                ("NCC",           "South Africa"),
 }
 
 

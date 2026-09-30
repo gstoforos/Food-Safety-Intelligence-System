@@ -71,7 +71,9 @@ from pipeline.commit_github import git_commit_and_push  # noqa: E402
 from review.url_validator import check_url, should_blank_url  # noqa: E402
 from pipeline._url_identity import fsai_url_problem as _fsai_url_problem  # noqa: E402
 from pipeline._url_year import is_year_mismatch  # noqa: E402
-from pipeline._pathogen_scope import is_in_scope as is_tier1_pathogen  # noqa: E402
+# 2026-09-30: the AFTS scope (printed scope, operator decision), not the
+# Tier-1 list. The name is kept so every call site reads the same.
+from pipeline._pathogen_scope import is_in_afts_scope as is_tier1_pathogen  # noqa: E402
 from pipeline._news_mirror_blocklist import is_news_mirror  # noqa: E402
 
 logging.basicConfig(
