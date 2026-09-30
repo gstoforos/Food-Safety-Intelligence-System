@@ -1,17 +1,21 @@
 """
 Enrichment pipeline: takes raw scraped Recall objects and improves them
-- Pathogen normalization (already done in Recall.normalize, but Gemini catches edge cases)
-- URL-keyword fallback: if AI enrichment fails, scan the URL for pathogen strings
+- Pathogen normalization
+- URL-keyword fallback: scan the URL for pathogen strings
 - Country normalization for non-English source text
-- Tier reassignment after Gemini correction
 - Outbreak flag detection from Notes/Reason
+
+NO THIRD-PARTY MODEL (operator ruling 2026-09-30). The second pass that sent
+incomplete rows to Gemini is gone: our own agents (recall_url_agent /
+recall_review_agent / recall_confirm_agent on the VPS) review every Pending
+row. Gemini had already been caught inventing pathogens and brands here.
+Held by tests/test_no_gemini_anywhere.py.
 """
 from __future__ import annotations
 import logging
 import re
 from typing import List, Optional
 from scrapers._models import Recall, normalize_pathogen, normalize_country, assign_tier, infer_region
-from enrichment.gemini_client import enrich_row
 
 log = logging.getLogger(__name__)
 
@@ -128,7 +132,7 @@ def _is_html_fallback_placeholder(r: Recall) -> bool:
     return any(tok in notes for tok in _HTML_FALLBACK_NOTES_TOKENS)
 
 
-# Heuristic: rows that look "incomplete enough" to warrant a Gemini call
+# Heuristic: rows that look "incomplete" (logged, not sent anywhere)
 def _needs_enrichment(r: Recall) -> bool:
     if not r.Pathogen or r.Pathogen.strip() in ("", "—", "unknown", "—"):
         return True
@@ -142,8 +146,8 @@ def _needs_enrichment(r: Recall) -> bool:
 def enrich_recalls(recalls: List[Recall], use_ai: bool = True, max_ai_calls: int = 100) -> List[Recall]:
     """
     Enrich a list of recall rows.
-    - First pass: deterministic normalization
-    - Second pass: Gemini fills gaps (capped to max_ai_calls to preserve free quota)
+    - Deterministic normalization only. `use_ai` and `max_ai_calls` are
+      accepted for caller compatibility and ignored (2026-09-30).
     """
     out: List[Recall] = []
     ai_used = 0
@@ -156,34 +160,6 @@ def enrich_recalls(recalls: List[Recall], use_ai: bool = True, max_ai_calls: int
             r.Country = normalize_country(r.Country)
         if not r.Region and r.Country:
             r.Region = infer_region(r.Country)
-
-        # AI enrichment if needed and within budget. Skip HTML-fallback
-        # placeholders — Gemini hallucinates pathogens from titles alone
-        # (see _is_html_fallback_placeholder docstring above). The URL
-        # fallback below catches URL-encoded pathogens; everything else
-        # waits for claude-check's detail-page fetch on its next cycle.
-        if (use_ai
-                and _needs_enrichment(r)
-                and not _is_html_fallback_placeholder(r)
-                and ai_used < max_ai_calls):
-            try:
-                fixed = enrich_row(r.to_dict())
-                # Apply only if Gemini returned something usable
-                if fixed.get("Pathogen") and not r.Pathogen:
-                    r.Pathogen = normalize_pathogen(fixed["Pathogen"])
-                if fixed.get("Country") and not r.Country:
-                    r.Country = normalize_country(fixed["Country"])
-                if fixed.get("Class") and not r.Class:
-                    r.Class = fixed["Class"]
-                if int(fixed.get("Outbreak", 0)):
-                    r.Outbreak = 1
-                ai_used += 1
-            except Exception as e:
-                log.warning("Gemini enrichment failed for row: %s", e)
-        elif (use_ai
-                and _needs_enrichment(r)
-                and _is_html_fallback_placeholder(r)):
-            ai_skipped_fallback += 1
 
         # URL-keyword fallback: if pathogen is STILL missing after AI,
         # scan the URL for known pathogen strings (catches BLV/BVL PDF
