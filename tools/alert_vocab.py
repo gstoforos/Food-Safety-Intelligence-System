@@ -148,7 +148,11 @@ PATHOGEN: dict[str, list[str]] = {
                                      "phytoplankton"],              # 8
     "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol",
                                 "muscaria", "hydrocyanic", "cyanogenic",
-                                "solanine", "tropane"],             # 3
+                                "solanine", "tropane",
+                                # 2026-09-30: FDA Niwali tejocote, yellow
+                                # oleander — published, and reachable by no
+                                # alert term until now.
+                                "oleander", "cardiac glycoside"],   # 4
 
     # --- chemical -------------------------------------------------------
     "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury",
