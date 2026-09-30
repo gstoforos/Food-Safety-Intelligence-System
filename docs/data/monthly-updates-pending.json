@@ -1,20 +1,20 @@
 {
-  "generated_utc": "2026-09-08T01:09:05.043676+00:00",
+  "generated_utc": "2026-09-30T08:32:04.316967+00:00",
   "checked_back_months": 3,
   "anchor_month_end": "2026-08-31",
   "updated_months": [
     {
-      "year_m": "2026-M07",
+      "year_m": "2026-M08",
       "year": 2026,
-      "month_num": 7,
-      "month_name": "July 2026",
-      "month_start": "2026-07-01",
-      "month_end": "2026-07-31",
-      "filename": "2026-M07.html",
-      "report_url": "https://fsis.advfood.tech/2026-M07.html",
-      "old_total": 302,
-      "new_total": 304,
-      "delta": 2,
+      "month_num": 8,
+      "month_name": "August 2026",
+      "month_start": "2026-08-01",
+      "month_end": "2026-08-31",
+      "filename": "2026-M08.html",
+      "report_url": "https://fsis.advfood.tech/2026-M08.html",
+      "old_total": 246,
+      "new_total": 231,
+      "delta": -15,
       "first_publish": false
     },
     {
@@ -26,9 +26,9 @@
       "month_end": "2026-06-30",
       "filename": "2026-M06.html",
       "report_url": "https://fsis.advfood.tech/2026-M06.html",
-      "old_total": 247,
-      "new_total": 244,
-      "delta": -3,
+      "old_total": 244,
+      "new_total": 243,
+      "delta": -1,
       "first_publish": false
     }
   ],

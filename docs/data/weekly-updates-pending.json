@@ -1,34 +1,8 @@
 {
-  "generated_utc": "2026-09-09T10:49:56.921378+00:00",
+  "generated_utc": "2026-09-30T08:31:57.706472+00:00",
   "checked_back_weeks": 4,
-  "anchor_week_end": "2026-09-06",
-  "anchor_friday": "2026-09-06",
-  "updated_weeks": [
-    {
-      "year": 2026,
-      "week_num": 34,
-      "filename": "2026-W34.html",
-      "report_url": "https://fsis.advfood.tech/2026-W34.html",
-      "week_start": "2026-08-17",
-      "week_end": "2026-08-23",
-      "old_total": 54,
-      "new_total": 73,
-      "delta": 19
-    },
-    {
-      "year": 2026,
-      "week_num": 36,
-      "filename": "2026-W36.html",
-      "report_url": "https://fsis.advfood.tech/2026-W36.html",
-      "week_start": "2026-08-31",
-      "week_end": "2026-09-06",
-      "old_total": 81,
-      "new_total": 107,
-      "delta": 26
-    }
-  ],
-  "primary_cta": {
-    "label": "VIEW WEEKLY DASHBOARD",
-    "url": "https://www.advfood.tech/#weekly"
-  }
+  "anchor_week_end": "2026-09-27",
+  "anchor_friday": "2026-09-27",
+  "updated_weeks": [],
+  "primary_cta": null
 }
