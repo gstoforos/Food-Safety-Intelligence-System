@@ -231,7 +231,7 @@ _GATE_REGION_BY_COUNTRY_CODE = {
     "mx": "Latin America",
     # Asia
     "hk": "Asia", "id": "Asia", "jp": "Asia", "kr": "Asia", "ph": "Asia",
-    "sg": "Asia", "th": "Asia", "tw": "Asia", "vn": "Asia",
+    "sg": "Asia", "th": "Asia", "tw": "Asia", "vn": "Asia", "cn": "Asia",
     # Africa
     "eg": "Africa", "gh": "Africa", "ke": "Africa", "ng": "Africa",
     "za": "Africa",
