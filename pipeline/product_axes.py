@@ -125,6 +125,38 @@ _FALSE_FRIENDS = {
 }
 
 
+# ── TERM PATTERN CACHE (2026-09-30) ──────────────────────────────────────
+# _find() and _blocked() build the SAME pattern string for the same term on
+# every call and hand it to re.search, which recompiles whenever the pattern
+# has fallen out of the re module's internal cache. That cache holds 512
+# entries. This module defines 1318 terms across its five axes
+# (CATEGORY 478, PROCESS 436, CONSUMPTION 260, PACKAGING 120,
+# PRESERVATION 24), so a single row walking the axes evicts the patterns the
+# next row needs, and every row recompiles most of them from scratch.
+#
+# MEASURED, 2026-09-30, on the 1825-row register:
+#   python -m pipeline.enrich_schema --dry-run   1m58s  (~65 ms/row)
+# and that is what makes tests/test_enrich_schema.py::
+# test_dry_run_is_accepted_on_the_command_line the longest test in the suite.
+# It is the reason a 90-second per-test timeout kills the run — the first
+# attempt at this morning's baseline hung there with the stack sitting in
+# re._parser, parsing a character set.
+#
+# Nothing about the MATCHING changes: same pattern text, same flags, same
+# order of terms, same first-hit-wins result. Only the compile is hoisted.
+_PAT_CACHE: Dict[str, "re.Pattern[str]"] = {}
+
+
+def _term_pattern(term: str) -> "re.Pattern[str]":
+    """The compiled word-boundary, plural-tolerant pattern for one term."""
+    pat = _PAT_CACHE.get(term)
+    if pat is None:
+        pat = re.compile(r"(?<![a-z0-9])" + re.escape(term)
+                         + r"(?:s|es|x)?(?![a-z0-9])")
+        _PAT_CACHE[term] = pat
+    return pat
+
+
 def _blocked(text: str, term: str) -> bool:
     """True if this term only appears inside a phrase that means otherwise."""
     friends = _FALSE_FRIENDS.get(term)
@@ -134,8 +166,7 @@ def _blocked(text: str, term: str) -> bool:
         if phrase in text:
             # the term is present ONLY as part of the decoy phrase
             stripped = text.replace(phrase, " ")
-            if not re.search(r"(?<![a-z0-9])" + re.escape(term) + r"(?:s|es|x)?(?![a-z0-9])",
-                             stripped):
+            if not _term_pattern(term).search(stripped):
                 return True
     return False
 
@@ -152,8 +183,7 @@ def _find(text: str, terms: Iterable[str]) -> Optional[str]:
         tn = _n(t)
         if not tn:
             continue
-        pat = r"(?<![a-z0-9])" + re.escape(tn) + r"(?:s|es|x)?(?![a-z0-9])"
-        if re.search(pat, text) and not _blocked(text, tn):
+        if _term_pattern(tn).search(text) and not _blocked(text, tn):
             return t
     return None
 
