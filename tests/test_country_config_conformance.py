@@ -104,6 +104,18 @@ KNOWN_URLS = {
         ["https://www.mfds.go.kr/eng/brd/m_61/list.do",
          "https://www.mfds.go.kr/eng/wpge/m_11/de011002l001.do"],
     ),
+    # Thailand, verified 2026-09-30. media.php serves every file on the
+    # site; only the alert file-name shape is an alert.
+    "th": (
+        ["https://food.fda.moph.go.th/media.php?id=876713488913932288"
+         "&name=69_03_Salmon.pdf",
+         "https://food.fda.moph.go.th/media.php?id=927456901359345664"
+         "&name=69_08_01.pdf"],
+        ["https://food.fda.moph.go.th/consumer-alertnews/category/"
+         "verification-results-2569",
+         "https://food.fda.moph.go.th/press-release/foodnew-13",
+         "https://food.fda.moph.go.th/media.php?id=1&name=guide_import.pdf"],
+    ),
     "jp": (
         ["https://www.recall.caa.go.jp/result/detail.php?rcl=00000034744&screenkbn=06",
          "https://www.recall.caa.go.jp/result/detail.php?rcl=00000034743&screenkbn=01"],
@@ -428,7 +440,7 @@ RESEARCHED_NO_CONFIG = {
     "il": "Israel — Ministry of Health",
     "ar": "Argentina — ANMAT",
     "tr": "Turkey — Tarım ve Orman Bakanlığı",
-    "th": "Thailand — FDA Thailand",
+    "cn": "China — SAMR",
 }
 
 
