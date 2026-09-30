@@ -501,6 +501,17 @@ HAZARD_CLASS_KEYWORDS = {
         "false mark of inspection", "false usda mark",
         "lack of federal inspection", "without federal inspection",
         "hazard not assessed",
+        # Import violations, ruled in 2026-09-30 ("in scope, as uninspected").
+        # QUALIFIED forms only: a bare "import re-inspection" matches the
+        # Prime Line LISTERIA row ("confirmed by FSIS routine import
+        # re-inspection sampling") and would give a pathogen recall an
+        # uninspected class — tests/test_nrte_is_not_ready_to_eat.py.
+        "without the benefit of import reinspection",
+        "without the benefit of import re-inspection",
+        "not presented for import reinspection",
+        "not presented for import re-inspection",
+        "ineligible for importation", "ineligible import",
+        "not eligible to export",
     ),
 }
 

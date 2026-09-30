@@ -1139,6 +1139,18 @@ _POLICY_REVERSALS = (
       "false inspection mark", "lack of federal inspection",
       "lack of inspection", "without federal inspection"),
      "2026-09-25"),
+    # Import violations moved INTO scope on 2026-09-30 (operator ruling "in
+    # scope, as uninspected"). Sempio (FSIS 2026-09-25) was removed on
+    # 2026-09-29 as "out_of_scope_import_reinspection" — right under the
+    # line as it then stood, and exactly the verdict this entry lifts.
+    (("without the benefit of import reinspection",
+      "without the benefit of import re-inspection",
+      "not presented for import reinspection",
+      "not presented for import re-inspection",
+      "out_of_scope_import_reinspection", "ineligible import",
+      "ineligible for importation", "ineligible siluriformes",
+      "not eligible to export"),
+     "2026-09-30"),
 )
 
 # Kept as derived aliases: nothing outside this module reads them today, but
@@ -2147,11 +2159,45 @@ def promote_approved(
                 except Exception:                       # pragma: no cover
                     _repromote_ok = False               # fail closed
 
+            # ── THIRD EXCEPTION (2026-09-30): A REVERSED POLICY IS NOT A
+            #    VERDICT ANY MORE. ─────────────────────────────────────────
+            # _POLICY_REVERSALS records scope lines the operator has moved
+            # (mould 09-07, uninspected product 09-25, import violations
+            # 09-30), and _reversal_excuses() already lets such a row back
+            # into PENDING. This guard never asked it, so the row reached
+            # Pending and was then refused at promotion — FSIS Sempio,
+            # archived 2026-09-29 as "out_of_scope_import_reinspection" and
+            # ruled in scope the next day. Same three conditions: the
+            # archived reason names a reversed subject and predates the
+            # reversal, the row passes the FULL publish gate now, and the
+            # re-entry is stamped into Notes.
+            if not _repromote_ok:
+                try:
+                    from pipeline._publish_gate import publish_blockers
+                    if _reversal_excuses(_prior_reason) and not publish_blockers(clean):
+                        _repromote_ok = True
+                        _repromote_kind = "reversal"
+                except Exception:                       # pragma: no cover
+                    _repromote_ok = False               # fail closed
+
             if _repromote_ok:
                 # Two exceptions, two different stories. The log and the Notes
                 # stamp must say WHICH one fired, or the sheet records a
                 # repaired field where the truth was an unfetchable page.
-                if _repromote_kind == "refusal":
+                if _repromote_kind == "reversal":
+                    log.warning(
+                        "re-promotion ALLOWED %s — archived under a scope line "
+                        "the operator has since reversed (%s); the row passes "
+                        "the full publish gate",
+                        str(clean.get("URL", ""))[:90], _prior_reason[:90])
+                    clean["Notes"] = (
+                        str(clean.get("Notes") or "").strip()
+                        + f" [re-promotion allowed: was archived as "
+                          f"{_prior_reason[:160]!r}, under a scope line the "
+                          f"operator has since reversed (_POLICY_REVERSALS). "
+                          f"The row now passes every publish-gate rule]"
+                    ).strip()
+                elif _repromote_kind == "refusal":
                     log.warning(
                         "re-promotion ALLOWED %s — archived on a REACHABILITY "
                         "refusal (%s) while holding a URL on the regulator's "
