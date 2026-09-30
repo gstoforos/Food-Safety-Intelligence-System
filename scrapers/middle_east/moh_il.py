@@ -1,4 +1,4 @@
-"""MoH (IL) food safety scraper — uses Gemini for HTML extraction.
+"""MoH (IL) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 Two changes in Batch 4 (2026-05-08):
 
@@ -24,7 +24,7 @@ rows after the 403 is resolved, a follow-up batch should switch to a
 headless-browser fetch (Playwright) or a discovered JSON endpoint.
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
 _CHROME_FINGERPRINT_HEADERS = {
@@ -43,7 +43,7 @@ _CHROME_FINGERPRINT_HEADERS = {
 }
 
 
-class MoHILScraper(GenericGeminiScraper):
+class MoHILScraper(GenericLLMScraper):
     AGENCY = "MoH (IL)"
     COUNTRY = "Israel"
     INDEX_URLS = [

@@ -1,4 +1,4 @@
-"""TGTHB (TR) food safety scraper — uses Gemini for HTML extraction.
+"""TGTHB (TR) food safety scraper — uses our own model (Qwen, VPS) for HTML extraction.
 
 URL retargeting (Batch 3, 2026-05-08):
 The previous URL `tarimorman.gov.tr/Duyuru` was the generic Ministry of
@@ -24,10 +24,10 @@ pathogen filter in pipeline/merge_master will keep only pathogen
 matches; this is fine — the scraper's job is to surface candidates.
 """
 from __future__ import annotations
-from scrapers._base import GenericGeminiScraper
+from scrapers._base import GenericLLMScraper
 
 
-class TGTHBScraper(GenericGeminiScraper):
+class TGTHBScraper(GenericLLMScraper):
     AGENCY = "TGTHB (TR)"
     COUNTRY = "Turkey"
     INDEX_URLS = [
