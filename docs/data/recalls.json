@@ -752,6 +752,22 @@
   "Notes": "[manual 2026-09-30: operator ruling — FSIS import violations are in scope, as uninspected product. Removed 2026-09-29 as out_of_scope_import_reinspection under the line as it then stood. fsis.usda.gov returns 403 to automated fetches; fields from the row verified on 2026-09-28.] SOURCES: https://www.wgcu.org/health/2026-09-25/ready-to-eat-chicken-stew-products-recalled-were-imported-without-import-reinspection; https://www.foodsafetynews.com/2026/09/chicken-stew-from-korea-recalled-because-of-inspection-problem/; https://solomonswords.net/sempio-food-services-inc-recalls-ready-to-eat-chicken-stew-products-imported-without-the-benefit-of-import-reinspection/ [operator ruling 2026-09-30] [promote 2026-09-30: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed: was archived as 'operator review 2026-09-29: operator review 2026-09-29: out_of_scope_import_reinspection — FSIS import re-inspection violations are deliberately excluded from t', under a scope line the operator has since reversed (_POLICY_REVERSALS). The row now passes every publish-gate rule]"
  },
  {
+  "Date": "2026-09-25",
+  "Source": "FSA (UK)",
+  "Company": "World of Sweets",
+  "Brand": "World of Sweets",
+  "Product": "Alyan Dubai Style Chocolate Truffles; Alyan Dubai Style Crunchy Knafeh and Pistachio Milk Chocolate",
+  "Pathogen": "Salmonella",
+  "Reason": "['Contamination of product with salmonella', 'Contamination of product with salmonella']",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-47-2026-update-1",
+  "Notes": "source_id=FSA-PRIN-47-2026-update-1 [via official-feed collector] [confirm-agent 2026-10-01: pending_gap → pending; deterministic checks passed; reviewer 2 did NOT review this row] [re-promotion allowed 2026-09-30: was archived as 'unknown: Arrived already marked rejected; confirmer did not re-review | REJECTED: Arrived already marked rejected; confirmer did not re-review | PRIN-47-2026 [s', which _url_guard reads as a statement about REACHABILITY and not about whether the notice exists — the URL is on the regulator's own domain. The row now passes every publish-gate rule]"
+ },
+ {
   "Date": "2026-09-24",
   "Source": "RappelConso (FR)",
   "Company": "Picard",
