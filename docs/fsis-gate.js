@@ -38,29 +38,39 @@
   var css = doc.createElement('style');
   css.id = 'fsis-gate-css';
   css.textContent =
-    'html.fsis-locked body>*:not(#fsis-gate){filter:blur(9px);pointer-events:none;user-select:none;-webkit-user-select:none}' +
+    'html.fsis-locked body>*:not(#fsis-gate){filter:blur(9px) grayscale(.4);pointer-events:none;user-select:none;-webkit-user-select:none}' +
     'html.fsis-locked,html.fsis-locked body{overflow:hidden!important}' +
-    '#fsis-gate{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;' +
-      'background:rgba(10,12,18,.55);padding:16px;font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif}' +
-    '#fsis-gate .g-card{width:100%;max-width:400px;background:#111318;color:#e8e8e8;border:1px solid #2a2d35;' +
-      'border-top:3px solid #E8601A;border-radius:8px;padding:26px 24px 20px;box-shadow:0 18px 50px rgba(0,0,0,.45)}' +
-    '#fsis-gate .g-eyebrow{font:500 10.5px/1 "DM Mono",ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:#9aa0aa;margin-bottom:10px}' +
-    '#fsis-gate h2{margin:0 0 6px;font:700 21px/1.2 Inter,-apple-system,sans-serif;color:#fff;letter-spacing:-.01em}' +
-    '#fsis-gate p{margin:0 0 16px;font-size:13.5px;line-height:1.55;color:#b9bec8}' +
-    '#fsis-gate label{display:block;font:500 10px/1 "DM Mono",ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:#9aa0aa;margin:12px 0 6px}' +
-    '#fsis-gate input{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:6px;border:1px solid #33363f;background:#0b0c10;' +
-      'color:#fff;font-size:14px;outline:none}' +
-    '#fsis-gate input:focus{border-color:#E8601A;box-shadow:0 0 0 3px rgba(232,96,26,.18)}' +
+    '#fsis-gate{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;' +
+      'background:rgba(15,15,15,.45);padding:28px 16px;font-family:Inter,-apple-system,"Segoe UI",Roboto,sans-serif}' +
+    '#fsis-gate .g-card{width:100%;max-width:560px;background:#fff;color:#111;border:1.5px solid #111;border-radius:4px;' +
+      'box-shadow:0 18px 50px rgba(0,0,0,.35)}' +
+    '#fsis-gate .g-top{background:#111;color:#fff;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;gap:10px;' +
+      'font:500 10.5px/1.3 "DM Mono",ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase}' +
+    '#fsis-gate .g-top span{color:#a8a8a8}' +
+    '#fsis-gate .g-body{padding:22px 22px 18px}' +
+    '#fsis-gate h2{margin:0 0 8px;font:800 24px/1.15 Inter,-apple-system,sans-serif;color:#111;letter-spacing:-.02em}' +
+    '#fsis-gate p{margin:0 0 12px;font-size:14px;line-height:1.55;color:#3a3a3a}' +
+    '#fsis-gate .g-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}' +
+    '#fsis-gate .g-full{grid-column:1/-1}' +
+    '#fsis-gate label{display:block;font:500 10px/1 "DM Mono",ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:#6b6b6b;margin:12px 0 6px}' +
+    '#fsis-gate input{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:3px;border:1px solid #c9c9c9;background:#f6f6f4;' +
+      'color:#111;font-size:14px;outline:none}' +
+    '#fsis-gate input:focus{border-color:#111;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.08)}' +
     '#fsis-gate input.tok{font-family:"DM Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase}' +
-    '#fsis-gate button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:6px;background:#E8601A;color:#fff;' +
+    '#fsis-gate button{width:100%;margin-top:16px;padding:13px;border:1.5px solid #111;border-radius:3px;background:#111;color:#fff;' +
       'font:600 12px/1 "DM Mono",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}' +
-    '#fsis-gate button[disabled]{opacity:.6;cursor:wait}' +
-    '#fsis-gate .g-msg{min-height:18px;margin-top:12px;font-size:13px;line-height:1.5}' +
-    '#fsis-gate .g-msg.err{color:#ff8a7a}#fsis-gate .g-msg.ok{color:#6ee7a8}' +
-    '#fsis-gate .g-links{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-top:14px;padding-top:12px;' +
-      'border-top:1px solid #23262d;font-size:12.5px}' +
-    '#fsis-gate .g-links a{color:#c9cdd4;text-decoration:none;cursor:pointer}#fsis-gate .g-links a:hover{color:#E8601A}' +
-    '#fsis-gate .g-wait{font:500 11px/1.4 "DM Mono",ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:#c9cdd4}';
+    '#fsis-gate button:hover{background:#333}#fsis-gate button[disabled]{opacity:.6;cursor:wait}' +
+    '#fsis-gate .g-msg{min-height:18px;margin-top:10px;font-size:13px;line-height:1.5;color:#3a3a3a}' +
+    '#fsis-gate .g-msg.err{color:#111;font-weight:600;border-left:3px solid #111;padding-left:8px}' +
+    '#fsis-gate .g-msg.ok{color:#111;border-left:3px solid #8a8a8a;padding-left:8px}' +
+    '#fsis-gate .g-info{margin-top:14px;padding:14px 16px;background:#f2f2f0;border:1px solid #e2e2de;font-size:12.8px;line-height:1.6;color:#3a3a3a}' +
+    '#fsis-gate .g-info b{color:#111}' +
+    '#fsis-gate .g-info ul{margin:6px 0 0;padding-left:16px}#fsis-gate .g-info li{margin:2px 0}' +
+    '#fsis-gate .g-links{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding:12px 22px;border-top:1px solid #e2e2de;' +
+      'background:#fafaf8;font-size:12.5px}' +
+    '#fsis-gate .g-links a{color:#111;text-decoration:none;border-bottom:1px solid #b5b5b5;cursor:pointer}#fsis-gate .g-links a:hover{border-color:#111}' +
+    '#fsis-gate .g-wait{padding:22px;font:500 11px/1.4 "DM Mono",ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:#3a3a3a}' +
+    '@media (max-width:520px){#fsis-gate .g-grid{grid-template-columns:1fr}#fsis-gate{padding:12px 10px}#fsis-gate h2{font-size:21px}}';
   (doc.head || root).appendChild(css);
 
   /* ── 2. Session id handed over in the link (#fsis=…), then the URL is cut
@@ -144,7 +154,7 @@
   }
 
   function showWait() {
-    mountGate('<div class="g-eyebrow">AFTS · Food Safety Intelligence</div><div class="g-wait">Checking your sign-in…</div>');
+    mountGate('<div class="g-top">AFTS · Food Safety Intelligence System <span>Subscribers</span></div><div class="g-wait">Checking your sign-in…</div>');
   }
 
   function showSignin(note, kind) {
@@ -154,24 +164,39 @@
     }
     var s = load() || {};
     mountGate(
-      '<div class="g-eyebrow">AFTS · Food Safety Intelligence</div>' +
+      '<div class="g-top">AFTS · Food Safety Intelligence System <span>Subscribers</span></div>' +
+      '<div class="g-body">' +
       '<h2 id="fsis-g-h">Subscriber sign-in</h2>' +
-      '<p>Sign in with the access token from your welcome email.</p>' +
-      '<form id="fsis-g-form" autocomplete="on">' +
-      '<label for="fsis-g-name">Name</label><input id="fsis-g-name" name="name" autocomplete="name" value="' + esc(s.name) + '">' +
-      '<label for="fsis-g-email">Email</label><input id="fsis-g-email" name="email" type="email" autocomplete="email" required value="' + esc(s.email) + '">' +
-      '<label for="fsis-g-token">Access token</label><input id="fsis-g-token" class="tok" name="token" placeholder="FSI-XXXX-XXXX-XXXX" required autocomplete="off" spellcheck="false">' +
+      '<p>FSIS is for subscribers. Sign in with the name and email of your subscription and the access token from your welcome email.</p>' +
+      '<form id="fsis-g-form" autocomplete="on"><div class="g-grid">' +
+      '<div><label for="fsis-g-first">First name</label><input id="fsis-g-first" name="given-name" autocomplete="given-name" placeholder="incl. middle name" value="' + esc(s.first) + '"></div>' +
+      '<div><label for="fsis-g-last">Last name</label><input id="fsis-g-last" name="family-name" autocomplete="family-name" value="' + esc(s.last) + '"></div>' +
+      '<div class="g-full"><label for="fsis-g-email">Email</label><input id="fsis-g-email" name="email" type="email" autocomplete="email" required value="' + esc(s.email) + '"></div>' +
+      '<div class="g-full"><label for="fsis-g-token">Access token</label><input id="fsis-g-token" class="tok" name="token" placeholder="FSI-XXXX-XXXX-XXXX" required autocomplete="off" spellcheck="false"></div>' +
+      '</div>' +
       '<button type="submit" id="fsis-g-go">Sign in</button>' +
       '<div class="g-msg ' + (kind || '') + '" id="fsis-g-msg">' + esc(note || '') + '</div>' +
       '</form>' +
+      '<div class="g-info"><b>Your subscription includes</b><ul>' +
+      '<li>Live recall dashboard — 70+ official sources, 80+ countries, verified in three stages</li>' +
+      '<li>Weekly report every Monday · monthly report on the 1st · daily briefs</li>' +
+      '<li>Live Signals — weekly aberration detection · custom alerts</li></ul>' +
+      '<div style="margin-top:8px"><b>Where is my token?</b> In your welcome email from AFTS (subject “Welcome to AFTS Food Safety Validation Intelligence” or “Your AFTS FSIS access token”). ' +
+      'Not there? Use <i>Email me my token</i> below — it goes only to the address you subscribed with.</div>' +
+      '<div style="margin-top:8px"><b>One device at a time.</b> Signing in on another device signs this one out. ' +
+      'Report links open with the same sign-in.</div>' +
+      '</div></div>' +
       '<div class="g-links"><a id="fsis-g-rec">Email me my token</a>' +
-      '<a href="' + LINKS.preview + '" target="_top">Preview</a>' +
-      '<a href="' + LINKS.subscribe + '" target="_top">Subscribe</a></div>'
+      '<a href="' + LINKS.preview + '" target="_top">Free preview</a>' +
+      '<a href="' + LINKS.subscribe + '" target="_top">Subscribe</a>' +
+      '<a href="mailto:' + LINKS.support + '">Help: ' + LINKS.support + '</a></div>'
     );
     var f = doc.getElementById('fsis-g-form');
     f.addEventListener('submit', function (ev) {
       ev.preventDefault();
-      var name = doc.getElementById('fsis-g-name').value.trim();
+      var first = doc.getElementById('fsis-g-first').value.trim();
+      var last = doc.getElementById('fsis-g-last').value.trim();
+      var name = (first + ' ' + last).trim();
       var email = doc.getElementById('fsis-g-email').value.trim();
       var token = doc.getElementById('fsis-g-token').value.trim();
       var btn = doc.getElementById('fsis-g-go'), msg = doc.getElementById('fsis-g-msg');
@@ -179,7 +204,7 @@
       call({ action: 'fsis_signin', name: name, email: email, token: token, device: deviceKey() }, function (r) {
         btn.disabled = false;
         if (r && r.ok) {
-          save({ sid: r.sid, name: r.name || name, email: email, checked: Date.now() });
+          save({ sid: r.sid, name: r.name || name, first: first, last: last, email: email, checked: Date.now() });
           unlock();
           return;
         }
@@ -199,7 +224,7 @@
       });
     });
     setTimeout(function () {
-      var el = doc.getElementById(s.email ? 'fsis-g-token' : 'fsis-g-name');
+      var el = doc.getElementById(s.email ? 'fsis-g-token' : 'fsis-g-first');
       if (el) try { el.focus(); } catch (e) {}
     }, 50);
   }
@@ -236,7 +261,7 @@
         if (first) unlock();      // service unreachable: honour a recent check
         return;
       }
-      var keep = { name: s.name, email: s.email };
+      var keep = { name: s.name, first: s.first, last: s.last, email: s.email };
       clear(); save(keep);
       lock((r && r.message) || 'Please sign in.');
     });
@@ -260,7 +285,7 @@
   /* ── start ───────────────────────────────────────────────────────────── */
   if (handed) {
     var prev = load() || {};
-    save({ sid: handed, name: prev.name || '', email: prev.email || '', checked: 0 });
+    save({ sid: handed, name: prev.name || '', first: prev.first || '', last: prev.last || '', email: prev.email || '', checked: 0 });
   }
   if (load() && load().sid) {
     if (doc.body) showWait(); else doc.addEventListener('DOMContentLoaded', function () { if (root.classList.contains('fsis-locked') && !gate) showWait(); });
