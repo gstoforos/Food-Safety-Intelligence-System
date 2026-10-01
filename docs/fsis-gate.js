@@ -4,9 +4,14 @@
  * monthly reports, Live Signals, daily briefs, alerts. NOT on the preview
  * (index-promo.html), the hub or the marketing PDFs.
  *
- *   - The page is blurred and covered by the sign-in box until the Google
+ *   - ONLY THE DASHBOARD (index) asks for sign-in. Every other page opens
+ *     straight away; there this file only cuts the address back.
+ *   - The dashboard is blurred and covered by the sign-in box until the Google
  *     script (FsisAccess.gs, through Router.gs) says this session is valid.
- *   - Sign in = name + email + access token from the welcome email.
+ *   - Sign in = first name + last name + email + access token from the
+ *     welcome email. "Remember me" keeps them on the device and signs in by
+ *     itself next time (never after another device took over — that would
+ *     ping-pong between two devices).
  *   - One device at a time: a sign-in on another device ends this one; the
  *     check runs on load and every 5 minutes.
  *   - The address bar is cut back to the site root as soon as the page opens,
@@ -33,8 +38,13 @@
 
   var doc = document, root = doc.documentElement;
 
+  /* ONLY THE DASHBOARD (the index) ASKS FOR SIGN-IN (operator 2026-10-01).
+     Reports, Live Signals and daily briefs open without it; on those this
+     file only cuts the address back (step 2). */
+  var IS_INDEX = /^\/(index\.html?)?$/i.test(location.pathname);
+
   /* ── 1. Blur immediately, before anything paints ─────────────────────── */
-  root.classList.add('fsis-locked');
+  if (IS_INDEX) root.classList.add('fsis-locked');
   var css = doc.createElement('style');
   css.id = 'fsis-gate-css';
   css.textContent =
@@ -56,6 +66,8 @@
     '#fsis-gate input{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:3px;border:1px solid #c9c9c9;background:#f6f6f4;' +
       'color:#111;font-size:14px;outline:none}' +
     '#fsis-gate input:focus{border-color:#111;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,.08)}' +
+    '#fsis-gate .g-rem{display:flex;align-items:center;gap:8px;margin:14px 0 0;font:400 13px/1.3 Inter,-apple-system,sans-serif;letter-spacing:0;text-transform:none;color:#3a3a3a;cursor:pointer}' +
+    '#fsis-gate .g-rem input{width:16px;height:16px;margin:0;padding:0;accent-color:#111;cursor:pointer}' +
     '#fsis-gate input.tok{font-family:"DM Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase}' +
     '#fsis-gate button{width:100%;margin-top:16px;padding:13px;border:1.5px solid #111;border-radius:3px;background:#111;color:#fff;' +
       'font:600 12px/1 "DM Mono",ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}' +
@@ -106,10 +118,19 @@
     if (t) { ev.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
   }, true);
 
+  if (!IS_INDEX) return;   // reports & briefs: address cut back, nothing else
+
   /* ── storage (may be blocked: everything works without it) ──────────── */
   function load() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } }
   function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
   function clear() { try { localStorage.removeItem(KEY); } catch (e) {} }
+
+  /* "Remember me": name, email and token kept on this device, so the box is
+     filled in and signs in by itself next time. Unticked = all of it wiped. */
+  var RKEY = 'fsis-remember';
+  function loadRem() { try { return JSON.parse(localStorage.getItem(RKEY) || 'null'); } catch (e) { return null; } }
+  function saveRem(r) { try { localStorage.setItem(RKEY, JSON.stringify(r)); } catch (e) {} }
+  function clearRem() { try { localStorage.removeItem(RKEY); } catch (e) {} }
 
   /* Same browser = same device, whether the page is inside Wix or in its own
      tab, so the two do not lock each other out. */
@@ -163,6 +184,8 @@
       return;
     }
     var s = load() || {};
+    var rem = loadRem();
+    if (rem) { s.first = rem.first; s.last = rem.last; s.email = rem.email; }
     mountGate(
       '<div class="g-top">AFTS · Food Safety Intelligence System <span>Subscribers</span></div>' +
       '<div class="g-body">' +
@@ -172,8 +195,9 @@
       '<div><label for="fsis-g-first">First name</label><input id="fsis-g-first" name="given-name" autocomplete="given-name" placeholder="incl. middle name" value="' + esc(s.first) + '"></div>' +
       '<div><label for="fsis-g-last">Last name</label><input id="fsis-g-last" name="family-name" autocomplete="family-name" value="' + esc(s.last) + '"></div>' +
       '<div class="g-full"><label for="fsis-g-email">Email</label><input id="fsis-g-email" name="email" type="email" autocomplete="email" required value="' + esc(s.email) + '"></div>' +
-      '<div class="g-full"><label for="fsis-g-token">Access token</label><input id="fsis-g-token" class="tok" name="token" placeholder="FSI-XXXX-XXXX-XXXX" required autocomplete="off" spellcheck="false"></div>' +
+      '<div class="g-full"><label for="fsis-g-token">Access token</label><input id="fsis-g-token" class="tok" name="token" placeholder="FSI-XXXX-XXXX-XXXX" required autocomplete="off" spellcheck="false" value="' + esc(rem ? rem.token : '') + '"></div>' +
       '</div>' +
+      '<label class="g-rem"><input type="checkbox" id="fsis-g-remember"' + (rem ? ' checked' : '') + '> Remember me on this device</label>' +
       '<button type="submit" id="fsis-g-go">Sign in</button>' +
       '<div class="g-msg ' + (kind || '') + '" id="fsis-g-msg">' + esc(note || '') + '</div>' +
       '</form>' +
@@ -184,7 +208,7 @@
       '<div style="margin-top:8px"><b>Where is my token?</b> In your welcome email from AFTS (subject “Welcome to AFTS Food Safety Validation Intelligence” or “Your AFTS FSIS access token”). ' +
       'Not there? Use <i>Email me my token</i> below — it goes only to the address you subscribed with.</div>' +
       '<div style="margin-top:8px"><b>One device at a time.</b> Signing in on another device signs this one out. ' +
-      'Report links open with the same sign-in.</div>' +
+      'Tick <i>Remember me</i> and this device signs you in by itself next time.</div>' +
       '</div></div>' +
       '<div class="g-links"><a id="fsis-g-rec">Email me my token</a>' +
       '<a href="' + LINKS.preview + '" target="_top">Free preview</a>' +
@@ -205,6 +229,8 @@
         btn.disabled = false;
         if (r && r.ok) {
           save({ sid: r.sid, name: r.name || name, first: first, last: last, email: email, checked: Date.now() });
+          if (doc.getElementById('fsis-g-remember').checked) saveRem({ first: first, last: last, email: email, token: token });
+          else clearRem();
           unlock();
           return;
         }
@@ -267,30 +293,30 @@
     });
   }
 
-  /* Links to other subscriber pages carry the session, so a report opened
-     in its own tab (where the browser may keep separate storage from the
-     Wix frame) does not ask again. The receiving page strips it at once. */
-  doc.addEventListener('click', function (ev) {
-    var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
-    if (!a) return;
-    var s = load();
-    if (!s || !s.sid) return;
-    var u;
-    try { u = new URL(a.getAttribute('href'), doc.baseURI); } catch (e) { return; }
-    if (u.origin !== location.origin || !/\.html?$/i.test(u.pathname)) return;
-    u.hash = 'fsis=' + s.sid;
-    a.href = u.toString();
-  }, true);
-
   /* ── start ───────────────────────────────────────────────────────────── */
   if (handed) {
     var prev = load() || {};
     save({ sid: handed, name: prev.name || '', first: prev.first || '', last: prev.last || '', email: prev.email || '', checked: 0 });
   }
+  function autoSignin() {
+    var rem = loadRem();
+    if (!rem || !rem.token || !rem.email) { showSignin(); return; }
+    if (doc.body) showWait(); else doc.addEventListener('DOMContentLoaded', function () { if (root.classList.contains('fsis-locked') && !gate) showWait(); });
+    call({ action: 'fsis_signin', name: (rem.first + ' ' + rem.last).trim(), email: rem.email,
+           token: rem.token, device: deviceKey() }, function (r) {
+      if (r && r.ok) {
+        save({ sid: r.sid, name: r.name, first: rem.first, last: rem.last, email: rem.email, checked: Date.now() });
+        unlock();
+      } else {
+        showSignin((r && r.message) || '', 'err');
+      }
+    });
+  }
+
   if (load() && load().sid) {
     if (doc.body) showWait(); else doc.addEventListener('DOMContentLoaded', function () { if (root.classList.contains('fsis-locked') && !gate) showWait(); });
     check(true);
   } else {
-    showSignin();
+    autoSignin();   // remembered details sign in by themselves; otherwise the box
   }
 })();
