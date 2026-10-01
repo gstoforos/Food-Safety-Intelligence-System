@@ -144,14 +144,14 @@ def test_every_live_scraper_can_actually_scrape(live):
     Neither means a scraper that logs 'no INDEX_URLS configured — skipping'
     on every run for as long as nobody reads the logs.
     """
-    from scrapers._base import BaseScraper, GenericGeminiScraper
+    from scrapers._base import BaseScraper, GenericLLMScraper
 
     useless = []
     for s in live:
         cls = type(s)
         has_urls = bool(getattr(cls, "INDEX_URLS", ()) or ())
         overrides = cls.scrape not in (BaseScraper.scrape,
-                                       GenericGeminiScraper.scrape)
+                                       GenericLLMScraper.scrape)
         if not has_urls and not overrides:
             useless.append("%s (%s)" % (s.AGENCY, cls.__module__))
     assert not useless, (

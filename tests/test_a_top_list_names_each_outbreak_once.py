@@ -47,3 +47,10 @@ def test_every_top_list_uses_it():
     w = (ROOT / "docs" / "build_weekly_report_afts.py").read_text("utf-8")
     assert m.count("_one_per_event(_ranked_") == 2, "monthly HTML Top 10 + summary JSON top10"
     assert w.count("_one_per_event(rank_top_recalls(") == 2, "weekly HTML Top 5 + summary threats"
+
+
+def test_the_outbreak_count_agrees_with_the_table():
+    """September 2026 printed 8 outbreaks for 7 events: the slugless FDA
+    Evergreen recall and its CDC page were counted separately."""
+    from pipeline._outbreak_id import count_events
+    assert count_events([FDA, CDC, OTHER]) == 2
