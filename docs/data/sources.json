@@ -1,0 +1,386 @@
+{
+ "count": 76,
+ "countries": 66,
+ "sources": [
+  {
+   "label": "RASFF (EU)",
+   "country": "European Union",
+   "domain": "webgate.ec.europa.eu"
+  },
+  {
+   "label": "EFSA",
+   "country": "European Union",
+   "domain": "efsa.europa.eu"
+  },
+  {
+   "label": "ECDC",
+   "country": "European Union",
+   "domain": "ecdc.europa.eu"
+  },
+  {
+   "label": "RappelConso (FR)",
+   "country": "France",
+   "domain": "rappel.conso.gouv.fr"
+  },
+  {
+   "label": "BVL (DE)",
+   "country": "Germany",
+   "domain": "lebensmittelwarnung.de"
+  },
+  {
+   "label": "Ministero della Salute (IT)",
+   "country": "Italy",
+   "domain": "salute.gov.it"
+  },
+  {
+   "label": "AESAN (ES)",
+   "country": "Spain",
+   "domain": "aesan.gob.es"
+  },
+  {
+   "label": "ASAE (PT)",
+   "country": "Portugal",
+   "domain": "asae.gov.pt"
+  },
+  {
+   "label": "EFET (GR)",
+   "country": "Greece",
+   "domain": "efet.gr"
+  },
+  {
+   "label": "AFSCA (BE)",
+   "country": "Belgium",
+   "domain": "favv-afsca.be"
+  },
+  {
+   "label": "NVWA (NL)",
+   "country": "Netherlands",
+   "domain": "nvwa.nl"
+  },
+  {
+   "label": "SECLU (LU)",
+   "country": "Luxembourg",
+   "domain": "securite-alimentaire.public.lu"
+  },
+  {
+   "label": "AGES (AT)",
+   "country": "Austria",
+   "domain": "ages.at"
+  },
+  {
+   "label": "BLV (CH)",
+   "country": "Switzerland",
+   "domain": "blv.admin.ch"
+  },
+  {
+   "label": "FSA (UK)",
+   "country": "United Kingdom",
+   "domain": "food.gov.uk"
+  },
+  {
+   "label": "FSS (Scotland)",
+   "country": "United Kingdom",
+   "domain": "foodstandards.gov.scot"
+  },
+  {
+   "label": "FSAI (IE)",
+   "country": "Ireland",
+   "domain": "fsai.ie"
+  },
+  {
+   "label": "Fødevarestyrelsen (DK)",
+   "country": "Denmark",
+   "domain": "foedevarestyrelsen.dk"
+  },
+  {
+   "label": "Livsmedelsverket (SE)",
+   "country": "Sweden",
+   "domain": "livsmedelsverket.se"
+  },
+  {
+   "label": "Mattilsynet",
+   "country": "Norway",
+   "domain": "mattilsynet.no"
+  },
+  {
+   "label": "Ruokavirasto (FI)",
+   "country": "Finland",
+   "domain": "ruokavirasto.fi"
+  },
+  {
+   "label": "MAST (IS)",
+   "country": "Iceland",
+   "domain": "mast.is"
+  },
+  {
+   "label": "GIS (PL)",
+   "country": "Poland",
+   "domain": "gov.pl"
+  },
+  {
+   "label": "SZPI (CZ)",
+   "country": "Czechia",
+   "domain": "szpi.gov.cz"
+  },
+  {
+   "label": "NKFH (HU)",
+   "country": "Hungary",
+   "domain": "nkfh.gov.hu nebih.gov.hu"
+  },
+  {
+   "label": "ANSVSA (RO)",
+   "country": "Romania",
+   "domain": "ansvsa.ro"
+  },
+  {
+   "label": "BFSA (BG)",
+   "country": "Bulgaria",
+   "domain": "bfsa.bg"
+  },
+  {
+   "label": "HAH (HR)",
+   "country": "Croatia",
+   "domain": "hapih.hr"
+  },
+  {
+   "label": "UVHVVR (SI)",
+   "country": "Slovenia",
+   "domain": "gov.si"
+  },
+  {
+   "label": "VTA (EE)",
+   "country": "Estonia",
+   "domain": "pta.agri.ee"
+  },
+  {
+   "label": "PVD (LV)",
+   "country": "Latvia",
+   "domain": "pvd.gov.lv"
+  },
+  {
+   "label": "VMVT (LT)",
+   "country": "Lithuania",
+   "domain": "vmvt.lt"
+  },
+  {
+   "label": "FSA BiH (BA)",
+   "country": "Bosnia and Herzegovina",
+   "domain": "fsa.gov.ba"
+  },
+  {
+   "label": "FVA (MK)",
+   "country": "North Macedonia",
+   "domain": "fva.gov.mk"
+  },
+  {
+   "label": "ANSA (MD)",
+   "country": "Moldova",
+   "domain": "ansa.gov.md"
+  },
+  {
+   "label": "TGTHB (TR)",
+   "country": "Türkiye",
+   "domain": "tarimorman.gov.tr"
+  },
+  {
+   "label": "FDA",
+   "country": "United States",
+   "domain": "fda.gov"
+  },
+  {
+   "label": "USDA FSIS",
+   "country": "United States",
+   "domain": "fsis.usda.gov"
+  },
+  {
+   "label": "CDC",
+   "country": "United States",
+   "domain": "cdc.gov"
+  },
+  {
+   "label": "CFIA",
+   "country": "Canada",
+   "domain": "inspection.canada.ca"
+  },
+  {
+   "label": "MAPAQ QC",
+   "country": "Canada",
+   "domain": "mapaq.gouv.qc.ca"
+  },
+  {
+   "label": "COFEPRIS (MX)",
+   "country": "Mexico",
+   "domain": "gob.mx"
+  },
+  {
+   "label": "ANVISA (BR)",
+   "country": "Brazil",
+   "domain": "gov.br"
+  },
+  {
+   "label": "ANMAT (AR)",
+   "country": "Argentina",
+   "domain": "argentina.gob.ar"
+  },
+  {
+   "label": "ACHIPIA (CL)",
+   "country": "Chile",
+   "domain": "achipia.gob.cl"
+  },
+  {
+   "label": "ISP (CL)",
+   "country": "Chile",
+   "domain": "ispch.cl"
+  },
+  {
+   "label": "INVIMA (CO)",
+   "country": "Colombia",
+   "domain": "invima.gov.co"
+  },
+  {
+   "label": "DIGESA (PE)",
+   "country": "Peru",
+   "domain": "digesa.minsa.gob.pe"
+  },
+  {
+   "label": "ARCSA (EC)",
+   "country": "Ecuador",
+   "domain": "controlsanitario.gob.ec"
+  },
+  {
+   "label": "MSP (UY)",
+   "country": "Uruguay",
+   "domain": "gub.uy"
+  },
+  {
+   "label": "CAA (JP)",
+   "country": "Japan",
+   "domain": "caa.go.jp"
+  },
+  {
+   "label": "MHLW (JP)",
+   "country": "Japan",
+   "domain": "mhlw.go.jp"
+  },
+  {
+   "label": "MFDS (KR)",
+   "country": "South Korea",
+   "domain": "mfds.go.kr"
+  },
+  {
+   "label": "SAMR (CN)",
+   "country": "China",
+   "domain": "samr.gov.cn"
+  },
+  {
+   "label": "CFS (HK)",
+   "country": "Hong Kong",
+   "domain": "cfs.gov.hk"
+  },
+  {
+   "label": "TFDA (TW)",
+   "country": "Taiwan",
+   "domain": "fda.gov.tw"
+  },
+  {
+   "label": "SFA (SG)",
+   "country": "Singapore",
+   "domain": "sfa.gov.sg"
+  },
+  {
+   "label": "Thai FDA (TH)",
+   "country": "Thailand",
+   "domain": "fda.moph.go.th"
+  },
+  {
+   "label": "VFA (VN)",
+   "country": "Vietnam",
+   "domain": "vfa.gov.vn"
+  },
+  {
+   "label": "BPOM (ID)",
+   "country": "Indonesia",
+   "domain": "pom.go.id"
+  },
+  {
+   "label": "FDA (PH)",
+   "country": "Philippines",
+   "domain": "fda.gov.ph"
+  },
+  {
+   "label": "KKM (MY)",
+   "country": "Malaysia",
+   "domain": "moh.gov.my"
+  },
+  {
+   "label": "FSSAI (IN)",
+   "country": "India",
+   "domain": "fssai.gov.in"
+  },
+  {
+   "label": "SFDA (SA)",
+   "country": "Saudi Arabia",
+   "domain": "sfda.gov.sa"
+  },
+  {
+   "label": "MoCCAE (AE)",
+   "country": "United Arab Emirates",
+   "domain": "moccae.gov.ae"
+  },
+  {
+   "label": "MoPH (QA)",
+   "country": "Qatar",
+   "domain": "moph.gov.qa"
+  },
+  {
+   "label": "MoH (IL)",
+   "country": "Israel",
+   "domain": "health.gov.il"
+  },
+  {
+   "label": "NFSA (EG)",
+   "country": "Egypt",
+   "domain": "nfsa.gov.eg"
+  },
+  {
+   "label": "ONSSA (MA)",
+   "country": "Morocco",
+   "domain": "onssa.gov.ma"
+  },
+  {
+   "label": "NAFDAC (NG)",
+   "country": "Nigeria",
+   "domain": "nafdac.gov.ng"
+  },
+  {
+   "label": "FDA (GH)",
+   "country": "Ghana",
+   "domain": "fdaghana.gov.gh"
+  },
+  {
+   "label": "KEBS (KE)",
+   "country": "Kenya",
+   "domain": "kebs.org"
+  },
+  {
+   "label": "NCC (ZA)",
+   "country": "South Africa",
+   "domain": "thencc.org.za"
+  },
+  {
+   "label": "COMESA",
+   "country": "Eastern and Southern Africa",
+   "domain": "comesa.int"
+  },
+  {
+   "label": "FSANZ (AU)",
+   "country": "Australia",
+   "domain": "foodstandards.gov.au"
+  },
+  {
+   "label": "MPI (NZ)",
+   "country": "New Zealand",
+   "domain": "mpi.govt.nz"
+  }
+ ]
+}
