@@ -81,6 +81,17 @@ def test_the_preview_ends_on_the_plans():
     assert html.count("pricing-plans/checkout-1") >= 2
 
 
+def test_every_download_carries_the_licence_and_watermark():
+    """Operator 2026-10-01: "so not someone able to use it commercially?" —
+    every XLSX/JSON from the dashboard names its subscriber, carries the
+    AFTS licence on every row, and its sheets are protected."""
+    html = (DOCS / "index.html").read_text(encoding="utf-8")
+    for needle in ("'AFTS licence': lic.mark", "afts_licence: lic.mark",
+                   "XLSX.utils.book_append_sheet(wb, wl, 'Licence')",
+                   "ws['!protect'] = _FSIS_PROTECT", "use it in a commercial"):
+        assert needle in html, needle
+
+
 def test_add_gate_is_idempotent_and_goes_first_in_head():
     html = "<!DOCTYPE html><html><head><title>x</title></head><body>y</body></html>"
     once = add_gate(html)
