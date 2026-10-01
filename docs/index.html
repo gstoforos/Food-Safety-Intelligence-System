@@ -254,11 +254,11 @@ tr:hover td{background:rgba(255,255,255,.02);}
 
 </style></head><body>
 
-<div class="hdr"><div class="brand"><a href="https://www.advfood.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</a><small>// AI-Reviewed · AI-Analyzed Food Recall Intelligence · under AFTS process authority · 66 sources · 60+ countries</small><small style="margin-top:3px;color:var(--muted);font-weight:500;letter-spacing:.10em">✓ Verified by 2 independent AI reviewers + weekly human checkpoint</small></div><div class="hdr-right"><span class="live-pill">LIVE MONITORING</span><div class="hdr-meta" id="meta">Loading…</div></div></div>
+<div class="hdr"><div class="brand"><a href="https://www.advfood.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</a><small>// AI-Reviewed · AI-Analyzed Food Recall Intelligence · under AFTS process authority · <span id="hdr-src">76</span> sources · <span id="hdr-ctry">66</span> countries</small><small style="margin-top:3px;color:var(--muted);font-weight:500;letter-spacing:.10em">✓ Verified by 2 independent AI reviewers + weekly human checkpoint</small></div><div class="hdr-right"><span class="live-pill">LIVE MONITORING</span><div class="hdr-meta" id="meta">Loading…</div></div></div>
 
 <div class="verif-strip">
   <div class="verif-status"><span class="verif-pulse"></span><span class="verif-label">AI Verification Engine · Active</span></div>
-  <div class="verif-chain"><b>Surveillance · 66+ sources</b> <span class="arrow">→</span> <b>AI Powered</b> <span class="arrow">→</span> <b>AI Enhanced</b> <span class="arrow">→</span> <b>AI Reviewed</b> <span class="arrow">→</span> <b>Publish</b><div class="verif-tagline">AFTS oversees and monitors the Food Recalls Intelligence Pipeline</div></div>
+  <div class="verif-chain"><b>Surveillance · <span id="chain-src">76</span> sources</b> <span class="arrow">→</span> <b>AI Powered</b> <span class="arrow">→</span> <b>AI Enhanced</b> <span class="arrow">→</span> <b>AI Reviewed</b> <span class="arrow">→</span> <b>Publish</b><div class="verif-tagline">AFTS oversees and monitors the Food Recalls Intelligence Pipeline</div></div>
   <div class="verif-meta" id="verif-meta-line"></div>
 </div>
 
@@ -270,7 +270,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <div class="kpi"><div class="kv" id="k-ob" style="color:var(--orange)">—</div><div class="kl">Outbreaks</div></div>
 <div class="kpi"><div class="kv" id="k-path" style="color:var(--cyan)">—</div><div class="kl">Pathogens</div></div>
 <div class="kpi"><div class="kv" id="k-ctry" style="color:var(--purple)">—</div><div class="kl">Countries</div></div>
-<div class="kpi"><div class="kv" id="k-src" style="color:var(--white)">—</div><div class="kl">Sources</div></div>
+<div class="kpi"><div class="kv" id="k-src" style="color:var(--white)">—</div><div class="kl">Sources monitored</div></div>
 </div>
 
 <div class="nav-bar">
@@ -736,7 +736,7 @@ fetch('data/recalls.xlsx?_=' + Date.now(), {cache:'no-store'}).then(r=>{
   const wb=XLSX.read(buf,{type:'array'});
   const ws=wb.Sheets['Recalls']||wb.Sheets[wb.SheetNames[0]];
   const raw=XLSX.utils.sheet_to_json(ws,{defval:''});
-  ALL=raw.map(r=>({date:String(r.Date||''),source:String(r.Source||''),company:String(r.Company||''),brand:String(r.Brand||''),product:String(r.Product||''),pathogen:String(r.Pathogen||''),reason:String(r.Reason||''),class_:String(r.Class||''),country:String(r.Country||''),region:String(r.Region||''),tier:parseInt(r.Tier||3),is_outbreak:parseInt(r.Outbreak||0),url:String(r.URL||''),notes:String(r.Notes||'')}));
+  ALL=raw.map(r=>({date:String(r.Date||''),source:String(r.Source||''),company:String(r.Company||''),brand:String(r.Brand||''),product:String(r.Product||''),pathogen:String(r.Pathogen||''),reason:String(r.Reason||''),class_:String(r.Class||''),country:String(r.Country||''),region:String(r.Region||''),tier:parseInt(r.Tier||3),is_outbreak:parseInt(r.Outbreak||0),url:String(r.URL||''),notes:String(r.Notes||'')})).map(r=>{r.orig_product=_origOf(r.notes,'product');r.orig_company=_origOf(r.notes,'company');return r;});
   ALL.sort((a,b)=>b.date.localeCompare(a.date));filtered=[...ALL];init();
   // Also load NEWS sheet from same buffer
   loadNewsFromBuffer(wb);
@@ -968,9 +968,16 @@ function renderKPIs(){
   set('k-ob',    ALL.filter(r=>r.is_outbreak===1).length);
   set('k-path',  new Set(ALL.map(r=>normalizePathogen(r.pathogen)).filter(Boolean)).size);
   set('k-ctry',  new Set(ALL.map(r=>r.country).filter(Boolean)).size);
-  set('k-src',   new Set(ALL.map(r=>r.source).filter(Boolean)).size);
+  // Sources MONITORED (tools/monitored_sources.py -> data/sources.json), not
+  // only those that have a published recall yet (that was 40 on 2026-10-01).
+  if(window._SRC) set('k-src', window._SRC.count);
+  else if(!window._SRC_PENDING) set('k-src', new Set(ALL.map(r=>r.source).filter(Boolean)).size);
   window._kpis_animated = true;
 }
+// Product and firm names are published in English (2026-10-01); the regulator's
+// own wording is kept in Notes as [original product: ...] / [original company: ...].
+// Shown on hover and searchable, never as a second line in the table.
+function _origOf(notes,k){const m=String(notes||'').match(new RegExp('\\[original '+k+': ([^\\]]*)\\]'));return m?m[1]:'';}
 function renderCharts(){
   const pc={};ALL.forEach(r=>{const p=normalizePathogen(r.pathogen);if(p)pc[p]=(pc[p]||0)+1;});
   const ps=Object.entries(pc).sort((a,b)=>b[1]-a[1]).slice(0,10),mx=ps[0]?ps[0][1]:1;
@@ -1013,7 +1020,7 @@ function applyFilters(){
       const normalized=normalizePathogen(r.pathogen);
       if(normalized.toLowerCase()!==pillFilter.toLowerCase())return false;
     }
-    if(q){const h=(r.company+' '+r.brand+' '+r.product+' '+r.country+' '+r.pathogen+' '+r.source).toLowerCase();if(h.indexOf(q)<0)return false;}
+    if(q){const h=(r.company+' '+r.brand+' '+r.product+' '+(r.orig_product||'')+' '+(r.orig_company||'')+' '+r.country+' '+r.pathogen+' '+r.source).toLowerCase();if(h.indexOf(q)<0)return false;}
     return true;});
   filtered.sort((a,b)=>sortAsc?String(a[sortCol]).localeCompare(String(b[sortCol])):String(b[sortCol]).localeCompare(String(a[sortCol])));
   page=1;render();
@@ -1033,7 +1040,7 @@ function render(){
     const tierCol=r.tier===1?'var(--red)':r.tier===2?'var(--orange)':'var(--cyan)';
     const tl=r.tier===1?'TIER-1':r.tier===2?'TIER-2':'TIER-3';
     const ob=r.is_outbreak===1?' <span style="background:rgba(239,68,68,.1);color:var(--red);font-size:9px;padding:1px 5px;border-radius:2px;font-family:DM Mono,monospace;font-weight:700;letter-spacing:.08em;border:1px solid rgba(239,68,68,.25)">OUTBREAK</span>':'';
-    return`<tr class="${tc}"><td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--dim);white-space:nowrap">${esc(r.date)}</td><td><span style="font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.05em;background:rgba(52,211,153,.08);color:var(--ai);border:1px solid rgba(52,211,153,.25)">${esc(r.source)}</span></td><td class="firm" title="${esc(r.company)}">${esc(r.company||r.brand||'—')}</td><td class="prod" title="${esc(r.product)}">${esc((r.product||'').substring(0,80))}</td><td style="font-family:'DM Mono',monospace;font-size:11px;color:${pColor(r.pathogen)}">${esc(r.pathogen)}${ob}</td><td style="white-space:nowrap"><span style="display:inline-block;white-space:nowrap;font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.08em;background:${tierBg};color:${tierCol};border:1px solid ${tierCol}40">${tl}</span></td><td style="font-size:12px;color:var(--muted)">${esc(r.country)}</td><td>${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--ai);font-family:'DM Mono',monospace;font-size:11px;text-decoration:none;letter-spacing:.02em" title="${esc(r.url)}">${urlHost(r.url)}</a>`:''}</td></tr>`;
+    return`<tr class="${tc}"><td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--dim);white-space:nowrap">${esc(r.date)}</td><td><span style="font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.05em;background:rgba(52,211,153,.08);color:var(--ai);border:1px solid rgba(52,211,153,.25)">${esc(r.source)}</span></td><td class="firm" title="${esc(r.company+(r.orig_company?'\nOriginal: '+r.orig_company:''))}">${esc(r.company||r.brand||'—')}</td><td class="prod" title="${esc(r.product+(r.orig_product?'\nOriginal: '+r.orig_product:''))}">${esc((r.product||'').substring(0,80))}</td><td style="font-family:'DM Mono',monospace;font-size:11px;color:${pColor(r.pathogen)}">${esc(r.pathogen)}${ob}</td><td style="white-space:nowrap"><span style="display:inline-block;white-space:nowrap;font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:2px;font-weight:700;letter-spacing:.08em;background:${tierBg};color:${tierCol};border:1px solid ${tierCol}40">${tl}</span></td><td style="font-size:12px;color:var(--muted)">${esc(r.country)}</td><td>${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener" style="color:var(--ai);font-family:'DM Mono',monospace;font-size:11px;text-decoration:none;letter-spacing:.02em" title="${esc(r.url)}">${urlHost(r.url)}</a>`:''}</td></tr>`;
   }).join('');}
   const total=filtered.length,maxP=Math.max(1,Math.ceil(total/perPage));
   document.getElementById('pinfo').textContent=`Page ${page} of ${maxP} · ${total} records`;
@@ -1430,4 +1437,7 @@ async function loadDaily(){
 // lead magnet and is linked via `pdf_url` on monthly-index.json entries.
 
 
-</script></body></html>
+</script><script>
+(function(){window._SRC_PENDING=true;fetch('data/sources.json?_='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j)return;window._SRC=j;[['hdr-src',j.count],['chain-src',j.count],['hdr-ctry',j.countries],['k-src',j.count]].forEach(([id,v])=>{const e=document.getElementById(id);if(e&&v)e.textContent=v;});window._SRC_PENDING=false;}).catch(()=>{window._SRC_PENDING=false;const e=document.getElementById('k-src');if(e&&typeof ALL!=='undefined'&&ALL.length)e.textContent=new Set(ALL.map(r=>r.source).filter(Boolean)).size;});})();
+</script>
+</body></html>
