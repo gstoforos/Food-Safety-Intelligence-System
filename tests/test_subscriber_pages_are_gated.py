@@ -92,6 +92,23 @@ def test_every_download_carries_the_licence_and_watermark():
         assert needle in html, needle
 
 
+def test_remember_me_keeps_the_token_through_sign_out():
+    """Operator 2026-10-01: "Remember me does not remember the token". Sign
+    out used to wipe it. It now keeps it and only stops the automatic
+    sign-in; the token field is a password field so the browser's password
+    manager saves it too (survives blocked storage in the Wix frame)."""
+    js = (DOCS / "fsis-gate.js").read_text(encoding="utf-8")
+    assert "rem.token = ''" not in js
+    assert "rem.signedOut = true" in js and "rem.signedOut) { showSignin(); return; }" in js
+    assert 'autocomplete="current-password"' in js
+
+
+def test_the_dashboard_filters_by_country():
+    html = (DOCS / "index.html").read_text(encoding="utf-8")
+    assert '<select id="f-ctry"><option value="">All Countries</option></select>' in html
+    assert "if(ctry&&r.country!==ctry)return false;" in html
+
+
 def test_add_gate_is_idempotent_and_goes_first_in_head():
     html = "<!DOCTYPE html><html><head><title>x</title></head><body>y</body></html>"
     once = add_gate(html)
