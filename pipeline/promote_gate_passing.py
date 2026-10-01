@@ -210,6 +210,18 @@ def main() -> int:
                       f" [promote {dt.date.today().isoformat()}: status "
                       f"{prev!r}->'pending' — passes every publish-gate rule]"
                       ).strip()
+        # Product and firm names are English (operator 2026-10-01). No model
+        # here, so stamp for the Morning Fix translation pass — never block.
+        try:
+            from pipeline._language import (has_non_latin_script,
+                                            product_needs_english)
+            if product_needs_english(r.get("Product", "")):
+                r["Notes"] += " [needs cleanup: Product not in English]"
+            if any(has_non_latin_script(r.get(f, ""))
+                   for f in ("Company", "Brand")):
+                r["Notes"] += " [needs cleanup: Company/Brand not in English]"
+        except Exception:                                    # noqa: BLE001
+            pass
         stamped.append(r)
     others = [r for r in pend if publish_blockers(r)]
     new, _keep, _arch = promote_approved(stamped + others, rec, {},

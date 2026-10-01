@@ -205,6 +205,75 @@ def looks_non_english(text) -> bool:
     return detect_language(text) is not None
 
 
+# ── Product and firm names are published in English (operator 2026-10-01) ──
+#
+#     "ALL must be the product in english ... the firm must be in english if
+#      available"                                      — operator, 2026-10-01
+#
+# This REPLACES the 2026-08-02 rule that Company, Brand and Product are names
+# kept exactly as the regulator published them. The dashboard showed
+# Japanese and Greek product and firm names and ~630 French product
+# descriptions ("haché de boeuf", "perles des mers"); a reader of an English
+# register cannot use them.
+#
+#   Product  — English. Translate the food description; keep brand names,
+#              protected names (AOP/PDO/IGP) and lot / weight / date details.
+#   Company, Brand — as published when written in Latin letters (a French
+#              firm's name IS its name). In a non-Latin script, the firm's
+#              own English name when one is published, otherwise the standard
+#              romanization.
+#   The original-language value is kept in Notes as
+#   "[original product: …]" / "[original company: …]", so a row can still be
+#   matched against the regulator's page.
+#
+# Translation needs a model, so it happens in reviewer 2 (self-hosted). The
+# deterministic gates (reviewer 3, the offline promoter) cannot translate;
+# they stamp "[needs cleanup: Product not in English]" and the daily Morning
+# Fix pass translates what is stamped. Held by
+# tests/test_product_and_firm_names_are_english.py.
+_NON_LATIN = re.compile(
+    r"[\u0370-\u03ff\u1f00-\u1fff\u0400-\u04ff\u0590-\u05ff\u0600-\u06ff"
+    r"\u0e00-\u0e7f\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]")
+
+
+def has_non_latin_script(text) -> bool:
+    """Two or more letters of a non-Latin script. One is not enough: RASFF
+    writes the Greek mu in "μg/kg"."""
+    return len(_NON_LATIN.findall(str(text or ""))) >= 2
+
+
+# A translated Product legitimately KEEPS foreign proper names — "Bouchée à
+# la reine (chicken vol-au-vent)", "Tomme de Burdignes (whole, 1/8, 1/4)" —
+# which the function-word detector reads as French. Any of these English
+# words in the string means the description has been put into English.
+_ENGLISH_PRODUCT_WORDS = frozenset("""
+    with and of in the for from plain organic frozen fresh smoked dried dry
+    cured cooked raw whole sliced ground grated salted unsalted spicy sweet
+    chicken pork beef veal lamb duck turkey poultry ham sausage sausages
+    bacon fish salmon trout tuna cod herring mackerel shrimp shrimps oysters
+    mussels squid cheese cheeses milk butter cream yogurt eggs egg bread
+    cake cakes pastry salad sauce soup juice juices tea coffee chocolate
+    spread rice pasta noodles flour seeds nuts figs fruit fruits vegetables
+    lettuce sprouts spices pepper oil honey jelly meal meals sandwich
+    sandwiches pie pâté tray jar pack packs bag bags bottle bottles box
+    sold counter approx lot lots batch best before use by all
+""".split())
+
+
+def product_needs_english(text) -> bool:
+    """Is this Product value not yet in English? Certain on any non-Latin
+    script. On Latin script it needs the function-word detector to fire AND
+    no English word to be present, so a kept proper name inside an English
+    description passes; a short untranslated French name ("foie de poulet")
+    is still below the detector's two-hit floor — the Morning Fix reads
+    those."""
+    if has_non_latin_script(text):
+        return True
+    if not looks_non_english(text):
+        return False
+    return not (_words(text) & _ENGLISH_PRODUCT_WORDS)
+
+
 # ── Bilingual splitting (RASFF) ─────────────────────────────────────────────
 # The house RASFF format keeps a metadata tail that is already English and must
 # survive the split.
