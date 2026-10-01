@@ -2745,12 +2745,21 @@ def main() -> int:
     html = build_monthly_html(month_start, month_end_full, month_recalls,
                               stats, signals, models, narrative,
                               original_published=("rebuild" if is_rebuild else None))
+
+    try:
+        from pipeline._gate import add_gate as _add_gate
+    except ImportError:                                     # run as a script
+        import sys as _sys
+        _sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from pipeline._gate import add_gate as _add_gate
+    html = _add_gate(html)          # subscriber sign-in (pipeline/_gate.py)
     out_path.write_text(html, encoding="utf-8")
     log.info("Monthly report: %s (%d bytes)", out_path, len(html))
 
     all_path = Path(args.all_output) if args.all_output else (ROOT / f"{month_start.year}-M{month_start.month:02d}-all.html")
     all_html = build_all_month_html(month_start, month_end_full, month_recalls,
                                     back_href=out_path.name)
+    all_html = _add_gate(all_html)
     all_path.write_text(all_html, encoding="utf-8")
     log.info("All-month companion: %s (%d bytes)", all_path, len(all_html))
 

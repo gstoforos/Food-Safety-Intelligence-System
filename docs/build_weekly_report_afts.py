@@ -40,6 +40,18 @@ SEVERITY = OrderedDict([
 # Use as: _count_phrase(n, "incident") -> "1 incident" / "5 incidents".
 # Pass zero= to override the n==0 case (e.g. "no confirmed outbreak events").
 # ---------------------------------------------------------------------------
+
+def _gate_html(html):
+    """Subscriber sign-in tag (pipeline/_gate.py, 2026-10-01)."""
+    try:
+        from pipeline._gate import add_gate
+    except ImportError:                                     # run as a script
+        import sys as _sys
+        from pathlib import Path as _P
+        _sys.path.insert(0, str(_P(__file__).resolve().parents[1]))
+        from pipeline._gate import add_gate
+    return add_gate(html)
+
 def _count_phrase(n: int, singular: str, *, plural: str = None,
                   zero: str = None) -> str:
     if n == 0 and zero is not None:
@@ -4055,7 +4067,7 @@ def refresh_stale_weeks(all_recalls, current_week_end, n_previous=1):
         html, stats = build_html(prev_end, dataset_recalls, prev_week_recalls,
                                  original_published=orig_pub, all_rows=all_recalls)
         report_path.parent.mkdir(parents=True, exist_ok=True)
-        report_path.write_text(html, encoding="utf-8")
+        report_path.write_text(_gate_html(html), encoding="utf-8")
         log.info("W%02d refreshed -> %s (%d bytes, %d recalls, original_pub=%r)",
                   wnum, report_path, len(html), dataset_total, orig_pub)
         rebuilt.append(prev_end)
@@ -4104,7 +4116,7 @@ def main():
     orig_pub = _extract_published_from_html(out)
     html, stats = build_html(week_end, wr, pr, original_published=orig_pub, all_rows=all_r)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(html, encoding="utf-8")
+    out.write_text(_gate_html(html), encoding="utf-8")
     log.info("Report -> %s (%d bytes)", out, len(html))
     update_dashboard_data(week_end, stats, all_r)
     write_weekly_summary_json(week_end, wr, stats, Path(args.xlsx).parent,
