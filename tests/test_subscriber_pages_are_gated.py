@@ -1,4 +1,7 @@
-"""Every subscriber page opens behind the sign-in (operator 2026-10-01).
+"""Every subscriber page loads fsis-gate.js (operator 2026-10-01).
+
+The dashboard (index) asks for sign-in; every other page only has its
+address cut back to the root so the report link is never shared.
 
     "visitor not signed must see the sign in message and blur"
 
@@ -62,6 +65,11 @@ def test_the_gate_script_exists_and_points_at_the_router():
     url = re.search(r"https://script\.google\.com/macros/s/[A-Za-z0-9_-]+/exec", js).group(0)
     assert url in alerts, "fsis-gate.js must call the same deployment alerts.html uses (Router.gs)"
     assert "history.replaceState(null, '', '/')" in js, "the report URL must be cut back to the root"
+    # Only the dashboard asks for sign-in (operator 2026-10-01): reports open
+    # straight away and only have their address cut back.
+    assert "var IS_INDEX" in js and "if (!IS_INDEX) return;" in js
+    assert "if (IS_INDEX) root.classList.add('fsis-locked');" in js
+    assert "fsis-remember" in js, "Remember me keeps name, email and token on the device"
 
 
 def test_add_gate_is_idempotent_and_goes_first_in_head():
