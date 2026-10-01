@@ -194,8 +194,8 @@
       '<form id="fsis-g-form" autocomplete="on"><div class="g-grid">' +
       '<div><label for="fsis-g-first">First name</label><input id="fsis-g-first" name="given-name" autocomplete="given-name" placeholder="incl. middle name" value="' + esc(s.first) + '"></div>' +
       '<div><label for="fsis-g-last">Last name</label><input id="fsis-g-last" name="family-name" autocomplete="family-name" value="' + esc(s.last) + '"></div>' +
-      '<div class="g-full"><label for="fsis-g-email">Email</label><input id="fsis-g-email" name="email" type="email" autocomplete="email" required value="' + esc(s.email) + '"></div>' +
-      '<div class="g-full"><label for="fsis-g-token">Access token</label><input id="fsis-g-token" class="tok" name="token" placeholder="FSI-XXXX-XXXX-XXXX" required autocomplete="off" spellcheck="false" value="' + esc(rem ? rem.token : '') + '"></div>' +
+      '<div class="g-full"><label for="fsis-g-email">Email</label><input id="fsis-g-email" name="email" type="email" autocomplete="username" required value="' + esc(s.email) + '"></div>' +
+      '<div class="g-full"><label for="fsis-g-token">Access token</label><input id="fsis-g-token" class="tok" type="password" name="password" placeholder="FSI-XXXX-XXXX-XXXX" required autocomplete="current-password" spellcheck="false" value="' + esc(rem ? rem.token : '') + '"></div>' +
       '</div>' +
       '<label class="g-rem"><input type="checkbox" id="fsis-g-remember"' + (rem ? ' checked' : '') + '> Remember me on this device</label>' +
       '<button type="submit" id="fsis-g-go">Sign in</button>' +
@@ -229,7 +229,7 @@
         btn.disabled = false;
         if (r && r.ok) {
           save({ sid: r.sid, name: r.name || name, first: first, last: last, email: email, checked: Date.now() });
-          if (doc.getElementById('fsis-g-remember').checked) saveRem({ first: first, last: last, email: email, token: token });
+          if (doc.getElementById('fsis-g-remember').checked) saveRem({ first: first, last: last, email: email, token: token, signedOut: false });
           else clearRem();
           unlock();
           return;
@@ -290,7 +290,9 @@
     var s = load() || {};
     if (s.sid) call({ action: 'fsis_signout', sid: s.sid }, function () {});
     var rem = loadRem();
-    if (rem) { rem.token = ''; saveRem(rem); }
+    // Keep the remembered token (operator 2026-10-01: Remember me must remember
+    // the token). A flag stops the automatic sign-in until the next manual one.
+    if (rem) { rem.signedOut = true; saveRem(rem); }
     clear(); save({ name: s.name, first: s.first, last: s.last, email: s.email });
     var bar = doc.getElementById('fsis-user');
     if (bar && bar.parentNode) bar.parentNode.removeChild(bar);
@@ -342,7 +344,7 @@
   }
   function autoSignin() {
     var rem = loadRem();
-    if (!rem || !rem.token || !rem.email) { showSignin(); return; }
+    if (!rem || !rem.token || !rem.email || rem.signedOut) { showSignin(); return; }
     if (doc.body) showWait(); else doc.addEventListener('DOMContentLoaded', function () { if (root.classList.contains('fsis-locked') && !gate) showWait(); });
     call({ action: 'fsis_signin', name: (rem.first + ' ' + rem.last).trim(), email: rem.email,
            token: rem.token, device: deviceKey() }, function (r) {

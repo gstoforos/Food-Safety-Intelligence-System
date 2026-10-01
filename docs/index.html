@@ -117,6 +117,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .fbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 24px;background:var(--s1);border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);}
 .fbar input,.fbar select{background:var(--s2);border:1px solid var(--brd);color:var(--text);padding:10px 12px;border-radius:3px;font-family:inherit;font-size:14px;min-height:44px;}
 .fbar input{flex:1;min-width:200px;}
+/* 2026-10-01: Country added beside Source. Long source names ("Food Safety News (citing …)") made the selects as wide as their longest option and squeezed the search box; cap them so the bar stays on one line. */
+.fbar select{flex:0 1 auto;max-width:160px;text-overflow:ellipsis;}
 .rcount{font-family:'DM Mono',monospace;font-size:12px;color:var(--dim);margin-left:auto;}
 .tbl-wrap{margin:12px 24px 0;border:1px solid var(--brd);border-radius:3px;overflow-x:auto;overflow-y:visible;background:var(--s1);max-height:none;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;}
 table{width:100%;border-collapse:collapse;font-size:14px;}
@@ -302,7 +304,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 </div>
 <div class="wrap"><div class="grid2"><div class="panel"><div class="sec">Top Pathogens — All Sources</div><div id="chart-path"></div></div><div class="panel"><div class="sec">By Source</div><div id="chart-src"></div></div></div></div>
 <div class="pbar" id="pills"></div>
-<div class="fbar"><input type="search" id="q" placeholder="Search firm, product, country, pathogen..."><select id="f-src"><option value="">All Sources</option></select><select id="f-path"><option value="">All Pathogens</option></select><select id="f-tier"><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option></select><select id="f-region"><option value="">All Records</option><option value="Americas">Americas (all)</option><option value="North America">— North America</option><option value="Latin America">— Latin America</option><option value="Europe">Europe</option><option value="Asia">Asia</option><option value="Oceania">Oceania</option><option value="Africa">Africa</option><option value="Middle East">Middle East</option></select><select id="f-pp"><option value="50">50/page</option><option value="25">25/page</option><option value="100">100/page</option></select><span class="rcount" id="rcount"></span></div>
+<div class="fbar"><input type="search" id="q" placeholder="Search firm, product, country, pathogen..."><select id="f-src"><option value="">All Sources</option></select><select id="f-ctry"><option value="">All Countries</option></select><select id="f-path"><option value="">All Pathogens</option></select><select id="f-tier"><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option></select><select id="f-region"><option value="">All Records</option><option value="Americas">Americas (all)</option><option value="North America">— North America</option><option value="Latin America">— Latin America</option><option value="Europe">Europe</option><option value="Asia">Asia</option><option value="Oceania">Oceania</option><option value="Africa">Africa</option><option value="Middle East">Middle East</option></select><select id="f-pp"><option value="50">50/page</option><option value="25">25/page</option><option value="100">100/page</option></select><span class="rcount" id="rcount"></span></div>
 <div class="tbl-wrap"><table><thead><tr><th data-col="date">Date</th><th data-col="source">Source</th><th data-col="company">Firm / Producer</th><th data-col="product">Product</th><th data-col="pathogen">Pathogen</th><th data-col="tier">Risk</th><th data-col="country">Country</th><th>Link</th></tr></thead><tbody id="tbody"><tr><td colspan="8" class="loading">Loading data/recalls.xlsx …</td></tr></tbody></table></div>
 <div class="pager"><button class="pb" id="prev" disabled>‹ Prev</button><span class="pi" id="pinfo">—</span><button class="pb" id="next">Next ›</button></div>
 </div>
@@ -1059,16 +1061,20 @@ function renderPills(){
 }
 function populateFilters(){
   [...new Set(ALL.map(r=>r.source).filter(Boolean))].sort().forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;document.getElementById('f-src').appendChild(o);});
+  // Country list (2026-10-01): every country in the register, A–Z, with its count.
+  const cc={};ALL.forEach(r=>{if(r.country)cc[r.country]=(cc[r.country]||0)+1;});
+  Object.keys(cc).sort((a,b)=>a.localeCompare(b)).forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c+' ('+cc[c]+')';document.getElementById('f-ctry').appendChild(o);});
   // Use normalized pathogen names for dropdown (no duplicates)
   const normalized=[...new Set(ALL.map(r=>normalizePathogen(r.pathogen)).filter(Boolean))].sort();
   normalized.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;document.getElementById('f-path').appendChild(o);});
 }
-['q','f-src','f-path','f-tier','f-region','f-pp'].forEach(id=>{const el=document.getElementById(id);el.addEventListener('input',()=>{pillFilter='';applyFilters();});el.addEventListener('change',()=>{pillFilter='';applyFilters();});});
+['q','f-src','f-ctry','f-path','f-tier','f-region','f-pp'].forEach(id=>{const el=document.getElementById(id);el.addEventListener('input',()=>{pillFilter='';applyFilters();});el.addEventListener('change',()=>{pillFilter='';applyFilters();});});
 function applyFilters(){
-  const q=document.getElementById('q').value.toLowerCase(),src=document.getElementById('f-src').value,path=document.getElementById('f-path').value,tier=document.getElementById('f-tier').value,region=document.getElementById('f-region').value;
+  const q=document.getElementById('q').value.toLowerCase(),src=document.getElementById('f-src').value,ctry=document.getElementById('f-ctry').value,path=document.getElementById('f-path').value,tier=document.getElementById('f-tier').value,region=document.getElementById('f-region').value;
   perPage=parseInt(document.getElementById('f-pp').value)||50;
   filtered=ALL.filter(r=>{
     if(src&&r.source!==src)return false;
+    if(ctry&&r.country!==ctry)return false;
     if(path&&normalizePathogen(r.pathogen)!==path)return false;
     if(tier&&r.tier!==parseInt(tier))return false;
     /* Region was an exact string compare, and no row is stored as
