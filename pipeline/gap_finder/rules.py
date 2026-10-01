@@ -431,6 +431,11 @@ ALLERGENS = {
 
 # REJECT — synthetic / environmental chemicals & additives
 SYNTHETIC_CHEMICALS = {
+    # 2026-10-01: bisphenol A migration and delta-9-THC over the acute
+    # reference dose (RappelConso 23655, 23592, 23594) matched nothing.
+    "bisphenol", "bisphénol", "bisfenol", "bisfenolo",
+    "delta-9-thc", "delta-9 thc", "tetrahydrocannabinol",
+    "tétrahydrocannabinol", "tetraidrocannabinolo", "tetrahidrocannabinol",
     "coumarin", "κουμαρίνη", "κουμαρινη", "cumarina",
     "kumarin",                                                  # German / Polish / Hungarian
     "coumarine",                                                # French / Dutch
