@@ -159,7 +159,12 @@ def _now_utc_iso() -> str:
 
 def _safe(extracted: dict, key: str, default: str = "") -> str:
     val = extracted.get(key, default)
-    return str(val).strip() if val is not None else default
+    if val is None:
+        return default
+    # A model may answer with a JSON array; str() of a list wrote
+    # "['a', 'b']" into Reason (FSA PRIN-47/28 update rows, 2026-10-01).
+    from pipeline._list_text import as_text
+    return str(as_text(val)).strip()
 
 
 def build_pending_row(
