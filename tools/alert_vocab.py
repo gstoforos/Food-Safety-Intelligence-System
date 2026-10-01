@@ -164,9 +164,16 @@ PATHOGEN: dict[str, list[str]] = {
     "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin",
                                         "ethylene oxide", "mineral oil",
                                         "moah", "mosh", "acrylamide",
-                                        "melamine", "chemical hazard"],  # 3
+                                        "melamine", "chemical hazard",
+                                        # 2026-10-01: RappelConso 23655,
+                                        # bisphenol A migrating from cans.
+                                        "bisphenol"],  # 4
     "Undeclared pharmacological ingredient": ["pharmacological", "yohimbine",
                                               "sildenafil", "tadalafil"],  # 1
+    # 2026-10-01: RappelConso 23592 / 23594, hemp oils above the acute
+    # reference dose for delta-9-THC — published and reachable by no term.
+    "Cannabinoids above limit (THC)": ["delta-9-thc", "thc (",
+                                       "tetrahydrocannabinol"],     # 2
 
     # --- physical / other -----------------------------------------------
     "Foreign material / physical hazard": ["foreign material", "foreign body",
