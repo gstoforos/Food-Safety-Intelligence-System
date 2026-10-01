@@ -257,10 +257,52 @@
 
   /* ── lock / unlock ───────────────────────────────────────────────────── */
   var recheck = null;
+
+  /* Signed-in bar at the top: who is signed in, and Sign out. Sign out ends
+     the session on the server and forgets the token on this device (the
+     name and email stay filled in), so Remember me cannot sign straight
+     back in. */
+  function showUserBar() {
+    if (!doc.body) return;
+    var s = load() || {};
+    var bar = doc.getElementById('fsis-user');
+    if (!bar) {
+      var st = doc.createElement('style');
+      st.textContent =
+        '#fsis-user{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:6px 14px;padding:7px 16px;' +
+          'background:#111;color:#cfcfcf;border-bottom:1px solid #2a2a2a;font:500 11px/1.3 "DM Mono",ui-monospace,monospace;letter-spacing:.06em}' +
+        '#fsis-user b{color:#fff;font-weight:600;letter-spacing:.02em}' +
+        '#fsis-user button{background:#fff;color:#111;border:1px solid #fff;border-radius:3px;padding:5px 12px;cursor:pointer;' +
+          'font:600 10.5px/1 "DM Mono",ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase}' +
+        '#fsis-user button:hover{background:#d9d9d9;border-color:#d9d9d9}';
+      (doc.head || root).appendChild(st);
+      bar = doc.createElement('div');
+      bar.id = 'fsis-user';
+      doc.body.insertBefore(bar, doc.body.firstChild);
+    }
+    var nm = s.name || ((s.first || '') + ' ' + (s.last || '')).trim() || s.email || '';
+    bar.innerHTML = '<span>Signed in' + (nm ? ' · <b>' + esc(nm) + '</b>' : '') + '</span>' +
+                    '<button type="button" id="fsis-signout">Sign out</button>';
+    doc.getElementById('fsis-signout').addEventListener('click', signOut);
+  }
+
+  function signOut() {
+    var s = load() || {};
+    if (s.sid) call({ action: 'fsis_signout', sid: s.sid }, function () {});
+    var rem = loadRem();
+    if (rem) { rem.token = ''; saveRem(rem); }
+    clear(); save({ name: s.name, first: s.first, last: s.last, email: s.email });
+    var bar = doc.getElementById('fsis-user');
+    if (bar && bar.parentNode) bar.parentNode.removeChild(bar);
+    lock('You are signed out.');
+    var m = doc.getElementById('fsis-g-msg'); if (m) m.className = 'g-msg ok';
+  }
+
   function unlock() {
     root.classList.remove('fsis-locked');
     if (gate && gate.parentNode) gate.parentNode.removeChild(gate);
     gate = null;
+    if (doc.body) showUserBar(); else doc.addEventListener('DOMContentLoaded', showUserBar);
     if (ORIGINAL_HASH && ORIGINAL_HASH.length > 1) {
       var t = doc.getElementById(ORIGINAL_HASH.slice(1));
       if (t) setTimeout(function () { t.scrollIntoView(); }, 0);

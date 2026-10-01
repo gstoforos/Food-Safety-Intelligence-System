@@ -187,7 +187,8 @@ tr:hover td{background:rgba(255,255,255,.02);}
   .verif-strip{grid-template-columns:1fr;gap:8px;padding:11px 20px;text-align:center;}
   .verif-status{justify-content:center;}
   .verif-chain{justify-content:center;font-size:12px;}
-  .verif-meta{text-align:center;}
+  .verif-meta{text-align:center;white-space:normal;}
+  .verif-strip>*{min-width:0;}
   .insights{grid-template-columns:1fr;gap:10px;margin:12px 16px 0;padding:14px 16px;}
   .insights-tag{border-right:none;border-bottom:1px solid var(--brd);padding-right:0;padding-bottom:8px;}
 }
@@ -207,6 +208,11 @@ tr:hover td{background:rgba(255,255,255,.02);}
   .fbar{flex-direction:column;align-items:stretch;}
   .fbar input,.fbar select{margin-bottom:8px;min-height:44px;}
   .rcount{margin-left:0;text-align:center;}
+  /* 2026-10-01: phones. The search box kept min-width:200px and the column
+     items their content width, so the bar ran 43 px past a 390 px screen and
+     the right edge of every filter was cut off. */
+  .fbar{width:100%;box-sizing:border-box;}
+  .fbar>*{width:100%;max-width:100%;min-width:0;box-sizing:border-box;}
 }
 @media(max-width:640px){
   .kpi-row{grid-template-columns:repeat(2,1fr);}
