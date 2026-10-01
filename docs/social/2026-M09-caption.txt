@@ -17,12 +17,12 @@ Every incident below links to the originating regulatory notice.
    https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk
 7. 15 SEP · Norovirus · New Alasko L.P. — Canada · CFIA
    https://recalls-rappels.canada.ca/en/alert-recall/alasko-brand-frozen-whole-raspberries-recalled-due-norovirus
-8. 29 SEP · Listeria · Funkció Kft. (HU 771 EK) — Hungary · NKFH (HU)
+8. 30 SEP · Listeria · Grand Frais (Romainville) — France · RappelConso (FR)
+   https://rappel.conso.gouv.fr/fiche-rappel/23648/interne
+9. 30 SEP · Listeria · E.Leclerc Marly — France · RappelConso (FR)
+   https://rappel.conso.gouv.fr/fiche-rappel/23651/interne
+10. 29 SEP · Listeria · Funkció Kft. (HU 771 EK) — Hungary · NKFH (HU)
    https://nkfh.gov.hu/hirek/termekvisszahivas-auchan-nivo-fuestoelt-suelt-sonka-listeria-jelenlete-miatt
-9. 29 SEP · Listeria · Przedsiębiorstwo Drobiarskie "Drobex" Sp. z o.o. — Poland · GIS (PL)
-   https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-cwiartki-wedzonej-z-kurczaka
-10. 25 SEP · Listeria · Qualite Traiteur — France · RappelConso (FR)
-   https://rappel.conso.gouv.fr/fiche-rappel/23632/interne
 
 Full month, all records and methodology:
 https://fsis.advfood.tech
