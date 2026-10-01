@@ -503,12 +503,17 @@ jobs:
                   "   for the official regulator page and fetch that instead.\n"
                   "2. Correct EVERY field to what the page says. Date = the regulator's\n"
                   "   ORIGINAL publication date, not an update.\n"
-                  "   LANGUAGE POLICY (pipeline/_language.py, operator 2026-08-02):\n"
-                  "   Company, Brand and Product are NAMES — keep them EXACTLY as\n"
-                  "   published, in the original language ('brie a l'ail' stays).\n"
-                  "   Translating them breaks matching against the regulator page.\n"
-                  "   Reason, Class, Pathogen, Country and Region are DESCRIPTIONS\n"
-                  "   and must read in ENGLISH.\n"
+                  "   LANGUAGE POLICY (pipeline/_language.py, operator 2026-10-01):\n"
+                  "   Product must read in ENGLISH: translate the food description;\n"
+                  "   keep brand names, protected names (AOP/PDO/IGP) and lot, weight\n"
+                  "   and date details as written.\n"
+                  "   Company and Brand stay as published when written in Latin\n"
+                  "   letters. In Japanese, Chinese, Korean, Thai, Greek, Cyrillic or\n"
+                  "   Arabic script give the firm's own English name if the page or\n"
+                  "   the firm publishes one, otherwise the standard romanization.\n"
+                  "   Put the original-language Product / Company / Brand you replaced\n"
+                  "   in \"original\".\n"
+                  "   Reason, Class, Pathogen, Country and Region must read in ENGLISH.\n"
                   "   Product must still be the food item itself, never the alert\n"
                   "   headline and never the agency's name.\n"
                   "3. Company and Brand must appear verbatim on the page. If no brand is\n"
@@ -556,6 +561,7 @@ jobs:
                   '"verified_url":"","duplicate_of":"","outbreak":0,'
                   '"outbreak_evidence":"","fields":{"Date":"","Company":"","Brand":"",'
                   '"Product":"","Pathogen":"","Reason":"","Country":"","Region":""},'
+                  '"original":{"Product":"","Company":"","Brand":""},'
                   '"provenance":""}'
               )
 
@@ -1012,9 +1018,20 @@ jobs:
                       if _w in _reason:
                           probs.append(f"Reason not in English ({_w.strip()!r})")
                           break
-              # Per pipeline/_language.py (operator rule 2026-08-02) Company, Brand and
-              # Product are NAMES and stay in the original language — they are NOT
-              # language-checked. Only DESCRIPTION fields must read in English.
+              # Product and firm names are English (operator 2026-10-01, replacing the
+              # 2026-08-02 "names stay as published" rule — see pipeline/_language.py).
+              # A WARNING, never a rejection: a real recall is not discarded over
+              # wording. The stamp sends the row to the Morning Fix translation pass.
+              try:
+                  from pipeline._language import (has_non_latin_script as _nonlatin,
+                                                  product_needs_english as _pne)
+                  if _pne(merged.get("Product", "")):
+                      probs.append("Product not in English")
+                  for _nf in ("Company", "Brand"):
+                      if _nonlatin(merged.get(_nf, "")):
+                          probs.append(f"{_nf} not in English (non-Latin script)")
+              except Exception:                                        # noqa: BLE001
+                  pass
               for fld in ("Reason", "Region"):
                   v = str(merged.get(fld, "") or "").lower()
                   if not v:
@@ -1135,6 +1152,18 @@ jobs:
                   v = fields.get(k)
                   if v:  # only overwrite with a non-empty verified value
                       merged[k] = v
+              # Keep what a translation replaced (operator 2026-10-01): the English
+              # Product / firm name is published, the regulator's own wording stays in
+              # Notes so the row can still be matched against its page.
+              _orig = review.get("original") or {}
+              if isinstance(_orig, dict):
+                  for k in ("Product", "Company", "Brand"):
+                      o = str(_orig.get(k) or "").strip()
+                      if o and o != str(merged.get(k) or "").strip():
+                          tag = "[original %s: %s]" % (k.lower(), o[:300])
+                          if tag not in str(merged.get("Notes") or ""):
+                              merged["Notes"] = (str(merged.get("Notes") or "") +
+                                                 " " + tag).strip()[:2000]
               vu = review.get("verified_url")
               if vu:
                   # Same guard as reviewer 1 (audit 2026-09-18). This line has the

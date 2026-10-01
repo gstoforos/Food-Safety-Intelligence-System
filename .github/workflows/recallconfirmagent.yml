@@ -631,6 +631,21 @@ jobs:
                           stamp += " [needs cleanup: Reason not in English and no verified translation on file]"
                   except Exception:                                    # noqa: BLE001
                       pass
+                  # Product and firm names are English too (operator 2026-10-01). This
+                  # gate uses no model, so it cannot translate: it stamps the row and
+                  # the daily Morning Fix pass translates it, keeping the original in
+                  # Notes. Never a rejection — see pipeline/_language.py.
+                  try:
+                      from pipeline._language import (has_non_latin_script,
+                                                      product_needs_english)
+                      _r = full_pending[idx]
+                      if product_needs_english(_r.get("Product", "")):
+                          stamp += " [needs cleanup: Product not in English]"
+                      if any(has_non_latin_script(_r.get(f, ""))
+                             for f in ("Company", "Brand")):
+                          stamp += " [needs cleanup: Company/Brand not in English]"
+                  except Exception:                                    # noqa: BLE001
+                      pass
                   full_pending[idx]["Notes"] = (n + stamp).strip()[:1000]
 
               for row, probs in blocked:
