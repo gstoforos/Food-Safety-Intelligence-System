@@ -2551,6 +2551,23 @@ def _write_sheet(wb: Workbook,
         log.warning("Pathogen specialisation skipped at writer [%s]: %s: %s",
                     sheet_name, type(exc).__name__, str(exc)[:80])
 
+    # ── ONE SPELLING PER FIRM (operator 2026-10-01) ───────────────────────
+    # "LIDL" (RappelConso) and "Lidl" (NVWA), "CARREFOUR LE MARCHE" and
+    # "Carrefour le Marché": the same name written several ways counted as
+    # several firms. Same-name spellings (case, accents, punctuation folded)
+    # converge on one form already in the register; "no brand" is
+    # "Unbranded". RASFF is exempt. See pipeline/_firm_names.py.
+    if sheet_name == "Recalls" and "Company" in schema:
+        try:
+            from pipeline._firm_names import unify_firm_names as _unify
+            _n = _unify(rows)
+            if _n:
+                log.info("Firm names unified at writer [%s]: %d cell(s)",
+                         sheet_name, _n)
+        except Exception as exc:                             # noqa: BLE001
+            log.warning("Firm-name unification skipped at writer [%s]: %s: %s",
+                        sheet_name, type(exc).__name__, str(exc)[:80])
+
     # Absolute-final always-Tier-1 guard (added 2026-07-14). Applies only
     # to the Recalls sheet (never Pending/Weekly_Rejected). Catches any row
     # that reached the writer without passing through promote_approved —
