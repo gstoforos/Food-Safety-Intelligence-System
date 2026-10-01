@@ -217,7 +217,15 @@ _TAIL = re.compile(r"(;\s*risk:.*)$", re.IGNORECASE | re.DOTALL)
 #   "Salame Nostrano (~800g; lot L6CCTD)"
 # would each lose most of the product. Only ONE RASFF row in the corpus uses a
 # semicolon as its language boundary, so the rule has to earn it.
-_SEPARATORS = ("/////", "////", "///", "//", " / ", "/ ", " /", ";  ", "; ")
+# "; " REMOVED as a language divider (2026-10-01). Measured on the register:
+# every split it decided was damage, none was a language boundary — rows
+# 317/318 (the pumpkin-seed outbreak, 81 cases) went 311 -> 53 characters,
+# keeping only "the notice cites this fiche ... by URL.", and a two-item
+# French product list lost its first item. A semicolon separates CLAUSES and
+# LIST ITEMS in every language; bilingual regulator subjects use slashes.
+# recall_confirm_agent runs englishify_reason() on every Reason it publishes,
+# so this was live. Held by tests/test_a_semicolon_is_not_a_language_border.py.
+_SEPARATORS = ("/////", "////", "///", "//", " / ", "/ ", " /")
 
 
 def _english_score(part: str) -> int:

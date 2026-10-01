@@ -377,9 +377,20 @@ def _normalize_url_for_dedup(url: str) -> str:
             # later promotion could be dropped as a duplicate of any of
             # them. This is bug 1 in the 2026-07-26 audit above, recurring
             # on a new host: the query param IS the identity.
+            # 2026-10-01: the same bug on three Asian hosts, found when a
+            # verified CAA recall was dropped as "already approved". Their
+            # recall id lives in the query string, so every recall after the
+            # first collapsed to one key and was skipped without a word:
+            #   recall.caa.go.jp  /result/detail.php?rcl=00000035897
+            #   mfds.go.kr        /brd/m_61/view.do?seq=43210
+            #   fda.moph.go.th    /media.php?name=09_2026_x.pdf
+            # Host-scoped, so a "seq"/"name" anywhere else is still stripped.
             if k in ("permalink", "id", "fiche", "ref", "recall_id",
                      "search_api_fulltext") or (
-                    k == "search" and "api.fda.gov" in path):
+                    k == "search" and "api.fda.gov" in path) or (
+                    k == "rcl" and "caa.go.jp" in path) or (
+                    k == "seq" and "mfds.go.kr" in path) or (
+                    k == "name" and "fda.moph.go.th" in path):
                 keepers.append(kv)
         s = path + (("?" + "&".join(keepers)) if keepers else "")
     if s.endswith("/"):

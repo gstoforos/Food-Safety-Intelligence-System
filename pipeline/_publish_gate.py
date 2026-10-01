@@ -340,6 +340,13 @@ HAZARD_CLASS_KEYWORDS = {
         # 2026-09-30: FDA Lipofit (undeclared fluoxetine and DNP) and the Thai
         # FDA furosemide alert classified as nothing.
         "fluoxetine", "furosemide", "dinitrophenol", "2,4-dnp",
+        # 2026-10-01, from the daily global search: RappelConso 23655
+        # (Royal Orient bamboo shoots, bisphenol A above the legal limit) and
+        # 23592/23594 (hemp oil, delta-9-THC above the acute reference dose)
+        # classified as nothing — both are chemical hazards over a limit.
+        "bisphenol", "bisphénol", "bisfenol", "bisphenol a",
+        "delta-9-thc", "delta-9 thc", "δ9-thc", "Δ9-thc",
+        "tetrahydrocannabinol", "tétrahydrocannabinol", "tetraidrocannabinolo",
     ),
     "mycotoxin": (
         "aflatoxin", "ochratoxin", "patulin", "fumonisin",
