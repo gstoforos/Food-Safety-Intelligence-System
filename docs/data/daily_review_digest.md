@@ -1,7 +1,7 @@
-# FSIS Daily Review — 2026-09-30 (Athens)
+# FSIS Daily Review — 2026-10-01 (Athens)
 
-Mode: **live** · generated 2026-09-30T14:31:14+03:00
-Recalls rows reviewed: **1828** · in-progress week (never published): **W40**
+Mode: **live** · generated 2026-10-01T14:59:58+03:00
+Recalls rows reviewed: **1870** · in-progress week (never published): **W40**
 
 ## 1. Integrity
 - Duplicate URL groups: **0**
@@ -38,7 +38,7 @@ Recalls rows reviewed: **1828** · in-progress week (never published): **W40**
 - **[cfs_foreign_repost · high]** 2026-03-16 · Nestlé / Nature One Dairy · Bacillus cereus / cereulide — https://www.cfs.gov.hk/english/rc/subject/files/20260316_4.pdf
   - Evidence: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall
   - id `9fa32f6b5b62aad1` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
-- **[cfs_foreign_repost · high]** 2026-03-16 · AOSTE · Listeria monocytogenes — https://www.cfs.gov.hk/english/rc/subject/files/20260316_1.pdf
+- **[cfs_foreign_repost · high]** 2026-03-16 · Aoste · Listeria monocytogenes — https://www.cfs.gov.hk/english/rc/subject/files/20260316_1.pdf
   - Evidence: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall
   - id `be1fd274238bf359` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 - **[cfs_foreign_repost · high]** 2026-03-13 · Banks Peninsula shellfish harvesters · Paralytic shellfish toxins (PSP) — https://www.cfs.gov.hk/english/rc/subject/files/20260313_2.pdf
@@ -50,7 +50,7 @@ Recalls rows reviewed: **1828** · in-progress week (never published): **W40**
 - **[cfs_foreign_repost · high]** 2026-03-10 · Nutricia (Danone) · Bacillus cereus / cereulide — https://www.cfs.gov.hk/english/rc/subject/files/20260310_2.pdf
   - Evidence: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall
   - id `6b14426c4be02fb1` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
-- **[cfs_foreign_repost · high]** 2026-03-09 · AOSTE · Listeria monocytogenes — https://www.cfs.gov.hk/english/rc/subject/files/20260309_1.pdf
+- **[cfs_foreign_repost · high]** 2026-03-09 · Aoste · Listeria monocytogenes — https://www.cfs.gov.hk/english/rc/subject/files/20260309_1.pdf
   - Evidence: cfs.gov.hk row whose origin Country is not Hong Kong — cross-source re-post of an upstream regulator's recall
   - id `b0aa885e2714c8f9` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 - **[cfs_foreign_repost · high]** 2026-03-09 · UCC Ueshima Coffee · Inadequate sterilization (microbiological hazard) — https://www.cfs.gov.hk/english/rc/subject/files/20260309_2.pdf
@@ -73,8 +73,8 @@ Recalls rows reviewed: **1828** · in-progress week (never published): **W40**
   - id `e96aa2b1ef3d3756` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 
 ## 4. Reports flagged stale (rebuild → UPDATED masthead)
-- Weeklies: W34, W36, W37, W38
-- Monthlies: none
+- Weeklies: W06, W08, W30, W32, W34, W36, W37, W39
+- Monthlies: M08, M09
 
 ## 5. Asset / deliverable integrity
 - **[unexpected_pdf_link]** M01: M01 has a pdf_url but is HTML-only by rule

@@ -1,10 +1,10 @@
 {
-  "generated": "2026-09-30T14:31:14+03:00",
-  "date": "2026-09-30",
+  "generated": "2026-10-01T14:59:58+03:00",
+  "date": "2026-10-01",
   "mode": "live",
   "in_progress_week": "W40",
   "counts": {
-    "recalls_rows": 1828,
+    "recalls_rows": 1870,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
@@ -180,7 +180,7 @@
         "row": {
           "Date": "2026-03-16",
           "Source": "CFS (HK)",
-          "Company": "AOSTE",
+          "Company": "Aoste",
           "Product": "Cooked ham products",
           "Pathogen": "Listeria monocytogenes",
           "Country": "France",
@@ -248,7 +248,7 @@
         "row": {
           "Date": "2026-03-09",
           "Source": "CFS (HK)",
-          "Company": "AOSTE",
+          "Company": "Aoste",
           "Product": "Cooked ham products",
           "Pathogen": "Listeria monocytogenes",
           "Country": "France",
@@ -266,7 +266,7 @@
           "Date": "2026-03-09",
           "Source": "CFS (HK)",
           "Company": "UCC Ueshima Coffee",
-          "Product": "UCC BEANS&ROASTERS Cafe Latte リキャップ缶 375g",
+          "Product": "UCC BEANS&ROASTERS Cafe Latte resealable can 375g",
           "Pathogen": "Inadequate sterilization (microbiological hazard)",
           "Country": "Japan",
           "Tier": 2,
@@ -375,19 +375,30 @@
   },
   "stale_reports": {
     "weeklies": [
+      "W06",
+      "W08",
+      "W30",
+      "W32",
       "W34",
       "W36",
       "W37",
-      "W38"
+      "W39"
     ],
-    "monthlies": []
+    "monthlies": [
+      "M08",
+      "M09"
+    ]
   },
   "rebuilt": {
     "weeklies": [
+      "W06",
+      "W08",
+      "W30",
+      "W32",
       "W34",
       "W36",
       "W37",
-      "W38"
+      "W39"
     ],
     "monthlies": []
   }
