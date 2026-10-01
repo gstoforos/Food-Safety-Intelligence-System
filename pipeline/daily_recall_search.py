@@ -1599,7 +1599,8 @@ def main() -> int:
         html = render_daily_html(d, day_recalls,
                                  regions_done if d == target else 0)
         if not args.dry_run:
-            day_html_path.write_text(html, encoding="utf-8")
+            from pipeline._gate import add_gate   # subscriber sign-in
+            day_html_path.write_text(add_gate(html), encoding="utf-8")
             log.info("Wrote %s", day_html_path)
             # Audit 2026-05-14: capture deleted paths returned by the
             # rolling-window purge inside update_daily_index. Including
