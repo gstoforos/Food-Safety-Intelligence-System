@@ -409,11 +409,11 @@ body.promo-mode .tab[onclick*="alerts.html"]:hover::after{
 </style></head><body class="promo-mode">
 <div class="promo-topbar" id="promo-topbar" role="banner" aria-live="polite">→ Continuing to subscription plans in <b id="promo-counter">30</b>s · <a href="https://www.advfood.tech/fsis-plans" target="_top">Subscribe now →</a></div>
 
-<div class="hdr"><div class="brand"><a href="https://www.advfood.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</a><span class="promo-tag">Preview</span><small>// AI-Reviewed · AI-Analyzed Food Recall Intelligence · under AFTS process authority · <span id="hdr-src">76</span> sources · <span id="hdr-ctry">66</span> countries</small><small style="margin-top:3px;color:var(--muted);font-weight:500;letter-spacing:.10em">✓ Verified by 2 independent AI reviewers + weekly human checkpoint</small></div><div class="hdr-right"><span class="live-pill">LIVE MONITORING</span><a href="https://www.advfood.tech/fsis-plans" target="_top" class="promo-subscribe">Subscribe →</a><div class="hdr-meta" id="meta">Loading…</div></div></div>
+<div class="hdr"><div class="brand"><a href="https://www.advfood.tech" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">AFTS <em>·</em> Food Safety <em>Intelligence</em> System</a><span class="promo-tag">Preview</span><small>// AI-Reviewed · AI-Analyzed Food Recall Intelligence · under AFTS process authority · <span id="hdr-src">70+</span> sources · <span id="hdr-ctry">60+</span> countries</small><small style="margin-top:3px;color:var(--muted);font-weight:500;letter-spacing:.10em">✓ Verified by 2 independent AI reviewers + weekly human checkpoint</small></div><div class="hdr-right"><span class="live-pill">LIVE MONITORING</span><a href="https://www.advfood.tech/fsis-plans" target="_top" class="promo-subscribe">Subscribe →</a><div class="hdr-meta" id="meta">Loading…</div></div></div>
 
 <div class="verif-strip">
   <div class="verif-status"><span class="verif-pulse"></span><span class="verif-label">AI Verification Engine · Active</span></div>
-  <div class="verif-chain"><b>Surveillance · <span id="chain-src">76</span> sources</b> <span class="arrow">→</span> <b>AI Powered</b> <span class="arrow">→</span> <b>AI Enhanced</b> <span class="arrow">→</span> <b>AI Reviewed</b> <span class="arrow">→</span> <b>Publish</b><div class="verif-tagline">AFTS oversees and monitors the Food Recalls Intelligence Pipeline</div></div>
+  <div class="verif-chain"><b>Surveillance · <span id="chain-src">70+</span> sources</b> <span class="arrow">→</span> <b>AI Powered</b> <span class="arrow">→</span> <b>AI Enhanced</b> <span class="arrow">→</span> <b>AI Reviewed</b> <span class="arrow">→</span> <b>Publish</b><div class="verif-tagline">AFTS oversees and monitors the Food Recalls Intelligence Pipeline</div></div>
   <div class="verif-meta" id="verif-meta-line"></div>
 </div>
 
@@ -488,7 +488,7 @@ The weekly report now covers one calendar week, <strong>Monday to Sunday</strong
 <div class="promo-bottom">
   <div class="promo-bottom-tag">◆ Unlock the Full AFTS Intelligence System</div>
   <h2>You're seeing a <em>random sample</em>. <br>Subscribe to unlock the full feed.</h2>
-  <p class="lead">The full system tracks 66 countries, 76 regulatory sources, daily updates, weekly and monthly analyst-grade reports, custom pathogen + product alerts, full historical archive, and downloadable datasets.</p>
+  <p class="lead">The full system tracks 60+ countries, 70+ regulatory sources, daily updates, weekly and monthly analyst-grade reports, custom pathogen + product alerts, full historical archive, and downloadable datasets.</p>
   <div class="feat-grid">
     <div class="feat-card"><div class="ft">Daily Feed</div><div class="fb">All verified recalls as they're published — not just a random 15.</div></div>
     <div class="feat-card"><div class="ft">Weekly Briefing</div><div class="fb">Monday digest with AI-authored intelligence summary + top critical threats.</div></div>
@@ -1570,6 +1570,7 @@ if (document.readyState === 'loading') {
 window._promoApplyAll = _promoApplyAll;
 
 </script><script>
-(function(){window._SRC_PENDING=true;fetch('data/sources.json?_='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j)return;window._SRC=j;[['hdr-src',j.count],['chain-src',j.count],['hdr-ctry',j.countries],['k-src',j.count]].forEach(([id,v])=>{const e=document.getElementById(id);if(e&&v)e.textContent=v;});window._SRC_PENDING=false;}).catch(()=>{window._SRC_PENDING=false;const e=document.getElementById('k-src');if(e&&typeof ALL!=='undefined'&&ALL.length)e.textContent=new Set(ALL.map(r=>r.source).filter(Boolean)).size;});})();
+(function(){window._SRC_PENDING=true;fetch('data/sources.json?_='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j)return;window._SRC=j;// Header text is rounded down to tens ("70+") so it does not change with every new collector; the tile shows the exact count.
+const _r=n=>Math.floor(n/10)*10+'+';[['hdr-src',_r(j.count)],['chain-src',_r(j.count)],['hdr-ctry',_r(j.countries)],['k-src',j.count]].forEach(([id,v])=>{const e=document.getElementById(id);if(e&&v)e.textContent=v;});window._SRC_PENDING=false;}).catch(()=>{window._SRC_PENDING=false;const e=document.getElementById('k-src');if(e&&typeof ALL!=='undefined'&&ALL.length)e.textContent=new Set(ALL.map(r=>r.source).filter(Boolean)).size;});})();
 </script>
 </body></html>
