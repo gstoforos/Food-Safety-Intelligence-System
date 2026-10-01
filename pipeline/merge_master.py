@@ -2553,6 +2553,20 @@ def _write_sheet(wb: Workbook,
             pass  # writer must never crash on the guard
 
 
+    # A list is not text (2026-10-01) — every sheet, every text column. A
+    # model array written with str() reached Recalls as "['a', 'b']"; the
+    # extractors are fixed at source, this catches any other route.
+    try:
+        from pipeline._list_text import as_text as _as_text
+        for _row in rows:
+            for _col in ("Product", "Reason", "Company", "Brand", "Pathogen"):
+                _v = _row.get(_col)
+                _n = _as_text(_v)
+                if _n != _v:
+                    _row[_col] = _n
+    except Exception as exc:
+        log.warning("List-to-text skipped at writer [%s]: %s", sheet_name, exc)
+
     # Transcription artifacts — every sheet, every text column.
     _artifact_hits = 0
     for _row in rows:

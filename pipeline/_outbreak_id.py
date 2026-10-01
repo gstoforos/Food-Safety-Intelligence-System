@@ -161,6 +161,18 @@ def count_events(rows: Iterable[Dict[str, Any]],
     unidentifiable outbreak is still an outbreak, and silently dropping it
     would understate the figure.
     """
+    # CROSS-AGENCY DUPLICATES FIRST (2026-10-01). An FDA recall with no
+    # investigation slug and the CDC page for the same outbreak were counted
+    # as two events: September 2026 printed 8 outbreaks for 7 (Evergreen
+    # sprouts: FDA recall + cdc:broccoli-sprouts-09-26). The rows
+    # dedupe_outbreak_flags() names as non-representatives are the same ones
+    # one_row_per_event() drops from the Top-N tables, so the count and the
+    # table now agree. That grouping is itself conservative — a slugless row
+    # joins an investigation only when exactly one slug group matches it.
+    rows = list(rows)
+    _dups = {id(x) for x in dedupe_outbreak_flags(rows)}
+    rows = [r for r in rows if id(r) not in _dups]
+
     ids, unidentified = set(), 0
     for r in rows:
         oid, conf, _ = derive(r)
