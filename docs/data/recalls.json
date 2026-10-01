@@ -2,8 +2,8 @@
  {
   "Date": "2026-09-30",
   "Source": "RappelConso (FR)",
-  "Company": "Hachage au Niveau du Rayon Traditionnel",
-  "Brand": "Hachage au Niveau du Rayon Traditionnel",
+  "Company": "Grand Frais (Romainville)",
+  "Brand": "Unbranded",
   "Product": "haché de boeuf",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Détéction de listéria",
@@ -13,7 +13,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23648/interne",
-  "Notes": "grand frais situé à romainville [promote 2026-09-30: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "grand frais situé à romainville [promote 2026-09-30: status 'pending'->'pending' — passes every publish-gate rule] [audit 2026-10-01: Company/Brand held the counter description 'Hachage au Niveau du Rayon Traditionnel'; the fiche names the seller 'grand frais situé à romainville' (quoted at the start of these Notes); Company -> 'Grand Frais (Romainville)', Brand -> 'Unbranded']"
  },
  {
   "Date": "2026-09-30",
@@ -758,14 +758,14 @@
   "Brand": "World of Sweets",
   "Product": "Alyan Dubai Style Chocolate Truffles; Alyan Dubai Style Crunchy Knafeh and Pistachio Milk Chocolate",
   "Pathogen": "Salmonella",
-  "Reason": "['Contamination of product with salmonella', 'Contamination of product with salmonella']",
+  "Reason": "Contamination of product with salmonella",
   "Class": "Recall",
   "Country": "United Kingdom",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-47-2026-update-1",
-  "Notes": "source_id=FSA-PRIN-47-2026-update-1 [via official-feed collector] [confirm-agent 2026-10-01: pending_gap → pending; deterministic checks passed; reviewer 2 did NOT review this row] [re-promotion allowed 2026-09-30: was archived as 'unknown: Arrived already marked rejected; confirmer did not re-review | REJECTED: Arrived already marked rejected; confirmer did not re-review | PRIN-47-2026 [s', which _url_guard reads as a statement about REACHABILITY and not about whether the notice exists — the URL is on the regulator's own domain. The row now passes every publish-gate rule]"
+  "Notes": "source_id=FSA-PRIN-47-2026-update-1 [via official-feed collector] [confirm-agent 2026-10-01: pending_gap → pending; deterministic checks passed; reviewer 2 did NOT review this row] [re-promotion allowed 2026-09-30: was archived as 'unknown: Arrived already marked rejected; confirmer did not re-review | REJECTED: Arrived already marked rejected; confirmer did not re-review | PRIN-47-2026 [s', which _url_guard reads as a statement about REACHABILITY and not about whether the notice exists — the URL is on the regulator's own domain. The row now passes every publish-gate rule] [audit 2026-10-01: Reason held a Python list repr; flattened to text] [incident:uk:fsa-prin-47-2026] [audit 2026-10-01: an FSA alert and its update pages are one incident — the update re-issues the same PRIN number]"
  },
  {
   "Date": "2026-09-24",
@@ -909,7 +909,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-47-2026",
-  "Notes": "[manual 2026-09-30: September coverage audit. Was in Weekly_Rejected as 'Arrived already marked rejected; confirmer did not re-review' — not a verdict. alerts.food.gov.uk is robots-disallowed; content from the FSS alerts mirror and FSA PRIN numbering. One row for the incident; update-1 stays archived as its duplicate. No illness reported.] [promote 2026-09-30: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-30: was archived as 'unknown: Arrived already marked rejected; confirmer did not re-review | REJECTED: Arrived already marked rejected; confirmer did not re-review | PRIN-47-2026 [s', which _url_guard reads as a statement about REACHABILITY and not about whether the notice exists — the URL is on the regulator's own domain. The row now passes every publish-gate rule]"
+  "Notes": "[manual 2026-09-30: September coverage audit. Was in Weekly_Rejected as 'Arrived already marked rejected; confirmer did not re-review' — not a verdict. alerts.food.gov.uk is robots-disallowed; content from the FSS alerts mirror and FSA PRIN numbering. One row for the incident; update-1 stays archived as its duplicate. No illness reported.] [promote 2026-09-30: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-30: was archived as 'unknown: Arrived already marked rejected; confirmer did not re-review | REJECTED: Arrived already marked rejected; confirmer did not re-review | PRIN-47-2026 [s', which _url_guard reads as a statement about REACHABILITY and not about whether the notice exists — the URL is on the regulator's own domain. The row now passes every publish-gate rule] [incident:uk:fsa-prin-47-2026] [audit 2026-10-01: an FSA alert and its update pages are one incident — the update re-issues the same PRIN number]"
  },
  {
   "Date": "2026-09-24",
@@ -14454,14 +14454,14 @@
   "Brand": "Dunnes Stores",
   "Product": "Dunnes Stores Velvety & Mild French Brie; Traditional Cheese Company French Brie",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "['Contamination of product with Listeria monocytogenes', 'Contamination of product with Listeria monocytogenes']",
+  "Reason": "Contamination of product with Listeria monocytogenes",
   "Class": "Recall",
   "Country": "United Kingdom",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-28-2026-update-1",
-  "Notes": "source_id=FSA-PRIN-28-2026-update-1 [via official-feed collector] [gap-gate 2026-07-03: pending_gap → pending_gap_v1] [claude-check 2026-07-03: skip; fetch failed (non-text content-type: application/json)] [gemini-enrich 2026-07-03: Company ''→'Dunnes Stores'] [gemini-enrich 2026-07-03: Brand ''→'Dunnes Stores'] [gap-gate 2026-07-03: pending_gap_v1 → pending_gap_v2] [gemini-check 2026-07-03: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-03: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.]"
+  "Notes": "source_id=FSA-PRIN-28-2026-update-1 [via official-feed collector] [gap-gate 2026-07-03: pending_gap → pending_gap_v1] [claude-check 2026-07-03: skip; fetch failed (non-text content-type: application/json)] [gemini-enrich 2026-07-03: Company ''→'Dunnes Stores'] [gemini-enrich 2026-07-03: Brand ''→'Dunnes Stores'] [gap-gate 2026-07-03: pending_gap_v1 → pending_gap_v2] [gemini-check 2026-07-03: pass; clean-row shortcut (gemini-enriched + all fields valid)] [gap-gate 2026-07-03: pending_gap_v2 → pending (Claude verified, 2nd reviewer pass)] [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.] [audit 2026-10-01: Reason held a Python list repr; flattened to text] [incident:uk:fsa-prin-28-2026] [audit 2026-10-01: an FSA alert and its update pages are one incident — the update re-issues the same PRIN number]"
  },
  {
   "Date": "2026-06-24",
@@ -15005,7 +15005,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-28-2026",
-  "Notes": "Manual fix 2026-06-25: consolidated Traditional Cheese Brie recall. Kept this FSA food.gov.uk alert as canonical; dropped data.food.gov.uk JSON-format duplicate, FSA-PRIN-28-update-1, and FSAI Irish mirror. RASFF 853516 + FSAI R39 retained as distinct regulator notifications. [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.]"
+  "Notes": "Manual fix 2026-06-25: consolidated Traditional Cheese Brie recall. Kept this FSA food.gov.uk alert as canonical; dropped data.food.gov.uk JSON-format duplicate, FSA-PRIN-28-update-1, and FSAI Irish mirror. RASFF 853516 + FSAI R39 retained as distinct regulator notifications. [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.] [incident:uk:fsa-prin-28-2026] [audit 2026-10-01: an FSA alert and its update pages are one incident — the update re-issues the same PRIN number]"
  },
  {
   "Date": "2026-06-19",
@@ -29117,7 +29117,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-02-2026-update-2",
-  "Notes": "[manual-promote 2026-05-08: Company corrected]"
+  "Notes": "[manual-promote 2026-05-08: Company corrected] [incident:uk:fsa-prin-02-2026] [audit 2026-10-01: an FSA alert and its update pages are one incident — the update re-issues the same PRIN number]"
  },
  {
   "Date": "2026-02-03",
@@ -29133,7 +29133,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-02-2026-update-1",
-  "Notes": "### About product recalls and withdrawals\n\nIf there is a problem with a food product that means it should not be sold, then it might be 'withdrawn' (taken off the shelves) or 'recalled' (when customers are asked to return the product). The FSA issues Product Recall Information Notices to let consume  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [outbreak 2026-05-12: 0→1 — We received 36 clinical notifications of children developing symptoms consi [gap-gate 2026-05-12: pending_gap → pending_gap_v1] [claude-check 2026-05-13: fix; corrections: Date→2026-02-03; fix; date on page=2026-02-03 | Date field is empty in row but page shows 'Last updated: 3 February 2026' as original pub] [gap-gate 2026-05-13: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-13: fix; company_was=Update 1 - Nestlé, brand_was=Update 1 - Nestlé, pathogen_was=Cereulide (B. cereus toxin)] [manual fix 2026-05-13: translated FR/ES→EN, only Brand kept in source language; junk fields cleaned] Product cleanup; Reason expanded"
+  "Notes": "### About product recalls and withdrawals\n\nIf there is a problem with a food product that means it should not be sold, then it might be 'withdrawn' (taken off the shelves) or 'recalled' (when customers are asked to return the product). The FSA issues Product Recall Information Notices to let consume  [via Tavily gap-finder, deterministic extract] [date-unknown: claude-check please verify Date] [outbreak 2026-05-12: 0→1 — We received 36 clinical notifications of children developing symptoms consi [gap-gate 2026-05-12: pending_gap → pending_gap_v1] [claude-check 2026-05-13: fix; corrections: Date→2026-02-03; fix; date on page=2026-02-03 | Date field is empty in row but page shows 'Last updated: 3 February 2026' as original pub] [gap-gate 2026-05-13: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-13: fix; company_was=Update 1 - Nestlé, brand_was=Update 1 - Nestlé, pathogen_was=Cereulide (B. cereus toxin)] [manual fix 2026-05-13: translated FR/ES→EN, only Brand kept in source language; junk fields cleaned] Product cleanup; Reason expanded [incident:uk:fsa-prin-02-2026] [audit 2026-10-01: an FSA alert and its update pages are one incident — the update re-issues the same PRIN number]"
  },
  {
   "Date": "2026-02-03",
@@ -29725,7 +29725,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-02-2026",
-  "Notes": "[FSA-PRIN-02-2026; FIRST major Western-market regulator action in cereulide crisis — earliest known recall in the global cluster; heat-stable toxin (resistant to standard sterilisation)]"
+  "Notes": "[FSA-PRIN-02-2026; FIRST major Western-market regulator action in cereulide crisis — earliest known recall in the global cluster; heat-stable toxin (resistant to standard sterilisation)] [incident:uk:fsa-prin-02-2026] [audit 2026-10-01: an FSA alert and its update pages are one incident — the update re-issues the same PRIN number]"
  },
  {
   "Date": "2026-01-05",

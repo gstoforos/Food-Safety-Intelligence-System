@@ -1,5 +1,19 @@
 [
   {
+    "filename": "2026-M09.html",
+    "year": 2026,
+    "month_num": 9,
+    "month_name": "September 2026",
+    "month_start": "2026-09-01",
+    "month_end": "2026-09-30",
+    "total": 270,
+    "tier1": 195,
+    "outbreaks": 7,
+    "top_pathogen": "Salmonella spp.",
+    "summary": "September 2026: 270 recalls, 195 Tier-1, 7 outbreak(s). Leading pathogen: Salmonella spp..",
+    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M09-marketing.pdf"
+  },
+  {
     "filename": "2026-M08.html",
     "year": 2026,
     "month_num": 8,
