@@ -70,6 +70,15 @@ def test_the_gate_script_exists_and_points_at_the_router():
     assert "var IS_INDEX" in js and "if (!IS_INDEX) return;" in js
     assert "if (IS_INDEX) root.classList.add('fsis-locked');" in js
     assert "fsis-remember" in js, "Remember me keeps name, email and token on the device"
+    assert "fsis_signout" in js and "id=\"fsis-signout\"" in js, "Sign out at the top of the dashboard"
+
+
+def test_the_preview_ends_on_the_plans():
+    """The preview runs inside Wix, which it cannot navigate: when the 30 s
+    countdown ends it must SHOW the plans, with their checkout links."""
+    html = (DOCS / "index-promo.html").read_text(encoding="utf-8")
+    assert "_promoShowPlans();" in html and "function _promoShowPlans()" in html
+    assert html.count("pricing-plans/checkout-1") >= 2
 
 
 def test_add_gate_is_idempotent_and_goes_first_in_head():
