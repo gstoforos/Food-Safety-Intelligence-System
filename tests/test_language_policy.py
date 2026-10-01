@@ -24,9 +24,13 @@ alert title or the regulator's own name in Company/Brand.
 THE LINE THIS FILE DEFENDS
 ==========================
 Reason, Class, Pathogen, Country and Region are DESCRIPTION → must be English.
-Company, Brand and Product are NAMES → stay exactly as the regulator published
-them. "brie a l'ail", "saucisson à l'ail fumé", "Χούμους" and "Freshona Bio
-Beerenmischung" are correct and must never be "fixed".
+
+SUPERSEDED IN PART 2026-10-01 ("ALL must be the product in english ... the firm
+must be in english if available"): Product is now English too, and a Company
+or Brand in a non-Latin script carries the firm's English name or its
+romanization. The original wording is kept in Notes. That rule is held by
+tests/test_product_and_firm_names_are_english.py; this file still holds the
+description fields, the RASFF split and the never-guess translation table.
 
 The distinction is testable, not a matter of taste: a bilingual regulator
 subject SPLITS into two languages around a separator; a product name does not.
@@ -249,12 +253,18 @@ class TestPublishedWorkbook(unittest.TestCase):
         self.assertEqual([], offenders, f"{len(offenders)} bilingual subject(s) "
                                         f"still in Product: {offenders[:5]}")
 
-    def test_foreign_product_names_were_preserved(self):
-        """The exemption is real: these must still be there, untranslated."""
-        products = {str(r.get("Product") or "") for r in self._rows()}
+    def test_foreign_product_names_are_translated_and_kept_in_notes(self):
+        """Reversed 2026-10-01: these two were the pinned examples of the old
+        "names stay as published" rule. They are now English, and the
+        regulator's own wording survives in Notes."""
+        rows = self._rows()
+        products = {str(r.get("Product") or "") for r in rows}
+        notes = " ".join(str(r.get("Notes") or "") for r in rows)
         for name in ("brie a l'ail", "charcuterie seche"):
-            self.assertIn(name, products,
-                          f"{name!r} was translated — product NAMES are exempt")
+            self.assertNotIn(name, products,
+                             f"{name!r} is still published untranslated")
+            self.assertIn(f"[original product: {name}]", notes,
+                          f"the original {name!r} was not kept in Notes")
 
     def test_no_regulator_name_is_published_as_a_company(self):
         banned = ("agencia española de seguridad alimentaria",
@@ -391,8 +401,11 @@ class TestProductSplitIsScopedToRASFF(unittest.TestCase):
         self.assertNotIn("Industrial Area, Central Macedonia).", products,
                          "an EFET product name was replaced by a fragment of "
                          "its packing address")
-        greek = [p for p in products if "ΜΑΡΟΥΛΕΝΙΑ" in p]
-        self.assertTrue(greek, "the Greek product name was not restored")
+        # Translated 2026-10-01 (product names are English now); the whole
+        # product must still be there, not an address fragment.
+        salad = [p for p in products if "MAROULENIA" in p]
+        self.assertTrue(salad and salad[0].startswith("Salad"),
+                        "the EFET salad product is not whole")
 
     def test_no_published_product_is_a_bare_address_fragment(self):
         try:
