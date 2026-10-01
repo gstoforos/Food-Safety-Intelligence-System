@@ -372,11 +372,6 @@ class TestOutbreakEvidence(unittest.TestCase):
             self.assertTrue(
                 self._is_illness_evidence(self._strip_boilerplate(quote)), quote)
 
-    def test_boilerplate_guard_is_present_in_the_gate(self):
-        from pipeline import url_gate_gemini as ug
-        src = Path(ug.__file__).read_text(encoding="utf-8")
-        self.assertIn("Regulator risk boilerplate", src)
-
     def test_rasff_risk_severity_is_not_outbreak_evidence(self):
         for quote in ("risk: serious", "risk: potentially serious",
                       "risk: not serious"):
@@ -392,12 +387,6 @@ class TestOutbreakEvidence(unittest.TestCase):
             "We received 36 clinical notifications of children developing ...",
         ):
             self.assertTrue(self._is_illness_evidence(quote), quote)
-
-    def test_guard_is_present_in_the_gate(self):
-        from pipeline import url_gate_gemini as ug
-        src = Path(ug.__file__).read_text(encoding="utf-8")
-        self.assertIn("_ILLNESS_WORDS", src)
-        self.assertIn("DISCARDED outbreak verdict", src)
 
     def test_no_published_outbreak_rests_on_risk_severity(self):
         try:

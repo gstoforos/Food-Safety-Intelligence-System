@@ -78,9 +78,6 @@ def test_the_gap_finder_accepts_the_printed_scope(reason, cat):
     assert (c.verdict, c.category) == ("accept", cat)
 
 
-@pytest.mark.parametrize("mod", ["pipeline.url_gate_gemini"])
-def test_the_checkers_use_the_afts_scope(mod):
-    import importlib.util
-    from pathlib import Path
-    src = Path(importlib.util.find_spec(mod).origin).read_text(encoding="utf-8")
-    assert "is_in_afts_scope as is_tier1_pathogen" in src
+# The checker leg (url_gate_gemini) was removed 2026-09-30 with every other
+# Gemini path — operator ruling "no Gemini anywhere". The gates left are the
+# Pending gate and the gap-finder classifier, both swept above.
