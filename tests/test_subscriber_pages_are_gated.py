@@ -81,15 +81,20 @@ def test_the_preview_ends_on_the_plans():
     assert html.count("pricing-plans/checkout-1") >= 2
 
 
-def test_every_download_carries_the_licence_and_watermark():
-    """Operator 2026-10-01: "so not someone able to use it commercially?" —
-    every XLSX/JSON from the dashboard names its subscriber, carries the
-    AFTS licence on every row, and its sheets are protected."""
+def test_the_register_is_a_google_sheet_not_a_download():
+    """Operator 2026-10-02: "Sheet only". No page builds a file of the
+    register any more; the dashboard opens the view-only Google Sheet whose
+    link the sign-in returns (FsisRegisterSheet.gs)."""
+    for page in ("index.html", "index-promo.html"):
+        html = (DOCS / page).read_text(encoding="utf-8")
+        assert "function downloadRecallsXlsx" not in html, page
+        assert "function downloadRecallsJson" not in html, page
+        assert "XLSX.writeFile" not in html, page
+        assert 'onclick="openRegisterSheet()">▦ SHEET</button>' in html, page
     html = (DOCS / "index.html").read_text(encoding="utf-8")
-    for needle in ("'AFTS licence': lic.mark", "afts_licence: lic.mark",
-                   "XLSX.utils.book_append_sheet(wb, wl, 'Licence')",
-                   "ws['!protect'] = _FSIS_PROTECT", "use it in a commercial"):
-        assert needle in html, needle
+    assert "function openRegisterSheet()" in html
+    js = (DOCS / "fsis-gate.js").read_text(encoding="utf-8")
+    assert js.count("sheet: r.sheet || ''") == 2 and "if (r.sheet) s.sheet = r.sheet;" in js
 
 
 def test_remember_me_keeps_the_token_through_sign_out():
