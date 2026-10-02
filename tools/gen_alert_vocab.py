@@ -12,6 +12,11 @@ Consumers:
                                       incident-grouped mailer merged in
     docs/alerts.html                  the PATHOGENS / PRODUCTS / COUNTRIES
                                       arrays, between generated markers
+    docs/index.html                   PRODUCT_VOCAB (category -> keywords)
+                                      for the dashboard's Product filter
+                                      (operator 2026-10-02), so the
+                                      dashboard and the alert e-mails sort
+                                      a row into the same categories
 
 AftsAlerts.base.gs is the deployed file as the operator sent it on 2026-09-14.
 It is the template, never edited by this script, so `git diff` on it shows any
@@ -38,6 +43,7 @@ from tools import alert_vocab as V  # noqa: E402
 BASE_PATH = os.path.join(ROOT, "tools", "apps_script", "AftsAlerts.base.gs")
 GS_PATH = os.path.join(ROOT, "tools", "apps_script", "AftsAlerts.gs")
 HTML_PATH = os.path.join(ROOT, "docs", "alerts.html")
+INDEX_PATH = os.path.join(ROOT, "docs", "index.html")
 
 VERSION = "2026-09-14"
 
@@ -127,6 +133,37 @@ def render_html() -> str:
             + "// ===== Reference pools =====\n"
             + block + "\n\n"
             + src[end:])
+
+
+# ---------------------------------------------------------------------------
+# docs/index.html — the dashboard's Product filter
+# ---------------------------------------------------------------------------
+
+INDEX_ANCHOR = "function populateFilters(){"
+
+
+def index_block() -> str:
+    lines = [BEGIN,
+             "// Source of truth: tools/alert_vocab.py — the same categories and",
+             "// keywords the Alerts form and AftsAlerts.gs use.",
+             "// Regenerate with: python3 tools/gen_alert_vocab.py --write",
+             "const PRODUCT_VOCAB = {"]
+    for k, v in V.PRODUCT.items():
+        lines.append("  %s: %s," % (js(k), js(v)))
+    lines += ["};", END]
+    return "\n".join(lines)
+
+
+def render_index() -> str:
+    src = open(INDEX_PATH, encoding="utf-8").read()
+    block = index_block()
+    if BEGIN in src and END in src:
+        head, rest = src.split(BEGIN, 1)
+        _, tail = rest.split(END, 1)
+        return head + block + tail
+    if src.count(INDEX_ANCHOR) != 1:
+        raise SystemExit("index.html: populateFilters() anchor not found once")
+    return src.replace(INDEX_ANCHOR, block + "\n" + INDEX_ANCHOR)
 
 
 # ---------------------------------------------------------------------------
@@ -799,7 +836,8 @@ def main() -> int:
     if not (args.write or args.check):
         ap.error("pass --write or --check")
 
-    targets = [(GS_PATH, render_gs()), (HTML_PATH, render_html())]
+    targets = [(GS_PATH, render_gs()), (HTML_PATH, render_html()),
+               (INDEX_PATH, render_index())]
     stale = []
     for path, want in targets:
         have = open(path, encoding="utf-8").read() if os.path.exists(path) else None
