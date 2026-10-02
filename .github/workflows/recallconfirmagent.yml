@@ -162,6 +162,37 @@ jobs:
           from typing import Any, Dict, List, Optional
 
           A2_APPROVED = "pending_gap_v3"
+
+          # ── A ROW STILL WITH REVIEWER 1 IS NOT REVIEWER 3'S TO REJECT (2026-10-02) ──
+          # This agent's lane includes pending_gap and pending_gap_v1 so that a row
+          # which is already complete can publish without waiting. But it also BLOCKED
+          # every incomplete one, and a block archives the row for good. On the
+          # 2026-10-02 morning run 6 of the 9 rows it rejected were at pending_gap /
+          # pending_gap_v1 — rows reviewer 1 had not finished — rejected for "Date is
+          # empty" or "Company is empty", the very fields reviewer 1 and the
+          # enrichment pass exist to fill. Its own stamp said so: "row was at
+          # pending_gap_v1 (not reviewed by reviewer 2)".
+          #
+          # Such a row now WAITS: it is left in Pending untouched. The wait is bounded,
+          # so a row reviewer 1 never completes cannot sit in Pending for ever: once it
+          # has been in Pending REVIEWER_1_GRACE_DAYS it is judged like any other row.
+          REVIEWER_1_LANE = ("pending_gap", "pending_gap_v1")
+          REVIEWER_1_GRACE_DAYS = 3
+
+
+          def _still_with_reviewer_1(row: Dict[str, Any], now: Optional[dt.datetime] = None) -> bool:
+              status = str(row.get("Status", "")).strip().lower()
+              if status not in REVIEWER_1_LANE:
+                  return False
+              raw = str(row.get("ScrapedAt", "") or "").strip()
+              try:
+                  scraped = dt.datetime.fromisoformat(raw.replace("Z", "+00:00"))
+              except ValueError:
+                  return False                    # no age on record: judge it now
+              if scraped.tzinfo is None:
+                  scraped = scraped.replace(tzinfo=dt.timezone.utc)
+              now = now or dt.datetime.now(dt.timezone.utc)
+              return (now - scraped) < dt.timedelta(days=REVIEWER_1_GRACE_DAYS)
           REQUIRED = ("Date", "Product", "Pathogen", "URL")
 
 
@@ -549,10 +580,17 @@ jobs:
               print(f"  (duplicate guard: comparing against {len(published_now)} "
                     f"published rows)")
 
-              confirmed, blocked = [], []
+              confirmed, blocked, waiting = [], [], []
               for i, row in enumerate(lane, 1):
                   probs = confirm(row, published_now)
-                  if probs and all(_is_firm_problem(p) for p in probs):
+                  if probs and _still_with_reviewer_1(row):
+                      # Not this reviewer's to reject yet (2026-10-02). Left exactly as
+                      # it is — no status change, no stamp — for reviewer 1 to finish.
+                      waiting.append(row)
+                      print(f"  [{i}/{len(lane)}] WAIT    "
+                            f"{str(row.get('Product',''))[:40]:40s} | {probs[0][:40]} "
+                            f"— still with reviewer 1")
+                  elif probs and all(_is_firm_problem(p) for p in probs):
                       held.append(row)
                       print(f"  [{i}/{len(lane)}] HOLD    "
                             f"{str(row.get('Product',''))[:40]:40s} | {probs[0][:40]} "
@@ -568,6 +606,7 @@ jobs:
 
               print(f"\n{'='*60}")
               print(f"confirm: {len(confirmed)}   block: {len(blocked)}   "
+                    f"wait (reviewer 1): {len(waiting)}   "
                     f"archive (reviewer-2 rejects): {len(already_rejected)}")
               print(f"{'='*60}")
 
