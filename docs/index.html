@@ -700,14 +700,14 @@ async function _fsisUpgradeLastRunFromGitHub() {
 // There is no file download any more. Subscribers open one view-only Google
 // Sheet (download, print and copy switched off for viewers); access follows
 // the subscription and ends with it — FsisRegisterSheet.gs. The link comes
-// with the sign-in (fsis-gate.js keeps it in the session) and is also in the
-// welcome email.
+// ONLY with the sign-in (fsis-gate.js keeps it in the session); it is never
+// emailed (operator 2026-10-02: "should be with the btn").
 function openRegisterSheet(){
   let s = {};
   try { s = JSON.parse(localStorage.getItem('fsis-session') || '{}') || {}; } catch(_){}
   if (s.sheet) { window.open(s.sheet, '_blank', 'noopener'); return; }
-  alert('The recall register opens as a Google Sheet. The link is in your FSIS welcome email '
-      + '(and in the access-token email). Questions: info@advfood.tech');
+  alert('The recall register is not ready for your account yet. Sign out and sign in again; '
+      + 'if it still does not open, write to info@advfood.tech.');
 }
 
 // ===== LOAD RECALLS + NEWS FROM SAME XLSX =====
