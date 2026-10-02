@@ -83,8 +83,8 @@ def test_the_preview_ends_on_the_plans():
 
 def test_the_register_is_a_google_sheet_not_a_download():
     """Operator 2026-10-02: "Sheet only". No page builds a file of the
-    register any more; the dashboard opens the view-only Google Sheet whose
-    link the sign-in returns (FsisRegisterSheet.gs)."""
+    register any more; SHEET opens the register page served by Apps Script
+    from a private Sheet, for a signed-in session only (FsisRegisterSheet.gs)."""
     for page in ("index.html", "index-promo.html"):
         html = (DOCS / page).read_text(encoding="utf-8")
         assert "function downloadRecallsXlsx" not in html, page
@@ -93,8 +93,13 @@ def test_the_register_is_a_google_sheet_not_a_download():
         assert 'onclick="openRegisterSheet()">▦ SHEET</button>' in html, page
     html = (DOCS / "index.html").read_text(encoding="utf-8")
     assert "function openRegisterSheet()" in html
+    # Private Sheet behind the app sign-in (operator 2026-10-02): the button
+    # opens the Apps Script page with this session; no Sheet link exists in
+    # the page or the session.
+    assert "'?action=fsis_sheet&sid=' + encodeURIComponent(s.sid)" in html
+    assert "docs.google.com/spreadsheets" not in html
     js = (DOCS / "fsis-gate.js").read_text(encoding="utf-8")
-    assert js.count("sheet: r.sheet || ''") == 2 and "if (r.sheet) s.sheet = r.sheet;" in js
+    assert "window.FSIS_GATE_URL = GATE_URL;" in js and "r.sheet" not in js
 
 
 def test_remember_me_keeps_the_token_through_sign_out():
