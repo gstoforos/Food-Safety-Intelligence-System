@@ -13,12 +13,11 @@
    … disclaimer sheet and the other sheet with all the information … the
    download should act like the Google Sheet discussion" (= no download).
 
-  Opened by the dashboard's SHEET button as register.html#sid=<session>.
-  The session is checked by the FSIS script (fsis_check — the same call the
-  dashboard makes every 5 minutes: active subscription, one device at a
-  time); the rows come from this site's register file, the same data the
-  dashboard shows. No Google Sheet and no Google account are involved. The
-  address is cut back to "/" at once, like the reports.
+  Opened by the dashboard's SHEET button as register.html#n=<name>&e=<email>.
+  It opens from the dashboard like the monthly reports and Live Signals —
+  no sign-in of its own, no Google. The rows come from this site's register
+  file, the same data the dashboard shows. The address is cut back to "/"
+  at once, like the reports.
 
   Tabs: Register (every recall, sort + filter per column) · Summary ·
   Licence & Disclaimer. No download, print, copy or select; every view is
@@ -155,43 +154,26 @@ a{color:#1a73e8;text-decoration:none}a:hover{text-decoration:underline}
 <script>
 (function () {
   'use strict';
-  var GATE_URL = 'https://script.google.com/macros/s/AKfycbwA2UeM1KtmUOcI6T2dwT-6Ox2DOPZUJtWvePaMU8wgrkCcOrEw9kVq9BtWpZ0NQSQ/exec';
-  var PLANS = 'https://www.advfood.tech/fsis-recalls';
-
-  // ── session: from #sid (the dashboard runs inside the Wix frame, whose
-  // storage this tab cannot see), else this site's own session. The address
-  // is then cut back to "/" so nothing is bookmarked or shared.
-  var m = location.hash.match(/sid=([^&]+)/), me = location.hash.match(/[&#]e=([^&]+)/);
-  var sid = m ? decodeURIComponent(m[1]) : '', email = me ? decodeURIComponent(me[1]) : '';
-  if (!sid) { try { var ss = JSON.parse(localStorage.getItem('fsis-session') || '{}') || {}; sid = ss.sid || ''; email = email || ss.email || ''; } catch (e) {} }
-  try { history.replaceState(null, '', '/'); } catch (e) {}
+  // Opened from the dashboard like the monthly reports and Live Signals:
+  // no sign-in of its own. The dashboard passes the subscriber's name and
+  // email in the #hash (never sent to a server) for the watermark; the
+  // address is then cut back to "/" so nothing is bookmarked or shared.
+  function hv(k) { var x = location.hash.match(new RegExp('[#&]' + k + '=([^&]*)')); return x ? decodeURIComponent(x[1]) : ''; }
+  var ss = {}; try { ss = JSON.parse(localStorage.getItem('fsis-session') || '{}') || {}; } catch (x) {}
+  var who = { name: hv('n') || ss.name || '' }, email = hv('e') || ss.email || '';
+  try { history.replaceState(null, '', '/'); } catch (x) {}
 
   function $(id) { return document.getElementById(id); }
   function stop(text) { $('waitText').textContent = text; $('back').style.display = ''; }
-  if (!sid) { stop('Please sign in on the FSIS dashboard, then press SHEET.'); return; }
 
-  // 1) The session is checked by the FSIS script — the same fsis_check the
-  //    dashboard runs every 5 minutes (active subscription, one device at a
-  //    time). 2) The rows come from this site's own register file, exactly
-  //    what the dashboard shows. No Google Sheet, no Google account
-  //    (2026-10-02: the Sheet hop failed in browsers signed in to several
-  //    Google accounts and added nothing — the register file is the source).
-  var done = false, who = null, rows = null, updated = '';
+  // Rows: this site's register file, the same data the dashboard shows.
+  var done = false, rows = null, updated = '';
   function ready() {
-    if (done || !who || !rows) return;
+    if (done || !rows) return;
     done = true;
     try { start({ ok: true, name: who.name, licence: licId(email), updated: updated, rows: rows }); }
     catch (x) { stop('The register could not be shown. Please try again.'); }
   }
-  var cb = '__fsisChk' + Date.now();
-  window[cb] = function (r) {
-    if (!r || !r.ok) { done = true; stop((r && r.message) || 'Please sign in on the FSIS dashboard, then press SHEET.'); return; }
-    who = r; ready();
-  };
-  var sc = document.createElement('script');
-  sc.src = GATE_URL + '?action=fsis_check&sid=' + encodeURIComponent(sid) + '&callback=' + cb + '&_=' + Date.now();
-  sc.onerror = function () { if (!done) { done = true; stop('The sign-in service could not be reached. Please try again in a minute.'); } };
-  document.head.appendChild(sc);
   var COLS_SRC = ['Date', 'Source', 'Company', 'Brand', 'Product', 'Pathogen', 'Reason', 'Class', 'Country', 'Region', 'Tier', 'Outbreak', 'URL'];
   fetch('/data/recalls.json?_=' + Date.now(), { cache: 'no-store' })
     .then(function (res) {
@@ -233,7 +215,6 @@ a{color:#1a73e8;text-decoration:none}a:hover{text-decoration:underline}
   function shown(r, i) { return i === 11 ? (String(r[i]) === '1' ? 'Yes' : 'No') : i === 10 ? 'Tier ' + (r[i] || '3') : i === 12 ? host(r[i]) : String(r[i] || ''); }
 
   function start(r) {
-    if (!r || !r.ok) { stop((r && r.message) || 'Please sign in on the FSIS dashboard, then press SHEET.'); return; }
     R = r.rows || []; name = String(r.name || ''); lic = String(r.licence || '');
     $('lic').innerHTML = 'Licensed to <b>' + e(name || 'FSIS subscriber') + '</b>' + (lic ? ' · ' + e(lic) : '') + ' · internal use only';
     $('upd').textContent = r.updated ? 'Updated ' + r.updated : '';

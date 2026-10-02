@@ -699,21 +699,15 @@ async function _fsisUpgradeLastRunFromGitHub() {
 // ===== THE RECALL REGISTER (operator 2026-10-02) =====
 // "people will access it via my google but they have to sign in as the app"
 // · "I do not want them to see my account". The register lives in a PRIVATE
-// SHEET opens register.html: the session is checked by the FSIS script
-// (fsis_check, as here) and the rows come from this site's register file.
-// Read-only, no download, watermarked; no Google Sheet or account involved.
+// SHEET opens register.html like the monthly reports — no second sign-in,
+// no Google. The rows come from this site's register file. Read-only, no
+// download, watermarked with the subscriber's name and licence ID.
 function openRegisterSheet(){
   let s = {};
   try { s = JSON.parse(localStorage.getItem('fsis-session') || '{}') || {}; } catch(_){}
-  if (s.sid) {
-    // register.html on this site fetches the rows for this session from the
-    // FSIS script. Not a script.google.com page: those fail in a browser
-    // signed in to more than one Google account. The session rides in the
-    // #hash (never sent to a server) and register.html removes it at once.
-    window.open('register.html#sid=' + encodeURIComponent(s.sid) + '&e=' + encodeURIComponent(s.email || ''), '_blank', 'noopener');
-    return;
-  }
-  _fsisNote('Please sign in first — the recall register opens for signed-in subscribers.');
+  // Opens like the monthly reports: no second sign-in. Name and email ride
+  // in the #hash for the watermark; register.html cuts its address to "/".
+  window.open('register.html#n=' + encodeURIComponent(s.name || '') + '&e=' + encodeURIComponent(s.email || ''), '_blank', 'noopener');
 }
 function _fsisNote(text){
   let n = document.getElementById('fsis-note');
