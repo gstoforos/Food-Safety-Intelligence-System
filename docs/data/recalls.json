@@ -4,23 +4,23 @@
   "Source": "RappelConso (FR)",
   "Company": "Cokoc",
   "Brand": "Cokoc",
-  "Product": "référence 3225164",
+  "Product": "Reference 3225164",
   "Pathogen": "Mold",
-  "Reason": "Ce produit présente des traces de moisissures alors que sa date de péremption n’est pas encore atteinte. il est impropre à la consommation.",
+  "Reason": "The product shows traces of mold although its use-by date has not been reached; it is unfit for consumption.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23674/interne",
-  "Notes": "action [offline-enrich 2026-10-01: Pathogen '' -> 'Mold', read from this row's own hazard text; no fetch, no model] [promote 2026-10-01: status 'pending_enrichment'->'pending' — passes every publish-gate rule]"
+  "Notes": "action [offline-enrich 2026-10-01: Pathogen '' -> 'Mold', read from this row's own hazard text; no fetch, no model] [promote 2026-10-01: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [original product: référence 3225164] [original reason: Ce produit présente des traces de moisissures alors que sa date de péremption n’est pas encore atteinte. il est impropre à la consommation.] [English names 2026-10-02]"
  },
  {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "Medina",
   "Brand": "Medina",
-  "Product": "saucisse de filet de poulet halal",
+  "Product": "Halal chicken fillet sausage",
   "Pathogen": "Salmonella",
   "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
@@ -29,46 +29,46 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23672/interne",
-  "Notes": "rhd [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "rhd [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [original product: saucisse de filet de poulet halal] [English names 2026-10-02]"
  },
  {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "Corico",
   "Brand": "Corico",
-  "Product": "saucisse au filet de poulet x15",
+  "Product": "Chicken fillet sausages x15",
   "Pathogen": "Salmonella",
-  "Reason": "Presence of Salmonella dans le produit",
+  "Reason": "Presence of Salmonella in the product",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23671/interne",
-  "Notes": "intermarché, rhd [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English]"
+  "Notes": "intermarché, rhd [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English] [original product: saucisse au filet de poulet x15] [original reason: Presence of Salmonella dans le produit] [English names 2026-10-02]"
  },
  {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "Singly",
   "Brand": "Singly",
-  "Product": "bouchées aux crevettes",
+  "Product": "Shrimp bites",
   "Pathogen": "Salmonella",
-  "Reason": "Auto contrôle microbiologique : présence confirmée de Salmonella",
+  "Reason": "Company's own microbiological testing: presence of Salmonella confirmed",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23673/interne",
-  "Notes": "grossistes : tang frères 75013; tang frères 93500; tang frères 75015; tang frères 95220; koozo mart 92400 [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "grossistes : tang frères 75013; tang frères 93500; tang frères 75015; tang frères 95220; koozo mart 92400 [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [original product: bouchées aux crevettes] [original reason: Auto contrôle microbiologique : présence confirmée de Salmonella] [English names 2026-10-02]"
  },
  {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "5 Frères",
   "Brand": "5 Frères",
-  "Product": "camembert fermier au lait cru",
+  "Product": "Farmhouse raw-milk Camembert",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria",
   "Class": "Voluntary",
@@ -77,14 +77,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23667/interne",
-  "Notes": "saff à rungis; hennart à carvin; les eleveurs de la charentonne à gace [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "saff à rungis; hennart à carvin; les eleveurs de la charentonne à gace [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [original product: camembert fermier au lait cru] [English names 2026-10-02]"
  },
  {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "Les Prêts A Cuisiner",
   "Brand": "Les Prêts A Cuisiner",
-  "Product": "2 filets de poulet facon hache",
+  "Product": "Minced-style chicken fillets x2",
   "Pathogen": "Salmonella",
   "Reason": "Suspicion de Salmonella typhimurium",
   "Class": "Voluntary",
@@ -93,14 +93,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23658/interne",
-  "Notes": "commerces de details [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "commerces de details [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [original product: 2 filets de poulet facon hache] [English names 2026-10-02]"
  },
  {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "Corico",
   "Brand": "Corico",
-  "Product": "2 filets poulet facon hache",
+  "Product": "Minced-style chicken fillets x2",
   "Pathogen": "Salmonella",
   "Reason": "Suspicion de Salmonella typhimurium",
   "Class": "Voluntary",
@@ -109,14 +109,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23659/interne",
-  "Notes": "grandes et moyennes surfaces, commerce de details [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "grandes et moyennes surfaces, commerce de details [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [original product: 2 filets poulet facon hache] [English names 2026-10-02]"
  },
  {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "Bec D'Or",
   "Brand": "Bec D'Or",
-  "Product": "2 filets de poulet facon hache",
+  "Product": "Minced-style chicken fillets x2",
   "Pathogen": "Salmonella",
   "Reason": "Suspicion de Salmonella typhimurium",
   "Class": "Voluntary",
@@ -125,14 +125,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23661/interne",
-  "Notes": "grandes et moyennes surfaces [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "grandes et moyennes surfaces [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [original product: 2 filets de poulet facon hache] [English names 2026-10-02]"
  },
  {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "Le Boucher des Halles",
   "Brand": "Le Boucher des Halles",
-  "Product": "2 filets de poulet facon hache",
+  "Product": "Minced-style chicken fillets x2",
   "Pathogen": "Salmonella",
   "Reason": "Suspicion de Salmonella typhimurium",
   "Class": "Voluntary",
@@ -141,14 +141,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23662/interne",
-  "Notes": "grandes et moyennes surfaces, commerces de details [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "grandes et moyennes surfaces, commerces de details [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [original product: 2 filets de poulet facon hache] [English names 2026-10-02]"
  },
  {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "Hellofresh",
   "Brand": "Hellofresh",
-  "Product": "jasmine rice (150g et 225g)",
+  "Product": "Jasmine rice (150 g and 225 g)",
   "Pathogen": "Foreign material (plastic)",
   "Reason": "Risk of corps étranger d'origine plastique (morceaux de plastique colorés souples ou rigides) presence",
   "Class": "Voluntary",
@@ -157,7 +157,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23657/interne",
-  "Notes": "hellofresh [offline-enrich 2026-10-01: Pathogen '' -> 'Foreign material (plastic)', read from this row's own hazard text; no fetch, no model] [promote 2026-10-01: status 'pending_enrichment'->'pending' — passes every publish-gate rule]"
+  "Notes": "hellofresh [offline-enrich 2026-10-01: Pathogen '' -> 'Foreign material (plastic)', read from this row's own hazard text; no fetch, no model] [promote 2026-10-01: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [original product: jasmine rice (150g et 225g)] [English names 2026-10-02]"
  },
  {
   "Date": "2026-09-30",
@@ -388,16 +388,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Germany | Notifying: Poland",
   "Brand": "—",
-  "Product": "Salmonella Enteritidis w świeżym mięsie drobiowym z indyka////Salmonella Enteritidis in fresh turkey meat from Poland",
+  "Product": "Salmonella Enteritidis in fresh turkey meat from Poland",
   "Pathogen": "Salmonella",
-  "Reason": "Salmonella Enteritidis w świeżym mięsie drobiowym z indyka////Salmonella Enteritidis in fresh turkey meat from Poland; risk: potentially serious; category: poultry meat and poultry meat products",
+  "Reason": "Salmonella Enteritidis in fresh turkey meat from Poland; risk: potentially serious; category: poultry meat and poultry meat products",
   "Class": "Information",
   "Country": "Germany",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876501",
-  "Notes": "[RASFF #2026.8663; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=876501] [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "[RASFF #2026.8663; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=876501] [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [original product: Salmonella Enteritidis w świeżym mięsie drobiowym z indyka////Salmonella Enteritidis in fresh turkey meat from Poland] [original reason: Salmonella Enteritidis w świeżym mięsie drobiowym z indyka////Salmonella Enteritidis in fresh turkey meat from Poland; risk: potentially serious; category: poultry meat and poultry meat products] [English names 2026-10-02]"
  },
  {
   "Date": "2026-09-29",
@@ -692,16 +692,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Romania | Notifying: Italy",
   "Brand": "—",
-  "Product": "salmonella enteritidis ed infantis in cosce pollo congelate/Salmonella Enteritidis and Salmonella Infantis in frozen chicken thighs",
+  "Product": "Salmonella Enteritidis and Salmonella Infantis in frozen chicken thighs",
   "Pathogen": "Salmonella",
-  "Reason": "salmonella enteritidis ed infantis in cosce pollo congelate/Salmonella Enteritidis and Salmonella Infantis in frozen chicken thighs; risk: serious; category: poultry meat and poultry meat products",
+  "Reason": "Salmonella Enteritidis and Salmonella Infantis in frozen chicken thighs; risk: serious; category: poultry meat and poultry meat products",
   "Class": "Alert",
   "Country": "Romania",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/875990",
-  "Notes": "[RASFF #2026.8590; classification: alert notification; category: poultry meat and poultry meat products; notifId=875990] [promote 2026-09-29: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "[RASFF #2026.8590; classification: alert notification; category: poultry meat and poultry meat products; notifId=875990] [promote 2026-09-29: status 'pending'->'pending' — passes every publish-gate rule] [original product: salmonella enteritidis ed infantis in cosce pollo congelate/Salmonella Enteritidis and Salmonella Infantis in frozen chicken thighs] [original reason: salmonella enteritidis ed infantis in cosce pollo congelate/Salmonella Enteritidis and Salmonella Infantis in frozen chicken thighs; risk: serious; category: poultry meat and poultry meat products] [English names 2026-10-02]"
  },
  {
   "Date": "2026-09-28",
@@ -1412,16 +1412,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Bulgaria | Notifying: Spain",
   "Brand": "—",
-  "Product": "Presence of Salmonella spp. in a meat product from Bulgaria//Detección de Salmonella spp en preparado de carne procedente de Bulgaria",
+  "Product": "Presence of Salmonella spp. in a meat product from Bulgaria",
   "Pathogen": "Salmonella",
-  "Reason": "Presence of Salmonella spp. in a meat product from Bulgaria//Detección de Salmonella spp en preparado de carne procedente de Bulgaria; risk: serious; category: meat and meat products (other than poultry)",
+  "Reason": "Presence of Salmonella spp. in a meat product from Bulgaria; risk: serious; category: meat and meat products (other than poultry)",
   "Class": "Alert",
   "Country": "Bulgaria",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/874952",
-  "Notes": "[RASFF #2026.8463; classification: alert notification; category: meat and meat products (other than poultry); notifId=874952]"
+  "Notes": "[RASFF #2026.8463; classification: alert notification; category: meat and meat products (other than poultry); notifId=874952] [original product: Presence of Salmonella spp. in a meat product from Bulgaria//Detección de Salmonella spp en preparado de carne procedente de Bulgaria] [original reason: Presence of Salmonella spp. in a meat product from Bulgaria//Detección de Salmonella spp en preparado de carne procedente de Bulgaria; risk: serious; category: meat and meat products (other than poultry)] [English names 2026-10-02]"
  },
  {
   "Date": "2026-09-23",
@@ -4772,7 +4772,7 @@
   "Source": "RappelConso (FR)",
   "Company": "SILVE",
   "Brand": "Top Budget",
-  "Product": "Salade piémontaise 500 g",
+  "Product": "Piedmont-style potato salad 500 g",
   "Pathogen": "Foreign material (hard black fragments)",
   "Reason": "May contain one or more hard black foreign bodies",
   "Class": "Recall",
@@ -4781,7 +4781,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23387/interne",
-  "Notes": "[incident:fr:silve-salads-2026-09-02] intermarché [operator review 2026-09-05: verified against the fiche — motif \"susceptibles de contenir un ou plusieurs corps étranger(s) dur(s) de couleur noire\", risk class \"inertes (verre, métal, plastique…)\", use-by dates 28/08/2026–10/09/2026, published 02/09/2026, origin of the fiche SILVE INTERMARCHE. One incident across 15 fiches (Intermarché, Netto, Monique Ranou, Top Budget and unbranded counter salads), all filed by SILVE, the Intermarché-group deli-salad plant; Company = SILVE on every row so the report groups them. Tier 3 per the framework rule for a foreign body of unspecified material in adult food.] [incident tag 2026-09-05: fifteen fiches, one plant (SILVE), one defect — hard black fragments — counted as one incident in the weekly KPIs, as the E.Leclerc Dinan chiller fault of 2026-08-15 is]"
+  "Notes": "[incident:fr:silve-salads-2026-09-02] intermarché [operator review 2026-09-05: verified against the fiche — motif \"susceptibles de contenir un ou plusieurs corps étranger(s) dur(s) de couleur noire\", risk class \"inertes (verre, métal, plastique…)\", use-by dates 28/08/2026–10/09/2026, published 02/09/2026, origin of the fiche SILVE INTERMARCHE. One incident across 15 fiches (Intermarché, Netto, Monique Ranou, Top Budget and unbranded counter salads), all filed by SILVE, the Intermarché-group deli-salad plant; Company = SILVE on every row so the report groups them. Tier 3 per the framework rule for a foreign body of unspecified material in adult food.] [incident tag 2026-09-05: fifteen fiches, one plant (SILVE), one defect — hard black fragments — counted as one incident in the weekly KPIs, as the E.Leclerc Dinan chiller fault of 2026-08-15 is] [original product: Salade piémontaise 500 g] [English names 2026-10-02]"
  },
  {
   "Date": "2026-09-02",
@@ -4804,7 +4804,7 @@
   "Source": "RappelConso (FR)",
   "Company": "SILVE",
   "Brand": "Intermarché",
-  "Product": "Salade piémontaise jambon 300 g",
+  "Product": "Piedmont-style potato salad with ham 300 g",
   "Pathogen": "Foreign material (hard black fragments)",
   "Reason": "May contain one or more hard black foreign bodies",
   "Class": "Recall",
@@ -4813,7 +4813,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23389/interne",
-  "Notes": "[incident:fr:silve-salads-2026-09-02] intermarche [operator review 2026-09-05: verified against the fiche — motif \"susceptibles de contenir un ou plusieurs corps étranger(s) dur(s) de couleur noire\", risk class \"inertes (verre, métal, plastique…)\", use-by dates 28/08/2026–10/09/2026, published 02/09/2026, origin of the fiche SILVE INTERMARCHE. One incident across 15 fiches (Intermarché, Netto, Monique Ranou, Top Budget and unbranded counter salads), all filed by SILVE, the Intermarché-group deli-salad plant; Company = SILVE on every row so the report groups them. Tier 3 per the framework rule for a foreign body of unspecified material in adult food.] [incident tag 2026-09-05: fifteen fiches, one plant (SILVE), one defect — hard black fragments — counted as one incident in the weekly KPIs, as the E.Leclerc Dinan chiller fault of 2026-08-15 is]"
+  "Notes": "[incident:fr:silve-salads-2026-09-02] intermarche [operator review 2026-09-05: verified against the fiche — motif \"susceptibles de contenir un ou plusieurs corps étranger(s) dur(s) de couleur noire\", risk class \"inertes (verre, métal, plastique…)\", use-by dates 28/08/2026–10/09/2026, published 02/09/2026, origin of the fiche SILVE INTERMARCHE. One incident across 15 fiches (Intermarché, Netto, Monique Ranou, Top Budget and unbranded counter salads), all filed by SILVE, the Intermarché-group deli-salad plant; Company = SILVE on every row so the report groups them. Tier 3 per the framework rule for a foreign body of unspecified material in adult food.] [incident tag 2026-09-05: fifteen fiches, one plant (SILVE), one defect — hard black fragments — counted as one incident in the weekly KPIs, as the E.Leclerc Dinan chiller fault of 2026-08-15 is] [original product: Salade piémontaise jambon 300 g] [English names 2026-10-02]"
  },
  {
   "Date": "2026-09-02",
@@ -4868,7 +4868,7 @@
   "Source": "RappelConso (FR)",
   "Company": "SILVE",
   "Brand": "Monique Ranou",
-  "Product": "Salade pêcheur 300 g",
+  "Product": "Fisherman's seafood salad 300 g",
   "Pathogen": "Foreign material (hard black fragments)",
   "Reason": "May contain one or more hard black foreign bodies",
   "Class": "Recall",
@@ -4877,7 +4877,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23393/interne",
-  "Notes": "[incident:fr:silve-salads-2026-09-02] intermarché [operator review 2026-09-05: verified against the fiche — motif \"susceptibles de contenir un ou plusieurs corps étranger(s) dur(s) de couleur noire\", risk class \"inertes (verre, métal, plastique…)\", use-by dates 28/08/2026–10/09/2026, published 02/09/2026, origin of the fiche SILVE INTERMARCHE. One incident across 15 fiches (Intermarché, Netto, Monique Ranou, Top Budget and unbranded counter salads), all filed by SILVE, the Intermarché-group deli-salad plant; Company = SILVE on every row so the report groups them. Tier 3 per the framework rule for a foreign body of unspecified material in adult food.] [incident tag 2026-09-05: fifteen fiches, one plant (SILVE), one defect — hard black fragments — counted as one incident in the weekly KPIs, as the E.Leclerc Dinan chiller fault of 2026-08-15 is]"
+  "Notes": "[incident:fr:silve-salads-2026-09-02] intermarché [operator review 2026-09-05: verified against the fiche — motif \"susceptibles de contenir un ou plusieurs corps étranger(s) dur(s) de couleur noire\", risk class \"inertes (verre, métal, plastique…)\", use-by dates 28/08/2026–10/09/2026, published 02/09/2026, origin of the fiche SILVE INTERMARCHE. One incident across 15 fiches (Intermarché, Netto, Monique Ranou, Top Budget and unbranded counter salads), all filed by SILVE, the Intermarché-group deli-salad plant; Company = SILVE on every row so the report groups them. Tier 3 per the framework rule for a foreign body of unspecified material in adult food.] [incident tag 2026-09-05: fifteen fiches, one plant (SILVE), one defect — hard black fragments — counted as one incident in the weekly KPIs, as the E.Leclerc Dinan chiller fault of 2026-08-15 is] [original product: Salade pêcheur 300 g] [English names 2026-10-02]"
  },
  {
   "Date": "2026-09-02",
@@ -4900,7 +4900,7 @@
   "Source": "RappelConso (FR)",
   "Company": "SILVE",
   "Brand": "Monique Ranou",
-  "Product": "Tortis concombre et saumon 300 g",
+  "Product": "Pasta spirals with cucumber and salmon 300 g",
   "Pathogen": "Foreign material (hard black fragments)",
   "Reason": "May contain one or more hard black foreign bodies",
   "Class": "Recall",
@@ -4909,7 +4909,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23397/interne",
-  "Notes": "[incident:fr:silve-salads-2026-09-02] intermarché [operator review 2026-09-05: verified against the fiche — motif \"susceptibles de contenir un ou plusieurs corps étranger(s) dur(s) de couleur noire\", risk class \"inertes (verre, métal, plastique…)\", use-by dates 28/08/2026–10/09/2026, published 02/09/2026, origin of the fiche SILVE INTERMARCHE. One incident across 15 fiches (Intermarché, Netto, Monique Ranou, Top Budget and unbranded counter salads), all filed by SILVE, the Intermarché-group deli-salad plant; Company = SILVE on every row so the report groups them. Tier 3 per the framework rule for a foreign body of unspecified material in adult food.] [incident tag 2026-09-05: fifteen fiches, one plant (SILVE), one defect — hard black fragments — counted as one incident in the weekly KPIs, as the E.Leclerc Dinan chiller fault of 2026-08-15 is]"
+  "Notes": "[incident:fr:silve-salads-2026-09-02] intermarché [operator review 2026-09-05: verified against the fiche — motif \"susceptibles de contenir un ou plusieurs corps étranger(s) dur(s) de couleur noire\", risk class \"inertes (verre, métal, plastique…)\", use-by dates 28/08/2026–10/09/2026, published 02/09/2026, origin of the fiche SILVE INTERMARCHE. One incident across 15 fiches (Intermarché, Netto, Monique Ranou, Top Budget and unbranded counter salads), all filed by SILVE, the Intermarché-group deli-salad plant; Company = SILVE on every row so the report groups them. Tier 3 per the framework rule for a foreign body of unspecified material in adult food.] [incident tag 2026-09-05: fifteen fiches, one plant (SILVE), one defect — hard black fragments — counted as one incident in the weekly KPIs, as the E.Leclerc Dinan chiller fault of 2026-08-15 is] [original product: Tortis concombre et saumon 300 g] [English names 2026-10-02]"
  },
  {
   "Date": "2026-09-02",
@@ -4980,7 +4980,7 @@
   "Source": "RappelConso (FR)",
   "Company": "SILVE",
   "Brand": "Intermarché",
-  "Product": "Salade Marco Polo 300 g",
+  "Product": "Marco Polo pasta salad 300 g",
   "Pathogen": "Foreign material (hard black fragments)",
   "Reason": "May contain one or more hard black foreign bodies",
   "Class": "Recall",
@@ -4989,7 +4989,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23383/interne",
-  "Notes": "[incident:fr:silve-salads-2026-09-02] intermarche [operator review 2026-09-05: verified against the fiche — motif \"susceptibles de contenir un ou plusieurs corps étranger(s) dur(s) de couleur noire\", risk class \"inertes (verre, métal, plastique…)\", use-by dates 28/08/2026–10/09/2026, published 02/09/2026, origin of the fiche SILVE INTERMARCHE. One incident across 15 fiches (Intermarché, Netto, Monique Ranou, Top Budget and unbranded counter salads), all filed by SILVE, the Intermarché-group deli-salad plant; Company = SILVE on every row so the report groups them. Tier 3 per the framework rule for a foreign body of unspecified material in adult food.] [incident tag 2026-09-05: fifteen fiches, one plant (SILVE), one defect — hard black fragments — counted as one incident in the weekly KPIs, as the E.Leclerc Dinan chiller fault of 2026-08-15 is]"
+  "Notes": "[incident:fr:silve-salads-2026-09-02] intermarche [operator review 2026-09-05: verified against the fiche — motif \"susceptibles de contenir un ou plusieurs corps étranger(s) dur(s) de couleur noire\", risk class \"inertes (verre, métal, plastique…)\", use-by dates 28/08/2026–10/09/2026, published 02/09/2026, origin of the fiche SILVE INTERMARCHE. One incident across 15 fiches (Intermarché, Netto, Monique Ranou, Top Budget and unbranded counter salads), all filed by SILVE, the Intermarché-group deli-salad plant; Company = SILVE on every row so the report groups them. Tier 3 per the framework rule for a foreign body of unspecified material in adult food.] [incident tag 2026-09-05: fifteen fiches, one plant (SILVE), one defect — hard black fragments — counted as one incident in the weekly KPIs, as the E.Leclerc Dinan chiller fault of 2026-08-15 is] [original product: Salade Marco Polo 300 g] [English names 2026-10-02]"
  },
  {
   "Date": "2026-09-02",
@@ -6190,6 +6190,22 @@
   "Outbreak": 0,
   "URL": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1122",
   "Notes": "[audit 2026-09-04: added from the regulator listing, which the BLV scraper had missed — the register held none of the five Swiss recalls of 21 Aug–1 Sep.] Listing text: \"Aldi Suisse SA procède au rappel du produit « Œufs Regio, lot de 4, Tessin » en raison d'une éventuelle contamination par la salmonelle\" - 21.08.2026. [audit 2026-09-04: verified verbatim on the regulator listing https://www.blv.admin.ch/fr/mises-en-garde-et-rappels-aliments; the notice itself lives on recallswiss.admin.ch, a JS application that returns an empty shell to non-browser fetchers, so the listing text is the evidence. Source label BLV (CH) per one-label-per-agency.] [original product: Œufs Regio, lot de 4, Tessin (eggs)] [English names 2026-10-01]"
+ },
+ {
+  "Date": "2026-08-21",
+  "Source": "GIS (PL)",
+  "Company": "Lidl Sp. z o.o. Sp. K.",
+  "Brand": "Pilos",
+  "Product": "Pilos High Protein Pudding, chocolate flavor, 200 g (best before 14-09-2026)",
+  "Pathogen": "Bacillus cereus",
+  "Reason": "Bacillus cereus detected in one batch; manufactured by Fude + Serrahn Milchprodukte GmbH & Co. KG (Germany), distributed in Poland by Lidl; voluntary withdrawal and recall",
+  "Class": "Alert",
+  "Country": "Poland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-bacillus-cereus-w-jednej-partii-puddingu-proteinowego",
+  "Notes": "[operator review 2026-10-02: APPROVED — GIS public warning of 2026-08-21 read on gov.pl. Archived 2026-08-02 as 'llm-extraction-failed' (not a content verdict) and blocked by the re-promotion guard on every re-scrape because Class was empty; the gap finder dated it 2026-09-21. Same product event as RASFF 2026.7398 and NVWA 2026-08-19; this is the Polish distribution]"
  },
  {
   "Date": "2026-08-20",
@@ -15540,7 +15556,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Stoeffler",
   "Brand": "Les classiques",
-  "Product": "Flammekueche tarte flambée Alsatian recipe 2X 120g (RappelConso fiche 22611)",
+  "Product": "Flammekueche (Alsatian flatbread tart) 2 x 120 g (RappelConso fiche 22611)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Suspected contamination with Listeria monocytogenes, together with cooking instructions judged insufficiently explicit to guarantee control of the hazard",
   "Class": "Voluntary",
@@ -15549,7 +15565,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22611/Interne",
-  "Notes": "prosol fresh [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→STOEFFLER Stoeffler, Brand→Les classiques, Product→Flammekueche tarte flambée recette alsac, Pathogen→Listeria monocytogenes; fix; company mismatch; product mismatch | Company and Product fields are incomplete or incorrect based on the page conte] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [original product: Flammekueche tarte flambée recette alsacienne 2X 120g (RappelConso fiche 22611)] [English names 2026-10-01]"
+  "Notes": "prosol fresh [url-gate 2026-06-19: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-06-19: fix; corrections: Company→STOEFFLER Stoeffler, Brand→Les classiques, Product→Flammekueche tarte flambée recette alsac, Pathogen→Listeria monocytogenes; fix; company mismatch; product mismatch | Company and Product fields are incomplete or incorrect based on the page conte] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [original product: Flammekueche tarte flambée recette alsacienne 2X 120g (RappelConso fiche 22611)] [English names 2026-10-01] [original product: Flammekueche tarte flambée Alsatian recipe 2X 120g (RappelConso fiche 22611)] [English names 2026-10-02]"
  },
  {
   "Date": "2026-06-19",
@@ -20500,7 +20516,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Société Coopérative Agricole des Producteurs de Reblochons des Vallées de Thônes",
   "Brand": "Le farto de Thônes",
-  "Product": "Reblochon de Savoie fermier AOP 450g (RappelConso fiche 22275)",
+  "Product": "Reblochon de Savoie AOP farmhouse cheese 450 g (RappelConso fiche 22275)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Presence of Shiga toxin-producing Escherichia coli (STEC)",
   "Class": "Voluntary",
@@ -20509,7 +20525,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22275/Interne",
-  "Notes": "point de vente de la coopérative à thônes; fromtome à poligny [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [patch 2026-05-15 W20#3: pathogen label canonicalised from 'Escherichia coli STEC'] [patch 2026-05-15 W20#4: linked-lot 015526100 also recalled under fiche 22274 — Sans marque, wholesale distribution to Bretagne via team ouest] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text]"
+  "Notes": "point de vente de la coopérative à thônes; fromtome à poligny [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [patch 2026-05-15 W20#3: pathogen label canonicalised from 'Escherichia coli STEC'] [patch 2026-05-15 W20#4: linked-lot 015526100 also recalled under fiche 22274 — Sans marque, wholesale distribution to Bretagne via team ouest] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [original product: Reblochon de Savoie fermier AOP 450g (RappelConso fiche 22275)] [English names 2026-10-02]"
  },
  {
   "Date": "2026-05-13",
@@ -20548,7 +20564,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Société Coopérative Agricole des Producteurs de Reblochons des Vallées de Thônes",
   "Brand": "Unbranded",
-  "Product": "Reblochon de Savoie fermier AOP 450g (RappelConso fiche 22274)",
+  "Product": "Reblochon de Savoie AOP farmhouse cheese 450 g (RappelConso fiche 22274)",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
   "Reason": "Presence of Shiga toxin-producing Escherichia coli (STEC)",
   "Class": "Voluntary",
@@ -20557,7 +20573,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22274/Interne",
-  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste team ouest [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [patch 2026-05-15 W20#4: linked-lot 015526100 also recalled under fiche 22275 — Le farto de Thones brand, Jura+Haute-Savoie retail channel] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [original product: reblochon de savoie fermier aop 450g (RappelConso fiche 22274)] [English names 2026-10-01]"
+  "Notes": "fromagers et commerces de proximité de la région fourni par grossiste team ouest [url-gate 2026-05-14: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-05-14T17:03Z: applied via recovery after commit_github.py xlsx-staging bug; bug fixed in commit_github.py delivered 2026-05-14 evening] [patch 2026-05-15 W20#4: linked-lot 015526100 also recalled under fiche 22275 — Le farto de Thones brand, Jura+Haute-Savoie retail channel] [disambig 2026-07-13: RappelConso publishes only a generic category for this fiche; fiche number appended so distinct SKUs are not identical text] [original product: reblochon de savoie fermier aop 450g (RappelConso fiche 22274)] [English names 2026-10-01] [original product: Reblochon de Savoie fermier AOP 450g (RappelConso fiche 22274)] [English names 2026-10-02]"
  },
  {
   "Date": "2026-05-13",
@@ -21044,7 +21060,7 @@
   "Source": "RappelConso (FR)",
   "Company": "GAEC de la Pellerie",
   "Brand": "GAEC de la Pellerie",
-  "Product": "Crème fraîche (RappelConso fiche 22235)",
+  "Product": "Crème fraîche (cultured cream) (RappelConso fiche 22235)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "listeria",
   "Class": "Voluntary",
@@ -21053,7 +21069,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22235/Interne",
-  "Notes": ", ; samuel vigne touraille 28240 saint victor de buthon; , ; , l'epicerie paris 20eme [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [original product: creme fraiche (RappelConso fiche 22235)] [English names 2026-10-01]"
+  "Notes": ", ; samuel vigne touraille 28240 saint victor de buthon; , ; , l'epicerie paris 20eme [url-gate 2026-05-11: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [disambig 2026-07-15: same-producer/same-day or shared generic label across distinct RappelConso fiches; fiche appended so distinct SKUs are not identical text] [original product: creme fraiche (RappelConso fiche 22235)] [English names 2026-10-01] [original product: Crème fraîche (RappelConso fiche 22235)] [English names 2026-10-02]"
  },
  {
   "Date": "2026-05-11",
@@ -23620,7 +23636,7 @@
   "Source": "RappelConso (FR)",
   "Company": "La Racotière",
   "Brand": "—",
-  "Product": "Bouchons de chèvre / Apérichèvres (fromage fermier)",
+  "Product": "Goat cheese bites / Apérichèvres (farmhouse cheese)",
   "Pathogen": "E. coli STEC (Shiga toxin-producing)",
   "Reason": "Risques microbiologiques — Escherichia coli shiga toxinogène (STEC)",
   "Class": "Voluntary",
@@ -23629,7 +23645,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22070/Interne",
-  "Notes": "Manually added Apr 22. Two separate STEC recalls same day in Lait et produits laitiers category. Category-page URL used pending fiche ID. [URL needs specific fiche-rappel — currently category listing]"
+  "Notes": "Manually added Apr 22. Two separate STEC recalls same day in Lait et produits laitiers category. Category-page URL used pending fiche ID. [URL needs specific fiche-rappel — currently category listing] [original product: Bouchons de chèvre / Apérichèvres (fromage fermier)] [English names 2026-10-02]"
  },
  {
   "Date": "2026-04-21",
