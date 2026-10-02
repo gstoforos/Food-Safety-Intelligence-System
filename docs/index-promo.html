@@ -306,7 +306,7 @@ body.promo-mode #tab-daily,
 body.promo-mode #tab-reports,
 body.promo-mode #tab-monthly,
 body.promo-mode #tab-signals,
-body.promo-mode .tab[onclick*="downloadRecallsXlsx"],
+body.promo-mode .tab[onclick*="openRegisterSheet"],
 body.promo-mode .tab[onclick*="alerts.html"]{
   opacity:.48;filter:saturate(.45);cursor:pointer;
   transition:opacity .15s,color .15s,background .15s,border-color .15s,filter .15s;
@@ -315,7 +315,7 @@ body.promo-mode #tab-daily::after,
 body.promo-mode #tab-reports::after,
 body.promo-mode #tab-monthly::after,
 body.promo-mode #tab-signals::after,
-body.promo-mode .tab[onclick*="downloadRecallsXlsx"]::after,
+body.promo-mode .tab[onclick*="openRegisterSheet"]::after,
 body.promo-mode .tab[onclick*="alerts.html"]::after{
   content:' \01F512';font-size:11px;margin-left:5px;opacity:.85;display:inline-block;vertical-align:1px;
 }
@@ -323,7 +323,7 @@ body.promo-mode #tab-daily:hover,
 body.promo-mode #tab-reports:hover,
 body.promo-mode #tab-monthly:hover,
 body.promo-mode #tab-signals:hover,
-body.promo-mode .tab[onclick*="downloadRecallsXlsx"]:hover,
+body.promo-mode .tab[onclick*="openRegisterSheet"]:hover,
 body.promo-mode .tab[onclick*="alerts.html"]:hover{
   opacity:1;filter:saturate(1);color:var(--ai)!important;border-color:var(--ai)!important;
 }
@@ -331,7 +331,7 @@ body.promo-mode #tab-daily:hover::after,
 body.promo-mode #tab-reports:hover::after,
 body.promo-mode #tab-monthly:hover::after,
 body.promo-mode #tab-signals:hover::after,
-body.promo-mode .tab[onclick*="downloadRecallsXlsx"]:hover::after,
+body.promo-mode .tab[onclick*="openRegisterSheet"]:hover::after,
 body.promo-mode .tab[onclick*="alerts.html"]:hover::after{
   content:' \01F512 Subscribe';font-family:'DM Mono',monospace;font-size:9px;font-weight:700;
   color:var(--ai);letter-spacing:.08em;text-transform:uppercase;
@@ -437,7 +437,7 @@ body.promo-mode .tab[onclick*="alerts.html"]:hover::after{
 <button class="tab" id="tab-monthly" onclick="switchTab('monthly')">🗓 Monthly <span id="mon-count" style="opacity:.55;font-weight:400"></span></button>
 <button class="tab" id="tab-signals" onclick="return false" title="Subscribe to unlock">⚡ Live Signals</button>
 <button class="tab" id="tab-yearly" onclick="return false" aria-disabled="true" title="Yearly reports activate January 2027, after 12 months of data" style="opacity:.35;cursor:not-allowed;color:var(--dim)">📆 Yearly <span style="font-family:'DM Mono',monospace;font-size:8px;font-weight:400;opacity:.65;margin-left:4px">soon</span></button>
-<button class="tab" onclick="downloadRecallsXlsx()">↓ XLSX</button>
+<button class="tab" onclick="openRegisterSheet()">▦ SHEET</button>
 <button class="tab" onclick="window.open('alerts.html','_blank','noopener,width=980,height=820')" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🔔 Alerts</button>
 </div>
 
@@ -489,7 +489,7 @@ The weekly report now covers one calendar week, <strong>Monday to Sunday</strong
 <div class="promo-bottom">
   <div class="promo-bottom-tag">◆ Unlock the Full AFTS Intelligence System</div>
   <h2>You're seeing a <em>random sample</em>. <br>Subscribe to unlock the full feed.</h2>
-  <p class="lead">The full system tracks 80+ countries, 70+ regulatory sources, daily updates, weekly and monthly analyst-grade reports, custom pathogen + product alerts, full historical archive, and downloadable datasets.</p>
+  <p class="lead">The full system tracks 80+ countries, 70+ regulatory sources, daily updates, weekly and monthly analyst-grade reports, custom pathogen + product alerts, the full historical archive, and the live recall register as a Google Sheet.</p>
   <div class="feat-grid">
     <div class="feat-card"><div class="ft">Daily Feed</div><div class="fb">All verified recalls as they're published — not just a random 15.</div></div>
     <div class="feat-card"><div class="ft">Weekly Briefing</div><div class="fb">Monday digest with AI-authored intelligence summary + top critical threats.</div></div>
@@ -501,7 +501,7 @@ The weekly report now covers one calendar week, <strong>Monday to Sunday</strong
   <a href="https://www.advfood.tech/fsis-plans" target="_top" class="promo-bottom-cta">View Subscription Plans →</a>
 </div>
 
-<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/fsis-home" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="downloadRecallsXlsx();return false;">↓ XLSX</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:var(--ai);font-family:'DM Mono',monospace;font-size:9px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
+<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/fsis-home" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:var(--ai);font-family:'DM Mono',monospace;font-size:9px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
 
 <script>
 let ALL=[],filtered=[],page=1,perPage=50,sortCol='date',sortAsc=false,pillFilter='';
@@ -611,40 +611,6 @@ async function _fsisUpgradeLastRunFromGitHub() {
                    + ' records<br>Source: data/recalls.xlsx';
     }
   } catch (_) { /* silent — meta line keeps its synchronous value */ }
-}
-
-// ===== DOWNLOADS — Recalls only (strip Pending + NEWS + Notes) =====
-// Rebuild a clean workbook from in-memory ALL so subscribers never receive
-// the Pending worktable or the NEWS ingestion sheet in their download.
-// Notes column also stripped — internal provenance (AI vendor names, audit
-// stamps, manual-edit traces) must not leak to subscribers. See
-// pipeline/export_public_xlsx.py for the full audit rationale.
-function _recallsExportRows(){
-  return ALL.map(r=>({
-    Date:r.date, Source:r.source, Company:r.company, Brand:r.brand,
-    Product:r.product, Pathogen:r.pathogen, Reason:r.reason, Class:r.class_,
-    Country:r.country, Region:r.region, Tier:r.tier, Outbreak:r.is_outbreak,
-    URL:r.url
-  }));
-}
-function downloadRecallsXlsx(){
-  if(!ALL.length){alert('Data is still loading — please try again in a moment.');return;}
-  const rows=_recallsExportRows();
-  const ws=XLSX.utils.json_to_sheet(rows);
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'Recalls');
-  const dt=new Date().toISOString().slice(0,10);
-  XLSX.writeFile(wb,`afts-recalls-${dt}.xlsx`);
-}
-function downloadRecallsJson(){
-  if(!ALL.length){alert('Data is still loading — please try again in a moment.');return;}
-  const blob=new Blob([JSON.stringify(_recallsExportRows(),null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  const dt=new Date().toISOString().slice(0,10);
-  a.href=url; a.download=`afts-recalls-${dt}.json`;
-  document.body.appendChild(a); a.click();
-  setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},100);
 }
 
 // ===== LOAD RECALLS + NEWS FROM SAME XLSX =====

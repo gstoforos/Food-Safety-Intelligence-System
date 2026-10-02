@@ -291,7 +291,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <button class="tab" id="tab-monthly" onclick="switchTab('monthly')">🗓 Monthly <span id="mon-count" style="opacity:.55;font-weight:400"></span></button>
 <button class="tab" id="tab-signals" onclick="switchTab('signals')">⚡ Live Signals <span id="sig-count" style="opacity:.55;font-weight:400"></span></button>
 <button class="tab" id="tab-yearly" onclick="return false" aria-disabled="true" title="Yearly reports activate January 2027, after 12 months of data" style="opacity:.35;cursor:not-allowed;color:var(--dim)">📆 Yearly <span style="font-family:'DM Mono',monospace;font-size:10px;font-weight:400;opacity:.65;margin-left:4px">soon</span></button>
-<button class="tab" onclick="downloadRecallsXlsx()">↓ XLSX</button>
+<button class="tab" onclick="openRegisterSheet()">▦ SHEET</button>
 <button class="tab" onclick="window.open('alerts.html','_blank','noopener,width=980,height=820')" style="color:#fbbf24;border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)">🔔 Alerts</button>
 </div>
 
@@ -429,7 +429,7 @@ The weekly report now covers one calendar week, <strong>Monday to Sunday</strong
 </div>
 </div>
 
-<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/fsis-home" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="downloadRecallsXlsx();return false;">↓ XLSX</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:var(--ai);font-family:'DM Mono',monospace;font-size:11px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
+<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/fsis-home" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="openRegisterSheet();return false;">▦ Google Sheet</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:var(--ai);font-family:'DM Mono',monospace;font-size:11px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
 
 <script>
 let ALL=[],filtered=[],page=1,perPage=50,sortCol='date',sortAsc=false,pillFilter='';
@@ -696,93 +696,18 @@ async function _fsisUpgradeLastRunFromGitHub() {
   } catch (_) { /* silent — meta line keeps its synchronous value */ }
 }
 
-// ===== DOWNLOADS — Recalls only (strip Pending + NEWS + Notes) =====
-// Rebuild a clean workbook from in-memory ALL so subscribers never receive
-// the Pending worktable or the NEWS ingestion sheet in their download.
-// Notes column also stripped — internal provenance (AI vendor names, audit
-// stamps, manual-edit traces) must not leak to subscribers. See
-// pipeline/export_public_xlsx.py for the full audit rationale.
-function _recallsExportRows(){
-  return ALL.map(r=>({
-    Date:r.date, Source:r.source, Company:r.company, Brand:r.brand,
-    Product:r.product, Pathogen:r.pathogen, Reason:r.reason, Class:r.class_,
-    Country:r.country, Region:r.region, Tier:r.tier, Outbreak:r.is_outbreak,
-    URL:r.url
-  }));
-}
-// ===== LICENSED DOWNLOADS (operator 2026-10-01) =====
-// "so not someone able to use it commercially?" Nothing in a browser can
-// stop a person copying data they can see. What the download CAN do is make
-// every copy traceable and the terms explicit: each file carries the signed-
-// in subscriber's name and email, the date, and the licence, and its sheets
-// are protected against editing. A copy found elsewhere names its source.
-const FSIS_LICENCE_LINES = [
-  'AFTS Food Safety Intelligence System (FSIS) — recall dataset',
-  '',
-  'This file is licensed to a single FSIS subscriber for internal use only.',
-  'You may use it inside your own organisation for food-safety, QA and regulatory work.',
-  'You may NOT resell, redistribute, publish, sublicense or use it in a commercial',
-  'product or service, in whole or in part, without written permission from AFTS.',
-  'Each download is marked with the subscriber it was issued to.',
-  '',
-  'Sources: official regulator notices; links in the URL column. Verify recall status',
-  'with the originating authority before acting. Provided for information only.',
-  '',
-  '© ' + new Date().getFullYear() + ' Advanced Food-Tech Solutions (AFTS), Athens, Greece · info@advfood.tech'
-];
-function _fsisLicensee(){
+// ===== THE REGISTER IS A GOOGLE SHEET (operator 2026-10-02: "Sheet only") =====
+// There is no file download any more. Subscribers open one view-only Google
+// Sheet (download, print and copy switched off for viewers); access follows
+// the subscription and ends with it — FsisRegisterSheet.gs. The link comes
+// with the sign-in (fsis-gate.js keeps it in the session) and is also in the
+// welcome email.
+function openRegisterSheet(){
   let s = {};
   try { s = JSON.parse(localStorage.getItem('fsis-session') || '{}') || {}; } catch(_){}
-  const name  = String(s.name || ((s.first||'') + ' ' + (s.last||'')).trim() || 'FSIS subscriber');
-  const email = String(s.email || '');
-  // Short licence ID from the email (FNV-1a): same subscriber, same ID, on
-  // every row of every file they download.
-  let h = 2166136261; const k = (email || name).toLowerCase();
-  for (let i = 0; i < k.length; i++) { h ^= k.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
-  const id = 'L-' + h.toString(36).toUpperCase().padStart(7, '0');
-  return { name, email, id, label: name + (email ? ' <' + email + '>' : ''),
-           mark: 'AFTS · FSIS · licensed to ' + name + ' · ' + id };
-}
-const _FSIS_PROTECT = { password: 'AFTS-FSIS-licensed', selectLockedCells: false, selectUnlockedCells: false,
-                        formatCells: true, formatColumns: true, formatRows: true, insertRows: true,
-                        insertColumns: true, deleteRows: true, deleteColumns: true, sort: false, autoFilter: false };
-function downloadRecallsXlsx(){
-  if(!ALL.length){alert('Data is still loading — please try again in a moment.');return;}
-  const lic = _fsisLicensee();
-  const dt = new Date().toISOString().slice(0,10);
-  const stamp = 'AFTS · Food Safety Intelligence System — licensed to ' + lic.label + ' (' + lic.id + ') · downloaded ' + dt + ' · internal use only — no redistribution or commercial reuse (see Licence sheet)';
-  // WATERMARK: every row carries the licence mark, so rows copied out of
-  // the file still say whose they are.
-  const rows = _recallsExportRows().map(r => Object.assign(r, { 'AFTS licence': lic.mark }));
-  // Recalls sheet: the licence line on row 1, the table from row 3.
-  const ws = XLSX.utils.aoa_to_sheet([[stamp], []]);
-  XLSX.utils.sheet_add_json(ws, rows, { origin: 'A3' });
-  ws['!protect'] = _FSIS_PROTECT;
-  // Licence sheet
-  const licRows = FSIS_LICENCE_LINES.map(l => [l]);
-  licRows.splice(2, 0, ['Licensed to: ' + lic.label], ['Licence ID: ' + lic.id], ['Downloaded: ' + dt], ['']);
-  const wl = XLSX.utils.aoa_to_sheet(licRows);
-  wl['!cols'] = [{ wch: 100 }];
-  wl['!protect'] = _FSIS_PROTECT;
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, wl, 'Licence');
-  XLSX.utils.book_append_sheet(wb, ws, 'Recalls');
-  wb.Props = { Title: 'AFTS FSIS recall dataset', Author: 'Advanced Food-Tech Solutions',
-               Company: 'Advanced Food-Tech Solutions', Comments: stamp };
-  XLSX.writeFile(wb, `afts-recalls-${dt}.xlsx`);
-}
-function downloadRecallsJson(){
-  if(!ALL.length){alert('Data is still loading — please try again in a moment.');return;}
-  const lic = _fsisLicensee();
-  const dt = new Date().toISOString().slice(0,10);
-  const payload = { licence: { licensed_to: lic.label, licence_id: lic.id, downloaded: dt, terms: FSIS_LICENCE_LINES.filter(Boolean) },
-                    recalls: _recallsExportRows().map(r => Object.assign(r, { afts_licence: lic.mark })) };
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download=`afts-recalls-${dt}.json`;
-  document.body.appendChild(a); a.click();
-  setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},100);
+  if (s.sheet) { window.open(s.sheet, '_blank', 'noopener'); return; }
+  alert('The recall register opens as a Google Sheet. The link is in your FSIS welcome email '
+      + '(and in the access-token email). Questions: info@advfood.tech');
 }
 
 // ===== LOAD RECALLS + NEWS FROM SAME XLSX =====
