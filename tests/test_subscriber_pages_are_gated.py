@@ -25,8 +25,8 @@ from pipeline._gate import GATE_TAG, add_gate  # noqa: E402
 
 #: Public on purpose: the free preview and the Wix hub of monthly cards.
 PUBLIC = {"index-promo.html", "hub.html",
-          # Holds no data: it fetches the rows for a signed-in session from
-          # the FSIS script, which checks the session itself (2026-10-02).
+          # Opened from the dashboard like the reports; cuts its own
+          # address to "/" (2026-10-02).
           "register.html"}
 #: Operator / methodology pages rebuilt by other tools, not subscriber content.
 PUBLIC_DIRS = ("data", "reports", "marketing", "social", "audits")
@@ -99,9 +99,10 @@ def test_the_register_is_a_google_sheet_not_a_download():
     # Private Sheet behind the app sign-in (operator 2026-10-02): the button
     # opens the Apps Script page with this session; no Sheet link exists in
     # the page or the session.
-    assert "window.open('register.html#sid=' + encodeURIComponent(s.sid)" in html
+    assert "window.open('register.html#n=' + encodeURIComponent(s.name || '')" in html
     reg = (DOCS / "register.html").read_text(encoding="utf-8")
-    assert "action=fsis_check&sid=" in reg and "fetch('/data/recalls.json" in reg
+    # Opens like the reports: no sign-in of its own, no Google call.
+    assert "fetch('/data/recalls.json" in reg and "script.google.com" not in reg
     # Our own spreadsheet view (operator 2026-10-02): address cut to "/",
     # three tabs, watermark, and no way to save a file.
     assert "history.replaceState(null, '', '/')" in reg
@@ -112,8 +113,7 @@ def test_the_register_is_a_google_sheet_not_a_download():
     assert "docs.google.com/spreadsheets" not in html
     js = (DOCS / "fsis-gate.js").read_text(encoding="utf-8")
     assert "r.sheet" not in js
-    url = re.search(r"https://script\.google\.com/macros/s/[A-Za-z0-9_-]+/exec", js).group(0)
-    assert url in reg, "register.html must call the same deployment as the sign-in"
+
 
 
 def test_remember_me_keeps_the_token_through_sign_out():
