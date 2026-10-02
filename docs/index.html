@@ -429,7 +429,7 @@ The weekly report now covers one calendar week, <strong>Monday to Sunday</strong
 </div>
 </div>
 
-<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/fsis-home" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="openRegisterSheet();return false;">▦ Google Sheet</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:var(--ai);font-family:'DM Mono',monospace;font-size:11px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
+<div class="footer"><div><div class="footer-brand">Advanced Food-Tech Solutions <em>·</em> AFTS</div><div class="flinks"><a href="https://www.advfood.tech" target="_blank">advfood.tech</a><a href="https://www.advfood.tech/fsis-home" target="_blank" rel="noopener">FSIS Homepage</a><a href="mailto:info@advfood.tech">info@advfood.tech</a><a href="#" onclick="openRegisterSheet();return false;">▦ Register</a></div></div><a href="https://www.advfood.tech" target="_blank" style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:var(--ai);font-family:'DM Mono',monospace;font-size:11px;padding:7px 14px;border-radius:2px;text-decoration:none;letter-spacing:.08em;">advfood.tech →</a></div>
 
 <script>
 let ALL=[],filtered=[],page=1,perPage=50,sortCol='date',sortAsc=false,pillFilter='';
@@ -699,10 +699,9 @@ async function _fsisUpgradeLastRunFromGitHub() {
 // ===== THE RECALL REGISTER (operator 2026-10-02) =====
 // "people will access it via my google but they have to sign in as the app"
 // · "I do not want them to see my account". The register lives in a PRIVATE
-// Google Sheet shared with nobody. SHEET opens register.html, which asks the
-// FSIS script for the rows of this session (?action=fsis_register, JSONP —
-// FsisRegisterSheet.gs). The script checks the session exactly as the
-// dashboard does: read-only, no download, no Google account, no owner shown.
+// SHEET opens register.html: the session is checked by the FSIS script
+// (fsis_check, as here) and the rows come from this site's register file.
+// Read-only, no download, watermarked; no Google Sheet or account involved.
 function openRegisterSheet(){
   let s = {};
   try { s = JSON.parse(localStorage.getItem('fsis-session') || '{}') || {}; } catch(_){}
@@ -711,7 +710,7 @@ function openRegisterSheet(){
     // FSIS script. Not a script.google.com page: those fail in a browser
     // signed in to more than one Google account. The session rides in the
     // #hash (never sent to a server) and register.html removes it at once.
-    window.open('register.html#sid=' + encodeURIComponent(s.sid), '_blank', 'noopener');
+    window.open('register.html#sid=' + encodeURIComponent(s.sid) + '&e=' + encodeURIComponent(s.email || ''), '_blank', 'noopener');
     return;
   }
   _fsisNote('Please sign in first — the recall register opens for signed-in subscribers.');
