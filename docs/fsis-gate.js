@@ -27,6 +27,8 @@
   'use strict';
 
   var GATE_URL = 'https://script.google.com/macros/s/AKfycbwA2UeM1KtmUOcI6T2dwT-6Ox2DOPZUJtWvePaMU8wgrkCcOrEw9kVq9BtWpZ0NQSQ/exec';
+  // The dashboard's SHEET button opens GATE_URL?action=fsis_sheet&sid=… (2026-10-02).
+  window.FSIS_GATE_URL = GATE_URL;
   var KEY = 'fsis-session';
   var RECHECK_MS = 5 * 60 * 1000;
   var GRACE_MS = 12 * 3600 * 1000;   // service unreachable: keep a session checked in the last 12 h
@@ -228,7 +230,7 @@
       call({ action: 'fsis_signin', name: name, email: email, token: token, device: deviceKey() }, function (r) {
         btn.disabled = false;
         if (r && r.ok) {
-          save({ sid: r.sid, name: r.name || name, first: first, last: last, email: email, sheet: r.sheet || '', checked: Date.now() });
+          save({ sid: r.sid, name: r.name || name, first: first, last: last, email: email, checked: Date.now() });
           if (doc.getElementById('fsis-g-remember').checked) saveRem({ first: first, last: last, email: email, token: token, signedOut: false });
           else clearRem();
           unlock();
@@ -323,7 +325,7 @@
     if (!s || !s.sid) { if (first) showSignin(); return; }
     call({ action: 'fsis_check', sid: s.sid, device: deviceKey() }, function (r) {
       if (r && r.ok) {
-        s.checked = Date.now(); if (r.sheet) s.sheet = r.sheet; save(s);   // register Sheet link (2026-10-02)
+        s.checked = Date.now(); save(s);
         if (first) unlock();
         return;
       }
@@ -349,7 +351,7 @@
     call({ action: 'fsis_signin', name: (rem.first + ' ' + rem.last).trim(), email: rem.email,
            token: rem.token, device: deviceKey() }, function (r) {
       if (r && r.ok) {
-        save({ sid: r.sid, name: r.name, first: rem.first, last: rem.last, email: rem.email, sheet: r.sheet || '', checked: Date.now() });
+        save({ sid: r.sid, name: r.name, first: rem.first, last: rem.last, email: rem.email, checked: Date.now() });
         unlock();
       } else {
         showSignin((r && r.message) || '', 'err');

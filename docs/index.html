@@ -696,22 +696,21 @@ async function _fsisUpgradeLastRunFromGitHub() {
   } catch (_) { /* silent — meta line keeps its synchronous value */ }
 }
 
-// ===== THE REGISTER IS A GOOGLE SHEET (operator 2026-10-02: "Sheet only") =====
-// There is no file download any more. Subscribers open one view-only Google
-// Sheet (download, print and copy switched off for viewers); access follows
-// the subscription and ends with it — FsisRegisterSheet.gs. The link comes
-// ONLY with the sign-in (fsis-gate.js keeps it in the session); it is never
-// emailed (operator 2026-10-02: "should be with the btn").
+// ===== THE RECALL REGISTER (operator 2026-10-02) =====
+// "people will access it via my google but they have to sign in as the app"
+// · "I do not want them to see my account". The register lives in a PRIVATE
+// Google Sheet shared with nobody. SHEET opens the Apps Script page
+// ?action=fsis_sheet&sid=<this session> (FsisRegisterSheet.gs), which checks
+// the session exactly as the dashboard does and only then shows the register:
+// read-only, no download, no Google account needed, no owner shown.
 function openRegisterSheet(){
   let s = {};
   try { s = JSON.parse(localStorage.getItem('fsis-session') || '{}') || {}; } catch(_){}
-  if (s.sheet) { window.open(s.sheet, '_blank', 'noopener'); return; }
-  // No link in this session yet (the Sheet is set up from Apps Script, and a
-  // session started before that has none until its next check). An in-page
-  // note, not alert(): inside the Wix frame alert() shows as "An embedded
-  // page says…".
-  _fsisNote('The recall Sheet is being prepared for your account. Sign out and sign in again in a few minutes; '
-          + 'if it still does not open, write to info@advfood.tech.');
+  if (s.sid && window.FSIS_GATE_URL) {
+    window.open(window.FSIS_GATE_URL + '?action=fsis_sheet&sid=' + encodeURIComponent(s.sid), '_blank', 'noopener');
+    return;
+  }
+  _fsisNote('Please sign in first — the recall register opens for signed-in subscribers.');
 }
 function _fsisNote(text){
   let n = document.getElementById('fsis-note');
