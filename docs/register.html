@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>AFTS FSIS — Recall Register</title>
+<!--
+  FSIS Recall Register — our own spreadsheet view (operator 2026-10-02).
+
+  "build an HTML file that looks like the Google Sheet or Excel … with the
+   restrictions … opens from the app, they have signed in … disappear the URL
+   … disclaimer sheet and the other sheet with all the information … the
+   download should act like the Google Sheet discussion" (= no download).
+
+  Opened by the dashboard's SHEET button as register.html#sid=<session>.
+  This file holds NO data. It asks the FSIS Apps Script for the rows
+  (?action=fsis_register&sid=…, JSONP — the same way sign-in works). The
+  script checks the session exactly as the dashboard does (active
+  subscription, one device at a time) and reads a PRIVATE Google Sheet that
+  is shared with nobody (FsisRegisterSheet.gs). No Google account is needed
+  and no owner is shown. The address is cut back to "/" at once, like the
+  reports.
+
+  Tabs: Register (every recall, sort + filter per column) · Summary ·
+  Licence & Disclaimer. No download, print, copy or select; every view is
+  watermarked with the subscriber's name and licence ID.
+-->
+<style>
+:root{
+  --ink:#1f2328;--muted:#5f6368;--line:#e2e3e3;--line2:#c7c7c7;--head:#f8f9fa;--head2:#eef0f2;
+  --sel:#1a7f4b;--selbg:#e6f4ea;--brand:#0a0e1a;--ai:#34d399;--red:#d93025;--orange:#e37400;--cyan:#0b8ea8;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:#fff;color:var(--ink);font:13px/1.35 "Segoe UI",Roboto,system-ui,-apple-system,sans-serif;
+  -webkit-user-select:none;user-select:none;display:flex;flex-direction:column;overflow:hidden}
+/* ── title bar ───────────────────────────────────────────────────────── */
+.tb{background:var(--brand);color:#e8edf5;display:flex;align-items:center;gap:14px;padding:8px 14px;flex-wrap:wrap}
+.tb .logo{width:28px;height:28px;border-radius:4px;background:#1a7f4b;display:grid;place-items:center;font-weight:800;color:#fff;font-size:13px}
+.tb h1{margin:0;font-size:15px;font-weight:600;letter-spacing:.01em}.tb h1 em{color:var(--ai);font-style:normal}
+.tb .lic{font-size:12px;color:#9aa3b5}.tb .lic b{color:#e8edf5;font-weight:600}
+.tb .sp{flex:1}
+.tb .upd{font-size:11px;color:#9aa3b5;font-family:ui-monospace,Consolas,monospace}
+/* ── toolbar + formula bar ───────────────────────────────────────────── */
+.tool{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--line);background:#fff;flex-wrap:wrap}
+.tool input{border:1px solid var(--line2);border-radius:4px;padding:5px 9px;font:inherit;min-width:240px;flex:0 1 340px;outline:none}
+.tool input:focus{border-color:var(--sel);box-shadow:0 0 0 2px var(--selbg)}
+.tool button{border:1px solid var(--line2);background:#fff;border-radius:4px;padding:5px 10px;font:inherit;cursor:pointer;color:var(--ink)}
+.tool button:hover{background:var(--head)}
+.tool .cnt{color:var(--muted);font-size:12px;margin-left:auto}
+.fx{display:flex;align-items:stretch;border-bottom:1px solid var(--line);background:#fff;min-height:28px}
+.fx .ref{width:78px;border-right:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--muted)}
+.fx .ic{width:34px;border-right:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-style:italic;font-family:Georgia,serif}
+.fx .val{flex:1;padding:5px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ── sheets ─────────────────────────────────────────────────────────── */
+.sheets{flex:1;position:relative;overflow:hidden}
+.sheet{position:absolute;inset:0;overflow:auto;display:none}
+.sheet.on{display:block}
+table.g{border-collapse:separate;border-spacing:0;table-layout:fixed}
+table.g td,table.g th{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:3px 6px;height:22px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;background:#fff}
+table.g thead th{position:sticky;background:var(--head);color:var(--muted);font-weight:500;font-size:11px;text-align:center;z-index:3}
+table.g thead tr.L th{top:0;height:22px}
+table.g thead tr.F th{top:22px;background:var(--head2);color:var(--ink);font-weight:600;font-size:12px;text-align:left;height:26px}
+table.g .rn{position:sticky;left:0;background:var(--head);color:var(--muted);text-align:center;font-size:11px;width:46px;min-width:46px;z-index:2}
+table.g thead .rn{z-index:4}
+table.g tbody tr:hover td{background:#f6faf7}
+table.g tbody tr:hover td.rn{background:var(--head2)}
+table.g td.cur{outline:2px solid var(--sel);outline-offset:-2px;background:var(--selbg)!important}
+.fh{display:flex;align-items:center;gap:4px}
+.fh .nm{flex:1;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.fh .nm:hover{color:var(--sel)}
+.fh .ar{font-size:10px;color:var(--sel);width:10px}
+.fh .fb{border:1px solid transparent;background:none;border-radius:3px;cursor:pointer;color:var(--muted);font-size:10px;padding:1px 4px;line-height:1.4}
+.fh .fb:hover{border-color:var(--line2);background:#fff}
+.fh .fb.act{color:#fff;background:var(--sel)}
+.t{display:inline-block;font:700 10px ui-monospace,Consolas,monospace;padding:1px 6px;border-radius:2px}
+.t1{color:var(--red);background:#fce8e6}.t2{color:var(--orange);background:#fef0e0}.t3{color:var(--cyan);background:#e3f4f7}
+.ob{color:var(--red);font-weight:700;font-size:11px}
+a{color:#1a73e8;text-decoration:none}a:hover{text-decoration:underline}
+/* ── filter popover ─────────────────────────────────────────────────── */
+.pop{position:fixed;z-index:50;background:#fff;border:1px solid var(--line2);border-radius:6px;box-shadow:0 8px 28px rgba(0,0,0,.18);
+  width:270px;padding:10px;display:none;font-size:12px}
+.pop .pt{font-weight:600;margin-bottom:6px}
+.pop .row{display:flex;gap:6px;margin-bottom:6px}
+.pop input[type=text]{flex:1;border:1px solid var(--line2);border-radius:4px;padding:5px 7px;font:inherit}
+.pop .lst{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:4px;padding:4px 6px}
+.pop label{display:flex;gap:6px;align-items:center;padding:2px 0;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pop .lk{font-size:11px;color:#1a73e8;cursor:pointer;margin-right:10px}
+.pop .bt{display:flex;justify-content:flex-end;gap:6px;margin-top:8px}
+.pop button{border:1px solid var(--line2);background:#fff;border-radius:4px;padding:5px 12px;font:inherit;cursor:pointer}
+.pop button.ok{background:var(--sel);border-color:var(--sel);color:#fff}
+/* ── summary + licence ──────────────────────────────────────────────── */
+.wrap{padding:16px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}
+.blk h3{margin:0 0 6px;font-size:12px;font-weight:600;color:var(--sel);text-transform:uppercase;letter-spacing:.06em}
+.blk table.g{border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.blk table.g th{position:static;background:var(--head2);color:var(--ink);font-weight:600;text-align:left;font-size:12px}
+.blk td.n{text-align:right;font-variant-numeric:tabular-nums}
+.bar{display:inline-block;height:8px;background:#a8dab5;border-radius:2px;vertical-align:middle}
+.lic table.g td{white-space:normal;height:auto;padding:6px 10px}
+/* ── tabs + status bar ──────────────────────────────────────────────── */
+.tabs{display:flex;align-items:stretch;background:var(--head);border-top:1px solid var(--line2);padding-left:8px;gap:2px;overflow-x:auto}
+.tabs button{border:none;background:none;padding:7px 16px;font:inherit;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button.on{background:#fff;color:var(--sel);font-weight:600;border-bottom-color:var(--sel)}
+.st{display:flex;gap:18px;padding:3px 12px;font-size:11px;color:var(--muted);background:var(--head);border-top:1px solid var(--line)}
+/* ── watermark ──────────────────────────────────────────────────────── */
+#wm{position:absolute;inset:0;pointer-events:none;z-index:10;background-repeat:repeat;opacity:1}
+/* ── messages ───────────────────────────────────────────────────────── */
+.msg{max-width:520px;margin:12vh auto;padding:24px 26px;border:1px solid var(--line);border-radius:8px;text-align:left;box-shadow:0 4px 18px rgba(0,0,0,.06)}
+.msg h2{margin:0 0 8px;font-size:17px}.msg h2 em{color:var(--sel);font-style:normal}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line2);border-top-color:var(--sel);border-radius:50%;animation:s .8s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes s{to{transform:rotate(360deg)}}
+#app{display:none;flex:1;flex-direction:column;min-height:0}
+@media (max-width:700px){.tool input{min-width:0;flex:1 1 100%}.tb .upd{display:none}}
+@media print{body{display:none!important}}
+</style>
+</head>
+<body oncontextmenu="return false" oncopy="return false" oncut="return false" ondragstart="return false" onselectstart="return false">
+
+<div class="tb"><div class="logo">FS</div><h1>AFTS · FSIS <em>Recall Register</em></h1>
+  <span class="lic" id="lic"></span><span class="sp"></span><span class="upd" id="upd"></span></div>
+
+<div id="wait"><div class="msg"><h2>AFTS · FSIS <em>Recall Register</em></h2>
+  <p id="waitText"><span class="spin"></span>Loading the register…</p>
+  <p id="back" style="display:none"><a href="https://www.advfood.tech/fsis-recalls" target="_top">Open the FSIS dashboard →</a></p></div></div>
+
+<div id="app">
+  <div class="tool">
+    <input id="q" type="search" placeholder="Search all columns — firm, product, pathogen, reason…" autocomplete="off">
+    <button id="clr" type="button">Clear filters</button>
+    <span class="cnt" id="cnt"></span>
+  </div>
+  <div class="fx"><div class="ref" id="ref">A1</div><div class="ic">fx</div><div class="val" id="val"></div></div>
+  <div class="sheets">
+    <div class="sheet on" id="sh-reg"><table class="g" id="grid"><thead id="gh"></thead><tbody id="gb"></tbody></table></div>
+    <div class="sheet" id="sh-sum"><div class="wrap" id="sum"></div></div>
+    <div class="sheet lic" id="sh-lic"><div class="wrap" id="licx"></div></div>
+    <div id="wm"></div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="on" data-s="sh-reg">Register</button>
+    <button data-s="sh-sum">Summary</button>
+    <button data-s="sh-lic">Licence &amp; Disclaimer</button>
+  </div>
+  <div class="st"><span id="st1">Ready</span><span id="st2"></span><span id="st3"></span></div>
+</div>
+
+<div class="pop" id="pop">
+  <div class="pt" id="popT"></div>
+  <div class="row"><input type="text" id="popQ" placeholder="Search values…"></div>
+  <div><span class="lk" id="popAll">Select all</span><span class="lk" id="popNone">Clear</span></div>
+  <div class="lst" id="popL"></div>
+  <div class="bt"><button type="button" id="popX">Cancel</button><button type="button" class="ok" id="popOk">OK</button></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var GATE_URL = 'https://script.google.com/macros/s/AKfycbwA2UeM1KtmUOcI6T2dwT-6Ox2DOPZUJtWvePaMU8wgrkCcOrEw9kVq9BtWpZ0NQSQ/exec';
+  var PLANS = 'https://www.advfood.tech/fsis-recalls';
+
+  // ── session: from #sid (the dashboard runs inside the Wix frame, whose
+  // storage this tab cannot see), else this site's own session. The address
+  // is then cut back to "/" so nothing is bookmarked or shared.
+  var m = location.hash.match(/sid=([^&]+)/);
+  var sid = m ? decodeURIComponent(m[1]) : '';
+  if (!sid) { try { sid = (JSON.parse(localStorage.getItem('fsis-session') || '{}') || {}).sid || ''; } catch (e) {} }
+  try { history.replaceState(null, '', '/'); } catch (e) {}
+
+  function $(id) { return document.getElementById(id); }
+  function stop(text) { $('waitText').textContent = text; $('back').style.display = ''; }
+  if (!sid) { stop('Please sign in on the FSIS dashboard, then press SHEET.'); return; }
+
+  var done = false, cb = '__fsisReg' + Date.now();
+  window[cb] = function (r) { done = true; try { start(r); } catch (e) { stop('The register could not be shown. Please try again.'); } };
+  var s = document.createElement('script');
+  s.src = GATE_URL + '?action=fsis_register&sid=' + encodeURIComponent(sid) + '&callback=' + cb + '&_=' + Date.now();
+  s.onerror = function () { if (!done) stop('The register could not be reached. Check your connection and try again.'); };
+  document.head.appendChild(s);
+  setTimeout(function () { if (!done) stop('The register is taking too long to load. Please try again in a minute.'); }, 45000);
+
+  // ── columns (as the Sheet stores them) ────────────────────────────────
+  // 0 Date 1 Source 2 Company 3 Brand 4 Product 5 Pathogen 6 Reason 7 Class
+  // 8 Country 9 Region 10 Tier 11 Outbreak 12 URL
+  var COLS = ['Date', 'Source', 'Company', 'Brand', 'Product', 'Pathogen', 'Reason', 'Class',
+              'Country', 'Region', 'Tier', 'Outbreak', 'Notice'];
+  var W = [100, 128, 190, 130, 300, 190, 320, 100, 120, 120, 84, 104, 170];
+  var LET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var R = [], V = [], name = '', lic = '';
+  var sortCol = 0, sortDir = -1, filt = {}, q = '', cur = null;
+
+  function e(x) { return String(x == null ? '' : x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function host(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (x) { return ''; } }
+  function fmt(n) { return Number(n).toLocaleString('en-US'); }
+  function shown(r, i) { return i === 11 ? (String(r[i]) === '1' ? 'Yes' : 'No') : i === 10 ? 'Tier ' + (r[i] || '3') : i === 12 ? host(r[i]) : String(r[i] || ''); }
+
+  function start(r) {
+    if (!r || !r.ok) { stop((r && r.message) || 'Please sign in on the FSIS dashboard, then press SHEET.'); return; }
+    R = r.rows || []; name = String(r.name || ''); lic = String(r.licence || '');
+    $('lic').innerHTML = 'Licensed to <b>' + e(name || 'FSIS subscriber') + '</b>' + (lic ? ' · ' + e(lic) : '') + ' · internal use only';
+    $('upd').textContent = r.updated ? 'Updated ' + r.updated : '';
+    $('wait').style.display = 'none'; $('app').style.display = 'flex';
+    watermark(); head(); apply(); summary(); licence(); wire();
+  }
+
+  // ── watermark: name + licence ID, tiled diagonally over every sheet ──
+  function watermark() {
+    var txt = (name || 'FSIS subscriber') + (lic ? ' · ' + lic : '') + ' · AFTS FSIS';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="460" height="230"><text x="20" y="150" transform="rotate(-24 230 115)" ' +
+      'font-family="Segoe UI,Arial,sans-serif" font-size="15" fill="rgba(26,127,75,0.10)">' + e(txt) + '</text></svg>';
+    $('wm').style.backgroundImage = 'url("data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) + '")';
+  }
+
+  // ── Register sheet ─────────────────────────────────────────────────────
+  function head() {
+    var l = '<tr class="L"><th class="rn"></th>', f = '<tr class="F"><th class="rn">1</th>';
+    COLS.forEach(function (c, i) {
+      l += '<th style="width:' + W[i] + 'px">' + LET[i] + '</th>';
+      f += '<th style="width:' + W[i] + 'px"><div class="fh"><span class="nm" data-c="' + i + '" title="Sort by ' + c + '">' + c +
+           '</span><span class="ar" id="ar' + i + '"></span><button class="fb" type="button" data-f="' + i + '" id="fb' + i + '" title="Filter ' + c + '">▾</button></div></th>';
+    });
+    $('gh').innerHTML = l + '</tr>' + f + '</tr>';
+    // Fixed column widths, like a real sheet: a colgroup plus the table's
+    // own width (table-layout:fixed ignores widths on an auto-width table).
+    var cg = document.createElement('colgroup'), tot = 46;
+    cg.innerHTML = '<col style="width:46px">' + W.map(function (w) { tot += w; return '<col style="width:' + w + 'px">'; }).join('');
+    $('grid').insertBefore(cg, $('grid').firstChild);
+    $('grid').style.width = tot + 'px';
+  }
+
+  function apply() {
+    var qq = q.toLowerCase();
+    V = R.filter(function (r) {
+      for (var k in filt) { if (filt[k] && !filt[k][shown(r, +k)]) return false; }
+      if (qq) { var t = (r[0] + ' ' + r[1] + ' ' + r[2] + ' ' + r[3] + ' ' + r[4] + ' ' + r[5] + ' ' + r[6] + ' ' + r[7] + ' ' + r[8] + ' ' + r[9]).toLowerCase(); if (t.indexOf(qq) < 0) return false; }
+      return true;
+    });
+    var c = sortCol, d = sortDir;
+    V.sort(function (a, b) {
+      var x = c === 10 || c === 11 ? +a[c] || 0 : String(a[c] || '').toLowerCase();
+      var y = c === 10 || c === 11 ? +b[c] || 0 : String(b[c] || '').toLowerCase();
+      return x < y ? -d : x > y ? d : 0;
+    });
+    draw();
+  }
+
+  function cell(r, i) {
+    var v = r[i];
+    if (i === 10) { var t = String(v || '3'); return '<span class="t t' + e(t) + '">TIER-' + e(t) + '</span>'; }
+    if (i === 11) return String(v) === '1' ? '<span class="ob">OUTBREAK</span>' : '';
+    if (i === 12) return v ? '<a href="' + e(v) + '" target="_blank" rel="noopener">' + e(host(v)) + '</a>' : '';
+    return e(v);
+  }
+
+  function draw() {
+    var h = [];
+    for (var j = 0; j < V.length; j++) {
+      var r = V[j], row = '<tr><td class="rn">' + (j + 2) + '</td>';
+      for (var i = 0; i < COLS.length; i++) row += '<td data-r="' + j + '" data-c="' + i + '">' + cell(r, i) + '</td>';
+      h.push(row + '</tr>');
+    }
+    $('gb').innerHTML = h.join('');
+    for (var i = 0; i < COLS.length; i++) {
+      $('ar' + i).textContent = i === sortCol ? (sortDir > 0 ? '▲' : '▼') : '';
+      $('fb' + i).className = 'fb' + (filt[i] ? ' act' : '');
+    }
+    var nf = Object.keys(filt).filter(function (k) { return filt[k]; }).length + (q ? 1 : 0);
+    $('cnt').textContent = fmt(V.length) + ' of ' + fmt(R.length) + ' recalls';
+    $('st1').textContent = nf ? nf + ' filter' + (nf > 1 ? 's' : '') + ' on' : 'Ready';
+    $('st2').textContent = 'Sorted by ' + COLS[sortCol] + (sortDir > 0 ? ' (A→Z)' : ' (Z→A)');
+    $('st3').textContent = 'Read-only · licensed copy';
+    cur = null; $('ref').textContent = 'A1'; $('val').textContent = '';
+  }
+
+  // ── filter popover (per column, like Sheets / Excel) ───────────────────
+  var popCol = -1;
+  function openFilter(i, btn) {
+    popCol = i;
+    var counts = {};
+    R.forEach(function (r) { var k = shown(r, i); counts[k] = (counts[k] || 0) + 1; });
+    var keys = Object.keys(counts).sort(function (a, b) { return a.localeCompare(b); });
+    var sel = filt[i];
+    $('popT').textContent = 'Filter: ' + COLS[i];
+    $('popQ').value = '';
+    $('popL').innerHTML = keys.map(function (k) {
+      return '<label><input type="checkbox" value="' + e(k) + '"' + (!sel || sel[k] ? ' checked' : '') + '>' +
+             e(k || '(blank)') + ' <span style="color:#5f6368">(' + counts[k] + ')</span></label>';
+    }).join('');
+    var p = $('pop'), b = btn.getBoundingClientRect();
+    p.style.display = 'block';
+    p.style.left = Math.max(8, Math.min(b.left - 230, innerWidth - 280)) + 'px';
+    p.style.top = Math.min(b.bottom + 4, innerHeight - p.offsetHeight - 8) + 'px';
+    $('popQ').focus();
+  }
+  function closeFilter() { $('pop').style.display = 'none'; popCol = -1; }
+
+  // ── Summary sheet ──────────────────────────────────────────────────────
+  function tally(i, fn) { var c = {}; R.forEach(function (r) { var k = fn ? fn(r) : r[i]; if (k) c[k] = (c[k] || 0) + 1; }); return Object.keys(c).map(function (k) { return [k, c[k]]; }).sort(function (a, b) { return b[1] - a[1]; }); }
+  function block(title, rows, label, limit) {
+    var mx = Math.max.apply(null, rows.map(function (r) { return r[1]; }).concat([1])), h = '<div class="blk"><h3>' + e(title) + '</h3><table class="g" style="width:420px"><thead><tr><th style="width:220px">' + e(label) +
+      '</th><th style="width:70px">Recalls</th><th style="width:130px"></th></tr></thead><tbody>';
+    rows.slice(0, limit || 999).forEach(function (r) {
+      h += '<tr><td>' + e(r[0]) + '</td><td class="n">' + fmt(r[1]) + '</td><td><span class="bar" style="width:' + Math.max(2, Math.round(120 * r[1] / mx)) + 'px"></span></td></tr>';
+    });
+    return h + '</tbody></table></div>';
+  }
+  function summary() {
+    var ob = R.filter(function (r) { return String(r[11]) === '1'; }).length;
+    var t1 = R.filter(function (r) { return String(r[10]) === '1'; }).length;
+    var ctry = tally(8).length, src = tally(1).length;
+    var months = tally(0, function (r) { return String(r[0]).slice(0, 7); }).sort(function (a, b) { return a[0] < b[0] ? 1 : -1; }).slice(0, 12);
+    var h = '<div class="blk"><h3>Register at a glance</h3><table class="g"><tbody>' +
+      [['Recalls', fmt(R.length)], ['Tier-1 critical', fmt(t1)], ['Outbreaks', fmt(ob)], ['Countries', fmt(ctry)], ['Sources', fmt(src)],
+       ['Licensed to', name || 'FSIS subscriber'], ['Licence ID', lic || '—']].map(function (x) {
+        return '<tr><td style="width:160px;font-weight:600">' + e(x[0]) + '</td><td style="width:220px">' + e(x[1]) + '</td></tr>'; }).join('') +
+      '</tbody></table></div>';
+    h += block('By risk tier', tally(10, function (r) { return 'Tier ' + (r[10] || '3'); }).sort(function (a, b) { return a[0] < b[0] ? -1 : 1; }), 'Tier');
+    h += block('By month (last 12)', months, 'Month');
+    h += block('Top pathogens', tally(5), 'Pathogen', 20);
+    h += block('Top countries', tally(8), 'Country', 25);
+    h += block('By source', tally(1), 'Source', 30);
+    $('sum').innerHTML = h;
+  }
+
+  // ── Licence & Disclaimer sheet ─────────────────────────────────────────
+  function licence() {
+    var d = new Date().toISOString().slice(0, 10);
+    var L = [
+      ['Product', 'AFTS Food Safety Intelligence System (FSIS) — Recall Register'],
+      ['Licensed to', (name || 'FSIS subscriber') + (lic ? ' · licence ' + lic : '')],
+      ['Viewed', d],
+      ['Licence', 'Licensed to a single FSIS subscriber for internal use only. You may use it inside your own organization for food-safety, QA and regulatory work.'],
+      ['Restrictions', 'You may NOT resell, redistribute, publish, sublicense, scrape, or use this register in a commercial product or service, in whole or in part, without written permission from AFTS. Every view carries the subscriber’s name and licence ID.'],
+      ['Access', 'Personal to the subscriber, one device at a time, and it ends when the subscription ends.'],
+      ['Sources', 'Official regulator notices from 70+ authorities in 80+ countries; each row links to the originating notice. Products and firms are given in English; the original wording is kept in AFTS records.'],
+      ['Disclaimer', 'Provided for information only. Recall status, scope and lot details can change: verify with the originating authority before acting. AFTS is not liable for decisions taken on the basis of this register.'],
+      ['Updated', 'Refreshed every hour from the verified FSIS register.'],
+      ['Contact', 'Advanced Food-Tech Solutions (AFTS), Athens, Greece · info@advfood.tech'],
+      ['', '© ' + new Date().getFullYear() + ' Advanced Food-Tech Solutions. All rights reserved.']
+    ];
+    $('licx').innerHTML = '<div class="blk"><h3>Licence &amp; Disclaimer</h3><table class="g"><tbody>' + L.map(function (x) {
+      return '<tr><td style="width:150px;font-weight:600;vertical-align:top">' + e(x[0]) + '</td><td style="width:640px">' + e(x[1]) + '</td></tr>';
+    }).join('') + '</tbody></table></div>';
+  }
+
+  // ── wiring ─────────────────────────────────────────────────────────────
+  function wire() {
+    var tq;
+    $('q').addEventListener('input', function () { clearTimeout(tq); tq = setTimeout(function () { q = $('q').value.trim(); apply(); }, 150); });
+    $('clr').onclick = function () { filt = {}; q = ''; $('q').value = ''; apply(); };
+    $('gh').addEventListener('click', function (ev) {
+      var fb = ev.target.closest('[data-f]'), nm = ev.target.closest('.nm');
+      if (fb) { ev.stopPropagation(); openFilter(+fb.getAttribute('data-f'), fb); return; }
+      if (nm) { var c = +nm.getAttribute('data-c'); sortDir = c === sortCol ? -sortDir : (c === 0 ? -1 : 1); sortCol = c; apply(); }
+    });
+    $('gb').addEventListener('click', function (ev) { var td = ev.target.closest('td[data-c]'); if (td && !ev.target.closest('a')) select(td); });
+    $('popAll').onclick = function () { $('popL').querySelectorAll('input').forEach(function (x) { if (x.parentNode.style.display !== 'none') x.checked = true; }); };
+    $('popNone').onclick = function () { $('popL').querySelectorAll('input').forEach(function (x) { if (x.parentNode.style.display !== 'none') x.checked = false; }); };
+    $('popQ').addEventListener('input', function () { var t = this.value.toLowerCase(); $('popL').querySelectorAll('label').forEach(function (l) { l.style.display = l.textContent.toLowerCase().indexOf(t) < 0 ? 'none' : ''; }); });
+    $('popX').onclick = closeFilter;
+    $('popOk').onclick = function () {
+      var boxes = $('popL').querySelectorAll('input'), on = {}, n = 0;
+      boxes.forEach(function (x) { if (x.checked) { on[x.value] = true; n++; } });
+      filt[popCol] = n === boxes.length ? null : on; closeFilter(); apply();
+    };
+    document.addEventListener('mousedown', function (ev) { if (popCol >= 0 && !ev.target.closest('#pop') && !ev.target.closest('[data-f]')) closeFilter(); });
+    $('tabs').addEventListener('click', function (ev) {
+      var b = ev.target.closest('button'); if (!b) return;
+      $('tabs').querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      document.querySelectorAll('.sheet').forEach(function (x) { x.classList.toggle('on', x.id === b.getAttribute('data-s')); });
+    });
+    document.addEventListener('keydown', function (ev) {
+      if ((ev.ctrlKey || ev.metaKey) && /^[acpsux]$/i.test(ev.key) && ev.target !== $('q') && ev.target !== $('popQ')) { ev.preventDefault(); return; }
+      if ((ev.ctrlKey || ev.metaKey) && /^[ps]$/i.test(ev.key)) { ev.preventDefault(); return; }
+      if (ev.key === 'Escape') closeFilter();
+      if (!cur || ev.target === $('q') || ev.target === $('popQ')) return;
+      var dr = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[ev.key];
+      if (!dr) return;
+      ev.preventDefault();
+      var r = +cur.getAttribute('data-r') + dr[0], c = +cur.getAttribute('data-c') + dr[1];
+      var td = $('gb').querySelector('td[data-r="' + r + '"][data-c="' + c + '"]');
+      if (td) { select(td); td.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+    });
+  }
+  function select(td) {
+    if (cur) cur.classList.remove('cur');
+    cur = td; td.classList.add('cur');
+    var r = +td.getAttribute('data-r'), c = +td.getAttribute('data-c');
+    $('ref').textContent = LET[c] + (r + 2);
+    var v = V[r][c];
+    $('val').textContent = c === 10 ? 'Tier ' + (v || '3') : c === 11 ? (String(v) === '1' ? 'Outbreak' : 'No outbreak') : String(v || '');
+  }
+})();
+</script>
+</body>
+</html>

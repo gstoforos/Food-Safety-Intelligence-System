@@ -699,15 +699,19 @@ async function _fsisUpgradeLastRunFromGitHub() {
 // ===== THE RECALL REGISTER (operator 2026-10-02) =====
 // "people will access it via my google but they have to sign in as the app"
 // · "I do not want them to see my account". The register lives in a PRIVATE
-// Google Sheet shared with nobody. SHEET opens the Apps Script page
-// ?action=fsis_sheet&sid=<this session> (FsisRegisterSheet.gs), which checks
-// the session exactly as the dashboard does and only then shows the register:
-// read-only, no download, no Google account needed, no owner shown.
+// Google Sheet shared with nobody. SHEET opens register.html, which asks the
+// FSIS script for the rows of this session (?action=fsis_register, JSONP —
+// FsisRegisterSheet.gs). The script checks the session exactly as the
+// dashboard does: read-only, no download, no Google account, no owner shown.
 function openRegisterSheet(){
   let s = {};
   try { s = JSON.parse(localStorage.getItem('fsis-session') || '{}') || {}; } catch(_){}
-  if (s.sid && window.FSIS_GATE_URL) {
-    window.open(window.FSIS_GATE_URL + '?action=fsis_sheet&sid=' + encodeURIComponent(s.sid), '_blank', 'noopener');
+  if (s.sid) {
+    // register.html on this site fetches the rows for this session from the
+    // FSIS script. Not a script.google.com page: those fail in a browser
+    // signed in to more than one Google account. The session rides in the
+    // #hash (never sent to a server) and register.html removes it at once.
+    window.open('register.html#sid=' + encodeURIComponent(s.sid), '_blank', 'noopener');
     return;
   }
   _fsisNote('Please sign in first — the recall register opens for signed-in subscribers.');

@@ -27,8 +27,6 @@
   'use strict';
 
   var GATE_URL = 'https://script.google.com/macros/s/AKfycbwA2UeM1KtmUOcI6T2dwT-6Ox2DOPZUJtWvePaMU8wgrkCcOrEw9kVq9BtWpZ0NQSQ/exec';
-  // The dashboard's SHEET button opens GATE_URL?action=fsis_sheet&sid=… (2026-10-02).
-  window.FSIS_GATE_URL = GATE_URL;
   var KEY = 'fsis-session';
   var RECHECK_MS = 5 * 60 * 1000;
   var GRACE_MS = 12 * 3600 * 1000;   // service unreachable: keep a session checked in the last 12 h
