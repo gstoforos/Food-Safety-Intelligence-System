@@ -343,11 +343,19 @@ class FSANZScraper(BaseScraper):
         # presence of toxin (cereulide) contamination, …") so it's the
         # cleanest source when present.
         problem_text = self._extract_section(soup, "Problem")
-        pathogen = (
-            _extract_pathogen(problem_text)
-            or _extract_pathogen(title)
-            or _extract_pathogen(body_text)
-        )
+        # When the page HAS a Problem section, it is the recall's own
+        # statement of the hazard, and the body is never consulted
+        # (2026-10-02). The body includes the page's other-recalls chrome, so
+        # a hazard found only there belongs to some other recall: Sunlife
+        # spring roll wrappers (Problem: "undeclared allergen (gluten)"),
+        # JC Seafood and ALOG were all written as Listeria monocytogenes,
+        # Tier 1, and rejected by reviewer 3 on the Pathogen/Reason clash.
+        if problem_text.strip():
+            pathogen = (_extract_pathogen(problem_text)
+                        or _extract_pathogen(title))
+        else:
+            pathogen = (_extract_pathogen(title)
+                        or _extract_pathogen(body_text))
         if not pathogen:
             stats["no_hazard"] += 1
             return None
