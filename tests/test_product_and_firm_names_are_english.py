@@ -79,6 +79,26 @@ def test_english_and_a_lone_greek_mu_pass(text):
     assert not product_needs_english(text)
 
 
+@pytest.mark.parametrize("text", [
+    "saucisse de filet de poulet halal", "bouchées aux crevettes",
+    "référence 3225164", "2 filets de poulet facon hache",
+    "camembert fermier au lait cru",
+])
+def test_a_short_french_name_needs_english(text):
+    """2026-10-02: ten RappelConso names of 2026-10-01 published in French —
+    each was below the two-function-word floor of the detector."""
+    assert product_needs_english(text)
+
+
+@pytest.mark.parametrize("text", [
+    "Halal chicken fillet sausage", "Shrimp bites",
+    "Reblochon de Savoie AOP farmhouse cheese 450 g",
+    "Crème fraîche (cultured cream)",
+])
+def test_an_english_name_with_a_protected_french_name_passes(text):
+    assert not product_needs_english(text)
+
+
 def test_a_french_description_needs_english():
     assert product_needs_english(
         "perles des mers -salade de pâtes cuite, surimi saveur crabe et "
