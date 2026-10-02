@@ -301,6 +301,25 @@ def merge_xlsx_with_remote(
                       pen_merged_raw, _dedup_key)
     pen_merged = [r for r in pen_merged_raw if _dedup_key(r) not in rec_keys]
 
+    # A row the REMOTE side archived must not come back (2026-10-02). On the
+    # night of 2026-10-01 reviewer 1 archived three re-scraped rows whose
+    # URLs were already in Weekly_Rejected (FSANZ Sunlife, NCC BM Foods, FDA
+    # H-1380-2026); reviewer 2, started from the older checkout, lost the
+    # push race and this union put all three back into Pending, where
+    # reviewer 3 rejected them a second time. "Remote archived it" means:
+    # gone from remote's Pending AND its URL is in remote's Weekly_Rejected.
+    # Only OUR-side rows are dropped, and only ones already on record in
+    # Weekly_Rejected, so nothing leaves the workbook unrecorded.
+    _, _wj_remote_rows = _read_sheet(remote_path, "Weekly_Rejected")
+    _remote_rejected = {str(r.get("URL") or "").strip()
+                        for r in _wj_remote_rows} - {""}
+    _remote_pending = {str(r.get("URL") or "").strip() for r in pen_remote}
+    pen_merged = [
+        r for r in pen_merged
+        if not ((u := str(r.get("URL") or "").strip())
+                and u in _remote_rejected and u not in _remote_pending)
+    ]
+
     news_headers, news_remote = _read_sheet(remote_path, "NEWS")
     _, news_ours = _read_sheet(ours_path, "NEWS")
     if not news_headers:

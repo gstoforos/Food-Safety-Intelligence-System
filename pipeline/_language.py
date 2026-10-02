@@ -260,6 +260,19 @@ _ENGLISH_PRODUCT_WORDS = frozenset("""
 """.split())
 
 
+# Food nouns and adjectives that appear in French product designations and
+# never in English ones. Words shared with English (sauce, filet, crème
+# in "crème brûlée"…) are left out on purpose.
+_FRENCH_FOOD_WORDS = frozenset("""
+    saucisse saucisses poulet crevette crevettes bouchée bouchées fermier
+    fermière haché hachée façon facon boeuf bœuf porc jambon fromage
+    fromages lait viande poisson saumon légumes pâtes salade oeufs œufs
+    référence canard dinde agneau veau fumé fumée persil épinards miel
+    farine chèvre brebis tarte gâteau beurre huile concombre moules
+    huîtres crustacés
+""".split())
+
+
 def product_needs_english(text) -> bool:
     """Is this Product value not yet in English? Certain on any non-Latin
     script. On Latin script it needs the function-word detector to fire AND
@@ -269,9 +282,18 @@ def product_needs_english(text) -> bool:
     those."""
     if has_non_latin_script(text):
         return True
+    w = _words(text)
+    # A French FOOD word with no English one beside it (2026-10-02). The
+    # function-word detector needs two hits, so short French names passed:
+    # ten RappelConso rows of 2026-10-01 published untranslated —
+    # "saucisse de filet de poulet halal", "bouchées aux crevettes",
+    # "référence 3225164" — and neither the confirmer stamp nor the Morning
+    # Fix (which reads what is stamped) ever saw them.
+    if (w & _FRENCH_FOOD_WORDS) and not (w & _ENGLISH_PRODUCT_WORDS):
+        return True
     if not looks_non_english(text):
         return False
-    return not (_words(text) & _ENGLISH_PRODUCT_WORDS)
+    return not (w & _ENGLISH_PRODUCT_WORDS)
 
 
 # ── Bilingual splitting (RASFF) ─────────────────────────────────────────────
@@ -799,6 +821,18 @@ _RAW_TRANSLATIONS = {
     # guessing. Translated here instead, from the notification's own text.
     "Salmonella spp in care pasare, origine Brazilia // Salmonela spp in chicken meat from Brasil; risk: serious; category: poultry meat and poultry meat products":
         "Salmonella spp. in poultry meat from Brazil; risk: serious; category: poultry meat and poultry meat products",
+
+    # 2026-10-02: the three RappelConso fiches of 2026-10-01 that published
+    # with French Reasons (tests/test_language_policy.py failed on them).
+    # Transcribed from the fiches.
+    "Ce produit présente des traces de moisissures alors que sa date de péremption n’est pas encore atteinte. il est impropre à la consommation.":
+        "The product shows traces of mold although its use-by date has not "
+        "been reached; it is unfit for consumption.",
+    "Presence of Salmonella dans le produit":
+        "Presence of Salmonella in the product",
+    "Auto contrôle microbiologique : présence confirmée de Salmonella":
+        "Company's own microbiological testing: presence of Salmonella "
+        "confirmed",
 }
 
 REASON_EN: Dict[str, str] = {_norm_key(k): v for k, v in _RAW_TRANSLATIONS.items()}

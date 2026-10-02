@@ -1103,6 +1103,10 @@ _TERMINAL_REJECTION_MARKERS = (
     # (TVB-N) and Jelly's (choking) rows archived on 2026-09-05 were
     # re-ingested the next morning.
     "out of scope", "not a food product", "choking hazard", "tvb-n",
+    # 2026-10-02: reviewer 1's wording for a notice with no microbial
+    # hazard at all (RappelConso 23644, shelf-life extension of an
+    # ingredient). A scope verdict, so as permanent as "out of scope".
+    "not a microbial pathogen", "no microbial hazard",
 )
 
 # Rejection reasons that look terminal but must NOT block a re-ingestion any
@@ -1319,7 +1323,17 @@ def _is_terminal_rejection(desc: str) -> bool:
         # case this branch was written for.
         return any(m in dl_all for m in _TERMINAL_REJECTION_MARKERS)
     dl = d.lower()
-    if any(m in dl for m in _NON_TERMINAL_MARKERS):
+    # "unknown:" at the front is the RejectedBy LABEL load_rejected_urls()
+    # prefixes, not the reason (2026-10-02). The "unknown" transient marker
+    # is meant for a reason that literally reads "unknown"; matched against
+    # the label it made EVERY rejection by an unnamed reviewer retryable.
+    # The RappelConso taboulé fiche 23644 — "URL agent: The hazard is not a
+    # microbial pathogen, it is a prolongation of shelf life" — was archived
+    # at 23:11 on 2026-10-01 and re-ingested by the 04:11 scrape for that
+    # reason alone.
+    # Several archive records are joined with " || ", each with its label.
+    dl_reason = re.sub(r"(^|\|\|)\s*unknown\s*:\s*", r"\1 ", dl)
+    if any(m in dl_reason for m in _NON_TERMINAL_MARKERS):
         return False
     return any(m in dl for m in _TERMINAL_REJECTION_MARKERS)
 
@@ -1554,6 +1568,32 @@ def _reviewer_from_reason(reason: str) -> str:
         return "url-validator"
     if r.startswith("manual"):
         return "manual"
+    return "unknown"
+
+
+# Who rejected a row, read from the reason it was rejected for (2026-10-02).
+# This used to know only claude-check / openrouter-check — the reviewers that
+# existed before the three-agent chain — so every rejection by the current
+# reviewers was archived as RejectedBy "unknown" even though its own reason
+# began "URL agent:" or "Confirmer:" (all 9 of the 2026-10-02 morning run).
+# Same canonical names as weekly_rejected_capture._REVIEWER_CANONICAL.
+_REJECTED_BY_PATTERNS = (
+    # Reviewer 3 only ARCHIVES these; an earlier reviewer rejected them and
+    # the reason does not say which. Naming reviewer 3 would be a guess.
+    (r"arrived already marked rejected", "earlier reviewer (archived by reviewer 3)"),
+    (r"\burl[- ]agent\b|\breviewer 1\b", "reviewer 1 (url-agent)"),
+    (r"\breview[- ]agent\b|\breviewer 2\b", "reviewer 2 (review-agent)"),
+    (r"\bconfirmer\b|\bconfirm[- ]agent\b", "reviewer 3 (confirm-agent)"),
+    (r"claude-check", "claude-check"),
+    (r"openrouter-check", "openrouter-check"),
+)
+
+
+def _rejected_by_from_reason(reason: str) -> str:
+    text = str(reason or "")
+    for pat, name in _REJECTED_BY_PATTERNS:
+        if re.search(pat, text, re.IGNORECASE):
+            return name
     return "unknown"
 
 
@@ -1991,13 +2031,7 @@ def promote_approved(
                 # multiple times across runs.
                 mark_rejected_with_counter(clean, reason)
                 if not clean.get("RejectedBy"):
-                    rb_match = re.search(
-                        r"(claude-check|openrouter-check)",
-                        str(reason), re.IGNORECASE,
-                    )
-                    clean["RejectedBy"] = (
-                        rb_match.group(1).lower() if rb_match else "unknown"
-                    )
+                    clean["RejectedBy"] = _rejected_by_from_reason(reason)
                 _archive(clean)
                 continue
             else:
