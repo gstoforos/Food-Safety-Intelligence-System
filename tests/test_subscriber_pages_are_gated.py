@@ -101,7 +101,7 @@ def test_the_register_is_a_google_sheet_not_a_download():
     # the page or the session.
     assert "window.open('register.html#sid=' + encodeURIComponent(s.sid)" in html
     reg = (DOCS / "register.html").read_text(encoding="utf-8")
-    assert "action=fsis_register&sid=" in reg
+    assert "action=fsis_check&sid=" in reg and "fetch('/data/recalls.json" in reg
     # Our own spreadsheet view (operator 2026-10-02): address cut to "/",
     # three tabs, watermark, and no way to save a file.
     assert "history.replaceState(null, '', '/')" in reg
