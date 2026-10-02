@@ -706,8 +706,25 @@ function openRegisterSheet(){
   let s = {};
   try { s = JSON.parse(localStorage.getItem('fsis-session') || '{}') || {}; } catch(_){}
   if (s.sheet) { window.open(s.sheet, '_blank', 'noopener'); return; }
-  alert('The recall register is not ready for your account yet. Sign out and sign in again; '
-      + 'if it still does not open, write to info@advfood.tech.');
+  // No link in this session yet (the Sheet is set up from Apps Script, and a
+  // session started before that has none until its next check). An in-page
+  // note, not alert(): inside the Wix frame alert() shows as "An embedded
+  // page says…".
+  _fsisNote('The recall Sheet is being prepared for your account. Sign out and sign in again in a few minutes; '
+          + 'if it still does not open, write to info@advfood.tech.');
+}
+function _fsisNote(text){
+  let n = document.getElementById('fsis-note');
+  if (!n) {
+    n = document.createElement('div'); n.id = 'fsis-note';
+    n.style.cssText = 'position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:99999;max-width:min(560px,92vw);'
+      + 'background:#141a2a;color:#e8edf5;border:1px solid #34d399;border-radius:4px;padding:12px 16px;'
+      + 'font:13px/1.5 system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.5);cursor:pointer';
+    n.onclick = () => n.remove();
+    document.body.appendChild(n);
+  }
+  n.textContent = text;
+  clearTimeout(n._t); n._t = setTimeout(() => n.remove(), 9000);
 }
 
 // ===== LOAD RECALLS + NEWS FROM SAME XLSX =====
