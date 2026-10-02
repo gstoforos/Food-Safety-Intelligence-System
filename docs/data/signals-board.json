@@ -6,7 +6,7 @@
   "week_end": "2026-09-27",
   "corpus_week_total": 67,
   "strata_tested": 10,
-  "strata_suppressed_sparse": 517,
+  "strata_suppressed_sparse": 518,
   "candidates": 0,
   "fdr_m": 10,
   "after_fdr": 0,
@@ -20,7 +20,7 @@
   "min_absolute_count": 4,
   "advisory_only": true,
   "coverage_enforced": false,
-  "generated_utc": "2026-10-01T15:27:04+00:00",
+  "generated_utc": "2026-10-02T15:27:02+00:00",
   "coverage_register": "present",
   "coverage_window_start": "2026-06-08/2026-06-14",
   "within_coverage_window": true,
@@ -66,10 +66,10 @@
    "c2": 1.26,
    "c3": 0.26,
    "share_observed": 0.0597,
-   "share_baseline": 0.038,
-   "p_share": 0.249984,
+   "share_baseline": 0.0379,
+   "p_share": 0.248813,
    "effect_count": 1.56,
-   "effect_share": 1.57,
+   "effect_share": 1.58,
    "series": [
     1,
     1,
@@ -118,8 +118,8 @@
    "c2": 1.22,
    "c3": 0.79,
    "share_observed": 0.2687,
-   "share_baseline": 0.1962,
-   "p_share": 0.093435,
+   "share_baseline": 0.1958,
+   "p_share": 0.09196,
    "effect_count": 1.35,
    "effect_share": 1.37,
    "series": [
@@ -170,8 +170,8 @@
    "c2": 1.09,
    "c3": 1.61,
    "share_observed": 0.1642,
-   "share_baseline": 0.0949,
-   "p_share": 0.050153,
+   "share_baseline": 0.0947,
+   "p_share": 0.049525,
    "effect_count": 1.71,
    "effect_share": 1.73,
    "series": [
@@ -222,8 +222,8 @@
    "c2": 0.47,
    "c3": 0.0,
    "share_observed": 0.3134,
-   "share_baseline": 0.27,
-   "p_share": 0.250179,
+   "share_baseline": 0.2695,
+   "p_share": 0.246799,
    "effect_count": 1.15,
    "effect_share": 1.16,
    "series": [
@@ -274,10 +274,10 @@
    "c2": 0.2,
    "c3": 1.57,
    "share_observed": 0.0597,
-   "share_baseline": 0.0422,
-   "p_share": 0.313199,
+   "share_baseline": 0.0421,
+   "p_share": 0.311846,
    "effect_count": 1.4,
-   "effect_share": 1.41,
+   "effect_share": 1.42,
    "series": [
     0,
     1,
@@ -311,23 +311,23 @@
    "country": null,
    "tier": 1,
    "observed": 42,
-   "baseline_mean": 42.29,
-   "baseline_sd": 11.95,
+   "baseline_mean": 42.43,
+   "baseline_sd": 11.73,
    "baseline_values": [
     42,
     42,
     45,
     60,
-    26,
+    27,
     29,
     52
    ],
-   "c1": 0.16,
-   "c2": -0.02,
+   "c1": 0.15,
+   "c2": -0.04,
    "c3": 0.0,
    "share_observed": 0.6269,
-   "share_baseline": 0.6245,
-   "p_share": 0.538255,
+   "share_baseline": 0.6253,
+   "p_share": 0.543585,
    "effect_count": 0.99,
    "effect_share": 1.0,
    "series": [
@@ -337,7 +337,7 @@
     42,
     45,
     60,
-    26,
+    27,
     29,
     52,
     32,
@@ -378,8 +378,8 @@
    "c2": -0.33,
    "c3": 0.0,
    "share_observed": 0.0746,
-   "share_baseline": 0.0823,
-   "p_share": 0.654572,
+   "share_baseline": 0.0821,
+   "p_share": 0.6527,
    "effect_count": 0.9,
    "effect_share": 0.91,
    "series": [
@@ -430,8 +430,8 @@
    "c2": -0.47,
    "c3": 0.0,
    "share_observed": 0.2388,
-   "share_baseline": 0.308,
-   "p_share": 0.915731,
+   "share_baseline": 0.3074,
+   "p_share": 0.913978,
    "effect_count": 0.77,
    "effect_share": 0.78,
    "series": [
@@ -482,10 +482,10 @@
    "c2": -0.91,
    "c3": 0.0,
    "share_observed": 0.2388,
-   "share_baseline": 0.365,
-   "p_share": 0.990309,
+   "share_baseline": 0.3642,
+   "p_share": 0.989975,
    "effect_count": 0.65,
-   "effect_share": 0.65,
+   "effect_share": 0.66,
    "series": [
     21,
     37,
@@ -534,8 +534,8 @@
    "c2": -1.03,
    "c3": 0.0,
    "share_observed": 0.2388,
-   "share_baseline": 0.4008,
-   "p_share": 0.998269,
+   "share_baseline": 0.4,
+   "p_share": 0.998191,
    "effect_count": 0.59,
    "effect_share": 0.6,
    "series": [
@@ -586,10 +586,10 @@
    "c2": 1.0,
    "c3": 0.0,
    "share_observed": 0.0299,
-   "share_baseline": 0.0148,
-   "p_share": 0.260325,
+   "share_baseline": 0.0147,
+   "p_share": 0.259553,
    "effect_count": 2.0,
-   "effect_share": 2.02,
+   "effect_share": 2.03,
    "series": [
     0,
     0,
@@ -638,10 +638,10 @@
    "c2": 1.0,
    "c3": 0.0,
    "share_observed": 0.0299,
-   "share_baseline": 0.0148,
-   "p_share": 0.260325,
+   "share_baseline": 0.0147,
+   "p_share": 0.259553,
    "effect_count": 2.0,
-   "effect_share": 2.02,
+   "effect_share": 2.03,
    "series": [
     0,
     0,
@@ -690,10 +690,10 @@
    "c2": 1.0,
    "c3": 0.0,
    "share_observed": 0.0299,
-   "share_baseline": 0.0148,
-   "p_share": 0.260325,
+   "share_baseline": 0.0147,
+   "p_share": 0.259553,
    "effect_count": 2.0,
-   "effect_share": 2.02,
+   "effect_share": 2.03,
    "series": [
     0,
     0,
@@ -742,8 +742,8 @@
    "c2": 0.59,
    "c3": 0.0,
    "share_observed": 0.0299,
-   "share_baseline": 0.0169,
-   "p_share": 0.312632,
+   "share_baseline": 0.0168,
+   "p_share": 0.311755,
    "effect_count": 1.75,
    "effect_share": 1.77,
    "series": [
@@ -795,7 +795,7 @@
    "c3": 0.32,
    "share_observed": 0.0448,
    "share_baseline": 0.0295,
-   "p_share": 0.317507,
+   "p_share": 0.316362,
    "effect_count": 1.5,
    "effect_share": 1.52,
    "series": [
@@ -847,7 +847,7 @@
    "c3": 2.14,
    "share_observed": 0.0299,
    "share_baseline": 0.0274,
-   "p_share": 0.551651,
+   "p_share": 0.550501,
    "effect_count": 1.08,
    "effect_share": 1.09,
    "series": [
@@ -898,8 +898,8 @@
    "c2": -0.07,
    "c3": 0.0,
    "share_observed": 0.0448,
-   "share_baseline": 0.0485,
-   "p_share": 0.637023,
+   "share_baseline": 0.0484,
+   "p_share": 0.635588,
    "effect_count": 0.91,
    "effect_share": 0.92,
    "series": [
@@ -950,10 +950,10 @@
    "c2": -0.09,
    "c3": 0.15,
    "share_observed": 0.0149,
-   "share_baseline": 0.0169,
-   "p_share": 0.680326,
+   "share_baseline": 0.0168,
+   "p_share": 0.679551,
    "effect_count": 0.88,
-   "effect_share": 0.88,
+   "effect_share": 0.89,
    "series": [
     8,
     1,
@@ -1002,8 +1002,8 @@
    "c2": -0.14,
    "c3": 0.0,
    "share_observed": 0.0448,
-   "share_baseline": 0.0527,
-   "p_share": 0.692919,
+   "share_baseline": 0.0526,
+   "p_share": 0.691533,
    "effect_count": 0.84,
    "effect_share": 0.85,
    "series": [
@@ -1054,8 +1054,8 @@
    "c2": -0.26,
    "c3": 0.54,
    "share_observed": 0.0149,
-   "share_baseline": 0.019,
-   "p_share": 0.723179,
+   "share_baseline": 0.0189,
+   "p_share": 0.722422,
    "effect_count": 0.78,
    "effect_share": 0.79,
    "series": [
@@ -1106,8 +1106,8 @@
    "c2": -0.26,
    "c3": 0.54,
    "share_observed": 0.0149,
-   "share_baseline": 0.019,
-   "p_share": 0.723179,
+   "share_baseline": 0.0189,
+   "p_share": 0.722422,
    "effect_count": 0.78,
    "effect_share": 0.79,
    "series": [
@@ -1159,7 +1159,7 @@
    "c3": 0.0,
    "share_observed": 0.0149,
    "share_baseline": 0.0253,
-   "p_share": 0.820583,
+   "p_share": 0.819925,
    "effect_count": 0.58,
    "effect_share": 0.59,
    "series": [
@@ -1210,7 +1210,7 @@
    "c2": -0.71,
    "c3": 0.0,
    "share_observed": 0.0,
-   "share_baseline": 0.0148,
+   "share_baseline": 0.0147,
    "p_share": 1.0,
    "effect_count": 0.0,
    "effect_share": 0.0,
@@ -1262,7 +1262,7 @@
    "c2": -0.78,
    "c3": 0.0,
    "share_observed": 0.0,
-   "share_baseline": 0.0169,
+   "share_baseline": 0.0168,
    "p_share": 1.0,
    "effect_count": 0.0,
    "effect_share": 0.0,
@@ -1314,8 +1314,8 @@
    "c2": -0.83,
    "c3": 0.0,
    "share_observed": 0.0149,
-   "share_baseline": 0.0401,
-   "p_share": 0.935492,
+   "share_baseline": 0.04,
+   "p_share": 0.935111,
    "effect_count": 0.37,
    "effect_share": 0.37,
    "series": [
@@ -1366,7 +1366,7 @@
    "c2": -0.87,
    "c3": 0.0,
    "share_observed": 0.0,
-   "share_baseline": 0.0148,
+   "share_baseline": 0.0147,
    "p_share": 1.0,
    "effect_count": 0.0,
    "effect_share": 0.0,
@@ -1418,8 +1418,8 @@
    "c2": -0.87,
    "c3": 0.0,
    "share_observed": 0.0299,
-   "share_baseline": 0.0527,
-   "p_share": 0.87461,
+   "share_baseline": 0.0526,
+   "p_share": 0.873843,
    "effect_count": 0.56,
    "effect_share": 0.57,
    "series": [
@@ -1470,8 +1470,8 @@
    "c2": -0.88,
    "c3": 0.0,
    "share_observed": 0.0149,
-   "share_baseline": 0.0359,
-   "p_share": 0.913456,
+   "share_baseline": 0.0358,
+   "p_share": 0.913001,
    "effect_count": 0.41,
    "effect_share": 0.42,
    "series": [
@@ -1574,8 +1574,8 @@
    "c2": -0.93,
    "c3": 0.0,
    "share_observed": 0.0299,
-   "share_baseline": 0.0759,
-   "p_share": 0.967267,
+   "share_baseline": 0.0758,
+   "p_share": 0.966949,
    "effect_count": 0.39,
    "effect_share": 0.39,
    "series": [
@@ -1626,7 +1626,7 @@
    "c2": -1.0,
    "c3": 0.0,
    "share_observed": 0.0,
-   "share_baseline": 0.0148,
+   "share_baseline": 0.0147,
    "p_share": 1.0,
    "effect_count": 0.0,
    "effect_share": 0.0,
@@ -1678,8 +1678,8 @@
    "c2": -1.18,
    "c3": 0.0,
    "share_observed": 0.0149,
-   "share_baseline": 0.0422,
-   "p_share": 0.944334,
+   "share_baseline": 0.0421,
+   "p_share": 0.943987,
    "effect_count": 0.35,
    "effect_share": 0.35,
    "series": [
@@ -1730,8 +1730,8 @@
    "c2": -1.68,
    "c3": 1.5,
    "share_observed": 0.0448,
-   "share_baseline": 0.1097,
-   "p_share": 0.982196,
+   "share_baseline": 0.1095,
+   "p_share": 0.98196,
    "effect_count": 0.4,
    "effect_share": 0.41,
    "series": [
@@ -3448,7 +3448,7 @@
    "week": "2026-08-17/2026-08-23",
    "week_start": "2026-08-17",
    "week_end": "2026-08-23",
-   "corpus_total": 47,
+   "corpus_total": 48,
    "alarms": []
   },
   {
@@ -3507,7 +3507,7 @@
      "observed": 5,
      "baseline_mean": 1.86,
      "effect": 2.69,
-     "p_value": 0.0389,
+     "p_value": 0.038593,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RASFF (EU)"
@@ -3518,7 +3518,7 @@
      "observed": 10,
      "baseline_mean": 4.57,
      "effect": 2.19,
-     "p_value": 0.015423,
+     "p_value": 0.015207,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RappelConso (FR)"
@@ -3669,7 +3669,7 @@
    },
    {
     "week": "2026-08-17/2026-08-23",
-    "total": 47
+    "total": 48
    },
    {
     "week": "2026-08-24/2026-08-30",
@@ -3695,15 +3695,15 @@
   "volume_test": {
    "week": "2026-09-21/2026-09-27",
    "observed": 67,
-   "baseline_mean": 67.71,
-   "baseline_sd": 16.77,
-   "c2": -0.04,
+   "baseline_mean": 67.86,
+   "baseline_sd": 16.57,
+   "c2": -0.05,
    "baseline_values": [
     60,
     74,
     69,
     84,
-    47,
+    48,
     49,
     91
    ]
@@ -3714,21 +3714,21 @@
     "now": 35,
     "now_share": 0.5224,
     "base_mean": 32.71,
-    "base_share": 0.4831
+    "base_share": 0.4821
    },
    {
     "source": "RASFF (EU)",
     "now": 14,
     "now_share": 0.209,
     "base_mean": 22.14,
-    "base_share": 0.327
+    "base_share": 0.3263
    },
    {
     "source": "FDA",
     "now": 5,
     "now_share": 0.0746,
     "base_mean": 3.29,
-    "base_share": 0.0485
+    "base_share": 0.0484
    },
    {
     "source": "CFIA",
@@ -3749,21 +3749,21 @@
     "now": 0,
     "now_share": 0.0,
     "base_mean": 1.29,
-    "base_share": 0.019
+    "base_share": 0.0189
    },
    {
     "source": "FSA (UK)",
     "now": 2,
     "now_share": 0.0299,
     "base_mean": 1.14,
-    "base_share": 0.0169
+    "base_share": 0.0168
    },
    {
     "source": "FSAI (IE)",
     "now": 0,
     "now_share": 0.0,
     "base_mean": 1.14,
-    "base_share": 0.0169
+    "base_share": 0.0168
    },
    {
     "source": "FSANZ (AU)",
