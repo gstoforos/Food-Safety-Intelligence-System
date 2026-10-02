@@ -255,6 +255,26 @@ def gate_region_for(cfg: CountryConfig) -> str:
     return _GATE_REGION_BY_COUNTRY_CODE.get(str(cfg.code).lower(), "Unknown")
 
 
+# A national authority's notice has no FSIS-style Class, but the publish gate
+# requires one, and an empty Class blocked every news-discovered row for good
+# (2026-10-02: GIS Pilos protein pudding, Bacillus cereus, Tier 1, approved by
+# reviewer 2 and refused at merge on "Class is empty"; 7 such rows had ever
+# been published, each fixed by hand). The notice's own wording decides:
+# a public WARNING is an "Alert", anything else a "Recall" — both values the
+# register already uses for national authorities.
+_WARNING_WORDS = (
+    "warning", "warn", "alert", "ostrzeżenie", "ostrzezenie", "avvertenza",
+    "allerta", "avertissement", "alerte", "waarschuwing", "warnung",
+    "advertencia", "alerta", "προειδοποίηση", "varsel", "varning", "varoitus",
+    "upozornění", "figyelmeztetés", "avertizare",
+)
+
+
+def notice_class(title: str) -> str:
+    low = str(title or "").lower()
+    return "Alert" if any(w in low for w in _WARNING_WORDS) else "Recall"
+
+
 def build_pending_row(
     verified: dict,
     classification: Classification,
@@ -265,8 +285,15 @@ def build_pending_row(
     Column order matches recalls.xlsx Pending schema exactly."""
     now = _now_utc_iso()
 
-    # Use LLM-extracted date if present; fall back to authority announcement date
-    date = _safe(extracted, "date_iso") or verified.get("efet_date_iso", "")
+    # The AUTHORITY's announcement date first, the model's date only when
+    # the authority page gave none (2026-10-02). The other order put a
+    # model's misreading ahead of the official page:
+    #   * GIS Pilos protein pudding: page dated 2026-08-21 (the Recall ID
+    #     says so too), row dated 2026-09-21;
+    #   * NCC BM Foods Deli Hummus: notice of 16 Sep 2024, row dated
+    #     2026-09-29 from the news article that re-reported it, so a
+    #     two-year-old recall reached Pending as this week's.
+    date = verified.get("efet_date_iso", "") or _safe(extracted, "date_iso")
     outbreak = "1" if classification.outbreak_qualifies else ""
     tier = str(classification.tier) if classification.tier is not None else ""
 
@@ -297,7 +324,7 @@ def build_pending_row(
         "Product":     _safe(extracted, "product_en"),
         "Pathogen":    _safe(extracted, "pathogen_en"),
         "Reason":      _safe(extracted, "reason_en"),
-        "Class":       "",        # National authorities don't use FSIS-style Class
+        "Class":       notice_class(verified.get("efet_title", "")),
         "Country":     cfg.name_en,
         "Region":      gate_region_for(cfg),
         "Tier":        tier,
