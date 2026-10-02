@@ -172,12 +172,29 @@ a{color:#1a73e8;text-decoration:none}a:hover{text-decoration:underline}
   function stop(text) { $('waitText').textContent = text; $('back').style.display = ''; }
   if (!sid) { stop('Please sign in on the FSIS dashboard, then press SHEET.'); return; }
 
-  var done = false, cb = '__fsisReg' + Date.now();
-  window[cb] = function (r) { done = true; try { start(r); } catch (e) { stop('The register could not be shown. Please try again.'); } };
-  var s = document.createElement('script');
-  s.src = GATE_URL + '?action=fsis_register&sid=' + encodeURIComponent(sid) + '&callback=' + cb + '&_=' + Date.now();
-  s.onerror = function () { if (!done) stop('The register could not be reached. Check your connection and try again.'); };
-  document.head.appendChild(s);
+  // Rows come from the FSIS script. FIRST without cookies (fetch with
+  // credentials 'omit'): a browser signed in to several Google accounts
+  // otherwise gets Google's "unable to open the file" page instead of data
+  // (seen 2026-10-02). JSONP — the sign-in's method — only as a fallback.
+  var done = false;
+  function deliver(r) { if (done) return; done = true; try { start(r); } catch (e) { stop('The register could not be shown. Please try again.'); } }
+  function jsonp() {
+    var cb = '__fsisReg' + Date.now();
+    window[cb] = deliver;
+    var s = document.createElement('script');
+    s.src = GATE_URL + '?action=fsis_register&sid=' + encodeURIComponent(sid) + '&callback=' + cb + '&_=' + Date.now();
+    s.onerror = function () { if (!done) stop('The register could not be reached (code R2). Please try again; if it keeps happening, write to info@advfood.tech.'); };
+    document.head.appendChild(s);
+  }
+  if (window.fetch) {
+    fetch(GATE_URL + '?action=fsis_register&sid=' + encodeURIComponent(sid) + '&_=' + Date.now(),
+          { credentials: 'omit', redirect: 'follow', cache: 'no-store' })
+      .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+      .then(deliver)
+      .catch(function () { if (!done) jsonp(); });
+  } else {
+    jsonp();
+  }
   setTimeout(function () { if (!done) stop('The register is taking too long to load. Please try again in a minute.'); }, 45000);
 
   // ── columns (as the Sheet stores them) ────────────────────────────────
