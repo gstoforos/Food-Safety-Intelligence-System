@@ -51,6 +51,12 @@ if str(ROOT) not in sys.path:
 
 N_SHARDS = 7
 
+# Countries that run EVERY day on top of their weekly shard (2026-10-03).
+# Japan's consumer agency (CAA) posts recalls daily; on its weekly rotation
+# the 2026-10-02 notices — one an aflatoxin recall — reached no sheet until
+# the Morning Fix found them by hand the next day.
+DAILY = ("jp",)
+
 
 def registered_codes() -> List[str]:
     """Every country the registry knows, sorted.
@@ -85,6 +91,18 @@ def shard_for(codes: List[str], day: Optional[date] = None,
     return [c for i, c in enumerate(sorted(codes)) if i % n_shards == idx]
 
 
+def todays_codes(codes: List[str], day: Optional[date] = None,
+                 n_shards: int = N_SHARDS) -> List[str]:
+    """What the fleet runs on `day`: that weekday's shard plus every DAILY
+    country that is registered. shard_for() alone stays a clean partition
+    (each country exactly once a week); the daily extras ride on top."""
+    out = shard_for(codes, day, n_shards)
+    for c in DAILY:
+        if c in codes and c not in out:
+            out.append(c)
+    return out
+
+
 def plan(n_shards: int = N_SHARDS) -> dict:
     """The whole week, for eyeballing before you trust it."""
     codes = registered_codes()
@@ -115,7 +133,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 0
 
     d = date.fromisoformat(a.date) if a.date else None
-    todays = shard_for(registered_codes(), d, a.shards)
+    todays = todays_codes(registered_codes(), d, a.shards)
     # stdout is consumed by the workflow — codes only, comma separated.
     print(",".join(todays))
     print(f"shard {(d or datetime.now(timezone.utc).date()).isoweekday()} "

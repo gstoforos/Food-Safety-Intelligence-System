@@ -355,7 +355,14 @@ COUNTRY: list[str] = [
     "Madagascar",
     "Malawi", "Mexico", "Morocco", "Nepal", "Netherlands", "New Zealand",
     "Nicaragua", "Nigeria", "Norway", "Pakistan", "Panama", "Peru",
-    "Philippines", "Poland", "Portugal", "Romania", "Rwanda", "Serbia",
+    "Philippines", "Poland", "Portugal", "Romania",
+    # Russia entered the register on 2026-10-02 (RASFF 876273, Salmonella
+    # Hadar in ground coriander, origin Russia, notified by Latvia) and no
+    # offered word reached it, so a subscriber watching that origin would
+    # never have been alerted. Found by
+    # test_alert_vocab.py::test_every_register_country_is_offered.
+    "Russia",
+    "Rwanda", "Serbia",
     "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sri Lanka",
     "Sweden", "Switzerland", "Syria", "Taiwan", "Thailand", "Turkey",
     "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
