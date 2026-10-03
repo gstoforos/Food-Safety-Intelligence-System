@@ -27,6 +27,31 @@ _SLUG_YEAR_HOSTS = (
 # A year preceded by a hyphen/underscore and NOT part of a longer digit run.
 _SLUG_YEAR = re.compile(r"[-_](20\d{2})(?![0-9])")
 
+# ── A BEST-BEFORE DATE IS NOT A PUBLICATION YEAR (audit 2026-10-03) ────────
+#
+# THE ROW THAT FOUND THIS. Ministero della Salute, 2026-09-22, BMS Srl,
+# Probios popcorn corn, "Presence of tropane alkaloids above the allowed
+# limit". Its notice is a PDF whose filename carries the lot and the minimum
+# durability date:
+#
+#   .../MODULORICHIAMOMAISPERPOPCORN400grmarchioPROBIOSLotto60183
+#       TMC30_04_2028_1789992179.pdf
+#
+# "TMC 30_04_2028" is Termine Minimo di Conservazione — best before
+# 30/04/2028. _SLUG_YEAR matched "_2028" (the next character is "_", so the
+# not-a-digit guard was satisfied), the slug branch returned 2028, and
+# is_year_mismatch refused the row for a URL year two years off its Date.
+# A correct, in-scope recall sat in Pending because the gate read the
+# product's shelf life as the notice's year.
+#
+# This module already says "PDF filenames with embedded digits — too noisy,
+# skip" at the bottom. The slug branch, added later for hyphenated page
+# slugs, reaches those filenames before that line is ever read. Rather than
+# exclude every PDF — some regulators do put a real year in a PDF slug — the
+# narrow shape is excluded: a year that is the third field of a
+# day-month-year triple is a date on the product, not a date of publication.
+_DATE_TRIPLE_YEAR = re.compile(r"(?<![0-9])\d{1,2}[-_]\d{1,2}[-_](20\d{2})(?![0-9])")
+
 
 def url_year(url: str, source: str = "") -> Optional[int]:
     """Extract a year from a URL. Returns None if not reliably extractable."""
@@ -93,7 +118,9 @@ def url_year(url: str, source: str = "") -> Optional[int]:
     if any(h in u for h in _SLUG_YEAR_HOSTS):
         path = u.split("://", 1)[-1]
         path = path.split("/", 1)[1] if "/" in path else ""
-        years = [int(y) for y in _SLUG_YEAR.findall(path)]
+        product_dates = set(_DATE_TRIPLE_YEAR.findall(path))
+        years = [int(y) for y in _SLUG_YEAR.findall(path)
+                 if y not in product_dates]
         if years:
             return max(years)
 
