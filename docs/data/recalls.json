@@ -96,6 +96,38 @@
   "Notes": "aucun . livraison directe au consommateur [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-02",
+  "Source": "FDA",
+  "Company": "Frutas y Hortalizas del Sur S.A.",
+  "Brand": "Great Value, Trader Joe’s",
+  "Product": "Organic Blueberries, Triple Berry Blend and Mixed Berry Blend",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Potential E. Coli O145:H28 Contamination",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recalls-include-additional-lots-great-value-frozen-organic",
+  "Notes": "FDA listing HTML (Layer 1) [pathogen-specialised: 'Escherichia coli (generic)' -> 'Shiga toxin-producing E. coli (STEC)', derived from this row's own Reason, which names the organism the family label does not] [tier-guard: Shiga toxin-producing E. coli (STEC) is always Tier 1; forced from Tier 2]"
+ },
+ {
+  "Date": "2026-10-02",
+  "Source": "FDA",
+  "Company": "EAK Distribution LLC",
+  "Brand": "Home Grown",
+  "Product": "Green Sprouting Calabrese Broccoli Seeds",
+  "Pathogen": "Salmonella",
+  "Reason": "Potential to be contaminated with Salmonella",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/eak-distribution-llc-recalls-home-grown-green-sprouting-calabrese-broccoli-seeds-8-oz-heirloom",
+  "Notes": "FDA listing HTML (Layer 1)"
+ },
+ {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "Cokoc",
