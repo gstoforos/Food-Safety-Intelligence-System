@@ -225,6 +225,36 @@ NATURAL_TOXINS = {
     "lectina", "ricina",                 # universal Romance form
     "grayanotoxin", "γκραγιανοτοξίνη",
     "grayanotossina", "grayanotoxina",
+    # ── Pyrrolizidine alkaloids (added 2026-10-03) ──────────────────────
+    #
+    # THE ROW THAT FOUND THIS. The Polish gap finder rediscovered GIS's
+    # notice "alkaloidy pirolizydynowe w określonej partii herbatki
+    # ziołowej z pokrzywy" on 2026-10-02 and refused it with
+    # "unknown: No matching hazard category — defer to manual review",
+    # because no needle here matched. The recall itself was already
+    # PUBLISHED (Herbapol-Lublin, Zielnik Polski nettle tea, 2026-09-10,
+    # Tier 3), so the refusal left the register saying the same URL was
+    # both published and thrown away — which is what
+    # test_a_recall_is_not_both_published_and_rejected caught.
+    #
+    # The hazard was never in doubt anywhere else: tools/alert_vocab.py
+    # has offered "Pyrrolizidine alkaloids" to subscribers since it was
+    # written. Only this gate could not see it. PAs are plant toxins that
+    # carry over into herbal teas and honey and are capped by EU
+    # Regulation 2023/915, so they belong with the natural toxins.
+    #
+    # "pirolizyd" / "pyrrolizid" / "πυρρολιζιδ" are stems: Polish and
+    # Greek inflect the adjective, German compounds it
+    # (Pyrrolizidinalkaloide), and a stem matches every form.
+    "pyrrolizidine alkaloid", "pyrrolizidine",
+    "pyrrolizidin",                      # German / Dutch / Nordic stem
+    "alcaloidi pirrolizidinici", "pirrolizidin",          # Italian stem
+    "alcaloides de pirrolizidina", "pirrolizidina",       # ES / PT
+    "alcaloïdes pyrrolizidiniques",                       # French
+    "pirolizyd",                         # Polish stem (pirolizydynowe)
+    "πυρρολιζιδ",                        # Greek stem
+    "pirrolizidin alkaloidok",           # Hungarian
+    "pyrrolitsidiinialkaloidit",         # Finnish
 }
 
 # REJECT — allergens (undeclared)
