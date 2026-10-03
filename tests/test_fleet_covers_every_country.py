@@ -43,8 +43,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tools.fleet_shard import (N_SHARDS, plan, registered_codes,  # noqa: E402
-                               shard_for)
+from tools.fleet_shard import (DAILY, N_SHARDS, plan, registered_codes,  # noqa: E402
+                               shard_for, todays_codes)
 
 CODES = registered_codes()
 WF = ROOT / ".github" / "workflows" / "gap_finder_fleet.yml"
@@ -191,3 +191,15 @@ def test_the_shard_cli_prints_codes_only_on_stdout():
     assert line, "no shard printed"
     for c in line.split(","):
         assert c in CODES, f"stdout carried {c!r}, which is not a country"
+
+
+def test_japan_runs_every_day():
+    """2026-10-03: the CAA posts daily; on the weekly rotation an aflatoxin
+    recall of 2026-10-02 reached no sheet. jp now runs every day, on top of
+    the weekly partition (which the test above still holds)."""
+    assert "jp" in DAILY and "jp" in CODES
+    monday = date(2026, 9, 28)
+    for i in range(7):
+        today = todays_codes(CODES, monday + timedelta(days=i))
+        assert today.count("jp") == 1
+        assert set(shard_for(CODES, monday + timedelta(days=i))) <= set(today)

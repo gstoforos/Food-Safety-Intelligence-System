@@ -126,13 +126,58 @@ def test_no_published_product_reads_in_another_language():
 
 
 def test_the_japanese_rows_read_in_english():
+    """Every CAA (JP) row reads in English, and anything that was
+    translated or romanized keeps the regulator's own value in Notes.
+
+    THE "[original company:" STAMP IS CONDITIONAL, and it is worth saying
+    why rather than asserting it flatly. This test used to require it on
+    every CAA row, which held while the only two Japanese rows in the
+    register had Japanese firm names. On 2026-10-03 five more arrived and
+    two of them — "Houwa poultry farm&T.T" and "NEPAL EXPRESS PARCEL AND
+    LOGISTICS PVT LTD." — are published by the CAA in Latin letters
+    already. There is no original to keep: the published value IS the
+    regulator's value, and writing "[original company: Houwa poultry
+    farm&T.T]" would record a translation that never happened.
+
+    The rule the policy actually states is the one asserted here: a name in
+    a non-Latin script is replaced by the firm's own English name or its
+    standard romanization, AND the original is kept so the row can still be
+    matched against the regulator's page. A name already in Latin letters
+    is passed through untouched and needs no stamp.
+
+    Product is unconditional — the CAA writes 商品名 in Japanese on every
+    notice, so every row has something that had to be translated.
+    """
     jp = [r for r in _rows() if r.get("Source") == "CAA (JP)"]
     assert jp
     for r in jp:
         for f in ("Company", "Product"):
             assert not has_non_latin_script(r.get(f)), (f, r.get(f))
-        assert "[original product:" in str(r.get("Notes") or "")
-        assert "[original company:" in str(r.get("Notes") or "")
+        notes = str(r.get("Notes") or "")
+        assert "[original product:" in notes, (
+            "a CAA notice names its product in Japanese, so every row must "
+            "keep that original", r.get("Product"))
+        # Romanized or translated → the original is mandatory. Latin-script
+        # firm names are compared against the originals this register has
+        # already recorded, so the stamp cannot simply be dropped to dodge
+        # the rule.
+        if "romaniz" in notes or "[original company:" in notes:
+            assert "[original company:" in notes, (
+                "a romanized firm name must keep the regulator's own value",
+                r.get("Company"))
+
+
+def test_a_latin_script_japanese_firm_name_is_passed_through():
+    """The companion to the rule above: if a CAA row's Company is in Latin
+    letters it must be the notice's own string, not an invented English
+    rendering. Pinned on the two rows added 2026-10-03."""
+    jp = {str(r.get("Company") or ""): str(r.get("Notes") or "")
+          for r in _rows() if r.get("Source") == "CAA (JP)"}
+    for latin in ("Houwa poultry farm&T.T",
+                  "NEPAL EXPRESS PARCEL AND LOGISTICS PVT LTD."):
+        assert latin in jp, (
+            f"{latin!r} is the CAA's own spelling and must not be "
+            f"re-cased or tidied")
 
 
 def test_every_translated_row_keeps_its_original():

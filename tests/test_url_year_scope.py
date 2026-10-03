@@ -88,6 +88,57 @@ class TestUrlYearExtraction:
             "26_04_08%20...142026.pdf"
         ) is None
 
+    def test_best_before_date_in_pdf_filename_is_not_the_year(self):
+        """A product's shelf life is not the notice's publication year.
+
+        THE ROW THAT FOUND THIS (2026-10-03). Ministero della Salute,
+        2026-09-22, BMS Srl, Probios popcorn corn, tropane alkaloids above
+        the limit. Its notice is a PDF whose filename carries the lot and
+        the minimum durability date:
+
+            ...PROBIOSLotto60183TMC30_04_2028_1789992179.pdf
+
+        "TMC 30_04_2028" is Termine Minimo di Conservazione — best before
+        30/04/2028. salute.gov.it is a _SLUG_YEAR_HOSTS member, and
+        _SLUG_YEAR matched "_2028" because the character after it is "_"
+        rather than a digit. url_year returned 2028, is_year_mismatch
+        refused the row as two years off its Date, and a correct in-scope
+        recall sat in Pending with the gate reading the product's shelf
+        life as the notice's year.
+
+        The module already intended to skip PDF filenames ("too noisy") —
+        the slug branch, added later, reaches them before that line. The
+        narrow shape is now excluded instead: a year that is the third
+        field of a day-month-year triple is a date ON the product.
+        """
+        assert url_year(
+            "https://www.salute.gov.it/new/sites/default/files/external_data/"
+            "avvisi_sicurezza_alimentare/MODULORICHIAMOMAISPERPOPCORN400gr"
+            "marchioPROBIOSLotto60183TMC30_04_2028_1789992179.pdf"
+        ) is None
+        assert is_year_mismatch(
+            date(2026, 9, 22),
+            "https://www.salute.gov.it/new/sites/default/files/external_data/"
+            "avvisi_sicurezza_alimentare/MODULORICHIAMOMAISPERPOPCORN400gr"
+            "marchioPROBIOSLotto60183TMC30_04_2028_1789992179.pdf"
+        ) is None
+
+    def test_a_real_year_in_a_pdf_slug_is_still_read(self):
+        """The exclusion above is the date-triple shape only. A regulator
+        that does put a plain year in a PDF slug must still be read, or the
+        stale-page check this branch exists for stops working."""
+        assert url_year(
+            "https://www.salute.gov.it/new/avvisi/richiamo-2026-notice.pdf"
+        ) == 2026
+
+    def test_a_stale_fda_roundup_page_is_still_caught(self):
+        """The case the slug branch was added for, pinned so the
+        date-triple exclusion cannot have widened into it."""
+        assert url_year(
+            "https://www.fda.gov/safety/recalls-market-withdrawals-safety-"
+            "alerts/listeria-announced-top-10-recalls-july-2023"
+        ) == 2023
+
     def test_fsanz_landing_no_year(self):
         # FSANZ recall landings don't encode the year — caller must not
         # try to match.

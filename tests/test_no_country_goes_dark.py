@@ -116,9 +116,10 @@ NOT_YET_RUN = {
     # jp LEFT on 2026-09-30 — its first fleet shard ran 10:42 UTC: 20
     # candidates, 0 accepted, 11 refused as "no official CAA press-release
     # URL" (news-only discovery). Same wall as br/kr/tw above.
-    # th added 2026-09-30 (operator request; Thai-authority rows: zero ever).
-    # The fleet deals it into a shard automatically — tools/fleet_shard.py.
-    "th": "2026-09-30",
+    # th added 2026-09-30 (operator request; Thai-authority rows: zero ever)
+    # and LEFT on 2026-10-03 — the fleet shard of that morning ("Gap finder
+    # fleet: 2026-10-03 shard of 6 countries") wrote its first run_log. It is
+    # now held to the 14-day freshness bar like every live country.
     # cn added 2026-09-30 on the operator ruling "China only confirmed,
     # published officially" (SAMR's own notices only).
     "cn": "2026-09-30",
