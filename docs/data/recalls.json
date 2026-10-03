@@ -298,10 +298,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 3,
+  "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23674/interne",
-  "Notes": "action [offline-enrich 2026-10-01: Pathogen '' -> 'Mold', read from this row's own hazard text; no fetch, no model] [promote 2026-10-01: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [original product: référence 3225164] [original reason: Ce produit présente des traces de moisissures alors que sa date de péremption n’est pas encore atteinte. il est impropre à la consommation.] [English names 2026-10-02] [morning-fix 2026-10-03: Read off fiche 23674 (published 01/10/2026) and confirmed against the NVWA safety warning of 01/10/2026 for the same product, which gives the 80 g weight, barcode 6972007904589 and Action article number 3225164. The published Product was that article number. [original product: Reference 3225164 — the Action article number; the fiche's product name is “Fried Egg-Shaped GUMMIES”]"
+  "Notes": "action [offline-enrich 2026-10-01: Pathogen '' -> 'Mold', read from this row's own hazard text; no fetch, no model] [promote 2026-10-01: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [original product: référence 3225164] [original reason: Ce produit présente des traces de moisissures alors que sa date de péremption n’est pas encore atteinte. il est impropre à la consommation.] [English names 2026-10-02] [morning-fix 2026-10-03: Read off fiche 23674 (published 01/10/2026) and confirmed against the NVWA safety warning of 01/10/2026 for the same product, which gives the 80 g weight, barcode 6972007904589 and Action article number 3225164. The published Product was that article number. [original product: Reference 3225164 — the Action article number; the fiche's product name is “Fried Egg-Shaped GUMMIES”] [tier-guard 2026-10-03: mold is Tier 2 for every source (operator rule); set from Tier 3]"
  },
  {
   "Date": "2026-10-01",
