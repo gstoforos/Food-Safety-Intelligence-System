@@ -511,6 +511,21 @@ def _is_declared_non_pathogenic_ecoli(pathogen, row) -> bool:
     return bool(_NON_PATHOGENIC_RE.search(blob))
 
 
+MOLD_TIER = 2
+
+# The Pathogen value is mold (any spelling the register carries, including
+# untranslated source words) — NOT a mycotoxin and NOT "mold-like" foreign
+# matter, which are other hazards.
+_MOLD_PATHOGEN_RE = _re2.compile(
+    r"^\s*(?:mou?lds?|moisissures?|schimmel(?:pilze?)?|ple[sś][nń]|muffa|"
+    r"mohos?|penicillium|aspergillus|visible mou?ld|mou?ld growth|カビ)"
+    r"\s*(?:\(.*\))?\s*$", _re2.IGNORECASE)
+
+
+def _is_mold(pathogen) -> bool:
+    return bool(_MOLD_PATHOGEN_RE.match(str(pathogen or "")))
+
+
 def enforce_tier1(row: dict) -> dict:
     """Force Tier=1 in-place when the row's Pathogen is always-Tier-1.
 
@@ -614,6 +629,29 @@ def enforce_tier1(row: dict) -> dict:
                            f"; set from Tier {cur or 'unset'}"
                            if cur != _NON_PATHOGENIC_ECOLI_TIER else ""))
         if "tier-guard 2026-08-18" not in note:
+            row["Notes"] = (note + " " + stamp).strip() if note else stamp
+        return row
+
+    # ── MOLD IS TIER 2, EVERYWHERE (operator rule 2026-10-03) ────────────
+    # "bring mold in tier two for everything". Visible mould has been in
+    # scope since 2026-09-07 and _TIERS has said Mold: 2, but nothing
+    # ENFORCED it: each scraper set its own tier, so the register carried
+    # mold at Tier 2 from CAA/RASFF/FSANZ/EFET and at Tier 3 from
+    # RappelConso (Cokoc gummies, fiche 23674). Like the non-pathogenic
+    # E. coli rule above, this SETS the tier — up from 3, down from 1 — so
+    # every source publishes mold the same way. Mycotoxins (aflatoxin,
+    # ochratoxin, …) are a different hazard and keep their own tier.
+    if _is_mold(pathogen):
+        try:
+            cur = int(row.get("Tier") or 0)
+        except (ValueError, TypeError):
+            cur = 0
+        if cur != MOLD_TIER:
+            row["Tier"] = MOLD_TIER
+            note = str(row.get("Notes") or "")
+            stamp = ("[tier-guard 2026-10-03: mold is Tier %s for every "
+                     "source (operator rule); set from Tier %s]"
+                     % (MOLD_TIER, cur if cur else "unset"))
             row["Notes"] = (note + " " + stamp).strip() if note else stamp
         return row
 
