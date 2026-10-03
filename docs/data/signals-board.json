@@ -20,7 +20,7 @@
   "min_absolute_count": 4,
   "advisory_only": true,
   "coverage_enforced": false,
-  "generated_utc": "2026-10-02T15:27:02+00:00",
+  "generated_utc": "2026-10-03T15:26:56+00:00",
   "coverage_register": "present",
   "coverage_window_start": "2026-06-08/2026-06-14",
   "within_coverage_window": true,
@@ -2786,15 +2786,15 @@
    "week": "2026-04-20/2026-04-26",
    "week_start": "2026-04-20",
    "week_end": "2026-04-26",
-   "corpus_total": 78,
+   "corpus_total": 76,
    "alarms": [
     {
      "label": "Tier 2 · Europe",
      "channel": "proportion",
-     "observed": 15,
+     "observed": 14,
      "baseline_mean": 1.0,
-     "effect": 3.63,
-     "p_value": 1.3e-05,
+     "effect": 3.47,
+     "p_value": 4.2e-05,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RASFF (EU)"
@@ -2802,10 +2802,10 @@
     {
      "label": "Salmonella · global",
      "channel": "count-only",
-     "observed": 25,
+     "observed": 24,
      "baseline_mean": 5.86,
-     "effect": 4.27,
-     "p_value": 0.467273,
+     "effect": 4.1,
+     "p_value": 0.504192,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RASFF (EU)"
@@ -2816,7 +2816,7 @@
      "observed": 6,
      "baseline_mean": 2.0,
      "effect": 3.0,
-     "p_value": 0.847374,
+     "p_value": 0.82942,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "CFIA"
@@ -2824,10 +2824,10 @@
     {
      "label": "Tier 1 · Europe",
      "channel": "count-only",
-     "observed": 36,
+     "observed": 35,
      "baseline_mean": 12.86,
-     "effect": 2.8,
-     "p_value": 0.999982,
+     "effect": 2.72,
+     "p_value": 0.99998,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RappelConso (FR)"
@@ -2838,7 +2838,7 @@
      "observed": 13,
      "baseline_mean": 6.71,
      "effect": 1.94,
-     "p_value": 0.999937,
+     "p_value": 0.99989,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RappelConso (FR)"
@@ -2849,7 +2849,7 @@
      "observed": 10,
      "baseline_mean": 5.57,
      "effect": 1.79,
-     "p_value": 0.999858,
+     "p_value": 0.999775,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RappelConso (FR)"
@@ -2992,9 +2992,9 @@
      "label": "Salmonella · Europe",
      "channel": "proportion",
      "observed": 18,
-     "baseline_mean": 7.43,
-     "effect": 2.26,
-     "p_value": 0.000557,
+     "baseline_mean": 7.29,
+     "effect": 2.29,
+     "p_value": 0.000469,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RASFF (EU)"
@@ -3005,7 +3005,7 @@
      "observed": 7,
      "baseline_mean": 3.86,
      "effect": 1.81,
-     "p_value": 0.118296,
+     "p_value": 0.120734,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "FDA"
@@ -3023,8 +3023,8 @@
      "channel": "proportion",
      "observed": 11,
      "baseline_mean": 4.0,
-     "effect": 2.48,
-     "p_value": 0.004349,
+     "effect": 2.47,
+     "p_value": 0.004506,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RappelConso (FR)"
@@ -3033,9 +3033,9 @@
      "label": "Salmonella · Europe",
      "channel": "proportion",
      "observed": 22,
-     "baseline_mean": 9.57,
-     "effect": 2.07,
-     "p_value": 0.000445,
+     "baseline_mean": 9.43,
+     "effect": 2.09,
+     "p_value": 0.000385,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RASFF (EU)"
@@ -3044,9 +3044,9 @@
      "label": "Salmonella · global",
      "channel": "proportion",
      "observed": 30,
-     "baseline_mean": 14.14,
-     "effect": 1.91,
-     "p_value": 9.6e-05,
+     "baseline_mean": 14.0,
+     "effect": 1.92,
+     "p_value": 8.7e-05,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RASFF (EU)"
@@ -3057,7 +3057,7 @@
      "observed": 5,
      "baseline_mean": 2.0,
      "effect": 2.5,
-     "p_value": 0.071098,
+     "p_value": 0.072233,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "FDA"
@@ -3068,7 +3068,7 @@
      "observed": 8,
      "baseline_mean": 4.43,
      "effect": 1.81,
-     "p_value": 0.116051,
+     "p_value": 0.118377,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "FDA"
@@ -3079,15 +3079,26 @@
    "week": "2026-05-25/2026-05-31",
    "week_start": "2026-05-25",
    "week_end": "2026-05-31",
-   "corpus_total": 69,
+   "corpus_total": 68,
    "alarms": [
     {
      "label": "Shiga toxin-producing E. coli (STEC) · France",
      "channel": "proportion",
      "observed": 12,
      "baseline_mean": 1.71,
-     "effect": 6.68,
+     "effect": 6.75,
      "p_value": 0.0,
+     "fdr_pass": true,
+     "fdr_status": "pass",
+     "dominant_source": "RappelConso (FR)"
+    },
+    {
+     "label": "Tier 1 · Europe",
+     "channel": "proportion",
+     "observed": 51,
+     "baseline_mean": 39.43,
+     "effect": 1.25,
+     "p_value": 0.007386,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RappelConso (FR)"
@@ -3098,7 +3109,7 @@
      "observed": 6,
      "baseline_mean": 1.86,
      "effect": 3.23,
-     "p_value": 0.013263,
+     "p_value": 0.012644,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "CDC"
@@ -3107,9 +3118,9 @@
      "label": "Salmonella · Europe",
      "channel": "count-only",
      "observed": 14,
-     "baseline_mean": 11.14,
-     "effect": 1.26,
-     "p_value": 0.271217,
+     "baseline_mean": 11.0,
+     "effect": 1.27,
+     "p_value": 0.242426,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RASFF (EU)"
@@ -3127,8 +3138,8 @@
      "channel": "proportion",
      "observed": 6,
      "baseline_mean": 2.0,
-     "effect": 3.54,
-     "p_value": 0.006881,
+     "effect": 3.53,
+     "p_value": 0.007013,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RappelConso (FR)"
@@ -3146,8 +3157,8 @@
      "channel": "proportion",
      "observed": 10,
      "baseline_mean": 5.0,
-     "effect": 2.89,
-     "p_value": 0.001981,
+     "effect": 2.88,
+     "p_value": 0.00204,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RappelConso (FR)"
@@ -3158,7 +3169,7 @@
      "observed": 5,
      "baseline_mean": 3.86,
      "effect": 1.3,
-     "p_value": 0.126923,
+     "p_value": 0.12847,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RASFF (EU)"
@@ -3175,9 +3186,9 @@
      "label": "Aflatoxin · Europe",
      "channel": "proportion",
      "observed": 9,
-     "baseline_mean": 2.71,
-     "effect": 3.17,
-     "p_value": 0.002045,
+     "baseline_mean": 2.57,
+     "effect": 3.32,
+     "p_value": 0.00148,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RASFF (EU)"
@@ -3186,9 +3197,9 @@
      "label": "Tier 2 · Europe",
      "channel": "proportion",
      "observed": 15,
-     "baseline_mean": 7.29,
-     "effect": 1.97,
-     "p_value": 0.007506,
+     "baseline_mean": 7.14,
+     "effect": 1.99,
+     "p_value": 0.006661,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RASFF (EU)"
@@ -3198,8 +3209,8 @@
      "channel": "proportion",
      "observed": 29,
      "baseline_mean": 14.14,
-     "effect": 1.96,
-     "p_value": 9.1e-05,
+     "effect": 1.95,
+     "p_value": 0.000104,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RappelConso (FR)"
@@ -3210,7 +3221,7 @@
      "observed": 6,
      "baseline_mean": 2.57,
      "effect": 2.33,
-     "p_value": 0.052233,
+     "p_value": 0.053612,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RASFF (EU)"
@@ -3235,7 +3246,7 @@
      "channel": "proportion",
      "observed": 11,
      "baseline_mean": 1.29,
-     "effect": 8.45,
+     "effect": 8.43,
      "p_value": 0.0,
      "fdr_pass": true,
      "fdr_status": "pass",
@@ -3247,7 +3258,7 @@
      "observed": 22,
      "baseline_mean": 14.14,
      "effect": 1.56,
-     "p_value": 0.017853,
+     "p_value": 0.018343,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RappelConso (FR)"
@@ -3265,8 +3276,8 @@
      "channel": "proportion",
      "observed": 8,
      "baseline_mean": 1.43,
-     "effect": 5.59,
-     "p_value": 9e-05,
+     "effect": 5.57,
+     "p_value": 9.1e-05,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RASFF (EU)"
@@ -3284,7 +3295,7 @@
      "channel": "proportion",
      "observed": 37,
      "baseline_mean": 12.0,
-     "effect": 2.64,
+     "effect": 2.63,
      "p_value": 0.0,
      "fdr_pass": true,
      "fdr_status": "pass",
@@ -3304,7 +3315,7 @@
      "observed": 26,
      "baseline_mean": 12.29,
      "effect": 2.12,
-     "p_value": 5e-05,
+     "p_value": 5.2e-05,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RappelConso (FR)"
@@ -3322,8 +3333,8 @@
      "channel": "proportion",
      "observed": 5,
      "baseline_mean": 1.0,
-     "effect": 4.01,
-     "p_value": 0.008403,
+     "effect": 4.0,
+     "p_value": 0.008485,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RASFF (EU)"
@@ -3334,7 +3345,7 @@
      "observed": 12,
      "baseline_mean": 4.14,
      "effect": 2.32,
-     "p_value": 0.00508,
+     "p_value": 0.005178,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RappelConso (FR)"
@@ -3345,7 +3356,7 @@
      "observed": 9,
      "baseline_mean": 3.43,
      "effect": 2.62,
-     "p_value": 0.026725,
+     "p_value": 0.027088,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RappelConso (FR)"
@@ -3356,7 +3367,7 @@
      "observed": 16,
      "baseline_mean": 12.86,
      "effect": 1.24,
-     "p_value": 0.550973,
+     "p_value": 0.555297,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RappelConso (FR)"
@@ -3601,7 +3612,7 @@
    },
    {
     "week": "2026-04-20/2026-04-26",
-    "total": 78
+    "total": 76
    },
    {
     "week": "2026-04-27/2026-05-03",
@@ -3621,7 +3632,7 @@
    },
    {
     "week": "2026-05-25/2026-05-31",
-    "total": 69
+    "total": 68
    },
    {
     "week": "2026-06-01/2026-06-07",
