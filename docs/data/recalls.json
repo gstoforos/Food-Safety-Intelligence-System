@@ -4,23 +4,23 @@
   "Source": "RappelConso (FR)",
   "Company": "Maitre Coq",
   "Brand": "Maitre Coq",
-  "Product": "saucisses de volaille façon charcutière (nature, herbes, merguez) 320g",
+  "Product": "Poultry sausages, charcutier style (plain, herbs, merguez), 320 g, lots 26265 and 26266, use-by 08/10/2026 to 09/10/2026",
   "Pathogen": "Salmonella",
-  "Reason": "Suspicion de Salmonella",
+  "Reason": "Suspected presence of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23690/interne",
-  "Notes": "leclerc, cooperative u, intermarche (niort, carvin, chartres, grand couronne, itteville, marquette lez lille), monoprix [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English]"
+  "Notes": "leclerc, cooperative u, intermarche (niort, carvin, chartres, grand couronne, itteville, marquette lez lille), monoprix [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule] [morning-fix 2026-10-03: Product and Reason translated from fiche 23690 (réf. 2026-10-0019, published 02/10/2026); lots and use-by dates read off the same fiche. [original product: saucisses de volaille façon charcutière (nature, herbes, merguez) 320g] [original Reason (fr): \"Suspicion de Salmonelle\"]"
  },
  {
   "Date": "2026-10-02",
   "Source": "RappelConso (FR)",
   "Company": "Tendriade",
   "Brand": "Tendriade",
-  "Product": "haché de veau façon boucher 2x100g vvf",
+  "Product": "Butcher-style minced veal, 2x100 g, VVF, lot 73728848, use-by 07/10/2026 and 08/10/2026",
   "Pathogen": "Salmonella",
   "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
@@ -29,30 +29,30 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23691/interne",
-  "Notes": "auchan, carrefour, intermarché, leclerc, système u [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English]"
+  "Notes": "auchan, carrefour, intermarché, leclerc, système u [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule] [morning-fix 2026-10-03: Product translated from fiche 23691 (réf. 2026-10-0020, published 02/10/2026); lot and use-by dates read off the same fiche. [original product: haché de veau façon boucher 2x100g vvf] [original Reason (fr): \"Présence de Salmonella\"]"
  },
  {
   "Date": "2026-10-02",
   "Source": "RappelConso (FR)",
-  "Company": "Ventes Directe à la Ferme",
+  "Company": "GAEC La Maison Blanche",
   "Brand": "Unbranded",
-  "Product": "fromages de chèvre ronds, pyramides, bûches, crottins, crottins aromatisés et faisselles",
+  "Product": "Goat cheeses — rounds, pyramids, logs, crottins, flavoured crottins and faisselles; made 09/09/2026 to 29/09/2026, use-by 29/09/2026",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "Présence e.colis stec",
+  "Reason": "Presence of Shiga toxin-producing E. coli (STEC)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23678/interne",
-  "Notes": "ventes directe à la ferme [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English]"
+  "Notes": "ventes directe à la ferme [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule] [morning-fix 2026-10-03: Read off fiche 23678 (réf. 2026-10-0014, published 02/10/2026). Company held the fiche's DISTRIBUTEURS value, not its Nom de l'entreprise. [original company: Ventes Directe à la Ferme — the fiche's distributor field; its Nom de l'entreprise is GAEC LA MAISON BLANCHE] [original product: fromages de chèvre ronds, pyramides, bûches, crottins, crottins aromatisés et faisselles] [original Reason (fr): \"présence E.colis STEC\"]"
  },
  {
   "Date": "2026-10-02",
   "Source": "RappelConso (FR)",
-  "Company": "Peugeot",
+  "Company": "Peugeot Saveurs",
   "Brand": "Peugeot",
-  "Product": "42431 - boite de 4 sachets timut; 46347 - coffret maestro gris roche",
+  "Product": "Timut pepper — 42431: box of 4 sachets (10 g each); 46347: Maestro “gris roche” gift set; lot TPSDHY23RNHN, best before 05/05/2030",
   "Pathogen": "Salmonella",
   "Reason": "Presence of Salmonella",
   "Class": "Voluntary",
@@ -61,39 +61,39 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23688/interne",
-  "Notes": "réseau commerciale france [offline-enrich 2026-10-02: Pathogen '' -> 'Salmonella', read from this row's own hazard text; no fetch, no model] [promote 2026-10-02: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
+  "Notes": "réseau commerciale france [offline-enrich 2026-10-02: Pathogen '' -> 'Salmonella', read from this row's own hazard text; no fetch, no model] [promote 2026-10-02: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Salmonella is always Tier 1; forced from Tier 3] [morning-fix 2026-10-03: Read off fiche 23688 (réf. 2026-10-0017, published 02/10/2026). Product was the two bare article numbers; Company was the Marque, not the Nom de l'entreprise. Found by reading every Product published in the last 26 h — the language detector did not flag it. [original product: 42431 - boite de 4 sachets timut; 46347 - coffret maestro gris roche] [original company: PEUGEOT SAVEURS]"
  },
  {
   "Date": "2026-10-02",
   "Source": "RappelConso (FR)",
   "Company": "Ferme du Pichet",
   "Brand": "Ferme du Pichet",
-  "Product": "piece de 200grs munster bio au lait cru ferme du pichet",
+  "Product": "Organic raw-milk Munster, 200 g piece, Ferme du Pichet, lot 12040826, use-by 22/09/2026",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of Listeria détecté suite a des analyses aqualeha",
+  "Reason": "Presence of Listeria detected following laboratory analyses (Aqualeha)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23641/interne",
-  "Notes": "clients intermarche mirecourt [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English]"
+  "Notes": "clients intermarche mirecourt [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule] [morning-fix 2026-10-03: Read off fiche 23641 (réf. 2026-09-0258, published 02/10/2026). Munster kept as the protected name; Aqualeha is the testing laboratory the fiche names. [original product: piece de 200grs munster bio au lait cru ferme du pichet] [original Reason (fr): \"PRÉSENCE DE LISTERIA DÉTECTÉ SUITE A DES ANALYSES AQUALEHA\"]"
  },
  {
   "Date": "2026-10-02",
   "Source": "RappelConso (FR)",
   "Company": "La Brigade de Vero",
   "Brand": "La Brigade de Vero",
-  "Product": "pr06",
+  "Product": "Ready meal: turkey escalope with ginger cream and Ventoux small spelt (model PR06), lot L: 37-080926-L1-PR06, use-by 21/09/2026",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Detection of listéria à dlc du produit, sur une barquette témoin lors auto-contrôle",
+  "Reason": "Listeria detected at the product's use-by date, on a reference tray during own-check testing",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23677/interne",
-  "Notes": "aucun . livraison directe au consommateur [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "aucun . livraison directe au consommateur [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule] [morning-fix 2026-10-03: Read off fiche 23677 (réf. 2026-10-0013, published 02/10/2026). The published Product “pr06” was the model-code half of the fiche's Modèles field — the same shape as the “//” artifact repaired on row 66. Found by reading every Product published in the last 26 h. [original product: Plat cuisiné : Escalope de dinde, crème de gingembre au petit épeautre du Ventoux / PR06] [original Reason (fr): \"Détection listéria à DLC du produit, sur une barquette témoin lors auto-contrôle\"]"
  },
  {
   "Date": "2026-10-02",
@@ -128,11 +128,107 @@
   "Notes": "FDA listing HTML (Layer 1)"
  },
  {
+  "Date": "2026-10-02",
+  "Source": "RappelConso (FR)",
+  "Company": "Carrefour France",
+  "Brand": "Carrefour le Marché",
+  "Product": "Butcher-style minced veal, Carrefour le Marché, 2x100 g, batch 73728848, use-by 07/10/2026, 08/10/2026 and 09/10/2026",
+  "Pathogen": "Salmonella",
+  "Reason": "Suspected presence of Salmonella",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23689/Interne",
+  "Notes": "Added by the morning-fix pass 2026-10-03. Found by walking the newest RappelConso fiche numbers: 23689 was in no sheet while its neighbours 23690 and 23691 were. Every field below was read off fiche 23689 (réf. 2026-10-0018, Date de publication 02/10/2026) on 2026-10-03: Nom de l'entreprise CARREFOUR FRANCE, Marque Carrefour Le Marché, product name \"Haché de veau façon bouchère Carrefour le Marché 2x100g\", Motif du rappel \"Suspicion de présence de salmonelle\", Risques encourus Salmonella spp, Numéro de lot 73728848, DLC 07/10/2026 08/10/2026 09/10/2026, GTIN 3245414264410, Zone France entière. RELATED, AND DELIBERATELY SUBMITTED ANYWAY: lot 73728848 is the same lot as the already-published Tendriade fiche 23691 — Tendriade manufactures, Carrefour retails under its own brand and GTIN — so this is the retailer's own regulatory action on its own pack. If the near-duplicate rule refuses it, that refusal is correct and should be left standing. [original product: Haché de veau façon bouchère Carrefour le Marché 2x100g] [original Reason (fr): \"Suspicion de présence de salmonelle\"] [promote 2026-10-03: status 'pending'->'pending' — passes every publish-gate rule] [morning-fix 2026-10-03: Brand re-cased to the register's existing spelling (35 earlier rows); the fiche prints it in title case. Caught by test_firm_names_are_uniform."
+ },
+ {
+  "Date": "2026-10-02",
+  "Source": "CAA (JP)",
+  "Company": "Houwa poultry farm&T.T",
+  "Brand": "—",
+  "Product": "Cut Baumkuchen (plain)",
+  "Pathogen": "Mold",
+  "Reason": "Contamination by mold",
+  "Class": "Recall",
+  "Country": "Japan",
+  "Region": "Asia",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000035905&screenkbn=01",
+  "Notes": "Added by the morning-fix pass 2026-10-03. The Japanese gap finder last ran 2026-10-01 (docs/data/gap_finder_jp/run_log.jsonl), so none of the ten CAA food notices published 2026/10/02 was in any sheet. All ten were read individually on 2026-10-03; this is one of the five in scope. Read off the CAA notice: 事業者名 Houwa poultry farm&T.T, 商品名 カットバウム（プレーン）, 回収理由 カビによる汚染, 対応開始日 2026年09月29日, 公表日 2026/10/02 per the CAA food listing. [original product: カットバウム（プレーン）] [original Reason (ja): \"カビによる汚染\"] [promote 2026-10-03: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-02",
+  "Source": "CAA (JP)",
+  "Company": "NEPAL EXPRESS PARCEL AND LOGISTICS PVT LTD.",
+  "Brand": "—",
+  "Product": "Corn snack \"bhuteko makai\"",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Aflatoxin detected above the regulatory limit",
+  "Class": "Recall",
+  "Country": "Japan",
+  "Region": "Asia",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000035906&screenkbn=01",
+  "Notes": "Added by the morning-fix pass 2026-10-03; see the sibling row on rcl 35905 for why the whole 2026/10/02 CAA batch was missing. Read off the CAA notice on 2026-10-03: 事業者名 NEPAL EXPRESS PARCEL AND LOGISTICS PVT LTD., 商品名 コーン系スナック菓子 bhuteko makai, 回収理由 基準値を超えるアフラトキシンを検出, 対応開始日 2026年09月30日, 公表日 2026/10/02 per the CAA food listing; sold at three retailers in Shinjuku Ward (ambika & vegan shop, yamacoop workers cooperative, pokhara bazar). Company is already in Latin script on the notice and is left as published. [original product: コーン系スナック菓子 bhuteko makai] [original Reason (ja): \"基準値を超えるアフラトキシンを検出\"] [promote 2026-10-03: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-02",
+  "Source": "CAA (JP)",
+  "Company": "Hirata Sangyo",
+  "Brand": "—",
+  "Product": "Organic maple syrup, amber",
+  "Pathogen": "Mold",
+  "Reason": "Contamination by mold",
+  "Class": "Recall",
+  "Country": "Japan",
+  "Region": "Asia",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000035907&screenkbn=01",
+  "Notes": "Added by the morning-fix pass 2026-10-03; see the sibling row on rcl 35905 for why the whole 2026/10/02 CAA batch was missing. Read off the CAA notice on 2026-10-03: 事業者名 平田産業, 商品名 オーガニックメープルシロップ・アンバー, 回収理由 カビによる汚染, 対応開始日 2026年09月30日, 公表日 2026/10/02 per the CAA food listing. Company romanized (standard reading Hirata Sangyo); the CAA notice publishes no English name. [original company: 平田産業] [original product: オーガニックメープルシロップ・アンバー] [original Reason (ja): \"カビによる汚染\"] [promote 2026-10-03: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-02",
+  "Source": "CAA (JP)",
+  "Company": "Tawaraya",
+  "Brand": "—",
+  "Product": "Komegumiko, grape flavour",
+  "Pathogen": "Mold",
+  "Reason": "Contamination by mold",
+  "Class": "Recall",
+  "Country": "Japan",
+  "Region": "Asia",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000035908&screenkbn=01",
+  "Notes": "Added by the morning-fix pass 2026-10-03; see the sibling row on rcl 35905 for why the whole 2026/10/02 CAA batch was missing. Read off the CAA notice on 2026-10-03: 事業者名 俵屋（あめの俵屋本店、俵屋百番街店）, 商品名 こめぐみこ ぶどう味, 回収理由 カビによる汚染, 対応開始日 2026年09月25日, 公表日 2026/10/02 per the CAA food listing. Company romanized (standard reading Tawaraya); the CAA notice publishes no English name. [original company: 俵屋（あめの俵屋本店、俵屋百番街店）] [original product: こめぐみこ ぶどう味] [original Reason (ja): \"カビによる汚染\"] [promote 2026-10-03: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-02",
+  "Source": "CAA (JP)",
+  "Company": "Kinomi",
+  "Brand": "—",
+  "Product": "Dried fruit: Chandra pomelo peel",
+  "Pathogen": "Mold",
+  "Reason": "Contamination by mold",
+  "Class": "Recall",
+  "Country": "Japan",
+  "Region": "Asia",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000035910&screenkbn=01",
+  "Notes": "Added by the morning-fix pass 2026-10-03; see the sibling row on rcl 35905 for why the whole 2026/10/02 CAA batch was missing. Read off the CAA notice on 2026-10-03: 事業者名 木能実, 商品名 ドライフルーツ チャンドラポメロピール, 回収理由 カビによる汚染, 対応開始日 2026年09月01日, 公表日 2026/10/02 per the CAA food listing. Company romanized Kinomi — the firm publishes its own name as 木能実（きのみ） at akita-kinomi.com, which fixes the reading. [original company: 木能実] [original product: ドライフルーツ：チャンドラポメロピール] [original Reason (ja): \"カビによる汚染\"] [promote 2026-10-03: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "Cokoc",
   "Brand": "Cokoc",
-  "Product": "Reference 3225164",
+  "Product": "Cokoc fried-egg shaped gummies, 80 g, Action article 3225164, best before 24/10/2027 (all lots)",
   "Pathogen": "Mold",
   "Reason": "The product shows traces of mold although its use-by date has not been reached; it is unfit for consumption.",
   "Class": "Voluntary",
@@ -141,7 +237,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23674/interne",
-  "Notes": "action [offline-enrich 2026-10-01: Pathogen '' -> 'Mold', read from this row's own hazard text; no fetch, no model] [promote 2026-10-01: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [original product: référence 3225164] [original reason: Ce produit présente des traces de moisissures alors que sa date de péremption n’est pas encore atteinte. il est impropre à la consommation.] [English names 2026-10-02]"
+  "Notes": "action [offline-enrich 2026-10-01: Pathogen '' -> 'Mold', read from this row's own hazard text; no fetch, no model] [promote 2026-10-01: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [original product: référence 3225164] [original reason: Ce produit présente des traces de moisissures alors que sa date de péremption n’est pas encore atteinte. il est impropre à la consommation.] [English names 2026-10-02] [morning-fix 2026-10-03: Read off fiche 23674 (published 01/10/2026) and confirmed against the NVWA safety warning of 01/10/2026 for the same product, which gives the 80 g weight, barcode 6972007904589 and Action article number 3225164. The published Product was that article number. [original product: Reference 3225164 — the Action article number; the fiche's product name is “Fried Egg-Shaped GUMMIES”]"
  },
  {
   "Date": "2026-10-01",
@@ -173,7 +269,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23671/interne",
-  "Notes": "intermarché, rhd [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English] [original product: saucisse au filet de poulet x15] [original reason: Presence of Salmonella dans le produit] [English names 2026-10-02]"
+  "Notes": "intermarché, rhd [promote 2026-10-01: status 'pending'->'pending' — passes every publish-gate rule] [original product: saucisse au filet de poulet x15] [original reason: Presence of Salmonella dans le produit] [English names 2026-10-02] [morning-fix 2026-10-03: stale needs-cleanup stamp removed — Product is \"Chicken fillet sausages x15\" and [original product: saucisse au filet de poulet x15] is on file."
  },
  {
   "Date": "2026-10-01",
@@ -400,20 +496,36 @@
   "Notes": "[RASFF #2026.8715; classification: information notification for follow-up; category: fruits and vegetables; notifId=876647] [promote 2026-10-02: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-01",
+  "Source": "NVWA (NL)",
+  "Company": "Amazing Oriental",
+  "Brand": "Sonaco",
+  "Product": "Frozen sliced bitter melon, 500 g, product code 83456, best before 20/04/2028",
+  "Pathogen": "Pesticide residues",
+  "Reason": "Pesticide residues found above the legally permitted level",
+  "Class": "Recall",
+  "Country": "Netherlands",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.nvwa.nl/actueel/nieuws/2026/10/01/veiligheidswaarschuwing-sonaco-frozen-slices-of-bitter-melon",
+  "Notes": "Added by the morning-fix pass 2026-10-03. Found by reading the full NVWA veiligheidswaarschuwingen listing; it was in no sheet. Read off the NVWA safety warning of 01/10/2026 on 2026-10-03: product \"Sonaco Frozen Slices of Bitter Melon 500g\", brand Sonaco, recalling company Amazing Oriental, reason \"een hoeveelheid pesticiden gevonden die hoger is dan wettelijk is toegestaan\", productcode 83456, THT 20/04/2028. PUBLISH DATE IS 01/10/2026, one day outside the strict last-24h window — it is added because the 02/10 daily sweep did not pick it up either, so it is a real gap rather than a window question. [original Reason (nl): \"een hoeveelheid pesticiden gevonden die hoger is dan wettelijk is toegestaan\"] [promote 2026-10-03: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
   "Date": "2026-09-30",
   "Source": "RappelConso (FR)",
   "Company": "Grand Frais (Romainville)",
   "Brand": "Unbranded",
   "Product": "Ground beef",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Détéction de listéria",
+  "Reason": "Listeria detected",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23648/interne",
-  "Notes": "grand frais situé à romainville [promote 2026-09-30: status 'pending'->'pending' — passes every publish-gate rule] [audit 2026-10-01: Company/Brand held the counter description 'Hachage au Niveau du Rayon Traditionnel'; the fiche names the seller 'grand frais situé à romainville' (quoted at the start of these Notes); Company -> 'Grand Frais (Romainville)', Brand -> 'Unbranded'] [original product: haché de boeuf] [English names 2026-10-01]"
+  "Notes": "grand frais situé à romainville [promote 2026-09-30: status 'pending'->'pending' — passes every publish-gate rule] [audit 2026-10-01: Company/Brand held the counter description 'Hachage au Niveau du Rayon Traditionnel'; the fiche names the seller 'grand frais situé à romainville' (quoted at the start of these Notes); Company -> 'Grand Frais (Romainville)', Brand -> 'Unbranded'] [original product: haché de boeuf] [English names 2026-10-01] [morning-fix 2026-10-03: Reason translated from the row's own French. [original Reason (fr): \"Détéction de listéria\"]"
  },
  {
   "Date": "2026-09-30",
@@ -662,14 +774,14 @@
   "Brand": "",
   "Product": "Smoked chicken quarter",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii ćwiartki wędzonej z kurczaka",
+  "Reason": "Public food warning: Listeria monocytogenes detected in one batch of smoked chicken quarter",
   "Class": "Recall",
   "Country": "Poland",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-cwiartki-wedzonej-z-kurczaka",
-  "Notes": "GIS listing (deterministic parse); producer, lot and best-before are on the detail page [review-agent 2026-09-29: reviewed and approved at status 'pending'; fields verified against the source, status left unchanged] [confirm-agent 2026-09-30: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [original product: ćwiartka wędzonej z kurczaka] [English names 2026-10-01]"
+  "Notes": "GIS listing (deterministic parse); producer, lot and best-before are on the detail page [review-agent 2026-09-29: reviewed and approved at status 'pending'; fields verified against the source, status left unchanged] [confirm-agent 2026-09-30: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [original product: ćwiartka wędzonej z kurczaka] [English names 2026-10-01] [morning-fix 2026-10-03: Reason was the GIS notice headline, wholly in Polish, on a published row. Translated faithfully; nothing added. The language detector did not flag it because its Polish marker list holds “partia” and the notice says “partii”. [original Reason (pl): \"Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii ćwiartki wędzonej z kurczaka\"]"
  },
  {
   "Date": "2026-09-29",
@@ -1037,7 +1149,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23602/interne",
-  "Notes": "super u de truchtersheim [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent 2026-09-26: pending_gap_v2 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Reason not in English and no verified translation on file] [agent nightly-operator proposal 710aeeac0e7c0933 applied 2026-09-27: Reason field was entirely in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel. Product field was literally '//' (a scraper/split artifact naming no product); replaced with the] [original product: Filet de hareng à l'ancienne vendu au rayon traditionnel poissonnerie] [English names 2026-10-01]"
+  "Notes": "super u de truchtersheim [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent 2026-09-26: pending_gap_v2 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [agent nightly-operator proposal 710aeeac0e7c0933 applied 2026-09-27: Reason field was entirely in French, against the English-output rule. Translated verbatim from the fiche's Motif du rappel. Product field was literally '//' (a scraper/split artifact naming no product); replaced with the] [original product: Filet de hareng à l'ancienne vendu au rayon traditionnel poissonnerie] [English names 2026-10-01] [morning-fix 2026-10-03: stale needs-cleanup stamp removed — Reason is English and the nightly-operator entry in these Notes records the translation and the fiche it came from."
  },
  {
   "Date": "2026-09-25",
@@ -1254,14 +1366,14 @@
   "Brand": "—",
   "Product": "Organic spinach, bulk — lots 264.1, 266.3",
   "Pathogen": "Tropane alkaloids",
-  "Reason": "Présence d'alcaloïdes tropaniques (datura) — RappelConso ref 2026-09-0242.",
+  "Reason": "Presence of tropane alkaloids (datura) — RappelConso ref 2026-09-0242.",
   "Class": "Recall",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23624/Interne",
-  "Notes": "Added by sweep triage [added 2026-09-28 from the morning sweep, which found this absent from all five sheets and resolved it back to the authority URL on this row. Placed in PENDING, not Recalls: the facts come from an operator brief, so the reviewer chain and the publish gate verify them against the regulator before anything publishes.] [original product: Epinards vrac bio — lots 264.1, 266.3] [English names 2026-10-01]"
+  "Notes": "Added by sweep triage [added 2026-09-28 from the morning sweep, which found this absent from all five sheets and resolved it back to the authority URL on this row. Placed in PENDING, not Recalls: the facts come from an operator brief, so the reviewer chain and the publish gate verify them against the regulator before anything publishes.] [original product: Epinards vrac bio — lots 264.1, 266.3] [English names 2026-10-01] [morning-fix 2026-10-03: Reason translated from the row's own French; the RappelConso reference is carried over unchanged. [original Reason (fr): \"Présence d'alcaloïdes tropaniques (datura) — RappelConso ref 2026-09-0242.\"]"
  },
  {
   "Date": "2026-09-25",
@@ -1588,16 +1700,16 @@
   "Source": "RappelConso (FR)",
   "Company": "Pépite",
   "Brand": "Pépite",
-  "Product": "Pot 300g",
+  "Product": "Demeter Egyptian sesame purée (tahini), white, 300 g x 8, lot SP022640N25, best before 31/10/2027",
   "Pathogen": "Salmonella",
-  "Reason": "Suspicion de Salmonella",
+  "Reason": "Suspected Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23590/interne",
-  "Notes": "magasins bio [original product: pot 300g] [English names 2026-10-01]"
+  "Notes": "magasins bio [original product: pot 300g] [English names 2026-10-01] [morning-fix 2026-10-03: Read off fiche 23590 (published 23/09/2026). Product was the bare pack size. Reason was French and scored only one marker hit, so the detector passed it. [original product: Pot 300g] [original Reason (fr): \"Suspicion de salmonelle\"]"
  },
  {
   "Date": "2026-09-23",
@@ -1830,14 +1942,14 @@
   "Brand": "Chateau Bellevue",
   "Product": "Duck leg with orange 380gr; duck leg with orange 765gr",
   "Pathogen": "Physical/foreign-body contamination",
-  "Reason": "Défaut d’herméticité",
+  "Reason": "Loss of seal integrity (hermeticity defect)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23584/interne",
-  "Notes": "leclerc orthez - oloron; intermarche pau - pouzac - susmiou - boucau; super u orthez; chateau bellevue boutique baigts et [url-guard 2026-09-22: reviewer 1 tried to reject this row as 'No official regulator URL found'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-23: reviewer 1 tried to reject this row as 'No official regulator URL found for this recall'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-23: reviewer 1 tried to reject this row as 'No official regulator URL found for this recall'; refused — the official URL is on the row. Left in Pending for a later run.] [url- [url-guard 2026-09-25: reviewer 1 tried to reject this row as 'No official regulator URL found for this recall' for the 6th time; refused AND escalated — the URL is on the authority's own domain and is a specific page, not a listing. URL confirmed deterministically; Pathogen left empty because this path did not enrich.] [offline-enrich 2026-09-27: Pathogen '' -> 'Physical/foreign-body contamination', read from this row's own hazard text; no fetch, no model] [promote 2026-09-27: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Pathogen is empty | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed '; that defect is repaired and the row now passes every publish-gate rule] [original product: cuisse de canard a l orange 380gr; cuisse de caanrd a l orange 765gr] [English names 2026-10-01]"
+  "Notes": "leclerc orthez - oloron; intermarche pau - pouzac - susmiou - boucau; super u orthez; chateau bellevue boutique baigts et [url-guard 2026-09-22: reviewer 1 tried to reject this row as 'No official regulator URL found'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-23: reviewer 1 tried to reject this row as 'No official regulator URL found for this recall'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-09-23: reviewer 1 tried to reject this row as 'No official regulator URL found for this recall'; refused — the official URL is on the row. Left in Pending for a later run.] [url- [url-guard 2026-09-25: reviewer 1 tried to reject this row as 'No official regulator URL found for this recall' for the 6th time; refused AND escalated — the URL is on the authority's own domain and is a specific page, not a listing. URL confirmed deterministically; Pathogen left empty because this path did not enrich.] [offline-enrich 2026-09-27: Pathogen '' -> 'Physical/foreign-body contamination', read from this row's own hazard text; no fetch, no model] [promote 2026-09-27: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Pathogen is empty | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed '; that defect is repaired and the row now passes every publish-gate rule] [original product: cuisse de canard a l orange 380gr; cuisse de caanrd a l orange 765gr] [English names 2026-10-01] [morning-fix 2026-10-03: Reason translated from the row's own French. [original Reason (fr): \"Défaut d’herméticité\"]"
  },
  {
   "Date": "2026-09-22",
@@ -2973,7 +3085,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23473/interne",
-  "Notes": "leclerc valenciennes [confirm-agent 2026-09-14: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Reason not in English and no verified translation on file] [brief-fix 2026-09-16: corrected Reason against the source notice] [original product: cordon bleu de poulet] [English names 2026-10-01]"
+  "Notes": "leclerc valenciennes [confirm-agent 2026-09-14: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [brief-fix 2026-09-16: corrected Reason against the source notice] [original product: cordon bleu de poulet] [English names 2026-10-01] [morning-fix 2026-10-03: stale needs-cleanup stamp removed — Reason is English and the brief-fix 2026-09-16 entry in these Notes records the correction against the source notice."
  },
  {
   "Date": "2026-09-14",
@@ -3773,14 +3885,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23469/interne",
-  "Notes": "intermarche arques [confirm-agent 2026-09-08: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file] [operator review 2026-09-09: verified on fiche 23469 (ref. 2026-09-0095, published 08/09/2026). The Reason was half-translated and left the French clause in place (\"Presence of Salmonella mises en evidence dans le cadre du plan d'autocontrole microbiologique\"), which is the row that was failing test_every_description_field_is_english on main. Translated in full from the fiche motif \"Presence de Salmonelles mises en evidence dans le cadre du plan d'autocontrole microbiologique\"; Company set to the responsible establishment (JAMABEL INTERMARCHE) with the store named, Product described from the fiche. Sold throughout France at Intermarche Arques.]"
+  "Notes": "intermarche arques [confirm-agent 2026-09-08: pending_gap_v3 → pending; independent checks passed] [operator review 2026-09-09: verified on fiche 23469 (ref. 2026-09-0095, published 08/09/2026). The Reason was half-translated and left the French clause in place (\"Presence of Salmonella mises en evidence dans le cadre du plan d'autocontrole microbiologique\"), which is the row that was failing test_every_description_field_is_english on main. Translated in full from the fiche motif \"Presence de Salmonelles mises en evidence dans le cadre du plan d'autocontrole microbiologique\"; Company set to the responsible establishment (JAMABEL INTERMARCHE) with the store named, Product described from the fiche. Sold throughout France at Intermarche Arques.] [morning-fix 2026-10-03: stale needs-cleanup stamp removed — Reason is English and the operator review 2026-09-09 entry in these Notes records the full translation from the fiche motif."
  },
  {
   "Date": "2026-09-08",
   "Source": "RappelConso (FR)",
   "Company": "La Ferme du Bercail",
   "Brand": "La Ferme du Bercail",
-  "Product": "Lot 362627",
+  "Product": "Jambon persillé (parslied ham), lot 362627, use-by 23/09/2026",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria monocytogene",
   "Class": "Voluntary",
@@ -3789,7 +3901,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23465/interne",
-  "Notes": "délice des champs (saint simeon de bressieux); le panier des saveurs (moras en valloire); la ferme du bercail (gillonnay) [confirm-agent 2026-09-09: pending_gap_v3 → pending; independent checks passed] [original product: lot 362627] [English names 2026-10-01]"
+  "Notes": "délice des champs (saint simeon de bressieux); le panier des saveurs (moras en valloire); la ferme du bercail (gillonnay) [confirm-agent 2026-09-09: pending_gap_v3 → pending; independent checks passed] [original product: lot 362627] [English names 2026-10-01] [morning-fix 2026-10-03: Read off fiche 23465 (published 08/09/2026). Product was the bare lot number. Reason is left as the fiche's own motif string. [original product: Lot 362627]"
  },
  {
   "Date": "2026-09-08",
@@ -4349,7 +4461,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/fr/newnsb/e1n1cVM6B3Ke",
-  "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file] [operator review 2026-09-07: verified on the OSAV public warning of 4 Sep 2026 (\"Mise en garde publique : présence de listérias dans des produits emballés ou transformés par Carnadis Sàrl\"); Product/Reason translated from the scraper's German; URL set to the French page for consistency with the other OSAV rows.]"
+  "Notes": "Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed] [operator review 2026-09-07: verified on the OSAV public warning of 4 Sep 2026 (\"Mise en garde publique : présence de listérias dans des produits emballés ou transformés par Carnadis Sàrl\"); Product/Reason translated from the scraper's German; URL set to the French page for consistency with the other OSAV rows.] [morning-fix 2026-10-03: stale needs-cleanup stamp removed — Reason is English and the operator review 2026-09-07 entry in these Notes records the translation and the OSAV warning it came from."
  },
  {
   "Date": "2026-09-04",
@@ -4365,7 +4477,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1129",
-  "Notes": "[incident:ch:nautica-trout-2026-09-04] Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed] [needs cleanup: Reason not in English and no verified translation on file] [operator review 2026-09-07: Product/Reason translated (scraper wrote German); brand Nautica per the OSAV warning of the same day; grouped with it as one incident.] [original product: Smoked trout fillets, plain (Forellenfilets geräuchert – Nature), best before 13/09/2026] [English names 2026-10-01]"
+  "Notes": "[incident:ch:nautica-trout-2026-09-04] Gemini/de from https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html [confirm-agent 2026-09-06: pending_gap_v3 → pending; independent checks passed] [operator review 2026-09-07: Product/Reason translated (scraper wrote German); brand Nautica per the OSAV warning of the same day; grouped with it as one incident.] [original product: Smoked trout fillets, plain (Forellenfilets geräuchert – Nature), best before 13/09/2026] [English names 2026-10-01] [morning-fix 2026-10-03: stale needs-cleanup stamp removed — Reason is English and the operator review 2026-09-07 entry in these Notes records the translation and the OSAV warning it came from."
  },
  {
   "Date": "2026-09-04",
@@ -10658,9 +10770,9 @@
  {
   "Date": "2026-07-24",
   "Source": "RappelConso (FR)",
-  "Company": "Vpf",
+  "Company": "Roussaly",
   "Brand": "Vpf",
-  "Product": "dss3001021-00",
+  "Product": "Dry-cured ham on the bone, 9 months (jambon sec avec os 9 mois), VPF, lot 11070",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Recall of batch 11070 of 9-month bone-in dry-cured ham from Salaisons Limousines because of a risk of Listeria monocytogenes contamination",
   "Class": "Voluntary",
@@ -10669,7 +10781,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22982/Interne",
-  "Notes": "REJECTED: network | voir liste ci-dessous [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [claude-check 2026-07-25: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [restored 2026-07-29: manual adjudication of Weekly_Rejected. fiche 22982 is date-consistent with RappelConso's sequential numbering; the row was destroyed only by a TLS transport failure, not by any content verdict. Original rejection was RejectedBy='unknown' reason='network | voir liste ci-dessous [url-gate 2026-07-24: API fi' — a transport fault, which is evidence about the network, never about the recall.]"
+  "Notes": "REJECTED: network | voir liste ci-dessous [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [claude-check 2026-07-25: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [restored 2026-07-29: manual adjudication of Weekly_Rejected. fiche 22982 is date-consistent with RappelConso's sequential numbering; the row was destroyed only by a TLS transport failure, not by any content verdict. Original rejection was RejectedBy='unknown' reason='network | voir liste ci-dessous [url-gate 2026-07-24: API fi' — a transport fault, which is evidence about the network, never about the recall.] [morning-fix 2026-10-03: Read off fiche 22982 (published 24/07/2026). Product was the bare model code. Company held the Marque (VPF); the fiche's Nom de l'entreprise is ROUSSALY (Salaisons Limousines) — the same firm, and the same spelling, as the sibling row on fiche 22887. [original product: dss3001021-00] [original company: VPF (the Marque)]"
  },
  {
   "Date": "2026-07-24",
@@ -10866,9 +10978,9 @@
  {
   "Date": "2026-07-24",
   "Source": "RappelConso (FR)",
-  "Company": "Prestige de la Sarthe",
+  "Company": "Grand Saloir Saint-Nicolas",
   "Brand": "Unbranded",
-  "Product": "000751.001",
+  "Product": "Lyonnaise-style beef museau salad, 1.5 kg, GTIN 3287390051639, all batches with best-before dates from 19/05/2026 to 06/08/2026",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Suspected Listeria monocytogenes contamination of a raw material supplied by Prestige de la Sarthe and used in the manufacture of this product",
   "Class": "Voluntary",
@@ -10877,7 +10989,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22966/Interne",
-  "Notes": "gssn; maxime geraud; tlc; david master [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [gemini-enrich 2026-07-25: Company ''→'PRESTIGE DE LA SARTHE'] [gemini-enrich 2026-07-25: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-25: pending_enrichment → pending (Claude verified)] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]"
+  "Notes": "gssn; maxime geraud; tlc; david master [url-gate 2026-07-24: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-24: skip; fetch failed (fetch error: SSLError: HTTPSConnectionPool(host='rappel.conso.gouv.fr', port=443): Max retries exceeded wi] [gemini-enrich 2026-07-25: Company ''→'PRESTIGE DE LA SARTHE'] [gemini-enrich 2026-07-25: Pathogen ''→'Listeria monocytogenes'] [claude-check 2026-07-25: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-25: pending_enrichment → pending (Claude verified)] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3] [morning-fix 2026-10-03: Read off fiche 22966 (published 24/07/2026). Product was the bare article code. Company held Prestige de la Sarthe, which the motif names as the RAW-MATERIAL SUPPLIER; the fiche's Nom de l'entreprise is GRAND SALOIR SAINT-NICOLAS. [original product: 000751.001] [original company: Prestige de la Sarthe — the supplier named in the motif, not the recalling firm]"
  },
  {
   "Date": "2026-07-24",
@@ -11524,7 +11636,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Roussaly",
   "Brand": "Vpf",
-  "Product": "dss3005021-00",
+  "Product": "Boneless dry-cured ham, 9 months (jambon sec sans os 9 mois), VPF, lot 13084",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Recall of batch 13084 of 9-month bone-in dry-cured ham from Salaisons Limousines because of a risk of Listeria monocytogenes contamination",
   "Class": "Voluntary",
@@ -11533,7 +11645,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22887/Interne",
-  "Notes": "voir liste ci-dessous [url-gate 2026-07-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-20: fix; corrections: Company→ROUSSALY ROUSSALY; fix; company mismatch | Company name corrected from brand name to recalling firm 'Origine de la fiche'.] [fix 2026-07-21: doubled company name \"ROUSSALY ROUSSALY\" -> \"Roussaly\" (RappelConso source itself shows the doubling)] [note: Reason says \"avec os\" while product is \"sans os\"; verbatim from RappelConso fiche 22887 source Motif text — kept as-published, not our error]"
+  "Notes": "voir liste ci-dessous [url-gate 2026-07-20: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-20: fix; corrections: Company→ROUSSALY ROUSSALY; fix; company mismatch | Company name corrected from brand name to recalling firm 'Origine de la fiche'.] [fix 2026-07-21: doubled company name \"ROUSSALY ROUSSALY\" -> \"Roussaly\" (RappelConso source itself shows the doubling)] [note: Reason says \"avec os\" while product is \"sans os\"; verbatim from RappelConso fiche 22887 source Motif text — kept as-published, not our error] [morning-fix 2026-10-03: Read off fiche 22887 (published 20/07/2026). Product was the bare model code. NOTE the fiche contradicts itself: its product name is “JAMBON SEC SANS OS 9 MOIS” (boneless) while its motif says “Jambon sec avec os” (bone-in). Product follows the product name; Reason is left as the regulator wrote it, and the discrepancy is recorded here rather than corrected. [original product: dss3005021-00]"
  },
  {
   "Date": "2026-07-20",
@@ -12262,14 +12374,14 @@
   "Brand": "Fouetté de Chèvre Bio",
   "Product": "Organic whipped goat cheese",
   "Pathogen": "Staphylococcus enterotoxin",
-  "Reason": "Conformité bactériologique : insatisfaisante",
+  "Reason": "Bacteriological compliance: unsatisfactory",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22865/Interne",
-  "Notes": "vente directe > communauté de commune picardie des châteaux [url-gate 2026-07-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-16: fix; corrections: Company→ORGANISME GESTION FERME MOYEMBRIE FERME ; fix; company mismatch | Company name corrected based on 'Origine de la fiche' on the page.] [original product: fouetté de chèvre bio] [English names 2026-10-01]"
+  "Notes": "vente directe > communauté de commune picardie des châteaux [url-gate 2026-07-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-16: fix; corrections: Company→ORGANISME GESTION FERME MOYEMBRIE FERME ; fix; company mismatch | Company name corrected based on 'Origine de la fiche' on the page.] [original product: fouetté de chèvre bio] [English names 2026-10-01] [morning-fix 2026-10-03: Reason translated from the row's own French. [original Reason (fr): \"Conformité bactériologique : insatisfaisante\"]"
  },
  {
   "Date": "2026-07-16",
@@ -12294,14 +12406,14 @@
   "Brand": "Irubela",
   "Product": "Lots n22 and n23 - labeled vacuum-packed portions; manufactured 30/01/2026 and 01/02/2026",
   "Pathogen": "Staphylococcus aureus enterotoxin",
-  "Reason": "Entérotoxine détectée",
+  "Reason": "Enterotoxin detected",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22809/Interne",
-  "Notes": "leclerc le busquet anglet [url-gate 2026-07-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-16: fix; corrections: Company→GAEC TURXIL, Pathogen→Staphylococcus aureus enterotoxin; fix; company mismatch; pathogen mismatch | Company and Pathogen fields need correction based on page content.] [enrich-gate 2026-07-16: pending_enrichment → pending (Claude verified)] [original product: lot n22 et n23 - portion sous vide etiquettés; fabrication du 30/01/2026 et 01/02/2026] [English names 2026-10-01]"
+  "Notes": "leclerc le busquet anglet [url-gate 2026-07-16: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [gemini-check 2026-07-16: fix; corrections: Company→GAEC TURXIL, Pathogen→Staphylococcus aureus enterotoxin; fix; company mismatch; pathogen mismatch | Company and Pathogen fields need correction based on page content.] [enrich-gate 2026-07-16: pending_enrichment → pending (Claude verified)] [original product: lot n22 et n23 - portion sous vide etiquettés; fabrication du 30/01/2026 et 01/02/2026] [English names 2026-10-01] [morning-fix 2026-10-03: Reason translated from the row's own French. [original Reason (fr): \"Entérotoxine détectée\"]"
  },
  {
   "Date": "2026-07-16",
@@ -19009,22 +19121,6 @@
  },
  {
   "Date": "2026-05-26",
-  "Source": "CFIA",
-  "Company": "Les Fermes Lufa",
-  "Brand": "Les Fermes Lufa",
-  "Product": "broccoli microgreens",
-  "Pathogen": "Escherichia coli",
-  "Reason": "Canada recalls broccoli microgreens over possible E. coli contamination",
-  "Class": "Recall",
-  "Country": "Canada",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.hortidaily.com/article/9841186/canada-recalls-broccoli-microgreens-over-possible-e-coli-contamination/",
-  "Notes": "source_id=GN-DS-fa4ae3764b [via official-feed collector] [gemini-check 2026-07-01: fix; corrections: Date→2026-05-26, Company→Les Fermes Lufa, Brand→Les Fermes Lufa, Product→broccoli microgreens, Pathogen→Escherichia coli; placeholder_company_filled_from_page | fail; company mismatch; date on page=2026-05-26 | URL is on a news-mirror or aggr] [tier-guard 2026-07-14: Escherichia coli is always Tier 1; forced from Tier 2]"
- },
- {
-  "Date": "2026-05-26",
   "Source": "FDA",
   "Company": "Mogo Moringa LLC",
   "Brand": "Mogo",
@@ -23202,22 +23298,6 @@
  {
   "Date": "2026-04-24",
   "Source": "BVL (DE)",
-  "Company": "Orienta Foods GmbH",
-  "Brand": "—",
-  "Product": "Red chili powder of the Rino brand",
-  "Pathogen": "Aflatoxin",
-  "Reason": "Orienta Foods GmbH is recalling Rino brand red chilli powder (250 g and 500 g packs, best before E2028/1/1, batch P2026/1/2). A food inspection found aflatoxin levels above the legal limit",
-  "Class": "Recall",
-  "Country": "Germany",
-  "Region": "Europe",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.produktwarnung.eu/2026/04/24/rueckruf-aflatoxin-orienta-foods-ruft-rotes-chilipulver-der-marke-rino-zurueck/37845",
-  "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W17->W18; Thursday-to-Thursday rule — week runs 2026-04-24 Fri -> 2026-04-30 Thu, labelled by ISO week of the closing Thursday] [operator review 2026-09-13: Tier 3 -> 2 on operator instruction. The register holds 139 Aflatoxin rows: 136 at Tier 2 and these three at Tier 3, with no reason recorded on any of them for the difference. Tier 2 is the house tier for the mycotoxins (scrapers/_models.py tier_2_pathogens), so these three were stragglers, not a judgement. Tier-1 counts are unaffected; the change shows only in the per-notice tier badge on the weekly and monthly pages, which are rebuilt in the same set.] [original product: Rotes Chilipulver der Marke Rino] [English names 2026-10-01]"
- },
- {
-  "Date": "2026-04-24",
-  "Source": "BVL (DE)",
   "Company": "REWE Dortmund eG",
   "Brand": "REWE Dortmund Hausmarke",
   "Product": "Ham and onion Mettwurst — 4 varieties (200 g x2, balls 90 g, ring 850 g), use-by 2026-04-28",
@@ -23532,8 +23612,8 @@
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
-  "URL": "https://www.produktwarnung.eu/2026/04/23/rueckruf-pfoa-star-impex-ruft-blaukrabben-zurueck/37833",
-  "Notes": "[Star Impex = recalling firm; Casabor = brand; out-of-scope per locked Tier-1 rule (PFAS not a Tier-1 hazard), kept at Tier 3; URL is on news mirror produktwarnung.eu — no national BVL page located; consider URL swap if regulator page surfaces] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260423_25_NW_Blaukrabben/260423_25_NW_Blaukrabben_Meldung.html",
+  "Notes": "[Star Impex = recalling firm; Casabor = brand; out-of-scope per locked Tier-1 rule (PFAS not a Tier-1 hazard), kept at Tier 3; URL is on news mirror produktwarnung.eu — no national BVL page located; consider URL swap if regulator page surfaces] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [2026-10-03: URL was a news aggregator (https://www.produktwarnung.eu/2026/04/23/rueckruf-pfoa-star-impex-ruft-blaukrabben-zurueck/37833); now the regulator's own notice]"
  },
  {
   "Date": "2026-04-23",
@@ -24110,22 +24190,6 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/839010",
   "Notes": "[RASFF #2026.3404; classification: border rejection notification; category: fruits and vegetables; notifId=839010]"
- },
- {
-  "Date": "2026-04-21",
-  "Source": "BVL (DE)",
-  "Company": "Akar GmbH",
-  "Brand": "—",
-  "Product": "Gourmet Celebi pistachio cream",
-  "Pathogen": "Salmonella",
-  "Reason": "Akar GmbH is recalling Gourmet Celebi pistachio cream spread in 200 g jars because of a health risk from Salmonella; consumption is strongly advised against",
-  "Class": "Recall",
-  "Country": "Germany",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.produktwarnung.eu/2026/04/21/rueckruf-salmonellen-in-gourmet-celebi-pistaziencreme/37809",
-  "Notes": "Gemini/de from https://www.produktwarnung.eu/rubrik/lebensmittel [original product: Gourmet Celebi Pistaziencreme] [English names 2026-10-01]"
  },
  {
   "Date": "2026-04-21",
@@ -27948,8 +28012,8 @@
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
-  "URL": "https://www.produktwarnung.eu/2026/04/02/rueckruf-listerien-werz-ruft-suxhuk-tradite-shqiptare-zurueck/37617",
-  "Notes": "[URL FLAG: produktwarnung.eu IS on locked news_mirror_blocklist — pipeline gate failure; should be replaced with lebensmittelwarnung.de regulator URL when available] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher]"
+  "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260402_03_BW_Suxhuk/260402_03_BW_Suxhuk.html",
+  "Notes": "[URL FLAG: produktwarnung.eu IS on locked news_mirror_blocklist — pipeline gate failure; should be replaced with lebensmittelwarnung.de regulator URL when available] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [2026-10-03: URL was a news aggregator (https://www.produktwarnung.eu/2026/04/02/rueckruf-listerien-werz-ruft-suxhuk-tradite-shqiptare-zurueck/37617); now the regulator's own notice]"
  },
  {
   "Date": "2026-04-02",
