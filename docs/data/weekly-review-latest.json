@@ -1,8 +1,8 @@
 {
   "week_end": "2026-10-04",
-  "generated_utc": "2026-10-04T11:46:40+00:00",
-  "row_count": 116,
-  "tier1_count": 64,
+  "generated_utc": "2026-10-04T14:41:28+00:00",
+  "row_count": 117,
+  "tier1_count": 65,
   "outbreak_count": 1,
   "dissent_count": 0,
   "rows": [
@@ -231,6 +231,27 @@
       "Outbreak": 0,
       "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/cartello%20di%20richiamo%20modello%20ministero%20SALAMELLA%20DOLCE%20INTERA_1790933640.pdf",
       "Notes": "Discovered via news: ilfattoalimentare.it [locality: Tuscany] [product-repair 2026-10-04: Product read 'Sweet prosciutto'. The food is salamella dolce — a fresh pork SAUSAGE, not a dry-cured ham. Read 2026-10-04 on the row's own authority URL, whose filename is 'cartello di richiamo modello ministero SALAMELLA DOLCE INTERA', and on ilfattoalimentare.it/richiamo-salamella-dolce.html, the discovery source this row already names, which links that same Ministero della Salute PDF and gives the producer as Franchi Salumi Srl, Follonica (GR) and the notice date as 2 October 2026 — the Date this row already carries. No lot, weight or use-by date is imported from the news page.] [original product: salamella dolce (intera, sottovuoto)] [reason-cleanup 2026-10-04: the extractor's own empty-identifier template text was stripped from Reason ('(Recall ID N/A)') — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-10-04: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/it/rules.py: [SUPERSEDED 2026-10-04 — the defect named below was a vocabulary gap in pipeline/gap_finder/rules.py, now repaired, and this recall is P'; that defect is repaired and the row now passes every publish-gate rule]",
+      "DateAdded": "2026-10-04",
+      "LastUpdated": "2026-10-04",
+      "LastChecked": "",
+      "Week_Added": "2026-10-04",
+      "Reviewed": "N"
+    },
+    {
+      "Date": "2026-10-02",
+      "Source": "FSAI (IE)",
+      "Company": "Wrights of Marino",
+      "Brand": "",
+      "Product": "Sliced Smoked Salmon",
+      "Pathogen": "Listeria monocytogenes",
+      "Reason": "due to the presence of Listeria monocytogenes",
+      "Class": "Alert",
+      "Country": "Ireland",
+      "Region": "Europe",
+      "Tier": 1,
+      "Outbreak": 0,
+      "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-wrights-of-mario-oak-sliced-s",
+      "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [url-agent 2026-10-04: pending_enrichment→pending_gap_v2 URL confirmed] [review-agent 2026-10-04: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [date-normalised Pending: 'Friday, 02 October 2026' -> 2026-10-02] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]",
       "DateAdded": "2026-10-04",
       "LastUpdated": "2026-10-04",
       "LastChecked": "",
@@ -2442,5 +2463,7 @@
       "Week_Added": "2026-10-04",
       "Reviewed": "N"
     }
-  ]
+  ],
+  "sheet_wiped_utc": "2026-10-04T14:41:28+00:00",
+  "note": "Weekly_Review was cleared for this window after the Sunday 17:00 Athens email. These are the rows that email covered, kept so a re-send is correct rather than empty. week_end identifies the window; the next promotion replaces this file."
 }
