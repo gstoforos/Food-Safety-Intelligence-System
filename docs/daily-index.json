@@ -1,27 +1,39 @@
 {
   "entries": [
     {
+      "date": "2026-10-03",
+      "url": "daily/2026-10-03.html",
+      "total": 0,
+      "tier1": 0,
+      "outbreak": 0,
+      "by_region": {},
+      "generated": "2026-10-04T07:12:06Z"
+    },
+    {
       "date": "2026-10-02",
       "url": "daily/2026-10-02.html",
-      "total": 8,
-      "tier1": 8,
+      "total": 18,
+      "tier1": 11,
       "outbreak": 0,
       "by_region": {
-        "Europe": 6,
-        "North America": 2
+        "Europe": 9,
+        "North America": 3,
+        "Asia": 5,
+        "Africa": 1
       },
-      "generated": "2026-10-03T07:12:39Z"
+      "generated": "2026-10-04T07:12:07Z"
     },
     {
       "date": "2026-10-01",
       "url": "daily/2026-10-01.html",
-      "total": 17,
+      "total": 19,
       "tier1": 12,
       "outbreak": 0,
       "by_region": {
-        "Europe": 17
+        "Europe": 18,
+        "North America": 1
       },
-      "generated": "2026-10-03T07:12:41Z"
+      "generated": "2026-10-04T07:12:07Z"
     },
     {
       "date": "2026-09-30",
@@ -33,7 +45,7 @@
         "Europe": 13,
         "Asia": 2
       },
-      "generated": "2026-10-03T07:12:42Z"
+      "generated": "2026-10-04T07:12:08Z"
     },
     {
       "date": "2026-09-29",
@@ -46,7 +58,7 @@
         "Europe": 6,
         "Asia": 1
       },
-      "generated": "2026-10-03T07:12:43Z"
+      "generated": "2026-10-04T07:12:09Z"
     },
     {
       "date": "2026-09-28",
@@ -60,7 +72,7 @@
         "Africa": 1,
         "Asia": 1
       },
-      "generated": "2026-10-03T07:12:44Z"
+      "generated": "2026-10-04T07:12:10Z"
     },
     {
       "date": "2026-09-27",
@@ -69,19 +81,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-10-03T07:12:46Z"
-    },
-    {
-      "date": "2026-09-26",
-      "url": "daily/2026-09-26.html",
-      "total": 2,
-      "tier1": 1,
-      "outbreak": 0,
-      "by_region": {
-        "Oceania": 1,
-        "North America": 1
-      },
-      "generated": "2026-10-03T07:12:47Z"
+      "generated": "2026-10-04T07:12:11Z"
     }
   ]
 }
