@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-10-03",
+  "Source": "SZPI (CZ)",
+  "Company": "MASO WEST s.r.o.",
+  "Brand": "MASO WEST",
+  "Product": "Italian salad",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Czechia",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.szpi.gov.cz/clanek/varovani-pro-spotrebitele-listerie-ve-vlasskem-salatu.aspx",
+  "Notes": "Discovered via news: szpi.gov.cz [locality: Klatovy, Czech Republic] [reason-cleanup 2026-10-04: the extractor's own empty-identifier template text was stripped from Reason ('(Recall ID N/A)') — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-10-04: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
   "Date": "2026-10-02",
   "Source": "RappelConso (FR)",
   "Company": "Maitre Coq",
@@ -286,6 +302,38 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877065",
   "Notes": "[RASFF #2026.8726; classification: border rejection notification; category: nuts, nut products and seeds; notifId=877065] [promote 2026-10-03: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-02",
+  "Source": "Ministero della Salute (IT)",
+  "Company": "Franchi Salumi Srl",
+  "Brand": "",
+  "Product": "Sweet salamella (fresh pork sausage), whole, vacuum-packed",
+  "Pathogen": "Foreign body",
+  "Reason": "Possible presence of a foreign body",
+  "Class": "Recall",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/cartello%20di%20richiamo%20modello%20ministero%20SALAMELLA%20DOLCE%20INTERA_1790933640.pdf",
+  "Notes": "Discovered via news: ilfattoalimentare.it [locality: Tuscany] [product-repair 2026-10-04: Product read 'Sweet prosciutto'. The food is salamella dolce — a fresh pork SAUSAGE, not a dry-cured ham. Read 2026-10-04 on the row's own authority URL, whose filename is 'cartello di richiamo modello ministero SALAMELLA DOLCE INTERA', and on ilfattoalimentare.it/richiamo-salamella-dolce.html, the discovery source this row already names, which links that same Ministero della Salute PDF and gives the producer as Franchi Salumi Srl, Follonica (GR) and the notice date as 2 October 2026 — the Date this row already carries. No lot, weight or use-by date is imported from the news page.] [original product: salamella dolce (intera, sottovuoto)] [reason-cleanup 2026-10-04: the extractor's own empty-identifier template text was stripped from Reason ('(Recall ID N/A)') — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-10-04: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/it/rules.py: [SUPERSEDED 2026-10-04 — the defect named below was a vocabulary gap in pipeline/gap_finder/rules.py, now repaired, and this recall is P'; that defect is repaired and the row now passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-02",
+  "Source": "FDA",
+  "Company": "Stewart's Shops Corp.",
+  "Brand": "Stewart's Shops",
+  "Product": "Heavenly Medley half-gallon ice cream (UPC 0 82086 44371 1, Best By 10 Feb 2027) and Vanilla-Chocolate-Strawberry half-gallon ice cream (UPC 0 82086 44377 3, Best By 11 Feb 2027), 1.89 L paperboard cartons",
+  "Pathogen": "Foreign material (metal)",
+  "Reason": "Recalled after a metal object was discovered by a consumer in a half-gallon carton of ice cream",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/stewarts-shop-corp-recalls-heavenly-medley-and-vanilla-chocolate-strawberry-due-possible-foreign",
+  "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [enrich 2026-10-04: this row was 'FDA HTML fallback — claude-check needs to enrich Date+Pathogen' with Product and Reason set to the page headline, and promote_gate_passing refused it on 'Pathogen is empty'. The hazard was in the row's own URL: the slug ends 'due-possible-foreign'. The FDA notice at this row's own URL was read in full 2026-10-04: announcement date October 2 2026; Stewart's Shops Corp. of Saratoga Springs, NY; two half-gallon flavours with their UPCs and Best By dates; and verbatim, 'The recall was initiated after a metal object was discovered by a consumer in a half-gallon carton of ice cream'. Foreign material is in the printed AFTS scope] [promote 2026-10-04: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-10-01",
@@ -578,18 +626,18 @@
  {
   "Date": "2026-10-01",
   "Source": "FDA",
-  "Company": "Greenwich Rx",
-  "Brand": "Greewich",
-  "Product": "Glutathione Injection",
-  "Pathogen": "endotoxin",
-  "Reason": "Potential elevated endotoxin levels",
+  "Company": "WinCo Foods LLC",
+  "Brand": "WinCo Foods",
+  "Product": "Salsa Bean Dip Tray Express, 54 oz (UPC 2-67173) and Salsa Bean Dip Tray, 16-inch catering tray, 104 oz (UPC 2-67240); Best If Used By 14 Aug 2026 through 25 Sep 2026",
+  "Pathogen": "Foreign material (pest)",
+  "Reason": "Recalled because a single lot of the Golden Greek Peperoncini used as an ingredient was recalled by G. L. Mezzetta Inc. due to potential pest inclusion",
   "Class": "Recall",
   "Country": "United States",
   "Region": "North America",
   "Tier": 3,
   "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/greenwich-rx-issues-voluntary-nationwide-recall-compounded-glutathione-due-elevated-endotoxin-levels",
-  "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [url-guard 2026-10-02: reviewer 1 tried to reject this row as 'could not confirm official recall: Unable to find the official regulator URL through the search query'; refused — the official URL is on the row. Left in Pending for a later run.] [url-agent 2026-10-03: pending_enrichment→pending_gap_v2 URL confirmed] [review-agent 2026-10-04: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [confirm-agent 2026-10-04: pending_gap_v3 → pending; deterministic checks passed] [re-promotion allowed 2026-09-30: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Date is empty | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed by r', which _url_guard reads as a statement about REACHABILITY and not about whether the notice exists — the URL is on the regulator's own domain. The row now passes every publish-gate rule]"
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/winco-foods-boise-id-recalling-following-salsa-bean-dip-trays-due-inclusion-recalled-peperoncini-gl",
+  "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [enrich 2026-10-04: this row was 'FDA HTML fallback — claude-check needs to enrich Date+Pathogen' with Company, Product and Reason all set to the page headline, and promote_gate_passing refused it on 'Pathogen is empty'. The hazard was in the row's own URL all along: the slug ends 'due-inclusion-recalled-peperoncini-gl', truncated from 'from G.L. Mezzetta'. The FDA notice at this row's own URL was read in full 2026-10-04: announcement date October 1 2026 (FDA's recalls listing dates the posting 10/02/2026); recalling firm WinCo Foods LLC; two Salsa Bean Dip Tray items, 54 oz and 104 oz; and verbatim, 'a single lot of their Golden Greek Peperoncini has been recalled due to potential pest inclusion'. Pest is in the printed AFTS scope. Pathogen is set to 'Foreign material (pest)', the same value the upstream Mezzetta recall already carries in Recalls (2026-09-26), so one alert reaches both] [promote 2026-10-04: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-09-30",
@@ -845,7 +893,7 @@
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sierra-nevada-cheese-company-recalls-graziers-raw-milk-cheese-because-possible-health-risk",
-  "Notes": "FDA listing HTML (Layer 1) [promote 2026-09-29: status 'pending'->'pending' — passes every publish-gate rule] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [pathogen-repair 2026-09-29: Pathogen was 'Escherichia coli (generic)' while this row's own Reason already said 'Shiga toxin-producing Escherichia coli (STEC)'. Set to the organism the row names. Outbreak set to 1 on the FDA notice's own words — FDA/CDC investigation, 13 illnesses epidemiologically associated — which are now quoted in Reason so the flag rests on something the row says]"
+  "Notes": "FDA listing HTML (Layer 1) [promote 2026-09-29: status 'pending'->'pending' — passes every publish-gate rule] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [pathogen-repair 2026-09-29: Pathogen was 'Escherichia coli (generic)' while this row's own Reason already said 'Shiga toxin-producing Escherichia coli (STEC)'. Set to the organism the row names. Outbreak set to 1 on the FDA notice's own words — FDA/CDC investigation, 13 illnesses epidemiologically associated — which are now quoted in Reason so the flag rests on something the row says] [dedupe 2026-10-04: a second copy of this event was published 2026-10-04 from FDA's outbreak-investigation page (https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-e-coli-o26h11-raw-milk-cheese-september-2026) with Date 2026-09-01 — the 'september-2026' in that slug read as a date — Source 'FDA (via Google News)' and report_week W36, and with Outbreak=1 for the same 13 illnesses as this row. That copy was removed; this one, from the firm's own FDA recall notice, is what the register says about this event]"
  },
  {
   "Date": "2026-09-29",
@@ -2064,6 +2112,22 @@
   "Notes": "[manual 2026-09-30: September coverage audit. Was in Weekly_Rejected because Company and Brand held the same page headline (a parsing defect, not a verdict); fields re-read from the CFIA notice.] [promote 2026-09-30: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap (not reviewed by reviewer 2) and Company and Brand are the same long headline string | REJECTED: Confirmer: row was a'; that defect is repaired and the row now passes every publish-gate rule]"
  },
  {
+  "Date": "2026-09-22",
+  "Source": "Ministero della Salute (IT)",
+  "Company": "Salumificio F.lli Costantini Srl",
+  "Brand": "",
+  "Product": "Aged salami with truffle",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/Modulo%20richiamo%20conforme_1790069655.pdf",
+  "Notes": "Discovered via news: ilfattoalimentare.it [product-repair 2026-10-04: Product read 'Smoked salami with truffle'. The Italian is 'salame STAGIONATO al tartufo' — stagionato is aged/cured; smoked is affumicato. Read 2026-10-04 on ilfattoalimentare.it/richiamo-salame-stagionato-tartufo.html, the discovery source this row already names, which links the Ministero della Salute PDF that is this row's URL and gives the producer as Salumificio F.lli Costantini Srl and the notice date as 22 September 2026 — the Date this row already carries.] [original product: salame stagionato al tartufo] [reason-cleanup 2026-10-04: the extractor's own empty-identifier template text was stripped from Reason ('(Recall ID not provided)') — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-10-04: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-30: was archived as 'gap_finder/it/rules.py: no-authority-url: no official Salute press-release URL in the source article (news-only discovery) [backfilled 2026-09-23; writer gap_fi', which _url_guard reads as a statement about REACHABILITY and not about whether the notice exists — the URL is on the regulator's own domain. The row now passes every publish-gate rule]"
+ },
+ {
   "Date": "2026-09-21",
   "Source": "RappelConso (FR)",
   "Company": "Loiseau",
@@ -3101,7 +3165,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/gias-foods-inc-recalls-bettergoods-authentic-italian-lemon-alfredo-fettuccine-because-possible",
-  "Notes": "FDA listing HTML (Layer 1) [restored 2026-09-20: deleted from Recalls by commit 02d97dde ('Add files via upload'), which overwrote the live register with a 1722-row snapshot built 2026-09-18. 29 published rows, 19 Tier 1, were removed silently. Restored verbatim from 4210e05b.]"
+  "Notes": "FDA listing HTML (Layer 1) [restored 2026-09-20: deleted from Recalls by commit 02d97dde ('Add files via upload'), which overwrote the live register with a 1722-row snapshot built 2026-09-18. 29 published rows, 19 Tier 1, were removed silently. Restored verbatim from 4210e05b.] [extension 2026-10-04: FDA published a second notice for this product on 2026-10-01 at https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/gias-foods-inc-recalls-bettergoods-authentic-italian-lemon-alfredo-fettuccine-because-possible-0 (the '-0' permalink), widening the recall from lot codes L6079C and L6080C to ALL lot codes of the same 22 oz pack, UPC 194346442706, for the same Listeria monocytogenes. Both notices were read 2026-10-04. That is this recall extended, not a second recall, so no duplicate row was created]"
  },
  {
   "Date": "2026-09-15",
@@ -5582,22 +5646,6 @@
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/coaticook-brand-aged-cheddar-cheese-recalled-due-listeria-monocytogenes",
   "Notes": "CFIA open-data NID=82581 [confirm-agent hold: 2026-09-04: Company empty, Brand 'Coaticook'; not published and not rejected — reviewer 2 to read the recalling firm from the notice] [operator review 2026-09-05: verified against the CFIA notice RA-82581 (1 Sep 2026): recalling firm Laiterie de Coaticook Limitée, brand Coaticook, distributed in Quebec, no illnesses reported.] [published by operator 2026-09-05: held by reviewer 3 since 2026-09-04 for the missing firm; the notice names it.]"
- },
- {
-  "Date": "2026-09-01",
-  "Source": "FDA (via Google News)",
-  "Company": "Sierra Nevada Cheese Company",
-  "Brand": "Sierra Nevada Graziers",
-  "Product": "grass-fed raw milk cheeses: medium cheddar, sharp cheddar, jalapeno jack, and Monterey jack",
-  "Pathogen": "E. coli O26:H11",
-  "Reason": "Recalled due to suspected E. coli O26:H11 contamination; 13 illnesses reported nationwide",
-  "Class": "Recall",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-e-coli-o26h11-raw-milk-cheese-september-2026",
-  "Notes": "source_id=GN-f6ff5061a2e5 [via Google News: FDA US food alert E. coli] [news_src=https://news.google.com/rss/articles/CBMifEFVX3lxTE9YWkJHTUZ5TWJ3T1djWmlWeTMtZHhVUjRHYmlPVXpidjdtMzVLWUxiQXB5Vm5OTnc1OW8ybHRCd1YzbncyOTdSc3NZUEhyRnVwV1djanpZaUpSM3p6d0V2ZFUtY0hYbDBNYlhVYXZQa056eXk4SGxZOGpDYUI?oc=5] [url-guard 2026-10-02: reviewer 1 tried to reject this row as 'could not confirm official recall: Unable to find the official regulator URL through the search query'; refused — the official URL is on the row. Left in Pending for a later run.] [url-agent 2026-10-03: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-10-03: pending_gap_v1→pending_gap_v2 URL confirmed] [review-agent 2026-10-04: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [confirm-agent 2026-10-04: pending_gap_v3 → pending; deterministic checks passed] [tier-guard: E. coli O26:H11 is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-08-31",

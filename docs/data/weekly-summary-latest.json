@@ -10,21 +10,21 @@
   "week_end_display": "4 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-04T11:28:34.328299+00:00",
-  "prev_total": 66,
+  "generated_utc": "2026-10-04T11:46:45.763424+00:00",
+  "prev_total": 67,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 71,
-    "tier1": 47,
+    "total": 74,
+    "tier1": 49,
     "outbreaks": 1,
-    "delta": 5,
-    "delta_pct": 8
+    "delta": 7,
+    "delta_pct": 10
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
     "cases": 32,
-    "pct": 45
+    "pct": 43
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -44,6 +44,20 @@
     },
     {
       "rank": 2,
+      "date": "2026-10-03",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "MASO WEST s.r.o.",
+      "brand": "MASO WEST",
+      "product": "Italian salad",
+      "country": "Czechia",
+      "source": "SZPI (CZ)",
+      "url": "https://www.szpi.gov.cz/clanek/varovani-pro-spotrebitele-listerie-ve-vlasskem-salatu.aspx"
+    },
+    {
+      "rank": 3,
       "date": "2026-10-02",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -57,7 +71,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23641/interne"
     },
     {
-      "rank": 3,
+      "rank": 4,
       "date": "2026-10-02",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -71,7 +85,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23677/interne"
     },
     {
-      "rank": 4,
+      "rank": 5,
       "date": "2026-09-30",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -83,21 +97,7 @@
       "country": "Latvia",
       "source": "RASFF (EU)",
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876599"
-    },
-    {
-      "rank": 5,
-      "date": "2026-09-29",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Funkció Kft. (HU 771 EK)",
-      "brand": "Auchan Nívó",
-      "product": "Auchan Nívó smoked baked ham 90 g (EAN 5999086466518, best before 2026.10.01.)",
-      "country": "Hungary",
-      "source": "NKFH (HU)",
-      "url": "https://nkfh.gov.hu/hirek/termekvisszahivas-auchan-nivo-fuestoelt-suelt-sonka-listeria-jelenlete-miatt"
     }
   ],
-  "country_count": 26
+  "country_count": 27
 }
