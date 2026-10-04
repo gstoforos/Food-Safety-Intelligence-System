@@ -336,6 +336,22 @@
   "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [enrich 2026-10-04: this row was 'FDA HTML fallback — claude-check needs to enrich Date+Pathogen' with Product and Reason set to the page headline, and promote_gate_passing refused it on 'Pathogen is empty'. The hazard was in the row's own URL: the slug ends 'due-possible-foreign'. The FDA notice at this row's own URL was read in full 2026-10-04: announcement date October 2 2026; Stewart's Shops Corp. of Saratoga Springs, NY; two half-gallon flavours with their UPCs and Best By dates; and verbatim, 'The recall was initiated after a metal object was discovered by a consumer in a half-gallon carton of ice cream'. Foreign material is in the printed AFTS scope] [promote 2026-10-04: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-02",
+  "Source": "FSAI (IE)",
+  "Company": "Wrights of Marino",
+  "Brand": "",
+  "Product": "Sliced Smoked Salmon",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "due to the presence of Listeria monocytogenes",
+  "Class": "Alert",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-wrights-of-mario-oak-sliced-s",
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [url-agent 2026-10-04: pending_enrichment→pending_gap_v2 URL confirmed] [review-agent 2026-10-04: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [date-normalised Pending: 'Friday, 02 October 2026' -> 2026-10-02] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]"
+ },
+ {
   "Date": "2026-10-01",
   "Source": "RappelConso (FR)",
   "Company": "Cokoc",
