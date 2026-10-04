@@ -613,6 +613,11 @@ FOREIGN_MATTER = {
     "plástico", "fragmentos de plástico", "plastico",
     "kunststoff", "plastik", "kunststoffteile",                 # German
     "plastic", "kunststof",                                     # Dutch
+    # Dutch compounds the material and the particle into one word, and the
+    # bare "glas" is four characters so it is word-anchored and cannot
+    # reach them (added 2026-10-04 with the rest of the Dutch gap).
+    "glasdeeltjes", "glasscherven", "glassplinters",
+    "metaaldeeltjes", "kunststofdeeltjes", "plasticdeeltjes",
     "plastique", "fragments de plastique",                      # French
     "tworzywo sztuczne", "plastik",                             # Polish
     "műanyag",                                                  # Hungarian
@@ -623,6 +628,46 @@ FOREIGN_MATTER = {
     "plast", "plastbrot",                                       # Icelandic
     "foreign body", "foreign matter", "ξένο σώμα", "ξενο σωμα",
     "corps étranger", "stone", "πέτρα", "πετρα",
+    # ── GENERIC "FOREIGN BODY", IN EVERY FLEET LANGUAGE (added 2026-10-04) ──
+    #
+    # Until today this concept existed in English, French and Greek only.
+    # Every other language in the 43-country fleet could name a specific
+    # material (glass, metal, plastic) but could not say "a foreign body
+    # was found", which is how most regulators actually word it when the
+    # object has not been identified. Those notices fell through every
+    # branch to "unknown: No matching hazard category — defer to manual
+    # review" and were archived unpublished.
+    #
+    # The row that exposed it: Italy, 2026-10-02, Franchi Salumi's whole
+    # sweet salamella, "possibile presenza di un corpo estraneo", refused by
+    # gap_finder/it/rules.py and sitting in Weekly_Rejected while the same
+    # recall sat in Pending. Italian is not a special case — 14 of the 18
+    # fleet languages tested had the same hole.
+    #
+    # The equivalents below are the standard regulatory phrasing in each
+    # language. They are all six characters or more, so substring matching
+    # covers declensions (German "Fremdkörpern", Italian "corpi estranei"
+    # is listed separately because the plural changes both words).
+    "corpo estraneo", "corpi estranei",                         # Italian
+    "cuerpo extraño", "cuerpos extraños",                       # Spanish
+    "corpo estranho", "corpos estranhos",                       # Portuguese
+    "fremdkörper",                                              # German
+    "vreemd voorwerp", "vreemde voorwerpen",                    # Dutch
+    "ciało obce", "ciała obce",                                 # Polish
+    "idegen test",                                              # Hungarian
+    "cizí předmět", "cizí těleso",                              # Czech
+    "cizího předmětu", "cizí předměty",                         # Czech, declined
+    "cudzie teleso", "cudzieho telesa",                         # Slovak
+    "främmande föremål",                                        # Swedish
+    "fremmedlegeme",                                            # Danish / Norwegian
+    "vieras esine", "vierasesine",                              # Finnish
+    "aðskotahlutur",                                            # Icelandic
+    "corp străin", "corpuri străine",                           # Romanian
+    "strano tijelo", "strano telo",                             # Croatian / Slovene
+    "stranog tijela", "stranega telesa",                        # ditto, declined
+    "чуждо тяло",                                               # Bulgarian
+    "yabancı madde", "yabancı cisim",                           # Turkish
+    "ξένου σώματος", "ξένων σωμάτων",                           # Greek, declined
     "wood fragment", "θραύσμα ξύλου",
     "insect", "έντομο", "εντομο",
     "rubber", "ελαστικό", "λάστιχο",
@@ -718,16 +763,83 @@ _NATURAL_TOXINS_N = _normalize_set(NATURAL_TOXINS)
 # has been lowercased but not accent-stripped. See _normalize_keep_accents
 # for the ten rows that made this necessary. Derived rather than hand-listed,
 # so a new accented short term in any vocabulary is covered automatically.
+#
+# 2026-10-04 — TWO DEFECTS IN THIS DERIVATION, both found by the morning pass.
+#
+#   (a) MOULD was never in the source tuple. The lexicon was added
+#       2026-09-07; this block was written 2026-09-26 and listed eight
+#       vocabularies by hand, so every accented mould term — Swedish
+#       "mögel", Polish "pleśń", Hungarian "penész", Greek "μούχλα" — had
+#       NO homograph protection at all. The docstring above promised the
+#       opposite: "Derived rather than hand-listed, so a new accented short
+#       term in any vocabulary is covered automatically." A hand-written
+#       tuple is not a derivation. _CLASSIFIED_LEXICONS below is now the
+#       single list `classify` and this block both read, so a lexicon can no
+#       longer be in one and missing from the other.
+#
+#   (b) The cut-off was four characters, and the term that bit is five.
+#       Swedish "mögel" flattens to "mogel", which is a substring of the
+#       Dutch word "mogelijk" ("possible"). "mogelijke aanwezigheid van"
+#       is the standard opening of an NVWA/FAVV notice, so EVERY Dutch and
+#       Flemish recall whose text named no pathogen classified as
+#       category='mould', tier=2, matched_term='mogel'. Measured on the
+#       register of 2026-10-04 no published row carried the bad stamp yet,
+#       only because the pathogen branches run before the mould branch and
+#       every Dutch row so far named an organism. The rows it was waiting
+#       for are Dutch foreign-body and chemical recalls — which the
+#       FOREIGN_MATTER gap fixed in the same pass (no fleet language but
+#       English, French and Greek could say "foreign body") sent straight
+#       into the mould branch. Two gaps, one silent wrong answer.
+#
+# Terms of five characters keep INFLECTION matching (substring on the
+# accented text) because a five-letter stem like "mögel" must still reach
+# "mögelangrepp"; four and under stay word-anchored, as the ten rows in
+# _normalize_keep_accents require.
+#
+# A term is skipped when its own lexicon ALSO lists an unaccented spelling
+# that flattens to the same string — FOREIGN_MATTER carries both "γυαλί"
+# and "γυαλι" on purpose, and demanding the accent would silence the
+# variant the author put there deliberately.
+_CLASSIFIED_LEXICONS = (
+    ALLERGENS, HEAVY_METALS, FOREIGN_MATTER, NATURAL_TOXINS,
+    MICROBIAL_TOXINS, SYNTHETIC_CHEMICALS, MOULD,
+    PATHOGENS_TIER_1, PATHOGENS_TIER_2,
+)
+
+#: Only alphabetic scripts that WRITE WORD BOUNDARIES take part. The whole
+#: mechanism exists for one problem — de-accenting a Latin or Greek word
+#: turns it into a common word in another language ("blé" -> "ble") — and
+#: its remedy is to match the accented form, word-anchored. Japanese, Korean,
+#: Chinese and Thai write no spaces between words, so word-anchoring cannot
+#: match at all there: `カビ` inside `水カビ様の異物` has a CJK letter on each
+#: side and every boundary lookaround fails. Their combining marks are also
+#: not diacritics in the relevant sense — NFD splits the dakuten off ビ, so
+#: `カビ` flattens to `カヒ` and looks accented to this code while creating no
+#: cross-language homograph at all. (Found 2026-10-04 by
+#: test_the_classifier_reads_the_fleet_languages::test_accepts on
+#: "異物（水カビ様の異物）混入", which stopped matching mould the moment MOULD
+#: joined the derivation. Those scripts keep plain substring matching, which
+#: is what they need for inflection anyway.)
+_BOUNDARY_SCRIPT = re.compile(r"[a-z\u0370-\u03ff\u0400-\u04ff]")
+
 _ACCENT_STRICT: dict[str, str] = {}
-for _src in (ALLERGENS, HEAVY_METALS, FOREIGN_MATTER, NATURAL_TOXINS,
-             MICROBIAL_TOXINS, SYNTHETIC_CHEMICALS,
-             PATHOGENS_TIER_1, PATHOGENS_TIER_2):
+_ACCENT_STRICT_SUBSTRING: set[str] = set()
+for _src in _CLASSIFIED_LEXICONS:
+    _flat_spellings = {_normalize(_x) for _x in _src if _normalize(_x) == _x.lower()}
     for _t in _src:
         _low = _t.lower()
         _flat = _normalize(_t)
-        if len(_flat) <= 4 and _flat != _low:
-            _ACCENT_STRICT[_flat] = _low
-del _src, _t, _low, _flat
+        if _flat == _low or len(_flat) > 5:
+            continue
+        if not _BOUNDARY_SCRIPT.search(_flat):
+            continue
+        if _flat in _flat_spellings:
+            # The lexicon deliberately carries the unaccented spelling too.
+            continue
+        _ACCENT_STRICT[_flat] = _low
+        if len(_flat) == 5:
+            _ACCENT_STRICT_SUBSTRING.add(_flat)
+del _src, _t, _low, _flat, _flat_spellings
 
 # Terms that carry NO accent to protect them and collide with a common word
 # in the same language. Replaced by anchored phrases, exactly as
@@ -786,6 +898,11 @@ _FM_CONTEXT_N = _normalize_set({
     "morceau", "présence", "corps étranger", "éclat",
     "trozo", "presencia", "cuerpo extraño", "partícula",
     "stück", "teile", "splitter", "fremdkörper", "scherbe",
+    # Dutch — NVWA and FAVV word it this way and none of it was here
+    # before 2026-10-04, so a Dutch glass recall matched no context word
+    # and its bare "glas" was never accepted.
+    "aanwezigheid", "deeltjes", "stukjes", "scherven", "splinters",
+    "fragmenten", "aangetroffen",
     "odłamk", "kawałk", "darab", "szilánk", "bitar", "biter", "stykker",
     "flisor", "paloja", "sirpale", "brot", "θραύσμ", "κομμάτ", "παρουσία",
     "ξένο σώμα",
@@ -823,9 +940,16 @@ def _contains_any(haystack: str, needles: set[str],
         # matches Norwegian "ble".
         if needle in _ACCENT_STRICT:
             _acc = _ACCENT_STRICT[needle]
-            if haystack_accented and re.search(
-                    r"(?<![^\W\d_])" + re.escape(_acc) + r"(?![^\W\d_])",
-                    haystack_accented):
+            if not haystack_accented:
+                continue
+            if needle in _ACCENT_STRICT_SUBSTRING:
+                # Five characters: a stem, so substring-match on the ACCENTED
+                # text. "mögel" still reaches "mögelangrepp"; Dutch
+                # "mogelijke" carries no umlaut and no longer matches.
+                if _acc in haystack_accented:
+                    return _acc
+            elif re.search(r"(?<![^\W\d_])" + re.escape(_acc) + r"(?![^\W\d_])",
+                           haystack_accented):
                 return _acc
             continue
         # Homographs with no accent to protect them: never match bare.
