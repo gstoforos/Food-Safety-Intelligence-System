@@ -142,6 +142,22 @@ _LANDING_PATHS = frozenset({
     "/en/food-alerts", "/fr/rappels", "/nl/terugroepingen",
 })
 
+# A CMS INDEX PATH IS A LANDING PAGE WHATEVER IT INDEXES (2026-10-04).
+#
+# _LANDING_PATHS above already names "/category/product-recalls" — one
+# WordPress category index, listed because one row cited it. The prefix is
+# what makes it an index, not the words after it: /category/<anything> and
+# /tag/<anything> are generated listing pages on every WordPress site and
+# can never be a single recall notice.
+#
+# Found while widening _url_guard._NOT_FOUND_REASON to recognise the
+# "no-authority-url" refusal that three extractors write. That change makes
+# 42 archive rows eligible for re-promotion again, and merge_master's second
+# brake is "the row must pass the FULL publish gate". One of the 42 cites
+#     https://nafdac.gov.ng/category/recalls-and-alerts/
+# and the gate did not refuse it, so the brake was not there. It is now.
+_INDEX_PATH_PREFIX = re.compile(r"^/(?:category|tag|author|archive)(?:/|$)")
+
 # Audit 2026-08-02: '0' added. RappelConso fiche 23067 reached Recalls with
 # Company and Brand both holding the literal string "0" — an extractor writing
 # a falsy sentinel into a text field, not a company called zero. Every field
@@ -758,6 +774,78 @@ def host_matches_domain(host: str, domain: str) -> bool:
         return False
     return h == d or h.endswith("." + d)
 
+# ─────────────────────────────────────────────────────────────────────────────
+# NON-FOOD DOSAGE FORMS AND COMPOUNDING PHARMACIES (rule 10, 2026-10-04)
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# A food is eaten or drunk. These dosage forms are not, so a recall whose
+# PRODUCT is one of them is not a food recall however the regulator filed it.
+# Matched word-anchored on Product only — never on Reason or Notes, where
+# "injection site" or "infusion" can appear in a legitimate food notice, and
+# never on a substring, so "infusion" the herbal tea is safe because the
+# pattern requires the dosage-form sense to be the product's own noun.
+_NON_FOOD_DOSAGE_FORMS = (
+    "injection", "injections", "injectable", "injectables",
+    "intravenous", "iv bag", "iv bags", "infusion bag", "infusion bags",
+    "ampoule", "ampoules", "ampule", "ampules", "vial", "vials",
+    "prefilled syringe", "pre-filled syringe", "syringe", "syringes",
+    "suppository", "suppositories", "eye drops", "ophthalmic",
+    "nasal spray", "inhaler", "transdermal patch",
+)
+# "infusion" is excluded on purpose: in food it is a tea.
+
+_NON_FOOD_FIRM_MARKERS = (
+    "compounding pharmacy", "compounding pharmacies", "503a", "503b",
+    "compounded",
+)
+
+_MIRROR_IN_SOURCE = re.compile(
+    r"\(\s*(?:via\s+)?((?:google\s+news|news\s*feed|rss|google|bing|"
+    r"duckduckgo|tavily|exa|brave|perplexity|openrouter)[^)]*)\)",
+    re.IGNORECASE)
+
+
+def _word_in(text: str, term: str) -> bool:
+    return re.search(r"(?<![a-z0-9])" + re.escape(term) + r"(?![a-z0-9])",
+                     text) is not None
+
+
+def _non_food_drug_blockers(row: Dict[str, Any]) -> List[str]:
+    """Refuse a row whose own Product or Company says it is not food.
+
+    Separate function so the reviewers, the curator and the tests can ask
+    the same question without re-implementing it — the Greenwich Rx row got
+    through three reviewers, each with its own idea of scope.
+    """
+    out: List[str] = []
+    product = str(row.get("Product") or "").strip().lower()
+    company = str(row.get("Company") or "").strip().lower()
+    brand = str(row.get("Brand") or "").strip().lower()
+    url = str(row.get("URL") or "").strip().lower()
+    slug = url.replace("-", " ").replace("/", " ").replace("_", " ")
+
+    for term in _NON_FOOD_DOSAGE_FORMS:
+        if _word_in(product, term):
+            out.append(
+                f"Product {str(row.get('Product'))[:60]!r} is a "
+                f"non-food dosage form ({term!r}) — this is a FOOD recall "
+                "register; a drug, device or cosmetic recall belongs in "
+                "neither Recalls nor the subscriber reports")
+            break
+
+    firm_blob = f"{company} {brand} {slug}"
+    for marker in _NON_FOOD_FIRM_MARKERS:
+        if marker in firm_blob:
+            out.append(
+                f"the row's own text names a compounded-drug recall "
+                f"({marker!r}) — a compounding pharmacy is not a food "
+                "business; FDA files drug, device and food notices in one "
+                "recalls bucket, so the host and path do not establish that "
+                "a notice is about food")
+            break
+    return out
+
+
 def publish_blockers(row: Dict[str, Any]) -> List[str]:
     """Return every reason this row must not be published. Empty == publishable.
 
@@ -821,7 +909,7 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
             after_host = tail.split("://", 1)[-1]
             path = ("/" + after_host.split("/", 1)[1]) if "/" in after_host else ""
             path = path.rstrip("/").lower()
-            if path in _LANDING_PATHS:
+            if path in _LANDING_PATHS or _INDEX_PATH_PREFIX.match(path):
                 problems.append(
                     f"URL is a regulator landing page, not a recall notice "
                     f"({url[:80]!r})")
@@ -1166,6 +1254,64 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
                 "recalls are excluded; pathogens, biotoxins, mycotoxins, "
                 "visible mould, foreign material, pest and chemical hazards "
                 "only)")
+
+    # 10. THIS IS A FOOD REGISTER. A DRUG RECALL IS NOT A FOOD RECALL.
+    #
+    #     Found 2026-10-04. On 2026-10-04 the register published
+    #
+    #       Greenwich Rx | Glutathione Injection | endotoxin | Tier 3
+    #       fda.gov/.../greenwich-rx-issues-voluntary-nationwide-recall-
+    #       compounded-glutathione-due-elevated-endotoxin-levels
+    #
+    #     Greenwich Rx is a 503A compounding pharmacy in Tomball, Texas and
+    #     the product is a compounded sterile injectable. It is not food. It
+    #     passed every rule above: Pathogen was filled ("endotoxin"), Reason
+    #     described a hazard, the URL was a real per-notice permalink on the
+    #     regulator's own host, and rule 8 only refuses a row whose hazard
+    #     classes are a subset of allergen/fermentation — "endotoxin"
+    #     resolves to NO class at all, so the subset test was vacuous and
+    #     the row sailed through. Rule 1 is the only non-food defence here
+    #     and it only catches an EMPTY Pathogen, which is why it stopped the
+    #     car and the bath toy but not this.
+    #
+    #     fda.gov/safety/recalls-market-withdrawals-safety-alerts is one
+    #     bucket for food, drugs, devices and cosmetics alike, so the host
+    #     and the path prove nothing about which. The row's own words do:
+    #     a dosage form that is injected or infused is not eaten, and a
+    #     compounding pharmacy is not a food business. Both tests are on
+    #     the row's own text — no network, no model.
+    #
+    #     Deliberately NOT caught here: dietary supplements, which ARE in
+    #     scope (the 2026-05-12 undeclared-pharmaceutical expansion exists
+    #     for exactly those), and a food recalled by a firm that happens to
+    #     have "Pharma" in its name. Hence the dosage form, not the word
+    #     "drug".
+    _nonfood = _non_food_drug_blockers(row)
+    problems.extend(_nonfood)
+
+    # 11. SOURCE NAMES THE REGULATOR, NEVER THE MIRROR THAT SURFACED IT.
+    #
+    #     Same morning, same pass: the register published
+    #
+    #       Source: "FDA (via Google News)"
+    #
+    #     for a Sierra Nevada Cheese row whose URL was an FDA outbreak
+    #     INVESTIGATION page, carrying a Date of 2026-09-01 that appears
+    #     nowhere on that page — it was read off the "september-2026" in the
+    #     slug — while the firm's own recall notice was already published
+    #     with the correct date of 2026-09-29. The discovery channel belongs
+    #     in Notes, where every other collector puts it; in Source it breaks
+    #     tools/monitored_sources.py (the dashboard's "Sources monitored"
+    #     tile counts a source that is not a source) and it hides that the
+    #     provenance is a news mirror rather than the authority.
+    source = str(row.get("Source") or "").strip()
+    _mirror = _MIRROR_IN_SOURCE.search(source)
+    if _mirror:
+        problems.append(
+            f"Source {source[:60]!r} names a discovery channel "
+            f"({_mirror.group(1)!r}) and not just the regulator — the mirror "
+            "belongs in Notes; Source is the authority that published the "
+            "notice")
 
     # 9. Company must not carry the page's status banner. FSANZ prepends
     #    "UPDATED DD.MM.YY | " to the <h1> of an amended alert, and a

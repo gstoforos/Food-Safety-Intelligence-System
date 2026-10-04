@@ -232,6 +232,29 @@ def main() -> int:
         print("ROWS_REMOVED=0")
         return 0
 
+    # ── CANONICALISE THE LABELS THIS PATH BYPASSES (2026-10-04) ──────────
+    # This function publishes with R.append(), not with
+    # merge_master._write_sheet, so none of the writer's guards have ever
+    # run on the rows it promotes. The Italian gap finder's bare "Salute"
+    # reached Recalls that way on 2026-10-04 and broke
+    # test_monitored_sources::test_every_published_source_is_counted,
+    # because the dashboard registry calls that regulator "Ministero della
+    # Salute (IT)". Country has the same exposure ("usa" / "United
+    # States"), and Country is a join key for Region, the per-country
+    # counts in both reports and every subscriber's country filter.
+    #
+    # The REST of the bypass is not closed here — see the note on
+    # merge_master.apply_label_aliases.
+    try:
+        from pipeline.merge_master import apply_label_aliases
+        _n_alias = apply_label_aliases(new, where="promote_gate_passing")
+        if _n_alias:
+            print(f"canonicalised {_n_alias} Country/Source label(s) on the "
+                  f"promoted rows")
+    except Exception as _ae:                                 # noqa: BLE001
+        print(f"label canonicalisation skipped: "
+              f"{type(_ae).__name__}: {str(_ae)[:80]}")
+
     promoted = {str(r.get("URL", "")).strip() for r in new}
     wb = openpyxl.load_workbook(args.xlsx)
     R, P = wb["Recalls"], wb["Pending"]

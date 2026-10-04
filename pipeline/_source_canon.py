@@ -70,6 +70,13 @@ CANONICAL: Dict[str, str] = {
     "Salute (IT)": "IT-SALUTE",
     "Min. Salute (IT)": "IT-SALUTE",
     "Ministero della Salute": "IT-SALUTE",
+    # 2026-10-04: the bare label the Italian gap finder writes, and the
+    # label tools/monitored_sources.py publishes as the canonical one.
+    # Both returned kind='unknown' from this module, so the docstring's
+    # "ONE ministry, three spellings" was really five.
+    "Salute": "IT-SALUTE",
+    "Ministero della Salute (IT)": "IT-SALUTE",
+    "Ministero Salute": "IT-SALUTE",
     # Canada — CFIA is federal; MAPAQ is the Québec provincial authority
     # and is genuinely separate, so it is NOT merged.
     "CFIA": "CA-CFIA",

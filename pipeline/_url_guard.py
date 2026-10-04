@@ -164,6 +164,45 @@ _NOT_FOUND_REASON = re.compile(
     r"|could\s+not\s+(be\s+)?(find|locate|reach|access|verify)"
     r"|unable\s+to\s+(find|locate|reach|access|verify)"
     r"|(page|url|link)\s+(not\s+found|unreachable|inaccessible)"
+    # ── THE COLLECTORS' OWN WORDING (fix 2026-10-04) ─────────────────────
+    # Three extractors — pipeline/extractor.py, pipeline/gap_finder/
+    # extractor.py and pipeline/official_feeds/extractor.py — all write
+    #
+    #   "no-authority-url: no official {AUTHORITY} press-release URL in
+    #    the source article (news-only discovery)"
+    #
+    # for every country in the fleet. It is a not-found claim with no past
+    # participle in it, so every alternative above missed it, and the
+    # alternatives above are what merge_master's reachability exception
+    # consults. Measured on the 2026-10-04 workbook: 535 archive rows carry
+    # this refusal, 42 of them while HOLDING a URL on the authority's own
+    # host, and all 42 were barred for ever.
+    #
+    # The clause is also specifically about where the collector LOOKED —
+    # "in the source article" — not about whether the notice exists. Italy
+    # is the clearest case: the Ministero della Salute publishes recalls as
+    # "cartello di richiamo" / "modulo richiamo" PDFs under
+    # salute.gov.it/.../avvisi_sicurezza_alimentare/ and not as press
+    # releases at all, so the thing the collector went looking for does not
+    # exist for that regulator while the notice itself plainly does. Eight
+    # rows are already published on exactly that URL shape.
+    #
+    # The row that found it: Salumificio F.lli Costantini, salame
+    # stagionato al tartufo, Listeria monocytogenes, Tier 1, Ministero
+    # della Salute notice of 2026-09-22 — barred twelve days while holding
+    # the ministry's own PDF.
+    #
+    # Deliberately narrow: it needs "no" immediately before an
+    # authority/official/regulator word AND a url/page/link/notice word, so
+    # a content verdict ("no matching hazard category", "pet_food_out_of_
+    # scope", "no illnesses reported") still passes straight through. And
+    # the two brakes on the far side are untouched — merge_master still
+    # requires the row to pass the FULL publish gate, which is what keeps a
+    # category listing page like nafdac.gov.ng/category/recalls-and-alerts/
+    # out (publish-gate rule 6, regulator landing page).
+    r"|no[\s_-]*(authority|official|regulator|agency)[\s_-]*"
+    r"(url|page|link|notice)"
+    r"|no\s+official\s+\S+\s+(press[\s-]?release\s+)?(url|page|link|notice)"
     # A challenge page is a statement about us, not the notice (2026-09-30).
     r"|bot[\s_-]?wall|challenge\s+page|captcha|browser[\s-]+validation"
     # ── DIGIT-BOUNDED HTTP CODES (fix 2026-09-30) ────────────────────────

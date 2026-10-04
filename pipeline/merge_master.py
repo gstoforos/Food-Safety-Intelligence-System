@@ -1837,7 +1837,41 @@ def load_rejected_urls(xlsx_path: Optional[Path] = None) -> Dict[str, str]:
                 why = str(r[i_why] or "") if i_why is not None and i_why < len(r) else ""
                 notes = (str(r[i_notes] or "")
                          if i_notes is not None and i_notes < len(r) else "")
-                desc = f"{by or 'a reviewer'}: {why[:160]} | {notes[:400]}"
+                # ── NOT TRUNCATED. 2026-10-04. ──────────────────────────
+                # This read `why[:160] | notes[:400]`. The slices were there
+                # to keep a LOG LINE short, but the value they produce is
+                # also the value every re-promotion exception TESTS, and
+                # each of those tests is a substring search:
+                #
+                #   REPAIRABLE_DEFECTS   "no matching hazard category", ...
+                #   reject_refusal()     "no official recall page found", ...
+                #   _reversal_excuses()  the reversed scope subjects
+                #   _is_terminal_rejection()
+                #
+                # So any text PREPENDED to RejectionReason pushed the actual
+                # defect name past character 160 and every one of those
+                # searches went blind. The register does that to itself:
+                # promote_gate_passing.supersede_archived_copies prepends a
+                # ~250-character "[SUPERSEDED <date> — the defect named below
+                # was repaired and this recall is PUBLISHED in Recalls...]"
+                # block. The marker filled the window it was stored in, so
+                # EVERY row the promoter has ever marked SUPERSEDED became
+                # permanently unre-promotable — the exact dead end the first
+                # exception was written to remove, reintroduced by the fix
+                # for a different defect.
+                #
+                # Measured on the 2026-10-04 workbook: 34 archive rows carry
+                # an annotation long enough to bury their own reason.
+                #
+                # The row that found it: Italy, Franchi Salumi salamella
+                # dolce, archived "unknown: No matching hazard category" on
+                # the FOREIGN_MATTER vocabulary gap fixed the same morning.
+                # With the gap fixed and the archive row marked SUPERSEDED,
+                # it still would not promote and said nothing about why.
+                #
+                # The whole reason is stored; every CALLER already slices
+                # for display (`_prior[:120]`, `_prior_reason[:90]`).
+                desc = f"{by or 'a reviewer'}: {why} | {notes}"
                 desc = desc.strip().rstrip("|").rstrip(":").strip()
                 # PRECEDENCE — AUDIT 2026-09-01.
                 # This used to be a plain setdefault: the permanent Rejected
@@ -2489,6 +2523,131 @@ def _strip_text_artifacts(value: Any) -> Any:
     return re.sub(r"\s{2,}", " ", t).strip()
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# LABEL CANONICALISATION — MODULE LEVEL SINCE 2026-10-04
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# These two maps lived inside _write_sheet, which is described everywhere in
+# this repo as "the writer choke point". It is not the only writer.
+# pipeline/promote_gate_passing.py — the offline promoter that runs every day
+# at 15:27 and publishes most of what reaches the register — writes with
+#
+#     R.append([r.get(h) for h in rh]); wb.save(...)
+#
+# so NONE of the guards in _write_sheet have ever run on the rows it
+# publishes. That surfaced on 2026-10-04 as a Source label: the Italian gap
+# finder writes a bare "Salute", the promoter published it verbatim, and
+# tests/test_monitored_sources.py broke because the dashboard's registry
+# calls that regulator "Ministero della Salute (IT)".
+#
+# Hoisting the maps lets the promoter canonicalise the rows it appends
+# (apply_label_aliases below) without restructuring the central writer.
+# THE WIDER BYPASS IS NOT FIXED HERE and is deliberately left visible: the
+# Tier-1 guard, the family-label guard, the Class language normaliser, the
+# English-output guard and the Date canonicaliser are all still inside
+# _write_sheet and all still skipped by that path. Routing the promoter
+# through _write_sheet would re-run every guard over all 1,912 rows, which
+# is a change worth making on purpose and with its own review, not as a
+# side effect of a label fix.
+COUNTRY_ALIASES = {
+    "usa": "United States", "u.s.a.": "United States", "us": "United States",
+    "u.s.": "United States", "united states of america": "United States",
+    "uk": "United Kingdom", "u.k.": "United Kingdom",
+    "great britain": "United Kingdom", "england": "United Kingdom",
+    "holland": "Netherlands", "the netherlands": "Netherlands",
+    "czech republic": "Czechia", "turkiye": "Turkey", "türkiye": "Turkey",
+    "republic of ireland": "Ireland", "south korea": "Korea, South",
+    "russian federation": "Russia",
+}
+
+# Source labels carry the jurisdiction suffix so two agencies with the same
+# acronym never collide, and so the reports read consistently. 'FSIS' alone
+# is ambiguous; 'USDA FSIS' is the established label on all 9 US rows.
+SOURCE_ALIASES = {
+    "fsis": "USDA FSIS", "usda": "USDA FSIS", "usda-fsis": "USDA FSIS",
+    "usda fsis (us)": "USDA FSIS",
+    "ncc": "NCC (ZA)", "efet": "EFET (GR)", "aesan": "AESAN (ES)",
+    "fsai": "FSAI (IE)", "fsa": "FSA (UK)",
+    # ── 2026-10-04. ONE MINISTRY, FIVE SPELLINGS. ───────────────────────
+    # The Italian gap finder writes a bare "Salute". This map did not know
+    # it, so it reached Recalls verbatim the first time an Italian recall
+    # was published from that collector (Franchi Salumi and Salumificio
+    # Costantini, both 2026-10-04). pipeline/_source_canon.py, whose
+    # docstring already counts three spellings of this one ministry, knew
+    # neither the bare "Salute" nor the registry's own label: both returned
+    # kind='unknown'.
+    #
+    # This map and tools/monitored_sources.SOURCES are two hand-written
+    # lists that have to agree, and nothing made them.
+    # tests/test_a_source_label_is_one_label.py now does.
+    "salute": "Ministero della Salute (IT)",
+    "salute (it)": "Ministero della Salute (IT)",
+    "min. salute (it)": "Ministero della Salute (IT)",
+    "ministero della salute": "Ministero della Salute (IT)",
+    "ministero salute": "Ministero della Salute (IT)",
+}
+
+
+_REGISTRY_BY_SHORT = None
+
+
+def registry_source_label(raw: str, country: str) -> str:
+    """The monitored-source label for a BARE gap-finder authority name, or "".
+
+    2026-10-04: the Czech gap finder writes Source "SZPI"; the registry
+    (tools/monitored_sources.SOURCES) calls that regulator "SZPI (CZ)". The
+    first Czech recall published from that collector (MASO WEST, Listeria,
+    2026-10-03) reached Recalls as "SZPI" and failed
+    test_every_published_source_is_counted — the same defect as the bare
+    "Salute" above, one country later. Thirty-odd gap finders write a bare
+    short name, so rather than list them one by one: a bare name X maps to
+    the registry label "X (CC)" when exactly one such label exists AND its
+    country is the row's Country. Anything else is left alone.
+    """
+    global _REGISTRY_BY_SHORT
+    raw, country = str(raw or "").strip(), str(country or "").strip()
+    if not raw or not country or raw.endswith(")"):
+        return ""
+    if _REGISTRY_BY_SHORT is None:
+        try:
+            from tools.monitored_sources import SOURCES as _S
+        except Exception:                                    # noqa: BLE001
+            _S = ()
+        _REGISTRY_BY_SHORT = {}
+        for _label, _country, _dom in _S:
+            m = re.match(r"^(.+?) \(([A-Z]{2})\)$", _label)
+            if m:
+                _REGISTRY_BY_SHORT.setdefault((m.group(1).lower(), _country), []).append(_label)
+    hits = _REGISTRY_BY_SHORT.get((raw.lower(), country), [])
+    return hits[0] if len(hits) == 1 else ""
+
+
+def apply_label_aliases(rows, *, where: str = "") -> int:
+    """Canonicalise Country and Source on `rows`, in place. Returns changes.
+
+    The same two maps _write_sheet applies, callable by the writers that do
+    not go through it.
+    """
+    n = 0
+    for row in rows:
+        for field, aliases in (("Country", COUNTRY_ALIASES),
+                               ("Source", SOURCE_ALIASES)):
+            raw = str(row.get(field) or "").strip()
+            canon = aliases.get(raw.lower())
+            if canon and canon != raw:
+                log.info("%s canonicalised%s: %r -> %r", field,
+                         f" [{where}]" if where else "", raw, canon)
+                row[field] = canon
+                n += 1
+        reg = registry_source_label(row.get("Source"), row.get("Country"))
+        if reg:
+            log.info("Source canonicalised to registry label%s: %r -> %r",
+                     f" [{where}]" if where else "", row.get("Source"), reg)
+            row["Source"] = reg
+            n += 1
+    return n
+
+
 def _write_sheet(wb: Workbook,
                  sheet_name: str,
                  schema: List[str],
@@ -2898,25 +3057,11 @@ def _write_sheet(wb: Workbook,
     # for the UK and a few others, so the aliases are canonicalised here at the
     # single writer choke point rather than in each scraper, exactly as the
     # Class guard below.
-    _COUNTRY_ALIASES = {
-        "usa": "United States", "u.s.a.": "United States", "us": "United States",
-        "u.s.": "United States", "united states of america": "United States",
-        "uk": "United Kingdom", "u.k.": "United Kingdom",
-        "great britain": "United Kingdom", "england": "United Kingdom",
-        "holland": "Netherlands", "the netherlands": "Netherlands",
-        "czech republic": "Czechia", "turkiye": "Turkey", "türkiye": "Turkey",
-        "republic of ireland": "Ireland", "south korea": "Korea, South",
-        "russian federation": "Russia",
-    }
+    _COUNTRY_ALIASES = COUNTRY_ALIASES
     # Source labels carry the jurisdiction suffix so two agencies with the same
     # acronym never collide, and so the reports read consistently. 'FSIS' alone
     # is ambiguous; 'USDA FSIS' is the established label on all 9 US rows.
-    _SOURCE_ALIASES = {
-        "fsis": "USDA FSIS", "usda": "USDA FSIS", "usda-fsis": "USDA FSIS",
-        "usda fsis (us)": "USDA FSIS",
-        "ncc": "NCC (ZA)", "efet": "EFET (GR)", "aesan": "AESAN (ES)",
-        "fsai": "FSAI (IE)", "fsa": "FSA (UK)",
-    }
+    _SOURCE_ALIASES = SOURCE_ALIASES
     try:
         if "Country" in schema:
             for _row in rows:
@@ -2934,6 +3079,14 @@ def _write_sheet(wb: Workbook,
                     log.info("Source canonicalised at writer [%s]: %r -> %r",
                              sheet_name, _raw, _canon)
                     _row["Source"] = _canon
+                # Published rows only: a bare gap-finder name takes the
+                # registry label (see registry_source_label).
+                if sheet_name == "Recalls":
+                    _reg = registry_source_label(_row.get("Source"), _row.get("Country"))
+                    if _reg:
+                        log.info("Source canonicalised to registry label at writer: %r -> %r",
+                                 _row.get("Source"), _reg)
+                        _row["Source"] = _reg
     except Exception as exc:
         log.warning("Country canonicalisation skipped at writer [%s]: %s: %s",
                     sheet_name, type(exc).__name__, str(exc)[:80])
