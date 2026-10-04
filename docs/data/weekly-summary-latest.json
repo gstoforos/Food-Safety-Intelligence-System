@@ -10,16 +10,16 @@
   "week_end_display": "4 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-04T11:46:45.763424+00:00",
+  "generated_utc": "2026-10-04T15:26:45.081808+00:00",
   "prev_total": 67,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 74,
-    "tier1": 49,
+    "total": 75,
+    "tier1": 50,
     "outbreaks": 1,
-    "delta": 7,
-    "delta_pct": 10
+    "delta": 8,
+    "delta_pct": 12
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
@@ -86,17 +86,17 @@
     },
     {
       "rank": 5,
-      "date": "2026-09-30",
+      "date": "2026-10-02",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Origin: Latvia | Notifying: Lithuania",
-      "brand": "—",
-      "product": "L. monocytogenes detected in smoked mackerel pieces from Latvia",
-      "country": "Latvia",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876599"
+      "company": "Wrights of Marino",
+      "brand": "",
+      "product": "Sliced Smoked Salmon",
+      "country": "Ireland",
+      "source": "FSAI (IE)",
+      "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-wrights-of-mario-oak-sliced-s"
     }
   ],
   "country_count": 27
