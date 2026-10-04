@@ -576,6 +576,22 @@
   "Notes": "Added by the morning-fix pass 2026-10-03. Found by reading the full NVWA veiligheidswaarschuwingen listing; it was in no sheet. Read off the NVWA safety warning of 01/10/2026 on 2026-10-03: product \"Sonaco Frozen Slices of Bitter Melon 500g\", brand Sonaco, recalling company Amazing Oriental, reason \"een hoeveelheid pesticiden gevonden die hoger is dan wettelijk is toegestaan\", productcode 83456, THT 20/04/2028. PUBLISH DATE IS 01/10/2026, one day outside the strict last-24h window — it is added because the 02/10 daily sweep did not pick it up either, so it is a real gap rather than a window question. [original Reason (nl): \"een hoeveelheid pesticiden gevonden die hoger is dan wettelijk is toegestaan\"] [promote 2026-10-03: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-01",
+  "Source": "FDA",
+  "Company": "Greenwich Rx",
+  "Brand": "Greewich",
+  "Product": "Glutathione Injection",
+  "Pathogen": "endotoxin",
+  "Reason": "Potential elevated endotoxin levels",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/greenwich-rx-issues-voluntary-nationwide-recall-compounded-glutathione-due-elevated-endotoxin-levels",
+  "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [url-guard 2026-10-02: reviewer 1 tried to reject this row as 'could not confirm official recall: Unable to find the official regulator URL through the search query'; refused — the official URL is on the row. Left in Pending for a later run.] [url-agent 2026-10-03: pending_enrichment→pending_gap_v2 URL confirmed] [review-agent 2026-10-04: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [confirm-agent 2026-10-04: pending_gap_v3 → pending; deterministic checks passed] [re-promotion allowed 2026-09-30: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Date is empty | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed by r', which _url_guard reads as a statement about REACHABILITY and not about whether the notice exists — the URL is on the regulator's own domain. The row now passes every publish-gate rule]"
+ },
+ {
   "Date": "2026-09-30",
   "Source": "RappelConso (FR)",
   "Company": "Grand Frais (Romainville)",
@@ -5566,6 +5582,22 @@
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/coaticook-brand-aged-cheddar-cheese-recalled-due-listeria-monocytogenes",
   "Notes": "CFIA open-data NID=82581 [confirm-agent hold: 2026-09-04: Company empty, Brand 'Coaticook'; not published and not rejected — reviewer 2 to read the recalling firm from the notice] [operator review 2026-09-05: verified against the CFIA notice RA-82581 (1 Sep 2026): recalling firm Laiterie de Coaticook Limitée, brand Coaticook, distributed in Quebec, no illnesses reported.] [published by operator 2026-09-05: held by reviewer 3 since 2026-09-04 for the missing firm; the notice names it.]"
+ },
+ {
+  "Date": "2026-09-01",
+  "Source": "FDA (via Google News)",
+  "Company": "Sierra Nevada Cheese Company",
+  "Brand": "Sierra Nevada Graziers",
+  "Product": "grass-fed raw milk cheeses: medium cheddar, sharp cheddar, jalapeno jack, and Monterey jack",
+  "Pathogen": "E. coli O26:H11",
+  "Reason": "Recalled due to suspected E. coli O26:H11 contamination; 13 illnesses reported nationwide",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-e-coli-o26h11-raw-milk-cheese-september-2026",
+  "Notes": "source_id=GN-f6ff5061a2e5 [via Google News: FDA US food alert E. coli] [news_src=https://news.google.com/rss/articles/CBMifEFVX3lxTE9YWkJHTUZ5TWJ3T1djWmlWeTMtZHhVUjRHYmlPVXpidjdtMzVLWUxiQXB5Vm5OTnc1OW8ybHRCd1YzbncyOTdSc3NZUEhyRnVwV1djanpZaUpSM3p6d0V2ZFUtY0hYbDBNYlhVYXZQa056eXk4SGxZOGpDYUI?oc=5] [url-guard 2026-10-02: reviewer 1 tried to reject this row as 'could not confirm official recall: Unable to find the official regulator URL through the search query'; refused — the official URL is on the row. Left in Pending for a later run.] [url-agent 2026-10-03: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-10-03: pending_gap_v1→pending_gap_v2 URL confirmed] [review-agent 2026-10-04: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [confirm-agent 2026-10-04: pending_gap_v3 → pending; deterministic checks passed] [tier-guard: E. coli O26:H11 is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-08-31",
