@@ -149,6 +149,7 @@ _AUTHORITY_HOSTS = (
     "foedevarestyrelsen.dk", "invima.gov.co",
     "ispch.cl", "minsal.cl", "achipia.gob.cl", "kebs.org",
     "nfsa.gov.eg", "fdaghana.gov.gh", "thencc.org.za", "thencc.gov.za",
+    "fssai.gov.in", "foscos.fssai.gov.in",   # India (2026-10-05)
 )
 
 #: Whole-government umbrella domains a country config accepts, kept OUT of

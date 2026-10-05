@@ -121,6 +121,7 @@ REGULATOR_HOSTS = frozenset({
     "securite-alimentaire.public.lu", "szpi.gov.cz", "potravinynapranyri.cz", "gov.br",
     "invima.gov.co", "ispch.cl", "minsal.cl", "achipia.gob.cl",
     "nafdac.gov.ng", "kebs.org", "nfsa.gov.eg", "fdaghana.gov.gh",
+    "fssai.gov.in", "foscos.fssai.gov.in",   # India (2026-10-05)
     "thencc.org.za", "thencc.gov.za",
 })
 
